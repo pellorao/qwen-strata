@@ -1,4 +1,3 @@
-import base64
 import copy
 import json
 from pathlib import Path, PureWindowsPath
@@ -15,21 +14,19 @@ from tools.ops.measurement_host import MeasurementHost, host_selection
 class MeasurementHostTests(unittest.TestCase):
     def remote(self):
         host=MeasurementHost.__new__(MeasurementHost)
-        host.identifier='rtx3080ti';host.remote=True
+        host.identifier='rtx3080ti'
         host.windows_root=PureWindowsPath('C:/strata')
-        host.installation=Path(str(host.windows_root))
-        host.settings={'api_base_url':'http://192.168.0.4:28000','STRATA_REMOTE_PASSWORD':'private-test-value'}
-        host.deployment={'transport':'ssh-windows','hardware':{'vram_gib':12},
-                         'engine_overrides':{'prefill':8192}}
+        host.installation=Path('/mnt/c/strata')
+        host.deployment={'hardware':{'vram_gib':12},'engine_overrides':{'prefill':8192},
+                         'frontend_url':'http://192.168.0.4:8000'}
         return host
 
-    def test_remote_controller_uses_external_port_without_local_launcher(self):
+    def test_controller_uses_private_frontend_url_and_metadata_omits_it(self):
         host=self.remote()
         with patch('tools.ops.measurement_host.Controller') as controller:
             host.controller(Path('/tmp/measurement-test'))
-        self.assertEqual(controller.call_args.kwargs['base_url'],'http://192.168.0.4:28000')
-        self.assertNotIn('private-test-value',json.dumps(host.metadata()))
-        self.assertNotIn('settings',host.metadata())
+        self.assertEqual(controller.call_args.kwargs['base_url'],'http://192.168.0.4:8000')
+        self.assertNotIn('192.168.0.4',json.dumps(host.metadata()))
 
     def test_host_selection_freezes_hardware_without_mutating_approved_source(self):
         source={'engine_overrides':{'prefill':16384,'spec-min-p':.7},'sampling':{'temperature':0}}
@@ -61,7 +58,7 @@ class MeasurementHostTests(unittest.TestCase):
         with patch.object(host,'configuration',return_value=bad),self.assertRaisesRegex(ValueError,'binding differs'):
             host.maintenance_profile_binding(baseline)
 
-    def test_unbound_main_selection_is_rejected_before_remote_model_work(self):
+    def test_unbound_main_selection_is_rejected_before_model_work(self):
         with tempfile.TemporaryDirectory() as directory:
             target=Path(directory)/'run'
             with patch('tools.ops.measurement_host.MeasurementHost',return_value=self.remote()),self.assertRaisesRegex(ValueError,'not frozen'):
@@ -76,27 +73,21 @@ class MeasurementHostTests(unittest.TestCase):
 
     def test_private_paths_cannot_be_read_via_public_deployment_reader(self):
         host=self.remote()
-        with patch.object(host,'_remote') as remote,self.assertRaises(ValueError):
-            host.read_deployed_bytes('.state/ownership.json')
-        remote.assert_not_called()
+        for relative in ('.state/ownership.json','installation.private.toml'):
+            with self.assertRaises(ValueError):
+                host.read_deployed_bytes(relative)
 
-    def test_remote_search_receipt_uses_bound_remote_path(self):
-        host=self.remote();digest='a'*64;call='wc_'+'b'*32;record={'result':{'results':[]}}
-        with patch.object(host,'_remote',return_value=record) as remote:
-            self.assertEqual(host.read_search_operation(digest,call),record)
-        self.assertEqual(remote.call_args.args[1],('C:\\strata','.state/search/'+digest+'/'+call+'.json'))
-        with patch.object(host,'_remote') as remote,self.assertRaises(ValueError):
-            host.read_search_operation('../ownership','wc_'+'b'*32)
-        remote.assert_not_called()
-
-    def test_remote_log_access_never_translates_remote_paths_as_local_wsl(self):
-        host=self.remote();raw=b'actual remote engine segment'
-        with patch.object(host,'configuration',return_value={'log':'C:/strata/logs/q2.log'}),patch.object(host,'_remote',side_effect=[{'size':37},{'data':base64.b64encode(raw).decode()}]),patch('tools.ops.measurement_host.subprocess.check_output',side_effect=AssertionError('Remote WSL path translation')):
-            self.assertEqual(host.log_offset('Q2_0'),37)
-            self.assertEqual(host.log_bytes_since('Q2_0',37),raw)
+    def test_log_access_reads_only_bytes_after_offset(self):
+        host=self.remote()
+        with tempfile.TemporaryDirectory() as directory:
+            log=Path(directory)/'q2.log';log.write_bytes(b'before|after')
+            with patch.object(host,'log_path',return_value=log):
+                self.assertEqual(host.log_offset('Q2_0'),12)
+                self.assertEqual(host.log_bytes_since('Q2_0',7),b'after')
+                with self.assertRaisesRegex(RuntimeError,'shrank'):host.log_bytes_since('Q2_0',13)
         with self.assertRaises(ValueError):host.log_bytes_since('Q2_0',-1)
 
-    def test_driver_uses_remote_internal_tokens_and_phase_times(self):
+    def test_driver_uses_host_internal_tokens_and_phase_times(self):
         host=self.remote()
         raw=b'strata serve: prompt 150 tokens = 30 reused + 120 read in 10 ms, 7 generated in 3 ms\n'
         with tempfile.TemporaryDirectory() as directory,patch.object(host,'log_offset',return_value=37),patch.object(host,'log_bytes_since',return_value=raw) as read,patch('tools.reviewer.arw_measure.subprocess.check_output',side_effect=AssertionError('Wrong host path access')):

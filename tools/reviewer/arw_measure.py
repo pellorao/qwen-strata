@@ -12,7 +12,6 @@ import sys
 import threading
 import time
 
-from tools.ops.controller_client import Controller
 from tools.reviewer.arw_metrics import collect_cost
 from tools.metrics.strata_tokens import parse_engine_log, sum_engine_tokens, engine_rates
 from tools.reviewer.review_deadlines import ReviewDeadline
@@ -23,7 +22,6 @@ from tools.metrics.prompt_policy import compaction_config
 
 sys.path.append(str(ROOT / 'src'))
 from startup_instructions import startup_prompt_bytes
-from tools.ops.deployment_source import installation_model_config
 
 
 def local_review_catalog(source, target, model, context_window=None):
@@ -84,22 +82,12 @@ def native_tokens(measurement):
             'cached_input':c,'output':o}
 
 
-def capture_engine_log(installation,model,offset,folder,measurement_host=None):
-    if measurement_host is not None:
-        content=measurement_host.log_bytes_since(model,offset).decode(errors='replace')
-        (folder/'engine-request-log.txt').write_text(content)
-        requests=parse_engine_log(content)
-        save(folder/'engine-rates.json',engine_rates(requests))
-        return requests,sum_engine_tokens(requests)
-    config=installation_model_config(installation,model)
-    log=Path(subprocess.check_output(['wslpath','-u',config['log']],text=True).strip())
-    with log.open('rb') as stream:
-        stream.seek(offset);content=stream.read().decode(errors='replace')
+def capture_engine_log(installation,model,offset,folder,measurement_host):
+    content=measurement_host.log_bytes_since(model,offset).decode(errors='replace')
     (folder/'engine-request-log.txt').write_text(content)
     requests=parse_engine_log(content)
-    totals=sum_engine_tokens(requests)
     save(folder/'engine-rates.json',engine_rates(requests))
-    return requests,totals
+    return requests,sum_engine_tokens(requests)
 
 
 def stop_and_capture_engine_log(controller,installation,model,offset,folder,measurement_host=None):
@@ -111,12 +99,8 @@ def stop_and_capture_engine_log(controller,installation,model,offset,folder,meas
     return stopped,requests,tokens
 
 
-def log_offset(installation,model,measurement_host=None):
-    if measurement_host is not None:
-        return measurement_host.log_offset(model)
-    config=installation_model_config(installation,model)
-    p=Path(subprocess.check_output(['wslpath','-u',config['log']],text=True).strip())
-    return p.stat().st_size if p.exists() else 0
+def log_offset(installation,model,measurement_host):
+    return measurement_host.log_offset(model)
 
 
 def review_request_path(preparation, handoff):
@@ -462,15 +446,13 @@ def load_resume_cleanup(path, recovering_native=False):
 def run(installation,out,selection,preparation_paths,catalog,profile=None,schedule=None,resume=False,resume_native_install=None,host=None):
     from tools.reviewer.native_cli_binding import verify_native_cli
     native_cli = verify_native_cli(selection.get('native_cli'))
-    measurement_host=None
-    if host is not None:
-        from tools.ops.measurement_host import MeasurementHost
-        measurement_host=MeasurementHost(host,installation)
-        installation=measurement_host.installation
-        if selection.get('host_id')!=host or selection.get('host_hardware')!=measurement_host.deployment.get('hardware'):
-            raise ValueError('Selection is not frozen for this host; prepare a host-specific selection first')
-    elif installation is None:
-        raise ValueError('Provide an installation root or a registered host')
+    if host is None:
+        raise ValueError('Provide a registered host')
+    from tools.ops.measurement_host import MeasurementHost
+    measurement_host=MeasurementHost(host,installation)
+    installation=measurement_host.installation
+    if selection.get('host_id')!=host or selection.get('host_hardware')!=measurement_host.deployment.get('hardware'):
+        raise ValueError('Selection is not frozen for this host; prepare a host-specific selection first')
     old_runtime=json.loads((out/'runtime.json').read_text()) if resume else {}
     cleanup_path=Path(old_runtime.get('cleanupPath',out/'arw-cleanup.json'))
     if resume:
@@ -524,7 +506,7 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
     entry.write_text('#!/bin/sh\nexec node '+shlex.quote(str(ROOT/'tools/reviewer/arw_runtime.mjs'))+' client "$@"\n');entry.chmod(0o755)
     if measurement_host:
         save(out/'host-source-preflight.json',measurement_host.verify_sources())
-    controller=(measurement_host.controller(out) if measurement_host else Controller(installation,out)).__enter__()
+    controller=measurement_host.controller(out).__enter__()
     safe_to_release=True
     try:
         if recovery_proof:
@@ -535,7 +517,7 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
                       **({'codexExecutable':native_cli['executable'],'nativeCliBinding':native_cli} if native_cli else {}),
                       'catalog':str(catalog),'cleanupPath':str(cleanup_path)})
         os.environ['STRATA_API_KEY']=controller.key
-        os.environ['QWEN_ARW_MODEL_BASE']=controller.base+'/v1'
+        os.environ['QWEN_ARW_MODEL_BASE']=controller.model_base+'/v1'
         os.environ['QWEN_ARW_RUNTIME_FILE']=str(runtime)
         old_path=os.environ['PATH'];os.environ['PATH']=str(shim)+os.pathsep+old_path
         suffix=('-resume-'+str(time.time_ns())) if resume else ''

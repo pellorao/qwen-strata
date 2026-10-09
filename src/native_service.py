@@ -1,11 +1,8 @@
-"""Run the unchanged upstream server with ownership checks on every HTTP operation."""
-import hmac
+"""Run the unchanged upstream server with the installation startup instructions."""
 import os
 from pathlib import Path
 import re
 import sys
-
-from service_access import authorize, bearer
 
 
 def install_sampling_trace(engine, emit=None):
@@ -27,36 +24,14 @@ def install_sampling_trace(engine, emit=None):
     engine.sampling_keys = staticmethod(sampling_keys)
 
 
-def guarded_handler(base, access_file, maintenance_key, startup=None):
-    class Guarded(base):
+def health_with_startup(base, startup):
+    """Report the startup instructions this process actually loaded on /health."""
+    class Handler(base):
         def _json(self, status, value, *args, **kwargs):
-            if startup is not None and status == 200 and self.command == 'GET' and self.path.split('?', 1)[0] == '/health':
+            if status == 200 and self.command == 'GET' and self.path.split('?', 1)[0] == '/health':
                 value = dict(value, startup_instructions=startup)
             return super()._json(status, value, *args, **kwargs)
-
-        def _ownership_allowed(self):
-            key = bearer(self.headers)
-            path = self.path.split('?', 1)[0].rstrip('/')
-            maintenance = path in ('/health', '/unload') and self.command in ('GET', 'POST') and bool(key) and hmac.compare_digest(key, maintenance_key)
-            if maintenance or authorize(access_file, key):
-                return True
-            self.close_connection = True
-            self._json(403, {'error': {'message': 'A valid ownership key is required.'}})
-            return False
-
-        def do_GET(self):
-            if self._ownership_allowed():
-                super().do_GET()
-
-        def do_POST(self):
-            if self._ownership_allowed():
-                super().do_POST()
-
-        def do_OPTIONS(self):
-            if self._ownership_allowed():
-                super().do_OPTIONS()
-
-    return Guarded
+    return Handler
 
 
 def main():
@@ -77,10 +52,8 @@ def main():
         root, enabled=enabled, include_loop_prevention=loop_selection == '1')
     if enabled:
         install_startup_instructions(server.Service, instructions)
-    access_file = os.environ['STRATA_ACCESS_FILE']
-    maintenance_key = os.environ['STRATA_MAINTENANCE_KEY']
     original = server.make_handler
-    server.make_handler = lambda svc: guarded_handler(original(svc), access_file, maintenance_key, metadata)
+    server.make_handler = lambda svc: health_with_startup(original(svc), metadata)
     return server.main()
 
 

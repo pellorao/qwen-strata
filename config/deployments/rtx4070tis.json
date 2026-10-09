@@ -1,7 +1,6 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "rtx4070tis",
-  "transport": "",
   "cuda_arch": 89,
   "models": [
     "Q2_0",
@@ -20,5 +19,5 @@
     "ram_gib": 64
   },
   "qualification": "Existing installation settings; not a new parameter optimum. Host offline since 2026-10-09; connection method to be decided when it returns.",
-  "connection_host": "rtx4070tis"
+  "note": "Offline; listen_address and port are set when the host returns and its actual state is verified."
 }

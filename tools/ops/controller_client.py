@@ -2,7 +2,6 @@
 import json
 import os
 from pathlib import Path
-import subprocess
 import time
 import urllib.error
 import urllib.request
@@ -12,14 +11,17 @@ from tools.metrics.model_lifetime import ModelAliveClock
 
 
 class Controller:
+    """Lease holder for one frontend; the key is kept in a private file until release."""
     def __init__(self, installation, folder, *, base_url=None):
+        from tools.ops.deployment_source import host_for_installation, load_host
         self.installation = Path(installation)
         self.folder = Path(folder)
         self.folder.mkdir(parents=True, exist_ok=True)
         self.credential = self.folder / 'controller-key.private.json'
-        self.info = {'controller_base_url':base_url} if base_url else json.loads(subprocess.check_output(
-            ['bash', str(self.installation / 'Run-Strata-Controller.sh')], text=True))
-        self.base = self.info['controller_base_url']
+        self.base = (base_url or load_host(host_for_installation(self.installation))['frontend_url']).rstrip('/')
+        if not self.base:
+            raise ValueError('Host needs frontend_url in project.private.toml')
+        self.model_base = self.base + '/strata'
         self.key = None
         self.model_alive_clock = ModelAliveClock(self.folder / "model-alive-events.json")
         self.opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
@@ -34,23 +36,22 @@ class Controller:
         with self.opener.open(request, timeout=timeout) as reply:
             result=json.load(reply)
         confirmed_at=time.time()
-        if path in ('/ownership/start','/ownership/stop','/ownership/release','/ownership/status'):
-            status=result.get('status')
-            if path=='/ownership/start' and status=='running':
-                self.model_alive_clock.observe(True,requested_at,estimated=True,
-                    bounds=[requested_at,confirmed_at])
-            elif path in ('/ownership/stop','/ownership/release') and status in ('stopped','released','free'):
-                self.model_alive_clock.observe(False,confirmed_at,estimated=True,
-                    bounds=[requested_at,confirmed_at])
-            elif path=='/ownership/status' and status in ('running','stopped','unloaded'):
-                self.model_alive_clock.observe(status=='running',confirmed_at,
-                    estimated=True,bounds=[requested_at,confirmed_at])
+        bounds=[requested_at,confirmed_at]
+        status=result.get('status')
+        if path=='/model/start' and status=='running':
+            self.model_alive_clock.observe(True,requested_at,estimated=True,bounds=bounds)
+        elif path=='/model/stop' and status=='stopped':
+            self.model_alive_clock.observe(False,confirmed_at,estimated=True,bounds=bounds)
+        elif path=='/lease/release' and result.get('model_stop',{}).get('status')=='stopped':
+            self.model_alive_clock.observe(False,confirmed_at,estimated=True,bounds=bounds)
+        elif path=='/model/status' and status in ('running','stopped','unloaded'):
+            self.model_alive_clock.observe(status=='running',confirmed_at,estimated=True,bounds=bounds)
         return result
 
     def __enter__(self):
         fd = os.open(self.credential, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         try:
-            self.key = self.call('/ownership/acquire', {})['key']
+            self.key = self.call('/lease/acquire', {})['key']
             with os.fdopen(fd, 'w') as stream:
                 fd = None
                 json.dump({'base_url': self.base, 'key': self.key}, stream)
@@ -66,15 +67,15 @@ class Controller:
 
     def start(self, **options):
         started = time.monotonic()
-        value = self.call('/ownership/start', options)
+        value = self.call('/model/start', options)
         return value, time.monotonic() - started
 
     def stop(self):
-        return self.call('/ownership/stop', {})
+        return self.call('/model/stop', {})
 
     def __exit__(self, *exc):
         if self.key:
-            self.call('/ownership/release', {})
+            self.call('/lease/release', {})
             self.key = None
             self.credential.unlink(missing_ok=True)
 

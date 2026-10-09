@@ -4,18 +4,15 @@
 
 ## ops：部署与运维
 
-> 这一组大多基于旧 `ssh-windows` 控制方式，会随前端重写改造或删除，见[计划](../docs/plan.md#前端)。
+只处理本机安装（经 `wslpath` 访问），不使用 SSH。
 
 | 模块 | 用途 |
 |---|---|
-| `deployment_source` | 由工程模板和 `config/deployments/<host>.json` 渲染每机安装文件 |
-| `sync_installations` | 在独占 key 下把服务文件同步到已登记主机并回读 SHA |
-| `deploy_wsl` | 部署 WSL 侧服务入口 |
-| `upgrade_release` | 安装已校验的 Strata 源包和引擎，带备份和回滚 |
-| `install_windows`、`install_offline` | 新装或用已有文件离线重建 Windows 安装 |
-| `transfer_model`、`transfer_support_assets` | 传输模型分片、native pack / MTP 并核对 SHA |
-| `controller_client`、`measurement_host` | 测量用的前端访问和引擎内部日志读取 |
-| `remote_windows`、`windows_remote`、`ssh_files`、`verify_windows_transfer` | 旧 SSH 传输和远程清单 |
+| `deployment_source` | 由工程模板、`config/deployments/<host>.json` 和私有配置渲染每机安装文件 |
+| `deploy` | 经前端租约关闭前端，部署服务文件和调用手册，回读 SHA，再由计划任务重启前端 |
+| `upgrade_release` | 安装已校验的 Strata 源包和引擎，带备份和回滚；同样经前端租约停服 |
+| `install_offline` | 在 Windows 上用已有文件离线重建安装 |
+| `controller_client`、`measurement_host` | 测量用的前端租约客户端和引擎内部日志读取 |
 | `export_reports` | 只发布按版本 / 类型的汇总 |
 
 ## metrics：计量

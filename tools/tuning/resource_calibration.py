@@ -122,7 +122,7 @@ def logical_request(owner,body,expected,folder,limit):
                 from tools.metrics.streamed_chat import request
                 reply,timing=request(owner,body,folder,row['calls'],remaining)
                 row.setdefault('stream_timings',[]).append(timing)
-            else:reply=owner.call('/v1/chat/completions',body,timeout=remaining)
+            else:reply=owner.call('/strata/v1/chat/completions',body,timeout=remaining)
         except (TimeoutError,urllib.error.URLError) as error:
             if isinstance(error,TimeoutError) or isinstance(getattr(error,'reason',None),TimeoutError):
                 row['timeout']=True;break
@@ -152,7 +152,7 @@ def run_case(host,plan,workload,job,folder):
     owner=host.controller(folder/'controller');offset=None;stopped=None;telemetry=None
     try:
         with owner:
-            if owner.call('/ownership/status')['status']!='stopped':raise RuntimeError('Model was not stopped')
+            if owner.call('/model/status')['status']!='stopped':raise RuntimeError('Model was not stopped')
             offset=log_offset(host.installation,'Q2_0',host);save(folder/'engine-offset.json',{'offset':offset})
             try:
                 status,row['load_seconds']=owner.start(**options);health=status['native_health'];startup=health['startup_instructions']

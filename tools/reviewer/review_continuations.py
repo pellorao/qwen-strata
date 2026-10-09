@@ -190,9 +190,9 @@ class ContinuationRunner:
   selection=rec['selection'];segments=load(where/'segments.json') if resuming else [];spent=rec['measurement']['wallClockMs']/1000+sum(x['reviewer_wall_seconds'] for x in segments);warning=next((x['deadline']['reminder'] for x in reversed(segments) if x['deadline'].get('reminder')),None)
   controller=Controller(I,where)
   if (where/'controller-key.private.json').exists():
-   held=load(where/'controller-key.private.json');assert held['base_url']==controller.base;controller.key=held['key'];assert controller.call('/ownership/status')['status']=='running'
+   held=load(where/'controller-key.private.json');assert held['base_url']==controller.base;controller.key=held['key'];assert controller.call('/model/status')['status']=='running'
   else:
-   assert controller.call('/health')['ownership']=='free';controller.__enter__()
+   assert controller.call('/health')['lease']=='free';controller.__enter__()
   previous_alive=recorded_work_time(B,f,rec,int(segments[-1]['finished_at']*1000))['seconds'] if segments else spent
   # An explicitly authorized extension is a distinct capped stage. Earlier
   # timeout, work intervals and all original segments remain historical facts.
@@ -205,11 +205,11 @@ class ContinuationRunner:
   safe=False;daemon=None;machine=None;observer=None;old_path=os.environ['PATH']
   os.environ['PATH']=str(f/'bin')+os.pathsep+old_path
   try:
-   os.environ['STRATA_API_KEY']=controller.key;os.environ['QWEN_ARW_MODEL_BASE']=controller.base+'/v1';os.environ['QWEN_ARW_RUNTIME_FILE']=str(f/'runtime.json')
+   os.environ['STRATA_API_KEY']=controller.key;os.environ['QWEN_ARW_MODEL_BASE']=controller.model_base+'/v1';os.environ['QWEN_ARW_RUNTIME_FILE']=str(f/'runtime.json')
    observer_dir=where/'http-observers'/str(time.time_ns());observer_dir.mkdir(parents=True)
    observer=HttpArchive(f/'arw-installation/codex-home/logs_2.sqlite',observer_dir);observer.thread.start()
    options={'model':selection['model'],'engine_overrides':selection['engine_overrides'],'request_defaults':selection['sampling'],'engine_environment':selection['engine_environment'],'fit_max_tokens':False}
-   held_status=controller.call('/ownership/status')
+   held_status=controller.call('/model/status')
    if held_status['status']=='running':
     status=held_status;load_s=0
    else:

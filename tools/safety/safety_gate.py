@@ -6,8 +6,7 @@ from tools.reviewer.wsl_client import ROOT,save
 from tools.reviewer.arw_measure import local_review_catalog,stop_and_capture_engine_log,log_offset,review_shell_environment
 from tools.ops.measurement_host import MeasurementHost
 from tools.metrics.prompt_policy import compaction_config,verify_loaded_startup
-sys.path.insert(0,str(ROOT/'src'))
-from responses_bridge import Translator,to_chat
+from tools.safety.scripted_responses import scripted_stream,tool_aliases
 
 
 def fixture_calls(aliases,prior,target):
@@ -45,7 +44,7 @@ class Proxy(BaseHTTPRequestHandler):
   request=json.loads(self.rfile.read(int(self.headers['Content-Length'])));s=self.server;n=len(s.requests)+1;s.requests.append(request);save(s.out/f'request-{n}.json',request)
   low=request.get('reasoning',{}).get('effort')=='low'
   if s.live and (low or s.mode=='native'):
-   headers={'Content-Type':'application/json','Authorization':'Bearer '+s.owner.key};opener=urllib.request.build_opener(urllib.request.ProxyHandler({}));req=urllib.request.Request(s.owner.base+'/v1/responses',json.dumps(request).encode(),headers)
+   headers={'Content-Type':'application/json','Authorization':'Bearer '+s.owner.key};opener=urllib.request.build_opener(urllib.request.ProxyHandler({}));req=urllib.request.Request(s.owner.model_base+'/v1/responses',json.dumps(request).encode(),headers)
    started=time.time();parts=[]
    try:
     with opener.open(req,timeout=480)as reply:
@@ -56,7 +55,7 @@ class Proxy(BaseHTTPRequestHandler):
    finally:
     (s.out/f'response-{n}.sse').write_bytes(b''.join(parts));save(s.out/f'request-{n}-time.json',{'low':low,'started_at':started,'ended_at':time.time(),'mode':s.mode})
    self.close_connection=True;return
-  chat,aliases=to_chat(request,search=object());calls=[];answer='Controlled scripted parent finished.'
+  aliases=tool_aliases(request);calls=[];answer='Controlled scripted parent finished.'
   prior=[x for x in request.get('input',[])if x.get('type')in['function_call','custom_tool_call','tool_search_call']]
   if low:answer=json.dumps({'risk_level':'low','user_authorization':'high','outcome':'allow','rationale':'Mock only, no real safety assessment.'})
   elif s.mode=='file-write':
@@ -71,7 +70,7 @@ class Proxy(BaseHTTPRequestHandler):
    calls=fixture_calls(aliases,prior,s.target)
   self.send_response(200);self.send_header('Content-Type','text/event-stream');self.send_header('Connection','close');self.end_headers()
   def emit(e):self.wfile.write(('data: '+json.dumps(e,ensure_ascii=False)+'\n\n').encode());self.wfile.flush()
-  t=Translator(emit,request,aliases);t.begin();delta={'content':answer}if not calls else{'tool_calls':[{'index':i,'id':f'controlled_{n}_{i}','function':{'name':name,'arguments':json.dumps(args)}}for i,(name,args)in enumerate(calls)]}
+  scripted_stream(emit,request,aliases,answer,calls);self.close_connection=True
   t.accept({'choices':[{'delta':delta,'finish_reason':'tool_calls'if calls else'stop'}],'usage':{'prompt_tokens':0,'completion_tokens':0,'total_tokens':0}});t.finish();self.close_connection=True
 
 
@@ -145,10 +144,10 @@ def mock_approval(out,source):
  finally:native.close();server.shutdown();server.server_close();thread.join()
 
 
-def live_gate(out,source,resume_native=None):
+def live_gate(out,source,resume_native=None,host_id='rtx3080ti'):
  out=Path(out).resolve();out.mkdir(parents=True,exist_ok=False)
  plan=json.loads((ROOT/'benchmarks/reviewer-suite-v1/spec-readiness-local-plan.json').read_text());assert plan['authorization']['approved']
- host=MeasurementHost('local');save(out/'source-check.json',host.verify_sources());assert host.profile_sha256('Q2_0')==plan['profile_sha256']
+ host=MeasurementHost(host_id);save(out/'source-check.json',host.verify_sources());assert host.profile_sha256('Q2_0')==plan['profile_sha256']
  baseline=json.loads((ROOT/'config/maintenance-baseline.json').read_text());options=copy.deepcopy(baseline['start_options']);options.update(startup_instructions=True,loop_prevention_instructions=True)
  # Every actual gate request retains the current host options and full base prompts.
  save(out/'start-options.json',options);(out/'startup-instructions.txt').write_bytes((ROOT/'config/prompts/startup-instructions.txt').read_bytes());compaction_config({},out/'prompt-binding')
@@ -159,7 +158,7 @@ def live_gate(out,source,resume_native=None):
    path=Path(resume_native)/f'native-{repetition}'/'result.json';row=json.loads(path.read_text());assert row['pass'];rows.append(row)
   stop=json.loads((Path(resume_native)/'stop.json').read_text());assert stop['status']=='stopped'and stop['clean_unload'];assert not(Path(resume_native)/'controller/controller-key.private.json').exists();save(out/'native-reuse-binding.json',{'source_run':str(Path(resume_native).resolve()),'results':[{'id':r['id'],'sha256':hashlib.sha256((Path(resume_native)/r['id']/'result.json').read_bytes()).hexdigest()}for r in rows],'reason':'Dispatch bug repair after three complete native workflows. No native observation rerun.'})
  with owner:
-  assert owner.call('/ownership/status')['status']=='stopped';offset=log_offset(host.installation,'Q2_0',host)
+  assert owner.call('/model/status')['status']=='stopped';offset=log_offset(host.installation,'Q2_0',host)
   try:
    state,load=owner.start(**options);verify_loaded_startup(state['native_health']['startup_instructions'],hashlib.sha256((ROOT/'config/prompts/startup-instructions.txt').read_bytes()).hexdigest());save(out/'start-status.json',{'status':state['status'],'load_seconds':load,'native_health':state['native_health']})
    for repetition in ([]if resume_native else range(1,4)):
@@ -192,7 +191,7 @@ def live_gate(out,source,resume_native=None):
 
 if __name__=='__main__':
  import argparse
- p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--mock-report-write',type=Path);p.add_argument('--mock-approval',type=Path);p.add_argument('--run',type=Path);p.add_argument('--resume-native',type=Path);p.add_argument('--directory-probe',action='store_true',help='Zero-model scope comparison only; never changes real model permission grants.');p.add_argument('--legacy-landlock',action='store_true',help='Zero-model compatibility probe only; never changes the live gate.');p.add_argument('--write-tool',choices=['exec_command','apply_patch','exec_escalated'],default='exec_command');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--mock-report-write',type=Path);p.add_argument('--mock-approval',type=Path);p.add_argument('--run',type=Path);p.add_argument('--resume-native',type=Path);p.add_argument('--host',default='rtx3080ti');p.add_argument('--directory-probe',action='store_true',help='Zero-model scope comparison only; never changes real model permission grants.');p.add_argument('--legacy-landlock',action='store_true',help='Zero-model compatibility probe only; never changes the live gate.');p.add_argument('--write-tool',choices=['exec_command','apply_patch','exec_escalated'],default='exec_command');a=p.parse_args()
  if a.mock_report_write:print(json.dumps(mock_report_write(a.mock_report_write,a.source,a.write_tool,a.legacy_landlock,a.directory_probe)))
  if a.mock_approval:print(json.dumps(mock_approval(a.mock_approval,a.source)))
- if a.run:live_gate(a.run,a.source,a.resume_native)
+ if a.run:live_gate(a.run,a.source,a.resume_native,a.host)

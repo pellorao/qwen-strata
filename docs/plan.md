@@ -6,22 +6,20 @@
 
 rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢复后再决定它的工作。防循环离线工作随时可做。
 
-1. [ ] **前端重写与部署**（rtx3080ti）。见下文[前端](#前端)。
+1. [x] **前端部署与验收**（rtx3080ti）。2026-10-09 完成，见[历史工作](work-history.md)；剩余的托管搜索和升级评估见下文[前端](#前端)。
 2. [ ] **agent 接入**：WSL 安装最新版 Codex CLI；写 Codex 与 Claude Code 接入说明和启动脚本；一次冒烟检查（需申请）。新版 Codex 的压缩补充需重新取得并绑定，历史测量仍标 0.160.1。
-3. [ ] **rtx3080ti 显存预留** 700/500/300，各 3 次共 9 实例 / 27 请求，[计划](../benchmarks/resource-calibration-v1/rtx3080ti-vram-reserve-plan.json)。前置：前端支持受控 API 准入（500/300 需要），并通过相关回归。
+3. [ ] **rtx3080ti 显存预留** 700/500/300，各 3 次共 9 实例 / 27 请求，[计划](../benchmarks/resource-calibration-v1/rtx3080ti-vram-reserve-plan.json)。前置：新前端部署（`engine_overrides` 只校验参数名和类型，500/300 可直接传入）。
 4. [ ] **rtx3080ti spec-min-p** 0.5/0.7，各 3 次共 6 实例 / 18 请求，[计划](../benchmarks/resource-calibration-v1/rtx3080ti-spec-min-p-plan.json)。显存值由用户选定后固定。
 5. [ ] **防循环检测**，见下文[防循环检测](#防循环检测)。
 6. [ ] **rtx4070tis 恢复后**：核对实际文件、版本、服务和持有状态；补同步离线期间的部署；再按[ARW 同步与 Spec 恢复](#arw-同步与-spec-恢复)和调参手册的本机待办安排。
 
 ## 前端
 
-设计和实现先交用户审核。目标：
+设计已获批准，实现见 `src/frontend.py`、`src/model_process.py`，结构见[前端运行与维护](frontend.md)。
 
-- Windows 登录时启动并常驻，监听 `192.168.60.212:8000`，允许 WSL 子网和局域网；防火墙规则需要 UAC，操作前先取得用户同意。
-- 只负责独占 key（`/ownership/acquire|start|stop|release|status`）、鉴权和模型生命周期；调用方用完归还 key，前端继续等待下一个调用。
-- `/v1/chat/completions` 和 `/v1/messages` 直通 Strata 原生接口（Claude Code 用 `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN`=key）。
-- `/v1/responses` 只补 Strata 原生缺少的能力（hosted web_search、tool_search、additional_tools），用新版 Codex 核实哪些仍需要。
-- 删除旧 `ssh-windows` 控制方式及 tools/ops 下依赖它的脚本，按新方式重写需要的部署工具。
+- [ ] 接入新版 Codex 后决定：是否在前端为 `/strata/v1/responses` 补托管 `web_search` / `tool_search`（原生服务会丢弃）；Claude Code 的 WebSearch 是否改用 Brave MCP。Brave key 已部署在安装目录 `installation.private.toml`。
+- [ ] 模型实际经前端运行（启动、三种接口转发、停止）尚未验证，随 agent 接入的冒烟检查一起做（需申请）。
+- [ ] 评估升级到 Strata v0.1.41（stall watchdog、多 key、body 上限、CPU prefill 默认开启），走 `/strata-upgrade`。
 
 ## 防循环检测
 

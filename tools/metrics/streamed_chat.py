@@ -33,7 +33,7 @@ def collect(lines, now=time.monotonic, deadline=None):
 
 def request(owner, body, folder, number, timeout):
     started=time.monotonic()
-    req=urllib.request.Request(owner.base+'/v1/chat/completions',json.dumps(body).encode(),
+    req=urllib.request.Request(owner.model_base+'/v1/chat/completions',json.dumps(body).encode(),
         {'Content-Type':'application/json','Authorization':'Bearer '+owner.key})
     with owner.opener.open(req,timeout=timeout) as reply:
         headers_at=time.monotonic()

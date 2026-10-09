@@ -18,8 +18,7 @@ import threading
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'src'))
-from responses_bridge import Translator
+from tools.safety.scripted_responses import scripted_stream
 
 
 def save(path, value):
@@ -46,13 +45,7 @@ class MockResponses(BaseHTTPRequestHandler):
             self.wfile.write(('data: ' + json.dumps(event) + '\n\n').encode())
             self.wfile.flush()
 
-        translator = Translator(emit, body, {})
-        translator.begin()
-        translator.accept({'choices': [{'delta': {'content':
-            'Mock checkpoint: COMPACT_PATH_CANARY=blue-482731. No tool operation occurred.'},
-            'finish_reason': 'stop'}], 'usage': {
-                'prompt_tokens': 1, 'completion_tokens': 1, 'total_tokens': 2}})
-        translator.finish()
+        scripted_stream(emit, body, {}, 'Mock checkpoint: COMPACT_PATH_CANARY=blue-482731. No tool operation occurred.')
         self.close_connection = True
 
 

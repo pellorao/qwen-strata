@@ -17,7 +17,7 @@ import time
 from tools.reviewer.arw_measure import (Machine, stop_and_capture_engine_log, execute_review,
     generate_original, local_review_catalog, log_offset, read_daemon_message)
 from tools.reviewer.arw_metrics import collect_cost
-from tools.ops.controller_client import Controller
+from tools.ops.deployment_source import host_for_installation
 from tools.reviewer.wsl_client import ROOT, save
 from tools.metrics.prompt_policy import compaction_config, verify_loaded_startup
 from tools.metrics.context_capacity import (validate_context_pair, COMPACTION_OVERRUN_BUDGET,
@@ -70,7 +70,7 @@ def run(installation, out, baseline_path, preparation_path, catalog_path, window
     jobs=paired_handoffs(prep,repetition)
     options=context_start_options(baseline,window,threshold)
     startup_bound=startup_binding(baseline)
-    measurement_host=MeasurementHost('local',installation)
+    measurement_host=MeasurementHost(host_for_installation(installation),installation)
     source_verification=measurement_host.verify_sources()
     selection={'model':options['model'],'effort':options['request_defaults']['reasoning_effort'],
         'engine_overrides':options['engine_overrides'],'engine_environment':options['engine_environment'],
@@ -97,17 +97,17 @@ def run(installation, out, baseline_path, preparation_path, catalog_path, window
     shim=out/'bin';shim.mkdir();entry=shim/'arw'
     entry.write_text('#!/bin/sh\nexec node '+shlex.quote(str(ROOT/'tools/reviewer/arw_runtime.mjs'))+' client "$@"\n')
     entry.chmod(0o755)
-    controller=Controller(installation,out).__enter__()
+    controller=measurement_host.controller(out).__enter__()
     safe=True;records=[];daemon=None;machine=None;stopped=None
     previous_env={k:os.environ.get(k) for k in ('PATH','STRATA_API_KEY','QWEN_ARW_MODEL_BASE','QWEN_ARW_RUNTIME_FILE')}
     try:
-        if controller.call('/ownership/status')['status']!='stopped':
+        if controller.call('/model/status')['status']!='stopped':
             raise RuntimeError('Fresh merged instance requires a stopped model')
         for name,bound in (('profile',baseline['profile']),('startup_instructions',startup_bound)):
             path=installation/bound['installation_relative_path']
             if hashlib.sha256(path.read_bytes()).hexdigest()!=bound['sha256']:
                 raise RuntimeError('Frozen baseline changed: '+name)
-        os.environ.update(STRATA_API_KEY=controller.key,QWEN_ARW_MODEL_BASE=controller.base+'/v1',
+        os.environ.update(STRATA_API_KEY=controller.key,QWEN_ARW_MODEL_BASE=controller.model_base+'/v1',
             QWEN_ARW_RUNTIME_FILE=str(runtime),PATH=str(shim)+os.pathsep+os.environ['PATH'])
         daemon_path=out/'daemon-stdout.jsonl'
         with (out/'daemon-stderr.log').open('w') as err,daemon_path.open('w') as output:
@@ -129,7 +129,7 @@ def run(installation, out, baseline_path, preparation_path, catalog_path, window
                     prior=None
                     for index,handoff in enumerate(jobs,1):
                         # Never replace the loaded model between the two tasks.
-                        live=controller.call('/ownership/status')
+                        live=controller.call('/model/status')
                         if live.get('model_pid')!=status.get('model_pid'):
                             raise RuntimeError('Model process changed during merged instance')
                         folder=out/f'stage-{index}'

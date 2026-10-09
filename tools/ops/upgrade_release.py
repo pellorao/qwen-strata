@@ -1,4 +1,4 @@
-"""Install verified upstream source/engine ZIPs from WSL, with an owned backup and rollback."""
+"""Install verified upstream source/engine ZIPs into a local host, with a backup and rollback."""
 import argparse
 from datetime import datetime
 import hashlib
@@ -7,7 +7,6 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 import shutil
-import subprocess
 import tempfile
 import zipfile
 
@@ -49,48 +48,6 @@ def rollback(root, backup):
                 raise RuntimeError('Rollback backup hash mismatch: ' + relative)
             atomic(target, saved.read_bytes())
     return {'rolled_back': True, 'backup': str(backup)}
-
-
-def guard(root):
-    """Keep the Windows service mutex held while Linux replaces runtime files."""
-    windows_root = subprocess.check_output(['wslpath', '-w', str(root)], text=True).strip()
-    code = '''import sys,json,psutil,os
-from pathlib import Path
-r=Path(sys.argv[1]);sys.path.insert(0,str(r/'src'))
-from windows_host import startup_lock,assert_owner
-from service_access import authorize
-try:
- from service_settings import load_service_settings
- endpoints=load_service_settings(r)
-except ModuleNotFoundError:
- endpoints={'listen_port':8101,'model_port':8100}
-with startup_lock():
- if not authorize(r/'.state/ownership.json',sys.stdin.readline().strip()):
-  raise RuntimeError('Upgrade requires the current ownership key')
- for p in psutil.process_iter(['pid','cmdline']):
-  args=p.info['cmdline'] or []
-  if any(str(entry).lower()==a.lower() for a in args for entry in (r/'runtime/Strata/engine/strata.exe',r/'runtime/Strata/serve/server.py',r/'src/native_service.py')):
-   raise RuntimeError('Stop the installed model service before upgrading')
- for c in psutil.net_connections('tcp'):
-  if c.status != psutil.CONN_LISTEN:continue
-  if c.laddr.port == endpoints['model_port']:raise RuntimeError('Model port is occupied')
-  if c.laddr.port == endpoints['listen_port']:assert_owner(psutil.Process(c.pid),r/'src/responses_bridge.py')
- print(json.dumps({'locked':True}),flush=True)
- sys.stdin.readline()
-'''
-    process = subprocess.Popen([str(root / 'runtime/Strata/.venv/Scripts/python.exe'), '-B', '-c', code, windows_root],
-                               stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    key = os.environ.get('STRATA_API_KEY')
-    if not key:
-        process.stdin.close()
-        process.wait(timeout=20)
-        raise RuntimeError('Upgrade requires the caller\'s controller ownership key.')
-    process.stdin.write(key+'\n'); process.stdin.flush()
-    if process.stdout.readline().strip() != '{"locked": true}':
-        error = process.stderr.read()
-        process.wait(timeout=20)
-        raise RuntimeError('Upgrade guard failed: ' + error)
-    return process
 
 
 def upgrade(root, metadata, source, engine, cuda_arch=89):
@@ -183,30 +140,23 @@ def upgrade(root, metadata, source, engine, cuda_arch=89):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--install-root', type=Path, required=True)
-    parser.add_argument('--deployment', default='local')
+    parser.add_argument('--host', required=True)
     parser.add_argument('--metadata', type=Path)
     parser.add_argument('--source', type=Path)
     parser.add_argument('--engine', type=Path)
     parser.add_argument('--rollback', type=Path)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
-    root = args.install_root.resolve(strict=True)
-    process = guard(root)
-    try:
-        from tools.ops.deployment_source import load_host
+    from tools.ops.deploy import local_path, maintenance
+    from tools.ops.deployment_source import load_host
+    host = load_host(args.host)
+    root = local_path(host['installation_root']).resolve(strict=True)
+    # The frontend is shut down through its own lease, so no model can start meanwhile.
+    with maintenance(host['frontend_url']):
         result = rollback(root, args.rollback) if args.rollback else upgrade(
-            root, json.loads(args.metadata.read_text()), args.source, args.engine,
-            cuda_arch=load_host(args.deployment)['cuda_arch'])
-        atomic(args.output, (json.dumps(result, indent=2) + '\n').encode())
-        print(json.dumps({k: v for k, v in result.items() if k != 'written_sha256'}, indent=2))
-    finally:
-        process.stdin.close()
-        try:
-            process.wait(timeout=15)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            process.wait(timeout=5)
+            root, json.loads(args.metadata.read_text()), args.source, args.engine, cuda_arch=host['cuda_arch'])
+    atomic(args.output, (json.dumps(result, indent=2) + '\n').encode())
+    print(json.dumps({k: v for k, v in result.items() if k != 'written_sha256'}, indent=2))
 
 
 if __name__ == '__main__':
