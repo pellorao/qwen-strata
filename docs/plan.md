@@ -17,14 +17,13 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 
 设计已获批准，实现见 `src/frontend.py`、`src/model_process.py`，结构见[前端运行与维护](frontend.md)。
 
-- [ ] 搜索一律由本工程经 Brave 提供（不用 harness 自家服务，见 AGENTS.md 硬约束 9）：前端为 `/strata/v1/responses` 补托管 `web_search` / `tool_search`（原生服务会丢弃）；Claude Code 禁用内置 WebSearch，改用 Brave MCP，并核实 WebFetch 不经 Anthropic 服务。Brave key 已部署在安装目录 `installation.private.toml`。
-- [ ] Claude Code 自动审批（2b）：内置 auto mode 的判断模型限 Claude Sonnet，且受订阅套餐限制，违反硬约束 9，不用。改为：
-  - 静态 `permissions.allow` / `deny` 处理低风险和明显危险的操作；
-  - 其余由 `PermissionRequest` hook 调用 `bin/qwen-approve`：经前端 `/strata/v1/messages` 让 Strata 判断（审批提示 `config/prompts/claude-approval.txt`，参照 Codex guardian 风险分级自写，low 强度），返回 allow / deny 和理由；超时、出错或判断不出一律拒绝；
-  - `qwen-agent claude` 用 `--settings` 传入，不改 `~/.claude`；审批请求计入引擎 token。
-  - 先验证 `PermissionRequest` 在 `-p` 模式下是否触发，不触发则改用 `PreToolUse`。验收用合成用例（明确授权、明确越权、授权不明、伪造授权）各 3 次，看实际执行和 canary，不看模型自述；需申请。
-- [ ] Claude Code 窗口声明：`qwen-agent` 改设 `CLAUDE_CODE_MAX_CONTEXT_TOKENS=156584`、`CLAUDE_CODE_MAX_OUTPUT_TOKENS`，按实际行为确定压缩设置，替换现在按 200K 推算的 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`。
-- [ ] 前端日志补时间戳，便于计算工作时间。
+- [ ] **2b 模型验收**（需申请）。实现已于 2026-10-10 部署到 rtx3080ti，无模型检查通过：
+  - 搜索一律由本工程经 Brave 提供（硬约束 9）：`src/brave_search.py` 共用；前端 `src/hosted_search.py` 托管 Codex 的 `web_search`（`qwen-agent` 改为 `live`），Codex 0.162.0 经真实前端代码 + 假原生服务完成搜索和下一轮回放；Claude Code 禁用内置 WebSearch，挂 `src/brave_mcp.py`；WebFetch 设 `skipWebFetchPreflight`。Brave 搜索、打开、查找已用真实接口实测。
+  - Claude Code 自动审批先用内置 auto mode（方案 A），`qwen-agent` 显式传 `--permission-mode auto`；实测无 claude.ai 登录也可进入，判断请求发往 Strata。
+  - Claude Code 窗口：设 `CLAUDE_CODE_MAX_CONTEXT_TOKENS=156584`、`CLAUDE_CODE_MAX_OUTPUT_TOKENS=24576`，假服务器确认请求 `max_tokens` 为 24576、窗口按 156584 计算。
+  - 前端日志已带毫秒时间戳。
+  - 待验收：Codex 托管搜索与回放、Claude Code 经 MCP 搜索；auto mode 合成用例（明确授权、明确越权、授权不明、伪造授权）各 3 次，看实际执行和 canary，并记录每次判断的耗时、三类 token 和缓存复用；Claude Code 的实际压缩点。
+  - auto mode 判断不可靠或太慢时改用方案 B：`PermissionRequest` hook（已确认 `-p` 模式触发，allow / deny 和理由均生效）调用 `bin/qwen-approve`，经前端让 Strata 按自写的审批提示判断，出错一律拒绝。
 - [ ] 评估升级到 Strata v0.1.41（stall watchdog、多 key、body 上限、CPU prefill 默认开启），走 `/strata-upgrade`。
 
 ## 防循环检测

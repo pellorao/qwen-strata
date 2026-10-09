@@ -21,6 +21,7 @@ INSTALL = Path(__file__).resolve().parents[1]
 MODELS = {'Q2_0': 'q2_0', 'IQ2_XS': 'iq2_xs', 'IQ3_XXS': 'iq3_xxs'}
 CONTEXT_WINDOW = 156584
 AUTO_COMPACT = 100000
+MAX_OUTPUT = 24576
 
 
 class Frontend:
@@ -49,7 +50,7 @@ def codex(frontend, model, effort, arguments):
         'model_catalog_json': str(INSTALL / 'config/model-catalog.json'),
         'model_context_window': CONTEXT_WINDOW, 'model_auto_compact_token_limit': AUTO_COMPACT,
         'experimental_compact_prompt_file': str(INSTALL / 'config/prompts/compact-prompt.txt'),
-        'web_search': 'disabled',  # hosted search is not served yet
+        'web_search': 'live',  # served by the frontend through Brave
         'model_providers.qwen_strata.name': 'Local Strata',
         'model_providers.qwen_strata.base_url': frontend.base + '/strata/v1',
         'model_providers.qwen_strata.wire_api': 'responses',
@@ -64,15 +65,22 @@ def codex(frontend, model, effort, arguments):
 
 
 def claude(frontend, model, effort, arguments):
+    # Nothing may fall back to Anthropic services: search comes from the Brave MCP server,
+    # WebFetch skips its Anthropic domain lookup, and auto mode's safety checks run on this model.
+    settings = {'skipWebFetchPreflight': True, 'permissions': {'deny': ['WebSearch']}}
+    servers = {'mcpServers': {'brave': {'type': 'stdio', 'command': sys.executable,
+                                        'args': [str(INSTALL / 'src/brave_mcp.py')]}}}
+    # --mcp-config takes several values, so a single-value option must follow it before the caller's arguments.
+    options = ['--mcp-config', json.dumps(servers), '--permission-mode', 'auto', '--settings', json.dumps(settings)]
     environment = {
         'ANTHROPIC_BASE_URL': frontend.base + '/strata', 'ANTHROPIC_AUTH_TOKEN': frontend.key,
         'ANTHROPIC_MODEL': model, 'ANTHROPIC_DEFAULT_OPUS_MODEL': model,
         'ANTHROPIC_DEFAULT_SONNET_MODEL': model, 'ANTHROPIC_DEFAULT_HAIKU_MODEL': model,
         'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC': '1',
-        # Claude Code assumes a 200K window for unknown models; compact at about 100K.
-        'CLAUDE_AUTOCOMPACT_PCT_OVERRIDE': str(AUTO_COMPACT * 100 // 200000),
+        # Unknown models are assumed to have a 200K window; declare the real limits.
+        'CLAUDE_CODE_MAX_CONTEXT_TOKENS': str(CONTEXT_WINDOW), 'CLAUDE_CODE_MAX_OUTPUT_TOKENS': str(MAX_OUTPUT),
     }
-    return ['claude', *arguments], environment
+    return ['claude', *options, *arguments], environment
 
 
 def main():

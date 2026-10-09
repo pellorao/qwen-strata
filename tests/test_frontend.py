@@ -12,6 +12,7 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 import frontend
 import model_process
+from test_hosted_search import FakeSearch, MESSAGE, SEARCH, native_round
 
 
 class FakeModel:
@@ -47,7 +48,13 @@ class Upstream(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-Type', 'text/event-stream')
         self.end_headers()
-        self.wfile.write(b'data: one\n\ndata: two\n\n')
+        if any(t.get('name') == 'web_search' for t in body.get('tools', [])):
+            searched = any(i.get('type') == 'function_call_output' for i in body['input'])
+            for kind, data in native_round('resp_' + str(len(self.server.seen)), [MESSAGE] if searched else [SEARCH]):
+                self.wfile.write(b': keep-alive\n\n' if data is None else
+                                 f'event: {kind}\ndata: {json.dumps(data)}\n\n'.encode())
+        else:
+            self.wfile.write(b'data: one\n\ndata: two\n\n')
         self.close_connection = True
 
 
@@ -169,6 +176,7 @@ class PassthroughTests(unittest.TestCase):
         front.model.port = self.upstream.server_port
         front.key_sha256 = front.loaded_model = None
         front.allowed = lambda client: True
+        front.new_search_session()
         self.server.frontend = front
 
     def tearDown(self):
@@ -197,6 +205,23 @@ class PassthroughTests(unittest.TestCase):
         self.assertEqual(body['reasoning_budget_tokens'], 8192)
         self.post('/strata/v1/messages', {'max_tokens': 5}, key)
         self.assertNotIn('reasoning_budget_tokens', self.upstream.seen[-1][2])
+
+    def test_hosted_web_search_runs_between_native_rounds(self):
+        key = json.loads(self.post('/lease/acquire', {})[1])['key']
+        self.post('/model/start', {}, key)
+        self.server.frontend.search = FakeSearch()
+        tools = [{'type': 'web_search', 'external_web_access': True}]
+        self.assertEqual(self.post('/strata/v1/responses', {'input': 'q', 'tools': tools}, key)[0], 400)
+        status, raw = self.post('/strata/v1/responses', {'input': 'q', 'stream': True, 'tools': tools}, key)
+        self.assertEqual(status, 200)
+        events = [json.loads(line[5:]) for line in raw.decode().splitlines() if line.startswith('data:')]
+        output = events[-1]['response']['output']
+        self.assertEqual([i['type'] for i in output], ['web_search_call', 'message'])
+        self.assertEqual(len(self.upstream.seen), 2)
+        self.assertEqual(self.upstream.seen[0][1], 'Bearer native-secret')
+        self.assertIn(output[0]['id'], self.server.frontend.search_results)
+        self.post('/lease/release', {}, key)
+        self.assertEqual(self.server.frontend.search_results, {})
 
 
 if __name__ == '__main__':

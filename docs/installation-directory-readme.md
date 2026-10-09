@@ -48,6 +48,7 @@
 转发前，前端只做三件事：
 - 请求的 `model` 必须等于当前加载的模型 ID，否则返回 409；省略时自动填入。没有运行中的模型返回 503。
 - Chat 和 Responses 请求缺少推理强度、思考预算或输出上限时，按[推理强度与输出](#推理强度与输出)补齐。
+- Responses 流式请求声明了 `{"type": "web_search"}` 时，由前端经 Brave 执行搜索，见[网页搜索](#网页搜索)。
 - Messages 请求不补默认值，由调用方自己设置 `max_tokens` 和 thinking。
 
 ### 错误
@@ -144,7 +145,7 @@ model_catalog_json = "/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-n
 experimental_compact_prompt_file = "/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next/config/prompts/compact-prompt.txt"
 model_context_window = 156584
 model_auto_compact_token_limit = 100000
-web_search = "disabled"
+web_search = "live"
 
 [model_providers.qwen_strata]
 name = "Local Strata"
@@ -161,26 +162,42 @@ key 通过 `env_key` 指定的环境变量只提供给该 harness。请求重试
 
 `config/model-catalog.json` 只描述三种量化的模型事实：模型名、推理档位、156584 窗口、只接收文本、可使用网页搜索工具，以及 `auto_review_model_override` 指向自身。基础指令与消息结构取自所装 Codex 版本自带的 luna 模型条目，不额外限制工作内容；只读、可写范围等约束由各场景的提示词和沙箱权限决定。该文件对应 Codex 0.162.0，升级 Codex 后由维护工程重新生成。
 
-原生 Responses 支持 function、namespace、custom 工具、`additional_tools`、客户端 `tool_search` 和推理内容回放。服务端托管的网页搜索尚未提供：catalog 声明模型能使用搜索，但当前须设置 `web_search = "disabled"`，否则搜索工具声明会被原生服务丢弃，模型调用不到。
+原生 Responses 支持 function、namespace、custom 工具、`additional_tools`、客户端 `tool_search` 和推理内容回放。网页搜索由前端托管，见下文。
+
+## 网页搜索
+
+不使用 harness 自家的搜索服务，统一由本安装经 Brave 提供（key 在 `installation.private.toml`）。
+
+- **Codex**：设置 `web_search = "live"`。前端把 `web_search` 换成同名函数交给模型；模型调用时由前端执行 `search`、`open_page`、`find_in_page`，结果写回对话后继续生成，Codex 看到的是普通的 `web_search_call`。只支持流式；每个请求最多 8 次搜索、10 轮模型调用，各轮共用一个输出上限。支持 `filters.allowed_domains` 和 `search_context_size`，不支持 `user_location`。
+- 搜索结果按调用 id 保存在本次租约内，Codex 下一轮回传时还原给模型；归还租约后清空，旧会话里的搜索只会得到"结果不可用"。
+- **Claude Code**：内置 WebSearch 依赖 Anthropic 服务，启动脚本把它禁用，改为挂载 MCP 服务 `src/brave_mcp.py`（工具 `mcp__brave__web_search`、`open_page`、`find_in_page`）。
+- 只读取公网 http(s) 地址；内网、本机、带账号密码或非标准端口的地址都会拒绝，每次重定向重新检查。Brave key 只发给 Brave API。Brave 调用每秒最多一次，失败不重试。
 
 ## Claude Code 接入
 
-启动脚本传入的环境变量：
+启动脚本传入的环境变量和参数（不修改 `~/.claude`）：
 
 ```bash
 export ANTHROPIC_BASE_URL=http://192.168.60.212:8000/strata
 export ANTHROPIC_AUTH_TOKEN=<key>
 export ANTHROPIC_MODEL=qwen3.8-flash-next-q2_0          # OPUS / SONNET / HAIKU 默认模型也设为同一个
 export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
-export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=50               # 按 200K 假定窗口，约 100K 时压缩
+export CLAUDE_CODE_MAX_CONTEXT_TOKENS=156584            # 声明真实窗口
+export CLAUDE_CODE_MAX_OUTPUT_TOKENS=24576
+
+claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode auto \
+       --settings '{"skipWebFetchPreflight": true, "permissions": {"deny": ["WebSearch"]}}' [调用方参数]
 ```
+
+- 权限模式固定为 auto，不继承用户全局设置。auto mode 的安全判断请求同样发给本模型，不需要 claude.ai 订阅。要改模式，在调用方参数里再写一次 `--permission-mode`。
+- `skipWebFetchPreflight` 关闭 WebFetch 抓网页前向 `api.anthropic.com` 的域名查询。
 
 原生服务提供 `/v1/messages` 和 `/v1/messages/count_tokens`。2026-10-09 冒烟检查（Claude Code 2.1.295，`-p`，Read 工具）确认 thinking 和工具调用可用。已知差异：
 
-- Claude Code 不认识该模型名，会提示 `unrecognized_model`，并按 200K 窗口、32000 输出上限处理；实际窗口是 156584，因此靠上面的压缩比例在约 100K 时压缩。
+- Claude Code 不认识该模型名，会提示 `unrecognized_model`；窗口和输出上限按上面的环境变量生效。
 - `count_tokens` 不含服务端注入的启动提示，比实际输入少约 420 token。
 
-压缩时机、长会话和内置 WebSearch 尚未验证。
+压缩时机、长会话、auto mode 的判断质量和 Brave MCP 的实际调用尚未用模型验证。
 
 ## Python 示例
 

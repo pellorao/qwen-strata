@@ -23,7 +23,8 @@ ROOT = Path(__file__).resolve().parents[2]
 TASK = 'QwenStrataFrontend'
 # installation target -> project source
 FILES = {f'src/{name}': f'src/{name}' for name in (
-    'frontend.py', 'model_process.py', 'native_service.py', 'startup_instructions.py', 'project_files_mcp.py')}
+    'frontend.py', 'model_process.py', 'native_service.py', 'startup_instructions.py', 'project_files_mcp.py',
+    'brave_search.py', 'hosted_search.py', 'brave_mcp.py')}
 FILES.update({name: name for name in (
     'config/prompts/startup-instructions.txt', 'config/prompts/compact-prompt.txt', 'config/model-catalog.json',
     'config/maintenance-baseline.json', 'config/deployment.json', 'config/frontend.json')})
@@ -35,7 +36,7 @@ FILES['bin/qwen-agent'] = 'scripts/wsl/qwen-agent'
 OBSOLETE = ('Run-Strata-Controller.ps1', 'Run-Strata-Controller.sh', 'maintenance/Setup-Native-Network.ps1',
             'maintenance/Setup-WSL-Network.sh', 'config/service.json', 'config/startup-instructions.txt',
             'config/compact_prompt.txt', *(f'src/{name}' for name in (
-                'responses_bridge.py', 'brave_search.py', 'hosted_search.py', 'windows_host.py', 'wsl_launcher.py',
+                'responses_bridge.py', 'windows_host.py', 'wsl_launcher.py',
                 'setup_wsl_firewall.ps1', 'service_access.py', 'service_settings.py', 'controller_backend.py')))
 OBSOLETE_TREES = ('.state', '.tmp/controller-model')
 PRIVATE = 'installation.private.toml'

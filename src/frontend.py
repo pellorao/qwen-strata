@@ -11,6 +11,8 @@ import sys
 import threading
 import time
 
+from brave_search import BraveSearch
+import hosted_search
 from model_process import ROOT, ModelProcess
 
 MAX_BODY = 64 * 1024 * 1024
@@ -20,6 +22,13 @@ BIND_RETRY = 10
 EFFORT_BUDGETS = {'none': (0, 8192), 'low': (2048, 8192), 'medium': (4096, 16384),
                   'high': (8192, 24576), 'xhigh': (8192, 24576), 'max': (8192, 24576)}
 GENERATION = ('/v1/chat/completions', '/v1/responses', '/v1/messages', '/v1/messages/count_tokens')
+
+
+def log(message):
+    """One frontend log line with local time to the millisecond, for work-time accounting."""
+    now = time.time()
+    print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(now)) + f'.{int(now % 1 * 1000):03d} {message}',
+          file=sys.stderr, flush=True)
 
 
 class Refused(Exception):
@@ -67,6 +76,11 @@ class Frontend:
         self.key_sha256 = None
         self.loaded_model = None
         self.networks, self.networks_at = [], 0.0
+        self.new_search_session()
+
+    def new_search_session(self):
+        # Search pages and replayable results belong to one lease.
+        self.search, self.search_results = BraveSearch(), {}
 
     def allowed(self, client):
         if time.monotonic() - self.networks_at > 60:
@@ -94,6 +108,7 @@ class Frontend:
                 self.model.stop()  # left over from a failed release or an earlier frontend
             key = secrets.token_urlsafe(32)
             self.key_sha256 = hashlib.sha256(key.encode()).hexdigest()
+            self.new_search_session()
             return {'key': key, 'lease': 'held'}
         finally:
             self.lock.release()
@@ -103,6 +118,7 @@ class Frontend:
             self.require(key)
             self.key_sha256 = None  # revoked first, even if stopping fails
             self.loaded_model = None
+            self.new_search_session()
             return {'lease': 'free', 'model_stop': self.model.stop()}
 
     def start(self, key, options):
@@ -127,7 +143,7 @@ class Handler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
     def log_message(self, form, *args):
-        print(f'{self.client_address[0]} {form % args}', file=sys.stderr, flush=True)
+        log(f'{self.client_address[0]} {form % args}')
 
     def send_json(self, status, value):
         raw = json.dumps(value, ensure_ascii=False).encode()
@@ -202,6 +218,13 @@ class Handler(BaseHTTPRequestHandler):
             body['model'] = loaded
             if path in ('/v1/chat/completions', '/v1/responses'):
                 apply_reasoning_defaults(body, path, frontend.model.reasoning_defaults)
+            if path == '/v1/responses':
+                try:
+                    hosted = hosted_search.hosted_tool(body)
+                except hosted_search.Refusal as error:
+                    raise Refused(400, str(error)) from None
+                if hosted:
+                    return self.hosted(body, native_key)
             raw = json.dumps(body, ensure_ascii=False).encode()
         headers = {k: v for k, v in self.headers.items()
                    if k.lower() in ('content-type', 'accept', 'anthropic-version', 'anthropic-beta')}
@@ -229,6 +252,72 @@ class Handler(BaseHTTPRequestHandler):
         finally:
             upstream.close()
 
+    def hosted(self, body, native_key):
+        """Serve a Responses stream that uses hosted web_search; see hosted_search."""
+        frontend, key = self.server.frontend, self.key()
+        started = False
+
+        def upstream(request):
+            nonlocal started
+            connection = http.client.HTTPConnection('127.0.0.1', frontend.model.port, timeout=UPSTREAM_TIMEOUT)
+            try:
+                connection.request('POST', '/v1/responses', json.dumps(request, ensure_ascii=False).encode(),
+                                   {'Content-Type': 'application/json', 'Accept': 'text/event-stream',
+                                    'Authorization': 'Bearer ' + native_key})
+                reply = connection.getresponse()
+                if reply.status != 200:
+                    detail = reply.read(65536).decode('utf-8', 'replace')
+                    if not started:
+                        raise Refused(reply.status, 'Native model refused the request: ' + detail)
+                    raise RuntimeError(f'Native model returned HTTP {reply.status}: {detail}')
+                if not started:
+                    started = True
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'text/event-stream')
+                    self.send_header('Cache-Control', 'no-cache')
+                    self.send_header('Connection', 'close')
+                    self.end_headers()
+                    self.close_connection = True
+                kind = None
+                for line in reply:
+                    line = line.decode('utf-8').rstrip('\r\n')
+                    if line.startswith(':'):
+                        yield None, None
+                    elif line.startswith('event:'):
+                        kind = line[6:].strip()
+                    elif line.startswith('data:'):
+                        data = json.loads(line[5:])
+                        yield kind or data.get('type'), data
+                        kind = None
+            finally:
+                connection.close()
+
+        def write(raw):
+            self.wfile.write(raw)
+            self.wfile.flush()
+
+        try:
+            hosted_search.run(body, frontend.search_results, frontend.search, upstream, write,
+                              lambda: frontend.require(key))
+        except Refused:
+            if started:
+                self.close_connection = True
+                return
+            raise
+        except OSError:
+            if not started:
+                raise
+            self.close_connection = True  # caller left mid-stream
+        except Exception as error:
+            if not started:
+                raise
+            message = {'type': 'error', 'code': 'hosted_search_failed', 'message': str(error), 'sequence_number': 0}
+            try:
+                write(f'event: error\ndata: {json.dumps(message)}\n\n'.encode())
+            except OSError:
+                pass
+            self.close_connection = True
+
 
 def main():
     config = json.loads((ROOT / 'config/frontend.json').read_text(encoding='utf-8'))
@@ -239,12 +328,12 @@ def main():
             server = ThreadingHTTPServer((config['listen_address'], config['port']), Handler)
             break
         except OSError as error:  # at logon the LAN address may not be assigned yet
-            print(f'bind {config["listen_address"]}:{config["port"]} failed: {error}; retrying', flush=True)
+            log(f'bind {config["listen_address"]}:{config["port"]} failed: {error}; retrying')
             time.sleep(BIND_RETRY)
     server.daemon_threads = True
     server.frontend = Frontend(config['model_port'])
     server.frontend.model.stop()  # never inherit a model without its lease
-    print(f'frontend ready on http://{config["listen_address"]}:{config["port"]}', flush=True)
+    log(f'frontend ready on http://{config["listen_address"]}:{config["port"]}')
     server.serve_forever()
     server.server_close()
 
