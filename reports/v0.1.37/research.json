@@ -1,0 +1,79 @@
+{
+  "version": "0.1.37",
+  "type": "research",
+  "results": {
+    "iq3": {
+      "evidence_sha256": "e442cf6be2b277ee5b8d29b2c7ce720b0ab86b13d600982f6941576a0854a468",
+      "statistics": {
+        "revision": "ed59f92082b1e93c0e96d60a8b11aab089b52f09",
+        "models": {
+          "IQ3_XXS": [
+            {
+              "path": "IQ3_XXS/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00001-of-00002.gguf",
+              "size": 47039860096,
+              "lfs": {
+                "oid": "219ea929900dfa9ef091f3aa473fdba6874b65fcb36526d7d851ac9e95856d15",
+                "size": 47039860096,
+                "pointerSize": 136
+              }
+            },
+            {
+              "path": "IQ3_XXS/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00002-of-00002.gguf",
+              "size": 28800138432,
+              "lfs": {
+                "oid": "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113",
+                "size": 28800138432,
+                "pointerSize": 136
+              }
+            }
+          ],
+          "IQ3_S": [
+            {
+              "path": "IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf",
+              "size": 54817524224,
+              "lfs": {
+                "oid": "4c1eb2ceb4915e1192f4f386021897bde56a97f40a0bb78bb86465e0f7d2aca3",
+                "size": 54817524224,
+                "pointerSize": 136
+              }
+            },
+            {
+              "path": "IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf",
+              "size": 28800138432,
+              "lfs": {
+                "oid": "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113",
+                "size": 28800138432,
+                "pointerSize": 136
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "iq3_memory_decision": {
+    "physical_visible_gib": 63.723480224609375,
+    "estimated_system_total_gib": 60.3,
+    "windows_and_background_included_gib_approx": 10.2,
+    "minimum_free_physical_gib": 8.208229064941406,
+    "estimate_headroom_above_minimum_gib_approx": 1.4,
+    "actual_iq3_startup_and_200k_peak_measured": true,
+    "decision": "User-provided IQ3 verified and installed; three 200K cold runs completed with no 2GiB memory floor breach. Q2 remains daily default; code-quality comparison ongoing.",
+    "expert_arena_gib": 39.96875
+  },
+  "external_compaction": {
+    "date": "2026-10-03",
+    "extra_downloads_required_now": false,
+    "pi": "LLM summarization orchestrator, not a standalone small compression model",
+    "better_compaction": "Pi extension preserving prefix for cache reuse; not a drop-in Codex replacement",
+    "llmlingua": "Extractive token filtering using a small model; code/Chinese/tool-state quality and memory cost unverified here",
+    "codex_hooks": "Pre/PostCompact do not expose replacement summary; SessionStart compact can inject additional context",
+    "recommended_priority": "Evaluate prefix-cache-preserving summarization and explicit fact ledger first; further fidelity/continuous growth delegated to WSL Codex",
+    "sources": [
+      "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/compaction.md",
+      "https://github.com/NotSoSeriouss/BetterCompaction",
+      "https://github.com/microsoft/LLMLingua",
+      "https://learn.chatgpt.com/docs/hooks"
+    ]
+  }
+}

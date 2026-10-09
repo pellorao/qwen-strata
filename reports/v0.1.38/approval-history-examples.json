@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-03",
+  "seed": 20261003,
+  "available_count": 7,
+  "samples": [
+    {
+      "session": "01a0fd25-6f9f-7a23-9ea0-7074ed0ef3d1",
+      "model": "codex-auto-review",
+      "summary": "{\"risk_level\":\"medium\",\"user_authorization\":\"high\",\"outcome\":\"allow\",\"rationale\":\"该命令按已批准的六份设计刷新 Spec Readiness，复用原 Reviewer 线程并将输出限制到指定临时报告目录；虽会启动模型审核并产生临时文件，但范围明确、可恢复且无生产或破坏性副作用。\"}"
+    },
+    {
+      "session": "01a0ffb6-6be7-7db2-bc29-7e45e7498f47",
+      "model": "codex-auto-review",
+      "summary": "{\"risk_level\":\"medium\",\"user_authorization\":\"high\",\"outcome\":\"allow\",\"rationale\":\"This synchronizes the explicitly approved final documentation and acceptance record into the installation, with backups and hash checks; it does not modify model configuration, historical measurements, or the original maintenance project.\"}"
+    },
+    {
+      "session": "01a0ff9e-b649-7bd3-a899-0bc8256ecd49",
+      "model": "codex-auto-review",
+      "summary": "{\"risk_level\":\"medium\",\"user_authorization\":\"high\",\"outcome\":\"allow\",\"rationale\":\"这是为用户明确要求的本地会话速度统计而执行的临时分析，读取本地日志并将文字统计结果写入会话专用临时目录，不发送会话内容；副作用范围有限且可逆。\"}"
+    },
+    {
+      "session": "01a0ffdc-e970-72c0-a125-29c873cc10be",
+      "model": "codex-auto-review",
+      "summary": "{\"risk_level\":\"medium\",\"user_authorization\":\"medium\",\"outcome\":\"allow\",\"rationale\":\"This is a narrowly scoped rerun of the already authorized Spec Readiness review using unchanged frozen inputs, solely to correct an invalid evidence location; it writes only the new temporary report and has bounded model/runtime cost.\"}"
+    },
+    {
+      "session": "01a0fffa-064c-7010-a1b5-51755a4154b2",
+      "model": "codex-auto-review",
+      "summary": "{\"risk_level\":\"medium\",\"user_authorization\":\"high\",\"outcome\":\"allow\",\"rationale\":\"该操作只读核查最终 Windows 进程、监听端口和 GPU 状态，随后备份并同步已授权的最后文档修正；范围受控且不改模型权重。\"}"
+    }
+  ]
+}

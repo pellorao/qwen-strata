@@ -1,0 +1,84 @@
+{
+  "version": "0.1.38",
+  "type": "controller-codex",
+  "scope": "Isolated Linux Codex provider env_key with a caller-held key; actual local UTF-8 tool read. No cloud auth or global configuration changes.",
+  "pass": true,
+  "observation": {
+    "status": "completed",
+    "elapsed_s": 4.732474263000768,
+    "text": "Read `proof.txt` (1 line, not truncated) via the local project file reader.\n\n**Exact observed marker:** `密钥接入验证-51973`",
+    "tools": [
+      {
+        "type": "mcpToolCall",
+        "status": "completed",
+        "tool": "list_files"
+      },
+      {
+        "type": "mcpToolCall",
+        "status": "completed",
+        "tool": "read_file"
+      }
+    ],
+    "usage": [
+      {
+        "total": {
+          "totalTokens": 3038,
+          "inputTokens": 2987,
+          "cachedInputTokens": 0,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 51,
+          "reasoningOutputTokens": 0
+        },
+        "last": {
+          "totalTokens": 3038,
+          "inputTokens": 2987,
+          "cachedInputTokens": 0,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 51,
+          "reasoningOutputTokens": 0
+        },
+        "modelContextWindow": 250000
+      },
+      {
+        "total": {
+          "totalTokens": 6207,
+          "inputTokens": 6107,
+          "cachedInputTokens": 3037,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 100,
+          "reasoningOutputTokens": 0
+        },
+        "last": {
+          "totalTokens": 3169,
+          "inputTokens": 3120,
+          "cachedInputTokens": 3037,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 49,
+          "reasoningOutputTokens": 0
+        },
+        "modelContextWindow": 250000
+      },
+      {
+        "total": {
+          "totalTokens": 9546,
+          "inputTokens": 9391,
+          "cachedInputTokens": 6208,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 155,
+          "reasoningOutputTokens": 0
+        },
+        "last": {
+          "totalTokens": 3339,
+          "inputTokens": 3284,
+          "cachedInputTokens": 3171,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 55,
+          "reasoningOutputTokens": 0
+        },
+        "modelContextWindow": 250000
+      }
+    ],
+    "compactions": 0
+  },
+  "credentials_published": false
+}

@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "status": "revised-user-candidates-awaiting-specific-run-review",
+  "created_at": "2026-10-07T20:05:26.134392+00:00",
+  "host": "rtx3080ti",
+  "authorization": {
+    "approved": false,
+    "scope": "One VRAM reserve comparison700/500/300,9coldinstances,27logicalrequests; source/API admission changes prepared before start. No CPUxVRAMmatrix."
+  },
+  "purpose": "Measure the tradeoff between GPUexpertcache capacity and extraWDDM/temporary-buffer headroom, using live telemetry now fixed. Increasing reserve is a hypothesis, not assumedbetter.",
+  "basis": {
+    "ours": "LatestQ2run all6loaded480MiBfree/capture428MiB,4015cache slots. True minimumunknown due missing telemetry; no stall was observed.",
+    "upstream": "0.1.40.2DETAILS The expert cache size is a budget: oversizedWindows allocations may spill, reserve can trade cache forheadroom. Examples are othercards and cannot predetermine our optimum.",
+    "candidate_rationale": "700currentQ2default,500moderatelylessreserve,300moreaggressive expert-cache budget; actualremainingVRAMcanbesmaller, measurecorrectness/work/headroom rather than assumingmoreGPUcachemeansfaster."
+  },
+  "candidate_dimension": "vram-reserve-mib",
+  "conditions": [
+    700,
+    500,
+    300
+  ],
+  "model_instances": 9,
+  "logical_requests": 27,
+  "repetitions_per_condition": 3,
+  "schedule": [
+    {
+      "reserve": 700,
+      "repetition": 1
+    },
+    {
+      "reserve": 500,
+      "repetition": 1
+    },
+    {
+      "reserve": 300,
+      "repetition": 1
+    },
+    {
+      "reserve": 300,
+      "repetition": 2
+    },
+    {
+      "reserve": 500,
+      "repetition": 2
+    },
+    {
+      "reserve": 700,
+      "repetition": 2
+    },
+    {
+      "reserve": 500,
+      "repetition": 3
+    },
+    {
+      "reserve": 700,
+      "repetition": 3
+    },
+    {
+      "reserve": 300,
+      "repetition": 3
+    }
+  ],
+  "fixed_conditions": {
+    "strata_version": "0.1.40.2",
+    "strata_commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a",
+    "codex_version": "0.160.1",
+    "model": "Q2_0",
+    "profile": "default",
+    "profile_save": false,
+    "reasoning_effort": "high",
+    "reasoning_budget_tokens": 8192,
+    "max_output_tokens": 24576,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "top_k": 20,
+    "auto_compact_threshold": 100000,
+    "context_window": 156584,
+    "startup_instructions": true,
+    "project_compact_instructions": true,
+    "native_compact_supplement": "tools/resources/codex/0.160.1/compact-prompt.txt",
+    "base_source": "config/maintenance-baseline.json",
+    "base_source_sha256": "feb26e5693ddfe6733afb2d14def6ada2d34d67d9389e0cec7c72a562ad459e1",
+    "prompt_sha256": {
+      "config/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "config/compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+      "tools/resources/codex/0.160.1/compact-prompt.txt": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+    },
+    "loop_prevention_instructions": true
+  },
+  "fixed_hardware": {
+    "gpu": "RTX3080Ti12GiB",
+    "pool_workers": 23,
+    "pool_affinity": "all",
+    "prefill": 8192,
+    "kv": "int8",
+    "kv_resident": 20480,
+    "expert_cache": "auto",
+    "ple_io": "direct"
+  },
+  "fixed_cpu_share": "auto, now adopted onlyinremote installation; fixedinall3reserveconditions.",
+  "workload": {
+    "source": "benchmarks/resource-calibration-v1/workload.py",
+    "record_count": 787,
+    "shared_user_prefix_tokens_reference": 32752,
+    "requests_per_instance": 3,
+    "expected_rows_per_request": 28,
+    "expected_total_rows": 756,
+    "tasks": [
+      "fieldextraction",
+      "availablecapacitycalculation",
+      "updatedcapacityrecalculation"
+    ],
+    "scope": "Same established32Ksynthetic resource workload, not a formalReviewer. Freeze originalinputs/expected/template/tokenizerSHA beforestart.",
+    "old_results_reused_as_new_control": false,
+    "why_fresh_control": "Old32Kcontrol was0.1.40.1andCPUshareoff; onlycurrent same-version/same-setting results can attribute reserveeffects."
+  },
+  "metrics": [
+    "all504answerrows correctness",
+    "per-instancewholework andphase times",
+    "internalread/reused/generated andfourrates",
+    "actualcache slots/reserve/loadedGPUheadroom",
+    "one-secondCPU/RAM/GPUtime-series andobservedminimum, not assumedtrueinstantaneousminimum",
+    "realfailures/continuations/cleanstop/keyreturn"
+  ],
+  "telemetry": {
+    "collector_fix": "CREATE_BREAKAWAY_FROM_JOB verified afterSSHdisconnect with4idle samples, no models.",
+    "sampling_interval_seconds": 1,
+    "before_model": "Verify thefixed collector whileunloaded; frozen sourceSHA identicalfor bothgroups.",
+    "do_not_use_old_missing_samples": true
+  },
+  "preconditions": [
+    "User approvespreviousCPUgroup interpretation and this newgroup scope.",
+    "Remotecontrollerfree, nopreemption;26sourcesandprofileSHA match.",
+    "CurrentAPI supports700but not500/300. After approval addonlythesevalidatedintegervalues, relevant regressions, syncallregisteredtargetswhenidle andreadback. Do not preemptlocal existinggroup.",
+    "Freeze one version of maintaineddrivers and fullprompts; startupinstructionsfull, default/no-save."
+  ],
+  "estimated_time": {
+    "total_minutes": [
+      35,
+      55
+    ],
+    "basis": "Previous6-instance32Kremote executions11.8-21minutes;9instances scaleabout18-32executionminutes, pluscontrolled300/500admission, freeze, idle samplercheck, Main/report.",
+    "per_logical_request_work_limit_seconds": 150,
+    "upper_envelope_request_work_minutes": 67.5,
+    "does_not_count_user_waiting": true
+  },
+  "selection": "Chooseamong700/500/300bycompletecorrectresults, tasktime andactualresource observations; intrinsic candidateOOM/stall/failure remains evidence, nothiddenor replaced. Defaultstays700untilselection.",
+  "core_unknowns": [
+    "CPU-prefill expert count/share absent fromAPIservebranch.",
+    "This shorttest cannotprove100KReviewer or allRAM/VRAMparameters optimal."
+  ],
+  "model_runs_executed": 0,
+  "source_default_changed": false,
+  "stop_after_group": "Close results, analyze, plan nextgroup and end Mainreply for userreview/approval. No automatic nextdimension.",
+  "fixed_spec_min_p": 0.5,
+  "candidate_source": "User suggests700,500,300 to observe trend; replaces earlier700/981 and981/618/256proposals.",
+  "next_group": "Spec-min-p0.5/0.7onlyafterthisgroup report anduserreview, preserving selectedreserve inbothconditions.",
+  "mandatory_peer_validation": "Each dimension must have local independent evidence and new hosts must independently calibrate; no remote result propagated to another host default.",
+  "selection_key": {
+    "host": "rtx3080ti",
+    "model": "Q2_0"
+  },
+  "selection_transfer": "OnlythishostQ2_0mayadoptresult; samehostIQ2_XS/IQ3_XXSneedindependentnewtuning. Splitper-modelsourcebeforedefaultchange; do notbroadcastviahostsharedoverrides.",
+  "other_quantizations_tuned": false
+}

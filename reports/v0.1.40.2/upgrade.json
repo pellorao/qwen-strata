@@ -1,0 +1,789 @@
+{
+  "status": "both-upgraded-and-bounded-short-checks-passed",
+  "strata": {
+    "version": "0.1.40.2",
+    "commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a"
+  },
+  "official_release": "https://github.com/Niko1221/Strata/releases/tag/v0.1.40.2",
+  "engine_zip": {
+    "bytes": 135496886,
+    "sha256": "02901f0cd0691ab33ec827e354ffa72e1ab4f19a093f0280c6deb7327b26eb30"
+  },
+  "source_zip": {
+    "bytes": 18736860,
+    "sha256": "9e5a8086fc1869c6a23859bd9d06e93d91adbc066b54c4239f84a70f791e4480"
+  },
+  "upstream_readback": {
+    "files_per_host": 2264,
+    "identical_written_manifest_sha256": "e90ca12f6d3a379d9154d1f94b77213e3536d11d3c598392eb19e5083bc1f1d2",
+    "instructions_unchanged": true,
+    "dependencies_unchanged": true,
+    "cuda_architectures": [
+      75,
+      86,
+      89,
+      120
+    ],
+    "actual_hosts_arch": [
+      89,
+      86
+    ]
+  },
+  "deployment": {
+    "files_per_host": 26,
+    "project_is_only_mutable_source": true,
+    "per_host_parameters_preserved": true,
+    "model_assets_unchanged": true,
+    "backups_in_project_maintenance_directory": true
+  },
+  "smoke_by_host": {
+    "local": {
+      "schema": 1,
+      "status": "closed-single-upgrade-smoke",
+      "configuration": {
+        "status": "user-selected-runtime-starting-point",
+        "selected_on": "2026-10-06",
+        "selected_by": "user",
+        "reason": "User selects high as the base running effort after observing shorter task times in the current effort comparison.",
+        "strata": {
+          "version": "0.1.40.2",
+          "commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a"
+        },
+        "start_options": {
+          "model": "Q2_0",
+          "engine_overrides": {
+            "prefill": 16384,
+            "kv": "int8",
+            "kv-resident": 20480,
+            "pool-workers": 23,
+            "pcie-frac": 0.0,
+            "spec": 4,
+            "spec-min-p": 0.7,
+            "expert-cache": "auto",
+            "vram-reserve-mib": 700,
+            "adapt-every": 4,
+            "adapt-swaps": 96,
+            "adapt-decay": 0.7,
+            "mtp-window": 32768,
+            "pcie-mode": "auto",
+            "expert-cache-per-layer": false,
+            "expert-cache-cpu-order": false,
+            "pool-affinity": "auto",
+            "ple-io": "direct",
+            "ple-inflight": 256,
+            "no-capture": false,
+            "no-host-worker": false,
+            "no-ple-prefetch": false,
+            "no-prefill-borrow": false,
+            "no-split-rows": false,
+            "no-coupled-draft": false,
+            "shared-late": false,
+            "keep-canonical": false,
+            "no-token-graph": false,
+            "no-fused-gr": false,
+            "no-hit-poke": false,
+            "ple-sync-submit": false,
+            "no-spec-split": false,
+            "gr-fp32-activations": false,
+            "ple-row-cache": 1048576,
+            "short-read": 64,
+            "suffix-draft": 3,
+            "mtp-max-t": 0,
+            "prompt-cache": 6,
+            "prompt-cache-every": 16384,
+            "prompt-cache-root": 2048,
+            "max-context": 156584
+          },
+          "engine_environment": {
+            "STRATA_HC_SPLIT": null,
+            "STRATA_ADAPT_NOWAIT": null,
+            "STRATA_SSD_KEEPALIVE": null
+          },
+          "request_defaults": {
+            "temperature": 0.0,
+            "top_p": 1.0,
+            "top_k": 20,
+            "max_tokens": 24576,
+            "reasoning_budget_tokens": 8192,
+            "min_p": 0.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+            "repetition_penalty": 1.0,
+            "penalty_last_n": 64,
+            "reasoning_effort": "high"
+          }
+        },
+        "request_options": {
+          "responses": {
+            "model": "qwen3.8-flash-next-q2_0",
+            "reasoning": {
+              "effort": "high"
+            },
+            "max_output_tokens": 24576,
+            "temperature": 0.0,
+            "top_p": 1.0
+          },
+          "chat": {
+            "temperature": 0.0,
+            "top_p": 1.0,
+            "top_k": 20,
+            "max_tokens": 24576,
+            "reasoning_budget_tokens": 8192,
+            "min_p": 0.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+            "repetition_penalty": 1.0,
+            "penalty_last_n": 64,
+            "reasoning_effort": "high",
+            "model": "qwen3.8-flash-next-q2_0"
+          }
+        },
+        "harness": {
+          "model_reasoning_effort": "high",
+          "model_context_window": 156584,
+          "model_auto_compact_token_limit": 100000,
+          "guardian_effort": "low",
+          "guardian_reasoning_budget_tokens": 2048,
+          "guardian_max_tokens": 8192
+        },
+        "profile": {
+          "choice": "default",
+          "installation_relative_path": "runtime/Strata/data/expert-profile.bin",
+          "sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+          "save_enabled": false
+        },
+        "parameter_origin": {
+          "file": "reports/v0.1.38/upgrade-cycle-20261003/baseline.json",
+          "sha256": "ada9da61fe092b296964cd2aa6c03457825000ed7d61ddcf5e7ab1c03ae89ffe",
+          "scope": "Other parameters inherited from the v0.1.38 published baseline; that historical file is unchanged."
+        },
+        "selection_evidence": "reports/v0.1.38/reasoning-effort-comparison/summary.md",
+        "qualification": "Both hosts upstream files upgraded and SHA-verified; v0.1.40.2 short validation pending. Existing parameters retained, no broad acceptance or new parameter optimum inferred.",
+        "model_run_performed_for_selection": false
+      },
+      "protocol_sha256": "ab4898760f8c225a561a5198d8fd21af656b686b5015688d9e4f41bf793bf675",
+      "baseline_sha256": "1fd6b30673fda49ea64b1c985bef1d2eca3a9c1fb183323327b153508a84ea81",
+      "base_prompt_sha256": {
+        "startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+        "compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+        "prompt-policy/compact-prompt.txt": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912"
+      },
+      "pass": true,
+      "observations": 1,
+      "load_seconds": 13.881007452997437,
+      "work_seconds": 67.21469238665985,
+      "model_lifecycle_seconds": 83.82149934768677,
+      "stages": {
+        "chat": {
+          "started_at": 1791398027.8847868,
+          "pass": true,
+          "seconds": 1.6175834470050177,
+          "finished_at": 1791398029.5023706
+        },
+        "tool-first": {
+          "started_at": 1791398029.5026038,
+          "pass": true,
+          "seconds": 1.5576482140022563,
+          "finished_at": 1791398031.0602527
+        },
+        "tool-result": {
+          "started_at": 1791398031.060644,
+          "pass": true,
+          "seconds": 0.3868175070019788,
+          "finished_at": 1791398031.4474618
+        },
+        "search": {
+          "started_at": 1791398031.4477715,
+          "pass": true,
+          "seconds": 6.465535798997735,
+          "finished_at": 1791398037.913308
+        },
+        "mcp": {
+          "started_at": 1791398038.170845,
+          "pass": true,
+          "seconds": 18.16322412109375,
+          "turns": 1,
+          "finished_at": 1791398056.3351262
+        },
+        "guardian": {
+          "started_at": 1791398056.335218,
+          "pass": true,
+          "seconds": 15.341197021484374,
+          "turns": 1,
+          "finished_at": 1791398071.6771681
+        },
+        "compact": {
+          "started_at": 1791398071.6772592,
+          "pass": true,
+          "seconds": 15.466429196996614,
+          "finished_at": 1791398087.1436892
+        },
+        "resume": {
+          "started_at": 1791398087.3020234,
+          "pass": true,
+          "seconds": 8.216257080078124,
+          "turns": 1,
+          "finished_at": 1791398095.51922
+        }
+      },
+      "tokens": {
+        "uncached_input": 112702,
+        "cached_input": 30363,
+        "output": 2906
+      },
+      "internal_numeric_stages": [
+        {
+          "input": 558,
+          "cached": 0,
+          "uncached": 558,
+          "prompt_ms": 890.0,
+          "output": 72,
+          "decode_ms": 677.0,
+          "log_line": 45
+        },
+        {
+          "input": 749,
+          "cached": 0,
+          "uncached": 749,
+          "prompt_ms": 1053.0,
+          "output": 67,
+          "decode_ms": 484.0,
+          "log_line": 49
+        },
+        {
+          "input": 840,
+          "cached": 818,
+          "uncached": 22,
+          "prompt_ms": 148.0,
+          "output": 29,
+          "decode_ms": 214.0,
+          "log_line": 55
+        },
+        {
+          "input": 891,
+          "cached": 0,
+          "uncached": 891,
+          "prompt_ms": 1186.0,
+          "output": 77,
+          "decode_ms": 542.0,
+          "log_line": 58
+        },
+        {
+          "input": 2886,
+          "cached": 967,
+          "uncached": 1919,
+          "prompt_ms": 1353.0,
+          "output": 256,
+          "decode_ms": 1857.0,
+          "log_line": 62
+        },
+        {
+          "input": 17232,
+          "cached": 0,
+          "uncached": 17232,
+          "prompt_ms": 5837.0,
+          "output": 108,
+          "decode_ms": 852.0,
+          "log_line": 66
+        },
+        {
+          "input": 17796,
+          "cached": 0,
+          "uncached": 17796,
+          "prompt_ms": 5661.0,
+          "output": 118,
+          "decode_ms": 891.0,
+          "log_line": 70
+        },
+        {
+          "input": 18074,
+          "cached": 10509,
+          "uncached": 7565,
+          "prompt_ms": 2606.0,
+          "output": 212,
+          "decode_ms": 1804.0,
+          "log_line": 74
+        },
+        {
+          "input": 18361,
+          "cached": 18069,
+          "uncached": 292,
+          "prompt_ms": 672.0,
+          "output": 100,
+          "decode_ms": 710.0,
+          "log_line": 77
+        },
+        {
+          "input": 13255,
+          "cached": 0,
+          "uncached": 13255,
+          "prompt_ms": 4641.0,
+          "output": 92,
+          "decode_ms": 818.0,
+          "log_line": 81
+        },
+        {
+          "input": 18515,
+          "cached": 0,
+          "uncached": 18515,
+          "prompt_ms": 5835.0,
+          "output": 223,
+          "decode_ms": 2178.0,
+          "log_line": 85
+        },
+        {
+          "input": 15324,
+          "cached": 0,
+          "uncached": 15324,
+          "prompt_ms": 5134.0,
+          "output": 1290,
+          "decode_ms": 10193.0,
+          "log_line": 89
+        },
+        {
+          "input": 18584,
+          "cached": 0,
+          "uncached": 18584,
+          "prompt_ms": 5853.0,
+          "output": 262,
+          "decode_ms": 2220.0,
+          "log_line": 93
+        }
+      ],
+      "engine_log_sha256": "680bd3e3a6b766164159892779aa83bb253b83477f1322e7308891d264f77a66",
+      "engine_input_seconds": 40.869,
+      "engine_decode_seconds": 23.44,
+      "engine_input_tokens_per_second": 2757.6402652377105,
+      "engine_output_tokens_per_second": 123.97610921501706,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 67.21469238665985,
+      "task_input_tokens_per_second": 1676.7464969067992,
+      "task_output_tokens_per_second": 43.23459494961188,
+      "main_inspection": {
+        "completed": true,
+        "completed_at": 1791398704.0879712,
+        "frontend_model_requests": 12,
+        "native_responses_requests": 8,
+        "native_session_records": 97,
+        "native_session_ids": [
+          "01a117a4-ca9b-78b3-b143-c6a221e01aa9",
+          "01a117a4-ca8b-73d0-8a6d-8cadcc1a13bc"
+        ],
+        "parent_thread_id": "01a117a4-ca8b-73d0-8a6d-8cadcc1a13bc",
+        "native_event_count": 906,
+        "passive_http_records": 7,
+        "http_inspection": "Native response IDs counted across own parent/guardian histories; internal counters are the consumption source.",
+        "total_elapsed_seconds": 83.82149934768677,
+        "time_scope": "This per-host lifecycle includes preparation already frozen separately; the shared upgrade report separately records the full maintenance timing scope.",
+        "summary_inspection": "Target receipt, refusal and no-op outcome survive compact/resume. Both summaries contain overbroad no-shell assertions after the no-op; local MCP runs outside-path refusal before receipt and both batch the reads despite then wording. Extra MCP discovery also occurs. These presentation/ordering limits do not negate the observed service compatibility facts.",
+        "strict_reply_format": false,
+        "resume_format_handling": "One JSON fence plus explanatory text deterministically parsed without changing values; original response retained.",
+        "guardian_quality_scope": "One harmless authorized no-op allowed and really executed; risk low/userAuthorization unknown wrapper fields do not establish broader approval quality.",
+        "physical_model_processes": 1,
+        "effective_observations": 1,
+        "recovery": null,
+        "base_prompts_verified": true,
+        "profile_no_save_verified": true,
+        "health_cleanup_verified": true
+      },
+      "raw_evidence_boundary": "Full sessions, HTTP observations, tool results and logs stay in .tmp. This JSON retains full-precision numeric stages and conclusions independently; deleting details prevents replay/session reinspection.",
+      "physical_model_processes": 1,
+      "load_seconds_total": 13.881007452997437,
+      "recovery_load_seconds": null,
+      "work_time_excludes_finished_turn_idle": true
+    },
+    "remote": {
+      "schema": 1,
+      "status": "closed-single-upgrade-smoke",
+      "configuration": {
+        "status": "user-selected-runtime-starting-point",
+        "selected_on": "2026-10-06",
+        "selected_by": "user",
+        "reason": "User selects high as the base running effort after observing shorter task times in the current effort comparison.",
+        "strata": {
+          "version": "0.1.40.2",
+          "commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a"
+        },
+        "start_options": {
+          "model": "Q2_0",
+          "engine_overrides": {
+            "prefill": 8192,
+            "kv": "int8",
+            "kv-resident": 20480,
+            "pool-workers": 23,
+            "pcie-frac": 0.0,
+            "spec": 4,
+            "spec-min-p": 0.7,
+            "expert-cache": "auto",
+            "vram-reserve-mib": 700,
+            "adapt-every": 4,
+            "adapt-swaps": 96,
+            "adapt-decay": 0.7,
+            "mtp-window": 32768,
+            "pcie-mode": "auto",
+            "expert-cache-per-layer": false,
+            "expert-cache-cpu-order": false,
+            "pool-affinity": "all",
+            "ple-io": "direct",
+            "ple-inflight": 256,
+            "no-capture": false,
+            "no-host-worker": false,
+            "no-ple-prefetch": false,
+            "no-prefill-borrow": false,
+            "no-split-rows": false,
+            "no-coupled-draft": false,
+            "shared-late": false,
+            "keep-canonical": false,
+            "no-token-graph": false,
+            "no-fused-gr": false,
+            "no-hit-poke": false,
+            "ple-sync-submit": false,
+            "no-spec-split": false,
+            "gr-fp32-activations": false,
+            "ple-row-cache": 1048576,
+            "short-read": 64,
+            "suffix-draft": 3,
+            "mtp-max-t": 0,
+            "prompt-cache": 6,
+            "prompt-cache-every": 16384,
+            "prompt-cache-root": 2048,
+            "max-context": 156584
+          },
+          "engine_environment": {
+            "STRATA_HC_SPLIT": null,
+            "STRATA_ADAPT_NOWAIT": null,
+            "STRATA_SSD_KEEPALIVE": null
+          },
+          "request_defaults": {
+            "temperature": 0.0,
+            "top_p": 1.0,
+            "top_k": 20,
+            "max_tokens": 24576,
+            "reasoning_budget_tokens": 8192,
+            "min_p": 0.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+            "repetition_penalty": 1.0,
+            "penalty_last_n": 64,
+            "reasoning_effort": "high"
+          }
+        },
+        "request_options": {
+          "responses": {
+            "model": "qwen3.8-flash-next-q2_0",
+            "reasoning": {
+              "effort": "high"
+            },
+            "max_output_tokens": 24576,
+            "temperature": 0.0,
+            "top_p": 1.0
+          },
+          "chat": {
+            "temperature": 0.0,
+            "top_p": 1.0,
+            "top_k": 20,
+            "max_tokens": 24576,
+            "reasoning_budget_tokens": 8192,
+            "min_p": 0.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+            "repetition_penalty": 1.0,
+            "penalty_last_n": 64,
+            "reasoning_effort": "high",
+            "model": "qwen3.8-flash-next-q2_0"
+          }
+        },
+        "harness": {
+          "model_reasoning_effort": "high",
+          "model_context_window": 156584,
+          "model_auto_compact_token_limit": 100000,
+          "guardian_effort": "low",
+          "guardian_reasoning_budget_tokens": 2048,
+          "guardian_max_tokens": 8192
+        },
+        "profile": {
+          "choice": "default",
+          "installation_relative_path": "runtime/Strata/data/expert-profile.bin",
+          "sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+          "save_enabled": false
+        },
+        "parameter_origin": {
+          "file": "reports/v0.1.38/upgrade-cycle-20261003/baseline.json",
+          "sha256": "ada9da61fe092b296964cd2aa6c03457825000ed7d61ddcf5e7ab1c03ae89ffe",
+          "scope": "Other parameters inherited from the v0.1.38 published baseline; that historical file is unchanged."
+        },
+        "selection_evidence": "reports/v0.1.38/reasoning-effort-comparison/summary.md",
+        "qualification": "Both hosts upstream files upgraded and SHA-verified; v0.1.40.2 short validation pending. Existing parameters retained, no broad acceptance or new parameter optimum inferred.",
+        "model_run_performed_for_selection": false
+      },
+      "protocol_sha256": "899b50b7e4158aabfcc23551bb49f21a4e0a4454659a1fa06482c5b8687dffea",
+      "baseline_sha256": "1fd6b30673fda49ea64b1c985bef1d2eca3a9c1fb183323327b153508a84ea81",
+      "base_prompt_sha256": {
+        "startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+        "compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+        "prompt-policy/compact-prompt.txt": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912"
+      },
+      "pass": true,
+      "observations": 1,
+      "load_seconds": 16.36914800100203,
+      "work_seconds": 86.45618501182314,
+      "model_lifecycle_seconds": 523.5831367969513,
+      "stages": {
+        "chat": {
+          "started_at": 1791398042.5949707,
+          "pass": true,
+          "seconds": 2.1154938130057417,
+          "finished_at": 1791398044.710465
+        },
+        "tool-first": {
+          "started_at": 1791398044.7106993,
+          "pass": true,
+          "seconds": 1.8965831469977275,
+          "finished_at": 1791398046.6072829
+        },
+        "tool-result": {
+          "started_at": 1791398046.6075315,
+          "pass": true,
+          "seconds": 0.46382769299816573,
+          "finished_at": 1791398047.0713596
+        },
+        "search": {
+          "started_at": 1791398047.0715852,
+          "pass": true,
+          "seconds": 7.194074338003702,
+          "finished_at": 1791398054.26566
+        },
+        "mcp": {
+          "started_at": 1791398452.6255987,
+          "pass": true,
+          "seconds": 21.999509033203125,
+          "turns": 1,
+          "finished_at": 1791398474.626157
+        },
+        "guardian": {
+          "started_at": 1791398474.6262264,
+          "pass": true,
+          "seconds": 17.573045166015625,
+          "turns": 1,
+          "finished_at": 1791398492.2001061
+        },
+        "compact": {
+          "started_at": 1791398492.2001946,
+          "pass": true,
+          "seconds": 23.9541230130053,
+          "finished_at": 1791398516.154318
+        },
+        "resume": {
+          "started_at": 1791398516.288673,
+          "pass": true,
+          "seconds": 11.25952880859375,
+          "turns": 1,
+          "finished_at": 1791398527.5491478
+        }
+      },
+      "tokens": {
+        "uncached_input": 112754,
+        "cached_input": 30345,
+        "output": 3423
+      },
+      "internal_numeric_stages": [
+        {
+          "input": 558,
+          "cached": 0,
+          "uncached": 558,
+          "prompt_ms": 1037.0,
+          "output": 91,
+          "decode_ms": 1041.0,
+          "log_line": 44
+        },
+        {
+          "input": 749,
+          "cached": 0,
+          "uncached": 749,
+          "prompt_ms": 1209.0,
+          "output": 65,
+          "decode_ms": 643.0,
+          "log_line": 48
+        },
+        {
+          "input": 838,
+          "cached": 816,
+          "uncached": 22,
+          "prompt_ms": 159.0,
+          "output": 29,
+          "decode_ms": 266.0,
+          "log_line": 54
+        },
+        {
+          "input": 891,
+          "cached": 0,
+          "uncached": 891,
+          "prompt_ms": 1361.0,
+          "output": 77,
+          "decode_ms": 696.0,
+          "log_line": 57
+        },
+        {
+          "input": 2885,
+          "cached": 967,
+          "uncached": 1918,
+          "prompt_ms": 1445.0,
+          "output": 294,
+          "decode_ms": 2441.0,
+          "log_line": 60
+        },
+        {
+          "input": 17236,
+          "cached": 0,
+          "uncached": 17236,
+          "prompt_ms": 7234.0,
+          "output": 109,
+          "decode_ms": 1205.0,
+          "log_line": 106
+        },
+        {
+          "input": 17802,
+          "cached": 0,
+          "uncached": 17802,
+          "prompt_ms": 7118.0,
+          "output": 95,
+          "decode_ms": 973.0,
+          "log_line": 110
+        },
+        {
+          "input": 18057,
+          "cached": 10510,
+          "uncached": 7547,
+          "prompt_ms": 2860.0,
+          "output": 209,
+          "decode_ms": 2133.0,
+          "log_line": 114
+        },
+        {
+          "input": 18341,
+          "cached": 18052,
+          "uncached": 289,
+          "prompt_ms": 846.0,
+          "output": 104,
+          "decode_ms": 978.0,
+          "log_line": 117
+        },
+        {
+          "input": 13263,
+          "cached": 0,
+          "uncached": 13263,
+          "prompt_ms": 5135.0,
+          "output": 84,
+          "decode_ms": 966.0,
+          "log_line": 121
+        },
+        {
+          "input": 18499,
+          "cached": 0,
+          "uncached": 18499,
+          "prompt_ms": 7371.0,
+          "output": 160,
+          "decode_ms": 1848.0,
+          "log_line": 125
+        },
+        {
+          "input": 15246,
+          "cached": 0,
+          "uncached": 15246,
+          "prompt_ms": 6438.0,
+          "output": 1806,
+          "decode_ms": 17392.0,
+          "log_line": 130
+        },
+        {
+          "input": 18734,
+          "cached": 0,
+          "uncached": 18734,
+          "prompt_ms": 8129.0,
+          "output": 300,
+          "decode_ms": 2985.0,
+          "log_line": 134
+        }
+      ],
+      "engine_log_sha256": "13fa561f6ec74602935001326c059750cf53212e5264ebc3b6dfa56e3b148a3a",
+      "engine_input_seconds": 50.342,
+      "engine_decode_seconds": 33.567,
+      "engine_input_tokens_per_second": 2239.760041317389,
+      "engine_output_tokens_per_second": 101.9751541692734,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 86.45618501182314,
+      "task_input_tokens_per_second": 1304.1750568172833,
+      "task_output_tokens_per_second": 39.59230909311919,
+      "main_inspection": {
+        "completed": true,
+        "completed_at": 1791398704.091722,
+        "frontend_model_requests": 12,
+        "native_responses_requests": 8,
+        "native_session_records": 97,
+        "native_session_ids": [
+          "01a117ab-1d92-7723-a313-5253f3c46e0b",
+          "01a117ab-1d85-72f0-a56c-ce25357a3956"
+        ],
+        "parent_thread_id": "01a117ab-1d85-72f0-a56c-ce25357a3956",
+        "native_event_count": 860,
+        "passive_http_records": 8,
+        "http_inspection": "Native response IDs counted across own parent/guardian histories; internal counters are the consumption source.",
+        "total_elapsed_seconds": 523.5831367969513,
+        "time_scope": "This per-host lifecycle includes preparation already frozen separately; the shared upgrade report separately records the full maintenance timing scope.",
+        "summary_inspection": "Target receipt, refusal and no-op outcome survive compact/resume. Both summaries contain overbroad no-shell assertions after the no-op; local MCP runs outside-path refusal before receipt and both batch the reads despite then wording. Extra MCP discovery also occurs. These presentation/ordering limits do not negate the observed service compatibility facts.",
+        "strict_reply_format": false,
+        "resume_format_handling": "One JSON fence plus explanatory text deterministically parsed without changing values; original response retained.",
+        "guardian_quality_scope": "One harmless authorized no-op allowed and really executed; risk low/userAuthorization unknown wrapper fields do not establish broader approval quality.",
+        "physical_model_processes": 2,
+        "effective_observations": 1,
+        "recovery": {
+          "driver_remote_search_receipt_read_failed_after4valid_requests": true,
+          "direct_requests_reused": 4,
+          "second_physical_load_for_original_native_remainder": true,
+          "no_new_effective_sample": true
+        },
+        "base_prompts_verified": true,
+        "profile_no_save_verified": true,
+        "health_cleanup_verified": true
+      },
+      "raw_evidence_boundary": "Full sessions, HTTP observations, tool results and logs stay in .tmp. This JSON retains full-precision numeric stages and conclusions independently; deleting details prevents replay/session reinspection.",
+      "physical_model_processes": 2,
+      "load_seconds_total": 32.75202040599834,
+      "recovery_load_seconds": 16.382872404996306,
+      "work_time_excludes_finished_turn_idle": true
+    }
+  },
+  "recoveries": [
+    {
+      "stage": "remote upgrade backup metadata",
+      "cause": "Existing public installed-release.json uses CRLF; project reconstruction used LF.",
+      "before_runtime_replacement": true,
+      "actual_bytes_saved_for_backup": true,
+      "uploaded_packages_reused": true
+    },
+    {
+      "stage": "remote smoke tool receipt transport",
+      "cause": "Driver tried to read a remote Windows search journal through a local Linux path.",
+      "four_direct_requests_reused": true,
+      "remaining_native_workflow_completed": true,
+      "physical_loads": 2,
+      "effective_observations": 1,
+      "additional_direct_requests": 0
+    }
+  ],
+  "timing": {
+    "actual_first_maintenance_status_at": 1791397481.073916,
+    "publication_at": 1791398835.9091353,
+    "actual_replace_to_publication_seconds": 1354.8352196216583,
+    "scope": "This clock starts at first local maintenance status before replacement and includes dual-host replacement, synchronization, smoke preparation/run, recovery and Main checks/report. Earlier artifact preparation and host-driver adaptation overlapping IQ3 are outside this segment; this is not proof the entire preparation-to-report scope met15-30minutes."
+  },
+  "release_changes": {
+    "default_MMvq_IL": "RTX30+ optimization, author claims numerical identity; actual device-wide equivalence not established by this short check.",
+    "cpu_share": "STRATA_PREFILL_CPU_SHARE remains off/unselected. It changes activation numerics when enabled; no performance or quality comparison authorized here.",
+    "other": "Startup/image timeouts and Responses JSON format with tools fixes retained. No explicit repeat-loop fix inferred."
+  },
+  "qualification": "Only one bounded effective short observation per host. No formal Reviewer scoring/dispatch, safety-policy quality, fault/cancel,100K reliability, profile training or parameter sweep acceptance.",
+  "next": "Resume approved local Spec Readiness after actual ARW permission/predecessor recovery checks; new remote resource dimensions require a concrete plan and authorization."
+}

@@ -1,0 +1,42 @@
+{
+  "version": "0.1.37",
+  "type": "wsl-workflow",
+  "results": {
+    "linux_acceptance": {
+      "evidence_sha256": "a82d6d1c13d24e519c6aa7a7e9e1dccb7c4ea4bac76c139768b5549e0cb06780",
+      "statistics": {
+        "codex_version": "0.160.0",
+        "model": "qwen3.8-flash-next-q2_0",
+        "scope": "Linux tool and recovery acceptance in a disposable fixture, not representative production quality.",
+        "source_sha256": "6471895dd3ce6369011cb3c57ad1922c393d00a3071a0a3e0ce2ff8ca29368a0",
+        "checks": {
+          "mcp_checks": {
+            "actual_utf8_read": true,
+            "actual_scope_rejection": true,
+            "exact_value": true
+          },
+          "repair_checks": {
+            "source_changed": true,
+            "tests_unchanged": true,
+            "independent_tests_pass": true,
+            "actual_patch": true,
+            "actual_shell": true
+          },
+          "resume_checks": {
+            "credential_retained": true,
+            "completed": true,
+            "cancel_interrupted": true
+          }
+        },
+        "independent_tests_exit_code": 0,
+        "cancel_status": "interrupted",
+        "pass": true,
+        "limitations": [
+          "Disposable authorized fixture; no global or other-project harness configuration.",
+          "MCP root restrictions do not prove all shell tools can only read project files."
+        ],
+        "version": "0.1.37"
+      }
+    }
+  }
+}

@@ -1,0 +1,89 @@
+--- a/lib/background-agent/manager.mjs
++++ b/lib/background-agent/manager.mjs
+@@ -19,6 +19,18 @@
+ /** @typedef {{notifications:Array<{sequence:number,type:'message'|'changed',threadId:string|null,turnId:string|null,messageId?:string,text?:string,deliveryStatus?:string,persistenceStatus?:string}>,cursor:number,pendingRequests:import('./codex-app-server.mjs').NativeClientRequest[]}} ManagedObservation */
+ /** @typedef {Omit<NativeSession,'startTurn'|'steer'|'resume'> & {runId:string,previous:{runId:string,threadId:string|null,sessionPath:string|null},managementState:()=>EnvironmentState,observe:(input:{cursor:number})=>Promise<ManagedObservation>,waitNotifications:(input:{cursor:number,timeoutMs?:number,signal?:AbortSignal})=>Promise<ManagedObservation>,detach:()=>void,acceptStart:(input:{handoff:string,instructions:string})=>Promise<{runId:string,messageId:string,deliveryStatus:'accepted',recoveryPath:string|null}>,acceptTask:(input:{handoff:string,turnId?:string,instructions?:string,settings?:NativeSettings,cwd?:string,readPaths?:string[],writePaths?:string[]})=>Promise<{runId:string,messageId:string,deliveryStatus:'accepted'}>,prepareNativeStart:()=>Promise<{threadId:string,sessionPath:string|null}>,prepareForTask:(input:{messageId:string})=>Promise<{threadId:string,sessionPath:string|null}>,dispatchAccepted:(input:{messageId:string})=>Promise<{turnId:string|null,messageId:string,deliveryStatus:string|undefined}>,resume:(input:{runId?:string,threadId:string,expectedSessionPath:string|null,instructions:string,deferRestore?:boolean})=>Promise<{threadId:string,sessionPath:string|null}>,startTurn:(input:{threadId:string,handoff:string})=>Promise<{turnId:string|null,messageId:string,deliveryStatus:string|undefined,persistenceStatus:string|undefined}>,steer:(input:{threadId:string,turnId:string,instruction:string})=>Promise<{turnId:string|null,messageId:string,deliveryStatus:string|undefined,persistenceStatus:string|undefined}>}} ManagedNativeSession */
+ /** @typedef {{open:(input:Parameters<NativeSessions['open']>[0])=>Promise<ManagedNativeSession & {reserve:(input:{stateDirectory?:string})=>Promise<{runId:string,threadId:string|null,sessionPath:string|null}>}>}} ManagedNativeSessions */
++
++/** Only an ended, isolated failed turn may lack its own context after pre-turn compaction.
++ * Preserve the incomplete snapshot for inspection; do not fabricate its context.
++ */
++export function canResumeEndedFailedContext(facts, rootThreadId) {
++  if (facts.environmentState !== 'running' || facts.members.length !== 1 || facts.clientRequests.length !== 0) return false;
++  const root = facts.members[0];
++  return root.threadId === rootThreadId && root.state === 'failed' && typeof root.turnId === 'string'
++    && typeof root.sessionPath === 'string' && root.hasConversationHistory === true
++    && facts.unknownReasons.length === 1
++    && facts.unknownReasons[0] === `${rootThreadId}: current native turn context is missing.`;
++}
+ 
+ const systemClock = {now: Date.now, setTimeout, clearTimeout};
+ /** @param {unknown} value */
+@@ -276,7 +288,7 @@
+     try {
+       if(!entry.native||!entry.threadId) throw new Error('Original native thread identity is unavailable.');
+       const facts=await refreshSnapshot(entry);
+-      if(!facts.factsComplete) throw new Error('Native Agent facts are incomplete.');
++      if(!facts.factsComplete && (onlyActive || !canResumeEndedFailedContext(facts,entry.threadId))) throw new Error('Native Agent facts are incomplete.');
+       const root=facts.members.find(member=>member.threadId===entry.threadId);
+       if(!root) throw new Error('Original native thread is missing.');
+       if(onlyActive && root.state!=='active') return;
+@@ -386,7 +398,7 @@
+         throw new Error('Original native thread identity is unavailable.');
+       if(entry.native){
+         const facts=await refreshSnapshot(entry);
+-        if(!facts.factsComplete)throw new Error('Native Agent facts are incomplete.');
++        if(!facts.factsComplete && !canResumeEndedFailedContext(facts,entry.threadId))throw new Error('Native Agent facts are incomplete.');
+         const root=facts.members.find(member=>member.threadId===entry.threadId);
+         if(!root)throw new Error('Original native thread is missing.');
+         if(root.state==='active'&&root.turnId!==turnId)throw new Error('Active native turn changed.');
+--- a/lib/reviewer-runtime/reviewer-runtime.mjs
++++ b/lib/reviewer-runtime/reviewer-runtime.mjs
+@@ -1,3 +1,4 @@
++import {canResumeEndedFailedContext} from '../background-agent/manager.mjs';
+ import {join, relative, sep} from 'node:path';
+ import {REVIEWER_ROLES} from '../arw-common/reviewer-configuration.mjs';
+ import {createScopedFilesystem} from '../common/filesystem.mjs';
+@@ -32,6 +33,11 @@
+ const reviewLogicalPath = (cwd, path) => relative(cwd, path).split(sep).join('/') || '.';
+ /** @type {ReviewerClock} */
+ const systemClock = {now: Date.now};
++// Defer only this recorded pre-turn-compaction failure to live snapshot verification.
++const closedContextFailure = record => record.failure?.code === 'native-facts-unverified'
++    && record.threadId !== null
++    && record.failure.message === `${record.threadId}: current native turn context is missing.`;
++
+ 
+ /** @param {unknown} value @returns {Record<string, unknown>} */
+ const requireObject = value => {
+@@ -328,7 +334,11 @@
+             checked.violations.push('A new Reviewer thread already has an additional Agent.');
+         }
+         if (checked.violations.length > 0) throw reviewerFailure('reviewer-group-violation', checked.violations.join(' '));
+-        if (checked.unknownReasons.length > 0) throw reviewerFailure('native-facts-unverified', checked.unknownReasons.join(' '));
++        if (checked.unknownReasons.length > 0 && !(canResumeEndedFailedContext(baseline, native.threadId)
++            && checked.unknownReasons.length === 1
++            && checked.unknownReasons[0] === `${native.threadId}: current native turn context is missing.`)) {
++            throw reviewerFailure('native-facts-unverified', checked.unknownReasons.join(' '));
++        }
+         Object.assign(record, {
+             settings: handoff.settings, cwd: handoff.cwd, readPaths: handoff.readPaths,
+             writePaths: handoff.writePaths, reportPath: handoff.reportPath,
+@@ -434,7 +444,7 @@
+         if (previous.runId !== runId || previous.role !== handoff.role || !jsonSemanticallyEqual(previous.identity, handoff.identity)) {
+             throw reviewerFailure('recovery-identity-mismatch', 'The run, role or complete Reviewer identity differs from the original thread.');
+         }
+-        if (!previous.threadId || previous.failure) {
++        if (!previous.threadId || (previous.failure && !closedContextFailure(previous))) {
+             throw reviewerFailure(previous.failure?.code ?? 'recovery-thread-unavailable', 'The original Reviewer thread is not reliable for another task.');
+         }
+         const reviewFilesystem = await checkReportBinding(handoff, true);
+@@ -463,7 +473,7 @@
+         return serialize(held, async () => {
+             if (held.record.state === 'starting') throw reviewerFailure('reviewer-busy', 'The original Reviewer task is still starting.');
+             if (held.session.managementState() !== 'exited') await refresh(held);
+-            if (held.record.failure) throw reviewerFailure(held.record.failure.code, held.record.failure.message);
++            if (held.record.failure && !closedContextFailure(held.record)) throw reviewerFailure(held.record.failure.code, held.record.failure.message);
+             if (held.record.state === 'running') throw reviewerFailure('reviewer-busy', 'The original Reviewer is still executing.');
+             const accepted = await held.session.acceptTask({
+                 handoff: handoff.handoff, instructions: handoff.instructions,

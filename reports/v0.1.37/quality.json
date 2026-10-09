@@ -1,0 +1,92 @@
+{
+  "version": "0.1.37",
+  "type": "quality",
+  "results": {
+    "schema_prompted_recall": {
+      "evidence_sha256": "30a75bfc4a442e0916098521bb1cfd646d6a74ede19cb5108b635639b4867ce6",
+      "statistics": {
+        "scope": "One schema-prompted 200K code lookup per quant. Same base corpus/query and low2048/max8192 as previous case; server appends schema instructions, so actual input is slightly above 200K. No repeated trials or broad quality claim.",
+        "backend_schema_validation": "jsonschema not installed; backend only validates one JSON object. Exact keys, integer types and values independently checked here.",
+        "results": {
+          "q2_0": {
+            "valid_json": true,
+            "strict_keys_and_integer_values_pass": true,
+            "correct_values": 5,
+            "total": 5,
+            "prompt_tokens": 200145,
+            "completion_tokens": 351,
+            "actual_keys": [
+              "1011",
+              "1994",
+              "2010",
+              "2500",
+              "997"
+            ],
+            "expected_values": {
+              "997": 0,
+              "1011": 14,
+              "1994": 0,
+              "2010": 16,
+              "2500": 506
+            }
+          },
+          "iq2_xs": {
+            "valid_json": true,
+            "strict_keys_and_integer_values_pass": true,
+            "correct_values": 5,
+            "total": 5,
+            "prompt_tokens": 200145,
+            "completion_tokens": 591,
+            "actual_keys": [
+              "1011",
+              "1994",
+              "2010",
+              "2500",
+              "997"
+            ],
+            "expected_values": {
+              "997": 0,
+              "1011": 14,
+              "1994": 0,
+              "2010": 16,
+              "2500": 506
+            }
+          }
+        }
+      }
+    },
+    "iq3_code_recall": {
+      "evidence_sha256": "39581dc9a9d54cb61a1791bc8b5c610adb86197b5abf6dfe1c63174c8fa92c46",
+      "statistics": {
+        "model": "IQ3_XXS",
+        "version": "0.1.37",
+        "scope": "One exact 200K case for each reasoning preset; not a representative engineering or BF16 evaluation. All quants used low2048/max8192 in low case. Earlier Q2/IQ2 unstructured cases are v36 historical; not contemporaneous three-way quality A/B.",
+        "results": {
+          "none": {
+            "runs": 1,
+            "correct_values": 4,
+            "total": 5,
+            "strict_keys_and_values_pass": false,
+            "valid_json": true,
+            "input_tokens": 200000,
+            "output_tokens": 49,
+            "minimum_free_physical_gib": 6.903354644775391,
+            "memory_guard_triggered": false
+          },
+          "low": {
+            "runs": 1,
+            "correct_values": 5,
+            "total": 5,
+            "strict_keys_and_values_pass": false,
+            "valid_json": true,
+            "input_tokens": 200000,
+            "output_tokens": 562,
+            "minimum_free_physical_gib": 8.915088653564453,
+            "memory_guard_triggered": false
+          }
+        },
+        "conclusion": "none: wrong value for997; low: all five values right but check_ prefixed keys violate requested numeric keys. No improvement over the previously observed class of failures; no evidence to change daily Q2 default."
+      }
+    }
+  }
+}

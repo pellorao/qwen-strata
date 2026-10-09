@@ -1,0 +1,158 @@
+{
+  "scope": "read-only comparison of Main-confirmed bounded witness text, not detector execution or F1; older mixed windows excluded",
+  "rows": [
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/90-validation-order",
+      "kind": "reasoning",
+      "units": 4,
+      "minimum_length": 282,
+      "exact_duplicate_pair_count": 0,
+      "max_whole_unit_similarity": 0.3754993342210386
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/90-absent-prior-state",
+      "kind": "reasoning",
+      "units": 3,
+      "minimum_length": 568,
+      "exact_duplicate_pair_count": 0,
+      "max_whole_unit_similarity": 0.37592968221771467
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/97-validation-order",
+      "kind": "reasoning",
+      "units": 3,
+      "minimum_length": 377,
+      "exact_duplicate_pair_count": 0,
+      "max_whole_unit_similarity": 0.44391971664698937
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/97-authority-table",
+      "kind": "reasoning",
+      "units": 3,
+      "minimum_length": 231,
+      "exact_duplicate_pair_count": 0,
+      "max_whole_unit_similarity": 0.39123630672926446
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/111-validation-order",
+      "kind": "reasoning",
+      "units": 4,
+      "minimum_length": 102,
+      "exact_duplicate_pair_count": 0,
+      "max_whole_unit_similarity": 0.7131147540983607
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/111-absent-prior-state",
+      "kind": "reasoning",
+      "units": 5,
+      "minimum_length": 213,
+      "exact_duplicate_pair_count": 0,
+      "max_whole_unit_similarity": 0.4585987261146497
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/192-retention-owner",
+      "kind": "reasoning",
+      "units": 6,
+      "minimum_length": 23,
+      "exact_duplicate_pair_count": 0,
+      "max_whole_unit_similarity": 0.43615494978479197
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/199-retention-owner",
+      "kind": "reasoning",
+      "units": 5,
+      "minimum_length": 137,
+      "exact_duplicate_pair_count": 0,
+      "max_whole_unit_similarity": 0.35908141962421714
+    },
+    {
+      "case_id": "default-ee8797ca-104c-4ea8-9b41-4511ce819641-instance-1/supplement-1",
+      "kind": "reasoning",
+      "units": 5,
+      "minimum_length": 120,
+      "exact_duplicate_pair_count": 0,
+      "max_whole_unit_similarity": 0.3111954459203036
+    },
+    {
+      "case_id": "default-1950af9e-5e00-42ab-86c6-3b6fe26294ed-instance-3/supplement-1",
+      "kind": "reasoning",
+      "units": 5,
+      "minimum_length": 397,
+      "exact_duplicate_pair_count": 0,
+      "max_whole_unit_similarity": 0.34672619047619047
+    },
+    {
+      "case_id": "default-1950af9e-5e00-42ab-86c6-3b6fe26294ed-instance-3/supplement-2",
+      "kind": "reasoning",
+      "units": 5,
+      "minimum_length": 362,
+      "exact_duplicate_pair_count": 0,
+      "max_whole_unit_similarity": 0.4146341463414634
+    },
+    {
+      "case_id": "full-annotation/01a113ab-f529-7a43-8cf0-00cab4092ac4/second-response-token-redecision",
+      "kind": "reasoning",
+      "units": 5,
+      "minimum_length": 347,
+      "exact_duplicate_pair_count": 0,
+      "max_whole_unit_similarity": 0.2701363073110285
+    },
+    {
+      "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-2/supplement-1",
+      "kind": "reasoning",
+      "units": 5,
+      "minimum_length": 280,
+      "exact_duplicate_pair_count": 0,
+      "max_whole_unit_similarity": 0.37925925925925924
+    },
+    {
+      "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-2/supplement-2",
+      "kind": "reasoning",
+      "units": 3,
+      "minimum_length": 231,
+      "exact_duplicate_pair_count": 0,
+      "max_whole_unit_similarity": 0.3246753246753247
+    },
+    {
+      "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-1",
+      "kind": "assistant",
+      "units": 6,
+      "minimum_length": 81,
+      "exact_duplicate_pair_count": 15,
+      "max_whole_unit_similarity": 1.0
+    },
+    {
+      "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-2",
+      "kind": "assistant",
+      "units": 6,
+      "minimum_length": 81,
+      "exact_duplicate_pair_count": 15,
+      "max_whole_unit_similarity": 1.0
+    },
+    {
+      "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+      "kind": "assistant",
+      "units": 26,
+      "minimum_length": 81,
+      "exact_duplicate_pair_count": 325,
+      "max_whole_unit_similarity": 1.0
+    }
+  ],
+  "behavior_sha256": "784148f62f4e7d61e1d6465e8d101852e8b4083b2990ca13c7a99b9f95b5a39a",
+  "annotation_sha256": "1d49d8607f4af8906c745916e577ea79c02b5df3442f7337f8b24057b3368ca6",
+  "method": {
+    "normalization": "whitespace collapse only; no term lists, stemming or keyword cues",
+    "similarity": "difflib.SequenceMatcher character ratio, autojunk=False",
+    "comparison": "all pairs of whole bounded witness texts; max whole-unit pair ratio per group",
+    "limits": "17 selected bounded groups only; not all156, not detector recall, not a proof that every possible text algorithm fails"
+  },
+  "summary": {
+    "semantic_groups": 14,
+    "semantic_groups_max_ratio_below_half": 13,
+    "semantic_max_pair_ratio_min": 0.2701363073110285,
+    "semantic_max_pair_ratio_max": 0.7131147540983607,
+    "identical_result_groups": 3
+  },
+  "model_runs": 0,
+  "detector_rule_changes": 0
+}

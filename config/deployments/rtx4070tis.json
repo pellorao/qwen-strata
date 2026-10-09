@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "rtx4070tis",
+  "transport": "",
+  "cuda_arch": 89,
+  "models": [
+    "Q2_0",
+    "IQ2_XS",
+    "IQ3_XXS"
+  ],
+  "engine_overrides": {
+    "prefill": 16384,
+    "kv-resident": 20480,
+    "pool-workers": 23
+  },
+  "hardware": {
+    "gpu": "NVIDIA RTX 4070 Ti SUPER",
+    "vram_gib": 16,
+    "cpu": "Intel Core i9-14900K",
+    "ram_gib": 64
+  },
+  "qualification": "Existing installation settings; not a new parameter optimum. Host offline since 2026-10-09; connection method to be decided when it returns.",
+  "connection_host": "rtx4070tis"
+}

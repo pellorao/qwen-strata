@@ -1,0 +1,39 @@
+{
+  "local_regression": {
+    "command": "python3 -m unittest discover -s tests -v",
+    "passed": 55,
+    "failed": 0,
+    "wall_s": 3.268,
+    "tested_files": [
+      "src/controller_backend.py",
+      "src/responses_bridge.py",
+      "tools/upgrade_release.py"
+    ],
+    "scope": "Current controlled parameters, ownership, bridge, files and release transaction regression"
+  },
+  "real_service_regression": {
+    "scope": "Real installed controller, Q2_0 model, both APIs and invalid/revoked callers. No score benchmark.",
+    "credentials_published": false,
+    "pass": true
+  },
+  "runtime_integrity": {
+    "pass": true,
+    "version": {
+      "version": "0.1.38",
+      "commit": "99f3dbd0b21d1401b3769e0c0d963913607f380b"
+    }
+  },
+  "maintenance_guard": {
+    "model_before": "stopped",
+    "held_key_survives_restart": true,
+    "installed_readme_matches_source": true,
+    "ownership_returned": true
+  },
+  "targeted_telemetry_regression": {
+    "command": "python3 -m unittest discover -s tests -p test_controller_client.py -v",
+    "tests": 2,
+    "status": "passed",
+    "purpose": "Preserve unknown inconsistent cached-input counters without aborting completed responses; validate normal three-category accounting."
+  },
+  "measurement_details": "../../../.tmp/measurement-details/v0.1.38/upgrade-cycle-20261003/basics.json"
+}

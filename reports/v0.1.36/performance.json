@@ -1,0 +1,128 @@
+{
+  "version": "0.1.36",
+  "type": "performance",
+  "results": {
+    "version_comparison": {
+      "evidence_sha256": "45d1af26276886de2eb48c113bcd1b6a4393712a83e87203400afc97c360ecfc",
+      "statistics": {
+        "baseline": {
+          "context": 200000,
+          "model": "q2_0",
+          "engine": "prebuilt",
+          "runs": 3,
+          "retrieval_pass": true,
+          "cache_zero": true,
+          "process_rss_gib_observed_max": 38.00462341308594,
+          "gpu_mib_observed_max": 15936.0,
+          "prefill_tps": {
+            "median": 2444.0,
+            "min": 2443.2,
+            "max": 2454.8
+          },
+          "decode_tps": {
+            "median": 60.2,
+            "min": 58.0,
+            "max": 61.9
+          },
+          "ttft_s": {
+            "median": 82.41855280000027,
+            "min": 82.3331460999998,
+            "max": 82.7392847000001
+          },
+          "elapsed_s": {
+            "median": 86.80396610000025,
+            "min": 86.55606379999972,
+            "max": 86.84615930000018
+          }
+        },
+        "new_version": "0.1.36",
+        "new_run": {
+          "context": 200000,
+          "model": "q2_0",
+          "engine": "prebuilt",
+          "repeat": 1,
+          "elapsed_s": 86.62082830000054,
+          "ttft_s": 82.42376370000056,
+          "usage": {
+            "prompt_tokens": 200000,
+            "completion_tokens": 256,
+            "total_tokens": 200256,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            }
+          },
+          "timings": {
+            "cache_n": 0,
+            "prompt_n": 200000,
+            "prompt_ms": 81912.9,
+            "prompt_per_token_ms": 0.41,
+            "prompt_per_second": 2441.6,
+            "predicted_n": 256,
+            "predicted_ms": 4224.7,
+            "predicted_per_token_ms": 16.503,
+            "predicted_per_second": 60.6,
+            "draft_n": 200,
+            "draft_n_accepted": 124
+          },
+          "done": true,
+          "retrieval_pass": true,
+          "output": "根据提供的资料，检索到的重要凭证如下：\n\n*   **ALPHA**: 青岚-482731\n*   **BETA**: 松石-916204\n\n上述记录展示了一个高度自动化且标准化的复核流程。首先，系统按时间顺序生成记录，每条记录包含唯一的项目标识（如 `module_0` 至 `module_192` 循环）、日期、状态（均为“已复核”）以及数值数据。核心逻辑在于函数定义 `def check_x(x): return x + y`，其中 `x` 通常对应记录序号或模块编号，而 `y` 是递增的偏移量。这种结构暗示系统通过动态计算验证数据完整性，确保每个模块的输出符合预期的数学规律。\n\n流程中强调“配置变更后需要保存日志并检查输出”，表明复核不仅依赖静态数据，还涉及动态配置管理。系统可能通过比对 `value` 字段与函数计算结果，检测异常或篡改。此外，记录中穿插的“重要凭证”（ALPHA 和 BETA）作为关键锚点，用于验证特定时间段的数据可信度或作为审计密钥。整体流程体现了从数据生成、逻辑校验"
+        },
+        "runs_new": 1,
+        "prefill_change_percent": -0.09819967266776475,
+        "decode_change_percent": 0.6644518272425293,
+        "note": "New version has one run; changes within previous observed variation. Same exact input and sampling. Native/GGUF pack does not opt into fused kernels by default."
+      }
+    },
+    "tuning": {
+      "evidence_sha256": "6f97a6cd6e9bc99e773fa336c5e54616be754177d6d7e8e407fa030abefcfcbd",
+      "statistics": {
+        "control": {
+          "n": 3,
+          "all_pass": true,
+          "median": {
+            "prompt_per_second": 2583.7,
+            "predicted_per_second": 84.4
+          },
+          "ttft_s": 77.9041468000014,
+          "elapsed_s": 80.91198020000047
+        },
+        "prefill16": {
+          "n": 3,
+          "all_pass": true,
+          "median": {
+            "prompt_per_second": 2801.8,
+            "predicted_per_second": 84.8
+          },
+          "ttft_s": 71.87265269999989,
+          "elapsed_s": 74.86927389999983
+        }
+      }
+    },
+    "quant_comparison": {
+      "evidence_sha256": "45e6be4655f76c3228c5ac05f73523fbc71ace064258c5fdfa2121ea3fe5fce1",
+      "statistics": {
+        "q2_0": {
+          "n": 2,
+          "all_pass": true,
+          "median": {
+            "prompt_per_second": 2802.2,
+            "predicted_per_second": 85.4
+          },
+          "ttft_s": 71.85973225000089,
+          "elapsed_s": 74.83085395000126
+        },
+        "iq2_xs": {
+          "n": 2,
+          "all_pass": true,
+          "median": {
+            "prompt_per_second": 2863.95,
+            "predicted_per_second": 80.65
+          },
+          "ttft_s": 70.31853574999968,
+          "elapsed_s": 73.45080599999892
+        }
+      }
+    }
+  }
+}

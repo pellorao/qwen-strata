@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "status": "revised-single-loop-probability-definition-review-pending",
+  "model": "Q2_0",
+  "reuse_loaded_model": true,
+  "new_model_instance": false,
+  "same_owner_key": true,
+  "context": {
+    "logical_review_session": "Separate from parent task, as observed native guardian; associate1judge session per parent logical task.",
+    "engine_max_context_tokens": 156584,
+    "engine_max_context_policy": "Reuse actual parent engine setting;156584is maintenance start value, not a new second allocation. Do not restart a held parent to change judge limit.",
+    "logical_total_budget_tokens": 16384,
+    "input_limit_tokens": 8192,
+    "total_output_budget_tokens": 2112,
+    "history_strategy": "Append source rounds and judge turns. Before next rendered input exceeds proposed8192tokens, rebuild fixed rules+scenario task brief+latest4source rounds, then append again. No per-round eviction.",
+    "comparison_scope": "Current round versus any source work retained in judge context; no4round assessment limit. Older judge outputs are not work. Four source rounds retained only when rebuilding.",
+    "compression": "deterministic rebuild of original retained rounds, not model-generated summaries",
+    "unexpected_oversize": "Do not silently change user truncation or source record scope; report and review."
+  },
+  "request": {
+    "reasoning_effort": "low",
+    "reasoning_budget_tokens": 2048,
+    "max_tokens": 2112,
+    "temperature": 0,
+    "top_p": 1,
+    "top_k": 20,
+    "tools": [],
+    "visible_output": "One finite scalar0..1 estimating whether current round contains/continues a repetition loop; no JSON or explanation",
+    "interface": "Existing public Chat endpoint, to retain explicit full reasoning budget",
+    "budget_interface_evidence": {
+      "Responses_total2112_maps_thinking1056": true,
+      "Responses_bridge_half_budget_rule": "src/responses_bridge.py:146",
+      "Chat_requested_reasoning2048_and_total2112": "Native positive integer request budgets supported; actual model response still needs runtime validation.",
+      "startup_defaults_unchanged": true
+    }
+  },
+  "engine_cache": {
+    "prompt-cache": 6,
+    "prompt-cache-every": 16384,
+    "prompt-cache-root": 2048,
+    "conversation_cache_current_source": "No positive parking budget in maintenance baseline; native default disabled. Actual running flags must be queried before testing.",
+    "first_quality_pilot": "Reuse current defaults; do not claim cross-session cache success.",
+    "later_cache_validation": "Measure parent->judge->parent read/reused/restoration/timing; add native parking only if actual need established. Public controller does not currently expose its engine flags."
+  },
+  "prototype_differences_from_approval": [
+    "Auto-review trigger is a permission boundary; repeated-work judge needs its own observed-round trigger.",
+    "Native approval returns approval outcome/rationale; repeat judge returns3numbers, so built-in guardian policy override cannot be assumed to change output format. Do not modify real approval policy.",
+    "Native auto-review omits hidden reasoning; add only actually surfaced Strata reasoning_content/summary needed by repeated-work input.",
+    "Approval retains authorization history; repeat comparison horizon is4source rounds, allowing bounded deterministic rebuild."
+  ],
+  "pilot_proposal": {
+    "status": "Re-freeze coverage cases/event labels/requests after definition review; former6windows18requests54pair scores superseded.",
+    "purpose": "Cover actual continuous/interleaved/return-to-old/multi-step/internal/continue-answer repetition and normal boundaries.",
+    "reference_score": "PriorCPU .600/.815/.880 is pair-relation diagnostic; no direct eventF1 comparison.",
+    "runtime_model_runs": 0
+  },
+  "route_studies": [
+    "Strata model-only",
+    "program-only mechanical detector without semantic models or fixed keywords",
+    "combined detector after independent baselines, aggregation rule first reviewed"
+  ],
+  "scoring": {
+    "reference": "CPU best diagnostic F1 .600/.815/.880; probability thresholds not transplanted to Strata",
+    "report": "precision/recall/F1, returned coverage, parse failures, engine read/reused/generated, four applicable speeds, judging time, rebuilds and boundary behavior",
+    "full_loop_gate": "156original groups / timing and normal behavior gate separate from pure-step pair relation scoring; no automatic promotion."
+  },
+  "token_preflight": {
+    "status": "tokenizer-only-no-model-run",
+    "method": "Model-pack BPE vocab/merges and qwen35 regex, rendered via local tokenizers; excludes actual chat framing/harness instructions. Native engine count still required, not a certified exact service count.",
+    "asset_bindings": [
+      {
+        "path": "data/packs/q2_0/tokenizer/chat_template.jinja",
+        "sha256": "12827f24b742ea4e80cdc12dbcf9622227056b9f797252a3149263d4f9aaadce"
+      },
+      {
+        "path": "data/packs/q2_0/tokenizer/merges.txt",
+        "sha256": "080cf95432173729d160346b7882bd2a644b07f7a3813a3eb73f4e66787bfde9"
+      },
+      {
+        "path": "data/packs/q2_0/tokenizer/token_type.json",
+        "sha256": "5088c8c298fc06af8382ddb3b76c888703ac2634e82263b97eedcc2ad202738b"
+      },
+      {
+        "path": "data/packs/q2_0/tokenizer/tokenizer.json",
+        "sha256": "87be2ac47d8bc7393b7435df6ccd276740019a393941a2585d5edce59f450c54"
+      },
+      {
+        "path": "data/packs/q2_0/tokenizer/vocab.json",
+        "sha256": "4ba64f0332abcfb0b600b7df1537d1e836e68009d5fb7cdb77339738dc6365c4"
+      }
+    ],
+    "cases": [
+      {
+        "id": "unchanged-resume-four",
+        "content_tokens_without_chat_template": 1476,
+        "utf8_bytes": 6876
+      },
+      {
+        "id": "verification-after-repair",
+        "content_tokens_without_chat_template": 2054,
+        "utf8_bytes": 7206
+      },
+      {
+        "id": "unchanged-invalid-probe",
+        "content_tokens_without_chat_template": 2045,
+        "utf8_bytes": 7523
+      },
+      {
+        "id": "unchanged-completed-validator",
+        "content_tokens_without_chat_template": 1671,
+        "utf8_bytes": 6484
+      },
+      {
+        "id": "new-noop-delivery",
+        "content_tokens_without_chat_template": 1042,
+        "utf8_bytes": 4856
+      },
+      {
+        "id": "recovered-sandbox-new-reads",
+        "content_tokens_without_chat_template": 2446,
+        "utf8_bytes": 7953
+      }
+    ],
+    "maximum_content_tokens": 2446,
+    "model_requests": 0
+  },
+  "evidence": {
+    "guardian_trace_id": "01a117dc-aa98-7f23-a4ae-e74106658fb2",
+    "guardian_requests": 15,
+    "initial_request_source_event": 6,
+    "subsequent_delta_source_events": [
+      18,
+      29
+    ],
+    "behavior_sha256": "784148f62f4e7d61e1d6465e8d101852e8b4083b2990ca13c7a99b9f95b5a39a",
+    "official_auto_review": "https://learn.chatgpt.com/docs/sandboxing/auto-review",
+    "strata_cache": "https://github.com/Niko1221/Strata/blob/e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a/docs/DETAILS.md#L868-L935",
+    "guardian_context_reference": {
+      "trace_id": "01a117dc-aa98-7f23-a4ae-e74106658fb2",
+      "reported_model_context_window": 156584,
+      "last_input_tokens_for_context_diagnostic_only": 47323,
+      "compression_events_observed": 0,
+      "guardian_auto_compact_threshold": null,
+      "qualification": "Native trace selected fields verified; theseAPIusage values are context diagnostics, never substitute internalStrata consumption. Missing threshold is unverified, not disabled."
+    }
+  },
+  "model_runs": 0,
+  "deployed": false,
+  "user_authorization_scope": "Investigate/prepare parameters; values are proposals, not approved production defaults or authorization to run the pilot.",
+  "definition_source": "benchmarks/loop-detection-v2/repetition-definition.md",
+  "definition_evidence": "benchmarks/loop-detection-v2/repetition-definition-evidence.json",
+  "task_brief": {
+    "current_source": "Test scenario supplies neutral description of detected work/task phase and objects; no hidden labels/answers.",
+    "future_caller_support": "Deferred, not implemented."
+  },
+  "rounds": {
+    "multiple_tools_or_actions_per_round": true,
+    "source_round_container_not_repeat_unit": true,
+    "observational_units": 2514,
+    "units_with_multiple_tools": 456,
+    "max_tools_per_unit": 6,
+    "native_generation_boundary_verified": false,
+    "requirement": "Align actual response and tool observation/intervention boundaries before formal timing assessment."
+  }
+}

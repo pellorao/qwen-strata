@@ -1,0 +1,229 @@
+{
+  "status": "user-approved-resumed-after-remote-reboot",
+  "host": "rtx3080ti",
+  "model_instances": 6,
+  "observations_per_condition": 3,
+  "logical_requests_per_instance": 3,
+  "logical_requests": 18,
+  "candidate_dimension": "pool-affinity",
+  "conditions": [
+    "auto",
+    "all"
+  ],
+  "pool_workers": 23,
+  "schedule": [
+    "auto1",
+    "all1",
+    "all2",
+    "auto2",
+    "auto3",
+    "all3"
+  ],
+  "per_logical_request_work_seconds_limit": 150,
+  "estimated_total_minutes": [
+    25,
+    45
+  ],
+  "estimate_basis": "Current remote closed runs about2616 input and86 output token/s; first32K user prefix about13s uncached at that rate, later common-prefix calls should reuse. Expected output is tens of JSON rows, thinking duration remains variable; six historical Q2 loads about19s each plus preparation/inspection/report. Timeout upper envelope18x150s plus loads and closure can exceed this estimate; report actual overrun.",
+  "source_sha256": {
+    "benchmarks/resource-calibration-v1/workload.py": "049d204cae11050fc589f8fa77c337278589b61321315f9896a2474741d0429a",
+    "benchmarks/resource-calibration-v1/protocol.md": "91cbaccd1f1c9cb5afbb6e01e1f8ebc78f8689f1e21b9e93b29a07afdfc0f862",
+    "config/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "config/compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+    "config/maintenance-baseline.json": "1e3a3a39158ef62a5bbe97e3aec07b0c91554605fea184626e18e6c0654c60ba"
+  },
+  "baseline": {
+    "status": "user-selected-runtime-starting-point",
+    "selected_on": "2026-10-06",
+    "selected_by": "user",
+    "reason": "User selects high as the base running effort after observing shorter task times in the current effort comparison.",
+    "strata": {
+      "version": "0.1.40.1",
+      "commit": "82f46a8c8f475f001ad76d92f58f4a4f8ffb0253"
+    },
+    "start_options": {
+      "model": "Q2_0",
+      "engine_overrides": {
+        "prefill": 8192,
+        "kv": "int8",
+        "kv-resident": 20480,
+        "pool-workers": 23,
+        "pcie-frac": 0.0,
+        "spec": 4,
+        "spec-min-p": 0.7,
+        "expert-cache": "auto",
+        "vram-reserve-mib": 700,
+        "adapt-every": 4,
+        "adapt-swaps": 96,
+        "adapt-decay": 0.7,
+        "mtp-window": 32768,
+        "pcie-mode": "auto",
+        "expert-cache-per-layer": false,
+        "expert-cache-cpu-order": false,
+        "pool-affinity": "auto",
+        "ple-io": "direct",
+        "ple-inflight": 256,
+        "no-capture": false,
+        "no-host-worker": false,
+        "no-ple-prefetch": false,
+        "no-prefill-borrow": false,
+        "no-split-rows": false,
+        "no-coupled-draft": false,
+        "shared-late": false,
+        "keep-canonical": false,
+        "no-token-graph": false,
+        "no-fused-gr": false,
+        "no-hit-poke": false,
+        "ple-sync-submit": false,
+        "no-spec-split": false,
+        "gr-fp32-activations": false,
+        "ple-row-cache": 1048576,
+        "short-read": 64,
+        "suffix-draft": 3,
+        "mtp-max-t": 0,
+        "prompt-cache": 6,
+        "prompt-cache-every": 16384,
+        "prompt-cache-root": 2048,
+        "max-context": 156584
+      },
+      "engine_environment": {
+        "STRATA_HC_SPLIT": null,
+        "STRATA_ADAPT_NOWAIT": null,
+        "STRATA_SSD_KEEPALIVE": null
+      },
+      "request_defaults": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20,
+        "max_tokens": 24576,
+        "reasoning_budget_tokens": 8192,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "penalty_last_n": 64,
+        "reasoning_effort": "high"
+      },
+      "startup_instructions": true,
+      "loop_prevention_instructions": true
+    },
+    "request_options": {
+      "responses": {
+        "model": "qwen3.8-flash-next-q2_0",
+        "reasoning": {
+          "effort": "high"
+        },
+        "max_output_tokens": 24576,
+        "temperature": 0.0,
+        "top_p": 1.0
+      },
+      "chat": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20,
+        "max_tokens": 24576,
+        "reasoning_budget_tokens": 8192,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "penalty_last_n": 64,
+        "reasoning_effort": "high",
+        "model": "qwen3.8-flash-next-q2_0"
+      }
+    },
+    "harness": {
+      "model_reasoning_effort": "high",
+      "model_context_window": 156584,
+      "model_auto_compact_token_limit": 100000,
+      "guardian_effort": "low",
+      "guardian_reasoning_budget_tokens": 2048,
+      "guardian_max_tokens": 8192
+    },
+    "profile": {
+      "choice": "default",
+      "installation_relative_path": "runtime/Strata/data/expert-profile.bin",
+      "sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "save_enabled": false
+    },
+    "parameter_origin": {
+      "file": "reports/v0.1.38/upgrade-cycle-20261003/baseline.json",
+      "sha256": "ada9da61fe092b296964cd2aa6c03457825000ed7d61ddcf5e7ab1c03ae89ffe",
+      "scope": "Other parameters inherited from the v0.1.38 published baseline; that historical file is unchanged."
+    },
+    "selection_evidence": "reports/v0.1.38/reasoning-effort-comparison/summary.md",
+    "qualification": "A user configuration choice, not v0.1.40 runtime acceptance or a newly completed parameter comparison. Historical measurements keep their original effort and budgets.",
+    "model_run_performed_for_selection": false
+  },
+  "model_started": false,
+  "generation_requests": 0,
+  "default_profile_sha256_verified": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+  "workload": {
+    "source": "benchmarks/resource-calibration-v1/workload.py",
+    "record_count": 787,
+    "user_prefix_tokens": 32752,
+    "request_user_tokens": [
+      33006,
+      33014,
+      33203
+    ],
+    "tokenizer_sha256": {
+      "chat_template.jinja": "12827f24b742ea4e80cdc12dbcf9622227056b9f797252a3149263d4f9aaadce",
+      "merges.txt": "080cf95432173729d160346b7882bd2a644b07f7a3813a3eb73f4e66787bfde9",
+      "tokenizer.json": "87be2ac47d8bc7393b7435df6ccd276740019a393941a2585d5edce59f450c54",
+      "token_type.json": "5088c8c298fc06af8382ddb3b76c888703ac2634e82263b97eedcc2ad202738b",
+      "vocab.json": "4ba64f0332abcfb0b600b7df1537d1e836e68009d5fb7cdb77339738dc6365c4"
+    },
+    "case_bindings": [
+      {
+        "id": "initial-extraction",
+        "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+        "expected_sha256": "a79eac60f4a13d3152444aec5e976b98fa5cd95a3ab6698c1ae13710d9829c35",
+        "expected_rows": 28
+      },
+      {
+        "id": "cached-calculation",
+        "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+        "expected_sha256": "981241594236afb80c77f5fee9c6d6d3ef5aed2e59d3a5a452ae2375eca3a691",
+        "expected_rows": 28
+      },
+      {
+        "id": "cached-update",
+        "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+        "expected_sha256": "9b202274bb231e305decbb3d6d66e15723a2facfc54808f1ce7c9e0a5e813575",
+        "expected_rows": 28
+      }
+    ]
+  },
+  "prompt_binding": {
+    "startup_source": "config/startup-instructions.txt",
+    "startup_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "compaction_policy": "project-base-plus-versioned-native-supplement",
+    "compaction_rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+    "compaction_sources": [
+      {
+        "source": "config/compact_prompt.txt",
+        "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+      },
+      {
+        "source": "tools/resources/codex/0.160.1/compact-prompt.txt",
+        "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+      }
+    ]
+  },
+  "authorization": {
+    "user_response": "agree",
+    "scope": "Remote auto/all affinity comparison,23workers fixed,3instances per condition,6instances and18logical requests; necessary fault repair/recovery covered.",
+    "paused_by_user": false,
+    "pause_reason": "User is rebooting remote Windows computer before first model start.",
+    "resume_requires": "User confirms reboot complete; recheck current controller ownership, installed sources/version/profile and prompt bindings before acquiring key.",
+    "new_approval_required_for_same_scope": false,
+    "reboot_completion_confirmed_by_user": true
+  },
+  "execution_state": {
+    "ownership_acquired": false,
+    "model_start_attempts": 0,
+    "logical_requests_executed": 0,
+    "pause_point": null
+  }
+}

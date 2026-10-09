@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "status": "closed-no-model-failure-cancel-preflight",
+  "conclusion": "Native Codex recognizes controlled 503/504 and partial failed stream as failures, preserves original history rather than promoting a failed summary, disconnects an interrupted active output stream and resumes the exact thread. Scripted recovery answers do not validate real Strata cancellation or factual retention.",
+  "codex": "0.160.1",
+  "conditions": {
+    "main_effort": "high",
+    "main_reasoning_budget": 8192,
+    "main_output_budget": 24576,
+    "guardian_effort": "low",
+    "guardian_output_budget": 8192,
+    "profile": "default-no-save",
+    "context_window": 156584,
+    "compact_threshold": 100000,
+    "sandbox": "native read-only",
+    "approval_policy": "on-request/auto_review",
+    "network_and_tools": "native defaults; no extra isolation or disabled search",
+    "cache": "Independent model process/KV each repeat; OS cache not flushed"
+  },
+  "mock_model_requests": 9,
+  "real_strata_model_requests": 0,
+  "fault_injection_requests": 3,
+  "fault_cases": [
+    {
+      "expected_failure": "http-503",
+      "fault_requests": 1,
+      "forwarded_model_requests": 0,
+      "summary_replacement_unchanged": true,
+      "success_compaction_event": false,
+      "pass": true
+    },
+    {
+      "expected_failure": "http-504",
+      "fault_requests": 1,
+      "forwarded_model_requests": 0,
+      "summary_replacement_unchanged": true,
+      "success_compaction_event": false,
+      "pass": true
+    },
+    {
+      "expected_failure": "stream-failed",
+      "fault_requests": 1,
+      "forwarded_model_requests": 0,
+      "summary_replacement_unchanged": true,
+      "success_compaction_event": false,
+      "pass": true
+    }
+  ],
+  "cancel": {
+    "observed_actual_output_delta": "item/agentMessage/delta",
+    "exact_turn_bound": true,
+    "terminal_status": "interrupted",
+    "stream_disconnected": true,
+    "same_thread_recovery": true
+  },
+  "targeted_offline_regressions": 14,
+  "next_real_batch": {
+    "status": "prepared-not-run-awaiting-specific-approval",
+    "model_instances": 3,
+    "native_parent_threads": 3,
+    "ordinary_turns": 18,
+    "failed_manual_compactions": 9,
+    "cancelled_generations": 3,
+    "estimated_real_responses_requests": 27,
+    "fault_endpoint_requests": 9,
+    "estimated_minutes": [
+      7,
+      12
+    ],
+    "cumulative_work_upper_bound_minutes": 72
+  },
+  "bindings": {
+    "protocol_sha256": "a7beb831f9b27590b8115254e6edec186b9933d15c75511f6023ad6362afac62",
+    "driver_sha256": "23142936f9d8bbeceb956dc050335eb2c8782bdbb7da11459e5a8e0ed6c4d83b"
+  },
+  "raw_evidence_retention": "Complete native sessions, requests, injected SSE and controls remain in .tmp; this compact JSON keeps conclusions/counts and hashes. Deleting raw details prevents full interaction replay.",
+  "final_source_attempt": "mock-http-bound",
+  "independent_http_observers": 8
+}

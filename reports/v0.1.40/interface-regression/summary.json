@@ -1,0 +1,436 @@
+{
+  "schema": 1,
+  "status": "completed-short-interface-regression",
+  "scope": "Three independent Q2_0/high/default model instances; Chat JSON, Responses client echo tool and result replay, Hosted Brave search with genuine citations, base compaction instruction on a short synthetic history. Not ARW scoring or actual100K context compaction.",
+  "protocol_sha256": "76168fbb512c9cac8d960d9c6ab524b5a4760eacc5721417256ee9d5b6756d03",
+  "configuration": {
+    "version": {
+      "version": "0.1.40",
+      "commit": "1735d6471df29b42c26170efaac1f1446a58640f"
+    },
+    "model": "qwen3.8-flash-next-q2_0",
+    "effort": "high",
+    "profile": "default-no-save",
+    "compact_threshold_for_following_harness_runs": 100000,
+    "engine_overrides": {
+      "prefill": 16384,
+      "kv": "int8",
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pcie-frac": 0.0,
+      "spec": 4,
+      "spec-min-p": 0.7,
+      "expert-cache": "auto",
+      "vram-reserve-mib": 700,
+      "adapt-every": 4,
+      "adapt-swaps": 96,
+      "adapt-decay": 0.7,
+      "mtp-window": 32768,
+      "pcie-mode": "auto",
+      "expert-cache-per-layer": false,
+      "expert-cache-cpu-order": false,
+      "pool-affinity": "auto",
+      "ple-io": "direct",
+      "ple-inflight": 256,
+      "no-capture": false,
+      "no-host-worker": false,
+      "no-ple-prefetch": false,
+      "no-prefill-borrow": false,
+      "no-split-rows": false,
+      "no-coupled-draft": false,
+      "shared-late": false,
+      "keep-canonical": false,
+      "no-token-graph": false,
+      "no-fused-gr": false,
+      "no-hit-poke": false,
+      "ple-sync-submit": false,
+      "no-spec-split": false,
+      "gr-fp32-activations": false,
+      "ple-row-cache": 1048576,
+      "short-read": 64,
+      "suffix-draft": 3,
+      "mtp-max-t": 0,
+      "prompt-cache": 6,
+      "prompt-cache-every": 16384,
+      "prompt-cache-root": 2048,
+      "max-context": 156584
+    },
+    "engine_environment": {
+      "STRATA_HC_SPLIT": null,
+      "STRATA_ADAPT_NOWAIT": null,
+      "STRATA_SSD_KEEPALIVE": null
+    },
+    "request_defaults": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 24576,
+      "reasoning_budget_tokens": 8192,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "high"
+    },
+    "baseline_sha256": "243143d203c6c034f0df8f32919dea425e73f5ee62639190aafab76843a93ca8",
+    "repetitions": 3,
+    "model_instances": 3,
+    "frontend_requests_at_most": 15,
+    "model_api_rounds_at_most": 36,
+    "search_operations_at_most": 24,
+    "base_prompt_sha256": {
+      "startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+    },
+    "requests_sha256": "079ac541b302db301b49068254bb670eb8e7b6302de93953e76718d1a1e48bb9",
+    "scope": "Chat JSON, Responses client tool round trip, Hosted Brave search, base compaction instruction. No ARW capability score or forced long-context compaction.",
+    "new_opt_ins": "unchanged/off; no automatic retry or rerun"
+  },
+  "rows": [
+    {
+      "repeat": 1,
+      "pass": true,
+      "load_seconds": 14.338094896011171,
+      "work_seconds": 13.819090885997866,
+      "tokens": {
+        "uncached_input": 5340,
+        "cached_input": 1785,
+        "output": 668
+      },
+      "engine_input_seconds": 6.159,
+      "engine_decode_seconds": 5.267,
+      "engine_input_tokens_per_second": 867.0238675109596,
+      "engine_output_tokens_per_second": 126.82741598632997,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 13.819090885997866,
+      "task_input_tokens_per_second": 386.42194657035884,
+      "task_output_tokens_per_second": 48.33892515149807,
+      "equivalent_cost_usd": 0.00114352,
+      "frontend_requests": 5,
+      "model_api_rounds": 6,
+      "engine_stage_count": 6,
+      "successful_brave_requests": 1,
+      "search_calls": 1,
+      "tool_failures": 0,
+      "request_failures": 0,
+      "case_times_seconds": {
+        "chat": 1.71497933100909,
+        "tool-first": 1.5968347349989926,
+        "tool-result": 0.44486739399144426,
+        "search": 7.576988248009002,
+        "compact": 2.483100666999235
+      },
+      "native_context": 156584,
+      "actual_engine_version": "0.1.40",
+      "vram_free_mib_after_load": 246,
+      "low_vram_warning": true,
+      "ownership_returned": true,
+      "engine_record_sha256": "84d283c0bfc8965f4e9dbfd924bf1ceacf9e2b2815394d2e8ff9300bdc257101",
+      "internal_numeric_stages": [
+        {
+          "input": 558,
+          "cached": 0,
+          "uncached": 558,
+          "prompt_ms": 957.0,
+          "output": 72,
+          "decode_ms": 705.0,
+          "log_line": 39
+        },
+        {
+          "input": 749,
+          "cached": 0,
+          "uncached": 749,
+          "prompt_ms": 1081.0,
+          "output": 67,
+          "decode_ms": 485.0,
+          "log_line": 43
+        },
+        {
+          "input": 840,
+          "cached": 818,
+          "uncached": 22,
+          "prompt_ms": 167.0,
+          "output": 29,
+          "decode_ms": 243.0,
+          "log_line": 48
+        },
+        {
+          "input": 891,
+          "cached": 0,
+          "uncached": 891,
+          "prompt_ms": 1224.0,
+          "output": 77,
+          "decode_ms": 544.0,
+          "log_line": 51
+        },
+        {
+          "input": 3014,
+          "cached": 967,
+          "uncached": 2047,
+          "prompt_ms": 1484.0,
+          "output": 282,
+          "decode_ms": 2082.0,
+          "log_line": 54
+        },
+        {
+          "input": 1073,
+          "cached": 0,
+          "uncached": 1073,
+          "prompt_ms": 1246.0,
+          "output": 141,
+          "decode_ms": 1208.0,
+          "log_line": 58
+        }
+      ],
+      "search_citations_bound_to_returned_results": true,
+      "additional_release_claim_stale": true
+    },
+    {
+      "repeat": 2,
+      "pass": true,
+      "load_seconds": 14.372244942001998,
+      "work_seconds": 12.880419503009762,
+      "tokens": {
+        "uncached_input": 5335,
+        "cached_input": 1785,
+        "output": 619
+      },
+      "engine_input_seconds": 6.016,
+      "engine_decode_seconds": 4.758,
+      "engine_input_tokens_per_second": 886.8018617021277,
+      "engine_output_tokens_per_second": 130.09667927700715,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 12.880419503009762,
+      "task_input_tokens_per_second": 414.19458417121996,
+      "task_output_tokens_per_second": 48.05744097506751,
+      "equivalent_cost_usd": 0.00111974,
+      "frontend_requests": 5,
+      "model_api_rounds": 6,
+      "engine_stage_count": 6,
+      "successful_brave_requests": 1,
+      "search_calls": 1,
+      "tool_failures": 0,
+      "request_failures": 0,
+      "case_times_seconds": {
+        "chat": 1.6494727640092606,
+        "tool-first": 1.5764902509981766,
+        "tool-result": 0.38817460599238984,
+        "search": 6.834839946008287,
+        "compact": 2.429549014996155
+      },
+      "native_context": 156584,
+      "actual_engine_version": "0.1.40",
+      "vram_free_mib_after_load": 252,
+      "low_vram_warning": true,
+      "ownership_returned": true,
+      "engine_record_sha256": "1ec98fe58c7cc1bab2a8753433fa2023f59fad2653b3e446b8134a05dd505ef2",
+      "internal_numeric_stages": [
+        {
+          "input": 558,
+          "cached": 0,
+          "uncached": 558,
+          "prompt_ms": 912.0,
+          "output": 72,
+          "decode_ms": 701.0,
+          "log_line": 39
+        },
+        {
+          "input": 749,
+          "cached": 0,
+          "uncached": 749,
+          "prompt_ms": 1067.0,
+          "output": 67,
+          "decode_ms": 476.0,
+          "log_line": 43
+        },
+        {
+          "input": 840,
+          "cached": 818,
+          "uncached": 22,
+          "prompt_ms": 152.0,
+          "output": 29,
+          "decode_ms": 201.0,
+          "log_line": 48
+        },
+        {
+          "input": 891,
+          "cached": 0,
+          "uncached": 891,
+          "prompt_ms": 1201.0,
+          "output": 77,
+          "decode_ms": 534.0,
+          "log_line": 51
+        },
+        {
+          "input": 3009,
+          "cached": 967,
+          "uncached": 2042,
+          "prompt_ms": 1451.0,
+          "output": 233,
+          "decode_ms": 1676.0,
+          "log_line": 54
+        },
+        {
+          "input": 1073,
+          "cached": 0,
+          "uncached": 1073,
+          "prompt_ms": 1233.0,
+          "output": 141,
+          "decode_ms": 1170.0,
+          "log_line": 57
+        }
+      ],
+      "search_citations_bound_to_returned_results": true,
+      "additional_release_claim_stale": true
+    },
+    {
+      "repeat": 3,
+      "pass": true,
+      "load_seconds": 14.323335295994184,
+      "work_seconds": 12.546782488992903,
+      "tokens": {
+        "uncached_input": 5333,
+        "cached_input": 1785,
+        "output": 676
+      },
+      "engine_input_seconds": 5.92,
+      "engine_decode_seconds": 5.045,
+      "engine_input_tokens_per_second": 900.8445945945946,
+      "engine_output_tokens_per_second": 133.994053518335,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 12.546782488992903,
+      "task_input_tokens_per_second": 425.04921119646076,
+      "task_output_tokens_per_second": 53.87835491633367,
+      "equivalent_cost_usd": 0.00114623,
+      "frontend_requests": 5,
+      "model_api_rounds": 6,
+      "engine_stage_count": 6,
+      "successful_brave_requests": 1,
+      "search_calls": 1,
+      "tool_failures": 0,
+      "request_failures": 0,
+      "case_times_seconds": {
+        "chat": 1.6194902529969113,
+        "tool-first": 1.5828408020024654,
+        "tool-result": 0.37174795000464655,
+        "search": 6.498707228995045,
+        "compact": 2.4714927269960754
+      },
+      "native_context": 156584,
+      "actual_engine_version": "0.1.40",
+      "vram_free_mib_after_load": 283,
+      "low_vram_warning": false,
+      "ownership_returned": true,
+      "engine_record_sha256": "89987a0f08ee7591a318afee983cf9eb4ff3cab891404b3bd6598bda19a81df6",
+      "internal_numeric_stages": [
+        {
+          "input": 558,
+          "cached": 0,
+          "uncached": 558,
+          "prompt_ms": 919.0,
+          "output": 72,
+          "decode_ms": 674.0,
+          "log_line": 39
+        },
+        {
+          "input": 749,
+          "cached": 0,
+          "uncached": 749,
+          "prompt_ms": 1066.0,
+          "output": 67,
+          "decode_ms": 470.0,
+          "log_line": 43
+        },
+        {
+          "input": 840,
+          "cached": 818,
+          "uncached": 22,
+          "prompt_ms": 136.0,
+          "output": 29,
+          "decode_ms": 201.0,
+          "log_line": 48
+        },
+        {
+          "input": 891,
+          "cached": 0,
+          "uncached": 891,
+          "prompt_ms": 1201.0,
+          "output": 77,
+          "decode_ms": 538.0,
+          "log_line": 51
+        },
+        {
+          "input": 3007,
+          "cached": 967,
+          "uncached": 2040,
+          "prompt_ms": 1371.0,
+          "output": 290,
+          "decode_ms": 1975.0,
+          "log_line": 54
+        },
+        {
+          "input": 1073,
+          "cached": 0,
+          "uncached": 1073,
+          "prompt_ms": 1227.0,
+          "output": 141,
+          "decode_ms": 1187.0,
+          "log_line": 58
+        }
+      ],
+      "search_citations_bound_to_returned_results": true,
+      "additional_release_claim_stale": true
+    }
+  ],
+  "summary": {
+    "mean": {
+      "load_seconds": 14.344558378002452,
+      "work_seconds": 13.082097626000177,
+      "equivalent_cost_usd": 0.0011364966666666666,
+      "engine_input_tokens_per_second": 884.890107935894,
+      "engine_output_tokens_per_second": 130.3060495938907,
+      "task_input_tokens_per_second": 408.55524731267985,
+      "task_output_tokens_per_second": 50.09157368096641
+    },
+    "mean_tokens": {
+      "uncached_input": 5336,
+      "cached_input": 1785,
+      "output": 654.3333333333334
+    },
+    "work_min_seconds": 12.546782488992903,
+    "work_max_seconds": 13.819090885997866,
+    "work_population_stddev_seconds": 0.5386388482350906,
+    "total_frontend_requests": 15,
+    "total_model_api_rounds": 18,
+    "total_engine_stages": 18,
+    "total_brave_requests": 3,
+    "total_request_failures": 0,
+    "total_tool_failures": 0,
+    "low_vram_warning_instances": 2,
+    "total_equivalent_cost_usd": 0.0034094900000000003
+  },
+  "checks_per_case": {
+    "chat_json": "3/3",
+    "client_tool_round_trip": "3/3",
+    "brave_repository_search_and_citation": "3/3",
+    "short_fixture_summary_instruction": "3/3"
+  },
+  "unverified": [
+    "Codex app-server/tool-discovery/guardian compatibility",
+    "web page open/find/live freshness and error paths",
+    "stream/cancel/resume",
+    "100K-triggered compaction and long reviewer capability",
+    "parameter optimality on the current version"
+  ],
+  "notes": [
+    "Search repository URL and citation provenance pass, but all three added an incorrect latest-v0.1.39 claim from stale Brave indexed excerpts. No current-release truth claim is accepted.",
+    "Two of three engine starts warned that VRAM headroom is low. No observed stall or failed request; test vram-reserve-mib before generalizing to long tasks.",
+    "Raw internal log times have millisecond integer precision; counters are preserved exactly. API usage is diagnostic only.",
+    "Original responses/requests/owned logs remain only in .tmp. Compact statistics can rebuild this table without them; deletion prevents replay of original interaction evidence.",
+    "All model instances stopped normally and ownership keys returned."
+  ]
+}

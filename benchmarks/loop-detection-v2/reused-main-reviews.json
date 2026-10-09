@@ -1,0 +1,452 @@
+{
+  "schema_version": 1,
+  "scope": "SHA-identical prior complete Main repetition annotation only; no formal quality/source-isolation acceptance is inherited",
+  "reviews": [
+    {
+      "review_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-1",
+      "trace_id": "01a116fc-4100-76c0-b264-c12f07d32b90",
+      "native_sha256": "d43b2ff67b485721c5adbc6b6996321109b9f1c1c30d6ef823bc0e58c0f4b72b",
+      "review_document_sha256": "4c48618a2ef4553dc9fecdebdfefeb3e2a0136dd5cd1325432ac0bbdd3bb0048",
+      "loop_document_sha256": "2402cc59fecce2635de21639479f8a8ce10a284cb11c496a19b15ed099166a80",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "reading_basis": "All434 events and137 canonical texts read through three SHA-bound fully read prefixes and19 closed delta pages; final118 rows equal manually inspected builder408 without executing generated code. Full frozen35-source independent truth retained.",
+      "loop_group_count": 2,
+      "iterations_including_first": 12,
+      "boundary_candidates": [],
+      "exclusions": [
+        "Redaction/restore uncertainty discussions not promoted into stalled-loop groups when ordinary mapping or genuine additional semantic analysis explains them, consistent with historical baseline1 conservative exclusions.",
+        "Actual source rereads, report reconstruction required by native follow-up truncation, semantic-independent evidence repairs, helper parser bug repairs and native mirrors excluded.",
+        "Four normal early endings/continuations recorded separately, not automatically four loop groups."
+      ]
+    },
+    {
+      "review_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-2",
+      "trace_id": "01a11720-2f78-7801-bfc9-42d0770631a1",
+      "native_sha256": "50b50b00dce5acee1ebd97ef57aeb189991f4e56be115d364c7acaf6c57d5dab",
+      "review_document_sha256": "ff5c9c2642142b37c1ed7085484cd1e660a6605e8fb599a6a19f7481580a46ab",
+      "loop_document_sha256": "ec45673a63813d7999942116a8737536a3c700b7793ba657098b569835d20f12",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "reading_basis": "All445 events traversed, all140 canonical long texts read or SHA-reused from fully inspected records.29 text pages plus8 full field pages and14 exact field-delta pages. Final118rows equal manually read native198/205/348/355/362 heredoc data, without executing generated code.35 frozen subject files equal first-instance independently checked subject.",
+      "loop_group_count": 4,
+      "iterations_including_first": 19,
+      "boundary_candidates": [
+        {
+          "event": 269,
+          "topic": "Route token meaning reconsidered after compaction",
+          "decision": "Not an additional confirmed loop group: different reading of the compacted evidence and one local redecision; no confidently separable repeated complete cycle."
+        },
+        {
+          "event": 345,
+          "topic": "Further evidence notation choices after own-report inspection",
+          "decision": "Not counted as additional loop iterations: new receipt and mapping of different requirements, followed by substantive writing."
+        }
+      ],
+      "exclusions": [
+        "Native mirrors and compaction repetition of already established judgments counted once only.",
+        "The single normal early ending and required report restoration are recovery, not loop groups.",
+        "Actual probe argument repairs, rejected-before-execution tool retry, verification script repairs, ordinary source rereads and distinct-requirement mapping excluded."
+      ]
+    },
+    {
+      "review_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-3",
+      "trace_id": "01a11757-a3bc-7b23-b8fa-338ca563faac",
+      "native_sha256": "2b06d48d83e07e5a18561e9c0a93b9697cf39a312966131bd3a7ea3342472243",
+      "review_document_sha256": "0820d2237edb4fd9688edfacc9b28f5c2f6dc8381dfe3f684d46645c5cd9023a",
+      "loop_document_sha256": "73e9ef4eb29216e5ac1fa56845384ce22c0f2c53f5c6b53efa745821ec74bbb5",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "reading_basis": "All224events and78 canonical long texts read through fully SHA-bound134event and224event prefixes; closed native file is byte-identical to final fully read prefix. Final118 rows reconstructed from native101/108/115/136 heredocs, personally authored insertion129 and full citation table157, without executing generated code. All35 frozen subject files byte-equal to first independently inspected subject.",
+      "loop_group_count": 1,
+      "iterations_including_first": 3,
+      "boundary_candidates": [
+        {
+          "event": 24,
+          "topic": "Sandbox file/directory conjectures",
+          "decision": "Not promoted into a confirmed stalled group: the sequence explores failure hypotheses and proceeds to successful escalation25."
+        },
+        {
+          "event": 91,
+          "topic": "Restore passthrough discussion",
+          "decision": "Conservative exclusion: initial semantic assessment and reasonable reconsideration of wording; later separate-requirement mappings not counted as repeated rounds."
+        },
+        {
+          "events": [
+            163,
+            170
+          ],
+          "topic": "Byte-identical rewrite-success reasoning",
+          "decision": "Not counted as a stalled loop: successive checker repairs remove false adjacency warnings, then reset per-file ordering state; actual progress is visible in166/173/182."
+        }
+      ],
+      "exclusions": [
+        "Initial research, distinct-requirement mapping, normal report composition, necessary missing-row insertion129, citation-range correction157 and concrete validation-script repairs excluded.",
+        "A reasonable verification and native mirrors are not automatic loops. Successful final notification214 and final ready220 are distinct protocol actions."
+      ]
+    },
+    {
+      "review_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-1",
+      "trace_id": "01a116ac-59aa-7040-b0eb-bd904b0c828a",
+      "native_sha256": "451e77c1ae1466cc28061f740b4fc4e91bacd3eb9f7e3e5fdb5b92e17c8e9b2a",
+      "review_document_sha256": "98328f962b0215a9229e985b2ac400088fc6c4bd43e9eb7e8a6b68ddf17ca1a0",
+      "loop_document_sha256": "7feb4300db1950fe779cb07d37816e5a6135ac1e34c820e1e11601c6de9e72dc",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "reading_basis": "All9 lossless structural pages and13 SHA-reconstructed hybrid text pages; already inspected baseline1 exact texts reused only after native and inspection SHA verification. Bound interrupted prefix retained and unchanged; same original thread recovery checked.",
+      "loop_group_count": 3,
+      "iterations_including_first": 14,
+      "boundary_candidates": [],
+      "exclusions": [
+        "Initial required per-requirement mapping, new concrete behavior probes, one empty-output probe with a successful corrected command, necessary report chunks, actual report repair and successful notification protocol correction are progress.",
+        "Parenthesis planning and initial/duplicate-looking notification statements have real repair/delivery actions between them; not counted as no-progress loops.",
+        "Native mirrors and guardian/tool-parser internals not counted as reviewer loop iterations."
+      ]
+    },
+    {
+      "review_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2",
+      "trace_id": "01a116c0-4815-7292-856b-c4325bf830ac",
+      "native_sha256": "29679c8c361c394d3ff0cf8eca4dcca2ef7109666b7b03fd2758cf46e8bf9aaa",
+      "review_document_sha256": "a92032c8ab5925ec1bbc8fa3ceb42ea50123fb1153bcc4c5b86a724358d2aa7f",
+      "loop_document_sha256": "37e4474cfe1e35b649da7a129fc38f6852de649b206ff20ebd65a6af56c56f43",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "reading_basis": "All9 structural and13 SHA-reconstructed hybrid text pages read; middle truncation144-154 recovered separately; baseline1 exact texts previously fully inspected and SHA verified. All staged subject bytes match instance1.",
+      "loop_group_count": 5,
+      "iterations_including_first": 29,
+      "boundary_candidates": [],
+      "exclusions": [
+        "Different sandbox setup probes, actual source re-verification, validator repair, report chunks/real evidence correction and notification protocol repair excluded.",
+        "Native mirrors and ordinary per-requirement mappings excluded."
+      ]
+    },
+    {
+      "review_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-3",
+      "trace_id": "01a116cf-d3d4-75a3-8c7b-f920f3e97662",
+      "native_sha256": "78d9c133c0d17029d1487f89bd1e5b0ae133649673c8826df3f9636486aac2fd",
+      "review_document_sha256": "583aeac9cb2e082177cbb6e1c7cf8d8e019276fe5a2735977a6c54702faebe75",
+      "loop_document_sha256": "1c212c71224ded269f7aa379bee150530b2bc577d1908a972e1224deecc5bade",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "reading_basis": "All18 hybrid text pages and all15 structural pages read using SHA-exact reconstruction;35 staged subject files match independently inspected repetition1; native heredocs exactly equal final118-row report. Date update214 platform metadata; compaction228 own summary inspected.",
+      "loop_group_count": 3,
+      "iterations_including_first": 26,
+      "boundary_candidates": [],
+      "exclusions": [
+        "Native mirrors; independent requirement mappings; actual source rereads; report chunks; validator repairs and notification protocol recovery excluded.",
+        "Arithmetic59-versus69 self-correction and actual grammar resolution not treated as loop groups."
+      ]
+    },
+    {
+      "review_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2",
+      "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+      "native_sha256": "d92508d67435b8081b8cb40dd7223d70c54de30cae96ca2700b65bf271ebf2e4",
+      "review_document_sha256": "6d8256b7c7035e88a1a65a2b927e9adcdad33564c2a1573edfd031843ea3a5d1",
+      "detail_document_sha256": null,
+      "loop_document_sha256": "d3f532d7f0828acbc2c40c491035f7e99ea0f69131e441195987202e83147ca2",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "source_event_count": 424,
+      "included_event_count": 424,
+      "reading_basis": "All native event structures and lossless146 unique text fields, cross-instance/subsequence SHA-bound duplicates of fully inspected first session included. Reading ranges and precise failure bindings retained temporarily.",
+      "loop_group_count": 3,
+      "iterations_including_first": 393,
+      "exclusions": []
+    },
+    {
+      "review_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1",
+      "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+      "native_sha256": "f2b8e7585a384c5be6f9ac61cb9eda5c3e70b11305934ae7b7f95af3b53a9790",
+      "review_document_sha256": "9403caa70fdce88e224b381bbf37608dc325451ebc38a66282b14a0df09d47ed",
+      "detail_document_sha256": "bec7d004e0905e3d5f855443bb11fa689adb616d307678c22f4d7b9386e94be7",
+      "loop_document_sha256": "d3f532d7f0828acbc2c40c491035f7e99ea0f69131e441195987202e83147ca2",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "source_event_count": 322,
+      "included_event_count": 322,
+      "reading_basis": {
+        "manual_all_structures_and_138_long_texts_read": true
+      },
+      "loop_group_count": 7,
+      "iterations_including_first": 51,
+      "exclusions": []
+    },
+    {
+      "review_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2",
+      "trace_id": "01a114bc-6edd-7542-b0c5-488906983fe4",
+      "native_sha256": "5f0d904b58d350f9e79fe34ad7082cff995a13ce6b8f0ee17fee16f526e17016",
+      "review_document_sha256": "219620001f98fc87d4d6089b09d2f6cb166165b2304fc10a7e7c272c2a4f9831",
+      "detail_document_sha256": "ef68a843eb7ed495e5a1d33abe4dad1ca0cb94567d0748e31de4fa4ecc226092",
+      "loop_document_sha256": "d3f532d7f0828acbc2c40c491035f7e99ea0f69131e441195987202e83147ca2",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "source_event_count": 218,
+      "included_event_count": 218,
+      "reading_basis": {
+        "manual_all_structures_and_77_long_texts_read": true
+      },
+      "loop_group_count": 4,
+      "iterations_including_first": 25,
+      "exclusions": []
+    },
+    {
+      "review_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-3",
+      "trace_id": "01a114ce-ba0a-7ae1-b6ef-af995caa36c0",
+      "native_sha256": "bae72e008a80115d3c84442cb6ba27cfb78de11f032d8581b30261ec339c9c0f",
+      "review_document_sha256": "68279cd4f4d54b8590cc40904f7d5864ed4f30363c5f5fa5961eba049d5bbcd6",
+      "detail_document_sha256": "4e21e9c3c5e31046770c9070eebbe50fb272ea6f19558b0ffa70451915d69006",
+      "loop_document_sha256": "d3f532d7f0828acbc2c40c491035f7e99ea0f69131e441195987202e83147ca2",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "source_event_count": 209,
+      "included_event_count": 209,
+      "reading_basis": {
+        "manual_all_structures_and_67_long_texts_read": true
+      },
+      "loop_group_count": 3,
+      "iterations_including_first": 22,
+      "exclusions": []
+    },
+    {
+      "review_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1",
+      "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+      "native_sha256": "4ab22374f92b9865b925ab8412e65f2608be92c5118a07996b2d17ea63b97118",
+      "review_document_sha256": "c74a2104d15a9ba3a91b79c0796cd1c192c507c45e2377e98fda627d28dfae60",
+      "detail_document_sha256": "250b2aec892c0925ae951b329212e9be8bbc3e5983098dcc188e206b9a92c63f",
+      "loop_document_sha256": "d3f532d7f0828acbc2c40c491035f7e99ea0f69131e441195987202e83147ca2",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "source_event_count": 293,
+      "included_event_count": 293,
+      "reading_basis": {
+        "manual_all_structures_and_108_long_texts_read": true
+      },
+      "loop_group_count": 3,
+      "iterations_including_first": 30,
+      "exclusions": []
+    },
+    {
+      "review_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2",
+      "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+      "native_sha256": "d4c617a64e201a32248e2a8bd980dc003a55fba02ab6484be09a54680c22df38",
+      "review_document_sha256": "6ff765762f9019490d3ed4413f350c85df030f914aae2de9a39ad9b62687032d",
+      "detail_document_sha256": "9e24f6ea8fa3f34a0cc19eae1c3f46a8a8ef78fd7a89c3e99e7dd354fadc30f6",
+      "loop_document_sha256": "d3f532d7f0828acbc2c40c491035f7e99ea0f69131e441195987202e83147ca2",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "source_event_count": 421,
+      "included_event_count": 421,
+      "reading_basis": {
+        "manual_all_structures_and_124_long_texts_read": true
+      },
+      "loop_group_count": 6,
+      "iterations_including_first": 65,
+      "exclusions": []
+    },
+    {
+      "review_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3",
+      "trace_id": "01a1149d-305a-73e3-baba-79bef1e96de9",
+      "native_sha256": "12238d14ea004fcef72bc760224aca3b1eed8dc9d7602e2ac1873950dce4c3f3",
+      "review_document_sha256": "373fcb7f7bf805dda277e9bfd2dcca99228fc76ebce6fec3d2c444ac246ccfe2",
+      "detail_document_sha256": "1d8f1d3d87de138d707e6025ac5dc55069527457ca68874dd798a40e40f17897",
+      "loop_document_sha256": "d3f532d7f0828acbc2c40c491035f7e99ea0f69131e441195987202e83147ca2",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "source_event_count": 344,
+      "included_event_count": 344,
+      "reading_basis": {
+        "manual_all_structures_and_135_long_texts_read": true
+      },
+      "loop_group_count": 4,
+      "iterations_including_first": 15,
+      "exclusions": []
+    },
+    {
+      "review_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1",
+      "trace_id": "01a114c6-1825-7702-8279-4d78243bc714",
+      "native_sha256": "087933a26e34e3f648db4f0e727b093ba542efbb4451fcbbdbd25ca55ea8e348",
+      "review_document_sha256": "7002d07546026548dc1e285ba44f5486d1386e6416fb546ecdc5f84917b3d1d7",
+      "detail_document_sha256": "04ed097dfdd06eaf1c3c4d469c3b7fc868c36a5f6230be4da7e1c126645b5011",
+      "loop_document_sha256": "d3f532d7f0828acbc2c40c491035f7e99ea0f69131e441195987202e83147ca2",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "source_event_count": 486,
+      "included_event_count": 486,
+      "reading_basis": {
+        "manual_all_structures_and_162_long_texts_read": true
+      },
+      "loop_group_count": 11,
+      "iterations_including_first": 67,
+      "exclusions": [
+        "Reboot recovery, required draft restoration, real evidence corrections, new probes, malformed empty compaction and successful notification are not loop iterations."
+      ]
+    },
+    {
+      "review_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2",
+      "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+      "native_sha256": "4a57a5b38e364b798bb85ef34d8b953eeadca0b536f84b54563da0bb547f0367",
+      "review_document_sha256": "fe70c57bfc1194f3f8ceddaf820a9680a2354953740b928b3d129c0664b37b24",
+      "detail_document_sha256": "ec0ff558b38a98cba08ef0049b236e2e69b5f616b7f991a8f9627d9ff4862453",
+      "loop_document_sha256": "d3f532d7f0828acbc2c40c491035f7e99ea0f69131e441195987202e83147ca2",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "source_event_count": 517,
+      "included_event_count": 517,
+      "reading_basis": {
+        "manual_all_structures_and_156_long_texts_read": true
+      },
+      "loop_group_count": 7,
+      "iterations_including_first": 64,
+      "exclusions": [
+        "Six native early-end followups and necessary actual empty-file restoration, new auth.driver probe, actual validator scope/JSON.parse fixes, final console.test exception and hard timeout excluded. Terminal state remains interrupted, no invented ready."
+      ]
+    },
+    {
+      "review_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3",
+      "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+      "native_sha256": "956fb69627fef60509d9a9a4e7949ce18b2289a954f37b47e43a7c783739f481",
+      "review_document_sha256": "0d17dff0b4c8bee0cf25fc506d65bc010ff79535962cdcf6c44030eab1a1b1a9",
+      "detail_document_sha256": "4f27a602b00822d6dca3a318fec5eb91564b7b2c1745cd144fed91863b394c91",
+      "loop_document_sha256": "d3f532d7f0828acbc2c40c491035f7e99ea0f69131e441195987202e83147ca2",
+      "complete_native_reading": true,
+      "all_loop_groups_reviewed": true,
+      "source_event_count": 243,
+      "included_event_count": 243,
+      "reading_basis": {
+        "manual_all_structures_and_91_canonical_long_texts_read": true
+      },
+      "loop_group_count": 9,
+      "iterations_including_first": 49,
+      "exclusions": [
+        "New behavioral probes, test directory repair, Python validator repair, paired native mirrors, flat per-requirement mapping and final environment/run-id lookup excluded."
+      ]
+    },
+    {
+      "review_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1",
+      "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+      "native_sha256": "5223c3a0463b1f2ab445f522e425515041cd70bf1c2535ca1a78b636e4171779",
+      "review_document_sha256": "6d9cceb49725c9fb890fd5c23d484ba56b038a3b22a121c1f6a053d03abc54ef",
+      "loop_document_sha256": "9f736af9779c507f89232e0aae0ed3f15fcdf168c97c61bc57c0e7344fcca205",
+      "complete_native_reading": true,
+      "reading_basis": "All513structural events and143SHA-reconstructed unique texts: previously read prefix1-60verified unchanged; all new full/line/span views manually read. Compaction102exact duplicate structures reuse earlier inspected payload+metadata;2new objects fully read. Numeric usage diagnostic only.",
+      "counting_method": "Main full native session reading followed by conservative explicit repeated-decision/probe annotation. Every listed iteration has a native event and SHA-bound character anchor; command/result mirrors and compaction replacement-history mirrors are excluded. Group iterations include first pass. These are confirmed lower bounds, not assertions that ambiguous additional transitions are zero.",
+      "count_uncertainty": {
+        "additional_iterations_upper_bound": null,
+        "reason": "Repeated reasoning interleaves distinct requirement mappings, comparisons and reformulations. Additional fine-grained iterations cannot be separated reliably from normal work; confirmed counts do not estimate these as zero.",
+        "boundary_candidates": [
+          "Fine-grained stance/evidence-range oscillations within long reasoning beyond the explicit anchors.",
+          "Cross-turn revisits around new probes and restored reports; necessary recovery excluded."
+        ]
+      },
+      "exclusions": [
+        "Initial mapping of different requirements and one reasonable verification.",
+        "New probe facts, changed failures with a substantive repair, mandatory cleared-report rebuilding.",
+        "Mechanical missing-row/source-line corrections.",
+        "Service-injected ending phrase and native/event/tool-output/compaction mirrors."
+      ]
+    },
+    {
+      "review_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2",
+      "trace_id": "01a11804-0be6-7083-ade5-c4e3e9744a44",
+      "native_sha256": "e4183e5867fa383e8528699205ee3c39fc11f69708842ed02e8a008550c10d0a",
+      "review_document_sha256": "22d53f786206d731a99ff17af671b161b1985d73be9c8a1958e0398f421af6b5",
+      "loop_document_sha256": "7588198e88dea3fd8cac3be4efcc653b63c75b030ed4374b33ac996b91483d94",
+      "complete_native_reading": true,
+      "reading_basis": "Main manually read all382structural events and126SHA-bound texts; exact copied spans reuse fully inspected prior sessions or earlier current texts. All36spanpages and17structural-fieldpages fully read; earlier16..20truncation separately re-read. Numeric API usage is diagnostic only.",
+      "counting_method": "Main full native session reading followed by conservative explicit repeated-decision/probe annotation. Every listed iteration has a native event and SHA-bound character anchor; command/result mirrors and compaction replacement-history mirrors are excluded. Group iterations include first pass. These are confirmed lower bounds, not assertions that ambiguous additional transitions are zero.",
+      "count_uncertainty": {
+        "additional_iterations_upper_bound": null,
+        "reason": "Repeated reasoning interleaves distinct requirement mappings, comparisons and reformulations. Additional fine-grained iterations cannot be separated reliably from normal work; confirmed counts do not estimate these as zero.",
+        "boundary_candidates": [
+          "Fine-grained stance/evidence-range oscillations within long reasoning beyond the explicit anchors.",
+          "Cross-turn revisits around new probes and restored reports; necessary recovery excluded."
+        ]
+      },
+      "exclusions": [
+        "Initial mapping of different requirements and one reasonable verification.",
+        "New probe facts, changed failures with a substantive repair, mandatory cleared-report rebuilding.",
+        "Mechanical missing-row/source-line corrections.",
+        "Service-injected ending phrase and native/event/tool-output/compaction mirrors."
+      ]
+    },
+    {
+      "review_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-3",
+      "trace_id": "01a11823-dbd9-76f2-bea5-5b3ebf058574",
+      "native_sha256": "dc72758ef93fe1d3a5a2cb58b7b9ee155e328f33d8ecf198beb164f9618768fe",
+      "review_document_sha256": "9611c1dd148714d0edf09d7c008247f71f7df2620ab1a9fa331f04c4a3138c9a",
+      "loop_document_sha256": "4278ef9694a367d4dd419b63841ddea25ae836439b7e27a6b52fb54ca6b04438",
+      "complete_native_reading": true,
+      "reading_basis": "Main manually read all343structural events and110SHA-bound unique texts: all24spanpages plus15fieldpages, exact copy spans reference only fully inspected prior or earlier current texts. One compaction replacement history and complete retained context checked. Numeric usage diagnostic only.",
+      "counting_method": "Main full native session reading followed by conservative explicit repeated-decision/probe annotation. Every listed iteration has a native event and SHA-bound character anchor; command/result mirrors and compaction replacement-history mirrors are excluded. Group iterations include first pass. These are confirmed lower bounds, not assertions that ambiguous additional transitions are zero.",
+      "count_uncertainty": {
+        "additional_iterations_upper_bound": null,
+        "reason": "Repeated reasoning interleaves distinct requirement mappings, comparisons and reformulations. Additional fine-grained iterations cannot be separated reliably from normal work; confirmed counts do not estimate these as zero.",
+        "boundary_candidates": [
+          "Fine-grained stance/evidence-range oscillations within long reasoning beyond the explicit anchors.",
+          "Cross-turn revisits around new probes and restored reports; necessary recovery excluded."
+        ]
+      },
+      "exclusions": [
+        "Initial mapping of different requirements and one reasonable verification.",
+        "New probe facts, changed failures with a substantive repair, mandatory cleared-report rebuilding.",
+        "Mechanical missing-row/source-line corrections.",
+        "Service-injected ending phrase and native/event/tool-output/compaction mirrors."
+      ]
+    },
+    {
+      "review_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1",
+      "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+      "native_sha256": "d412cb419de3c39aab75789de7f4921ab6e3391fff8f97c0a6744e8403f689ee",
+      "review_document_sha256": "d6432c110163fc3b692d6690e3d04cd471e28530cbc5cbe123d1d6d008aeac51",
+      "loop_document_sha256": "0bbd97a25f8c07fa16f8dd5300e90e401aa407038610399a5f28215f594d5c9a",
+      "complete_native_reading": true,
+      "reading_basis": "All322native event structures and119unique SHA-reconstructed texts read in verified prefix/line/span views. Compaction replacement-history and startup contexts fully read. Mirrors and service-injected text separated. No keyword-only inspection substitution.",
+      "counting_method": "All native fields and text read by Main; whole repeated audit passes and distinct within-message revisits selected manually using the previous closed-group convention. Tool/response mirrors counted once.",
+      "count_uncertainty": "Additional fine-grained validator revisits and redaction/checksum reasoning transitions are not all separable into exact rounds. Quote-only restatements are not counted. No reliable semantic upper bound assigned.",
+      "exclusions": [
+        "Mirrored native records, service-injected concluding text and compaction summaries",
+        "Different requirement mappings within a first audit pass",
+        "Source re-reading after compaction before the first resumed full audit pass",
+        "Actual repairs of spurious source lines, evidence nesting, validator code and the bound path",
+        "Normal tool approvals and necessary sandbox recovery",
+        "An isolated reasonable verification is not automatically a loop"
+      ]
+    },
+    {
+      "review_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2",
+      "trace_id": "01a118f4-34ef-7960-a487-265496ef278f",
+      "native_sha256": "519e9b8ab631669ba952ae3674578f97f2db0abf9bc1d2d4e127a73c28a9057e",
+      "review_document_sha256": "c6b38294098cd06c10a79f92de3e90d74cafde1f456e12cbff2bb8ccb4df05c9",
+      "loop_document_sha256": "111d42dbf7e22acddbe3139d68183d6e50a03446e9e3a179e4c0ba86a35fce6d",
+      "complete_native_reading": true,
+      "reading_basis": "All285 native structures and93 unique texts read through SHA-bound prefix spans and final exact-span view; mirrored records, compaction-only texts and service-injected text separated. All calls/results paired and every startup/compaction replacement-history field inspected.",
+      "counting_method": "Main read all285native events and93unique texts, selected all separable confirmed repeated-decision groups with same lower-bound convention as closed baseline; continuous within-message reiterations have distinct offsets.",
+      "count_uncertainty": "Additional full-audit remapping, checksum reconsideration and post-compaction final spot-check/notification revisits are visible, but their exact group boundaries overlap reasonable verification, new formatting checks or communication recovery. These candidates and finer transitions are not counted as zero; no reliable semantic upper bound.",
+      "exclusions": [
+        "Native mirrors, compaction summary production/replacement history and injected concluding text",
+        "Different requirement table rows and evidence serialization planning",
+        "Actual first report write, range-format repair and arithmetic correction",
+        "Necessary sandbox escalation, malformed communication request correction and wrong Git/file-path repair",
+        "Single reasonable verification and checks that newly establish coverage or artifact integrity"
+      ]
+    },
+    {
+      "review_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3",
+      "trace_id": "01a11908-53c0-74c1-933c-afd4b4b9bd89",
+      "native_sha256": "5bc01c18bbdb83ac22a76431c707f850c9807de638b2876a5c344c924f1acdde",
+      "review_document_sha256": "b6d4c22a6c71c21881d8646da13f0bfc351ad20846e71f8615c929d47540ccbe",
+      "loop_document_sha256": "517ca6af5bb0b342c5158e555b1348280f0e4378478ff7887e5ac597749a421f",
+      "complete_native_reading": true,
+      "reading_basis": "All177 native structures and67 unique texts read through SHA-bound prefix spans and final exact-span view; mirrored records, compaction-only texts and service-injected text separated. All calls/results paired and every startup/compaction replacement-history field inspected.",
+      "counting_method": "Main read all177native events and67unique texts, selected all separable confirmed repeated-decision groups with same lower-bound convention as closed baseline; continuous within-message reiterations have distinct offsets.",
+      "count_uncertainty": "Additional route-token/checksum reconsideration, smaller within-message transitions and final representation-check revisits are visible, but their exact group boundaries overlap reasonable verification, new formatting checks or communication recovery. These candidates and finer transitions are not counted as zero; no reliable semantic upper bound.",
+      "exclusions": [
+        "Native mirrors, compaction summary production/replacement history and injected concluding text",
+        "Different requirement table rows and evidence serialization planning",
+        "Actual first report write, range-format repair and arithmetic correction",
+        "Necessary sandbox escalation and genuine one-shot syntax-error repair",
+        "Single reasonable verification and checks that newly establish coverage or artifact integrity"
+      ]
+    }
+  ]
+}

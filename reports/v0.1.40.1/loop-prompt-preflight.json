@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "status": "closed-no-model-prompt-scope-preflight",
+  "strata": {
+    "version": "0.1.40.1",
+    "commit": "82f46a8c8f475f001ad76d92f58f4a4f8ffb0253"
+  },
+  "model_runs": 0,
+  "scope": "Only the Progress and loop prevention startup block is excluded in baseline/sampling. All role/task/completion/end-check/compaction instructions are retained; default remains full.",
+  "permanent_startup_source_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+  "diagnostic_loaded_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+  "compact_project_sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+  "compact_combined_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+  "deployment_sha256": {
+    "src/controller_backend.py": "023f09fdf8452f8d8069a5686815c24702931eecb2a9ae36c97c9688e0b5b0db",
+    "src/native_service.py": "7c60aace06e044635d0f2f5d1d76169b550bec83e35a06048410e4e1c110ae49",
+    "src/startup_instructions.py": "b8f1cb90cd05b9349066a1ae7b6d089a15a0df428140abf049583b27e805b8bf",
+    "README.md": "b907bd01d66136971e367893c582dad2756cb3c55332affecb00803ba9bba0ac"
+  },
+  "backup": "/home/pello/projects/qwen-3.8-flash-next/.tmp/maintenance-backups/wsl-deploy-20261007-025511-987407",
+  "controller_refreshed": true,
+  "ownership_survived_restart": true,
+  "ownership_returned": true,
+  "default_prompt_enabled": true,
+  "installed_pure_loader_verified": true,
+  "regression_tests": 40,
+  "remaining_boundary": "Real model execution of this partial startup selection has not occurred. Three prepared baseline instances await approval; no loop-frequency or quality conclusion.",
+  "completed_at": 1791309635.0118191
+}

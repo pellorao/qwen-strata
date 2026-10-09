@@ -1,0 +1,1168 @@
+{
+  "status": "closed-three-IQ3-runs-and-full-Main-inspections; diagnostic-only",
+  "versions": {
+    "strata": "0.1.40.1",
+    "engine": "0.1.40",
+    "codex": "0.160.1"
+  },
+  "new_effective_instances": 3,
+  "new_Q2_baseline_instances": 0,
+  "reused_baseline_instances": 3,
+  "baseline_json_sha256": "f7247cf65cc8b05bff9407d8d8a6ce8a8acf68f3c06d8a4910ed5ea6d0efcd19",
+  "scope": "Local IQ3_XXS-only versus original local Q2_0 baseline3; single engine changes guardian quantization too, guardian remains low.",
+  "hardware": {
+    "host": "local",
+    "cpu": "i9-14900K",
+    "gpu": "RTX4070Ti SUPER",
+    "vram_gib": 16,
+    "ram_gib": 64
+  },
+  "fixed_conditions": {
+    "model": "IQ3_XXS",
+    "effort": "high",
+    "engine_overrides": {
+      "prefill": 16384,
+      "kv": "int8",
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pcie-frac": 0.0,
+      "spec": 4,
+      "spec-min-p": 0.7,
+      "expert-cache": "auto",
+      "vram-reserve-mib": 700,
+      "adapt-every": 4,
+      "adapt-swaps": 96,
+      "adapt-decay": 0.7,
+      "mtp-window": 32768,
+      "pcie-mode": "auto",
+      "expert-cache-per-layer": false,
+      "expert-cache-cpu-order": false,
+      "pool-affinity": "auto",
+      "ple-io": "direct",
+      "ple-inflight": 256,
+      "no-capture": false,
+      "no-host-worker": false,
+      "no-ple-prefetch": false,
+      "no-prefill-borrow": false,
+      "no-split-rows": false,
+      "no-coupled-draft": false,
+      "shared-late": false,
+      "keep-canonical": false,
+      "no-token-graph": false,
+      "no-fused-gr": false,
+      "no-hit-poke": false,
+      "ple-sync-submit": false,
+      "no-spec-split": false,
+      "gr-fp32-activations": false,
+      "ple-row-cache": 1048576,
+      "short-read": 64,
+      "suffix-draft": 3,
+      "mtp-max-t": 0,
+      "prompt-cache": 6,
+      "prompt-cache-every": 16384,
+      "prompt-cache-root": 2048,
+      "max-context": 156584
+    },
+    "engine_environment": {
+      "STRATA_HC_SPLIT": null,
+      "STRATA_ADAPT_NOWAIT": null,
+      "STRATA_SSD_KEEPALIVE": null,
+      "STRATA_BATCH_TRACE": 1
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 24576,
+      "reasoning_budget_tokens": 8192,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "high"
+    },
+    "context_window": 156584,
+    "auto_compact_token_limit": 100000,
+    "startup_instructions": true,
+    "project_compaction_instructions": true,
+    "generation_policy": "first-delivery-only",
+    "loop_prevention_instructions": false,
+    "automatic_continuation": true,
+    "archive_http": true,
+    "host_id": "local",
+    "host_hardware": {
+      "gpu": "NVIDIA RTX 4070 Ti SUPER",
+      "vram_gib": 16,
+      "cpu": "Intel Core i9-14900K",
+      "ram_gib": 64
+    }
+  },
+  "binding_sha256": {
+    "plan": "74e775d0e00f2561e4b156e86cb77cbc18f4b50dedf0d03995a301dce529a044",
+    "selection": "c64c50cf36f7ed01ca85691ee102526b9a920eb69545518c63a16545996c0a1c",
+    "preparation": "fb28b2748c9573662b2d9ae97389667c1c2d79138cdd7524907e87eb6a123f19",
+    "catalog": "f6bffbd2ce80abc3b18950577817759c28eaa28bc327810e99ba74bde49d0e2c",
+    "independent_subject_judgments": "c281edabe612387846c65de9854a7e7ff48c990cb99b6d68da1a2d2efe7c18b6",
+    "batch_session_inspection": "bd29d559c53a443d239a7f4e3d2036273444ebfc069509fe551a4b14e2c2be74"
+  },
+  "baseline": {
+    "id": "local-baseline",
+    "host": "local",
+    "hardware": {
+      "host": "local",
+      "cpu": "i9-14900K",
+      "gpu": "RTX4070Ti SUPER",
+      "vram_gib": 16,
+      "ram_gib": 64
+    },
+    "new_instances": 0,
+    "fixed_conditions": {
+      "model": "Q2_0",
+      "effort": "high",
+      "engine_overrides": {
+        "prefill": 16384,
+        "kv": "int8",
+        "kv-resident": 20480,
+        "pool-workers": 23,
+        "pcie-frac": 0.0,
+        "spec": 4,
+        "spec-min-p": 0.7,
+        "expert-cache": "auto",
+        "vram-reserve-mib": 700,
+        "adapt-every": 4,
+        "adapt-swaps": 96,
+        "adapt-decay": 0.7,
+        "mtp-window": 32768,
+        "pcie-mode": "auto",
+        "expert-cache-per-layer": false,
+        "expert-cache-cpu-order": false,
+        "pool-affinity": "auto",
+        "ple-io": "direct",
+        "ple-inflight": 256,
+        "no-capture": false,
+        "no-host-worker": false,
+        "no-ple-prefetch": false,
+        "no-prefill-borrow": false,
+        "no-split-rows": false,
+        "no-coupled-draft": false,
+        "shared-late": false,
+        "keep-canonical": false,
+        "no-token-graph": false,
+        "no-fused-gr": false,
+        "no-hit-poke": false,
+        "ple-sync-submit": false,
+        "no-spec-split": false,
+        "gr-fp32-activations": false,
+        "ple-row-cache": 1048576,
+        "short-read": 64,
+        "suffix-draft": 3,
+        "mtp-max-t": 0,
+        "prompt-cache": 6,
+        "prompt-cache-every": 16384,
+        "prompt-cache-root": 2048,
+        "max-context": 156584
+      },
+      "engine_environment": {
+        "STRATA_HC_SPLIT": null,
+        "STRATA_ADAPT_NOWAIT": null,
+        "STRATA_SSD_KEEPALIVE": null,
+        "STRATA_BATCH_TRACE": 1
+      },
+      "sampling": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20,
+        "max_tokens": 24576,
+        "reasoning_budget_tokens": 8192,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "penalty_last_n": 64,
+        "reasoning_effort": "high"
+      },
+      "context_window": 156584,
+      "auto_compact_token_limit": 100000,
+      "startup_instructions": true,
+      "project_compaction_instructions": true,
+      "generation_policy": "first-delivery-only",
+      "loop_prevention_instructions": false,
+      "automatic_continuation": true,
+      "archive_http": true
+    },
+    "effective_startup_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+    "observations": [
+      {
+        "repetition": 1,
+        "instance_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-1",
+        "host": "local",
+        "score": 0.8081430630382209,
+        "review_work_seconds": 1086.5544431152343,
+        "work_time_source": "driver active-work clock; corroborated by native turn boundaries",
+        "work_time_estimated": true,
+        "work_time_uncertainty_seconds": 2,
+        "internal_stages": 53,
+        "tokens": {
+          "uncached_input": 2045864,
+          "cached_input": 302299,
+          "output": 53671
+        },
+        "engine_input_seconds": 660.317,
+        "engine_decode_seconds": 415.744,
+        "engine_input_tokens_per_second": 3098.3058137228027,
+        "engine_output_tokens_per_second": 129.0962707820197,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+        "task_review_seconds": 1086.5544431152343,
+        "task_input_tokens_per_second": 1882.8913847467709,
+        "task_output_tokens_per_second": 49.39559203873959,
+        "report_rows": 118,
+        "report_sha256": "adf7adfc8a278e81c2e2988e036d57ef858f0966cb0c8f9d7c42ba5a6b46ca1d",
+        "native_session_sha256": "d6fbddc5b2782dc87aa3f18b01042173ec240951c9b3858b862707d090eb486c",
+        "thread_id": "01a1127a-fd70-78e3-b230-42d64f5cfe4c",
+        "internal_log_sha256": "5dffee977209e6ac6410f0d5a05b390296e11c38810bd6b4cbcf4f5ff0f7a1b6",
+        "scoring_sha256": "f9e1991a31ae5c9575e3157db53eed6996050653c819293a09bb5d2f102a198d",
+        "session_inspection_sha256": "a5407239915a44c52f4202c3092f81a1e499f558cab2a40ed58d144094268ae1",
+        "session_inspection_complete": true,
+        "formal_acceptance": false,
+        "loop_observed": false,
+        "confirmed_loop_episodes_lower_bound": 0,
+        "reasoning_loop_episodes_lower_bound": 0,
+        "tool_loop_episodes_lower_bound": 0,
+        "mandatory_failures": [
+          "timely finding writes",
+          "functional default file-only sandbox"
+        ],
+        "finding_checks": {
+          "checked": 118,
+          "total": 118,
+          "result_label_disagreements": 6
+        },
+        "loop_recount": {
+          "metric_version": 1,
+          "inspection_complete": true,
+          "loop_group_count": 0,
+          "total_loop_iterations": 0,
+          "extra_repeat_count": 0,
+          "native_session_sha256": "d6fbddc5b2782dc87aa3f18b01042173ec240951c9b3858b862707d090eb486c",
+          "included_event_count": 195,
+          "exclusions": "Schema tuple mismatch and arithmetic correction advance the check; notification attempts change in response to results. Checksum/redaction doubt is not promoted to a confirmed stalled loop.",
+          "groups": []
+        }
+      },
+      {
+        "repetition": 2,
+        "instance_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2",
+        "host": "local",
+        "score": 0.8224953691750466,
+        "review_work_seconds": 2168.8608803710936,
+        "work_time_source": "driver active-work clock; corroborated by native turn boundaries",
+        "work_time_estimated": true,
+        "work_time_uncertainty_seconds": 2,
+        "internal_stages": 117,
+        "tokens": {
+          "uncached_input": 4154510,
+          "cached_input": 602258,
+          "output": 108843
+        },
+        "engine_input_seconds": 1319.418,
+        "engine_decode_seconds": 827.39,
+        "engine_input_tokens_per_second": 3148.744370624018,
+        "engine_output_tokens_per_second": 131.549813268229,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+        "task_review_seconds": 2168.8608803710936,
+        "task_input_tokens_per_second": 1915.5262735381905,
+        "task_output_tokens_per_second": 50.18440831547337,
+        "report_rows": 118,
+        "report_sha256": "3f496d55b3b239741c614f019f749f6b3b2b59d7cf5b4ed72380e64d05a50033",
+        "native_session_sha256": "d92508d67435b8081b8cb40dd7223d70c54de30cae96ca2700b65bf271ebf2e4",
+        "thread_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+        "internal_log_sha256": "909827177ec234cbb8dcc97c93b612f101c5db07afd372c5f9dddc921ded0cd5",
+        "scoring_sha256": "807273961e20682a3b6dc1ca577c7c39887b002bf45ced9e9b16908e9b7eeb37",
+        "session_inspection_sha256": "6d8256b7c7035e88a1a65a2b927e9adcdad33564c2a1573edfd031843ea3a5d1",
+        "session_inspection_complete": true,
+        "formal_acceptance": false,
+        "loop_observed": true,
+        "confirmed_loop_episodes_lower_bound": 2,
+        "reasoning_loop_episodes_lower_bound": 1,
+        "tool_loop_episodes_lower_bound": 1,
+        "mandatory_failures": [
+          "timely finding writes",
+          "functional default file-only sandbox",
+          "external writes"
+        ],
+        "finding_checks": {
+          "checked": 118,
+          "total": 118,
+          "result_label_disagreements": 5
+        },
+        "loop_recount": {
+          "metric_version": 1,
+          "inspection_complete": true,
+          "loop_group_count": 3,
+          "total_loop_iterations": 393,
+          "extra_repeat_count": 390,
+          "native_session_sha256": "d92508d67435b8081b8cb40dd7223d70c54de30cae96ca2700b65bf271ebf2e4",
+          "included_event_count": 424,
+          "exclusions": [],
+          "groups": [
+            {
+              "id": "post-delivery-semantic-redecision",
+              "type": "reasoning",
+              "iterations_including_anchor": 7,
+              "extra_repeats": 6,
+              "counts_by_native_event": {
+                "221": 1,
+                "228": 1,
+                "242": 1,
+                "249": 1,
+                "256": 1,
+                "291": 1,
+                "301": 1
+              },
+              "reason": "Repeatedly re-derives the same redaction/import/normalization and complete requirement verdicts. Representation edits do not change those semantic inputs. Individual issue/spec coverage mapping and new predicate fixes are excluded.",
+              "annotation_sha256": "fa9b5fa7c38e0f63ee97328de4e401abd2995f40f1abea8a5b7d0ca6cac187f2"
+            },
+            {
+              "id": "normalization-literal-run",
+              "type": "reasoning",
+              "iterations_including_anchor": 379,
+              "extra_repeats": 378,
+              "counts_by_native_event": {
+                "235": 379
+              },
+              "reason": "Only the contiguous379 copies are included; four dispersed appearances in normal evidence mappings are excluded. Native mirrored234 is not a second occurrence.",
+              "annotation_sha256": "9f8c9966544716cc3e70f1421c82c8d5059cc6cf4d7f75ca08bf2faacadfbf38"
+            },
+            {
+              "id": "unchanged-ternary-syntax",
+              "type": "tool",
+              "iterations_including_anchor": 7,
+              "extra_repeats": 6,
+              "counts_by_native_event": {
+                "250": 1,
+                "257": 1,
+                "264": 1,
+                "271": 1,
+                "278": 1,
+                "285": 1,
+                "292": 1
+              },
+              "reason": "Git prefixes, output formatting and String conversion do not repair the failing ternary. Corrected later validator309 and real evidence patch302 are progress.",
+              "annotation_sha256": "d84b7fdffe76bcbf92e98360c9d4d72a642e956af0dd59f24ba0b78b913e46f9"
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 3,
+        "instance_id": "default-631a7d5e-9946-4a0e-bd4c-63ce72a54e37-instance-3",
+        "host": "local",
+        "score": 0.7925506945164519,
+        "review_work_seconds": 1444.401434326172,
+        "work_time_source": "driver active-work clock; corroborated by native turn boundaries",
+        "work_time_estimated": true,
+        "work_time_uncertainty_seconds": 2,
+        "internal_stages": 79,
+        "tokens": {
+          "uncached_input": 2611063,
+          "cached_input": 345578,
+          "output": 76251
+        },
+        "engine_input_seconds": 833.913,
+        "engine_decode_seconds": 595.279,
+        "engine_input_tokens_per_second": 3131.097608503525,
+        "engine_output_tokens_per_second": 128.09287745746113,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+        "task_review_seconds": 1444.401434326172,
+        "task_input_tokens_per_second": 1807.7128268832603,
+        "task_output_tokens_per_second": 52.79072575524814,
+        "report_rows": 118,
+        "report_sha256": "a2e8310f82df689f83188dcd9bdbd5679ea276d1b9d98b73ea1f21cd8bb0305a",
+        "native_session_sha256": "239c12d989cbbec7b9cb89c3cc0cea017cc04f549161032416f41698da285d98",
+        "thread_id": "01a113e4-7847-7b91-ac2e-3efa56c5c808",
+        "internal_log_sha256": "0d013ea2c113396f3c3b87279849699c9e2e8a0e5289d1d1a9ab7b43c14ca31b",
+        "scoring_sha256": "f4c830c896e3ac29de714914bea3ecf49c2836a679162f4ee2e8d731bfbed7f5",
+        "session_inspection_sha256": "d5ed1558f8a90608781a8712ce6b72a9194c0275956bc050fed6d7b67b12c336",
+        "session_inspection_complete": true,
+        "formal_acceptance": false,
+        "loop_observed": true,
+        "confirmed_loop_episodes_lower_bound": 1,
+        "reasoning_loop_episodes_lower_bound": 1,
+        "tool_loop_episodes_lower_bound": 0,
+        "mandatory_failures": [
+          "timely finding writes",
+          "functional default file-only sandbox",
+          "external writes",
+          "environment identity/ARW allowlist",
+          "inline status format"
+        ],
+        "finding_checks": {
+          "checked": 118,
+          "total": 118,
+          "result_label_disagreements": 5
+        },
+        "loop_recount": {
+          "metric_version": 1,
+          "inspection_complete": true,
+          "loop_group_count": 2,
+          "total_loop_iterations": 17,
+          "extra_repeat_count": 15,
+          "native_session_sha256": "239c12d989cbbec7b9cb89c3cc0cea017cc04f549161032416f41698da285d98",
+          "included_event_count": 290,
+          "exclusions": [],
+          "groups": [
+            {
+              "id": "pre-delivery-token-removal-redecision",
+              "type": "reasoning",
+              "iterations_including_anchor": 11,
+              "extra_repeats": 10,
+              "counts_by_native_event": {
+                "71": 3,
+                "81": 6,
+                "95": 2
+              },
+              "reason": "Restarts the same token key/value judgment, often through planted-expectation guesses. Flat coverage record88 is excluded. Actual later runtime probe closes this phase.",
+              "annotation_sha256": "04d9d5fe685dde6a725ced3eaf988fce82539653c2240ceb04f8c39511634e2c"
+            },
+            {
+              "id": "post-format-completion-redecision",
+              "type": "reasoning",
+              "iterations_including_anchor": 6,
+              "extra_repeats": 5,
+              "counts_by_native_event": {
+                "239": 1,
+                "249": 3,
+                "256": 1,
+                "263": 1
+              },
+              "reason": "After the two actual range repairs and successful verification, semantic inputs do not change. Notification request corrections, scope queries and helper cleanup remain genuine different operations; no count for merely recapping118 or flat mappings.",
+              "annotation_sha256": "c34339152a2e0cc7a52267642b38adb3f0931a6d64fcb5f98ceba34027cd49c8"
+            }
+          ]
+        }
+      }
+    ],
+    "arithmetic_mean": {
+      "repeat_count": 3,
+      "score": 0.8077297089099065,
+      "review_work_seconds": 1566.6055859374999,
+      "review_work_seconds_estimated": true,
+      "review_work_seconds_min": 1086.5544431152343,
+      "review_work_seconds_max": 2168.8608803710936,
+      "review_work_seconds_population_stdev": 450.2200921287655,
+      "tokens": {
+        "uncached_input": 2937145.6666666665,
+        "cached_input": 416711.6666666667,
+        "output": 79588.33333333333
+      },
+      "engine_input_tokens_per_second": 3126.0492642834483,
+      "engine_output_tokens_per_second": 129.5796538359033,
+      "task_input_tokens_per_second": 1868.7101617227406,
+      "task_output_tokens_per_second": 50.79024203648704,
+      "loop_observed_repeats": 2,
+      "loop_unknown_repeats": 0,
+      "formal_acceptance_repeats": 0
+    },
+    "loop_statistics": {
+      "loop_group_count_sum": 5,
+      "loop_group_count_mean": 1.6666666666666667,
+      "total_loop_iterations_sum": 410,
+      "total_loop_iterations_mean": 136.66666666666666,
+      "total_loop_iterations_median": 17,
+      "total_loop_iterations_min": 0,
+      "total_loop_iterations_max": 393,
+      "extra_repeat_count_sum": 405
+    }
+  },
+  "candidate": {
+    "id": "local-IQ3_XXS",
+    "observations": [
+      {
+        "repetition": 1,
+        "instance_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-1",
+        "host": "local",
+        "model": "IQ3_XXS",
+        "score": 0.738908525341658,
+        "review_work_seconds": 2335.7598154296875,
+        "work_time_estimated": true,
+        "timing_crosscheck": {
+          "native_turn_duration_seconds": [
+            586.314,
+            797.368,
+            402.288,
+            342.423,
+            206.489
+          ],
+          "native_turn_duration_seconds_sum": 2334.882,
+          "driver_minus_native_turn_duration_seconds": 0.8778154296874163
+        },
+        "timing_uncertainty_note": "First two have estimated observer transitions; native-duration disagreement is a cross-check, not an independently proven maximum error bound. No invented finite interval.",
+        "tokens": {
+          "uncached_input": 3220386,
+          "cached_input": 831733,
+          "output": 123445
+        },
+        "internal_stages": 109,
+        "engine_input_seconds": 1082.834,
+        "engine_decode_seconds": 1233.374,
+        "engine_input_tokens_per_second": 2974.034801271478,
+        "engine_output_tokens_per_second": 100.087240366669,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+        "task_review_seconds": 2335.7598154296875,
+        "task_input_tokens_per_second": 1378.7316567082803,
+        "task_output_tokens_per_second": 52.85004013877643,
+        "load_seconds": 16.942093193996698,
+        "automatic_continuations": 4,
+        "successful_compactions": 1,
+        "report_rows": 118,
+        "native_events": 434,
+        "tool_calls": 62,
+        "formal_acceptance": false,
+        "session_inspection_complete": true,
+        "startup_context_passed": true,
+        "source_isolation_passed": true,
+        "report_only_writes_verified": true,
+        "report_sha256": "7418dc15a7e7f6a947299fd52984bb62d7d871ae65e72332085c78df426b26db",
+        "native_session_sha256": "d43b2ff67b485721c5adbc6b6996321109b9f1c1c30d6ef823bc0e58c0f4b72b",
+        "internal_log_sha256": "bcb021dc361e7c49d24e2a3897533964c02d0c0d0397fb7d9c716fd1b4ff9032",
+        "scoring_sha256": "4747d26781e632ae796e22af9c67be9554ff6dd1251a52526e57a6c14148f6d9",
+        "main_inspection_sha256": "4c48618a2ef4553dc9fecdebdfefeb3e2a0136dd5cd1325432ac0bbdd3bb0048",
+        "startup_instructions_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+        "compaction_prompt_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+        "profile_sha256_before": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+        "profile_sha256_after": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+        "loop_recount": {
+          "status": "Main-manual-complete-group-recount",
+          "native_sha256": "d43b2ff67b485721c5adbc6b6996321109b9f1c1c30d6ef823bc0e58c0f4b72b",
+          "loop_group_count": 2,
+          "total_loop_iterations": 12,
+          "extra_repeat_count": 10,
+          "groups": [
+            {
+              "id": "unchanged-provider-contract-redecision",
+              "type": "reasoning",
+              "count": 6,
+              "iterations": [
+                {
+                  "event": 157,
+                  "start": 1613,
+                  "end": 2258,
+                  "text_sha256": "ff6ec1f48753e773afb0571f3b21a5f8f88036b5652a66838fb0cd67fb8c0c46",
+                  "partial_cycle": false
+                },
+                {
+                  "event": 157,
+                  "start": 2260,
+                  "end": 2835,
+                  "text_sha256": "9969a7ab02a28b24c12caebb5b9a0738b8b1e21ac2edfa2ccac17a6b87bc4682",
+                  "partial_cycle": false
+                },
+                {
+                  "event": 157,
+                  "start": 2837,
+                  "end": 3138,
+                  "text_sha256": "e6e109fda8aa260118019639746f5b096f8cc6ea88b101d32bc02dbd184e5bbe",
+                  "partial_cycle": false
+                },
+                {
+                  "event": 157,
+                  "start": 3140,
+                  "end": 3636,
+                  "text_sha256": "f56482bd03fdd089e3ed541ed1d78040bc462a5239778b79561aa855124b4aee",
+                  "partial_cycle": false
+                },
+                {
+                  "event": 157,
+                  "start": 3638,
+                  "end": 4442,
+                  "text_sha256": "780ead4bd4cd55213c33548a40d5be882ab4a6da56ae72a2e737182188543b4c",
+                  "partial_cycle": false
+                },
+                {
+                  "event": 157,
+                  "start": 4444,
+                  "end": 5155,
+                  "text_sha256": "ea3c425cb338fc6ee136172f62737626c9bb5ec63bdd40777f166d7a4f9127af",
+                  "partial_cycle": false
+                }
+              ],
+              "reason": "Six redecisions gap-versus-uncertain using unchanged provider/config/stub evidence; final resolution and ordinary mappings excluded."
+            },
+            {
+              "id": "phantom-spec-cyclic-requirement-map",
+              "type": "reasoning",
+              "count": 6,
+              "complete_cycles": 5,
+              "partial_started_cycles": 1,
+              "iterations": [
+                {
+                  "event": 335,
+                  "start": 15956,
+                  "end": 17453,
+                  "text_sha256": "9bfc1bc73fa6e3b79ebc9c53a17384a161ec34874bf6164c6168199d20e9f108",
+                  "partial_cycle": false
+                },
+                {
+                  "event": 335,
+                  "start": 17453,
+                  "end": 18966,
+                  "text_sha256": "99d1c9e94f94df8239ce058085311ed55bbf1a101fbca44cce9680fe2532c2b1",
+                  "partial_cycle": false
+                },
+                {
+                  "event": 335,
+                  "start": 18966,
+                  "end": 20499,
+                  "text_sha256": "d7333485c8c42ad69f6ca47e0694c001157daea52fb0661f813479f895dd18b1",
+                  "partial_cycle": false
+                },
+                {
+                  "event": 335,
+                  "start": 20499,
+                  "end": 22032,
+                  "text_sha256": "e68bc4f40aa2ce7835920761eff8569aa7a33d792b931fae81b48a7430ab61da",
+                  "partial_cycle": false
+                },
+                {
+                  "event": 335,
+                  "start": 22032,
+                  "end": 23565,
+                  "text_sha256": "545380e308379b712ed5e62c0acd91adbad886ce14bce4f08d2023554a8ea840",
+                  "partial_cycle": false
+                },
+                {
+                  "event": 335,
+                  "start": 23565,
+                  "end": 24163,
+                  "text_sha256": "7b1e26f7c15d17e31bc3809adfacb9250270c443c79dc97cb1f45412f89dbc35",
+                  "partial_cycle": true
+                }
+              ],
+              "reason": "Repeats30-item issue02 verdict/evidence sequence under phantom Spec line50..210. Five full cyclic occurrences and one clearly entered11-item partial occurrence included; actualSpec ends77. Earlier mixed mapping is not counted."
+            }
+          ],
+          "all_native_groups_reviewed": true,
+          "dynamic_hints": 0,
+          "exclusions": [
+            "Redaction/restore uncertainty discussions not promoted into stalled-loop groups when ordinary mapping or genuine additional semantic analysis explains them, consistent with historical baseline1 conservative exclusions.",
+            "Actual source rereads, report reconstruction required by native follow-up truncation, semantic-independent evidence repairs, helper parser bug repairs and native mirrors excluded.",
+            "Four normal early endings/continuations recorded separately, not automatically four loop groups."
+          ]
+        },
+        "finding_check": {
+          "checked": 118,
+          "semantic_result_mismatches": 8,
+          "scoring_candidates_checked": 32,
+          "scoring_candidates_matched": 30
+        },
+        "failures": [
+          "ordinary single-file sandbox initialization",
+          "finding write timeliness",
+          "explicit scenario-root workdir",
+          "required final ARW notification absent"
+        ],
+        "notification_sent": false,
+        "notification_persistence": "No final ARW status notification observed; exact ready native433 is a native terminal, not a separate ARW receipt.",
+        "startup_allocation": {
+          "automatic_expert_slots": 3978,
+          "total_expert_slots": 5324,
+          "prompt_borrowed_cache_slots": 4426,
+          "free_vram_after_load_mib": 286,
+          "low_free_vram_warning": false,
+          "source_sha256": "73bf93aa82f3a951e012ece9c942f7a6b449765751543b597fc5973b3b26c746",
+          "requested_prefill": 16384,
+          "prefill_clamp_notice_observed": false,
+          "source_scope": "Full engine prefix before first effective instance; includes a zero-stage failed preflight load. Last startup before counter offset supplies current allocation."
+        }
+      },
+      {
+        "repetition": 2,
+        "instance_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-2",
+        "host": "local",
+        "model": "IQ3_XXS",
+        "score": 0.3890508184846806,
+        "review_work_seconds": 2576.8361169433592,
+        "work_time_estimated": true,
+        "timing_crosscheck": {
+          "native_turn_duration_seconds": [
+            1070.813,
+            1505.625
+          ],
+          "native_turn_duration_sum_seconds": 2576.438,
+          "driver_minus_native_duration_seconds": 0.3981169433591276
+        },
+        "timing_uncertainty_note": "First two have estimated observer transitions; native-duration disagreement is a cross-check, not an independently proven maximum error bound. No invented finite interval.",
+        "tokens": {
+          "uncached_input": 4442335,
+          "cached_input": 831029,
+          "output": 107783
+        },
+        "internal_stages": 120,
+        "engine_input_seconds": 1446.711,
+        "engine_decode_seconds": 1107.589,
+        "engine_input_tokens_per_second": 3070.644378870417,
+        "engine_output_tokens_per_second": 97.31317302717886,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+        "task_review_seconds": 2576.8361169433592,
+        "task_input_tokens_per_second": 1723.9493698456438,
+        "task_output_tokens_per_second": 41.82765030779377,
+        "load_seconds": 16.26106400799472,
+        "automatic_continuations": 1,
+        "successful_compactions": 1,
+        "report_rows": 118,
+        "native_events": 445,
+        "tool_calls": 72,
+        "formal_acceptance": false,
+        "session_inspection_complete": true,
+        "startup_context_passed": true,
+        "source_isolation_passed": false,
+        "report_only_writes_verified": true,
+        "report_sha256": "cd43b72c5ec34fe66eca5a16281349d66b50e3bd0a23d2a732c351459cc8a051",
+        "native_session_sha256": "50b50b00dce5acee1ebd97ef57aeb189991f4e56be115d364c7acaf6c57d5dab",
+        "internal_log_sha256": "1a622a07f1d09e1a16ef64971e40e4c2651690a1659eba671fec33c7d86eefc0",
+        "scoring_sha256": "b003db44abca7ac23b4729651c43bd93a7a8d051ed2880eb68a190903c067f48",
+        "main_inspection_sha256": "ff5c9c2642142b37c1ed7085484cd1e660a6605e8fb599a6a19f7481580a46ab",
+        "startup_instructions_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+        "compaction_prompt_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+        "profile_sha256_before": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+        "profile_sha256_after": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+        "loop_recount": {
+          "status": "Main-manual-all-group-recount",
+          "native_sha256": "50b50b00dce5acee1ebd97ef57aeb189991f4e56be115d364c7acaf6c57d5dab",
+          "loop_group_count": 4,
+          "total_loop_iterations": 19,
+          "extra_repeat_count": 15,
+          "groups": [
+            {
+              "id": "restore-contract-redecision",
+              "type": "reasoning",
+              "count": 6,
+              "reason": "Six repeated verdict redecisions after the unavailable restore contract and unchanged passthrough are established; initial research and comparisons to other passthrough requirements excluded.",
+              "iterations": [
+                {
+                  "event": 85,
+                  "start": 22025,
+                  "end": 22401,
+                  "text_sha256": "07ac2659455c416e9bf188ee16eaac51679167b982da9e9fbef8aabafdb475a6"
+                },
+                {
+                  "event": 85,
+                  "start": 22403,
+                  "end": 22911,
+                  "text_sha256": "42d470514e74b92415ccf18a42f7504fe1badac06ec43a442504e166e9a76ca3"
+                },
+                {
+                  "event": 85,
+                  "start": 22913,
+                  "end": 23333,
+                  "text_sha256": "973d8471eaa78998fe2811debdeeb578d11180f9cd554330bb4467dbcbf321fc"
+                },
+                {
+                  "event": 85,
+                  "start": 23335,
+                  "end": 23917,
+                  "text_sha256": "98e0d0e3005231f20d0f1cc786529c48f8ebd28a01e66ecd5fb24de5b0eb5176"
+                },
+                {
+                  "event": 85,
+                  "start": 25042,
+                  "end": 25741,
+                  "text_sha256": "52bb29eda66698d4deb7e435250da277fae39c21cca2723f3e8234cacd0dadf9"
+                },
+                {
+                  "event": 85,
+                  "start": 25743,
+                  "end": 26062,
+                  "text_sha256": "3cc259349e90bfb275b9ebd5d24e7bb6303fa2d0649f6abb4927bfde6d0adf51"
+                }
+              ],
+              "extra_repeats": 5
+            },
+            {
+              "id": "public-import-versus-invocation-redecision",
+              "type": "reasoning",
+              "count": 5,
+              "reason": "Five successive decisions on the same issue02:45 import requirement using unchanged public/internal bindings and the same literal-versus-intended-meaning conflict. Ordinary initial source comparison excluded.",
+              "iterations": [
+                {
+                  "event": 102,
+                  "start": 5679,
+                  "end": 6020,
+                  "text_sha256": "c8c1388335799f6c737ddbf1ffdc7767a3b6cee9c4352cf3369db46282bc6992"
+                },
+                {
+                  "event": 102,
+                  "start": 6022,
+                  "end": 6488,
+                  "text_sha256": "5ec242df19e2e492234ca9f69ad74142f3d484b9dd898c190b61d172763e0a97"
+                },
+                {
+                  "event": 102,
+                  "start": 6490,
+                  "end": 7010,
+                  "text_sha256": "0fa4598d85d9e4abaa716264016d87dcec17838570c1e79b75b87adbdd2fead3"
+                },
+                {
+                  "event": 102,
+                  "start": 7012,
+                  "end": 7725,
+                  "text_sha256": "46918711d53e4b47caaa437b4ca340d8449d935307657d1a2957239dd24d9628"
+                },
+                {
+                  "event": 102,
+                  "start": 7727,
+                  "end": 8594,
+                  "text_sha256": "4057121a633317b57057e100d1b79cf571aae30b205070a4ba8c65c82f4b3cad"
+                }
+              ],
+              "extra_repeats": 4
+            },
+            {
+              "id": "route-token-normalization-redecision",
+              "type": "reasoning",
+              "count": 3,
+              "reason": "Three repeated verdict rounds after missing NFKC and grammatical alternatives have been identified; the later actual ligature probe is substantive new evidence and terminates this group.",
+              "iterations": [
+                {
+                  "event": 102,
+                  "start": 21385,
+                  "end": 21774,
+                  "text_sha256": "4cd0b4a5d04b0024e7f0d9e8303b1f91c00d66382ca7312b44c96d9e284ac817"
+                },
+                {
+                  "event": 102,
+                  "start": 21776,
+                  "end": 22314,
+                  "text_sha256": "64b896261444798ba474ac9fe2c68b7f9f22bf3ed80934d800e6475560d830e2"
+                },
+                {
+                  "event": 102,
+                  "start": 22316,
+                  "end": 22931,
+                  "text_sha256": "66d6a087076b3e765d159da672de59a4ba05b8432645c3fc5093aca395dcbd05"
+                }
+              ],
+              "extra_repeats": 2
+            },
+            {
+              "id": "evidence-range-notation-redecision",
+              "type": "reasoning",
+              "count": 5,
+              "reason": "Five repeated interpretations of plain [a,b] versus nested [[a,b]] using the same Role grammar and existing report. Interleaved requirement enumeration is excluded; later receipt and different-requirement citation choices in345 are not added as repetitions.",
+              "iterations": [
+                {
+                  "event": 338,
+                  "start": 0,
+                  "end": 682,
+                  "text_sha256": "9adc13e77305de2c20e4e8609fee08237fa835c580d336bca93fda75888462eb"
+                },
+                {
+                  "event": 338,
+                  "start": 1192,
+                  "end": 2405,
+                  "text_sha256": "200aae869316a5799cdda10f532098b2ff6b6225c79681cab4c7a65fcf26fece"
+                },
+                {
+                  "event": 338,
+                  "start": 2407,
+                  "end": 3333,
+                  "text_sha256": "eefd3978087f34d94bd63b5990d63a35539c82428a7d4681944c9792fb84f7ec"
+                },
+                {
+                  "event": 338,
+                  "start": 3564,
+                  "end": 4065,
+                  "text_sha256": "ca290e5a1f10c6c39e413be3d151e212adc4be550041f8519280df8537c5d050"
+                },
+                {
+                  "event": 338,
+                  "start": 4067,
+                  "end": 5097,
+                  "text_sha256": "5555fac536093702b0a8e927691f534f07e3287cf2afbb5afba51c1c0c7fdd8c"
+                }
+              ],
+              "extra_repeats": 4
+            }
+          ],
+          "all_native_groups_reviewed": true,
+          "dynamic_hints": 0,
+          "boundary_candidates": [
+            {
+              "event": 269,
+              "topic": "Route token meaning reconsidered after compaction",
+              "decision": "Not an additional confirmed loop group: different reading of the compacted evidence and one local redecision; no confidently separable repeated complete cycle."
+            },
+            {
+              "event": 345,
+              "topic": "Further evidence notation choices after own-report inspection",
+              "decision": "Not counted as additional loop iterations: new receipt and mapping of different requirements, followed by substantive writing."
+            }
+          ],
+          "exclusions": [
+            "Native mirrors and compaction repetition of already established judgments counted once only.",
+            "The single normal early ending and required report restoration are recovery, not loop groups.",
+            "Actual probe argument repairs, rejected-before-execution tool retry, verification script repairs, ordinary source rereads and distinct-requirement mapping excluded."
+          ],
+          "counting_basis": "Total includes first retained round per confirmed group; extra repeats subtract one per group. Conservative semantic group boundaries and exact native spans retained."
+        },
+        "finding_check": {
+          "checked": 118,
+          "semantic_result_mismatches": 8,
+          "scoring_candidates_checked": 15,
+          "scoring_candidates_matched": 15
+        },
+        "failures": [
+          "ordinary single-file sandbox initialization",
+          "finding write timeliness",
+          "explicit scenario-root workdir",
+          "environment identity query"
+        ],
+        "notification_sent": true,
+        "notification_persistence": "Final notification accepted at436, message ab5675ea-ef12-4f24-b008-c03f39546218, persistenceStatus nonpersisted. No durable notification proof.",
+        "startup_allocation": {
+          "automatic_expert_slots": 3978,
+          "total_expert_slots": 5324,
+          "prompt_borrowed_cache_slots": 4426,
+          "free_vram_after_load_mib": 294,
+          "low_free_vram_warning": false,
+          "source_sha256": "ab6ef295e479f9395e61acd7c4e44acc1db3c42de847645c69d2bd5a64e38668",
+          "requested_prefill": 16384,
+          "prefill_clamp_notice_observed": false
+        }
+      },
+      {
+        "repetition": 3,
+        "instance_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-3",
+        "host": "local",
+        "model": "IQ3_XXS",
+        "score": 0.7620380808992663,
+        "review_work_seconds": 1557.9495622558593,
+        "work_time_estimated": false,
+        "timing_crosscheck": {
+          "native_turn_duration_seconds": [
+            1557.546
+          ],
+          "native_turn_duration_sum_seconds": 1557.546,
+          "driver_minus_native_duration_seconds": 0.4035622558592422
+        },
+        "timing_uncertainty_note": "First two have estimated observer transitions; native-duration disagreement is a cross-check, not an independently proven maximum error bound. No invented finite interval.",
+        "tokens": {
+          "uncached_input": 2862316,
+          "cached_input": 299959,
+          "output": 58065
+        },
+        "internal_stages": 61,
+        "engine_input_seconds": 947.827,
+        "engine_decode_seconds": 595.473,
+        "engine_input_tokens_per_second": 3019.871769848295,
+        "engine_output_tokens_per_second": 97.51071837010242,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+        "task_review_seconds": 1557.9495622558593,
+        "task_input_tokens_per_second": 1837.2327765575808,
+        "task_output_tokens_per_second": 37.27014109232381,
+        "load_seconds": 16.839698028001294,
+        "automatic_continuations": 0,
+        "successful_compactions": 0,
+        "report_rows": 118,
+        "native_events": 224,
+        "tool_calls": 35,
+        "formal_acceptance": false,
+        "session_inspection_complete": true,
+        "startup_context_passed": true,
+        "source_isolation_passed": false,
+        "report_only_writes_verified": true,
+        "report_sha256": "10a7ef70f4183a2f0b8a30204fe4237043ae6dcf5ef2bd37b76484d204ed6373",
+        "native_session_sha256": "2b06d48d83e07e5a18561e9c0a93b9697cf39a312966131bd3a7ea3342472243",
+        "internal_log_sha256": "17353c373bb637a60e51cce8b8ac381f573507bb0e3ae465b6669c60fb69914c",
+        "scoring_sha256": "c540ec988dcfa63bdbc59576ce3eba8c360dd47c07db084f3218817b8ccf9762",
+        "main_inspection_sha256": "0820d2237edb4fd9688edfacc9b28f5c2f6dc8381dfe3f684d46645c5cd9023a",
+        "startup_instructions_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+        "compaction_prompt_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+        "profile_sha256_before": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+        "profile_sha256_after": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+        "loop_recount": {
+          "status": "Main-manual-all-group-recount",
+          "native_sha256": "2b06d48d83e07e5a18561e9c0a93b9697cf39a312966131bd3a7ea3342472243",
+          "loop_group_count": 1,
+          "total_loop_iterations": 3,
+          "extra_repeat_count": 2,
+          "groups": [
+            {
+              "id": "route-token-normalization-redecision",
+              "type": "visible-planning",
+              "count": 3,
+              "extra_repeats": 2,
+              "iterations": [
+                {
+                  "event": 93,
+                  "start": 9101,
+                  "end": 9880,
+                  "text_sha256": "35b6d22eb54f2e6bfda4865524e298e02a5002f42f75fb2e76dd2d82b165f15f"
+                },
+                {
+                  "event": 93,
+                  "start": 9880,
+                  "end": 10119,
+                  "text_sha256": "ff89fe69d6c548fddecea4863df5f71f26b1356afb19bf116f9e9e54b67ea581"
+                },
+                {
+                  "event": 93,
+                  "start": 10119,
+                  "end": 10538,
+                  "text_sha256": "26a04c2414ceaa6c1193279595fbdad82eb4bceaaf461839fb29c7cfe1f7c983"
+                }
+              ],
+              "reason": "Three separate verdict rounds restate the missing NFKC/route normalizer conflict using unchanged code and spec70/76. All three retain gap; the first retained round is included, and item92 is the native mirror of message93, not another occurrence."
+            }
+          ],
+          "all_native_groups_reviewed": true,
+          "dynamic_hints": 0,
+          "boundary_candidates": [
+            {
+              "event": 24,
+              "topic": "Sandbox file/directory conjectures",
+              "decision": "Not promoted into a confirmed stalled group: the sequence explores failure hypotheses and proceeds to successful escalation25."
+            },
+            {
+              "event": 91,
+              "topic": "Restore passthrough discussion",
+              "decision": "Conservative exclusion: initial semantic assessment and reasonable reconsideration of wording; later separate-requirement mappings not counted as repeated rounds."
+            },
+            {
+              "events": [
+                163,
+                170
+              ],
+              "topic": "Byte-identical rewrite-success reasoning",
+              "decision": "Not counted as a stalled loop: successive checker repairs remove false adjacency warnings, then reset per-file ordering state; actual progress is visible in166/173/182."
+            }
+          ],
+          "exclusions": [
+            "Initial research, distinct-requirement mapping, normal report composition, necessary missing-row insertion129, citation-range correction157 and concrete validation-script repairs excluded.",
+            "A reasonable verification and native mirrors are not automatic loops. Successful final notification214 and final ready220 are distinct protocol actions."
+          ],
+          "counting_basis": "First retained round included; extra repeats subtract one per confirmed group. Boundaries are conservative Main semantic judgments, with exact native spans retained."
+        },
+        "finding_check": {
+          "checked": 118,
+          "semantic_result_mismatches": 7,
+          "scoring_candidates_checked": 32,
+          "scoring_candidates_matched": 31
+        },
+        "failures": [
+          "ordinary single-file sandbox initialization",
+          "finding write timeliness",
+          "explicit scenario-root workdir",
+          "environment identity query"
+        ],
+        "notification_sent": true,
+        "notification_persistence": "Native215 receipt b8906fac-829a-4a01-80b9-745189a7f33b is accepted/nonpersisted. Required notification was sent; this is not proof of durable delivery and no additional Reviewer requirement is imposed.",
+        "startup_allocation": {
+          "automatic_expert_slots": 3978,
+          "total_expert_slots": 5324,
+          "prompt_borrowed_cache_slots": 4426,
+          "free_vram_after_load_mib": 176,
+          "low_free_vram_warning": true,
+          "source_sha256": "e556b3fc259bfb31f45834fea584afa728dabced12b37899d996d5aac7d5aafd",
+          "requested_prefill": 16384,
+          "prefill_clamp_notice_observed": false
+        }
+      }
+    ],
+    "arithmetic_mean": {
+      "repeat_count": 3,
+      "score": 0.6299991415752016,
+      "review_work_seconds": 2156.848498209635,
+      "tokens": {
+        "uncached_input": 3508345.6666666665,
+        "cached_input": 654240.3333333334,
+        "output": 96431
+      },
+      "engine_input_tokens_per_second": 3021.5169833300633,
+      "engine_output_tokens_per_second": 98.30371058798343,
+      "task_input_tokens_per_second": 1646.6379343705016,
+      "task_output_tokens_per_second": 43.98261051296467,
+      "loop_group_count": 2.3333333333333335,
+      "total_loop_iterations": 11.333333333333334,
+      "extra_repeat_count": 9,
+      "loop_iterations_median": 12,
+      "loops_observed_instances": 3,
+      "formal_acceptance_instances": 0
+    }
+  },
+  "same_host_contrast": {
+    "mean_loop_iterations_change_percent": -91.70731707317074,
+    "median_loop_iterations_change_percent": -29.411764705882348,
+    "mean_loop_group_count_change_percent": 40.000000000000014,
+    "work_time_change_percent": 37.67654842867918,
+    "score_change": -0.17773056733470483,
+    "engine_input_tokens_per_second_change_percent": -3.3439102239275154,
+    "engine_output_tokens_per_second_change_percent": -24.136461490726766,
+    "task_input_tokens_per_second_change_percent": -11.883717009785688,
+    "task_output_tokens_per_second_change_percent": -13.403424064472569
+  },
+  "extra_attempts_and_recovery": [
+    {
+      "phase": "catalog preflight",
+      "model_started": false,
+      "model_requests": 0,
+      "effective_sample": false
+    },
+    {
+      "phase": "native workspace identity preflight",
+      "model_loaded": true,
+      "Reviewer_accepted": false,
+      "recorded_internal_stages": 0,
+      "effective_sample": false,
+      "stopped_and_ownership_returned": true
+    },
+    {
+      "phase": "second observer exit",
+      "model_rerun": false,
+      "new_recovery_model_requests": 0,
+      "original_native_completed_ready": true,
+      "ended_turn_idle_excluded": true
+    }
+  ],
+  "batch_cleanup": {
+    "original_ARW_maintenance_ready": true,
+    "model_stopped": true,
+    "ownership_returned": true,
+    "default_profiles_unchanged": true
+  },
+  "limits": [
+    "Same frozen35file subject, original single-file grant and prompt bindings; static loop paragraph and dynamic guard off in both conditions.",
+    "Manual semantic loop boundaries are conservative; unconfirmed candidates and necessary recovery are separately recorded. Counts include the first retained round and all confirmed groups, with native mirrors deduplicated.",
+    "No379iteration literal-repeat extreme occurred in IQ3; historical baseline extreme dominates its mean. Three IQ3 instances still contain loops; no general guarantee inferred from n3.",
+    "Original scoring and reports are retained. Current adjudication rejects unsupported definite opaque-adapter cleanup claims; historical baseline adjudication may differ. Score delta is diagnostic, not an isolated causal quality estimate.",
+    "Instance2 intended citation ranges often become two endpoint references. This harms the original score; Main does not expand its evidence or change its report.",
+    "First two work intervals contain estimates. Cross-clock agreement is not a reliable maximum error bound; internal token counts are complete, and no API usage or invented midpoint fills missing data.",
+    "The runtime sends accepted/nonpersisted notifications in instances2/3; durable delivery unproven. Instance1 lacks final notification. No additional persistence requirement is imposed on Reviewer.",
+    "Third instance has176MiB free VRAM and a real startup warning. Fixed parameters were retained; no observed request failure, and no causal effect of this warning established.",
+    "Requested prefill16384 is bound and complete startup prefixes show no clamp notice; absence of a notice is not an independent measurement of every processed chunk.",
+    "Raw sessions/logs remain temporary. This JSON preserves arithmetic inputs, loop counts/spans and failure conclusions; deleting raw details prevents original-session replay or log reinspection."
+  ],
+  "maintenance_recommendation": "User confirmed a clear observed reduction in prolonged loops with IQ3_XXS in these three diagnostic runs, but its lower diagnostic score and slower output favor retaining Q2_0/high/default. Keep the current static prompt provisionally; the loop-prevention method remains open pending the next dynamic-strategy test. Do not generalize to other Q3 variants or claim formal causal quality acceptance.",
+  "next_authorized_work": "Both-host0.1.40.2 upgrade and quick checks are complete. User selected waiting for the upstream ARW permission-fix commit before synchronization and resumption of the original12 Spec instances. A next dynamic-strategy test remains to be scoped; no new model runs are inferred from this decision.",
+  "user_decision": {
+    "recorded_at": "2026-10-07T19:08:08.922328+00:00",
+    "default_model": "Q2_0",
+    "current_static_loop_prompt_retained": true,
+    "prolonged_loop_observation": "IQ3 clearly suppressed prolonged loops in this diagnostic sample; the old379-repeat extreme was not reproduced.",
+    "selection_reasons": [
+      "lower diagnostic score",
+      "slower output speed"
+    ],
+    "loop_prevention_method_finalized": false,
+    "next_test_direction": "dynamic repeat-prevention strategy",
+    "new_test_scope_authorized": false,
+    "existing_completed_dynamic_three_runs_unchanged": true
+  }
+}

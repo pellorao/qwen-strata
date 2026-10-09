@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "status": "installed-both-hosts-sha-verified-short-call-chain-checked",
+  "version": "0.1.40.2",
+  "commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a",
+  "engine_version": "0.1.40.2",
+  "source": {
+    "project_file": "artifacts/strata/0.1.40.2/source.zip",
+    "bytes": 18736860,
+    "sha256": "9e5a8086fc1869c6a23859bd9d06e93d91adbc066b54c4239f84a70f791e4480",
+    "url": "https://codeload.github.com/Niko1221/Strata/zip/e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a"
+  },
+  "engine": {
+    "project_file": "artifacts/strata/0.1.40.2/engine.zip",
+    "bytes": 135496886,
+    "sha256": "02901f0cd0691ab33ec827e354ffa72e1ab4f19a093f0280c6deb7327b26eb30",
+    "url": "https://github.com/Niko1221/Strata/releases/download/v0.1.40.2/strata-windows-x64.zip"
+  },
+  "build": {
+    "version": "0.1.40.2",
+    "source": "release",
+    "archs": [
+      75,
+      86,
+      89,
+      120
+    ],
+    "ptx": true,
+    "cuda": "13.0",
+    "vision": "gpu",
+    "portable": true
+  },
+  "instruction_dependency_comparison": {
+    "AGENTS.md": {
+      "unchanged": true,
+      "previous_sha256": "dcb3e9e4d58da5edba2be982f525dd4ace190959ef139a858e11a70a90bb0bed",
+      "new_sha256": "dcb3e9e4d58da5edba2be982f525dd4ace190959ef139a858e11a70a90bb0bed"
+    },
+    "requirements.txt": {
+      "unchanged": true,
+      "previous_sha256": "b9c75993366079fbbcf80deb544e12f932228cf3c98f34b2481d45e1afddd5a8",
+      "new_sha256": "b9c75993366079fbbcf80deb544e12f932228cf3c98f34b2481d45e1afddd5a8"
+    }
+  },
+  "currently_installed": true,
+  "cpu_share_source_inspection": {
+    "path": "src/prefill/prefill.cpp",
+    "sha256": "cfe076cc4b34cb03018c30a455bc0f5c583f8ee47fd4c33afc4bcd6624f42be3",
+    "default_stream_all_min": 1024,
+    "eligibility": "Actual prompt chunk routed-only path, not total session/context length. Native pack, CPU pool, one GPU and nonempty native formats required.",
+    "default_enabled": false,
+    "opt_in_changes_numeric_path": true,
+    "engine_env_name": "STRATA_PREFILL_CPU_SHARE",
+    "model_runs": 0,
+    "performance_verified_on_our_hosts": false
+  }
+}

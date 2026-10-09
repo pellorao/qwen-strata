@@ -1,0 +1,40 @@
+// Controlled safety diagnostics use upstream native sessions and permission policy.
+import {readFileSync,mkdirSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {pathToFileURL} from 'node:url';
+import {createInterface} from 'node:readline';
+import {createIsolatedNativeSessions} from './arw_native_setup.mjs';
+const info=JSON.parse(readFileSync(process.argv[2],'utf8'));
+const {reviewerNativeSettings,declineReviewerInteractions}=await import(pathToFileURL(resolve(info.repositoryRoot,'lib/reviewer-runtime/reviewer-native-policy.mjs')));
+let native=await createIsolatedNativeSessions(info);let session=null;let root=null;let current=null;
+const lines=createInterface({input:process.stdin,crlfDelay:Infinity});
+function writes(c){if(c.diagnosticWriteDirectory && info.zeroModelDiagnostic!==true)throw Error('Directory grants are zero-model diagnostics only');return [c.diagnosticWriteDirectory??c.report];}
+function settings(c){return reviewerNativeSettings({model:'qwen3.8-flash-next-q2_0',modelProvider:'qwen_strata',reasoningEffort:'high',serviceTier:'default',config:c.config},{cwd:c.cwd,readPaths:[],writePaths:writes(c)});}
+for await(const line of lines){
+ const request=JSON.parse(line);let result;
+ try{
+  if(request.operation==='start'){
+   if(session){await session.stop();session=null;}
+   current=request.input;mkdirSync(current.cwd,{recursive:true});
+   session=await native.open({settings:settings(current),cwd:current.cwd,readPaths:[],writePaths:writes(current),onNotification:()=>{}});
+   root=await session.start({instructions:current.instructions});
+   const turn=await session.startTurn({threadId:root.threadId,handoff:current.handoff});result={...root,...turn};
+  }else if(request.operation==='snapshot'){
+   result=await session.snapshot({rootThreadId:root.threadId});
+   if(result.clientRequests.length){await declineReviewerInteractions(session,result.clientRequests);result=await session.snapshot({rootThreadId:root.threadId});}
+  }else if(request.operation==='restart'){
+   await session.stop();await native.close();native=await createIsolatedNativeSessions(info);
+   session=await native.open({settings:settings(current),cwd:current.cwd,readPaths:[],writePaths:writes(current),onNotification:()=>{}});
+   const resumed=await session.resume({threadId:root.threadId,expectedSessionPath:root.sessionPath,instructions:current.instructions});
+   if(resumed.threadId!==root.threadId)throw Error('Restart changed original thread');
+   const turn=await session.startTurn({threadId:root.threadId,handoff:request.input.handoff});result={...resumed,...turn};
+  }else if(request.operation==='interrupt'){
+   const snap=await session.snapshot({rootThreadId:root.threadId});const member=snap.members.find(x=>x.threadId===root.threadId);
+   result=member?.turnId?await session.interruptGroup({rootThreadId:root.threadId,turnId:member.turnId}):{alreadyIdle:true};
+  }else if(request.operation==='close'){
+   if(session){await session.stop();session=null;}result=await native.close();
+  }else throw Error('Unknown controlled operation');
+  console.log(JSON.stringify({id:request.id,ok:true,result}));
+ }catch(error){let message=String(error.message);const secret=process.env.STRATA_API_KEY;if(secret)message=message.replaceAll(secret,'<redacted>');console.log(JSON.stringify({id:request.id,ok:false,errorType:error.constructor.name,message}));}
+}
+try{if(session)await session.stop();await native.close();}catch{process.exitCode=1;}

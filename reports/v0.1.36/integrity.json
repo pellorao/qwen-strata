@@ -1,0 +1,69 @@
+{
+  "version": "0.1.36",
+  "type": "integrity",
+  "results": {
+    "gguf": {
+      "evidence_sha256": "ed77004f124a4df1cfc62a48823b9352d8b66ff96a455ccd125c14b53575887b",
+      "statistics": {
+        "revision": "ed59f92082b1e93c0e96d60a8b11aab089b52f09",
+        "date": "2026-10-03",
+        "method": "Compare previously computed complete local SHA256 (before same-volume move) against newly fetched pinned upstream LFS SHA256; current sizes checked. No asset downloaded.",
+        "all_pass": true,
+        "records": [
+          {
+            "file": "C:\\Users\\Pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ2_XS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00001-of-00002.gguf",
+            "size": 39225954592,
+            "local_complete_sha256_recorded": "92cee27ae5bbadcd732416a0f7a7f0acc092399dbbe8f5a5efa707c2ec0a49d7",
+            "upstream_lfs_sha256": "92cee27ae5bbadcd732416a0f7a7f0acc092399dbbe8f5a5efa707c2ec0a49d7",
+            "sha256_match": true,
+            "size_match": true,
+            "fresh_rehash_performed": false
+          },
+          {
+            "file": "C:\\Users\\Pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ2_XS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00002-of-00002.gguf",
+            "size": 28800138432,
+            "local_complete_sha256_recorded": "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113",
+            "upstream_lfs_sha256": "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113",
+            "sha256_match": true,
+            "size_match": true,
+            "fresh_rehash_performed": false
+          },
+          {
+            "file": "C:\\Users\\Pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\Q2_0\\Qwen3.8-Flash-Next-GSQ-RCO-Q2_0-00001-of-00002.gguf",
+            "size": 37623740192,
+            "local_complete_sha256_recorded": "69820c02ec7d0b45ef2ebb19d6620299db749fe2aded7f39f93c6b88b199b720",
+            "upstream_lfs_sha256": "69820c02ec7d0b45ef2ebb19d6620299db749fe2aded7f39f93c6b88b199b720",
+            "sha256_match": true,
+            "size_match": true,
+            "fresh_rehash_performed": false
+          },
+          {
+            "file": "C:\\Users\\Pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\Q2_0\\Qwen3.8-Flash-Next-GSQ-RCO-Q2_0-00002-of-00002.gguf",
+            "size": 28800138432,
+            "local_complete_sha256_recorded": "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113",
+            "upstream_lfs_sha256": "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113",
+            "sha256_match": true,
+            "size_match": true,
+            "fresh_rehash_performed": false
+          }
+        ]
+      }
+    },
+    "mtp": {
+      "evidence_sha256": "4b6ece9f464e88faa1de456d177a4d404f7ee8dab86aa2fb479c2f16b6562cf8",
+      "statistics": {
+        "date": "2026-10-03",
+        "directory": "C:\\Users\\Pello\\Downloads\\strata-mtp",
+        "source_repo": "https://huggingface.co/Qwen/Qwen3.8-Flash-Next/resolve/de4b8e4d43b917e7706784d8bb445c9af86a3540/",
+        "verification_method": "fresh full-file SHA256 of all 31 files against pinned extraction-tool constants, performed immediately before writing this report; recorded manifest digests agree with fresh results",
+        "verified_tensor_count": 31,
+        "verified_total_bytes": 5214301696,
+        "all_tensor_sizes_and_sha256_passed": true,
+        "manifest_consistent": true,
+        "temporary_files_remaining": [],
+        "download_interruption_reported_by_user": true,
+        "model_or_mtp_inference_tested": false
+      }
+    }
+  }
+}

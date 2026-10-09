@@ -1,0 +1,38 @@
+{
+  "codex_version": "0.160.0",
+  "codex_source_commit": "a956835d020762cb2b570053af06f643a11c0ecc",
+  "strata_version": "0.1.38",
+  "regression": {
+    "tests": 82,
+    "seconds": 8.847,
+    "passed": true
+  },
+  "installed_files": [
+    {
+      "file": "responses_bridge.py",
+      "source_sha256": "c07f6754cdcbd9c81e54af940b77b469614c7622db5ff451ac6cb6f3189e607d",
+      "installed_sha256": "c07f6754cdcbd9c81e54af940b77b469614c7622db5ff451ac6cb6f3189e607d",
+      "equal": true
+    },
+    {
+      "file": "brave_search.py",
+      "source_sha256": "fcbcf5ed22889d074677cd6ca0bc741f134af4132b977ce89fcd6b8381d15af6",
+      "installed_sha256": "fcbcf5ed22889d074677cd6ca0bc741f134af4132b977ce89fcd6b8381d15af6",
+      "equal": true
+    },
+    {
+      "file": "hosted_search.py",
+      "source_sha256": "03f288a1fde928f6d73ce0e2ea6928e24997a1bbfdb06a5444d201e6eceedb26",
+      "installed_sha256": "03f288a1fde928f6d73ce0e2ea6928e24997a1bbfdb06a5444d201e6eceedb26",
+      "equal": true
+    }
+  ],
+  "changes": [
+    "Additional-tools input declarations are parsed as tools, not instructions; identical declarations can be reannounced, conflicting aliases reject.",
+    "Hosted text search accepts search_content_types=[text]; unsupported image declarations reject explicitly.",
+    "Selected model catalog declares actual text-only hosted search and pins auto_review_model_override to selected Qwen.",
+    "App-server loads effective catalog at startup using original ARW native-session dependency interface."
+  ],
+  "bounds": "No original ARW scenario, score, policy or reviewer algorithm modified. Full original host composition remains to be accepted, native-session startup observed working in final guardian preflight.",
+  "measurement_details": "../../../.tmp/measurement-details/v0.1.38/safety-20261004/native-protocol.json"
+}

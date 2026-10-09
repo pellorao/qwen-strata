@@ -1,0 +1,235 @@
+{
+  "date": "2026-10-03",
+  "strata": "v0.1.38",
+  "codex": "0.160.0",
+  "model": "qwen3.8-flash-next-q2_0",
+  "scope": "Hosted search compatibility smoke, not ARW scoring or repeated performance comparison",
+  "source_sha256": {
+    "src/brave_search.py": "4269a9a3d332fd7894d76e3805511a0ebbdf919f3d5fa0c5a030e5a120d26bb1",
+    "src/hosted_search.py": "03f288a1fde928f6d73ce0e2ea6928e24997a1bbfdb06a5444d201e6eceedb26",
+    "src/responses_bridge.py": "ee5038eaad09d5cdccbb70b37a5bf16e500955b78db6bb026f0afdfc060ab150"
+  },
+  "network": "Standard urllib hostname HTTPS, system/environment DNS and proxies; no resolved-address checks, IP pinning, custom DNS or VPN-specific fallback",
+  "local_regression": {
+    "tests": 74,
+    "passed": true,
+    "seconds": 8.395
+  },
+  "responses_search": [
+    {
+      "mode": "indexed",
+      "seconds": 5.309227863996057,
+      "status": "completed",
+      "usage": {
+        "input_tokens": 1692,
+        "output_tokens": 149,
+        "total_tokens": 1841,
+        "input_tokens_details": {
+          "cached_tokens": 539
+        }
+      },
+      "hosted_call_count": 1
+    },
+    {
+      "mode": "live",
+      "seconds": 4.510673183001927,
+      "status": "completed",
+      "usage": {
+        "input_tokens": 1660,
+        "output_tokens": 152,
+        "total_tokens": 1812,
+        "input_tokens_details": {
+          "cached_tokens": 532
+        }
+      },
+      "hosted_call_count": 1
+    }
+  ],
+  "page_read_find": {
+    "seconds": 7.308257837998099,
+    "actions": [
+      "open_page",
+      "find_in_page"
+    ],
+    "usage": {
+      "input_tokens": 5136,
+      "output_tokens": 257,
+      "total_tokens": 5393,
+      "input_tokens_details": {
+        "cached_tokens": 2786
+      }
+    }
+  },
+  "native_codex": {
+    "thread_id": "01a10245-3de2-70a1-9732-6bba8f098720",
+    "seconds": 43.21840888100269,
+    "reasoning": "medium",
+    "turns": [
+      {
+        "turn_id": "01a10245-3e1d-7cd0-857d-f874fea332dc",
+        "completed": true,
+        "state": "idle",
+        "provider": "qwen_strata",
+        "cumulative_native_usage": {
+          "inputTokens": 145791,
+          "cachedInputTokens": 95428,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 294,
+          "reasoningOutputTokens": 0,
+          "totalTokens": 146085
+        }
+      },
+      {
+        "turn_id": "01a10245-9f02-7413-a3b0-cebb2b2a60d2",
+        "completed": true,
+        "state": "idle",
+        "provider": "qwen_strata",
+        "cumulative_native_usage": {
+          "inputTokens": 199028,
+          "cachedInputTokens": 95428,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 372,
+          "reasoningOutputTokens": 0,
+          "totalTokens": 199400
+        }
+      }
+    ],
+    "service_metering": [
+      {
+        "provider": "brave",
+        "model_rounds": 3,
+        "search_calls": 2,
+        "successful_brave_requests": 1,
+        "tool_failures": [
+          "indexed_only"
+        ],
+        "round_usage": [
+          {
+            "prompt_tokens": 47505,
+            "completion_tokens": 158,
+            "total_tokens": 47663,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            }
+          },
+          {
+            "prompt_tokens": 47706,
+            "completion_tokens": 59,
+            "total_tokens": 47765,
+            "prompt_tokens_details": {
+              "cached_tokens": 47662
+            }
+          },
+          {
+            "prompt_tokens": 50580,
+            "completion_tokens": 77,
+            "total_tokens": 50657,
+            "prompt_tokens_details": {
+              "cached_tokens": 47766
+            }
+          }
+        ]
+      },
+      {
+        "provider": "brave",
+        "model_rounds": 3,
+        "search_calls": 2,
+        "successful_brave_requests": 0,
+        "tool_failures": [],
+        "round_usage": [
+          {
+            "prompt_tokens": 478,
+            "completion_tokens": 83,
+            "total_tokens": 561,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            }
+          },
+          {
+            "prompt_tokens": 2124,
+            "completion_tokens": 100,
+            "total_tokens": 2224,
+            "prompt_tokens_details": {
+              "cached_tokens": 562
+            }
+          },
+          {
+            "prompt_tokens": 2534,
+            "completion_tokens": 74,
+            "total_tokens": 2608,
+            "prompt_tokens_details": {
+              "cached_tokens": 2224
+            }
+          }
+        ]
+      },
+      {
+        "provider": "brave",
+        "model_rounds": 1,
+        "search_calls": 0,
+        "successful_brave_requests": 0,
+        "tool_failures": [],
+        "round_usage": [
+          {
+            "prompt_tokens": 53237,
+            "completion_tokens": 78,
+            "total_tokens": 53315,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "cleanup": {
+    "responses": {
+      "ownership_returned": true,
+      "credential_file_removed": true,
+      "health": {
+        "status": "ok",
+        "service": "strata-responses-bridge",
+        "backend": "http://172.27.48.1:8100",
+        "controller": true,
+        "ownership": "free",
+        "available": true
+      }
+    },
+    "native": {
+      "ownership_returned": true,
+      "health": {
+        "status": "ok",
+        "service": "strata-responses-bridge",
+        "backend": "http://172.27.48.1:8100",
+        "controller": true,
+        "ownership": "free",
+        "available": true
+      }
+    }
+  },
+  "previous_failures": [
+    {
+      "phase": "initial address inspection",
+      "result": "blocked_destination for Windows DNS results; no Brave query sent",
+      "resolution": "Removed address inspection and custom DNS workaround at user request; final ordinary HTTPS tests are independent"
+    },
+    {
+      "phase": "initial native Codex completed response",
+      "result": "null optional token detail rejected: invalid type null, expected i64",
+      "resolution": "Unknown optional token details are omitted, not replaced with zero; fresh native two-turn test passed"
+    },
+    {
+      "phase": "mock diagnostic runner",
+      "result": "Initial setup/state-wait diagnostics failed",
+      "resolution": "Corrected diagnostic runtime folder and original ARW member state observation; mock two-turn replay passed"
+    }
+  ],
+  "limitations": [
+    "external_web_access=false supplies indexed excerpts, not OpenAI cached full text",
+    "Native normalized optional token zeroes do not establish upstream reasoning/cache-write measurements",
+    "Only textual search/read/find implemented; no PDF/image/screenshot/location support",
+    "No guarantee about final destinations hidden behind DNS or proxies",
+    "Profile acceptance and four original ARW scored scenarios remain unexecuted"
+  ],
+  "measurement_details": "../../../.tmp/measurement-details/v0.1.38/upgrade-cycle-20261003/brave-search.json"
+}

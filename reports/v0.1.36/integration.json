@@ -1,0 +1,30 @@
+{
+  "version": "0.1.36",
+  "type": "integration",
+  "results": {
+    "mcp": {
+      "evidence_sha256": "1af7f3dd637dac86808b5a0fde83fd6e3aaaacfc0adcf0305dfea30155afdfa3",
+      "statistics": {
+        "scope": "same source 200K corpus (old question removed in clean mode); template/tool overhead differs; Codex auto compaction active. Cold/warm and compaction costs make wall-time medians non-equivalent pure tool latency.",
+        "status": "completed",
+        "native_median_wall_s": 2.0542495250701904,
+        "codex_median_wall_s": 164.87100386619568,
+        "native_trials": 3,
+        "codex_trials": 3,
+        "native_value_pass": true,
+        "codex_value_pass": true
+      }
+    },
+    "installed_project": {
+      "evidence_sha256": "b62b7b9427a9f0af5b6ab49d58f822de805df82d43a9a5d3c2dbb0052d8faf51",
+      "statistics": {
+        "exit_code": 0,
+        "correct_value": true,
+        "actual_read": true,
+        "file_unchanged": true,
+        "pass": true,
+        "stop_exit_code": 0
+      }
+    }
+  }
+}

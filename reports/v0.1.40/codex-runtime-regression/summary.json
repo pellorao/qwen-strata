@@ -1,0 +1,1351 @@
+{
+  "schema": 1,
+  "status": "closed-native-runtime-compatibility-batch",
+  "configuration": {
+    "main_effort": "high",
+    "main_reasoning_budget": 8192,
+    "main_output_budget": 24576,
+    "guardian_effort": "low",
+    "guardian_output_budget": 8192,
+    "profile": "default-no-save",
+    "context_window": 156584,
+    "compact_threshold": 100000,
+    "sandbox": "native read-only",
+    "approval_policy": "on-request/auto_review",
+    "network_and_tools": "native defaults; no extra isolation or disabled search",
+    "cache": "Independent model process/KV each repeat; OS cache not flushed"
+  },
+  "scope": "Direct native app-server compatibility; no ARW scoring, approval-policy quality, stream failure/cancel injection or real 100K compaction.",
+  "rows": [
+    {
+      "repeat": 1,
+      "pass": false,
+      "load_seconds": 13.71959900498041,
+      "error": "TimeoutError: app-server event",
+      "work_seconds": 232.7424037492799,
+      "stages": {
+        "mcp": {
+          "started_at": 1791290500.6489723,
+          "pass": true,
+          "seconds": 20.396336669921876,
+          "work_events_file": "mcp-work-events.json",
+          "turns": 1,
+          "finished_at": 1791290521.046765
+        },
+        "guardian": {
+          "started_at": 1791290521.0468423,
+          "pass": true,
+          "seconds": 14.4455927734375,
+          "work_events_file": "guardian-work-events.json",
+          "turns": 1,
+          "finished_at": 1791290535.4933386
+        },
+        "compact": {
+          "started_at": 1791290535.4934351,
+          "pass": true,
+          "seconds": 17.89127826099866,
+          "finished_at": 1791290553.384714
+        },
+        "resume": {
+          "started_at": 1791290553.5203426,
+          "pass": false,
+          "seconds": 180.00919604492188,
+          "work_events_file": "resume-work-events.json",
+          "finished_at": 1791290734.2329607
+        }
+      },
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "tokens": {
+        "uncached_input": 104097,
+        "cached_input": 1221960,
+        "output": 22880
+      },
+      "engine_input_seconds": 46.304,
+      "engine_decode_seconds": 178.586,
+      "engine_input_tokens_per_second": 2248.1211126468556,
+      "engine_output_tokens_per_second": 128.11754560827836,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 232.7424037492799,
+      "task_input_tokens_per_second": 447.2627175928704,
+      "task_output_tokens_per_second": 98.30610851921645,
+      "ownership_returned": true,
+      "internal_numeric_stages": [
+        {
+          "input": 15479,
+          "cached": 0,
+          "uncached": 15479,
+          "prompt_ms": 5431.0,
+          "output": 117,
+          "decode_ms": 1047.0,
+          "log_line": 39
+        },
+        {
+          "input": 15867,
+          "cached": 0,
+          "uncached": 15867,
+          "prompt_ms": 5236.0,
+          "output": 157,
+          "decode_ms": 1241.0,
+          "log_line": 43
+        },
+        {
+          "input": 16133,
+          "cached": 10415,
+          "uncached": 5718,
+          "prompt_ms": 2116.0,
+          "output": 70,
+          "decode_ms": 499.0,
+          "log_line": 47
+        },
+        {
+          "input": 16252,
+          "cached": 10415,
+          "uncached": 5837,
+          "prompt_ms": 2137.0,
+          "output": 264,
+          "decode_ms": 2153.0,
+          "log_line": 51
+        },
+        {
+          "input": 16592,
+          "cached": 16517,
+          "uncached": 75,
+          "prompt_ms": 455.0,
+          "output": 112,
+          "decode_ms": 894.0,
+          "log_line": 55
+        },
+        {
+          "input": 11615,
+          "cached": 0,
+          "uncached": 11615,
+          "prompt_ms": 4245.0,
+          "output": 78,
+          "decode_ms": 628.0,
+          "log_line": 59
+        },
+        {
+          "input": 16758,
+          "cached": 0,
+          "uncached": 16758,
+          "prompt_ms": 5441.0,
+          "output": 261,
+          "decode_ms": 2399.0,
+          "log_line": 63
+        },
+        {
+          "input": 13606,
+          "cached": 0,
+          "uncached": 13606,
+          "prompt_ms": 4688.0,
+          "output": 1643,
+          "decode_ms": 13096.0,
+          "log_line": 67
+        },
+        {
+          "input": 16902,
+          "cached": 0,
+          "uncached": 16902,
+          "prompt_ms": 5505.0,
+          "output": 254,
+          "decode_ms": 1953.0,
+          "log_line": 71
+        },
+        {
+          "input": 17199,
+          "cached": 17157,
+          "uncached": 42,
+          "prompt_ms": 230.0,
+          "output": 1041,
+          "decode_ms": 8789.0,
+          "log_line": 75
+        },
+        {
+          "input": 18283,
+          "cached": 18241,
+          "uncached": 42,
+          "prompt_ms": 280.0,
+          "output": 1026,
+          "decode_ms": 8778.0,
+          "log_line": 79
+        },
+        {
+          "input": 19352,
+          "cached": 19310,
+          "uncached": 42,
+          "prompt_ms": 245.0,
+          "output": 856,
+          "decode_ms": 7284.0,
+          "log_line": 83
+        },
+        {
+          "input": 20251,
+          "cached": 20209,
+          "uncached": 42,
+          "prompt_ms": 257.0,
+          "output": 904,
+          "decode_ms": 7373.0,
+          "log_line": 87
+        },
+        {
+          "input": 21198,
+          "cached": 21154,
+          "uncached": 44,
+          "prompt_ms": 263.0,
+          "output": 938,
+          "decode_ms": 7985.0,
+          "log_line": 91
+        },
+        {
+          "input": 22179,
+          "cached": 22137,
+          "uncached": 42,
+          "prompt_ms": 279.0,
+          "output": 585,
+          "decode_ms": 4830.0,
+          "log_line": 95
+        },
+        {
+          "input": 22795,
+          "cached": 22763,
+          "uncached": 32,
+          "prompt_ms": 234.0,
+          "output": 243,
+          "decode_ms": 2051.0,
+          "log_line": 99
+        },
+        {
+          "input": 23081,
+          "cached": 23039,
+          "uncached": 42,
+          "prompt_ms": 249.0,
+          "output": 475,
+          "decode_ms": 3830.0,
+          "log_line": 103
+        },
+        {
+          "input": 23599,
+          "cached": 23555,
+          "uncached": 44,
+          "prompt_ms": 272.0,
+          "output": 635,
+          "decode_ms": 5243.0,
+          "log_line": 107
+        },
+        {
+          "input": 24277,
+          "cached": 24235,
+          "uncached": 42,
+          "prompt_ms": 262.0,
+          "output": 634,
+          "decode_ms": 5035.0,
+          "log_line": 111
+        },
+        {
+          "input": 24954,
+          "cached": 24911,
+          "uncached": 43,
+          "prompt_ms": 260.0,
+          "output": 693,
+          "decode_ms": 5813.0,
+          "log_line": 115
+        },
+        {
+          "input": 25690,
+          "cached": 25648,
+          "uncached": 42,
+          "prompt_ms": 268.0,
+          "output": 774,
+          "decode_ms": 6388.0,
+          "log_line": 119
+        },
+        {
+          "input": 26507,
+          "cached": 26464,
+          "uncached": 43,
+          "prompt_ms": 270.0,
+          "output": 609,
+          "decode_ms": 4988.0,
+          "log_line": 123
+        },
+        {
+          "input": 27139,
+          "cached": 27115,
+          "uncached": 24,
+          "prompt_ms": 197.0,
+          "output": 514,
+          "decode_ms": 4282.0,
+          "log_line": 127
+        },
+        {
+          "input": 27696,
+          "cached": 27652,
+          "uncached": 44,
+          "prompt_ms": 273.0,
+          "output": 863,
+          "decode_ms": 7268.0,
+          "log_line": 131
+        },
+        {
+          "input": 28602,
+          "cached": 28560,
+          "uncached": 42,
+          "prompt_ms": 271.0,
+          "output": 514,
+          "decode_ms": 4360.0,
+          "log_line": 135
+        },
+        {
+          "input": 29159,
+          "cached": 29116,
+          "uncached": 43,
+          "prompt_ms": 276.0,
+          "output": 507,
+          "decode_ms": 4270.0,
+          "log_line": 139
+        },
+        {
+          "input": 29709,
+          "cached": 29668,
+          "uncached": 41,
+          "prompt_ms": 283.0,
+          "output": 551,
+          "decode_ms": 4650.0,
+          "log_line": 143
+        },
+        {
+          "input": 30303,
+          "cached": 30262,
+          "uncached": 41,
+          "prompt_ms": 257.0,
+          "output": 442,
+          "decode_ms": 3781.0,
+          "log_line": 147
+        },
+        {
+          "input": 30788,
+          "cached": 30745,
+          "uncached": 43,
+          "prompt_ms": 276.0,
+          "output": 646,
+          "decode_ms": 4596.0,
+          "log_line": 151
+        },
+        {
+          "input": 31477,
+          "cached": 31435,
+          "uncached": 42,
+          "prompt_ms": 283.0,
+          "output": 224,
+          "decode_ms": 2031.0,
+          "log_line": 155
+        },
+        {
+          "input": 31744,
+          "cached": 31701,
+          "uncached": 43,
+          "prompt_ms": 261.0,
+          "output": 225,
+          "decode_ms": 1429.0,
+          "log_line": 159
+        },
+        {
+          "input": 32012,
+          "cached": 31970,
+          "uncached": 42,
+          "prompt_ms": 246.0,
+          "output": 242,
+          "decode_ms": 1555.0,
+          "log_line": 163
+        },
+        {
+          "input": 32297,
+          "cached": 32256,
+          "uncached": 41,
+          "prompt_ms": 222.0,
+          "output": 242,
+          "decode_ms": 1536.0,
+          "log_line": 167
+        },
+        {
+          "input": 32582,
+          "cached": 32541,
+          "uncached": 41,
+          "prompt_ms": 219.0,
+          "output": 154,
+          "decode_ms": 910.0,
+          "log_line": 171
+        },
+        {
+          "input": 32619,
+          "cached": 32577,
+          "uncached": 42,
+          "prompt_ms": 247.0,
+          "output": 403,
+          "decode_ms": 3684.0,
+          "log_line": 175
+        },
+        {
+          "input": 33218,
+          "cached": 32614,
+          "uncached": 604,
+          "prompt_ms": 971.0,
+          "output": 356,
+          "decode_ms": 2786.0,
+          "log_line": 179
+        },
+        {
+          "input": 33617,
+          "cached": 33574,
+          "uncached": 43,
+          "prompt_ms": 277.0,
+          "output": 356,
+          "decode_ms": 2343.0,
+          "log_line": 183
+        },
+        {
+          "input": 34016,
+          "cached": 33974,
+          "uncached": 42,
+          "prompt_ms": 260.0,
+          "output": 356,
+          "decode_ms": 2235.0,
+          "log_line": 187
+        },
+        {
+          "input": 34415,
+          "cached": 34371,
+          "uncached": 44,
+          "prompt_ms": 258.0,
+          "output": 356,
+          "decode_ms": 2205.0,
+          "log_line": 191
+        },
+        {
+          "input": 34814,
+          "cached": 34770,
+          "uncached": 44,
+          "prompt_ms": 284.0,
+          "output": 356,
+          "decode_ms": 2269.0,
+          "log_line": 195
+        },
+        {
+          "input": 35213,
+          "cached": 35169,
+          "uncached": 44,
+          "prompt_ms": 261.0,
+          "output": 356,
+          "decode_ms": 2240.0,
+          "log_line": 199
+        },
+        {
+          "input": 35612,
+          "cached": 35568,
+          "uncached": 44,
+          "prompt_ms": 252.0,
+          "output": 356,
+          "decode_ms": 2252.0,
+          "log_line": 203
+        },
+        {
+          "input": 36011,
+          "cached": 35967,
+          "uncached": 44,
+          "prompt_ms": 251.0,
+          "output": 356,
+          "decode_ms": 2228.0,
+          "log_line": 207
+        },
+        {
+          "input": 36410,
+          "cached": 36366,
+          "uncached": 44,
+          "prompt_ms": 281.0,
+          "output": 356,
+          "decode_ms": 2209.0,
+          "log_line": 211
+        },
+        {
+          "input": 36809,
+          "cached": 36765,
+          "uncached": 44,
+          "prompt_ms": 263.0,
+          "output": 356,
+          "decode_ms": 2253.0,
+          "log_line": 215
+        },
+        {
+          "input": 37208,
+          "cached": 37164,
+          "uncached": 44,
+          "prompt_ms": 263.0,
+          "output": 356,
+          "decode_ms": 2225.0,
+          "log_line": 219
+        },
+        {
+          "input": 37607,
+          "cached": 37565,
+          "uncached": 42,
+          "prompt_ms": 247.0,
+          "output": 356,
+          "decode_ms": 2259.0,
+          "log_line": 223
+        },
+        {
+          "input": 38006,
+          "cached": 37964,
+          "uncached": 42,
+          "prompt_ms": 256.0,
+          "output": 356,
+          "decode_ms": 2193.0,
+          "log_line": 227
+        },
+        {
+          "input": 38405,
+          "cached": 38361,
+          "uncached": 44,
+          "prompt_ms": 246.0,
+          "output": 356,
+          "decode_ms": 2240.0,
+          "log_line": 231
+        }
+      ],
+      "engine_record_sha256": "75569a06adb6d85e60f203a2ec245e786d4a8faf25b1913d129aded2b646ad44",
+      "original_result_sha256": "db0893e871ae024185bb8a7b89bdde0928f3ed3e7d8684842b5b9fc321b3db59",
+      "inspection": {
+        "repeat": 1,
+        "target_facts_passed": true,
+        "original_driver_passed": false,
+        "first_resume_turn_id": "01a1113c-b4b1-7861-8321-65d3063e393d",
+        "first_resume_status": "completed",
+        "first_resume_message_sha256": "c424c91b22dbe846374bfe2472a53726c6061206e665bee51969f1e3b1c3bea0",
+        "first_resume_json_with_extra_explanation": true,
+        "first_resume_without_lookup": true,
+        "mcp_project_read_calls": 2,
+        "mcp_receipt_matched": true,
+        "mcp_actual_path_scope_refusal": true,
+        "guardian_review_count": 1,
+        "guardian_review_status": "approved",
+        "guardian_risk_level": "low",
+        "guardian_user_authorization": "unknown",
+        "guardian_seconds": 4.983,
+        "guardian_model_provider": "qwen_strata",
+        "guardian_model": "qwen3.8-flash-next-q2_0",
+        "guardian_effort": "low",
+        "guardian_minimal_outcome_only": true,
+        "manual_compactions": 1,
+        "target_facts_in_saved_summary": true,
+        "extra_summary_model_run_statement_imprecise": true,
+        "confirmed_responses_requests": 49,
+        "confirmed_responses_source": "Unique native parent/guardian response_id records; independently matches actual internal engine-stage count, never used as token consumption.",
+        "http_header_records": 49,
+        "missing_passive_http_header_records": 0,
+        "native_session_records": 535,
+        "native_event_records": 21014,
+        "native_sessions": [
+          {
+            "session_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+            "guardian": false,
+            "records": 521,
+            "sha256": "8f2c5f944d91e3ba2711c44b78a2276db7430c51c7c96637157753effb524d38",
+            "provider": "qwen_strata",
+            "effort": "high"
+          },
+          {
+            "session_id": "01a1113b-e628-7d60-b43c-72d7b197850a",
+            "guardian": true,
+            "records": 14,
+            "sha256": "f2be99a0cd11dc764dbc37fcd2693f091dcf1799b08d657473f446b00bf51d00",
+            "provider": "qwen_strata",
+            "effort": "low"
+          }
+        ],
+        "effective_model_context_window": 156584,
+        "observed_free_vram_mib": [
+          267
+        ],
+        "original_result_sha256": "db0893e871ae024185bb8a7b89bdde0928f3ed3e7d8684842b5b9fc321b3db59",
+        "checks_completed": [
+          "bound parent/guardian identities and settings",
+          "native messages, reasoning, function/tool-search calls and corresponding outputs",
+          "actual MCP audit/path refusal and frozen fixture bytes",
+          "guardian decision and actual command exit",
+          "saved compact/replacement history and unchanged original-thread resume",
+          "first restored target facts and no lookup",
+          "all actual internal read/reused/generated stages counted once",
+          "work intervals and induced first-case continuation failure",
+          "clean model stop and key return"
+        ],
+        "diagnosis": "First target facts already correct; strict whole-response JSON parsing induced 39 followup submissions, 38 completed extra replies and one interrupted turn; original failure and all metrics preserved."
+      }
+    },
+    {
+      "repeat": 2,
+      "pass": true,
+      "load_seconds": 14.341997000999982,
+      "thread_id": "01a11146-c159-7aa1-a8d1-2a32bb5c2374",
+      "stages": {
+        "mcp": {
+          "started_at": 1791291212.1339824,
+          "pass": true,
+          "seconds": 17.9675224609375,
+          "work_events_file": "mcp-work-events.json",
+          "turns": 1,
+          "finished_at": 1791291230.1027298
+        },
+        "guardian": {
+          "started_at": 1791291230.1028092,
+          "pass": true,
+          "seconds": 14.316337158203124,
+          "work_events_file": "guardian-work-events.json",
+          "turns": 1,
+          "finished_at": 1791291244.4198632
+        },
+        "compact": {
+          "started_at": 1791291244.4199793,
+          "pass": true,
+          "seconds": 23.711134196986677,
+          "finished_at": 1791291268.131114
+        },
+        "resume": {
+          "started_at": 1791291268.2712944,
+          "pass": true,
+          "seconds": 7.755103759765625,
+          "work_events_file": "resume-work-events.json",
+          "turns": 1,
+          "finished_at": 1791291276.0272968
+        }
+      },
+      "work_seconds": 63.75009757589292,
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "tokens": {
+        "uncached_input": 97584,
+        "cached_input": 42607,
+        "output": 3339
+      },
+      "engine_input_seconds": 34.468,
+      "engine_decode_seconds": 27.99,
+      "engine_input_tokens_per_second": 2831.1477312289658,
+      "engine_output_tokens_per_second": 119.29260450160773,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 63.75009757589292,
+      "task_input_tokens_per_second": 1530.7270688304225,
+      "task_output_tokens_per_second": 52.376390420814694,
+      "ownership_returned": true,
+      "internal_numeric_stages": [
+        {
+          "input": 15479,
+          "cached": 0,
+          "uncached": 15479,
+          "prompt_ms": 5595.0,
+          "output": 101,
+          "decode_ms": 954.0,
+          "log_line": 38
+        },
+        {
+          "input": 15609,
+          "cached": 15579,
+          "uncached": 30,
+          "prompt_ms": 211.0,
+          "output": 79,
+          "decode_ms": 652.0,
+          "log_line": 42
+        },
+        {
+          "input": 16278,
+          "cached": 0,
+          "uncached": 16278,
+          "prompt_ms": 5440.0,
+          "output": 93,
+          "decode_ms": 656.0,
+          "log_line": 46
+        },
+        {
+          "input": 16531,
+          "cached": 10502,
+          "uncached": 6029,
+          "prompt_ms": 2209.0,
+          "output": 211,
+          "decode_ms": 1681.0,
+          "log_line": 50
+        },
+        {
+          "input": 16816,
+          "cached": 16526,
+          "uncached": 290,
+          "prompt_ms": 699.0,
+          "output": 108,
+          "decode_ms": 796.0,
+          "log_line": 53
+        },
+        {
+          "input": 11537,
+          "cached": 0,
+          "uncached": 11537,
+          "prompt_ms": 4236.0,
+          "output": 88,
+          "decode_ms": 778.0,
+          "log_line": 57
+        },
+        {
+          "input": 16977,
+          "cached": 0,
+          "uncached": 16977,
+          "prompt_ms": 5623.0,
+          "output": 173,
+          "decode_ms": 1738.0,
+          "log_line": 61
+        },
+        {
+          "input": 13736,
+          "cached": 0,
+          "uncached": 13736,
+          "prompt_ms": 4739.0,
+          "output": 2253,
+          "decode_ms": 18847.0,
+          "log_line": 64
+        },
+        {
+          "input": 17228,
+          "cached": 0,
+          "uncached": 17228,
+          "prompt_ms": 5716.0,
+          "output": 233,
+          "decode_ms": 1888.0,
+          "log_line": 68
+        }
+      ],
+      "engine_record_sha256": "b2a1094bbbe2bd951f5fb7499feac17acdf2ce9b8acf9a6c2444241246ced853",
+      "original_result_sha256": "024df350e3e051f1ae3c3ad9fcccf314df9b723d422c2461f8cc683320b00a21",
+      "inspection": {
+        "repeat": 2,
+        "target_facts_passed": true,
+        "original_driver_passed": true,
+        "first_resume_turn_id": "01a11147-9caf-7ed0-82a1-0de30feb5837",
+        "first_resume_status": "completed",
+        "first_resume_message_sha256": "e35332a408a9565502258513629f99ac9c9c03a15d94f8baea16379f08b81dc3",
+        "first_resume_json_with_extra_explanation": true,
+        "first_resume_without_lookup": true,
+        "mcp_project_read_calls": 2,
+        "mcp_receipt_matched": true,
+        "mcp_actual_path_scope_refusal": true,
+        "guardian_review_count": 1,
+        "guardian_review_status": "approved",
+        "guardian_risk_level": "low",
+        "guardian_user_authorization": "unknown",
+        "guardian_seconds": 5.15,
+        "guardian_model_provider": "qwen_strata",
+        "guardian_model": "qwen3.8-flash-next-q2_0",
+        "guardian_effort": "low",
+        "guardian_minimal_outcome_only": true,
+        "manual_compactions": 1,
+        "target_facts_in_saved_summary": true,
+        "extra_summary_model_run_statement_imprecise": true,
+        "confirmed_responses_requests": 9,
+        "confirmed_responses_source": "Unique native parent/guardian response_id records; independently matches actual internal engine-stage count, never used as token consumption.",
+        "http_header_records": 8,
+        "missing_passive_http_header_records": 1,
+        "native_session_records": 106,
+        "native_event_records": 837,
+        "native_sessions": [
+          {
+            "session_id": "01a11146-c165-7df1-8fde-568b934501c6",
+            "guardian": true,
+            "records": 14,
+            "sha256": "069b7fb40aeb59385d77cb3b16751187ebfb4949bce89a259f7f39696e6e69ea",
+            "provider": "qwen_strata",
+            "effort": "low"
+          },
+          {
+            "session_id": "01a11146-c159-7aa1-a8d1-2a32bb5c2374",
+            "guardian": false,
+            "records": 92,
+            "sha256": "9d627fb5d536fd1e6eec43197e9fe891ab7e510fcada8c29d9346f6d58fe4e56",
+            "provider": "qwen_strata",
+            "effort": "high"
+          }
+        ],
+        "effective_model_context_window": 156584,
+        "observed_free_vram_mib": [
+          292
+        ],
+        "original_result_sha256": "024df350e3e051f1ae3c3ad9fcccf314df9b723d422c2461f8cc683320b00a21",
+        "checks_completed": [
+          "bound parent/guardian identities and settings",
+          "native messages, reasoning, function/tool-search calls and corresponding outputs",
+          "actual MCP audit/path refusal and frozen fixture bytes",
+          "guardian decision and actual command exit",
+          "saved compact/replacement history and unchanged original-thread resume",
+          "first restored target facts and no lookup",
+          "all actual internal read/reused/generated stages counted once",
+          "work intervals and induced first-case continuation failure",
+          "clean model stop and key return"
+        ],
+        "diagnosis": "All four stages completed; unique JSON object mechanically read despite explanatory prose; no added model repeat."
+      }
+    },
+    {
+      "repeat": 3,
+      "pass": true,
+      "load_seconds": 14.3002512579842,
+      "thread_id": "01a11147-fd16-7b41-a44a-09c6586f2d6d",
+      "stages": {
+        "mcp": {
+          "started_at": 1791291292.9631214,
+          "pass": true,
+          "seconds": 18.443319091796877,
+          "work_events_file": "mcp-work-events.json",
+          "turns": 1,
+          "finished_at": 1791291311.4076974
+        },
+        "guardian": {
+          "started_at": 1791291311.4077723,
+          "pass": true,
+          "seconds": 13.857468505859375,
+          "work_events_file": "guardian-work-events.json",
+          "turns": 1,
+          "finished_at": 1791291325.2660556
+        },
+        "compact": {
+          "started_at": 1791291325.2661538,
+          "pass": true,
+          "seconds": 21.475274077994982,
+          "finished_at": 1791291346.7414284
+        },
+        "resume": {
+          "started_at": 1791291346.9069679,
+          "pass": true,
+          "seconds": 7.76092041015625,
+          "work_events_file": "resume-work-events.json",
+          "turns": 1,
+          "finished_at": 1791291354.6689377
+        }
+      },
+      "work_seconds": 61.53698208580748,
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "tokens": {
+        "uncached_input": 97915,
+        "cached_input": 42932,
+        "output": 3366
+      },
+      "engine_input_seconds": 33.64,
+      "engine_decode_seconds": 26.783,
+      "engine_input_tokens_per_second": 2910.6718192627823,
+      "engine_output_tokens_per_second": 125.67673524250456,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 61.53698208580748,
+      "task_input_tokens_per_second": 1591.1570031735848,
+      "task_output_tokens_per_second": 54.698815019989645,
+      "ownership_returned": true,
+      "internal_numeric_stages": [
+        {
+          "input": 15479,
+          "cached": 0,
+          "uncached": 15479,
+          "prompt_ms": 5419.0,
+          "output": 101,
+          "decode_ms": 955.0,
+          "log_line": 38
+        },
+        {
+          "input": 15609,
+          "cached": 15582,
+          "uncached": 27,
+          "prompt_ms": 196.0,
+          "output": 79,
+          "decode_ms": 638.0,
+          "log_line": 43
+        },
+        {
+          "input": 16278,
+          "cached": 0,
+          "uncached": 16278,
+          "prompt_ms": 5324.0,
+          "output": 93,
+          "decode_ms": 698.0,
+          "log_line": 47
+        },
+        {
+          "input": 16531,
+          "cached": 10502,
+          "uncached": 6029,
+          "prompt_ms": 2198.0,
+          "output": 317,
+          "decode_ms": 2514.0,
+          "log_line": 51
+        },
+        {
+          "input": 16924,
+          "cached": 16848,
+          "uncached": 76,
+          "prompt_ms": 439.0,
+          "output": 112,
+          "decode_ms": 843.0,
+          "log_line": 55
+        },
+        {
+          "input": 11740,
+          "cached": 0,
+          "uncached": 11740,
+          "prompt_ms": 4239.0,
+          "output": 66,
+          "decode_ms": 503.0,
+          "log_line": 59
+        },
+        {
+          "input": 17088,
+          "cached": 0,
+          "uncached": 17088,
+          "prompt_ms": 5494.0,
+          "output": 222,
+          "decode_ms": 1965.0,
+          "log_line": 63
+        },
+        {
+          "input": 13897,
+          "cached": 0,
+          "uncached": 13897,
+          "prompt_ms": 4750.0,
+          "output": 2107,
+          "decode_ms": 16612.0,
+          "log_line": 67
+        },
+        {
+          "input": 17301,
+          "cached": 0,
+          "uncached": 17301,
+          "prompt_ms": 5581.0,
+          "output": 269,
+          "decode_ms": 2055.0,
+          "log_line": 71
+        }
+      ],
+      "engine_record_sha256": "15b9f5d2506ed1c031efa432ec6dec74a73546d557353034754d6a975a4d938c",
+      "original_result_sha256": "acdfe9df7ce9f07a15b6df2f878a10803eb70b8345103cddd71b8fb5dca1c89e",
+      "inspection": {
+        "repeat": 3,
+        "target_facts_passed": true,
+        "original_driver_passed": true,
+        "first_resume_turn_id": "01a11148-cfdb-7cd1-87b9-fef766185c3d",
+        "first_resume_status": "completed",
+        "first_resume_message_sha256": "a051cddb707feb0f8ff81c817a38f9fd064bc82375ac82d6b6182911255b17bf",
+        "first_resume_json_with_extra_explanation": true,
+        "first_resume_without_lookup": true,
+        "mcp_project_read_calls": 2,
+        "mcp_receipt_matched": true,
+        "mcp_actual_path_scope_refusal": true,
+        "guardian_review_count": 1,
+        "guardian_review_status": "approved",
+        "guardian_risk_level": "low",
+        "guardian_user_authorization": "unknown",
+        "guardian_seconds": 4.856,
+        "guardian_model_provider": "qwen_strata",
+        "guardian_model": "qwen3.8-flash-next-q2_0",
+        "guardian_effort": "low",
+        "guardian_minimal_outcome_only": true,
+        "manual_compactions": 1,
+        "target_facts_in_saved_summary": true,
+        "extra_summary_model_run_statement_imprecise": true,
+        "confirmed_responses_requests": 9,
+        "confirmed_responses_source": "Unique native parent/guardian response_id records; independently matches actual internal engine-stage count, never used as token consumption.",
+        "http_header_records": 8,
+        "missing_passive_http_header_records": 1,
+        "native_session_records": 106,
+        "native_event_records": 1032,
+        "native_sessions": [
+          {
+            "session_id": "01a11147-fd23-7b82-87f5-5b0307e2e378",
+            "guardian": true,
+            "records": 14,
+            "sha256": "e266474fa0a57eda27810a61cce9cc87f749ee08b74d74a50d21a7e655cb37ed",
+            "provider": "qwen_strata",
+            "effort": "low"
+          },
+          {
+            "session_id": "01a11147-fd16-7b41-a44a-09c6586f2d6d",
+            "guardian": false,
+            "records": 92,
+            "sha256": "b26156dc1cd0adb9f761e465926589db17f1f9ccf4a76f5455dc5e7cdcb7f081",
+            "provider": "qwen_strata",
+            "effort": "high"
+          }
+        ],
+        "effective_model_context_window": 156584,
+        "observed_free_vram_mib": [
+          236
+        ],
+        "original_result_sha256": "acdfe9df7ce9f07a15b6df2f878a10803eb70b8345103cddd71b8fb5dca1c89e",
+        "checks_completed": [
+          "bound parent/guardian identities and settings",
+          "native messages, reasoning, function/tool-search calls and corresponding outputs",
+          "actual MCP audit/path refusal and frozen fixture bytes",
+          "guardian decision and actual command exit",
+          "saved compact/replacement history and unchanged original-thread resume",
+          "first restored target facts and no lookup",
+          "all actual internal read/reused/generated stages counted once",
+          "work intervals and induced first-case continuation failure",
+          "clean model stop and key return"
+        ],
+        "diagnosis": "All four stages completed; unique JSON object mechanically read despite explanatory prose; no added model repeat."
+      }
+    }
+  ],
+  "summary": {
+    "observations": 3,
+    "original_driver_passed": 2,
+    "inspected_target_facts_passed": 3,
+    "mean": {
+      "work_seconds": 119.34316113699343,
+      "load_seconds": 14.120615754654864,
+      "engine_input_tokens_per_second": 2663.3135543795347,
+      "engine_output_tokens_per_second": 124.36229511746355,
+      "task_input_tokens_per_second": 1189.7155965322925,
+      "task_output_tokens_per_second": 68.4604379866736
+    },
+    "mean_tokens": {
+      "uncached_input": 99865.33333333333,
+      "cached_input": 435833,
+      "output": 9861.666666666666
+    },
+    "total_tokens": {
+      "uncached_input": 299596,
+      "cached_input": 1307499,
+      "output": 29585
+    },
+    "work_min_seconds": 61.53698208580748,
+    "work_max_seconds": 232.7424037492799,
+    "work_population_stddev_seconds": 80.19046343476373,
+    "confirmed_responses_requests": 67,
+    "passive_http_header_records": 65,
+    "internal_engine_stages": 67,
+    "guardian_reviews": 3,
+    "manual_compactions": 3
+  },
+  "successful_undisturbed_observations": [
+    2,
+    3
+  ],
+  "successful_undisturbed_summary": {
+    "observations": 2,
+    "original_driver_passed": 2,
+    "inspected_target_facts_passed": 2,
+    "mean": {
+      "work_seconds": 62.6435398308502,
+      "load_seconds": 14.321124129492091,
+      "engine_input_tokens_per_second": 2870.909775245874,
+      "engine_output_tokens_per_second": 122.48466987205614,
+      "task_input_tokens_per_second": 1560.9420360020035,
+      "task_output_tokens_per_second": 53.53760272040217
+    },
+    "mean_tokens": {
+      "uncached_input": 97749.5,
+      "cached_input": 42769.5,
+      "output": 3352.5
+    },
+    "total_tokens": {
+      "uncached_input": 195499,
+      "cached_input": 85539,
+      "output": 6705
+    },
+    "work_min_seconds": 61.53698208580748,
+    "work_max_seconds": 63.75009757589292,
+    "work_population_stddev_seconds": 1.1065577450427213,
+    "confirmed_responses_requests": 18,
+    "passive_http_header_records": 16,
+    "internal_engine_stages": 18,
+    "guardian_reviews": 2,
+    "manual_compactions": 2
+  },
+  "main_inspection": {
+    "status": "complete-for-direct-native-runtime-compatibility",
+    "completed_repeats": [
+      1,
+      2,
+      3
+    ],
+    "scope": "Direct-native parent/guardian evidence inspection; not frozen ARW Reviewer capability session inspection or source-isolation acceptance.",
+    "repeats": [
+      {
+        "repeat": 1,
+        "target_facts_passed": true,
+        "original_driver_passed": false,
+        "first_resume_turn_id": "01a1113c-b4b1-7861-8321-65d3063e393d",
+        "first_resume_status": "completed",
+        "first_resume_message_sha256": "c424c91b22dbe846374bfe2472a53726c6061206e665bee51969f1e3b1c3bea0",
+        "first_resume_json_with_extra_explanation": true,
+        "first_resume_without_lookup": true,
+        "mcp_project_read_calls": 2,
+        "mcp_receipt_matched": true,
+        "mcp_actual_path_scope_refusal": true,
+        "guardian_review_count": 1,
+        "guardian_review_status": "approved",
+        "guardian_risk_level": "low",
+        "guardian_user_authorization": "unknown",
+        "guardian_seconds": 4.983,
+        "guardian_model_provider": "qwen_strata",
+        "guardian_model": "qwen3.8-flash-next-q2_0",
+        "guardian_effort": "low",
+        "guardian_minimal_outcome_only": true,
+        "manual_compactions": 1,
+        "target_facts_in_saved_summary": true,
+        "extra_summary_model_run_statement_imprecise": true,
+        "confirmed_responses_requests": 49,
+        "confirmed_responses_source": "Unique native parent/guardian response_id records; independently matches actual internal engine-stage count, never used as token consumption.",
+        "http_header_records": 49,
+        "missing_passive_http_header_records": 0,
+        "native_session_records": 535,
+        "native_event_records": 21014,
+        "native_sessions": [
+          {
+            "session_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+            "guardian": false,
+            "records": 521,
+            "sha256": "8f2c5f944d91e3ba2711c44b78a2276db7430c51c7c96637157753effb524d38",
+            "provider": "qwen_strata",
+            "effort": "high"
+          },
+          {
+            "session_id": "01a1113b-e628-7d60-b43c-72d7b197850a",
+            "guardian": true,
+            "records": 14,
+            "sha256": "f2be99a0cd11dc764dbc37fcd2693f091dcf1799b08d657473f446b00bf51d00",
+            "provider": "qwen_strata",
+            "effort": "low"
+          }
+        ],
+        "effective_model_context_window": 156584,
+        "observed_free_vram_mib": [
+          267
+        ],
+        "original_result_sha256": "db0893e871ae024185bb8a7b89bdde0928f3ed3e7d8684842b5b9fc321b3db59",
+        "checks_completed": [
+          "bound parent/guardian identities and settings",
+          "native messages, reasoning, function/tool-search calls and corresponding outputs",
+          "actual MCP audit/path refusal and frozen fixture bytes",
+          "guardian decision and actual command exit",
+          "saved compact/replacement history and unchanged original-thread resume",
+          "first restored target facts and no lookup",
+          "all actual internal read/reused/generated stages counted once",
+          "work intervals and induced first-case continuation failure",
+          "clean model stop and key return"
+        ],
+        "diagnosis": "First target facts already correct; strict whole-response JSON parsing induced 39 followup submissions, 38 completed extra replies and one interrupted turn; original failure and all metrics preserved."
+      },
+      {
+        "repeat": 2,
+        "target_facts_passed": true,
+        "original_driver_passed": true,
+        "first_resume_turn_id": "01a11147-9caf-7ed0-82a1-0de30feb5837",
+        "first_resume_status": "completed",
+        "first_resume_message_sha256": "e35332a408a9565502258513629f99ac9c9c03a15d94f8baea16379f08b81dc3",
+        "first_resume_json_with_extra_explanation": true,
+        "first_resume_without_lookup": true,
+        "mcp_project_read_calls": 2,
+        "mcp_receipt_matched": true,
+        "mcp_actual_path_scope_refusal": true,
+        "guardian_review_count": 1,
+        "guardian_review_status": "approved",
+        "guardian_risk_level": "low",
+        "guardian_user_authorization": "unknown",
+        "guardian_seconds": 5.15,
+        "guardian_model_provider": "qwen_strata",
+        "guardian_model": "qwen3.8-flash-next-q2_0",
+        "guardian_effort": "low",
+        "guardian_minimal_outcome_only": true,
+        "manual_compactions": 1,
+        "target_facts_in_saved_summary": true,
+        "extra_summary_model_run_statement_imprecise": true,
+        "confirmed_responses_requests": 9,
+        "confirmed_responses_source": "Unique native parent/guardian response_id records; independently matches actual internal engine-stage count, never used as token consumption.",
+        "http_header_records": 8,
+        "missing_passive_http_header_records": 1,
+        "native_session_records": 106,
+        "native_event_records": 837,
+        "native_sessions": [
+          {
+            "session_id": "01a11146-c165-7df1-8fde-568b934501c6",
+            "guardian": true,
+            "records": 14,
+            "sha256": "069b7fb40aeb59385d77cb3b16751187ebfb4949bce89a259f7f39696e6e69ea",
+            "provider": "qwen_strata",
+            "effort": "low"
+          },
+          {
+            "session_id": "01a11146-c159-7aa1-a8d1-2a32bb5c2374",
+            "guardian": false,
+            "records": 92,
+            "sha256": "9d627fb5d536fd1e6eec43197e9fe891ab7e510fcada8c29d9346f6d58fe4e56",
+            "provider": "qwen_strata",
+            "effort": "high"
+          }
+        ],
+        "effective_model_context_window": 156584,
+        "observed_free_vram_mib": [
+          292
+        ],
+        "original_result_sha256": "024df350e3e051f1ae3c3ad9fcccf314df9b723d422c2461f8cc683320b00a21",
+        "checks_completed": [
+          "bound parent/guardian identities and settings",
+          "native messages, reasoning, function/tool-search calls and corresponding outputs",
+          "actual MCP audit/path refusal and frozen fixture bytes",
+          "guardian decision and actual command exit",
+          "saved compact/replacement history and unchanged original-thread resume",
+          "first restored target facts and no lookup",
+          "all actual internal read/reused/generated stages counted once",
+          "work intervals and induced first-case continuation failure",
+          "clean model stop and key return"
+        ],
+        "diagnosis": "All four stages completed; unique JSON object mechanically read despite explanatory prose; no added model repeat."
+      },
+      {
+        "repeat": 3,
+        "target_facts_passed": true,
+        "original_driver_passed": true,
+        "first_resume_turn_id": "01a11148-cfdb-7cd1-87b9-fef766185c3d",
+        "first_resume_status": "completed",
+        "first_resume_message_sha256": "a051cddb707feb0f8ff81c817a38f9fd064bc82375ac82d6b6182911255b17bf",
+        "first_resume_json_with_extra_explanation": true,
+        "first_resume_without_lookup": true,
+        "mcp_project_read_calls": 2,
+        "mcp_receipt_matched": true,
+        "mcp_actual_path_scope_refusal": true,
+        "guardian_review_count": 1,
+        "guardian_review_status": "approved",
+        "guardian_risk_level": "low",
+        "guardian_user_authorization": "unknown",
+        "guardian_seconds": 4.856,
+        "guardian_model_provider": "qwen_strata",
+        "guardian_model": "qwen3.8-flash-next-q2_0",
+        "guardian_effort": "low",
+        "guardian_minimal_outcome_only": true,
+        "manual_compactions": 1,
+        "target_facts_in_saved_summary": true,
+        "extra_summary_model_run_statement_imprecise": true,
+        "confirmed_responses_requests": 9,
+        "confirmed_responses_source": "Unique native parent/guardian response_id records; independently matches actual internal engine-stage count, never used as token consumption.",
+        "http_header_records": 8,
+        "missing_passive_http_header_records": 1,
+        "native_session_records": 106,
+        "native_event_records": 1032,
+        "native_sessions": [
+          {
+            "session_id": "01a11147-fd23-7b82-87f5-5b0307e2e378",
+            "guardian": true,
+            "records": 14,
+            "sha256": "e266474fa0a57eda27810a61cce9cc87f749ee08b74d74a50d21a7e655cb37ed",
+            "provider": "qwen_strata",
+            "effort": "low"
+          },
+          {
+            "session_id": "01a11147-fd16-7b41-a44a-09c6586f2d6d",
+            "guardian": false,
+            "records": 92,
+            "sha256": "b26156dc1cd0adb9f761e465926589db17f1f9ccf4a76f5455dc5e7cdcb7f081",
+            "provider": "qwen_strata",
+            "effort": "high"
+          }
+        ],
+        "effective_model_context_window": 156584,
+        "observed_free_vram_mib": [
+          236
+        ],
+        "original_result_sha256": "acdfe9df7ce9f07a15b6df2f878a10803eb70b8345103cddd71b8fb5dca1c89e",
+        "checks_completed": [
+          "bound parent/guardian identities and settings",
+          "native messages, reasoning, function/tool-search calls and corresponding outputs",
+          "actual MCP audit/path refusal and frozen fixture bytes",
+          "guardian decision and actual command exit",
+          "saved compact/replacement history and unchanged original-thread resume",
+          "first restored target facts and no lookup",
+          "all actual internal read/reused/generated stages counted once",
+          "work intervals and induced first-case continuation failure",
+          "clean model stop and key return"
+        ],
+        "diagnosis": "All four stages completed; unique JSON object mechanically read despite explanatory prose; no added model repeat."
+      }
+    ],
+    "original_protocol_sha256": "79533faabb807da09f2261f876d9aa70db95e6669e06ab04e68b141bdc7cf4be",
+    "repair_execution_binding_sha256": "b71b056e64ef79be97f909cd42189b1c284190f5733a8d548fbba7c09060716c",
+    "all_fixture_bytes_unchanged": true,
+    "actual_model_instances": 3,
+    "reruns": 0,
+    "unnecessary_followup_instructions": 39,
+    "completed_unnecessary_followup_turns": 38,
+    "interrupted_unnecessary_followup_turns": 1,
+    "late_interrupted_turn_new_internal_stages": 0,
+    "late_interrupted_turn_additional_http_requests": null,
+    "http_capture_boundary": "Passive SQLite HTTP-header archive lacks the final response header in repeats 2 and 3 after short restart/resume. Native response_id and internal executed-stage evidence confirm each response. Additional uncompleted HTTP requests in the last interrupted turn cannot be counted exactly.",
+    "final_controller_health": {
+      "status": "ok",
+      "service": "strata-responses-bridge",
+      "backend": "http://172.27.48.1:8100",
+      "controller": true,
+      "ownership": "free",
+      "available": true
+    },
+    "mechanical_diagnostic_boundary": "Only read the correct unique JSON object in the original first answer; do not change its original result, timeout, clocks, tokens or full later native history."
+  },
+  "repair": {
+    "status": "assessed-before-repair",
+    "cause": "resume checker required a fence to cover the entire response; the first resume response already contained the correct sole JSON object followed by explanatory prose. Treating formatting as missing work caused 38 unnecessary accepted followups, then a 40th resume turn was interrupted at the cap.",
+    "original_protocol_sha256": "79533faabb807da09f2261f876d9aa70db95e6669e06ab04e68b141bdc7cf4be",
+    "original_driver_sha256": "f1ba78e36a9ee1e86f8544dab4993cfecb28694b466820a3f6331129a01e398f",
+    "first_resume_turn_id": "01a1113c-b4b1-7861-8321-65d3063e393d",
+    "first_resume_response_content_correct": true,
+    "first_resume_used_no_tools": true,
+    "first_resume_explanatory_prose_present": true,
+    "affected_actual_repetitions": [
+      1
+    ],
+    "unstarted_authorized_repetitions": [
+      2,
+      3
+    ],
+    "original_driver_timeout_and_all_metrics_preserved": true,
+    "original_result_sha256": "db0893e871ae024185bb8a7b89bdde0928f3ed3e7d8684842b5b9fc321b3db59",
+    "new_model_runs_for_diagnosis": 0,
+    "recovery_scope": "Repair mechanical parsing, preserve original first observation and diagnostic content finding, run only original unstarted repetitions 2 and 3; no replacement or rerun.",
+    "performance_boundary": "First observation includes induced extra work and cannot be called a clean representative time/token sample."
+  },
+  "repair_clarification": {
+    "status": "assessed-before-repair",
+    "cause": "resume checker required a fence to cover the entire response; the first resume response already contained the correct sole JSON object followed by explanatory prose. Treating formatting as missing work caused 38 unnecessary accepted followups, then a 40th resume turn was interrupted at the cap.",
+    "original_protocol_sha256": "79533faabb807da09f2261f876d9aa70db95e6669e06ab04e68b141bdc7cf4be",
+    "original_driver_sha256": "f1ba78e36a9ee1e86f8544dab4993cfecb28694b466820a3f6331129a01e398f",
+    "first_resume_turn_id": "01a1113c-b4b1-7861-8321-65d3063e393d",
+    "first_resume_response_content_correct": true,
+    "first_resume_used_no_tools": true,
+    "first_resume_explanatory_prose_present": true,
+    "affected_actual_repetitions": [
+      1
+    ],
+    "unstarted_authorized_repetitions": [
+      2,
+      3
+    ],
+    "original_driver_timeout_and_all_metrics_preserved": true,
+    "original_result_sha256": "db0893e871ae024185bb8a7b89bdde0928f3ed3e7d8684842b5b9fc321b3db59",
+    "new_model_runs_for_diagnosis": 0,
+    "recovery_scope": "Repair mechanical parsing, preserve original first observation and diagnostic content finding, run only original unstarted repetitions 2 and 3; no replacement or rerun.",
+    "performance_boundary": "First observation includes induced extra work and cannot be called a clean representative time/token sample.",
+    "clarified_unnecessary_followup_instructions": 39,
+    "completed_unnecessary_followup_turns": 38,
+    "interrupted_unnecessary_followup_turns": 1,
+    "note": "Earlier description counted 38 completed followups; there was also one last submitted followup interrupted before a new internal execution stage. Original records and bytes unchanged."
+  },
+  "raw_evidence_retention": "Full native sessions, requests, compact texts and logs remain in .tmp; this JSON independently retains numeric stages, full precision and necessary conclusions. After deleting .tmp, full conversations cannot be replayed or checked anew."
+}

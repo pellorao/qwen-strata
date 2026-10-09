@@ -1,0 +1,3540 @@
+{
+  "status": "closed-diagnostic-only",
+  "versions": {
+    "strata": "0.1.40.1",
+    "engine": "0.1.40",
+    "codex": "0.160.1"
+  },
+  "reused_baseline_instances": 3,
+  "new_instances": 9,
+  "baseline_json_sha256": "4d946d0c1f720745a080150b443dd467dd6c76c59c04016dca579330cd97b2f8",
+  "native_catalog_sha256": "e5060f7ea4546b9fd5a86ba455389729a98d8709756e600b64868364493e71d9",
+  "closed_baseline_hardware_duration_observation": {
+    "scope": "Read-only diagnosis of closed baseline repetitions, not a controlled hardware benchmark; no new model requests or configuration changes",
+    "threshold": 100000,
+    "window": 156584,
+    "effort": "high",
+    "groups": {
+      "local": {
+        "observations": [
+          {
+            "repetition": 1,
+            "log_sha256": "5dffee977209e6ac6410f0d5a05b390296e11c38810bd6b4cbcf4f5ff0f7a1b6",
+            "decode_expert_hits": 22500960,
+            "decode_expert_lookups": 28423680,
+            "decode_expert_hit_fraction": 0.7916272629019184,
+            "review_work_seconds": 1086.5544431152343,
+            "engine_input_seconds": 660.317,
+            "engine_decode_seconds": 415.744,
+            "engine_input_tokens_per_second": 3098.3058137228027,
+            "engine_output_tokens_per_second": 129.0962707820197,
+            "tokens": {
+              "uncached_input": 2045864,
+              "cached_input": 302299,
+              "output": 53671
+            }
+          },
+          {
+            "repetition": 2,
+            "log_sha256": "909827177ec234cbb8dcc97c93b612f101c5db07afd372c5f9dddc921ded0cd5",
+            "decode_expert_hits": 45848894,
+            "decode_expert_lookups": 57393120,
+            "decode_expert_hit_fraction": 0.7988569710097656,
+            "review_work_seconds": 2168.8608803710936,
+            "engine_input_seconds": 1319.418,
+            "engine_decode_seconds": 827.39,
+            "engine_input_tokens_per_second": 3148.744370624018,
+            "engine_output_tokens_per_second": 131.549813268229,
+            "tokens": {
+              "uncached_input": 4154510,
+              "cached_input": 602258,
+              "output": 108843
+            }
+          },
+          {
+            "repetition": 3,
+            "log_sha256": "0d013ea2c113396f3c3b87279849699c9e2e8a0e5289d1d1a9ab7b43c14ca31b",
+            "decode_expert_hits": 32671585,
+            "decode_expert_lookups": 40837920,
+            "decode_expert_hit_fraction": 0.8000305843196716,
+            "review_work_seconds": 1444.401434326172,
+            "engine_input_seconds": 833.913,
+            "engine_decode_seconds": 595.279,
+            "engine_input_tokens_per_second": 3131.097608503525,
+            "engine_output_tokens_per_second": 128.09287745746113,
+            "tokens": {
+              "uncached_input": 2611063,
+              "cached_input": 345578,
+              "output": 76251
+            }
+          }
+        ],
+        "arithmetic_mean": {
+          "review_work_seconds": 1566.6055859374999,
+          "engine_input_tokens_per_second": 3126.0492642834483,
+          "engine_output_tokens_per_second": 129.5796538359033,
+          "decode_expert_hit_fraction": 0.7968382727437852
+        },
+        "mean_tokens": {
+          "uncached_input": 2937145.6666666665,
+          "cached_input": 416711.6666666667,
+          "output": 79588.33333333333
+        }
+      },
+      "rtx3080ti": {
+        "observations": [
+          {
+            "repetition": 1,
+            "log_sha256": "19baf9ea7544afe3151c9fb6563e47e1eab92b09ae8eaee4ac17e8cdf76b96b0",
+            "decode_expert_hits": 25431742,
+            "decode_expert_lookups": 39733920,
+            "decode_expert_hit_fraction": 0.6400511703854037,
+            "review_work_seconds": 1958.4248188476563,
+            "engine_input_seconds": 1035.918,
+            "engine_decode_seconds": 906.507,
+            "engine_input_tokens_per_second": 2599.22310453144,
+            "engine_output_tokens_per_second": 81.64195091709165,
+            "tokens": {
+              "uncached_input": 2692582,
+              "cached_input": 509720,
+              "output": 74009
+            }
+          },
+          {
+            "repetition": 2,
+            "log_sha256": "ee5a3aa2acc655623764e4d2dc0b8c97789db8978d2f88537a37fa07209116bb",
+            "decode_expert_hits": 38793007,
+            "decode_expert_lookups": 60992160,
+            "decode_expert_hit_fraction": 0.6360326802657915,
+            "review_work_seconds": 3435.6194157714845,
+            "engine_input_seconds": 2117.617,
+            "engine_decode_seconds": 1291.055,
+            "engine_input_tokens_per_second": 2617.995605437621,
+            "engine_output_tokens_per_second": 89.4384824813815,
+            "tokens": {
+              "uncached_input": 5543912,
+              "cached_input": 559797,
+              "output": 115470
+            }
+          },
+          {
+            "repetition": 3,
+            "log_sha256": "a05e20022d1e6e6735423d35ebdaa2dc5b5959f8fb42809595cb63b81025aca8",
+            "decode_expert_hits": 39478855,
+            "decode_expert_lookups": 61825920,
+            "decode_expert_hit_fraction": 0.6385486055039699,
+            "review_work_seconds": 2641.8797685546874,
+            "engine_input_seconds": 1277.762,
+            "engine_decode_seconds": 1343.958,
+            "engine_input_tokens_per_second": 2632.2155456180417,
+            "engine_output_tokens_per_second": 87.60690438242861,
+            "tokens": {
+              "uncached_input": 3363345,
+              "cached_input": 369000,
+              "output": 117740
+            }
+          }
+        ],
+        "arithmetic_mean": {
+          "review_work_seconds": 2678.641334391276,
+          "engine_input_tokens_per_second": 2616.478085195701,
+          "engine_output_tokens_per_second": 86.22911259363391,
+          "decode_expert_hit_fraction": 0.6382108187183884
+        },
+        "mean_tokens": {
+          "uncached_input": 3866613,
+          "cached_input": 479505.6666666667,
+          "output": 102406.33333333333
+        }
+      }
+    },
+    "conclusion": "VRAM/expert-cache pressure is a plausible important contributor to the slower per-token processing, supported by lower decode expert hit share (local 79.7%, remote 63.8%). Runtime difference also includes larger actual input/output workload. No causal percentage assigned; CPU, prefill batch, hardware/kernel differences and task trajectories are not controlled across hosts."
+  },
+  "prompt_sources_and_baseline_effective_binding": {
+    "native_catalog_sha256": "e5060f7ea4546b9fd5a86ba455389729a98d8709756e600b64868364493e71d9",
+    "native_base_instructions_sha256": "35bd51b5f577cb7b24cd5f4629e49e37cb724ab57754ce6f8f202001635bab8a",
+    "startup_source_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "effective_startup_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+    "compact_base_sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+    "codex_compact_supplement_sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07",
+    "combined_compact_file_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912"
+  },
+  "groups": [
+    {
+      "id": "local-baseline",
+      "host": "local",
+      "hardware": {
+        "host": "local",
+        "cpu": "i9-14900K",
+        "gpu": "RTX4070Ti SUPER",
+        "vram_gib": 16,
+        "ram_gib": 64
+      },
+      "new_instances": 0,
+      "fixed_conditions": {
+        "model": "Q2_0",
+        "effort": "high",
+        "engine_overrides": {
+          "prefill": 16384,
+          "kv": "int8",
+          "kv-resident": 20480,
+          "pool-workers": 23,
+          "pcie-frac": 0.0,
+          "spec": 4,
+          "spec-min-p": 0.7,
+          "expert-cache": "auto",
+          "vram-reserve-mib": 700,
+          "adapt-every": 4,
+          "adapt-swaps": 96,
+          "adapt-decay": 0.7,
+          "mtp-window": 32768,
+          "pcie-mode": "auto",
+          "expert-cache-per-layer": false,
+          "expert-cache-cpu-order": false,
+          "pool-affinity": "auto",
+          "ple-io": "direct",
+          "ple-inflight": 256,
+          "no-capture": false,
+          "no-host-worker": false,
+          "no-ple-prefetch": false,
+          "no-prefill-borrow": false,
+          "no-split-rows": false,
+          "no-coupled-draft": false,
+          "shared-late": false,
+          "keep-canonical": false,
+          "no-token-graph": false,
+          "no-fused-gr": false,
+          "no-hit-poke": false,
+          "ple-sync-submit": false,
+          "no-spec-split": false,
+          "gr-fp32-activations": false,
+          "ple-row-cache": 1048576,
+          "short-read": 64,
+          "suffix-draft": 3,
+          "mtp-max-t": 0,
+          "prompt-cache": 6,
+          "prompt-cache-every": 16384,
+          "prompt-cache-root": 2048,
+          "max-context": 156584
+        },
+        "engine_environment": {
+          "STRATA_HC_SPLIT": null,
+          "STRATA_ADAPT_NOWAIT": null,
+          "STRATA_SSD_KEEPALIVE": null,
+          "STRATA_BATCH_TRACE": 1
+        },
+        "sampling": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "top_k": 20,
+          "max_tokens": 24576,
+          "reasoning_budget_tokens": 8192,
+          "min_p": 0.0,
+          "presence_penalty": 0.0,
+          "frequency_penalty": 0.0,
+          "repetition_penalty": 1.0,
+          "penalty_last_n": 64,
+          "reasoning_effort": "high"
+        },
+        "context_window": 156584,
+        "auto_compact_token_limit": 100000,
+        "startup_instructions": true,
+        "project_compaction_instructions": true,
+        "generation_policy": "first-delivery-only",
+        "loop_prevention_instructions": false,
+        "automatic_continuation": true,
+        "archive_http": true
+      },
+      "effective_startup_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+      "observations": [
+        {
+          "repetition": 1,
+          "instance_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-1",
+          "host": "local",
+          "score": 0.8081430630382209,
+          "review_work_seconds": 1086.5544431152343,
+          "work_time_source": "driver active-work clock; corroborated by native turn boundaries",
+          "work_time_estimated": true,
+          "work_time_uncertainty_seconds": 2,
+          "internal_stages": 53,
+          "tokens": {
+            "uncached_input": 2045864,
+            "cached_input": 302299,
+            "output": 53671
+          },
+          "engine_input_seconds": 660.317,
+          "engine_decode_seconds": 415.744,
+          "engine_input_tokens_per_second": 3098.3058137228027,
+          "engine_output_tokens_per_second": 129.0962707820197,
+          "unit": "token/s",
+          "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+          "task_review_seconds": 1086.5544431152343,
+          "task_input_tokens_per_second": 1882.8913847467709,
+          "task_output_tokens_per_second": 49.39559203873959,
+          "report_rows": 118,
+          "report_sha256": "adf7adfc8a278e81c2e2988e036d57ef858f0966cb0c8f9d7c42ba5a6b46ca1d",
+          "native_session_sha256": "d6fbddc5b2782dc87aa3f18b01042173ec240951c9b3858b862707d090eb486c",
+          "thread_id": "01a1127a-fd70-78e3-b230-42d64f5cfe4c",
+          "internal_log_sha256": "5dffee977209e6ac6410f0d5a05b390296e11c38810bd6b4cbcf4f5ff0f7a1b6",
+          "scoring_sha256": "f9e1991a31ae5c9575e3157db53eed6996050653c819293a09bb5d2f102a198d",
+          "session_inspection_sha256": "a5407239915a44c52f4202c3092f81a1e499f558cab2a40ed58d144094268ae1",
+          "session_inspection_complete": true,
+          "formal_acceptance": false,
+          "loop_observed": false,
+          "confirmed_loop_episodes_lower_bound": 0,
+          "reasoning_loop_episodes_lower_bound": 0,
+          "tool_loop_episodes_lower_bound": 0,
+          "mandatory_failures": [
+            "timely finding writes",
+            "functional default file-only sandbox"
+          ],
+          "finding_checks": {
+            "checked": 118,
+            "total": 118,
+            "result_label_disagreements": 6
+          },
+          "loop_recount": {
+            "metric_version": 1,
+            "inspection_complete": true,
+            "loop_group_count": 0,
+            "total_loop_iterations": 0,
+            "extra_repeat_count": 0,
+            "native_session_sha256": "d6fbddc5b2782dc87aa3f18b01042173ec240951c9b3858b862707d090eb486c",
+            "included_event_count": 195,
+            "exclusions": "Schema tuple mismatch and arithmetic correction advance the check; notification attempts change in response to results. Checksum/redaction doubt is not promoted to a confirmed stalled loop.",
+            "groups": []
+          }
+        },
+        {
+          "repetition": 2,
+          "instance_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2",
+          "host": "local",
+          "score": 0.8224953691750466,
+          "review_work_seconds": 2168.8608803710936,
+          "work_time_source": "driver active-work clock; corroborated by native turn boundaries",
+          "work_time_estimated": true,
+          "work_time_uncertainty_seconds": 2,
+          "internal_stages": 117,
+          "tokens": {
+            "uncached_input": 4154510,
+            "cached_input": 602258,
+            "output": 108843
+          },
+          "engine_input_seconds": 1319.418,
+          "engine_decode_seconds": 827.39,
+          "engine_input_tokens_per_second": 3148.744370624018,
+          "engine_output_tokens_per_second": 131.549813268229,
+          "unit": "token/s",
+          "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+          "task_review_seconds": 2168.8608803710936,
+          "task_input_tokens_per_second": 1915.5262735381905,
+          "task_output_tokens_per_second": 50.18440831547337,
+          "report_rows": 118,
+          "report_sha256": "3f496d55b3b239741c614f019f749f6b3b2b59d7cf5b4ed72380e64d05a50033",
+          "native_session_sha256": "d92508d67435b8081b8cb40dd7223d70c54de30cae96ca2700b65bf271ebf2e4",
+          "thread_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+          "internal_log_sha256": "909827177ec234cbb8dcc97c93b612f101c5db07afd372c5f9dddc921ded0cd5",
+          "scoring_sha256": "807273961e20682a3b6dc1ca577c7c39887b002bf45ced9e9b16908e9b7eeb37",
+          "session_inspection_sha256": "6d8256b7c7035e88a1a65a2b927e9adcdad33564c2a1573edfd031843ea3a5d1",
+          "session_inspection_complete": true,
+          "formal_acceptance": false,
+          "loop_observed": true,
+          "confirmed_loop_episodes_lower_bound": 2,
+          "reasoning_loop_episodes_lower_bound": 1,
+          "tool_loop_episodes_lower_bound": 1,
+          "mandatory_failures": [
+            "timely finding writes",
+            "functional default file-only sandbox",
+            "external writes"
+          ],
+          "finding_checks": {
+            "checked": 118,
+            "total": 118,
+            "result_label_disagreements": 5
+          },
+          "loop_recount": {
+            "metric_version": 1,
+            "inspection_complete": true,
+            "loop_group_count": 3,
+            "total_loop_iterations": 393,
+            "extra_repeat_count": 390,
+            "native_session_sha256": "d92508d67435b8081b8cb40dd7223d70c54de30cae96ca2700b65bf271ebf2e4",
+            "included_event_count": 424,
+            "exclusions": [],
+            "groups": [
+              {
+                "id": "post-delivery-semantic-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 7,
+                "extra_repeats": 6,
+                "counts_by_native_event": {
+                  "221": 1,
+                  "228": 1,
+                  "242": 1,
+                  "249": 1,
+                  "256": 1,
+                  "291": 1,
+                  "301": 1
+                },
+                "reason": "Repeatedly re-derives the same redaction/import/normalization and complete requirement verdicts. Representation edits do not change those semantic inputs. Individual issue/spec coverage mapping and new predicate fixes are excluded.",
+                "annotation_sha256": "fa9b5fa7c38e0f63ee97328de4e401abd2995f40f1abea8a5b7d0ca6cac187f2"
+              },
+              {
+                "id": "normalization-literal-run",
+                "type": "reasoning",
+                "iterations_including_anchor": 379,
+                "extra_repeats": 378,
+                "counts_by_native_event": {
+                  "235": 379
+                },
+                "reason": "Only the contiguous379 copies are included; four dispersed appearances in normal evidence mappings are excluded. Native mirrored234 is not a second occurrence.",
+                "annotation_sha256": "9f8c9966544716cc3e70f1421c82c8d5059cc6cf4d7f75ca08bf2faacadfbf38"
+              },
+              {
+                "id": "unchanged-ternary-syntax",
+                "type": "tool",
+                "iterations_including_anchor": 7,
+                "extra_repeats": 6,
+                "counts_by_native_event": {
+                  "250": 1,
+                  "257": 1,
+                  "264": 1,
+                  "271": 1,
+                  "278": 1,
+                  "285": 1,
+                  "292": 1
+                },
+                "reason": "Git prefixes, output formatting and String conversion do not repair the failing ternary. Corrected later validator309 and real evidence patch302 are progress.",
+                "annotation_sha256": "d84b7fdffe76bcbf92e98360c9d4d72a642e956af0dd59f24ba0b78b913e46f9"
+              }
+            ]
+          }
+        },
+        {
+          "repetition": 3,
+          "instance_id": "default-631a7d5e-9946-4a0e-bd4c-63ce72a54e37-instance-3",
+          "host": "local",
+          "score": 0.7925506945164519,
+          "review_work_seconds": 1444.401434326172,
+          "work_time_source": "driver active-work clock; corroborated by native turn boundaries",
+          "work_time_estimated": true,
+          "work_time_uncertainty_seconds": 2,
+          "internal_stages": 79,
+          "tokens": {
+            "uncached_input": 2611063,
+            "cached_input": 345578,
+            "output": 76251
+          },
+          "engine_input_seconds": 833.913,
+          "engine_decode_seconds": 595.279,
+          "engine_input_tokens_per_second": 3131.097608503525,
+          "engine_output_tokens_per_second": 128.09287745746113,
+          "unit": "token/s",
+          "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+          "task_review_seconds": 1444.401434326172,
+          "task_input_tokens_per_second": 1807.7128268832603,
+          "task_output_tokens_per_second": 52.79072575524814,
+          "report_rows": 118,
+          "report_sha256": "a2e8310f82df689f83188dcd9bdbd5679ea276d1b9d98b73ea1f21cd8bb0305a",
+          "native_session_sha256": "239c12d989cbbec7b9cb89c3cc0cea017cc04f549161032416f41698da285d98",
+          "thread_id": "01a113e4-7847-7b91-ac2e-3efa56c5c808",
+          "internal_log_sha256": "0d013ea2c113396f3c3b87279849699c9e2e8a0e5289d1d1a9ab7b43c14ca31b",
+          "scoring_sha256": "f4c830c896e3ac29de714914bea3ecf49c2836a679162f4ee2e8d731bfbed7f5",
+          "session_inspection_sha256": "d5ed1558f8a90608781a8712ce6b72a9194c0275956bc050fed6d7b67b12c336",
+          "session_inspection_complete": true,
+          "formal_acceptance": false,
+          "loop_observed": true,
+          "confirmed_loop_episodes_lower_bound": 1,
+          "reasoning_loop_episodes_lower_bound": 1,
+          "tool_loop_episodes_lower_bound": 0,
+          "mandatory_failures": [
+            "timely finding writes",
+            "functional default file-only sandbox",
+            "external writes",
+            "environment identity/ARW allowlist",
+            "inline status format"
+          ],
+          "finding_checks": {
+            "checked": 118,
+            "total": 118,
+            "result_label_disagreements": 5
+          },
+          "loop_recount": {
+            "metric_version": 1,
+            "inspection_complete": true,
+            "loop_group_count": 2,
+            "total_loop_iterations": 17,
+            "extra_repeat_count": 15,
+            "native_session_sha256": "239c12d989cbbec7b9cb89c3cc0cea017cc04f549161032416f41698da285d98",
+            "included_event_count": 290,
+            "exclusions": [],
+            "groups": [
+              {
+                "id": "pre-delivery-token-removal-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 11,
+                "extra_repeats": 10,
+                "counts_by_native_event": {
+                  "71": 3,
+                  "81": 6,
+                  "95": 2
+                },
+                "reason": "Restarts the same token key/value judgment, often through planted-expectation guesses. Flat coverage record88 is excluded. Actual later runtime probe closes this phase.",
+                "annotation_sha256": "04d9d5fe685dde6a725ced3eaf988fce82539653c2240ceb04f8c39511634e2c"
+              },
+              {
+                "id": "post-format-completion-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 6,
+                "extra_repeats": 5,
+                "counts_by_native_event": {
+                  "239": 1,
+                  "249": 3,
+                  "256": 1,
+                  "263": 1
+                },
+                "reason": "After the two actual range repairs and successful verification, semantic inputs do not change. Notification request corrections, scope queries and helper cleanup remain genuine different operations; no count for merely recapping118 or flat mappings.",
+                "annotation_sha256": "c34339152a2e0cc7a52267642b38adb3f0931a6d64fcb5f98ceba34027cd49c8"
+              }
+            ]
+          }
+        }
+      ],
+      "arithmetic_mean": {
+        "repeat_count": 3,
+        "score": 0.8077297089099065,
+        "review_work_seconds": 1566.6055859374999,
+        "review_work_seconds_estimated": true,
+        "review_work_seconds_min": 1086.5544431152343,
+        "review_work_seconds_max": 2168.8608803710936,
+        "review_work_seconds_population_stdev": 450.2200921287655,
+        "tokens": {
+          "uncached_input": 2937145.6666666665,
+          "cached_input": 416711.6666666667,
+          "output": 79588.33333333333
+        },
+        "engine_input_tokens_per_second": 3126.0492642834483,
+        "engine_output_tokens_per_second": 129.5796538359033,
+        "task_input_tokens_per_second": 1868.7101617227406,
+        "task_output_tokens_per_second": 50.79024203648704,
+        "loop_observed_repeats": 2,
+        "loop_unknown_repeats": 0,
+        "formal_acceptance_repeats": 0
+      },
+      "loop_statistics": {
+        "loop_group_count_sum": 5,
+        "loop_group_count_mean": 1.6666666666666667,
+        "total_loop_iterations_sum": 410,
+        "total_loop_iterations_mean": 136.66666666666666,
+        "total_loop_iterations_median": 17,
+        "total_loop_iterations_min": 0,
+        "total_loop_iterations_max": 393,
+        "extra_repeat_count_sum": 405
+      }
+    },
+    {
+      "id": "local-loop-prompt",
+      "host": "local",
+      "hardware": {
+        "gpu": "NVIDIA RTX 4070 Ti SUPER",
+        "vram_gib": 16,
+        "cpu": "Intel Core i9-14900K",
+        "ram_gib": 64
+      },
+      "new_instances": 3,
+      "fixed_conditions": {
+        "model": "Q2_0",
+        "effort": "high",
+        "engine_overrides": {
+          "prefill": 16384,
+          "kv": "int8",
+          "kv-resident": 20480,
+          "pool-workers": 23,
+          "pcie-frac": 0.0,
+          "spec": 4,
+          "spec-min-p": 0.7,
+          "expert-cache": "auto",
+          "vram-reserve-mib": 700,
+          "adapt-every": 4,
+          "adapt-swaps": 96,
+          "adapt-decay": 0.7,
+          "mtp-window": 32768,
+          "pcie-mode": "auto",
+          "expert-cache-per-layer": false,
+          "expert-cache-cpu-order": false,
+          "pool-affinity": "auto",
+          "ple-io": "direct",
+          "ple-inflight": 256,
+          "no-capture": false,
+          "no-host-worker": false,
+          "no-ple-prefetch": false,
+          "no-prefill-borrow": false,
+          "no-split-rows": false,
+          "no-coupled-draft": false,
+          "shared-late": false,
+          "keep-canonical": false,
+          "no-token-graph": false,
+          "no-fused-gr": false,
+          "no-hit-poke": false,
+          "ple-sync-submit": false,
+          "no-spec-split": false,
+          "gr-fp32-activations": false,
+          "ple-row-cache": 1048576,
+          "short-read": 64,
+          "suffix-draft": 3,
+          "mtp-max-t": 0,
+          "prompt-cache": 6,
+          "prompt-cache-every": 16384,
+          "prompt-cache-root": 2048,
+          "max-context": 156584
+        },
+        "engine_environment": {
+          "STRATA_HC_SPLIT": null,
+          "STRATA_ADAPT_NOWAIT": null,
+          "STRATA_SSD_KEEPALIVE": null,
+          "STRATA_BATCH_TRACE": 1
+        },
+        "sampling": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "top_k": 20,
+          "max_tokens": 24576,
+          "reasoning_budget_tokens": 8192,
+          "min_p": 0.0,
+          "presence_penalty": 0.0,
+          "frequency_penalty": 0.0,
+          "repetition_penalty": 1.0,
+          "penalty_last_n": 64,
+          "reasoning_effort": "high"
+        },
+        "context_window": 156584,
+        "auto_compact_token_limit": 100000,
+        "startup_instructions": true,
+        "project_compaction_instructions": true,
+        "generation_policy": "first-delivery-only",
+        "loop_prevention_instructions": true,
+        "automatic_continuation": true,
+        "archive_http": true,
+        "host_id": "local",
+        "host_hardware": {
+          "gpu": "NVIDIA RTX 4070 Ti SUPER",
+          "vram_gib": 16,
+          "cpu": "Intel Core i9-14900K",
+          "ram_gib": 64
+        },
+        "compaction_prompt_policy": {
+          "policy": "project-base-plus-supplements",
+          "source_sha256": [
+            "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+            "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+          ],
+          "rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912"
+        }
+      },
+      "effective_startup_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "observations": [
+        {
+          "instance_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1",
+          "host": "local",
+          "repetition": 1,
+          "score": 0.46622916633571415,
+          "score_before_format_penalty": 0.46622916633571415,
+          "review_work_seconds": 2035.8352873535157,
+          "review_work_seconds_estimated": false,
+          "tokens": {
+            "uncached_input": 3781086,
+            "cached_input": 413470,
+            "output": 112724
+          },
+          "engine_input_tokens_per_second": 3179.2105714545164,
+          "engine_output_tokens_per_second": 136.16525758986867,
+          "task_input_tokens_per_second": 1857.2651842159703,
+          "task_output_tokens_per_second": 55.36990182861776,
+          "engine_input_seconds": 1189.316,
+          "engine_decode_seconds": 827.847,
+          "recorded_complete_stage_input_seconds": 1189.316,
+          "recorded_complete_stage_decode_seconds": 827.847,
+          "expected_report_judgments": 118,
+          "report_rows": 118,
+          "internal_stages": 91,
+          "internal_counter_coverage": {
+            "complete_instance_token_counts": true
+          },
+          "recorded_complete_stage_tokens": null,
+          "recorded_complete_stage_rates": null,
+          "report_sha256": "ac8fbe67234c1aa0c7bd6afb22a47fb0f90d9e9a4ca7ed24c12d71c3f33d77ee",
+          "native_session_sha256": "f2b8e7585a384c5be6f9ac61cb9eda5c3e70b11305934ae7b7f95af3b53a9790",
+          "internal_log_sha256": "2db68ff30cf3dc20674371648fcbcbdf2fc1d3b08271ded957c9587e67257b81",
+          "session_inspection_sha256": "bec7d004e0905e3d5f855443bb11fa689adb616d307678c22f4d7b9386e94be7",
+          "session_inspection_complete": true,
+          "formal_acceptance": false,
+          "loop_observed": true,
+          "loop_evidence": [
+            {
+              "type": "reasoning",
+              "texts": [
+                41,
+                47,
+                57,
+                117,
+                120,
+                122,
+                124,
+                129,
+                135,
+                138
+              ],
+              "topic": "Repeated token value versus key-presence and adapter-result judgments without changed evidence, including guesses about planted grading."
+            },
+            {
+              "type": "tool",
+              "texts": [
+                63,
+                64,
+                66,
+                67,
+                69,
+                70,
+                75,
+                76,
+                78,
+                79,
+                81,
+                82
+              ],
+              "native_command_rows_0based": [
+                110,
+                117,
+                124,
+                138,
+                145,
+                152
+              ],
+              "topic": "Repeated script rewrites retain the same missing outer closing brace in publishManifest; syntax errors recur despite claims to fix them. Different focused script72/73 succeeds separately."
+            },
+            {
+              "type": "reasoning",
+              "texts": [
+                117,
+                120,
+                122,
+                124,
+                129,
+                132,
+                135,
+                138
+              ],
+              "topic": "Evidence grammar and normalization re-opened repeatedly after completion; repeatedly mis-evaluates start==end for the singleton12 although code and observed output establish12."
+            }
+          ],
+          "original_completion": true,
+          "original_generation": "generated",
+          "original_format_diagnostics": 0,
+          "mechanical_correction_fields": 0,
+          "inspection_failures": {
+            "source_isolation": "fail",
+            "write_scope": "fail",
+            "timely_recording": "fail",
+            "formal_completion": "Plain ready and complete118 report; mandatory source/write/timeliness gates fail."
+          },
+          "semantic_anomalies": [
+            {
+              "row_1based": 16,
+              "classification": "unproven-satisfied",
+              "reason": "Policy provider.load return contract unavailable."
+            },
+            {
+              "row_1based": 51,
+              "classification": "false-gap",
+              "reason": "Public import exists; invocation through that binding belongs to the stronger separate spec52 requirement."
+            },
+            {
+              "row_1based": 74,
+              "classification": "unproven-gap",
+              "reason": "Actual renameTemporary failure-cleanup contract unavailable; chosen mock cannot prove temporary bytes remain."
+            },
+            {
+              "row_1based": 99,
+              "classification": "unproven-satisfied",
+              "reason": "Adapter.restore result contract unavailable."
+            },
+            {
+              "rows_1based": [
+                10,
+                117
+              ],
+              "classification": "corrected-by-model",
+              "reason": "Final fullwidth digit example corrects the earlier ASCII example using actual observed probes48/51. Normalization core finding retained; general NFKC-equivalence wording still conflates case normalization."
+            }
+          ],
+          "started_at": 1791347204.2340553,
+          "finished_at": 1791349240.0695467,
+          "review_work_intervals": [
+            {
+              "start": 1791347204.2340553,
+              "end": 1791349240.0693426
+            }
+          ],
+          "work_interval_uncertainty_bounds": [],
+          "loop_recount": {
+            "metric_version": 1,
+            "inspection_complete": true,
+            "loop_group_count": 7,
+            "total_loop_iterations": 51,
+            "extra_repeat_count": 44,
+            "native_session_sha256": "f2b8e7585a384c5be6f9ac61cb9eda5c3e70b11305934ae7b7f95af3b53a9790",
+            "included_event_count": 322,
+            "exclusions": [],
+            "groups": [
+              {
+                "id": "post-probe-token-removal-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 12,
+                "extra_repeats": 11,
+                "counts_by_native_event": {
+                  "95": 12
+                },
+                "reason": "After actual probe establishes erased value/present key, repeatedly reopens the same alternatives and planted-grade guesses. Newly discovered broader auth.driver leak is real progress and excluded.",
+                "annotation_sha256": "744e0ce0d0ef6e8e97354ac4bc135a2ee6a90c68783f05f0252a44544e3c6dbf"
+              },
+              {
+                "id": "post-compaction-token-removal-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 10,
+                "extra_repeats": 9,
+                "counts_by_native_event": {
+                  "257": 4,
+                  "267": 2,
+                  "281": 4
+                },
+                "reason": "Same already observed direct-driver value/key distinction reopened after own compaction. Broader authentication mapping and ordinary flat verdict recaps are excluded.",
+                "annotation_sha256": "1dbe3d7bf8fee5532e8c937bc333af8fd7396211e6498e4e138e98ca1a8038e0"
+              },
+              {
+                "id": "post-compaction-restore-contract-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 4,
+                "extra_repeats": 3,
+                "counts_by_native_event": {
+                  "257": 2,
+                  "267": 1,
+                  "281": 1
+                },
+                "reason": "Unchanged production adapter contract unavailable; mock result does not supply it. Repeated gap/uncertain reconsideration after the explicit rule was already applied.",
+                "annotation_sha256": "ae6322a51d725858a7fbc5f762dad6e073d7645a110497cb291d2ace88173226"
+              },
+              {
+                "id": "pre-write-single-line-versus-range-grammar",
+                "type": "reasoning",
+                "iterations_including_anchor": 12,
+                "extra_repeats": 11,
+                "counts_by_native_event": {
+                  "257": 5,
+                  "267": 7
+                },
+                "reason": "Repeatedly settles and reopens the same bare-int versus nested-range grammar, guessing parser expectations without new rule changes. Actual later normalization is a separate repair, not counted.",
+                "annotation_sha256": "de355287c21fb0ddf9a745025b3790e7fe0d69892804abee9412824e676a623f"
+              },
+              {
+                "id": "post-normalization-singleton-arithmetic",
+                "type": "reasoning",
+                "iterations_including_anchor": 7,
+                "extra_repeats": 6,
+                "counts_by_native_event": {
+                  "295": 1,
+                  "302": 4,
+                  "309": 1,
+                  "316": 1
+                },
+                "reason": "The valid unchanged output[1,12] was correctly explained, then repeatedly reopens the same start==end(12) arithmetic. Same native event mirrors not counted; ordinary file verification after actual finding-word repairs remains distinct.",
+                "annotation_sha256": "c32588f100a3495e1589b9ecb140e5673c047eb08247b3bfdd36f1d43f068bac"
+              },
+              {
+                "id": "unfixed-publish-script-first-burst",
+                "type": "tool",
+                "iterations_including_anchor": 3,
+                "extra_repeats": 2,
+                "counts_by_native_event": {
+                  "110": 1,
+                  "117": 1,
+                  "124": 1
+                },
+                "reason": "The successful different focused script131 separates two bursts; changes of file/import style do not repair the failing expression. Earlier path repair and later real syntax/probe fixes are excluded.",
+                "annotation_sha256": "14c339694da2a6b6932e6ab4d284fb120a5aa1decb0c3130ed5c5810e4a52059"
+              },
+              {
+                "id": "unfixed-publish-script-second-burst",
+                "type": "tool",
+                "iterations_including_anchor": 3,
+                "extra_repeats": 2,
+                "counts_by_native_event": {
+                  "138": 1,
+                  "145": 1,
+                  "152": 1
+                },
+                "reason": "The successful different focused script131 separates two bursts; changes of file/import style do not repair the failing expression. Earlier path repair and later real syntax/probe fixes are excluded.",
+                "annotation_sha256": "1d056199a9f62c531ba8f6b3e85bc03f80c97858f89500588731a2f0fe3fc724"
+              }
+            ]
+          }
+        },
+        {
+          "instance_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2",
+          "host": "local",
+          "repetition": 2,
+          "score": 0.6295923141504034,
+          "score_before_format_penalty": 0.6995470157226704,
+          "review_work_seconds": 1183.0984748535157,
+          "review_work_seconds_estimated": false,
+          "tokens": {
+            "uncached_input": 1906140,
+            "cached_input": 567326,
+            "output": 71782
+          },
+          "engine_input_tokens_per_second": 3109.6841765244244,
+          "engine_output_tokens_per_second": 128.5881139024635,
+          "task_input_tokens_per_second": 1611.142301773322,
+          "task_output_tokens_per_second": 60.67288693689478,
+          "engine_input_seconds": 612.969,
+          "engine_decode_seconds": 558.232,
+          "recorded_complete_stage_input_seconds": 612.969,
+          "recorded_complete_stage_decode_seconds": 558.232,
+          "expected_report_judgments": 118,
+          "report_rows": 118,
+          "internal_stages": 64,
+          "internal_counter_coverage": {
+            "complete_instance_token_counts": true
+          },
+          "recorded_complete_stage_tokens": null,
+          "recorded_complete_stage_rates": null,
+          "report_sha256": "d59b076bbf9289d027518d6963b8228198007845e1d52455f03cdcd700a26fb7",
+          "native_session_sha256": "5f0d904b58d350f9e79fe34ad7082cff995a13ce6b8f0ee17fee16f526e17016",
+          "internal_log_sha256": "bfb6f46e96468df67584ba36668118d0a9ad2817819f4d6a45c68c946a2f9190",
+          "session_inspection_sha256": "ef68a843eb7ed495e5a1d33abe4dad1ca0cb94567d0748e31de4fa4ecc226092",
+          "session_inspection_complete": true,
+          "formal_acceptance": false,
+          "loop_observed": true,
+          "loop_evidence": [
+            {
+              "type": "reasoning",
+              "texts": [
+                36,
+                39,
+                42,
+                47,
+                52,
+                54,
+                77
+              ],
+              "topic": "Repeated redaction value/key, adapter confirmation and route normalization decisions with planted-grade guesses; repeated counts and final rechecks after settled decisions."
+            },
+            {
+              "type": "tool",
+              "texts": [
+                63,
+                64,
+                65,
+                66,
+                68,
+                69,
+                70
+              ],
+              "native_command_rows_0based": [
+                164,
+                185,
+                192
+              ],
+              "topic": "Validator iterates scalar evidence.lines twice with identical TypeError; wrongly attributes first failure to Request schema and adds counts without fixing failing loop.192 finally changes validator to accept scalar, leaving original report invalid."
+            }
+          ],
+          "original_completion": false,
+          "original_generation": "failed-review-syntax",
+          "original_format_diagnostics": 82,
+          "mechanical_correction_fields": 88,
+          "inspection_failures": {
+            "source_isolation": "fail",
+            "write_scope": "pass, only bound report observed",
+            "timely_recording": "fail",
+            "formal_completion": "Fenced ready, original completefalse, full118 judgments but syntax rejected; formal mandatory gates fail."
+          },
+          "semantic_anomalies": [
+            {
+              "row_1based": 16,
+              "classification": "unproven-satisfied",
+              "reason": "Provider.load return contract unavailable."
+            },
+            {
+              "rows_1based": [
+                36,
+                65
+              ],
+              "classification": "missed-gap",
+              "reason": "Auth redaction removes direct token value only and leaves broader credentials."
+            },
+            {
+              "row_1based": 74,
+              "classification": "unproven-gap",
+              "reason": "Production renameTemporary failure-cleanup contract unavailable; retained bytes not established."
+            },
+            {
+              "row_1based": 99,
+              "classification": "unproven-satisfied",
+              "reason": "Adapter.restore return contract unavailable."
+            },
+            {
+              "row_1based": 117,
+              "classification": "missed-gap",
+              "reason": "Route token omits declared NFKC route-key normalization."
+            }
+          ],
+          "started_at": 1791349255.8460393,
+          "finished_at": 1791350438.944728,
+          "review_work_intervals": [
+            {
+              "start": 1791349255.8460393,
+              "end": 1791350438.9445143
+            }
+          ],
+          "work_interval_uncertainty_bounds": [],
+          "loop_recount": {
+            "metric_version": 1,
+            "inspection_complete": true,
+            "loop_group_count": 4,
+            "total_loop_iterations": 25,
+            "extra_repeat_count": 21,
+            "native_session_sha256": "5f0d904b58d350f9e79fe34ad7082cff995a13ce6b8f0ee17fee16f526e17016",
+            "included_event_count": 218,
+            "exclusions": [],
+            "groups": [
+              {
+                "id": "token-key-value",
+                "type": "reasoning",
+                "iterations_including_anchor": 9,
+                "extra_repeats": 8,
+                "counts_by_native_event": {
+                  "77": 5,
+                  "87": 4
+                },
+                "reason": "Recurring key/value, grammar or missing-contract decision blocks return to already-examined alternatives with no relevant source change; normal flat mappings excluded.",
+                "annotation_sha256": "09110d661552c05e0b2850f544af0fe46062f5e1e18c9b287368df9ae0099bdf"
+              },
+              {
+                "id": "route-normalization",
+                "type": "reasoning",
+                "iterations_including_anchor": 7,
+                "extra_repeats": 6,
+                "counts_by_native_event": {
+                  "77": 1,
+                  "87": 5,
+                  "97": 1
+                },
+                "reason": "Recurring key/value, grammar or missing-contract decision blocks return to already-examined alternatives with no relevant source change; normal flat mappings excluded.",
+                "annotation_sha256": "5019b9254deeddc9bcb7e3fb7153540441304ca8937fe4ffb60ea7f9f691200c"
+              },
+              {
+                "id": "restore-contract",
+                "type": "reasoning",
+                "iterations_including_anchor": 7,
+                "extra_repeats": 6,
+                "counts_by_native_event": {
+                  "87": 4,
+                  "97": 3
+                },
+                "reason": "Recurring key/value, grammar or missing-contract decision blocks return to already-examined alternatives with no relevant source change; normal flat mappings excluded.",
+                "annotation_sha256": "66a10f3bae4c60b770d4f620399b89192cddfdd5d1475dc129e9f76ba67c8925"
+              },
+              {
+                "id": "scalar-evidence-validator",
+                "type": "tool",
+                "iterations_including_anchor": 2,
+                "extra_repeats": 1,
+                "counts_by_native_event": {
+                  "164": 1,
+                  "185": 1
+                },
+                "reason": "Request-shape diagnostics between failures do not repair evidence iteration;192 finally handles scalar values. The original report remains invalid; Main correction/penalty stay separate.",
+                "annotation_sha256": "1a96aac8154c53bdff44778feced730850c2dffa6b4a17a2c101a7e2b0d0d375"
+              }
+            ]
+          }
+        },
+        {
+          "instance_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-3",
+          "host": "local",
+          "repetition": 3,
+          "score": 0.783531449463458,
+          "score_before_format_penalty": 0.783531449463458,
+          "review_work_seconds": 983.9153176269531,
+          "review_work_seconds_estimated": false,
+          "tokens": {
+            "uncached_input": 1644838,
+            "cached_input": 333577,
+            "output": 58311
+          },
+          "engine_input_tokens_per_second": 3161.915636780257,
+          "engine_output_tokens_per_second": 128.63581313161396,
+          "task_input_tokens_per_second": 1671.727201043162,
+          "task_output_tokens_per_second": 59.26424658235511,
+          "engine_input_seconds": 520.203,
+          "engine_decode_seconds": 453.303,
+          "recorded_complete_stage_input_seconds": 520.203,
+          "recorded_complete_stage_decode_seconds": 453.303,
+          "expected_report_judgments": 118,
+          "report_rows": 118,
+          "internal_stages": 55,
+          "internal_counter_coverage": {
+            "complete_instance_token_counts": true
+          },
+          "recorded_complete_stage_tokens": null,
+          "recorded_complete_stage_rates": null,
+          "report_sha256": "9cf2eaeb74b9fbf2078599b954a4e67b2b4c74cb6cd73938b468c079a09efdbd",
+          "native_session_sha256": "bae72e008a80115d3c84442cb6ba27cfb78de11f032d8581b30261ec339c9c0f",
+          "internal_log_sha256": "9078084bfc266da33e8bcb3703f89d745dd48932fc3b8d7621fef4bd6ac5843c",
+          "session_inspection_sha256": "4e21e9c3c5e31046770c9070eebbe50fb272ea6f19558b0ffa70451915d69006",
+          "session_inspection_complete": true,
+          "formal_acceptance": false,
+          "loop_observed": true,
+          "loop_evidence": [
+            {
+              "type": "reasoning",
+              "texts": [
+                37,
+                41,
+                44,
+                46
+              ],
+              "topic": "Repeated settles/reopens direct-token key versus value removal, adapter-result and route-token normalization verdicts. TEXT46 cycles between satisfied/gap/uncertain decisions many times and guesses expected planted findings without new relevant source observations."
+            }
+          ],
+          "original_completion": true,
+          "original_generation": "generated",
+          "original_format_diagnostics": 0,
+          "mechanical_correction_fields": 0,
+          "inspection_failures": {
+            "source_isolation": "fail",
+            "write_scope": "pass, only bound report writes observed",
+            "timely_recording": "fail",
+            "formal_completion": "Plain ready, complete118, original generation passed. Mandatory source/timeliness checks fail."
+          },
+          "semantic_anomalies": [
+            {
+              "row": 16,
+              "reason": "Provider.load return contract absent; satisfied unproven."
+            },
+            {
+              "row": 36,
+              "reason": "Only token at direct auth removed; broader retained credentials missed."
+            },
+            {
+              "row": 65,
+              "reason": "Broader credentials missed as above."
+            },
+            {
+              "row": 51,
+              "reason": "Public import exists; strengthened to invocation."
+            },
+            {
+              "row": 74,
+              "reason": "Production renameTemporary cleanup contract absent; retained bytes unproven."
+            },
+            {
+              "row": 117,
+              "reason": "Actual missing canonical NFKC route-key step identified, but unjustified semantic uncertainty; full declared normalizer supplies contract."
+            },
+            {
+              "row": 78,
+              "reason": "Mentions ten exports whereas index has eleven; core executor omission correct."
+            }
+          ],
+          "started_at": 1791350454.7396417,
+          "finished_at": 1791351438.6550765,
+          "review_work_intervals": [
+            {
+              "start": 1791350454.7396417,
+              "end": 1791351438.6549592
+            }
+          ],
+          "work_interval_uncertainty_bounds": [],
+          "loop_recount": {
+            "metric_version": 1,
+            "inspection_complete": true,
+            "loop_group_count": 3,
+            "total_loop_iterations": 22,
+            "extra_repeat_count": 19,
+            "native_session_sha256": "bae72e008a80115d3c84442cb6ba27cfb78de11f032d8581b30261ec339c9c0f",
+            "included_event_count": 209,
+            "exclusions": [],
+            "groups": [
+              {
+                "id": "token-key-value",
+                "type": "reasoning",
+                "iterations_including_anchor": 6,
+                "extra_repeats": 5,
+                "counts_by_native_event": {
+                  "84": 1,
+                  "94": 1,
+                  "104": 2,
+                  "111": 2
+                },
+                "reason": "Same already-examined field/contract alternatives reopened without new relevant observations. Plain flat issue/spec mappings are excluded; each complete restatement block is one observed iteration.",
+                "annotation_sha256": "0f0d38188455bae83c50d9814b4f97005e5eb45ea513391c13c6e40a1ea35c5f"
+              },
+              {
+                "id": "restore-contract",
+                "type": "reasoning",
+                "iterations_including_anchor": 4,
+                "extra_repeats": 3,
+                "counts_by_native_event": {
+                  "84": 1,
+                  "104": 3
+                },
+                "reason": "Same already-examined field/contract alternatives reopened without new relevant observations. Plain flat issue/spec mappings are excluded; each complete restatement block is one observed iteration.",
+                "annotation_sha256": "8a8486169b127488ff1c6824784925692ccd224c60e8d232ddc3cc9d8ba56300"
+              },
+              {
+                "id": "route-normalization",
+                "type": "reasoning",
+                "iterations_including_anchor": 12,
+                "extra_repeats": 11,
+                "counts_by_native_event": {
+                  "84": 3,
+                  "104": 2,
+                  "111": 7
+                },
+                "reason": "Same already-examined field/contract alternatives reopened without new relevant observations. Plain flat issue/spec mappings are excluded; each complete restatement block is one observed iteration.",
+                "annotation_sha256": "b12361cfeacfebebe3e423b5a98c2ed0c0c8b0d95521b21228b69bf00fc83c9b"
+              }
+            ]
+          }
+        }
+      ],
+      "arithmetic_mean": {
+        "repeat_count": 3,
+        "score": 0.6264509766498585,
+        "review_work_seconds": 1400.9496932779948,
+        "review_work_seconds_estimated": false,
+        "review_work_seconds_min": 983.9153176269531,
+        "review_work_seconds_max": 2035.8352873535157,
+        "review_work_seconds_population_stdev": 456.2369784108223,
+        "tokens": {
+          "uncached_input": 2444021.3333333335,
+          "cached_input": 438124.3333333333,
+          "output": 80939
+        },
+        "engine_input_tokens_per_second": 3150.270128253066,
+        "engine_output_tokens_per_second": 131.12972820798205,
+        "task_input_tokens_per_second": 1713.3782290108181,
+        "task_output_tokens_per_second": 58.43567844928922,
+        "loop_observed_repeats": 3,
+        "loop_unknown_repeats": 0,
+        "formal_acceptance_repeats": 0
+      },
+      "loop_statistics": {
+        "loop_group_count_sum": 14,
+        "loop_group_count_mean": 4.666666666666667,
+        "total_loop_iterations_sum": 98,
+        "total_loop_iterations_mean": 32.666666666666664,
+        "total_loop_iterations_median": 25,
+        "total_loop_iterations_min": 22,
+        "total_loop_iterations_max": 51,
+        "extra_repeat_count_sum": 84
+      }
+    },
+    {
+      "id": "remote-baseline",
+      "host": "rtx3080ti",
+      "hardware": {
+        "gpu": "NVIDIA RTX 3080 Ti",
+        "vram_gib": 12,
+        "cpu": "Intel Core i9-13900",
+        "ram_gib": 64
+      },
+      "new_instances": 3,
+      "fixed_conditions": {
+        "model": "Q2_0",
+        "effort": "high",
+        "engine_overrides": {
+          "prefill": 8192,
+          "kv": "int8",
+          "kv-resident": 20480,
+          "pool-workers": 23,
+          "pcie-frac": 0.0,
+          "spec": 4,
+          "spec-min-p": 0.7,
+          "expert-cache": "auto",
+          "vram-reserve-mib": 700,
+          "adapt-every": 4,
+          "adapt-swaps": 96,
+          "adapt-decay": 0.7,
+          "mtp-window": 32768,
+          "pcie-mode": "auto",
+          "expert-cache-per-layer": false,
+          "expert-cache-cpu-order": false,
+          "pool-affinity": "auto",
+          "ple-io": "direct",
+          "ple-inflight": 256,
+          "no-capture": false,
+          "no-host-worker": false,
+          "no-ple-prefetch": false,
+          "no-prefill-borrow": false,
+          "no-split-rows": false,
+          "no-coupled-draft": false,
+          "shared-late": false,
+          "keep-canonical": false,
+          "no-token-graph": false,
+          "no-fused-gr": false,
+          "no-hit-poke": false,
+          "ple-sync-submit": false,
+          "no-spec-split": false,
+          "gr-fp32-activations": false,
+          "ple-row-cache": 1048576,
+          "short-read": 64,
+          "suffix-draft": 3,
+          "mtp-max-t": 0,
+          "prompt-cache": 6,
+          "prompt-cache-every": 16384,
+          "prompt-cache-root": 2048,
+          "max-context": 156584
+        },
+        "engine_environment": {
+          "STRATA_HC_SPLIT": null,
+          "STRATA_ADAPT_NOWAIT": null,
+          "STRATA_SSD_KEEPALIVE": null,
+          "STRATA_BATCH_TRACE": 1
+        },
+        "sampling": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "top_k": 20,
+          "max_tokens": 24576,
+          "reasoning_budget_tokens": 8192,
+          "min_p": 0.0,
+          "presence_penalty": 0.0,
+          "frequency_penalty": 0.0,
+          "repetition_penalty": 1.0,
+          "penalty_last_n": 64,
+          "reasoning_effort": "high"
+        },
+        "context_window": 156584,
+        "auto_compact_token_limit": 100000,
+        "startup_instructions": true,
+        "project_compaction_instructions": true,
+        "generation_policy": "first-delivery-only",
+        "loop_prevention_instructions": false,
+        "automatic_continuation": true,
+        "archive_http": true,
+        "host_id": "rtx3080ti",
+        "host_hardware": {
+          "gpu": "NVIDIA RTX 3080 Ti",
+          "vram_gib": 12,
+          "cpu": "Intel Core i9-13900",
+          "ram_gib": 64
+        },
+        "compaction_prompt_policy": {
+          "policy": "project-base-plus-supplements",
+          "source_sha256": [
+            "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+            "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+          ],
+          "rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912"
+        }
+      },
+      "effective_startup_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+      "observations": [
+        {
+          "instance_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1",
+          "host": "rtx3080ti",
+          "repetition": 1,
+          "score": 0.7850661895846136,
+          "score_before_format_penalty": 0.7850661895846136,
+          "review_work_seconds": 1958.4248188476563,
+          "review_work_seconds_estimated": false,
+          "tokens": {
+            "uncached_input": 2692582,
+            "cached_input": 509720,
+            "output": 74009
+          },
+          "engine_input_tokens_per_second": 2599.22310453144,
+          "engine_output_tokens_per_second": 81.64195091709165,
+          "task_input_tokens_per_second": 1374.8712608658238,
+          "task_output_tokens_per_second": 37.79006438630978,
+          "engine_input_seconds": 1035.918,
+          "engine_decode_seconds": 906.507,
+          "recorded_complete_stage_input_seconds": 1035.918,
+          "recorded_complete_stage_decode_seconds": 906.507,
+          "expected_report_judgments": 118,
+          "report_rows": 118,
+          "internal_stages": 84,
+          "internal_counter_coverage": {
+            "complete_instance_token_counts": true
+          },
+          "recorded_complete_stage_tokens": null,
+          "recorded_complete_stage_rates": null,
+          "report_sha256": "aa42818d5b23c52765ea71e792552b762541cf59ee30d2c81f30b8f76352fce3",
+          "native_session_sha256": "4ab22374f92b9865b925ab8412e65f2608be92c5118a07996b2d17ea63b97118",
+          "internal_log_sha256": "19baf9ea7544afe3151c9fb6563e47e1eab92b09ae8eaee4ac17e8cdf76b96b0",
+          "session_inspection_sha256": "250b2aec892c0925ae951b329212e9be8bbc3e5983098dcc188e206b9a92c63f",
+          "session_inspection_complete": true,
+          "formal_acceptance": false,
+          "loop_observed": true,
+          "loop_evidence": {
+            "reasoning_topic_episodes": [
+              {
+                "type": "reasoning",
+                "texts": [
+                  38,
+                  53
+                ],
+                "native_rows_0based": [
+                  80,
+                  81,
+                  114,
+                  115
+                ],
+                "topic": "token value removal versus key deletion",
+                "evidence": "Repeatedly settles and reopens the same alternatives, guesses planted expectations without new evidence; later probes are actual new work. Count one recurring topic, not each reconsideration."
+              },
+              {
+                "type": "reasoning",
+                "texts": [
+                  65,
+                  72,
+                  75,
+                  78,
+                  80,
+                  83,
+                  86,
+                  89,
+                  92,
+                  96,
+                  97,
+                  101,
+                  102,
+                  108
+                ],
+                "native_rows_0based": [
+                  155,
+                  156,
+                  176,
+                  177,
+                  183,
+                  184,
+                  190,
+                  191,
+                  197,
+                  198,
+                  207,
+                  208,
+                  217,
+                  218,
+                  224,
+                  225,
+                  231,
+                  232,
+                  241,
+                  242,
+                  248,
+                  249,
+                  258,
+                  259,
+                  265,
+                  266,
+                  286,
+                  287
+                ],
+                "topic": "requirement representation and completed-report redecision",
+                "evidence": "Repeatedly establishes checkbox/backtick stripping and completed coverage are valid, then reopens those doubts without a changed report. Exclude legitimate first checks, evidence reading and repair verification."
+              }
+            ],
+            "confirmed_reasoning_topic_episodes": 2,
+            "confirmed_tool_loop_episodes": 0
+          },
+          "original_completion": false,
+          "original_generation": "generated",
+          "original_format_diagnostics": 0,
+          "mechanical_correction_fields": 0,
+          "inspection_failures": {
+            "source_isolation": "fail",
+            "write_scope": "fail",
+            "timely_recording": "fail",
+            "formal_completion": "fenced ready; original complete false retained"
+          },
+          "semantic_anomalies": [
+            {
+              "report_row_1based": 8,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+                "line": 25
+              },
+              "original_result": "gap",
+              "classification": "false-gap",
+              "reason": "Undefined removes credential value; own-key presence alone does not contradict token redaction."
+            },
+            {
+              "report_row_1based": 16,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+                "line": 39
+              },
+              "original_result": "satisfied",
+              "classification": "unproven-satisfied",
+              "reason": "Provider.load return contract unavailable; delegation alone cannot prove returned allowed-region list."
+            },
+            {
+              "report_row_1based": 29,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+                "line": 55
+              },
+              "original_result": "gap",
+              "classification": "false-gap",
+              "reason": "Hasher receives serializer result unchanged; no contract requires explicit Buffer conversion."
+            },
+            {
+              "report_row_1based": 58,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+                "line": 55
+              },
+              "original_result": "gap",
+              "classification": "false-gap",
+              "reason": "Same unsupported explicit byte-conversion requirement."
+            },
+            {
+              "report_row_1based": 51,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+                "line": 45
+              },
+              "original_result": "gap",
+              "classification": "false-gap",
+              "reason": "Public import exists. Use of imported binding is a separate spec52 requirement."
+            },
+            {
+              "report_row_1based": 74,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 24
+              },
+              "original_result": "gap",
+              "classification": "unproven-gap",
+              "reason": "No renameTemporary cleanup contract establishes that temporary bytes survive failure."
+            },
+            {
+              "report_row_1based": 117,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 76
+              },
+              "original_result": "satisfied",
+              "classification": "missed-gap",
+              "reason": "Route-key trim and uppercase omit required NFKC normalization."
+            },
+            {
+              "report_row_1based": 98,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 54
+              },
+              "original_result": "gap",
+              "classification": "inaccurate-added-claim",
+              "reason": "Every predicate is computed by map; only the final result ignores later entries. Core association accepted, extra never checked claim rejected."
+            }
+          ],
+          "started_at": 1791340996.4282064,
+          "finished_at": 1791342954.8534937,
+          "review_work_intervals": [
+            {
+              "start": 1791340996.4282064,
+              "end": 1791342954.8530254
+            }
+          ],
+          "work_interval_uncertainty_bounds": [],
+          "loop_recount": {
+            "metric_version": 1,
+            "inspection_complete": true,
+            "loop_group_count": 3,
+            "total_loop_iterations": 30,
+            "extra_repeat_count": 27,
+            "native_session_sha256": "4ab22374f92b9865b925ab8412e65f2608be92c5118a07996b2d17ea63b97118",
+            "included_event_count": 293,
+            "exclusions": [],
+            "groups": [
+              {
+                "id": "pre-probe-token-removal",
+                "type": "reasoning",
+                "iterations_including_anchor": 7,
+                "extra_repeats": 6,
+                "counts_by_native_event": {
+                  "81": 7
+                },
+                "reason": "Same direct-driver value/key alternatives and seeded-grade guesses repeat; broader secret-field retention discovery is real new progress and excluded.",
+                "annotation_sha256": "d015ed6db26755f7cfbb396ee9c73d67a0d2316f8cb900c3b50171553f8b1d09"
+              },
+              {
+                "id": "post-probe-token-removal",
+                "type": "reasoning",
+                "iterations_including_anchor": 5,
+                "extra_repeats": 4,
+                "counts_by_native_event": {
+                  "115": 5
+                },
+                "reason": "Actual behavior probe settles own-key and erased-value observations. Repeatedly reopens the singular-token verdict without new relevant data; direct auth secret leakage remains separately confirmed.",
+                "annotation_sha256": "09e77fa33d9c78609b72d2eb0b9926824fe4341dde289d7a868ed7abf7bc2cd1"
+              },
+              {
+                "id": "post-delivery-reverification",
+                "type": "reasoning",
+                "iterations_including_anchor": 18,
+                "extra_repeats": 17,
+                "counts_by_native_event": {
+                  "156": 1,
+                  "177": 1,
+                  "184": 1,
+                  "191": 1,
+                  "198": 3,
+                  "208": 3,
+                  "218": 1,
+                  "225": 1,
+                  "232": 1,
+                  "242": 1,
+                  "249": 1,
+                  "259": 1,
+                  "266": 1,
+                  "287": 1
+                },
+                "reason": "Valid coverage and stripped requirement text repeatedly settled then reopened. Real first normalization, staging-set checker repair and notification request-shape corrections are not tool-loop iterations. Generic state recaps alone are not separate units.",
+                "annotation_sha256": "4ffd9276a934dde5e5f3841fcffa0cf6e4988fe641cbee8b7296f883b439aec4"
+              }
+            ]
+          }
+        },
+        {
+          "instance_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2",
+          "host": "rtx3080ti",
+          "repetition": 2,
+          "score": 0.7357263313270901,
+          "score_before_format_penalty": 0.7357263313270901,
+          "review_work_seconds": 3435.6194157714845,
+          "review_work_seconds_estimated": false,
+          "tokens": {
+            "uncached_input": 5543912,
+            "cached_input": 559797,
+            "output": 115470
+          },
+          "engine_input_tokens_per_second": 2617.995605437621,
+          "engine_output_tokens_per_second": 89.4384824813815,
+          "task_input_tokens_per_second": 1613.657198044181,
+          "task_output_tokens_per_second": 33.60965986800685,
+          "engine_input_seconds": 2117.617,
+          "engine_decode_seconds": 1291.055,
+          "recorded_complete_stage_input_seconds": 2117.617,
+          "recorded_complete_stage_decode_seconds": 1291.055,
+          "expected_report_judgments": 118,
+          "report_rows": 118,
+          "internal_stages": 119,
+          "internal_counter_coverage": {
+            "complete_instance_token_counts": true
+          },
+          "recorded_complete_stage_tokens": null,
+          "recorded_complete_stage_rates": null,
+          "report_sha256": "f122f2245da64d05a27a2c99e3af130a9ab78856145eef9fbb66fdc5ee69b8cc",
+          "native_session_sha256": "d4c617a64e201a32248e2a8bd980dc003a55fba02ab6484be09a54680c22df38",
+          "internal_log_sha256": "ee5a3aa2acc655623764e4d2dc0b8c97789db8978d2f88537a37fa07209116bb",
+          "session_inspection_sha256": "9e24f6ea8fa3f34a0cc19eae1c3f46a8a8ef78fd7a89c3e99e7dd354fadc30f6",
+          "session_inspection_complete": true,
+          "formal_acceptance": false,
+          "loop_observed": true,
+          "loop_evidence": [
+            {
+              "type": "reasoning",
+              "texts": [
+                33,
+                37,
+                85,
+                93,
+                102,
+                108,
+                110,
+                113,
+                116
+              ],
+              "topic": "Repeated token-removal vs key-presence decisions and planted-grade guesses without changed evidence."
+            },
+            {
+              "type": "reasoning",
+              "texts": [
+                85,
+                93,
+                95,
+                108,
+                110
+              ],
+              "topic": "Repeated public-import vs invocation judgment; recognizes literal constraint then reopens it with planted-count guesses."
+            },
+            {
+              "type": "reasoning",
+              "texts": [
+                65,
+                100,
+                102,
+                105,
+                108,
+                110,
+                113,
+                116,
+                118,
+                121
+              ],
+              "topic": "Evidence interval grammar and requirement recount repeatedly reopened after valid completion."
+            },
+            {
+              "type": "tool",
+              "texts": [
+                54,
+                55,
+                57,
+                58,
+                60,
+                61
+              ],
+              "native_command_rows_0based": [
+                126,
+                133,
+                140
+              ],
+              "topic": "Large probe rewrites preserve same malformed success/failure line and repeat the identical syntax error; then split calls and succeed."
+            },
+            {
+              "type": "tool-and-reasoning",
+              "texts": [
+                121,
+                122
+              ],
+              "native_command_rows_0based": [
+                337,
+                344,
+                351,
+                358,
+                365,
+                372,
+                379,
+                386,
+                393,
+                400,
+                409
+              ],
+              "topic": "Eleven identical successful final validations with identical reasoning/output and no intervening report writes; counts as one loop episode, not eleven observations."
+            }
+          ],
+          "original_completion": true,
+          "original_generation": "generated",
+          "original_format_diagnostics": 0,
+          "mechanical_correction_fields": 0,
+          "inspection_failures": {
+            "source_isolation": "fail",
+            "write_scope": "no extra file write observed",
+            "timely_recording": "fail",
+            "formal_completion": "plain ready and complete118 report; mandatory source/timeliness gates fail"
+          },
+          "semantic_anomalies": [
+            {
+              "report_row_1based": 16,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+                "line": 39
+              },
+              "original_result": "satisfied",
+              "classification": "unproven-satisfied",
+              "reason": "Provider.load return contract unavailable; literal delegation does not prove an allowed-region list."
+            },
+            {
+              "report_row_1based": 22,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+                "line": 45
+              },
+              "original_result": "satisfied",
+              "classification": "unproven-satisfied",
+              "reason": "No restore return contract establishes that delegated result confirms success."
+            },
+            {
+              "report_row_1based": 36,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+                "line": 24
+              },
+              "original_result": "satisfied",
+              "classification": "missed-gap",
+              "reason": "Auth redaction only changes token value; secret and other credentials survive."
+            },
+            {
+              "report_row_1based": 51,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+                "line": 45
+              },
+              "original_result": "gap",
+              "classification": "false-gap",
+              "reason": "Public import exists; required invocation through that binding is separate spec52."
+            },
+            {
+              "report_row_1based": 65,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 12
+              },
+              "original_result": "satisfied",
+              "classification": "missed-gap",
+              "reason": "Token-only redactor leaves other credentials under auth unchanged."
+            },
+            {
+              "report_row_1based": 74,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 24
+              },
+              "original_result": "gap",
+              "classification": "unproven-gap",
+              "reason": "No production renameTemporary failure-cleanup contract; mock does not establish actual retention."
+            },
+            {
+              "report_row_1based": 99,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 55
+              },
+              "original_result": "satisfied",
+              "classification": "unproven-satisfied",
+              "reason": "Adapter.restore return contract not available."
+            },
+            {
+              "report_row_1based": 117,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 76
+              },
+              "original_result": "satisfied",
+              "classification": "missed-gap",
+              "reason": "Route key normalization omits declared NFKC step."
+            }
+          ],
+          "started_at": 1791342980.7829807,
+          "finished_at": 1791346416.402669,
+          "review_work_intervals": [
+            {
+              "start": 1791342980.7829807,
+              "end": 1791346416.4023964
+            }
+          ],
+          "work_interval_uncertainty_bounds": [],
+          "loop_recount": {
+            "metric_version": 1,
+            "inspection_complete": true,
+            "loop_group_count": 6,
+            "total_loop_iterations": 65,
+            "extra_repeat_count": 59,
+            "native_session_sha256": "d4c617a64e201a32248e2a8bd980dc003a55fba02ab6484be09a54680c22df38",
+            "included_event_count": 421,
+            "exclusions": [],
+            "groups": [
+              {
+                "id": "pre-probe-token-removal",
+                "type": "reasoning",
+                "iterations_including_anchor": 12,
+                "extra_repeats": 11,
+                "counts_by_native_event": {
+                  "74": 4,
+                  "84": 8
+                },
+                "reason": "Explicit repeated decision/representation blocks without new relevant observations. Ordinary complete requirement mapping and genuine first fixes are excluded. A discovered auth.driver leak is real new information and not itself a no-progress iteration.",
+                "annotation_sha256": "0cd7d115ae70ea59281ece7e4f98fdcc667f75cc37b2410b8e86683c820267fc"
+              },
+              {
+                "id": "post-compaction-token-removal",
+                "type": "reasoning",
+                "iterations_including_anchor": 14,
+                "extra_repeats": 13,
+                "counts_by_native_event": {
+                  "226": 3,
+                  "246": 2,
+                  "274": 1,
+                  "281": 1,
+                  "291": 4,
+                  "301": 1,
+                  "322": 2
+                },
+                "reason": "Explicit repeated decision/representation blocks without new relevant observations. Ordinary complete requirement mapping and genuine first fixes are excluded. A discovered auth.driver leak is real new information and not itself a no-progress iteration.",
+                "annotation_sha256": "0c1b9db26c5355c12b916856233e462a31bd300b97e222fa9277af3b9d4ce0d5"
+              },
+              {
+                "id": "public-import-versus-invocation",
+                "type": "reasoning",
+                "iterations_including_anchor": 16,
+                "extra_repeats": 15,
+                "counts_by_native_event": {
+                  "226": 2,
+                  "246": 1,
+                  "253": 11,
+                  "291": 1,
+                  "301": 1
+                },
+                "reason": "Explicit repeated decision/representation blocks without new relevant observations. Ordinary complete requirement mapping and genuine first fixes are excluded. A discovered auth.driver leak is real new information and not itself a no-progress iteration.",
+                "annotation_sha256": "37c504a05f453bf7a45c335887e0b057043f45f43932f3fb73ead137e606f042"
+              },
+              {
+                "id": "single-lines-versus-range-grammar",
+                "type": "reasoning",
+                "iterations_including_anchor": 9,
+                "extra_repeats": 8,
+                "counts_by_native_event": {
+                  "153": 1,
+                  "267": 2,
+                  "274": 1,
+                  "281": 3,
+                  "291": 1,
+                  "301": 1
+                },
+                "reason": "Explicit repeated decision/representation blocks without new relevant observations. Ordinary complete requirement mapping and genuine first fixes are excluded. A discovered auth.driver leak is real new information and not itself a no-progress iteration.",
+                "annotation_sha256": "9dd13f3c1bcb8ca24c7c695e80102803523beba86b241988dd4255476da9d636"
+              },
+              {
+                "id": "unchanged-probe-syntax",
+                "type": "tool",
+                "iterations_including_anchor": 3,
+                "extra_repeats": 2,
+                "counts_by_native_event": {
+                  "126": 1,
+                  "133": 1,
+                  "140": 1
+                },
+                "reason": "Later split probes fix the failure and are excluded.",
+                "annotation_sha256": "c2bd544b39fcabbb9d9395577d7fc3ac412c310b61df2468529ee59d69110145"
+              },
+              {
+                "id": "identical-successful-final-validator",
+                "type": "tool-and-reasoning",
+                "iterations_including_anchor": 11,
+                "extra_repeats": 10,
+                "counts_by_native_event": {
+                  "337": 1,
+                  "344": 1,
+                  "351": 1,
+                  "358": 1,
+                  "365": 1,
+                  "372": 1,
+                  "379": 1,
+                  "386": 1,
+                  "393": 1,
+                  "400": 1,
+                  "409": 1
+                },
+                "reason": "Count each actual repeated action once; identical reasoning mirrors and paired results are not extra iterations. First validator is the group anchor; subsequent10 are extra repeats.",
+                "annotation_sha256": "d3304dcd8baa465420912ead9f6e8ceefc82841777161291018cfc3115e3d3d6"
+              }
+            ]
+          }
+        },
+        {
+          "instance_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3",
+          "host": "rtx3080ti",
+          "repetition": 3,
+          "score": 0.7862755002166136,
+          "score_before_format_penalty": 0.7862755002166136,
+          "review_work_seconds": 2641.8797685546874,
+          "review_work_seconds_estimated": false,
+          "tokens": {
+            "uncached_input": 3363345,
+            "cached_input": 369000,
+            "output": 117740
+          },
+          "engine_input_tokens_per_second": 2632.2155456180417,
+          "engine_output_tokens_per_second": 87.60690438242861,
+          "task_input_tokens_per_second": 1273.0878369381699,
+          "task_output_tokens_per_second": 44.56675182626228,
+          "engine_input_seconds": 1277.762,
+          "engine_decode_seconds": 1343.958,
+          "recorded_complete_stage_input_seconds": 1277.762,
+          "recorded_complete_stage_decode_seconds": 1343.958,
+          "expected_report_judgments": 118,
+          "report_rows": 118,
+          "internal_stages": 90,
+          "internal_counter_coverage": {
+            "complete_instance_token_counts": true
+          },
+          "recorded_complete_stage_tokens": null,
+          "recorded_complete_stage_rates": null,
+          "report_sha256": "67fd08db766dc9ac233e5a6dc13a0640b7ecc5cc4c701baadb586222695e6a1c",
+          "native_session_sha256": "12238d14ea004fcef72bc760224aca3b1eed8dc9d7602e2ac1873950dce4c3f3",
+          "internal_log_sha256": "a05e20022d1e6e6735423d35ebdaa2dc5b5959f8fb42809595cb63b81025aca8",
+          "session_inspection_sha256": "1d8f1d3d87de138d707e6025ac5dc55069527457ca68874dd798a40e40f17897",
+          "session_inspection_complete": true,
+          "formal_acceptance": false,
+          "loop_observed": true,
+          "loop_evidence": [
+            {
+              "type": "reasoning",
+              "texts": [
+                38,
+                43,
+                72,
+                86,
+                90,
+                110,
+                118
+              ],
+              "topic": "Repeated redaction key/value and normalization/adapter verdict redecisions, with guesses about planted defects and repeated full verdict recounting after settled source reading."
+            },
+            {
+              "type": "tool",
+              "texts": [
+                61,
+                62,
+                64,
+                66,
+                67
+              ],
+              "native_command_rows_0based": [
+                123,
+                133
+              ],
+              "topic": "Repeated index.runEligibleStops call retains already-confirmed missing export despite explicitly recognizing the error."
+            },
+            {
+              "type": "tool",
+              "texts": [
+                105,
+                106,
+                107,
+                108,
+                109,
+                112,
+                113,
+                114
+              ],
+              "native_command_rows_0based": [
+                242,
+                249,
+                263,
+                270
+              ],
+              "topic": "Repeated large scripts leave the same missing ndjson closing parenthesis unchanged;263 and270 exact identical commands repeat same error. Earlier distinct parenthesis fixes and final smaller successful script277 are recorded as progress separately."
+            }
+          ],
+          "original_completion": true,
+          "original_generation": "generated",
+          "original_format_diagnostics": 0,
+          "mechanical_correction_fields": 0,
+          "inspection_failures": {
+            "source_isolation": "pass",
+            "write_scope": "pass",
+            "timely_recording": "fail",
+            "formal_completion": "Plain ready and complete118 report, before cutoff; timely-recording and explicit-workdir obligations fail."
+          },
+          "semantic_anomalies": [
+            {
+              "row_1based": 8,
+              "classification": "false-gap",
+              "reason": "Direct driver token credential value is removed; undefined own-property presence alone does not contradict removal of credential."
+            },
+            {
+              "row_1based": 16,
+              "classification": "unproven-satisfied",
+              "reason": "Provider.load return contract unavailable."
+            },
+            {
+              "rows_1based": [
+                36,
+                65
+              ],
+              "classification": "wrong-defect",
+              "reason": "Only harmless undefined direct-token key presence asserted; actual broader credential retention not identified. Two expected-redaction candidate matches rejected."
+            },
+            {
+              "row_1based": 51,
+              "classification": "false-gap",
+              "reason": "Public import exists; invocation through binding belongs to separate stronger spec52."
+            },
+            {
+              "row_1based": 74,
+              "classification": "unproven-gap",
+              "reason": "Production renameTemporary cleanup contract unavailable; model asserts retained bytes. Mock clean-up counter not shown by successful executions."
+            },
+            {
+              "row_1based": 117,
+              "classification": "missed-gap",
+              "reason": "Route token omits declared NFKC normalization of route key."
+            }
+          ],
+          "started_at": 1791347208.1223078,
+          "finished_at": 1791349850.0029154,
+          "review_work_intervals": [
+            {
+              "start": 1791347208.1223078,
+              "end": 1791349850.0020764
+            }
+          ],
+          "work_interval_uncertainty_bounds": [],
+          "loop_recount": {
+            "metric_version": 1,
+            "inspection_complete": true,
+            "loop_group_count": 4,
+            "total_loop_iterations": 15,
+            "extra_repeat_count": 11,
+            "native_session_sha256": "12238d14ea004fcef72bc760224aca3b1eed8dc9d7602e2ac1873950dce4c3f3",
+            "included_event_count": 344,
+            "exclusions": [],
+            "groups": [
+              {
+                "id": "pre-probe-token-removal-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 9,
+                "extra_repeats": 8,
+                "counts_by_native_event": {
+                  "74": 6,
+                  "84": 3
+                },
+                "reason": "Repeated own-key versus erased-value judgment and seeded-grade guesses without new relevant observation. Runtime probes104/141 then supply real new evidence; ordinary later verdict construction/mapping is excluded.",
+                "annotation_sha256": "fb9ca8da577f57cb27b39ca11e8a2b2cb70a5342b466305dab3a8cc22aeadce7"
+              },
+              {
+                "id": "missing-public-export",
+                "type": "tool",
+                "iterations_including_anchor": 2,
+                "extra_repeats": 1,
+                "counts_by_native_event": {
+                  "123": 1,
+                  "133": 1
+                },
+                "reason": "Both actual scripts call index.runEligibleStops although its absence was already recognized; changed other probes do not repair that call. Earlier different executeAuthorizedPlan missing-export probe and later internal import repair are excluded.",
+                "annotation_sha256": "d59e9f5b9c24c4cbffcb94798decbc786aba6c531daf58caeb0b987ace1251cc"
+              },
+              {
+                "id": "ndjson-parenthesis-first-burst",
+                "type": "tool",
+                "iterations_including_anchor": 2,
+                "extra_repeats": 1,
+                "counts_by_native_event": {
+                  "242": 1,
+                  "249": 1
+                },
+                "reason": "Both scripts preserve the same missing outer close in ndjson/parseOk console.log. Earlier distinct blackout/window parentheses were actually repaired and are excluded.",
+                "annotation_sha256": "76e28a314d26f030f4e5d346a34c7deafee9001c12a10ba1e1cdbec0132bad81"
+              },
+              {
+                "id": "ndjson-parenthesis-second-burst",
+                "type": "tool",
+                "iterations_including_anchor": 2,
+                "extra_repeats": 1,
+                "counts_by_native_event": {
+                  "263": 1,
+                  "270": 1
+                },
+                "reason": "After real report rewrite257, both probes still retain that ndjson syntax error;263/270 commands byte-identical. Smaller successful277 probe is the repair and excluded.",
+                "annotation_sha256": "175d7617cee0ec27ef6fb14672a3b6c455c878a07e131c6f3674f30d128121e0"
+              }
+            ]
+          }
+        }
+      ],
+      "arithmetic_mean": {
+        "repeat_count": 3,
+        "score": 0.7690226737094391,
+        "review_work_seconds": 2678.641334391276,
+        "review_work_seconds_estimated": false,
+        "review_work_seconds_min": 1958.4248188476563,
+        "review_work_seconds_max": 3435.6194157714845,
+        "review_work_seconds_population_stdev": 603.6221383378326,
+        "tokens": {
+          "uncached_input": 3866613,
+          "cached_input": 479505.6666666667,
+          "output": 102406.33333333333
+        },
+        "engine_input_tokens_per_second": 2616.478085195701,
+        "engine_output_tokens_per_second": 86.22911259363391,
+        "task_input_tokens_per_second": 1420.5387652827249,
+        "task_output_tokens_per_second": 38.65549202685964,
+        "loop_observed_repeats": 3,
+        "loop_unknown_repeats": 0,
+        "formal_acceptance_repeats": 0
+      },
+      "loop_statistics": {
+        "loop_group_count_sum": 13,
+        "loop_group_count_mean": 4.333333333333333,
+        "total_loop_iterations_sum": 110,
+        "total_loop_iterations_mean": 36.666666666666664,
+        "total_loop_iterations_median": 30,
+        "total_loop_iterations_min": 15,
+        "total_loop_iterations_max": 65,
+        "extra_repeat_count_sum": 97
+      }
+    },
+    {
+      "id": "remote-official-sampling",
+      "host": "rtx3080ti",
+      "hardware": {
+        "gpu": "NVIDIA RTX 3080 Ti",
+        "vram_gib": 12,
+        "cpu": "Intel Core i9-13900",
+        "ram_gib": 64
+      },
+      "new_instances": 3,
+      "fixed_conditions": {
+        "model": "Q2_0",
+        "effort": "high",
+        "engine_overrides": {
+          "prefill": 8192,
+          "kv": "int8",
+          "kv-resident": 20480,
+          "pool-workers": 23,
+          "pcie-frac": 0.0,
+          "spec": 4,
+          "spec-min-p": 0.7,
+          "expert-cache": "auto",
+          "vram-reserve-mib": 700,
+          "adapt-every": 4,
+          "adapt-swaps": 96,
+          "adapt-decay": 0.7,
+          "mtp-window": 32768,
+          "pcie-mode": "auto",
+          "expert-cache-per-layer": false,
+          "expert-cache-cpu-order": false,
+          "pool-affinity": "auto",
+          "ple-io": "direct",
+          "ple-inflight": 256,
+          "no-capture": false,
+          "no-host-worker": false,
+          "no-ple-prefetch": false,
+          "no-prefill-borrow": false,
+          "no-split-rows": false,
+          "no-coupled-draft": false,
+          "shared-late": false,
+          "keep-canonical": false,
+          "no-token-graph": false,
+          "no-fused-gr": false,
+          "no-hit-poke": false,
+          "ple-sync-submit": false,
+          "no-spec-split": false,
+          "gr-fp32-activations": false,
+          "ple-row-cache": 1048576,
+          "short-read": 64,
+          "suffix-draft": 3,
+          "mtp-max-t": 0,
+          "prompt-cache": 6,
+          "prompt-cache-every": 16384,
+          "prompt-cache-root": 2048,
+          "max-context": 156584
+        },
+        "engine_environment": {
+          "STRATA_HC_SPLIT": null,
+          "STRATA_ADAPT_NOWAIT": null,
+          "STRATA_SSD_KEEPALIVE": null,
+          "STRATA_BATCH_TRACE": 1
+        },
+        "sampling": {
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 20,
+          "max_tokens": 24576,
+          "reasoning_budget_tokens": 8192,
+          "min_p": 0.0,
+          "presence_penalty": 0.0,
+          "frequency_penalty": 0.0,
+          "repetition_penalty": 1.0,
+          "penalty_last_n": 64,
+          "reasoning_effort": "high"
+        },
+        "context_window": 156584,
+        "auto_compact_token_limit": 100000,
+        "startup_instructions": true,
+        "project_compaction_instructions": true,
+        "generation_policy": "first-delivery-only",
+        "loop_prevention_instructions": false,
+        "automatic_continuation": true,
+        "archive_http": true,
+        "host_id": "rtx3080ti",
+        "host_hardware": {
+          "gpu": "NVIDIA RTX 3080 Ti",
+          "vram_gib": 12,
+          "cpu": "Intel Core i9-13900",
+          "ram_gib": 64
+        },
+        "compaction_prompt_policy": {
+          "policy": "project-base-plus-supplements",
+          "source_sha256": [
+            "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+            "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+          ],
+          "rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912"
+        }
+      },
+      "effective_startup_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+      "observations": [
+        {
+          "instance_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1",
+          "host": "rtx3080ti",
+          "repetition": 1,
+          "score": 0.4991909403339134,
+          "score_before_format_penalty": 0.4991909403339134,
+          "review_work_seconds": 3430.78189453125,
+          "review_work_seconds_estimated": true,
+          "tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": null
+          },
+          "engine_input_tokens_per_second": null,
+          "engine_output_tokens_per_second": null,
+          "task_input_tokens_per_second": null,
+          "task_output_tokens_per_second": null,
+          "engine_input_seconds": null,
+          "engine_decode_seconds": null,
+          "recorded_complete_stage_input_seconds": 1705.512,
+          "recorded_complete_stage_decode_seconds": 1673.837,
+          "expected_report_judgments": 118,
+          "report_rows": 118,
+          "internal_stages": 137,
+          "internal_counter_coverage": {
+            "status": "incomplete-or-unconfirmed",
+            "complete_instance_token_counts": false,
+            "reason": "The pre-reboot service log ends after thinking budget reached and a newly formatted sampling pipe header; no terminal physical-stage counters for that pending generation were preserved. Its actual execution/counters cannot be established, so recorded completed-stage sums are lower bounds, not complete instance consumption. Do not fill from API usage or rerun solely to repair statistics.",
+            "pre_reboot_server_sha256": "e0bc40db792d6e000d251b89e1822957e434d7de21e3bbbd140e6cd46f487a46",
+            "pre_reboot_engine_sha256": "dfcbbcd5490ee4a428ef564540d6e7e4f2eaf57c7ab24b85c95cb4969a485d23",
+            "pending_pipeline_header": "[native-sampling-trace] temperature=1.0 top_p=0.95 top_k=20",
+            "model_case_replay_required": false,
+            "scoring_and_loop_checks": "Continue unchanged; this receipt concerns token and speed completeness only.",
+            "checked_at": 1791353778.6788082
+          },
+          "recorded_complete_stage_tokens": {
+            "uncached_input": 4441160,
+            "cached_input": 896090,
+            "output": 134365
+          },
+          "recorded_complete_stage_rates": {
+            "engine_input_seconds": 1705.512,
+            "engine_decode_seconds": 1673.837,
+            "engine_input_tokens_per_second": 2604.0039589284625,
+            "engine_output_tokens_per_second": 80.27364671709373,
+            "unit": "token/s",
+            "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+          },
+          "report_sha256": "58931a7571f5dce2768a1ef7fc6bfa85ac9c3a1ccefe8d7bbe739659b0ec4ec5",
+          "native_session_sha256": "087933a26e34e3f648db4f0e727b093ba542efbb4451fcbbdbd25ca55ea8e348",
+          "internal_log_sha256": "7691f9ec29626c7ac60ac747f5fbba6840ecadf90435b047c8e45390c0e9270c",
+          "session_inspection_sha256": "04ed097dfdd06eaf1c3c4d469c3b7fc868c36a5f6230be4da7e1c126645b5011",
+          "session_inspection_complete": true,
+          "formal_acceptance": false,
+          "loop_observed": true,
+          "loop_evidence": [
+            {
+              "type": "reasoning",
+              "native_rows_0based": [
+                73,
+                93,
+                138,
+                224,
+                254,
+                264,
+                271,
+                278,
+                312
+              ],
+              "topic": "Repeated settling/reopening token key-value, restore and checksum judgments with guesses about planted expected labels; new successful source/probe observations kept distinct."
+            },
+            {
+              "type": "tool",
+              "native_command_rows_0based": [
+                112,
+                119
+              ],
+              "topic": "Repeated Node script retains the already reported manifestEvent missing parenthesis; preceding freeze repair and subsequent import/paren fixes are genuine progress."
+            },
+            {
+              "type": "tool-after-empty-compaction",
+              "native_command_rows_0based": [
+                140,
+                150,
+                247
+              ],
+              "topic": "Already failed test-directory invocation140 is repaired by explicit tests150, then invalid directory invocation247 repeats after an empty own summary; source rereads alone are not blanket-classified as loops."
+            },
+            {
+              "type": "repeated-completion-checks",
+              "native_command_rows_0based": [
+                407,
+                414,
+                421,
+                428,
+                438,
+                445,
+                446,
+                455,
+                462,
+                463
+              ],
+              "topic": "After original validator407 reports zero problems and no further report edits, repeated covered requirement/source inspections and completion declarations continue until55minute reminder; preserve the separate earlier real correction383/397."
+            }
+          ],
+          "original_completion": true,
+          "original_generation": "generated",
+          "original_format_diagnostics": 0,
+          "mechanical_correction_fields": 0,
+          "inspection_failures": {
+            "source_isolation": "fail",
+            "write_scope": "pass, only bound report explicitly written",
+            "timely_recording": "fail",
+            "formal_completion": "Plain ready481/482 and original generation passed; mandatory source/timeliness checks failed."
+          },
+          "semantic_anomalies": [
+            {
+              "row_1based": 8,
+              "classification": "false-gap",
+              "reason": "Undefined own-property presence does not retain the driver credential value; no removal-of-key contract given."
+            },
+            {
+              "row_1based": 16,
+              "classification": "unproven-satisfied",
+              "reason": "Provider.load return contract unavailable; call alone does not establish allowed-region list."
+            },
+            {
+              "rows_1based": [
+                36,
+                65
+              ],
+              "classification": "wrong-defect",
+              "reason": "Undefined direct auth.token key is harmless; broader nested credentials retention not identified by the finding."
+            },
+            {
+              "row_1based": 74,
+              "classification": "unproven-gap",
+              "reason": "Production renameTemporary failure-cleanup contract unavailable; mock does not prove real temporary bytes persist."
+            },
+            {
+              "row_1based": 99,
+              "classification": "unproven-satisfied",
+              "reason": "No restore-result contract; row22 correctly marks same delegation uncertain for partial-write confirmation."
+            },
+            {
+              "row_1based": 117,
+              "classification": "invalid-literal-example",
+              "reason": "ASCII Abc-with-fullwidth-A placeholder is not the actual executed fullwidth-A input; the underlying missing NFKC defect is real and separately verified by native256/259 and matches the candidate."
+            }
+          ],
+          "started_at": 1791349888.825672,
+          "finished_at": 1791354949.4707615,
+          "review_work_intervals": [
+            {
+              "start": 1791349888.825672,
+              "end": 1791351213.8666437
+            },
+            {
+              "start": 1791352843.729679,
+              "end": 1791354949.470602
+            }
+          ],
+          "work_interval_uncertainty_bounds": [
+            [
+              1791351188.36402,
+              1791351213.8666437
+            ],
+            [
+              1791352826.3355744,
+              1791352843.729679
+            ]
+          ],
+          "infrastructure_recovery": {
+            "phase_start": 1791349888.825672,
+            "estimated_shutdown": 1791351213.8666437,
+            "restored_at": 1791352843.729679,
+            "excluded_downtime_seconds": 1629.863035440445,
+            "shutdown_uncertainty_seconds": 25.502623558044434,
+            "effective_sample_count_unchanged": true,
+            "no_deadline_reset": true,
+            "basis": "Boot bounds shutdown after the last persisted engine write; restore receipt bounds model recovery. Original review phase and pre-reboot work remain cumulative.",
+            "driver_error": "Old Machine queue.get timeout elapsed while its entire driver process was SIGSTOP paused; original process exited after SIGCONT. Native thread had already completed under the recovery observer; no Reviewer rerun."
+          },
+          "loop_recount": {
+            "metric_version": 1,
+            "inspection_complete": true,
+            "loop_group_count": 11,
+            "total_loop_iterations": 67,
+            "extra_repeat_count": 56,
+            "native_session_sha256": "087933a26e34e3f648db4f0e727b093ba542efbb4451fcbbdbd25ca55ea8e348",
+            "included_event_count": 486,
+            "exclusions": [
+              "Reboot recovery, required draft restoration, real evidence corrections, new probes, malformed empty compaction and successful notification are not loop iterations."
+            ],
+            "groups": [
+              {
+                "id": "pre-probe-token-removal-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 14,
+                "extra_repeats": 13,
+                "counts_by_native_event": {
+                  "74": 5,
+                  "94": 9
+                },
+                "reason": "Same value/key removal alternatives repeatedly reconsidered before concrete probe. New auth nesting interpretation and flat mappings excluded.",
+                "annotation_sha256": "e733a10ff72eb45bc571aba6ee3cd90b712f5e992d41e73d35f81bea1d165f96"
+              },
+              {
+                "id": "pre-probe-restore-contract-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 5,
+                "extra_repeats": 4,
+                "counts_by_native_event": {
+                  "74": 3,
+                  "94": 2
+                },
+                "reason": "Repeated missing contract versus delegation decisions, not ordinary mapping to separate requirements.",
+                "annotation_sha256": "d87383b43cc8ad2e16cb2cb4c282501a690a4595d757b9d8b897264923758087"
+              },
+              {
+                "id": "post-probe-token-removal-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 5,
+                "extra_repeats": 4,
+                "counts_by_native_event": {
+                  "139": 5
+                },
+                "reason": "Unchanged actual keys/JSON probe; returns repeatedly to same settled alternatives.",
+                "annotation_sha256": "7377d7053ffb5d9ec91de982930efcb1c6f3b93d0d2fa0e626ce3f906b9084b9"
+              },
+              {
+                "id": "post-probe-restore-contract-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 4,
+                "extra_repeats": 3,
+                "counts_by_native_event": {
+                  "139": 4
+                },
+                "reason": "Repeated same contract uncertainty despite mock delegation result providing no production contract.",
+                "annotation_sha256": "378fc619467393dc19c276bd381c580a83cd4e925b88a6b19166e5f946a20450"
+              },
+              {
+                "id": "post-recovery-token-removal-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 10,
+                "extra_repeats": 9,
+                "counts_by_native_event": {
+                  "225": 2,
+                  "255": 2,
+                  "265": 6
+                },
+                "reason": "Recovered task repeatedly revisits direct-driver key/value distinction; new concrete probes and broader nesting discovery excluded.",
+                "annotation_sha256": "fcf29dc12929e0d54bc6282f231aaf953ca4931f6276fec36929ce8116d03aef"
+              },
+              {
+                "id": "post-recovery-restore-contract-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 7,
+                "extra_repeats": 6,
+                "counts_by_native_event": {
+                  "225": 2,
+                  "265": 2,
+                  "272": 1,
+                  "279": 2
+                },
+                "reason": "Production contract remains unavailable; repeated confirmation/reporting alternatives after recovery. Necessary draft reconstruction excluded.",
+                "annotation_sha256": "3d938f64808117730c7cc226ee0eb65783323dbf80d8c8ca4ba9cfe6d6c2d37f"
+              },
+              {
+                "id": "route-normalization-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 6,
+                "extra_repeats": 5,
+                "counts_by_native_event": {
+                  "255": 2,
+                  "272": 2,
+                  "313": 2
+                },
+                "reason": "Repeated same normalized destination/route-key phrase interpretation and grading speculation; actual fullwidth behavior probe excluded. First313 span is only a pass anchor; subsequent explicit alternatives are separate recurring decisions.",
+                "annotation_sha256": "aa3ffdc5abf954de999a37e0262f28abfebb1b0e6760fe4ed7dd220e1612cb97"
+              },
+              {
+                "id": "checksum-string-versus-bytes-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 4,
+                "extra_repeats": 3,
+                "counts_by_native_event": {
+                  "265": 3,
+                  "279": 1
+                },
+                "reason": "Hasher receives unchanged serializer string; repeated literal bytes versus semantic content interpretations without new hasher contract.",
+                "annotation_sha256": "389624a74721ddd937e92e36ca14465721e9fdebd5a36a4cd00b6b162a8d1f63"
+              },
+              {
+                "id": "same-malformed-manifest-script",
+                "type": "tool",
+                "iterations_including_anchor": 2,
+                "extra_repeats": 1,
+                "counts_by_native_event": {
+                  "112": 1,
+                  "119": 1
+                },
+                "reason": "Same missing manifestEvent parenthesis; different earlier freeze shape and later import repairs excluded.",
+                "annotation_sha256": "ae4113aef0c509ad761585f52a07b654090c0f75f952dc0cdcb7fad150b61774"
+              },
+              {
+                "id": "invalid-test-directory-recurrence",
+                "type": "tool",
+                "iterations_including_anchor": 2,
+                "extra_repeats": 1,
+                "counts_by_native_event": {
+                  "140": 1,
+                  "247": 1
+                },
+                "reason": "Same invalid node test-directory invocation recurs after a successful explicit-files repair; successful150 is not a counted iteration.",
+                "annotation_sha256": "601d828ddb946f993984d16df7e0b0de3023751537222264877520b6078204f2"
+              },
+              {
+                "id": "post-delivery-reverification",
+                "type": "reasoning",
+                "iterations_including_anchor": 8,
+                "extra_repeats": 7,
+                "counts_by_native_event": {
+                  "406": 1,
+                  "413": 1,
+                  "420": 1,
+                  "427": 1,
+                  "437": 1,
+                  "444": 1,
+                  "454": 1,
+                  "461": 1
+                },
+                "reason": "After final evidence correction and successful validator, no report edits; repeats finished coverage/verdict/evidence checks. Paired checks not separately counted.",
+                "annotation_sha256": "09f55e9c1c2b7604a9544489e4da454362ed950847c8fab3e6ff4b5c7146cfbe"
+              }
+            ]
+          },
+          "bounded_measurement": {
+            "recorded_complete_stage_tokens": {
+              "uncached_input": 4441160,
+              "cached_input": 896090,
+              "output": 134365
+            },
+            "recorded_complete_stage_count": 137,
+            "tokens_interval": {
+              "uncached_input": [
+                4441160,
+                4552211
+              ],
+              "cached_input": [
+                896090,
+                1007141
+              ],
+              "output": [
+                134365,
+                150731
+              ]
+            },
+            "engine_input_seconds_interval": [
+              1705.512,
+              1739.512
+            ],
+            "engine_decode_seconds_interval": [
+              1673.837,
+              1707.837
+            ],
+            "review_work_seconds_interval": [
+              3405.2792709732057,
+              3448.175999250412
+            ],
+            "engine_input_tokens_per_second_interval": [
+              2553.1068483574704,
+              2669.116957253892
+            ],
+            "engine_output_tokens_per_second_interval": [
+              78.67554104987771,
+              90.05118180563579
+            ],
+            "task_input_tokens_per_second_interval": [
+              1287.9736999983322,
+              1336.8098877537902
+            ],
+            "task_output_tokens_per_second_interval": [
+              38.96697849216779,
+              44.26391729008532
+            ],
+            "bound_type": "evidence-bounded marginal envelope, not a confidence interval",
+            "repetition": 1,
+            "known_engine_log_sha256": "7691f9ec29626c7ac60ac747f5fbba6840ecadf90435b047c8e45390c0e9270c",
+            "evidence": {
+              "pending_stage": "Second physical generation after the8194-token thinking stage; wrap18 is injected, not generated.",
+              "prompt_tokens_upper_bound": 111051,
+              "remaining_generated_token_budget_upper_bound": 16366,
+              "prompt_construction": "At most102839+8194+18 with default auto tool choice; exact offline BPE wrap count. Output reserve uses at least8192 proven service thinking tokens rather than assuming n equals the8194 physical DONE count.",
+              "unrecorded_physical_stages": 1,
+              "time_bound": "Last preserved server file timestamp to first native HTTP stream-timeout diagnostic, rounded upward; conservative interval includes network waiting.",
+              "last_preserved_server_timestamp": 1791351188.36402,
+              "first_timeout_timestamp": 1791351222.3386803,
+              "time_clock_assumption": "Retained Windows and native UTC timestamps are comparable; this is an evidence-based envelope, not a certified physical maximum or statistical confidence interval.",
+              "source_sha256": {
+                "pre_reboot_server": "e0bc40db792d6e000d251b89e1822957e434d7de21e3bbbd140e6cd46f487a46",
+                "http_archive": "6ab1ca82b134fd6c631d40994704f5097503ebf1d9dbe26916f821dcf59251ae"
+              }
+            },
+            "missing_tokens_intervals": {
+              "uncached_input": [
+                0,
+                111051
+              ],
+              "cached_input": [
+                0,
+                111051
+              ],
+              "output": [
+                0,
+                16366
+              ]
+            },
+            "missing_total_processing_seconds_interval": [
+              0,
+              34
+            ],
+            "joint_constraints": {
+              "missing_uncached_plus_cached_at_most": 111051,
+              "missing_input_plus_decode_seconds_at_most": 34
+            },
+            "original_full_counts_exact": false,
+            "nominal_review_work_seconds": 3430.78189453125,
+            "display_value_policy": "Show recorded-stage calculation plus full-scope possible range; no unsupported midpoint estimate, zero-fill, API substitution, or new model replay."
+          }
+        },
+        {
+          "instance_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2",
+          "host": "rtx3080ti",
+          "repetition": 2,
+          "score": 0.7822352897618718,
+          "score_before_format_penalty": 0.8691503219576354,
+          "review_work_seconds": 3607.403384765625,
+          "review_work_seconds_estimated": true,
+          "tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": null
+          },
+          "engine_input_tokens_per_second": null,
+          "engine_output_tokens_per_second": null,
+          "task_input_tokens_per_second": null,
+          "task_output_tokens_per_second": null,
+          "engine_input_seconds": null,
+          "engine_decode_seconds": null,
+          "recorded_complete_stage_input_seconds": 1558.273,
+          "recorded_complete_stage_decode_seconds": 2014.181,
+          "expected_report_judgments": 118,
+          "report_rows": 118,
+          "internal_stages": 122,
+          "internal_counter_coverage": {
+            "complete_instance_token_counts": false,
+            "reason": "Final low-effort guardian request started at16:46:19.405 and was aborted at16:46:29.468. No terminal internal counter for that request is available; physical execution/counters cannot be proven complete. Capture occurred before model stop. Exact post-capture tail was recovered, but it starts directly with the next model startup and contains no additional previous-instance counter. Do not assume zero or substitute API usage.",
+            "guardian_thread_id": "01a1154c-6f2f-78c0-8faf-b27bb84aff39",
+            "guardian_turn_id": "01a11553-da88-76f2-b5ff-0ca6cc548937",
+            "guardian_native_sha256": "3893bc403f558d6494327b04e993eb71e6d18e24d096b2bbff49049455497397",
+            "guardian_request_started_utc": "2026-10-07T07:46:19.405Z",
+            "guardian_request_aborted_utc": "2026-10-07T07:46:29.468Z",
+            "recorded_complete_stages": 122,
+            "recorded_counter_scope": "Completed internal stages only; lower bound for this interrupted instance",
+            "api_usage_used_as_consumption": false,
+            "post_capture_recovery": "Exact old capture found once; post-capture first line is next [strata] startup. No additional counter before it.",
+            "model_requests_for_this_audit": 0,
+            "updated_at": 1791360190.2547116
+          },
+          "recorded_complete_stage_tokens": {
+            "uncached_input": 4070668,
+            "cached_input": 1096041,
+            "output": 163988
+          },
+          "recorded_complete_stage_rates": {
+            "engine_input_seconds": 1558.273,
+            "engine_decode_seconds": 2014.181,
+            "engine_input_tokens_per_second": 2612.294508086837,
+            "engine_output_tokens_per_second": 81.41671478382528
+          },
+          "report_sha256": "bb441331d4a3a9ccd4bf9e2f07dd27a7562e27e24e9a08859784fbf100ba2fa4",
+          "native_session_sha256": "4a57a5b38e364b798bb85ef34d8b953eeadca0b536f84b54563da0bb547f0367",
+          "internal_log_sha256": "cf09efcbca1d510fd3a345a9cb3ee6488deae47bf95d86662a46542266c0e664",
+          "session_inspection_sha256": "ec0ff558b38a98cba08ef0049b236e2e69b5f616b7f991a8f9627d9ff4862453",
+          "session_inspection_complete": true,
+          "formal_acceptance": false,
+          "loop_observed": true,
+          "loop_evidence": [
+            {
+              "type": "reasoning",
+              "native_rows_0based": [
+                90,
+                97,
+                104,
+                111,
+                290,
+                300,
+                307,
+                314,
+                328,
+                360,
+                482,
+                491
+              ],
+              "topic": "Repeatedly settles and reopens redaction key/value, adapter confirmation, scope and formatting judgments; repeated guesses about planted expected answers without reading hidden answers. Later genuine source/probe observations and corrections kept distinct."
+            },
+            {
+              "type": "post-compaction-state-loop",
+              "native_rows_0based": [
+                355,
+                357,
+                360,
+                375,
+                381,
+                382,
+                383,
+                387,
+                391,
+                407,
+                409,
+                412,
+                416,
+                420,
+                433,
+                435,
+                438,
+                444
+              ],
+              "topic": "After118-row coverage validation and own accurate second summary saying ready-only, reinterprets retained historical continuation empty-file warning as current, then reopens reconstruction/schema checking despite actual118 bytes. False59-missing validator and subsequent genuine repairs retained. No blanket classification of each new validator as an unchanged tool loop."
+            }
+          ],
+          "original_completion": false,
+          "original_generation": "failed-review-syntax",
+          "original_format_diagnostics": 80,
+          "mechanical_correction_fields": 85,
+          "inspection_failures": {
+            "source_isolation": "pass; only own complete root observations, including input.json with authorizingIssueIds only. No successful environment/ARW/hidden-answer/historical-result access observed.",
+            "write_scope": "pass; only bound report explicitly written by Reviewer",
+            "timely_recording": "fail",
+            "formal_completion": "failed;60-minute hard interruption, no final ready, original report syntax rejected. Complete118 draft does not erase final-status failure."
+          },
+          "semantic_anomalies": [
+            {
+              "row_1based": 8,
+              "classification": "false-gap",
+              "reason": "Token value is erased; own-key retention alone is not a demonstrated credential-retention defect."
+            },
+            {
+              "row_1based": 16,
+              "classification": "unproven-satisfied",
+              "reason": "provider.load outcome/allowed-region-list contract is unavailable."
+            },
+            {
+              "row_1based": 51,
+              "classification": "unjustified-strengthening",
+              "reason": "Issue criterion requires a public-entry import, which exists; invocation is a separate spec52 criterion."
+            },
+            {
+              "row_1based": 74,
+              "classification": "unproven-gap",
+              "reason": "Production rename adapter cleanup contract not provided; forwarding code alone does not prove temporary bytes remain."
+            },
+            {
+              "row_1based": 99,
+              "classification": "unproven-satisfied",
+              "reason": "Adapter.restore return/confirmation contract unavailable, unlike the limited store.put contract. The earlier issue45 uncertain judgment is justified."
+            },
+            {
+              "row_1based": 117,
+              "classification": "missed-normalization-gap",
+              "reason": "formatRouteToken omits the declared NFKC route-key normalizer; ASCII uppercase examples do not prove full normalizer use."
+            },
+            {
+              "row_1based": 59,
+              "classification": "invalid-literal-example",
+              "reason": "coalescePackages(groupByDestination(...)) passes a Map to a function using .map and would throw. The per-group duplicate-retention core is real and was separately confirmed using an array of groups; this extra claim is not accepted."
+            }
+          ],
+          "started_at": 1791355581.0129445,
+          "finished_at": 1791359189.5747085,
+          "review_work_intervals": [
+            {
+              "start": 1791355581.0129445,
+              "end": 1791356584.649055
+            },
+            {
+              "start": 1791356584.855,
+              "end": 1791356649.8863833
+            },
+            {
+              "start": 1791356650.061,
+              "end": 1791356652.4492576
+            },
+            {
+              "start": 1791356652.617,
+              "end": 1791356742.2001324
+            },
+            {
+              "start": 1791356742.384,
+              "end": 1791356745.2898421
+            },
+            {
+              "start": 1791356745.46,
+              "end": 1791358692.970343
+            },
+            {
+              "start": 1791358693.226,
+              "end": 1791359189.5743163
+            }
+          ],
+          "work_interval_uncertainty_bounds": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "loop_recount": {
+            "metric_version": 1,
+            "inspection_complete": true,
+            "loop_group_count": 7,
+            "total_loop_iterations": 64,
+            "extra_repeat_count": 57,
+            "native_session_sha256": "4a57a5b38e364b798bb85ef34d8b953eeadca0b536f84b54563da0bb547f0367",
+            "included_event_count": 517,
+            "exclusions": [
+              "Six native early-end followups and necessary actual empty-file restoration, new auth.driver probe, actual validator scope/JSON.parse fixes, final console.test exception and hard timeout excluded. Terminal state remains interrupted, no invented ready."
+            ],
+            "groups": [
+              {
+                "id": "early-token-removal-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 14,
+                "extra_repeats": 13,
+                "counts_by_native_event": {
+                  "91": 11,
+                  "98": 3
+                },
+                "reason": "Repeated value/key deletion and grading alternatives before later thread reconstruction; deeper credential example is separate evidence, not a counted recurrence.",
+                "annotation_sha256": "f02f985c97ff9be5058df965576e28cf611a95650a4709934acc8ea810828397"
+              },
+              {
+                "id": "early-restore-contract-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 8,
+                "extra_repeats": 7,
+                "counts_by_native_event": {
+                  "91": 1,
+                  "98": 2,
+                  "105": 3,
+                  "112": 2
+                },
+                "reason": "Same unavailable contract and confirmation/reporting interpretation repeatedly reopened; flat mapping to separate requirements excluded.",
+                "annotation_sha256": "995d88f4182e8cc76617995676ff6a6d4dc84caa745a02f4569a3ec93679eede"
+              },
+              {
+                "id": "post-compaction-token-removal-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 18,
+                "extra_repeats": 17,
+                "counts_by_native_event": {
+                  "301": 4,
+                  "308": 5,
+                  "315": 2,
+                  "361": 5,
+                  "483": 2
+                },
+                "reason": "Direct driver token value/key alternatives recur over unchanged behavior. Actual auth.driver leak discovered in315 is excluded; ordinary findings paraphrases in492 excluded.",
+                "annotation_sha256": "d1a6cc6ba107b1285709b63d5f782589ee150e75fc05464f15d3302b8d826f27"
+              },
+              {
+                "id": "post-compaction-restore-contract-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 4,
+                "extra_repeats": 3,
+                "counts_by_native_event": {
+                  "291": 2,
+                  "315": 1,
+                  "483": 1
+                },
+                "reason": "Same raw delegation and missing partial-restore contract reconsidered; normal source-to-row mappings elsewhere excluded.",
+                "annotation_sha256": "b88007261e1385684ad3d65eb95d579ee30cf663487c4042c27422f2338e930a"
+              },
+              {
+                "id": "evidence-region-grammar-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 16,
+                "extra_repeats": 15,
+                "counts_by_native_event": {
+                  "105": 1,
+                  "112": 1,
+                  "301": 4,
+                  "308": 3,
+                  "315": 1,
+                  "322": 1,
+                  "329": 2,
+                  "361": 2,
+                  "483": 1
+                },
+                "reason": "Repeated integer versus nested closed-range grammar interpretation, not actual normalization writes or different requirements. Existing mechanical corrections retained as progress boundaries.",
+                "annotation_sha256": "fb785f8bf38aa392a8e0377feee3b028fd6e3ebbeb505c53b645eb994eb2ad4d"
+              },
+              {
+                "id": "stale-empty-report-warning-recurrence",
+                "type": "reasoning",
+                "iterations_including_anchor": 2,
+                "extra_repeats": 1,
+                "counts_by_native_event": {
+                  "382": 1,
+                  "452": 1
+                },
+                "reason": "Historical empty-file warning is reused as present state even after intervening observation of unchanged118-row draft. Actual empty file/restoration at461 is real harness action and excluded.",
+                "annotation_sha256": "9bbd22647cf7f98afc505659f71a813e033028e498a8b5e5463cfcf5bf94d4da"
+              },
+              {
+                "id": "unchanged-report-validator-repetition",
+                "type": "reasoning",
+                "iterations_including_anchor": 2,
+                "extra_repeats": 1,
+                "counts_by_native_event": {
+                  "399": 1,
+                  "406": 1
+                },
+                "reason": "Same118-row file already observed, validation goal repeated before genuine scope/parser checker fixes; fixes413/425/432 are excluded.",
+                "annotation_sha256": "28725581fb18474ddf525a3814e666ae207da94d91df14c09d5249129c47ebe2"
+              }
+            ]
+          },
+          "bounded_measurement": {
+            "recorded_complete_stage_tokens": {
+              "uncached_input": 4070668,
+              "cached_input": 1096041,
+              "output": 163988
+            },
+            "recorded_complete_stage_count": 122,
+            "tokens_interval": {
+              "uncached_input": [
+                4070668,
+                4219052
+              ],
+              "cached_input": [
+                1096041,
+                1244425
+              ],
+              "output": [
+                163988,
+                172180
+              ]
+            },
+            "engine_input_seconds_interval": [
+              1558.273,
+              1568.3359999637603
+            ],
+            "engine_decode_seconds_interval": [
+              2014.181,
+              2024.2439999637604
+            ],
+            "review_work_seconds_interval": [
+              3607.3723853435517,
+              3608.561371644974
+            ],
+            "engine_input_tokens_per_second_interval": [
+              2595.5331001099644,
+              2707.5178739540506
+            ],
+            "engine_output_tokens_per_second_interval": [
+              81.01197286638164,
+              85.48387657315803
+            ],
+            "task_input_tokens_per_second_interval": [
+              1128.0584090895961,
+              1169.5637570275946
+            ],
+            "task_output_tokens_per_second_interval": [
+              45.44414882023901,
+              47.73003216955165
+            ],
+            "bound_type": "evidence-bounded marginal envelope, not a confidence interval",
+            "repetition": 2,
+            "known_engine_log_sha256": "cf09efcbca1d510fd3a345a9cb3ee6488deae47bf95d86662a46542266c0e664",
+            "evidence": {
+              "pending_stage": "Unclosed final low guardian generation; preceding122 DONE counters retained; no later previous-instance DONE found in stopped-engine tail.",
+              "unrecorded_physical_stages": 1,
+              "prompt_bound": "156584 capacity -8192 request output reserve -8 service slack; cache partition unknown.",
+              "output_bound": "Native low budget8192; no delivered guardian output establishes a positive lower bound.",
+              "time_bound": "Native guardian task_started to turn_aborted,10.063 seconds, includes request/prefill/decode overhead.",
+              "review_time_bound": "Each estimated wake lies between previous terminal receipt and native task_started; exact original start/end kept.",
+              "source_sha256": {
+                "guardian_session": "3893bc403f558d6494327b04e993eb71e6d18e24d096b2bbff49049455497397",
+                "reviewer_session": "4a57a5b38e364b798bb85ef34d8b953eeadca0b536f84b54563da0bb547f0367",
+                "counter_coverage": "7a17fddb7c8923cb9438b7995e0b03aa35297e78756d9292146ba2898a90e6d1"
+              }
+            },
+            "missing_tokens_intervals": {
+              "uncached_input": [
+                0,
+                148384
+              ],
+              "cached_input": [
+                0,
+                148384
+              ],
+              "output": [
+                0,
+                8192
+              ]
+            },
+            "missing_total_processing_seconds_interval": [
+              0,
+              10.062999963760376
+            ],
+            "joint_constraints": {
+              "missing_uncached_plus_cached_at_most": 148384,
+              "missing_input_plus_decode_seconds_at_most": 10.062999963760376
+            },
+            "original_full_counts_exact": false,
+            "nominal_review_work_seconds": 3607.403384765625,
+            "display_value_policy": "Show recorded-stage calculation plus full-scope possible range; no unsupported midpoint estimate, zero-fill, API substitution, or new model replay."
+          }
+        },
+        {
+          "instance_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3",
+          "host": "rtx3080ti",
+          "repetition": 3,
+          "score": 0.7266901192253377,
+          "score_before_format_penalty": 0.7266901192253377,
+          "review_work_seconds": 1702.112296875,
+          "review_work_seconds_estimated": false,
+          "tokens": {
+            "uncached_input": 1821419,
+            "cached_input": 425694,
+            "output": 79074
+          },
+          "engine_input_tokens_per_second": 2606.1224781799974,
+          "engine_output_tokens_per_second": 79.74931721820374,
+          "task_input_tokens_per_second": 1070.0933207192272,
+          "task_output_tokens_per_second": 46.45639429617906,
+          "engine_input_seconds": 698.9,
+          "engine_decode_seconds": 991.532,
+          "recorded_complete_stage_input_seconds": 698.9,
+          "recorded_complete_stage_decode_seconds": 991.532,
+          "expected_report_judgments": 118,
+          "report_rows": 118,
+          "internal_stages": 65,
+          "internal_counter_coverage": {
+            "complete_instance_token_counts": true,
+            "basis": "normal ready; exact post-stop tail audited empty"
+          },
+          "recorded_complete_stage_tokens": null,
+          "recorded_complete_stage_rates": null,
+          "report_sha256": "a02d0d2a8c36bb4268fa7a4cc5177ef0e291f741e59e6c85dd6d4a1325235f86",
+          "native_session_sha256": "956fb69627fef60509d9a9a4e7949ce18b2289a954f37b47e43a7c783739f481",
+          "internal_log_sha256": "da3f362d429e36709924aa139337398fcdc6f0ba37b52c0f041efef7216811da",
+          "session_inspection_sha256": "4f27a602b00822d6dca3a318fec5eb91564b7b2c1745cd144fed91863b394c91",
+          "session_inspection_complete": true,
+          "formal_acceptance": false,
+          "loop_observed": true,
+          "loop_evidence": [
+            {
+              "type": "reasoning",
+              "native_rows_0based": [
+                74,
+                81,
+                88,
+                107,
+                114
+              ],
+              "topic": "Repeatedly reopens settled redaction key/value, adapter confirmation and full verdict/coverage planning without new relevant observations; genuine probes93/102 remain separate."
+            },
+            {
+              "type": "tool",
+              "native_rows_0based": [
+                159,
+                161,
+                166,
+                168
+              ],
+              "topic": "Second Node validator retains the same missing brace and same syntax failure; later Python repair173/175 is genuine progress."
+            },
+            {
+              "type": "post-compaction-rechecking",
+              "native_rows_0based": [
+                135,
+                180,
+                187,
+                194,
+                195,
+                204,
+                205,
+                214,
+                215,
+                224,
+                228,
+                231,
+                236
+              ],
+              "topic": "Own summary says ready-only but repeated complete report/source judgments and integrity checks continue without report changes; finally inspects forbidden run identity."
+            }
+          ],
+          "original_completion": true,
+          "original_generation": "generated",
+          "original_format_diagnostics": 0,
+          "mechanical_correction_fields": 0,
+          "inspection_failures": {
+            "source_isolation": "fail; successful run identity lookup ARW_BACKGROUND_AGENT_RUN_ID at231/233/234. No hidden answers, foreign-instance results or harness implementation read observed. TZ lookup93 is part of the UTC behavior probe, separately retained.",
+            "write_scope": "fail; native83 writes candidate.diff.txt beyond the sole bound report path and reads it back.",
+            "timely_recording": "fail",
+            "formal_completion": "Normal exact ready238/239 and terminal242; original report generation passes. Mandatory source/write/timeliness/command-fidelity requirements fail."
+          },
+          "semantic_anomalies": [
+            {
+              "row_1based": 1,
+              "classification": "extra-false-claim",
+              "reason": "Public entry also omits policy/runtime; core executor-export gap remains true."
+            },
+            {
+              "row_1based": 16,
+              "classification": "unproven-satisfied",
+              "reason": "A configuration allowedRegions array does not prove the provider.load contract."
+            },
+            {
+              "row_1based": 36,
+              "classification": "missed-nested-credential-gap",
+              "reason": "Direct auth.token probe does not test credentials below auth.driver."
+            },
+            {
+              "row_1based": 65,
+              "classification": "missed-nested-credential-gap",
+              "reason": "Same broader authentication-data removal gap as row36."
+            },
+            {
+              "row_1based": 51,
+              "classification": "unjustified-strengthening",
+              "reason": "Issue demands public import, which exists; spec52 separately demands actual invocation."
+            },
+            {
+              "row_1based": 74,
+              "classification": "unproven-gap",
+              "reason": "Production rename cleanup contract is unavailable."
+            },
+            {
+              "row_1based": 99,
+              "classification": "unproven-satisfied",
+              "reason": "Adapter.restore result contract absent; earlier issue45 uncertainty is justified."
+            },
+            {
+              "row_1based": 117,
+              "classification": "missed-normalization-gap",
+              "reason": "Route token bypasses NFKC normalizer; ASCII probe cannot prove full normalization."
+            }
+          ],
+          "started_at": 1791359216.6960948,
+          "finished_at": 1791360918.8085136,
+          "review_work_intervals": [
+            {
+              "start": 1791359216.6960948,
+              "end": 1791360918.8083916
+            }
+          ],
+          "work_interval_uncertainty_bounds": [],
+          "loop_recount": {
+            "metric_version": 1,
+            "inspection_complete": true,
+            "loop_group_count": 9,
+            "total_loop_iterations": 49,
+            "extra_repeat_count": 40,
+            "native_session_sha256": "956fb69627fef60509d9a9a4e7949ce18b2289a954f37b47e43a7c783739f481",
+            "included_event_count": 243,
+            "exclusions": [
+              "New behavioral probes, test directory repair, Python validator repair, paired native mirrors, flat per-requirement mapping and final environment/run-id lookup excluded."
+            ],
+            "groups": [
+              {
+                "id": "pre-probe-token-removal-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 13,
+                "extra_repeats": 12,
+                "counts_by_native_event": {
+                  "75": 5,
+                  "82": 3,
+                  "89": 5
+                },
+                "reason": "Repeated value/key removal decisions with unchanged staged facts; ordinary flat verdict mappings excluded. Later probe establishes concrete output and starts a separate phase.",
+                "annotation_sha256": "c9e0fcaf1c607bf5fd597d8a223e2ac19f7b0d4c75d8a4ee2c1c4ab765bce2c7"
+              },
+              {
+                "id": "pre-probe-restore-contract-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 7,
+                "extra_repeats": 6,
+                "counts_by_native_event": {
+                  "75": 2,
+                  "82": 2,
+                  "89": 3
+                },
+                "reason": "Repeated gap/satisfied/uncertain alternatives over the same unavailable production adapter contract; no new contract established.",
+                "annotation_sha256": "103a0fa4dc8400f225754f4dad561baed285c096d6d63bfc998c30c9eb89363d"
+              },
+              {
+                "id": "post-probe-token-removal-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 3,
+                "extra_repeats": 2,
+                "counts_by_native_event": {
+                  "108": 2,
+                  "115": 1
+                },
+                "reason": "Actual probe result is now fixed; repeated same key/value/serialization justification without changing evidence.",
+                "annotation_sha256": "45e4f8557c54da9d3656e43d55f428f61c252489c992ad95029b52193eb4a5d0"
+              },
+              {
+                "id": "post-probe-restore-contract-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 3,
+                "extra_repeats": 2,
+                "counts_by_native_event": {
+                  "108": 1,
+                  "115": 2
+                },
+                "reason": "Reopens pass-through versus success confirmation after the rule and missing contract were already identified.",
+                "annotation_sha256": "ae324312dda1b7d6c51a5c4deb183ae6d2e2cae04665c0ac62e4133552a2ac17"
+              },
+              {
+                "id": "same-missing-brace-validator",
+                "type": "tool",
+                "iterations_including_anchor": 2,
+                "extra_repeats": 1,
+                "counts_by_native_event": {
+                  "159": 1,
+                  "166": 1
+                },
+                "reason": "Same missing brace error repeated; Python replacement at173 is real recovery and excluded.",
+                "annotation_sha256": "4de164627b28ac8084dab148cc36cec16afee54366a09e0baa8024ed1cfc39a6"
+              },
+              {
+                "id": "post-delivery-reverification",
+                "type": "reasoning",
+                "iterations_including_anchor": 8,
+                "extra_repeats": 7,
+                "counts_by_native_event": {
+                  "179": 1,
+                  "186": 1,
+                  "193": 1,
+                  "203": 1,
+                  "213": 1,
+                  "223": 1,
+                  "230": 1,
+                  "237": 1
+                },
+                "reason": "Complete report and unchanged judgments repeatedly checked after validation; paired tool calls are not separately counted. Different requirements inside a single pass are not individual loops.",
+                "annotation_sha256": "43e62519cc2daf2c83af1972ac4c4b7e5c8122a01dd077971fe7876c41d4729f"
+              },
+              {
+                "id": "route-normalization-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 3,
+                "extra_repeats": 2,
+                "counts_by_native_event": {
+                  "75": 3
+                },
+                "reason": "Three explicit same-phrase decisions inside one reasoning item, not separate source requirements.",
+                "annotation_sha256": "4494a629183141cdbcabe576fa3a691d2fea272e15e3fa1acafcf9e6262d8469"
+              },
+              {
+                "id": "pre-probe-cross-group-dedup-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 7,
+                "extra_repeats": 6,
+                "counts_by_native_event": {
+                  "82": 4,
+                  "89": 3
+                },
+                "reason": "Same per-group versus complete-manifest dedup interpretation repeatedly reverses without new evidence. Later concrete duplicate probe ends this phase.",
+                "annotation_sha256": "5a5a8e280ce765b20874d57376d2dd53bfb669c322b008bac06db5d08687c14b"
+              },
+              {
+                "id": "post-probe-cross-group-dedup-redecision",
+                "type": "reasoning",
+                "iterations_including_anchor": 3,
+                "extra_repeats": 2,
+                "counts_by_native_event": {
+                  "108": 3
+                },
+                "reason": "Concrete duplicate result is already known, yet gap/uncertain and grade guesses recur; flat report mappings excluded.",
+                "annotation_sha256": "a83d14ecc204c86292e4b6bf2e6f3c44d9a7f6cb43e016b472f2d0941b62023c"
+              }
+            ]
+          }
+        }
+      ],
+      "arithmetic_mean": {
+        "repeat_count": 3,
+        "score": 0.6693721164403743,
+        "review_work_seconds": 2913.432525390625,
+        "review_work_seconds_estimated": true,
+        "review_work_seconds_min": 1702.112296875,
+        "review_work_seconds_max": 3607.403384765625,
+        "review_work_seconds_population_stdev": 859.5624118164282,
+        "tokens": {
+          "uncached_input": null,
+          "cached_input": null,
+          "output": null
+        },
+        "engine_input_tokens_per_second": null,
+        "engine_output_tokens_per_second": null,
+        "task_input_tokens_per_second": null,
+        "task_output_tokens_per_second": null,
+        "loop_observed_repeats": 3,
+        "loop_unknown_repeats": 0,
+        "formal_acceptance_repeats": 0
+      },
+      "loop_statistics": {
+        "loop_group_count_sum": 27,
+        "loop_group_count_mean": 9,
+        "total_loop_iterations_sum": 180,
+        "total_loop_iterations_mean": 60,
+        "total_loop_iterations_median": 64,
+        "total_loop_iterations_min": 49,
+        "total_loop_iterations_max": 67,
+        "extra_repeat_count_sum": 153
+      },
+      "bounded_arithmetic_mean": {
+        "engine_input_tokens_per_second_interval": [
+          2584.9208088824776,
+          2660.9191031293135
+        ],
+        "engine_output_tokens_per_second_interval": [
+          79.81227704482103,
+          85.09479186566585
+        ],
+        "task_input_tokens_per_second_interval": [
+          1162.0418099357184,
+          1192.1556551668707
+        ],
+        "task_output_tokens_per_second_interval": [
+          43.622507202861954,
+          46.15011458527201
+        ],
+        "review_work_seconds_interval": [
+          2904.921317730586,
+          2919.616555923462
+        ],
+        "tokens_interval": {
+          "uncached_input": [
+            3444415.6666666665,
+            3530894
+          ],
+          "cached_input": [
+            805941.6666666666,
+            892420
+          ],
+          "output": [
+            125809,
+            133995
+          ]
+        }
+      }
+    }
+  ],
+  "same_host_contrasts": [
+    {
+      "baseline": "local-baseline",
+      "candidate": "local-loop-prompt",
+      "host": "local",
+      "score_difference": -0.18127873226004798,
+      "review_work_seconds_difference": -165.65589265950507,
+      "review_work_time_ratio": 0.894258073540334,
+      "loop_repeat_difference": 1,
+      "mean_loop_group_count_difference": 3.0,
+      "mean_total_loop_iterations_difference": -104.0,
+      "median_total_loop_iterations_difference": 8
+    },
+    {
+      "baseline": "remote-baseline",
+      "candidate": "remote-official-sampling",
+      "host": "rtx3080ti",
+      "score_difference": -0.0996505572690648,
+      "review_work_seconds_difference": 234.79119099934906,
+      "review_work_time_ratio": 1.0876530903875958,
+      "loop_repeat_difference": 0,
+      "mean_loop_group_count_difference": 4.666666666666667,
+      "mean_total_loop_iterations_difference": 23.333333333333336,
+      "median_total_loop_iterations_difference": 34
+    }
+  ],
+  "new_instance_totals": {
+    "tokens": {
+      "uncached_input": null,
+      "cached_input": null,
+      "output": null
+    },
+    "recorded_complete_stage_token_lower_bounds": {
+      "uncached_input": 29265150,
+      "cached_input": 5170715,
+      "output": 927463
+    },
+    "recorded_complete_internal_stages": 827,
+    "complete_instance_counter_coverage": false,
+    "review_work_seconds": 20979.070659179688,
+    "simultaneous_host_seconds_estimated": 3935.3489162921906,
+    "active_execution_union_seconds_estimated": 17043.72174334526,
+    "work_boundary_uncertainty_seconds": null,
+    "estimate_source": "Persisted work-state intervals; teardown, inter-instance waits and the within-instance reboot gap are excluded. Recovery boundary bounds are preserved per instance; no invented total uncertainty.",
+    "tokens_interval": {
+      "uncached_input": [
+        29265150,
+        29524585
+      ],
+      "cached_input": [
+        5170715,
+        5430150
+      ],
+      "output": [
+        927463,
+        952021
+      ]
+    }
+  },
+  "limits": [
+    "Three repetitions per condition; conclusions apply to this frozen Commit Audit scenario and versions.",
+    "All scores remain diagnostic; Main mandatory failures and original formatting failures are retained.",
+    "Same-host contrasts only; do not combine hardware means to attribute parameter effects.",
+    "Cross-host baseline speed/cache observations describe these actual executions, whose token workloads and hardware prefill/CPU settings differ; they do not isolate VRAM or GPU causal contributions.",
+    "Old local baseline reused exactly; its failed/replacement/Main-caused extra work remains in baseline.json and is excluded from new-nine consumption.",
+    "Necessary compact statistics permit recalculation after temporary detail deletion; native sessions, request replay and raw-log checks then cannot be repeated.",
+    "Two incomplete remote sampling counters remain exactly unknown; recorded-stage values plus evidence-bounded full-scope token/four-rate envelopes and arithmetic means are supplied. Bounds are marginal, not statistical confidence intervals or midpoint estimates; joint input/cache and phase-time caps retained. First missing-stage time cap assumes Windows/native UTC clocks comparable.",
+    "Semantic loop boundaries use disclosed manual topic/phase units, including within-item restarts; not every check/doubt qualifies. New evidence and real fixes split episodes. The local baseline literal379 run dominates its arithmetic mean. Three repetitions do not establish universal treatment effects.",
+    "Loop-only time is unmeasured because internal processing phases are not aligned to reasoning subspans; no wall-clock gap proxy is substituted."
+  ],
+  "loop_measurement_coverage": {
+    "instance_incidence_complete": true,
+    "uniform_episode_counts_complete": true,
+    "per_episode_repeat_counts_complete": true,
+    "per_episode_work_durations_complete": false,
+    "raw_evidence_retained": true,
+    "count_policy": "Each confirmed loop group retains every observable iteration including its first anchor; primary total is the sum of group iterations. Extra repeats exclude the first anchor of each group. Tools count actual calls; reasoning counts discernible recurring sentence or verdict-pass units, including multiple units inside one reasoning item. Native event mirrors, source-to-report mapping across different requirements, genuine fixes/new relevant evidence, injected wrap text and Main-caused historical restoration are excluded. All groups found in the complete SHA-bound native inspection are reconsidered; no selection of the largest group only.",
+    "annotation_dataset_sha256": "d3f532d7f0828acbc2c40c491035f7e99ea0f69131e441195987202e83147ca2",
+    "interpretation": "All12 retained first-delivery observations classified and counted under the disclosed manual topic/phase policy. Literal/tool counts are discrete; semantic reasoning units depend on segmentation judgment. No per-loop processing timestamps, so loop-only duration is not identified. Counts do not replace the original full Main inspection.",
+    "followup": "User approved keeping existing sampling and loop-prevention prompt. Next resource calibration research/candidate plan; new model measurements require concrete first-run scope and budget approval."
+  },
+  "maintenance_decision": {
+    "status": "user-approved",
+    "selected_on": "2026-10-07",
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20
+    },
+    "loop_prevention_instructions": true,
+    "prompt_effectiveness_verified": false,
+    "adopt_official_sampling_candidate": false,
+    "deployment_change_required": false,
+    "next_work": "RTX3080Ti resource calibration research and bounded candidate plan; no new model run authorized by this decision."
+  },
+  "external_feedback": {
+    "issue_url": "https://github.com/Niko1221/Strata/issues/710",
+    "comment_url": "https://github.com/Niko1221/Strata/issues/710#issuecomment-6036302364",
+    "comment_id": 6036302364,
+    "author": "Traveller23",
+    "addressed_to": "BlueKingMuch",
+    "created_at": "2026-10-07T10:46:52Z",
+    "body_sha256": "23a51df1526d00dff139928826bf1fd2c417e06f69bd5cd85a24610a27e56edd",
+    "readback_body_verified": true,
+    "scope": "Published same-host results, loop counts, duration, sampled-output token bounds, failures and maintenance decision; no raw private sessions or credentials."
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "version": "0.1.37",
+  "type": "wsl-recovery",
+  "results": {
+    "linux_acceptance": {
+      "evidence_sha256": "90ac935f35df7f8645158398f05cd4b3343958e7a7c2f7cc421d79d01a2a0cf5",
+      "statistics": {
+        "scope": "Real persisted Linux history, temporary non-forwarding HTTP failure endpoint, then actual Windows model continuation. Production endpoints are unchanged.",
+        "cases": [
+          {
+            "http_status": 503,
+            "summary_requests": 1,
+            "elapsed_s": 0.013682685999810928,
+            "checks": {
+              "actual_injected_failure": true,
+              "summary_preserved": true,
+              "actual_model_completed": true,
+              "exact_ticket": true,
+              "exact_path": true
+            },
+            "pass": true
+          },
+          {
+            "http_status": 504,
+            "summary_requests": 1,
+            "elapsed_s": 0.01198981699963042,
+            "checks": {
+              "actual_injected_failure": true,
+              "summary_preserved": true,
+              "actual_model_completed": true,
+              "exact_ticket": true,
+              "exact_path": true
+            },
+            "pass": true
+          }
+        ],
+        "oversized_single_input": {
+          "http_status": 400,
+          "body": "{\"error\": {\"type\": \"invalid_request_error\", \"message\": \"prompt (260012 tokens) + max tokens (32) exceeds the context (250000); requests are never truncated\"}}",
+          "pass": true
+        },
+        "recovery_pass": true,
+        "bad_summary": {
+          "scope": "Deliberately fabricated summary in a fork; not an observed natural model error. The error endpoint never forwards requests and the original thread remains intact.",
+          "fabricated_summary": "Audit ticket: 伪造-000000. Final report: 错误/假报告.md. No repair or tests completed. The once-only action remains pending and should be repeated.",
+          "manual_compaction_status": "completed",
+          "corruption_visible": true,
+          "side_effect_not_repeated": true,
+          "summary_semantically_validated": false
+        },
+        "limitations": [
+          "Injected semantic corruption is a controlled counterexample, not a naturally observed model error."
+        ],
+        "version": "0.1.37"
+      }
+    }
+  }
+}

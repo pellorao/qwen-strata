@@ -1,0 +1,455 @@
+{
+  "status": "closed-baseline-diagnostic-only",
+  "completed_on": "2026-10-07",
+  "purpose": "Issue710/728 loop baseline, without only Progress and loop prevention block; no prompt/parameter candidates run.",
+  "versions": {
+    "strata": "0.1.40.1",
+    "engine": "0.1.40",
+    "codex": "0.160.1"
+  },
+  "hardware": {
+    "host": "local",
+    "cpu": "i9-14900K",
+    "gpu": "RTX4070Ti SUPER",
+    "vram_gib": 16,
+    "ram_gib": 64
+  },
+  "fixed_conditions": {
+    "model": "Q2_0",
+    "effort": "high",
+    "engine_overrides": {
+      "prefill": 16384,
+      "kv": "int8",
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pcie-frac": 0.0,
+      "spec": 4,
+      "spec-min-p": 0.7,
+      "expert-cache": "auto",
+      "vram-reserve-mib": 700,
+      "adapt-every": 4,
+      "adapt-swaps": 96,
+      "adapt-decay": 0.7,
+      "mtp-window": 32768,
+      "pcie-mode": "auto",
+      "expert-cache-per-layer": false,
+      "expert-cache-cpu-order": false,
+      "pool-affinity": "auto",
+      "ple-io": "direct",
+      "ple-inflight": 256,
+      "no-capture": false,
+      "no-host-worker": false,
+      "no-ple-prefetch": false,
+      "no-prefill-borrow": false,
+      "no-split-rows": false,
+      "no-coupled-draft": false,
+      "shared-late": false,
+      "keep-canonical": false,
+      "no-token-graph": false,
+      "no-fused-gr": false,
+      "no-hit-poke": false,
+      "ple-sync-submit": false,
+      "no-spec-split": false,
+      "gr-fp32-activations": false,
+      "ple-row-cache": 1048576,
+      "short-read": 64,
+      "suffix-draft": 3,
+      "mtp-max-t": 0,
+      "prompt-cache": 6,
+      "prompt-cache-every": 16384,
+      "prompt-cache-root": 2048,
+      "max-context": 156584
+    },
+    "engine_environment": {
+      "STRATA_HC_SPLIT": null,
+      "STRATA_ADAPT_NOWAIT": null,
+      "STRATA_SSD_KEEPALIVE": null,
+      "STRATA_BATCH_TRACE": 1
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 24576,
+      "reasoning_budget_tokens": 8192,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "high"
+    },
+    "context_window": 156584,
+    "auto_compact_token_limit": 100000,
+    "startup_instructions": true,
+    "project_compaction_instructions": true,
+    "generation_policy": "first-delivery-only",
+    "loop_prevention_instructions": false,
+    "automatic_continuation": true,
+    "archive_http": true
+  },
+  "prompt_binding": {
+    "native_catalog_sha256": "e5060f7ea4546b9fd5a86ba455389729a98d8709756e600b64868364493e71d9",
+    "native_base_instructions_sha256": "35bd51b5f577cb7b24cd5f4629e49e37cb724ab57754ce6f8f202001635bab8a",
+    "startup_source_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "effective_startup_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+    "compact_base_sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+    "codex_compact_supplement_sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07",
+    "combined_compact_file_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912"
+  },
+  "observations": [
+    {
+      "repetition": 1,
+      "instance_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-1",
+      "host": "local",
+      "score": 0.8081430630382209,
+      "review_work_seconds": 1086.5544431152343,
+      "work_time_source": "driver active-work clock; corroborated by native turn boundaries",
+      "work_time_estimated": true,
+      "work_time_uncertainty_seconds": 2,
+      "internal_stages": 53,
+      "tokens": {
+        "uncached_input": 2045864,
+        "cached_input": 302299,
+        "output": 53671
+      },
+      "engine_input_seconds": 660.317,
+      "engine_decode_seconds": 415.744,
+      "engine_input_tokens_per_second": 3098.3058137228027,
+      "engine_output_tokens_per_second": 129.0962707820197,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 1086.5544431152343,
+      "task_input_tokens_per_second": 1882.8913847467709,
+      "task_output_tokens_per_second": 49.39559203873959,
+      "report_rows": 118,
+      "report_sha256": "adf7adfc8a278e81c2e2988e036d57ef858f0966cb0c8f9d7c42ba5a6b46ca1d",
+      "native_session_sha256": "d6fbddc5b2782dc87aa3f18b01042173ec240951c9b3858b862707d090eb486c",
+      "thread_id": "01a1127a-fd70-78e3-b230-42d64f5cfe4c",
+      "internal_log_sha256": "5dffee977209e6ac6410f0d5a05b390296e11c38810bd6b4cbcf4f5ff0f7a1b6",
+      "scoring_sha256": "f9e1991a31ae5c9575e3157db53eed6996050653c819293a09bb5d2f102a198d",
+      "session_inspection_sha256": "a5407239915a44c52f4202c3092f81a1e499f558cab2a40ed58d144094268ae1",
+      "session_inspection_complete": true,
+      "formal_acceptance": false,
+      "loop_observed": false,
+      "confirmed_loop_episodes_lower_bound": 0,
+      "reasoning_loop_episodes_lower_bound": 0,
+      "tool_loop_episodes_lower_bound": 0,
+      "mandatory_failures": [
+        "timely finding writes",
+        "functional default file-only sandbox"
+      ],
+      "finding_checks": {
+        "checked": 118,
+        "total": 118,
+        "result_label_disagreements": 6
+      }
+    },
+    {
+      "repetition": 2,
+      "instance_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2",
+      "host": "local",
+      "score": 0.8224953691750466,
+      "review_work_seconds": 2168.8608803710936,
+      "work_time_source": "driver active-work clock; corroborated by native turn boundaries",
+      "work_time_estimated": true,
+      "work_time_uncertainty_seconds": 2,
+      "internal_stages": 117,
+      "tokens": {
+        "uncached_input": 4154510,
+        "cached_input": 602258,
+        "output": 108843
+      },
+      "engine_input_seconds": 1319.418,
+      "engine_decode_seconds": 827.39,
+      "engine_input_tokens_per_second": 3148.744370624018,
+      "engine_output_tokens_per_second": 131.549813268229,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 2168.8608803710936,
+      "task_input_tokens_per_second": 1915.5262735381905,
+      "task_output_tokens_per_second": 50.18440831547337,
+      "report_rows": 118,
+      "report_sha256": "3f496d55b3b239741c614f019f749f6b3b2b59d7cf5b4ed72380e64d05a50033",
+      "native_session_sha256": "d92508d67435b8081b8cb40dd7223d70c54de30cae96ca2700b65bf271ebf2e4",
+      "thread_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+      "internal_log_sha256": "909827177ec234cbb8dcc97c93b612f101c5db07afd372c5f9dddc921ded0cd5",
+      "scoring_sha256": "807273961e20682a3b6dc1ca577c7c39887b002bf45ced9e9b16908e9b7eeb37",
+      "session_inspection_sha256": "6d8256b7c7035e88a1a65a2b927e9adcdad33564c2a1573edfd031843ea3a5d1",
+      "session_inspection_complete": true,
+      "formal_acceptance": false,
+      "loop_observed": true,
+      "confirmed_loop_episodes_lower_bound": 2,
+      "reasoning_loop_episodes_lower_bound": 1,
+      "tool_loop_episodes_lower_bound": 1,
+      "mandatory_failures": [
+        "timely finding writes",
+        "functional default file-only sandbox",
+        "external writes"
+      ],
+      "finding_checks": {
+        "checked": 118,
+        "total": 118,
+        "result_label_disagreements": 5
+      }
+    },
+    {
+      "repetition": 3,
+      "instance_id": "default-631a7d5e-9946-4a0e-bd4c-63ce72a54e37-instance-3",
+      "host": "local",
+      "score": 0.7925506945164519,
+      "review_work_seconds": 1444.401434326172,
+      "work_time_source": "driver active-work clock; corroborated by native turn boundaries",
+      "work_time_estimated": true,
+      "work_time_uncertainty_seconds": 2,
+      "internal_stages": 79,
+      "tokens": {
+        "uncached_input": 2611063,
+        "cached_input": 345578,
+        "output": 76251
+      },
+      "engine_input_seconds": 833.913,
+      "engine_decode_seconds": 595.279,
+      "engine_input_tokens_per_second": 3131.097608503525,
+      "engine_output_tokens_per_second": 128.09287745746113,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 1444.401434326172,
+      "task_input_tokens_per_second": 1807.7128268832603,
+      "task_output_tokens_per_second": 52.79072575524814,
+      "report_rows": 118,
+      "report_sha256": "a2e8310f82df689f83188dcd9bdbd5679ea276d1b9d98b73ea1f21cd8bb0305a",
+      "native_session_sha256": "239c12d989cbbec7b9cb89c3cc0cea017cc04f549161032416f41698da285d98",
+      "thread_id": "01a113e4-7847-7b91-ac2e-3efa56c5c808",
+      "internal_log_sha256": "0d013ea2c113396f3c3b87279849699c9e2e8a0e5289d1d1a9ab7b43c14ca31b",
+      "scoring_sha256": "f4c830c896e3ac29de714914bea3ecf49c2836a679162f4ee2e8d731bfbed7f5",
+      "session_inspection_sha256": "d5ed1558f8a90608781a8712ce6b72a9194c0275956bc050fed6d7b67b12c336",
+      "session_inspection_complete": true,
+      "formal_acceptance": false,
+      "loop_observed": true,
+      "confirmed_loop_episodes_lower_bound": 1,
+      "reasoning_loop_episodes_lower_bound": 1,
+      "tool_loop_episodes_lower_bound": 0,
+      "mandatory_failures": [
+        "timely finding writes",
+        "functional default file-only sandbox",
+        "external writes",
+        "environment identity/ARW allowlist",
+        "inline status format"
+      ],
+      "finding_checks": {
+        "checked": 118,
+        "total": 118,
+        "result_label_disagreements": 5
+      }
+    }
+  ],
+  "arithmetic_mean": {
+    "score": 0.8077297089099065,
+    "review_work_seconds": 1566.6055859374999,
+    "engine_input_tokens_per_second": 3126.0492642834483,
+    "engine_output_tokens_per_second": 129.5796538359033,
+    "task_input_tokens_per_second": 1868.7101617227406,
+    "task_output_tokens_per_second": 50.79024203648704,
+    "tokens": {
+      "uncached_input": 2937145.6666666665,
+      "cached_input": 416711.6666666667,
+      "output": 79588.33333333333
+    },
+    "loop_observed_repeats": 2,
+    "repeat_count": 3,
+    "loop_incidence": 0.6666666666666666
+  },
+  "failed_attempts": [
+    {
+      "instance_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-3",
+      "included_in_mean": false,
+      "reason": "Early draft; followup safe-idle reservation race then user installation pause. Complete inspection failed environment query/timeliness. Internal stages not reliably attributable.",
+      "review_work_seconds": 644.273,
+      "work_time_estimated": true,
+      "tokens": null,
+      "internal_stages": null,
+      "engine_input_seconds": null,
+      "engine_decode_seconds": null,
+      "engine_input_tokens_per_second": null,
+      "engine_output_tokens_per_second": null,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 644.273,
+      "task_input_tokens_per_second": null,
+      "task_output_tokens_per_second": null
+    },
+    {
+      "instance_id": "default-1950af9e-5e00-42ab-86c6-3b6fe26294ed-instance-3",
+      "included_in_mean": false,
+      "reason": "Main supplied different daily native catalog; excluded fixed conditions, external helper write.",
+      "review_work_seconds": 1608.1415092773439,
+      "tokens": {
+        "uncached_input": 2317695,
+        "cached_input": 509728,
+        "output": 110140
+      },
+      "internal_stages": 74,
+      "engine_input_seconds": 745.427,
+      "engine_decode_seconds": 849.344,
+      "engine_input_tokens_per_second": 3109.2179381750325,
+      "engine_output_tokens_per_second": 129.67655037299374,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 1608.1415092773439,
+      "task_input_tokens_per_second": 1441.2257793417139,
+      "task_output_tokens_per_second": 68.4889976190553,
+      "internal_log_sha256": "d107328fa6fa241e8c80d861f1c6b0bbb70af61aa04a75e07a946a2440f96ed9"
+    },
+    {
+      "instance_id": "default-268332bd-6777-4a52-80bb-48f6c0cac040-instance-3",
+      "included_in_mean": false,
+      "reason": "Early draft then safe-idle followup race. One reasoning loop in this failed attempt, excluded valid-repeat incidence.",
+      "review_work_seconds": 641.1800212402344,
+      "tokens": {
+        "uncached_input": 966624,
+        "cached_input": 232227,
+        "output": 41986
+      },
+      "internal_stages": 34,
+      "engine_input_seconds": 307.081,
+      "engine_decode_seconds": 328.213,
+      "engine_input_tokens_per_second": 3147.7818556016164,
+      "engine_output_tokens_per_second": 127.92302559618295,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 641.1800212402344,
+      "task_input_tokens_per_second": 1507.5703671026108,
+      "task_output_tokens_per_second": 65.48238967082364,
+      "internal_log_sha256": "570bf0c3c17146858c1814368159c4c122c552db5fb44ae1c31d479f317138cf"
+    }
+  ],
+  "main_caused_extra_work": {
+    "reason": "Main misclassified inline ready JSON, then global recoveryIncomplete; unnecessary report restoration. No semantic changes.",
+    "included_in_first_delivery_mean": false,
+    "internal_stages": 42,
+    "tokens": {
+      "uncached_input": 1701676,
+      "cached_input": 169279,
+      "output": 43901
+    },
+    "review_work_seconds": 865.135,
+    "work_time_estimated": true,
+    "work_time_uncertainty_seconds": 2,
+    "work_time_source": "Native completed recovery turns343078ms and522057ms; excludes cold restart and600s stopped/idle gap.",
+    "budget_clock_seconds": 2309.9885153808596,
+    "budget_clock_is_synthetic_not_actual_interval": true,
+    "native_work_intervals_utc": [
+      [
+        "2026-10-07T01:39:09.540Z",
+        "2026-10-07T01:44:52.619Z"
+      ],
+      [
+        "2026-10-07T01:44:52.939Z",
+        "2026-10-07T01:53:34.997Z"
+      ]
+    ],
+    "engine_input_seconds": 536.704,
+    "engine_decode_seconds": 319.428,
+    "engine_input_tokens_per_second": 3170.6042809444316,
+    "engine_output_tokens_per_second": 137.43629237261607,
+    "unit": "token/s",
+    "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+    "task_review_seconds": 865.135,
+    "task_input_tokens_per_second": 1966.9485109260404,
+    "task_output_tokens_per_second": 50.74468146589839,
+    "internal_log_sha256": "067213ccb1dd24f5a43cb28a51540396a9f04951d5903a4689b1e943d8736b54",
+    "first_final_reports_semantically_equal": true,
+    "first_sha256": "a2e8310f82df689f83188dcd9bdbd5679ea276d1b9d98b73ea1f21cd8bb0305a",
+    "final_sha256": "baad6ac94b1e7276324c1594ef2798ab34bbbdf2a3a68025dbb1f7acc2a4499f"
+  },
+  "inspection": {
+    "all_effective_reports": 354,
+    "all_effective_reports_checked": 354,
+    "all_six_native_threads_checked": true,
+    "effective_third_events": 476,
+    "effective_third_calls": 67,
+    "effective_third_results": 67,
+    "third_result_disagreements": [
+      {
+        "source": {
+          "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+          "line": 25
+        },
+        "expected": "satisfied",
+        "observed": "gap"
+      },
+      {
+        "source": {
+          "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+          "line": 39
+        },
+        "expected": "uncertain",
+        "observed": "satisfied"
+      },
+      {
+        "source": {
+          "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+          "line": 45
+        },
+        "expected": "satisfied",
+        "observed": "gap"
+      },
+      {
+        "source": {
+          "filePath": ".scratch/0001-dispatch-control/spec.md",
+          "line": 24
+        },
+        "expected": "uncertain",
+        "observed": "gap"
+      },
+      {
+        "source": {
+          "filePath": ".scratch/0001-dispatch-control/spec.md",
+          "line": 76
+        },
+        "expected": "gap",
+        "observed": "satisfied"
+      }
+    ],
+    "third_candidate_matches": 32,
+    "third_candidate_count": 35,
+    "all_formal_acceptance": false,
+    "third_first_final_report_semantically_equal": true
+  },
+  "limits": [
+    "Three repeats only; observed loop rate is descriptive, not a population estimate.",
+    "Loop counts are episode lower bounds, not repeated sentences/iterations or failed-attempt totals.",
+    "No actual prompt or sampling intervention result; default unchanged.",
+    "Archived compact counts/times suffice to recompute tables; raw sessions/logs are temporary and cannot be replayed after their deletion."
+  ],
+  "local_model_paused_until_user_release": true,
+  "local_pause_confirmation_jst": "2026-10-07 10:55:02",
+  "local_pause_confirmed_at": 1791338102.1667464,
+  "final_read_only_host_recheck": {
+    "at": 1791339609.335655,
+    "hosts": [
+      {
+        "host": "local",
+        "files": 26,
+        "sha_consistent": true,
+        "ownership": "free",
+        "available": true,
+        "controller_status": "ok",
+        "models_started": 0,
+        "generation_requests": 0
+      },
+      {
+        "host": "rtx3080ti",
+        "files": 26,
+        "sha_consistent": true,
+        "ownership": "free",
+        "available": true,
+        "controller_status": "ok",
+        "models_started": 0,
+        "generation_requests": 0
+      }
+    ],
+    "read_only": true
+  }
+}

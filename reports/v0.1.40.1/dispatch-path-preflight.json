@@ -1,0 +1,48 @@
+{
+  "status": "passed-caller-config-and-report-admission",
+  "model_runs": 0,
+  "reviewer_threads": 0,
+  "frontend_generation_requests": 0,
+  "expected_rejection": {
+    "code": "report-binding-invalid",
+    "message": "A new review requires its own existing empty bound report file."
+  },
+  "program_directory": "/home/pello/projects/qwen-3.8-flash-next/.tmp/strata-hotfix-v0.1.40.1/loop-baseline-reprepared/engine-config",
+  "cleanup": {
+    "cleanup": {
+      "status": "ready",
+      "stoppedAgents": []
+    }
+  },
+  "boundary": "The bound missing report is rejected before nativeSessions.open; this is not real Reviewer or model compatibility acceptance.",
+  "schema": 1,
+  "completed_at": 1791310896.24923,
+  "repair": "ARW client caller.programDirectory now uses runtime.programDirectory, matching the daemon and prepared Engine configuration.",
+  "previous_failure": {
+    "status": "closed-before-reviewer-dispatch",
+    "model_starts": 1,
+    "reviewer_threads": 0,
+    "frontend_generation_requests": 0,
+    "token_consumption": {
+      "uncached_input": 0,
+      "cached_input": 0,
+      "output": 0
+    },
+    "pre_execution_proof": "ARW spawn rejected on caller config loading; zero manager agents, no native session, zero internal generation stages since latest engine start.",
+    "failure": "Configuration file not found: config.json.",
+    "cleanup": {
+      "cleanup": {
+        "status": "ready",
+        "stoppedAgents": []
+      }
+    },
+    "stop": {
+      "status": "stopped",
+      "clean_unload": true
+    },
+    "ownership_returned": true,
+    "closed_at": 1791310698.1138
+  },
+  "framework_source_modified": false,
+  "remaining": "Three model reviews were re-prepared but have not run. This preflight proves caller config and pre-native report admission only."
+}

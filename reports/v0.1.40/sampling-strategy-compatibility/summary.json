@@ -1,0 +1,1524 @@
+{
+  "schema": 1,
+  "status": "closed-short-sampling-strategy-comparison",
+  "source_protocol_sha256": "7de5bfea8cebe61dbe9f02aacef272578fb6252170dbe7f46a8e6a3361efbd11",
+  "baseline_sha256": "243143d203c6c034f0df8f32919dea425e73f5ee62639190aafab76843a93ca8",
+  "configuration": {
+    "strata": "0.1.40",
+    "codex": "0.160.1",
+    "model": "Q2_0",
+    "effort": "high",
+    "thinking_budget": 8192,
+    "output_budget": 24576,
+    "profile": "default-no-save",
+    "context_window": 156584,
+    "compact_threshold": 100000,
+    "guardian_effort": "low",
+    "guardian_thinking_budget": 2048,
+    "guardian_output_budget": 8192,
+    "cache": "Fresh model/KV per observation, OS cache not flushed. Strategies run serially.",
+    "permission": "native read-only/on-request/auto_review"
+  },
+  "rows": [
+    {
+      "case": "current-greedy-1",
+      "strategy": "current-greedy",
+      "repeat": 1,
+      "pass": true,
+      "load_seconds": 13.824181213014526,
+      "work_seconds": 113.32650886927196,
+      "tokens": {
+        "uncached_input": 102562,
+        "cached_input": 28936,
+        "output": 3385
+      },
+      "stages": {
+        "chat": {
+          "started_at": 1791301939.1872492,
+          "pass": true,
+          "seconds": 1.9241910120181274,
+          "finished_at": 1791301941.11144
+        },
+        "tool-first": {
+          "started_at": 1791301941.1116629,
+          "pass": true,
+          "seconds": 2.0377602700027637,
+          "finished_at": 1791301943.1494236
+        },
+        "tool-result": {
+          "started_at": 1791301943.1498654,
+          "pass": true,
+          "seconds": 0.5309185009973589,
+          "finished_at": 1791301943.6807847
+        },
+        "search": {
+          "started_at": 1791301943.6810577,
+          "pass": true,
+          "seconds": 9.782399288000306,
+          "finished_at": 1791301953.4634588
+        },
+        "mcp": {
+          "started_at": 1791301953.7692976,
+          "pass": true,
+          "seconds": 30.279984619140624,
+          "turns": 1,
+          "finished_at": 1791301984.0504692
+        },
+        "guardian": {
+          "started_at": 1791301984.0505424,
+          "pass": true,
+          "seconds": 25.220427734375,
+          "turns": 1,
+          "finished_at": 1791302009.271778
+        },
+        "compact": {
+          "started_at": 1791302009.2718942,
+          "pass": true,
+          "seconds": 27.956518850987777,
+          "finished_at": 1791302037.228414
+        },
+        "resume": {
+          "started_at": 1791302037.3852406,
+          "pass": true,
+          "seconds": 15.59430859375,
+          "turns": 1,
+          "finished_at": 1791302052.9806135
+        }
+      },
+      "internal_numeric_stages": [
+        {
+          "input": 558,
+          "cached": 0,
+          "uncached": 558,
+          "prompt_ms": 1063.0,
+          "output": 72,
+          "decode_ms": 840.0,
+          "log_line": 39
+        },
+        {
+          "input": 749,
+          "cached": 0,
+          "uncached": 749,
+          "prompt_ms": 1331.0,
+          "output": 67,
+          "decode_ms": 684.0,
+          "log_line": 43
+        },
+        {
+          "input": 840,
+          "cached": 818,
+          "uncached": 22,
+          "prompt_ms": 219.0,
+          "output": 29,
+          "decode_ms": 289.0,
+          "log_line": 48
+        },
+        {
+          "input": 891,
+          "cached": 0,
+          "uncached": 891,
+          "prompt_ms": 1562.0,
+          "output": 77,
+          "decode_ms": 830.0,
+          "log_line": 51
+        },
+        {
+          "input": 2902,
+          "cached": 967,
+          "uncached": 1935,
+          "prompt_ms": 2042.0,
+          "output": 288,
+          "decode_ms": 3152.0,
+          "log_line": 54
+        },
+        {
+          "input": 15743,
+          "cached": 0,
+          "uncached": 15743,
+          "prompt_ms": 9830.0,
+          "output": 114,
+          "decode_ms": 1323.0,
+          "log_line": 58
+        },
+        {
+          "input": 16313,
+          "cached": 0,
+          "uncached": 16313,
+          "prompt_ms": 10274.0,
+          "output": 169,
+          "decode_ms": 2051.0,
+          "log_line": 61
+        },
+        {
+          "input": 16642,
+          "cached": 10514,
+          "uncached": 6128,
+          "prompt_ms": 3899.0,
+          "output": 206,
+          "decode_ms": 2453.0,
+          "log_line": 65
+        },
+        {
+          "input": 16922,
+          "cached": 16637,
+          "uncached": 285,
+          "prompt_ms": 828.0,
+          "output": 126,
+          "decode_ms": 1551.0,
+          "log_line": 69
+        },
+        {
+          "input": 11748,
+          "cached": 0,
+          "uncached": 11748,
+          "prompt_ms": 8078.0,
+          "output": 71,
+          "decode_ms": 979.0,
+          "log_line": 73
+        },
+        {
+          "input": 17100,
+          "cached": 0,
+          "uncached": 17100,
+          "prompt_ms": 11137.0,
+          "output": 161,
+          "decode_ms": 2246.0,
+          "log_line": 76
+        },
+        {
+          "input": 13848,
+          "cached": 0,
+          "uncached": 13848,
+          "prompt_ms": 8845.0,
+          "output": 1670,
+          "decode_ms": 18996.0,
+          "log_line": 80
+        },
+        {
+          "input": 17242,
+          "cached": 0,
+          "uncached": 17242,
+          "prompt_ms": 11381.0,
+          "output": 335,
+          "decode_ms": 4064.0,
+          "log_line": 84
+        }
+      ],
+      "engine_log_sha256": "10d499995e7aa32276ee1526432ae6a6f3cc57b9153ef194c42ef94b9158f94e",
+      "original_result_sha256": "54cc3fbc9407e448fb916eee0dae7c87c673008805e4e447a11638a2f6cdbc22",
+      "engine_input_seconds": 70.489,
+      "engine_decode_seconds": 39.458,
+      "engine_input_tokens_per_second": 1455.0071642383916,
+      "engine_output_tokens_per_second": 85.78741953469512,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 113.32650886927196,
+      "task_input_tokens_per_second": 905.0133196841933,
+      "task_output_tokens_per_second": 29.869445673163497,
+      "inspection": {
+        "case": "current-greedy-1",
+        "target_facts_passed": true,
+        "original_thread_retained": true,
+        "extra_continuations": 0,
+        "unexpected_target_tool_repeats": 0,
+        "native_records": 97,
+        "native_responses_requests": 8,
+        "frontend_requests": 12,
+        "passive_http_records": 8,
+        "live_defaults_snapshot": false,
+        "live_defaults_matches_bound": null,
+        "native_call_counts": {
+          "tool_search": 1,
+          "read_file": 2,
+          "exec_command": 1
+        },
+        "qualification": "Target facts inspected; custom startup/compact prompts retained. Not full ARW session inspection or no-prompt loop mitigation acceptance."
+      }
+    },
+    {
+      "case": "current-greedy-2",
+      "strategy": "current-greedy",
+      "repeat": 2,
+      "pass": true,
+      "load_seconds": 14.402303543000016,
+      "work_seconds": 72.83212601899984,
+      "tokens": {
+        "uncached_input": 102840,
+        "cached_input": 44778,
+        "output": 3865
+      },
+      "stages": {
+        "chat": {
+          "started_at": 1791302069.9489398,
+          "pass": true,
+          "seconds": 1.6078410540067125,
+          "finished_at": 1791302071.5567806
+        },
+        "tool-first": {
+          "started_at": 1791302071.5571415,
+          "pass": true,
+          "seconds": 1.5662291900080163,
+          "finished_at": 1791302073.1233716
+        },
+        "tool-result": {
+          "started_at": 1791302073.1239028,
+          "pass": true,
+          "seconds": 0.47855404598522,
+          "finished_at": 1791302073.6024568
+        },
+        "search": {
+          "started_at": 1791302073.6027431,
+          "pass": true,
+          "seconds": 6.860006249014987,
+          "finished_at": 1791302080.46275
+        },
+        "mcp": {
+          "started_at": 1791302080.710392,
+          "pass": true,
+          "seconds": 19.43340185546875,
+          "turns": 1,
+          "finished_at": 1791302100.145154
+        },
+        "guardian": {
+          "started_at": 1791302100.1452243,
+          "pass": true,
+          "seconds": 15.730912841796876,
+          "turns": 1,
+          "finished_at": 1791302115.8771763
+        },
+        "compact": {
+          "started_at": 1791302115.8772738,
+          "pass": true,
+          "seconds": 19.719976437016157,
+          "finished_at": 1791302135.5972512
+        },
+        "resume": {
+          "started_at": 1791302135.7383938,
+          "pass": true,
+          "seconds": 7.435204345703125,
+          "turns": 1,
+          "finished_at": 1791302143.174255
+        }
+      },
+      "internal_numeric_stages": [
+        {
+          "input": 558,
+          "cached": 0,
+          "uncached": 558,
+          "prompt_ms": 906.0,
+          "output": 72,
+          "decode_ms": 668.0,
+          "log_line": 39
+        },
+        {
+          "input": 749,
+          "cached": 0,
+          "uncached": 749,
+          "prompt_ms": 1057.0,
+          "output": 67,
+          "decode_ms": 482.0,
+          "log_line": 43
+        },
+        {
+          "input": 840,
+          "cached": 818,
+          "uncached": 22,
+          "prompt_ms": 206.0,
+          "output": 29,
+          "decode_ms": 229.0,
+          "log_line": 48
+        },
+        {
+          "input": 891,
+          "cached": 0,
+          "uncached": 891,
+          "prompt_ms": 1202.0,
+          "output": 77,
+          "decode_ms": 531.0,
+          "log_line": 51
+        },
+        {
+          "input": 2934,
+          "cached": 967,
+          "uncached": 1967,
+          "prompt_ms": 1365.0,
+          "output": 279,
+          "decode_ms": 2038.0,
+          "log_line": 54
+        },
+        {
+          "input": 15743,
+          "cached": 0,
+          "uncached": 15743,
+          "prompt_ms": 5651.0,
+          "output": 114,
+          "decode_ms": 995.0,
+          "log_line": 58
+        },
+        {
+          "input": 15894,
+          "cached": 15738,
+          "uncached": 156,
+          "prompt_ms": 513.0,
+          "output": 50,
+          "decode_ms": 373.0,
+          "log_line": 61
+        },
+        {
+          "input": 16194,
+          "cached": 0,
+          "uncached": 16194,
+          "prompt_ms": 5309.0,
+          "output": 157,
+          "decode_ms": 1200.0,
+          "log_line": 65
+        },
+        {
+          "input": 16511,
+          "cached": 10427,
+          "uncached": 6084,
+          "prompt_ms": 2221.0,
+          "output": 316,
+          "decode_ms": 2596.0,
+          "log_line": 68
+        },
+        {
+          "input": 16903,
+          "cached": 16828,
+          "uncached": 75,
+          "prompt_ms": 445.0,
+          "output": 112,
+          "decode_ms": 803.0,
+          "log_line": 72
+        },
+        {
+          "input": 12037,
+          "cached": 0,
+          "uncached": 12037,
+          "prompt_ms": 4317.0,
+          "output": 150,
+          "decode_ms": 1275.0,
+          "log_line": 76
+        },
+        {
+          "input": 17068,
+          "cached": 0,
+          "uncached": 17068,
+          "prompt_ms": 5464.0,
+          "output": 326,
+          "decode_ms": 2992.0,
+          "log_line": 80
+        },
+        {
+          "input": 13981,
+          "cached": 0,
+          "uncached": 13981,
+          "prompt_ms": 4827.0,
+          "output": 1895,
+          "decode_ms": 14763.0,
+          "log_line": 84
+        },
+        {
+          "input": 17315,
+          "cached": 0,
+          "uncached": 17315,
+          "prompt_ms": 5571.0,
+          "output": 221,
+          "decode_ms": 1705.0,
+          "log_line": 88
+        }
+      ],
+      "engine_log_sha256": "8d0bcbc2adb78db84e6f59d72d29c32bfa35995158512d58966ec808228c3414",
+      "original_result_sha256": "c918de3c0cef949c94fc078d2fb4119febfd49723054baccbc82c10253f75a37",
+      "engine_input_seconds": 39.054,
+      "engine_decode_seconds": 30.65,
+      "engine_input_tokens_per_second": 2633.277001075434,
+      "engine_output_tokens_per_second": 126.10114192495922,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 72.83212601899984,
+      "task_input_tokens_per_second": 1412.0142527924004,
+      "task_output_tokens_per_second": 53.06724121978439,
+      "inspection": {
+        "case": "current-greedy-2",
+        "target_facts_passed": true,
+        "original_thread_retained": true,
+        "extra_continuations": 0,
+        "unexpected_target_tool_repeats": 0,
+        "native_records": 106,
+        "native_responses_requests": 9,
+        "frontend_requests": 13,
+        "passive_http_records": 8,
+        "live_defaults_snapshot": true,
+        "live_defaults_matches_bound": true,
+        "native_call_counts": {
+          "tool_search": 1,
+          "read_file": 2,
+          "exec_command": 1
+        },
+        "qualification": "Target facts inspected; custom startup/compact prompts retained. Not full ARW session inspection or no-prompt loop mitigation acceptance."
+      }
+    },
+    {
+      "case": "current-greedy-3",
+      "strategy": "current-greedy",
+      "repeat": 3,
+      "pass": true,
+      "load_seconds": 14.27600024198182,
+      "work_seconds": 71.53727540570637,
+      "tokens": {
+        "uncached_input": 102935,
+        "cached_input": 29196,
+        "output": 3752
+      },
+      "stages": {
+        "chat": {
+          "started_at": 1791302159.9773033,
+          "pass": true,
+          "seconds": 1.6447706169856247,
+          "finished_at": 1791302161.622074
+        },
+        "tool-first": {
+          "started_at": 1791302161.6223133,
+          "pass": true,
+          "seconds": 1.556901228002971,
+          "finished_at": 1791302163.179215
+        },
+        "tool-result": {
+          "started_at": 1791302163.179582,
+          "pass": true,
+          "seconds": 0.44560948401340283,
+          "finished_at": 1791302163.6251922
+        },
+        "search": {
+          "started_at": 1791302163.6254632,
+          "pass": true,
+          "seconds": 6.44485572699341,
+          "finished_at": 1791302170.0703194
+        },
+        "mcp": {
+          "started_at": 1791302170.3182116,
+          "pass": true,
+          "seconds": 18.02970654296875,
+          "turns": 1,
+          "finished_at": 1791302188.3491356
+        },
+        "guardian": {
+          "started_at": 1791302188.34921,
+          "pass": true,
+          "seconds": 14.911376953125,
+          "turns": 1,
+          "finished_at": 1791302203.2615652
+        },
+        "compact": {
+          "started_at": 1791302203.2616508,
+          "pass": true,
+          "seconds": 20.504060712992214,
+          "finished_at": 1791302223.765712
+        },
+        "resume": {
+          "started_at": 1791302223.9048464,
+          "pass": true,
+          "seconds": 7.999994140625,
+          "turns": 1,
+          "finished_at": 1791302231.9057062
+        }
+      },
+      "internal_numeric_stages": [
+        {
+          "input": 558,
+          "cached": 0,
+          "uncached": 558,
+          "prompt_ms": 915.0,
+          "output": 72,
+          "decode_ms": 693.0,
+          "log_line": 39
+        },
+        {
+          "input": 749,
+          "cached": 0,
+          "uncached": 749,
+          "prompt_ms": 1067.0,
+          "output": 67,
+          "decode_ms": 468.0,
+          "log_line": 43
+        },
+        {
+          "input": 840,
+          "cached": 818,
+          "uncached": 22,
+          "prompt_ms": 182.0,
+          "output": 29,
+          "decode_ms": 207.0,
+          "log_line": 48
+        },
+        {
+          "input": 891,
+          "cached": 0,
+          "uncached": 891,
+          "prompt_ms": 1195.0,
+          "output": 77,
+          "decode_ms": 532.0,
+          "log_line": 51
+        },
+        {
+          "input": 2897,
+          "cached": 967,
+          "uncached": 1930,
+          "prompt_ms": 1365.0,
+          "output": 276,
+          "decode_ms": 1968.0,
+          "log_line": 54
+        },
+        {
+          "input": 15743,
+          "cached": 0,
+          "uncached": 15743,
+          "prompt_ms": 5621.0,
+          "output": 115,
+          "decode_ms": 972.0,
+          "log_line": 58
+        },
+        {
+          "input": 16314,
+          "cached": 0,
+          "uncached": 16314,
+          "prompt_ms": 5314.0,
+          "output": 117,
+          "decode_ms": 895.0,
+          "log_line": 62
+        },
+        {
+          "input": 16591,
+          "cached": 10514,
+          "uncached": 6077,
+          "prompt_ms": 2307.0,
+          "output": 306,
+          "decode_ms": 2443.0,
+          "log_line": 66
+        },
+        {
+          "input": 16973,
+          "cached": 16897,
+          "uncached": 76,
+          "prompt_ms": 454.0,
+          "output": 108,
+          "decode_ms": 821.0,
+          "log_line": 70
+        },
+        {
+          "input": 11949,
+          "cached": 0,
+          "uncached": 11949,
+          "prompt_ms": 4272.0,
+          "output": 84,
+          "decode_ms": 664.0,
+          "log_line": 74
+        },
+        {
+          "input": 17133,
+          "cached": 0,
+          "uncached": 17133,
+          "prompt_ms": 5526.0,
+          "output": 291,
+          "decode_ms": 2730.0,
+          "log_line": 78
+        },
+        {
+          "input": 14011,
+          "cached": 0,
+          "uncached": 14011,
+          "prompt_ms": 4864.0,
+          "output": 1935,
+          "decode_ms": 15531.0,
+          "log_line": 82
+        },
+        {
+          "input": 17482,
+          "cached": 0,
+          "uncached": 17482,
+          "prompt_ms": 5584.0,
+          "output": 275,
+          "decode_ms": 2265.0,
+          "log_line": 86
+        }
+      ],
+      "engine_log_sha256": "37920f905a8bb686504ee9a7db1f1ceb26b1380c9c116e8dc240fd0fadd16e3e",
+      "original_result_sha256": "45ec68ecd053bc7782abec815a1a2fa635ed2c60463d36762663724ccd293fee",
+      "engine_input_seconds": 38.666,
+      "engine_decode_seconds": 30.189,
+      "engine_input_tokens_per_second": 2662.157968240832,
+      "engine_output_tokens_per_second": 124.28367948590547,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 71.53727540570637,
+      "task_input_tokens_per_second": 1438.9002015554693,
+      "task_output_tokens_per_second": 52.44818143717997,
+      "inspection": {
+        "case": "current-greedy-3",
+        "target_facts_passed": true,
+        "original_thread_retained": true,
+        "extra_continuations": 0,
+        "unexpected_target_tool_repeats": 0,
+        "native_records": 97,
+        "native_responses_requests": 8,
+        "frontend_requests": 12,
+        "passive_http_records": 7,
+        "live_defaults_snapshot": false,
+        "live_defaults_matches_bound": null,
+        "native_call_counts": {
+          "tool_search": 1,
+          "read_file": 2,
+          "exec_command": 1
+        },
+        "qualification": "Target facts inspected; custom startup/compact prompts retained. Not full ARW session inspection or no-prompt loop mitigation acceptance."
+      }
+    },
+    {
+      "case": "qwen-thinking-1",
+      "strategy": "qwen-thinking",
+      "repeat": 1,
+      "pass": true,
+      "load_seconds": 13.764834661007626,
+      "work_seconds": 65.22120047704061,
+      "tokens": {
+        "uncached_input": 101309,
+        "cached_input": 28798,
+        "output": 2877
+      },
+      "stages": {
+        "chat": {
+          "started_at": 1791302248.124102,
+          "pass": true,
+          "seconds": 1.6903543710068334,
+          "finished_at": 1791302249.8144562
+        },
+        "tool-first": {
+          "started_at": 1791302249.8146884,
+          "pass": true,
+          "seconds": 1.55177701098728,
+          "finished_at": 1791302251.366466
+        },
+        "tool-result": {
+          "started_at": 1791302251.3668246,
+          "pass": true,
+          "seconds": 0.4669748939923011,
+          "finished_at": 1791302251.8337998
+        },
+        "search": {
+          "started_at": 1791302251.8341312,
+          "pass": true,
+          "seconds": 6.705411920993356,
+          "finished_at": 1791302258.5395436
+        },
+        "mcp": {
+          "started_at": 1791302258.787899,
+          "pass": true,
+          "seconds": 16.95865869140625,
+          "turns": 1,
+          "finished_at": 1791302275.747566
+        },
+        "guardian": {
+          "started_at": 1791302275.74762,
+          "pass": true,
+          "seconds": 13.695456787109375,
+          "turns": 1,
+          "finished_at": 1791302289.4437723
+        },
+        "compact": {
+          "started_at": 1791302289.4438658,
+          "pass": true,
+          "seconds": 16.30114053201396,
+          "finished_at": 1791302305.7450068
+        },
+        "resume": {
+          "started_at": 1791302305.8852034,
+          "pass": true,
+          "seconds": 7.85142626953125,
+          "turns": 1,
+          "finished_at": 1791302313.73757
+        }
+      },
+      "internal_numeric_stages": [
+        {
+          "input": 558,
+          "cached": 0,
+          "uncached": 558,
+          "prompt_ms": 895.0,
+          "output": 74,
+          "decode_ms": 743.0,
+          "log_line": 39
+        },
+        {
+          "input": 749,
+          "cached": 0,
+          "uncached": 749,
+          "prompt_ms": 1058.0,
+          "output": 58,
+          "decode_ms": 441.0,
+          "log_line": 43
+        },
+        {
+          "input": 831,
+          "cached": 809,
+          "uncached": 22,
+          "prompt_ms": 160.0,
+          "output": 36,
+          "decode_ms": 253.0,
+          "log_line": 48
+        },
+        {
+          "input": 891,
+          "cached": 0,
+          "uncached": 891,
+          "prompt_ms": 1201.0,
+          "output": 77,
+          "decode_ms": 579.0,
+          "log_line": 52
+        },
+        {
+          "input": 2943,
+          "cached": 967,
+          "uncached": 1976,
+          "prompt_ms": 1361.0,
+          "output": 248,
+          "decode_ms": 1817.0,
+          "log_line": 56
+        },
+        {
+          "input": 15739,
+          "cached": 0,
+          "uncached": 15739,
+          "prompt_ms": 5444.0,
+          "output": 112,
+          "decode_ms": 949.0,
+          "log_line": 60
+        },
+        {
+          "input": 16122,
+          "cached": 0,
+          "uncached": 16122,
+          "prompt_ms": 5243.0,
+          "output": 140,
+          "decode_ms": 1232.0,
+          "log_line": 63
+        },
+        {
+          "input": 16422,
+          "cached": 10426,
+          "uncached": 5996,
+          "prompt_ms": 2168.0,
+          "output": 175,
+          "decode_ms": 1520.0,
+          "log_line": 67
+        },
+        {
+          "input": 16673,
+          "cached": 16596,
+          "uncached": 77,
+          "prompt_ms": 473.0,
+          "output": 113,
+          "decode_ms": 847.0,
+          "log_line": 71
+        },
+        {
+          "input": 11699,
+          "cached": 0,
+          "uncached": 11699,
+          "prompt_ms": 4239.0,
+          "output": 79,
+          "decode_ms": 670.0,
+          "log_line": 75
+        },
+        {
+          "input": 16838,
+          "cached": 0,
+          "uncached": 16838,
+          "prompt_ms": 5585.0,
+          "output": 153,
+          "decode_ms": 1438.0,
+          "log_line": 79
+        },
+        {
+          "input": 13578,
+          "cached": 0,
+          "uncached": 13578,
+          "prompt_ms": 4769.0,
+          "output": 1356,
+          "decode_ms": 11412.0,
+          "log_line": 83
+        },
+        {
+          "input": 17064,
+          "cached": 0,
+          "uncached": 17064,
+          "prompt_ms": 5647.0,
+          "output": 256,
+          "decode_ms": 2067.0,
+          "log_line": 87
+        }
+      ],
+      "engine_log_sha256": "4a72917d9d6d602abdd486bbc49b744131c98a2177559754d9ebb7f1ebf3fb34",
+      "original_result_sha256": "e5f154c249c85634878061689f14d2012183bf30364f0155763da2b07567192a",
+      "engine_input_seconds": 38.243,
+      "engine_decode_seconds": 23.968,
+      "engine_input_tokens_per_second": 2649.0861072614593,
+      "engine_output_tokens_per_second": 120.03504672897196,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 65.22120047704061,
+      "task_input_tokens_per_second": 1553.3139417705618,
+      "task_output_tokens_per_second": 44.111423570205076,
+      "inspection": {
+        "case": "qwen-thinking-1",
+        "target_facts_passed": true,
+        "original_thread_retained": true,
+        "extra_continuations": 0,
+        "unexpected_target_tool_repeats": 0,
+        "native_records": 97,
+        "native_responses_requests": 8,
+        "frontend_requests": 12,
+        "passive_http_records": 7,
+        "live_defaults_snapshot": true,
+        "live_defaults_matches_bound": true,
+        "native_call_counts": {
+          "tool_search": 1,
+          "read_file": 2,
+          "exec_command": 1
+        },
+        "qualification": "Target facts inspected; custom startup/compact prompts retained. Not full ARW session inspection or no-prompt loop mitigation acceptance."
+      }
+    },
+    {
+      "case": "qwen-thinking-2",
+      "strategy": "qwen-thinking",
+      "repeat": 2,
+      "pass": true,
+      "load_seconds": 14.335049877001438,
+      "work_seconds": 68.70935477237776,
+      "tokens": {
+        "uncached_input": 103955,
+        "cached_input": 28913,
+        "output": 3038
+      },
+      "stages": {
+        "chat": {
+          "started_at": 1791302330.5178316,
+          "pass": true,
+          "seconds": 1.6399764230009168,
+          "finished_at": 1791302332.1578083
+        },
+        "tool-first": {
+          "started_at": 1791302332.1579773,
+          "pass": true,
+          "seconds": 1.6319995299854781,
+          "finished_at": 1791302333.7899773
+        },
+        "tool-result": {
+          "started_at": 1791302333.790284,
+          "pass": true,
+          "seconds": 0.39335093399859034,
+          "finished_at": 1791302334.1836362
+        },
+        "search": {
+          "started_at": 1791302334.1838827,
+          "pass": true,
+          "seconds": 10.038950532994932,
+          "finished_at": 1791302344.2228339
+        },
+        "mcp": {
+          "started_at": 1791302344.4805357,
+          "pass": true,
+          "seconds": 17.62990234375,
+          "turns": 1,
+          "finished_at": 1791302362.1116252
+        },
+        "guardian": {
+          "started_at": 1791302362.1116796,
+          "pass": true,
+          "seconds": 13.855868896484376,
+          "turns": 1,
+          "finished_at": 1791302375.9682932
+        },
+        "compact": {
+          "started_at": 1791302375.9683836,
+          "pass": true,
+          "seconds": 14.912682577007217,
+          "finished_at": 1791302390.881067
+        },
+        "resume": {
+          "started_at": 1791302391.0394883,
+          "pass": true,
+          "seconds": 8.60662353515625,
+          "turns": 1,
+          "finished_at": 1791302399.6469998
+        }
+      },
+      "internal_numeric_stages": [
+        {
+          "input": 558,
+          "cached": 0,
+          "uncached": 558,
+          "prompt_ms": 923.0,
+          "output": 64,
+          "decode_ms": 687.0,
+          "log_line": 39
+        },
+        {
+          "input": 749,
+          "cached": 0,
+          "uncached": 749,
+          "prompt_ms": 1078.0,
+          "output": 64,
+          "decode_ms": 531.0,
+          "log_line": 43
+        },
+        {
+          "input": 837,
+          "cached": 814,
+          "uncached": 23,
+          "prompt_ms": 140.0,
+          "output": 30,
+          "decode_ms": 220.0,
+          "log_line": 48
+        },
+        {
+          "input": 891,
+          "cached": 0,
+          "uncached": 891,
+          "prompt_ms": 1243.0,
+          "output": 125,
+          "decode_ms": 897.0,
+          "log_line": 52
+        },
+        {
+          "input": 5199,
+          "cached": 1015,
+          "uncached": 4184,
+          "prompt_ms": 1976.0,
+          "output": 311,
+          "decode_ms": 2356.0,
+          "log_line": 56
+        },
+        {
+          "input": 15739,
+          "cached": 0,
+          "uncached": 15739,
+          "prompt_ms": 5559.0,
+          "output": 108,
+          "decode_ms": 962.0,
+          "log_line": 60
+        },
+        {
+          "input": 16118,
+          "cached": 0,
+          "uncached": 16118,
+          "prompt_ms": 5314.0,
+          "output": 151,
+          "decode_ms": 1245.0,
+          "log_line": 64
+        },
+        {
+          "input": 16429,
+          "cached": 10426,
+          "uncached": 6003,
+          "prompt_ms": 2265.0,
+          "output": 228,
+          "decode_ms": 1867.0,
+          "log_line": 68
+        },
+        {
+          "input": 16733,
+          "cached": 16658,
+          "uncached": 75,
+          "prompt_ms": 465.0,
+          "output": 103,
+          "decode_ms": 718.0,
+          "log_line": 72
+        },
+        {
+          "input": 11811,
+          "cached": 0,
+          "uncached": 11811,
+          "prompt_ms": 4264.0,
+          "output": 75,
+          "decode_ms": 594.0,
+          "log_line": 76
+        },
+        {
+          "input": 16889,
+          "cached": 0,
+          "uncached": 16889,
+          "prompt_ms": 5419.0,
+          "output": 209,
+          "decode_ms": 1988.0,
+          "log_line": 79
+        },
+        {
+          "input": 13685,
+          "cached": 0,
+          "uncached": 13685,
+          "prompt_ms": 4755.0,
+          "output": 1240,
+          "decode_ms": 10027.0,
+          "log_line": 83
+        },
+        {
+          "input": 17230,
+          "cached": 0,
+          "uncached": 17230,
+          "prompt_ms": 5656.0,
+          "output": 330,
+          "decode_ms": 2785.0,
+          "log_line": 87
+        }
+      ],
+      "engine_log_sha256": "ea94980ca0a98d462c1b787e5172a536c3fb494d70aa490e2cfcfce87235dbe9",
+      "original_result_sha256": "4ee8f5196ebdd86c9f6c7f367f2874c7ec77cd4f469656956a01edbbf363a242",
+      "engine_input_seconds": 39.057,
+      "engine_decode_seconds": 24.877,
+      "engine_input_tokens_per_second": 2661.622756484113,
+      "engine_output_tokens_per_second": 122.12083450576839,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 68.70935477237776,
+      "task_input_tokens_per_second": 1512.9671984897104,
+      "task_output_tokens_per_second": 44.21523110010813,
+      "inspection": {
+        "case": "qwen-thinking-2",
+        "target_facts_passed": true,
+        "original_thread_retained": true,
+        "extra_continuations": 0,
+        "unexpected_target_tool_repeats": 0,
+        "native_records": 97,
+        "native_responses_requests": 8,
+        "frontend_requests": 12,
+        "passive_http_records": 7,
+        "live_defaults_snapshot": true,
+        "live_defaults_matches_bound": true,
+        "native_call_counts": {
+          "tool_search": 1,
+          "read_file": 2,
+          "exec_command": 1
+        },
+        "qualification": "Target facts inspected; custom startup/compact prompts retained. Not full ARW session inspection or no-prompt loop mitigation acceptance."
+      }
+    },
+    {
+      "case": "qwen-thinking-3",
+      "strategy": "qwen-thinking",
+      "repeat": 3,
+      "pass": true,
+      "load_seconds": 13.819706228008727,
+      "work_seconds": 76.20952725598286,
+      "tokens": {
+        "uncached_input": 107972,
+        "cached_input": 39292,
+        "output": 3378
+      },
+      "stages": {
+        "chat": {
+          "started_at": 1791302415.895847,
+          "pass": true,
+          "seconds": 1.9453944929991849,
+          "finished_at": 1791302417.8412418
+        },
+        "tool-first": {
+          "started_at": 1791302417.841395,
+          "pass": true,
+          "seconds": 1.5718556310166605,
+          "finished_at": 1791302419.4132514
+        },
+        "tool-result": {
+          "started_at": 1791302419.4135404,
+          "pass": true,
+          "seconds": 0.6895598129776772,
+          "finished_at": 1791302420.1031008
+        },
+        "search": {
+          "started_at": 1791302420.103446,
+          "pass": true,
+          "seconds": 9.906188460998237,
+          "finished_at": 1791302430.009635
+        },
+        "mcp": {
+          "started_at": 1791302430.262885,
+          "pass": true,
+          "seconds": 19.9464453125,
+          "turns": 1,
+          "finished_at": 1791302450.2104492
+        },
+        "guardian": {
+          "started_at": 1791302450.2105532,
+          "pass": true,
+          "seconds": 15.75739892578125,
+          "turns": 1,
+          "finished_at": 1791302465.968929
+        },
+        "compact": {
+          "started_at": 1791302465.9690382,
+          "pass": true,
+          "seconds": 17.663870899006724,
+          "finished_at": 1791302483.6329098
+        },
+        "resume": {
+          "started_at": 1791302483.774472,
+          "pass": true,
+          "seconds": 8.728813720703124,
+          "turns": 1,
+          "finished_at": 1791302492.504265
+        }
+      },
+      "internal_numeric_stages": [
+        {
+          "input": 558,
+          "cached": 0,
+          "uncached": 558,
+          "prompt_ms": 914.0,
+          "output": 99,
+          "decode_ms": 1014.0,
+          "log_line": 39
+        },
+        {
+          "input": 749,
+          "cached": 0,
+          "uncached": 749,
+          "prompt_ms": 1071.0,
+          "output": 67,
+          "decode_ms": 467.0,
+          "log_line": 43
+        },
+        {
+          "input": 840,
+          "cached": 817,
+          "uncached": 23,
+          "prompt_ms": 157.0,
+          "output": 61,
+          "decode_ms": 473.0,
+          "log_line": 46
+        },
+        {
+          "input": 891,
+          "cached": 0,
+          "uncached": 891,
+          "prompt_ms": 1207.0,
+          "output": 77,
+          "decode_ms": 535.0,
+          "log_line": 50
+        },
+        {
+          "input": 2947,
+          "cached": 967,
+          "uncached": 1980,
+          "prompt_ms": 1586.0,
+          "output": 224,
+          "decode_ms": 1616.0,
+          "log_line": 54
+        },
+        {
+          "input": 15739,
+          "cached": 0,
+          "uncached": 15739,
+          "prompt_ms": 5479.0,
+          "output": 113,
+          "decode_ms": 946.0,
+          "log_line": 58
+        },
+        {
+          "input": 16123,
+          "cached": 0,
+          "uncached": 16123,
+          "prompt_ms": 5314.0,
+          "output": 50,
+          "decode_ms": 371.0,
+          "log_line": 62
+        },
+        {
+          "input": 16282,
+          "cached": 10426,
+          "uncached": 5856,
+          "prompt_ms": 2143.0,
+          "output": 73,
+          "decode_ms": 654.0,
+          "log_line": 66
+        },
+        {
+          "input": 16404,
+          "cached": 10426,
+          "uncached": 5978,
+          "prompt_ms": 2161.0,
+          "output": 252,
+          "decode_ms": 2325.0,
+          "log_line": 70
+        },
+        {
+          "input": 16732,
+          "cached": 16656,
+          "uncached": 76,
+          "prompt_ms": 478.0,
+          "output": 112,
+          "decode_ms": 803.0,
+          "log_line": 74
+        },
+        {
+          "input": 11873,
+          "cached": 0,
+          "uncached": 11873,
+          "prompt_ms": 4369.0,
+          "output": 81,
+          "decode_ms": 651.0,
+          "log_line": 78
+        },
+        {
+          "input": 16895,
+          "cached": 0,
+          "uncached": 16895,
+          "prompt_ms": 5574.0,
+          "output": 356,
+          "decode_ms": 3415.0,
+          "log_line": 82
+        },
+        {
+          "input": 13838,
+          "cached": 0,
+          "uncached": 13838,
+          "prompt_ms": 4786.0,
+          "output": 1473,
+          "decode_ms": 12749.0,
+          "log_line": 86
+        },
+        {
+          "input": 17393,
+          "cached": 0,
+          "uncached": 17393,
+          "prompt_ms": 5777.0,
+          "output": 340,
+          "decode_ms": 2818.0,
+          "log_line": 90
+        }
+      ],
+      "engine_log_sha256": "7493c5071df055092adf5d5b5be0d5d4141bb398ccb70c8689a4ba4519ea8abb",
+      "original_result_sha256": "69272d3b90fbdf0d7455ac47edb625f7e199f950566b4fbf4617c7a3b7c242b1",
+      "engine_input_seconds": 41.016,
+      "engine_decode_seconds": 28.837,
+      "engine_input_tokens_per_second": 2632.436122488785,
+      "engine_output_tokens_per_second": 117.14117279883483,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 76.20952725598286,
+      "task_input_tokens_per_second": 1416.778241352017,
+      "task_output_tokens_per_second": 44.325166703285234,
+      "inspection": {
+        "case": "qwen-thinking-3",
+        "target_facts_passed": true,
+        "original_thread_retained": true,
+        "extra_continuations": 0,
+        "unexpected_target_tool_repeats": 0,
+        "native_records": 101,
+        "native_responses_requests": 9,
+        "frontend_requests": 13,
+        "passive_http_records": 8,
+        "live_defaults_snapshot": true,
+        "live_defaults_matches_bound": true,
+        "native_call_counts": {
+          "tool_search": 1,
+          "read_file": 2,
+          "exec_command": 1
+        },
+        "qualification": "Target facts inspected; custom startup/compact prompts retained. Not full ARW session inspection or no-prompt loop mitigation acceptance."
+      }
+    }
+  ],
+  "groups": [
+    {
+      "strategy": "current-greedy",
+      "sampling": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20
+      },
+      "observations": 3,
+      "passed": 3,
+      "mean": {
+        "work_seconds": 85.89863676465939,
+        "load_seconds": 14.16749499933212,
+        "engine_input_tokens_per_second": 2250.1473778515524,
+        "engine_output_tokens_per_second": 112.05741364851994,
+        "task_input_tokens_per_second": 1251.9759246773542,
+        "task_output_tokens_per_second": 45.128289443375955
+      },
+      "mean_tokens": {
+        "uncached_input": 102779,
+        "cached_input": 34303.333333333336,
+        "output": 3667.3333333333335
+      },
+      "work_min_seconds": 71.53727540570637,
+      "work_max_seconds": 113.32650886927196,
+      "work_population_stddev_seconds": 19.401637141710918
+    },
+    {
+      "strategy": "qwen-thinking",
+      "sampling": {
+        "temperature": 1.0,
+        "top_p": 0.95,
+        "top_k": 20
+      },
+      "observations": 3,
+      "passed": 3,
+      "mean": {
+        "work_seconds": 70.04669416846708,
+        "load_seconds": 13.97319692200593,
+        "engine_input_tokens_per_second": 2647.7149954114525,
+        "engine_output_tokens_per_second": 119.76568467785839,
+        "task_input_tokens_per_second": 1494.3531272040964,
+        "task_output_tokens_per_second": 44.21727379119948
+      },
+      "mean_tokens": {
+        "uncached_input": 104412,
+        "cached_input": 32334.333333333332,
+        "output": 3097.6666666666665
+      },
+      "work_min_seconds": 65.22120047704061,
+      "work_max_seconds": 76.20952725598286,
+      "work_population_stddev_seconds": 4.584552965881134
+    }
+  ],
+  "sampled_work_reduction_fraction": 0.18454242341031124,
+  "project_prompt_condition": "Both strategies retained all current custom startup and compact prompts.",
+  "execution_elapsed_seconds": 569.7858078479767,
+  "total_task_elapsed_seconds": 2012.2485160827637,
+  "total_task_time_source": "Current user authorization timestamp to diagnostic publication marker; includes ARW freeze/offline preparation, pilot rebind, execution and checks, excludes earlier investigation.",
+  "total_frontend_requests": 74,
+  "total_internal_stages": 80,
+  "total_tokens": {
+    "uncached_input": 621573,
+    "cached_input": 199913,
+    "output": 20295
+  },
+  "main_inspection": {
+    "completed": true,
+    "completed_at": 1791303239.309516,
+    "cases": [
+      {
+        "case": "current-greedy-1",
+        "target_facts_passed": true,
+        "original_thread_retained": true,
+        "extra_continuations": 0,
+        "unexpected_target_tool_repeats": 0,
+        "native_records": 97,
+        "native_responses_requests": 8,
+        "frontend_requests": 12,
+        "passive_http_records": 8,
+        "live_defaults_snapshot": false,
+        "live_defaults_matches_bound": null,
+        "native_call_counts": {
+          "tool_search": 1,
+          "read_file": 2,
+          "exec_command": 1
+        },
+        "qualification": "Target facts inspected; custom startup/compact prompts retained. Not full ARW session inspection or no-prompt loop mitigation acceptance."
+      },
+      {
+        "case": "current-greedy-2",
+        "target_facts_passed": true,
+        "original_thread_retained": true,
+        "extra_continuations": 0,
+        "unexpected_target_tool_repeats": 0,
+        "native_records": 106,
+        "native_responses_requests": 9,
+        "frontend_requests": 13,
+        "passive_http_records": 8,
+        "live_defaults_snapshot": true,
+        "live_defaults_matches_bound": true,
+        "native_call_counts": {
+          "tool_search": 1,
+          "read_file": 2,
+          "exec_command": 1
+        },
+        "qualification": "Target facts inspected; custom startup/compact prompts retained. Not full ARW session inspection or no-prompt loop mitigation acceptance."
+      },
+      {
+        "case": "current-greedy-3",
+        "target_facts_passed": true,
+        "original_thread_retained": true,
+        "extra_continuations": 0,
+        "unexpected_target_tool_repeats": 0,
+        "native_records": 97,
+        "native_responses_requests": 8,
+        "frontend_requests": 12,
+        "passive_http_records": 7,
+        "live_defaults_snapshot": false,
+        "live_defaults_matches_bound": null,
+        "native_call_counts": {
+          "tool_search": 1,
+          "read_file": 2,
+          "exec_command": 1
+        },
+        "qualification": "Target facts inspected; custom startup/compact prompts retained. Not full ARW session inspection or no-prompt loop mitigation acceptance."
+      },
+      {
+        "case": "qwen-thinking-1",
+        "target_facts_passed": true,
+        "original_thread_retained": true,
+        "extra_continuations": 0,
+        "unexpected_target_tool_repeats": 0,
+        "native_records": 97,
+        "native_responses_requests": 8,
+        "frontend_requests": 12,
+        "passive_http_records": 7,
+        "live_defaults_snapshot": true,
+        "live_defaults_matches_bound": true,
+        "native_call_counts": {
+          "tool_search": 1,
+          "read_file": 2,
+          "exec_command": 1
+        },
+        "qualification": "Target facts inspected; custom startup/compact prompts retained. Not full ARW session inspection or no-prompt loop mitigation acceptance."
+      },
+      {
+        "case": "qwen-thinking-2",
+        "target_facts_passed": true,
+        "original_thread_retained": true,
+        "extra_continuations": 0,
+        "unexpected_target_tool_repeats": 0,
+        "native_records": 97,
+        "native_responses_requests": 8,
+        "frontend_requests": 12,
+        "passive_http_records": 7,
+        "live_defaults_snapshot": true,
+        "live_defaults_matches_bound": true,
+        "native_call_counts": {
+          "tool_search": 1,
+          "read_file": 2,
+          "exec_command": 1
+        },
+        "qualification": "Target facts inspected; custom startup/compact prompts retained. Not full ARW session inspection or no-prompt loop mitigation acceptance."
+      },
+      {
+        "case": "qwen-thinking-3",
+        "target_facts_passed": true,
+        "original_thread_retained": true,
+        "extra_continuations": 0,
+        "unexpected_target_tool_repeats": 0,
+        "native_records": 101,
+        "native_responses_requests": 9,
+        "frontend_requests": 13,
+        "passive_http_records": 8,
+        "live_defaults_snapshot": true,
+        "live_defaults_matches_bound": true,
+        "native_call_counts": {
+          "tool_search": 1,
+          "read_file": 2,
+          "exec_command": 1
+        },
+        "qualification": "Target facts inspected; custom startup/compact prompts retained. Not full ARW session inspection or no-prompt loop mitigation acceptance."
+      }
+    ],
+    "total_task_elapsed_seconds": 2012.2485160827637,
+    "total_task_time_source": "Current user authorization timestamp to diagnostic publication marker; includes ARW freeze/offline preparation, pilot rebind, execution and checks, excludes earlier investigation.",
+    "experiment_boundary": "All custom startup and compact instructions retained in both strategies. Valid only for short-chain compatibility/incremental comparison with those prompts; not the requested no-custom-prompt loop mitigation test.",
+    "model_run_authorization": "User asked to finish the interrupted freeze/offline preparation, then start the previously specified six-instance pilot. No additional runs performed."
+  },
+  "qualification": "Short compatibility comparison of complete sampling strategies, not ARW ability scoring, an isolated parameter causal test, or evidence of a lower long-task loop rate.",
+  "raw_evidence_boundary": "Full sessions/requests/tool results/logs only in .tmp; numeric stages/full-precision statistics and conclusions survive independently. Deleting details prevents replay."
+}

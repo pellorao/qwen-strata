@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "commit": "760007c2134d7a116a20d65836eb0ea1073ab0bf",
+  "committed_bytes_verified": true,
+  "files_verified": 554,
+  "archive": {
+    "file": "source-snapshots/current/arw-760007c2134d-855835bef963.tar.gz",
+    "sha256": "855835bef963027cf86d784081819f57e12e518a673f1fc5b13dbf2695356eb1",
+    "bytes": 1602989
+  },
+  "previous_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/previous-39fe7f508237/manifest.json",
+  "delta": {
+    "changed_existing": 47,
+    "added": 8,
+    "removed": 1
+  },
+  "canonical_rule_mirrors": {
+    "verified": 95,
+    "updated": 10
+  },
+  "business_fixture_files_verified_unchanged": 112,
+  "model_runs": 0,
+  "current_dynamic_group": "continues original547file source; no preparation/settings/runtime mutation",
+  "old_source_and_attempts_preserved": true,
+  "validation": {
+    "source_sha": "passed",
+    "tests": {
+      "upstream_targeted_checks_passed": 121,
+      "upstream_targeted_checks_failed": 0,
+      "command_loop_adapter_checks_passed": 5,
+      "boundary": "Unmodified upstream runtime/permission/capability/Commit Audit unit tests, plus project command adapter; no model or real native sandbox quality run."
+    },
+    "actual_model_permission_approval_and_delivery": "not_run",
+    "model_switch_preset_and_request_merge": {
+      "controller_tests_passed": 11,
+      "request_default_tests_passed": 5,
+      "actual_model_switching": "not_run"
+    }
+  },
+  "remaining": [
+    "Finish current dynamic group Main inspection/scoring/report",
+    "Reprepare affected future handoffs with new source",
+    "Remove disabled local permission adapter after current group closes",
+    "Verify affected actual sandbox/approval/completion/10-and-5 pause paths before model capability resumption"
+  ],
+  "selected_source_worktree_clean_at_freeze": true,
+  "subsequent_uncommitted_upstream_changes_excluded": true,
+  "source_collection_recovery": {
+    "missing_public_dependency": "release-validation.json",
+    "collector_updated": true,
+    "frozen_source_unmodified": true,
+    "reason": "Original release capability preparation needs its tracked public validation configuration; source archive originally omitted this root file.",
+    "model_runs": 0,
+    "temporary_repository_identity": "Fresh git init in test-only materialization; no source edits or imported history."
+  }
+}

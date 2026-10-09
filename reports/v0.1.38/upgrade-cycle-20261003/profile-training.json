@@ -1,0 +1,104 @@
+{
+  "profile_windows": "C:\\Users\\Pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\profiles\\v0.1.38\\q2_0\\review-profile-training-bounded.bin",
+  "baseline": {
+    "sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+    "version": 1,
+    "layers": 48,
+    "experts": 512,
+    "slots": 24576,
+    "ranked_count": 24576,
+    "bytes": 196632
+  },
+  "learned": {
+    "sha256": "d965e7f503c69bec538eb56d542db558a9232ed47a560889269645ed0319e426",
+    "version": 1,
+    "layers": 48,
+    "experts": 512,
+    "slots": 24576,
+    "ranked_count": 24576,
+    "bytes": 196632
+  },
+  "changed_rank_positions": 24571,
+  "trained": true,
+  "accepted_for_use": false,
+  "stop": {
+    "status": "stopped",
+    "clean_unload": true
+  },
+  "engine_tokens": {
+    "uncached_input": 76463,
+    "cached_input": 70519,
+    "output": 27561
+  },
+  "requires_validation": "Frozen original ARW scenarios, default vs trained profile, three repeats",
+  "records": [
+    {
+      "task": 1,
+      "role": "code-standards-reviewer",
+      "topic": "implementation",
+      "wall_s": 60.054964461000054,
+      "usage": {
+        "uncached_input": null,
+        "cached_input": null,
+        "output": 6247,
+        "reason": "Cached input exceeds total input; retain raw usage and physical engine counters"
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "task": 2,
+      "role": "code-spec-reviewer",
+      "topic": "contract",
+      "wall_s": 63.17849446999753,
+      "usage": {
+        "uncached_input": null,
+        "cached_input": null,
+        "output": 6679,
+        "reason": "Cached input exceeds total input; retain raw usage and physical engine counters"
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "task": 3,
+      "role": "spec-readiness-reviewer",
+      "topic": "maintenance requirements",
+      "wall_s": 34.81238607299747,
+      "usage": {
+        "uncached_input": 14050,
+        "cached_input": 0,
+        "output": 3376
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "task": 4,
+      "role": "spec-readiness-reviewer",
+      "topic": "API requirements",
+      "wall_s": 51.15769924000051,
+      "usage": {
+        "uncached_input": null,
+        "cached_input": null,
+        "output": 5418,
+        "reason": "Cached input exceeds total input; retain raw usage and physical engine counters"
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "task": 5,
+      "role": "commit-audit-reviewer",
+      "topic": "requirements and implementation",
+      "wall_s": 56.46587872500095,
+      "usage": {
+        "uncached_input": 5,
+        "cached_input": 12642,
+        "output": 5910
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "request_wall_s": 265.6694229689965,
+  "ownership_returned": true,
+  "prior_instrumentation_failure": "profile-training-failure.json",
+  "physical_token_scope": "All generated/read/reused engine token counts for the five independent requests, including internal thinking/output segments. API counters are retained separately and may be inconsistent.",
+  "measurement_details": "../../../.tmp/measurement-details/v0.1.38/upgrade-cycle-20261003/profile-training.json"
+}

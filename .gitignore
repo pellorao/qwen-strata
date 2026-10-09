@@ -1,0 +1,18 @@
+# Private project configuration (hosts, credentials)
+/project.private.toml
+# Temporary measurement details, downloads and backups
+/.tmp/
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+# Runtime assets live in the Windows installation, not here
+*.gguf
+*.safetensors
+*.whl
+*.zip
+*.exe
+*.dll
+*.log
+# Claude Code personal settings
+/.claude/settings.local.json

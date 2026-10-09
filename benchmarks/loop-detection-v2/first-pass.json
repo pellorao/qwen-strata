@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "status": "full-discovery-pass-not-causal-f1",
+  "behavior_sha256": "784148f62f4e7d61e1d6465e8d101852e8b4083b2990ca13c7a99b9f95b5a39a",
+  "traces_observed": 235,
+  "traces_with_model_tool_behavior": 231,
+  "facts_observed": 8975,
+  "counts": {
+    "boundary": 2473,
+    "task": 237,
+    "reasoning": 2265,
+    "assistant": 1329,
+    "tool": 1709,
+    "feedback": 962,
+    "command_observations": 1532,
+    "known_command_results": 1448
+  },
+  "hints_by_rule": {
+    "reasoning-return": 1291,
+    "same-failure": 7,
+    "same-command-window": 1,
+    "literal-text-repeat": 1
+  },
+  "hint_count": 1300,
+  "implementation_sha256": {
+    "reasoning_loop_guard.py": "c53a1753daf808d01d3b5488c4265d6b1cd922ea035765a8683938b59a6ab5ba",
+    "progress_guard.py": "baf87cb5f28262247c60e246db890e9ed7991d86d4b00b3de61d2c16323cff30",
+    "replay_model_behavior.py": "7f9fe63e348a5711f44f1174031d43dce6ed91b91521e95ab8113d68062cc4b3"
+  },
+  "f1": null,
+  "detector_rule_changes": 0,
+  "model_runs": 0,
+  "model_requests": 0,
+  "limitations": [
+    "All original observations are retained; no intervention skips in this discovery pass.",
+    "No artifact state or runtime input version is invented from model claims; delivery-stall and non-SyntaxError context rules lack trusted state observations in this corpus.",
+    "No first-trigger or skip-target score until causal-unit annotations are validated.",
+    "Generic tools and exec wrappers are preserved as facts but are not fabricated into completed shell commands."
+  ],
+  "annotation_sha256": "1d49d8607f4af8906c745916e577ea79c02b5df3442f7337f8b24057b3368ca6",
+  "annotation_revision": 2,
+  "confirmed_historical_and_new_groups": 156,
+  "main_review": {
+    "single_response_normal_candidates": 89,
+    "reviewed_observation_points": 35,
+    "new_true_groups_confirmed_from_this_review": 0,
+    "normal_labels_retained": true,
+    "review_bindings": [
+      {
+        "observation_id": "01a11804-0be6-7083-ade5-c4e3e9744a44:177:assistant",
+        "source_events": [
+          177
+        ],
+        "text_sha256": "f42e70719d76ff433fc7ee63d9ac6c8466e79f7e8096c268194425a9bee1954d",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a11823-dbd9-76f2-bea5-5b3ebf058574:68:reasoning",
+        "source_events": [
+          68,
+          67
+        ],
+        "text_sha256": "7c1fb34c2c87c21272d2ee3e4d38e014558464428535e48fe89f6e26e16e9901",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a11823-dbd9-76f2-bea5-5b3ebf058574:239:assistant",
+        "source_events": [
+          239
+        ],
+        "text_sha256": "60c75117d1792546cdb1f1b567b645c5f50ac01d7e47f6e5c9dd2229b8c12c22",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a11823-dbd9-76f2-bea5-5b3ebf058574:314:reasoning",
+        "source_events": [
+          314,
+          313
+        ],
+        "text_sha256": "2f3940c88af8a2496a6784caeefa3e73743ac106261b90040c62e03ca2315474",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d:343:reasoning",
+        "source_events": [
+          343,
+          342
+        ],
+        "text_sha256": "ac987e0a1a3775ad91554182f3a6b0a4d23cc89c1f840c3f3c1eda801a4171d1",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d:484:reasoning",
+        "source_events": [
+          484,
+          483
+        ],
+        "text_sha256": "340d1ec28a80b29957678283c1834aa8ce1137e5e680c4b18b72b5d151240168",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a1149d-305a-73e3-baba-79bef1e96de9:151:reasoning",
+        "source_events": [
+          151,
+          150
+        ],
+        "text_sha256": "a2517a3676499839154ec84fb105aa2105932871dc9084d272180d01744711d0",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a1149d-305a-73e3-baba-79bef1e96de9:200:reasoning",
+        "source_events": [
+          200,
+          199
+        ],
+        "text_sha256": "5d4604a7ee8e278c9981ccafb8f8bc02bf9c08454dcfa908890198ebbcde8ff5",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a1149d-305a-73e3-baba-79bef1e96de9:255:reasoning",
+        "source_events": [
+          255,
+          254
+        ],
+        "text_sha256": "4f9389de101095701b8da72ea5a17368e451f53affb455c1a83ff18d185e94b0",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f:68:reasoning",
+        "source_events": [
+          68,
+          67
+        ],
+        "text_sha256": "4bfd37089b9d4db429967e4368a36fc55b7b73482fc4198a4cca73717998c2ad",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a1145c-aee5-7960-837b-3228275ad4cc:260:reasoning",
+        "source_events": [
+          260,
+          259
+        ],
+        "text_sha256": "e13630dd20effdd1afa1ec8180bca28d224ed61daf7afa8c6214a8f4370f6c99",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0:75:reasoning",
+        "source_events": [
+          75,
+          74
+        ],
+        "text_sha256": "dbac1616b599447a09fd2ad54e301388ae3cfe32616a7890b1d767f8e0f35e46",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a114c6-1825-7702-8279-4d78243bc714:156:reasoning",
+        "source_events": [
+          156
+        ],
+        "text_sha256": "8380f29bd6cca68a9c609b6c2ce2a5b6404dc431d86fa5a8207664f6ee4d5ac8",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a114c6-1825-7702-8279-4d78243bc714:289:reasoning",
+        "source_events": [
+          289,
+          288
+        ],
+        "text_sha256": "9b044989e68eb5d3292a1213aa1017108bd846ec605ef14c49c64a9f5d9059c1",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a113d1-248d-7e30-a988-51d968834429:78:reasoning",
+        "source_events": [
+          78,
+          77
+        ],
+        "text_sha256": "ff5866eb9e3608f29dc6b960b354517fd90becf561a8deaeec482199627f7226",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62:75:reasoning",
+        "source_events": [
+          75,
+          74
+        ],
+        "text_sha256": "d87b8ad4e0189f846c9e7aeb469ec38b685e24b8e4c56dd45c91ddc038a78555",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62:94:reasoning",
+        "source_events": [
+          94,
+          93
+        ],
+        "text_sha256": "db90ee37bd16b0847b1b2b68d855bffa20a621cae9171fd8191f88431a51568e",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a112ad-25d8-7123-bd60-2f17200f77f0:99:reasoning",
+        "source_events": [
+          99,
+          98
+        ],
+        "text_sha256": "14bbf17a448582cd7df95a27590f1ab7c86c23c3e4af8911d1d10ee32a04ae9c",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a1127a-fd70-78e3-b230-42d64f5cfe4c:74:reasoning",
+        "source_events": [
+          74,
+          73
+        ],
+        "text_sha256": "125f3fe87bb56372990a0469909e859d7bf92f208e0c39506f16e7e91057a392",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a1127a-fd70-78e3-b230-42d64f5cfe4c:84:reasoning",
+        "source_events": [
+          84,
+          83
+        ],
+        "text_sha256": "417a7d4ef308ca6ede0521529205ea17721a43747935f4e0f0347244fc960434",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a1127a-fd70-78e3-b230-42d64f5cfe4c:121:reasoning",
+        "source_events": [
+          121,
+          120
+        ],
+        "text_sha256": "17f2962c7d9dccc00681be9c66930021bab0ff5b1e042c4fb4f00d864065b591",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a113ab-f529-7a43-8cf0-00cab4092ac4:91:reasoning",
+        "source_events": [
+          91,
+          90
+        ],
+        "text_sha256": "681a99c7704088c9bc91ee8c88e7a91ab7daf35c7650b4ec3870787b21804059",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a113ab-f529-7a43-8cf0-00cab4092ac4:124:reasoning",
+        "source_events": [
+          124,
+          123
+        ],
+        "text_sha256": "6188e396f6668be642db3f81c77b2f7cf1eabfefa8864cd549b3b4cb67caba1d",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a113ab-f529-7a43-8cf0-00cab4092ac4:198:reasoning",
+        "source_events": [
+          198,
+          197
+        ],
+        "text_sha256": "da45bc54d34b4df566d2994dba36d3b4bd7fc9fc8579661a06003f156aa71ede",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0:92:reasoning",
+        "source_events": [
+          92,
+          91
+        ],
+        "text_sha256": "814892da56c5b87a1560014728052e0d5bea9aa0276da5f6f820f6e6c688ea9b",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a11757-a3bc-7b23-b8fa-338ca563faac:91:reasoning",
+        "source_events": [
+          91,
+          90
+        ],
+        "text_sha256": "d0077892291b8c7b88e74bc0a060441f8423de4f4b098a5f09ba328d60fa53bf",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a11720-2f78-7801-bfc9-42d0770631a1:132:reasoning",
+        "source_events": [
+          132,
+          131
+        ],
+        "text_sha256": "e50d6e35746a4c0f14ed5737b83e9faff8c5fa803024c29a9f61f2744faf7f6d",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a11720-2f78-7801-bfc9-42d0770631a1:269:reasoning",
+        "source_events": [
+          269,
+          268
+        ],
+        "text_sha256": "0a2d28d254285c5475b2d7782ffd2c5f24b729106c8a3dbf1e7b248c78fa4926",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a116fc-4100-76c0-b264-c12f07d32b90:137:reasoning",
+        "source_events": [
+          137,
+          136
+        ],
+        "text_sha256": "b11284d940729f2ace5ca6338369b47c88ba4aea0367bc6385595ce369360cb3",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a116fc-4100-76c0-b264-c12f07d32b90:147:reasoning",
+        "source_events": [
+          147,
+          146
+        ],
+        "text_sha256": "c713fc4c495cca7cf3b5706519a353fd143dd0ec004a5be100f96fb93737d2ea",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a116fc-4100-76c0-b264-c12f07d32b90:326:reasoning",
+        "source_events": [
+          326,
+          325
+        ],
+        "text_sha256": "af479b425b6d4e2f039bcb2d1b56b0681a888ff35a5977c1b1374600bec9cdb1",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a118ca-210a-77d3-8252-65401667fb90:91:reasoning",
+        "source_events": [
+          91,
+          90
+        ],
+        "text_sha256": "a1e901f2abfaa2c1ca4734572e1e36eacf2f3e016c6fd1ba1ef3865339f864ab",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a118ca-210a-77d3-8252-65401667fb90:98:reasoning",
+        "source_events": [
+          98,
+          97
+        ],
+        "text_sha256": "9b6eff09476c45f42b82847c83b3f5690afcca3dc0bc52cbff19c7d75bce3c85",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a1167f-0d50-7712-a32c-14f937ba52ba:83:reasoning",
+        "source_events": [
+          83,
+          82
+        ],
+        "text_sha256": "12b5a3a2938969c360da3a04547ffd9e0a3e21e3fa1fdef8ea9f44591919d590",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      },
+      {
+        "observation_id": "01a116cf-d3d4-75a3-8c7b-f920f3e97662:118:reasoning",
+        "source_events": [
+          118,
+          117
+        ],
+        "text_sha256": "1320f260eb97b562d3b95c6993990df6d480e447d30e4afa4274788721355d21",
+        "verdict": "normal-label-retained",
+        "reason": "Main examined all emitted witness paragraphs; separate requirement mappings, meaningful arithmetic/schema repair, requested summaries, initial analysis or one reasonable verification are not three repeated returns to one settled decision."
+      }
+    ],
+    "cross_observation_normal_candidates_not_yet_closed": 341
+  },
+  "alert_points": 414,
+  "alerts_on_initially_normal_facts": 430,
+  "alerts_on_mixed_facts": 862,
+  "alerts_on_loop_facts": 8,
+  "scoring_preparation": {
+    "groups_with_overlapping_context_windows": 45,
+    "historical_reasoning_groups_mixing_internal_and_cross_response": 54,
+    "status": "causal-unit-target-and-resume-adapter-required",
+    "f1": null
+  },
+  "recovery": {
+    "failed_attempts": 1,
+    "error_type": "KeyError",
+    "error_key": "terms",
+    "source": "observe_model_text",
+    "detector_source_sha256": "c53a1753daf808d01d3b5488c4265d6b1cd922ea035765a8683938b59a6ab5ba",
+    "cause": "not established; not reproduced by two unchanged successful subsequent runs",
+    "detector_changes": 0,
+    "model_runs": 0,
+    "subsequent_cli_alerts_identical_to_original_successful_pass": true
+  },
+  "regressions": {
+    "observation_allowlist_and_unknown_result": 2,
+    "intervention_scoring_core": 21
+  },
+  "approval_state": "Old locality-only proposal withdrawn; no-keyword dynamic-text plan pending user decision."
+}

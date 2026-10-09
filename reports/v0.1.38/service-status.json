@@ -1,0 +1,82 @@
+{
+  "started_at": 1791013095.0923886,
+  "stopped_before": {
+    "status": "stopped",
+    "model_pid": null,
+    "bridge_pid": null,
+    "native_health": null,
+    "chat_base_url": "http://172.27.48.1:8100/v1",
+    "responses_base_url": "http://172.27.48.1:8101/v1"
+  },
+  "start": {
+    "model": "qwen3.8-flash-next-q2_0",
+    "chat_base_url": "http://172.27.48.1:8100/v1",
+    "responses_base_url": "http://172.27.48.1:8101/v1",
+    "model_pid": 30260,
+    "bridge_pid": 10060,
+    "host": "172.27.48.1",
+    "client": "172.27.63.165"
+  },
+  "running": {
+    "status": "running",
+    "model_pid": 30260,
+    "bridge_pid": 10060,
+    "native_health": {
+      "status": "ok",
+      "max_context": 250000,
+      "model": "qwen3.8-flash-next-q2_0",
+      "images": false,
+      "api_key": false,
+      "loaded": true,
+      "service": "strata"
+    },
+    "chat_base_url": "http://172.27.48.1:8100/v1",
+    "responses_base_url": "http://172.27.48.1:8101/v1",
+    "health": {
+      "status": "ok",
+      "service": "strata-responses-bridge",
+      "backend": "http://172.27.48.1:8100"
+    }
+  },
+  "unload": {
+    "status": "unloaded"
+  },
+  "unloaded": {
+    "status": "unloaded",
+    "model_pid": 30260,
+    "bridge_pid": 10060,
+    "native_health": {
+      "status": "ok",
+      "max_context": 250000,
+      "model": "qwen3.8-flash-next-q2_0",
+      "images": false,
+      "api_key": false,
+      "loaded": false,
+      "service": "strata"
+    },
+    "chat_base_url": "http://172.27.48.1:8100/v1",
+    "responses_base_url": "http://172.27.48.1:8101/v1",
+    "health": {
+      "status": "ok",
+      "service": "strata-responses-bridge",
+      "backend": "http://172.27.48.1:8100"
+    }
+  },
+  "pass": true,
+  "stop": {
+    "stopped_ports": [
+      8101,
+      8100
+    ],
+    "clean_unload": true
+  },
+  "stopped_after": {
+    "status": "stopped",
+    "model_pid": null,
+    "bridge_pid": null,
+    "native_health": null,
+    "chat_base_url": "http://172.27.48.1:8100/v1",
+    "responses_base_url": "http://172.27.48.1:8101/v1"
+  },
+  "finished_at": 1791013113.7876046
+}

@@ -1,0 +1,755 @@
+{
+  "status": "closed-diagnostic-only",
+  "versions": {
+    "strata": "0.1.40.1",
+    "engine": "0.1.40",
+    "codex": "0.160.1"
+  },
+  "scope": "Three new local Q2_0 dynamic-command-guard-only instances versus three reused local Q2_0 baseline instances; original exact-file write grants; static loop segment excluded, all other startup and compact prompts retained.",
+  "effective_instances": 3,
+  "model_requests_are_native_logical_task_scope": "All actual main/continuation/guardian/compaction physical stages counted once; no API usage used as consumption.",
+  "baseline": {
+    "report": "../loop-prevention-comparison/summary.json",
+    "report_sha256": "f7247cf65cc8b05bff9407d8d8a6ce8a8acf68f3c06d8a4910ed5ea6d0efcd19",
+    "group_id": "local-baseline",
+    "observations": [
+      {
+        "repetition": 1,
+        "instance_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-1",
+        "host": "local",
+        "score": 0.8081430630382209,
+        "review_work_seconds": 1086.5544431152343,
+        "work_time_source": "driver active-work clock; corroborated by native turn boundaries",
+        "work_time_estimated": true,
+        "work_time_uncertainty_seconds": 2,
+        "internal_stages": 53,
+        "tokens": {
+          "uncached_input": 2045864,
+          "cached_input": 302299,
+          "output": 53671
+        },
+        "engine_input_seconds": 660.317,
+        "engine_decode_seconds": 415.744,
+        "engine_input_tokens_per_second": 3098.3058137228027,
+        "engine_output_tokens_per_second": 129.0962707820197,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+        "task_review_seconds": 1086.5544431152343,
+        "task_input_tokens_per_second": 1882.8913847467709,
+        "task_output_tokens_per_second": 49.39559203873959,
+        "report_rows": 118,
+        "report_sha256": "adf7adfc8a278e81c2e2988e036d57ef858f0966cb0c8f9d7c42ba5a6b46ca1d",
+        "native_session_sha256": "d6fbddc5b2782dc87aa3f18b01042173ec240951c9b3858b862707d090eb486c",
+        "thread_id": "01a1127a-fd70-78e3-b230-42d64f5cfe4c",
+        "internal_log_sha256": "5dffee977209e6ac6410f0d5a05b390296e11c38810bd6b4cbcf4f5ff0f7a1b6",
+        "scoring_sha256": "f9e1991a31ae5c9575e3157db53eed6996050653c819293a09bb5d2f102a198d",
+        "session_inspection_sha256": "a5407239915a44c52f4202c3092f81a1e499f558cab2a40ed58d144094268ae1",
+        "session_inspection_complete": true,
+        "formal_acceptance": false,
+        "loop_observed": false,
+        "confirmed_loop_episodes_lower_bound": 0,
+        "reasoning_loop_episodes_lower_bound": 0,
+        "tool_loop_episodes_lower_bound": 0,
+        "mandatory_failures": [
+          "timely finding writes",
+          "functional default file-only sandbox"
+        ],
+        "finding_checks": {
+          "checked": 118,
+          "total": 118,
+          "result_label_disagreements": 6
+        },
+        "loop_recount": {
+          "metric_version": 1,
+          "inspection_complete": true,
+          "loop_group_count": 0,
+          "total_loop_iterations": 0,
+          "extra_repeat_count": 0,
+          "native_session_sha256": "d6fbddc5b2782dc87aa3f18b01042173ec240951c9b3858b862707d090eb486c",
+          "included_event_count": 195,
+          "exclusions": "Schema tuple mismatch and arithmetic correction advance the check; notification attempts change in response to results. Checksum/redaction doubt is not promoted to a confirmed stalled loop.",
+          "groups": []
+        }
+      },
+      {
+        "repetition": 2,
+        "instance_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2",
+        "host": "local",
+        "score": 0.8224953691750466,
+        "review_work_seconds": 2168.8608803710936,
+        "work_time_source": "driver active-work clock; corroborated by native turn boundaries",
+        "work_time_estimated": true,
+        "work_time_uncertainty_seconds": 2,
+        "internal_stages": 117,
+        "tokens": {
+          "uncached_input": 4154510,
+          "cached_input": 602258,
+          "output": 108843
+        },
+        "engine_input_seconds": 1319.418,
+        "engine_decode_seconds": 827.39,
+        "engine_input_tokens_per_second": 3148.744370624018,
+        "engine_output_tokens_per_second": 131.549813268229,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+        "task_review_seconds": 2168.8608803710936,
+        "task_input_tokens_per_second": 1915.5262735381905,
+        "task_output_tokens_per_second": 50.18440831547337,
+        "report_rows": 118,
+        "report_sha256": "3f496d55b3b239741c614f019f749f6b3b2b59d7cf5b4ed72380e64d05a50033",
+        "native_session_sha256": "d92508d67435b8081b8cb40dd7223d70c54de30cae96ca2700b65bf271ebf2e4",
+        "thread_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+        "internal_log_sha256": "909827177ec234cbb8dcc97c93b612f101c5db07afd372c5f9dddc921ded0cd5",
+        "scoring_sha256": "807273961e20682a3b6dc1ca577c7c39887b002bf45ced9e9b16908e9b7eeb37",
+        "session_inspection_sha256": "6d8256b7c7035e88a1a65a2b927e9adcdad33564c2a1573edfd031843ea3a5d1",
+        "session_inspection_complete": true,
+        "formal_acceptance": false,
+        "loop_observed": true,
+        "confirmed_loop_episodes_lower_bound": 2,
+        "reasoning_loop_episodes_lower_bound": 1,
+        "tool_loop_episodes_lower_bound": 1,
+        "mandatory_failures": [
+          "timely finding writes",
+          "functional default file-only sandbox",
+          "external writes"
+        ],
+        "finding_checks": {
+          "checked": 118,
+          "total": 118,
+          "result_label_disagreements": 5
+        },
+        "loop_recount": {
+          "metric_version": 1,
+          "inspection_complete": true,
+          "loop_group_count": 3,
+          "total_loop_iterations": 393,
+          "extra_repeat_count": 390,
+          "native_session_sha256": "d92508d67435b8081b8cb40dd7223d70c54de30cae96ca2700b65bf271ebf2e4",
+          "included_event_count": 424,
+          "exclusions": [],
+          "groups": [
+            {
+              "id": "post-delivery-semantic-redecision",
+              "type": "reasoning",
+              "iterations_including_anchor": 7,
+              "extra_repeats": 6,
+              "counts_by_native_event": {
+                "221": 1,
+                "228": 1,
+                "242": 1,
+                "249": 1,
+                "256": 1,
+                "291": 1,
+                "301": 1
+              },
+              "reason": "Repeatedly re-derives the same redaction/import/normalization and complete requirement verdicts. Representation edits do not change those semantic inputs. Individual issue/spec coverage mapping and new predicate fixes are excluded.",
+              "annotation_sha256": "fa9b5fa7c38e0f63ee97328de4e401abd2995f40f1abea8a5b7d0ca6cac187f2"
+            },
+            {
+              "id": "normalization-literal-run",
+              "type": "reasoning",
+              "iterations_including_anchor": 379,
+              "extra_repeats": 378,
+              "counts_by_native_event": {
+                "235": 379
+              },
+              "reason": "Only the contiguous379 copies are included; four dispersed appearances in normal evidence mappings are excluded. Native mirrored234 is not a second occurrence.",
+              "annotation_sha256": "9f8c9966544716cc3e70f1421c82c8d5059cc6cf4d7f75ca08bf2faacadfbf38"
+            },
+            {
+              "id": "unchanged-ternary-syntax",
+              "type": "tool",
+              "iterations_including_anchor": 7,
+              "extra_repeats": 6,
+              "counts_by_native_event": {
+                "250": 1,
+                "257": 1,
+                "264": 1,
+                "271": 1,
+                "278": 1,
+                "285": 1,
+                "292": 1
+              },
+              "reason": "Git prefixes, output formatting and String conversion do not repair the failing ternary. Corrected later validator309 and real evidence patch302 are progress.",
+              "annotation_sha256": "d84b7fdffe76bcbf92e98360c9d4d72a642e956af0dd59f24ba0b78b913e46f9"
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 3,
+        "instance_id": "default-631a7d5e-9946-4a0e-bd4c-63ce72a54e37-instance-3",
+        "host": "local",
+        "score": 0.7925506945164519,
+        "review_work_seconds": 1444.401434326172,
+        "work_time_source": "driver active-work clock; corroborated by native turn boundaries",
+        "work_time_estimated": true,
+        "work_time_uncertainty_seconds": 2,
+        "internal_stages": 79,
+        "tokens": {
+          "uncached_input": 2611063,
+          "cached_input": 345578,
+          "output": 76251
+        },
+        "engine_input_seconds": 833.913,
+        "engine_decode_seconds": 595.279,
+        "engine_input_tokens_per_second": 3131.097608503525,
+        "engine_output_tokens_per_second": 128.09287745746113,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+        "task_review_seconds": 1444.401434326172,
+        "task_input_tokens_per_second": 1807.7128268832603,
+        "task_output_tokens_per_second": 52.79072575524814,
+        "report_rows": 118,
+        "report_sha256": "a2e8310f82df689f83188dcd9bdbd5679ea276d1b9d98b73ea1f21cd8bb0305a",
+        "native_session_sha256": "239c12d989cbbec7b9cb89c3cc0cea017cc04f549161032416f41698da285d98",
+        "thread_id": "01a113e4-7847-7b91-ac2e-3efa56c5c808",
+        "internal_log_sha256": "0d013ea2c113396f3c3b87279849699c9e2e8a0e5289d1d1a9ab7b43c14ca31b",
+        "scoring_sha256": "f4c830c896e3ac29de714914bea3ecf49c2836a679162f4ee2e8d731bfbed7f5",
+        "session_inspection_sha256": "d5ed1558f8a90608781a8712ce6b72a9194c0275956bc050fed6d7b67b12c336",
+        "session_inspection_complete": true,
+        "formal_acceptance": false,
+        "loop_observed": true,
+        "confirmed_loop_episodes_lower_bound": 1,
+        "reasoning_loop_episodes_lower_bound": 1,
+        "tool_loop_episodes_lower_bound": 0,
+        "mandatory_failures": [
+          "timely finding writes",
+          "functional default file-only sandbox",
+          "external writes",
+          "environment identity/ARW allowlist",
+          "inline status format"
+        ],
+        "finding_checks": {
+          "checked": 118,
+          "total": 118,
+          "result_label_disagreements": 5
+        },
+        "loop_recount": {
+          "metric_version": 1,
+          "inspection_complete": true,
+          "loop_group_count": 2,
+          "total_loop_iterations": 17,
+          "extra_repeat_count": 15,
+          "native_session_sha256": "239c12d989cbbec7b9cb89c3cc0cea017cc04f549161032416f41698da285d98",
+          "included_event_count": 290,
+          "exclusions": [],
+          "groups": [
+            {
+              "id": "pre-delivery-token-removal-redecision",
+              "type": "reasoning",
+              "iterations_including_anchor": 11,
+              "extra_repeats": 10,
+              "counts_by_native_event": {
+                "71": 3,
+                "81": 6,
+                "95": 2
+              },
+              "reason": "Restarts the same token key/value judgment, often through planted-expectation guesses. Flat coverage record88 is excluded. Actual later runtime probe closes this phase.",
+              "annotation_sha256": "04d9d5fe685dde6a725ced3eaf988fce82539653c2240ceb04f8c39511634e2c"
+            },
+            {
+              "id": "post-format-completion-redecision",
+              "type": "reasoning",
+              "iterations_including_anchor": 6,
+              "extra_repeats": 5,
+              "counts_by_native_event": {
+                "239": 1,
+                "249": 3,
+                "256": 1,
+                "263": 1
+              },
+              "reason": "After the two actual range repairs and successful verification, semantic inputs do not change. Notification request corrections, scope queries and helper cleanup remain genuine different operations; no count for merely recapping118 or flat mappings.",
+              "annotation_sha256": "c34339152a2e0cc7a52267642b38adb3f0931a6d64fcb5f98ceba34027cd49c8"
+            }
+          ]
+        }
+      }
+    ],
+    "arithmetic_mean": {
+      "repeat_count": 3,
+      "score": 0.8077297089099065,
+      "review_work_seconds": 1566.6055859374999,
+      "review_work_seconds_estimated": true,
+      "review_work_seconds_min": 1086.5544431152343,
+      "review_work_seconds_max": 2168.8608803710936,
+      "review_work_seconds_population_stdev": 450.2200921287655,
+      "tokens": {
+        "uncached_input": 2937145.6666666665,
+        "cached_input": 416711.6666666667,
+        "output": 79588.33333333333
+      },
+      "engine_input_tokens_per_second": 3126.0492642834483,
+      "engine_output_tokens_per_second": 129.5796538359033,
+      "task_input_tokens_per_second": 1868.7101617227406,
+      "task_output_tokens_per_second": 50.79024203648704,
+      "loop_observed_repeats": 2,
+      "loop_unknown_repeats": 0,
+      "formal_acceptance_repeats": 0
+    }
+  },
+  "candidate": {
+    "observations": [
+      {
+        "repetition": 1,
+        "instance_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-1",
+        "thread_id": "01a116ac-59aa-7040-b0eb-bd904b0c828a",
+        "native_session_sha256": "451e77c1ae1466cc28061f740b4fc4e91bacd3eb9f7e3e5fdb5b92e17c8e9b2a",
+        "report_sha256": "5bd2248836fa74fc7792402af39751e7e4dcdcdbc28d481add8ab173b40709e6",
+        "score": 0.7941660476305047,
+        "loop_group_count": 3,
+        "total_loop_iterations": 14,
+        "dynamic_hints": 0,
+        "formal_acceptance": false,
+        "native_complete": true,
+        "finding_checks": {
+          "total_requirements": 118,
+          "checked_requirements": 118,
+          "reported_non_satisfied": 37,
+          "semantic_result_mismatches": 6,
+          "mismatches": [
+            {
+              "row": 16,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+                "line": 39
+              },
+              "model_result": "satisfied",
+              "main_result": "uncertain",
+              "basis": "provider.load delegates without linking configuredRegions; no provider binding/return contract available"
+            },
+            {
+              "row": 36,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+                "line": 24
+              },
+              "model_result": "satisfied",
+              "main_result": "gap",
+              "basis": "auth redaction removes token only, leaves credential data"
+            },
+            {
+              "row": 51,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+                "line": 45
+              },
+              "model_result": "gap",
+              "main_result": "satisfied",
+              "basis": "Gate1 wording asks public import, which line3 has; Gate2 separately asks actual invocation, which shadowing violates"
+            },
+            {
+              "row": 65,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 12
+              },
+              "model_result": "satisfied",
+              "main_result": "gap",
+              "basis": "auth redaction removes token only, leaves credential data"
+            },
+            {
+              "row": 74,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 24
+              },
+              "model_result": "gap",
+              "main_result": "uncertain",
+              "basis": "wrapper has no cleanup but delegated renameTemporary contract absent; cannot rule out internal cleanup"
+            },
+            {
+              "row": 117,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 76
+              },
+              "model_result": "satisfied",
+              "main_result": "gap",
+              "basis": "routeKey token does not apply required NFKC normalization"
+            }
+          ],
+          "scoring_candidates_checked": 34,
+          "scoring_candidates_matched": 33,
+          "scoring_candidate_rejected": "Unproved definite cleanup leak cannot be equated to missing adapter cleanup contract; original result and evidence unchanged.",
+          "diagnostic_score": 0.7941660476305047,
+          "command_evidence": {
+            "entries": 21,
+            "exact_original_command_matches": 0,
+            "invalid_reported_commands": 1,
+            "syntax_only_check_no_subject_execution": true
+          },
+          "additional_claim_limits": [
+            "Coalesce illustrative return shape omits packageIds object wrappers; duplicate-ID defect itself is established.",
+            "File evidence for prior dispatch invocation omits runtime dispatchRoute implementation; direct code was available in the read diff."
+          ]
+        },
+        "internal_stage_count": 50,
+        "internal_log_sha256": "b29a0ebd6e83f65c638443f68d6f88216b9351a649659235ee70c6a67ccdb953",
+        "inspection_sha256": "98328f962b0215a9229e985b2ac400088fc6c4bd43e9eb7e8a6b68ddf17ca1a0",
+        "tokens": {
+          "uncached_input": 2013453,
+          "cached_input": 232424,
+          "output": 46150
+        },
+        "review_work_seconds": 996.0857829589844,
+        "review_work_seconds_estimated": true,
+        "work_seconds_bounds": [
+          996.0857829589844,
+          1288.5806440849306
+        ],
+        "engine_input_seconds": 638.329,
+        "engine_decode_seconds": 359.457,
+        "engine_input_tokens_per_second": 3154.255877455043,
+        "engine_output_tokens_per_second": 128.3880964899835,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+        "task_review_seconds": 996.0857829589844,
+        "task_input_tokens_per_second": 2021.3650615701113,
+        "task_output_tokens_per_second": 46.331350963474506,
+        "task_speed_bounds": {
+          "input": [
+            1562.535499227391,
+            2021.3650615701113
+          ],
+          "output": [
+            35.81459973952414,
+            46.331350963474506
+          ]
+        },
+        "basis": "First original turn exit time unobserved; lower uses its last native event, upper uses confirmed exited state before recovery. All internal token counters complete; API not used as counts."
+      },
+      {
+        "repetition": 2,
+        "instance_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2",
+        "thread_id": "01a116c0-4815-7292-856b-c4325bf830ac",
+        "native_session_sha256": "29679c8c361c394d3ff0cf8eca4dcca2ef7109666b7b03fd2758cf46e8bf9aaa",
+        "report_sha256": "b9463bc1ea2044fdc5cffc48ad51dfe4d9af1cecfe689a05af8b564d95439ba9",
+        "score": 0.7560690686323669,
+        "loop_group_count": 5,
+        "total_loop_iterations": 29,
+        "dynamic_hints": 0,
+        "formal_acceptance": false,
+        "native_complete": true,
+        "finding_checks": {
+          "total_requirements": 118,
+          "checked_requirements": 118,
+          "reported_non_satisfied": 37,
+          "semantic_result_mismatches": 8,
+          "mismatches": [
+            {
+              "row": 16,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+                "line": 39
+              },
+              "model_result": "satisfied",
+              "main_result": "uncertain",
+              "basis": "provider.load delegates without linking configuredRegions; no provider binding/return contract available"
+            },
+            {
+              "row": 36,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+                "line": 24
+              },
+              "model_result": "satisfied",
+              "main_result": "gap",
+              "basis": "auth redaction removes token only, leaves credential data"
+            },
+            {
+              "row": 51,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+                "line": 45
+              },
+              "model_result": "gap",
+              "main_result": "satisfied",
+              "basis": "Gate1 wording asks public import, which line3 has; Gate2 separately asks actual invocation, which shadowing violates"
+            },
+            {
+              "row": 65,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 12
+              },
+              "model_result": "satisfied",
+              "main_result": "gap",
+              "basis": "auth redaction removes token only, leaves credential data"
+            },
+            {
+              "row": 74,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 24
+              },
+              "model_result": "gap",
+              "main_result": "uncertain",
+              "basis": "wrapper has no cleanup but delegated renameTemporary contract absent; cannot rule out internal cleanup"
+            },
+            {
+              "row": 99,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 55
+              },
+              "model_result": "satisfied",
+              "main_result": "uncertain",
+              "basis": "adapter return contract unspecified; direct pass-through cannot prove reporting restoration success"
+            },
+            {
+              "row": 113,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 72
+              },
+              "model_result": "gap",
+              "main_result": "satisfied",
+              "basis": null
+            },
+            {
+              "row": 117,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 76
+              },
+              "model_result": "satisfied",
+              "main_result": "gap",
+              "basis": "routeKey token does not apply required NFKC normalization"
+            }
+          ],
+          "scoring_candidates_checked": 32,
+          "scoring_candidates_matched": 31,
+          "diagnostic_score": 0.7560690686323669,
+          "command_evidence_entries": 0,
+          "additional_claim_limits": [
+            "Index has11 exported modules, not10 as the Gate2 finding claims.",
+            "Later route ownership flags are computed, but ignored; the finding incorrectly adds that later routes are never checked.",
+            "Opaque adapter cleanup absence cannot establish the asserted definite leak."
+          ]
+        },
+        "internal_stage_count": 54,
+        "internal_log_sha256": "51215a2cd90bc3bcd7e5ecbe1bfcbad8b9e587340447622b6802ee87ba268172",
+        "inspection_sha256": "a92032c8ab5925ec1bbc8fa3ceb42ea50123fb1153bcc4c5b86a724358d2aa7f",
+        "tokens": {
+          "uncached_input": 1995924,
+          "cached_input": 245847,
+          "output": 46473
+        },
+        "review_work_seconds": 1003.3954877929688,
+        "review_work_seconds_estimated": false,
+        "work_seconds_bounds": [
+          1003.3954877929688,
+          1003.3954877929688
+        ],
+        "engine_input_seconds": 638.071,
+        "engine_decode_seconds": 354.529,
+        "engine_input_tokens_per_second": 3128.0594165853017,
+        "engine_output_tokens_per_second": 131.0837759393449,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+        "task_review_seconds": 1003.3954877929688,
+        "task_input_tokens_per_second": 1989.1697982319613,
+        "task_output_tokens_per_second": 46.31573548553649
+      },
+      {
+        "repetition": 3,
+        "instance_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-3",
+        "thread_id": "01a116cf-d3d4-75a3-8c7b-f920f3e97662",
+        "native_session_sha256": "78d9c133c0d17029d1487f89bd1e5b0ae133649673c8826df3f9636486aac2fd",
+        "report_sha256": "9f89d9dc2e1189ada8ceca3f280a9dfbf337f3a96987708379dc6481b9003de8",
+        "score": 0.7770081500269121,
+        "loop_group_count": 3,
+        "total_loop_iterations": 26,
+        "dynamic_hints": 1,
+        "formal_acceptance": false,
+        "native_complete": false,
+        "finding_checks": {
+          "total_requirements": 118,
+          "checked_requirements": 118,
+          "reported_non_satisfied": 37,
+          "semantic_result_mismatches": 6,
+          "mismatches": [
+            {
+              "row": 16,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+                "line": 39
+              },
+              "model_result": "satisfied",
+              "main_result": "uncertain",
+              "basis": null
+            },
+            {
+              "row": 36,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+                "line": 24
+              },
+              "model_result": "satisfied",
+              "main_result": "gap",
+              "basis": "auth redaction removes token only, leaves credential data"
+            },
+            {
+              "row": 51,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+                "line": 45
+              },
+              "model_result": "gap",
+              "main_result": "satisfied",
+              "basis": "test invokes shadowed internal binding"
+            },
+            {
+              "row": 65,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 12
+              },
+              "model_result": "satisfied",
+              "main_result": "gap",
+              "basis": "auth redaction removes token only, leaves credential data"
+            },
+            {
+              "row": 74,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 24
+              },
+              "model_result": "gap",
+              "main_result": "uncertain",
+              "basis": "rename failure has no temporary cleanup"
+            },
+            {
+              "row": 117,
+              "source": {
+                "filePath": ".scratch/0001-dispatch-control/spec.md",
+                "line": 76
+              },
+              "model_result": "satisfied",
+              "main_result": "gap",
+              "basis": "routeKey token does not apply required NFKC normalization"
+            }
+          ],
+          "scoring_candidates_checked": 33,
+          "scoring_candidates_matched": 32,
+          "diagnostic_score": 0.7770081500269121,
+          "command_evidence_entries": 0,
+          "additional_claim_limits": [
+            "Definite temporary-byte leak is unsupported by opaque delegated rename contract.",
+            "Public import is wrongly strengthened into public invocation in Gate1."
+          ]
+        },
+        "internal_stage_count": 86,
+        "internal_log_sha256": "af100b4c7f1ed94347f8782a452698c89d5f474c8d9bf20799a4ec6be0869e9f",
+        "inspection_sha256": "583aeac9cb2e082177cbb6e1c7cf8d8e019276fe5a2735977a6c54702faebe75",
+        "tokens": {
+          "uncached_input": 3215392,
+          "cached_input": 361750,
+          "output": 64052
+        },
+        "review_work_seconds": 1833.9549094238282,
+        "review_work_seconds_estimated": false,
+        "work_seconds_bounds": [
+          1833.9549094238282,
+          1833.9549094238282
+        ],
+        "engine_input_seconds": 1263.017,
+        "engine_decode_seconds": 553.279,
+        "engine_input_tokens_per_second": 2545.8026297349916,
+        "engine_output_tokens_per_second": 115.7679940861663,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+        "task_review_seconds": 1833.9549094238282,
+        "task_input_tokens_per_second": 1753.2557553501556,
+        "task_output_tokens_per_second": 34.925613312992056
+      }
+    ],
+    "arithmetic_mean": {
+      "score": 0.7757477554299279,
+      "loop_group_count": 3.6666666666666665,
+      "total_loop_iterations": 23,
+      "dynamic_hints": 0.3333333333333333,
+      "review_work_seconds": 1277.8120600585937,
+      "engine_input_tokens_per_second": 2942.7059745917786,
+      "engine_output_tokens_per_second": 125.07995550516489,
+      "task_input_tokens_per_second": 1921.2635383840761,
+      "task_output_tokens_per_second": 42.52423325400102,
+      "tokens": {
+        "uncached_input": 2408256.3333333335,
+        "cached_input": 280007,
+        "output": 52225
+      },
+      "work_seconds_bounds": [
+        1277.8120600585937,
+        1375.3103471005759
+      ],
+      "task_speed_bounds": {
+        "input": [
+          1768.3203509365026,
+          1921.2635383840761
+        ],
+        "output": [
+          39.01864951268423,
+          42.52423325400102
+        ]
+      }
+    }
+  },
+  "loop_comparison": {
+    "baseline_iterations": [
+      0,
+      393,
+      17
+    ],
+    "candidate_iterations": [
+      14,
+      29,
+      26
+    ],
+    "baseline_group_counts": [
+      0,
+      3,
+      2
+    ],
+    "candidate_group_counts": [
+      3,
+      5,
+      3
+    ],
+    "baseline_mean": 136.66666666666666,
+    "candidate_mean": 23,
+    "mean_relative_reduction": 0.8317073170731707,
+    "baseline_median": 17,
+    "candidate_median": 26,
+    "baseline_positive_instances": 2,
+    "candidate_positive_instances": 3
+  },
+  "dynamic_delivery": {
+    "policy_sha256": "de7c041908539fc5bca583370dc6470a7d52b69938f1293dbb23816752e88573",
+    "hints_per_instance": [
+      0,
+      0,
+      1
+    ],
+    "actual_native_receipt_verified": true,
+    "native_event": 205,
+    "thread_id": "01a116cf-d3d4-75a3-8c7b-f920f3e97662",
+    "exact_command_initial_cluster": 4,
+    "trigger_at_third_result": true,
+    "one_more_identical_probe_before_native_receipt": true,
+    "changed_probes_after_receipt": 2,
+    "changed_probes_still_missing_parenthesis": 2,
+    "conclusion": "Transport works; one hint did not eliminate the semantic syntax cycle. Exact signature policy misses reasoning loops and changed-command loops."
+  },
+  "limits": [
+    "Three diagnostic instances per condition; baseline mean dominated by379 literal repetitions inside baseline2. Candidate median rises17 to26 and positive instances2/3 to3/3; no reliable general reduction demonstrated.",
+    "All candidate instances query forbidden environment identity, fail ordinary single-file sandbox initialization and timely writes. Third also omits required final notification and returns fenced status. No formal acceptance.",
+    "First native observer failed on null snapshot and same thread resumed. Complete physical token counters retained; initial native process exit timestamp unavailable, work bounds16.6–21.5min; no replacement sample.",
+    "First two source inspection claims corrected after comparing explicit environment lookup with frozen no-identity rule; earlier proofs retained and scores unchanged.",
+    "Current adjudication rejects unsupported definite rename leak while old baseline adjudication may differ for the same opaque-contract case; score differences are historical diagnostics, not isolated causal quality effects.",
+    "Third physical engine speed dropped in later stages; averaged speed retained, cause untested.",
+    "Raw sessions/logs stay temporary; compact data can recompute tables, but deleting raw details prevents replay and re-audit."
+  ],
+  "conclusion": "Do not adopt dynamic policy alone as proven loop fix or remove current static anti-loop default based on this study. Continue approved IQ3-only versus original Q2 baseline3 on unchanged Strata version. No daily default changes."
+}

@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "status": "closed-diagnostic-awaiting-user-review-active-stagnation-unresolved",
+  "host": "local",
+  "authorization": {
+    "approved": true,
+    "user_response": "我这次授权覆盖你改完代码后真实重跑验证修改结果, 下次真实重跑完后, 还是要出一个报告和结论给我审核.",
+    "effective_instances": 3,
+    "necessary_recovery_included": true
+  },
+  "purpose": "Compare progress-guard-v1 with completed same-version exact-command guard3; preserve old frozen full CommitAudit and diagnostics.",
+  "effective_instances": 3,
+  "logical_initial_reviews": 3,
+  "baseline_report": "reports/v0.1.40.2/command-loop-guard/summary.json",
+  "new_baseline_runs": 0,
+  "fixed_conditions": {
+    "model": "Q2_0",
+    "effort": "high",
+    "engine_overrides": {
+      "prefill": 16384,
+      "kv": "int8",
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pcie-frac": 0.0,
+      "spec": 4,
+      "spec-min-p": 0.7,
+      "expert-cache": "auto",
+      "vram-reserve-mib": 700,
+      "adapt-every": 4,
+      "adapt-swaps": 96,
+      "adapt-decay": 0.7,
+      "mtp-window": 32768,
+      "pcie-mode": "auto",
+      "expert-cache-per-layer": false,
+      "expert-cache-cpu-order": false,
+      "pool-affinity": "auto",
+      "ple-io": "direct",
+      "ple-inflight": 256,
+      "no-capture": false,
+      "no-host-worker": false,
+      "no-ple-prefetch": false,
+      "no-prefill-borrow": false,
+      "no-split-rows": false,
+      "no-coupled-draft": false,
+      "shared-late": false,
+      "keep-canonical": false,
+      "no-token-graph": false,
+      "no-fused-gr": false,
+      "no-hit-poke": false,
+      "ple-sync-submit": false,
+      "no-spec-split": false,
+      "gr-fp32-activations": false,
+      "ple-row-cache": 1048576,
+      "short-read": 64,
+      "suffix-draft": 3,
+      "mtp-max-t": 0,
+      "prompt-cache": 6,
+      "prompt-cache-every": 16384,
+      "prompt-cache-root": 2048,
+      "max-context": 156584
+    },
+    "engine_environment": {
+      "STRATA_HC_SPLIT": null,
+      "STRATA_ADAPT_NOWAIT": null,
+      "STRATA_SSD_KEEPALIVE": null,
+      "STRATA_BATCH_TRACE": 1
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 24576,
+      "reasoning_budget_tokens": 8192,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "high"
+    },
+    "context_window": 156584,
+    "auto_compact_token_limit": 100000,
+    "startup_instructions": true,
+    "project_compaction_instructions": true,
+    "generation_policy": "first-delivery-only",
+    "loop_prevention_instructions": false,
+    "automatic_continuation": true,
+    "archive_http": true,
+    "command_loop_guard": {
+      "enabled": true,
+      "algorithm": "frozen-arw-strata-command-policy",
+      "source_sha256": "de7c041908539fc5bca583370dc6470a7d52b69938f1293dbb23816752e88573",
+      "transport": "Original ARW send_message into native Codex root; real receipt/delivery inspection retained",
+      "independent_budget_or_ownership": false
+    },
+    "host_id": "local",
+    "host_hardware": {
+      "gpu": "NVIDIA RTX 4070 Ti SUPER",
+      "vram_gib": 16,
+      "cpu": "Intel Core i9-14900K",
+      "ram_gib": 64
+    },
+    "strata_version": "0.1.40.2",
+    "strata_commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a"
+  },
+  "candidate": {
+    "enabled": true,
+    "algorithm": "project-progress-guard-v1",
+    "implementation_sha256": {
+      "progress_guard.py": "7b947f1b477096f2e9230446ed00b2955eebbc81d9ea6f9001cfba107321ee8d",
+      "native_command_evidence.py": "96e0b15f5dff3d30147a2b6d40b5aa712ec87f4b2cc6624d79d57d98a3189cf8",
+      "command_loop_guard.py": "527cb85b032bb2aff264525e187f1c48e3fb263379486470ce02fe5f0c7595de"
+    },
+    "transport": "Original ARW messages and original-thread followup only; no independent work budget or ownership",
+    "scope": "User authorized implementation and3real diagnostic reruns on2026-10-08"
+  },
+  "source_binding": "benchmarks/reviewer-suite-v1/source-snapshots/previous-39fe7f508237/manifest.json",
+  "business_and_public_context_equal": [
+    {
+      "prior_instance": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1",
+      "new_instance": "default-ee8797ca-104c-4ea8-9b41-4511ce819641-instance-1",
+      "business_and_public_context_files_equal": 36,
+      "role_equal": true,
+      "single_file_grant": true
+    },
+    {
+      "prior_instance": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2",
+      "new_instance": "default-ee8797ca-104c-4ea8-9b41-4511ce819641-instance-2",
+      "business_and_public_context_files_equal": 36,
+      "role_equal": true,
+      "single_file_grant": true
+    },
+    {
+      "prior_instance": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-3",
+      "new_instance": "default-ee8797ca-104c-4ea8-9b41-4511ce819641-instance-3",
+      "business_and_public_context_files_equal": 36,
+      "role_equal": true,
+      "single_file_grant": true
+    }
+  ],
+  "expected_model_work_hours": [
+    1.5,
+    2
+  ],
+  "expected_total_hours": [
+    3,
+    4
+  ],
+  "time_basis": "Same-version historical42.7/34.5/27.0min; full Main inspection and354finding checks extra.60min per instance cumulative cutoff retained.",
+  "preparedPath": "/tmp/qwen-command-loop-guard-arw-20261007/.tmp/codex/01a110fc-4123-7b70-af69-fae5219fa9dc/_reviewer-cap/runs/ee8797ca-104c-4ea8-9b41-4511ce819641/prepared.json",
+  "preparation_sha256": "5d5b1bc7841b2da8081a508450a38fc9eb0f02e5056699dd5722f6018ac1a252",
+  "other_model_groups_paused": true,
+  "report_after_all3": "reports/v0.1.40.2/command-progress-guard/summary.md",
+  "model_runs_executed": 6,
+  "readme_deployment_completed": true,
+  "first_run_directory": ".tmp/progress-guard-v1-20261008/run",
+  "native_cli": {
+    "executable": "/home/pello/.codex/packages/standalone/releases/0.160.1-x86_64-unknown-linux-musl/bin/codex",
+    "version": "0.160.1",
+    "sha256": "f34a4d2301892ae96c90097786bfe5dc269f187b6f69faf42a7b357b8c081e35"
+  },
+  "actual_attempts": 6,
+  "effective_instances_started": 3,
+  "recovery": {
+    "reason": "Native session revealed global CLI0.161.0 instead of frozen0.160.1",
+    "failed_attempt_included_as_effective_sample": false,
+    "known_internal_stages": 37,
+    "thread_ended": true,
+    "model_stopped": true,
+    "ownership_returned": true,
+    "native_cleanup": "ready",
+    "global_config_changed": false,
+    "format_classifier": {
+      "repeat2_false_continuation": true,
+      "repeat3_started_before_pause_and_interrupted": true,
+      "old_baseline_terminals_unchanged": 16,
+      "effective_instances_target": 3,
+      "repeat1_retained": true,
+      "repeat2_and3_reprepared": true,
+      "known_bad_attempt_internal_stages": {
+        "repeat2": 97,
+        "repeat3": 18
+      },
+      "models_stopped_ownership_returned_native_exit_verified": true,
+      "new_binding": {
+        "version": "mechanical-final-status-v2",
+        "source_sha256": "acc776414a627f4c8cc4018f2fbfd964cd2a4b14250aa80716a07f775f53208c",
+        "basis": "Actual malformed ready terminal corrected;16old baseline terminals retain identical classification"
+      }
+    }
+  },
+  "effective_instances_completed": 3,
+  "full_main_inspection_complete": true,
+  "all354_findings_checked": true,
+  "all_models_stopped": true,
+  "ownership_returned": true,
+  "default_adopted": false,
+  "formal_acceptance": false,
+  "report": "reports/v0.1.40.2/command-progress-guard/summary.md",
+  "statistics": "reports/v0.1.40.2/command-progress-guard/summary.json",
+  "mean_score": 0.7343924697116754,
+  "mean_work_seconds": 1401.2473036295573
+}

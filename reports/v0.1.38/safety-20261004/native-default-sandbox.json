@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-04",
+  "scope": "Actual Qwen native tools using original ARW permission generator and native app-server sessions; no formal Reviewer capability score",
+  "default_profile": ":read-only plus explicit scratch",
+  "outer_isolation_enabled": false,
+  "model": "Q2_0",
+  "effort": "medium",
+  "mean": {
+    "active_turn_seconds": 34.594,
+    "native_tokens": {
+      "uncached_input": 14321,
+      "cached_input": 81355.33333333333,
+      "output": 2628
+    }
+  },
+  "source_policy_sha256": "bad1b30494faf504b542bcddbc50fb1b2379ea40c47727dd6e93af570ab2b280",
+  "cache_conditions": "One model load for three independent native roots. App-server restart preserves each root and running Windows engine; KV not reset between repeats, OS cache not measured. Not a performance configuration comparison.",
+  "basic_checks_passed": true,
+  "full_safety_gate_passed": false,
+  "missing": "Native network/MCP confirmation and complete guardian-quality acceptance; stream failures remain to investigate.",
+  "interpretation": "Each initial turn had one observed stream disconnect, recovered by native automatic retry. RPC empty-rollout races (r1/r3) and unsupported list_turns (r2) were handled by original ARW observation fallback. These failures are retained; final tool success is not evidence of zero requests failing.",
+  "measurement_details": "../../../.tmp/measurement-details/v0.1.38/safety-20261004/native-default-sandbox.json"
+}

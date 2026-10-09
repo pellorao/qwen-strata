@@ -1,0 +1,58 @@
+{
+  "status": "user-selected-remote23-all-deployed-and-readback-verified",
+  "checked_at": 1791377493.6158447,
+  "decision": "同意使用 23/all",
+  "source": "config/deployments/rtx3080ti.json",
+  "checks": [
+    {
+      "host": "local",
+      "files_verified": 26,
+      "source_sha_verified": true,
+      "baseline_workers": 23,
+      "baseline_affinity": "auto",
+      "model_configurations": {
+        "Q2_0": {
+          "pool-workers": "23",
+          "pool-affinity": "engine default"
+        },
+        "IQ2_XS": {
+          "pool-workers": "23",
+          "pool-affinity": "engine default"
+        },
+        "IQ3_XXS": {
+          "pool-workers": "23",
+          "pool-affinity": "engine default"
+        }
+      },
+      "health_status": "ok",
+      "available": true,
+      "ownership": "free"
+    },
+    {
+      "host": "rtx3080ti",
+      "files_verified": 26,
+      "source_sha_verified": true,
+      "baseline_workers": 23,
+      "baseline_affinity": "all",
+      "model_configurations": {
+        "Q2_0": {
+          "pool-workers": "23",
+          "pool-affinity": "all"
+        },
+        "IQ2_XS": {
+          "pool-workers": "23",
+          "pool-affinity": "all"
+        },
+        "IQ3_XXS": {
+          "pool-workers": "23",
+          "pool-affinity": "all"
+        }
+      },
+      "health_status": "ok",
+      "available": true,
+      "ownership": "free"
+    }
+  ],
+  "model_requests": 0,
+  "qualification": "Q2_0 short-task performance evidence; not full Reviewer or all-quantization performance proof. Takes effect on next model startup."
+}

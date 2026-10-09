@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "status": "closed-diagnostic-awaiting-user-review",
+  "created_at": "2026-10-07T19:16:06.563712+00:00",
+  "host": "local",
+  "authorization": {
+    "approved": true,
+    "scope": "Three current-frozen-ARW dynamic-command-guard diagnostic instances only; no new baseline. Prior12Specauthorization retained separately.",
+    "user_response": "本机先跑三次动态策略, 根据结果再看是否需要跑基线.",
+    "recorded_at": "2026-10-07T19:32:22.795443+00:00",
+    "recovery_included": true,
+    "latest_user_direction": "不需要等待 ARW 更新, 这个动态策略的对比跑完后再尝试更新."
+  },
+  "purpose": "Observe current Strata plus original frozen dynamic-command policy in3diagnostic instances, before considering an ARW update; no freshbaseline or formal capability acceptance.",
+  "effective_instances": 3,
+  "initial_review_submissions": 3,
+  "conditions": [
+    {
+      "id": "on",
+      "dynamic_duplicate_command_reminder": true,
+      "repeats": 3
+    }
+  ],
+  "schedule": [
+    {
+      "condition": "on",
+      "repetition": 1
+    },
+    {
+      "condition": "on",
+      "repetition": 2
+    },
+    {
+      "condition": "on",
+      "repetition": 3
+    }
+  ],
+  "fixed_conditions": {
+    "strata_version": "0.1.40.2",
+    "strata_commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a",
+    "codex_version": "0.160.1",
+    "model": "Q2_0",
+    "profile": "default",
+    "profile_save": false,
+    "reasoning_effort": "high",
+    "reasoning_budget_tokens": 8192,
+    "max_output_tokens": 24576,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "top_k": 20,
+    "auto_compact_threshold": 100000,
+    "context_window": 156584,
+    "startup_instructions": true,
+    "project_compact_instructions": true,
+    "native_compact_supplement": "tools/resources/codex/0.160.1/compact-prompt.txt",
+    "base_source": "config/maintenance-baseline.json",
+    "base_source_sha256": "feb26e5693ddfe6733afb2d14def6ada2d34d67d9389e0cec7c72a562ad459e1",
+    "prompt_sha256": {
+      "config/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "config/compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+      "tools/resources/codex/0.160.1/compact-prompt.txt": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+    },
+    "loop_prevention_instructions": false
+  },
+  "hardware": {
+    "gpu": "RTX4070TiSUPER16GiB",
+    "pool_workers": 23,
+    "pool_affinity": "auto",
+    "prefill": 16384,
+    "kv": "int8",
+    "kv_resident": 20480,
+    "vram_reserve_mib": 700,
+    "expert_cache": "auto",
+    "ple_io": "direct"
+  },
+  "scene": {
+    "role": "commit-audit-reviewer",
+    "business_fixture": "Original full two-Gate Commit Audit task:118source requirements plus2scope scoring cases. Preserve the full case, requests, role and original preparation/generation/scoring.",
+    "historical_reference": "reports/v0.1.40.1/loop-prevention-comparison/summary.json",
+    "old_dynamic_reference": "reports/v0.1.40.1/command-loop-guard/summary.json",
+    "old_results_reused_as_current_baseline": false,
+    "business_input_and_scorer_gate": "Verify unchanged business cases and scoring formula before launch. Do not silently substitute newly changed cases; any real difference is brought to the user.",
+    "historical_comparison_limit": "Current Strata0.1.40.2vs historical0.1.40.1baseline; same old frozen business/ARW/permissions. Do not attribute all score/time/loop differences to dynamic reminders."
+  },
+  "prompt_diagnostic_exception": {
+    "daily_prompt_changed": false,
+    "approval_required_with_this_plan": true,
+    "proposed_for_this_group": "Exclude only the Progress and loop prevention startup section; retain Complete the assigned task, Completion check before ending, all full role/task rules, project compact base and version-native supplement."
+  },
+  "runtime_policy": {
+    "upstream_source": "Existing verified547-file frozen source39fe7f508237af8d4f1eabe679116a75db8f1715; do not synchronize ARW before this entire3-instance task closes.",
+    "permissions": "Original exact report-file native grants and original on-request/auto_review recovery; no local ARW permission repair or directory adapter.",
+    "completion": "Original frozen final ready/incomplete plus final ARW message rule; historical failures retained.",
+    "early_exit_pause": "Original frozen continuation and project55/60deadline, not newer10/5pause contract; no upstream update during task.",
+    "continuation_and_deadline": "Use original-thread recovery and cumulative55/60minute initial-review limits; no stage budget reset.",
+    "guard_variable": "Enable only the committed upstream duplicate-command reminder through existing isolated experiment hooks. No new detector or upstream source edits; verify only one intervention source.",
+    "guard_trigger": "Three consecutive completed commands with identical command, cwd, exit code and available output digest; missing facts reset comparison. Verify exact rule in committed source.",
+    "guard_scope_limit": "Does not directly detect internal repeated reasoning text or semantically equivalent changed commands.",
+    "no_double_reminders": "Candidate has exactly one reminder source; do not also inject a second duplicate-command policy.",
+    "non_model_binding_required_before_start": true
+  },
+  "requests_and_time": {
+    "scope": "Three independent initial logical reviews. Responses/guardian/compaction/tool-feedback/continuation calls depend on model behavior, within the cumulative task budget and counted separately.",
+    "per_initial_review_seconds": 3600,
+    "warning_seconds": 3300,
+    "estimated_model_work_hours": [
+      1,
+      1.5
+    ],
+    "estimated_total_hours": [
+      2,
+      3
+    ],
+    "basis": "Old dynamic mean21.3-22.9minutes implies64-69model minutes for3. Add affected safety recovery,354judgment and fullnative Main inspection, preparation/report. Source/version changes may increase actual time.",
+    "safety_recovery": "Existing exact single-file diagnostic condition retained by user; previous sandbox initialization failures known and reported. Not formal capability acceptance; no new separate safety batch included.",
+    "estimated_gate_recovery_minutes": [
+      10,
+      20
+    ],
+    "gate_recovery_included_in_total_estimate": true,
+    "estimate_excludes": "Waiting for upstream commit and human pause/resume decisions; total estimate begins once source prerequisites are available.",
+    "worst_case_model_work_hours_if_all_three_hit_deadline": 3
+  },
+  "metrics": [
+    "loop_group_count",
+    "sum_all_confirmed_loop_iterations_including_first_round",
+    "extra_repeats_per_group",
+    "reasoning_loops_and_tool_loops_separately",
+    "guard_triggers",
+    "accepted_and_actual_received_hints",
+    "post_hint_progress_or_repeat",
+    "original_ARW_score_and_actual_formal_failures",
+    "full_Main_native_and_all_finding_inspection",
+    "internal_read_reused_generated",
+    "engine_input_and_output_rates",
+    "task_input_and_output_rates",
+    "cumulative_work_time",
+    "real_failures_and_recovery"
+  ],
+  "interpretation": "Report loop frequency/severity, actual hint receipt, post-hint progress and task completion directly. Historical score/time/loops are context, not causal parameter effects. No target loops or no triggers does not prove efficacy; do not claim a percentage improvement attributable to the strategy.",
+  "daily_default_changed": false,
+  "next_dependency": "After all3, full Main inspection and report, assess need for newbaseline and then attempt ARW update; Spec12authorization remains separate.",
+  "model_runs_executed": 3,
+  "prepared_instances_created": 0,
+  "retention": "Frozen sources/inputs in benchmarks; run records in temporary area; only after full closure publish compact summary.md/json under reports/v0.1.40.2/command-loop-guard/.",
+  "scope_adjustment": {
+    "recorded_at": "2026-10-07T19:23:58.468085+00:00",
+    "user_message": "本机为什么要跑三次基线? 我觉得没有必要.",
+    "new_baseline_instances": 0,
+    "new_dynamic_instances": 3,
+    "meaning": "A diagnostic behavior verification with historical references, not a same-condition causal effectiveness comparison.",
+    "approval_to_run_received": true
+  },
+  "additional_baseline_decision": "After all3and Main report, assess whether a new baseline is needed; no baseline authorized or automatically run.",
+  "execution_source_binding": {
+    "manifest": "benchmarks/reviewer-suite-v1/source-snapshots/previous-39fe7f508237/manifest.json",
+    "all547file_sha_verified": true,
+    "source_head": "39fe7f508237af8d4f1eabe679116a75db8f1715",
+    "upstream_updated": false,
+    "business_and_role_same_as_old_group": true,
+    "prepared_instances": 3,
+    "prepared_sha256": "7744adaf05194932175697e7fbe7df1f39044add5abdd8dc20784fdc16239e6b",
+    "case_comparison": [
+      {
+        "instanceId": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1",
+        "business_files_identical": 20,
+        "role_identical": true,
+        "single_file_grant": true
+      },
+      {
+        "instanceId": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2",
+        "business_files_identical": 20,
+        "role_identical": true,
+        "single_file_grant": true
+      },
+      {
+        "instanceId": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-3",
+        "business_files_identical": 20,
+        "role_identical": true,
+        "single_file_grant": true
+      }
+    ],
+    "manifest_at_preparation": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json",
+    "preserved_for_current_group": true
+  },
+  "report": "reports/v0.1.40.2/command-loop-guard/summary.md",
+  "statistics": "reports/v0.1.40.2/command-loop-guard/summary.json",
+  "main_inspection_completed": true,
+  "next_group_started": false,
+  "formal_acceptance": false
+}

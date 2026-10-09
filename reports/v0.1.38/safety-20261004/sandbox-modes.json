@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-04",
+  "default": "unchanged ARW :read-only plus explicit write paths",
+  "outer_isolation_enabled_by_default": false,
+  "scope": "Standalone synthetic command checks of opt-in path sets; not Reviewer or guardian acceptance",
+  "unit_tests_passed": 3,
+  "initial_failure": "Probe decoded a binary executable as UTF-8 before completing checks. All 12 incomplete results are preserved; corrected binary-read probe uses a separate directory.",
+  "actual_model_invoked": false,
+  "guardian_quality_verified": false,
+  "reviewer_acceptance_complete": false,
+  "measurement_details": "../../../.tmp/measurement-details/v0.1.38/safety-20261004/sandbox-modes.json"
+}

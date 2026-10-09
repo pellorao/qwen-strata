@@ -1,0 +1,150 @@
+{
+  "checked_at": "2026-10-07T20:51:43.926896+00:00",
+  "host": "rtx3080ti",
+  "models": [
+    {
+      "model": "Q2_0",
+      "max_context": 156584,
+      "request_defaults": {
+        "reasoning_effort": "high",
+        "reasoning_budget_tokens": 8192,
+        "max_tokens": 24576,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20
+      },
+      "engine_environment": {
+        "STRATA_PREFILL_CPU_SHARE": "auto"
+      },
+      "spec_min_p": 0.5
+    },
+    {
+      "model": "IQ2_XS",
+      "max_context": 156584,
+      "request_defaults": {
+        "reasoning_effort": "high",
+        "reasoning_budget_tokens": 8192,
+        "max_tokens": 24576,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20
+      },
+      "engine_environment": {
+        "STRATA_PREFILL_CPU_SHARE": "auto"
+      },
+      "spec_min_p": 0.5
+    },
+    {
+      "model": "IQ3_XXS",
+      "max_context": 156584,
+      "request_defaults": {
+        "reasoning_effort": "high",
+        "reasoning_budget_tokens": 8192,
+        "max_tokens": 24576,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20
+      },
+      "engine_environment": {
+        "STRATA_PREFILL_CPU_SHARE": "auto"
+      },
+      "spec_min_p": 0.5
+    }
+  ],
+  "source": "config/deployments/rtx3080ti.json",
+  "remote_source_sha_verified": true,
+  "remote_deployed_files": 26,
+  "remote_controller_reloaded": true,
+  "model_runs_for_this_default_deployment": 0,
+  "verification_scope": "ActualinstalledBackend._configurationwithnooverrides; budget/effort override regressions, nofreshmodelgeneration.",
+  "local_presets_changed": false,
+  "local_pending_common_source_sync": [],
+  "local_pending_reason": null,
+  "performance_evidence": "CPUshort-inputgain demonstrated onremoteQ2only. High/context areuser-selectedremote defaults, notallhardwareoptimality. spec-min-p0.5retainedpendingremotecomparison.",
+  "parameter_tuning_evidence_scope": {
+    "host": "rtx3080ti",
+    "model": "Q2_0"
+  },
+  "untuned_models": [
+    "IQ2_XS",
+    "IQ3_XXS"
+  ],
+  "existing_shared_preset_limit": "Modelslistedabovewereconfiguration-renderingchecks, notper-modelparametercomparisons. ValuesalreadysharedfromQ2_0areunverifiedinheritancefortheseothermodels; nofurtherQ2_0selectionbroadcastpernewrule.",
+  "per_host_per_model_source_split_completed": false,
+  "model_selection_guard": {
+    "checked_at": "2026-10-07T21:19:32.280308+00:00",
+    "behavior": {
+      "model_mismatch": "HTTP409/model_mismatch before inference forwarding for Chat and Responses",
+      "no_ready_model": "HTTP503/model_not_ready",
+      "omitted_model": "bind actual loaded model",
+      "switch": "exclusive owner must stop then start; generation model field cannot load a model"
+    },
+    "source_sha256": {
+      "src/responses_bridge.py": "02dea4c01c5d182332e84ec816ed736325afe0807aecde6ee5508f20f8c56278",
+      "docs/installation-directory-readme.md": "fdc91d66f75dfbd12a782a8cde826a670588de637bc89cb25ac5c355b4a5afab"
+    },
+    "regressions": {
+      "selection_checks_passed": 6,
+      "http_checks_passed": 11,
+      "responses_translation_checks_passed": 10,
+      "ownership_checks_passed": 7,
+      "default_reload_checks_passed": 11,
+      "generation_default_checks_passed": 5
+    },
+    "rtx3080ti": {
+      "deployed_files_sha_verified": 26,
+      "controller_reload_confirmed": true,
+      "actual_installed_http_rejections": [
+        {
+          "path": "/v1/chat/completions",
+          "http_status": 503,
+          "error_code": "model_not_ready"
+        },
+        {
+          "path": "/v1/responses",
+          "http_status": 503,
+          "error_code": "model_not_ready"
+        }
+      ],
+      "ownership_returned": true
+    },
+    "local": {
+      "deployment": "synced-26files-sha-verified-controller-reloaded",
+      "pending_files": [],
+      "parameter_presets_changed": false,
+      "model_runs": 0
+    },
+    "new_model_runs": 0,
+    "actual_loaded_model_switch_test": "not_run",
+    "loaded_mismatch_evidence": "Real loopback HTTP with synthetic loaded backend and zero inference forwarding; installed loaded-model mismatch not newly model-tested."
+  },
+  "dynamic_guard_guidance": {
+    "source": "docs/installation-directory-readme.md",
+    "source_sha256": "9c97cec1269ff8ad0c4f3bbd872657c16b002a5eaa04136febbc37aaf3e70156",
+    "installed_filename": "README.md",
+    "harness_owned": true,
+    "real_model_effectiveness": "three-local-Q2_0-diagnostic-reruns-complete-zero-hints-no-demonstrated-intervention-benefit",
+    "deployment": [
+      {
+        "host": "local",
+        "files": 26,
+        "result_sha256": "f3d9c5eb120f0d589e541c34594303e5e6827cd12f8f48a2c533d301153f1018",
+        "source_sha_verified": true,
+        "controller_reloaded": true,
+        "maintenance_key_returned": true,
+        "model_requests": 0
+      },
+      {
+        "host": "rtx3080ti",
+        "files": 26,
+        "result_sha256": "fe3ff400283bd286da3932d30aa4b1a32a7dc677a5982123918cd25326fa8703",
+        "source_sha_verified": true,
+        "controller_reloaded": true,
+        "maintenance_key_returned": true,
+        "model_requests": 0
+      }
+    ],
+    "effective_model_runs": 3,
+    "guard_adopted_as_default": false
+  }
+}

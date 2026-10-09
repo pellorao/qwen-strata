@@ -1,0 +1,921 @@
+{
+  "status": "completed-label-summary-not-detector-acceptance",
+  "source": "benchmarks/loop-detection-v2/main-annotations.json",
+  "source_sha256": "1d49d8607f4af8906c745916e577ea79c02b5df3442f7337f8b24057b3368ca6",
+  "group_count": 156,
+  "category_counts": {
+    "repeated_reasoning_decision_or_review_sequence": 136,
+    "repeated_execution_or_probe": 17,
+    "repeated_answer": 3
+  },
+  "mode_counts": {
+    "single_response": 82,
+    "cross_call": 74
+  },
+  "pattern_examples": [
+    {
+      "pattern": "reopen_decision",
+      "case_id": "full-annotation/01a114f3-7923-7762-bc20-5429a98719d9/risk-allow-redecision",
+      "mode": "single_response",
+      "evidence_source_events": [
+        174,
+        174,
+        174
+      ],
+      "group_reason": "Three return-to-allow decision units after payload and local destination are established. No tool check or new observed fact intervenes; later units re-open the same low/medium speculation and return to the unchanged allow decision. Earlier unfamiliar-binary/authorization analysis is excluded as distinct risk considerations."
+    },
+    {
+      "pattern": "repeat_multi_step_list",
+      "case_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-1/loop-2",
+      "mode": "single_response",
+      "evidence_source_events": [
+        335,
+        335,
+        335,
+        335,
+        335,
+        335
+      ],
+      "group_reason": "Repeats30-item issue02 verdict/evidence sequence under phantom Spec line50..210. Five full cyclic occurrences and one clearly entered11-item partial occurrence included; actualSpec ends77. Earlier mixed mapping is not counted."
+    },
+    {
+      "pattern": "non_adjacent_revisit",
+      "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-1/loop-1",
+      "mode": "cross_call",
+      "evidence_source_events": [
+        64,
+        64,
+        64,
+        64,
+        64,
+        64,
+        64,
+        81,
+        81,
+        81
+      ],
+      "group_reason": "Repeatedly settles and reopens key-versus-value and JSON-serialization alternatives over unchanged staged redaction facts; different ordinary requirement mappings excluded."
+    },
+    {
+      "pattern": "repackaged_failed_action",
+      "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-3/loop-3",
+      "mode": "cross_call",
+      "evidence_source_events": [
+        163,
+        170,
+        177,
+        184,
+        191,
+        200,
+        209,
+        218
+      ],
+      "group_reason": "Eight probes retain the same missing closing parenthesis; four command bytes are identical. The two changed probes after actual hint receipt retain the same syntax defect."
+    },
+    {
+      "pattern": "repeat_already_done_validator",
+      "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+      "mode": "cross_call",
+      "evidence_source_events": [
+        337,
+        344,
+        351,
+        358,
+        365,
+        372,
+        379,
+        386,
+        393,
+        400,
+        409
+      ],
+      "group_reason": "Count each actual repeated action once; identical reasoning mirrors and paired results are not extra iterations. First validator is the group anchor; subsequent10 are extra repeats."
+    },
+    {
+      "pattern": "return_to_old_failed_method_after_other_activity",
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1/loop-10",
+      "mode": "cross_call",
+      "evidence_source_events": [
+        140,
+        247
+      ],
+      "group_reason": "Same invalid node test-directory invocation recurs after a successful explicit-files repair; successful150 is not a counted iteration."
+    },
+    {
+      "pattern": "restart_whole_review_stage",
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-9",
+      "mode": "cross_call",
+      "evidence_source_events": [
+        304,
+        317,
+        330
+      ],
+      "group_reason": "full audit remapping without writing"
+    },
+    {
+      "pattern": "continue_then_repeat_same_answer",
+      "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-1",
+      "mode": "cross_call",
+      "evidence_source_events": [
+        83,
+        94,
+        105,
+        116,
+        127,
+        138
+      ],
+      "group_reason": "Caller asks to continue completing the same task, not to repeat the receipt. The same three-field result returns with no new verification of those fields or new deliverable progress; wording changes do not count as progress. A fresh continuation is not a repetition exemption."
+    }
+  ],
+  "group_category_index": [
+    {
+      "case_id": "full-annotation/01a114f3-7923-7762-bc20-5429a98719d9/risk-allow-redecision",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/90-validation-order",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/90-absent-prior-state",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/97-validation-order",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/97-authority-table",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/111-validation-order",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/111-absent-prior-state",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/192-retention-owner",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/199-retention-owner",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/125-summary-length-recheck",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-ee8797ca-104c-4ea8-9b41-4511ce819641-instance-1/supplement-1",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-1/loop-1",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-1/loop-2",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-2/loop-1",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-2/loop-2",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-2/loop-3",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-2/loop-4",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-3/loop-1",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-1/loop-1",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-1/loop-2",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-1/loop-3",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2/loop-1",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2/loop-2",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2/loop-3",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2/loop-4",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2/loop-5",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-3/loop-1",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-3/loop-2",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-3/loop-3",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-1",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-2",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-3",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-1",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-2",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-3",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-4",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-5",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-6",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-7",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2/loop-1",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2/loop-2",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2/loop-3",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2/loop-4",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-3/loop-1",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-3/loop-2",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-3/loop-3",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-1",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-2",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-1",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-2",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-3",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-4",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-5",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3/loop-1",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3/loop-2",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3/loop-3",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3/loop-4",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1/loop-1",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1/loop-2",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1/loop-3",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1/loop-4",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1/loop-5",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1/loop-6",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1/loop-7",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1/loop-8",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1/loop-9",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1/loop-10",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1/loop-11",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-1",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-2",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-3",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-4",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-5",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-6",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-7",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-1",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-2",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-3",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-4",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-5",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-6",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-7",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-8",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-9",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-1",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-2",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-3",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-4",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-5",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-6",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-7",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-8",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-9",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-10",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-11",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-12",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-13",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-14",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2/loop-1",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2/loop-2",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2/loop-3",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2/loop-4",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2/loop-5",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2/loop-6",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2/loop-7",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2/loop-8",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2/loop-9",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2/loop-10",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2/loop-11",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2/loop-12",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2/loop-13",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2/loop-14",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-3/loop-1",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-3/loop-2",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-3/loop-3",
+      "mode": "cross_call",
+      "category": "repeated_execution_or_probe"
+    },
+    {
+      "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-1",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-2",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-3",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-4",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-5",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-6",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-7",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-8",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-9",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-10",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2/loop-1",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2/loop-2",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2/loop-3",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-1",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-2",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-3",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-4",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-5",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-6",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-631a7d5e-9946-4a0e-bd4c-63ce72a54e37-instance-3/loop-1",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-631a7d5e-9946-4a0e-bd4c-63ce72a54e37-instance-3/loop-2",
+      "mode": "cross_call",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-3/supplement-1",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-3/supplement-2",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-3/supplement-3",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-3/supplement-4",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-3/supplement-5",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-268332bd-6777-4a52-80bb-48f6c0cac040-instance-3/supplement-1",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-268332bd-6777-4a52-80bb-48f6c0cac040-instance-3/supplement-2",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-268332bd-6777-4a52-80bb-48f6c0cac040-instance-3/supplement-3",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-268332bd-6777-4a52-80bb-48f6c0cac040-instance-3/supplement-4",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-268332bd-6777-4a52-80bb-48f6c0cac040-instance-3/supplement-5",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-1950af9e-5e00-42ab-86c6-3b6fe26294ed-instance-3/supplement-1",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-1950af9e-5e00-42ab-86c6-3b6fe26294ed-instance-3/supplement-2",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "full-annotation/01a113ab-f529-7a43-8cf0-00cab4092ac4/second-response-token-redecision",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-2/supplement-1",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-2/supplement-2",
+      "mode": "single_response",
+      "category": "repeated_reasoning_decision_or_review_sequence"
+    },
+    {
+      "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-1",
+      "mode": "cross_call",
+      "category": "repeated_answer"
+    },
+    {
+      "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-2",
+      "mode": "cross_call",
+      "category": "repeated_answer"
+    },
+    {
+      "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+      "mode": "cross_call",
+      "category": "repeated_answer"
+    }
+  ],
+  "scope": "All156existing group rationales inspected; metadata category partition and representative actual patterns. Not keyword detection logic, no raw session copy, no target timing inference or label changes.",
+  "normal_boundaries": [
+    "different concrete objects or requirements",
+    "explicit repeated measurement or requested verification units",
+    "necessary changed-input/environment recovery",
+    "mirrors and source replay",
+    "first-time actual delivery versus re-execution",
+    "generic same topic/file/decision word alone"
+  ]
+}

@@ -1,0 +1,233 @@
+{
+  "status": "passed-no-model-routing-and-log-readback",
+  "host_sources": [
+    {
+      "host_id": "local",
+      "transport": "wsl-local",
+      "hardware": {
+        "gpu": "NVIDIA RTX 4070 Ti SUPER",
+        "vram_gib": 16,
+        "cpu": "Intel Core i9-14900K",
+        "ram_gib": 64
+      },
+      "hardware_source_overrides": {
+        "prefill": 16384,
+        "kv-resident": 20480,
+        "pool-workers": 23
+      },
+      "files": {
+        "Run-Strata-Controller.sh": "9ccc42d758de3be2ab1b30d27c77dd43f226ed9b81a885dd3b0c8a201d53fbf9",
+        "maintenance/Setup-WSL-Network.sh": "da094daf336c64ec95f786573696476b4de790f58c7b09d22fb2d4c85c440001",
+        "src/responses_bridge.py": "b620234af83f89b331e4645ca46f8d96fefefa6c43a5d8d888d058cb1ea15742",
+        "src/brave_search.py": "fcbcf5ed22889d074677cd6ca0bc741f134af4132b977ce89fcd6b8381d15af6",
+        "src/hosted_search.py": "03f288a1fde928f6d73ce0e2ea6928e24997a1bbfdb06a5444d201e6eceedb26",
+        "src/windows_host.py": "3f5acc15b68799c19874dfa07d6ba871015ee6610f568e91f7cd490aa810ece0",
+        "src/wsl_launcher.py": "15f91e0a8f29e1bdbcacdad52b1cb7a6d86e3614b33dfe3aa815456c443a1907",
+        "src/setup_wsl_firewall.ps1": "60bb126ad7d35f716b335edd4810fe2e98661cd856588e6439c35b7480cc1a0b",
+        "src/project_files_mcp.py": "6e31ab22ab9b8ff043b887601eb02994eb7d1920676794e73b6f32fb31947ee9",
+        "src/service_access.py": "4690a1613f54680bcf707f61a5daa778fdb6ecea4172a73d3b1155c1ae745eea",
+        "src/native_service.py": "7c60aace06e044635d0f2f5d1d76169b550bec83e35a06048410e4e1c110ae49",
+        "src/controller_backend.py": "731fa17d188fa710088c88d725be66a63a17ff8421532781aa3d8838baa8ec1e",
+        "src/startup_instructions.py": "b8f1cb90cd05b9349066a1ae7b6d089a15a0df428140abf049583b27e805b8bf",
+        "config/model-catalog.json": "2215cd0a354ae83f3a507623d35f44c3d04ebc88633d27a3f6cc3e4d4bfc225c",
+        "config/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+        "config/compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+        "config/maintenance-baseline.json": "1e3a3a39158ef62a5bbe97e3aec07b0c91554605fea184626e18e6c0654c60ba",
+        "README.md": "9420a77302a2952d595d714f90d0683ecc7d7418de598fdea3bd2e067a484af8",
+        "config/q2_0-prebuilt.json": "efdd0f34d238df6ef3ac5e21335b2f83efaff5eb04b3b6d4c7b9d6046239f4ab",
+        "config/iq2_xs-prebuilt.json": "7e1de231b170361cfe50887297ff5297e57c4387127a0a4a51d21bc738b8825e",
+        "config/iq3_xxs-prebuilt.json": "c594b3a560f9332d99d03a92d44b596c91c52f36dd5ac3438ade320c7f439d3b",
+        "config/deployment.json": "c0dbb8101c5e3e50f2e98ec91cc52804138431b8e5beeb38854ac803403b6a65",
+        "config/service.json": "6166cd56059790130b9e452d703ef9174e2bb0d81ff6fd2e51f803794784ddcf",
+        "src/service_settings.py": "1d08960b7bb54076529ef8e7f009c7e1d22a299f039dc4985a10d7f127a2114a",
+        "Run-Strata-Controller.ps1": "07591c287d66e8af34e1c627d4fb33e20f1b4161b52aada924d4105e40a80781",
+        "maintenance/Setup-Native-Network.ps1": "923599cdec43e1767b57d2d605b4fdbbb01ba6916b3f49926dcbbda1d21287db"
+      },
+      "source_sha_verified": true
+    },
+    {
+      "host_id": "rtx3080ti",
+      "transport": "ssh-windows",
+      "hardware": {
+        "gpu": "NVIDIA RTX 3080 Ti",
+        "vram_gib": 12,
+        "cpu": "Intel Core i9-13900",
+        "ram_gib": 64
+      },
+      "hardware_source_overrides": {
+        "prefill": 8192,
+        "kv-resident": 20480,
+        "pool-workers": 23,
+        "expert-cache": "auto"
+      },
+      "files": {
+        "Run-Strata-Controller.sh": "9ccc42d758de3be2ab1b30d27c77dd43f226ed9b81a885dd3b0c8a201d53fbf9",
+        "maintenance/Setup-WSL-Network.sh": "da094daf336c64ec95f786573696476b4de790f58c7b09d22fb2d4c85c440001",
+        "src/responses_bridge.py": "b620234af83f89b331e4645ca46f8d96fefefa6c43a5d8d888d058cb1ea15742",
+        "src/brave_search.py": "fcbcf5ed22889d074677cd6ca0bc741f134af4132b977ce89fcd6b8381d15af6",
+        "src/hosted_search.py": "03f288a1fde928f6d73ce0e2ea6928e24997a1bbfdb06a5444d201e6eceedb26",
+        "src/windows_host.py": "3f5acc15b68799c19874dfa07d6ba871015ee6610f568e91f7cd490aa810ece0",
+        "src/wsl_launcher.py": "15f91e0a8f29e1bdbcacdad52b1cb7a6d86e3614b33dfe3aa815456c443a1907",
+        "src/setup_wsl_firewall.ps1": "60bb126ad7d35f716b335edd4810fe2e98661cd856588e6439c35b7480cc1a0b",
+        "src/project_files_mcp.py": "6e31ab22ab9b8ff043b887601eb02994eb7d1920676794e73b6f32fb31947ee9",
+        "src/service_access.py": "4690a1613f54680bcf707f61a5daa778fdb6ecea4172a73d3b1155c1ae745eea",
+        "src/native_service.py": "7c60aace06e044635d0f2f5d1d76169b550bec83e35a06048410e4e1c110ae49",
+        "src/controller_backend.py": "731fa17d188fa710088c88d725be66a63a17ff8421532781aa3d8838baa8ec1e",
+        "src/startup_instructions.py": "b8f1cb90cd05b9349066a1ae7b6d089a15a0df428140abf049583b27e805b8bf",
+        "config/model-catalog.json": "2215cd0a354ae83f3a507623d35f44c3d04ebc88633d27a3f6cc3e4d4bfc225c",
+        "config/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+        "config/compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+        "config/maintenance-baseline.json": "bd8195edccbecd834762f19270a56d812f4f64b497279faa36bd129d320b8a05",
+        "README.md": "9420a77302a2952d595d714f90d0683ecc7d7418de598fdea3bd2e067a484af8",
+        "config/q2_0-prebuilt.json": "21126e1d6e6d9651d7d9f3e2d2aa4d921558e28c3a09db6027f7fc2048b44f65",
+        "config/iq2_xs-prebuilt.json": "f01f74247834597dc4c2c4b537cf9a1bd52780137ec7693cb1ebb179fe3555c3",
+        "config/iq3_xxs-prebuilt.json": "d3a3f860947fe08ea9c79bf304f27f9fbed364b4fae39b88539d3d720a5d927e",
+        "config/deployment.json": "83294c0f5ad777d571b06b1c628e061d2188376ca9d2ac3ee5924d8189131d40",
+        "config/service.json": "9ebd2ff44332374aef75ab97ab46457f05e4a946e54007cc8cae0634d84dedc9",
+        "src/service_settings.py": "1d08960b7bb54076529ef8e7f009c7e1d22a299f039dc4985a10d7f127a2114a",
+        "Run-Strata-Controller.ps1": "07591c287d66e8af34e1c627d4fb33e20f1b4161b52aada924d4105e40a80781",
+        "maintenance/Setup-Native-Network.ps1": "923599cdec43e1767b57d2d605b4fdbbb01ba6916b3f49926dcbbda1d21287db"
+      },
+      "source_sha_verified": true
+    }
+  ],
+  "remote_controller_ownership": "free",
+  "remote_model_instances_started": 0,
+  "new_generation_requests": 0,
+  "remote_default_profile_sha256": {
+    "Q2_0": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+    "IQ2_XS": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+    "IQ3_XXS": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf"
+  },
+  "remote_hardware_selection": {
+    "host_id": "rtx3080ti",
+    "engine_overrides": {
+      "prefill": 8192,
+      "kv": "int8",
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pcie-frac": 0.0,
+      "spec": 4,
+      "spec-min-p": 0.7,
+      "expert-cache": "auto",
+      "vram-reserve-mib": 700,
+      "adapt-every": 4,
+      "adapt-swaps": 96,
+      "adapt-decay": 0.7,
+      "mtp-window": 32768,
+      "pcie-mode": "auto",
+      "expert-cache-per-layer": false,
+      "expert-cache-cpu-order": false,
+      "pool-affinity": "auto",
+      "ple-io": "direct",
+      "ple-inflight": 256,
+      "no-capture": false,
+      "no-host-worker": false,
+      "no-ple-prefetch": false,
+      "no-prefill-borrow": false,
+      "no-split-rows": false,
+      "no-coupled-draft": false,
+      "shared-late": false,
+      "keep-canonical": false,
+      "no-token-graph": false,
+      "no-fused-gr": false,
+      "no-hit-poke": false,
+      "ple-sync-submit": false,
+      "no-spec-split": false,
+      "gr-fp32-activations": false,
+      "ple-row-cache": 1048576,
+      "short-read": 64,
+      "suffix-draft": 3,
+      "mtp-max-t": 0,
+      "prompt-cache": 6,
+      "prompt-cache-every": 16384,
+      "prompt-cache-root": 2048,
+      "max-context": 156584
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 24576,
+      "reasoning_budget_tokens": 8192,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "high"
+    },
+    "context_window": 156584
+  },
+  "historical_log_readback": [
+    {
+      "host_id": "rtx3080ti",
+      "model": "Q2_0",
+      "bytes": 7737,
+      "offset_at_read": 7737,
+      "sha256": "d278aeb2d341421e5353f9397437cfd2b17622c192d61b4f744cc97fd091852b",
+      "internal_stages": 4,
+      "tokens": {
+        "uncached_input": 2393,
+        "cached_input": 816,
+        "output": 365
+      },
+      "rates": {
+        "engine_input_seconds": 4.002,
+        "engine_decode_seconds": 4.613,
+        "engine_input_tokens_per_second": 597.9510244877562,
+        "engine_output_tokens_per_second": 79.12421417732494,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+      }
+    },
+    {
+      "host_id": "rtx3080ti",
+      "model": "IQ2_XS",
+      "bytes": 6774,
+      "offset_at_read": 6774,
+      "sha256": "0a4c3531bc7726556844819fa0947e87f36981dd479f19a28e264911ae1c1856",
+      "internal_stages": 4,
+      "tokens": {
+        "uncached_input": 2395,
+        "cached_input": 813,
+        "output": 466
+      },
+      "rates": {
+        "engine_input_seconds": 4.271,
+        "engine_decode_seconds": 6.084,
+        "engine_input_tokens_per_second": 560.7586045422618,
+        "engine_output_tokens_per_second": 76.59434582511506,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+      }
+    },
+    {
+      "host_id": "rtx3080ti",
+      "model": "IQ3_XXS",
+      "bytes": 6704,
+      "offset_at_read": 6704,
+      "sha256": "905f808300436cc5affe5d100c18aeb0a3fc284fe9a1ab966ef4436148114d14",
+      "internal_stages": 4,
+      "tokens": {
+        "uncached_input": 2395,
+        "cached_input": 859,
+        "output": 519
+      },
+      "rates": {
+        "engine_input_seconds": 5.068,
+        "engine_decode_seconds": 7.596,
+        "engine_input_tokens_per_second": 472.5730071033939,
+        "engine_output_tokens_per_second": 68.32543443917851,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+      }
+    }
+  ],
+  "historical_tokens_match_completed_validation": true,
+  "limitations": [
+    "No remote ARW Reviewer or simultaneous dual-model execution in this preflight.",
+    "Remote Brave credentials are still unconfigured.",
+    "Use independent preparations/output directories and same-host baseline/candidate comparisons."
+  ]
+}

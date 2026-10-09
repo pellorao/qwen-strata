@@ -1,0 +1,140 @@
+{
+  "version": "0.1.37",
+  "type": "wsl-profile",
+  "results": {
+    "linux_acceptance": {
+      "evidence_sha256": "146e8bf1cad31298fb3ad9aec76a1bcbd152e04648f6f4896bb1fe04e5ba8d3e",
+      "statistics": {
+        "scope": "Two adjacent alternating pairs in a controlled copy of this project. Warm OS file cache; KV starts cold in each native model process. Not evidence of a universal or 200K benefit.",
+        "training_profile_shape": [
+          48,
+          512
+        ],
+        "training_profile_saved": true,
+        "trials": [
+          {
+            "label": "pair1-base",
+            "mode": "base",
+            "load_s": 16.18983930000104,
+            "wall_s": 26.887852132000262,
+            "correct_repair": true,
+            "tests_unchanged": true,
+            "native_totals": {
+              "since": 1791003021.7559345,
+              "requests": 6,
+              "prompt_tokens": 39247,
+              "reused": 32395,
+              "output_tokens": 2279,
+              "prompt_ms": 7438.1,
+              "decode_ms": 18777.0,
+              "drafts_offered": 1968,
+              "drafts_accepted": 1464
+            },
+            "first_request_reused_tokens": 0,
+            "mean_request_decode_hit_rate": 0.7261666666666666,
+            "native_unload": {
+              "status": "unloaded"
+            }
+          },
+          {
+            "label": "pair1-learned",
+            "mode": "learned",
+            "load_s": 16.232489000001806,
+            "wall_s": 32.830333682000855,
+            "correct_repair": true,
+            "tests_unchanged": true,
+            "native_totals": {
+              "since": 1791003067.5417242,
+              "requests": 9,
+              "prompt_tokens": 64439,
+              "reused": 57310,
+              "output_tokens": 2753,
+              "prompt_ms": 9121.7,
+              "decode_ms": 22846.7,
+              "drafts_offered": 2369,
+              "drafts_accepted": 1750
+            },
+            "first_request_reused_tokens": 0,
+            "mean_request_decode_hit_rate": 0.7398888888888889,
+            "native_unload": {
+              "status": "unloaded"
+            }
+          },
+          {
+            "label": "pair2-learned",
+            "mode": "learned",
+            "load_s": 16.226694800003315,
+            "wall_s": 31.46193221499925,
+            "correct_repair": true,
+            "tests_unchanged": true,
+            "native_totals": {
+              "since": 1791003119.1155472,
+              "requests": 10,
+              "prompt_tokens": 75581,
+              "reused": 67349,
+              "output_tokens": 2401,
+              "prompt_ms": 9921.900000000003,
+              "decode_ms": 20603.899999999998,
+              "drafts_offered": 1818,
+              "drafts_accepted": 1416
+            },
+            "first_request_reused_tokens": 0,
+            "mean_request_decode_hit_rate": 0.7498,
+            "native_unload": {
+              "status": "unloaded"
+            }
+          },
+          {
+            "label": "pair2-base",
+            "mode": "base",
+            "load_s": 16.28554389999772,
+            "wall_s": 28.545981601000676,
+            "correct_repair": true,
+            "tests_unchanged": true,
+            "native_totals": {
+              "since": 1791003169.1515653,
+              "requests": 6,
+              "prompt_tokens": 40039,
+              "reused": 33276,
+              "output_tokens": 2482,
+              "prompt_ms": 7310.799999999999,
+              "decode_ms": 20575.100000000002,
+              "drafts_offered": 2117,
+              "drafts_accepted": 1566
+            },
+            "first_request_reused_tokens": 0,
+            "mean_request_decode_hit_rate": 0.7241666666666666,
+            "native_unload": {
+              "status": "unloaded"
+            }
+          }
+        ],
+        "pairs": [
+          {
+            "label": "pair1",
+            "base_wall_s": 26.887852132000262,
+            "learned_wall_s": 32.830333682000855,
+            "speedup_ratio": 0.8189941775322697,
+            "both_correct": true
+          },
+          {
+            "label": "pair2",
+            "base_wall_s": 28.545981601000676,
+            "learned_wall_s": 31.46193221499925,
+            "speedup_ratio": 0.9073181330990086,
+            "both_correct": true
+          }
+        ],
+        "reproducible_benefit": false,
+        "default_changed": false,
+        "limitations": [
+          "Factory/default profile is the baseline; comparison is against task-learned ordering.",
+          "OS file cache may remain warm; this is not a cold-disk benchmark.",
+          "Generated token counts and tool paths vary; two pairs do not prove general benefits or equivalence.",
+          "No 200K performance benefit has been established."
+        ],
+        "version": "0.1.37"
+      }
+    }
+  }
+}

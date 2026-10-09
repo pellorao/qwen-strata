@@ -1,0 +1,94 @@
+{
+  "codex_version": "codex-cli 0.160.0",
+  "configuration": {
+    "default_permissions": "review",
+    "approval_policy": "never",
+    "permissions.review.description": "Project read; fixed scratch write; no command network",
+    "permissions.review.filesystem": {
+      ":minimal": "read",
+      "/home/pello/.codex/packages/standalone/releases/0.160.0-x86_64-unknown-linux-musl/bin/codex": "read",
+      "/home/pello/projects/qwen-3.8-flash-next/.tmp/next-stage/sandbox-v38-attempt-4/project": "read",
+      "/home/pello/projects/qwen-3.8-flash-next/.tmp/next-stage/sandbox-v38-attempt-4/fixed-scratch": "write"
+    },
+    "permissions.review.network.enabled": false,
+    "mcp_servers.project.enabled": false
+  },
+  "initial_and_restart_probes": [
+    {
+      "label": "initial",
+      "execution": {
+        "exitCode": 1,
+        "stdout": "{\"child_process_read_denied\": true, \"fixed_scratch_write\": true, \"other_project_read_denied\": true, \"other_tmp_write_denied\": false, \"outside_read_denied\": true, \"outside_write_denied\": false, \"proc_root_read_denied\": true, \"project_read\": true, \"project_write_denied\": true, \"public_network_denied\": true, \"slash_tmp_write_denied\": true, \"symlink_read_denied\": true, \"symlink_write_denied\": false, \"tool_model_api_network_denied\": true, \"traversal_read_denied\": true, \"user_config_read_denied\": true, \"windows_file_read_denied\": true}\n",
+        "stderr": ""
+      },
+      "checks": {
+        "child_process_read_denied": true,
+        "fixed_scratch_write": true,
+        "other_project_read_denied": true,
+        "other_tmp_write_denied": false,
+        "outside_read_denied": true,
+        "outside_write_denied": false,
+        "proc_root_read_denied": true,
+        "project_read": true,
+        "project_write_denied": true,
+        "public_network_denied": true,
+        "slash_tmp_write_denied": true,
+        "symlink_read_denied": true,
+        "symlink_write_denied": false,
+        "tool_model_api_network_denied": true,
+        "traversal_read_denied": true,
+        "user_config_read_denied": true,
+        "windows_file_read_denied": true
+      }
+    },
+    {
+      "label": "restart",
+      "execution": {
+        "exitCode": 1,
+        "stdout": "{\"child_process_read_denied\": true, \"fixed_scratch_write\": true, \"other_project_read_denied\": true, \"other_tmp_write_denied\": false, \"outside_read_denied\": true, \"outside_write_denied\": false, \"proc_root_read_denied\": true, \"project_read\": true, \"project_write_denied\": true, \"public_network_denied\": true, \"slash_tmp_write_denied\": true, \"symlink_read_denied\": true, \"symlink_write_denied\": false, \"tool_model_api_network_denied\": true, \"traversal_read_denied\": true, \"user_config_read_denied\": true, \"windows_file_read_denied\": true}\n",
+        "stderr": ""
+      },
+      "checks": {
+        "child_process_read_denied": true,
+        "fixed_scratch_write": true,
+        "other_project_read_denied": true,
+        "other_tmp_write_denied": false,
+        "outside_read_denied": true,
+        "outside_write_denied": false,
+        "proc_root_read_denied": true,
+        "project_read": true,
+        "project_write_denied": true,
+        "public_network_denied": true,
+        "slash_tmp_write_denied": true,
+        "symlink_read_denied": true,
+        "symlink_write_denied": false,
+        "tool_model_api_network_denied": true,
+        "traversal_read_denied": true,
+        "user_config_read_denied": true,
+        "windows_file_read_denied": true
+      }
+    }
+  ],
+  "host_filesystem_boundary_pass": true,
+  "host_canaries_unchanged": true,
+  "strict_namespace_write_pass": false,
+  "model_read_and_scratch_write_verified": true,
+  "source_patch_rejection_verified": true,
+  "source_patch_rejection_evidence": [
+    {
+      "session": "rollout-2026-10-03T14-42-41-01a10049-3aa8-7de2-aec8-5045c2611d0a.jsonl",
+      "timestamp": "2026-10-03T05:42:51.302Z",
+      "call_id": "call_6d7c59e4fee149c0800bf084",
+      "visible_tool_output": "patch rejected: writing outside of the project; rejected by user approval settings"
+    }
+  ],
+  "raw_collector_reported_pass": false,
+  "raw_collector_limitation": "Original item/completed collection omitted rejected apply_patch outputs. Actual session custom_tool_call_output proves denial. Original raw result preserved unchanged. Strict namespace write check still fails independently.",
+  "limits": [
+    "System minimal runtime and Codex executable remain readable.",
+    "Unmapped empty directories in private command namespace permit ephemeral writes; corresponding host files remain unchanged.",
+    "Landlock wrapper prototypes were incompatible with bubblewrap uid mapping/mount operations, and are not used.",
+    "Harness state writes to fixed scratch; model API connection belongs to the harness, command network is disabled.",
+    "Automatic approval can authorize escalations and is not a hard deny boundary."
+  ]
+}

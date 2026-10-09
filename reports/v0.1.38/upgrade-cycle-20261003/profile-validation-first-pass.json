@@ -1,0 +1,1272 @@
+{
+  "status": "complete-first-delivery-rescore-with-user-authorized-commit-audit-retry",
+  "measured_observations": 30,
+  "scored_repetitions": 24,
+  "rows": [
+    {
+      "condition": "default",
+      "role": "code-standards-reviewer",
+      "score_status": "diagnostic",
+      "first_delivery_formal_status": "satisfied",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "score": 0.738782629788711,
+          "instance_ids": [
+            "default-8f1fc554-5320-487f-bccc-853f3c1dcef9-instance-1"
+          ],
+          "performance_instance_id": "default-8f1fc554-5320-487f-bccc-853f3c1dcef9-instance-1",
+          "reviewer_seconds": 628.246,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/8f1fc554-5320-487f-bccc-853f3c1dcef9/cst/1/.tmp/review-result.md",
+          "first_report_sha256": "5665f7ef8b99ae41122bbc102a0d6a14d75b8b0a3174d4a227c37d1b640b8abc",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": null,
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 3,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 37518
+          },
+          "tokens": {
+            "uncached_input": 902873,
+            "cached_input": 606193,
+            "output": 37465
+          },
+          "reviewer_tokens": {
+            "uncached_input": 902873,
+            "cached_input": 606193,
+            "output": 37465
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.162738588
+        },
+        {
+          "repetition": 2,
+          "score": 0.8167477627933345,
+          "instance_ids": [
+            "default-8f1fc554-5320-487f-bccc-853f3c1dcef9-instance-2"
+          ],
+          "performance_instance_id": "default-8f1fc554-5320-487f-bccc-853f3c1dcef9-instance-2",
+          "reviewer_seconds": 955.391,
+          "guardian_thread_count": 1,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/8f1fc554-5320-487f-bccc-853f3c1dcef9/cst/2/.tmp/review-result.md",
+          "first_report_sha256": "a873bc721a4bb8161d48061d29418ea2ad5a6c0ee58a3caf622721156c12c24e",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": null,
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 4,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 53727
+          },
+          "tokens": {
+            "uncached_input": 1393460,
+            "cached_input": 1041225,
+            "output": 53642
+          },
+          "reviewer_tokens": {
+            "uncached_input": 1353538,
+            "cached_input": 879980,
+            "output": 51287
+          },
+          "guardian_tokens": {
+            "uncached_input": 39922,
+            "cached_input": 161245,
+            "output": 2355
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.25089034
+        },
+        {
+          "repetition": 3,
+          "score": 0.8181183692487476,
+          "instance_ids": [
+            "default-8f1fc554-5320-487f-bccc-853f3c1dcef9-instance-3"
+          ],
+          "performance_instance_id": "default-8f1fc554-5320-487f-bccc-853f3c1dcef9-instance-3",
+          "reviewer_seconds": 609.184,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/8f1fc554-5320-487f-bccc-853f3c1dcef9/cst/3/.tmp/review-result.md",
+          "first_report_sha256": "eb9e9f091e3066826bd13b16bf411439ab27ac4e9045bfff32f21dd43c3927ed",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 4,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 37938
+          },
+          "tokens": {
+            "uncached_input": 810482,
+            "cached_input": 695420,
+            "output": 37850
+          },
+          "reviewer_tokens": {
+            "uncached_input": 810482,
+            "cached_input": 695420,
+            "output": 37850
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.15048852
+        }
+      ],
+      "mean_score": 0.7912162539435977,
+      "mean_reviewer_seconds": 730.9403333333333,
+      "min_reviewer_seconds": 609.184,
+      "max_reviewer_seconds": 955.391,
+      "population_sd_seconds": 158.90126134664746,
+      "native_score_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/first-pass-rescore-20261004/scoring/default-code-standards-reviewer/scored.json",
+      "native_score_sha256": "3e5547eb53096540d632f13e48113a3eb2b71aa2ed804c675f9ad06e9e63c3bd",
+      "historical_mean_api_tokens": {
+        "uncached_input": null,
+        "cached_input": null,
+        "output": 43061
+      },
+      "mean_tokens": {
+        "uncached_input": 1035605,
+        "cached_input": 780946,
+        "output": 42985.666666666664
+      },
+      "mean_equivalent_cost_usd": 0.18803914933333332
+    },
+    {
+      "condition": "default",
+      "role": "code-spec-reviewer",
+      "score_status": "diagnostic",
+      "first_delivery_formal_status": "failed",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "score": 0.8225229177799248,
+          "instance_ids": [
+            "default-5d75efc2-44ef-4771-9998-32deb24ee91e-instance-1"
+          ],
+          "performance_instance_id": "default-5d75efc2-44ef-4771-9998-32deb24ee91e-instance-1",
+          "reviewer_seconds": 246.856,
+          "guardian_thread_count": 1,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/5d75efc2-44ef-4771-9998-32deb24ee91e/csp/1/.tmp/review-result.md",
+          "first_report_sha256": "2a977a10d15a73c83164ad1fb87821847df9a7dd6ff5a0d677bbf4f752511082",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": null,
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 0,
+          "historical_raw_api_tokens": {
+            "uncached_input": 263103,
+            "cached_input": 114823,
+            "output": 18731
+          },
+          "tokens": {
+            "uncached_input": 263103,
+            "cached_input": 114823,
+            "output": 18731
+          },
+          "reviewer_tokens": {
+            "uncached_input": 243374,
+            "cached_input": 94718,
+            "output": 18174
+          },
+          "guardian_tokens": {
+            "uncached_input": 19729,
+            "cached_input": 20105,
+            "output": 557
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.050106188
+        },
+        {
+          "repetition": 2,
+          "score": 0.8195721706509498,
+          "instance_ids": [
+            "default-5d75efc2-44ef-4771-9998-32deb24ee91e-instance-2"
+          ],
+          "performance_instance_id": "default-5d75efc2-44ef-4771-9998-32deb24ee91e-instance-2",
+          "reviewer_seconds": 187.817,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/5d75efc2-44ef-4771-9998-32deb24ee91e/csp/2/.tmp/review-result.md",
+          "first_report_sha256": "1db4e557e49eee13abacf4f749ce8472717275e97f63d8faa2e34b1caee91cf3",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": null,
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 0,
+          "historical_raw_api_tokens": {
+            "uncached_input": 159136,
+            "cached_input": 100602,
+            "output": 15692
+          },
+          "tokens": {
+            "uncached_input": 159136,
+            "cached_input": 100602,
+            "output": 15692
+          },
+          "reviewer_tokens": {
+            "uncached_input": 159136,
+            "cached_input": 100602,
+            "output": 15692
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.032855272
+        },
+        {
+          "repetition": 3,
+          "score": 0.8223075662912325,
+          "instance_ids": [
+            "default-5d75efc2-44ef-4771-9998-32deb24ee91e-instance-3"
+          ],
+          "performance_instance_id": "default-5d75efc2-44ef-4771-9998-32deb24ee91e-instance-3",
+          "reviewer_seconds": 335.612,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/5d75efc2-44ef-4771-9998-32deb24ee91e/csp/3/.tmp/review-result.md",
+          "first_report_sha256": "241abb4b5220437712ce783fb65453e28ca5e6222c3bbe7834170f887ab31928",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 0,
+          "historical_raw_api_tokens": {
+            "uncached_input": 395659,
+            "cached_input": 165626,
+            "output": 24431
+          },
+          "tokens": {
+            "uncached_input": 395659,
+            "cached_input": 165626,
+            "output": 24431
+          },
+          "reviewer_tokens": {
+            "uncached_input": 395659,
+            "cached_input": 165626,
+            "output": 24431
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.073481436
+        }
+      ],
+      "mean_score": 0.8214675515740357,
+      "mean_reviewer_seconds": 256.76166666666666,
+      "min_reviewer_seconds": 187.817,
+      "max_reviewer_seconds": 335.612,
+      "population_sd_seconds": 60.74225426797689,
+      "native_score_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/first-pass-rescore-20261004/scoring/default-code-spec-reviewer/scored.json",
+      "native_score_sha256": "b30aab7cfdee70eae066e516beaeb54ce1ed4d623b3ab2b6ab721940b67532b1",
+      "historical_mean_api_tokens": {
+        "uncached_input": 272632.6666666667,
+        "cached_input": 127017,
+        "output": 19618
+      },
+      "mean_tokens": {
+        "uncached_input": 272632.6666666667,
+        "cached_input": 127017,
+        "output": 19618
+      },
+      "mean_equivalent_cost_usd": 0.052147632
+    },
+    {
+      "condition": "default",
+      "role": "spec-readiness-reviewer",
+      "score_status": "diagnostic",
+      "first_delivery_formal_status": "failed",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "score": 0.43352931406001544,
+          "instance_ids": [
+            "runtime-migration-80b64cf1-1336-4efb-9574-76ea2f42d5b6-instance-1",
+            "artifact-promotion-80b64cf1-1336-4efb-9574-76ea2f42d5b6-instance-1"
+          ],
+          "performance_instance_id": "artifact-promotion-80b64cf1-1336-4efb-9574-76ea2f42d5b6-instance-1",
+          "reviewer_seconds": 3314.205,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/80b64cf1-1336-4efb-9574-76ea2f42d5b6/sr/artifact-promotion/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/0001_01/spec-readiness/reviewer-drafts/draft-39bbcb62-0012-4fbd-a779-319fd4450b83.jsonl",
+          "first_report_sha256": "bde49cacdb8087a0ec1b4fddf452f1a4382ba66c8d697a39caf078f869281218",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": null,
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 26,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 192106
+          },
+          "tokens": {
+            "uncached_input": 4845119,
+            "cached_input": 5656762,
+            "output": 191489
+          },
+          "reviewer_tokens": {
+            "uncached_input": 4845119,
+            "cached_input": 5656762,
+            "output": 191489
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.907275872
+        },
+        {
+          "repetition": 2,
+          "score": 0.5471774457716456,
+          "instance_ids": [
+            "runtime-migration-80b64cf1-1336-4efb-9574-76ea2f42d5b6-instance-2",
+            "artifact-promotion-80b64cf1-1336-4efb-9574-76ea2f42d5b6-instance-2"
+          ],
+          "performance_instance_id": "artifact-promotion-80b64cf1-1336-4efb-9574-76ea2f42d5b6-instance-2",
+          "reviewer_seconds": 3399.694,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/80b64cf1-1336-4efb-9574-76ea2f42d5b6/sr/artifact-promotion/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/0001_01/spec-readiness/reviewer-drafts/draft-39184875-34ce-49e1-b3d8-e1999375ed61.jsonl",
+          "first_report_sha256": "9d2203cb2b0a7d5f2d2d6f8698c6c38e6f7d648c4257501edf90cd717ee28361",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 24,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 187493
+          },
+          "tokens": {
+            "uncached_input": 4730431,
+            "cached_input": 6018806,
+            "output": 186884
+          },
+          "reviewer_tokens": {
+            "uncached_input": 4730431,
+            "cached_input": 6018806,
+            "output": 186884
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.893701026
+        },
+        {
+          "repetition": 3,
+          "score": 0.5529280704181511,
+          "instance_ids": [
+            "runtime-migration-80b64cf1-1336-4efb-9574-76ea2f42d5b6-instance-3",
+            "artifact-promotion-80b64cf1-1336-4efb-9574-76ea2f42d5b6-instance-3"
+          ],
+          "performance_instance_id": "artifact-promotion-80b64cf1-1336-4efb-9574-76ea2f42d5b6-instance-3",
+          "reviewer_seconds": 1805.538,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/80b64cf1-1336-4efb-9574-76ea2f42d5b6/sr/artifact-promotion/3/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/0001_01/spec-readiness/reviewer-drafts/draft-7ed1d8e3-8f08-4b3b-bee2-de61464b331c.jsonl",
+          "first_report_sha256": "6e52600afc8968d4147c9a2661f28cc2a24c002c485f1463bfdb68ead62203d8",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+          "authorized_restart": {
+            "decision": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/interruptions-20261004/artifact-promotion-80b64cf1-1336-4efb-9574-76ea2f42d5b6-instance-3/retry-authorization.json",
+            "discarded_attempt": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/interruptions-20261004/artifact-promotion-80b64cf1-1336-4efb-9574-76ea2f42d5b6-instance-3/interrupted-run",
+            "reason": "Externally stopped by user; original ARW recovery refused unknown state.",
+            "effective_metrics_scope": "New attempt only; old raw evidence preserved."
+          },
+          "invalid_api_input_partition_count": 11,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 86920
+          },
+          "tokens": {
+            "uncached_input": 2949721,
+            "cached_input": 2116304,
+            "output": 86680
+          },
+          "reviewer_tokens": {
+            "uncached_input": 2949721,
+            "cached_input": 2116304,
+            "output": 86680
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.517058614
+        }
+      ],
+      "mean_score": 0.5112116100832707,
+      "mean_reviewer_seconds": 2839.8123333333333,
+      "min_reviewer_seconds": 1805.538,
+      "max_reviewer_seconds": 3399.694,
+      "population_sd_seconds": 732.1746784860989,
+      "native_score_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/first-pass-rescore-20261004/scoring/default-spec-readiness-reviewer/scored.json",
+      "native_score_sha256": "86637f8394341636485355b85c87824ee643324ae72e65cfd51ecd1a14cd7464",
+      "historical_mean_api_tokens": {
+        "uncached_input": null,
+        "cached_input": null,
+        "output": 155506.33333333334
+      },
+      "mean_tokens": {
+        "uncached_input": 4175090.3333333335,
+        "cached_input": 4597290.666666667,
+        "output": 155017.66666666666
+      },
+      "mean_equivalent_cost_usd": 0.772678504
+    },
+    {
+      "condition": "default",
+      "role": "commit-audit-reviewer",
+      "score_status": "diagnostic",
+      "first_delivery_formal_status": "failed-initial-report-format-and-source",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "score": 0.8169856599281128,
+          "instance_ids": [
+            "default-65995504-4fcb-49db-82d1-4b579f481369-instance-1"
+          ],
+          "performance_instance_id": "default-65995504-4fcb-49db-82d1-4b579f481369-instance-1",
+          "reviewer_seconds": 1454.006,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/65995504-4fcb-49db-82d1-4b579f481369/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl",
+          "first_report_sha256": "c2ab0ad0b21d5e9c7e41937df5fbd97f8118cd94d7887073bf6f3f70841b1939",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": null,
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 10,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 130086
+          },
+          "tokens": {
+            "uncached_input": 1231927,
+            "cached_input": 3364037,
+            "output": 129800
+          },
+          "reviewer_tokens": {
+            "uncached_input": 1231927,
+            "cached_input": 3364037,
+            "output": 129800
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.299619642
+        },
+        {
+          "repetition": 2,
+          "score": 0.7595331287806247,
+          "instance_ids": [
+            "default-65995504-4fcb-49db-82d1-4b579f481369-instance-2"
+          ],
+          "performance_instance_id": "default-65995504-4fcb-49db-82d1-4b579f481369-instance-2",
+          "reviewer_seconds": 2983.902,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/65995504-4fcb-49db-82d1-4b579f481369/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl",
+          "first_report_sha256": "a5500fa85c7888c216d7dda20a751081ea133bf867b4f5adbcb1fa5af6ac69f4",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 15,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 194650
+          },
+          "tokens": {
+            "uncached_input": 4098931,
+            "cached_input": 3870402,
+            "output": 194231
+          },
+          "reviewer_tokens": {
+            "uncached_input": 4098931,
+            "cached_input": 3870402,
+            "output": 194231
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.768054652
+        },
+        {
+          "repetition": 3,
+          "score": 0.8148869263260542,
+          "instance_ids": [
+            "default-65995504-4fcb-49db-82d1-4b579f481369-instance-3"
+          ],
+          "performance_instance_id": "default-65995504-4fcb-49db-82d1-4b579f481369-instance-3",
+          "reviewer_seconds": 1980.354,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/runs/default-65995504-4fcb-49db-82d1-4b579f481369-instance-3/generation-1/review-original.jsonl",
+          "first_report_sha256": "85348abc017c41267cb6ac25e5c610dc56d526ed7b24f700f923d1188b8095d4",
+          "complete": true,
+          "excluded_followup_round_count": 2,
+          "excluded_followup_seconds": 118.818,
+          "startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 8,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 115689
+          },
+          "tokens": {
+            "uncached_input": 3022623,
+            "cached_input": 1502398,
+            "output": 115518
+          },
+          "reviewer_tokens": {
+            "uncached_input": 3022623,
+            "cached_input": 1502398,
+            "output": 115518
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.531725278
+        }
+      ],
+      "mean_score": 0.7971352383449306,
+      "mean_reviewer_seconds": 2139.420666666667,
+      "min_reviewer_seconds": 1454.006,
+      "max_reviewer_seconds": 2983.902,
+      "population_sd_seconds": 634.6243487488397,
+      "native_score_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/first-pass-rescore-20261004/scoring/default-commit-audit-reviewer/scored.json",
+      "native_score_sha256": "6c87f4fbfb4e039f3f3b44ded9e89b9d5b3743b8196d24ab9784c2ffcf426386",
+      "historical_mean_api_tokens": {
+        "uncached_input": null,
+        "cached_input": null,
+        "output": 146808.33333333334
+      },
+      "mean_tokens": {
+        "uncached_input": 2784493.6666666665,
+        "cached_input": 2912279,
+        "output": 146516.33333333334
+      },
+      "mean_equivalent_cost_usd": 0.5331331906666666
+    },
+    {
+      "condition": "trained",
+      "role": "code-standards-reviewer",
+      "score_status": "diagnostic",
+      "first_delivery_formal_status": "satisfied",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "score": 0.8003666061732313,
+          "instance_ids": [
+            "default-54f4ea93-0a53-481a-863e-95e4c7fac219-instance-1"
+          ],
+          "performance_instance_id": "default-54f4ea93-0a53-481a-863e-95e4c7fac219-instance-1",
+          "reviewer_seconds": 552.116,
+          "guardian_thread_count": 1,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/54f4ea93-0a53-481a-863e-95e4c7fac219/cst/1/.tmp/review-result.md",
+          "first_report_sha256": "28b0d813cf79fbaa8d80ac0067eb1fabb662300abfa499278757f971490d83d5",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": null,
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 3,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 37607
+          },
+          "tokens": {
+            "uncached_input": 653811,
+            "cached_input": 607180,
+            "output": 37523
+          },
+          "reviewer_tokens": {
+            "uncached_input": 628706,
+            "cached_input": 526974,
+            "output": 36287
+          },
+          "guardian_tokens": {
+            "uncached_input": 25105,
+            "cached_input": 80206,
+            "output": 1236
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.12542234
+        },
+        {
+          "repetition": 2,
+          "score": 0.7825022382522637,
+          "instance_ids": [
+            "default-54f4ea93-0a53-481a-863e-95e4c7fac219-instance-2"
+          ],
+          "performance_instance_id": "default-54f4ea93-0a53-481a-863e-95e4c7fac219-instance-2",
+          "reviewer_seconds": 988.127,
+          "guardian_thread_count": 1,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/54f4ea93-0a53-481a-863e-95e4c7fac219/cst/2/.tmp/review-result.md",
+          "first_report_sha256": "f4752d8395e59318a689e6b374a622501b7b2c090e2819150f825fa2285eab91",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": null,
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 2,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 39519
+          },
+          "tokens": {
+            "uncached_input": 1117084,
+            "cached_input": 633805,
+            "output": 39483
+          },
+          "reviewer_tokens": {
+            "uncached_input": 1065578,
+            "cached_input": 523858,
+            "output": 37875
+          },
+          "guardian_tokens": {
+            "uncached_input": 51506,
+            "cached_input": 109947,
+            "output": 1608
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.19626049
+        },
+        {
+          "repetition": 3,
+          "score": 0.8308027057440531,
+          "instance_ids": [
+            "default-54f4ea93-0a53-481a-863e-95e4c7fac219-instance-3"
+          ],
+          "performance_instance_id": "default-54f4ea93-0a53-481a-863e-95e4c7fac219-instance-3",
+          "reviewer_seconds": 724.658,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/54f4ea93-0a53-481a-863e-95e4c7fac219/cst/3/.tmp/review-result.md",
+          "first_report_sha256": "93d3dadb295cf6f76ce430544121e179db443323bd87f01e9973155eae810906",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 3,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 40058
+          },
+          "tokens": {
+            "uncached_input": 1100600,
+            "cached_input": 722914,
+            "output": 40006
+          },
+          "reviewer_tokens": {
+            "uncached_input": 1100600,
+            "cached_input": 722914,
+            "output": 40006
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.195459444
+        }
+      ],
+      "mean_score": 0.8045571833898494,
+      "mean_reviewer_seconds": 754.967,
+      "min_reviewer_seconds": 552.116,
+      "max_reviewer_seconds": 988.127,
+      "population_sd_seconds": 179.28631596973594,
+      "native_score_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/first-pass-rescore-20261004/scoring/trained-code-standards-reviewer/scored.json",
+      "native_score_sha256": "8ac5af2b67ba132235ccbc11e700ac49af93969c0e4e16efe4390cfacb9c44da",
+      "historical_mean_api_tokens": {
+        "uncached_input": null,
+        "cached_input": null,
+        "output": 39061.333333333336
+      },
+      "mean_tokens": {
+        "uncached_input": 957165,
+        "cached_input": 654633,
+        "output": 39004
+      },
+      "mean_equivalent_cost_usd": 0.172380758
+    },
+    {
+      "condition": "trained",
+      "role": "code-spec-reviewer",
+      "score_status": "diagnostic",
+      "first_delivery_formal_status": "satisfied",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "score": 0.8175633015039498,
+          "instance_ids": [
+            "default-a39dbbf9-ee2c-48c2-a32b-076d463ed74f-instance-1"
+          ],
+          "performance_instance_id": "default-a39dbbf9-ee2c-48c2-a32b-076d463ed74f-instance-1",
+          "reviewer_seconds": 363.645,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/a39dbbf9-ee2c-48c2-a32b-076d463ed74f/csp/1/.tmp/review-result.md",
+          "first_report_sha256": "98ec06b359fa5240c6e78f3bbd699aa4cc072d4ea1f13a342fac69d959b02ddf",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": null,
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 0,
+          "historical_raw_api_tokens": {
+            "uncached_input": 466313,
+            "cached_input": 200704,
+            "output": 24735
+          },
+          "tokens": {
+            "uncached_input": 466313,
+            "cached_input": 200704,
+            "output": 24735
+          },
+          "reviewer_tokens": {
+            "uncached_input": 466313,
+            "cached_input": 200704,
+            "output": 24735
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.084783664
+        },
+        {
+          "repetition": 2,
+          "score": 0.8113167897846457,
+          "instance_ids": [
+            "default-a39dbbf9-ee2c-48c2-a32b-076d463ed74f-instance-2"
+          ],
+          "performance_instance_id": "default-a39dbbf9-ee2c-48c2-a32b-076d463ed74f-instance-2",
+          "reviewer_seconds": 393.311,
+          "guardian_thread_count": 1,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/a39dbbf9-ee2c-48c2-a32b-076d463ed74f/csp/2/.tmp/review-result.md",
+          "first_report_sha256": "ff9af8af7a1c39fb2def4ac5ac4f8c05a74bf62de2ecf4afd7a35cee5e6e86ef",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": null,
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 0,
+          "historical_raw_api_tokens": {
+            "uncached_input": 414945,
+            "cached_input": 159456,
+            "output": 31577
+          },
+          "tokens": {
+            "uncached_input": 414945,
+            "cached_input": 159456,
+            "output": 31577
+          },
+          "reviewer_tokens": {
+            "uncached_input": 389096,
+            "cached_input": 138094,
+            "output": 29680
+          },
+          "guardian_tokens": {
+            "uncached_input": 25849,
+            "cached_input": 21362,
+            "output": 1897
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.079634236
+        },
+        {
+          "repetition": 3,
+          "score": 0.8143639082792257,
+          "instance_ids": [
+            "default-a39dbbf9-ee2c-48c2-a32b-076d463ed74f-instance-3"
+          ],
+          "performance_instance_id": "default-a39dbbf9-ee2c-48c2-a32b-076d463ed74f-instance-3",
+          "reviewer_seconds": 198.83,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/a39dbbf9-ee2c-48c2-a32b-076d463ed74f/csp/3/.tmp/review-result.md",
+          "first_report_sha256": "be2b56f5529217f5bda4de02bc0c0149258a58eae9c12939f8d2fd638163b3e7",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 0,
+          "historical_raw_api_tokens": {
+            "uncached_input": 162730,
+            "cached_input": 113129,
+            "output": 15534
+          },
+          "tokens": {
+            "uncached_input": 177974,
+            "cached_input": 125835,
+            "output": 15519
+          },
+          "reviewer_tokens": {
+            "uncached_input": 177974,
+            "cached_input": 125835,
+            "output": 15519
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.03600339
+        }
+      ],
+      "mean_score": 0.8144146665226071,
+      "mean_reviewer_seconds": 318.5953333333333,
+      "min_reviewer_seconds": 198.83,
+      "max_reviewer_seconds": 393.311,
+      "population_sd_seconds": 85.54850160516482,
+      "native_score_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/first-pass-rescore-20261004/scoring/trained-code-spec-reviewer/scored.json",
+      "native_score_sha256": "8631261b4d42859c4e8971474f167c3fc82016209760a0b04a13edc37691a940",
+      "historical_mean_api_tokens": {
+        "uncached_input": 347996,
+        "cached_input": 157763,
+        "output": 23948.666666666668
+      },
+      "mean_tokens": {
+        "uncached_input": 353077.3333333333,
+        "cached_input": 161998.33333333334,
+        "output": 23943.666666666668
+      },
+      "mean_equivalent_cost_usd": 0.06680709666666666
+    },
+    {
+      "condition": "trained",
+      "role": "spec-readiness-reviewer",
+      "score_status": "diagnostic",
+      "first_delivery_formal_status": "failed",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "score": 0.5454379463149641,
+          "instance_ids": [
+            "runtime-migration-38896e04-c2f8-46df-b194-1d23db35c996-instance-1",
+            "artifact-promotion-38896e04-c2f8-46df-b194-1d23db35c996-instance-1"
+          ],
+          "performance_instance_id": "artifact-promotion-38896e04-c2f8-46df-b194-1d23db35c996-instance-1",
+          "reviewer_seconds": 3845.481,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/38896e04-c2f8-46df-b194-1d23db35c996/sr/artifact-promotion/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/0001_01/spec-readiness/reviewer-drafts/draft-1746d15b-0644-4348-af91-b0bc0992bb54.jsonl",
+          "first_report_sha256": "b6998cd728163e9c786162f49d592dc2f7c891d434baf4c0bc9fb00e1e896a40",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": null,
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 27,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 208203
+          },
+          "tokens": {
+            "uncached_input": 6176940,
+            "cached_input": 5402426,
+            "output": 207608
+          },
+          "reviewer_tokens": {
+            "uncached_input": 6176940,
+            "cached_input": 5402426,
+            "output": 207608
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 1.110555576
+        },
+        {
+          "repetition": 2,
+          "score": 0.35186968617500086,
+          "instance_ids": [
+            "runtime-migration-38896e04-c2f8-46df-b194-1d23db35c996-instance-2",
+            "artifact-promotion-38896e04-c2f8-46df-b194-1d23db35c996-instance-2"
+          ],
+          "performance_instance_id": "artifact-promotion-38896e04-c2f8-46df-b194-1d23db35c996-instance-2",
+          "reviewer_seconds": 3361.263,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/38896e04-c2f8-46df-b194-1d23db35c996/sr/artifact-promotion/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/0001_01/spec-readiness/reviewer-drafts/draft-92bba74c-4e83-4836-9080-9099c0503f64.jsonl",
+          "first_report_sha256": "f7c4a6c363b93d08b81f5d65ee8d609b8a8140abfdb9048381b17531c6004190",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 29,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 183936
+          },
+          "tokens": {
+            "uncached_input": 4551265,
+            "cached_input": 6575789,
+            "output": 183282
+          },
+          "reviewer_tokens": {
+            "uncached_input": 4551265,
+            "cached_input": 6575789,
+            "output": 183282
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.874044914
+        },
+        {
+          "repetition": 3,
+          "score": 0.5099714703217512,
+          "instance_ids": [
+            "runtime-migration-38896e04-c2f8-46df-b194-1d23db35c996-instance-3",
+            "artifact-promotion-38896e04-c2f8-46df-b194-1d23db35c996-instance-3"
+          ],
+          "performance_instance_id": "artifact-promotion-38896e04-c2f8-46df-b194-1d23db35c996-instance-3",
+          "reviewer_seconds": 1524.405,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/38896e04-c2f8-46df-b194-1d23db35c996/sr/artifact-promotion/3/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/0001_01/spec-readiness/reviewer-drafts/draft-4c548fea-4199-4c1f-847c-c57091b7d998.jsonl",
+          "first_report_sha256": "790750256b147fbc086f57836ef2492dc6810092d9cbd7823a79d3d78e6e335a",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 10,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 82000
+          },
+          "tokens": {
+            "uncached_input": 2283842,
+            "cached_input": 1948232,
+            "output": 81759
+          },
+          "reviewer_tokens": {
+            "uncached_input": 2283842,
+            "cached_input": 1948232,
+            "output": 81759
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.412174742
+        }
+      ],
+      "mean_score": 0.46909303427057203,
+      "mean_reviewer_seconds": 2910.383,
+      "min_reviewer_seconds": 1524.405,
+      "max_reviewer_seconds": 3845.481,
+      "population_sd_seconds": 999.7726509041944,
+      "native_score_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/first-pass-rescore-20261004/scoring/trained-spec-readiness-reviewer/scored.json",
+      "native_score_sha256": "e6ce8e002fb3d91a3a808acc83289fedcef09ded086352bb21f7dba89766fcb0",
+      "historical_mean_api_tokens": {
+        "uncached_input": null,
+        "cached_input": null,
+        "output": 158046.33333333334
+      },
+      "mean_tokens": {
+        "uncached_input": 4337349,
+        "cached_input": 4642149,
+        "output": 157549.66666666666
+      },
+      "mean_equivalent_cost_usd": 0.7989250773333333
+    },
+    {
+      "condition": "trained",
+      "role": "commit-audit-reviewer",
+      "score_status": "diagnostic",
+      "first_delivery_formal_status": "incomplete-final-status-format",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "score": 0.7616602511985073,
+          "instance_ids": [
+            "default-c48378b1-905a-4a13-8765-a22adad8a3b4-instance-1"
+          ],
+          "performance_instance_id": "default-c48378b1-905a-4a13-8765-a22adad8a3b4-instance-1",
+          "reviewer_seconds": 1170.384,
+          "guardian_thread_count": 1,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/c48378b1-905a-4a13-8765-a22adad8a3b4/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl",
+          "first_report_sha256": "568de779402c8684c2f5bd1d468761de655f7b1635a2e2b3a077d643dc7def5b",
+          "complete": false,
+          "report_complete": true,
+          "formal_completion": {
+            "status": "incomplete",
+            "reason": "The Reviewer final message does not follow the status-only contract.",
+            "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/c48378b1-905a-4a13-8765-a22adad8a3b4/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+          },
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+          "authorized_restart": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/trained-commit-audit-1-retry-20261004/authorization.json",
+          "tokens": {
+            "uncached_input": 1294600,
+            "cached_input": 2229609,
+            "output": 83402
+          },
+          "reviewer_tokens": {
+            "uncached_input": 1269962,
+            "cached_input": 2205917,
+            "output": 82953
+          },
+          "guardian_tokens": {
+            "uncached_input": 24638,
+            "cached_input": 23692,
+            "output": 449
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.269062684,
+          "native_score_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/trained-commit-audit-1-retry-20261004/main-scoring/scored.json",
+          "native_score_sha256": "48c4e9037e5705e6cbf7db0f21f0aec034c8757939d1365c102a3df1fafe089d"
+        },
+        {
+          "repetition": 2,
+          "score": 0.7712782027089253,
+          "instance_ids": [
+            "default-36c81af1-5314-448f-8b53-760faf4f147d-instance-2"
+          ],
+          "performance_instance_id": "default-36c81af1-5314-448f-8b53-760faf4f147d-instance-2",
+          "reviewer_seconds": 952.291,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/36c81af1-5314-448f-8b53-760faf4f147d/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl",
+          "first_report_sha256": "a7985468cb7a55b8286c31291b705b3443530e46ed578de53c0dd2a3a85eb053",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 3,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 59127
+          },
+          "tokens": {
+            "uncached_input": 1343357,
+            "cached_input": 1070251,
+            "output": 59028
+          },
+          "reviewer_tokens": {
+            "uncached_input": 1343357,
+            "cached_input": 1070251,
+            "output": 59028
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.246370726
+        },
+        {
+          "repetition": 3,
+          "score": 0.838784023661292,
+          "instance_ids": [
+            "default-36c81af1-5314-448f-8b53-760faf4f147d-instance-3"
+          ],
+          "performance_instance_id": "default-36c81af1-5314-448f-8b53-760faf4f147d-instance-3",
+          "reviewer_seconds": 2215.659,
+          "guardian_thread_count": 1,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/36c81af1-5314-448f-8b53-760faf4f147d/ca/3/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl",
+          "first_report_sha256": "008d452815556d5349322b683acc77f91c79bb3d30fa32df86cb71d4887e77f0",
+          "complete": true,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 5,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 114386
+          },
+          "tokens": {
+            "uncached_input": 3786950,
+            "cached_input": 1654086,
+            "output": 114236
+          },
+          "reviewer_tokens": {
+            "uncached_input": 3685590,
+            "cached_input": 1490588,
+            "output": 111694
+          },
+          "guardian_tokens": {
+            "uncached_input": 101360,
+            "cached_input": 163498,
+            "output": 2542
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 0.648198796
+        }
+      ],
+      "mean_score": 0.7905741591895749,
+      "mean_reviewer_seconds": 1446.1113333333333,
+      "min_reviewer_seconds": 952.291,
+      "max_reviewer_seconds": 2215.659,
+      "population_sd_seconds": 551.3884581166187,
+      "mean_tokens": {
+        "uncached_input": 2141635.6666666665,
+        "cached_input": 1651315.3333333333,
+        "output": 85555.33333333333
+      },
+      "mean_equivalent_cost_usd": 0.387877402,
+      "superseded_attempts": [
+        {
+          "repetition": 1,
+          "score": 0,
+          "instance_ids": [
+            "default-36c81af1-5314-448f-8b53-760faf4f147d-instance-1"
+          ],
+          "performance_instance_id": "default-36c81af1-5314-448f-8b53-760faf4f147d-instance-1",
+          "reviewer_seconds": 3600.738,
+          "guardian_thread_count": 0,
+          "first_report_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/36c81af1-5314-448f-8b53-760faf4f147d/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl",
+          "first_report_sha256": "5c86d56c9a5a7faab399881ae4b815cce9cd5a0548fb2350e7550e699cc78cde",
+          "complete": false,
+          "excluded_followup_round_count": 0,
+          "excluded_followup_seconds": 0.0,
+          "startup_sha256": null,
+          "authorized_restart": null,
+          "invalid_api_input_partition_count": 8,
+          "historical_raw_api_tokens": {
+            "uncached_input": null,
+            "cached_input": null,
+            "output": 163106
+          },
+          "tokens": {
+            "uncached_input": 5765810,
+            "cached_input": 14104364,
+            "output": 162917
+          },
+          "reviewer_tokens": {
+            "uncached_input": 5765810,
+            "cached_input": 14104364,
+            "output": 162917
+          },
+          "guardian_tokens": {
+            "uncached_input": 0,
+            "cached_input": 0,
+            "output": 0
+          },
+          "token_source": "raw-native-engine-log-physical-pass-sum",
+          "equivalent_cost_usd": 1.167112314
+        }
+      ],
+      "historical_native_score_path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/first-pass-rescore-20261004/scoring/trained-commit-audit-reviewer/scored.json",
+      "historical_native_score_sha256": "b826be79f597bfacaecfabeac7fe5b6b263b536f184ddeb5be1bf4c6b7cb69d7",
+      "native_score_sources": [
+        {
+          "repetitions": [
+            1
+          ],
+          "path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/trained-commit-audit-1-retry-20261004/main-scoring/scored.json",
+          "sha256": "48c4e9037e5705e6cbf7db0f21f0aec034c8757939d1365c102a3df1fafe089d"
+        },
+        {
+          "repetitions": [
+            2,
+            3
+          ],
+          "path": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/profile-validation-20261004/first-pass-rescore-20261004/scoring/trained-commit-audit-reviewer/scored.json",
+          "sha256": "b826be79f597bfacaecfabeac7fe5b6b263b536f184ddeb5be1bf4c6b7cb69d7"
+        }
+      ],
+      "aggregation_scope": "Arithmetic mean of original ARW diagnostic repetition scores: user-authorized retry 1 and original repetitions 2/3; not a newly completed formal ARW batch.",
+      "historical_mean_api_tokens_before_retry": {
+        "uncached_input": null,
+        "cached_input": null,
+        "output": 112206.33333333333
+      }
+    }
+  ],
+  "method": "Frozen original ARW score-completed, original F2 and native three-repeat arithmetic means. Initial report only; Main repairs representation in separate copies; all Reviewer followup outputs and costs excluded.",
+  "performance_scope": "Spec Readiness scores fuse both original subscenarios, but performance reports artifact-promotion only, per user instruction.",
+  "token_scope": "Every actual internal generation pass: sum original engine read/reused/generated counters, including expanded continuation prompts. Initial phase only, Reviewer plus guardian. Model output excludes injected wrap tokens that were not generated. Never use API usage as consumption values.",
+  "formal_scope": "All new scores are diagnostic; original first-delivery format failures, incomplete/timeout and native gate failures remain. No release or convergence authorization.",
+  "interruption_scope": "Prior explicit user authorization still excludes externally stopped artifact-promotion attempt and uses its independently restarted effective initial attempt. Raw interrupted history and cost remain archived; this is separate from output correction.",
+  "conditions": "14 pre-prevention and 16 with startup prevention observations retained and labelled. Results do not establish isolated profile causality or equivalence across startup cohorts.",
+  "history_policy": "Prior scoring and inclusive cost reports are retained; this is a new first-delivery-only calculation, not an overwrite.",
+  "display": "Current report only: minutes with one decimal; score and USD equivalent cost with three decimals; tokens decimal K integer part. Full precision retained before aggregation.",
+  "equivalent_cost_formula": "USD equivalent = (uncached_input * 0.15 + cached_input * 0.016 + output * 0.47) / 1000000. Raw counts; not an actual bill.",
+  "equivalent_cost_prices_usd_per_million": {
+    "uncached_input": 0.15,
+    "cached_input": 0.016,
+    "output": 0.47
+  },
+  "total_observed_attempts": 31,
+  "selected_observations": 30,
+  "retry_scope": "Only trained Commit Audit repetition 1 replaced by explicitly authorized new attempt; original timeout and zero score preserved as superseded history.",
+  "raw_evidence_retention": {
+    "status": "deleted-by-user-request-2026-10-06",
+    "scope": "Old-version temporary run/session/log evidence in project and installation; old installation rollback backups and unused publication mirrors.",
+    "summary_numbers_preserved": true,
+    "raw_session_replay_available": false,
+    "does_not_change_historical_scores_or_inspection_verdicts": true
+  }
+}

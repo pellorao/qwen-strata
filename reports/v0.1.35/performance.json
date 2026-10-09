@@ -1,0 +1,264 @@
+{
+  "version": "0.1.35",
+  "type": "performance",
+  "results": {
+    "formal_matrix": {
+      "evidence_sha256": "a55db6990b2ef0f93963e6bf5fdc99374e957413be2ca7c046f0b53e746fa176",
+      "statistics": {
+        "version": "0.1.35",
+        "completed_formal_runs": 24,
+        "expected_formal_runs": 24,
+        "complete": true,
+        "groups": [
+          {
+            "context": 200000,
+            "model": "q2_0",
+            "engine": "prebuilt",
+            "runs": 3,
+            "retrieval_pass": true,
+            "cache_zero": true,
+            "process_rss_gib_observed_max": 38.00462341308594,
+            "gpu_mib_observed_max": 15936.0,
+            "prefill_tps": {
+              "median": 2444.0,
+              "min": 2443.2,
+              "max": 2454.8
+            },
+            "decode_tps": {
+              "median": 60.2,
+              "min": 58.0,
+              "max": 61.9
+            },
+            "ttft_s": {
+              "median": 82.41855280000027,
+              "min": 82.3331460999998,
+              "max": 82.7392847000001
+            },
+            "elapsed_s": {
+              "median": 86.80396610000025,
+              "min": 86.55606379999972,
+              "max": 86.84615930000018
+            }
+          },
+          {
+            "context": 200000,
+            "model": "q2_0",
+            "engine": "native",
+            "runs": 3,
+            "retrieval_pass": true,
+            "cache_zero": true,
+            "process_rss_gib_observed_max": 37.991050720214844,
+            "gpu_mib_observed_max": 15678.0,
+            "prefill_tps": {
+              "median": 2442.9,
+              "min": 2437.4,
+              "max": 2447.3
+            },
+            "decode_tps": {
+              "median": 60.0,
+              "min": 60.0,
+              "max": 60.5
+            },
+            "ttft_s": {
+              "median": 82.36974240000018,
+              "min": 82.22499069999958,
+              "max": 82.56302940000023
+            },
+            "elapsed_s": {
+              "median": 86.60452750000013,
+              "min": 86.42871879999984,
+              "max": 86.79737700000032
+            }
+          },
+          {
+            "context": 200000,
+            "model": "iq2_xs",
+            "engine": "prebuilt",
+            "runs": 3,
+            "retrieval_pass": true,
+            "cache_zero": true,
+            "process_rss_gib_observed_max": 39.350685119628906,
+            "gpu_mib_observed_max": 15751.0,
+            "prefill_tps": {
+              "median": 2319.9,
+              "min": 2318.8,
+              "max": 2320.6
+            },
+            "decode_tps": {
+              "median": 62.3,
+              "min": 62.3,
+              "max": 65.6
+            },
+            "ttft_s": {
+              "median": 87.2339644000001,
+              "min": 87.18605329999991,
+              "max": 87.28888510000002
+            },
+            "elapsed_s": {
+              "median": 91.26811479999992,
+              "min": 91.16349350000019,
+              "max": 91.31262790000005
+            }
+          },
+          {
+            "context": 200000,
+            "model": "iq2_xs",
+            "engine": "native",
+            "runs": 3,
+            "retrieval_pass": true,
+            "cache_zero": true,
+            "process_rss_gib_observed_max": 39.35074234008789,
+            "gpu_mib_observed_max": 15820.0,
+            "prefill_tps": {
+              "median": 2321.2,
+              "min": 2319.1,
+              "max": 2335.2
+            },
+            "decode_tps": {
+              "median": 61.2,
+              "min": 61.1,
+              "max": 61.5
+            },
+            "ttft_s": {
+              "median": 87.17292029999999,
+              "min": 86.63495140000009,
+              "max": 87.1772261000001
+            },
+            "elapsed_s": {
+              "median": 91.31293179999989,
+              "min": 90.79400850000002,
+              "max": 91.32532790000005
+            }
+          },
+          {
+            "context": 100000,
+            "model": "q2_0",
+            "engine": "prebuilt",
+            "runs": 3,
+            "retrieval_pass": true,
+            "cache_zero": true,
+            "process_rss_gib_observed_max": 37.9997444152832,
+            "gpu_mib_observed_max": 15700.0,
+            "prefill_tps": {
+              "median": 2577.0,
+              "min": 2575.3,
+              "max": 2579.1
+            },
+            "decode_tps": {
+              "median": 61.1,
+              "min": 60.7,
+              "max": 62.5
+            },
+            "ttft_s": {
+              "median": 39.06899179999982,
+              "min": 39.03789410000036,
+              "max": 39.09868210000013
+            },
+            "elapsed_s": {
+              "median": 42.99781350000012,
+              "min": 42.90500920000022,
+              "max": 43.05319950000012
+            }
+          },
+          {
+            "context": 100000,
+            "model": "q2_0",
+            "engine": "native",
+            "runs": 3,
+            "retrieval_pass": true,
+            "cache_zero": true,
+            "process_rss_gib_observed_max": 38.00041580200195,
+            "gpu_mib_observed_max": 15698.0,
+            "prefill_tps": {
+              "median": 2577.3,
+              "min": 2573.4,
+              "max": 2578.5
+            },
+            "decode_tps": {
+              "median": 61.0,
+              "min": 60.6,
+              "max": 65.0
+            },
+            "ttft_s": {
+              "median": 39.075785800000176,
+              "min": 39.044798999999784,
+              "max": 39.14588499999991
+            },
+            "elapsed_s": {
+              "median": 42.83691899999985,
+              "min": 42.46524070000032,
+              "max": 42.96189920000006
+            }
+          },
+          {
+            "context": 100000,
+            "model": "iq2_xs",
+            "engine": "prebuilt",
+            "runs": 3,
+            "retrieval_pass": true,
+            "cache_zero": true,
+            "process_rss_gib_observed_max": 39.34712600708008,
+            "gpu_mib_observed_max": 15591.0,
+            "prefill_tps": {
+              "median": 2448.8,
+              "min": 2437.9,
+              "max": 2450.6
+            },
+            "decode_tps": {
+              "median": 64.0,
+              "min": 61.0,
+              "max": 64.3
+            },
+            "ttft_s": {
+              "median": 41.10675100000026,
+              "min": 41.08337490000031,
+              "max": 41.3062703999999
+            },
+            "elapsed_s": {
+              "median": 45.177797900000314,
+              "min": 44.95317470000009,
+              "max": 45.202545499999815
+            }
+          },
+          {
+            "context": 100000,
+            "model": "iq2_xs",
+            "engine": "native",
+            "runs": 3,
+            "retrieval_pass": true,
+            "cache_zero": true,
+            "process_rss_gib_observed_max": 39.34426498413086,
+            "gpu_mib_observed_max": 15587.0,
+            "prefill_tps": {
+              "median": 2450.7,
+              "min": 2450.6,
+              "max": 2452.5
+            },
+            "decode_tps": {
+              "median": 64.3,
+              "min": 64.0,
+              "max": 65.0
+            },
+            "ttft_s": {
+              "median": 41.07093429999986,
+              "min": 41.04328600000008,
+              "max": 41.08693829999993
+            },
+            "elapsed_s": {
+              "median": 44.91862050000009,
+              "min": 44.9051628000002,
+              "max": 44.97720729999992
+            }
+          }
+        ],
+        "limitations": [
+          "Synthetic mixed-language retrieval case; not a coding-quality evaluation.",
+          "256 output tokens; decode differences can depend on MTP acceptance and task.",
+          "TTFT excludes engine startup; prompt cache reuse is zero.",
+          "Resource peaks are observed at five-second intervals, not exact peaks.",
+          "Run groups are sequential, not interleaved; small differences require confirmation."
+        ]
+      }
+    }
+  }
+}

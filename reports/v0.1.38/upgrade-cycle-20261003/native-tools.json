@@ -1,0 +1,27 @@
+{
+  "codex_version": "0.160.0",
+  "diagnostic_only": true,
+  "real_model_inferences": 0,
+  "real_web_searches": 0,
+  "global_configuration_changed": false,
+  "formal_arw_instances_started": 0,
+  "native_default": {
+    "tool_type": "web_search",
+    "bridge_translation": "rejected",
+    "error": "Unsupported tool type: web_search"
+  },
+  "native_standalone": {
+    "configuration": {
+      "features.standalone_web_search": true,
+      "model_providers.qwen_strata.supports_standalone_web_search": true
+    },
+    "tool": "web.run",
+    "bridge_translation": "accepted",
+    "function_tools": 118,
+    "required_provider_endpoint": "/v1/alpha/search",
+    "search_endpoint_implemented": false,
+    "diagnostic_http_result": 400
+  },
+  "measurement_status": "Do not start formal capability measurements with search silently disabled or its advertised endpoint missing.",
+  "measurement_details": "../../../.tmp/measurement-details/v0.1.38/upgrade-cycle-20261003/native-tools.json"
+}

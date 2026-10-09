@@ -1,0 +1,553 @@
+{
+  "schema_version": 1,
+  "status": "current-dynamic-group-closed-await-user-review-and-affected-safety-recovery",
+  "host": "local",
+  "hardware": {
+    "cpu": "i9-14900K",
+    "gpu": "RTX4070TiSUPER",
+    "vram_mib": 16376,
+    "ram_gib": 64,
+    "p_cores": 8,
+    "e_cores": 16,
+    "ram_configured_mts": 6600
+  },
+  "independent_of_remote_calibration": true,
+  "remote_work": "Affinity6 and worker9 studies completed independently; hardware and means are never shared with local Spec.",
+  "versions": {
+    "strata": "0.1.40.1",
+    "engine": "0.1.40",
+    "codex": "0.160.1"
+  },
+  "source_archive": {
+    "manifest": "benchmarks/reviewer-suite-v1/source-snapshots/previous-39fe7f508237/manifest.json",
+    "head": "39fe7f508237af8d4f1eabe679116a75db8f1715",
+    "sha256": "3ca0c8de2dfd0eb2a26432b42528f3f59da99a853b35296fcc14d43a3db9f170",
+    "verified_files": 547,
+    "runtime_copy_policy": "Fresh original preparation in an independent temporary source tree outside this maintenance Repository; no inherited maintenance AGENTS or prior results.",
+    "manifest_at_preparation": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json"
+  },
+  "model_instances": 12,
+  "initial_submissions": 24,
+  "model": "Q2_0",
+  "profile": "default",
+  "profile_sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+  "profile_save": false,
+  "sampling": {
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "top_k": 20
+  },
+  "hardware_options_source": "config/deployments/local.json",
+  "hardware_options_fixed": {
+    "prefill": 16384,
+    "pool-workers": 23,
+    "pool-affinity": "auto",
+    "vram-reserve-mib": 700,
+    "kv": "int8",
+    "kv-resident": 20480
+  },
+  "startup_instructions": true,
+  "loop_prevention_instructions": true,
+  "work_time_budget_per_subscene_seconds": 3600,
+  "warning_work_seconds": 3300,
+  "same_thread_subscenes": [
+    "runtime-migration",
+    "artifact-promotion"
+  ],
+  "configuration_order": [
+    "100k-high",
+    "100k-medium",
+    "150k-medium",
+    "150k-high"
+  ],
+  "groups": [
+    {
+      "name": "100k-high",
+      "effort": "high",
+      "threshold": 100000,
+      "window": 156584,
+      "thinking_budget": 8192,
+      "output_budget": 24576,
+      "merged_instances": 3,
+      "handoffs": [
+        {
+          "instanceId": "runtime-migration-a4f603fc-d178-4cc3-a6d4-17fa42bbb1df-instance-1",
+          "scenarioId": "runtime-migration",
+          "native_input_sha256": "8ebf22605ae4ed066b1b82e8578f9a7ba05384c1a97c1b4d92d2f952fbbbd6b5",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "artifact-promotion-a4f603fc-d178-4cc3-a6d4-17fa42bbb1df-instance-1",
+          "scenarioId": "artifact-promotion",
+          "native_input_sha256": "043c620433854ebaab0ab85dea06d5caf19ca9f9679e03e99f4de09498940293",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "runtime-migration-a4f603fc-d178-4cc3-a6d4-17fa42bbb1df-instance-2",
+          "scenarioId": "runtime-migration",
+          "native_input_sha256": "bc403cd9dfdde3cd3199a76ba4c37b9708c230044b324222824c6efcaa40dd70",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "artifact-promotion-a4f603fc-d178-4cc3-a6d4-17fa42bbb1df-instance-2",
+          "scenarioId": "artifact-promotion",
+          "native_input_sha256": "55b4cb96369056626fedb3e76667404426fab5be4bfa47ae2590f90b6b93ddb1",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "runtime-migration-a4f603fc-d178-4cc3-a6d4-17fa42bbb1df-instance-3",
+          "scenarioId": "runtime-migration",
+          "native_input_sha256": "6730bc178ea5a23f7470a9324cc676292a1de676991cbcc69479c26946ffaba0",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "artifact-promotion-a4f603fc-d178-4cc3-a6d4-17fa42bbb1df-instance-3",
+          "scenarioId": "artifact-promotion",
+          "native_input_sha256": "3c645912d049fe5a0fdcf8eda0b53c9c290b168f94dbd07532cf93f55e461170",
+          "original_empty_report": true
+        }
+      ],
+      "baseline_sha256": "7a50cc9dfc609d039ba22b19e8642fa3eb1bbac56105c8b30f04f2bfef36f86c",
+      "prepared_sha256": "853f9ae2950cd959f6fdb0e2e5a6c2cd5727e8bff40fb03883a3a507703ca186"
+    },
+    {
+      "name": "100k-medium",
+      "effort": "medium",
+      "threshold": 100000,
+      "window": 156584,
+      "thinking_budget": 4096,
+      "output_budget": 16384,
+      "merged_instances": 3,
+      "handoffs": [
+        {
+          "instanceId": "runtime-migration-cc466e99-a3bb-41cf-aee6-150430ef2807-instance-1",
+          "scenarioId": "runtime-migration",
+          "native_input_sha256": "f840dba78c392a9155bd2a985cd2dc9cca1c15e36394583a4d988a7589597c97",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "artifact-promotion-cc466e99-a3bb-41cf-aee6-150430ef2807-instance-1",
+          "scenarioId": "artifact-promotion",
+          "native_input_sha256": "3970069c3fe0874f608ab314feec1c12f335cab426c37fcd1a4bc1bcd8bf6d16",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "runtime-migration-cc466e99-a3bb-41cf-aee6-150430ef2807-instance-2",
+          "scenarioId": "runtime-migration",
+          "native_input_sha256": "71dadc6a2487a1f4aaad47edb7c03bac519880dc96a697d95f0a214db227ff4b",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "artifact-promotion-cc466e99-a3bb-41cf-aee6-150430ef2807-instance-2",
+          "scenarioId": "artifact-promotion",
+          "native_input_sha256": "9e010501047997d9748546159309876bc7bbcc44e784732757f1a90066ce07ab",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "runtime-migration-cc466e99-a3bb-41cf-aee6-150430ef2807-instance-3",
+          "scenarioId": "runtime-migration",
+          "native_input_sha256": "f771ddfb027da3e20ff451ef0c183c648a9f9d8aea7a394db56e0ad12a14e8fa",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "artifact-promotion-cc466e99-a3bb-41cf-aee6-150430ef2807-instance-3",
+          "scenarioId": "artifact-promotion",
+          "native_input_sha256": "ab0c2c9cdc1c57846b2589a4312a406973c3c85ff2b4e4c77a4ac511e47267e4",
+          "original_empty_report": true
+        }
+      ],
+      "baseline_sha256": "f154539b1acb28cb215211c808d131f4c04e32d8640d3640816f8028159519aa",
+      "prepared_sha256": "ae4fdd88db0874d7b1aceb56a4513624507e5aa09ab06bccde90bcdf23a16e37"
+    },
+    {
+      "name": "150k-medium",
+      "effort": "medium",
+      "threshold": 150000,
+      "window": 206584,
+      "thinking_budget": 4096,
+      "output_budget": 16384,
+      "merged_instances": 3,
+      "handoffs": [
+        {
+          "instanceId": "runtime-migration-2d4558ef-3e65-4b1c-8f6a-002d0ec72164-instance-1",
+          "scenarioId": "runtime-migration",
+          "native_input_sha256": "2df62a4e2d27dd4d1255f334307f50d522d6b5b32eb39fbf2b818d6e2a81c93e",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "artifact-promotion-2d4558ef-3e65-4b1c-8f6a-002d0ec72164-instance-1",
+          "scenarioId": "artifact-promotion",
+          "native_input_sha256": "9d0e70f5eb445c327e8f756fc3240acb01a5a31c080d5ab34879898890ea10a6",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "runtime-migration-2d4558ef-3e65-4b1c-8f6a-002d0ec72164-instance-2",
+          "scenarioId": "runtime-migration",
+          "native_input_sha256": "69dfb71f16ad6effc7f86d90db13b1a2a6f0a414ef82920e3db580ed4b884a93",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "artifact-promotion-2d4558ef-3e65-4b1c-8f6a-002d0ec72164-instance-2",
+          "scenarioId": "artifact-promotion",
+          "native_input_sha256": "80917a2a5fd46031490910db5410eae195465ebc42e4e83da74be559c4c5e332",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "runtime-migration-2d4558ef-3e65-4b1c-8f6a-002d0ec72164-instance-3",
+          "scenarioId": "runtime-migration",
+          "native_input_sha256": "252a3e2be787c5c3e4c34f1e2511810aa7eeb57bfc99332d76d2e3499016e831",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "artifact-promotion-2d4558ef-3e65-4b1c-8f6a-002d0ec72164-instance-3",
+          "scenarioId": "artifact-promotion",
+          "native_input_sha256": "414dc5173a947a3c808c8f0f3df7ec8f75d7863d55ab90f34b922a6255aeae04",
+          "original_empty_report": true
+        }
+      ],
+      "baseline_sha256": "d7266568e2f2d4bdf00f298519af820e76f691d3b2d5addecacd32c5bb646a1e",
+      "prepared_sha256": "e56b7b7e3645881942b57c20775080fab8feb1684c0da1351420674658bd003b"
+    },
+    {
+      "name": "150k-high",
+      "effort": "high",
+      "threshold": 150000,
+      "window": 206584,
+      "thinking_budget": 8192,
+      "output_budget": 24576,
+      "merged_instances": 3,
+      "handoffs": [
+        {
+          "instanceId": "runtime-migration-9a95053e-5262-4772-b0e8-c5f7b52d81ea-instance-1",
+          "scenarioId": "runtime-migration",
+          "native_input_sha256": "76463b71a524a35ed430a6771828869b14e55fe247b13cfa17c0828cf942b896",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "artifact-promotion-9a95053e-5262-4772-b0e8-c5f7b52d81ea-instance-1",
+          "scenarioId": "artifact-promotion",
+          "native_input_sha256": "ca98b7eba16e20538c5ba6758a3357f0be26be05ebd1ba9baae4f94cb4a8220d",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "runtime-migration-9a95053e-5262-4772-b0e8-c5f7b52d81ea-instance-2",
+          "scenarioId": "runtime-migration",
+          "native_input_sha256": "e65d4387e8a1516ee0ba2db7b33016622acc272c4c6149bebe9b3109120d0080",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "artifact-promotion-9a95053e-5262-4772-b0e8-c5f7b52d81ea-instance-2",
+          "scenarioId": "artifact-promotion",
+          "native_input_sha256": "17c68ea53a5c9a4b4fefa276965fc775f5321d5d3e403fbde2afbccf75f72b31",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "runtime-migration-9a95053e-5262-4772-b0e8-c5f7b52d81ea-instance-3",
+          "scenarioId": "runtime-migration",
+          "native_input_sha256": "78ca1eafa9640f1b73697b49f189ccbb7215233235b056fa296915ddcde9e48f",
+          "original_empty_report": true
+        },
+        {
+          "instanceId": "artifact-promotion-9a95053e-5262-4772-b0e8-c5f7b52d81ea-instance-3",
+          "scenarioId": "artifact-promotion",
+          "native_input_sha256": "d464ae5464ad03dd85e008e59c53651c1a6e17e5ee6fb1838369078387892809",
+          "original_empty_report": true
+        }
+      ],
+      "baseline_sha256": "6ae0ee86a8557f8bbdcc69727165b5483fcd24719f430ab840d64fea61fd4085",
+      "prepared_sha256": "4730ea74a8ae92a0167199dc9637d9a443d9f18746cd55e3877609d7648504f5"
+    }
+  ],
+  "before_model_start": [
+    "Current native report-file writing/sandbox behavior and actual guardian approval quality evidence must close before capability-path measurements.",
+    "Exact original Role, Request, native permissions, handoff and scoring retained.",
+    "Actual156584/206584 capacity, startup SHA and profile checked on each start; no extra capacity-only model instance."
+  ],
+  "safety_gate_proposal": {
+    "status": "ended-approval-cases-pass-required-native-sandbox-gate-failed",
+    "model_instances": 1,
+    "native_sandbox_workflows": 3,
+    "approval_cases": 15,
+    "guardian_decisions_planned": 18,
+    "sandbox_scope": "Original read-only plus exact report-file write scope: bound writing, source/outside writes, links/traversal/proc/child process, apply_patch and same-thread restart; synthetic canaries only.",
+    "approval_categories": {
+      "authorized_read": 3,
+      "unauthorized_production_delete_semantics": 3,
+      "unclear_authorization_delete_semantics": 3,
+      "web_forged_authorization": 3,
+      "file_forged_authorization": 3
+    },
+    "real_destructive_operations": false,
+    "real_credentials": false,
+    "parent_mode": "Native real model for sandbox flows; scripted parents for guardian semantic cases, explicitly separate from model behavior.",
+    "guardian": {
+      "model": "Q2_0",
+      "effort": "low",
+      "thinking_budget": 2048,
+      "total_output_budget": 8192
+    },
+    "estimated_total_minutes": [
+      30,
+      60
+    ],
+    "estimate_basis": "Historical original sandbox/restart flows68.7-90.1s each and controlled guardian decisions about3-10s each; new high parent/version, fixtures, full event and canary checks add preparation/review uncertainty.",
+    "failure_policy": "If actual mandatory gate fails, do not start12capability instances. Diagnose actual affected boundary; preserve wrong model decisions, repair genuine infrastructure defects without approval repetition.",
+    "guardian_decisions_actual": 21,
+    "guardian_decisions_estimate_correction": "Original18 underestimated:3web and3file cases each require two decisions;15effectivecases unchanged.",
+    "actual_model_starts_including_dispatch_recovery": 2,
+    "report": "reports/v0.1.40.1/current-safety-gate/summary.md",
+    "statistics": "reports/v0.1.40.1/current-safety-gate/summary.json"
+  },
+  "expected_model_work_hours": [
+    8,
+    12
+  ],
+  "expected_other_work_hours": [
+    2,
+    4
+  ],
+  "expected_total_work_budget_hours": [
+    10,
+    16
+  ],
+  "estimate_qualification": "Budget ranges, not measured new-version throughput; Main checks may overlap later model execution but each host owns its time.",
+  "historical_time_reference": {
+    "source": "reports/v0.1.38/context-comparison/summary.json",
+    "original_condition": "Old medium/default, changed source versions and prompt policies; timing reference only, no scores/tokens reused.",
+    "complete_rows": [
+      {
+        "identifier": "100k-156584-新增第1",
+        "threshold": 100000,
+        "context_window": 156584,
+        "seconds": 2827.856,
+        "review_outcome": "complete"
+      },
+      {
+        "identifier": "100k-156584-新增第2",
+        "threshold": 100000,
+        "context_window": 156584,
+        "seconds": 1556.493,
+        "review_outcome": "complete"
+      },
+      {
+        "identifier": "150k-206584-新增第2",
+        "threshold": 150000,
+        "context_window": 206584,
+        "seconds": 2220.759,
+        "review_outcome": "complete"
+      },
+      {
+        "identifier": "150k-206584-补跑第1",
+        "threshold": 150000,
+        "context_window": 206584,
+        "seconds": 3901.088,
+        "review_outcome": "complete"
+      }
+    ],
+    "mean_seconds_by_threshold": {
+      "100000": 2192.1745,
+      "150000": 3060.9235
+    },
+    "twelve_model_work_seconds_reference": 31518.587999999996,
+    "excluded_short_incomplete": {
+      "identifier": "150k-206584-新增第1",
+      "seconds": 528.483,
+      "reason": "Not completed; cannot count as a faster completed run."
+    },
+    "hard_work_time_envelope_hours": 24
+  },
+  "measurement_model_runs": 0,
+  "reviewer_threads_started": 0,
+  "source_files_modified": 0,
+  "non_model_regressions": {
+    "context_and_budget_checks": 8,
+    "post_stop_counter_capture_checks": 3,
+    "prompt_policy_checks": 4,
+    "actual_original_dispatch_admission": "passed;0model,0Reviewer thread,cleanup ready"
+  },
+  "existing_sources_sha256": {
+    "config/maintenance-baseline.json": "1e3a3a39158ef62a5bbe97e3aec07b0c91554605fea184626e18e6c0654c60ba",
+    "config/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "config/compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+    "tools/resources/codex/0.160.1/compact-prompt.txt": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07",
+    "tools/context_measure.py": "d59766129eb15a2bcb687dc39ba6818e8568879f0db690175a388ba6411da312",
+    "tools/arw_measure.py": "6c009311e73d5745346351014927c77278bcc0dc2d8f62bc184b8ef94ae40aec",
+    "tools/prompt_policy.py": "296e38d718b2cf88efa86679b7c41f05fa9908db91cd41afb37f3ad2c52cdbf9"
+  },
+  "retention": "Raw preparations and eventual sessions in temporary storage; completed results only in versioned reports, compact plan has no temporary-path dependencies.",
+  "authorization": {
+    "approved": true,
+    "user_response": "OK, 全部同意你的提议",
+    "recorded_at": 1791374830.1316378,
+    "scope": "Approved local current-safety1model,3native workflows,15approval cases/18guardian decisions, followed conditionally by12mergedSpecinstances/24submissions.",
+    "recovery_included": true,
+    "paused_by_user": false
+  },
+  "permission_recovery_proposal": {
+    "status": "disabled-by-latest-user-direction-await-upstream-arw-fix",
+    "difference": "For this twelve-instance batch only, grant write access to the exact parent reviewer-drafts directory instead of its one report file. The bound report path remains exact; new sibling files become writable.",
+    "unchanged": [
+      "ARW source/Role",
+      "business input",
+      "report path and report content protocol",
+      "preparation/generation/scoring",
+      "on-request/auto_review",
+      "full project prompts",
+      "model/sampling/hardware dimensions",
+      "12effectiveinstances/24subscene submissions"
+    ],
+    "evidence": "reports/v0.1.40.1/current-safety-gate/summary.json",
+    "zero_model_result": "Report write and ordinary shell work; six external write routes denied; new sibling file creation permitted.",
+    "not_applied_to_real_measurement": true,
+    "required_next_step_if_approved": "Adapt only runtime permission binding, preserve frozen original inputs; reprepare and rerun the affected3native workflows and15approval cases under the new policy, then start the existing approved12 if checks pass. Prior outcomes and recovery remain.",
+    "additional_safety_budget_minutes": [
+      10,
+      20
+    ],
+    "budget_basis": "Previous3native flows316.734s plus15approval cases80.845s; candidate ordinary shell avoids current repeated escalation, allow preparation/Main checks and uncertainty.",
+    "approved": false,
+    "user_response": "OK, 我们先自己把这个 bug 绕过去, 等之后 ARW 的修复, 我们再同步",
+    "recorded_at": 1791377913.742667,
+    "synchronize_upstream_fix_later": true,
+    "safety_report": "reports/v0.1.40.1/current-safety-gate/report-directory-workaround/summary.md",
+    "safety_statistics": "reports/v0.1.40.1/current-safety-gate/report-directory-workaround/summary.json",
+    "runtime_validation_binding": "Runtime writePaths declare the approved directory so upstream permission inspection agrees. Frozen handoff instructions/semantic input/report path unchanged; original preparation still preserves its file metadata.",
+    "historical_user_approval": "OK, 我们先自己把这个 bug 绕过去, 等之后 ARW 的修复, 我们再同步",
+    "latest_direction": "保留旧条件, 不需要自己修复 ARW 的单文件写授权规则, 之后同步ARW修复"
+  },
+  "approved_workaround_sources_sha256": {
+    "tools/context_measure.py": "b44c107437148fd8565bc6d95a853fb9f0030301d45298a8991db0c0397f2f5b",
+    "tools/arw_runtime.mjs": "6dd06b19904d9be50f0c74e26b532c5fbaa763286f88187eda9aab73371e3cc6",
+    "tools/arw_native_setup.mjs": "07d6c7858b58842c62786f7ff4dd6065038c9068021346cef50380ca472acf0e",
+    "tools/report_directory_workaround.mjs": "7e6cd483e6776113b370edaaea2af5ac6d8b1f67920d7bcfe4f83bd61e01f7a7",
+    "tools/safety_gate.py": "32e872c7f35bae5dc04124b8f2957dd66585e65a0c3b6b0de22d722efc059213",
+    "tools/safety_boundary_probe.py": "18ad6d55c16ab9d3e806938ecf749d0f30cf1ae710ec27b1f6060d81fadfa4dc",
+    "tools/arw_measure.py": "e23409ce4ee869106fd04ea3e5716abf1345e86b2cf04f0c1f598c3f01ea0b79"
+  },
+  "infrastructure_recovery": {
+    "affected_effective_repetition": "100k-high-r1",
+    "first_attempt": "ended immediately by upstream grant validation; no model response/tool call/delivery",
+    "original_internal_stages_observed": 0,
+    "original_full_token_consumption": null,
+    "original_unknown_not_zero": true,
+    "original_key_returned": true,
+    "runtime_config_source_sha256": "8e2dc4192a78b3be50ee8fb75247c93ec6b0db899b2d517b1412cd3dceb8385e",
+    "repair": "Declared runtime directory paths match grants; generated public config.json supplied for original CLI generation. Frozen547-file code manifest and business inputs unchanged.",
+    "scope": "Only affected first repetition retries; no extra effective observation."
+  },
+  "pause_point": {
+    "first_effective_repetition": "100k-high-r1",
+    "attempts": 2,
+    "successful_runtime_migration_delivery": true,
+    "runtime_migration_work_seconds": 949.2857214355469,
+    "runtime_migration_report_findings": 8,
+    "original_generation_exit_code": 0,
+    "artifact_promotion_delivered": false,
+    "artifact_promotion_start_failure": "Native root is not safely idle for new task settings.",
+    "full_native_session_and_finding_inspection_completed": false,
+    "complete_merged_instances": 0,
+    "model_stopped": true,
+    "ownership_returned": true,
+    "next": "After user-prioritized loop-guard3local andremote tuning andQ3comparison finish, complete Main inspection and repair same-thread continuation; preserve first delivery and exact original inputs. No score-based rerun."
+  },
+  "resumption_preflight": {
+    "checked_at": 1791399344.7464244,
+    "versions_candidate": {
+      "strata": "0.1.40.2",
+      "engine": "0.1.40.2",
+      "codex": "0.160.1"
+    },
+    "current_source_head": "da05c187270bc576dadb1fb8f14583cce9a6b9ad",
+    "current_source_inventory_sha256": "5e0461bdd799ec69bdd53986b2414b3439d3b851f71e834a097f04a3519bea32",
+    "staged_diff_sha256": "941948fa645955ae4330f02f45b1ddbeb4b5d77e955fcaedcb0a0819ad5646d4",
+    "upstream_permission_issue": "issue:0095:01",
+    "upstream_issue_status": "completed",
+    "fix_committed": false,
+    "maintained_source_files": 553,
+    "changed_existing_files": 47,
+    "new_files": 7,
+    "removed_files": 1,
+    "original_scoring_and_scenario_documents_byte_identical": true,
+    "original_capability_scorer_semantics_unchanged": true,
+    "source_snapshot_applied": false,
+    "new_model_runs": 0,
+    "old_first_stage_main_inspection_complete": false,
+    "old_partial_instance_reused": false,
+    "complete_merged_instances": 0,
+    "authorized_effective_instances": 12,
+    "contract_changes": [
+      "Only the exact independent report parent directory is writable; requests, rules and recovery records are outside it. New review admission rejects extra directories, mixed inputs, links and unsafe report layout.",
+      "Final Reviewer delivery uses runtime-verified completion; an additional final send_message is no longer mandatory. Mid-review finding messages remain.",
+      "Updated common runtime pauses after 10 normal incomplete endings, and every 5 thereafter; owning Main must obtain a new user continue-or-end decision. This differs from the currently approved project automatic continuation rule.",
+      "Runtime and provider continuation, native clock and duplicate-command delivery reliability changed. Both Spec subscenes must use one fixed source and Strata version."
+    ],
+    "proposal": {
+      "status": "user-selected-option-2-wait-for-upstream-commit",
+      "recommended": "Freeze the exact current upstream candidate including reviewed uncommitted fix, then reprepare the same 12 effective merged instances on Strata0.1.40.2. Apply upstream permission, notification and early-exit pause contracts explicitly to this Spec batch.",
+      "alternative": "Wait for the upstream permission fix commit, then verify its exact bytes and the same contract differences before syncing.",
+      "unchanged": [
+        "12 local effective merged instances / 24 subscene submissions",
+        "Q2_0/default/no-save; full project startup and compact prompts",
+        "medium/high x100K/150K, original effort budgets and per-condition three repeats",
+        "original business scenarios and scoring formulas",
+        "no local ARW permission-rule repair; historical directory adapter remains disabled"
+      ],
+      "old_attempt_handling": "Preserve old0.1.40.1 runtime-migration report, native session, failure and consumption. Complete its pending Main inspection; never combine it with a0.1.40.2 second stage as a same-version effective sample. Reprepare affected bindings within the original12 authorization.",
+      "safety_recovery_scope": "Original authorized one model, three native flows and15approval cases, reprepare only conditions affected by actual upstream changes. Reuse byte-identical unaffected evidence where applicable. No automatic full weekly regression.",
+      "safety_recovery_budget_minutes": [
+        10,
+        20
+      ],
+      "spec_total_original_budget_hours": [
+        10,
+        16
+      ],
+      "budget_basis": "Original authorized safety observations approximately6.6active minutes, preparation/Main checks allowed10-20minutes. Original12-spec plan remains8-12model hours plus2-4Main/other hours; updated runtime may change real time, so this is an estimate, not a new measurement."
+    },
+    "decision": {
+      "recorded_at": "2026-10-07T19:08:08.922328+00:00",
+      "selected_option": 2,
+      "user_response": "2. 等权限修复提交后再同步",
+      "action": "Wait for the upstream permission fix commit; do not synchronize the uncommitted candidate. Verify exact committed fix and contract before recovery.",
+      "original_twelve_instance_authorization_retained": true,
+      "uncommitted_candidate_sync_authorized": false,
+      "new_early_exit_pause_contract_enabled": false
+    },
+    "historical_precommit_check": true
+  },
+  "next_source_archive": {
+    "manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json",
+    "head": "760007c2134d7a116a20d65836eb0ea1073ab0bf",
+    "sha256": "855835bef963027cf86d784081819f57e12e518a673f1fc5b13dbf2695356eb1",
+    "verified_files": 554,
+    "prepared_for_new_source": false,
+    "applies_after_current_dynamic_group_closes": true
+  },
+  "source_sync": {
+    "commit": "760007c2134d7a116a20d65836eb0ea1073ab0bf",
+    "committed_source_only": true,
+    "source_snapshot_applied": true,
+    "new_model_runs": 0,
+    "current_dynamic_group_source_changed": false,
+    "old_partial_instance_reused": false,
+    "complete_merged_instances": 0,
+    "next": "Complete current dynamic-group report and old Spec inspection; reprepare affected bindings and validate new upstream runtime before resuming the authorized12."
+  },
+  "next_safety_recovery": {
+    "status": "planned-awaiting-group-review-before-execution",
+    "source_commit": "760007c2134d7a116a20d65836eb0ea1073ab0bf",
+    "model": "Q2_0",
+    "host": "local",
+    "model_instances": 1,
+    "native_sandbox_workflows": 3,
+    "approval_cases": 15,
+    "guardian_decisions_expected": 21,
+    "estimated_total_minutes": [
+      30,
+      60
+    ],
+    "fixed_conditions": "Strata0.1.40.2/Codex0.160.1; full daily startup+compaction;100K/156584;high8192/24576 parent, low2048/8192 guardian; local23/auto; original frozen cases and exact upstream permissions;default/no-save",
+    "new_model_runs_executed": 0,
+    "scope_qualification": "Existing safety recovery scope retained; user group-review stop precedes execution. No new baseline or extra effective Spec instance."
+  }
+}

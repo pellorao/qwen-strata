@@ -1,0 +1,17 @@
+{
+  "paths": [
+    "lib/background-agent/manager.mjs",
+    "lib/reviewer-runtime/reviewer-runtime.mjs"
+  ],
+  "source_sha256_before": {
+    "lib/background-agent/manager.mjs": "2d09a6441b2aaa737ac363e4c081be41fe4f99a5d7992c70e57367e10b891625",
+    "lib/reviewer-runtime/reviewer-runtime.mjs": "63ec4993e3ebfbb8d41bcd63090f569ab6781aeb0aacb24e968a53de7bf7e74f"
+  },
+  "source_sha256_after": {
+    "lib/background-agent/manager.mjs": "9e964c8a73e69cd7b430a9761e946712874b99d18c0a7ba0c084edbafc2a34e6",
+    "lib/reviewer-runtime/reviewer-runtime.mjs": "79f5912de7e12ff5f46a17eeec4964ad57e3fcb9905cc71f64c3d2dfc3b913ad"
+  },
+  "purpose": "Recover only an isolated ended failed turn lacking its current context; snapshots and previous failures remain evidence",
+  "application_scope": "Approved project-local measurement copy only; no external ARW project or installation deployment",
+  "automatic_future_application": false
+}

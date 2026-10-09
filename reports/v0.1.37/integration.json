@@ -1,0 +1,74 @@
+{
+  "version": "0.1.37",
+  "type": "integration",
+  "results": {
+    "mcp_200k": {
+      "evidence_sha256": "b40a292c3cb7f6b7f872124deec26e55e9d9f9a17c9ca65c90744772e9d20d32",
+      "statistics": {
+        "scope": "same source 200K corpus (old question removed in clean mode); template/tool overhead differs; Codex auto compaction active. Cold/warm and compaction costs make wall-time medians non-equivalent pure tool latency.",
+        "status": "completed",
+        "native_exactly_requested_calls": true,
+        "codex_exactly_requested_calls": true,
+        "native_median_wall_s": 78.92777061462402,
+        "codex_median_wall_s": 178.36995434761047,
+        "native_trials": 1,
+        "codex_trials": 1,
+        "native_value_pass": true,
+        "codex_value_pass": true
+      }
+    },
+    "installed_project": {
+      "evidence_sha256": "b114c28fa1d300ab02f9b6e246067f40ac9ae11865b1e90f8b4edf7eead67bf7",
+      "statistics": {
+        "exit_code": 0,
+        "correct_value": true,
+        "actual_read": true,
+        "file_unchanged": true,
+        "pass": true,
+        "stop_exit_code": 0
+      }
+    },
+    "regression": {
+      "evidence_sha256": "6cc86b81f70761dd72433319860edc2312f9c8e5b3f1eb31ddf67132211d74ee",
+      "statistics": {
+        "upstream_server_tests_pass": 114,
+        "upstream_server_wall_s": 56.49,
+        "limits": "No full upstream suite or WSL integration claim.",
+        "bridge_project_report_tests_pass": 17,
+        "new_coverage": [
+          "HTTP504 before response headers",
+          "SSE timeout emits error without completed response",
+          "backend connection refused is HTTP503",
+          "next request succeeds after timeout",
+          "permanent reports retained after temporary data deletion and partial recreation"
+        ]
+      }
+    },
+    "ctrl_c_console_stop": {
+      "evidence_sha256": "e818a7c233aa822ff6a2208b1bda4fe0cb16c472944ab3a58f04d0668e571ab3",
+      "statistics": {
+        "before_answer": "4",
+        "engine_count": 1,
+        "console_members_owned": true,
+        "ctrl_c_sent": true,
+        "server_exit_code": 0,
+        "engines_gone": true,
+        "port_closed": true,
+        "gpu_mib_after": 939,
+        "pass": true,
+        "status": "completed"
+      }
+    },
+    "installed_iq3_project": {
+      "evidence_sha256": "90c497e365edacd72240bee6931f0e10131bbac963387f11891473732f668e3c",
+      "statistics": {
+        "exit_code": 0,
+        "correct_value": true,
+        "actual_read": true,
+        "file_unchanged": true,
+        "pass": true,
+        "stop_exit_code": 0
+      }
+    }
+  }
+}

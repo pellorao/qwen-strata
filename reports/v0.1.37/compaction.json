@@ -1,0 +1,94 @@
+{
+  "version": "0.1.37",
+  "type": "compaction",
+  "results": {
+    "two_growth_cycles": {
+      "evidence_sha256": "3f61bded9330e2e991a3a4b5becd57758de0023f7cb1f5230eebe5ade0b75afe",
+      "statistics": {
+        "scope": "Two controlled 200K growth cycles in the same thread. Tests selected fact retention, not arbitrary lossless summaries.",
+        "status": "completed",
+        "cycles": [
+          {
+            "cycle": 1,
+            "elapsed_s": 188.00936319999892,
+            "compactions_completed": 1,
+            "selected_literal_checks": {
+              "青岚-482731": true,
+              "松石-916204": true,
+              "0.1.37": true,
+              "200K": true,
+              "250K": true,
+              "duration.py": true,
+              "unittest": true
+            }
+          },
+          {
+            "cycle": 2,
+            "elapsed_s": 209.61512189999848,
+            "compactions_completed": 1,
+            "selected_literal_checks": {
+              "青岚-482731": true,
+              "松石-916204": true,
+              "0.1.37": true,
+              "200K": true,
+              "250K": true,
+              "duration.py": true,
+              "unittest": true
+            }
+          }
+        ],
+        "actual_summary_checks": [
+          {
+            "input_tokens": 235107,
+            "selected_literal_checks": {
+              "青岚-482731": true,
+              "松石-916204": true,
+              "0.1.37": true,
+              "200K": true,
+              "250K": true,
+              "duration.py": true,
+              "unittest": true
+            }
+          },
+          {
+            "input_tokens": 201373,
+            "selected_literal_checks": {
+              "青岚-482731": true,
+              "松石-916204": true,
+              "0.1.37": true,
+              "200K": true,
+              "250K": true,
+              "duration.py": true,
+              "unittest": true
+            }
+          }
+        ],
+        "semantic_review": "Both answers retain no-download and pending fix/tests, do not fabricate completed tests. Wording treats 250K spare as not to be used, stricter than intended; preserve measurement-versus-capacity distinction in future tasks. This is selected-fact validation, not lossless compaction."
+      }
+    },
+    "http504_recovery": {
+      "evidence_sha256": "41d411a76726b8e8807a156be29020979f1ed655e150b1feac769d2d2716b597",
+      "statistics": {
+        "status": "completed",
+        "injected_http_status": 504,
+        "injected_failures": 1,
+        "summary_error_observed": true,
+        "original_200k_corpus_present_before_restart": true,
+        "selected_literals_retained": {
+          "青岚-482731": true,
+          "松石-916204": true,
+          "0.1.37": true,
+          "200K": true,
+          "duration.py": true,
+          "unittest": true
+        },
+        "continued_turn_status": "completed",
+        "limitations": [
+          "Answer inaccurately claims original corpus was truncated; actual original corpus remains in persisted history.",
+          "Answer describes no downloads performed rather than clearly repeating the no-download prohibition; selected literal pass does not establish complete semantic fidelity.",
+          "This is an injected HTTP504 recovery case; transport timeout behavior is separately verified with real HTTP fixture tests."
+        ]
+      }
+    }
+  }
+}

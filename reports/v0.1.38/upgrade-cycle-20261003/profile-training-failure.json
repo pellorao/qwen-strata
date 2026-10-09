@@ -1,0 +1,32 @@
+{
+  "trained": false,
+  "accepted_for_use": false,
+  "reason": "Instrumentation aborted after task 2 because cached input exceeded total input. Second raw response was not saved before the exception; its content/finish reason are unknown.",
+  "planned_tasks": 5,
+  "recorded_complete_tasks": 1,
+  "http_responses_received": 2,
+  "failed_model_http_requests": 0,
+  "tasks_3_to_5_sent": false,
+  "stop": {
+    "status": "stopped",
+    "clean_unload": true
+  },
+  "ownership_returned": true,
+  "partial_profile": {
+    "sha256": "1a28e864ad3211de496e6d97ed98a0807580263bf8b4f74bbd18c1c5b0e59c1d",
+    "version": 1,
+    "layers": 48,
+    "experts": 512,
+    "slots": 24576,
+    "ranked_count": 24576,
+    "bytes": 196632
+  },
+  "partial_profile_path": "/mnt/c/Users/Pello/AppData/Local/Programs/qwen-3.8-flash-next/data/profiles/v0.1.38/q2_0/review-profile-training.bin",
+  "engine_tokens": {
+    "uncached_input": 30929,
+    "cached_input": 20631,
+    "output": 24728
+  },
+  "recovery": "Keep this failed batch and partial profile. Fix raw-response retention/unknown telemetry, run a new isolated batch from the default profile.",
+  "measurement_details": "../../../.tmp/measurement-details/v0.1.38/upgrade-cycle-20261003/profile-training-failure.json"
+}

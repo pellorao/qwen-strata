@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "real_model_requests": 0,
+  "cases": [
+    {
+      "case": "responses-inherit-recommended",
+      "pass": true,
+      "effective_sampling": {
+        "temperature": 1.0,
+        "top_p": 0.95,
+        "top_k": 20
+      },
+      "engine_suffix": " temperature=1.0 top_p=0.95 top_k=20",
+      "reasoning_effort": "high",
+      "thinking_budget": 8192,
+      "output_budget": 24576
+    },
+    {
+      "case": "responses-explicit-recommended",
+      "pass": true,
+      "effective_sampling": {
+        "temperature": 1.0,
+        "top_p": 0.95,
+        "top_k": 20
+      },
+      "engine_suffix": " temperature=1.0 top_p=0.95 top_k=20",
+      "reasoning_effort": "high",
+      "thinking_budget": 8192,
+      "output_budget": 24576
+    },
+    {
+      "case": "responses-explicit-zero-wins",
+      "pass": true,
+      "effective_sampling": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20
+      },
+      "engine_suffix": " top_k=20",
+      "reasoning_effort": "high",
+      "thinking_budget": 8192,
+      "output_budget": 24576
+    },
+    {
+      "case": "chat-inherit-recommended",
+      "pass": true,
+      "effective_sampling": {
+        "temperature": 1.0,
+        "top_p": 0.95,
+        "top_k": 20
+      },
+      "engine_suffix": " temperature=1.0 top_p=0.95 top_k=20",
+      "reasoning_effort": "high",
+      "thinking_budget": 8192,
+      "output_budget": 24576
+    },
+    {
+      "case": "chat-explicit-zero-wins",
+      "pass": true,
+      "effective_sampling": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20
+      },
+      "engine_suffix": " top_k=20",
+      "reasoning_effort": "high",
+      "thinking_budget": 8192,
+      "output_budget": 24576
+    },
+    {
+      "case": "guardian-low-inherits-sampling",
+      "pass": true,
+      "effective_sampling": {
+        "temperature": 1.0,
+        "top_p": 0.95,
+        "top_k": 20
+      },
+      "engine_suffix": " temperature=1.0 top_p=0.95 top_k=20",
+      "reasoning_effort": "low",
+      "thinking_budget": 2048,
+      "output_budget": 8192
+    }
+  ],
+  "responses_top_k_boundary": {
+    "explicit_nonstandard_top_k_forwarded": false,
+    "recommendation": "For native Responses, put top_k=20 in controller request_defaults; explicitly supported temperature/top_p may be set in the request. Do not assume an unsupported top_k field in the Responses body is forwarded."
+  },
+  "source_sha256": {
+    "installed_bridge": "ddfcb19fb1fff25481af4a5d3d6109cb26524afd9dd958d9d8cdb8d684ff1268",
+    "installed_server": "198b8acb540e00fad6d2e0cc59c3ee9c990033d917de801c0e7f39d6c1485a32",
+    "maintenance_baseline": "243143d203c6c034f0df8f32919dea425e73f5ee62639190aafab76843a93ca8"
+  },
+  "qualification": "Actual installed pure functions/statements only; proves precedence and engine-key serialization, not stochastic decoding behavior or fewer tool loops."
+}

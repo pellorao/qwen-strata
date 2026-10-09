@@ -1,0 +1,672 @@
+{
+  "status": "closed-six-independent-resource-observations-main-verified",
+  "host": "rtx3080ti",
+  "versions": {
+    "strata": "0.1.40.1",
+    "engine": "0.1.40",
+    "codex": "not-used-direct-chat-calibration"
+  },
+  "hardware": {
+    "cpu": "i9-13900",
+    "p_cores": 8,
+    "e_cores": 16,
+    "gpu": "RTX3080Ti",
+    "vram_mib": 12288,
+    "ram_gib": 64,
+    "ram_mts": 6600
+  },
+  "model_instances_valid": 6,
+  "actual_model_start_attempts": 7,
+  "logical_requests": 18,
+  "actual_frontend_requests": 18,
+  "internal_stages": 18,
+  "validated_result_rows": 504,
+  "guardian_requests": 0,
+  "compression_requests": 0,
+  "native_tool_calls": 0,
+  "fixed_conditions": {
+    "model": "Q2_0",
+    "engine_overrides": {
+      "prefill": 8192,
+      "kv": "int8",
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pcie-frac": 0.0,
+      "spec": 4,
+      "spec-min-p": 0.7,
+      "expert-cache": "auto",
+      "vram-reserve-mib": 700,
+      "adapt-every": 4,
+      "adapt-swaps": 96,
+      "adapt-decay": 0.7,
+      "mtp-window": 32768,
+      "pcie-mode": "auto",
+      "expert-cache-per-layer": false,
+      "expert-cache-cpu-order": false,
+      "pool-affinity": "auto",
+      "ple-io": "direct",
+      "ple-inflight": 256,
+      "no-capture": false,
+      "no-host-worker": false,
+      "no-ple-prefetch": false,
+      "no-prefill-borrow": false,
+      "no-split-rows": false,
+      "no-coupled-draft": false,
+      "shared-late": false,
+      "keep-canonical": false,
+      "no-token-graph": false,
+      "no-fused-gr": false,
+      "no-hit-poke": false,
+      "ple-sync-submit": false,
+      "no-spec-split": false,
+      "gr-fp32-activations": false,
+      "ple-row-cache": 1048576,
+      "short-read": 64,
+      "suffix-draft": 3,
+      "mtp-max-t": 0,
+      "prompt-cache": 6,
+      "prompt-cache-every": 16384,
+      "prompt-cache-root": 2048,
+      "max-context": 156584
+    },
+    "engine_environment": {
+      "STRATA_HC_SPLIT": null,
+      "STRATA_ADAPT_NOWAIT": null,
+      "STRATA_SSD_KEEPALIVE": null
+    },
+    "request_defaults": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 24576,
+      "reasoning_budget_tokens": 8192,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "high"
+    },
+    "startup_instructions": true,
+    "loop_prevention_instructions": true
+  },
+  "base_prompt_binding": {
+    "startup_source": "config/startup-instructions.txt",
+    "startup_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "compaction_policy": "project-base-plus-versioned-native-supplement",
+    "compaction_rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+    "compaction_sources": [
+      {
+        "source": "config/compact_prompt.txt",
+        "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+      },
+      {
+        "source": "tools/resources/codex/0.160.1/compact-prompt.txt",
+        "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+      }
+    ]
+  },
+  "workload_binding": {
+    "source": "benchmarks/resource-calibration-v1/workload.py",
+    "record_count": 787,
+    "user_prefix_tokens": 32752,
+    "request_user_tokens": [
+      33006,
+      33014,
+      33203
+    ],
+    "tokenizer_sha256": {
+      "chat_template.jinja": "12827f24b742ea4e80cdc12dbcf9622227056b9f797252a3149263d4f9aaadce",
+      "merges.txt": "080cf95432173729d160346b7882bd2a644b07f7a3813a3eb73f4e66787bfde9",
+      "tokenizer.json": "87be2ac47d8bc7393b7435df6ccd276740019a393941a2585d5edce59f450c54",
+      "token_type.json": "5088c8c298fc06af8382ddb3b76c888703ac2634e82263b97eedcc2ad202738b",
+      "vocab.json": "4ba64f0332abcfb0b600b7df1537d1e836e68009d5fb7cdb77339738dc6365c4"
+    },
+    "case_bindings": [
+      {
+        "id": "initial-extraction",
+        "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+        "expected_sha256": "a79eac60f4a13d3152444aec5e976b98fa5cd95a3ab6698c1ae13710d9829c35",
+        "expected_rows": 28
+      },
+      {
+        "id": "cached-calculation",
+        "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+        "expected_sha256": "981241594236afb80c77f5fee9c6d6d3ef5aed2e59d3a5a452ae2375eca3a691",
+        "expected_rows": 28
+      },
+      {
+        "id": "cached-update",
+        "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+        "expected_sha256": "9b202274bb231e305decbb3d6d66e15723a2facfc54808f1ce7c9e0a5e813575",
+        "expected_rows": 28
+      }
+    ]
+  },
+  "executed_order": [
+    "auto1",
+    "all1",
+    "all2",
+    "auto2",
+    "auto3",
+    "all3"
+  ],
+  "rows": [
+    {
+      "label": "auto1",
+      "condition": "auto",
+      "repetition": 1,
+      "started_at": 1791372246.189522,
+      "ended_at": 1791372372.3882542,
+      "load_seconds": 16.36266721299762,
+      "driver_sha256": "2575de6dc97bbc7baa199a95e8613964b7bef200efc3afa5afe4eb4f40b22613",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "ownership_returned": true,
+      "engine_log_sha256": "ff3aa8b70650ff7d396d22b70ec6615b15682c5edf3398ecfb23dcc5d3fb847c",
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 9138
+      },
+      "review_work_seconds": 92.14044636000108,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 38.04436785099824,
+          "started_at": 1791372267.6358118,
+          "ended_at": 1791372305.680178,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "0f8ecc9b9b9ce1bceb93c9165fc9e05139597a60239fb84b361b98ae616e11e6",
+          "reasoning_characters": 5401
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 28.283759713001928,
+          "started_at": 1791372305.6804564,
+          "ended_at": 1791372333.9642146,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "c0dd35093d5453eddf08f11d85332b0332bb12222a14b1acea708d1c17415c47",
+          "reasoning_characters": 6292
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 25.81231879600091,
+          "started_at": 1791372333.964706,
+          "ended_at": 1791372359.777023,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "bb20657ac736b53a1e341f3eed5bcad3765f66e93b9bb361b455231498712d74",
+          "reasoning_characters": 5786
+        }
+      ],
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.736,
+      "engine_decode_seconds": 76.115,
+      "engine_input_tokens_per_second": 2231.5073716319266,
+      "engine_output_tokens_per_second": 120.05517966235303,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 92.14044636000108,
+      "task_input_tokens_per_second": 381.10299425729403,
+      "task_output_tokens_per_second": 99.17468778365806,
+      "pass": true
+    },
+    {
+      "label": "all1",
+      "condition": "all",
+      "repetition": 1,
+      "started_at": 1791372372.3901677,
+      "ended_at": 1791372485.0066793,
+      "load_seconds": 17.367879033001373,
+      "driver_sha256": "2575de6dc97bbc7baa199a95e8613964b7bef200efc3afa5afe4eb4f40b22613",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "ownership_returned": true,
+      "engine_log_sha256": "98ae7b5283d51316e8b070ccf00e6021beb2459879109269b962995cfe4d5485",
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 7639
+      },
+      "review_work_seconds": 77.47769144799895,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 36.6552829070024,
+          "started_at": 1791372394.6965358,
+          "ended_at": 1791372431.351817,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "0a6c18eedcf0ffaf095f9e1d5e51174651e6b42b42e82e85e610b2850b850280",
+          "reasoning_characters": 5368
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 16.736091781996947,
+          "started_at": 1791372431.3521376,
+          "ended_at": 1791372448.088228,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "f41f9af58f1ab553d7782e3a034e83358b066dac7fccab3307375ab0f92b4e44",
+          "reasoning_characters": 3312
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 24.0863167589996,
+          "started_at": 1791372448.0885487,
+          "ended_at": 1791372472.174864,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "48707eb4c46fc2034abf0b013179ee4bcb9d183f1d611ff8d5042267f68d8602",
+          "reasoning_characters": 5927
+        }
+      ],
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.929,
+      "engine_decode_seconds": 61.253,
+      "engine_input_tokens_per_second": 2204.469834892335,
+      "engine_output_tokens_per_second": 124.71225899139634,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 77.47769144799895,
+      "task_input_tokens_per_second": 453.2272366887479,
+      "task_output_tokens_per_second": 98.59612305468733,
+      "pass": true
+    },
+    {
+      "label": "all2",
+      "condition": "all",
+      "repetition": 2,
+      "started_at": 1791372485.007658,
+      "ended_at": 1791372600.5896852,
+      "load_seconds": 16.369693340002414,
+      "driver_sha256": "2575de6dc97bbc7baa199a95e8613964b7bef200efc3afa5afe4eb4f40b22613",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "ownership_returned": true,
+      "engine_log_sha256": "dc7ed356af3ad930f368eeb29866c2d6ab7f223fdfcba5a75c8df9679010f01a",
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 8201
+      },
+      "review_work_seconds": 81.24274785900343,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 36.31097970300107,
+          "started_at": 1791372506.536991,
+          "ended_at": 1791372542.8479683,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "b509d10d9a245565aa66181037c80e1cf1ee6ee8a6527afb6a6baf272d3863a3",
+          "reasoning_characters": 5368
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 16.648748939001962,
+          "started_at": 1791372542.8482592,
+          "ended_at": 1791372559.4970062,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "c5cc921ceeb3249de64680c20a6353e08a994cad473794606021d5b10329f46d",
+          "reasoning_characters": 3312
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 28.2830192170004,
+          "started_at": 1791372559.4976888,
+          "ended_at": 1791372587.7807066,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "7ef6579d529c5dbcbec836e6d90d3a475defc679da5b7c96ea9e44f1b66c2503",
+          "reasoning_characters": 6586
+        }
+      ],
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.783,
+      "engine_decode_seconds": 65.168,
+      "engine_input_tokens_per_second": 2224.862193499335,
+      "engine_output_tokens_per_second": 125.84397250184138,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 81.24274785900343,
+      "task_input_tokens_per_second": 432.2231943821249,
+      "task_output_tokens_per_second": 100.94439462132439,
+      "pass": true
+    },
+    {
+      "label": "auto2",
+      "condition": "auto",
+      "repetition": 2,
+      "started_at": 1791372600.5906253,
+      "ended_at": 1791372727.0715303,
+      "load_seconds": 16.3730511069989,
+      "driver_sha256": "2575de6dc97bbc7baa199a95e8613964b7bef200efc3afa5afe4eb4f40b22613",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "ownership_returned": true,
+      "engine_log_sha256": "12d489a05bb20b87b49b433d1c79d8c757118612ec679fea4c6016a03f70156f",
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 7601
+      },
+      "review_work_seconds": 92.14172868700189,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 37.38795461399786,
+          "started_at": 1791372622.1006196,
+          "ended_at": 1791372659.4885712,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "ff4572ac97866ec91420219adeadd47e61904c7a3cf1f93ba8c481976b6fd6fb",
+          "reasoning_characters": 4106
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 23.171789701002126,
+          "started_at": 1791372659.4892795,
+          "ended_at": 1791372682.6610663,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "ea7e67b736604846aaaebb0d714afb8566f0bc09725f7374723b169677f9dad5",
+          "reasoning_characters": 4295
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 31.581984372001898,
+          "started_at": 1791372682.6621213,
+          "ended_at": 1791372714.2441037,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "a65ff78c39f7fd5927802c876614faf34b70c8020f58d1a3f5ccaf1778db40ce",
+          "reasoning_characters": 6177
+        }
+      ],
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.93,
+      "engine_decode_seconds": 75.936,
+      "engine_input_tokens_per_second": 2204.331450094162,
+      "engine_output_tokens_per_second": 100.09745048461862,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 92.14172868700189,
+      "task_input_tokens_per_second": 381.09769048595626,
+      "task_output_tokens_per_second": 82.49248313779734,
+      "pass": true
+    },
+    {
+      "label": "auto3",
+      "condition": "auto",
+      "repetition": 3,
+      "started_at": 1791372727.072275,
+      "ended_at": 1791372864.6979418,
+      "load_seconds": 16.378662617000373,
+      "driver_sha256": "2575de6dc97bbc7baa199a95e8613964b7bef200efc3afa5afe4eb4f40b22613",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "ownership_returned": true,
+      "engine_log_sha256": "99f0fd4a6873d904acbb7d7919880700ce777db1366f1cb2d9c45079c8d1246b",
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 8067
+      },
+      "review_work_seconds": 103.27753243000188,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 43.90808173500045,
+          "started_at": 1791372748.5668466,
+          "ended_at": 1791372792.474926,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "caadaa75100bb4b8d019f14a1272dc84bc22bcdc41ccf7b465a1a26daf862a63",
+          "reasoning_characters": 5368
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 18.38276118200156,
+          "started_at": 1791372792.4756916,
+          "ended_at": 1791372810.8584504,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "64a447f56a2a513b4cc3fe75bd0bbefd4b5d11004f3c71c4682fcd1fb484ee53",
+          "reasoning_characters": 2557
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 40.986689512999874,
+          "started_at": 1791372810.858973,
+          "ended_at": 1791372851.845661,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "d314b19819db890aab71220bc3e339b4ff987b57bf211410d90248ecfb647f42",
+          "reasoning_characters": 7715
+        }
+      ],
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.911,
+      "engine_decode_seconds": 87.106,
+      "engine_input_tokens_per_second": 2206.963735780278,
+      "engine_output_tokens_per_second": 92.61130117328314,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 103.27753243000188,
+      "task_input_tokens_per_second": 340.0061869584248,
+      "task_output_tokens_per_second": 78.10992197618148,
+      "pass": true
+    },
+    {
+      "label": "all3",
+      "condition": "all",
+      "repetition": 3,
+      "started_at": 1791372864.699658,
+      "ended_at": 1791372977.4447007,
+      "load_seconds": 17.446401452001737,
+      "driver_sha256": "2575de6dc97bbc7baa199a95e8613964b7bef200efc3afa5afe4eb4f40b22613",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "ownership_returned": true,
+      "engine_log_sha256": "63cc023c99216544d09a1e27102a8f8e9fc8bb6e6490d96c0f09f40e5a758f17",
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 7639
+      },
+      "review_work_seconds": 77.27319908899517,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 36.782675400998414,
+          "started_at": 1791372887.2963338,
+          "ended_at": 1791372924.0790071,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "20bb66c74fd2e07c5fbaae48846a173389a64edb767a98fd1ee5f1f6f76609ef",
+          "reasoning_characters": 5368
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 16.63156351499856,
+          "started_at": 1791372924.0793123,
+          "ended_at": 1791372940.7108731,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "4e2131fad0a7679121107938990a9579dc7a605d31f166b728849784419170b5",
+          "reasoning_characters": 3312
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "rows": 28,
+          "pass": true,
+          "work_seconds": 23.858960172998195,
+          "started_at": 1791372940.7120988,
+          "ended_at": 1791372964.5710566,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "b6a7daa08e4a365080a2cef46d9ba40f86c7676fe3a8fd1a96fb2fb425644e9c",
+          "reasoning_characters": 5927
+        }
+      ],
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.935,
+      "engine_decode_seconds": 61.048,
+      "engine_input_tokens_per_second": 2203.639786633197,
+      "engine_output_tokens_per_second": 125.13104442405975,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 77.27319908899517,
+      "task_input_tokens_per_second": 454.4266371003771,
+      "task_output_tokens_per_second": 98.85704345179498,
+      "pass": true
+    }
+  ],
+  "groups": [
+    {
+      "condition": "auto",
+      "repetitions": 3,
+      "completed_requests": 9,
+      "pass_requests": 9,
+      "arithmetic_mean": {
+        "review_work_seconds": 95.85323582566828,
+        "load_seconds": 16.3714603123323,
+        "engine_input_tokens_per_second": 2214.267519168789,
+        "engine_output_tokens_per_second": 104.25464377341827,
+        "task_input_tokens_per_second": 367.402290567225,
+        "task_output_tokens_per_second": 86.59236429921229,
+        "tokens": {
+          "uncached_input": 35115,
+          "cached_input": 65536,
+          "output": 8268.666666666666
+        }
+      },
+      "work_seconds_population_stdev": 5.249770500566681,
+      "work_seconds_min": 92.14044636000108,
+      "work_seconds_max": 103.27753243000188
+    },
+    {
+      "condition": "all",
+      "repetitions": 3,
+      "completed_requests": 9,
+      "pass_requests": 9,
+      "arithmetic_mean": {
+        "review_work_seconds": 78.66454613199919,
+        "load_seconds": 17.061324608335173,
+        "engine_input_tokens_per_second": 2210.990605008289,
+        "engine_output_tokens_per_second": 125.22909197243249,
+        "task_input_tokens_per_second": 446.62568939041665,
+        "task_output_tokens_per_second": 99.4658537092689,
+        "tokens": {
+          "uncached_input": 35115,
+          "cached_input": 65536,
+          "output": 7826.333333333333
+        }
+      },
+      "work_seconds_population_stdev": 1.8249744089655051,
+      "work_seconds_min": 77.27319908899517,
+      "work_seconds_max": 81.24274785900343
+    }
+  ],
+  "same_host_comparison": {
+    "work_seconds_difference": -17.18868969366909,
+    "work_time_ratio": 0.820677001192419,
+    "work_time_reduction_percent": 17.932299880758094,
+    "engine_output_speed_gain_percent": 20.118478601873147,
+    "generated_token_change_percent": -5.349512214786745
+  },
+  "tokens_total": {
+    "uncached_input": 210690,
+    "cached_input": 393216,
+    "output": 48285
+  },
+  "model_work_seconds_sum": 523.5533458730024,
+  "valid_load_seconds_sum": 100.29835476200242,
+  "execution_wall_seconds_including_repair_and_ssh": 984.3618056774139,
+  "first_failed_attempt": {
+    "label": "auto1",
+    "generation_requests": 0,
+    "internal_stages": 0,
+    "load_seconds": 17.400197184997523,
+    "started_at": 1791371994.472282,
+    "ended_at": 1791372029.8175824,
+    "impact": "No generation had started; erroneous enabled-field requirement fixed. Failed load/stop retained outside effective means.",
+    "driver_sha256": "539d1a0e4433381da371893e122cda6c00c40e758849c20a92d3678151626d0b"
+  },
+  "deployment_default_changed": false,
+  "recommendation": "Prefer all as the next remote tuning candidate baseline; measured short-task benefit is not proof of full Reviewer or long-context gain.",
+  "limitations": [
+    "Six observations, three per condition, direct synthetic32K fact tasks rather than native ARW Reviewer.",
+    "Generated reasoning/output lengths differ; task-time gain is not pure CPU kernel causal attribution. Every instance has identical uncached/cache input counts,4016slots and480MiB loaded VRAM headroom.",
+    "No active CPU frequency, thermal or memory-bandwidth trace was captured; fixed balanced power plan and interleaved order do not eliminate all hardware noise.",
+    "OS file cache was not reset; failed initial load warmed it, all successful starts share later warm conditions. Model/prompt caches reset on each independent start; inside each instance two prefix-reuse tasks follow first read.",
+    "Engine and task rates computed per instance then arithmetically averaged; API usage excluded from consumption.",
+    "Only compact counts, durations, rates, bindings and conclusions remain in reports. After temporary response/log deletion, full reasoning/session replay and independent log recapture are unavailable.",
+    "No loop severity metric collected in this resource study; normal completion and lack of automatic continuation do not prove absence of reasoning loops."
+  ],
+  "main_inspection": {
+    "all18_request_bodies_match_frozen_inputs": true,
+    "all504_answer_rows_exact": true,
+    "original_reply_finish_reasons_stop": true,
+    "no_tool_calls": true,
+    "all6_actual_engine_affinity_flags_match": true,
+    "all6_internal_counters_recomputed": true,
+    "all6_clean_stop_and_key_return": true
+  },
+  "final_health": {
+    "ownership": "free",
+    "available": true,
+    "controller": true,
+    "status": "ok"
+  },
+  "final_profile_sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+  "final_source_verification": {
+    "registered_files": 26,
+    "source_sha_verified": true
+  }
+}

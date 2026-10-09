@@ -1,0 +1,13 @@
+{
+  "version": "0.1.38",
+  "type": "controller-readme-example",
+  "source": "installed README Python example executed without project modules",
+  "readme_sha256": "4d3712b2d296f9da00b91d6293c6221c13762616b18c32f6efebe5efce78a53c",
+  "stdout": "2 + 2 = **4**\nrunning\n",
+  "credential_removed": true,
+  "controller_available_after_return": true,
+  "baseline_configurations_unchanged": true,
+  "pass": true,
+  "python_example_sha256": "cc6d72a4e2781824e3164daba0cd5a7a5f18aa69420f2dd59ef064568bbbb1c1",
+  "tested_document_precedes_progress_text_update": true
+}

@@ -1,0 +1,368 @@
+{
+  "schema": 1,
+  "status": "closed-single-upgrade-smoke",
+  "configuration": {
+    "status": "user-selected-runtime-starting-point",
+    "selected_on": "2026-10-06",
+    "selected_by": "user",
+    "reason": "User selects high as the base running effort after observing shorter task times in the current effort comparison.",
+    "strata": {
+      "version": "0.1.40.1",
+      "commit": "82f46a8c8f475f001ad76d92f58f4a4f8ffb0253"
+    },
+    "start_options": {
+      "model": "Q2_0",
+      "engine_overrides": {
+        "prefill": 16384,
+        "kv": "int8",
+        "kv-resident": 20480,
+        "pool-workers": 23,
+        "pcie-frac": 0.0,
+        "spec": 4,
+        "spec-min-p": 0.7,
+        "expert-cache": "auto",
+        "vram-reserve-mib": 700,
+        "adapt-every": 4,
+        "adapt-swaps": 96,
+        "adapt-decay": 0.7,
+        "mtp-window": 32768,
+        "pcie-mode": "auto",
+        "expert-cache-per-layer": false,
+        "expert-cache-cpu-order": false,
+        "pool-affinity": "auto",
+        "ple-io": "direct",
+        "ple-inflight": 256,
+        "no-capture": false,
+        "no-host-worker": false,
+        "no-ple-prefetch": false,
+        "no-prefill-borrow": false,
+        "no-split-rows": false,
+        "no-coupled-draft": false,
+        "shared-late": false,
+        "keep-canonical": false,
+        "no-token-graph": false,
+        "no-fused-gr": false,
+        "no-hit-poke": false,
+        "ple-sync-submit": false,
+        "no-spec-split": false,
+        "gr-fp32-activations": false,
+        "ple-row-cache": 1048576,
+        "short-read": 64,
+        "suffix-draft": 3,
+        "mtp-max-t": 0,
+        "prompt-cache": 6,
+        "prompt-cache-every": 16384,
+        "prompt-cache-root": 2048,
+        "max-context": 156584
+      },
+      "engine_environment": {
+        "STRATA_HC_SPLIT": null,
+        "STRATA_ADAPT_NOWAIT": null,
+        "STRATA_SSD_KEEPALIVE": null
+      },
+      "request_defaults": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20,
+        "max_tokens": 24576,
+        "reasoning_budget_tokens": 8192,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "penalty_last_n": 64,
+        "reasoning_effort": "high"
+      }
+    },
+    "request_options": {
+      "responses": {
+        "model": "qwen3.8-flash-next-q2_0",
+        "reasoning": {
+          "effort": "high"
+        },
+        "max_output_tokens": 24576,
+        "temperature": 0.0,
+        "top_p": 1.0
+      },
+      "chat": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20,
+        "max_tokens": 24576,
+        "reasoning_budget_tokens": 8192,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "penalty_last_n": 64,
+        "reasoning_effort": "high",
+        "model": "qwen3.8-flash-next-q2_0"
+      }
+    },
+    "harness": {
+      "model_reasoning_effort": "high",
+      "model_context_window": 156584,
+      "model_auto_compact_token_limit": 100000,
+      "guardian_effort": "low",
+      "guardian_reasoning_budget_tokens": 2048,
+      "guardian_max_tokens": 8192
+    },
+    "profile": {
+      "choice": "default",
+      "installation_relative_path": "runtime/Strata/data/expert-profile.bin",
+      "sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "save_enabled": false
+    },
+    "parameter_origin": {
+      "file": "reports/v0.1.38/upgrade-cycle-20261003/baseline.json",
+      "sha256": "ada9da61fe092b296964cd2aa6c03457825000ed7d61ddcf5e7ab1c03ae89ffe",
+      "scope": "Other parameters inherited from the v0.1.38 published baseline; that historical file is unchanged."
+    },
+    "selection_evidence": "reports/v0.1.38/reasoning-effort-comparison/summary.md",
+    "qualification": "A user configuration choice, not v0.1.40 runtime acceptance or a newly completed parameter comparison. Historical measurements keep their original effort and budgets.",
+    "model_run_performed_for_selection": false
+  },
+  "protocol_sha256": "30a9259c7ef667c41782a7c3198e7f2c5fd3490bc6420734145160aca77aabfc",
+  "baseline_sha256": "1e3a3a39158ef62a5bbe97e3aec07b0c91554605fea184626e18e6c0654c60ba",
+  "base_prompt_sha256": {
+    "startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+    "prompt-policy/compact-prompt.txt": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912"
+  },
+  "pass": true,
+  "observations": 1,
+  "load_seconds": 13.797581854974851,
+  "work_seconds": 63.99752001551934,
+  "model_lifecycle_seconds": 80.56636548042297,
+  "stages": {
+    "chat": {
+      "started_at": 1791308351.7475905,
+      "pass": true,
+      "seconds": 1.6625646259926725,
+      "finished_at": 1791308353.410156
+    },
+    "tool-first": {
+      "started_at": 1791308353.4104586,
+      "pass": true,
+      "seconds": 1.6477714600041509,
+      "finished_at": 1791308355.0582309
+    },
+    "tool-result": {
+      "started_at": 1791308355.058773,
+      "pass": true,
+      "seconds": 0.4094498219783418,
+      "finished_at": 1791308355.4682233
+    },
+    "search": {
+      "started_at": 1791308355.4685662,
+      "pass": true,
+      "seconds": 6.432510919985361,
+      "finished_at": 1791308361.9010775
+    },
+    "mcp": {
+      "started_at": 1791308362.1940818,
+      "pass": true,
+      "seconds": 18.62075341796875,
+      "turns": 1,
+      "finished_at": 1791308380.8158567
+    },
+    "guardian": {
+      "started_at": 1791308380.8159323,
+      "pass": true,
+      "seconds": 13.4113037109375,
+      "turns": 1,
+      "finished_at": 1791308394.2280755
+    },
+    "compact": {
+      "started_at": 1791308394.228189,
+      "pass": true,
+      "seconds": 13.883111127011944,
+      "finished_at": 1791308408.1113005
+    },
+    "resume": {
+      "started_at": 1791308408.2490227,
+      "pass": true,
+      "seconds": 7.930054931640625,
+      "turns": 1,
+      "finished_at": 1791308416.1800365
+    }
+  },
+  "tokens": {
+    "uncached_input": 107727,
+    "cached_input": 39265,
+    "output": 2724
+  },
+  "internal_numeric_stages": [
+    {
+      "input": 558,
+      "cached": 0,
+      "uncached": 558,
+      "prompt_ms": 913.0,
+      "output": 72,
+      "decode_ms": 733.0,
+      "log_line": 39
+    },
+    {
+      "input": 749,
+      "cached": 0,
+      "uncached": 749,
+      "prompt_ms": 1112.0,
+      "output": 67,
+      "decode_ms": 498.0,
+      "log_line": 43
+    },
+    {
+      "input": 840,
+      "cached": 818,
+      "uncached": 22,
+      "prompt_ms": 140.0,
+      "output": 29,
+      "decode_ms": 226.0,
+      "log_line": 48
+    },
+    {
+      "input": 891,
+      "cached": 0,
+      "uncached": 891,
+      "prompt_ms": 1208.0,
+      "output": 77,
+      "decode_ms": 578.0,
+      "log_line": 51
+    },
+    {
+      "input": 2994,
+      "cached": 967,
+      "uncached": 2027,
+      "prompt_ms": 1293.0,
+      "output": 255,
+      "decode_ms": 1972.0,
+      "log_line": 54
+    },
+    {
+      "input": 15821,
+      "cached": 0,
+      "uncached": 15821,
+      "prompt_ms": 5477.0,
+      "output": 55,
+      "decode_ms": 459.0,
+      "log_line": 58
+    },
+    {
+      "input": 16138,
+      "cached": 0,
+      "uncached": 16138,
+      "prompt_ms": 5257.0,
+      "output": 55,
+      "decode_ms": 412.0,
+      "log_line": 61
+    },
+    {
+      "input": 16302,
+      "cached": 10422,
+      "uncached": 5880,
+      "prompt_ms": 2121.0,
+      "output": 49,
+      "decode_ms": 350.0,
+      "log_line": 64
+    },
+    {
+      "input": 16400,
+      "cached": 10422,
+      "uncached": 5978,
+      "prompt_ms": 2157.0,
+      "output": 237,
+      "decode_ms": 1816.0,
+      "log_line": 67
+    },
+    {
+      "input": 16713,
+      "cached": 16636,
+      "uncached": 77,
+      "prompt_ms": 426.0,
+      "output": 101,
+      "decode_ms": 695.0,
+      "log_line": 71
+    },
+    {
+      "input": 11879,
+      "cached": 0,
+      "uncached": 11879,
+      "prompt_ms": 4248.0,
+      "output": 48,
+      "decode_ms": 379.0,
+      "log_line": 75
+    },
+    {
+      "input": 16867,
+      "cached": 0,
+      "uncached": 16867,
+      "prompt_ms": 5420.0,
+      "output": 201,
+      "decode_ms": 1844.0,
+      "log_line": 78
+    },
+    {
+      "input": 13655,
+      "cached": 0,
+      "uncached": 13655,
+      "prompt_ms": 4680.0,
+      "output": 1189,
+      "decode_ms": 9092.0,
+      "log_line": 81
+    },
+    {
+      "input": 17185,
+      "cached": 0,
+      "uncached": 17185,
+      "prompt_ms": 5520.0,
+      "output": 289,
+      "decode_ms": 2284.0,
+      "log_line": 85
+    }
+  ],
+  "engine_log_sha256": "9dcd1d9ee4151e028ec3f19799f5a61c6b26c56f38779fb685effe26f16110b2",
+  "engine_input_seconds": 39.972,
+  "engine_decode_seconds": 21.338,
+  "engine_input_tokens_per_second": 2695.061543080156,
+  "engine_output_tokens_per_second": 127.6595744680851,
+  "unit": "token/s",
+  "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+  "task_review_seconds": 63.99752001551934,
+  "task_input_tokens_per_second": 1683.299602451412,
+  "task_output_tokens_per_second": 42.56414935046596,
+  "main_inspection": {
+    "completed": true,
+    "completed_at": 1791308507.3916106,
+    "native_session_records": 98,
+    "native_responses_requests": 9,
+    "passive_http_records": 8,
+    "frontend_model_requests": 13,
+    "target_facts_passed": true,
+    "original_thread_retained": true,
+    "extra_continuations": 0,
+    "source_checks": "Actual JSON/echo/search result and citations, MCP discovery/reads/refusal, harmless approved command and exit, compact target facts and parent identity, high/low efforts, loaded prompt SHA and 156584 window inspected. Not a full ARW capability session inspection.",
+    "vram_free_mib": 310,
+    "vram_inspection": "加载后显存余量310MiB，本轮未出现低余量警告；未调参或追加调查。",
+    "summary_caveats": [
+      "Summary claims no model was run, although all turns were generated by Strata. Target receipt and tool facts remain correct.",
+      "Search result claimed latest release v0.1.39 from a stale index; the repository citation is valid but the release freshness claim is incorrect.",
+      "Resume returned one correct JSON fence plus supporting prose, rather than only JSON. Accepted deterministic presentation handling; no extra continuation."
+    ],
+    "summary_inspection": "摘要目标回执及工具状态正确，且实际发现工具；但摘要误称未运行模型，实际由Strata生成。恢复首答为准确JSON围栏加说明，不是仅JSON；确定性解析接受，无接续。搜索返回官方仓库及有效引用，但索引滞后导致附带最新版本v0.1.39的表述错误，不能用于版本判断。本次通过不覆盖历史失败。",
+    "http_inspection": "9个原生响应ID有内部执行证据，被动HTTP头仅归档8条，恢复请求缺失一条；该归档缺口保留，不用API usage补计消耗。",
+    "performance_inspection": "本轮工作较短，但仅一次观测且引擎字节未变，不据此归因hotfix提升速度或筛选参数。",
+    "final_health": {
+      "status": "ok",
+      "ownership": "free",
+      "available": true
+    },
+    "result_sha256": "c253e64b30e908e409f3d665dadbca43295bb1293d76561d6033c137ffe1f77a",
+    "not_arw_capability_session_inspection": true,
+    "time_scope": "从本次开跑同意计时，包含绑定核对、加载、运行、Main核查、文档及报告；之前的下载、升级和准备不计入。",
+    "total_started_at": 1791308124.048,
+    "total_closed_at": 1791308594.0698786,
+    "total_time_source": "Native Codex user approval timestamp 2026-10-06T17:35:24.048Z to closure marker; includes approved smoke execution and Main publication, excludes previously completed hotfix installation and preparation.",
+    "total_elapsed_seconds": 470.02187848091125
+  },
+  "raw_evidence_boundary": "Full sessions, HTTP observations, tool results and logs stay in .tmp. This JSON retains full-precision numeric stages and conclusions independently; deleting details prevents replay/session reinspection."
+}

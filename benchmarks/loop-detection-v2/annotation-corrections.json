@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "revision": 2,
+  "reason": "User definition correction: unchanged output after continue still counts as repetition.",
+  "behavior_sha256": "784148f62f4e7d61e1d6465e8d101852e8b4083b2990ca13c7a99b9f95b5a39a",
+  "old_annotation_sha256": "34d3b5f8310412f8aad98f859855472061bfe222afad0b42dcfd9f67565cbb92",
+  "current_annotation_sha256": "1d49d8607f4af8906c745916e577ea79c02b5df3442f7337f8b24057b3368ca6",
+  "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+  "old_reason": "Main read all five complete chronological pages including caller instructions. Thirty-six repeated answers each respond to a fresh explicit caller continuation request. Do not label that caller-induced sequence a spontaneous model loop. Within responses, distinct verification candidates, provenance checks and one reconsideration are not independently established repeated settled-decision groups. No-tools violations and unavailable clarification tool are quality/constraint failures, not repetition labels.",
+  "previous_claimed_continue_count": 36,
+  "actual_continue_prompts": 39,
+  "visible_subsequent_answers": 37,
+  "initial_answer": 1,
+  "continuations_without_visible_answer": 2,
+  "corrected_answer_source_events": [
+    [
+      83,
+      82
+    ],
+    [
+      94,
+      93
+    ],
+    [
+      105,
+      104
+    ],
+    [
+      116,
+      115
+    ],
+    [
+      127,
+      126
+    ],
+    [
+      138,
+      137
+    ],
+    [
+      155,
+      154
+    ],
+    [
+      166,
+      165
+    ],
+    [
+      177,
+      176
+    ],
+    [
+      188,
+      187
+    ],
+    [
+      199,
+      198
+    ],
+    [
+      210,
+      209
+    ],
+    [
+      227,
+      226
+    ],
+    [
+      238,
+      237
+    ],
+    [
+      249,
+      248
+    ],
+    [
+      260,
+      259
+    ],
+    [
+      271,
+      270
+    ],
+    [
+      282,
+      281
+    ],
+    [
+      293,
+      292
+    ],
+    [
+      304,
+      303
+    ],
+    [
+      315,
+      314
+    ],
+    [
+      326,
+      325
+    ],
+    [
+      337,
+      336
+    ],
+    [
+      357,
+      356
+    ],
+    [
+      368,
+      367
+    ],
+    [
+      379,
+      378
+    ],
+    [
+      390,
+      389
+    ],
+    [
+      401,
+      400
+    ],
+    [
+      412,
+      411
+    ],
+    [
+      423,
+      422
+    ],
+    [
+      434,
+      433
+    ],
+    [
+      445,
+      444
+    ],
+    [
+      456,
+      455
+    ],
+    [
+      467,
+      466
+    ],
+    [
+      478,
+      477
+    ],
+    [
+      489,
+      488
+    ],
+    [
+      500,
+      499
+    ],
+    [
+      511,
+      510
+    ]
+  ],
+  "groups_added": 3,
+  "group_units_including_first": [
+    6,
+    6,
+    26
+  ],
+  "group_extra_repeats": [
+    5,
+    5,
+    25
+  ],
+  "normal_tool_boundaries": [
+    148,
+    220
+  ],
+  "previous_total_groups": 153,
+  "current_total_groups": 156,
+  "previous_iterations_lower_bound": 1200,
+  "current_iterations_lower_bound": 1238,
+  "previous_extra_repeats_lower_bound": 1047,
+  "current_extra_repeats_lower_bound": 1082,
+  "previous_full_f1": null,
+  "current_full_f1": null,
+  "detector_rule_changes": 0,
+  "model_runs": 0,
+  "model_requests": 0,
+  "remaining_normal_counterexamples": "New guardian transcript deltas ask separate command approvals; explicit failed/cancelled-call recovery asks the same receipt to verify restored context. These contain distinct work or necessary recovery, rather than an unchanged same-task continue cycle."
+}

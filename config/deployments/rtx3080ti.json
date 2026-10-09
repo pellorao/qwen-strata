@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "rtx3080ti",
+  "transport": "ssh-windows",
+  "connection_host": "rtx3080ti",
+  "cuda_arch": 86,
+  "models": [
+    "Q2_0",
+    "IQ2_XS",
+    "IQ3_XXS"
+  ],
+  "engine_overrides": {
+    "prefill": 8192,
+    "kv-resident": 20480,
+    "pool-workers": 23,
+    "pool-affinity": "all",
+    "expert-cache": "auto"
+  },
+  "listen_address": "192.168.60.212",
+  "model_address": "127.0.0.1",
+  "allowed_clients": [
+    "192.168.0.2"
+  ],
+  "hardware": {
+    "gpu": "NVIDIA RTX 3080 Ti",
+    "vram_gib": 12,
+    "cpu": "Intel Core i9-13900",
+    "ram_gib": 64
+  },
+  "qualification": "User selected23/all after current-version Q2_0 affinity6-instance and worker9-instance comparisons. Short-task evidence only; RAM/VRAM and long Reviewer calibration remain pending.",
+  "installation_defaults": {
+    "max_context": 156584,
+    "reasoning_effort": "high",
+    "reasoning_budget_tokens": 8192,
+    "max_tokens": 24576,
+    "cpu_prefill_share": "auto",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "top_k": 20
+  }
+}

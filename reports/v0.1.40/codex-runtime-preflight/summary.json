@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "status": "closed-no-model-runtime-preflight",
+  "conclusion": "Current-baseline native app-server, deferred MCP discovery/read/refusal, local-provider low guardian routing, base-plus-native compact prompt and persisted same-thread resume are wired and ready for real-model validation. Scripted replies do not establish model behavior or approval-policy quality.",
+  "conditions": {
+    "main_effort": "high",
+    "main_reasoning_budget": 8192,
+    "main_output_budget": 24576,
+    "guardian_effort": "low",
+    "guardian_output_budget": 8192,
+    "profile": "default-no-save",
+    "context_window": 156584,
+    "compact_threshold": 100000,
+    "sandbox": "native read-only",
+    "approval_policy": "on-request/auto_review",
+    "network_and_tools": "native defaults; no extra isolation or disabled search",
+    "cache": "Independent model process/KV each repeat; OS cache not flushed"
+  },
+  "attempts": [
+    {
+      "attempt": "mock-1",
+      "passed": false,
+      "mock_requests": 1,
+      "real_strata_model_requests": 0,
+      "mcp_calls": 0,
+      "guardian_low_requests": 0,
+      "error": "ValueError: mcp failed: {\"message\": \"stream disconnected before completion: error sending request\", \"codexErrorInfo\": \"other\", \"additionalDetails\": null, \"misalignment\": null}"
+    },
+    {
+      "attempt": "mock-2",
+      "passed": true,
+      "mock_requests": 9,
+      "real_strata_model_requests": 0,
+      "mcp_calls": 2,
+      "guardian_low_requests": 1,
+      "error": null
+    },
+    {
+      "attempt": "mock-3",
+      "passed": true,
+      "mock_requests": 9,
+      "real_strata_model_requests": 0,
+      "mcp_calls": 2,
+      "guardian_low_requests": 1,
+      "error": null
+    },
+    {
+      "attempt": "mock-final",
+      "passed": true,
+      "mock_requests": 9,
+      "real_strata_model_requests": 0,
+      "mcp_calls": 2,
+      "guardian_low_requests": 1,
+      "error": null
+    },
+    {
+      "attempt": "mock-scope-check",
+      "passed": true,
+      "mock_requests": 9,
+      "real_strata_model_requests": 0,
+      "mcp_calls": 2,
+      "guardian_low_requests": 1,
+      "error": null
+    }
+  ],
+  "final_mock": {
+    "passed": true,
+    "responses_requests": 9,
+    "main_high_requests": 8,
+    "guardian_low_requests": 1,
+    "all_requests_model": "qwen3.8-flash-next-q2_0",
+    "real_strata_model_requests": 0,
+    "actual_compact_prompt_bytes": 2872,
+    "actual_compact_prompt_sha256": "2fbca2368a894a332e78affa1117542bc9ff8de92f3dcbca0990ff7177c712c8",
+    "rendered_compact_prompt_bytes": 2873,
+    "rendered_compact_prompt_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+    "native_normalization": "Codex trims one trailing newline; the complete base and 0.160.1 native supplement remain present.",
+    "fixture_bytes_unchanged": true,
+    "no_global_config_modified": true,
+    "source_attempt": "mock-scope-check",
+    "path_refusal_reason_checked": true
+  },
+  "offline_unit_regression": {
+    "tests": 156,
+    "passed": 156,
+    "real_strata_model_requests": 0,
+    "seconds": 9.354
+  },
+  "first_failure": "Mock converter initially omitted Hosted-search support while preserving native tool declarations; corrected only the mock conversion call. Production bridge unchanged, original failed attempt retained.",
+  "next_real_batch": {
+    "status": "prepared-not-run-awaiting-specific-approval",
+    "model_instances": 3,
+    "native_parent_threads": 3,
+    "ordinary_turns": 9,
+    "short_manual_compactions": 3,
+    "harmless_guardian_probes": 3,
+    "estimated_responses_requests": 27,
+    "actual_request_count": "Variable with model/tool/guardian/continuation; use actual logs",
+    "estimated_minutes": [
+      7,
+      12
+    ],
+    "cumulative_work_limit_minutes": 48
+  },
+  "evidence_retention": "Full mock requests, native events, MCP audit and bound preparation remain in project .tmp; only compact conclusions, counts and hashes are kept here. After deletion, full interaction cannot be replayed.",
+  "final_protocol_sha256": "79533faabb807da09f2261f876d9aa70db95e6669e06ab04e68b141bdc7cf4be"
+}

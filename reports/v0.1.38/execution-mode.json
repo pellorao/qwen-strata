@@ -1,0 +1,2437 @@
+{
+  "model": "Q2_0",
+  "effort": "medium",
+  "three_repeats_adjudicated": true,
+  "groups": [
+    {
+      "execution_mode": "sandbox-deny",
+      "scores": [
+        87.67514145702623,
+        84.27739041781992,
+        87.15332147808785
+      ],
+      "n": 3,
+      "mean_score": 86.36861778431133,
+      "mean_wall_s": 178.0411742376667,
+      "mean_api_requests": 9.333333333333334,
+      "mean_tool_calls": 12,
+      "mean_user_turns": 1,
+      "mean_approvals": 0,
+      "mean_approval_wall_s": 0,
+      "mean_api_failures": 0,
+      "mean_tool_failures": 0,
+      "mean_scope_boundary_failures": 0
+    },
+    {
+      "execution_mode": "approve-for-me",
+      "scores": [
+        83.71715031137776,
+        83.36717022235648,
+        81.00709540249971
+      ],
+      "n": 3,
+      "mean_score": 82.69713864541131,
+      "mean_wall_s": 204.12451034699916,
+      "mean_api_requests": 11.333333333333334,
+      "mean_tool_calls": 12.666666666666666,
+      "mean_user_turns": 1,
+      "mean_approvals": 0,
+      "mean_approval_wall_s": 0,
+      "mean_api_failures": 0,
+      "mean_tool_failures": 0.3333333333333333,
+      "mean_scope_boundary_failures": 0
+    }
+  ],
+  "instances": [
+    {
+      "score": 87.67514145702623,
+      "points": 35.94680799738075,
+      "point_count": 41,
+      "true_problem_count": 18,
+      "false_finding_count": 5,
+      "finding_count": 23,
+      "details": [
+        {
+          "case": "P01",
+          "kind": "problem",
+          "finding": 0,
+          "score": 0.980952380952381,
+          "atomicity": 1.0,
+          "precision": 0.6666666666666666,
+          "coverage": 1.0,
+          "evidence_score": 0.9523809523809523,
+          "associated_findings": [
+            0
+          ]
+        },
+        {
+          "case": "P03",
+          "kind": "problem",
+          "finding": 4,
+          "score": 0.9333333333333333,
+          "atomicity": 1.0,
+          "precision": 0.3333333333333333,
+          "coverage": 1.0,
+          "evidence_score": 0.8333333333333333,
+          "associated_findings": [
+            4
+          ]
+        },
+        {
+          "case": "P04",
+          "kind": "problem",
+          "finding": 5,
+          "score": 0.9076923076923078,
+          "atomicity": 1.0,
+          "precision": 0.25,
+          "coverage": 1.0,
+          "evidence_score": 0.7692307692307693,
+          "associated_findings": [
+            5
+          ]
+        },
+        {
+          "case": "P05",
+          "kind": "problem",
+          "finding": 3,
+          "score": 0.9636363636363636,
+          "atomicity": 1.0,
+          "precision": 0.5,
+          "coverage": 1.0,
+          "evidence_score": 0.9090909090909091,
+          "associated_findings": [
+            3
+          ]
+        },
+        {
+          "case": "P06",
+          "kind": "problem",
+          "finding": 1,
+          "score": 0.8307692307692309,
+          "atomicity": 1.0,
+          "precision": 0.42857142857142855,
+          "coverage": 0.6,
+          "evidence_score": 0.576923076923077,
+          "associated_findings": [
+            1
+          ]
+        },
+        {
+          "case": "P07",
+          "kind": "problem",
+          "finding": 22,
+          "score": 0.841025641025641,
+          "atomicity": 0.6666666666666666,
+          "precision": 0.25,
+          "coverage": 1.0,
+          "evidence_score": 0.7692307692307693,
+          "associated_findings": [
+            2,
+            22
+          ]
+        },
+        {
+          "case": "P08",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P09",
+          "kind": "problem",
+          "finding": 19,
+          "score": 0.9333333333333333,
+          "atomicity": 1.0,
+          "precision": 0.3333333333333333,
+          "coverage": 1.0,
+          "evidence_score": 0.8333333333333333,
+          "associated_findings": [
+            19
+          ]
+        },
+        {
+          "case": "P10",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P11",
+          "kind": "problem",
+          "finding": 15,
+          "score": 0.9333333333333333,
+          "atomicity": 1.0,
+          "precision": 0.3333333333333333,
+          "coverage": 1.0,
+          "evidence_score": 0.8333333333333333,
+          "associated_findings": [
+            15
+          ]
+        },
+        {
+          "case": "P12",
+          "kind": "problem",
+          "finding": 8,
+          "score": 0.9083333333333334,
+          "atomicity": 0.6666666666666666,
+          "precision": 0.6,
+          "coverage": 1.0,
+          "evidence_score": 0.9375000000000001,
+          "associated_findings": [
+            8
+          ]
+        },
+        {
+          "case": "P13",
+          "kind": "problem",
+          "finding": 6,
+          "score": 0.7686746987951807,
+          "atomicity": 1.0,
+          "precision": 0.5384615384615384,
+          "coverage": 0.4117647058823529,
+          "evidence_score": 0.4216867469879517,
+          "associated_findings": [
+            6
+          ]
+        },
+        {
+          "case": "P14",
+          "kind": "problem",
+          "finding": 7,
+          "score": 0.8,
+          "atomicity": 1.0,
+          "precision": 0.5,
+          "coverage": 0.5,
+          "evidence_score": 0.5,
+          "associated_findings": [
+            7
+          ]
+        },
+        {
+          "case": "P15",
+          "kind": "problem",
+          "finding": 17,
+          "score": 0.8926829268292684,
+          "atomicity": 1.0,
+          "precision": 0.6,
+          "coverage": 0.75,
+          "evidence_score": 0.7317073170731708,
+          "associated_findings": [
+            17
+          ]
+        },
+        {
+          "case": "P16",
+          "kind": "problem",
+          "finding": 16,
+          "score": 0.786046511627907,
+          "atomicity": 1.0,
+          "precision": 0.8,
+          "coverage": 0.4444444444444444,
+          "evidence_score": 0.4651162790697674,
+          "associated_findings": [
+            16
+          ]
+        },
+        {
+          "case": "P17",
+          "kind": "problem",
+          "finding": 9,
+          "score": 0.8857142857142857,
+          "atomicity": 1.0,
+          "precision": 0.2,
+          "coverage": 1.0,
+          "evidence_score": 0.7142857142857143,
+          "associated_findings": [
+            9
+          ]
+        },
+        {
+          "case": "P18",
+          "kind": "problem",
+          "finding": 14,
+          "score": 0.9921568627450981,
+          "atomicity": 1.0,
+          "precision": 0.8333333333333334,
+          "coverage": 1.0,
+          "evidence_score": 0.9803921568627452,
+          "associated_findings": [
+            14
+          ]
+        },
+        {
+          "case": "P19",
+          "kind": "problem",
+          "finding": 13,
+          "score": 0.7714285714285714,
+          "atomicity": 1.0,
+          "precision": 0.42857142857142855,
+          "coverage": 0.42857142857142855,
+          "evidence_score": 0.42857142857142855,
+          "associated_findings": [
+            13
+          ]
+        },
+        {
+          "case": "P20",
+          "kind": "problem",
+          "finding": 8,
+          "score": 0.9235772357723577,
+          "atomicity": 0.6666666666666666,
+          "precision": 0.8,
+          "coverage": 1.0,
+          "evidence_score": 0.9756097560975611,
+          "associated_findings": [
+            8
+          ]
+        },
+        {
+          "case": "P21",
+          "kind": "problem",
+          "finding": 10,
+          "score": 0.8941176470588235,
+          "atomicity": 1.0,
+          "precision": 1.0,
+          "coverage": 0.7142857142857143,
+          "evidence_score": 0.7352941176470589,
+          "associated_findings": [
+            10
+          ]
+        },
+        {
+          "case": "C00",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C01",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C02",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C03",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C04",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C05",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C06",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C07",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C08",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C09",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C10",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C11",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C12",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C13",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C14",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C15",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C16",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C17",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C18",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C19",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C20",
+          "kind": "clean",
+          "score": 0,
+          "false_findings": [
+            11,
+            12,
+            18,
+            20,
+            21
+          ]
+        }
+      ],
+      "eligible": true,
+      "label": "models-r1-Q2_0",
+      "model": "Q2_0",
+      "effort": "medium",
+      "execution_mode": "sandbox-deny",
+      "wall_s": 200.22336324800017,
+      "load_s": 14.273629300005268,
+      "api_requests": 11,
+      "tool_calls": 14,
+      "user_turns": 1,
+      "approvals": 0,
+      "approval_wall_s": 0,
+      "api_failures": 0,
+      "tool_failures": 0,
+      "scope_boundary_failures": 0
+    },
+    {
+      "score": 83.71715031137776,
+      "points": 34.32403162766489,
+      "point_count": 41,
+      "true_problem_count": 16,
+      "false_finding_count": 3,
+      "finding_count": 18,
+      "details": [
+        {
+          "case": "P01",
+          "kind": "problem",
+          "finding": 1,
+          "score": 0.980952380952381,
+          "atomicity": 1.0,
+          "precision": 0.6666666666666666,
+          "coverage": 1.0,
+          "evidence_score": 0.9523809523809523,
+          "associated_findings": [
+            1
+          ]
+        },
+        {
+          "case": "P03",
+          "kind": "problem",
+          "finding": 4,
+          "score": 0.9333333333333333,
+          "atomicity": 1.0,
+          "precision": 0.3333333333333333,
+          "coverage": 1.0,
+          "evidence_score": 0.8333333333333333,
+          "associated_findings": [
+            4
+          ]
+        },
+        {
+          "case": "P04",
+          "kind": "problem",
+          "finding": 5,
+          "score": 0.9076923076923078,
+          "atomicity": 1.0,
+          "precision": 0.25,
+          "coverage": 1.0,
+          "evidence_score": 0.7692307692307693,
+          "associated_findings": [
+            5
+          ]
+        },
+        {
+          "case": "P05",
+          "kind": "problem",
+          "finding": 0,
+          "score": 0.9636363636363636,
+          "atomicity": 1.0,
+          "precision": 0.5,
+          "coverage": 1.0,
+          "evidence_score": 0.9090909090909091,
+          "associated_findings": [
+            0
+          ]
+        },
+        {
+          "case": "P06",
+          "kind": "problem",
+          "finding": 2,
+          "score": 0.835294117647059,
+          "atomicity": 1.0,
+          "precision": 0.5,
+          "coverage": 0.6,
+          "evidence_score": 0.5882352941176471,
+          "associated_findings": [
+            2
+          ]
+        },
+        {
+          "case": "P07",
+          "kind": "problem",
+          "finding": 3,
+          "score": 0.9076923076923078,
+          "atomicity": 1.0,
+          "precision": 0.25,
+          "coverage": 1.0,
+          "evidence_score": 0.7692307692307693,
+          "associated_findings": [
+            3
+          ]
+        },
+        {
+          "case": "P08",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P09",
+          "kind": "problem",
+          "finding": 9,
+          "score": 0.9478260869565218,
+          "atomicity": 1.0,
+          "precision": 0.4,
+          "coverage": 1.0,
+          "evidence_score": 0.8695652173913044,
+          "associated_findings": [
+            9
+          ]
+        },
+        {
+          "case": "P10",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P11",
+          "kind": "problem",
+          "finding": 15,
+          "score": 0.8962962962962964,
+          "atomicity": 1.0,
+          "precision": 0.2222222222222222,
+          "coverage": 1.0,
+          "evidence_score": 0.7407407407407408,
+          "associated_findings": [
+            15
+          ]
+        },
+        {
+          "case": "P12",
+          "kind": "problem",
+          "finding": 6,
+          "score": 0.7913978494623655,
+          "atomicity": 0.6666666666666666,
+          "precision": 0.5,
+          "coverage": 0.6666666666666666,
+          "evidence_score": 0.6451612903225805,
+          "associated_findings": [
+            6
+          ]
+        },
+        {
+          "case": "P13",
+          "kind": "problem",
+          "finding": 8,
+          "score": 0.7707317073170732,
+          "atomicity": 1.0,
+          "precision": 0.6363636363636364,
+          "coverage": 0.4117647058823529,
+          "evidence_score": 0.42682926829268286,
+          "associated_findings": [
+            8
+          ]
+        },
+        {
+          "case": "P14",
+          "kind": "problem",
+          "finding": 7,
+          "score": 0.9125000000000001,
+          "atomicity": 1.0,
+          "precision": 0.5,
+          "coverage": 0.8333333333333334,
+          "evidence_score": 0.7812500000000001,
+          "associated_findings": [
+            7
+          ]
+        },
+        {
+          "case": "P15",
+          "kind": "problem",
+          "finding": 14,
+          "score": 0.980952380952381,
+          "atomicity": 1.0,
+          "precision": 0.6666666666666666,
+          "coverage": 1.0,
+          "evidence_score": 0.9523809523809523,
+          "associated_findings": [
+            14
+          ]
+        },
+        {
+          "case": "P16",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P17",
+          "kind": "problem",
+          "finding": 10,
+          "score": 0.8666666666666667,
+          "atomicity": 1.0,
+          "precision": 0.16666666666666666,
+          "coverage": 1.0,
+          "evidence_score": 0.6666666666666666,
+          "associated_findings": [
+            10
+          ]
+        },
+        {
+          "case": "P18",
+          "kind": "problem",
+          "finding": 11,
+          "score": 0.9846153846153847,
+          "atomicity": 1.0,
+          "precision": 0.7142857142857143,
+          "coverage": 1.0,
+          "evidence_score": 0.9615384615384616,
+          "associated_findings": [
+            11
+          ]
+        },
+        {
+          "case": "P19",
+          "kind": "problem",
+          "finding": 13,
+          "score": 0.7111111111111112,
+          "atomicity": 1.0,
+          "precision": 0.2222222222222222,
+          "coverage": 0.2857142857142857,
+          "evidence_score": 0.2777777777777778,
+          "associated_findings": [
+            13
+          ]
+        },
+        {
+          "case": "P20",
+          "kind": "problem",
+          "finding": 6,
+          "score": 0.9333333333333333,
+          "atomicity": 0.6666666666666666,
+          "precision": 1.0,
+          "coverage": 1.0,
+          "evidence_score": 1.0,
+          "associated_findings": [
+            6
+          ]
+        },
+        {
+          "case": "P21",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "C00",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C01",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C02",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C03",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C04",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C05",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C06",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C07",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C08",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C09",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C10",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C11",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C12",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C13",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C14",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C15",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C16",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C17",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C18",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C19",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C20",
+          "kind": "clean",
+          "score": 0,
+          "false_findings": [
+            12,
+            16,
+            17
+          ]
+        }
+      ],
+      "eligible": true,
+      "label": "modes-r1-approve-for-me-Q2_0-medium",
+      "model": "Q2_0",
+      "effort": "medium",
+      "execution_mode": "approve-for-me",
+      "wall_s": 240.3185748830001,
+      "load_s": 14.236753500001214,
+      "api_requests": 13,
+      "tool_calls": 16,
+      "user_turns": 1,
+      "approvals": 0,
+      "approval_wall_s": 0,
+      "api_failures": 0,
+      "tool_failures": 1,
+      "scope_boundary_failures": 0
+    },
+    {
+      "score": 83.36717022235648,
+      "points": 34.180539791166154,
+      "point_count": 41,
+      "true_problem_count": 16,
+      "false_finding_count": 3,
+      "finding_count": 18,
+      "details": [
+        {
+          "case": "P01",
+          "kind": "problem",
+          "finding": 1,
+          "score": 0.980952380952381,
+          "atomicity": 1.0,
+          "precision": 0.6666666666666666,
+          "coverage": 1.0,
+          "evidence_score": 0.9523809523809523,
+          "associated_findings": [
+            1
+          ]
+        },
+        {
+          "case": "P03",
+          "kind": "problem",
+          "finding": 4,
+          "score": 0.9636363636363636,
+          "atomicity": 1.0,
+          "precision": 0.5,
+          "coverage": 1.0,
+          "evidence_score": 0.9090909090909091,
+          "associated_findings": [
+            4
+          ]
+        },
+        {
+          "case": "P04",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P05",
+          "kind": "problem",
+          "finding": 0,
+          "score": 0.9636363636363636,
+          "atomicity": 1.0,
+          "precision": 0.5,
+          "coverage": 1.0,
+          "evidence_score": 0.9090909090909091,
+          "associated_findings": [
+            0
+          ]
+        },
+        {
+          "case": "P06",
+          "kind": "problem",
+          "finding": 2,
+          "score": 0.9137254901960785,
+          "atomicity": 1.0,
+          "precision": 0.6666666666666666,
+          "coverage": 0.8,
+          "evidence_score": 0.7843137254901961,
+          "associated_findings": [
+            2
+          ]
+        },
+        {
+          "case": "P07",
+          "kind": "problem",
+          "finding": 3,
+          "score": 0.9076923076923078,
+          "atomicity": 1.0,
+          "precision": 0.25,
+          "coverage": 1.0,
+          "evidence_score": 0.7692307692307693,
+          "associated_findings": [
+            3
+          ]
+        },
+        {
+          "case": "P08",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P09",
+          "kind": "problem",
+          "finding": 6,
+          "score": 0.9478260869565218,
+          "atomicity": 1.0,
+          "precision": 0.4,
+          "coverage": 1.0,
+          "evidence_score": 0.8695652173913044,
+          "associated_findings": [
+            6
+          ]
+        },
+        {
+          "case": "P10",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P11",
+          "kind": "problem",
+          "finding": 13,
+          "score": 0.9333333333333333,
+          "atomicity": 1.0,
+          "precision": 0.3333333333333333,
+          "coverage": 1.0,
+          "evidence_score": 0.8333333333333333,
+          "associated_findings": [
+            13
+          ]
+        },
+        {
+          "case": "P12",
+          "kind": "problem",
+          "finding": 5,
+          "score": 0.7913978494623655,
+          "atomicity": 0.6666666666666666,
+          "precision": 0.5,
+          "coverage": 0.6666666666666666,
+          "evidence_score": 0.6451612903225805,
+          "associated_findings": [
+            5
+          ]
+        },
+        {
+          "case": "P13",
+          "kind": "problem",
+          "finding": 7,
+          "score": 0.7,
+          "atomicity": 1.0,
+          "precision": 0.5714285714285714,
+          "coverage": 0.23529411764705882,
+          "evidence_score": 0.25,
+          "associated_findings": [
+            7
+          ]
+        },
+        {
+          "case": "P14",
+          "kind": "problem",
+          "finding": 8,
+          "score": 0.8033898305084746,
+          "atomicity": 1.0,
+          "precision": 0.6,
+          "coverage": 0.5,
+          "evidence_score": 0.5084745762711865,
+          "associated_findings": [
+            8
+          ]
+        },
+        {
+          "case": "P15",
+          "kind": "problem",
+          "finding": 15,
+          "score": 0.9902439024390244,
+          "atomicity": 1.0,
+          "precision": 0.8,
+          "coverage": 1.0,
+          "evidence_score": 0.9756097560975611,
+          "associated_findings": [
+            15
+          ]
+        },
+        {
+          "case": "P16",
+          "kind": "problem",
+          "finding": 14,
+          "score": 0.7882352941176471,
+          "atomicity": 1.0,
+          "precision": 1.0,
+          "coverage": 0.4444444444444444,
+          "evidence_score": 0.47058823529411764,
+          "associated_findings": [
+            14
+          ]
+        },
+        {
+          "case": "P17",
+          "kind": "problem",
+          "finding": 17,
+          "score": 0.8666666666666667,
+          "atomicity": 1.0,
+          "precision": 0.16666666666666666,
+          "coverage": 1.0,
+          "evidence_score": 0.6666666666666666,
+          "associated_findings": [
+            17
+          ]
+        },
+        {
+          "case": "P18",
+          "kind": "problem",
+          "finding": 9,
+          "score": 0.9200000000000002,
+          "atomicity": 1.0,
+          "precision": 0.8,
+          "coverage": 0.8,
+          "evidence_score": 0.8,
+          "associated_findings": [
+            9
+          ]
+        },
+        {
+          "case": "P19",
+          "kind": "problem",
+          "finding": 11,
+          "score": 0.7764705882352942,
+          "atomicity": 1.0,
+          "precision": 0.6,
+          "coverage": 0.42857142857142855,
+          "evidence_score": 0.4411764705882353,
+          "associated_findings": [
+            11
+          ]
+        },
+        {
+          "case": "P20",
+          "kind": "problem",
+          "finding": 5,
+          "score": 0.9333333333333333,
+          "atomicity": 0.6666666666666666,
+          "precision": 1.0,
+          "coverage": 1.0,
+          "evidence_score": 1.0,
+          "associated_findings": [
+            5
+          ]
+        },
+        {
+          "case": "P21",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "C00",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C01",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C02",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C03",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C04",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C05",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C06",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C07",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C08",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C09",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C10",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C11",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C12",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C13",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C14",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C15",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C16",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C17",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C18",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C19",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C20",
+          "kind": "clean",
+          "score": 0,
+          "false_findings": [
+            10,
+            12,
+            16
+          ]
+        }
+      ],
+      "eligible": true,
+      "label": "modes-r2-approve-for-me-Q2_0-medium",
+      "model": "Q2_0",
+      "effort": "medium",
+      "execution_mode": "approve-for-me",
+      "wall_s": 169.31161450199943,
+      "load_s": 14.7191335000025,
+      "api_requests": 11,
+      "tool_calls": 12,
+      "user_turns": 1,
+      "approvals": 0,
+      "approval_wall_s": 0,
+      "api_failures": 0,
+      "tool_failures": 0,
+      "scope_boundary_failures": 0
+    },
+    {
+      "score": 84.27739041781992,
+      "points": 34.55373007130617,
+      "point_count": 41,
+      "true_problem_count": 16,
+      "false_finding_count": 4,
+      "finding_count": 19,
+      "details": [
+        {
+          "case": "P01",
+          "kind": "problem",
+          "finding": 1,
+          "score": 1.0,
+          "atomicity": 1.0,
+          "precision": 1.0,
+          "coverage": 1.0,
+          "evidence_score": 1.0,
+          "associated_findings": [
+            1
+          ]
+        },
+        {
+          "case": "P03",
+          "kind": "problem",
+          "finding": 2,
+          "score": 0.9333333333333333,
+          "atomicity": 1.0,
+          "precision": 0.3333333333333333,
+          "coverage": 1.0,
+          "evidence_score": 0.8333333333333333,
+          "associated_findings": [
+            2
+          ]
+        },
+        {
+          "case": "P04",
+          "kind": "problem",
+          "finding": 3,
+          "score": 0.9076923076923078,
+          "atomicity": 1.0,
+          "precision": 0.25,
+          "coverage": 1.0,
+          "evidence_score": 0.7692307692307693,
+          "associated_findings": [
+            3
+          ]
+        },
+        {
+          "case": "P05",
+          "kind": "problem",
+          "finding": 0,
+          "score": 0.9636363636363636,
+          "atomicity": 1.0,
+          "precision": 0.5,
+          "coverage": 1.0,
+          "evidence_score": 0.9090909090909091,
+          "associated_findings": [
+            0
+          ]
+        },
+        {
+          "case": "P06",
+          "kind": "problem",
+          "finding": 4,
+          "score": 0.9773584905660377,
+          "atomicity": 1.0,
+          "precision": 0.625,
+          "coverage": 1.0,
+          "evidence_score": 0.9433962264150944,
+          "associated_findings": [
+            4
+          ]
+        },
+        {
+          "case": "P07",
+          "kind": "problem",
+          "finding": 5,
+          "score": 0.8857142857142857,
+          "atomicity": 1.0,
+          "precision": 0.2,
+          "coverage": 1.0,
+          "evidence_score": 0.7142857142857143,
+          "associated_findings": [
+            5
+          ]
+        },
+        {
+          "case": "P08",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P09",
+          "kind": "problem",
+          "finding": 9,
+          "score": 0.9478260869565218,
+          "atomicity": 1.0,
+          "precision": 0.4,
+          "coverage": 1.0,
+          "evidence_score": 0.8695652173913044,
+          "associated_findings": [
+            9
+          ]
+        },
+        {
+          "case": "P10",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P11",
+          "kind": "problem",
+          "finding": 15,
+          "score": 0.8666666666666667,
+          "atomicity": 1.0,
+          "precision": 0.16666666666666666,
+          "coverage": 1.0,
+          "evidence_score": 0.6666666666666666,
+          "associated_findings": [
+            15
+          ]
+        },
+        {
+          "case": "P12",
+          "kind": "problem",
+          "finding": 8,
+          "score": 0.7913978494623655,
+          "atomicity": 0.6666666666666666,
+          "precision": 0.5,
+          "coverage": 0.6666666666666666,
+          "evidence_score": 0.6451612903225805,
+          "associated_findings": [
+            8
+          ]
+        },
+        {
+          "case": "P13",
+          "kind": "problem",
+          "finding": 7,
+          "score": 0.7707317073170732,
+          "atomicity": 1.0,
+          "precision": 0.6363636363636364,
+          "coverage": 0.4117647058823529,
+          "evidence_score": 0.42682926829268286,
+          "associated_findings": [
+            7
+          ]
+        },
+        {
+          "case": "P14",
+          "kind": "problem",
+          "finding": 6,
+          "score": 0.9076923076923078,
+          "atomicity": 1.0,
+          "precision": 0.45454545454545453,
+          "coverage": 0.8333333333333334,
+          "evidence_score": 0.7692307692307693,
+          "associated_findings": [
+            6
+          ]
+        },
+        {
+          "case": "P15",
+          "kind": "problem",
+          "finding": 16,
+          "score": 0.980952380952381,
+          "atomicity": 1.0,
+          "precision": 0.6666666666666666,
+          "coverage": 1.0,
+          "evidence_score": 0.9523809523809523,
+          "associated_findings": [
+            16
+          ]
+        },
+        {
+          "case": "P16",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P17",
+          "kind": "problem",
+          "finding": 14,
+          "score": 0.8666666666666667,
+          "atomicity": 1.0,
+          "precision": 0.16666666666666666,
+          "coverage": 1.0,
+          "evidence_score": 0.6666666666666666,
+          "associated_findings": [
+            14
+          ]
+        },
+        {
+          "case": "P18",
+          "kind": "problem",
+          "finding": 10,
+          "score": 0.9921568627450981,
+          "atomicity": 1.0,
+          "precision": 0.8333333333333334,
+          "coverage": 1.0,
+          "evidence_score": 0.9803921568627452,
+          "associated_findings": [
+            10
+          ]
+        },
+        {
+          "case": "P19",
+          "kind": "problem",
+          "finding": 12,
+          "score": 0.8285714285714285,
+          "atomicity": 1.0,
+          "precision": 0.5714285714285714,
+          "coverage": 0.5714285714285714,
+          "evidence_score": 0.5714285714285714,
+          "associated_findings": [
+            12
+          ]
+        },
+        {
+          "case": "P20",
+          "kind": "problem",
+          "finding": 8,
+          "score": 0.9333333333333333,
+          "atomicity": 0.6666666666666666,
+          "precision": 1.0,
+          "coverage": 1.0,
+          "evidence_score": 1.0,
+          "associated_findings": [
+            8
+          ]
+        },
+        {
+          "case": "P21",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "C00",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C01",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C02",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C03",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C04",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C05",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C06",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C07",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C08",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C09",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C10",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C11",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C12",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C13",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C14",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C15",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C16",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C17",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C18",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C19",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C20",
+          "kind": "clean",
+          "score": 0,
+          "false_findings": [
+            11,
+            13,
+            17,
+            18
+          ]
+        }
+      ],
+      "eligible": true,
+      "label": "models-r2-Q2_0",
+      "model": "Q2_0",
+      "effort": "medium",
+      "execution_mode": "sandbox-deny",
+      "wall_s": 157.09947177399954,
+      "load_s": 14.709706199995708,
+      "api_requests": 8,
+      "tool_calls": 10,
+      "user_turns": 1,
+      "approvals": 0,
+      "approval_wall_s": 0,
+      "api_failures": 0,
+      "tool_failures": 0,
+      "scope_boundary_failures": 0
+    },
+    {
+      "score": 87.15332147808785,
+      "points": 35.73286180601602,
+      "point_count": 41,
+      "true_problem_count": 18,
+      "false_finding_count": 3,
+      "finding_count": 19,
+      "details": [
+        {
+          "case": "P01",
+          "kind": "problem",
+          "finding": 0,
+          "score": 0.980952380952381,
+          "atomicity": 1.0,
+          "precision": 0.6666666666666666,
+          "coverage": 1.0,
+          "evidence_score": 0.9523809523809523,
+          "associated_findings": [
+            0
+          ]
+        },
+        {
+          "case": "P03",
+          "kind": "problem",
+          "finding": 1,
+          "score": 0.9636363636363636,
+          "atomicity": 1.0,
+          "precision": 0.5,
+          "coverage": 1.0,
+          "evidence_score": 0.9090909090909091,
+          "associated_findings": [
+            1
+          ]
+        },
+        {
+          "case": "P04",
+          "kind": "problem",
+          "finding": 2,
+          "score": 0.9333333333333333,
+          "atomicity": 1.0,
+          "precision": 0.3333333333333333,
+          "coverage": 1.0,
+          "evidence_score": 0.8333333333333333,
+          "associated_findings": [
+            2
+          ]
+        },
+        {
+          "case": "P05",
+          "kind": "problem",
+          "finding": 3,
+          "score": 0.9636363636363636,
+          "atomicity": 1.0,
+          "precision": 0.5,
+          "coverage": 1.0,
+          "evidence_score": 0.9090909090909091,
+          "associated_findings": [
+            3
+          ]
+        },
+        {
+          "case": "P06",
+          "kind": "problem",
+          "finding": 4,
+          "score": 0.9921568627450981,
+          "atomicity": 1.0,
+          "precision": 0.8333333333333334,
+          "coverage": 1.0,
+          "evidence_score": 0.9803921568627452,
+          "associated_findings": [
+            4
+          ]
+        },
+        {
+          "case": "P07",
+          "kind": "problem",
+          "finding": 5,
+          "score": 0.9076923076923078,
+          "atomicity": 1.0,
+          "precision": 0.25,
+          "coverage": 1.0,
+          "evidence_score": 0.7692307692307693,
+          "associated_findings": [
+            5
+          ]
+        },
+        {
+          "case": "P08",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P09",
+          "kind": "problem",
+          "finding": 6,
+          "score": 0.9478260869565218,
+          "atomicity": 1.0,
+          "precision": 0.4,
+          "coverage": 1.0,
+          "evidence_score": 0.8695652173913044,
+          "associated_findings": [
+            6
+          ]
+        },
+        {
+          "case": "P10",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P11",
+          "kind": "problem",
+          "finding": 12,
+          "score": 0.9199999999999999,
+          "atomicity": 1.0,
+          "precision": 0.2857142857142857,
+          "coverage": 1.0,
+          "evidence_score": 0.7999999999999999,
+          "associated_findings": [
+            12
+          ]
+        },
+        {
+          "case": "P12",
+          "kind": "problem",
+          "finding": 9,
+          "score": 0.7913978494623655,
+          "atomicity": 0.6666666666666666,
+          "precision": 0.5,
+          "coverage": 0.6666666666666666,
+          "evidence_score": 0.6451612903225805,
+          "associated_findings": [
+            9
+          ]
+        },
+        {
+          "case": "P13",
+          "kind": "problem",
+          "finding": 8,
+          "score": 0.7481481481481482,
+          "atomicity": 1.0,
+          "precision": 0.6666666666666666,
+          "coverage": 0.35294117647058826,
+          "evidence_score": 0.3703703703703704,
+          "associated_findings": [
+            8
+          ]
+        },
+        {
+          "case": "P14",
+          "kind": "problem",
+          "finding": 7,
+          "score": 0.7967213114754099,
+          "atomicity": 1.0,
+          "precision": 0.42857142857142855,
+          "coverage": 0.5,
+          "evidence_score": 0.49180327868852464,
+          "associated_findings": [
+            7
+          ]
+        },
+        {
+          "case": "P15",
+          "kind": "problem",
+          "finding": 13,
+          "score": 0.8926829268292684,
+          "atomicity": 1.0,
+          "precision": 0.6,
+          "coverage": 0.75,
+          "evidence_score": 0.7317073170731708,
+          "associated_findings": [
+            13
+          ]
+        },
+        {
+          "case": "P16",
+          "kind": "problem",
+          "finding": 16,
+          "score": 0.7882352941176471,
+          "atomicity": 1.0,
+          "precision": 1.0,
+          "coverage": 0.4444444444444444,
+          "evidence_score": 0.47058823529411764,
+          "associated_findings": [
+            16
+          ]
+        },
+        {
+          "case": "P17",
+          "kind": "problem",
+          "finding": 11,
+          "score": 0.819047619047619,
+          "atomicity": 0.6666666666666666,
+          "precision": 0.2,
+          "coverage": 1.0,
+          "evidence_score": 0.7142857142857143,
+          "associated_findings": [
+            11
+          ]
+        },
+        {
+          "case": "P18",
+          "kind": "problem",
+          "finding": 10,
+          "score": 0.7568627450980392,
+          "atomicity": 1.0,
+          "precision": 0.3333333333333333,
+          "coverage": 0.4,
+          "evidence_score": 0.39215686274509803,
+          "associated_findings": [
+            10
+          ]
+        },
+        {
+          "case": "P19",
+          "kind": "problem",
+          "finding": 14,
+          "score": 0.8285714285714285,
+          "atomicity": 1.0,
+          "precision": 0.5714285714285714,
+          "coverage": 0.5714285714285714,
+          "evidence_score": 0.5714285714285714,
+          "associated_findings": [
+            14
+          ]
+        },
+        {
+          "case": "P20",
+          "kind": "problem",
+          "finding": 9,
+          "score": 0.9333333333333333,
+          "atomicity": 0.6666666666666666,
+          "precision": 1.0,
+          "coverage": 1.0,
+          "evidence_score": 1.0,
+          "associated_findings": [
+            9
+          ]
+        },
+        {
+          "case": "P21",
+          "kind": "problem",
+          "finding": 11,
+          "score": 0.7686274509803922,
+          "atomicity": 0.6666666666666666,
+          "precision": 0.8,
+          "coverage": 0.5714285714285714,
+          "evidence_score": 0.5882352941176471,
+          "associated_findings": [
+            11
+          ]
+        },
+        {
+          "case": "C00",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C01",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C02",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C03",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C04",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C05",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C06",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C07",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C08",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C09",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C10",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C11",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C12",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C13",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C14",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C15",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C16",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C17",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C18",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C19",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C20",
+          "kind": "clean",
+          "score": 0,
+          "false_findings": [
+            15,
+            17,
+            18
+          ]
+        }
+      ],
+      "eligible": true,
+      "label": "models-r3-Q2_0",
+      "model": "Q2_0",
+      "effort": "medium",
+      "execution_mode": "sandbox-deny",
+      "wall_s": 176.80068769100035,
+      "load_s": 14.69626010000502,
+      "api_requests": 9,
+      "tool_calls": 12,
+      "user_turns": 1,
+      "approvals": 0,
+      "approval_wall_s": 0,
+      "api_failures": 0,
+      "tool_failures": 0,
+      "scope_boundary_failures": 0
+    },
+    {
+      "score": 81.00709540249971,
+      "points": 33.212909115024885,
+      "point_count": 41,
+      "true_problem_count": 17,
+      "false_finding_count": 3,
+      "finding_count": 19,
+      "details": [
+        {
+          "case": "P01",
+          "kind": "problem",
+          "finding": 1,
+          "score": 1.0,
+          "atomicity": 1.0,
+          "precision": 1.0,
+          "coverage": 1.0,
+          "evidence_score": 1.0,
+          "associated_findings": [
+            1
+          ]
+        },
+        {
+          "case": "P03",
+          "kind": "problem",
+          "finding": 2,
+          "score": 0.9636363636363636,
+          "atomicity": 1.0,
+          "precision": 0.5,
+          "coverage": 1.0,
+          "evidence_score": 0.9090909090909091,
+          "associated_findings": [
+            2
+          ]
+        },
+        {
+          "case": "P04",
+          "kind": "problem",
+          "finding": 3,
+          "score": 0.9076923076923078,
+          "atomicity": 1.0,
+          "precision": 0.25,
+          "coverage": 1.0,
+          "evidence_score": 0.7692307692307693,
+          "associated_findings": [
+            3
+          ]
+        },
+        {
+          "case": "P05",
+          "kind": "problem",
+          "finding": 0,
+          "score": 0.9636363636363636,
+          "atomicity": 1.0,
+          "precision": 0.5,
+          "coverage": 1.0,
+          "evidence_score": 0.9090909090909091,
+          "associated_findings": [
+            0
+          ]
+        },
+        {
+          "case": "P06",
+          "kind": "problem",
+          "finding": 4,
+          "score": 0.8307692307692309,
+          "atomicity": 1.0,
+          "precision": 0.42857142857142855,
+          "coverage": 0.6,
+          "evidence_score": 0.576923076923077,
+          "associated_findings": [
+            4
+          ]
+        },
+        {
+          "case": "P07",
+          "kind": "problem",
+          "finding": 5,
+          "score": 0.8857142857142857,
+          "atomicity": 1.0,
+          "precision": 0.2,
+          "coverage": 1.0,
+          "evidence_score": 0.7142857142857143,
+          "associated_findings": [
+            5
+          ]
+        },
+        {
+          "case": "P08",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P09",
+          "kind": "problem",
+          "finding": 6,
+          "score": 0.9478260869565218,
+          "atomicity": 1.0,
+          "precision": 0.4,
+          "coverage": 1.0,
+          "evidence_score": 0.8695652173913044,
+          "associated_findings": [
+            6
+          ]
+        },
+        {
+          "case": "P10",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "P11",
+          "kind": "problem",
+          "finding": 17,
+          "score": 0.8962962962962964,
+          "atomicity": 1.0,
+          "precision": 0.2222222222222222,
+          "coverage": 1.0,
+          "evidence_score": 0.7407407407407408,
+          "associated_findings": [
+            17
+          ]
+        },
+        {
+          "case": "P12",
+          "kind": "problem",
+          "finding": 9,
+          "score": 0.7833333333333333,
+          "atomicity": 0.6666666666666666,
+          "precision": 0.4,
+          "coverage": 0.6666666666666666,
+          "evidence_score": 0.625,
+          "associated_findings": [
+            9
+          ]
+        },
+        {
+          "case": "P13",
+          "kind": "problem",
+          "finding": 7,
+          "score": 0.7481481481481482,
+          "atomicity": 1.0,
+          "precision": 0.6666666666666666,
+          "coverage": 0.35294117647058826,
+          "evidence_score": 0.3703703703703704,
+          "associated_findings": [
+            7
+          ]
+        },
+        {
+          "case": "P14",
+          "kind": "problem",
+          "finding": 8,
+          "score": 0.9174603174603175,
+          "atomicity": 1.0,
+          "precision": 0.5555555555555556,
+          "coverage": 0.8333333333333334,
+          "evidence_score": 0.7936507936507937,
+          "associated_findings": [
+            8
+          ]
+        },
+        {
+          "case": "P15",
+          "kind": "problem",
+          "finding": 15,
+          "score": 0.9902439024390244,
+          "atomicity": 1.0,
+          "precision": 0.8,
+          "coverage": 1.0,
+          "evidence_score": 0.9756097560975611,
+          "associated_findings": [
+            15
+          ]
+        },
+        {
+          "case": "P16",
+          "kind": "problem",
+          "finding": 13,
+          "score": 0.786046511627907,
+          "atomicity": 1.0,
+          "precision": 0.8,
+          "coverage": 0.4444444444444444,
+          "evidence_score": 0.4651162790697674,
+          "associated_findings": [
+            13
+          ]
+        },
+        {
+          "case": "P17",
+          "kind": "problem",
+          "finding": 16,
+          "score": 0.8857142857142857,
+          "atomicity": 1.0,
+          "precision": 0.2,
+          "coverage": 1.0,
+          "evidence_score": 0.7142857142857143,
+          "associated_findings": [
+            16
+          ]
+        },
+        {
+          "case": "P18",
+          "kind": "problem",
+          "finding": 10,
+          "score": 0.9636363636363636,
+          "atomicity": 1.0,
+          "precision": 0.5,
+          "coverage": 1.0,
+          "evidence_score": 0.9090909090909091,
+          "associated_findings": [
+            10
+          ]
+        },
+        {
+          "case": "P19",
+          "kind": "problem",
+          "finding": 14,
+          "score": 0.8191780821917809,
+          "atomicity": 1.0,
+          "precision": 0.4,
+          "coverage": 0.5714285714285714,
+          "evidence_score": 0.547945205479452,
+          "associated_findings": [
+            14
+          ]
+        },
+        {
+          "case": "P20",
+          "kind": "problem",
+          "finding": 9,
+          "score": 0.9235772357723577,
+          "atomicity": 0.6666666666666666,
+          "precision": 0.8,
+          "coverage": 1.0,
+          "evidence_score": 0.9756097560975611,
+          "associated_findings": [
+            9
+          ]
+        },
+        {
+          "case": "P21",
+          "kind": "problem",
+          "score": 0,
+          "associated_findings": []
+        },
+        {
+          "case": "C00",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C01",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C02",
+          "kind": "clean",
+          "score": 0,
+          "false_findings": [
+            11
+          ]
+        },
+        {
+          "case": "C03",
+          "kind": "clean",
+          "score": 0,
+          "false_findings": [
+            12
+          ]
+        },
+        {
+          "case": "C04",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C05",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C06",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C07",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C08",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C09",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C10",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C11",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C12",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C13",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C14",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C15",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C16",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C17",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C18",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C19",
+          "kind": "clean",
+          "score": 1,
+          "false_findings": []
+        },
+        {
+          "case": "C20",
+          "kind": "clean",
+          "score": 0,
+          "false_findings": [
+            11,
+            12,
+            18
+          ]
+        }
+      ],
+      "eligible": true,
+      "label": "modes-r3-approve-for-me-Q2_0-medium",
+      "model": "Q2_0",
+      "effort": "medium",
+      "execution_mode": "approve-for-me",
+      "wall_s": 202.74334165599794,
+      "load_s": 14.753701100002218,
+      "api_requests": 10,
+      "tool_calls": 10,
+      "user_turns": 1,
+      "approvals": 0,
+      "approval_wall_s": 0,
+      "api_failures": 0,
+      "tool_failures": 0,
+      "scope_boundary_failures": 0
+    }
+  ],
+  "selection_pending": "Main Agent must select mode with an explicit reason based on scope, quality, recovery and cost; no automatic matrix expansion.",
+  "selection": {
+    "execution_mode": "sandbox-deny",
+    "three_repeats_adjudicated": true,
+    "adjudicator": "Main Agent",
+    "mode_comparison_sha256": "5f014123c0ee4bc386f789f95d05c9436b56b79bf97eea4f4b89022041b1c0de",
+    "reason": "For this read-only reviewer task, fixed host read/write boundaries and immediate denial suffice. Sandbox has higher three-run mean score and lower mean task time. Neither mode made any approval request, so the observed timing difference is stochastic task behavior, not measured guardian overhead. Approve-for-me offers no demonstrated benefit here; the independent triggered probe confirms local guardian compatibility and an added 3.569 seconds for one no-op approval, not a repeated overhead estimate.",
+    "limitations": [
+      "Both profiles require read-only runtime dependencies outside the project. Private sandbox empty namespace permits ephemeral writes, while host canaries and fixed scratch boundary are enforced; this is not literal virtual-path-only writing.",
+      "Normal review instances contain no escalation request in either mode; guardian decision quality and overhead when frequently invoked remain unmeasured.",
+      "One invalid-patch tool failure in approve-for-me was corrected; no evidence/findings were lost during recovery. No API failures occurred in these six instances.",
+      "Historical sandbox observations precede the revised mode-first priority; reused only under identical frozen task, prompt, model, effort, release and profile. They are not an interleaved randomized causal experiment.",
+      "The frozen Code Standards prompt explicitly prohibits requesting escalation. These mode runs characterize this no-escalation reviewer workload, not workloads needing approved out-of-scope actions."
+    ],
+    "supplemental_noop_validation": {
+      "report": "approval-cost.json",
+      "sha256": "5f7673ca203bfcffcca83cea5a5cfd63de1078479da3ad6ea6d5cda1765ee7a2",
+      "collected_after_formal_selections": true,
+      "repetitions_per_mode": 3,
+      "mean_guardian_s": 3.5523333333333333,
+      "mean_sandbox_task_s": 5.816565966666531,
+      "mean_approve_task_s": 10.475399685000108,
+      "selection_unchanged": true
+    }
+  }
+}

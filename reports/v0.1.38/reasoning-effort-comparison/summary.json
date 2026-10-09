@@ -1,0 +1,2081 @@
+{
+  "schema_version": 2,
+  "status": "historical-diagnostic-results-remaining-checks-cancelled",
+  "scores_are_official_ARW_diagnostics_not_formal_acceptance": true,
+  "full_session_inspection": "incomplete-closed-by-user-decision",
+  "baseline": {
+    "status": "selected-maintenance-baseline",
+    "selected_on": "2026-10-04",
+    "scope": "Short-task parameter selection, user-approved default profile and 100K context threshold; four-role formal benchmark is owned by ARW. Current medium recommendation remains until user selects after reasoning-effort comparison. Not a proof of global optimum.",
+    "versions": {
+      "strata": {
+        "version": "0.1.38",
+        "commit": "99f3dbd0b21d1401b3769e0c0d963913607f380b"
+      },
+      "codex_measured": "0.160.0",
+      "codex_observed_at_publication": "codex-cli 0.160.0",
+      "arw_source_head": "aa16da0fe9bfed823f34ab0e1fc524360b59e982",
+      "arw_includes_uncommitted_files": true,
+      "arw_source_manifest_sha256": "56937c9b6172198941dda5ddea8dc7e777fe27cbe265f0e0df0befef03d8b72f"
+    },
+    "start_options": {
+      "model": "Q2_0",
+      "engine_overrides": {
+        "prefill": 16384,
+        "kv": "int8",
+        "kv-resident": 20480,
+        "pool-workers": 23,
+        "pcie-frac": 0.0,
+        "spec": 4,
+        "spec-min-p": 0.7,
+        "expert-cache": "auto",
+        "vram-reserve-mib": 700,
+        "adapt-every": 4,
+        "adapt-swaps": 96,
+        "adapt-decay": 0.7,
+        "mtp-window": 32768,
+        "pcie-mode": "auto",
+        "expert-cache-per-layer": false,
+        "expert-cache-cpu-order": false,
+        "pool-affinity": "auto",
+        "ple-io": "direct",
+        "ple-inflight": 256,
+        "no-capture": false,
+        "no-host-worker": false,
+        "no-ple-prefetch": false,
+        "no-prefill-borrow": false,
+        "no-split-rows": false,
+        "no-coupled-draft": false,
+        "shared-late": false,
+        "keep-canonical": false,
+        "no-token-graph": false,
+        "no-fused-gr": false,
+        "no-hit-poke": false,
+        "ple-sync-submit": false,
+        "no-spec-split": false,
+        "gr-fp32-activations": false,
+        "ple-row-cache": 1048576,
+        "short-read": 64,
+        "suffix-draft": 3,
+        "mtp-max-t": 0,
+        "prompt-cache": 6,
+        "prompt-cache-every": 16384,
+        "prompt-cache-root": 2048,
+        "max-context": 156584
+      },
+      "engine_environment": {
+        "STRATA_HC_SPLIT": null,
+        "STRATA_ADAPT_NOWAIT": null,
+        "STRATA_SSD_KEEPALIVE": null
+      },
+      "request_defaults": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20,
+        "max_tokens": 16384,
+        "reasoning_budget_tokens": 4096,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "penalty_last_n": 64,
+        "reasoning_effort": "medium"
+      }
+    },
+    "request_options": {
+      "responses": {
+        "model": "qwen3.8-flash-next-q2_0",
+        "reasoning": {
+          "effort": "medium"
+        },
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "max_output_tokens": 16384
+      },
+      "chat": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20,
+        "max_tokens": 16384,
+        "reasoning_budget_tokens": 4096,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "penalty_last_n": 64,
+        "model": "qwen3.8-flash-next-q2_0",
+        "reasoning_effort": "medium"
+      }
+    },
+    "profile": {
+      "choice": "default",
+      "installation_relative_path": "runtime/Strata/data/expert-profile.bin",
+      "sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "save_enabled": false,
+      "trained_adopted": false,
+      "future_training": "Optional explicit experiment; not an automatic upgrade step."
+    },
+    "harness": {
+      "model_context_window": 156584,
+      "model_auto_compact_token_limit": 100000,
+      "approval_policy": "on-request",
+      "approvals_reviewer": "auto_review",
+      "permissions": "Frozen native ARW :read-only plus explicitly granted writes; optional stricter isolation remains disabled.",
+      "model_provider": "qwen_strata",
+      "auto_review_model_override": "qwen3.8-flash-next-q2_0",
+      "reviewer_instructions": "Frozen ARW canonical reviewer and role documents, unchanged.",
+      "guardian_effort": "low",
+      "guardian_preset_reasoning_budget_tokens": 2048,
+      "guardian_preset_max_output_tokens": 8192,
+      "web_search_tool_type": "text"
+    },
+    "startup_instructions": {
+      "installation_relative_path": "config/startup-instructions.txt",
+      "sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e"
+    },
+    "installation_defaults": {
+      "base_config": "config/q2_0-prebuilt.json",
+      "base_config_sha256": "fa3fdd34cddba8fb75954a67c7535a7a9129014f606b6373142a090eb03b7093",
+      "base_config_spec_min_p": 0.5,
+      "selection_requires_explicit_overrides": true,
+      "model_catalog_sha256": "2215cd0a354ae83f3a507623d35f44c3d04ebc88633d27a3f6cc3e4d4bfc225c"
+    },
+    "measurement": {
+      "repetitions_per_condition": 3,
+      "comparison": "Serial dimensions, no matrix; independent repeats, not paired profile observations.",
+      "reviewer_deadlines_minutes": {
+        "initial_reminder": 55,
+        "initial_stop": 60,
+        "followup_reminder": 10,
+        "followup_stop": 15
+      },
+      "mechanical_format_repair": "Main repairs separate copies; original formal failures retained; no extra reviewer revisions for formatting.",
+      "consumption_source": "Sum attributed raw engine read/reused/generated stages for initial review; include guardian and internal continuations; exclude returned-for-revision rounds.",
+      "equivalent_cost_usd_per_million": {
+        "uncached_input": 0.15,
+        "cached_input": 0.016,
+        "output": 0.47
+      }
+    },
+    "evidence": {
+      "parameters": "parameter-comparison.md",
+      "parameter_scope": "parameter-scope.md",
+      "profile_comparison": "profile-validation-first-pass.md",
+      "profile_full_precision": "profile-validation-first-pass.json",
+      "summary": "summary.md",
+      "context_comparison": "../context-comparison/summary.md"
+    },
+    "remaining": "Commit Audit reasoning-effort comparison: low, medium, high; five independent initial reviews each, 15 total. Fixed Q2_0/default and 100000 compaction threshold / 156584 context window. Requires estimated duration and a user-approved run plan before starting. Four-role formal benchmark is owned by ARW.",
+    "startup_instructions_revision": {
+      "date": "2026-10-05",
+      "user_decision": "Require task completion and an independent completion check before ending; honor stop, deadlines, verified blockers, and current compaction scope.",
+      "previous_startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+      "previous_baseline_sha256": "8ad9a38f93421cd7f66f0dc5dc056702f41f73867da00e7daf2d14e3edc31aa8",
+      "applies_to": "Future model starts only; all published context observations used the previous prompt.",
+      "model_behavior_validated": false,
+      "other_parameters_changed": false,
+      "context_configuration_selected": false
+    },
+    "context_selection": {
+      "date": "2026-10-05",
+      "selected_by": "user",
+      "auto_compact_token_limit": 100000,
+      "context_window": 156584,
+      "capacity_formula": {
+        "threshold": 100000,
+        "compaction_overrun_budget": 32000,
+        "highest_effort_output_budget": 24576,
+        "safety_slack": 8
+      },
+      "reasons": [
+        "Observed score and elapsed time offer a balanced choice.",
+        "All five included 100K quality observations delivered both reports; no reportless early termination in this group."
+      ],
+      "complete_observations": 5,
+      "included_quality_observations": 5,
+      "evidence_conditions": "Three old 100K/125000 observations plus two 100K/156584 observations; mixed means are descriptive, not five identical-condition repeats.",
+      "qualification": "Historical infrastructure failure and source/timely-write/formal-scoring failures remain recorded. Complete delivery does not imply formal capability acceptance.",
+      "scope": "Future maintenance baseline and four-role benchmark; historical measurements unchanged. Other callers choose their own configuration.",
+      "model_run_performed_for_selection": false,
+      "formal_four_role_acceptance_pending": true,
+      "previous_baseline_sha256": "267580633b0ccd8e00a433d7abef958f26e1f3cc5d7658b85658307ac75b0312"
+    },
+    "planned_reasoning_effort_comparison": {
+      "decided_on": "2026-10-06",
+      "status": "planned-not-started",
+      "scenario": "commit-audit",
+      "efforts": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "repetitions_per_effort": 5,
+      "total_initial_review_instances": 15,
+      "fixed_model": "Q2_0",
+      "fixed_profile": "default",
+      "fixed_compaction_threshold": 100000,
+      "fixed_context_window": 156584,
+      "effort_presets": {
+        "low": {
+          "reasoning_budget_tokens": 2048,
+          "max_output_tokens": 8192
+        },
+        "medium": {
+          "reasoning_budget_tokens": 4096,
+          "max_output_tokens": 16384
+        },
+        "high": {
+          "reasoning_budget_tokens": 8192,
+          "max_output_tokens": 24576
+        }
+      },
+      "guardian_effort": "low",
+      "scoring": "Frozen ARW per-repetition scores; arithmetic mean over five independent repetition scores per effort. No custom per-case scoring.",
+      "previous_results_reused": false,
+      "run_plan_approval_pending": true,
+      "formal_four_role_benchmark_owner": "ARW"
+    }
+  },
+  "scope": "15 original Commit Audit instances; original work plus all authorized continuations; stopped intervals excluded",
+  "rate_scope": "Engine: read/prompt_seconds and generated/decode_seconds. Task: same raw totals divided by first task start to final end, limited to review work intervals, including tools and active recovery; downtime and loaded sleep excluded; estimates explicitly flagged. Group rates are means of per-instance rates",
+  "rows": [
+    {
+      "effort": "low",
+      "repeat": 1,
+      "instance_id": "default-c8ec6412-b1fd-4406-a879-41ba8e3e21d8-instance-1",
+      "native_thread_id": "01a10cbb-461c-7e32-b13d-95b4dae509af",
+      "diagnostic_score": 0.7215663083776934,
+      "reviewer_active_seconds": 3356.474,
+      "tokens": {
+        "uncached_input": 2795037,
+        "cached_input": 8049344,
+        "output": 305496
+      },
+      "engine_input_seconds": 944.683,
+      "engine_decode_seconds": 2363.368,
+      "engine_input_tokens_per_second": 2958.703607453506,
+      "engine_output_tokens_per_second": 129.26298401264637,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 3356.474,
+      "task_input_tokens_per_second": 832.7301209543109,
+      "task_output_tokens_per_second": 91.01694218397044,
+      "task_started_at_ms": 1791214962224,
+      "task_finished_at_ms": 1791253821947,
+      "task_time_source": "Last continuation measurement/native terminal UTC timestamp",
+      "task_wall_span_seconds": 38859.723,
+      "task_work_time": {
+        "seconds": 3356.474,
+        "estimated": true,
+        "intervals": [
+          {
+            "start_ms": 1791214962224,
+            "end_ms": 1791215825910,
+            "estimated": true,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          },
+          {
+            "start_ms": 1791250224229,
+            "end_ms": 1791252368274,
+            "estimated": false,
+            "basis": "Bound continuation measurement/native terminal"
+          },
+          {
+            "start_ms": 1791253473204,
+            "end_ms": 1791253821947,
+            "estimated": false,
+            "basis": "Bound continuation measurement/native terminal"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": true,
+      "timeout_ever": false,
+      "equivalent_cost_usd": 0.691628174,
+      "engine_execution_stage_count": 163,
+      "continuation_round_count": 2,
+      "report_bytes": 39263,
+      "report_sha256": "66b10c94fe36137fe8f16b0bf483301b3ca12e19d7eb2aaa9afcd91422dc21c5",
+      "initial_formal_completion": {
+        "status": "incomplete",
+        "reason": "The native Reviewer turn failed.",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/c8ec6412-b1fd-4406-a879-41ba8e3e21d8/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/c8ec6412-b1fd-4406-a879-41ba8e3e21d8/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "8dc617f942084f195f7eb11cc4c081ed02d5cc835624c888529ff5f2c6dbe76b",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "27a875022402401af2b90cf59a9b9e50536d947ce2af40717c4438513771e5d1",
+          "kind": "initial"
+        },
+        {
+          "sha256": "fb70ea5d0f24305903435f39147695da73fe762ba818283c45dc19072c70fb8d",
+          "kind": "continuations"
+        }
+      ],
+      "initial_active_seconds": 863.686,
+      "initial_tokens": {
+        "uncached_input": 906077,
+        "cached_input": 2549980,
+        "output": 66916
+      },
+      "duration_analysis": {
+        "classification": "恢复后偏长",
+        "table_note": "压缩工具拒绝后两段接续，接续又修复非法工具参数；追加阶段约占费用70%，暂停等待已扣除。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "c7d9bf77606fad3cd3caa009445281fcb99fbe73fceda01cd80c59c60366da62",
+        "full_native_inspection_complete": false,
+        "engine_time_fraction": 0.9855732533605205,
+        "tool_call_count": 117,
+        "successful_compaction_count": 3,
+        "successful_compaction_seconds": [
+          159.698,
+          92.17,
+          149.884
+        ],
+        "successful_compaction_total_seconds": 401.752,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    },
+    {
+      "effort": "low",
+      "repeat": 2,
+      "instance_id": "default-c8ec6412-b1fd-4406-a879-41ba8e3e21d8-instance-2",
+      "native_thread_id": "01a10ccf-6b46-7ad3-ac38-4667afc9da99",
+      "diagnostic_score": 0,
+      "reviewer_active_seconds": 3686.187,
+      "tokens": {
+        "uncached_input": 3571459,
+        "cached_input": 8189968,
+        "output": 314269
+      },
+      "engine_input_seconds": 1184.003,
+      "engine_decode_seconds": 2425.274,
+      "engine_input_tokens_per_second": 3016.42732324158,
+      "engine_output_tokens_per_second": 129.58082262045443,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 3667.2904697265626,
+      "task_input_tokens_per_second": 973.868590307299,
+      "task_output_tokens_per_second": 85.6951481193777,
+      "task_started_at_ms": 1791216282458,
+      "task_finished_at_ms": 1791263792578,
+      "task_time_source": "Last continuation measurement/native terminal UTC timestamp",
+      "task_wall_span_seconds": 47510.12,
+      "task_work_time": {
+        "seconds": 3667.2904697265626,
+        "estimated": true,
+        "intervals": [
+          {
+            "start_ms": 1791216282458,
+            "end_ms": 1791219670408,
+            "estimated": true,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          },
+          {
+            "start_ms": 1791254297602,
+            "end_ms": 1791254568158.4697,
+            "estimated": true,
+            "basis": "Protected stop receipt or estimated stop intent; post-stop retry excluded",
+            "uncut_end_ms": 1791254587055
+          },
+          {
+            "start_ms": 1791263783794,
+            "end_ms": 1791263792578,
+            "estimated": false,
+            "basis": "Bound continuation measurement/native terminal"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": true,
+      "timeout_ever": true,
+      "equivalent_cost_usd": 0.8144647679999999,
+      "engine_execution_stage_count": 165,
+      "continuation_round_count": 2,
+      "report_bytes": 0,
+      "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "initial_formal_completion": {
+        "status": "incomplete",
+        "reason": "The native Reviewer turn failed.",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/c8ec6412-b1fd-4406-a879-41ba8e3e21d8/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "incomplete",
+        "reason": "The native Reviewer turn failed.",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/c8ec6412-b1fd-4406-a879-41ba8e3e21d8/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "d6cece96a8d48c5cf869660a8df079f4a07d8b8c8aeb2c8c08d2d075685eb1e8",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "87668aadef604c915b7e966cb9133fbaaf988736353e6e47e4dd5f80e3c52066",
+          "kind": "initial"
+        },
+        {
+          "sha256": "758b59dda70338c84ae5b4cedc3f5be4736b6f0650f1455482cda812e7f80b2d",
+          "kind": "continuations"
+        }
+      ],
+      "initial_active_seconds": 3387.95,
+      "initial_tokens": {
+        "uncached_input": 3441608,
+        "cached_input": 7306291,
+        "output": 281566
+      },
+      "work_result": "failed",
+      "recovery_disposition": "closed-unrecoverable-by-user-decision",
+      "recovery_decision": "User decided to count this instance as failed and unrecoverable; no further continuation or capacity increase.",
+      "duration_analysis": {
+        "classification": "超时且工作失败",
+        "table_note": "100K阈值生效，但后续压缩不交付摘要，恢复输入持续增长，最终超窗口；花费0.814美元仍未交付，按用户决定结案。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "3408f2c099a348bd9c6ae110286c28db46378de2095012a3d34bbf70738db6d0",
+        "full_native_inspection_complete": false,
+        "engine_time_fraction": 0.9841808359044741,
+        "tool_call_count": 143,
+        "successful_compaction_count": 3,
+        "successful_compaction_seconds": [
+          92.236,
+          88.803,
+          86.111
+        ],
+        "successful_compaction_total_seconds": 267.15,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    },
+    {
+      "effort": "low",
+      "repeat": 3,
+      "instance_id": "default-c8ec6412-b1fd-4406-a879-41ba8e3e21d8-instance-3",
+      "native_thread_id": "01a10d03-6eb5-7832-ba25-408ed32f0901",
+      "diagnostic_score": 0.7764216406054386,
+      "reviewer_active_seconds": 2213.965,
+      "tokens": {
+        "uncached_input": 2120958,
+        "cached_input": 5539114,
+        "output": 182622
+      },
+      "engine_input_seconds": 716.678,
+      "engine_decode_seconds": 1459.003,
+      "engine_input_tokens_per_second": 2959.429478789638,
+      "engine_output_tokens_per_second": 125.16903666407815,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 2213.965,
+      "task_input_tokens_per_second": 957.9907541447132,
+      "task_output_tokens_per_second": 82.48639883647664,
+      "task_started_at_ms": 1791219691209,
+      "task_finished_at_ms": 1791221905174,
+      "task_time_source": "Original ARW measurement.finishedAt",
+      "task_wall_span_seconds": 2213.965,
+      "task_work_time": {
+        "seconds": 2213.965,
+        "estimated": false,
+        "intervals": [
+          {
+            "start_ms": 1791219691209,
+            "end_ms": 1791221905174,
+            "estimated": false,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": false,
+      "timeout_ever": false,
+      "equivalent_cost_usd": 0.49260186400000006,
+      "engine_execution_stage_count": 119,
+      "continuation_round_count": 0,
+      "report_bytes": 42026,
+      "report_sha256": "ba7768b66e4942681b1eb03b08c7f26e5778ae353f2bb12ca59298e59392d3f4",
+      "initial_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/c8ec6412-b1fd-4406-a879-41ba8e3e21d8/ca/3/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/c8ec6412-b1fd-4406-a879-41ba8e3e21d8/ca/3/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "a855179bf983f5f90531c798dfdae4e886e592ff75bdf63ee976c6676c8ffae6",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "3411f93621fb878dfabb4697f31767733b94c657b887a61cde73fe964a7f36f2",
+          "kind": "initial"
+        }
+      ],
+      "initial_active_seconds": 2213.965,
+      "initial_tokens": {
+        "uncached_input": 2120958,
+        "cached_input": 5539114,
+        "output": 182622
+      },
+      "duration_analysis": {
+        "classification": "同档最短参照",
+        "table_note": "同档最短，未接续；仍有119个引擎执行段、2次成功压缩。较短不等于没有完整报告，诊断分0.776。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "ba28b6978f511985c7015bf4c4e43288ef3e7d64991a9a4e435cf65b5abff275",
+        "full_native_inspection_complete": false,
+        "engine_time_fraction": 0.9827079470542669,
+        "tool_call_count": 108,
+        "successful_compaction_count": 2,
+        "successful_compaction_seconds": [
+          91.559,
+          75.879
+        ],
+        "successful_compaction_total_seconds": 167.438,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    },
+    {
+      "effort": "low",
+      "repeat": 4,
+      "instance_id": "default-6ee7c6b6-01bc-4a5d-8d3c-5927069a0443-instance-1",
+      "native_thread_id": "01a10d25-89b9-7f73-a62e-2a893f31e99a",
+      "diagnostic_score": 0.8066085736498579,
+      "reviewer_active_seconds": 2554.331,
+      "tokens": {
+        "uncached_input": 2530592,
+        "cached_input": 6479060,
+        "output": 196742
+      },
+      "engine_input_seconds": 899.98,
+      "engine_decode_seconds": 1607.381,
+      "engine_input_tokens_per_second": 2811.831374030534,
+      "engine_output_tokens_per_second": 122.39910761667582,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 2554.331,
+      "task_input_tokens_per_second": 990.7063728232558,
+      "task_output_tokens_per_second": 77.02290736791747,
+      "task_started_at_ms": 1791221926354,
+      "task_finished_at_ms": 1791256772595,
+      "task_time_source": "Last continuation measurement/native terminal UTC timestamp",
+      "task_wall_span_seconds": 34846.241,
+      "task_work_time": {
+        "seconds": 2554.331,
+        "estimated": true,
+        "intervals": [
+          {
+            "start_ms": 1791221926354,
+            "end_ms": 1791223700580,
+            "estimated": true,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          },
+          {
+            "start_ms": 1791254602196,
+            "end_ms": 1791254802791,
+            "estimated": false,
+            "basis": "Bound continuation measurement/native terminal"
+          },
+          {
+            "start_ms": 1791256193085,
+            "end_ms": 1791256772595,
+            "estimated": false,
+            "basis": "Bound continuation measurement/native terminal"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": true,
+      "timeout_ever": false,
+      "equivalent_cost_usd": 0.5757225,
+      "engine_execution_stage_count": 121,
+      "continuation_round_count": 2,
+      "report_bytes": 40239,
+      "report_sha256": "6dc5982b8a7b5727f497b11e97001c0d846870ac9e8c318427ed0b5464681234",
+      "initial_formal_completion": {
+        "status": "incomplete",
+        "reason": "The native Reviewer turn failed.",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/6ee7c6b6-01bc-4a5d-8d3c-5927069a0443/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/6ee7c6b6-01bc-4a5d-8d3c-5927069a0443/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "cf171d4023ebb9a8f18dfc89ee43738e1e55ab6b986a1e7f9bdd93d7137e9709",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "445cc3df3fe6a83fbacce869a0beb3f6ad653c383b424a9a0ec106494a5706d1",
+          "kind": "initial"
+        },
+        {
+          "sha256": "06b05e8cdf6c1fb2683c2a30370d35ac2305650dda8c1a1526af7c8710da8f61",
+          "kind": "continuations"
+        }
+      ],
+      "initial_active_seconds": 1774.226,
+      "initial_tokens": {
+        "uncached_input": 1742783,
+        "cached_input": 4430850,
+        "output": 130546
+      },
+      "duration_analysis": {
+        "classification": "故障恢复",
+        "table_note": "压缩工具拒绝、缺项恢复门阻塞后两段接续；追加阶段约占费用32%，恢复成功，分数不因此改写。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "85e3afc04f6580b6facd7e7189f98712a979f33dc482f1e9c077cfa918d1b2c8",
+        "full_native_inspection_complete": false,
+        "engine_time_fraction": 0.9816116235523117,
+        "tool_call_count": 92,
+        "successful_compaction_count": 2,
+        "successful_compaction_seconds": [
+          273.22,
+          91.75
+        ],
+        "successful_compaction_total_seconds": 364.97,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    },
+    {
+      "effort": "low",
+      "repeat": 5,
+      "instance_id": "default-6ee7c6b6-01bc-4a5d-8d3c-5927069a0443-instance-2",
+      "native_thread_id": "01a10d40-f181-7713-b0a6-8684e5c95252",
+      "diagnostic_score": 0.6823394945064939,
+      "reviewer_active_seconds": 4803.4169999999995,
+      "tokens": {
+        "uncached_input": 4966980,
+        "cached_input": 8503885,
+        "output": 392329
+      },
+      "engine_input_seconds": 1656.377,
+      "engine_decode_seconds": 3070.533,
+      "engine_input_tokens_per_second": 2998.7013825958707,
+      "engine_output_tokens_per_second": 127.77227927529195,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 4803.417,
+      "task_input_tokens_per_second": 1034.0513846705376,
+      "task_output_tokens_per_second": 81.67706447306156,
+      "task_started_at_ms": 1791223722388,
+      "task_finished_at_ms": 1791265295476,
+      "task_time_source": "Last continuation measurement/native terminal UTC timestamp",
+      "task_wall_span_seconds": 41573.088,
+      "task_work_time": {
+        "seconds": 4803.417,
+        "estimated": true,
+        "intervals": [
+          {
+            "start_ms": 1791223722388,
+            "end_ms": 1791227332955,
+            "estimated": true,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          },
+          {
+            "start_ms": 1791264102626,
+            "end_ms": 1791265295476,
+            "estimated": false,
+            "basis": "Bound continuation measurement/native terminal"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": true,
+      "timeout_ever": true,
+      "equivalent_cost_usd": 1.06550379,
+      "engine_execution_stage_count": 204,
+      "continuation_round_count": 1,
+      "report_bytes": 41926,
+      "report_sha256": "b3093eb6b51619332932a21f7432fc7c9138511fcfdec6de1a2bb296d2601ae6",
+      "initial_formal_completion": {
+        "status": "incomplete",
+        "reason": "The current Reviewer work was interrupted.",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/6ee7c6b6-01bc-4a5d-8d3c-5927069a0443/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/6ee7c6b6-01bc-4a5d-8d3c-5927069a0443/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "e6a39050d7fd91c53ba2e209910a6f597c62562bd79b4d1b7a4211ecb81bb1bc",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "cc48011a8dde8d9bda3609c513fbc139ab8eb268634baac8a63a80ab8c3859fc",
+          "kind": "initial"
+        },
+        {
+          "sha256": "f226df061de8752e99f7f7101d4c897e9fd779d307a5a6a7aed608091bd7f401",
+          "kind": "continuations"
+        }
+      ],
+      "initial_active_seconds": 3610.567,
+      "initial_tokens": {
+        "uncached_input": 4430306,
+        "cached_input": 6146236,
+        "output": 266219
+      },
+      "duration_analysis": {
+        "classification": "全批最长／曾超时",
+        "table_note": "重复重读、探针修复、同一错误探针原样三次重试；原60分钟无报告，获准追加19.9分钟才交付，合计约80.1分钟。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "d29e835e5b72ab2f0016fb121e375a557ac39ed9fd6ad8ee447296d35e8f445b",
+        "full_native_inspection_complete": false,
+        "engine_time_fraction": 0.9840723801410537,
+        "tool_call_count": 192,
+        "successful_compaction_count": 5,
+        "successful_compaction_seconds": [
+          79.179,
+          80.418,
+          82.667,
+          86.157,
+          91.829
+        ],
+        "successful_compaction_total_seconds": 420.25,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    },
+    {
+      "effort": "medium",
+      "repeat": 1,
+      "instance_id": "default-6184e766-41b1-4458-88af-4c1b189769d6-instance-1",
+      "native_thread_id": "01a10d79-e0df-7db2-93ac-26e7d580f70d",
+      "diagnostic_score": 0.7838673222370536,
+      "reviewer_active_seconds": 1135.102,
+      "tokens": {
+        "uncached_input": 1221287,
+        "cached_input": 1123512,
+        "output": 91553
+      },
+      "engine_input_seconds": 391.723,
+      "engine_decode_seconds": 728.704,
+      "engine_input_tokens_per_second": 3117.73115185986,
+      "engine_output_tokens_per_second": 125.63811918145092,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 1135.102,
+      "task_input_tokens_per_second": 1075.9270973005068,
+      "task_output_tokens_per_second": 80.65618772586075,
+      "task_started_at_ms": 1791227453687,
+      "task_finished_at_ms": 1791228588789,
+      "task_time_source": "Original ARW measurement.finishedAt",
+      "task_wall_span_seconds": 1135.102,
+      "task_work_time": {
+        "seconds": 1135.102,
+        "estimated": false,
+        "intervals": [
+          {
+            "start_ms": 1791227453687,
+            "end_ms": 1791228588789,
+            "estimated": false,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": false,
+      "timeout_ever": false,
+      "equivalent_cost_usd": 0.244199152,
+      "engine_execution_stage_count": 42,
+      "continuation_round_count": 0,
+      "report_bytes": 44629,
+      "report_sha256": "1388cfe2e43e67fb8ef07f8098a78571aaeb7337b230f0187b3bca8a3869102b",
+      "initial_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/6184e766-41b1-4458-88af-4c1b189769d6/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/6184e766-41b1-4458-88af-4c1b189769d6/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "e8854c07dcfbe71b4aabf9aa1c67dce09a7266393ea582157fbd1175cceaf29d",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "905ab0983d9b1fe8d012787d72898bfc1a72f9df681984e0876cc91c8478c93e",
+          "kind": "initial"
+        }
+      ],
+      "initial_active_seconds": 1135.102,
+      "initial_tokens": {
+        "uncached_input": 1221287,
+        "cached_input": 1123512,
+        "output": 91553
+      },
+      "duration_analysis": {
+        "classification": "同档最短参照",
+        "table_note": "同档最短但也有计数、行号和证据编码返工；最终118行，分0.784，高于同档最慢实例。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "b5a7cbc087ad779c2d111d6de830cda001966084c9cea5acb0ed5bc7a9e890a3",
+        "full_native_inspection_complete": true,
+        "engine_time_fraction": 0.9870716464247264,
+        "tool_call_count": 55,
+        "successful_compaction_count": 1,
+        "successful_compaction_seconds": [
+          102.457
+        ],
+        "successful_compaction_total_seconds": 102.457,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    },
+    {
+      "effort": "medium",
+      "repeat": 2,
+      "instance_id": "default-6184e766-41b1-4458-88af-4c1b189769d6-instance-2",
+      "native_thread_id": "01a10d8b-84b1-79d3-abb8-7ebfb0be1dcf",
+      "diagnostic_score": 0.7444111104947017,
+      "reviewer_active_seconds": 1818.328,
+      "tokens": {
+        "uncached_input": 2091325,
+        "cached_input": 2344132,
+        "output": 134827
+      },
+      "engine_input_seconds": 686.01,
+      "engine_decode_seconds": 1110.453,
+      "engine_input_tokens_per_second": 3048.5342779259777,
+      "engine_output_tokens_per_second": 121.41621482404028,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 1818.328,
+      "task_input_tokens_per_second": 1150.136279043165,
+      "task_output_tokens_per_second": 74.14888842937027,
+      "task_started_at_ms": 1791228609733,
+      "task_finished_at_ms": 1791230428061,
+      "task_time_source": "Original ARW measurement.finishedAt",
+      "task_wall_span_seconds": 1818.328,
+      "task_work_time": {
+        "seconds": 1818.328,
+        "estimated": false,
+        "intervals": [
+          {
+            "start_ms": 1791228609733,
+            "end_ms": 1791230428061,
+            "estimated": false,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": false,
+      "timeout_ever": false,
+      "equivalent_cost_usd": 0.414573552,
+      "engine_execution_stage_count": 73,
+      "continuation_round_count": 0,
+      "report_bytes": 39769,
+      "report_sha256": "07f9e72d39b0b82723c26e26afdb8e080f391a854e0a163415ed9d7be433c963",
+      "initial_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/6184e766-41b1-4458-88af-4c1b189769d6/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/6184e766-41b1-4458-88af-4c1b189769d6/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "e8854c07dcfbe71b4aabf9aa1c67dce09a7266393ea582157fbd1175cceaf29d",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "573814518f353151bf5230d005feeb6b8ed0c815293e966c9b8404f1a96bf065",
+          "kind": "initial"
+        }
+      ],
+      "initial_active_seconds": 1818.328,
+      "initial_tokens": {
+        "uncached_input": 2091325,
+        "cached_input": 2344132,
+        "output": 134827
+      },
+      "duration_analysis": {
+        "classification": "同档偏长",
+        "table_note": "临时记录的解析与字段索引出错，重复验证／打印完整记录，后续又修证据；已核实这些返工，完整会话检查未完成，后续已取消。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "c688f37230549af58441db8d3946d7492237577d4b85d2d35b11959f91efbc76",
+        "full_native_inspection_complete": false,
+        "engine_time_fraction": 0.9879752167925698,
+        "tool_call_count": 85,
+        "successful_compaction_count": 2,
+        "successful_compaction_seconds": [
+          101.479,
+          89.726
+        ],
+        "successful_compaction_total_seconds": 191.20499999999998,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    },
+    {
+      "effort": "medium",
+      "repeat": 3,
+      "instance_id": "default-6184e766-41b1-4458-88af-4c1b189769d6-instance-3",
+      "native_thread_id": "01a10da7-8c3e-7350-94f2-ee4d8aec9a16",
+      "diagnostic_score": 0.773493055614065,
+      "reviewer_active_seconds": 1182.999,
+      "tokens": {
+        "uncached_input": 1125088,
+        "cached_input": 1595708,
+        "output": 100646
+      },
+      "engine_input_seconds": 370.673,
+      "engine_decode_seconds": 802.06,
+      "engine_input_tokens_per_second": 3035.2574911040188,
+      "engine_output_tokens_per_second": 125.48437772735208,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 1182.999,
+      "task_input_tokens_per_second": 951.0472958979677,
+      "task_output_tokens_per_second": 85.0769949932333,
+      "task_started_at_ms": 1791230446674,
+      "task_finished_at_ms": 1791231629673,
+      "task_time_source": "Original ARW measurement.finishedAt",
+      "task_wall_span_seconds": 1182.999,
+      "task_work_time": {
+        "seconds": 1182.999,
+        "estimated": false,
+        "intervals": [
+          {
+            "start_ms": 1791230446674,
+            "end_ms": 1791231629673,
+            "estimated": false,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": false,
+      "timeout_ever": false,
+      "equivalent_cost_usd": 0.24159814799999998,
+      "engine_execution_stage_count": 43,
+      "continuation_round_count": 0,
+      "report_bytes": 38800,
+      "report_sha256": "2225c2d5c190969ca9db1508d3ea406f52e2fdfd92168a265882227b69ec63fa",
+      "initial_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/6184e766-41b1-4458-88af-4c1b189769d6/ca/3/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/6184e766-41b1-4458-88af-4c1b189769d6/ca/3/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "e8854c07dcfbe71b4aabf9aa1c67dce09a7266393ea582157fbd1175cceaf29d",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "9ac24c26db40fc003b8904bf1106652ccc7145373add39090b428f74a053fdae",
+          "kind": "initial"
+        }
+      ],
+      "initial_active_seconds": 1182.999,
+      "initial_tokens": {
+        "uncached_input": 1125088,
+        "cached_input": 1595708,
+        "output": 100646
+      },
+      "duration_analysis": {
+        "classification": "局部重复思考",
+        "table_note": "单次思考大量重复同一句话，约22秒、4096生成token后继续；另有计数与探针修复。重复本身不足以解释全程。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "9ed873cea1d0dc84d2205120b251140c47acd09549a83ad1b1a7245c798b8130",
+        "full_native_inspection_complete": true,
+        "engine_time_fraction": 0.9913220552172909,
+        "tool_call_count": 52,
+        "successful_compaction_count": 1,
+        "successful_compaction_seconds": [
+          122.018
+        ],
+        "successful_compaction_total_seconds": 122.018,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    },
+    {
+      "effort": "medium",
+      "repeat": 4,
+      "instance_id": "default-3bdc6483-42f8-4f36-8986-9465c39ad622-instance-1",
+      "native_thread_id": "01a10db9-e314-7202-98cb-7ae5685f00bc",
+      "diagnostic_score": 0.7757895600038943,
+      "reviewer_active_seconds": 1673.071,
+      "tokens": {
+        "uncached_input": 1598953,
+        "cached_input": 1815581,
+        "output": 141916
+      },
+      "engine_input_seconds": 523.934,
+      "engine_decode_seconds": 1135.04,
+      "engine_input_tokens_per_second": 3051.821412620674,
+      "engine_output_tokens_per_second": 125.03171694389626,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 1673.071,
+      "task_input_tokens_per_second": 955.6994293726925,
+      "task_output_tokens_per_second": 84.8236566170832,
+      "task_started_at_ms": 1791231648553,
+      "task_finished_at_ms": 1791233321624,
+      "task_time_source": "Original ARW measurement.finishedAt",
+      "task_wall_span_seconds": 1673.071,
+      "task_work_time": {
+        "seconds": 1673.071,
+        "estimated": false,
+        "intervals": [
+          {
+            "start_ms": 1791231648553,
+            "end_ms": 1791233321624,
+            "estimated": false,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": false,
+      "timeout_ever": false,
+      "equivalent_cost_usd": 0.33559276599999993,
+      "engine_execution_stage_count": 60,
+      "continuation_round_count": 0,
+      "report_bytes": 41671,
+      "report_sha256": "184d9773ac65ee3be04dda42204658f8d41a308874e0655308f0a26704d286ba",
+      "initial_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/3bdc6483-42f8-4f36-8986-9465c39ad622/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/3bdc6483-42f8-4f36-8986-9465c39ad622/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "85ee8f570fff422923ef7cfe6876fc7610b7261002853246d9963f5100b26e80",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "40cebee1206dd8850fe5793475a3f6f10d1f8e14b472323e4ad6222c17db02d0",
+          "kind": "initial"
+        }
+      ],
+      "initial_active_seconds": 1673.071,
+      "initial_tokens": {
+        "uncached_input": 1598953,
+        "cached_input": 1815581,
+        "output": 141916
+      },
+      "duration_analysis": {
+        "classification": "组内参照",
+        "table_note": "27.9分钟，处于同档中间；尚无足够证据认定异常循环或异常提前结束，完整会话检查未完成，后续已取消。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "126675b1aaa8a260bf9c2b57d87d53a889fcb83fb67d5fb41b2ad8b8edf74be9",
+        "full_native_inspection_complete": false,
+        "engine_time_fraction": 0.9915741770672016,
+        "tool_call_count": 68,
+        "successful_compaction_count": 2,
+        "successful_compaction_seconds": [
+          81.233,
+          84.733
+        ],
+        "successful_compaction_total_seconds": 165.966,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    },
+    {
+      "effort": "medium",
+      "repeat": 5,
+      "instance_id": "default-3bdc6483-42f8-4f36-8986-9465c39ad622-instance-2",
+      "native_thread_id": "01a10dd3-b62e-7be3-b24f-5d66ddca514a",
+      "diagnostic_score": 0.7599930432104941,
+      "reviewer_active_seconds": 2130.558,
+      "tokens": {
+        "uncached_input": 1795868,
+        "cached_input": 3061523,
+        "output": 193236
+      },
+      "engine_input_seconds": 598.127,
+      "engine_decode_seconds": 1516.488,
+      "engine_input_tokens_per_second": 3002.486094090386,
+      "engine_output_tokens_per_second": 127.42336240049377,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 2130.558,
+      "task_input_tokens_per_second": 842.9096978350273,
+      "task_output_tokens_per_second": 90.69736660536817,
+      "task_started_at_ms": 1791233340995,
+      "task_finished_at_ms": 1791235471553,
+      "task_time_source": "Original ARW measurement.finishedAt",
+      "task_wall_span_seconds": 2130.558,
+      "task_work_time": {
+        "seconds": 2130.558,
+        "estimated": false,
+        "intervals": [
+          {
+            "start_ms": 1791233340995,
+            "end_ms": 1791235471553,
+            "estimated": false,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": false,
+      "timeout_ever": false,
+      "equivalent_cost_usd": 0.409185488,
+      "engine_execution_stage_count": 75,
+      "continuation_round_count": 0,
+      "report_bytes": 40342,
+      "report_sha256": "b63bbcff3def86056ccc6f6b7aed0c0d1ff4805c50c3410fb05fffd93669c1cb",
+      "initial_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/3bdc6483-42f8-4f36-8986-9465c39ad622/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/3bdc6483-42f8-4f36-8986-9465c39ad622/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "85ee8f570fff422923ef7cfe6876fc7610b7261002853246d9963f5100b26e80",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "2d5241d9165162945316525b55aab0c689736e1f9139953e7576faef85806dde",
+          "kind": "initial"
+        }
+      ],
+      "initial_active_seconds": 2130.558,
+      "initial_tokens": {
+        "uncached_input": 1795868,
+        "cached_input": 3061523,
+        "output": 193236
+      },
+      "duration_analysis": {
+        "classification": "同档最长",
+        "table_note": "两次压缩后重读，后段探针连续出现括号、导入路径和缺参数错误，报告生成脚本再出错后重写；部分原因已核实。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "b62f39b40a07c241f05a12f2fd4406f92764a153bca5aa5d97d767643517ee19",
+        "full_native_inspection_complete": false,
+        "engine_time_fraction": 0.99251698381363,
+        "tool_call_count": 78,
+        "successful_compaction_count": 2,
+        "successful_compaction_seconds": [
+          147.02,
+          130.759
+        ],
+        "successful_compaction_total_seconds": 277.779,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    },
+    {
+      "effort": "high",
+      "repeat": 1,
+      "instance_id": "default-402cb6b1-ee68-40df-8661-7d1948714ac3-instance-1",
+      "native_thread_id": "01a10df4-844b-7831-9a7b-1285ab678ddd",
+      "diagnostic_score": 0.8447234789785727,
+      "reviewer_active_seconds": 1682.0030000000002,
+      "tokens": {
+        "uncached_input": 1200153,
+        "cached_input": 1872742,
+        "output": 143262
+      },
+      "engine_input_seconds": 468.653,
+      "engine_decode_seconds": 1194.078,
+      "engine_input_tokens_per_second": 2560.8563265358375,
+      "engine_output_tokens_per_second": 119.9770869239698,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 1682.003,
+      "task_input_tokens_per_second": 713.5260757561075,
+      "task_output_tokens_per_second": 85.17345093914815,
+      "task_started_at_ms": 1791235490915,
+      "task_finished_at_ms": 1791248261833,
+      "task_time_source": "Last continuation measurement/native terminal UTC timestamp",
+      "task_wall_span_seconds": 12770.918,
+      "task_work_time": {
+        "seconds": 1682.003,
+        "estimated": false,
+        "intervals": [
+          {
+            "start_ms": 1791235490915,
+            "end_ms": 1791236020093,
+            "estimated": false,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          },
+          {
+            "start_ms": 1791247109008,
+            "end_ms": 1791248261833,
+            "estimated": false,
+            "basis": "Bound continuation measurement/native terminal"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": false,
+      "timeout_ever": false,
+      "equivalent_cost_usd": 0.277319962,
+      "engine_execution_stage_count": 56,
+      "continuation_round_count": 1,
+      "report_bytes": 41740,
+      "report_sha256": "8e99a760312b82115d34f21e91bddfa75e2ae89380b0f522f41ea641a1edc1bc",
+      "initial_formal_completion": {
+        "status": "incomplete",
+        "reason": "The Reviewer final message does not follow the status-only contract.",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/402cb6b1-ee68-40df-8661-7d1948714ac3/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "incomplete",
+        "reason": "The Reviewer final message does not follow the status-only contract.",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/402cb6b1-ee68-40df-8661-7d1948714ac3/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "67afdbce11e53469bf5a8fde5585625ae63383ffe971ef619660ea5baf16d9e5",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "3c879199061f3e0cb5f036f61976dc96f924815164606f883b3d6959bed9a7d1",
+          "kind": "initial"
+        },
+        {
+          "sha256": "e0aa7be69f3653c70d97d088184e6790b13cd3dd7c12863fe9e7f1ff0d371d0e",
+          "kind": "continuations"
+        }
+      ],
+      "initial_active_seconds": 529.178,
+      "initial_tokens": {
+        "uncached_input": 200986,
+        "cached_input": 938855,
+        "output": 55368
+      },
+      "duration_analysis": {
+        "classification": "同档最长／接续返工",
+        "table_note": "8.8分钟已写118行但停在修正计划；接续19.2分钟含被清空草稿的重建、纠错及补查，增加费用0.206美元，也补出两条凭据问题。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "894e600e1effd97bcbda6cf6fd33e72215c38e92ecc0a2456b9800f31317172a",
+        "full_native_inspection_complete": true,
+        "engine_time_fraction": 0.9885422320887657,
+        "tool_call_count": 77,
+        "successful_compaction_count": 2,
+        "successful_compaction_seconds": [
+          80.73,
+          68.101
+        ],
+        "successful_compaction_total_seconds": 148.83100000000002,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    },
+    {
+      "effort": "high",
+      "repeat": 2,
+      "instance_id": "default-402cb6b1-ee68-40df-8661-7d1948714ac3-instance-2",
+      "native_thread_id": "01a10dfc-e24e-7520-8878-fa29a6ef0465",
+      "diagnostic_score": 0.6573696482684251,
+      "reviewer_active_seconds": 382.385,
+      "tokens": {
+        "uncached_input": 184520,
+        "cached_input": 642289,
+        "output": 38436
+      },
+      "engine_input_seconds": 64.624,
+      "engine_decode_seconds": 313.505,
+      "engine_input_tokens_per_second": 2855.2859618717507,
+      "engine_output_tokens_per_second": 122.60091545589384,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 382.385,
+      "task_input_tokens_per_second": 482.5503092433019,
+      "task_output_tokens_per_second": 100.5164951554062,
+      "task_started_at_ms": 1791236039266,
+      "task_finished_at_ms": 1791236421651,
+      "task_time_source": "Original ARW measurement.finishedAt",
+      "task_wall_span_seconds": 382.385,
+      "task_work_time": {
+        "seconds": 382.385,
+        "estimated": false,
+        "intervals": [
+          {
+            "start_ms": 1791236039266,
+            "end_ms": 1791236421651,
+            "estimated": false,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": false,
+      "timeout_ever": false,
+      "equivalent_cost_usd": 0.056019544,
+      "engine_execution_stage_count": 15,
+      "continuation_round_count": 0,
+      "report_bytes": 40526,
+      "report_sha256": "75b539ce82eb27522216724116fa4ff9ed1c05ad3ed12db5beba99616b968e21",
+      "initial_formal_completion": {
+        "status": "incomplete",
+        "reason": "The Reviewer final message does not follow the status-only contract.",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/402cb6b1-ee68-40df-8661-7d1948714ac3/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "incomplete",
+        "reason": "The Reviewer final message does not follow the status-only contract.",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/402cb6b1-ee68-40df-8661-7d1948714ac3/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "255e111ca6222ce1256e2ff7b4bf7a66a99759dadbbd9577b5f8f5cd65b74c6c",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "b827e4ac038d6f0402048ed3f7e4ba82d89be9f52cce06961f966a7e6ed5b8b4",
+          "kind": "initial"
+        }
+      ],
+      "initial_active_seconds": 382.385,
+      "initial_tokens": {
+        "uncached_input": 184520,
+        "cached_input": 642289,
+        "output": 38436
+      },
+      "duration_analysis": {
+        "classification": "全批最短",
+        "table_note": "22次工具调用、15个引擎段、零压缩、118行报告；分0.657，费用0.056美元。终态围栏及通知失败另保留，不能仅凭短认定漏跑。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "80a08d7eee1ba1c0ed384b43f75c1056594fb6a34b999b807331b11cf6f27ed3",
+        "full_native_inspection_complete": true,
+        "engine_time_fraction": 0.9888698562966645,
+        "tool_call_count": 22,
+        "successful_compaction_count": 0,
+        "successful_compaction_seconds": [],
+        "successful_compaction_total_seconds": 0,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    },
+    {
+      "effort": "high",
+      "repeat": 3,
+      "instance_id": "default-402cb6b1-ee68-40df-8661-7d1948714ac3-instance-3",
+      "native_thread_id": "01a10e06-b5f1-74a0-8bf0-324476601418",
+      "diagnostic_score": 0.7238743129544682,
+      "reviewer_active_seconds": 521.383,
+      "tokens": {
+        "uncached_input": 426828,
+        "cached_input": 705762,
+        "output": 46629
+      },
+      "engine_input_seconds": 143.681,
+      "engine_decode_seconds": 372.32,
+      "engine_input_tokens_per_second": 2970.6641796758095,
+      "engine_output_tokens_per_second": 125.23904168457241,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 521.383,
+      "task_input_tokens_per_second": 818.6457939748706,
+      "task_output_tokens_per_second": 89.43329567707424,
+      "task_started_at_ms": 1791236683270,
+      "task_finished_at_ms": 1791237204653,
+      "task_time_source": "Original ARW measurement.finishedAt",
+      "task_wall_span_seconds": 521.383,
+      "task_work_time": {
+        "seconds": 521.383,
+        "estimated": false,
+        "intervals": [
+          {
+            "start_ms": 1791236683270,
+            "end_ms": 1791237204653,
+            "estimated": false,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": false,
+      "timeout_ever": false,
+      "equivalent_cost_usd": 0.097232022,
+      "engine_execution_stage_count": 23,
+      "continuation_round_count": 0,
+      "report_bytes": 41019,
+      "report_sha256": "2daae1bf722fb48a3adfe086c5cde2017396217022ab33232f8a49a3cc19bed2",
+      "initial_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/402cb6b1-ee68-40df-8661-7d1948714ac3/ca/3/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/402cb6b1-ee68-40df-8661-7d1948714ac3/ca/3/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "255e111ca6222ce1256e2ff7b4bf7a66a99759dadbbd9577b5f8f5cd65b74c6c",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "93443c41d18fab2ace4f679d709afdf508c1380bf289d5faa3cfb76a7c335842",
+          "kind": "initial"
+        }
+      ],
+      "initial_active_seconds": 521.383,
+      "initial_tokens": {
+        "uncached_input": 426828,
+        "cached_input": 705762,
+        "output": 46629
+      },
+      "duration_analysis": {
+        "classification": "同档偏短",
+        "table_note": "29次工具调用、23个引擎段、零压缩；118行报告经Main机械修复后分0.724，费用0.097美元。完整检查仍有失败。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "7aff6299a5b958fbde3aa212da4a5a8198e821d9ef3f7c8bf1ebbcd8068e0dfe",
+        "full_native_inspection_complete": true,
+        "engine_time_fraction": 0.9896774540021441,
+        "tool_call_count": 29,
+        "successful_compaction_count": 0,
+        "successful_compaction_seconds": [],
+        "successful_compaction_total_seconds": 0,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    },
+    {
+      "effort": "high",
+      "repeat": 4,
+      "instance_id": "default-032096ad-bc54-4ff5-b1d5-4b85a4e9bcc4-instance-1",
+      "native_thread_id": "01a10e0e-f31c-7e31-ac02-922b3bc9a3a2",
+      "diagnostic_score": 0.7784956006363222,
+      "reviewer_active_seconds": 1212.672,
+      "tokens": {
+        "uncached_input": 1024149,
+        "cached_input": 1653096,
+        "output": 105586
+      },
+      "engine_input_seconds": 346.621,
+      "engine_decode_seconds": 852.747,
+      "engine_input_tokens_per_second": 2954.665181855687,
+      "engine_output_tokens_per_second": 123.81867071945138,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 1212.672,
+      "task_input_tokens_per_second": 844.5391664027866,
+      "task_output_tokens_per_second": 87.06888589824783,
+      "task_started_at_ms": 1791237223217,
+      "task_finished_at_ms": 1791249320009,
+      "task_time_source": "Last continuation measurement/native terminal UTC timestamp",
+      "task_wall_span_seconds": 12096.792,
+      "task_work_time": {
+        "seconds": 1212.672,
+        "estimated": false,
+        "intervals": [
+          {
+            "start_ms": 1791237223217,
+            "end_ms": 1791237395608,
+            "estimated": false,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          },
+          {
+            "start_ms": 1791248279300,
+            "end_ms": 1791248477200,
+            "estimated": false,
+            "basis": "Bound continuation measurement/native terminal"
+          },
+          {
+            "start_ms": 1791248477420,
+            "end_ms": 1791248582938,
+            "estimated": false,
+            "basis": "Bound continuation measurement/native terminal"
+          },
+          {
+            "start_ms": 1791248583146,
+            "end_ms": 1791249320009,
+            "estimated": false,
+            "basis": "Bound continuation measurement/native terminal"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": false,
+      "timeout_ever": false,
+      "equivalent_cost_usd": 0.229697306,
+      "engine_execution_stage_count": 43,
+      "continuation_round_count": 3,
+      "report_bytes": 46829,
+      "report_sha256": "133c9a8df4cf77f87790b81b3da4fab581b19b6de87a8cb94cf0d54c9709a24b",
+      "initial_formal_completion": {
+        "status": "incomplete",
+        "reason": "The Reviewer final message does not follow the status-only contract.",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/032096ad-bc54-4ff5-b1d5-4b85a4e9bcc4/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/032096ad-bc54-4ff5-b1d5-4b85a4e9bcc4/ca/1/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "6b9d30f19b289234bd8bb04a515dd0203584604f83147fa4b9a0b1b6cabe2c70",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "70f3f1067780910d752b6ec26e59b0701f3e253a0e97d5e43771a6dc1b6c9571",
+          "kind": "initial"
+        },
+        {
+          "sha256": "f67065006ff86e17140cbcf74dd497f5e6bba2488a192f65e0c062f647f854f3",
+          "kind": "continuations"
+        }
+      ],
+      "initial_active_seconds": 172.391,
+      "initial_tokens": {
+        "uncached_input": 71910,
+        "cached_input": 160231,
+        "output": 18531
+      },
+      "duration_analysis": {
+        "classification": "提前结束后接续",
+        "table_note": "原2.9分钟未写报告；前两段接续又提前结束，第三段完成，含探针／证据编码修复与重复验证；追加阶段约占费用90%。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "1c5f7d71079ed0f969f52e632c16bf586d2c34e86ad744ee17249b45271bb798",
+        "full_native_inspection_complete": false,
+        "engine_time_fraction": 0.9890291851382731,
+        "tool_call_count": 53,
+        "successful_compaction_count": 1,
+        "successful_compaction_seconds": [
+          86.283
+        ],
+        "successful_compaction_total_seconds": 86.283,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    },
+    {
+      "effort": "high",
+      "repeat": 5,
+      "instance_id": "default-032096ad-bc54-4ff5-b1d5-4b85a4e9bcc4-instance-2",
+      "native_thread_id": "01a10e11-dd60-7101-a75b-4589deda017b",
+      "diagnostic_score": 0.509104354755336,
+      "reviewer_active_seconds": 1090.299,
+      "tokens": {
+        "uncached_input": 921444,
+        "cached_input": 1126078,
+        "output": 96668
+      },
+      "engine_input_seconds": 303.646,
+      "engine_decode_seconds": 776.581,
+      "engine_input_tokens_per_second": 3034.5995007344077,
+      "engine_output_tokens_per_second": 124.47896613489127,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 1090.299,
+      "task_input_tokens_per_second": 845.1296387504713,
+      "task_output_tokens_per_second": 88.6619175107012,
+      "task_started_at_ms": 1791237414262,
+      "task_finished_at_ms": 1791238504561,
+      "task_time_source": "Original ARW measurement.finishedAt",
+      "task_wall_span_seconds": 1090.299,
+      "task_work_time": {
+        "seconds": 1090.299,
+        "estimated": false,
+        "intervals": [
+          {
+            "start_ms": 1791237414262,
+            "end_ms": 1791238504561,
+            "estimated": false,
+            "basis": "Original ARW start/end; last observed wall duration if end absent"
+          }
+        ],
+        "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+      },
+      "task_rate_estimated": false,
+      "timeout_ever": false,
+      "equivalent_cost_usd": 0.20166780799999998,
+      "engine_execution_stage_count": 37,
+      "continuation_round_count": 0,
+      "report_bytes": 40609,
+      "report_sha256": "fc76f331615439cba05d07646057ed8f2b7111379d3e4c58afd767a58b88636c",
+      "initial_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/032096ad-bc54-4ff5-b1d5-4b85a4e9bcc4/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "final_formal_completion": {
+        "status": "ready",
+        "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/032096ad-bc54-4ff5-b1d5-4b85a4e9bcc4/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+      },
+      "score_source_sha256": "5d321ebd9f25de96cc988f3c0bcd7c101f4db333978953c4e208b84cb044c3de",
+      "raw_engine_log_bindings": [
+        {
+          "sha256": "b376900b7d1a01570d9e17479e12bd0047bb9945197ff5a0e3dd3495f2d38f1d",
+          "kind": "initial"
+        }
+      ],
+      "initial_active_seconds": 1090.299,
+      "initial_tokens": {
+        "uncached_input": 921444,
+        "cached_input": 1126078,
+        "output": 96668
+      },
+      "duration_analysis": {
+        "classification": "较长且低分的对照",
+        "table_note": "18.2分钟含写入路径纠错、一次压缩和证据编码反复确认；分仅0.509，耗时约为high-3两倍，额外时间未体现评分优势。",
+        "basis": "样本内相对长短、已发生故障／恢复及直接原始记录观察；不是预设统计异常检验，不剔除实例或调整分数。",
+        "native_session_sha256": "5e055a7b17fa0e038f0de1610709133a1359a86394b5e36708285aa504a5647d",
+        "full_native_inspection_complete": true,
+        "engine_time_fraction": 0.9907621670752703,
+        "tool_call_count": 55,
+        "successful_compaction_count": 1,
+        "successful_compaction_seconds": [
+          97.128
+        ],
+        "successful_compaction_total_seconds": 97.128,
+        "scope_warning": "结构计数／局部耗时诊断不替代Main完整原生会话检查，未完成的实例不据此宣称来源通过。"
+      }
+    }
+  ],
+  "groups": [
+    {
+      "effort": "low",
+      "count": 5,
+      "mean_score": 0.5973872034278968,
+      "completed_scored_count": 4,
+      "mean_active_seconds": 3322.8748,
+      "min_active_seconds": 2213.965,
+      "max_active_seconds": 4803.4169999999995,
+      "population_stddev_active_seconds": 910.5460322185581,
+      "mean_tokens": {
+        "uncached_input": 3197005.2,
+        "cached_input": 7352274.2,
+        "output": 278291.6
+      },
+      "mean_input_tokens_per_second": 2949.0186332222256,
+      "mean_output_tokens_per_second": 126.83684603782935,
+      "task_rate_estimated": true,
+      "mean_task_review_seconds": 3319.0954939453127,
+      "min_task_review_seconds": 2213.965,
+      "max_task_review_seconds": 4803.417,
+      "population_stddev_task_review_seconds": 909.068244639299,
+      "mean_task_input_tokens_per_second": 957.8694445800232,
+      "mean_task_output_tokens_per_second": 83.57969219616076,
+      "timeout_ever_count": 2,
+      "mean_equivalent_cost_usd": 0.7279842192,
+      "nonempty_reports": 4,
+      "native_ready": 4
+    },
+    {
+      "effort": "medium",
+      "count": 5,
+      "mean_score": 0.7675108183120417,
+      "completed_scored_count": 5,
+      "mean_active_seconds": 1588.0116,
+      "min_active_seconds": 1135.102,
+      "max_active_seconds": 2130.558,
+      "population_stddev_active_seconds": 380.4732983328002,
+      "mean_tokens": {
+        "uncached_input": 1566504.2,
+        "cached_input": 1988091.2,
+        "output": 132435.6
+      },
+      "mean_input_tokens_per_second": 3051.166085520183,
+      "mean_output_tokens_per_second": 124.99875821544666,
+      "task_rate_estimated": false,
+      "mean_task_review_seconds": 1588.0116,
+      "min_task_review_seconds": 1135.102,
+      "max_task_review_seconds": 2130.558,
+      "population_stddev_task_review_seconds": 380.4732983328002,
+      "mean_task_input_tokens_per_second": 995.1439598898719,
+      "mean_task_output_tokens_per_second": 83.08061887418314,
+      "timeout_ever_count": 0,
+      "mean_equivalent_cost_usd": 0.32902982119999996,
+      "nonempty_reports": 5,
+      "native_ready": 5
+    },
+    {
+      "effort": "high",
+      "count": 5,
+      "mean_score": 0.7027134791186248,
+      "completed_scored_count": 5,
+      "mean_active_seconds": 977.7484000000001,
+      "min_active_seconds": 382.385,
+      "max_active_seconds": 1682.0030000000002,
+      "population_stddev_active_seconds": 474.67003979505597,
+      "mean_tokens": {
+        "uncached_input": 751418.8,
+        "cached_input": 1199993.4,
+        "output": 86116.2
+      },
+      "mean_input_tokens_per_second": 2875.2142301346985,
+      "mean_output_tokens_per_second": 123.22293618375573,
+      "task_rate_estimated": false,
+      "mean_task_review_seconds": 977.7484,
+      "min_task_review_seconds": 382.385,
+      "max_task_review_seconds": 1682.003,
+      "population_stddev_task_review_seconds": 474.6700397950559,
+      "mean_task_input_tokens_per_second": 740.8781968255075,
+      "mean_task_output_tokens_per_second": 90.17080903611553,
+      "timeout_ever_count": 0,
+      "mean_equivalent_cost_usd": 0.17238732839999998,
+      "nonempty_reports": 5,
+      "native_ready": 3
+    }
+  ],
+  "notes_markdown": "## 失败与恢复\n\n- low第1、2、4次原运行在自动压缩时返回未声明的`exec_command`，原请求失败；全部已按用户授权沿原线程接续。low第1次接续还遇到不完整工具参数JSON，反馈后完成。\n- low第2次恢复时压缩尚未产生当前轮次上下文，原版运行层无法提醒／中断；在原版接口拒绝后通过独占接口停止，仍未交付。原接续累计61.3分钟是实际超额记录，没有追溯截成60分钟。获准的超时后追加请求又因输入161482 token加8192输出预算超过156584窗口而在进入引擎前被拒绝；新增约8.8秒工作保留，未截断输入、降低预算或扩大窗口，仍未交付。原生错误、源码生成前容量检查及空执行日志共同确认这次没有执行阶段；此前内部消耗不变。\n- low第4次再次遇到相同压缩工具拒绝，并被缺项恢复门阻塞；用户批准只修复本工程.tmp中的运行副本，随后交付报告。该运行层差异保留，场景／评分字节未改。\n- low第5次原60分钟截止仍没有报告；重复重读和验证脚本修复、同一错误探针三次原样重试已核实。随后按用户授权追加最多60分钟工作时间，在准确原线程中追加19.9分钟后完成118行报告；Main只在独立副本机械修复87处单行证据数字，原版ARW诊断分0.6823394945064939。原超时和0分统计保留在JSON历史字段；累计80.1分钟，不能解释为原60分钟内成功。\n- high第1次和第4次原运行正常早停，已接续；high第4次前两段接续仍提前结束，驱动自动继续，最终完成。high第1次最终状态仍有代码围栏。high第2次只存在最终状态围栏格式失败，Main没有让模型为此返修。\n- high第3次原生成拒绝证据行号的标量表示；Main仅在独立副本中机械转换为数组并用原版入口评分，原失败保留。\n\n## 当前数据的含义\n\nmedium五次全部留下报告，平均诊断分最高（0.768）；high平均工作16.3分钟，比medium约快38%，三类token均较少。low在超时后追加求解完成第5次后，全五次诊断均分0.597，平均工作约55.3分钟，四次交付／一次未交付；只看四个有报告实例的均分约0.747，但不能用该成功子集代替主均值。第5次获得额外60分钟预算，不属于相同60分钟截止内的成功；原未交付0分及旧汇总保留。各配置的引擎输出速度仍约123—127token/s，总时间差主要体现在执行量。以上是描述性比较，不自定综合排名，不代表正式能力通过；完整来源隔离未获确认，完整会话检查仅完成6/15，其余已取消。\n\n表内K为十进制1000、展示取整数部分；计算使用未舍入原值。完整精度见同目录`summary.json`。15个独立实例及本次获准追加阶段均已闭合，没有新增独立重复；统计表与可重建的完整精度JSON按用户要求保存在reports；完整会话检查仅完成6/15，剩余检查已取消，仍是诊断统计。\n\n最新耗时口径只累计工作时间，排除停机和已结束回合后的休眠；模型仍加载并不意味着审核仍在工作。因此low第1次人工恢复前的加载空闲不计，工作时长回到约55.9分钟。带“≈”的是记录缺项或停机边界估算；JSON保留工作区间及依据。原始累计执行耗时、墙钟跨度和实际超时事件均保留，不能用新口径伪造历史中断。\n\n\n超时后追加仅更新low第2／5次原行，仍为每档五次。第2次累计工作约61.1分钟（停机边界估算），第5次约80.1分钟（原终态缺项估算）；最短、最长及总体标准差统一使用工作时长，原运行层累计时长另存。模型均已停止，独占权已归还。\n\n无模型shell检查另复现通知入口选择问题：登录shell覆盖预置PATH，调用全局旧ARW而非测量JSONL入口。已完整检查的high第2／3／5次均保留通知交付失败；该失败有harness／环境成因，不能全部归因于模型。其余线程的旧版本影响及完整检查已取消，尚不据此更改分数、宣称无影响或自动重跑。场景和评分未改。\n\nlow第2次的100K阈值确实生效，此前成功压缩3次；第四次在原生日志计算104311 token时触发，内部首段输入102931。该次失败压缩没有形成历史替换，留下思考及部分摘要；第一次接续的压缩输入已是125658，四次摘要尝试均耗尽low的8192输出预算（含思考），仍无成功替换。再次恢复时压缩请求输入161482，因容量不足在执行前被拒绝。失败产物留在原生会话、跨恢复输入上升的证据支持“失败压缩产物进入恢复后的重建上下文”这一原因；尚未逐项token归因，不宣称每个新增token均来自摘要。扩大窗口只能给重试腾出空间，不能保证压缩成功；用户已决定该实例按工作失败、不可恢复结案，不再接续；200K恢复提案未执行并已撤下。\n\n## 耗时差异对评分和等效费用的影响\n\n逐次表的“耗时分析”覆盖15行。长短相对于同一推理强度的样本判断，最短实例也用作参照，不表示它必然异常；故障、提前结束、超时及明显重复操作单独说明。没有删除任何样本、修改ARW评分或把较短自动认定为漏审。完整原生检查已完成6/15（medium 1、3；high 1、2、3、5）；其他实例的局部诊断和计数不能替代完整检查；用户已取消剩余9次完整检查，不追认通过。\n\n- **费用随执行量明显增加，评分没有一致的收益。** 15次记录中，引擎输入处理与解码累计约占工作时长98.2%—99.3%；各档引擎输出平均速度约123—127 token/s。主要差别是处理和生成了多少内容，包括反复读源码、报告返工、压缩及恢复；不是数十分钟的外部工具等待。这个比例不能证明硬件条件完全一致，也不把有用补查一概算作浪费。\n- **medium的最长实例没有优于最短实例。** 第5次35.5分钟／0.409美元／0.760分，对照第1次18.9分钟／0.244美元／0.784分；耗时1.88倍、费用1.68倍，分数低0.024。第2次30.3分钟／0.415美元／0.744分同样未显示较长耗时的优势。已核实第5次探针反复修括号、导入路径和测试参数，报告生成脚本又出错；第2次先逐行解析带逗号的临时数组失败，再误用字段索引，重复验证后修正。这些操作产生真实token和费用，但不能声称删除它们后分数一定不变。\n- **high的长耗时有补查成果，也有返工；短耗时并非自动失败。** 第1次28.0分钟／0.277美元／0.845分，高于第2次6.4分钟／0.056美元／0.657分；费用约4.95倍，分数高0.187。第1次初审8.8分钟已写118行，却停在修正计划；获准接续时harness按原版后续交接清空了已保存草稿，随后重建、纠错及补查，用了19.2分钟、增加0.206美元（总费用74%），并补出两条嵌套凭据问题。没有同口径初始评分，不能把最终分数或全部分差归功于这笔追加费用。第4次初审2.9分钟还无报告，接续又两次提前结束，合计20.2分钟／0.230美元／0.778分，其中追加约0.208美元（90%）；不能把原2.9分钟当成快速完成。第2、3次最终报告均有118行，执行量较少且零压缩；它们的来源／通知／状态问题另行保留。第5次18.2分钟／0.202美元／0.509分，反而比第3次8.7分钟／0.097美元／0.724分低0.215，说明较长也可能同时更贵、质量更低。\n- **low的恢复和失败同时放大时间、费用与交付风险。** 第1次追加消耗约0.483美元（总费用70%），第4次约0.182美元（32%）；这些是实际恢复支出，包含成功完成所需工作，并非全部可避免。第5次原60分钟无报告，获准再工作19.9分钟后才完成；总计约80.1分钟／1.066美元／0.682分，较同档第3次36.9分钟／0.493美元／0.776分更贵且更低分。第2次累计约61.1分钟／0.814美元仍未交付，保留0分和失败结案；它消耗了low全组约22.4%的等效费用。五次均分0.597，四个已交付实例的均分0.747仅作敏感性说明，不能用成功子集替换主统计。\n- **局部重复需要看实际规模。** medium第3次某段思考大量重复同一句话，内部实际生成4096 token、解码22.206秒，随后继续工具操作。直接输出费用0.00192512美元（展示约0.002），不含服务注入的收尾句；它只解释约0.4分钟，不能解释整个19.7分钟。未来输入重处理等连带费用未逐项归因，评分的反事实影响未知。各实例成功压缩本身累计0—7.0分钟，已包含在时间和费用中；low第2次失败压缩及恢复造成的额外开销也保留，不能只用成功压缩次数解释耗时。\n\n**目前可以明确的结论：耗时异常主要反映执行量、纠错和恢复；过长通常更贵，却没有稳定的评分优势。** 短实例必须连同报告内容及终态判断，长实例必须区分必要补查与重复返工。当前medium平均诊断分最高0.768、平均0.329美元；high更快、更便宜（16.3分钟、0.172美元），但平均分0.703且波动较大；low最慢、最贵并存在未交付。保留三档原始五次均值，不按异常原因事后删样本，不自定评分／费用综合排名。完整原生检查、正式接受及因果收益仍是不同问题。\n\n\n## 旧版本任务关闭\n\n升级至v0.1.40后，用户取消本批剩余完整会话检查及诊断收尾，已有执行、分数、时间、token和费用不改。实际完整检查为6/15，9次未完成；关闭任务不等于通过检查。可复用通知／接续修复在新版本另行验证，不为旧批次补跑。原始明细仍为可清理的.tmp材料，未移入reports。\n",
+  "history": {
+    "before_post_timeout_extensions": {
+      "rows": [
+        {
+          "effort": "low",
+          "repeat": 2,
+          "instance_id": "default-c8ec6412-b1fd-4406-a879-41ba8e3e21d8-instance-2",
+          "native_thread_id": "01a10ccf-6b46-7ad3-ac38-4667afc9da99",
+          "diagnostic_score": 0,
+          "reviewer_active_seconds": 3677.403,
+          "tokens": {
+            "uncached_input": 3571459,
+            "cached_input": 8189968,
+            "output": 314269
+          },
+          "engine_input_seconds": 1184.003,
+          "engine_decode_seconds": 2425.274,
+          "engine_input_tokens_per_second": 3016.42732324158,
+          "engine_output_tokens_per_second": 129.58082262045443,
+          "unit": "token/s",
+          "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+          "task_review_seconds": 3658.5064697265625,
+          "task_input_tokens_per_second": 976.2068290853484,
+          "task_output_tokens_per_second": 85.90090043587884,
+          "task_started_at_ms": 1791216282458,
+          "task_finished_at_ms": 1791254587055,
+          "task_time_source": "Last continuation measurement/native terminal UTC timestamp",
+          "task_wall_span_seconds": 38304.597,
+          "task_work_time": {
+            "seconds": 3658.5064697265625,
+            "estimated": true,
+            "intervals": [
+              {
+                "start_ms": 1791216282458,
+                "end_ms": 1791219670408,
+                "estimated": true,
+                "basis": "Original ARW start/end; last observed wall duration if end absent"
+              },
+              {
+                "start_ms": 1791254297602,
+                "end_ms": 1791254568158.4697,
+                "estimated": true,
+                "basis": "Protected stop receipt or estimated stop intent; post-stop retry excluded",
+                "uncut_end_ms": 1791254587055
+              }
+            ],
+            "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+          },
+          "task_rate_estimated": true,
+          "timeout_ever": true,
+          "equivalent_cost_usd": 0.8144647679999999,
+          "engine_execution_stage_count": 165,
+          "continuation_round_count": 1,
+          "report_bytes": 0,
+          "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "initial_formal_completion": {
+            "status": "incomplete",
+            "reason": "The native Reviewer turn failed.",
+            "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/c8ec6412-b1fd-4406-a879-41ba8e3e21d8/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+          },
+          "final_formal_completion": {
+            "status": "incomplete",
+            "reason": "The native Reviewer turn failed.",
+            "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/c8ec6412-b1fd-4406-a879-41ba8e3e21d8/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+          },
+          "score_source_sha256": "d6cece96a8d48c5cf869660a8df079f4a07d8b8c8aeb2c8c08d2d075685eb1e8",
+          "raw_engine_log_bindings": [
+            {
+              "sha256": "87668aadef604c915b7e966cb9133fbaaf988736353e6e47e4dd5f80e3c52066",
+              "kind": "initial"
+            },
+            {
+              "sha256": "b0e0f32d11d348fe2d68a4dc8dbd45af01c144ed952b08b26a1f893bf61b4b50",
+              "kind": "continuations"
+            }
+          ],
+          "initial_active_seconds": 3387.95,
+          "initial_tokens": {
+            "uncached_input": 3441608,
+            "cached_input": 7306291,
+            "output": 281566
+          }
+        },
+        {
+          "effort": "low",
+          "repeat": 5,
+          "instance_id": "default-6ee7c6b6-01bc-4a5d-8d3c-5927069a0443-instance-2",
+          "native_thread_id": "01a10d40-f181-7713-b0a6-8684e5c95252",
+          "diagnostic_score": 0,
+          "reviewer_active_seconds": 3610.567,
+          "tokens": {
+            "uncached_input": 4430306,
+            "cached_input": 6146236,
+            "output": 266219
+          },
+          "engine_input_seconds": 1475.196,
+          "engine_decode_seconds": 2079.716,
+          "engine_input_tokens_per_second": 3003.198219084108,
+          "engine_output_tokens_per_second": 128.00738177712728,
+          "unit": "token/s",
+          "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+          "task_review_seconds": 3610.127,
+          "task_input_tokens_per_second": 1227.1884063912432,
+          "task_output_tokens_per_second": 73.74228108872624,
+          "task_started_at_ms": 1791223722388,
+          "task_finished_at_ms": 1791227332515,
+          "task_time_source": "Exact native terminal timestamp; original missing measurement end retained",
+          "task_wall_span_seconds": 3610.127,
+          "task_work_time": {
+            "seconds": 3610.127,
+            "estimated": true,
+            "intervals": [
+              {
+                "start_ms": 1791223722388,
+                "end_ms": 1791227332955,
+                "estimated": true,
+                "basis": "Original ARW start/end; last observed wall duration if end absent"
+              }
+            ],
+            "basis": "Reviewer work intervals, including tools and in-turn recovery; shutdown and completed-turn sleep excluded"
+          },
+          "task_rate_estimated": true,
+          "timeout_ever": true,
+          "equivalent_cost_usd": 0.8880086059999999,
+          "engine_execution_stage_count": 166,
+          "continuation_round_count": 0,
+          "report_bytes": 0,
+          "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "initial_formal_completion": {
+            "status": "incomplete",
+            "reason": "The current Reviewer work was interrupted.",
+            "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/6ee7c6b6-01bc-4a5d-8d3c-5927069a0443/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+          },
+          "final_formal_completion": {
+            "status": "incomplete",
+            "reason": "The current Reviewer work was interrupted.",
+            "reportPath": "/home/pello/projects/qwen-3.8-flash-next/.tmp/upgrade-cycle-v0.1.38-20261003/arw-original/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_reviewer-cap/runs/6ee7c6b6-01bc-4a5d-8d3c-5927069a0443/ca/2/.tmp/codex/01a0ffb6-6bc1-7451-afb4-1a30976f00fa/_commit-audit-capability/review.jsonl"
+          },
+          "score_source_sha256": "fdb7bdf9adda17070a83381b62e9cd6b0406c02e6bbd8a9d72eb078089d38a06",
+          "raw_engine_log_bindings": [
+            {
+              "sha256": "cc48011a8dde8d9bda3609c513fbc139ab8eb268634baac8a63a80ab8c3859fc",
+              "kind": "initial"
+            }
+          ],
+          "initial_active_seconds": 3610.567,
+          "initial_tokens": {
+            "uncached_input": 4430306,
+            "cached_input": 6146236,
+            "output": 266219
+          }
+        }
+      ],
+      "low_group": {
+        "effort": "low",
+        "count": 5,
+        "mean_score": 0.460919304526598,
+        "mean_active_seconds": 3082.5480000000002,
+        "min_active_seconds": 2213.965,
+        "max_active_seconds": 3677.403,
+        "population_stddev_active_seconds": 590.10873842708,
+        "mean_tokens": {
+          "uncached_input": 3089670.4,
+          "cached_input": 6880744.4,
+          "output": 253069.6
+        },
+        "mean_input_tokens_per_second": 2949.918000519873,
+        "mean_output_tokens_per_second": 126.88386653819641,
+        "task_rate_estimated": true,
+        "mean_task_review_seconds": 3078.6806939453127,
+        "mean_task_input_tokens_per_second": 996.9644966797744,
+        "mean_task_output_tokens_per_second": 82.03388598259393,
+        "timeout_ever_count": 2,
+        "mean_equivalent_cost_usd": 0.6924851824,
+        "nonempty_reports": 3,
+        "native_ready": 3
+      },
+      "scope": "Original cumulative-budget continuations closed; both low timeouts still had empty reports and diagnostic zeros. Preserved full-precision statistics, not retroactively replaced."
+    }
+  },
+  "post_timeout_extensions": {
+    "low_2": {
+      "result": "capacity-rejected-before-engine-execution",
+      "prompt_tokens": 161482,
+      "output_budget": 8192,
+      "engine_capacity": 156584,
+      "additional_work_seconds": 8.784,
+      "executed_stage_count": 0,
+      "original_timeout_preserved": true,
+      "engine_capacity_changed": false
+    },
+    "low_5": {
+      "additional_work_seconds": 1192.85,
+      "diagnostic_score": 0.6823394945064939,
+      "original_timeout_preserved": true,
+      "original_zero_preserved": true,
+      "mechanical_scalar_repairs": 87,
+      "same_thread": true
+    },
+    "user_approval": "核查的同时也开启那几个超时的接续吧",
+    "additional_work_budget_per_instance_seconds": 3600,
+    "independent_repeats_added": 0,
+    "all_model_keys_returned": true
+  },
+  "session_inspection_progress": {
+    "complete_current_threads": [
+      "medium-1",
+      "medium-3",
+      "high-1",
+      "high-2",
+      "high-3",
+      "high-5"
+    ],
+    "complete_current_thread_count": 6,
+    "total_current_thread_count": 15,
+    "all_complete": false,
+    "accepted_count": 0,
+    "source_isolation_pass_claimed": false,
+    "summary": "Six current threads fully Main inspected; remaining nine inspections cancelled. Inspection failures and diagnostic scores retained; no global source-isolation pass.",
+    "remaining_work": "cancelled-by-user-decision"
+  },
+  "low2_context_failure": {
+    "instance": "low-2",
+    "native_thread_id": "01a10ccf-6b46-7ad3-ac38-4667afc9da99",
+    "session_sha256": "3408f2c099a348bd9c6ae110286c28db46378de2095012a3d34bbf70738db6d0",
+    "auto_compact_token_limit": 100000,
+    "context_window": 156584,
+    "output_budget": 8192,
+    "successful_compactions": [
+      {
+        "event_line": 214,
+        "timestamp": "2026-10-05T16:16:57.204Z"
+      },
+      {
+        "event_line": 450,
+        "timestamp": "2026-10-05T16:30:21.314Z"
+      },
+      {
+        "event_line": 643,
+        "timestamp": "2026-10-05T16:45:33.011Z"
+      }
+    ],
+    "fourth_compaction_trigger_scope_tokens": 104311,
+    "fourth_compaction_raw_initial_input_tokens": 102931,
+    "original_failed_compaction_attempts": 6,
+    "first_continuation_compaction_attempts": 4,
+    "first_continuation_raw_initial_input_tokens": 125658,
+    "first_continuation_raw_thinking_phase_output_tokens": [
+      2049,
+      2051,
+      2050,
+      2049
+    ],
+    "first_continuation_raw_answer_phase_output_tokens": [
+      6126,
+      6126,
+      6126,
+      6126
+    ],
+    "last_capacity_rejected_input_tokens": 161482,
+    "last_capacity_rejected_event_line": 861,
+    "observations": [
+      "100K threshold was enabled and triggered; three earlier compactions succeeded.",
+      "Fourth compaction and both pre-turn recovery stages never produced a compacted replacement event.",
+      "Original compaction contains partial reasoning/messages followed by unknown exec_command terminal error.",
+      "First continuation contains four incomplete summary bodies, each using the full low output allowance (thinking and answer phases combined), without history replacement.",
+      "Raw input jumped from 102931 to 125658 across first recovery, then to 161482 on next recovery; last rejection was itself a pre-turn compaction request."
+    ],
+    "inference": "Failed compaction outputs persisted in the native transcript and were carried into resumed context reconstruction. These retained attempts plus added handoff/context are the evidence-based explanation of growth; exact token attribution per history item has not been established.",
+    "limits": [
+      "This bounded fault investigation is not a full native source-isolation inspection.",
+      "No model request was made in this investigation.",
+      "No history was modified or truncated; 200K recovery remains a proposal only."
+    ],
+    "recovery_disposition": "closed-unrecoverable-by-user-decision"
+  },
+  "duration_analysis": {
+    "status": "historical-descriptive-analysis-full-inspection-incomplete-and-closed",
+    "selection_method": "全部15行注明相对长短或已观察执行问题；各推理强度分别比较，不设事后剔除门槛。",
+    "engine_time_fraction_range": [
+      0.9816116235523117,
+      0.99251698381363
+    ],
+    "comparisons": [
+      {
+        "longer_instance": "medium-5",
+        "shorter_instance": "medium-1",
+        "time_ratio": 1.8769749326492242,
+        "cost_ratio": 1.675622067680235,
+        "score_delta_longer_minus_shorter": -0.023874279026559475
+      },
+      {
+        "longer_instance": "medium-2",
+        "shorter_instance": "medium-1",
+        "time_ratio": 1.6019071413846508,
+        "cost_ratio": 1.6976862884437862,
+        "score_delta_longer_minus_shorter": -0.03945621174235192
+      },
+      {
+        "longer_instance": "high-1",
+        "shorter_instance": "high-2",
+        "time_ratio": 4.39871595381618,
+        "cost_ratio": 4.950414483916542,
+        "score_delta_longer_minus_shorter": 0.18735383071014755
+      },
+      {
+        "longer_instance": "high-5",
+        "shorter_instance": "high-3",
+        "time_ratio": 2.091167145840965,
+        "cost_ratio": 2.0740883903453122,
+        "score_delta_longer_minus_shorter": -0.21476995819913225
+      },
+      {
+        "longer_instance": "low-5",
+        "shorter_instance": "low-3",
+        "time_ratio": 2.169599338742934,
+        "cost_ratio": 2.1630120953013687,
+        "score_delta_longer_minus_shorter": -0.09408214609894472
+      }
+    ],
+    "continuation_costs": [
+      {
+        "instance": "high-1",
+        "initial_equivalent_cost_usd": 0.07119254000000001,
+        "additional_equivalent_cost_usd": 0.20612742199999995,
+        "additional_cost_fraction": 0.7432837525053461,
+        "initial_execution_seconds": 529.178,
+        "additional_work_seconds": 1152.8249999999998,
+        "comparability_warning": "追加消耗是已执行开销，不等于可避免浪费；未测量同口径初始分数，不能据此量化追加工作的因果评分收益。"
+      },
+      {
+        "instance": "high-4",
+        "initial_equivalent_cost_usd": 0.022059765999999998,
+        "additional_equivalent_cost_usd": 0.20763753999999998,
+        "additional_cost_fraction": 0.9039615815084918,
+        "initial_execution_seconds": 172.391,
+        "additional_work_seconds": 1040.281,
+        "comparability_warning": "追加消耗是已执行开销，不等于可避免浪费；未测量同口径初始分数，不能据此量化追加工作的因果评分收益。"
+      },
+      {
+        "instance": "low-1",
+        "initial_equivalent_cost_usd": 0.20816174999999998,
+        "additional_equivalent_cost_usd": 0.483466424,
+        "additional_cost_fraction": 0.6990265032205008,
+        "initial_execution_seconds": 863.686,
+        "additional_work_seconds": 2492.788,
+        "comparability_warning": "追加消耗是已执行开销，不等于可避免浪费；未测量同口径初始分数，不能据此量化追加工作的因果评分收益。"
+      },
+      {
+        "instance": "low-2",
+        "initial_equivalent_cost_usd": 0.765477876,
+        "additional_equivalent_cost_usd": 0.04898689199999995,
+        "additional_cost_fraction": 0.060146115491640215,
+        "initial_execution_seconds": 3387.95,
+        "additional_work_seconds": 279.3404697265628,
+        "comparability_warning": "追加消耗是已执行开销，不等于可避免浪费；未测量同口径初始分数，不能据此量化追加工作的因果评分收益。"
+      },
+      {
+        "instance": "low-4",
+        "initial_equivalent_cost_usd": 0.39366766999999997,
+        "additional_equivalent_cost_usd": 0.18205483000000006,
+        "additional_cost_fraction": 0.3162197586510863,
+        "initial_execution_seconds": 1774.226,
+        "additional_work_seconds": 780.105,
+        "comparability_warning": "追加消耗是已执行开销，不等于可避免浪费；未测量同口径初始分数，不能据此量化追加工作的因果评分收益。"
+      },
+      {
+        "instance": "low-5",
+        "initial_equivalent_cost_usd": 0.8880086059999999,
+        "additional_equivalent_cost_usd": 0.17749518400000008,
+        "additional_cost_fraction": 0.16658334364066418,
+        "initial_execution_seconds": 3610.567,
+        "additional_work_seconds": 1192.8500000000004,
+        "comparability_warning": "追加消耗是已执行开销，不等于可避免浪费；未测量同口径初始分数，不能据此量化追加工作的因果评分收益。"
+      }
+    ],
+    "low_failure_cost_fraction": 0.2237589075474838,
+    "low_all_five_mean_score": 0.5973872034278968,
+    "low_delivered_four_mean_score_sensitivity_only": 0.7467340042848709,
+    "bounded_repetition": {
+      "instance": "medium-3",
+      "native_event": 84,
+      "internal_generated_tokens": 4096,
+      "internal_decode_seconds": 22.206,
+      "direct_output_equivalent_cost_usd": 0.0019251199999999998,
+      "service_injected_wrap_excluded": true,
+      "counterfactual_score_effect": "unknown",
+      "input_cost_attribution": "not_estimated"
+    },
+    "causality_limit": "独立重复、每档5次；包含实测故障及恢复，不作显著性或因果推断，不代替来源和正式接受检查。"
+  },
+  "work_closure": {
+    "date": "2026-10-06",
+    "decision": "User discards remaining v0.1.38 work after upgrading to v0.1.40. Existing diagnostics and actual inspection facts retained.",
+    "completed_current_thread_inspections": 6,
+    "total_threads": 15,
+    "remaining_inspections_cancelled": 9,
+    "formal_acceptance_claimed": false,
+    "new_model_run": false
+  },
+  "raw_evidence_retention": {
+    "status": "deleted-by-user-request-2026-10-06",
+    "scope": "Old-version temporary run/session/log evidence in project and installation; old installation rollback backups and unused publication mirrors.",
+    "summary_numbers_preserved": true,
+    "raw_session_replay_available": false,
+    "does_not_change_historical_scores_or_inspection_verdicts": true
+  }
+}

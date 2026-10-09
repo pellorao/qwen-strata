@@ -1,0 +1,235 @@
+{
+  "models": [
+    {
+      "slug": "qwen3.8-flash-next-q2_0",
+      "auto_review_model_override": "qwen3.8-flash-next-q2_0",
+      "display_name": "Qwen3.8 Flash Next / Strata Q2_0",
+      "description": "Local Qwen3.8 Flash Next served by Strata; text and local tools.",
+      "default_reasoning_level": "low",
+      "supported_reasoning_levels": [
+        {
+          "effort": "none",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "low",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "medium",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "high",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "xhigh",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "max",
+          "description": "Local bridge budget preset; see installation manual."
+        }
+      ],
+      "shell_type": "unified_exec",
+      "visibility": "list",
+      "supported_in_api": true,
+      "priority": 1,
+      "additional_speed_tiers": [],
+      "service_tiers": [],
+      "availability_nux": null,
+      "upgrade": null,
+      "model_messages": {
+        "instructions_template": "You are a local project assistant. Work only in the assigned workspace. Prefer project MCP list_files and read_file for file inspection; follow their pagination and check actual tool outputs. The daily profile is read-only: do not edit files or invoke shell commands to bypass this restriction. Do not use network services, install packages, or delegate. Report only what you have verified."
+      },
+      "include_skills_usage_instructions": false,
+      "include_plugin_usage_instructions": false,
+      "include_apps_usage_instructions": false,
+      "default_reasoning_summary": "none",
+      "support_verbosity": true,
+      "default_verbosity": "low",
+      "apply_patch_tool_type": "freeform",
+      "web_search_tool_type": "text",
+      "truncation_policy": {
+        "mode": "tokens",
+        "limit": 10000
+      },
+      "supports_image_detail_original": false,
+      "context_window": 250000,
+      "max_context_window": 250000,
+      "comp_hash": "3000",
+      "effective_context_window_percent": 100,
+      "experimental_supported_tools": [],
+      "input_modalities": [
+        "text"
+      ],
+      "supports_search_tool": false,
+      "supports_experimental_context": false,
+      "use_responses_lite": false,
+      "supports_reasoning_effort_updates": true,
+      "node_repl_auto_review_required": true,
+      "node_repl_disabled": true,
+      "tool_mode": null,
+      "multi_agent_version": "v2",
+      "multi_agent_reasoning_effort": "xhigh",
+      "base_instructions": "You are a local coding assistant. Use the tools to read and edit files and run tests. Work only in the assigned workspace. Do not use network services, install packages, or delegate. Check actual tool outputs. Report only what you have verified.",
+      "prefer_websockets": false,
+      "supports_parallel_tool_calls": false
+    },
+    {
+      "slug": "qwen3.8-flash-next-iq2_xs",
+      "auto_review_model_override": "qwen3.8-flash-next-iq2_xs",
+      "display_name": "Qwen3.8 Flash Next / Strata IQ2_XS",
+      "description": "Local Qwen3.8 Flash Next served by Strata; text and local tools.",
+      "default_reasoning_level": "low",
+      "supported_reasoning_levels": [
+        {
+          "effort": "none",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "low",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "medium",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "high",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "xhigh",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "max",
+          "description": "Local bridge budget preset; see installation manual."
+        }
+      ],
+      "shell_type": "unified_exec",
+      "visibility": "list",
+      "supported_in_api": true,
+      "priority": 1,
+      "additional_speed_tiers": [],
+      "service_tiers": [],
+      "availability_nux": null,
+      "upgrade": null,
+      "model_messages": {
+        "instructions_template": "You are a local project assistant. Work only in the assigned workspace. Prefer project MCP list_files and read_file for file inspection; follow their pagination and check actual tool outputs. The daily profile is read-only: do not edit files or invoke shell commands to bypass this restriction. Do not use network services, install packages, or delegate. Report only what you have verified."
+      },
+      "include_skills_usage_instructions": false,
+      "include_plugin_usage_instructions": false,
+      "include_apps_usage_instructions": false,
+      "default_reasoning_summary": "none",
+      "support_verbosity": true,
+      "default_verbosity": "low",
+      "apply_patch_tool_type": "freeform",
+      "web_search_tool_type": "text",
+      "truncation_policy": {
+        "mode": "tokens",
+        "limit": 10000
+      },
+      "supports_image_detail_original": false,
+      "context_window": 250000,
+      "max_context_window": 250000,
+      "comp_hash": "3000",
+      "effective_context_window_percent": 100,
+      "experimental_supported_tools": [],
+      "input_modalities": [
+        "text"
+      ],
+      "supports_search_tool": false,
+      "supports_experimental_context": false,
+      "use_responses_lite": false,
+      "supports_reasoning_effort_updates": true,
+      "node_repl_auto_review_required": true,
+      "node_repl_disabled": true,
+      "tool_mode": null,
+      "multi_agent_version": "v2",
+      "multi_agent_reasoning_effort": "xhigh",
+      "base_instructions": "You are a local coding assistant. Use the tools to read and edit files and run tests. Work only in the assigned workspace. Do not use network services, install packages, or delegate. Check actual tool outputs. Report only what you have verified.",
+      "prefer_websockets": false,
+      "supports_parallel_tool_calls": false
+    },
+    {
+      "slug": "qwen3.8-flash-next-iq3_xxs",
+      "auto_review_model_override": "qwen3.8-flash-next-iq3_xxs",
+      "display_name": "Qwen3.8 Flash Next / Strata IQ3_XXS",
+      "description": "Local Qwen3.8 Flash Next served by Strata; text and local tools.",
+      "default_reasoning_level": "low",
+      "supported_reasoning_levels": [
+        {
+          "effort": "none",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "low",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "medium",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "high",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "xhigh",
+          "description": "Local bridge budget preset; see installation manual."
+        },
+        {
+          "effort": "max",
+          "description": "Local bridge budget preset; see installation manual."
+        }
+      ],
+      "shell_type": "unified_exec",
+      "visibility": "list",
+      "supported_in_api": true,
+      "priority": 1,
+      "additional_speed_tiers": [],
+      "service_tiers": [],
+      "availability_nux": null,
+      "upgrade": null,
+      "model_messages": {
+        "instructions_template": "You are a local project assistant. Work only in the assigned workspace. Prefer project MCP list_files and read_file for file inspection; follow their pagination and check actual tool outputs. The daily profile is read-only: do not edit files or invoke shell commands to bypass this restriction. Do not use network services, install packages, or delegate. Report only what you have verified."
+      },
+      "include_skills_usage_instructions": false,
+      "include_plugin_usage_instructions": false,
+      "include_apps_usage_instructions": false,
+      "default_reasoning_summary": "none",
+      "support_verbosity": true,
+      "default_verbosity": "low",
+      "apply_patch_tool_type": "freeform",
+      "web_search_tool_type": "text",
+      "truncation_policy": {
+        "mode": "tokens",
+        "limit": 10000
+      },
+      "supports_image_detail_original": false,
+      "context_window": 250000,
+      "max_context_window": 250000,
+      "comp_hash": "3000",
+      "effective_context_window_percent": 100,
+      "experimental_supported_tools": [],
+      "input_modalities": [
+        "text"
+      ],
+      "supports_search_tool": false,
+      "supports_experimental_context": false,
+      "use_responses_lite": false,
+      "supports_reasoning_effort_updates": true,
+      "node_repl_auto_review_required": true,
+      "node_repl_disabled": true,
+      "tool_mode": null,
+      "multi_agent_version": "v2",
+      "multi_agent_reasoning_effort": "xhigh",
+      "base_instructions": "You are a local coding assistant. Use the tools to read and edit files and run tests. Work only in the assigned workspace. Do not use network services, install packages, or delegate. Check actual tool outputs. Report only what you have verified.",
+      "prefer_websockets": false,
+      "supports_parallel_tool_calls": false
+    }
+  ]
+}

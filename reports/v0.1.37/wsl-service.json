@@ -1,0 +1,96 @@
+{
+  "scope": "Short WSL-to-Windows service acceptance; not a performance, engineering quality or compaction benchmark.",
+  "native_chat": {
+    "answer": "4",
+    "pass": true,
+    "elapsed_s": 0.6137015069998597,
+    "usage": {
+      "prompt_tokens": 28,
+      "completion_tokens": 2,
+      "total_tokens": 30,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    }
+  },
+  "responses": {
+    "answer": "4",
+    "pass": true,
+    "elapsed_s": 0.1565567719999308,
+    "usage": {
+      "input_tokens": 28,
+      "output_tokens": 2,
+      "total_tokens": 30,
+      "input_tokens_details": {
+        "cached_tokens": 21
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "status": "completed"
+  },
+  "second_start": {
+    "model": "qwen3.8-flash-next-q2_0",
+    "chat_base_url": "http://172.27.48.1:8100/v1",
+    "responses_base_url": "http://172.27.48.1:8101/v1",
+    "model_pid": 13964,
+    "bridge_pid": 14204,
+    "host": "172.27.48.1",
+    "client": "172.27.63.165"
+  },
+  "same_service_reused": true,
+  "windows_processes": [
+    {
+      "pid": 13964,
+      "name": "python.exe",
+      "exe": "C:\\Python314\\python.exe"
+    },
+    {
+      "pid": 17128,
+      "name": "strata.exe",
+      "exe": "C:\\Users\\Pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\engine\\strata.exe"
+    }
+  ],
+  "single_windows_engine": true,
+  "stop_exit": 0,
+  "after_stop": {
+    "owned_pids_gone": true,
+    "remaining_listeners": [],
+    "gpu_memory_mib_after_stop": "926"
+  },
+  "stop": {
+    "stopped_ports": [
+      8101,
+      8100
+    ],
+    "clean_unload": true
+  },
+  "version": "0.1.37",
+  "type": "wsl-service",
+  "date": "2026-10-03",
+  "regression_tests_passed": 19,
+  "harness_managed_by": "consuming project",
+  "launch_entry_location": "Windows model installation directory",
+  "network": {
+    "mode": "NAT",
+    "host": "172.27.48.1",
+    "client": "172.27.63.165",
+    "forwarding_added": false,
+    "firewall_rule": "QwenStrata-WSL-API",
+    "rule_scope": {
+      "program": "C:\\Python314\\python.exe",
+      "interface": "vEthernet (WSL (Hyper-V firewall))",
+      "remote_address": "LocalSubnet",
+      "tcp_ports": [
+        8100,
+        8101
+      ]
+    }
+  },
+  "limits": [
+    "Short functional requests only; no 200K performance, natural growth, compaction or representative engineering acceptance.",
+    "Request timings are not an API speed comparison: different prefix-cache usage.",
+    "Codex and other harness configuration, permissions, tools and sessions belong to each consuming project."
+  ]
+}

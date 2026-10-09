@@ -1,0 +1,48 @@
+{
+  "version": "0.1.37",
+  "commit": "db4f91a1171d697928b0d2e1f50ef95e25559d4c",
+  "status": "Strata v37 and IQ3 installed; 200K capacity/performance/code-value checks and optional IQ3 Codex MCP entry completed. Q2 remains default. Representative engineering/expert-cache and broader compaction/growth explicitly handed to WSL Codex.",
+  "source_url": "https://github.com/Niko1221/Strata/archive/db4f91a1171d697928b0d2e1f50ef95e25559d4c.zip",
+  "engine_url": "https://github.com/Niko1221/Strata/releases/download/v0.1.37/strata-windows-x64.zip",
+  "engine_bytes": 124993525,
+  "engine_sha256": "3a4450dace6ebe86a1ddb66aa9f413de4c91e50aa06e67425cece406237cb022",
+  "requirements_unchanged_in_commit_diff": true,
+  "download_new_models_or_dependencies": false,
+  "verification": [
+    "ZIP CRC / upstream engine SHA256 / source readback / BUILD sm89",
+    "upstream server regression suite including silent-engine error/restart",
+    "three cold exact 200K Q2 requests, same tuned parameters/input as v36",
+    "one installed Codex project-MCP task",
+    "one real 200K Codex tool and auto-compaction continuation",
+    "bridge/project tool tests and stop/resource release"
+  ],
+  "not_repeating": [
+    "native vs prebuilt",
+    "100K",
+    "250K performance",
+    "full Q2/IQ2 parameter matrix"
+  ],
+  "source_zip_sha256": "8a2948fee85a223ef15b086882f6936529771964889ae0ad2c66d4e264afd3a4",
+  "source_files_verified": 576,
+  "engine_sha256_verified": true,
+  "engine_build": {
+    "version": "0.1.37",
+    "source": "release",
+    "archs": [
+      75,
+      86,
+      89,
+      120
+    ],
+    "vision_archs": [
+      75,
+      86,
+      89,
+      120
+    ],
+    "ptx": true,
+    "cuda": "13.0",
+    "vision": "gpu",
+    "portable": true
+  }
+}

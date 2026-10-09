@@ -1,0 +1,1887 @@
+{
+  "schema_version": 1,
+  "status": "closed-diagnostic-full-main-inspection-complete-loop-count-lower-bounds",
+  "created_at": "2026-10-07T22:11:32.396308+00:00",
+  "conclusion": "Do not replace the daily loop-prevention prompt with this command-only dynamic policy. All3reviews still had confirmed loops; the policy observed native commands but triggered and delivered0hints. New diagnostic mean0.7017843237759233 and2084.6985498860677s do not prove benefit over the historical0.1.40.1 baseline. Q2_0 and existing daily prompt/defaults retained pending user adoption review.",
+  "host_model": {
+    "host": "local",
+    "gpu": "RTX4070TiSUPER16GiB",
+    "cpu": "i9-14900K",
+    "ram_gib": 64,
+    "model": "Q2_0"
+  },
+  "versions": {
+    "strata": "0.1.40.2",
+    "engine_commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a",
+    "codex": "0.160.1",
+    "arw_source": {
+      "manifest": "benchmarks/reviewer-suite-v1/source-snapshots/previous-39fe7f508237/manifest.json",
+      "all547file_sha_verified": true,
+      "source_head": "39fe7f508237af8d4f1eabe679116a75db8f1715",
+      "upstream_updated": false,
+      "business_and_role_same_as_old_group": true,
+      "prepared_instances": 3,
+      "prepared_sha256": "7744adaf05194932175697e7fbe7df1f39044add5abdd8dc20784fdc16239e6b",
+      "case_comparison": [
+        {
+          "instanceId": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1",
+          "business_files_identical": 20,
+          "role_identical": true,
+          "single_file_grant": true
+        },
+        {
+          "instanceId": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2",
+          "business_files_identical": 20,
+          "role_identical": true,
+          "single_file_grant": true
+        },
+        {
+          "instanceId": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-3",
+          "business_files_identical": 20,
+          "role_identical": true,
+          "single_file_grant": true
+        }
+      ],
+      "manifest_at_preparation": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json",
+      "preserved_for_current_group": true
+    }
+  },
+  "fixed_conditions": {
+    "model": "Q2_0",
+    "effort": "high",
+    "engine_overrides": {
+      "prefill": 16384,
+      "kv": "int8",
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pcie-frac": 0.0,
+      "spec": 4,
+      "spec-min-p": 0.7,
+      "expert-cache": "auto",
+      "vram-reserve-mib": 700,
+      "adapt-every": 4,
+      "adapt-swaps": 96,
+      "adapt-decay": 0.7,
+      "mtp-window": 32768,
+      "pcie-mode": "auto",
+      "expert-cache-per-layer": false,
+      "expert-cache-cpu-order": false,
+      "pool-affinity": "auto",
+      "ple-io": "direct",
+      "ple-inflight": 256,
+      "no-capture": false,
+      "no-host-worker": false,
+      "no-ple-prefetch": false,
+      "no-prefill-borrow": false,
+      "no-split-rows": false,
+      "no-coupled-draft": false,
+      "shared-late": false,
+      "keep-canonical": false,
+      "no-token-graph": false,
+      "no-fused-gr": false,
+      "no-hit-poke": false,
+      "ple-sync-submit": false,
+      "no-spec-split": false,
+      "gr-fp32-activations": false,
+      "ple-row-cache": 1048576,
+      "short-read": 64,
+      "suffix-draft": 3,
+      "mtp-max-t": 0,
+      "prompt-cache": 6,
+      "prompt-cache-every": 16384,
+      "prompt-cache-root": 2048,
+      "max-context": 156584
+    },
+    "engine_environment": {
+      "STRATA_HC_SPLIT": null,
+      "STRATA_ADAPT_NOWAIT": null,
+      "STRATA_SSD_KEEPALIVE": null,
+      "STRATA_BATCH_TRACE": 1
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 24576,
+      "reasoning_budget_tokens": 8192,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "high"
+    },
+    "context_window": 156584,
+    "auto_compact_token_limit": 100000,
+    "startup_instructions": true,
+    "project_compaction_instructions": true,
+    "generation_policy": "first-delivery-only",
+    "loop_prevention_instructions": false,
+    "automatic_continuation": true,
+    "archive_http": true,
+    "command_loop_guard": {
+      "enabled": true,
+      "algorithm": "frozen-arw-strata-command-policy",
+      "source_sha256": "de7c041908539fc5bca583370dc6470a7d52b69938f1293dbb23816752e88573",
+      "transport": "Original ARW send_message into native Codex root; real receipt/delivery inspection retained",
+      "independent_budget_or_ownership": false
+    },
+    "host_id": "local",
+    "host_hardware": {
+      "gpu": "NVIDIA RTX 4070 Ti SUPER",
+      "vram_gib": 16,
+      "cpu": "Intel Core i9-14900K",
+      "ram_gib": 64
+    },
+    "strata_version": "0.1.40.2",
+    "strata_commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a"
+  },
+  "scope": {
+    "effective_instances": 3,
+    "initial_submissions": 3,
+    "requirements_per_review": 118,
+    "total_requirement_judgments": 354,
+    "independent_new_baseline_instances": 0,
+    "extra_effective_samples": 0,
+    "automatic_continuations": 13,
+    "internal_executed_stages": 295,
+    "model_work_seconds_sum": 6254.095649658203,
+    "model_runs": 3,
+    "all_models_stopped_and_ownership_returned": true,
+    "arw_cleanup_ready": true,
+    "http_model_request_count": null,
+    "http_count_qualification": "295is internal executed stage count, not an asserted HTTP request count; logical reviewer submissions3and automatic original-thread continuations13are bound separately."
+  },
+  "observations": [
+    {
+      "repetition": 1,
+      "instance_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1",
+      "thread_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+      "host": "local",
+      "model": "Q2_0",
+      "score": 0.6675719142955916,
+      "formal_acceptance": false,
+      "native_complete": true,
+      "report_rows": 118,
+      "original_report_sha256": "c30f9ee174cc8e948d7ae388eb6ec6cce147fa6fc47a21dbf0eee0ecb959c9e4",
+      "native_session_sha256": "5223c3a0463b1f2ab445f522e425515041cd70bf1c2535ca1a78b636e4171779",
+      "internal_log_sha256": "32ad4a734bf8b08cfb1e96d7fe91ecf997e8c03530d39af304965a1765dedd43",
+      "scoring_sha256": "bc3f5a1ffbb5816c212ce27bc3cb1f90275e624dcb001f8c749ad3d350a337df",
+      "main_inspection_sha256": "6d9cceb49725c9fb890fd5c23d484ba56b038a3b22a121c1f6a053d03abc54ef",
+      "full_native_session_inspection": true,
+      "native_event_count": 513,
+      "tool_calls": 59,
+      "tool_results": 59,
+      "source_isolation_passed": true,
+      "mandatory_failures": [
+        "Plain report-file writable-root sandbox initialization fails before commands; original auto_review escalation succeeds.",
+        "Concrete findings discussed from68 onward but first full write171 occurs after initial early-end160; immediate finding-write contract fails.",
+        "No ARW send_message notification or final delivery call in the native record. Original notification contract fails despite ready response."
+      ],
+      "finding_checks": {
+        "total_requirements": 118,
+        "checked_requirements": 118,
+        "reported_non_satisfied": 35,
+        "semantic_result_mismatches": 8,
+        "mismatches": [
+          {
+            "row": 16,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+              "line": 39
+            },
+            "model_result": "satisfied",
+            "main_result": "uncertain",
+            "basis": "Opaque configured provider or restore adapter contract is absent; direct delegation alone cannot prove its promised result."
+          },
+          {
+            "row": 22,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+              "line": 45
+            },
+            "model_result": "satisfied",
+            "main_result": "uncertain",
+            "basis": "Opaque configured provider or restore adapter contract is absent; direct delegation alone cannot prove its promised result."
+          },
+          {
+            "row": 36,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+              "line": 24
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "auth redaction removes token only, leaves credential data"
+          },
+          {
+            "row": 51,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+              "line": 45
+            },
+            "model_result": "gap",
+            "main_result": "satisfied",
+            "basis": "test invokes shadowed internal binding"
+          },
+          {
+            "row": 65,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 12
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "auth redaction removes token only, leaves credential data"
+          },
+          {
+            "row": 74,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 24
+            },
+            "model_result": "gap",
+            "main_result": "uncertain",
+            "basis": "rename failure has no temporary cleanup"
+          },
+          {
+            "row": 99,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 55
+            },
+            "model_result": "satisfied",
+            "main_result": "uncertain",
+            "basis": "Opaque configured provider or restore adapter contract is absent; direct delegation alone cannot prove its promised result."
+          },
+          {
+            "row": 117,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 76
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "routeKey token does not apply required NFKC normalization"
+          }
+        ],
+        "scoring_candidates_checked": 28,
+        "scoring_candidates_matched": 28,
+        "binding_basis": "Same36business/public-rule/generated-config files as prior independent Main review; current118records and all evidence manually rechecked, no hidden expected used as sole truth."
+      },
+      "automatic_continuations": 10,
+      "successful_compactions": 2,
+      "profile_default_sha256_before": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "profile_default_sha256_after": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "profile_default_unchanged": true,
+      "stop_clean_unload": true,
+      "tokens": {
+        "uncached_input": 3436402,
+        "cached_input": 1270883,
+        "output": 189157
+      },
+      "internal_stage_count": 111,
+      "review_work_seconds": 2563.433688232422,
+      "review_work_seconds_estimated": true,
+      "work_time_source": "Persisted review-work intervals; tools and active recovery included, shutdown and ended-turn idle excluded; estimated transitions retained in the ledger.",
+      "engine_input_seconds": 1107.737,
+      "engine_decode_seconds": 1433.174,
+      "engine_input_tokens_per_second": 3102.182196676648,
+      "engine_output_tokens_per_second": 131.98467178444488,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 2563.433688232422,
+      "task_input_tokens_per_second": 1340.5464770846172,
+      "task_output_tokens_per_second": 73.79047910165777,
+      "review_work_seconds_bounds": [
+        2563.375688144684,
+        2565.3538623542786
+      ],
+      "work_time_bound_basis": "Only estimated resume-start transitions vary: earliest previous bound terminal, latest native task_started event timestamp. Exact original start/end preserved; no unbounded missing interval.",
+      "task_speed_bounds": {
+        "input": [
+          1339.543074516177,
+          1340.576808890309
+        ],
+        "output": [
+          73.73524673372222,
+          73.79214871812557
+        ]
+      },
+      "loop_group_count": 14,
+      "total_loop_iterations": 47,
+      "extra_loop_repeats": 33,
+      "loop_count_kind": "confirmed-lower-bound-including-first",
+      "loop_groups": [
+        {
+          "group": 1,
+          "type": "reasoning",
+          "reason": "restore decision revisited",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              69,
+              31,
+              7441
+            ],
+            [
+              69,
+              31,
+              11317
+            ],
+            [
+              69,
+              31,
+              11816
+            ]
+          ]
+        },
+        {
+          "group": 2,
+          "type": "reasoning",
+          "reason": "cross-group coalescing decision revisited",
+          "total_iterations_including_first": 2,
+          "extra_repeats_after_first": 1,
+          "evidence_event_text_offset": [
+            [
+              69,
+              31,
+              20680
+            ],
+            [
+              69,
+              31,
+              20934
+            ]
+          ]
+        },
+        {
+          "group": 3,
+          "type": "reasoning",
+          "reason": "redaction decision revisited",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              79,
+              35,
+              5095
+            ],
+            [
+              79,
+              35,
+              5474
+            ],
+            [
+              79,
+              35,
+              12337
+            ]
+          ]
+        },
+        {
+          "group": 4,
+          "type": "reasoning",
+          "reason": "redaction decision revisited",
+          "total_iterations_including_first": 2,
+          "extra_repeats_after_first": 1,
+          "evidence_event_text_offset": [
+            [
+              101,
+              43,
+              2612
+            ],
+            [
+              101,
+              43,
+              2872
+            ]
+          ]
+        },
+        {
+          "group": 5,
+          "type": "reasoning",
+          "reason": "redaction decision revisited",
+          "total_iterations_including_first": 2,
+          "extra_repeats_after_first": 1,
+          "evidence_event_text_offset": [
+            [
+              132,
+              56,
+              2085
+            ],
+            [
+              132,
+              56,
+              2465
+            ]
+          ]
+        },
+        {
+          "group": 6,
+          "type": "reasoning",
+          "reason": "restore decision revisited",
+          "total_iterations_including_first": 2,
+          "extra_repeats_after_first": 1,
+          "evidence_event_text_offset": [
+            [
+              155,
+              65,
+              4322
+            ],
+            [
+              155,
+              65,
+              4663
+            ]
+          ]
+        },
+        {
+          "group": 7,
+          "type": "reasoning",
+          "reason": "restore decision revisited",
+          "total_iterations_including_first": 4,
+          "extra_repeats_after_first": 3,
+          "evidence_event_text_offset": [
+            [
+              168,
+              67,
+              4108
+            ],
+            [
+              168,
+              67,
+              4722
+            ],
+            [
+              168,
+              67,
+              24057
+            ],
+            [
+              168,
+              67,
+              24639
+            ]
+          ]
+        },
+        {
+          "group": 8,
+          "type": "reasoning",
+          "reason": "unchanged requirement-count arithmetic",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              175,
+              69,
+              853
+            ],
+            [
+              175,
+              69,
+              1132
+            ],
+            [
+              175,
+              69,
+              1548
+            ]
+          ]
+        },
+        {
+          "group": 9,
+          "type": "reasoning",
+          "reason": "full audit remapping without writing",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              304,
+              100,
+              0
+            ],
+            [
+              317,
+              102,
+              0
+            ],
+            [
+              330,
+              104,
+              0
+            ]
+          ]
+        },
+        {
+          "group": 10,
+          "type": "reasoning",
+          "reason": "full audit remapping without writing",
+          "total_iterations_including_first": 4,
+          "extra_repeats_after_first": 3,
+          "evidence_event_text_offset": [
+            [
+              359,
+              111,
+              0
+            ],
+            [
+              372,
+              113,
+              0
+            ],
+            [
+              385,
+              115,
+              0
+            ],
+            [
+              398,
+              115,
+              0
+            ]
+          ]
+        },
+        {
+          "group": 11,
+          "type": "reasoning",
+          "reason": "redaction/prior-split decision revisited",
+          "total_iterations_including_first": 5,
+          "extra_repeats_after_first": 4,
+          "evidence_event_text_offset": [
+            [
+              458,
+              128,
+              17168
+            ],
+            [
+              458,
+              128,
+              22872
+            ],
+            [
+              458,
+              128,
+              24105
+            ],
+            [
+              458,
+              128,
+              24446
+            ],
+            [
+              458,
+              128,
+              25523
+            ]
+          ]
+        },
+        {
+          "group": 12,
+          "type": "reasoning",
+          "reason": "redaction/prior-split decision revisited",
+          "total_iterations_including_first": 5,
+          "extra_repeats_after_first": 4,
+          "evidence_event_text_offset": [
+            [
+              468,
+              131,
+              2252
+            ],
+            [
+              468,
+              131,
+              9599
+            ],
+            [
+              468,
+              131,
+              9815
+            ],
+            [
+              468,
+              131,
+              10168
+            ],
+            [
+              468,
+              131,
+              11193
+            ]
+          ]
+        },
+        {
+          "group": 13,
+          "type": "reasoning",
+          "reason": "redaction/prior-split decision revisited",
+          "total_iterations_including_first": 7,
+          "extra_repeats_after_first": 6,
+          "evidence_event_text_offset": [
+            [
+              475,
+              133,
+              3664
+            ],
+            [
+              475,
+              133,
+              4860
+            ],
+            [
+              475,
+              133,
+              6001
+            ],
+            [
+              475,
+              133,
+              7611
+            ],
+            [
+              475,
+              133,
+              9296
+            ],
+            [
+              475,
+              133,
+              9964
+            ],
+            [
+              475,
+              133,
+              10725
+            ]
+          ]
+        },
+        {
+          "group": 14,
+          "type": "reasoning",
+          "reason": "unchanged gap-count arithmetic",
+          "total_iterations_including_first": 2,
+          "extra_repeats_after_first": 1,
+          "evidence_event_text_offset": [
+            [
+              468,
+              131,
+              6351
+            ],
+            [
+              468,
+              131,
+              7004
+            ]
+          ]
+        }
+      ],
+      "loop_text_sha256": {
+        "31": "e04ee876a31365e429b43cb93f8b6a2f5a19662d1c899a516997e07da73f9cac",
+        "35": "00a17bbcddb9509bf29444ffba65c56ccfef22dbf56c31367fdd018f8e3e6a5c",
+        "43": "4ce39b82bb4a99e339196db1d8e24b76e779ddd15530ef291f1fc5ca7433383b",
+        "56": "e865b746097ecfba507819c146f43703e1e737d343fa28ff2e5621734e1a6d40",
+        "65": "93e0a96bfa281c65728b1bef7178f68f61b030ee461806e9c97561f9418810f1",
+        "67": "69ddafa9739065155bcd387cd2eeaf13ca89f428ac8a105b474f3af8a6b6da2c",
+        "69": "854c04bc0249bf5a2a8dbe8313704195093bca630fe323b82d65f355fba21bbb",
+        "100": "fc0cad759ed03f64399105254f04d8ba9cf908f8f7c6461e458d8f53e2d0f17a",
+        "102": "ce05179588bcce1d07a970461a8a319cba25e839a96db712237542a32541b34c",
+        "104": "0ce0d8de3fa36ce3eedd9f540e735d256e59653bb07234320a7a111e540c14ce",
+        "111": "f3c9aff497bf013b7bf69fa0a87f80bedc49f201b8193f122e0f59a096209bc3",
+        "113": "cffbca7fde3f9794272ed90eff6a934d99f2dab9863445dcbde99e6585ed315c",
+        "115": "4b5049ea52eb1a47b31006e46cab5deb14b0fef2b13a4ba970b73f8e9c743361",
+        "128": "bcc40f975638d4f0e80f707fea031d0c2720c0eab258b85e3b65f47d9cfe9d1f",
+        "131": "63fec0ee8b7ba89263e7ddd6ef07bfc9f4ac888db15252649899340499bd6556",
+        "133": "c99350e324872a31f6086bd8865ea3b3a3a3bc00a92899f3aea6e59d9501b40f"
+      },
+      "loop_uncertainty": {
+        "additional_iterations_upper_bound": null,
+        "reason": "Repeated reasoning interleaves distinct requirement mappings, comparisons and reformulations. Additional fine-grained iterations cannot be separated reliably from normal work; confirmed counts do not estimate these as zero.",
+        "boundary_candidates": [
+          "Fine-grained stance/evidence-range oscillations within long reasoning beyond the explicit anchors.",
+          "Cross-turn revisits around new probes and restored reports; necessary recovery excluded."
+        ]
+      },
+      "loop_exclusions": [
+        "Initial mapping of different requirements and one reasonable verification.",
+        "New probe facts, changed failures with a substantive repair, mandatory cleared-report rebuilding.",
+        "Mechanical missing-row/source-line corrections.",
+        "Service-injected ending phrase and native/event/tool-output/compaction mirrors."
+      ],
+      "dynamic_hint_triggered": 0,
+      "dynamic_hint_native_delivered": 0,
+      "guard_policy_observed": true,
+      "guard_final_cursor": 14,
+      "guard_repeat_message_id": null,
+      "startup_prompt_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+      "startup_source_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "compact_prompt_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+      "compact_source_sha256": [
+        "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+        "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+      ]
+    },
+    {
+      "repetition": 2,
+      "instance_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-2",
+      "thread_id": "01a11804-0be6-7083-ade5-c4e3e9744a44",
+      "host": "local",
+      "model": "Q2_0",
+      "score": 0.7656659799465438,
+      "formal_acceptance": false,
+      "native_complete": true,
+      "report_rows": 118,
+      "original_report_sha256": "2a74a282c66ac7611975dad29884d0960496b2f889b1351ee4bab7b44ecb8074",
+      "native_session_sha256": "e4183e5867fa383e8528699205ee3c39fc11f69708842ed02e8a008550c10d0a",
+      "internal_log_sha256": "66b48086e5033ae49cd264eea14f9d762428be0d584211de90c4d313a16566bd",
+      "scoring_sha256": "ab982b9c7bf58ee3a8d0c837a6d67d6d475754356bb1547c33ad235e8f234405",
+      "main_inspection_sha256": "22d53f786206d731a99ff17af671b161b1985d73be9c8a1958e0398f421af6b5",
+      "full_native_session_inspection": true,
+      "native_event_count": 382,
+      "tool_calls": 58,
+      "tool_results": 58,
+      "source_isolation_passed": false,
+      "mandatory_failures": [
+        "At346 the reviewer explicitly read ARW_BACKGROUND_AGENT_RUN_ID and queried executable identity with which arw. This is the prohibited harness/environment identity source, even though no hidden expected content or other instance was read.",
+        "Several shell calls omit required exact workdir, including20 and post-compaction calls188 onward; actual cwd stayed in its scenario.",
+        "Ordinary file-root sandbox mount failures recur after compaction; original auto_review escalations recover.",
+        "Concrete gaps reasoned from74 onward, first report write138; immediate finding-write requirement fails.",
+        "Native final send_message attempted360 with missing id;367 accepted a corrected message but persistenceStatus nonpersisted. Accepted receipt does not satisfy durable delivery."
+      ],
+      "finding_checks": {
+        "total_requirements": 118,
+        "checked_requirements": 118,
+        "reported_non_satisfied": 35,
+        "semantic_result_mismatches": 8,
+        "mismatches": [
+          {
+            "row": 16,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+              "line": 39
+            },
+            "model_result": "satisfied",
+            "main_result": "uncertain",
+            "basis": "provider.load delegates without linking configuredRegions; no provider binding/return contract available"
+          },
+          {
+            "row": 21,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+              "line": 44
+            },
+            "model_result": "gap",
+            "main_result": "satisfied",
+            "basis": "Only judge the named retryTransient predicate, which already requires an explicit true marker; applying the unused retry loop contradicts this requirement scope."
+          },
+          {
+            "row": 22,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+              "line": 45
+            },
+            "model_result": "satisfied",
+            "main_result": "uncertain",
+            "basis": "adapter.restore return/partial-write success contract absent; delegation alone cannot prove completed restoration"
+          },
+          {
+            "row": 36,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+              "line": 24
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "auth redaction removes token only, leaves credential data"
+          },
+          {
+            "row": 65,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 12
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "auth redaction removes token only, leaves credential data"
+          },
+          {
+            "row": 74,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 24
+            },
+            "model_result": "gap",
+            "main_result": "uncertain",
+            "basis": "wrapper has no cleanup but delegated renameTemporary contract absent; cannot rule out internal cleanup"
+          },
+          {
+            "row": 99,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 55
+            },
+            "model_result": "satisfied",
+            "main_result": "uncertain",
+            "basis": "adapter return contract unspecified; direct pass-through cannot prove reporting restoration success"
+          },
+          {
+            "row": 117,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 76
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "routeKey token does not apply required NFKC normalization"
+          }
+        ],
+        "scoring_candidates_checked": 32,
+        "scoring_candidates_matched": 31
+      },
+      "automatic_continuations": 0,
+      "successful_compactions": 1,
+      "profile_default_sha256_before": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "profile_default_sha256_after": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "profile_default_unchanged": true,
+      "stop_clean_unload": true,
+      "tokens": {
+        "uncached_input": 3976086,
+        "cached_input": 476608,
+        "output": 102285
+      },
+      "internal_stage_count": 102,
+      "review_work_seconds": 2069.011069580078,
+      "review_work_seconds_estimated": false,
+      "work_time_source": "Persisted review-work intervals; tools and active recovery included, shutdown and ended-turn idle excluded; estimated transitions retained in the ledger.",
+      "engine_input_seconds": 1247.512,
+      "engine_decode_seconds": 800.885,
+      "engine_input_tokens_per_second": 3187.212628014801,
+      "engine_output_tokens_per_second": 127.71496531961517,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 2069.011069580078,
+      "task_input_tokens_per_second": 1921.7325892833321,
+      "task_output_tokens_per_second": 49.43666155481688,
+      "review_work_seconds_bounds": [
+        2069.011069580078,
+        2069.011069580078
+      ],
+      "work_time_bound_basis": "Only estimated resume-start transitions vary: earliest previous bound terminal, latest native task_started event timestamp. Exact original start/end preserved; no unbounded missing interval.",
+      "task_speed_bounds": {
+        "input": [
+          1921.7325892833321,
+          1921.7325892833321
+        ],
+        "output": [
+          49.43666155481688,
+          49.43666155481688
+        ]
+      },
+      "loop_group_count": 14,
+      "total_loop_iterations": 37,
+      "extra_loop_repeats": 23,
+      "loop_count_kind": "confirmed-lower-bound-including-first",
+      "loop_groups": [
+        {
+          "group": 1,
+          "type": "reasoning",
+          "reason": "restore decision revisited",
+          "total_iterations_including_first": 2,
+          "extra_repeats_after_first": 1,
+          "evidence_event_text_offset": [
+            [
+              75,
+              32,
+              29117
+            ],
+            [
+              75,
+              32,
+              29813
+            ]
+          ]
+        },
+        {
+          "group": 2,
+          "type": "reasoning",
+          "reason": "nested token redaction decision revisited",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              128,
+              52,
+              2041
+            ],
+            [
+              128,
+              52,
+              2865
+            ],
+            [
+              128,
+              52,
+              3657
+            ]
+          ]
+        },
+        {
+          "group": 3,
+          "type": "reasoning",
+          "reason": "auth redaction decision revisited",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              128,
+              52,
+              9522
+            ],
+            [
+              128,
+              52,
+              10349
+            ],
+            [
+              128,
+              52,
+              10584
+            ]
+          ]
+        },
+        {
+          "group": 4,
+          "type": "reasoning",
+          "reason": "restore decision revisited",
+          "total_iterations_including_first": 2,
+          "extra_repeats_after_first": 1,
+          "evidence_event_text_offset": [
+            [
+              128,
+              52,
+              6168
+            ],
+            [
+              128,
+              52,
+              6966
+            ]
+          ]
+        },
+        {
+          "group": 5,
+          "type": "reasoning",
+          "reason": "public import vs invocation decision revisited",
+          "total_iterations_including_first": 6,
+          "extra_repeats_after_first": 5,
+          "evidence_event_text_offset": [
+            [
+              128,
+              52,
+              12708
+            ],
+            [
+              128,
+              52,
+              13707
+            ],
+            [
+              128,
+              52,
+              14320
+            ],
+            [
+              128,
+              52,
+              14831
+            ],
+            [
+              128,
+              52,
+              15012
+            ],
+            [
+              128,
+              52,
+              15743
+            ]
+          ]
+        },
+        {
+          "group": 6,
+          "type": "reasoning",
+          "reason": "unchanged requirement-count arithmetic",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              160,
+              58,
+              0
+            ],
+            [
+              160,
+              58,
+              321
+            ],
+            [
+              160,
+              58,
+              1056
+            ]
+          ]
+        },
+        {
+          "group": 7,
+          "type": "tool-probe",
+          "reason": "claimed fix keeps the same unclosed parenthesis",
+          "total_iterations_including_first": 2,
+          "extra_repeats_after_first": 1,
+          "evidence_event_text_offset": [
+            [
+              218,
+              73,
+              0
+            ],
+            [
+              225,
+              75,
+              0
+            ]
+          ]
+        },
+        {
+          "group": 8,
+          "type": "tool-probe",
+          "reason": "claimed Git index syntax fix keeps git show +file",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              246,
+              82,
+              0
+            ],
+            [
+              253,
+              84,
+              0
+            ],
+            [
+              260,
+              86,
+              0
+            ]
+          ]
+        },
+        {
+          "group": 9,
+          "type": "reasoning",
+          "reason": "redaction decision revisited",
+          "total_iterations_including_first": 2,
+          "extra_repeats_after_first": 1,
+          "evidence_event_text_offset": [
+            [
+              303,
+              103,
+              6889
+            ],
+            [
+              303,
+              103,
+              8324
+            ]
+          ]
+        },
+        {
+          "group": 10,
+          "type": "reasoning",
+          "reason": "redaction decision revisited",
+          "total_iterations_including_first": 2,
+          "extra_repeats_after_first": 1,
+          "evidence_event_text_offset": [
+            [
+              310,
+              106,
+              940
+            ],
+            [
+              310,
+              106,
+              15382
+            ]
+          ]
+        },
+        {
+          "group": 11,
+          "type": "reasoning",
+          "reason": "redaction decision revisited",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              317,
+              108,
+              387
+            ],
+            [
+              317,
+              108,
+              1236
+            ],
+            [
+              317,
+              108,
+              2675
+            ]
+          ]
+        },
+        {
+          "group": 12,
+          "type": "reasoning",
+          "reason": "redaction decision revisited",
+          "total_iterations_including_first": 2,
+          "extra_repeats_after_first": 1,
+          "evidence_event_text_offset": [
+            [
+              324,
+              110,
+              220
+            ],
+            [
+              324,
+              110,
+              842
+            ]
+          ]
+        },
+        {
+          "group": 13,
+          "type": "reasoning",
+          "reason": "redaction decision revisited",
+          "total_iterations_including_first": 2,
+          "extra_repeats_after_first": 1,
+          "evidence_event_text_offset": [
+            [
+              331,
+              112,
+              1845
+            ],
+            [
+              331,
+              112,
+              3832
+            ]
+          ]
+        },
+        {
+          "group": 14,
+          "type": "reasoning",
+          "reason": "redaction decision revisited",
+          "total_iterations_including_first": 2,
+          "extra_repeats_after_first": 1,
+          "evidence_event_text_offset": [
+            [
+              366,
+              122,
+              1515
+            ],
+            [
+              366,
+              122,
+              3224
+            ]
+          ]
+        }
+      ],
+      "loop_text_sha256": {
+        "32": "7526e6616b2c4bd3ff01314267bff58af5cfbe288dfc82f18db5a3f6a5e37c8b",
+        "52": "f7890977dbd80ecb7aa3a1bafd41aa04eecdbb54778d45b8f2341501ab90d5ce",
+        "58": "eac900a426ca8578fe2ac6d0a02e8c06bd6de9255dff6cb3b8546842e77ebf2c",
+        "73": "e9d3d452a358a52d5fe3c351f5c745a7c8c878f889108a29537bd6a23c16b33d",
+        "75": "dc81d49d7441593fc01ccc4d47528b14caf2d8e3ae1594d34be2ba956d213b0d",
+        "82": "1b1a5049debb435bc27f462e327c3d2ebea2a039c5ed532b885d80cdf1d6ba5e",
+        "84": "fb381b405ee0c6fa392389a5750f56361a33733d36048a2d4a7406b8b49be881",
+        "86": "f603579540d6e569d62c6898cfd7ca0e3a17a9bded08904e36c9ed756ade74b9",
+        "103": "6305f18fddfa9f02a53755e2d57ae046b0f84968f0817b8b375c4648cae5baeb",
+        "106": "f6447dcc7aca5be25b743cd4bf2ddd9a209c5412c2c581edc12307bb95aa2ab1",
+        "108": "c39acfefb8bc164434676cdf59d93fd97bfb63d9a268dfaca1ac5c49b56121de",
+        "110": "ebde5c7311cb02cbba8e2227286e14d84fae61c2b25a43324c236a806a39e6dc",
+        "112": "4350e840c385512181fc16a0143b101265ec3868758eaf929a081435af32dd64",
+        "122": "566ffbf8e164b288cd089bbe2b98f2342be49caef511c51af8d492f74c674485"
+      },
+      "loop_uncertainty": {
+        "additional_iterations_upper_bound": null,
+        "reason": "Repeated reasoning interleaves distinct requirement mappings, comparisons and reformulations. Additional fine-grained iterations cannot be separated reliably from normal work; confirmed counts do not estimate these as zero.",
+        "boundary_candidates": [
+          "Fine-grained stance/evidence-range oscillations within long reasoning beyond the explicit anchors.",
+          "Cross-turn revisits around new probes and restored reports; necessary recovery excluded."
+        ]
+      },
+      "loop_exclusions": [
+        "Initial mapping of different requirements and one reasonable verification.",
+        "New probe facts, changed failures with a substantive repair, mandatory cleared-report rebuilding.",
+        "Mechanical missing-row/source-line corrections.",
+        "Service-injected ending phrase and native/event/tool-output/compaction mirrors."
+      ],
+      "dynamic_hint_triggered": 0,
+      "dynamic_hint_native_delivered": 0,
+      "guard_policy_observed": true,
+      "guard_final_cursor": 54,
+      "guard_repeat_message_id": null,
+      "startup_prompt_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+      "startup_source_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "compact_prompt_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+      "compact_source_sha256": [
+        "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+        "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+      ]
+    },
+    {
+      "repetition": 3,
+      "instance_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-3",
+      "thread_id": "01a11823-dbd9-76f2-bea5-5b3ebf058574",
+      "host": "local",
+      "model": "Q2_0",
+      "score": 0.6721150770856342,
+      "formal_acceptance": false,
+      "native_complete": true,
+      "report_rows": 118,
+      "original_report_sha256": "1302b28693724252074be7aa874a76af0692b334c4d44533248c9ac90a42da60",
+      "native_session_sha256": "dc72758ef93fe1d3a5a2cb58b7b9ee155e328f33d8ecf198beb164f9618768fe",
+      "internal_log_sha256": "2234d8a9b3e03d1b8f7bde4e74a3040e433eb922879efeece133362f49dfa8c7",
+      "scoring_sha256": "9f9e01a2750e399ade8fcdeb91ba103706b1e4a96422b51ddbded29de9ae2853",
+      "main_inspection_sha256": "9611c1dd148714d0edf09d7c008247f71f7df2620ab1a9fa331f04c4a3138c9a",
+      "full_native_session_inspection": true,
+      "native_event_count": 343,
+      "tool_calls": 46,
+      "tool_results": 46,
+      "source_isolation_passed": true,
+      "mandatory_failures": [
+        "Plain report-file writable-root sandbox initialization fails before commands; original auto_review escalation succeeds.",
+        "Concrete findings reasoned from67 onward but first full write84; immediate finding-write contract fails.",
+        "Post-compaction shell calls252 onward omit the explicitly required exact workdir; actual cwd remained the scenario root.",
+        "No ARW send_message notification in native record; original notification contract fails despite ready delivery."
+      ],
+      "finding_checks": {
+        "total_requirements": 118,
+        "checked_requirements": 118,
+        "reported_non_satisfied": 37,
+        "semantic_result_mismatches": 6,
+        "mismatches": [
+          {
+            "row": 16,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+              "line": 39
+            },
+            "model_result": "satisfied",
+            "main_result": "uncertain",
+            "basis": "Opaque configured provider or restore adapter contract is absent; direct delegation alone cannot prove its promised result."
+          },
+          {
+            "row": 36,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+              "line": 24
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "auth redaction removes token only, leaves credential data"
+          },
+          {
+            "row": 51,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+              "line": 45
+            },
+            "model_result": "gap",
+            "main_result": "satisfied",
+            "basis": "test invokes shadowed internal binding"
+          },
+          {
+            "row": 65,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 12
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "auth redaction removes token only, leaves credential data"
+          },
+          {
+            "row": 74,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 24
+            },
+            "model_result": "gap",
+            "main_result": "uncertain",
+            "basis": "rename failure has no temporary cleanup"
+          },
+          {
+            "row": 117,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 76
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "routeKey token does not apply required NFKC normalization"
+          }
+        ],
+        "scoring_candidates_checked": 27,
+        "scoring_candidates_matched": 27,
+        "binding_basis": "Same36business/public-rule/generated-config files as prior independent Main review; current118records and all evidence manually rechecked, no hidden expected used as sole truth."
+      },
+      "automatic_continuations": 3,
+      "successful_compactions": 1,
+      "profile_default_sha256_before": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "profile_default_sha256_after": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "profile_default_unchanged": true,
+      "stop_clean_unload": true,
+      "tokens": {
+        "uncached_input": 3158370,
+        "cached_input": 523590,
+        "output": 80030
+      },
+      "internal_stage_count": 82,
+      "review_work_seconds": 1621.6508918457032,
+      "review_work_seconds_estimated": true,
+      "work_time_source": "Persisted review-work intervals; tools and active recovery included, shutdown and ended-turn idle excluded; estimated transitions retained in the ledger.",
+      "engine_input_seconds": 991.538,
+      "engine_decode_seconds": 613.504,
+      "engine_input_tokens_per_second": 3185.3242134945913,
+      "engine_output_tokens_per_second": 130.44739724598372,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 1621.6508918457032,
+      "task_input_tokens_per_second": 1947.6263453999397,
+      "task_output_tokens_per_second": 49.350942550225966,
+      "review_work_seconds_bounds": [
+        1621.6398916893006,
+        1622.2060220890046
+      ],
+      "work_time_bound_basis": "Only estimated resume-start transitions vary: earliest previous bound terminal, latest native task_started event timestamp. Exact original start/end preserved; no unbounded missing interval.",
+      "task_speed_bounds": {
+        "input": [
+          1946.9598540466468,
+          1947.6395568376474
+        ],
+        "output": [
+          49.33405431262111,
+          49.351277315107765
+        ]
+      },
+      "loop_group_count": 3,
+      "total_loop_iterations": 10,
+      "extra_loop_repeats": 7,
+      "loop_count_kind": "confirmed-lower-bound-including-first",
+      "loop_groups": [
+        {
+          "group": 1,
+          "type": "reasoning",
+          "reason": "unchanged requirement-count arithmetic",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              81,
+              33,
+              107
+            ],
+            [
+              81,
+              33,
+              829
+            ],
+            [
+              81,
+              33,
+              1068
+            ]
+          ]
+        },
+        {
+          "group": 2,
+          "type": "reasoning",
+          "reason": "unchanged requirement-count arithmetic",
+          "total_iterations_including_first": 4,
+          "extra_repeats_after_first": 3,
+          "evidence_event_text_offset": [
+            [
+              90,
+              35,
+              0
+            ],
+            [
+              90,
+              35,
+              538
+            ],
+            [
+              90,
+              35,
+              1872
+            ],
+            [
+              90,
+              35,
+              2706
+            ]
+          ]
+        },
+        {
+          "group": 3,
+          "type": "tool-probe",
+          "reason": "claimed script repair keeps the same missing blackout parenthesis",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              151,
+              58,
+              0
+            ],
+            [
+              158,
+              61,
+              0
+            ],
+            [
+              165,
+              63,
+              0
+            ]
+          ]
+        }
+      ],
+      "loop_text_sha256": {
+        "33": "9a6362b203eafb63793905e722c13330b7a5d010bc23728b9e58babd29dd2b06",
+        "35": "6a6a21e32a49c6c4a1fc4f1e134d6e1de621498f3323dbe0bf5003bb82277736",
+        "58": "c74479a7f41fdc31901e624a9279e8c197121401bc46d45caa3252f393116e54",
+        "61": "e5f10ebcbc42f6c9c07c5f092cf07d08c6d0bd0c2d81b027d788e8db5adeef2f",
+        "63": "24337f509dcfbec1e648243c75277b4e3bf73473310c5da781a4b94d356f114c"
+      },
+      "loop_uncertainty": {
+        "additional_iterations_upper_bound": null,
+        "reason": "Repeated reasoning interleaves distinct requirement mappings, comparisons and reformulations. Additional fine-grained iterations cannot be separated reliably from normal work; confirmed counts do not estimate these as zero.",
+        "boundary_candidates": [
+          "Fine-grained stance/evidence-range oscillations within long reasoning beyond the explicit anchors.",
+          "Cross-turn revisits around new probes and restored reports; necessary recovery excluded."
+        ]
+      },
+      "loop_exclusions": [
+        "Initial mapping of different requirements and one reasonable verification.",
+        "New probe facts, changed failures with a substantive repair, mandatory cleared-report rebuilding.",
+        "Mechanical missing-row/source-line corrections.",
+        "Service-injected ending phrase and native/event/tool-output/compaction mirrors."
+      ],
+      "dynamic_hint_triggered": 0,
+      "dynamic_hint_native_delivered": 0,
+      "guard_policy_observed": true,
+      "guard_final_cursor": 18,
+      "guard_repeat_message_id": null,
+      "startup_prompt_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+      "startup_source_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "compact_prompt_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+      "compact_source_sha256": [
+        "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+        "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+      ]
+    }
+  ],
+  "arithmetic_mean": {
+    "score": 0.7017843237759233,
+    "review_work_seconds": 2084.6985498860677,
+    "engine_input_tokens_per_second": 3158.2396793953467,
+    "engine_output_tokens_per_second": 130.0490114500146,
+    "task_input_tokens_per_second": 1736.635137255963,
+    "task_output_tokens_per_second": 57.52602773556687,
+    "loop_group_count": 10.333333333333334,
+    "total_loop_iterations": 31.333333333333332,
+    "extra_loop_repeats": 21,
+    "dynamic_hint_triggered": 0,
+    "dynamic_hint_native_delivered": 0,
+    "successful_compactions": 1.3333333333333333,
+    "tokens": {
+      "uncached_input": 3523619.3333333335,
+      "cached_input": 757027,
+      "output": 123824
+    },
+    "review_work_seconds_bounds": [
+      2084.6755498046878,
+      2085.5236513411205
+    ],
+    "task_speed_bounds": {
+      "input": [
+        1736.0785059487187,
+        1736.6496516704294
+      ],
+      "output": [
+        57.50198753372007,
+        57.526695862683404
+      ]
+    },
+    "review_work_seconds_population_stdev": 384.64120222293747,
+    "review_work_seconds_min": 1621.6508918457032,
+    "review_work_seconds_max": 2563.433688232422
+  },
+  "historical_reference": {
+    "strata": "0.1.40.1",
+    "source": "reports/v0.1.40.1/command-loop-guard/summary.json",
+    "sha256": "ba2284309dabb47d0fa8b6d5e8dcc2b786efae36819e103f0fe247d1a94be34d",
+    "baseline": {
+      "observations": [
+        {
+          "repetition": 1,
+          "score": 0.8081430630382209,
+          "review_work_seconds": 1086.5544431152343,
+          "tokens": {
+            "uncached_input": 2045864,
+            "cached_input": 302299,
+            "output": 53671
+          },
+          "engine_input_tokens_per_second": 3098.3058137228027,
+          "engine_output_tokens_per_second": 129.0962707820197,
+          "task_input_tokens_per_second": 1882.8913847467709,
+          "task_output_tokens_per_second": 49.39559203873959,
+          "formal_acceptance": false,
+          "loop_group_count": 0,
+          "total_loop_iterations": 0
+        },
+        {
+          "repetition": 2,
+          "score": 0.8224953691750466,
+          "review_work_seconds": 2168.8608803710936,
+          "tokens": {
+            "uncached_input": 4154510,
+            "cached_input": 602258,
+            "output": 108843
+          },
+          "engine_input_tokens_per_second": 3148.744370624018,
+          "engine_output_tokens_per_second": 131.549813268229,
+          "task_input_tokens_per_second": 1915.5262735381905,
+          "task_output_tokens_per_second": 50.18440831547337,
+          "formal_acceptance": false,
+          "loop_group_count": 3,
+          "total_loop_iterations": 393
+        },
+        {
+          "repetition": 3,
+          "score": 0.7925506945164519,
+          "review_work_seconds": 1444.401434326172,
+          "tokens": {
+            "uncached_input": 2611063,
+            "cached_input": 345578,
+            "output": 76251
+          },
+          "engine_input_tokens_per_second": 3131.097608503525,
+          "engine_output_tokens_per_second": 128.09287745746113,
+          "task_input_tokens_per_second": 1807.7128268832603,
+          "task_output_tokens_per_second": 52.79072575524814,
+          "formal_acceptance": false,
+          "loop_group_count": 2,
+          "total_loop_iterations": 17
+        }
+      ],
+      "arithmetic_mean": {
+        "repeat_count": 3,
+        "score": 0.8077297089099065,
+        "review_work_seconds": 1566.6055859374999,
+        "review_work_seconds_estimated": true,
+        "review_work_seconds_min": 1086.5544431152343,
+        "review_work_seconds_max": 2168.8608803710936,
+        "review_work_seconds_population_stdev": 450.2200921287655,
+        "tokens": {
+          "uncached_input": 2937145.6666666665,
+          "cached_input": 416711.6666666667,
+          "output": 79588.33333333333
+        },
+        "engine_input_tokens_per_second": 3126.0492642834483,
+        "engine_output_tokens_per_second": 129.5796538359033,
+        "task_input_tokens_per_second": 1868.7101617227406,
+        "task_output_tokens_per_second": 50.79024203648704,
+        "loop_observed_repeats": 2,
+        "loop_unknown_repeats": 0,
+        "formal_acceptance_repeats": 0
+      },
+      "loop_group_count_mean": 1.6666666666666667,
+      "total_loop_iterations_mean": 136.66666666666666
+    },
+    "previous_dynamic_mean": {
+      "score": 0.7757477554299279,
+      "loop_group_count": 3.6666666666666665,
+      "total_loop_iterations": 23,
+      "dynamic_hints": 0.3333333333333333,
+      "review_work_seconds": 1277.8120600585937,
+      "engine_input_tokens_per_second": 2942.7059745917786,
+      "engine_output_tokens_per_second": 125.07995550516489,
+      "task_input_tokens_per_second": 1921.2635383840761,
+      "task_output_tokens_per_second": 42.52423325400102,
+      "tokens": {
+        "uncached_input": 2408256.3333333335,
+        "cached_input": 280007,
+        "output": 52225
+      },
+      "work_seconds_bounds": [
+        1277.8120600585937,
+        1375.3103471005759
+      ],
+      "task_speed_bounds": {
+        "input": [
+          1768.3203509365026,
+          1921.2635383840761
+        ],
+        "output": [
+          39.01864951268423,
+          42.52423325400102
+        ]
+      }
+    }
+  },
+  "loop_count_method": {
+    "definition": "Confirmed repeated-decision/no-progress remapping/probe groups; count first iteration plus subsequent returns. Sum every confirmed group per review.",
+    "main_full_reading_precedes_annotation": true,
+    "confirmed_iterations_including_first": [
+      47,
+      37,
+      10
+    ],
+    "confirmed_extra_repeats": [
+      33,
+      23,
+      7
+    ],
+    "counts_are_lower_bounds": true,
+    "additional_ambiguous_iterations_upper_bound": null,
+    "not_zero": "Distinct requirement mappings and successful repairs/recovery are excluded; finer ambiguous repeated reasoning retained as uncertainty. No assumed midpoints or zeros. Historical baseline393outlier and different Strata version prohibit a causal reduction claim."
+  },
+  "limits": [
+    "Formal batch fails: all3ordinary file-root sandbox failures and delayed finding writes; instance2reads prohibited environment identity; required original ARW notifications absent or nonpersisted. Scores remain diagnostic.",
+    "Three historical baseline results reused only as historical references: Strata0.1.40.1 versus0.1.40.2. No matched-version no-guard baseline was run per user instruction.",
+    "Command guard never triggered; no effect of a delivered hint can be estimated from this batch. It recognizes command/cwd/exit/output signatures, not reasoning or semantic command variants.",
+    "All295internalstages are counted once from the bound stopped-engine logs, including actual continuation/compaction/guardian work; API usage is diagnostic only. Main inspection/scoring/deployment time excluded from Reviewer work/token scope.",
+    "Loop counts are confirmed lower bounds; additional fine-grained ambiguous transitions have no reliable finite upper bound. Means propagate the lower-bound nature.",
+    "Raw native sessions/logs and detailed adjudications remain temporary. This compactJSON recomputes all tables independently; deleting raw details prevents replay or renewed native evidence verification."
+  ],
+  "next_work": {
+    "models_started": 0,
+    "local": "Review current group; then affected ARW permission/completion/continuation safety recovery using synced760007c before resuming originally authorized12Spec instances.",
+    "rtx3080ti": "Review concrete700/500/300reserve plan:9coldmodelinstances,27logicalrequests,35-55min. Before running controlled500/300admission, per-host/model source separation and both-host deployment verification.",
+    "next_groups_require_review": true,
+    "new_scope_approved": false
+  },
+  "dynamic_policy_evidence": {
+    "upstream_sha256": "de7c041908539fc5bca583370dc6470a7d52b69938f1293dbb23816752e88573",
+    "persisted_active_snapshot_observations": 1427,
+    "per_thread": [
+      {
+        "thread": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+        "observations": 590,
+        "hints": 0,
+        "final_cursor": 14,
+        "lastCommandId": "call_e6ade1b52af64ff6a5f1be5c"
+      },
+      {
+        "thread": "01a11804-0be6-7083-ade5-c4e3e9744a44",
+        "observations": 466,
+        "hints": 0,
+        "final_cursor": 54,
+        "lastCommandId": "call_b401f74d1313419dbdd1a957"
+      },
+      {
+        "thread": "01a11823-dbd9-76f2-bea5-5b3ebf058574",
+        "observations": 371,
+        "hints": 0,
+        "final_cursor": 18,
+        "lastCommandId": "call_6e1f7c6d8bdf464eaf01046f"
+      }
+    ],
+    "offline_original_policy_replay_hints": 0,
+    "replay_is_not_a_model_run": true,
+    "observed_final_guard_states_match_replay": true
+  },
+  "semantic_error_groups": [
+    {
+      "group": "脱敏未处理其他credential",
+      "requirement_record_count": 6,
+      "records": [
+        {
+          "repetition": 1,
+          "row": 36,
+          "model_result": "satisfied",
+          "main_result": "gap"
+        },
+        {
+          "repetition": 1,
+          "row": 65,
+          "model_result": "satisfied",
+          "main_result": "gap"
+        },
+        {
+          "repetition": 2,
+          "row": 36,
+          "model_result": "satisfied",
+          "main_result": "gap"
+        },
+        {
+          "repetition": 2,
+          "row": 65,
+          "model_result": "satisfied",
+          "main_result": "gap"
+        },
+        {
+          "repetition": 3,
+          "row": 36,
+          "model_result": "satisfied",
+          "main_result": "gap"
+        },
+        {
+          "repetition": 3,
+          "row": 65,
+          "model_result": "satisfied",
+          "main_result": "gap"
+        }
+      ],
+      "possible_cause": "Scope/adapter-contract boundaries are not consistently preserved; native reasoning repeatedly speculates about scenario intent. This is an evidence-based hypothesis, not proven causality."
+    },
+    {
+      "group": "未知restore合同被确定宣称通过",
+      "requirement_record_count": 4,
+      "records": [
+        {
+          "repetition": 1,
+          "row": 22,
+          "model_result": "satisfied",
+          "main_result": "uncertain"
+        },
+        {
+          "repetition": 1,
+          "row": 99,
+          "model_result": "satisfied",
+          "main_result": "uncertain"
+        },
+        {
+          "repetition": 2,
+          "row": 22,
+          "model_result": "satisfied",
+          "main_result": "uncertain"
+        },
+        {
+          "repetition": 2,
+          "row": 99,
+          "model_result": "satisfied",
+          "main_result": "uncertain"
+        }
+      ],
+      "possible_cause": "Scope/adapter-contract boundaries are not consistently preserved; native reasoning repeatedly speculates about scenario intent. This is an evidence-based hypothesis, not proven causality."
+    },
+    {
+      "group": "未知provider绑定被确定宣称通过",
+      "requirement_record_count": 3,
+      "records": [
+        {
+          "repetition": 1,
+          "row": 16,
+          "model_result": "satisfied",
+          "main_result": "uncertain"
+        },
+        {
+          "repetition": 2,
+          "row": 16,
+          "model_result": "satisfied",
+          "main_result": "uncertain"
+        },
+        {
+          "repetition": 3,
+          "row": 16,
+          "model_result": "satisfied",
+          "main_result": "uncertain"
+        }
+      ],
+      "possible_cause": "Scope/adapter-contract boundaries are not consistently preserved; native reasoning repeatedly speculates about scenario intent. This is an evidence-based hypothesis, not proven causality."
+    },
+    {
+      "group": "缺renameTemporary合同确定宣称泄漏",
+      "requirement_record_count": 3,
+      "records": [
+        {
+          "repetition": 1,
+          "row": 74,
+          "model_result": "gap",
+          "main_result": "uncertain"
+        },
+        {
+          "repetition": 2,
+          "row": 74,
+          "model_result": "gap",
+          "main_result": "uncertain"
+        },
+        {
+          "repetition": 3,
+          "row": 74,
+          "model_result": "gap",
+          "main_result": "uncertain"
+        }
+      ],
+      "possible_cause": "Scope/adapter-contract boundaries are not consistently preserved; native reasoning repeatedly speculates about scenario intent. This is an evidence-based hypothesis, not proven causality."
+    },
+    {
+      "group": "缺少NFKC路由token仍宣称通过",
+      "requirement_record_count": 3,
+      "records": [
+        {
+          "repetition": 1,
+          "row": 117,
+          "model_result": "satisfied",
+          "main_result": "gap"
+        },
+        {
+          "repetition": 2,
+          "row": 117,
+          "model_result": "satisfied",
+          "main_result": "gap"
+        },
+        {
+          "repetition": 3,
+          "row": 117,
+          "model_result": "satisfied",
+          "main_result": "gap"
+        }
+      ],
+      "possible_cause": "Scope/adapter-contract boundaries are not consistently preserved; native reasoning repeatedly speculates about scenario intent. This is an evidence-based hypothesis, not proven causality."
+    },
+    {
+      "group": "仅要求导入被扩成实际调用",
+      "requirement_record_count": 2,
+      "records": [
+        {
+          "repetition": 1,
+          "row": 51,
+          "model_result": "gap",
+          "main_result": "satisfied"
+        },
+        {
+          "repetition": 3,
+          "row": 51,
+          "model_result": "gap",
+          "main_result": "satisfied"
+        }
+      ],
+      "possible_cause": "Scope/adapter-contract boundaries are not consistently preserved; native reasoning repeatedly speculates about scenario intent. This is an evidence-based hypothesis, not proven causality."
+    },
+    {
+      "group": "正确retryTransient谓词被扩大为重试循环",
+      "requirement_record_count": 1,
+      "records": [
+        {
+          "repetition": 2,
+          "row": 21,
+          "model_result": "gap",
+          "main_result": "satisfied"
+        }
+      ],
+      "possible_cause": "Scope/adapter-contract boundaries are not consistently preserved; native reasoning repeatedly speculates about scenario intent. This is an evidence-based hypothesis, not proven causality."
+    }
+  ]
+}

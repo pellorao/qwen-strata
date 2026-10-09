@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "full-annotations-integrity-pass",
+  "behavior_sha256": "784148f62f4e7d61e1d6465e8d101852e8b4083b2990ca13c7a99b9f95b5a39a",
+  "annotation_sha256": "1d49d8607f4af8906c745916e577ea79c02b5df3442f7337f8b24057b3368ca6",
+  "traces_total": 235,
+  "traces_complete": 235,
+  "traces_pending": 0,
+  "complete_fact_labels": {
+    "normal": 5014,
+    "mixed": 230,
+    "loop": 59
+  },
+  "complete_model_tool_facts": 5303,
+  "non_model_facts": 3672,
+  "confirmed_groups": 156,
+  "new_bounded_groups": 14,
+  "historical_groups_retained": 142,
+  "loop_modes": {
+    "single_response": 82,
+    "cross_call": 74
+  },
+  "confirmed_iterations_including_first_lower_bound": 1238,
+  "confirmed_extra_repeats_lower_bound": 1082,
+  "issues": [],
+  "annotation_complete": true,
+  "detector_acceptance": false,
+  "f1": null,
+  "model_runs": 0,
+  "model_requests": 0,
+  "scope": "Full Main repetition-label overlay integrity only; historical count lower bounds and causal replay adapter limitations remain explicit. Not a detector score or safety/task-quality acceptance."
+}

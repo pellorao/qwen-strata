@@ -1,0 +1,18 @@
+{
+  "configVersion": 3,
+  "editor": {
+    "command": "code",
+    "args": [
+      "{file}"
+    ]
+  },
+  "reviewEditor": {
+    "command": "code",
+    "args": [
+      "{file}"
+    ]
+  },
+  "jira": {
+    "listLimit": 50
+  }
+}

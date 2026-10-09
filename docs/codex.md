@@ -1,0 +1,53 @@
+# 调用方接入
+
+安装项目提供模型服务和 Responses 协议桥。各工程自行管理 Codex 或其他 harness，包括 provider、catalog、工具、权限、会话、取消、恢复和压缩；本项目不生成工程配置或修改全局设置。
+
+## 模型与推理强度
+
+已安装的量化及模型 ID：
+
+| 启动量化 | 请求模型 ID |
+|---|---|
+| Q2_0 | qwen3.8-flash-next-q2_0 |
+| IQ2_XS | qwen3.8-flash-next-iq2_xs |
+| IQ3_XXS | qwen3.8-flash-next-iq3_xxs |
+
+请求模型 ID 必须与实际加载量化一致，修改请求名称不会加载另一份模型。当前维护运行起点按用户决定使用Q2_0/high/default，思考8192、总输出24576，100K阈值／156584窗口，见[运行基线](../config/maintenance-baseline.json)。high是依据现有耗时选择的起点，不代表v0.1.40已完成运行验收或所有配置最优。旧Commit Audit的low／medium／high各5次已闭合，其剩余原生检查已取消，诊断结果保留；升级后的下一配置比较是Spec Readiness合并场景medium/high × 100K/150K四组合，每组合3次，共12次。历史测量保留原配置，四类正式reviewer benchmark仍由ARW负责。
+
+Responses 请求用 reasoning.effort；原生 Chat 用 reasoning_effort。Codex 配置字段为 model_reasoning_effort，provider 的 wire_api 使用 responses，base_url 取启动结果中的 responses_base_url。工程应管理自己的配置入口和 model catalog；config/ 中的 Windows profile 是环境参考，不能直接复制到 Linux。官方字段见[配置参考](https://learn.chatgpt.com/docs/config-file/config-reference)。
+
+| 强度 | 思考 token 上限 | 默认总输出上限，含思考 |
+|---|---:|---:|
+| low | 2048 | 8192 |
+| medium | 4096 | 16384 |
+| high | 8192 | 24576 |
+
+Responses 桥按请求转换预算；若另设 max_output_tokens，思考预算还会被限制到总输出的一半。上限不是实际思考长度；reasoning token usage 当前不足以可靠计算后者。none 可关闭思考，xhigh/max 与 high 同预算，均不作为本次三档测量的额外维度。
+
+当前维护推荐100000压缩阈值、156584引擎/harness窗口；启动时显式传`engine_overrides.max-context=156584`，调用方同步设置自己的`model_context_window=156584`、`model_auto_compact_token_limit=100000`及所选模型catalog窗口。安装原始配置仍为250000，不等于当前推荐容量。输入加输出预算超限返回400，不静默裁剪。压缩阈值、提示与历史由调用方管理，见[压缩方案](compaction-options.md)。
+
+## 调用方独占要求
+
+调用方必须先取得独占权，再按自身需求启动指定量化，并在请求中使用所需推理强度。独占期间其他调用方无权启动、停止、切换或调用模型。安装目录的所有启停入口、Chat/Responses 及模型管理API须检查同一持有凭据；IP允许列表或短暂启动互斥锁不能代替调用方独占。
+
+安装根目录唯一公开入口为Run-Strata-Controller.sh，只检查并按需启动控制器。后续全部使用带key的HTTP API；完整独占流程、参数表及Python示例在[安装README](installation-directory-readme.md#调用方使用方法)。停止保留独占权，归还立即撤销key并关闭模型；控制器重启保留持有状态。实际拒绝、并发及重启证据见[控制器验收](../reports/v0.1.38/controller.md)。
+
+## 协议与工具
+
+控制器启动/模型状态提供chat_base_url、responses_base_url，均为当次WSL网关8101/v1。Chat发往其/chat/completions，Codex发往/responses，均需Authorization: Bearer <key>。Codex自定义provider通过env_key取得调用方私有环境变量中的key；网络、代理和防火墙见[运行说明](wsl-running.md)。
+
+桥保留function/custom工具、命名空间、additional_tools、客户端tool_search及其发现结果、调用ID、工具结果、SSE和缓存token usage。Hosted网页搜索在桥内执行；工具发现、MCP及其他普通工具仍由harness执行，桥不自行压缩。当前仅支持文本，拒绝加密输入、图像、未知工具类型及previous_response_id，调用方发送完整文本历史。连接失败503、上游超时504；流失败发送错误，不报告完成。
+
+安装`config/model-catalog.json`声明三种量化的文本搜索能力及各自本地auto_review_model_override。使用时在app-server启动时加载catalog；晚到的线程配置可能不会更新已构建的模型目录。是否启用auto_review由调用方决定，原生风险策略通常允许低/中风险行为，即使授权低或未知；它不提供绝对写路径边界。更严格隔离是本工程默认关闭的可选功能，见[沙箱模式](../reports/v0.1.38/safety-20261004/sandbox-modes.md)。
+
+Codex app-server 是会话和工具调度接口，不是模型服务器。验收须真正使用 Linux codex/app-server；从 WSL 调用 Windows codex.exe 仍会使用 Windows 执行环境。模型 API 与工具执行网络应分开管理，模型连通不意味着工具可以外连。
+
+src/project_files_mcp.py 是可选只读文件工具，由调用方显式配置 QWEN_PROJECT_WORKSPACE，可另设 QWEN_PROJECT_AUDIT。无工作目录则拒绝启动；审计记录参数及结果状态，不记录全文。它排除 .git/.venv/node_modules/__pycache__，拒绝越界及越界符号链接，提供目录分页和 UTF-8 分行读取：文件最多16MiB、单次400行/24000字符，必须处理截断、next_line和过长行。此MCP的范围限制不会自动约束shell/apply_patch。
+
+## 权限与审批
+
+本轮原版ARW Reviewer继承`:read-only`，授予显式临时写路径，使用on-request/auto_review。网络、Hosted搜索和MCP按原生工具机制保留；人工交互请求按原版Reviewer规则拒绝。三次完整运行、安全探针及重启恢复见[原版运行验收](../reports/v0.1.38/safety-20261004/native-host.md)。更严格路径集合工具默认关闭，启用时须另行验收，不随Codex版本变化自动加严。
+
+原生guardian实际使用本地qwen_strata、所加载量化及low推理强度。它依据风险策略判断，通常允许低/中风险动作，即使用户授权低或未知，因此默认权限不是提权后仍不可突破的绝对写集合边界。明确恶意注入、高风险越权及授权不明的受控MCP用例已验证，见[审批质量](../reports/v0.1.38/safety-20261004/approval-mcp.md)与[文件伪造授权](../reports/v0.1.38/safety-20261004/approval-quality-preflight.md#文件伪造授权独立诊断)；通过只覆盖已测类别。更早never/sandbox与无害提权的开销记录保留在历史报告，不作为本轮审批质量结论。
+
+模型权重、量化、推理强度、执行权限和独占凭据各有不同作用；选择模型不授权文件写入或权限升级。安装配置不自动应用到其他工程。

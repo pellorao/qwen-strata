@@ -1,0 +1,608 @@
+{
+  "status": "closed-six-requested-settings-observations-main-verified-effective-prefill-identical",
+  "host": "rtx3080ti",
+  "versions": {
+    "strata": "0.1.40.1",
+    "engine": "0.1.40"
+  },
+  "hardware": {
+    "gpu": "NVIDIA RTX 3080 Ti",
+    "vram_gib": 12,
+    "cpu": "Intel Core i9-13900",
+    "ram_gib": 64
+  },
+  "valid_instances": 6,
+  "actual_model_start_attempts": 6,
+  "logical_requests": 18,
+  "frontend_requests": 18,
+  "internal_stages": 18,
+  "validated_result_rows": 504,
+  "correct_requests": 18,
+  "fixed_start_options": {
+    "model": "Q2_0",
+    "engine_overrides": {
+      "prefill": 8192,
+      "kv": "int8",
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pcie-frac": 0.0,
+      "spec": 4,
+      "spec-min-p": 0.7,
+      "expert-cache": "auto",
+      "vram-reserve-mib": 700,
+      "adapt-every": 4,
+      "adapt-swaps": 96,
+      "adapt-decay": 0.7,
+      "mtp-window": 32768,
+      "pcie-mode": "auto",
+      "expert-cache-per-layer": false,
+      "expert-cache-cpu-order": false,
+      "pool-affinity": "all",
+      "ple-io": "direct",
+      "ple-inflight": 256,
+      "no-capture": false,
+      "no-host-worker": false,
+      "no-ple-prefetch": false,
+      "no-prefill-borrow": false,
+      "no-split-rows": false,
+      "no-coupled-draft": false,
+      "shared-late": false,
+      "keep-canonical": false,
+      "no-token-graph": false,
+      "no-fused-gr": false,
+      "no-hit-poke": false,
+      "ple-sync-submit": false,
+      "no-spec-split": false,
+      "gr-fp32-activations": false,
+      "ple-row-cache": 1048576,
+      "short-read": 64,
+      "suffix-draft": 3,
+      "mtp-max-t": 0,
+      "prompt-cache": 6,
+      "prompt-cache-every": 16384,
+      "prompt-cache-root": 2048,
+      "max-context": 156584
+    },
+    "engine_environment": {
+      "STRATA_HC_SPLIT": null,
+      "STRATA_ADAPT_NOWAIT": null,
+      "STRATA_SSD_KEEPALIVE": null
+    },
+    "request_defaults": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 24576,
+      "reasoning_budget_tokens": 8192,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "high"
+    },
+    "startup_instructions": true,
+    "loop_prevention_instructions": true
+  },
+  "workload_binding": {
+    "source": "benchmarks/resource-calibration-v1/workload.py",
+    "record_count": 787,
+    "user_prefix_tokens": 32752,
+    "request_user_tokens": [
+      33006,
+      33014,
+      33203
+    ],
+    "tokenizer_sha256": {
+      "chat_template.jinja": "12827f24b742ea4e80cdc12dbcf9622227056b9f797252a3149263d4f9aaadce",
+      "merges.txt": "080cf95432173729d160346b7882bd2a644b07f7a3813a3eb73f4e66787bfde9",
+      "tokenizer.json": "87be2ac47d8bc7393b7435df6ccd276740019a393941a2585d5edce59f450c54",
+      "token_type.json": "5088c8c298fc06af8382ddb3b76c888703ac2634e82263b97eedcc2ad202738b",
+      "vocab.json": "4ba64f0332abcfb0b600b7df1537d1e836e68009d5fb7cdb77339738dc6365c4"
+    },
+    "case_bindings": [
+      {
+        "id": "initial-extraction",
+        "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+        "expected_sha256": "a79eac60f4a13d3152444aec5e976b98fa5cd95a3ab6698c1ae13710d9829c35",
+        "expected_rows": 28
+      },
+      {
+        "id": "cached-calculation",
+        "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+        "expected_sha256": "981241594236afb80c77f5fee9c6d6d3ef5aed2e59d3a5a452ae2375eca3a691",
+        "expected_rows": 28
+      },
+      {
+        "id": "cached-update",
+        "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+        "expected_sha256": "9b202274bb231e305decbb3d6d66e15723a2facfc54808f1ce7c9e0a5e813575",
+        "expected_rows": 28
+      }
+    ]
+  },
+  "prompt_binding": {
+    "startup_source": "config/startup-instructions.txt",
+    "startup_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "compaction_policy": "project-base-plus-versioned-native-supplement",
+    "compaction_rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+    "compaction_sources": [
+      {
+        "source": "config/compact_prompt.txt",
+        "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+      },
+      {
+        "source": "tools/resources/codex/0.160.1/compact-prompt.txt",
+        "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+      }
+    ]
+  },
+  "rows": [
+    {
+      "label": "prefill8192-r1",
+      "condition": 8192,
+      "repetition": 1,
+      "started_at": 1791385243.6434765,
+      "ended_at": 1791385359.5234604,
+      "load_seconds": 16.399473710000166,
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "driver_sha256": "22ff442e70e4365a3e1ef18d2cd0f289e8346da053413f927670caba53a5db6a",
+      "engine_log_sha256": "87efacfb3009b49d315fc79e53ee9c63139bf21c15239147a00ab68e43da79e6",
+      "requested_prefill": 8192,
+      "effective_prefill": 8192,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "work_seconds": 36.26497303499491,
+          "correct_rows": 28,
+          "request_sha256": "44cd499189863ae5ab5e146c67b78e3ce22406d7d0ac7587f7ef3f32ad2f9c7e",
+          "response_sha256": "a614ac664f7fb1d163ab8d13ecdcef60b2c0c4dfca3c618fd4b45e14e442650a"
+        },
+        {
+          "id": "cached-calculation",
+          "work_seconds": 18.416215078003006,
+          "correct_rows": 28,
+          "request_sha256": "ca6dfdaadb9579e466e1720d08740e04f7fc8961236a1059fbc74b860fc4b0d0",
+          "response_sha256": "4199dc7b931c544f0602c10d86241d86b9b361241d06cebb146f2b73c47583f2"
+        },
+        {
+          "id": "cached-update",
+          "work_seconds": 26.014531971995893,
+          "correct_rows": 28,
+          "request_sha256": "88fd7b287df731f0783752ddea92b828ff728af75b7474e4387a09978a522fcc",
+          "response_sha256": "c86001b449f382af6ca78ef1395dc7d9e02b3108a63f7bd8ef7004554e17239c"
+        }
+      ],
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 8121
+      },
+      "review_work_seconds": 80.69572008499381,
+      "stop_evidence": "exact saved clean_unload receipt",
+      "counter_recovery": null,
+      "engine_input_seconds": 15.651,
+      "engine_decode_seconds": 64.771,
+      "engine_input_tokens_per_second": 2243.626605328733,
+      "engine_output_tokens_per_second": 125.38018557687855,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 80.69572008499381,
+      "task_input_tokens_per_second": 435.15318982239296,
+      "task_output_tokens_per_second": 100.63730754798956
+    },
+    {
+      "label": "prefill16384-r1",
+      "condition": 16384,
+      "repetition": 1,
+      "started_at": 1791385359.5241027,
+      "ended_at": 1791385472.6684246,
+      "load_seconds": 17.388525467002182,
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "driver_sha256": "22ff442e70e4365a3e1ef18d2cd0f289e8346da053413f927670caba53a5db6a",
+      "engine_log_sha256": "21aa2c3cbe2cd142e043f22eca59d8e1925b3d87ef580f607a520e52dc9d7664",
+      "requested_prefill": 16384,
+      "effective_prefill": 8192,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "work_seconds": 36.55661780900118,
+          "correct_rows": 28,
+          "request_sha256": "44cd499189863ae5ab5e146c67b78e3ce22406d7d0ac7587f7ef3f32ad2f9c7e",
+          "response_sha256": "ff6fd15fd94b7bb59fd6179ed424096cd1c291553d1c95f7ba88ff47ce8fcc00"
+        },
+        {
+          "id": "cached-calculation",
+          "work_seconds": 16.832549257997016,
+          "correct_rows": 28,
+          "request_sha256": "ca6dfdaadb9579e466e1720d08740e04f7fc8961236a1059fbc74b860fc4b0d0",
+          "response_sha256": "52e1f6955ba8fa1ab6179d24f503f169e90ad8babc6184009db5e2d1189d6b94"
+        },
+        {
+          "id": "cached-update",
+          "work_seconds": 24.100932390996604,
+          "correct_rows": 28,
+          "request_sha256": "88fd7b287df731f0783752ddea92b828ff728af75b7474e4387a09978a522fcc",
+          "response_sha256": "cea47c4f163c0733373efcde983b7058119c5d3f79ea6e0a24b7651ed3be1c88"
+        }
+      ],
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 7638
+      },
+      "review_work_seconds": 77.4900994579948,
+      "stop_evidence": "original stop JSON lost during parser exception; stopped/released proved by controller ledger and deleted owned key; no claim exact clean_unload receipt",
+      "counter_recovery": {
+        "error": "Parser incorrectly treated exact prompt-chunk clamp diagnostic as an incomplete token record.",
+        "model_requests_added": 0,
+        "original_attempt_preserved": true,
+        "stop_receipt_json_lost_before_capture_exception": true,
+        "stop_and_release_confirmed_by_controller_work_ledger": true
+      },
+      "engine_input_seconds": 15.747,
+      "engine_decode_seconds": 61.467,
+      "engine_input_tokens_per_second": 2229.948561630787,
+      "engine_output_tokens_per_second": 124.26179901410514,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 77.4900994579948,
+      "task_input_tokens_per_second": 453.1546642166184,
+      "task_output_tokens_per_second": 98.5674305933798
+    },
+    {
+      "label": "prefill16384-r2",
+      "condition": 16384,
+      "repetition": 2,
+      "started_at": 1791386049.2859187,
+      "ended_at": 1791386161.2548544,
+      "load_seconds": 16.338414249003108,
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "driver_sha256": "22ff442e70e4365a3e1ef18d2cd0f289e8346da053413f927670caba53a5db6a",
+      "engine_log_sha256": "cc33cfe4715dc1515cb632584913c2994e6b30eaea83bf5d916fd40996508d4e",
+      "requested_prefill": 16384,
+      "effective_prefill": 8192,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "work_seconds": 36.72754798400274,
+          "correct_rows": 28,
+          "request_sha256": "44cd499189863ae5ab5e146c67b78e3ce22406d7d0ac7587f7ef3f32ad2f9c7e",
+          "response_sha256": "c2365ea45f6e6b8403df19b59a76c37043e54263e46b86d735dee04f99743b92"
+        },
+        {
+          "id": "cached-calculation",
+          "work_seconds": 16.696381231005944,
+          "correct_rows": 28,
+          "request_sha256": "ca6dfdaadb9579e466e1720d08740e04f7fc8961236a1059fbc74b860fc4b0d0",
+          "response_sha256": "9da8286cb1347bf8787c40ae60cd33bf7f84073f46b29cf3bc5a876ef8b15620"
+        },
+        {
+          "id": "cached-update",
+          "work_seconds": 24.214070278998406,
+          "correct_rows": 28,
+          "request_sha256": "88fd7b287df731f0783752ddea92b828ff728af75b7474e4387a09978a522fcc",
+          "response_sha256": "137c19ae2b89035c49d94adaa57236cb8c00d87c34f202b9efdd714ecdb2e586"
+        }
+      ],
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 7640
+      },
+      "review_work_seconds": 77.63799949400709,
+      "stop_evidence": "exact saved clean_unload receipt",
+      "counter_recovery": null,
+      "engine_input_seconds": 15.644,
+      "engine_decode_seconds": 61.719,
+      "engine_input_tokens_per_second": 2244.6305292764,
+      "engine_output_tokens_per_second": 123.78684035710235,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 77.63799949400709,
+      "task_input_tokens_per_second": 452.29140664180227,
+      "task_output_tokens_per_second": 98.40542066761695
+    },
+    {
+      "label": "prefill8192-r2",
+      "condition": 8192,
+      "repetition": 2,
+      "started_at": 1791386161.257939,
+      "ended_at": 1791386277.6514096,
+      "load_seconds": 17.35891539199656,
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "driver_sha256": "22ff442e70e4365a3e1ef18d2cd0f289e8346da053413f927670caba53a5db6a",
+      "engine_log_sha256": "8d0999f43c579acdfbdf7e91b3516ed8bde95d0a3113ad4afec19d13587a8341",
+      "requested_prefill": 8192,
+      "effective_prefill": 8192,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "work_seconds": 36.32430185999692,
+          "correct_rows": 28,
+          "request_sha256": "44cd499189863ae5ab5e146c67b78e3ce22406d7d0ac7587f7ef3f32ad2f9c7e",
+          "response_sha256": "f8fa6af62c23ee0194c86d441edbed2b6e9797a7b21a3eca391485b7eb23a9a6"
+        },
+        {
+          "id": "cached-calculation",
+          "work_seconds": 16.5545795049984,
+          "correct_rows": 28,
+          "request_sha256": "ca6dfdaadb9579e466e1720d08740e04f7fc8961236a1059fbc74b860fc4b0d0",
+          "response_sha256": "8481c0712e09d93d5721fb85aa222e76aafe4601b2da47cc54aa7225c71e79b0"
+        },
+        {
+          "id": "cached-update",
+          "work_seconds": 27.966522184993664,
+          "correct_rows": 28,
+          "request_sha256": "88fd7b287df731f0783752ddea92b828ff728af75b7474e4387a09978a522fcc",
+          "response_sha256": "eb022c2c166f863697e8a8c6f43d82eac6f21706fed07d1dda49f268e393e945"
+        }
+      ],
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 8194
+      },
+      "review_work_seconds": 80.84540354998899,
+      "stop_evidence": "exact saved clean_unload receipt",
+      "counter_recovery": null,
+      "engine_input_seconds": 15.822,
+      "engine_decode_seconds": 64.76,
+      "engine_input_tokens_per_second": 2219.3780811528254,
+      "engine_output_tokens_per_second": 126.52872143298332,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 80.84540354998899,
+      "task_input_tokens_per_second": 434.34751337826407,
+      "task_output_tokens_per_second": 101.35393776510027
+    },
+    {
+      "label": "prefill8192-r3",
+      "condition": 8192,
+      "repetition": 3,
+      "started_at": 1791386277.6576028,
+      "ended_at": 1791386391.013205,
+      "load_seconds": 17.393417004001094,
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "driver_sha256": "22ff442e70e4365a3e1ef18d2cd0f289e8346da053413f927670caba53a5db6a",
+      "engine_log_sha256": "29689ba6e61dd35c29e8dbdeb102fa78dd5714908a5e207895b94690726deb48",
+      "requested_prefill": 8192,
+      "effective_prefill": 8192,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "work_seconds": 36.74441151099745,
+          "correct_rows": 28,
+          "request_sha256": "44cd499189863ae5ab5e146c67b78e3ce22406d7d0ac7587f7ef3f32ad2f9c7e",
+          "response_sha256": "229db76875cc7fe861c4fffbcc2e630155236494a6e89e596066d286396dd1c4"
+        },
+        {
+          "id": "cached-calculation",
+          "work_seconds": 16.871705607001786,
+          "correct_rows": 28,
+          "request_sha256": "ca6dfdaadb9579e466e1720d08740e04f7fc8961236a1059fbc74b860fc4b0d0",
+          "response_sha256": "18d13c788e8038df817d3ac7e97a8163b61e4c9901adf9f0c3b080707e8d6e6a"
+        },
+        {
+          "id": "cached-update",
+          "work_seconds": 24.320819848995598,
+          "correct_rows": 28,
+          "request_sha256": "88fd7b287df731f0783752ddea92b828ff728af75b7474e4387a09978a522fcc",
+          "response_sha256": "e06105a744f5265d8a6ca29a8959d2798832213dbbc46a08b5c013c1c6681d88"
+        }
+      ],
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 7639
+      },
+      "review_work_seconds": 77.93693696699484,
+      "stop_evidence": "exact saved clean_unload receipt",
+      "counter_recovery": null,
+      "engine_input_seconds": 15.976,
+      "engine_decode_seconds": 61.694,
+      "engine_input_tokens_per_second": 2197.9844767150726,
+      "engine_output_tokens_per_second": 123.82079294582941,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 77.93693696699484,
+      "task_input_tokens_per_second": 450.5565828802163,
+      "task_output_tokens_per_second": 98.0151427202612
+    },
+    {
+      "label": "prefill16384-r3",
+      "condition": 16384,
+      "repetition": 3,
+      "started_at": 1791386391.0161831,
+      "ended_at": 1791386502.6374698,
+      "load_seconds": 16.380613396002445,
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "driver_sha256": "22ff442e70e4365a3e1ef18d2cd0f289e8346da053413f927670caba53a5db6a",
+      "engine_log_sha256": "4d6a5ebf02ad5461aaf617e25673eb3bd33f92a11e3b5e9dc307349a075fc50a",
+      "requested_prefill": 16384,
+      "effective_prefill": 8192,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "work_seconds": 36.51542839900503,
+          "correct_rows": 28,
+          "request_sha256": "44cd499189863ae5ab5e146c67b78e3ce22406d7d0ac7587f7ef3f32ad2f9c7e",
+          "response_sha256": "31361ee11bbee87c9711f929036ca925efb18e1ef118b8a417b938a91118ca25"
+        },
+        {
+          "id": "cached-calculation",
+          "work_seconds": 16.68689092099521,
+          "correct_rows": 28,
+          "request_sha256": "ca6dfdaadb9579e466e1720d08740e04f7fc8961236a1059fbc74b860fc4b0d0",
+          "response_sha256": "6122167e5e9c8ac9e039129228cfc4a8ff68b3aa3b45717cf36a97e658d5ebfa"
+        },
+        {
+          "id": "cached-update",
+          "work_seconds": 24.06611432199861,
+          "correct_rows": 28,
+          "request_sha256": "88fd7b287df731f0783752ddea92b828ff728af75b7474e4387a09978a522fcc",
+          "response_sha256": "d4626195bd21c5c85aed2a4a1d9d155249eec5fa6e8f6ff18fc37c40e5a27260"
+        }
+      ],
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 7639
+      },
+      "review_work_seconds": 77.26843364199885,
+      "stop_evidence": "exact saved clean_unload receipt",
+      "counter_recovery": null,
+      "engine_input_seconds": 15.814,
+      "engine_decode_seconds": 61.196,
+      "engine_input_tokens_per_second": 2220.500822056406,
+      "engine_output_tokens_per_second": 124.82842015818028,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 77.26843364199885,
+      "task_input_tokens_per_second": 454.45466337127124,
+      "task_output_tokens_per_second": 98.86314035293012
+    }
+  ],
+  "groups": [
+    {
+      "requested_prefill": 8192,
+      "effective_prefill": 8192,
+      "repetitions": 3,
+      "arithmetic_mean": {
+        "review_work_seconds": 79.82602020065922,
+        "load_seconds": 17.050602035332606,
+        "engine_input_tokens_per_second": 2220.3297210655437,
+        "engine_output_tokens_per_second": 125.24323331856375,
+        "task_input_tokens_per_second": 440.0190953602911,
+        "task_output_tokens_per_second": 100.00212934445034,
+        "tokens": {
+          "uncached_input": 35115,
+          "cached_input": 65536,
+          "output": 7984.666666666667
+        }
+      },
+      "work_seconds_population_stdev": 1.3371805868336382
+    },
+    {
+      "requested_prefill": 16384,
+      "effective_prefill": 8192,
+      "repetitions": 3,
+      "arithmetic_mean": {
+        "review_work_seconds": 77.46551086466691,
+        "load_seconds": 16.702517704002577,
+        "engine_input_tokens_per_second": 2231.6933043211975,
+        "engine_output_tokens_per_second": 124.29235317646258,
+        "task_input_tokens_per_second": 453.3002447432306,
+        "task_output_tokens_per_second": 98.6119972046423,
+        "tokens": {
+          "uncached_input": 35115,
+          "cached_input": 65536,
+          "output": 7639
+        }
+      },
+      "work_seconds_population_stdev": 0.15187314648312367
+    }
+  ],
+  "requested_setting_change_percent": {
+    "review_work_seconds": -2.9570675452173067,
+    "load_seconds": -2.0414782458045844,
+    "engine_input_tokens_per_second": 0.5117971059811932,
+    "engine_output_tokens_per_second": -0.7592267597264502,
+    "task_input_tokens_per_second": 3.018312051222427,
+    "task_output_tokens_per_second": -1.3901025397367595
+  },
+  "no_distinct_effective_prefill_comparison": true,
+  "deployment_default_changed": false,
+  "source_verification": {
+    "files": {
+      "Run-Strata-Controller.sh": "9ccc42d758de3be2ab1b30d27c77dd43f226ed9b81a885dd3b0c8a201d53fbf9",
+      "maintenance/Setup-WSL-Network.sh": "da094daf336c64ec95f786573696476b4de790f58c7b09d22fb2d4c85c440001",
+      "src/responses_bridge.py": "b620234af83f89b331e4645ca46f8d96fefefa6c43a5d8d888d058cb1ea15742",
+      "src/brave_search.py": "fcbcf5ed22889d074677cd6ca0bc741f134af4132b977ce89fcd6b8381d15af6",
+      "src/hosted_search.py": "03f288a1fde928f6d73ce0e2ea6928e24997a1bbfdb06a5444d201e6eceedb26",
+      "src/windows_host.py": "3f5acc15b68799c19874dfa07d6ba871015ee6610f568e91f7cd490aa810ece0",
+      "src/wsl_launcher.py": "15f91e0a8f29e1bdbcacdad52b1cb7a6d86e3614b33dfe3aa815456c443a1907",
+      "src/setup_wsl_firewall.ps1": "60bb126ad7d35f716b335edd4810fe2e98661cd856588e6439c35b7480cc1a0b",
+      "src/project_files_mcp.py": "6e31ab22ab9b8ff043b887601eb02994eb7d1920676794e73b6f32fb31947ee9",
+      "src/service_access.py": "4690a1613f54680bcf707f61a5daa778fdb6ecea4172a73d3b1155c1ae745eea",
+      "src/native_service.py": "9d95970c0a511c62bfc67a453ff28b6b08e82d96a6e81c29428db05268e41a13",
+      "src/controller_backend.py": "731fa17d188fa710088c88d725be66a63a17ff8421532781aa3d8838baa8ec1e",
+      "src/startup_instructions.py": "b8f1cb90cd05b9349066a1ae7b6d089a15a0df428140abf049583b27e805b8bf",
+      "config/model-catalog.json": "2215cd0a354ae83f3a507623d35f44c3d04ebc88633d27a3f6cc3e4d4bfc225c",
+      "config/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "config/compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+      "config/maintenance-baseline.json": "a4a6e4e19f69a0cd1b8ff1499ef5847584b732da103befd00c97938096630b79",
+      "README.md": "9420a77302a2952d595d714f90d0683ecc7d7418de598fdea3bd2e067a484af8",
+      "config/q2_0-prebuilt.json": "9bca7a22432c22ff97723928b54960e831fc3e270fc1d9617244d7209966c901",
+      "config/iq2_xs-prebuilt.json": "f1be639c3e5f16c1005b56763325fcbb0be63204bb2b5d3b0e4c2e26c729c180",
+      "config/iq3_xxs-prebuilt.json": "7f31e7a5a64ec595095e63d0190d8dd93bbff10b6263ef6180b93a09a3747d20",
+      "config/deployment.json": "dd770ade9d4648237a24ae6dbc8a63145641020c6607b9b835173b79fb173f72",
+      "config/service.json": "9ebd2ff44332374aef75ab97ab46457f05e4a946e54007cc8cae0634d84dedc9",
+      "src/service_settings.py": "1d08960b7bb54076529ef8e7f009c7e1d22a299f039dc4985a10d7f127a2114a",
+      "Run-Strata-Controller.ps1": "07591c287d66e8af34e1c627d4fb33e20f1b4161b52aada924d4105e40a80781",
+      "maintenance/Setup-Native-Network.ps1": "923599cdec43e1767b57d2d605b4fdbbb01ba6916b3f49926dcbbda1d21287db"
+    },
+    "source_sha_verified": true,
+    "host_id": "rtx3080ti",
+    "transport": "ssh-windows",
+    "hardware": {
+      "gpu": "NVIDIA RTX 3080 Ti",
+      "vram_gib": 12,
+      "cpu": "Intel Core i9-13900",
+      "ram_gib": 64
+    },
+    "hardware_source_overrides": {
+      "prefill": 8192,
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pool-affinity": "all",
+      "expert-cache": "auto"
+    },
+    "installation_root": "C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next",
+    "source": "project deployment templates and host configuration"
+  },
+  "default_profile_sha256_after": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+  "execution_wall_seconds": 1260.7760164737701,
+  "model_work_seconds_sum": 471.8745931959784,
+  "recoveries": [
+    {
+      "instance": "prefill16384-r1",
+      "reason": "Known prompt chunk clamp diagnostic was misclassified as a malformed token record.",
+      "models_rerun": 0,
+      "requests_added": 0,
+      "original_failure_preserved": true,
+      "effective_candidate_prefill": 8192
+    }
+  ],
+  "tokens_total": {
+    "uncached_input": 210690,
+    "cached_input": 393216,
+    "output": 46871
+  },
+  "conclusion": "Requested16384 always clamps8192; observations cannot establish true16K performance. Retain remote8192,23/all,direct,reserve700.",
+  "limits": [
+    "Three requested-setting repetitions per condition, synthetic32K Chat workload; not Reviewer reliability or loop test.",
+    "Output counts differ; no independent16K effective condition, so time delta is not prefill capacity effect.",
+    "One parser failed after all three requests; exact saved stop receipt lost, ledger proves stopped/released. Repair recovers existing counters with zero extra model starts/requests.",
+    "Engine renders4016 cache slots and480MiB remaining after full load; high VRAM use already achieved, optimal CPU/RAM allocation unproved.",
+    "Raw replies/logs temporary; compact numbers permit tables but cannot replay after deletion."
+  ]
+}

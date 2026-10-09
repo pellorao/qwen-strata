@@ -1,0 +1,118 @@
+{
+  "version": "0.1.37",
+  "type": "performance",
+  "results": {
+    "cold_200k": {
+      "evidence_sha256": "5be1a50b4c57f02ec778ec330588ba052e054ac0a72761891da5a94e67d0de06",
+      "statistics": {
+        "version": "0.1.37",
+        "commit": "db4f91a1171d697928b0d2e1f50ef95e25559d4c",
+        "runs": 3,
+        "context": 200000,
+        "model": "q2_0",
+        "actual_completion_tokens": [
+          256,
+          256,
+          256
+        ],
+        "all_pass": true,
+        "medians": {
+          "prompt_tps": 2643.4,
+          "decode_tps": 78.6,
+          "ttft_s": 76.14798019999944,
+          "elapsed_s": 79.4299030000002
+        },
+        "request_sha256": "189c1e723e4c4c2212df979da25dad8d52432fa3bb8e234595529e72ed08e7c5",
+        "v36_request_sha256": "189c1e723e4c4c2212df979da25dad8d52432fa3bb8e234595529e72ed08e7c5",
+        "v36_tuned_historical_medians": {
+          "prompt_tps": 2801.8,
+          "decode_tps": 84.8,
+          "ttft_s": 71.873,
+          "elapsed_s": 74.869
+        },
+        "comparison_limit": "Historical, not contemporaneous A/B; environmental differences cannot all be attributed to version.",
+        "exact_input_matches_v36": true
+      }
+    },
+    "adjacent_engine_pair": {
+      "evidence_sha256": "121b6b4f203b93fc493294be7fb7ac7c338e68fd18b523175138cd9be48ae8de",
+      "statistics": {
+        "scope": "One adjacent pair: v36 and v37 NVIDIA binaries both using v37 server and identical tuned config/exact 200K input. Isolates binary effects; not an entire-source historical comparison. One pair cannot establish broad equivalence.",
+        "results": {
+          "v36": {
+            "prompt_tps": 2602.6,
+            "decode_tps": 77.1,
+            "ttft_s": 77.78918440000052,
+            "elapsed_s": 81.08788450000065,
+            "pass": true,
+            "actual_output_tokens": 256
+          },
+          "v37": {
+            "prompt_tps": 2600.7,
+            "decode_tps": 75.5,
+            "ttft_s": 77.87740389999817,
+            "elapsed_s": 81.24540450000131,
+            "pass": true,
+            "actual_output_tokens": 256
+          }
+        },
+        "prompt_change_percent": -0.07300391915776583,
+        "decode_change_percent": -2.075226977950706
+      }
+    },
+    "iq3_200k": {
+      "evidence_sha256": "8e334f3dad802a0b30cb548cd31410d1e78abbdcaecb0c4e0a60d5a00651b927",
+      "statistics": {
+        "model": "IQ3_XXS",
+        "version": "0.1.37",
+        "runs": 3,
+        "context_tokens": 200000,
+        "all_complete": true,
+        "all_retrieval_pass": true,
+        "all_cache_zero": true,
+        "actual_output_tokens": [
+          251,
+          210,
+          251
+        ],
+        "medians": {
+          "prompt_tps": 2580.2,
+          "decode_tps": 61.7,
+          "ttft_s": 78.0086983000001,
+          "total_s": 81.73558310000226
+        },
+        "minimum_free_physical_gib_loading_and_inference": 8.208229064941406,
+        "memory_guard_floor_gib": 2,
+        "memory_guard_triggered": false,
+        "expert_arena_gib": 39.96875,
+        "vram_reserve_mib": 981,
+        "q2_latest_historical_medians": {
+          "prompt_tps": 2643.4,
+          "decode_tps": 78.6,
+          "ttft_s": 76.14798
+        },
+        "comparison_limit": "Not interleaved; IQ3 uses 981MiB VRAM reserve and early EOS changes actual output length. No broad quality equivalence or exact throughput regression claim."
+      }
+    }
+  },
+  "measurement_configuration": {
+    "model": "Q2_0",
+    "engine": "official prebuilt",
+    "prefill": 16384,
+    "kv": "int8",
+    "kv_resident": 20480,
+    "pool_workers": 23,
+    "pcie_frac": 0,
+    "spec": 4,
+    "spec_min_p": 0.5,
+    "draft_vocab": "cjk",
+    "allocated_context_window": 250000,
+    "measured_prompt_tokens": 200000,
+    "output_budget": 256,
+    "reasoning_effort": "none",
+    "temperature": 0,
+    "top_p": 1,
+    "top_k": 1,
+    "seed": 42
+  }
+}

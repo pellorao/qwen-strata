@@ -1,0 +1,184 @@
+{
+  "status": "closed-three-instances-main-inspected-diagnostic-only",
+  "host": "local",
+  "scope": "Three Q2_0 runs with dynamic duplicate-command hints only, then three IQ3_XXS-only runs; compare separately to original local baseline3. Remote tuning independent; priorSpecpaused.",
+  "authorization": {
+    "approved": true,
+    "user_instruction": "接续上次的重复调用测试, 把单单使用 codex 防重复调用策略当作一组测试, 跑三次本地模型",
+    "recorded_at": 1791381370.0250938,
+    "recovery_included": true
+  },
+  "effective_instances": 3,
+  "initial_submissions": 3,
+  "model": "Q2_0",
+  "scene": "Frozen original Commit Audit:118 unique source requirements plus2 authorization-scope scoring cases; same preparation/generation/scoring/Role",
+  "baseline_reference": "reports/v0.1.40.1/loop-prevention-comparison/summary.json",
+  "baseline_rows": [
+    {
+      "repetition": 1,
+      "instance_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-1",
+      "native_sha256": "d6fbddc5b2782dc87aa3f18b01042173ec240951c9b3858b862707d090eb486c"
+    },
+    {
+      "repetition": 2,
+      "instance_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2",
+      "native_sha256": "d92508d67435b8081b8cb40dd7223d70c54de30cae96ca2700b65bf271ebf2e4"
+    },
+    {
+      "repetition": 3,
+      "instance_id": "default-631a7d5e-9946-4a0e-bd4c-63ce72a54e37-instance-3",
+      "native_sha256": "239c12d989cbbec7b9cb89c3cc0cea017cc04f549161032416f41698da285d98"
+    }
+  ],
+  "selection": {
+    "model": "Q2_0",
+    "effort": "high",
+    "engine_overrides": {
+      "prefill": 16384,
+      "kv": "int8",
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pcie-frac": 0.0,
+      "spec": 4,
+      "spec-min-p": 0.7,
+      "expert-cache": "auto",
+      "vram-reserve-mib": 700,
+      "adapt-every": 4,
+      "adapt-swaps": 96,
+      "adapt-decay": 0.7,
+      "mtp-window": 32768,
+      "pcie-mode": "auto",
+      "expert-cache-per-layer": false,
+      "expert-cache-cpu-order": false,
+      "pool-affinity": "auto",
+      "ple-io": "direct",
+      "ple-inflight": 256,
+      "no-capture": false,
+      "no-host-worker": false,
+      "no-ple-prefetch": false,
+      "no-prefill-borrow": false,
+      "no-split-rows": false,
+      "no-coupled-draft": false,
+      "shared-late": false,
+      "keep-canonical": false,
+      "no-token-graph": false,
+      "no-fused-gr": false,
+      "no-hit-poke": false,
+      "ple-sync-submit": false,
+      "no-spec-split": false,
+      "gr-fp32-activations": false,
+      "ple-row-cache": 1048576,
+      "short-read": 64,
+      "suffix-draft": 3,
+      "mtp-max-t": 0,
+      "prompt-cache": 6,
+      "prompt-cache-every": 16384,
+      "prompt-cache-root": 2048,
+      "max-context": 156584
+    },
+    "engine_environment": {
+      "STRATA_HC_SPLIT": null,
+      "STRATA_ADAPT_NOWAIT": null,
+      "STRATA_SSD_KEEPALIVE": null,
+      "STRATA_BATCH_TRACE": 1
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 24576,
+      "reasoning_budget_tokens": 8192,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "high"
+    },
+    "context_window": 156584,
+    "auto_compact_token_limit": 100000,
+    "startup_instructions": true,
+    "project_compaction_instructions": true,
+    "generation_policy": "first-delivery-only",
+    "loop_prevention_instructions": false,
+    "automatic_continuation": true,
+    "archive_http": true,
+    "command_loop_guard": {
+      "enabled": true,
+      "algorithm": "frozen-arw-strata-command-policy",
+      "source_sha256": "de7c041908539fc5bca583370dc6470a7d52b69938f1293dbb23816752e88573",
+      "transport": "Original ARW send_message into native Codex root; real receipt/delivery inspection retained",
+      "independent_budget_or_ownership": false
+    },
+    "host_id": "local",
+    "host_hardware": {
+      "gpu": "NVIDIA RTX 4070 Ti SUPER",
+      "vram_gib": 16,
+      "cpu": "Intel Core i9-14900K",
+      "ram_gib": 64
+    }
+  },
+  "static_loop_prevention": false,
+  "full_other_startup_and_compaction_prompts": true,
+  "permission_policy_decision": {
+    "user_confirmed": true,
+    "response": "保留旧条件, 而且我们不需要自己修复 ARW 的单文件写授权规则, 我们只需要之后同步 ARW 的修复就行了.",
+    "policy": "Original exact bound report-file grants and original auto_review recovery; no report-directory adapter",
+    "recorded_at": 1791381735.9034653
+  },
+  "estimated_model_work_minutes": [
+    80,
+    180
+  ],
+  "estimated_total_hours_with_preparation_and_full_main_checks": [
+    3,
+    5
+  ],
+  "estimate_basis": "Old three baseline work mean26.1min;3*26.1 approximately78.3min;each initial review55/60min cumulative limit. Guard may not eliminate loops. Main full native and354judgment checks extra, partly overlap subsequent instance.",
+  "requested_statistics": [
+    "loop_groups",
+    "sum_of_all_loop_iterations",
+    "original_ARW_diagnostic_score",
+    "work_time",
+    "internal_read_reused_generated",
+    "four_rates",
+    "guard_triggers",
+    "actual_message_admission_and_model_receipt",
+    "post-warning_behavior",
+    "real_failures_and_recovery"
+  ],
+  "fixed_business_input_verification": [
+    {
+      "instanceId": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-1",
+      "role_same": true,
+      "gate1_same": true,
+      "gate2_same": true,
+      "expected_same_except_request_binding_sha": true,
+      "native_input_sha256": "5b43b2f07c95c160fc7b6db7c6b141f0244431b9228c3c554b57305380d30fc7"
+    },
+    {
+      "instanceId": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2",
+      "role_same": true,
+      "gate1_same": true,
+      "gate2_same": true,
+      "expected_same_except_request_binding_sha": true,
+      "native_input_sha256": "dfb697fcfd52ddeff81e9772a14ec8cfb77176f58b5c47f7347df2dff0f5da44"
+    },
+    {
+      "instanceId": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-3",
+      "role_same": true,
+      "gate1_same": true,
+      "gate2_same": true,
+      "expected_same_except_request_binding_sha": true,
+      "native_input_sha256": "f483bffc1c64a70afa7ac09672f96975029175c4b9956c8a60a27259a995be65"
+    }
+  ],
+  "infrastructure_recovery": {
+    "observer_bug": "Initial upstream snapshot was null; guard must wait for root facts.",
+    "original_thread_retained": true,
+    "effective_instances_added": 0,
+    "failed_attempt_preserved": true,
+    "counter_coverage_audit_required": true
+  },
+  "closed_report": "reports/v0.1.40.1/command-loop-guard/summary.md"
+}

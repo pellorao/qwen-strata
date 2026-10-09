@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "status": "planned-after-vram-group-awaiting-user-review",
+  "host": "rtx3080ti",
+  "authorization": {
+    "approved": false,
+    "scope": "One spec-min-pdimension0.5/0.7,6coldmodelinstancesand18logicalrequests."
+  },
+  "candidate_dimension": "spec-min-p",
+  "conditions": [
+    0.5,
+    0.7
+  ],
+  "model_instances": 6,
+  "logical_requests": 18,
+  "repetitions_per_condition": 3,
+  "purpose": "Determine whether0.7improvesthe remote machine; olderlocal0.7selectionisnotremoteevidence.",
+  "current_installed_default": 0.5,
+  "schedule": [
+    {
+      "spec_min_p": 0.5,
+      "repetition": 1
+    },
+    {
+      "spec_min_p": 0.7,
+      "repetition": 1
+    },
+    {
+      "spec_min_p": 0.7,
+      "repetition": 2
+    },
+    {
+      "spec_min_p": 0.5,
+      "repetition": 2
+    },
+    {
+      "spec_min_p": 0.5,
+      "repetition": 3
+    },
+    {
+      "spec_min_p": 0.7,
+      "repetition": 3
+    }
+  ],
+  "fixed_conditions": {
+    "model": "Q2_0",
+    "strata": "0.1.40.2",
+    "effort": "high",
+    "reasoning_budget_tokens": 8192,
+    "max_tokens": 24576,
+    "context_window": 156584,
+    "cpu_prefill_share": "auto",
+    "workers": 23,
+    "affinity": "all",
+    "prefill": 8192,
+    "kv": "int8",
+    "kv_resident": 20480,
+    "ple_io": "direct",
+    "profile": "default/no-save",
+    "temperature": 0,
+    "top_p": 1,
+    "top_k": 20,
+    "vram_reserve": "User-selectedresultofpreviousremoteVRAMgroup; sameforbothconditions",
+    "prompts": "Fullprojectstartup/compactpolicyandversionbindings"
+  },
+  "workload": {
+    "source": "benchmarks/resource-calibration-v1/workload.py",
+    "record_count": 787,
+    "requests_per_instance": 3,
+    "expected_rows_per_request": 28,
+    "expected_total_rows": 504,
+    "exact_inputs_and_expected_sha_required": true
+  },
+  "metrics": [
+    "correctness/completion",
+    "wholeworkseconds",
+    "internalread/reused/generatedandfourrates",
+    "actualspec_min_p",
+    "draftsoffered/acceptedfromrawengineper-requestrecords whereavailable",
+    "outputlengthandnumeric/textdifferences",
+    "one-secondCPU/RAM/GPUtelemetry",
+    "realfailures/stop/keyrelease"
+  ],
+  "interpretation": "Changing draft acceptance changesoutputlength andtiming; inspectacceptancerate, decodedtokenrate andcorrectness, not onlywholework. Do not assume bitidentity or broaderReviewer quality.",
+  "estimated_total_minutes": [
+    25,
+    40
+  ],
+  "per_logical_request_work_limit_seconds": 150,
+  "group_stop": "Reportall6andanalysis, planthenextgroup,andwaitforuserreview. Noautomaticadoptionornewmatrix.",
+  "model_runs_executed": 0,
+  "default_changed": false,
+  "selection_key": {
+    "host": "rtx3080ti",
+    "model": "Q2_0"
+  },
+  "selection_transfer": "OnlythishostQ2_0mayadoptresult; samehostIQ2_XS/IQ3_XXSneedindependentnewtuning. Splitper-modelsourcebeforedefaultchange; do notbroadcastviahostsharedoverrides.",
+  "other_quantizations_tuned": false
+}

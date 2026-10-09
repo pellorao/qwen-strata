@@ -1,0 +1,13 @@
+{
+  "scope": "Frozen public model metadata used by completed v0.1.40.1 issue710 baseline; no task answers, native session data or credentials.",
+  "codex_version": "0.160.1",
+  "catalog_file": "codex-0.160.1-loop-comparison.json",
+  "catalog_sha256": "e5060f7ea4546b9fd5a86ba455389729a98d8709756e600b64868364493e71d9",
+  "bytes": 86701,
+  "source_kind": "Byte-identical approved baseline native catalog",
+  "baseline_evidence": "reports/v0.1.40.1/loop-prevention-comparison/baseline.json",
+  "selected_model": "qwen3.8-flash-next-q2_0",
+  "selected_base_instructions_sha256": "35bd51b5f577cb7b24cd5f4629e49e37cb724ab57754ce6f8f202001635bab8a",
+  "condition": "Preserve whole catalog and full base instructions; only approved prompt/sampling and host hardware changes. Never substitute daily config/model-catalog.json.",
+  "deployed_to_installations": false
+}

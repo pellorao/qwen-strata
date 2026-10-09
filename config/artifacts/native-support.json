@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "asset_family": "Qwen3.8-Flash-Next native packs and MTP",
+  "captured_on": "2026-10-07",
+  "provenance": "Existing immutable assets, bound after user-authorized direct transfer and full SHA256 verification on both hosts.",
+  "qualification": "Installed Strata engine 0.1.40; remote GPU inference not yet run.",
+  "directories": [
+    {
+      "directory": "data/packs",
+      "files": [
+        {
+          "path": "data/packs/iq2_xs/conversions.json",
+          "bytes": 324,
+          "sha256": "020bb147e315424ef94e736c74dc6cab3a1bcaa3c87fa7e14795c8c93091df1c"
+        },
+        {
+          "path": "data/packs/iq2_xs/dense.bin",
+          "bytes": 1538035200,
+          "sha256": "d2af3d8331e5c7a1985d1d589747230f9d56719a6d33c7cddc9ee6b81cde6b13"
+        },
+        {
+          "path": "data/packs/iq2_xs/index.txt",
+          "bytes": 93686,
+          "sha256": "19e781af360ca3b83fd90fe09e757ac9aa2a9dcada26810ddc9e933bdb112091"
+        },
+        {
+          "path": "data/packs/iq2_xs/native_experts.txt",
+          "bytes": 3289,
+          "sha256": "48df605acb89c7e8c3176a51cec777c2ed344ea439e8f3a37e5ce4f9dcb6946c"
+        },
+        {
+          "path": "data/packs/iq2_xs/tokenizer/chat_template.jinja",
+          "bytes": 9993,
+          "sha256": "12827f24b742ea4e80cdc12dbcf9622227056b9f797252a3149263d4f9aaadce"
+        },
+        {
+          "path": "data/packs/iq2_xs/tokenizer/merges.txt",
+          "bytes": 3600844,
+          "sha256": "080cf95432173729d160346b7882bd2a644b07f7a3813a3eb73f4e66787bfde9"
+        },
+        {
+          "path": "data/packs/iq2_xs/tokenizer/token_type.json",
+          "bytes": 744960,
+          "sha256": "5088c8c298fc06af8382ddb3b76c888703ac2634e82263b97eedcc2ad202738b"
+        },
+        {
+          "path": "data/packs/iq2_xs/tokenizer/tokenizer.json",
+          "bytes": 554,
+          "sha256": "87be2ac47d8bc7393b7435df6ccd276740019a393941a2585d5edce59f450c54"
+        },
+        {
+          "path": "data/packs/iq2_xs/tokenizer/vocab.json",
+          "bytes": 5737005,
+          "sha256": "4ba64f0332abcfb0b600b7df1537d1e836e68009d5fb7cdb77339738dc6365c4"
+        },
+        {
+          "path": "data/packs/iq3_xxs/conversions.json",
+          "bytes": 326,
+          "sha256": "0b5fd7f418b9a01029067e51b1d2cc36f70fc85c17d0c889fff2273006a4fff5"
+        },
+        {
+          "path": "data/packs/iq3_xxs/dense.bin",
+          "bytes": 1538035200,
+          "sha256": "d2af3d8331e5c7a1985d1d589747230f9d56719a6d33c7cddc9ee6b81cde6b13"
+        },
+        {
+          "path": "data/packs/iq3_xxs/index.txt",
+          "bytes": 93687,
+          "sha256": "1afe12b36cd2d13bf122b741fa0e81e1f751319cc3c451e54ba75524d825f148"
+        },
+        {
+          "path": "data/packs/iq3_xxs/native_experts.txt",
+          "bytes": 3296,
+          "sha256": "ae28cf7a2a1c9063c4b55d6c8cf86d4d079dcddcf597f9e8697c9157d462c0ee"
+        },
+        {
+          "path": "data/packs/iq3_xxs/tokenizer/chat_template.jinja",
+          "bytes": 9993,
+          "sha256": "12827f24b742ea4e80cdc12dbcf9622227056b9f797252a3149263d4f9aaadce"
+        },
+        {
+          "path": "data/packs/iq3_xxs/tokenizer/merges.txt",
+          "bytes": 3600844,
+          "sha256": "080cf95432173729d160346b7882bd2a644b07f7a3813a3eb73f4e66787bfde9"
+        },
+        {
+          "path": "data/packs/iq3_xxs/tokenizer/token_type.json",
+          "bytes": 744960,
+          "sha256": "5088c8c298fc06af8382ddb3b76c888703ac2634e82263b97eedcc2ad202738b"
+        },
+        {
+          "path": "data/packs/iq3_xxs/tokenizer/tokenizer.json",
+          "bytes": 554,
+          "sha256": "87be2ac47d8bc7393b7435df6ccd276740019a393941a2585d5edce59f450c54"
+        },
+        {
+          "path": "data/packs/iq3_xxs/tokenizer/vocab.json",
+          "bytes": 5737005,
+          "sha256": "4ba64f0332abcfb0b600b7df1537d1e836e68009d5fb7cdb77339738dc6365c4"
+        },
+        {
+          "path": "data/packs/q2_0/conversions.json",
+          "bytes": 320,
+          "sha256": "f3845c0566e9b926c4caeea2e1f20f11f5293f143ad08f1b48c91adf3d7ed6fd"
+        },
+        {
+          "path": "data/packs/q2_0/dense.bin",
+          "bytes": 1485606400,
+          "sha256": "a43d7d0b69525335f4b000d5197a1d3aefcd3c0014fc3e12b3455e0a5d827ba2"
+        },
+        {
+          "path": "data/packs/q2_0/index.txt",
+          "bytes": 93561,
+          "sha256": "c758314d495a1261d06a806b1c415596dfabe62e0cbf44ce592dc84c53229ccd"
+        },
+        {
+          "path": "data/packs/q2_0/native_experts.txt",
+          "bytes": 3286,
+          "sha256": "015e53d3ae36324f172be4942bcf129539b343e2eb4fcd4f25ca5eff180bfa41"
+        },
+        {
+          "path": "data/packs/q2_0/tokenizer/chat_template.jinja",
+          "bytes": 9993,
+          "sha256": "12827f24b742ea4e80cdc12dbcf9622227056b9f797252a3149263d4f9aaadce"
+        },
+        {
+          "path": "data/packs/q2_0/tokenizer/merges.txt",
+          "bytes": 3600844,
+          "sha256": "080cf95432173729d160346b7882bd2a644b07f7a3813a3eb73f4e66787bfde9"
+        },
+        {
+          "path": "data/packs/q2_0/tokenizer/token_type.json",
+          "bytes": 744960,
+          "sha256": "5088c8c298fc06af8382ddb3b76c888703ac2634e82263b97eedcc2ad202738b"
+        },
+        {
+          "path": "data/packs/q2_0/tokenizer/tokenizer.json",
+          "bytes": 554,
+          "sha256": "87be2ac47d8bc7393b7435df6ccd276740019a393941a2585d5edce59f450c54"
+        },
+        {
+          "path": "data/packs/q2_0/tokenizer/vocab.json",
+          "bytes": 5737005,
+          "sha256": "4ba64f0332abcfb0b600b7df1537d1e836e68009d5fb7cdb77339738dc6365c4"
+        }
+      ]
+    },
+    {
+      "directory": "data/mtp",
+      "files": [
+        {
+          "path": "data/mtp/mtp-inventory.json",
+          "bytes": 7884,
+          "sha256": "8cb73bf0ad4369e5464770ee7b1c8cac01d002d7992a6707349fb379244c822e"
+        },
+        {
+          "path": "data/mtp/mtp-inventory.md",
+          "bytes": 2474,
+          "sha256": "6ef0289eab0e1a17a210799e61b7ef37abc9f868a2f18a5ce4948e1cd4bbcb90"
+        },
+        {
+          "path": "data/mtp/mtp-manifest.json",
+          "bytes": 12104,
+          "sha256": "3478fc4b77a1d31ef2ea93d1e62cec9b1b2126511f1e161da874796f58496f38"
+        },
+        {
+          "path": "data/mtp/mtp-q2_0.gguf",
+          "bytes": 889017216,
+          "sha256": "a22206a4d74eafbf31063a84610292535fb3b49af9a339963817fd04aed81e4d"
+        },
+        {
+          "path": "data/mtp/mtp-q2_0.gguf.report.json",
+          "bytes": 3753,
+          "sha256": "1634c6ecb1f2240bd0f574f7910ed1eec86cd93568b9253198cabf5df17d566b"
+        },
+        {
+          "path": "data/mtp/rt/dense.bin",
+          "bytes": 116099072,
+          "sha256": "c724dc0b0822ada5d2977bf5bde821605feabaa64ea2e0045b67ca656329070a"
+        },
+        {
+          "path": "data/mtp/rt/dense.txt",
+          "bytes": 1880,
+          "sha256": "8773c81ebb0986e37fe94a8a9933e87be48b1fabc6889a0106bcdab179d1c2ac"
+        },
+        {
+          "path": "data/mtp/rt/draft_vocab.bin",
+          "bytes": 425196,
+          "sha256": "b1e1d3a7a9e4bf862dcd5923ce661fb59bbd07907e594df5cf86a62ac235cb91"
+        },
+        {
+          "path": "data/mtp/rt/experts.bin",
+          "bytes": 707788800,
+          "sha256": "09398406be61f1f54c93861f449e48b8df0bfccbc9ec9b2b7636775a6ea9244f"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.fc_embedding.weight.bin",
+          "bytes": 13107200,
+          "sha256": "241d6e87ded317a61b1aeb3ca4e28c53f1caba09ad5be66092e91fe5e3e14751"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.fc_hidden.weight.bin",
+          "bytes": 13107200,
+          "sha256": "97c8e427ad0177e2c713ed24a397d815b523eda15ef453f1ae6463f6c70a8f96"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.hyper_connection_mixer.hc_norm.weight.bin",
+          "bytes": 20480,
+          "sha256": "ce948a398e15aeaa403c424cda34e6eed296ab2570d591bb5ff3da642b255d64"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.hyper_connection_mixer.input_mix_weight_down.weight.bin",
+          "bytes": 6553600,
+          "sha256": "c633d2841fda463e82045e0b93fb8cb8d511ec0c9eda616020f01aca18d71947"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.hyper_connection_mixer.input_mix_weight_up.weight.bin",
+          "bytes": 6553600,
+          "sha256": "6565285f0ba2923703252763cfc11d8a9bda40ab42e7548e12464b04dbdbec13"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.attn_hyper_connection.block_inject_weight.weight.bin",
+          "bytes": 81920,
+          "sha256": "c8afff64e7f54412d02120097c4255033c55245e1c1eed84cc630d428ccb864c"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.attn_hyper_connection.hc_norm.weight.bin",
+          "bytes": 20480,
+          "sha256": "1fb619aeaaf637ccd70f46f1f8f8116e6a46448cb43026b246de8ee8286ed809"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.attn_hyper_connection.input_mix_weight_down.weight.bin",
+          "bytes": 6553600,
+          "sha256": "e80ac8bf3e270e9d5a949ec7c913329dc8de017d69851334820fae7b8c86a7f5"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.attn_hyper_connection.input_mix_weight_up.weight.bin",
+          "bytes": 6553600,
+          "sha256": "f80f1fd44e1183e7764ea496b11ff89ead9dd758f861d4e79a770bf54956b1a5"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.mlp.experts.down_proj.bin",
+          "bytes": 1677721600,
+          "sha256": "539c46234f73bac70450f731f40e715f77ac32faf77def0f3f800e58aaabbbc0"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.mlp.experts.gate_up_proj.bin",
+          "bytes": 3355443200,
+          "sha256": "839e98f9642ebc884b178abd2090b6dc8b0bcd81ed92d7f7a08314c6a68f96d5"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.mlp.gate.weight.bin",
+          "bytes": 2621440,
+          "sha256": "f0d35fa41b360a08bc0c5b1e5766aa42df960291716ee189208b5d2599462c20"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.mlp.shared_expert.down_proj.weight.bin",
+          "bytes": 3276800,
+          "sha256": "d2ced8c81367cc494599d1a8cdc279c3dd6579b628ded05acd7495e99cee01d8"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.mlp.shared_expert.gate_proj.weight.bin",
+          "bytes": 3276800,
+          "sha256": "f4a81109165853b3b64f36d809f98094b599763364070f5fa079200e1c386d4c"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.mlp.shared_expert.up_proj.weight.bin",
+          "bytes": 3276800,
+          "sha256": "172586861eea53efbff10afc43ded5b6e49c83879e9efc01e089c652bbb0a156"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.mlp.shared_expert_gate.weight.bin",
+          "bytes": 5120,
+          "sha256": "acdd306d9996d356e4667a16ff63af6fef086fc7f570f1bc00bbe882a2a93f6e"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.mlp_hyper_connection.block_inject_weight.weight.bin",
+          "bytes": 81920,
+          "sha256": "c5782dd92b479a1f8ef43d683fe9c917fd9e8fba81f23c1aae8817bfe4b476a6"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.mlp_hyper_connection.hc_norm.weight.bin",
+          "bytes": 20480,
+          "sha256": "21a504876b5e7b788301557c68dfb757999430eba36c66ec8ab96a63604dbfd1"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.mlp_hyper_connection.input_mix_weight_down.weight.bin",
+          "bytes": 6553600,
+          "sha256": "b71240036dea954e034d5ae04e097bcd7ac51cb28a44e4c93d198af3447278a1"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.mlp_hyper_connection.input_mix_weight_up.weight.bin",
+          "bytes": 6553600,
+          "sha256": "40756866bf2a5e82c28e407f717b6fa07614d593f78e79c7ceb2cd4ffe6dda94"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.self_attn.indexer.index_qk_proj.weight.bin",
+          "bytes": 3276800,
+          "sha256": "2befafae6e944c1fc651fd73d4d527eb6f138a6c1679065b003128ee3150e859"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.self_attn.indexer.k_layernorm.weight.bin",
+          "bytes": 256,
+          "sha256": "2db621f6a08b4085756fc69d60a4a1bd1d7fbf5d406456d2477075842efaae54"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.self_attn.indexer.q_layernorm.weight.bin",
+          "bytes": 256,
+          "sha256": "afaf59f68e251939970ffdeacad0667dffc657a522bea62cdc44a52816fc49d6"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.self_attn.k_norm.weight.bin",
+          "bytes": 512,
+          "sha256": "8f924b0357cf936e14fc34518205d000e1423aa60626827df81b0804fae8cdfd"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.self_attn.k_proj.weight.bin",
+          "bytes": 2621440,
+          "sha256": "1a295dc2d6e633e808aeb19e00c97856a1817bbfcc83f5b610e2bfcacfcb8c38"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.self_attn.o_proj.weight.bin",
+          "bytes": 31457280,
+          "sha256": "9d2fcf0ac6ac19de87f638f710cfd1af6ad14141e75b7d3d5d29fbd06f374219"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.self_attn.q_norm.weight.bin",
+          "bytes": 512,
+          "sha256": "57957aa1e7c5a3ac628bff0ec5522ad55a39b8c0b8bd2d324ae640e3771617ef"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.self_attn.q_proj.weight.bin",
+          "bytes": 62914560,
+          "sha256": "5220aef3d288f40759f7356af9ef453e5ac0256a38749a9bb803a4e9db58150d"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.layers.0.self_attn.v_proj.weight.bin",
+          "bytes": 2621440,
+          "sha256": "39cb12f5424e965fa71fb81db0ee230c701b7b1e0b72c36641fde7e0e41bff41"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.pre_fc_norm_embedding.weight.bin",
+          "bytes": 5120,
+          "sha256": "04c4a570850e06f2d8913da8220d54d4c7f87db6eb6d45480b938e8ba41d6a86"
+        },
+        {
+          "path": "data/mtp/tensors/mtp.pre_fc_norm_hidden.weight.bin",
+          "bytes": 20480,
+          "sha256": "b933b44559879449b1baf2af8385c5c237347307e3fd452394870cb53e6eab6d"
+        },
+        {
+          "path": "data/mtp/tensors/verified.json",
+          "bytes": 5030,
+          "sha256": "5e79b01c1a31def67233fc7b1d5dda017fc48fe59e5160e930ee3b3e936762aa"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "status": "file-deployment-completed-inference-not-run",
+  "host": "rtx3080ti",
+  "strata_version": "0.1.40.1",
+  "engine_build": {
+    "version": "0.1.40",
+    "source": "release",
+    "archs": [
+      75,
+      86,
+      89,
+      120
+    ],
+    "ptx": true,
+    "cuda": "13.0",
+    "vision": "gpu",
+    "portable": true
+  },
+  "runtime_source_engine_sha_readback": {
+    "runtime_files_checked": 941,
+    "mismatches": [],
+    "model_requests": 0
+  },
+  "source_sync": "source-sync.json",
+  "support_manifest": "config/artifacts/native-support.json",
+  "dependency_manifest": "config/artifacts/windows-dependencies.json",
+  "model_manifests": [
+    "config/artifacts/q2_0.json",
+    "config/artifacts/iq2_xs.json",
+    "config/artifacts/iq3_xxs.json"
+  ],
+  "dependencies": {
+    "count": 18,
+    "bytes": 468836971,
+    "offline_install_and_pip_check": true,
+    "initial_install_was_requirements_subset_only": true,
+    "full_pinned_set_verified_after_repair": true
+  },
+  "support_assets": [
+    {
+      "directory": "data/packs",
+      "verified_files": 27,
+      "bytes": 4592248643,
+      "upload_seconds": null,
+      "total_seconds": null,
+      "full_sha_verified_both_hosts": true
+    },
+    {
+      "directory": "data/mtp",
+      "verified_files": 41,
+      "bytes": 6927665105,
+      "upload_seconds": 412.9062197000021,
+      "total_seconds": 420.1968461999786,
+      "full_sha_verified_both_hosts": true
+    }
+  ],
+  "model_transfer": {
+    "logical_bytes": 210289970176,
+    "unique_transferred_bytes": 152689693312,
+    "unique_files": 4,
+    "logical_files": 6,
+    "started_at": 1791324659.632961,
+    "finished_at": 1791329724.6207774,
+    "elapsed_seconds": 5064.987816333771,
+    "upload_seconds_sum": 4871.330569200043,
+    "files": [
+      {
+        "name": "Qwen3.8-Flash-Next-GSQ-RCO-Q2_0-00001-of-00002.gguf",
+        "model": "Q2_0",
+        "bytes": 37623740192,
+        "sha256": "69820c02ec7d0b45ef2ebb19d6620299db749fe2aded7f39f93c6b88b199b720",
+        "upload_seconds": 1622.166954800021,
+        "transferred_bytes": 37623740192,
+        "verification": "pinned full SHA256 and size after upload"
+      },
+      {
+        "name": "Qwen3.8-Flash-Next-GSQ-RCO-Q2_0-00002-of-00002.gguf",
+        "model": "Q2_0",
+        "bytes": 28800138432,
+        "sha256": "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113",
+        "upload_seconds": 741.5001067000558,
+        "transferred_bytes": 28800138432,
+        "verification": "pinned full SHA256 and size after upload"
+      },
+      {
+        "name": "Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00001-of-00002.gguf",
+        "model": "IQ2_XS",
+        "bytes": 39225954592,
+        "sha256": "92cee27ae5bbadcd732416a0f7a7f0acc092399dbbe8f5a5efa707c2ec0a49d7",
+        "upload_seconds": 1339.0492215999984,
+        "transferred_bytes": 39225954592,
+        "verification": "pinned full SHA256 and size after upload"
+      },
+      {
+        "name": "Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00002-of-00002.gguf",
+        "model": "IQ2_XS",
+        "bytes": 28800138432,
+        "sha256": "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113",
+        "upload_seconds": 0,
+        "transferred_bytes": 0,
+        "verification": "same verified NTFS file as canonical second shard"
+      },
+      {
+        "name": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00001-of-00002.gguf",
+        "model": "IQ3_XXS",
+        "bytes": 47039860096,
+        "sha256": "219ea929900dfa9ef091f3aa473fdba6874b65fcb36526d7d851ac9e95856d15",
+        "upload_seconds": 1168.614286099968,
+        "transferred_bytes": 47039860096,
+        "verification": "pinned full SHA256 and size after upload"
+      },
+      {
+        "name": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00002-of-00002.gguf",
+        "model": "IQ3_XXS",
+        "bytes": 28800138432,
+        "sha256": "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113",
+        "upload_seconds": 0,
+        "transferred_bytes": 0,
+        "verification": "same verified NTFS file as canonical second shard"
+      }
+    ]
+  },
+  "cleanup": {
+    "old_model_partial_files_deleted": 2,
+    "old_model_partial_bytes_reclaimed": 6896025600,
+    "current_partial_files": [],
+    "old_capture_model_files": [],
+    "extra_model_files": [],
+    "installation_staging_zip_files_remaining": 0
+  },
+  "final_file_check": {
+    "model_files": 6,
+    "logical_model_bytes": 210289970176,
+    "shared_shards_same_file": true,
+    "model_partial_files": [],
+    "capture_model_files": [],
+    "extra_model_files": [],
+    "service_files_sha_verified": 26,
+    "source_archives_remaining": 0,
+    "search_key_configured": false,
+    "ownership_phase": "free",
+    "model_requests": 0,
+    "external_health": {
+      "status": "ok",
+      "service": "strata-responses-bridge",
+      "backend": "http://127.0.0.1:8100",
+      "controller": true,
+      "ownership": "free",
+      "available": true
+    }
+  },
+  "model_requests": 0,
+  "remote_model_capacity_quality_performance": "unverified",
+  "search_key_configured": false,
+  "known_failures_and_recovery": [
+    "Source installer initially exceeded Windows remote command line length; repaired by sending code and arguments through native Windows SSH stdin. Existing uploaded packages reused.",
+    "Support verification had the same command line length limit; existing copied packs were reused, with fresh SHA verification on both hosts.",
+    "SSH session closure killed the initially spawned controller. Native deployment now breaks away from the SSH job; verified persistence and external access after disconnect.",
+    "First archive cleanup rejected the other known service ZIP binding; matched first group removed, unmatched group retained. Remaining group subsequently matched against the original project ZIP and removed. Model files/runtime unaffected.",
+    "First actual Q2_0 startup exposed omitted CUDA wheel installation. No generation was submitted. Installer now installs full pinned set; all three quantizations subsequently passed twelve short requests."
+  ],
+  "boundaries": "No actual GPU/model inference in this deployment phase. File/source/control checks do not prove capacity or generation correctness. Raw temporary details are not retained here; deleting them prevents replaying installer or transport logs. Compact numbers and SHA bindings remain sufficient to verify these deployment totals.",
+  "dependency_followup": "See validation.json: CUDA wheels were omitted by initial requirements-only installation, then installed offline and verified during approved short acceptance."
+}

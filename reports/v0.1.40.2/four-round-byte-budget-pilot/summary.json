@@ -1,0 +1,1099 @@
+{
+  "schema_version": 1,
+  "status": "closed-one-kib-per-round-diagnostic",
+  "conclusion": "All2514observed units serialize within1024UTF8bytes. Smaller inputs letDecima-agent complete both windows and reduce Horizon/ModernBERT times, but all3models give overlapping repeat/normal scores and window times9.581-18.106seconds. Multiple high scores alone are not reliable. No model/threshold adopted.",
+  "scope": {
+    "schema_version": 1,
+    "status": "authorized-one-kib-per-round-pilot-prepared",
+    "scope": "Same eight existing CPU candidates, two observed four-round windows, three independent binary comparisons per window. Not a live detector or joint F1.",
+    "authorization": "User explicitly requested each round below1KiB and removal of unimportant fields; same2windows/eight existing candidates/three estimates, no summary generation or adoption.",
+    "models": [
+      {
+        "id": "decima-small",
+        "model": "amyrmahdy/decima-small",
+        "backend": "decima",
+        "asset_manifest": "config/artifacts/local-decima.json",
+        "reuse_closed_report": "reports/decision-speed-exploration/summary.json",
+        "weight_bytes": 127079718
+      },
+      {
+        "id": "decima-base",
+        "model": "amyrmahdy/decima-base",
+        "revision": "2468005d5e48e95eb74072c32a6d9df164578071",
+        "backend": "decima",
+        "asset_manifest": "config/artifacts/comparison-decima-base.json",
+        "weight_bytes": 336883878
+      },
+      {
+        "id": "decima-agent",
+        "model": "amyrmahdy/decima-agent",
+        "revision": "1d42aee58f9083a50271e1f7447f823a841ce4c5",
+        "backend": "decima",
+        "asset_manifest": "config/artifacts/comparison-decima-agent.json",
+        "weight_bytes": 336883878
+      },
+      {
+        "id": "perfica-laya",
+        "model": "Perfica-Dev/laya-multilingual-onnx",
+        "revision": "d792d78805318cc5484ddb3bb50be1aed435b56f",
+        "backend": "laya",
+        "asset_manifest": "config/artifacts/comparison-perfica-laya.json",
+        "weight_bytes": 381415487
+      },
+      {
+        "id": "laya-multilingual",
+        "model": "Sharjeelbaig/laya-multilingual-onnx-int8",
+        "revision": "568737f5e9dfbf7e8719b6b1d52944d7942d5e10",
+        "backend": "laya",
+        "asset_manifest": "config/artifacts/comparison-laya-multilingual.json",
+        "weight_bytes": 332148830
+      },
+      {
+        "id": "laya-english",
+        "model": "inferenceprince/laya-onnx-int8",
+        "revision": "24e078dd26307a67ab2d6aaf79210f014c8ff46d",
+        "backend": "laya",
+        "asset_manifest": "config/artifacts/comparison-laya-english.json",
+        "weight_bytes": 609466756
+      },
+      {
+        "id": "horizon-small",
+        "model": "Horizon-Labs/multilingual-zeroshot-small",
+        "revision": "3fe1f0c48b589cf6220fd21a628a1dd56d3d41f8",
+        "backend": "nli",
+        "asset_manifest": "config/artifacts/comparison-horizon-small.json",
+        "weight_bytes": 268409234
+      },
+      {
+        "id": "modernbert-base",
+        "model": "MoritzLaurer/ModernBERT-base-zeroshot-v2.0",
+        "revision": "d421c4545a438fd006fb43f8b981c5d908faa1e1",
+        "backend": "nli",
+        "asset_manifest": "config/artifacts/comparison-modernbert-base.json",
+        "weight_bytes": 150872614
+      }
+    ],
+    "prefix_characters": null,
+    "task_text_included": false,
+    "summary_generation": false,
+    "instruction_sources": [
+      {
+        "path": "config/startup-instructions.txt",
+        "sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e"
+      },
+      {
+        "path": "benchmarks/loop-detection-v2/four-round-repetition-instructions.txt",
+        "sha256": "c64dd8f3a0d53bfc1f429f3d9a84c891b7aeb88abbd6484922a308ab6f138c04"
+      }
+    ],
+    "instruction_policy": "Existing engineering startup instructions retained before specific classifier criteria. No compression request, no service generation, no initial task.",
+    "behavior_sha256": "784148f62f4e7d61e1d6465e8d101852e8b4083b2990ca13c7a99b9f95b5a39a",
+    "annotations_sha256": "1d49d8607f4af8906c745916e577ea79c02b5df3442f7337f8b24057b3368ca6",
+    "cases": [
+      {
+        "id": "unchanged-resume-four",
+        "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+        "round_source_events": [
+          [
+            [
+              78
+            ],
+            [
+              81,
+              80
+            ],
+            [
+              83,
+              82
+            ]
+          ],
+          [
+            [
+              89
+            ],
+            [
+              92,
+              91
+            ],
+            [
+              94,
+              93
+            ]
+          ],
+          [
+            [
+              100
+            ],
+            [
+              103,
+              102
+            ],
+            [
+              105,
+              104
+            ]
+          ],
+          [
+            [
+              111
+            ],
+            [
+              114,
+              113
+            ],
+            [
+              116,
+              115
+            ]
+          ]
+        ],
+        "expected_pair_labels": [
+          1,
+          1,
+          1
+        ],
+        "instructions_characters": 3081,
+        "gold_reason": "Same receipt/booleans already delivered, repeated responses after continue feedback; no new verification.",
+        "round_serialized_utf8_bytes": [
+          993,
+          923,
+          921,
+          924
+        ],
+        "data_serialized_utf8_bytes": 3777,
+        "native_state_characters_compact_json": 6811,
+        "native_state_utf8_bytes": 6891
+      },
+      {
+        "id": "verification-after-repair",
+        "trace_id": "01a11757-a3bc-7b23-b8fa-338ca563faac",
+        "round_source_events": [
+          [
+            [
+              142,
+              141
+            ],
+            [
+              143,
+              145,
+              146
+            ]
+          ],
+          [
+            [
+              149,
+              148
+            ],
+            [
+              150,
+              152,
+              153
+            ]
+          ],
+          [
+            [
+              156,
+              155
+            ],
+            [
+              157,
+              159,
+              160
+            ]
+          ],
+          [
+            [
+              163,
+              162
+            ],
+            [
+              164,
+              166,
+              167
+            ]
+          ]
+        ],
+        "expected_pair_labels": [
+          0,
+          0,
+          0
+        ],
+        "instructions_characters": 3081,
+        "gold_reason": "Real schema-check corrections and report rewrite occurred; final verification checks newly changed report. Normal labels retained even though check still reports errors.",
+        "round_serialized_utf8_bytes": [
+          1021,
+          1022,
+          804,
+          1022
+        ],
+        "data_serialized_utf8_bytes": 3885,
+        "native_state_characters_compact_json": 6995,
+        "native_state_utf8_bytes": 6999
+      }
+    ],
+    "input_sha256": "732473ff60a550ab256aaeb5f39621337b799cce6c767c61fa1e185d5c51da24",
+    "maximum_windows_per_model": 2,
+    "maximum_pair_decisions_per_model": 6,
+    "maximum_effective_windows": 16,
+    "maximum_effective_pair_decisions": 48,
+    "resources": {
+      "provider": "CPUExecutionProvider",
+      "threads": 1,
+      "logical_cpu_affinity": 1,
+      "sampled_rss_bytes": 2147483648,
+      "worker_seconds": 120,
+      "stop_at_1_second": false
+    },
+    "estimated_active_work_minutes": [
+      15,
+      30
+    ],
+    "probability_contract": {
+      "order": "p(final vs first),p(final vs second),p(final vs third)",
+      "independent_binary_heads": true,
+      "sum_constrained_to_one": false,
+      "calibrated": false,
+      "automatic_aggregation": false,
+      "trigger_threshold": null
+    },
+    "source_sha256": {
+      "tools/local_round_repetition.py": "a0e9fc37209c70b903efcd170813b67417aee8a095ad3c7ffb6b1f814af6c785",
+      "tools/local_decima.py": "d485c8464c3b8049055fa4d4437b9e65d585ed2d3d735066c61c2385ed2dabc6",
+      "tools/local_decision_backends.py": "4518f9f9cbf00b331f0d1fe5da806abf7acb8b6d3771ec02c8c760800ad85f75",
+      "tools/local_semantic_encoder.py": "e4c955caf0818d9fda2f9120e2fdd84684c1bfa2d0d6cc72c325f28d88b9272b"
+    },
+    "round_boundary": "Observed reasoning/feedback plus assistant message, or contiguous tool batch with results. Not verified native HTTP response grouping. No across-compaction windows.",
+    "quality_scope": "Two-window diagnostic only. No global F1; full original gold is retained. Annotator labels never supplied to native model.",
+    "native_nli_hypothesis_batch_size": 1,
+    "maximum_serialized_round_utf8_bytes": 1024,
+    "field_prefix_maximum_utf8_bytes": 300,
+    "compact_state_json": true,
+    "previous_batch": "reports/four-round-prefix-pilot/summary.json",
+    "capacity_survey": {
+      "round_bytes": {
+        "count": 2514,
+        "median": 729,
+        "p95": 1024,
+        "p99": 1024,
+        "max": 1024
+      },
+      "four_round_wrapper_bytes": {
+        "count": 1856,
+        "median": 2927,
+        "p95": 4106,
+        "p99": 4109,
+        "max": 4111
+      },
+      "metadata_overflow_errors": [],
+      "cut_rounds": 2298,
+      "boundary_records_excluded": true,
+      "no_neural_inference": true
+    },
+    "removed_fields": "Corpus/session IDs,timestamps,SHA,annotations not sent; redundant false cut flags, output-present flags when actual output exists, null exit codes and JSON indentation removed. Keep actual role/order/name/arguments/output/non-null exit/missing-output/cut indicators. No semantic keyword selection."
+  },
+  "models": [
+    {
+      "id": "decima-small",
+      "backend": "decima",
+      "checkpoint": "amyrmahdy/decima-small",
+      "asset_manifest": "config/artifacts/local-decima.json",
+      "asset_manifest_sha256": "5243186943570fdc4046ef48e47e80e6e41ff3de6a731c7f9cd4f44184d0fd10",
+      "result": {
+        "model": "decima-small",
+        "status": "closed-capacity-preflight",
+        "neural_calls": 0,
+        "cases": [
+          {
+            "id": "unchanged-resume-four",
+            "state_only_tokens": 1972,
+            "configured_capacity": 512,
+            "note": "Native question/options/special framing still adds tokens.",
+            "status": "capacity-rejected-before-loading",
+            "probabilities": null,
+            "window_seconds": null
+          },
+          {
+            "id": "verification-after-repair",
+            "state_only_tokens": 2402,
+            "configured_capacity": 512,
+            "note": "Native question/options/special framing still adds tokens.",
+            "status": "capacity-rejected-before-loading",
+            "probabilities": null,
+            "window_seconds": null
+          }
+        ]
+      },
+      "receipt": {
+        "model": "decima-small",
+        "status": "capacity-rejected-before-loading",
+        "neural_calls": 0,
+        "sampled_peak_rss_bytes": null,
+        "worker_seconds": null,
+        "input_sha256": "732473ff60a550ab256aaeb5f39621337b799cce6c767c61fa1e185d5c51da24",
+        "plan_sha256": "dfa073cf56bfe2b8eb89d5b433be12194f99e3b398422b30c6b8634fefe9f740"
+      }
+    },
+    {
+      "id": "decima-base",
+      "backend": "decima",
+      "checkpoint": "amyrmahdy/decima-base",
+      "asset_manifest": "config/artifacts/comparison-decima-base.json",
+      "asset_manifest_sha256": "585b23763a7da7243f927f8717453ccb8c88a10df9431ed79ab05c8484c86cda",
+      "result": {
+        "model": "decima-base",
+        "status": "closed-capacity-preflight",
+        "neural_calls": 0,
+        "cases": [
+          {
+            "id": "unchanged-resume-four",
+            "state_only_tokens": 1491,
+            "configured_capacity": 512,
+            "note": "Native question/options/special framing still adds tokens.",
+            "status": "capacity-rejected-before-loading",
+            "probabilities": null,
+            "window_seconds": null
+          },
+          {
+            "id": "verification-after-repair",
+            "state_only_tokens": 1875,
+            "configured_capacity": 512,
+            "note": "Native question/options/special framing still adds tokens.",
+            "status": "capacity-rejected-before-loading",
+            "probabilities": null,
+            "window_seconds": null
+          }
+        ]
+      },
+      "receipt": {
+        "model": "decima-base",
+        "status": "capacity-rejected-before-loading",
+        "neural_calls": 0,
+        "sampled_peak_rss_bytes": null,
+        "worker_seconds": null,
+        "input_sha256": "732473ff60a550ab256aaeb5f39621337b799cce6c767c61fa1e185d5c51da24",
+        "plan_sha256": "dfa073cf56bfe2b8eb89d5b433be12194f99e3b398422b30c6b8634fefe9f740"
+      }
+    },
+    {
+      "id": "decima-agent",
+      "backend": "decima",
+      "checkpoint": "amyrmahdy/decima-agent",
+      "asset_manifest": "config/artifacts/comparison-decima-agent.json",
+      "asset_manifest_sha256": "c57f9d0705bc1ea111335305ca0a7a34b7a71271bccde7a4acd8d1cf1baa1874",
+      "result": {
+        "model": "decima-agent",
+        "status": "closed",
+        "cases": [
+          {
+            "id": "unchanged-resume-four",
+            "status": "complete",
+            "probabilities": [
+              0.8994374871253967,
+              0.927979588508606,
+              0.9345725178718567
+            ],
+            "comparisons": [
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.8994374871253967,
+                  "other": 0.10056252777576447
+                },
+                "state_tokens_with_question_and_specials": 1509,
+                "forward_calls": 3,
+                "actual_encoder_processed_input_tokens": 1597,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 4.13585771000362
+              },
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.927979588508606,
+                  "other": 0.07202044874429703
+                },
+                "state_tokens_with_question_and_specials": 1509,
+                "forward_calls": 3,
+                "actual_encoder_processed_input_tokens": 1597,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 3.9364202589931665
+              },
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.9345725178718567,
+                  "other": 0.06542747467756271
+                },
+                "state_tokens_with_question_and_specials": 1509,
+                "forward_calls": 3,
+                "actual_encoder_processed_input_tokens": 1597,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 3.9538284269947326
+              }
+            ],
+            "window_seconds": 12.026137699009269,
+            "reference_order": [
+              1,
+              2,
+              3
+            ],
+            "model_probabilities_calibrated": false,
+            "window_1s_met": false,
+            "window_200ms_met": false
+          },
+          {
+            "id": "verification-after-repair",
+            "status": "complete",
+            "probabilities": [
+              0.8550576567649841,
+              0.9085618257522583,
+              0.9309719204902649
+            ],
+            "comparisons": [
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.8550576567649841,
+                  "other": 0.14494238793849945
+                },
+                "state_tokens_with_question_and_specials": 1893,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 1893,
+                "static_options_cached_before_call": true,
+                "coverage_complete": true,
+                "elapsed_seconds": 5.6247144890076015
+              },
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.9085618257522583,
+                  "other": 0.09143810719251633
+                },
+                "state_tokens_with_question_and_specials": 1893,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 1893,
+                "static_options_cached_before_call": true,
+                "coverage_complete": true,
+                "elapsed_seconds": 5.42279380200489
+              },
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.9309719204902649,
+                  "other": 0.06902805715799332
+                },
+                "state_tokens_with_question_and_specials": 1893,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 1893,
+                "static_options_cached_before_call": true,
+                "coverage_complete": true,
+                "elapsed_seconds": 5.45818178699119
+              }
+            ],
+            "window_seconds": 16.505719381995732,
+            "reference_order": [
+              1,
+              2,
+              3
+            ],
+            "model_probabilities_calibrated": false,
+            "window_1s_met": false,
+            "window_200ms_met": false
+          }
+        ],
+        "load_seconds": 1.2689303469960578,
+        "affinity": [
+          0
+        ],
+        "provider": "CPUExecutionProvider",
+        "forward_calls": 15,
+        "processed_encoder_input_tokens": 10470
+      },
+      "receipt": {
+        "model": "decima-agent",
+        "worker_exit_code": 0,
+        "stop_reason": null,
+        "sampled_peak_rss_bytes": 1768460288,
+        "sample_seconds": 0.02,
+        "worker_seconds": 29.89717305600061,
+        "input_sha256": "732473ff60a550ab256aaeb5f39621337b799cce6c767c61fa1e185d5c51da24",
+        "plan_sha256": "dfa073cf56bfe2b8eb89d5b433be12194f99e3b398422b30c6b8634fefe9f740",
+        "source_sha256": {
+          "tools/local_round_repetition.py": "a0e9fc37209c70b903efcd170813b67417aee8a095ad3c7ffb6b1f814af6c785",
+          "tools/local_decima.py": "d485c8464c3b8049055fa4d4437b9e65d585ed2d3d735066c61c2385ed2dabc6",
+          "tools/local_decision_backends.py": "4518f9f9cbf00b331f0d1fe5da806abf7acb8b6d3771ec02c8c760800ad85f75",
+          "tools/local_semantic_encoder.py": "e4c955caf0818d9fda2f9120e2fdd84684c1bfa2d0d6cc72c325f28d88b9272b"
+        },
+        "gpu_requests": 0,
+        "runtime_network_requests": 0,
+        "runtime_agent_calls": 0
+      }
+    },
+    {
+      "id": "perfica-laya",
+      "backend": "laya",
+      "checkpoint": "Perfica-Dev/laya-multilingual-onnx",
+      "asset_manifest": "config/artifacts/comparison-perfica-laya.json",
+      "asset_manifest_sha256": "918ad1981254737c630290d4ff5563ee448c622ec6192c1f1de774c1e0e21658",
+      "result": {
+        "model": "perfica-laya",
+        "status": "closed-capacity-preflight",
+        "neural_calls": 0,
+        "cases": [
+          {
+            "id": "unchanged-resume-four",
+            "state_only_tokens": 1491,
+            "configured_capacity": 1024,
+            "note": "Native question/options/special framing still adds tokens.",
+            "status": "capacity-rejected-before-loading",
+            "probabilities": null,
+            "window_seconds": null
+          },
+          {
+            "id": "verification-after-repair",
+            "state_only_tokens": 1875,
+            "configured_capacity": 1024,
+            "note": "Native question/options/special framing still adds tokens.",
+            "status": "capacity-rejected-before-loading",
+            "probabilities": null,
+            "window_seconds": null
+          }
+        ]
+      },
+      "receipt": {
+        "model": "perfica-laya",
+        "status": "capacity-rejected-before-loading",
+        "neural_calls": 0,
+        "sampled_peak_rss_bytes": null,
+        "worker_seconds": null,
+        "input_sha256": "732473ff60a550ab256aaeb5f39621337b799cce6c767c61fa1e185d5c51da24",
+        "plan_sha256": "dfa073cf56bfe2b8eb89d5b433be12194f99e3b398422b30c6b8634fefe9f740"
+      }
+    },
+    {
+      "id": "laya-multilingual",
+      "backend": "laya",
+      "checkpoint": "Sharjeelbaig/laya-multilingual-onnx-int8",
+      "asset_manifest": "config/artifacts/comparison-laya-multilingual.json",
+      "asset_manifest_sha256": "772ae200f484fb51fb993525f5dc37b96fe853f893ce32e0c5e0fc750485473d",
+      "result": {
+        "model": "laya-multilingual",
+        "status": "closed-capacity-preflight",
+        "neural_calls": 0,
+        "cases": [
+          {
+            "id": "unchanged-resume-four",
+            "state_only_tokens": 1491,
+            "configured_capacity": 1024,
+            "note": "Native question/options/special framing still adds tokens.",
+            "status": "capacity-rejected-before-loading",
+            "probabilities": null,
+            "window_seconds": null
+          },
+          {
+            "id": "verification-after-repair",
+            "state_only_tokens": 1875,
+            "configured_capacity": 1024,
+            "note": "Native question/options/special framing still adds tokens.",
+            "status": "capacity-rejected-before-loading",
+            "probabilities": null,
+            "window_seconds": null
+          }
+        ]
+      },
+      "receipt": {
+        "model": "laya-multilingual",
+        "status": "capacity-rejected-before-loading",
+        "neural_calls": 0,
+        "sampled_peak_rss_bytes": null,
+        "worker_seconds": null,
+        "input_sha256": "732473ff60a550ab256aaeb5f39621337b799cce6c767c61fa1e185d5c51da24",
+        "plan_sha256": "dfa073cf56bfe2b8eb89d5b433be12194f99e3b398422b30c6b8634fefe9f740"
+      }
+    },
+    {
+      "id": "laya-english",
+      "backend": "laya",
+      "checkpoint": "inferenceprince/laya-onnx-int8",
+      "asset_manifest": "config/artifacts/comparison-laya-english.json",
+      "asset_manifest_sha256": "32540b70c724156c7aa8d2ed2c9004852e0b5c78db95a4d710af50830e8b4f12",
+      "result": {
+        "model": "laya-english",
+        "status": "closed-capacity-preflight",
+        "neural_calls": 0,
+        "cases": [
+          {
+            "id": "unchanged-resume-four",
+            "state_only_tokens": 1556,
+            "configured_capacity": 512,
+            "note": "Native question/options/special framing still adds tokens.",
+            "status": "capacity-rejected-before-loading",
+            "probabilities": null,
+            "window_seconds": null
+          },
+          {
+            "id": "verification-after-repair",
+            "state_only_tokens": 1833,
+            "configured_capacity": 512,
+            "note": "Native question/options/special framing still adds tokens.",
+            "status": "capacity-rejected-before-loading",
+            "probabilities": null,
+            "window_seconds": null
+          }
+        ]
+      },
+      "receipt": {
+        "model": "laya-english",
+        "status": "capacity-rejected-before-loading",
+        "neural_calls": 0,
+        "sampled_peak_rss_bytes": null,
+        "worker_seconds": null,
+        "input_sha256": "732473ff60a550ab256aaeb5f39621337b799cce6c767c61fa1e185d5c51da24",
+        "plan_sha256": "dfa073cf56bfe2b8eb89d5b433be12194f99e3b398422b30c6b8634fefe9f740"
+      }
+    },
+    {
+      "id": "horizon-small",
+      "backend": "nli",
+      "checkpoint": "Horizon-Labs/multilingual-zeroshot-small",
+      "asset_manifest": "config/artifacts/comparison-horizon-small.json",
+      "asset_manifest_sha256": "e1f06fac2b2b80922a0c64d458c0945f4d6886d2ceaa3f5230cc157981a3a2c6",
+      "result": {
+        "model": "horizon-small",
+        "status": "closed",
+        "cases": [
+          {
+            "id": "unchanged-resume-four",
+            "status": "complete",
+            "probabilities": [
+              0.5542357563972473,
+              0.5598074197769165,
+              0.5616459250450134
+            ],
+            "comparisons": [
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.5542357563972473,
+                  "other": 0.4457641839981079
+                },
+                "state_tokens_with_question_and_specials": 1535,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 3070,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 3.259754365994013
+              },
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.5598074197769165,
+                  "other": 0.4401926100254059
+                },
+                "state_tokens_with_question_and_specials": 1535,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 3070,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 3.172217254003044
+              },
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.5616459250450134,
+                  "other": 0.4383540749549866
+                },
+                "state_tokens_with_question_and_specials": 1535,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 3070,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 3.149228973998106
+              }
+            ],
+            "window_seconds": 9.581390997002018,
+            "reference_order": [
+              1,
+              2,
+              3
+            ],
+            "model_probabilities_calibrated": false,
+            "window_1s_met": false,
+            "window_200ms_met": false
+          },
+          {
+            "id": "verification-after-repair",
+            "status": "complete",
+            "probabilities": [
+              0.609334409236908,
+              0.6142924427986145,
+              0.6073902249336243
+            ],
+            "comparisons": [
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.609334409236908,
+                  "other": 0.39066556096076965
+                },
+                "state_tokens_with_question_and_specials": 1919,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 3838,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 4.390297955003916
+              },
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.6142924427986145,
+                  "other": 0.3857075572013855
+                },
+                "state_tokens_with_question_and_specials": 1919,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 3838,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 4.404873945008148
+              },
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.6073902249336243,
+                  "other": 0.3926098048686981
+                },
+                "state_tokens_with_question_and_specials": 1919,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 3838,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 4.371757377011818
+              }
+            ],
+            "window_seconds": 13.167158331998507,
+            "reference_order": [
+              1,
+              2,
+              3
+            ],
+            "model_probabilities_calibrated": false,
+            "window_1s_met": false,
+            "window_200ms_met": false
+          }
+        ],
+        "load_seconds": 1.1448152619996108,
+        "affinity": [
+          0
+        ],
+        "provider": "CPUExecutionProvider",
+        "forward_calls": 12,
+        "processed_encoder_input_tokens": 20724
+      },
+      "receipt": {
+        "model": "horizon-small",
+        "worker_exit_code": 0,
+        "stop_reason": null,
+        "sampled_peak_rss_bytes": 1175543808,
+        "sample_seconds": 0.02,
+        "worker_seconds": 23.97357978700893,
+        "input_sha256": "732473ff60a550ab256aaeb5f39621337b799cce6c767c61fa1e185d5c51da24",
+        "plan_sha256": "dfa073cf56bfe2b8eb89d5b433be12194f99e3b398422b30c6b8634fefe9f740",
+        "source_sha256": {
+          "tools/local_round_repetition.py": "a0e9fc37209c70b903efcd170813b67417aee8a095ad3c7ffb6b1f814af6c785",
+          "tools/local_decima.py": "d485c8464c3b8049055fa4d4437b9e65d585ed2d3d735066c61c2385ed2dabc6",
+          "tools/local_decision_backends.py": "4518f9f9cbf00b331f0d1fe5da806abf7acb8b6d3771ec02c8c760800ad85f75",
+          "tools/local_semantic_encoder.py": "e4c955caf0818d9fda2f9120e2fdd84684c1bfa2d0d6cc72c325f28d88b9272b"
+        },
+        "gpu_requests": 0,
+        "runtime_network_requests": 0,
+        "runtime_agent_calls": 0
+      }
+    },
+    {
+      "id": "modernbert-base",
+      "backend": "nli",
+      "checkpoint": "MoritzLaurer/ModernBERT-base-zeroshot-v2.0",
+      "asset_manifest": "config/artifacts/comparison-modernbert-base.json",
+      "asset_manifest_sha256": "789500b1ced40126fd0640b05093cdd00fcf991b38f0baf0396e3dbc49266e7e",
+      "result": {
+        "model": "modernbert-base",
+        "status": "closed",
+        "cases": [
+          {
+            "id": "unchanged-resume-four",
+            "status": "complete",
+            "probabilities": [
+              0.6804153919219971,
+              0.5918502807617188,
+              0.6422908902168274
+            ],
+            "comparisons": [
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.6804153919219971,
+                  "other": 0.31958457827568054
+                },
+                "state_tokens_with_question_and_specials": 1596,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 3192,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 4.967889783001738
+              },
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.5918502807617188,
+                  "other": 0.4081496596336365
+                },
+                "state_tokens_with_question_and_specials": 1596,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 3192,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 4.638614958996186
+              },
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.6422908902168274,
+                  "other": 0.3577091097831726
+                },
+                "state_tokens_with_question_and_specials": 1596,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 3192,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 4.588120497006457
+              }
+            ],
+            "window_seconds": 14.194839592004428,
+            "reference_order": [
+              1,
+              2,
+              3
+            ],
+            "model_probabilities_calibrated": false,
+            "window_1s_met": false,
+            "window_200ms_met": false
+          },
+          {
+            "id": "verification-after-repair",
+            "status": "complete",
+            "probabilities": [
+              0.6785660982131958,
+              0.644553542137146,
+              0.6385341882705688
+            ],
+            "comparisons": [
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.6785660982131958,
+                  "other": 0.3214339017868042
+                },
+                "state_tokens_with_question_and_specials": 1873,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 3746,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 6.1468707530002575
+              },
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.644553542137146,
+                  "other": 0.35544639825820923
+                },
+                "state_tokens_with_question_and_specials": 1873,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 3746,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 5.987671862007119
+              },
+              {
+                "relation": "repeat",
+                "probabilities": {
+                  "repeat": 0.6385341882705688,
+                  "other": 0.36146581172943115
+                },
+                "state_tokens_with_question_and_specials": 1873,
+                "forward_calls": 2,
+                "actual_encoder_processed_input_tokens": 3746,
+                "static_options_cached_before_call": false,
+                "coverage_complete": true,
+                "elapsed_seconds": 5.971626311002183
+              }
+            ],
+            "window_seconds": 18.10642193199601,
+            "reference_order": [
+              1,
+              2,
+              3
+            ],
+            "model_probabilities_calibrated": false,
+            "window_1s_met": false,
+            "window_200ms_met": false
+          }
+        ],
+        "load_seconds": 0.36283163899497595,
+        "affinity": [
+          0
+        ],
+        "provider": "CPUExecutionProvider",
+        "forward_calls": 12,
+        "processed_encoder_input_tokens": 20814
+      },
+      "receipt": {
+        "model": "modernbert-base",
+        "worker_exit_code": 0,
+        "stop_reason": null,
+        "sampled_peak_rss_bytes": 1385365504,
+        "sample_seconds": 0.02,
+        "worker_seconds": 32.72586523799691,
+        "input_sha256": "732473ff60a550ab256aaeb5f39621337b799cce6c767c61fa1e185d5c51da24",
+        "plan_sha256": "dfa073cf56bfe2b8eb89d5b433be12194f99e3b398422b30c6b8634fefe9f740",
+        "source_sha256": {
+          "tools/local_round_repetition.py": "a0e9fc37209c70b903efcd170813b67417aee8a095ad3c7ffb6b1f814af6c785",
+          "tools/local_decima.py": "d485c8464c3b8049055fa4d4437b9e65d585ed2d3d735066c61c2385ed2dabc6",
+          "tools/local_decision_backends.py": "4518f9f9cbf00b331f0d1fe5da806abf7acb8b6d3771ec02c8c760800ad85f75",
+          "tools/local_semantic_encoder.py": "e4c955caf0818d9fda2f9120e2fdd84684c1bfa2d0d6cc72c325f28d88b9272b"
+        },
+        "gpu_requests": 0,
+        "runtime_network_requests": 0,
+        "runtime_agent_calls": 0
+      }
+    }
+  ],
+  "comparison_with_previous_batch": [
+    {
+      "model": "horizon-small",
+      "case": "unchanged-resume-four",
+      "previous_window_seconds": 15.523462480996386,
+      "current_window_seconds": 9.581390997002018,
+      "speedup_ratio": 1.6201679365609463,
+      "time_reduction_fraction": 0.382780033208994,
+      "previous_probabilities": [
+        0.5195174217224121,
+        0.5448548197746277,
+        0.5577507019042969
+      ],
+      "current_probabilities": [
+        0.5542357563972473,
+        0.5598074197769165,
+        0.5616459250450134
+      ]
+    },
+    {
+      "model": "horizon-small",
+      "case": "verification-after-repair",
+      "previous_window_seconds": 21.39726185699692,
+      "current_window_seconds": 13.167158331998507,
+      "speedup_ratio": 1.62504781346768,
+      "time_reduction_fraction": 0.38463349095796395,
+      "previous_probabilities": [
+        0.6260854005813599,
+        0.630860447883606,
+        0.637862503528595
+      ],
+      "current_probabilities": [
+        0.609334409236908,
+        0.6142924427986145,
+        0.6073902249336243
+      ]
+    },
+    {
+      "model": "modernbert-base",
+      "case": "unchanged-resume-four",
+      "previous_window_seconds": 19.001813176000724,
+      "current_window_seconds": 14.194839592004428,
+      "speedup_ratio": 1.3386423321545624,
+      "time_reduction_fraction": 0.2529744682506141,
+      "previous_probabilities": [
+        0.6292052865028381,
+        0.6125560402870178,
+        0.6004336476325989
+      ],
+      "current_probabilities": [
+        0.6804153919219971,
+        0.5918502807617188,
+        0.6422908902168274
+      ]
+    },
+    {
+      "model": "modernbert-base",
+      "case": "verification-after-repair",
+      "previous_window_seconds": 24.602482383008464,
+      "current_window_seconds": 18.10642193199601,
+      "speedup_ratio": 1.358771074451392,
+      "time_reduction_fraction": 0.26404085367820096,
+      "previous_probabilities": [
+        0.503314733505249,
+        0.5233895778656006,
+        0.5075194239616394
+      ],
+      "current_probabilities": [
+        0.6785660982131958,
+        0.644553542137146,
+        0.6385341882705688
+      ]
+    }
+  ],
+  "valid_windows": 6,
+  "valid_pair_decisions": 18,
+  "capacity_rejected_windows": 10,
+  "failed_workers": 0,
+  "round_capacity_validation": {
+    "round_bytes": {
+      "count": 2514,
+      "median": 729,
+      "p95": 1024,
+      "p99": 1024,
+      "max": 1024
+    },
+    "four_round_wrapper_bytes": {
+      "count": 1856,
+      "median": 2927,
+      "p95": 4106,
+      "p99": 4109,
+      "max": 4111
+    },
+    "metadata_overflow_errors": [],
+    "cut_rounds": 2298,
+    "boundary_records_excluded": true,
+    "no_neural_inference": true
+  },
+  "source_binding": {
+    "tools/local_round_repetition.py": "a0e9fc37209c70b903efcd170813b67417aee8a095ad3c7ffb6b1f814af6c785",
+    "tools/local_decima.py": "d485c8464c3b8049055fa4d4437b9e65d585ed2d3d735066c61c2385ed2dabc6",
+    "tools/local_decision_backends.py": "4518f9f9cbf00b331f0d1fe5da806abf7acb8b6d3771ec02c8c760800ad85f75",
+    "tools/local_semantic_encoder.py": "e4c955caf0818d9fda2f9120e2fdd84684c1bfa2d0d6cc72c325f28d88b9272b"
+  },
+  "user_visible_output": "Only3floating probability estimates in preceding-round chronological order, no generated explanation or JSON. Internal receipts may be JSON.",
+  "probability_calibration": false,
+  "probability_aggregation": null,
+  "decision_threshold": null,
+  "joint_detector_f1": null,
+  "annotation_changes": 0,
+  "main_review": "Normal window retained: real verification fixes and report rewrite before final check. New3scores do not justify relabeling as loops. Repetition window retains same original delivered values without relevant new observations. Prefixes do not replace complete truth.",
+  "interpretation_limit": "Changed both prefix/metadata representation and compact JSON formatting; cannot attribute quality shift to one subchange. Two windows do not establish generalization or calibration.",
+  "forward_interface": "Three binary predict calls per window. Decima includes state encoder/scorer and first-window static option embedding; NLI2sequential hypothesis forwards per pair. No claim that a whole window costs one native forward.",
+  "threads": 1,
+  "cpu_affinity": 0,
+  "gpu_requests": 0,
+  "strata_requests": 0,
+  "runtime_network_requests": 0,
+  "runtime_agent_calls": 0,
+  "models_unloaded": true,
+  "live_detector_changes": 0,
+  "checks": {
+    "no_neural_regressions_passed": 18,
+    "all_corpus_byte_budget_no_errors": true
+  },
+  "next": "Review this batch. Propose reducing repeated state encoding without further summary or effective samples; exact neural interface and fixed inputs first review.",
+  "retention": "Full precision scores,times,tokens,RSS,counterfactual prior comparison and compact source bindings preserved. Full worker detail temporary; no report table depends on temporary files."
+}

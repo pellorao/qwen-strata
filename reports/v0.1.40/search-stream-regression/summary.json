@@ -1,0 +1,859 @@
+{
+  "schema": 1,
+  "status": "closed-interface-diagnostic-batch",
+  "scope": "Original streaming indexed/live search regression; not ARW capability scoring.",
+  "configuration": {
+    "version": {
+      "version": "0.1.40",
+      "commit": "1735d6471df29b42c26170efaac1f1446a58640f"
+    },
+    "model": "qwen3.8-flash-next-q2_0",
+    "effort": "high",
+    "profile": "default-no-save",
+    "compact_threshold_for_following_harness_runs": 100000,
+    "engine_overrides": {
+      "prefill": 16384,
+      "kv": "int8",
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pcie-frac": 0.0,
+      "spec": 4,
+      "spec-min-p": 0.7,
+      "expert-cache": "auto",
+      "vram-reserve-mib": 700,
+      "adapt-every": 4,
+      "adapt-swaps": 96,
+      "adapt-decay": 0.7,
+      "mtp-window": 32768,
+      "pcie-mode": "auto",
+      "expert-cache-per-layer": false,
+      "expert-cache-cpu-order": false,
+      "pool-affinity": "auto",
+      "ple-io": "direct",
+      "ple-inflight": 256,
+      "no-capture": false,
+      "no-host-worker": false,
+      "no-ple-prefetch": false,
+      "no-prefill-borrow": false,
+      "no-split-rows": false,
+      "no-coupled-draft": false,
+      "shared-late": false,
+      "keep-canonical": false,
+      "no-token-graph": false,
+      "no-fused-gr": false,
+      "no-hit-poke": false,
+      "ple-sync-submit": false,
+      "no-spec-split": false,
+      "gr-fp32-activations": false,
+      "ple-row-cache": 1048576,
+      "short-read": 64,
+      "suffix-draft": 3,
+      "mtp-max-t": 0,
+      "prompt-cache": 6,
+      "prompt-cache-every": 16384,
+      "prompt-cache-root": 2048,
+      "max-context": 156584
+    },
+    "engine_environment": {
+      "STRATA_HC_SPLIT": null,
+      "STRATA_ADAPT_NOWAIT": null,
+      "STRATA_SSD_KEEPALIVE": null
+    },
+    "request_defaults": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 24576,
+      "reasoning_budget_tokens": 8192,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "high"
+    },
+    "baseline_sha256": "243143d203c6c034f0df8f32919dea425e73f5ee62639190aafab76843a93ca8",
+    "repetitions": 3,
+    "model_instances": 3,
+    "frontend_requests_at_most": 9,
+    "model_api_rounds_at_most": 72,
+    "search_operations_at_most": 72,
+    "base_prompt_sha256": {
+      "startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+    },
+    "requests_sha256": "423ff273d140e220fcada69e426d97b03b6b401da1690918be69ff6a970fddcb",
+    "scope": "Streaming indexed search/replay/open/find, live release page open/find and citation provenance. No Codex/guardian, failure injection, cancellation/resume, long-context compaction or ARW scoring.",
+    "new_opt_ins": "unchanged/off; no automatic retry or rerun",
+    "timeout_seconds_per_frontend_request": 180,
+    "indexed_find_pattern": "First alphabetic word of at least four characters in an actual repository indexed excerpt; chosen mechanically by Main, not supplied as an expected answer.",
+    "release_url": "https://github.com/Niko1221/Strata/releases/tag/v0.1.40",
+    "estimated_minutes": [
+      3,
+      10
+    ],
+    "estimate_basis": "Observed 14.345s load per model, approximately 13s for five prior short requests; allow up to several minutes for live-page/tool/SSE overhead. No automatic retry or rerun.",
+    "profile_binding": {
+      "profile": {
+        "choice": "default",
+        "installation_relative_path": "runtime/Strata/data/expert-profile.bin",
+        "sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+        "save_enabled": false
+      },
+      "prebuilt_config_sha256": "fa3fdd34cddba8fb75954a67c7535a7a9129014f606b6373142a090eb03b7093"
+    }
+  },
+  "protocol_sha256": "f11f38baf164ca9297f2612ec4fb3347ea99167f62bd4f07859a9124ea3e91c7",
+  "rows": [
+    {
+      "repeat": 1,
+      "pass": false,
+      "observations": [
+        {
+          "name": "search",
+          "model_api_rounds": 2,
+          "search_actions": [
+            {
+              "action": "search",
+              "query": "Niko1221 Strata GitHub repository"
+            },
+            {
+              "action": "search",
+              "query": "github.com/Niko1221 Strata"
+            }
+          ],
+          "brave_requests": 2,
+          "seconds": 12.700487330992473
+        },
+        {
+          "name": "indexed-open-find",
+          "model_api_rounds": 3,
+          "search_actions": [
+            {
+              "action": "open_page",
+              "url": "https://github.com/Niko1221/Strata"
+            },
+            {
+              "action": "find_in_page",
+              "url": "ref_e70528c85b9645a8ba39d1dbe4d7a872",
+              "pattern": "Strata"
+            }
+          ],
+          "brave_requests": 0,
+          "seconds": 7.13948555800016
+        },
+        {
+          "name": "live-open-find",
+          "model_api_rounds": 2,
+          "search_actions": [
+            {
+              "action": "open_page",
+              "url": "https://github.com/Niko1221/Strata/releases/tag/v0.1.40"
+            }
+          ],
+          "brave_requests": 0,
+          "seconds": 12.049478127009934
+        }
+      ],
+      "load_seconds": 14.367605949999415,
+      "error": "ValueError: Live page open/find did not return live content",
+      "work_seconds": 31.889587301993743,
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "tokens": {
+        "uncached_input": 14024,
+        "cached_input": 21954,
+        "output": 1840
+      },
+      "engine_input_seconds": 9.436,
+      "engine_decode_seconds": 12.922,
+      "engine_input_tokens_per_second": 1486.222975837219,
+      "engine_output_tokens_per_second": 142.39281844915647,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 31.889587301993743,
+      "task_input_tokens_per_second": 439.76737193846395,
+      "task_output_tokens_per_second": 57.699084738075705,
+      "ownership_returned": true,
+      "internal_numeric_stages": [
+        {
+          "input": 913,
+          "cached": 0,
+          "uncached": 913,
+          "prompt_ms": 1325.0,
+          "output": 134,
+          "decode_ms": 977.0,
+          "log_line": 38
+        },
+        {
+          "input": 5792,
+          "cached": 1048,
+          "uncached": 4744,
+          "prompt_ms": 2125.0,
+          "output": 466,
+          "decode_ms": 3352.0,
+          "log_line": 43
+        },
+        {
+          "input": 6320,
+          "cached": 6259,
+          "uncached": 61,
+          "prompt_ms": 356.0,
+          "output": 162,
+          "decode_ms": 1315.0,
+          "log_line": 47
+        },
+        {
+          "input": 7050,
+          "cached": 6483,
+          "uncached": 567,
+          "prompt_ms": 1020.0,
+          "output": 100,
+          "decode_ms": 662.0,
+          "log_line": 51
+        },
+        {
+          "input": 7768,
+          "cached": 7150,
+          "uncached": 618,
+          "prompt_ms": 1004.0,
+          "output": 358,
+          "decode_ms": 2586.0,
+          "log_line": 55
+        },
+        {
+          "input": 924,
+          "cached": 0,
+          "uncached": 924,
+          "prompt_ms": 1247.0,
+          "output": 90,
+          "decode_ms": 634.0,
+          "log_line": 59
+        },
+        {
+          "input": 7211,
+          "cached": 1014,
+          "uncached": 6197,
+          "prompt_ms": 2359.0,
+          "output": 530,
+          "decode_ms": 3396.0,
+          "log_line": 62
+        }
+      ],
+      "engine_record_sha256": "35f64f881ff559f49a11b0688053b4b2f429c2c1b9df2e1c30eb409a975c931c",
+      "equivalent_cost_usd": 0.003319664,
+      "cases": [
+        {
+          "name": "search",
+          "response_id": "resp_5e42576eadf24677945f8927fa7e0c23",
+          "stream_completed": true,
+          "actions": [
+            {
+              "action": "search",
+              "query": "Niko1221 Strata GitHub repository"
+            },
+            {
+              "action": "search",
+              "query": "github.com/Niko1221 Strata"
+            }
+          ],
+          "indexed_excerpt_flags": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "brave_requests": 2,
+          "model_api_rounds": 2,
+          "tool_failures": [],
+          "seconds": 12.700487330992473,
+          "response_sha256": "d92a50780b363f08411addef11400a7ed0e5c308a3e9f3a618431c2e96cf5ee7"
+        },
+        {
+          "name": "indexed-open-find",
+          "response_id": "resp_864c9d2cc4b14aa1b865154259bc4f70",
+          "stream_completed": true,
+          "actions": [
+            {
+              "action": "open_page",
+              "url": "https://github.com/Niko1221/Strata"
+            },
+            {
+              "action": "find_in_page",
+              "url": "ref_e70528c85b9645a8ba39d1dbe4d7a872",
+              "pattern": "Strata"
+            }
+          ],
+          "indexed_excerpt_flags": [
+            true,
+            true
+          ],
+          "brave_requests": 0,
+          "model_api_rounds": 3,
+          "tool_failures": [],
+          "seconds": 7.13948555800016,
+          "response_sha256": "1183e646fcc1e62cc16a09e1bbdce97224a24a65d677e8340f1a0b3a2a50a4be"
+        },
+        {
+          "name": "live-open-find",
+          "response_id": "resp_1662200f5dae4aedbeedf620f3027c6a",
+          "stream_completed": true,
+          "actions": [
+            {
+              "action": "open_page",
+              "url": "https://github.com/Niko1221/Strata/releases/tag/v0.1.40"
+            }
+          ],
+          "indexed_excerpt_flags": [
+            false
+          ],
+          "brave_requests": 0,
+          "model_api_rounds": 2,
+          "tool_failures": [],
+          "seconds": 12.049478127009934,
+          "response_sha256": "39bd6f8800fe8b44174cee87575a7d0440f6dd89b485705d3de34d8d7b888ed4"
+        }
+      ],
+      "diagnosis": "索引搜索、索引打开／查找、引用和三个SSE均成功；实时打开取得正文，模型在思考中将“不要再搜索”理解为可以省略find_in_page，自行读取后返回。原错误文案误称未返回实时内容，实际缺少查找动作；原记录保留。"
+    },
+    {
+      "repeat": 2,
+      "pass": false,
+      "observations": [
+        {
+          "name": "search",
+          "model_api_rounds": 3,
+          "search_actions": [
+            {
+              "action": "search",
+              "query": "Niko1221 Strata GitHub repository"
+            },
+            {
+              "action": "search",
+              "query": "github.com/Niko1221 Strata"
+            },
+            {
+              "action": "open_page",
+              "url": "https://github.com/Niko1221/Strata"
+            }
+          ],
+          "brave_requests": 2,
+          "seconds": 12.631554660998518
+        },
+        {
+          "name": "indexed-open-find",
+          "model_api_rounds": 2,
+          "search_actions": [
+            {
+              "action": "find_in_page",
+              "url": "https://github.com/Niko1221/Strata",
+              "pattern": "Strata"
+            }
+          ],
+          "brave_requests": 0,
+          "seconds": 7.658857413000078
+        }
+      ],
+      "load_seconds": 13.827287749998504,
+      "error": "ValueError: Indexed replay did not execute both indexed-only actions",
+      "work_seconds": 20.29056426799798,
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "tokens": {
+        "uncached_input": 12893,
+        "cached_input": 15110,
+        "output": 1290
+      },
+      "engine_input_seconds": 7.521,
+      "engine_decode_seconds": 9.445,
+      "engine_input_tokens_per_second": 1714.2667198510837,
+      "engine_output_tokens_per_second": 136.58020116463737,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 20.29056426799798,
+      "task_input_tokens_per_second": 635.4185043702641,
+      "task_output_tokens_per_second": 63.576349231182874,
+      "ownership_returned": true,
+      "internal_numeric_stages": [
+        {
+          "input": 913,
+          "cached": 0,
+          "uncached": 913,
+          "prompt_ms": 1301.0,
+          "output": 134,
+          "decode_ms": 999.0,
+          "log_line": 38
+        },
+        {
+          "input": 5784,
+          "cached": 1048,
+          "uncached": 4736,
+          "prompt_ms": 2026.0,
+          "output": 192,
+          "decode_ms": 1502.0,
+          "log_line": 43
+        },
+        {
+          "input": 6543,
+          "cached": 5977,
+          "uncached": 566,
+          "prompt_ms": 1014.0,
+          "output": 376,
+          "decode_ms": 2575.0,
+          "log_line": 47
+        },
+        {
+          "input": 6969,
+          "cached": 908,
+          "uncached": 6061,
+          "prompt_ms": 2178.0,
+          "output": 208,
+          "decode_ms": 1717.0,
+          "log_line": 51
+        },
+        {
+          "input": 7794,
+          "cached": 7177,
+          "uncached": 617,
+          "prompt_ms": 1002.0,
+          "output": 380,
+          "decode_ms": 2652.0,
+          "log_line": 55
+        }
+      ],
+      "engine_record_sha256": "c268594b11627437f4066975f959ed8375f7b57a264c3fc96451ddfe840cd25e",
+      "equivalent_cost_usd": 0.00278201,
+      "cases": [
+        {
+          "name": "search",
+          "response_id": "resp_305e7f02e70148b2a6e72fe5c71e2d42",
+          "stream_completed": true,
+          "actions": [
+            {
+              "action": "search",
+              "query": "Niko1221 Strata GitHub repository"
+            },
+            {
+              "action": "search",
+              "query": "github.com/Niko1221 Strata"
+            },
+            {
+              "action": "open_page",
+              "url": "https://github.com/Niko1221/Strata"
+            }
+          ],
+          "indexed_excerpt_flags": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "brave_requests": 2,
+          "model_api_rounds": 3,
+          "tool_failures": [],
+          "seconds": 12.631554660998518,
+          "response_sha256": "3e6292b4bf83e5c8b6c4afaa0c708c3374ad1fdcf35959a9394389e5adba8c27"
+        },
+        {
+          "name": "indexed-open-find",
+          "response_id": "resp_7970694f2e704ca5a21df2646c750d16",
+          "stream_completed": true,
+          "actions": [
+            {
+              "action": "find_in_page",
+              "url": "https://github.com/Niko1221/Strata",
+              "pattern": "Strata"
+            }
+          ],
+          "indexed_excerpt_flags": [
+            true
+          ],
+          "brave_requests": 0,
+          "model_api_rounds": 2,
+          "tool_failures": [],
+          "seconds": 7.658857413000078,
+          "response_sha256": "17df88e71b22181db5e8490a6d3892fc4d5c5ede6334d7b7cf55c150ea5255e5"
+        }
+      ],
+      "diagnosis": "搜索阶段已实际打开同一索引页，跟进成功执行find_in_page并返回5条匹配。原驱动要求第二请求重复open_page，拒绝了已完成的跨请求打开→查找链；这是检测位置过严，不是工具失败。原拒绝保留，实时请求未启动；修复未来检测后无需重跑已成功索引操作。"
+    },
+    {
+      "repeat": 3,
+      "pass": false,
+      "observations": [
+        {
+          "name": "search",
+          "model_api_rounds": 2,
+          "search_actions": [
+            {
+              "action": "search",
+              "query": "Niko1221 Strata GitHub repository"
+            },
+            {
+              "action": "search",
+              "query": "github.com/Niko1221 Strata"
+            }
+          ],
+          "brave_requests": 2,
+          "seconds": 11.179540744007681
+        },
+        {
+          "name": "indexed-open-find",
+          "model_api_rounds": 3,
+          "search_actions": [
+            {
+              "action": "open_page",
+              "url": "https://github.com/Niko1221/Strata"
+            },
+            {
+              "action": "find_in_page",
+              "url": "https://github.com/Niko1221/Strata",
+              "pattern": "Strata"
+            }
+          ],
+          "brave_requests": 0,
+          "seconds": 8.462997295006062
+        },
+        {
+          "name": "live-open-find",
+          "model_api_rounds": 2,
+          "search_actions": [
+            {
+              "action": "open_page",
+              "url": "https://github.com/Niko1221/Strata/releases/tag/v0.1.40"
+            }
+          ],
+          "brave_requests": 0,
+          "seconds": 13.217317483009538
+        }
+      ],
+      "load_seconds": 13.902365588000976,
+      "error": "ValueError: Live page request omitted a required open_page/find_in_page action",
+      "work_seconds": 32.85998972700327,
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "tokens": {
+        "uncached_input": 14033,
+        "cached_input": 22080,
+        "output": 1948
+      },
+      "engine_input_seconds": 9.445,
+      "engine_decode_seconds": 14.482,
+      "engine_input_tokens_per_second": 1485.7596611964002,
+      "engine_output_tokens_per_second": 134.51180776135894,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 32.85998972700327,
+      "task_input_tokens_per_second": 427.0543027123389,
+      "task_output_tokens_per_second": 59.28182011570129,
+      "ownership_returned": true,
+      "internal_numeric_stages": [
+        {
+          "input": 913,
+          "cached": 0,
+          "uncached": 913,
+          "prompt_ms": 1295.0,
+          "output": 134,
+          "decode_ms": 1020.0,
+          "log_line": 37
+        },
+        {
+          "input": 5792,
+          "cached": 1048,
+          "uncached": 4744,
+          "prompt_ms": 2048.0,
+          "output": 400,
+          "decode_ms": 3007.0,
+          "log_line": 43
+        },
+        {
+          "input": 6254,
+          "cached": 6192,
+          "uncached": 62,
+          "prompt_ms": 362.0,
+          "output": 326,
+          "decode_ms": 2597.0,
+          "log_line": 47
+        },
+        {
+          "input": 7150,
+          "cached": 6581,
+          "uncached": 569,
+          "prompt_ms": 1019.0,
+          "output": 95,
+          "decode_ms": 580.0,
+          "log_line": 51
+        },
+        {
+          "input": 7865,
+          "cached": 7245,
+          "uncached": 620,
+          "prompt_ms": 1022.0,
+          "output": 346,
+          "decode_ms": 2688.0,
+          "log_line": 54
+        },
+        {
+          "input": 924,
+          "cached": 0,
+          "uncached": 924,
+          "prompt_ms": 1230.0,
+          "output": 90,
+          "decode_ms": 614.0,
+          "log_line": 58
+        },
+        {
+          "input": 7215,
+          "cached": 1014,
+          "uncached": 6201,
+          "prompt_ms": 2469.0,
+          "output": 557,
+          "decode_ms": 3976.0,
+          "log_line": 61
+        }
+      ],
+      "engine_record_sha256": "9085e35dcf39e7fd622e10285b24468abac1604fb4abd37b18456af636a1057f",
+      "equivalent_cost_usd": 0.0033737899999999998,
+      "cases": [
+        {
+          "name": "search",
+          "response_id": "resp_3a468b9297e64f3787001deedadede48",
+          "stream_completed": true,
+          "actions": [
+            {
+              "action": "search",
+              "query": "Niko1221 Strata GitHub repository"
+            },
+            {
+              "action": "search",
+              "query": "github.com/Niko1221 Strata"
+            }
+          ],
+          "indexed_excerpt_flags": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "brave_requests": 2,
+          "model_api_rounds": 2,
+          "tool_failures": [],
+          "seconds": 11.179540744007681,
+          "response_sha256": "8138b21c4962973bb849969afeef2814e2fa37c67eee66bdee2cc9e145981d6f"
+        },
+        {
+          "name": "indexed-open-find",
+          "response_id": "resp_2e270fde08394aa2b222cd71fe4a5e56",
+          "stream_completed": true,
+          "actions": [
+            {
+              "action": "open_page",
+              "url": "https://github.com/Niko1221/Strata"
+            },
+            {
+              "action": "find_in_page",
+              "url": "https://github.com/Niko1221/Strata",
+              "pattern": "Strata"
+            }
+          ],
+          "indexed_excerpt_flags": [
+            true,
+            true
+          ],
+          "brave_requests": 0,
+          "model_api_rounds": 3,
+          "tool_failures": [],
+          "seconds": 8.462997295006062,
+          "response_sha256": "c28ff92f7a362f9bc8cc9564002ad9932edaa5abe1f83981db86c7dd743256b6"
+        },
+        {
+          "name": "live-open-find",
+          "response_id": "resp_20ba7ac9c689407d90eabff71b77f13d",
+          "stream_completed": true,
+          "actions": [
+            {
+              "action": "open_page",
+              "url": "https://github.com/Niko1221/Strata/releases/tag/v0.1.40"
+            }
+          ],
+          "indexed_excerpt_flags": [
+            false
+          ],
+          "brave_requests": 0,
+          "model_api_rounds": 2,
+          "tool_failures": [],
+          "seconds": 13.217317483009538,
+          "response_sha256": "4e65b1c93a54417315e7695e823d671d95ab2e8f8f9480b8991a89fa28012821"
+        }
+      ],
+      "diagnosis": "索引搜索、打开／查找和三个SSE成功；实时打开取得正文，模型再次自行读取版本信息而未调用find_in_page。与第1次相同的遗漏保留，不把手动查找等同于实时查找工具验收。"
+    }
+  ],
+  "summary": {
+    "mean": {
+      "load_seconds": 14.032419762666299,
+      "work_seconds": 28.346713765664997,
+      "equivalent_cost_usd": 0.003158488,
+      "engine_input_tokens_per_second": 1562.0831189615676,
+      "engine_output_tokens_per_second": 137.8282757917176,
+      "task_input_tokens_per_second": 500.7467263403557,
+      "task_output_tokens_per_second": 60.18575136165329
+    },
+    "mean_tokens": {
+      "uncached_input": 13650,
+      "cached_input": 19714.666666666668,
+      "output": 1692.6666666666667
+    },
+    "work_min_seconds": 20.29056426799798,
+    "work_max_seconds": 32.85998972700327,
+    "work_population_stddev_seconds": 5.710316906744989,
+    "original_contract_passed": 0,
+    "total_instances": 3,
+    "frontend_requests": 8,
+    "model_api_rounds": 19,
+    "engine_stages": 19,
+    "search_operations": 14,
+    "brave_api_requests": 6,
+    "failed_response_terminals": 0,
+    "tool_failures": 0
+  },
+  "main_inspection": {
+    "at": "2026-10-06T11:09:03.014097+00:00",
+    "completed_repeats": [
+      1,
+      2,
+      3
+    ],
+    "scope": "Main inspection of short interface probes, not ARW reviewer capability session acceptance",
+    "method": "Read original model outputs including reasoning, all actual call arguments and results. Exact repeated indexed excerpts compared after reading; complete live page read, repeat-3 delta is pull-request count17to19. Recheck SSE reconstruction, citation bindings and each internal native numeric stage.",
+    "repeats": [
+      {
+        "repeat": 1,
+        "diagnosis": "索引搜索、索引打开／查找、引用和三个SSE均成功；实时打开取得正文，模型在思考中将“不要再搜索”理解为可以省略find_in_page，自行读取后返回。原错误文案误称未返回实时内容，实际缺少查找动作；原记录保留。",
+        "cases": [
+          {
+            "name": "search",
+            "response_id": "resp_5e42576eadf24677945f8927fa7e0c23",
+            "response_sha256": "d92a50780b363f08411addef11400a7ed0e5c308a3e9f3a618431c2e96cf5ee7",
+            "stream_consistency": "passed",
+            "citations": "bound-to-actual-returned-sources",
+            "tool_errors": 0
+          },
+          {
+            "name": "indexed-open-find",
+            "response_id": "resp_864c9d2cc4b14aa1b865154259bc4f70",
+            "response_sha256": "1183e646fcc1e62cc16a09e1bbdce97224a24a65d677e8340f1a0b3a2a50a4be",
+            "stream_consistency": "passed",
+            "citations": "bound-to-actual-returned-sources",
+            "tool_errors": 0
+          },
+          {
+            "name": "live-open-find",
+            "response_id": "resp_1662200f5dae4aedbeedf620f3027c6a",
+            "response_sha256": "39bd6f8800fe8b44174cee87575a7d0440f6dd89b485705d3de34d8d7b888ed4",
+            "stream_consistency": "passed",
+            "citations": "bound-to-actual-returned-sources",
+            "tool_errors": 0
+          }
+        ],
+        "indexed_cross_request_coverage": "passed",
+        "original_result_preserved": true,
+        "internal_numeric_stages": 7,
+        "live_find_executed": false
+      },
+      {
+        "repeat": 2,
+        "diagnosis": "搜索阶段已实际打开同一索引页，跟进成功执行find_in_page并返回5条匹配。原驱动要求第二请求重复open_page，拒绝了已完成的跨请求打开→查找链；这是检测位置过严，不是工具失败。原拒绝保留，实时请求未启动；修复未来检测后无需重跑已成功索引操作。",
+        "cases": [
+          {
+            "name": "search",
+            "response_id": "resp_305e7f02e70148b2a6e72fe5c71e2d42",
+            "response_sha256": "3e6292b4bf83e5c8b6c4afaa0c708c3374ad1fdcf35959a9394389e5adba8c27",
+            "stream_consistency": "passed",
+            "citations": "bound-to-actual-returned-sources",
+            "tool_errors": 0
+          },
+          {
+            "name": "indexed-open-find",
+            "response_id": "resp_7970694f2e704ca5a21df2646c750d16",
+            "response_sha256": "17df88e71b22181db5e8490a6d3892fc4d5c5ede6334d7b7cf55c150ea5255e5",
+            "stream_consistency": "passed",
+            "citations": "bound-to-actual-returned-sources",
+            "tool_errors": 0
+          }
+        ],
+        "indexed_cross_request_coverage": "passed",
+        "original_result_preserved": true,
+        "internal_numeric_stages": 5,
+        "live_find_executed": null
+      },
+      {
+        "repeat": 3,
+        "diagnosis": "索引搜索、打开／查找和三个SSE成功；实时打开取得正文，模型再次自行读取版本信息而未调用find_in_page。与第1次相同的遗漏保留，不把手动查找等同于实时查找工具验收。",
+        "cases": [
+          {
+            "name": "search",
+            "response_id": "resp_3a468b9297e64f3787001deedadede48",
+            "response_sha256": "8138b21c4962973bb849969afeef2814e2fa37c67eee66bdee2cc9e145981d6f",
+            "stream_consistency": "passed",
+            "citations": "bound-to-actual-returned-sources",
+            "tool_errors": 0
+          },
+          {
+            "name": "indexed-open-find",
+            "response_id": "resp_2e270fde08394aa2b222cd71fe4a5e56",
+            "response_sha256": "c28ff92f7a362f9bc8cc9564002ad9932edaa5abe1f83981db86c7dd743256b6",
+            "stream_consistency": "passed",
+            "citations": "bound-to-actual-returned-sources",
+            "tool_errors": 0
+          },
+          {
+            "name": "live-open-find",
+            "response_id": "resp_20ba7ac9c689407d90eabff71b77f13d",
+            "response_sha256": "4e65b1c93a54417315e7695e823d671d95ab2e8f8f9480b8991a89fa28012821",
+            "stream_consistency": "passed",
+            "citations": "bound-to-actual-returned-sources",
+            "tool_errors": 0
+          }
+        ],
+        "indexed_cross_request_coverage": "passed",
+        "original_result_preserved": true,
+        "internal_numeric_stages": 7,
+        "live_find_executed": false
+      }
+    ],
+    "boundary": "No ARW capability score; original strict rejections unchanged; live find remains unverified. No model was invoked during inspection."
+  },
+  "unverified": [
+    "Codex/guardian compatibility",
+    "stream failures/cancellation/resume",
+    "long-context compaction",
+    "parameter optimality",
+    "ARW capability scores"
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "version": "0.1.40",
+  "commit": "1735d6471df29b42c26170efaac1f1446a58640f",
+  "source_zip_sha256": "bfbee31f10ac4a1ed5164ac20da256e887317c53e98b3b120b08f69da14273be",
+  "engine_zip_sha256": "cd264b2125fdb85e84a8264da2ab2343463e6c7f9a12f317d4ce7192cd2c6b33",
+  "engine_build": {
+    "version": "0.1.40",
+    "source": "release",
+    "archs": [
+      75,
+      86,
+      89,
+      120
+    ],
+    "ptx": true,
+    "cuda": "13.0",
+    "vision": "gpu",
+    "portable": true
+  },
+  "removed_upstream_files": [],
+  "model_weights_modified": false,
+  "model_configuration_modified": false,
+  "dependencies_modified": false,
+  "official_release": "https://github.com/Niko1221/Strata/releases/tag/v0.1.40",
+  "engine_archive_bytes": 131707082,
+  "source_archive_bytes": 15935459,
+  "engine_downloaded_by": "assistant",
+  "download_limit_bytes": 200000000,
+  "source_digest_authority": "Locally computed SHA of commit-pinned official archive; not a published upstream digest",
+  "verified_installed_file_count": 938,
+  "backup_relative": ".tmp/release-backup-20261006-175657-688999",
+  "full_installed_file_hash_manifest": "Old-version rollback backup deleted by user request on2026-10-06; verification count and archive digests retained. Original v0.1.40 upgrade receipt temporarily remains in the maintenance project.",
+  "upstream_requirements_changed": false,
+  "upstream_agent_instructions_changed": false,
+  "ownership_returned": true,
+  "model_started": false,
+  "model_runtime_acceptance": "short-interface-regression-3-of-3-passed-full-runtime-and-parameters-pending",
+  "local_upgrade_regression": {
+    "tests": 3,
+    "passed": 3
+  },
+  "local_startup_prompt_regression": {
+    "tests": 2,
+    "passed": 2
+  },
+  "local_controller_backend_regression": {
+    "tests": 6,
+    "passed": 6
+  },
+  "model_started_scope": "Installation mutation phase only; later approved regression runs recorded separately",
+  "model_runtime_acceptance_report": "interface-regression/summary.json",
+  "backup_available": false,
+  "cleanup": {
+    "date": "2026-10-06",
+    "user_requested": true,
+    "counts": {
+      "project": {
+        "roots": 43,
+        "files": 440077,
+        "bytes": 8393663904
+      },
+      "installation": {
+        "roots": 548,
+        "files": 15404,
+        "bytes": 864268298
+      }
+    },
+    "old_backups_removed": true,
+    "old_installation_reports_and_harness_mirrors_removed": true,
+    "protected_service_configuration_and_assets_unchanged": true,
+    "model_started": false,
+    "ownership_returned": true
+  },
+  "additional_runtime_diagnostic_report": "search-stream-regression/summary.json"
+}

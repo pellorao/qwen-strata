@@ -1,0 +1,1170 @@
+{
+  "status": "closed-six-observations-main-inspected-auxiliary-telemetry-missing",
+  "versions": {
+    "strata": "0.1.40.2",
+    "engine": "0.1.40.2",
+    "commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a"
+  },
+  "host": "rtx3080ti",
+  "hardware": {
+    "gpu": "RTX3080Ti12GiB",
+    "pool_workers": 23,
+    "pool_affinity": "all",
+    "prefill": 8192,
+    "kv": "int8",
+    "kv_resident": 20480,
+    "vram_reserve_mib": 700,
+    "expert_cache": "auto",
+    "ple_io": "direct"
+  },
+  "candidate_dimension": "STRATA_PREFILL_CPU_SHARE",
+  "conditions": {
+    "off": 0,
+    "on": "auto"
+  },
+  "valid_instances": 6,
+  "actual_model_start_attempts": 6,
+  "logical_requests": 18,
+  "actual_frontend_requests": 18,
+  "internal_stages": 18,
+  "correct_requests": 18,
+  "validated_result_rows": 72,
+  "execution_order": [
+    {
+      "condition": "off",
+      "repetition": 1
+    },
+    {
+      "condition": "on",
+      "repetition": 1
+    },
+    {
+      "condition": "on",
+      "repetition": 2
+    },
+    {
+      "condition": "off",
+      "repetition": 2
+    },
+    {
+      "condition": "off",
+      "repetition": 3
+    },
+    {
+      "condition": "on",
+      "repetition": 3
+    }
+  ],
+  "fixed_conditions": {
+    "strata_version": "0.1.40.2",
+    "strata_commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a",
+    "codex_version": "0.160.1",
+    "model": "Q2_0",
+    "profile": "default",
+    "profile_save": false,
+    "reasoning_effort": "high",
+    "reasoning_budget_tokens": 8192,
+    "max_output_tokens": 24576,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "top_k": 20,
+    "auto_compact_threshold": 100000,
+    "context_window": 156584,
+    "startup_instructions": true,
+    "project_compact_instructions": true,
+    "native_compact_supplement": "tools/resources/codex/0.160.1/compact-prompt.txt",
+    "base_source": "config/maintenance-baseline.json",
+    "base_source_sha256": "feb26e5693ddfe6733afb2d14def6ada2d34d67d9389e0cec7c72a562ad459e1",
+    "prompt_sha256": {
+      "config/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "config/compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+      "tools/resources/codex/0.160.1/compact-prompt.txt": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+    },
+    "loop_prevention_instructions": true
+  },
+  "source_sha256_at_run": {
+    "tools/resource_calibration.py": "fa44606b2d9f7548100927c50388b752dfdd7b930789f5e910784b45062a9285",
+    "tools/streamed_chat.py": "48d18dd76e69ae5469502e30ab2c36aa2928f4b81ff48cc25559dd98da116942",
+    "tools/host_telemetry.py": "b8c2e5649d67200c8ce4573fe4af924e5fd4baab77c215fdd1715f8276efa14f",
+    "tools/windows_resource_sampler.py": "03ee096346a30c1eb29e22d406bf56b28ee96a3e810b858511ad5868d2fbc467",
+    "tools/measurement_host.py": "cd34d3bbbe298099c1582c91814c6b849dc1efd706495a418a23058535d36a21",
+    "tools/strata_tokens.py": "2905bdb41b097c2b48467ae786ffc72501ff77f74b302e2a10cce9213c168878",
+    "benchmarks/resource-calibration-v1/cpu_share_workload.py": "562f6c774a80d32786f9d291cdccc73324111b7c6cc35019a43b7077fa4f87e0",
+    "config/maintenance-baseline.json": "feb26e5693ddfe6733afb2d14def6ada2d34d67d9389e0cec7c72a562ad459e1",
+    "config/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "config/compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+  },
+  "workload_binding": [
+    {
+      "id": "short-extraction",
+      "user_text_sha256": "17f214791d37506d7c2b66d98ab466b020553a2d242892b61ca34d8aeada6d21",
+      "expected_sha256": "e9d46661242de16bde1ec23c3748f7cbfad2df1a7c603186c4ff17afbd203147",
+      "templated_input_tokens": 660,
+      "templated_sha256": "79893f499be0aac201e6837906f2b5f2711cbfe2f81eedb30202f268381f6dc3"
+    },
+    {
+      "id": "short-calculation",
+      "user_text_sha256": "a1fbb9eb8c9d44010267240fb8bafb1f5ab9880718b3c20469345ec8f3aef070",
+      "expected_sha256": "d6d534c858fab47feb5966c518865d0ee7f91a258e0ffc72bd320117ef40371c",
+      "templated_input_tokens": 649,
+      "templated_sha256": "e41a970199010e71957038f28a776b0bfc17e63e519d3640a9a018126589bc76"
+    },
+    {
+      "id": "longer-negative-control",
+      "user_text_sha256": "ed18bbb6a3ab1d8c7cc7bf45b85de7e422c0a5f419d574eb0f76acf756984ab1",
+      "expected_sha256": "dd738aba87e849a1642f2a143da6a877bd60017b3a54bb01bab321fa4d436f5d",
+      "templated_input_tokens": 2064,
+      "templated_sha256": "96be4ee23f0bc4c7a46b29817de8e73c176c5728b26f867b51b77e3c3f74e99a"
+    }
+  ],
+  "tokenizer_sha256": {
+    "chat_template.jinja": "12827f24b742ea4e80cdc12dbcf9622227056b9f797252a3149263d4f9aaadce",
+    "merges.txt": "080cf95432173729d160346b7882bd2a644b07f7a3813a3eb73f4e66787bfde9",
+    "tokenizer.json": "87be2ac47d8bc7393b7435df6ccd276740019a393941a2585d5edce59f450c54",
+    "token_type.json": "5088c8c298fc06af8382ddb3b76c888703ac2634e82263b97eedcc2ad202738b",
+    "vocab.json": "4ba64f0332abcfb0b600b7df1537d1e836e68009d5fb7cdb77339738dc6365c4"
+  },
+  "rows": [
+    {
+      "condition": "off",
+      "repetition": 1,
+      "started_at": 1791402044.8905835,
+      "ended_at": 1791402097.1368058,
+      "load_seconds": 15.8891401600049,
+      "work_seconds": 9.415749254992988,
+      "tokens": {
+        "uncached_input": 3373,
+        "cached_input": 0,
+        "output": 521
+      },
+      "internal_stages": [
+        {
+          "input": 660,
+          "cached": 0,
+          "uncached": 660,
+          "prompt_ms": 1433.0,
+          "output": 212,
+          "decode_ms": 2046.0,
+          "log_line": 44
+        },
+        {
+          "input": 649,
+          "cached": 0,
+          "uncached": 649,
+          "prompt_ms": 1204.0,
+          "output": 159,
+          "decode_ms": 1557.0,
+          "log_line": 48
+        },
+        {
+          "input": 2064,
+          "cached": 0,
+          "uncached": 2064,
+          "prompt_ms": 1647.0,
+          "output": 150,
+          "decode_ms": 1437.0,
+          "log_line": 51
+        }
+      ],
+      "frontend_requests": 3,
+      "correct_requests": 3,
+      "expected_rows": 12,
+      "effective_engine_environment": [
+        {
+          "pid": 8904,
+          "cpu_prefill_share": "0"
+        }
+      ],
+      "loaded_cache_slots": 4015,
+      "loaded_vram_free_mib": 480,
+      "capture_vram_free_mib": 428,
+      "cpu_share_expert_count": null,
+      "cpu_share_fraction": null,
+      "telemetry_samples": 0,
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "ownership_returned": true,
+      "requests": [
+        {
+          "id": "short-extraction",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 3.5004261699941708,
+          "first_model_text_delta_seconds": 1.475170721001632,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 660,
+              "cached": 0,
+              "uncached": 660,
+              "prompt_ms": 1433.0,
+              "output": 212,
+              "decode_ms": 2046.0,
+              "log_line": 11
+            }
+          ],
+          "request_sha256": "840dcc6455b1db9238d159ae68e224a22da3edcd3f5f9c91440793679a32b400",
+          "response_sha256": "6f1be405ecc47f23fa2777dcfc2017a0e378894d13a2c798e8978c3ffc01c163",
+          "sse_sha256": "e4fcf73188d8ca66dcb9e0387e5a0e3064426f0fde751babe29783cdc182602f"
+        },
+        {
+          "id": "short-calculation",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 2.7938577309978427,
+          "first_model_text_delta_seconds": 1.2483529739984078,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 649,
+              "cached": 0,
+              "uncached": 649,
+              "prompt_ms": 1204.0,
+              "output": 159,
+              "decode_ms": 1557.0,
+              "log_line": 1
+            }
+          ],
+          "request_sha256": "39b5758fdd2eebfeff739ad2e100c33fa2c6120d0fb6f72c9ce7e57a3097a9b5",
+          "response_sha256": "eb70fdbbb39afb09e7d6f266aa4600d22b4d531cd240caf2046950a88c0bd524",
+          "sse_sha256": "b6de7032981605cdce631b05da78c82880fd7f74839fdc9ee2749c189ade4b5f"
+        },
+        {
+          "id": "longer-negative-control",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 3.121465354000975,
+          "first_model_text_delta_seconds": 1.696531887006131,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 2064,
+              "cached": 0,
+              "uncached": 2064,
+              "prompt_ms": 1647.0,
+              "output": 150,
+              "decode_ms": 1437.0,
+              "log_line": 1
+            }
+          ],
+          "request_sha256": "d7647f13188d61f5b99fe2821b194d4e6718fdb549761fcc0f9bdceb88b56efe",
+          "response_sha256": "7c8c056fdf17f4e3222391a2b8c38343decacfbea326ce4282f6fcb53094b13a",
+          "sse_sha256": "5b8b5871bce6d7babeb298e44ba2e97a70e193b8009ecc3feaed952a29820bbd"
+        }
+      ],
+      "engine_log_sha256": "aa6425a5f15fbf3852bf62c96c2fce3731f668fead5b7ec649414d5fcc56a382",
+      "engine_input_seconds": 4.284,
+      "engine_decode_seconds": 5.04,
+      "engine_input_tokens_per_second": 787.3482726423903,
+      "engine_output_tokens_per_second": 103.37301587301587,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 9.415749254992988,
+      "task_input_tokens_per_second": 358.22959051414455,
+      "task_output_tokens_per_second": 55.332824387153664
+    },
+    {
+      "condition": "on",
+      "repetition": 1,
+      "started_at": 1791402097.13751,
+      "ended_at": 1791402149.7004406,
+      "load_seconds": 17.4379502160009,
+      "work_seconds": 8.705643742992834,
+      "tokens": {
+        "uncached_input": 3373,
+        "cached_input": 0,
+        "output": 521
+      },
+      "internal_stages": [
+        {
+          "input": 660,
+          "cached": 0,
+          "uncached": 660,
+          "prompt_ms": 1097.0,
+          "output": 212,
+          "decode_ms": 2039.0,
+          "log_line": 44
+        },
+        {
+          "input": 649,
+          "cached": 0,
+          "uncached": 649,
+          "prompt_ms": 832.0,
+          "output": 159,
+          "decode_ms": 1576.0,
+          "log_line": 48
+        },
+        {
+          "input": 2064,
+          "cached": 0,
+          "uncached": 2064,
+          "prompt_ms": 1604.0,
+          "output": 150,
+          "decode_ms": 1453.0,
+          "log_line": 51
+        }
+      ],
+      "frontend_requests": 3,
+      "correct_requests": 3,
+      "expected_rows": 12,
+      "effective_engine_environment": [
+        {
+          "pid": 14092,
+          "cpu_prefill_share": "auto"
+        }
+      ],
+      "loaded_cache_slots": 4015,
+      "loaded_vram_free_mib": 480,
+      "capture_vram_free_mib": 428,
+      "cpu_share_expert_count": null,
+      "cpu_share_fraction": null,
+      "telemetry_samples": 0,
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "ownership_returned": true,
+      "requests": [
+        {
+          "id": "short-extraction",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 3.159430510000675,
+          "first_model_text_delta_seconds": 1.14005359300063,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 660,
+              "cached": 0,
+              "uncached": 660,
+              "prompt_ms": 1097.0,
+              "output": 212,
+              "decode_ms": 2039.0,
+              "log_line": 11
+            }
+          ],
+          "request_sha256": "840dcc6455b1db9238d159ae68e224a22da3edcd3f5f9c91440793679a32b400",
+          "response_sha256": "6f1be405ecc47f23fa2777dcfc2017a0e378894d13a2c798e8978c3ffc01c163",
+          "sse_sha256": "534fb4dbcc22ccb8c7c172d6601ccfc7d2515a02f8e2f7f687a503f03e59d068"
+        },
+        {
+          "id": "short-calculation",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 2.4445458389964188,
+          "first_model_text_delta_seconds": 0.8803308459973778,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 649,
+              "cached": 0,
+              "uncached": 649,
+              "prompt_ms": 832.0,
+              "output": 159,
+              "decode_ms": 1576.0,
+              "log_line": 1
+            }
+          ],
+          "request_sha256": "39b5758fdd2eebfeff739ad2e100c33fa2c6120d0fb6f72c9ce7e57a3097a9b5",
+          "response_sha256": "eb70fdbbb39afb09e7d6f266aa4600d22b4d531cd240caf2046950a88c0bd524",
+          "sse_sha256": "ec4fd24e72d8f048139ace2f89fc6e5414073a0424f2ed2e7b4e9dd7fc1152ca"
+        },
+        {
+          "id": "longer-negative-control",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 3.10166739399574,
+          "first_model_text_delta_seconds": 1.6602222499932395,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 2064,
+              "cached": 0,
+              "uncached": 2064,
+              "prompt_ms": 1604.0,
+              "output": 150,
+              "decode_ms": 1453.0,
+              "log_line": 1
+            }
+          ],
+          "request_sha256": "d7647f13188d61f5b99fe2821b194d4e6718fdb549761fcc0f9bdceb88b56efe",
+          "response_sha256": "7c8c056fdf17f4e3222391a2b8c38343decacfbea326ce4282f6fcb53094b13a",
+          "sse_sha256": "fe9208eb16d3a8134cf99fe98c4c7b1ba02306ce659940225401698355f58c21"
+        }
+      ],
+      "engine_log_sha256": "66ba923cd06d8697bbabe90b01507b769f347307b322a58e1529c3f684e33b9c",
+      "engine_input_seconds": 3.533,
+      "engine_decode_seconds": 5.068,
+      "engine_input_tokens_per_second": 954.7127087461081,
+      "engine_output_tokens_per_second": 102.80189423835833,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 8.705643742992834,
+      "task_input_tokens_per_second": 387.44980837458746,
+      "task_output_tokens_per_second": 59.846234854183244
+    },
+    {
+      "condition": "on",
+      "repetition": 2,
+      "started_at": 1791402149.7013264,
+      "ended_at": 1791402200.8567135,
+      "load_seconds": 16.421447050997813,
+      "work_seconds": 8.663750829997298,
+      "tokens": {
+        "uncached_input": 3373,
+        "cached_input": 0,
+        "output": 517
+      },
+      "internal_stages": [
+        {
+          "input": 660,
+          "cached": 0,
+          "uncached": 660,
+          "prompt_ms": 1109.0,
+          "output": 208,
+          "decode_ms": 2079.0,
+          "log_line": 44
+        },
+        {
+          "input": 649,
+          "cached": 0,
+          "uncached": 649,
+          "prompt_ms": 906.0,
+          "output": 159,
+          "decode_ms": 1528.0,
+          "log_line": 48
+        },
+        {
+          "input": 2064,
+          "cached": 0,
+          "uncached": 2064,
+          "prompt_ms": 1450.0,
+          "output": 150,
+          "decode_ms": 1507.0,
+          "log_line": 51
+        }
+      ],
+      "frontend_requests": 3,
+      "correct_requests": 3,
+      "expected_rows": 12,
+      "effective_engine_environment": [
+        {
+          "pid": 14000,
+          "cpu_prefill_share": "auto"
+        }
+      ],
+      "loaded_cache_slots": 4015,
+      "loaded_vram_free_mib": 480,
+      "capture_vram_free_mib": 428,
+      "cpu_share_expert_count": null,
+      "cpu_share_fraction": null,
+      "telemetry_samples": 0,
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "ownership_returned": true,
+      "requests": [
+        {
+          "id": "short-extraction",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 3.2210726409975905,
+          "first_model_text_delta_seconds": 1.161291310992965,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 660,
+              "cached": 0,
+              "uncached": 660,
+              "prompt_ms": 1109.0,
+              "output": 208,
+              "decode_ms": 2079.0,
+              "log_line": 11
+            }
+          ],
+          "request_sha256": "840dcc6455b1db9238d159ae68e224a22da3edcd3f5f9c91440793679a32b400",
+          "response_sha256": "c6064f87ac6e96924536c9aed34954d2ea5cb6a6ce0a06e48d680433e8ec1186",
+          "sse_sha256": "ed372faf04abeccc5e87cb2a93bf945b84e4ecdff663059980c76a7461475a5f"
+        },
+        {
+          "id": "short-calculation",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 2.4570642940016114,
+          "first_model_text_delta_seconds": 0.9403375089968904,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 649,
+              "cached": 0,
+              "uncached": 649,
+              "prompt_ms": 906.0,
+              "output": 159,
+              "decode_ms": 1528.0,
+              "log_line": 1
+            }
+          ],
+          "request_sha256": "39b5758fdd2eebfeff739ad2e100c33fa2c6120d0fb6f72c9ce7e57a3097a9b5",
+          "response_sha256": "eb70fdbbb39afb09e7d6f266aa4600d22b4d531cd240caf2046950a88c0bd524",
+          "sse_sha256": "665deb2344b1f0561db4eff54b337a24f5418ef4b2f0b2850a849f2095ffa071"
+        },
+        {
+          "id": "longer-negative-control",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 2.985613894998096,
+          "first_model_text_delta_seconds": 1.4908231320005143,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 2064,
+              "cached": 0,
+              "uncached": 2064,
+              "prompt_ms": 1450.0,
+              "output": 150,
+              "decode_ms": 1507.0,
+              "log_line": 1
+            }
+          ],
+          "request_sha256": "d7647f13188d61f5b99fe2821b194d4e6718fdb549761fcc0f9bdceb88b56efe",
+          "response_sha256": "7c8c056fdf17f4e3222391a2b8c38343decacfbea326ce4282f6fcb53094b13a",
+          "sse_sha256": "66f88c588e497583c7eaf671026103bcd6c207db760cbd061d3b943138ba5368"
+        }
+      ],
+      "engine_log_sha256": "c1b425c7018ba20b3adec2024d9d76ee850d0d538e3cb47b876491d48e99efd3",
+      "engine_input_seconds": 3.465,
+      "engine_decode_seconds": 5.114,
+      "engine_input_tokens_per_second": 973.4487734487735,
+      "engine_output_tokens_per_second": 101.09503324208056,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 8.663750829997298,
+      "task_input_tokens_per_second": 389.3232926691928,
+      "task_output_tokens_per_second": 59.67392300918253
+    },
+    {
+      "condition": "off",
+      "repetition": 2,
+      "started_at": 1791402200.8573515,
+      "ended_at": 1791402252.150559,
+      "load_seconds": 17.417483238001296,
+      "work_seconds": 9.028354225003568,
+      "tokens": {
+        "uncached_input": 3373,
+        "cached_input": 0,
+        "output": 521
+      },
+      "internal_stages": [
+        {
+          "input": 660,
+          "cached": 0,
+          "uncached": 660,
+          "prompt_ms": 1446.0,
+          "output": 212,
+          "decode_ms": 1970.0,
+          "log_line": 44
+        },
+        {
+          "input": 649,
+          "cached": 0,
+          "uncached": 649,
+          "prompt_ms": 1142.0,
+          "output": 159,
+          "decode_ms": 1502.0,
+          "log_line": 48
+        },
+        {
+          "input": 2064,
+          "cached": 0,
+          "uncached": 2064,
+          "prompt_ms": 1498.0,
+          "output": 150,
+          "decode_ms": 1396.0,
+          "log_line": 51
+        }
+      ],
+      "frontend_requests": 3,
+      "correct_requests": 3,
+      "expected_rows": 12,
+      "effective_engine_environment": [
+        {
+          "pid": 15308,
+          "cpu_prefill_share": "0"
+        }
+      ],
+      "loaded_cache_slots": 4015,
+      "loaded_vram_free_mib": 480,
+      "capture_vram_free_mib": 428,
+      "cpu_share_expert_count": null,
+      "cpu_share_fraction": null,
+      "telemetry_samples": 0,
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "ownership_returned": true,
+      "requests": [
+        {
+          "id": "short-extraction",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 3.445237874002487,
+          "first_model_text_delta_seconds": 1.49530538199906,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 660,
+              "cached": 0,
+              "uncached": 660,
+              "prompt_ms": 1446.0,
+              "output": 212,
+              "decode_ms": 1970.0,
+              "log_line": 11
+            }
+          ],
+          "request_sha256": "840dcc6455b1db9238d159ae68e224a22da3edcd3f5f9c91440793679a32b400",
+          "response_sha256": "6f1be405ecc47f23fa2777dcfc2017a0e378894d13a2c798e8978c3ffc01c163",
+          "sse_sha256": "c9bfb81328251d90992f6bcf29e4d0182ba0877709ae229f1beece6b9c5e8995"
+        },
+        {
+          "id": "short-calculation",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 2.6644573800003855,
+          "first_model_text_delta_seconds": 1.174719795002602,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 649,
+              "cached": 0,
+              "uncached": 649,
+              "prompt_ms": 1142.0,
+              "output": 159,
+              "decode_ms": 1502.0,
+              "log_line": 1
+            }
+          ],
+          "request_sha256": "39b5758fdd2eebfeff739ad2e100c33fa2c6120d0fb6f72c9ce7e57a3097a9b5",
+          "response_sha256": "eb70fdbbb39afb09e7d6f266aa4600d22b4d531cd240caf2046950a88c0bd524",
+          "sse_sha256": "6b7ab75daaeb17cf88590bb3f1cd694f11f3e842099363d78c46818c29dc4342"
+        },
+        {
+          "id": "longer-negative-control",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 2.9186589710006956,
+          "first_model_text_delta_seconds": 1.533839509000245,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 2064,
+              "cached": 0,
+              "uncached": 2064,
+              "prompt_ms": 1498.0,
+              "output": 150,
+              "decode_ms": 1396.0,
+              "log_line": 1
+            }
+          ],
+          "request_sha256": "d7647f13188d61f5b99fe2821b194d4e6718fdb549761fcc0f9bdceb88b56efe",
+          "response_sha256": "7c8c056fdf17f4e3222391a2b8c38343decacfbea326ce4282f6fcb53094b13a",
+          "sse_sha256": "11f4b990dce35604624f3e998c2bc1833d05cbc683e24d4e36161ff8505e76e7"
+        }
+      ],
+      "engine_log_sha256": "fb66b1ce1cb5bd1ff188883427468f5122951f5d8bd41615e102466c98677e3c",
+      "engine_input_seconds": 4.086,
+      "engine_decode_seconds": 4.868,
+      "engine_input_tokens_per_second": 825.5017131669114,
+      "engine_output_tokens_per_second": 107.02547247329498,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 9.028354225003568,
+      "task_input_tokens_per_second": 373.60075999883213,
+      "task_output_tokens_per_second": 57.707084482476
+    },
+    {
+      "condition": "off",
+      "repetition": 3,
+      "started_at": 1791402252.1514568,
+      "ended_at": 1791402304.093717,
+      "load_seconds": 17.411105674000282,
+      "work_seconds": 9.137498524003604,
+      "tokens": {
+        "uncached_input": 3373,
+        "cached_input": 0,
+        "output": 521
+      },
+      "internal_stages": [
+        {
+          "input": 660,
+          "cached": 0,
+          "uncached": 660,
+          "prompt_ms": 1424.0,
+          "output": 212,
+          "decode_ms": 1961.0,
+          "log_line": 44
+        },
+        {
+          "input": 649,
+          "cached": 0,
+          "uncached": 649,
+          "prompt_ms": 1233.0,
+          "output": 159,
+          "decode_ms": 1470.0,
+          "log_line": 48
+        },
+        {
+          "input": 2064,
+          "cached": 0,
+          "uncached": 2064,
+          "prompt_ms": 1540.0,
+          "output": 150,
+          "decode_ms": 1398.0,
+          "log_line": 51
+        }
+      ],
+      "frontend_requests": 3,
+      "correct_requests": 3,
+      "expected_rows": 12,
+      "effective_engine_environment": [
+        {
+          "pid": 8208,
+          "cpu_prefill_share": "0"
+        }
+      ],
+      "loaded_cache_slots": 4015,
+      "loaded_vram_free_mib": 480,
+      "capture_vram_free_mib": 428,
+      "cpu_share_expert_count": null,
+      "cpu_share_fraction": null,
+      "telemetry_samples": 0,
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "ownership_returned": true,
+      "requests": [
+        {
+          "id": "short-extraction",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 3.4240675270048087,
+          "first_model_text_delta_seconds": 1.4833156120002968,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 660,
+              "cached": 0,
+              "uncached": 660,
+              "prompt_ms": 1424.0,
+              "output": 212,
+              "decode_ms": 1961.0,
+              "log_line": 11
+            }
+          ],
+          "request_sha256": "840dcc6455b1db9238d159ae68e224a22da3edcd3f5f9c91440793679a32b400",
+          "response_sha256": "6f1be405ecc47f23fa2777dcfc2017a0e378894d13a2c798e8978c3ffc01c163",
+          "sse_sha256": "d00b02f26ad4d409c3b825eb198e149f5815508e940ee56c1a67bbd9b911154a"
+        },
+        {
+          "id": "short-calculation",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 2.7341364870007965,
+          "first_model_text_delta_seconds": 1.2755197189981118,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 649,
+              "cached": 0,
+              "uncached": 649,
+              "prompt_ms": 1233.0,
+              "output": 159,
+              "decode_ms": 1470.0,
+              "log_line": 1
+            }
+          ],
+          "request_sha256": "39b5758fdd2eebfeff739ad2e100c33fa2c6120d0fb6f72c9ce7e57a3097a9b5",
+          "response_sha256": "eb70fdbbb39afb09e7d6f266aa4600d22b4d531cd240caf2046950a88c0bd524",
+          "sse_sha256": "e86c90483d4cf2bb34c186eacc47123786c01fbcc37c4feb9dda375a82093661"
+        },
+        {
+          "id": "longer-negative-control",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 2.979294509997999,
+          "first_model_text_delta_seconds": 1.5930793989973608,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 2064,
+              "cached": 0,
+              "uncached": 2064,
+              "prompt_ms": 1540.0,
+              "output": 150,
+              "decode_ms": 1398.0,
+              "log_line": 1
+            }
+          ],
+          "request_sha256": "d7647f13188d61f5b99fe2821b194d4e6718fdb549761fcc0f9bdceb88b56efe",
+          "response_sha256": "7c8c056fdf17f4e3222391a2b8c38343decacfbea326ce4282f6fcb53094b13a",
+          "sse_sha256": "ccce2784df3f530ce57fdd5b99975f1e377a6ccc29b02101cb85207f4f7213ee"
+        }
+      ],
+      "engine_log_sha256": "a097678beda2c17aad411788aea303c11f5379e72b4e80333c348520343653bf",
+      "engine_input_seconds": 4.197,
+      "engine_decode_seconds": 4.829,
+      "engine_input_tokens_per_second": 803.6692875863712,
+      "engine_output_tokens_per_second": 107.88983226340858,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 9.137498524003604,
+      "task_input_tokens_per_second": 369.1382265222098,
+      "task_output_tokens_per_second": 57.017793067913225
+    },
+    {
+      "condition": "on",
+      "repetition": 3,
+      "started_at": 1791402304.0955215,
+      "ended_at": 1791402355.0951767,
+      "load_seconds": 17.420350833002885,
+      "work_seconds": 8.298878150002565,
+      "tokens": {
+        "uncached_input": 3373,
+        "cached_input": 0,
+        "output": 521
+      },
+      "internal_stages": [
+        {
+          "input": 660,
+          "cached": 0,
+          "uncached": 660,
+          "prompt_ms": 1047.0,
+          "output": 212,
+          "decode_ms": 2040.0,
+          "log_line": 44
+        },
+        {
+          "input": 649,
+          "cached": 0,
+          "uncached": 649,
+          "prompt_ms": 751.0,
+          "output": 159,
+          "decode_ms": 1476.0,
+          "log_line": 48
+        },
+        {
+          "input": 2064,
+          "cached": 0,
+          "uncached": 2064,
+          "prompt_ms": 1447.0,
+          "output": 150,
+          "decode_ms": 1458.0,
+          "log_line": 51
+        }
+      ],
+      "frontend_requests": 3,
+      "correct_requests": 3,
+      "expected_rows": 12,
+      "effective_engine_environment": [
+        {
+          "pid": 8,
+          "cpu_prefill_share": "auto"
+        }
+      ],
+      "loaded_cache_slots": 4015,
+      "loaded_vram_free_mib": 480,
+      "capture_vram_free_mib": 428,
+      "cpu_share_expert_count": null,
+      "cpu_share_fraction": null,
+      "telemetry_samples": 0,
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "ownership_returned": true,
+      "requests": [
+        {
+          "id": "short-extraction",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 3.1218710589964758,
+          "first_model_text_delta_seconds": 1.1022048840022762,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 660,
+              "cached": 0,
+              "uncached": 660,
+              "prompt_ms": 1047.0,
+              "output": 212,
+              "decode_ms": 2040.0,
+              "log_line": 11
+            }
+          ],
+          "request_sha256": "840dcc6455b1db9238d159ae68e224a22da3edcd3f5f9c91440793679a32b400",
+          "response_sha256": "6f1be405ecc47f23fa2777dcfc2017a0e378894d13a2c798e8978c3ffc01c163",
+          "sse_sha256": "6bc1780e27b79a64f8b7d747ea2f40124b74f80c38075f34ec49212c3d2c425d"
+        },
+        {
+          "id": "short-calculation",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 2.2475715649998165,
+          "first_model_text_delta_seconds": 0.7835071650042664,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 649,
+              "cached": 0,
+              "uncached": 649,
+              "prompt_ms": 751.0,
+              "output": 159,
+              "decode_ms": 1476.0,
+              "log_line": 1
+            }
+          ],
+          "request_sha256": "39b5758fdd2eebfeff739ad2e100c33fa2c6120d0fb6f72c9ce7e57a3097a9b5",
+          "response_sha256": "eb70fdbbb39afb09e7d6f266aa4600d22b4d531cd240caf2046950a88c0bd524",
+          "sse_sha256": "d4a0c93882bbe47d6ae7b5aad48861bd7df516355bb19bec1ebad6ab4973d56b"
+        },
+        {
+          "id": "longer-negative-control",
+          "correct": true,
+          "expected_rows": 4,
+          "actual_frontend_calls": 1,
+          "work_seconds": 2.929435526006273,
+          "first_model_text_delta_seconds": 1.4830937939987052,
+          "first_delta_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+          "stages": [
+            {
+              "input": 2064,
+              "cached": 0,
+              "uncached": 2064,
+              "prompt_ms": 1447.0,
+              "output": 150,
+              "decode_ms": 1458.0,
+              "log_line": 1
+            }
+          ],
+          "request_sha256": "d7647f13188d61f5b99fe2821b194d4e6718fdb549761fcc0f9bdceb88b56efe",
+          "response_sha256": "7c8c056fdf17f4e3222391a2b8c38343decacfbea326ce4282f6fcb53094b13a",
+          "sse_sha256": "29865f57bc68b64ffcfc9146dfccb3e746cf429683d635d6e1be32a67fcb7b26"
+        }
+      ],
+      "engine_log_sha256": "66e7a7a32e4daf632d4cb86440ddc051e572354ff5171d7e4cefd04a820ec0ee",
+      "engine_input_seconds": 3.245,
+      "engine_decode_seconds": 4.974,
+      "engine_input_tokens_per_second": 1039.4453004622496,
+      "engine_output_tokens_per_second": 104.74467229593888,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 8.298878150002565,
+      "task_input_tokens_per_second": 406.44047774083265,
+      "task_output_tokens_per_second": 62.77956979038654
+    }
+  ],
+  "groups": [
+    {
+      "condition": "off",
+      "repetitions": 3,
+      "arithmetic_mean": {
+        "work_seconds": 9.19386733466672,
+        "load_seconds": 16.905909690668825,
+        "engine_input_tokens_per_second": 805.5064244652243,
+        "engine_output_tokens_per_second": 106.09610686990648,
+        "task_input_tokens_per_second": 366.98952567839547,
+        "task_output_tokens_per_second": 56.68590064584763,
+        "tokens": {
+          "uncached_input": 3373,
+          "cached_input": 0,
+          "output": 521
+        }
+      },
+      "work_seconds_population_stdev": 0.16309876236359913,
+      "per_task": [
+        {
+          "id": "short-extraction",
+          "input_tokens": 660,
+          "input_processing_seconds": 1.4343333333333332,
+          "first_model_text_delta_seconds": 1.484597238333663,
+          "work_seconds": 3.4565771903338223,
+          "input_seconds_population_stdev": 0.009030811456096046,
+          "all_correct": true
+        },
+        {
+          "id": "short-calculation",
+          "input_tokens": 649,
+          "input_processing_seconds": 1.193,
+          "first_model_text_delta_seconds": 1.2328641626663739,
+          "work_seconds": 2.7308171993330084,
+          "input_seconds_population_stdev": 0.0379561150101887,
+          "all_correct": true
+        },
+        {
+          "id": "longer-negative-control",
+          "input_tokens": 2064,
+          "input_processing_seconds": 1.5616666666666668,
+          "first_model_text_delta_seconds": 1.6078169316679123,
+          "work_seconds": 3.00647294499989,
+          "input_seconds_population_stdev": 0.06272869270827258,
+          "all_correct": true
+        }
+      ]
+    },
+    {
+      "condition": "on",
+      "repetitions": 3,
+      "arithmetic_mean": {
+        "work_seconds": 8.556090907664233,
+        "load_seconds": 17.093249366667198,
+        "engine_input_tokens_per_second": 989.2022608857104,
+        "engine_output_tokens_per_second": 102.8805332587926,
+        "task_input_tokens_per_second": 394.4045262615376,
+        "task_output_tokens_per_second": 60.76657588458411,
+        "tokens": {
+          "uncached_input": 3373,
+          "cached_input": 0,
+          "output": 519.6666666666666
+        }
+      },
+      "work_seconds_population_stdev": 0.18267923813386217,
+      "per_task": [
+        {
+          "id": "short-extraction",
+          "input_tokens": 660,
+          "input_processing_seconds": 1.0843333333333334,
+          "first_model_text_delta_seconds": 1.1345165959986236,
+          "work_seconds": 3.167458069998247,
+          "input_seconds_population_stdev": 0.026849374087469714,
+          "all_correct": true
+        },
+        {
+          "id": "short-calculation",
+          "input_tokens": 649,
+          "input_processing_seconds": 0.8296666666666667,
+          "first_model_text_delta_seconds": 0.8680585066661782,
+          "work_seconds": 2.383060565999282,
+          "input_seconds_population_stdev": 0.06329999122345034,
+          "all_correct": true
+        },
+        {
+          "id": "longer-negative-control",
+          "input_tokens": 2064,
+          "input_processing_seconds": 1.5003333333333333,
+          "first_model_text_delta_seconds": 1.544713058664153,
+          "work_seconds": 3.005572271666703,
+          "input_seconds_population_stdev": 0.07331363371767147,
+          "all_correct": true
+        }
+      ]
+    }
+  ],
+  "change_against_same_host_off": {
+    "whole_work_percent": -6.936976614810019,
+    "tasks": [
+      {
+        "id": "short-extraction",
+        "input_time_percent": -24.40158029281896,
+        "first_delta_percent": -23.580849626796805,
+        "work_percent": -8.364318353545963
+      },
+      {
+        "id": "short-calculation",
+        "input_time_percent": -30.45543447890473,
+        "first_delta_percent": -29.590093300401655,
+        "work_percent": -12.734526258977152
+      },
+      {
+        "id": "longer-negative-control",
+        "input_time_percent": -3.9274279615795216,
+        "first_delta_percent": -3.92481704607357,
+        "work_percent": -0.02995780602932374
+      }
+    ]
+  },
+  "profile_sha256_after": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+  "profile_unchanged": true,
+  "source_readback": {
+    "source_sha_verified": true,
+    "files": {
+      "Run-Strata-Controller.sh": "9ccc42d758de3be2ab1b30d27c77dd43f226ed9b81a885dd3b0c8a201d53fbf9",
+      "maintenance/Setup-WSL-Network.sh": "da094daf336c64ec95f786573696476b4de790f58c7b09d22fb2d4c85c440001",
+      "src/responses_bridge.py": "b620234af83f89b331e4645ca46f8d96fefefa6c43a5d8d888d058cb1ea15742",
+      "src/brave_search.py": "fcbcf5ed22889d074677cd6ca0bc741f134af4132b977ce89fcd6b8381d15af6",
+      "src/hosted_search.py": "03f288a1fde928f6d73ce0e2ea6928e24997a1bbfdb06a5444d201e6eceedb26",
+      "src/windows_host.py": "3f5acc15b68799c19874dfa07d6ba871015ee6610f568e91f7cd490aa810ece0",
+      "src/wsl_launcher.py": "15f91e0a8f29e1bdbcacdad52b1cb7a6d86e3614b33dfe3aa815456c443a1907",
+      "src/setup_wsl_firewall.ps1": "60bb126ad7d35f716b335edd4810fe2e98661cd856588e6439c35b7480cc1a0b",
+      "src/project_files_mcp.py": "6e31ab22ab9b8ff043b887601eb02994eb7d1920676794e73b6f32fb31947ee9",
+      "src/service_access.py": "4690a1613f54680bcf707f61a5daa778fdb6ecea4172a73d3b1155c1ae745eea",
+      "src/native_service.py": "9d95970c0a511c62bfc67a453ff28b6b08e82d96a6e81c29428db05268e41a13",
+      "src/controller_backend.py": "a87c5e07dd9049d23f237902ed73c985f3a2abe011b9cdad9a4f8152b929c410",
+      "src/startup_instructions.py": "b8f1cb90cd05b9349066a1ae7b6d089a15a0df428140abf049583b27e805b8bf",
+      "config/model-catalog.json": "2215cd0a354ae83f3a507623d35f44c3d04ebc88633d27a3f6cc3e4d4bfc225c",
+      "config/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "config/compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+      "config/maintenance-baseline.json": "e0b4e56bdc65113355bd505e846c4040e435f0e7524a8bcbf7f5542dcb722874",
+      "README.md": "9c184a9be75501d73a1b897353777e5e0263e9d7ffabf5c512f0824d2b9988dd",
+      "config/q2_0-prebuilt.json": "9bca7a22432c22ff97723928b54960e831fc3e270fc1d9617244d7209966c901",
+      "config/iq2_xs-prebuilt.json": "f1be639c3e5f16c1005b56763325fcbb0be63204bb2b5d3b0e4c2e26c729c180",
+      "config/iq3_xxs-prebuilt.json": "7f31e7a5a64ec595095e63d0190d8dd93bbff10b6263ef6180b93a09a3747d20",
+      "config/deployment.json": "dd770ade9d4648237a24ae6dbc8a63145641020c6607b9b835173b79fb173f72",
+      "config/service.json": "9ebd2ff44332374aef75ab97ab46457f05e4a946e54007cc8cae0634d84dedc9",
+      "src/service_settings.py": "1d08960b7bb54076529ef8e7f009c7e1d22a299f039dc4985a10d7f127a2114a",
+      "Run-Strata-Controller.ps1": "07591c287d66e8af34e1c627d4fb33e20f1b4161b52aada924d4105e40a80781",
+      "maintenance/Setup-Native-Network.ps1": "923599cdec43e1767b57d2d605b4fdbbb01ba6916b3f49926dcbbda1d21287db"
+    }
+  },
+  "final_ownership": "free",
+  "execution_wall_seconds": 311.56095027923584,
+  "model_work_seconds_sum": 53.24987472699286,
+  "approved_to_report_wall_seconds": 1108.6260509490967,
+  "timing_scope": "From this remote work authorization to report, including implementation/deployment/preparation/actual runs/Main/auxiliary repair; concurrent local model work may overlap.",
+  "main_inspection": {
+    "all18original_requests_responses_and_reasoning_checked": true,
+    "all72original_rows_independently_checked": true,
+    "all18raw_counter_stages_and_per_request_whole_instance_sums_checked": true,
+    "all6effective_environments_and_clean_stop_key_release_verified": true
+  },
+  "auxiliary_recovery": {
+    "missing_run_telemetry": true,
+    "missing_samples_all_six": true,
+    "cause": "Sampler child inherited WindowsOpenSSH job and exited when transport returned; same code sampled when parent connection stayedopen.",
+    "repair": "CREATE_BREAKAWAY_FROM_JOB, matching existing installed service launcher.",
+    "verification": "Four idle samples after SSH returned; sampler stopped,0modelrequests.",
+    "repair_after_model_batch_closed": true,
+    "model_reruns": 0,
+    "impact": "Request inputs, selected0/autoenvironments, original model responses, raw stage tokens and measured HTTPwork intervals unchanged. CPU/RAM/GPUtime-series unavailable for all6; do not substitute idle recovery samples."
+  },
+  "limits": [
+    "StockAPIservebranch does not emit exactCPUprefill expert count/share; both remain unknown, not0. Effectiveenv/sourceeligibility and timing contrast do not independently count scheduledCPUexperts.",
+    "All6during-run resource time series missing; loaded480MiB/capture428MiB are discrete log observations, not measured peak/minimum. No CPUfrequency/RAM/PCIebottleneck conclusions.",
+    "Three repeats per condition, small synthetictasks; no formalReviewer, longcontext, loop or broadquality acceptance.",
+    "FinalJSONarrays were all correct; one auto reasoning text length differed, overall bitidentity not claimed.",
+    "Longer2064token total alone does not prove everyprocessedchunk ineligible forCPUshare; actualprefillchunk sequence is not independently observed.",
+    "Original detailed sessions/SSE/engine logs remain temporary; deleting them prevents replay/rawreinspection. Numericstats here remain sufficient to recompute tables."
+  ],
+  "recommendation": "CPU-share auto is a promising opt-in for short inputs on this host:24.4%and30.5%lessinput time,6.9%lesswhole-taskwork with72correctrows. Keep deploymentdefaultoff pending user choice; do not claim wholeReviewer gain or CPU/RAMoptimality.",
+  "deployment_default_changed": false
+}

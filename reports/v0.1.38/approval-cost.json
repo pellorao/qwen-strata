@@ -1,0 +1,133 @@
+{
+  "release": "0.1.38",
+  "model": "Q2_0",
+  "effort": "medium",
+  "scored": false,
+  "formal_review_instance_count_unchanged": 18,
+  "probe_count": 6,
+  "groups": [
+    {
+      "execution_mode": "sandbox-deny",
+      "n": 3,
+      "mean_wall_s": 5.816565966666531,
+      "mean_api_requests": 3,
+      "mean_user_turns": 1,
+      "mean_tool_calls": 2,
+      "mean_api_failures": 0,
+      "mean_tool_failures": 1,
+      "mean_approval_count": 0,
+      "mean_approval_wall_s": 0
+    },
+    {
+      "execution_mode": "approve-for-me",
+      "n": 3,
+      "mean_wall_s": 10.475399685000108,
+      "mean_api_requests": 3,
+      "mean_user_turns": 1,
+      "mean_tool_calls": 1,
+      "mean_api_failures": 0,
+      "mean_tool_failures": 0,
+      "mean_approval_count": 1,
+      "mean_approval_wall_s": 3.5523333333333333
+    }
+  ],
+  "instances": [
+    {
+      "label": "probe-r1-sandbox-deny",
+      "execution_mode": "sandbox-deny",
+      "wall_s": 5.768051003000437,
+      "load_s": 14.195058500001323,
+      "api_requests": 3,
+      "user_turns": 1,
+      "tool_calls": 2,
+      "api_failures": 0,
+      "tool_failures": 1,
+      "approval_count": 0,
+      "approval_wall_s": 0,
+      "guardian_model": null,
+      "guardian_effort": null
+    },
+    {
+      "label": "probe-r1-approve-for-me",
+      "execution_mode": "approve-for-me",
+      "wall_s": 10.546632101002615,
+      "load_s": 14.20748860000458,
+      "api_requests": 3,
+      "user_turns": 1,
+      "tool_calls": 1,
+      "api_failures": 0,
+      "tool_failures": 0,
+      "approval_count": 1,
+      "approval_wall_s": 3.593,
+      "guardian_model": "qwen3.8-flash-next-q2_0",
+      "guardian_effort": "low"
+    },
+    {
+      "label": "probe-r2-approve-for-me",
+      "execution_mode": "approve-for-me",
+      "wall_s": 10.31024475799859,
+      "load_s": 14.757882400001108,
+      "api_requests": 3,
+      "user_turns": 1,
+      "tool_calls": 1,
+      "api_failures": 0,
+      "tool_failures": 0,
+      "approval_count": 1,
+      "approval_wall_s": 3.512,
+      "guardian_model": "qwen3.8-flash-next-q2_0",
+      "guardian_effort": "low"
+    },
+    {
+      "label": "probe-r2-sandbox-deny",
+      "execution_mode": "sandbox-deny",
+      "wall_s": 5.787307372000214,
+      "load_s": 14.681125199997041,
+      "api_requests": 3,
+      "user_turns": 1,
+      "tool_calls": 2,
+      "api_failures": 0,
+      "tool_failures": 1,
+      "approval_count": 0,
+      "approval_wall_s": 0,
+      "guardian_model": null,
+      "guardian_effort": null
+    },
+    {
+      "label": "probe-r3-sandbox-deny",
+      "execution_mode": "sandbox-deny",
+      "wall_s": 5.894339524998941,
+      "load_s": 14.739501099997142,
+      "api_requests": 3,
+      "user_turns": 1,
+      "tool_calls": 2,
+      "api_failures": 0,
+      "tool_failures": 1,
+      "approval_count": 0,
+      "approval_wall_s": 0,
+      "guardian_model": null,
+      "guardian_effort": null
+    },
+    {
+      "label": "probe-r3-approve-for-me",
+      "execution_mode": "approve-for-me",
+      "wall_s": 10.56932219599912,
+      "load_s": 14.679504200001247,
+      "api_requests": 3,
+      "user_turns": 1,
+      "tool_calls": 1,
+      "api_failures": 0,
+      "tool_failures": 0,
+      "approval_count": 1,
+      "approval_wall_s": 3.552,
+      "guardian_model": "qwen3.8-flash-next-q2_0",
+      "guardian_effort": "low"
+    }
+  ],
+  "limits": [
+    "Diagnostic probes run after formal dimension selections; supplement actual invoked cost rather than rewrite selection chronology.",
+    "Cold native model/KV each instance; OS cache can be warm.",
+    "Single harmless command and explicit escalation, not complex approval safety validation.",
+    "Task-wall difference includes denial recovery versus approval plus model generation, not pure guardian cost.",
+    "Code Standards reviewer prompt forbids escalation and no guardian was invoked there; no measured approval-induced score effect."
+  ]
+}

@@ -1,0 +1,299 @@
+{
+  "release": "0.1.38",
+  "dimension_priority": [
+    "modes",
+    "models",
+    "efforts"
+  ],
+  "formal_instance_count": 18,
+  "point_count": 41,
+  "selections": {
+    "mode": {
+      "execution_mode": "sandbox-deny",
+      "three_repeats_adjudicated": true,
+      "adjudicator": "Main Agent",
+      "mode_comparison_sha256": "5f014123c0ee4bc386f789f95d05c9436b56b79bf97eea4f4b89022041b1c0de",
+      "reason": "For this read-only reviewer task, fixed host read/write boundaries and immediate denial suffice. Sandbox has higher three-run mean score and lower mean task time. Neither mode made any approval request, so the observed timing difference is stochastic task behavior, not measured guardian overhead. Approve-for-me offers no demonstrated benefit here; the independent triggered probe confirms local guardian compatibility and an added 3.569 seconds for one no-op approval, not a repeated overhead estimate.",
+      "limitations": [
+        "Both profiles require read-only runtime dependencies outside the project. Private sandbox empty namespace permits ephemeral writes, while host canaries and fixed scratch boundary are enforced; this is not literal virtual-path-only writing.",
+        "Normal review instances contain no escalation request in either mode; guardian decision quality and overhead when frequently invoked remain unmeasured.",
+        "One invalid-patch tool failure in approve-for-me was corrected; no evidence/findings were lost during recovery. No API failures occurred in these six instances.",
+        "Historical sandbox observations precede the revised mode-first priority; reused only under identical frozen task, prompt, model, effort, release and profile. They are not an interleaved randomized causal experiment.",
+        "The frozen Code Standards prompt explicitly prohibits requesting escalation. These mode runs characterize this no-escalation reviewer workload, not workloads needing approved out-of-scope actions."
+      ],
+      "supplemental_noop_validation": {
+        "report": "approval-cost.json",
+        "sha256": "5f7673ca203bfcffcca83cea5a5cfd63de1078479da3ad6ea6d5cda1765ee7a2",
+        "collected_after_formal_selections": true,
+        "repetitions_per_mode": 3,
+        "mean_guardian_s": 3.5523333333333333,
+        "mean_sandbox_task_s": 5.816565966666531,
+        "mean_approve_task_s": 10.475399685000108,
+        "selection_unchanged": true
+      }
+    },
+    "model": {
+      "model": "Q2_0",
+      "execution_mode": "sandbox-deny",
+      "three_repeats_adjudicated": true,
+      "groups": [
+        {
+          "model": "Q2_0",
+          "scores": [
+            87.67514145702623,
+            84.27739041781992,
+            87.15332147808785
+          ],
+          "mean": 86.36861778431133,
+          "mean_wall_s": 178.0411742376667,
+          "eligible": true
+        },
+        {
+          "model": "IQ2_XS",
+          "scores": [
+            81.07277179966196,
+            84.41738178838146,
+            89.14113991170109
+          ],
+          "mean": 84.87709783324817,
+          "mean_wall_s": 212.66895353100094,
+          "eligible": true
+        },
+        {
+          "model": "IQ3_XXS",
+          "scores": [
+            85.81429047363157,
+            85.37330377327208,
+            85.38350826324871
+          ],
+          "mean": 85.52370083671745,
+          "mean_wall_s": 343.18264293800047,
+          "eligible": true
+        }
+      ],
+      "selection_rule": "Highest three-repeat mean, then lower mean task wall time, then model name"
+    },
+    "effort": {
+      "model": "Q2_0",
+      "effort": "medium",
+      "execution_mode": "sandbox-deny",
+      "three_repeats_adjudicated": true,
+      "groups": [
+        {
+          "effort": "low",
+          "scores": [
+            61.6798836995426,
+            83.07903361960615,
+            84.62959827166496
+          ],
+          "mean": 76.46283853027124,
+          "mean_wall_s": 136.90941191166712,
+          "eligible": true
+        },
+        {
+          "effort": "medium",
+          "scores": [
+            87.67514145702623,
+            84.27739041781992,
+            87.15332147808785
+          ],
+          "mean": 86.36861778431133,
+          "mean_wall_s": 178.0411742376667,
+          "eligible": true
+        },
+        {
+          "effort": "high",
+          "scores": [
+            83.30994794978028,
+            79.32990885357496,
+            80.53335696269467
+          ],
+          "mean": 81.05773792201664,
+          "mean_wall_s": 195.75657271266513,
+          "eligible": true
+        }
+      ],
+      "selection_rule": "Highest three-repeat mean, then lower mean task wall time, then effort name"
+    }
+  },
+  "dimension_groups": {
+    "modes": [
+      {
+        "execution_mode": "sandbox-deny",
+        "n": 3,
+        "scores": [
+          87.67514145702623,
+          84.27739041781992,
+          87.15332147808785
+        ],
+        "score_stdev": 1.8297535206624895,
+        "mean_score": 86.36861778431133,
+        "mean_wall_s": 178.0411742376667,
+        "mean_api_requests": 9.333333333333334,
+        "mean_user_turns": 1,
+        "mean_tool_calls": 12,
+        "mean_api_failures": 0,
+        "mean_tool_failures": 0,
+        "mean_scope_boundary_failures": 0,
+        "mean_approvals": 0,
+        "mean_approval_wall_s": 0
+      },
+      {
+        "execution_mode": "approve-for-me",
+        "n": 3,
+        "scores": [
+          83.71715031137776,
+          83.36717022235648,
+          81.00709540249971
+        ],
+        "score_stdev": 1.4740441437966556,
+        "mean_score": 82.69713864541131,
+        "mean_wall_s": 204.12451034699916,
+        "mean_api_requests": 11.333333333333334,
+        "mean_user_turns": 1,
+        "mean_tool_calls": 12.666666666666666,
+        "mean_api_failures": 0,
+        "mean_tool_failures": 0.3333333333333333,
+        "mean_scope_boundary_failures": 0,
+        "mean_approvals": 0,
+        "mean_approval_wall_s": 0
+      }
+    ],
+    "models": [
+      {
+        "model": "Q2_0",
+        "n": 3,
+        "scores": [
+          87.67514145702623,
+          84.27739041781992,
+          87.15332147808785
+        ],
+        "score_stdev": 1.8297535206624895,
+        "mean_score": 86.36861778431133,
+        "mean_wall_s": 178.0411742376667,
+        "mean_api_requests": 9.333333333333334,
+        "mean_user_turns": 1,
+        "mean_tool_calls": 12,
+        "mean_api_failures": 0,
+        "mean_tool_failures": 0,
+        "mean_scope_boundary_failures": 0,
+        "mean_approvals": 0,
+        "mean_approval_wall_s": 0
+      },
+      {
+        "model": "IQ2_XS",
+        "n": 3,
+        "scores": [
+          81.07277179966196,
+          84.41738178838146,
+          89.14113991170109
+        ],
+        "score_stdev": 4.053781583814471,
+        "mean_score": 84.87709783324817,
+        "mean_wall_s": 212.66895353100094,
+        "mean_api_requests": 8.666666666666666,
+        "mean_user_turns": 1,
+        "mean_tool_calls": 10,
+        "mean_api_failures": 0,
+        "mean_tool_failures": 1,
+        "mean_scope_boundary_failures": 0.3333333333333333,
+        "mean_approvals": 0,
+        "mean_approval_wall_s": 0
+      },
+      {
+        "model": "IQ3_XXS",
+        "n": 3,
+        "scores": [
+          85.81429047363157,
+          85.37330377327208,
+          85.38350826324871
+        ],
+        "score_stdev": 0.2517097251107492,
+        "mean_score": 85.52370083671745,
+        "mean_wall_s": 343.18264293800047,
+        "mean_api_requests": 12.333333333333334,
+        "mean_user_turns": 1,
+        "mean_tool_calls": 14.666666666666666,
+        "mean_api_failures": 0,
+        "mean_tool_failures": 0.6666666666666666,
+        "mean_scope_boundary_failures": 0,
+        "mean_approvals": 0,
+        "mean_approval_wall_s": 0
+      }
+    ],
+    "efforts": [
+      {
+        "effort": "low",
+        "n": 3,
+        "scores": [
+          61.6798836995426,
+          83.07903361960615,
+          84.62959827166496
+        ],
+        "score_stdev": 12.82586752740632,
+        "mean_score": 76.46283853027124,
+        "mean_wall_s": 136.90941191166712,
+        "mean_api_requests": 10.333333333333334,
+        "mean_user_turns": 1,
+        "mean_tool_calls": 11.333333333333334,
+        "mean_api_failures": 0,
+        "mean_tool_failures": 0,
+        "mean_scope_boundary_failures": 0,
+        "mean_approvals": 0,
+        "mean_approval_wall_s": 0
+      },
+      {
+        "effort": "medium",
+        "n": 3,
+        "scores": [
+          87.67514145702623,
+          84.27739041781992,
+          87.15332147808785
+        ],
+        "score_stdev": 1.8297535206624895,
+        "mean_score": 86.36861778431133,
+        "mean_wall_s": 178.0411742376667,
+        "mean_api_requests": 9.333333333333334,
+        "mean_user_turns": 1,
+        "mean_tool_calls": 12,
+        "mean_api_failures": 0,
+        "mean_tool_failures": 0,
+        "mean_scope_boundary_failures": 0,
+        "mean_approvals": 0,
+        "mean_approval_wall_s": 0
+      },
+      {
+        "effort": "high",
+        "n": 3,
+        "scores": [
+          83.30994794978028,
+          79.32990885357496,
+          80.53335696269467
+        ],
+        "score_stdev": 2.0411784205956325,
+        "mean_score": 81.05773792201664,
+        "mean_wall_s": 195.75657271266513,
+        "mean_api_requests": 9.333333333333334,
+        "mean_user_turns": 1,
+        "mean_tool_calls": 11.333333333333334,
+        "mean_api_failures": 0,
+        "mean_tool_failures": 0,
+        "mean_scope_boundary_failures": 0,
+        "mean_approvals": 0,
+        "mean_approval_wall_s": 0
+      }
+    ]
+  },
+  "limits": [
+    "Each dimension keeps other conditions fixed; no cross-dimensional matrix or interaction estimate.",
+    "Matching observations reused; actual time order retained, no claim of interleaved execution.",
+    "Three repetitions cannot establish significance or causal score effects.",
+    "No actual approval invocation does not establish zero overhead for invoked approval.",
+    "Frozen reviewer prompt prohibits escalation; mode results apply to this no-escalation task, not approval-dependent workflows.",
+    "API counts include guardian when present; user turns and tool calls are separate metrics.",
+    "Unsupported extra text merged into true findings is documented but not separately penalized by frozen clean scoring.",
+    "Native process/KV reset each trial; OS file cache may be warm."
+  ],
+  "scoring_status": "retired custom 41-point scoring; not current ARW scores",
+  "measurement_details": ".tmp/retired-code-standards-v1-20261004/"
+}

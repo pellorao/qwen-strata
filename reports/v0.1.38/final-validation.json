@@ -1,0 +1,34 @@
+{
+  "checked_at_unix": 1791013226.167356,
+  "release": "0.1.38",
+  "formal_review_instances": 18,
+  "controlled_approval_probes": 6,
+  "original_manifest_files_unchanged": 80,
+  "historical_reports_byte_unchanged": 19,
+  "frozen_inputs_unchanged": 25,
+  "regression_tests": {
+    "prior_full_suite_passed": 37,
+    "later_review_suite_passed": 14,
+    "distinct_tests_passed": 41,
+    "service_status_suite_passed": 3
+  },
+  "process_cleanup": {
+    "owned_model_processes": [],
+    "listeners": [],
+    "gpu_memory_mib": "759"
+  },
+  "recommended_review_configuration": {
+    "execution_mode": "sandbox-deny",
+    "model": "Q2_0",
+    "effort": "medium"
+  },
+  "strict_virtual_write_directory_pass": false,
+  "other_project_configurations_modified": false,
+  "installed_service_status_states": [
+    "stopped",
+    "running",
+    "unloaded",
+    "stopped"
+  ],
+  "installed_service_status_pass": true
+}

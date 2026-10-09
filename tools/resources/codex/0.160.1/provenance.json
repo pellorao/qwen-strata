@@ -1,0 +1,17 @@
+{
+  "version": "0.160.1",
+  "verified_on": "2026-10-06",
+  "method": "Installed Linux Codex app-server: thread/inject_items followed by thread/compact/start, default prompt configuration, one loopback mock Responses request, native contextCompaction completion.",
+  "native_prompt_sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07",
+  "native_prompt_utf8_bytes": 426,
+  "previous_snapshot_version": "0.160.0",
+  "previous_snapshot_sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07",
+  "previous_snapshot_exact_match": true,
+  "mock_requests": 1,
+  "real_model_requests": 0,
+  "request_sha256": "59a4a44153071d8e8c3c184d70933567498f80a25846d2dcbf56a4592a74e85e",
+  "capture_tool": "tools/verify_codex_compact_prompt.py",
+  "capture_tool_sha256": "f4a9d24e9047dd75c9633f4aa4e873d52afae537a500db23f174732e538b3825",
+  "scope": "Default manual compaction request actually emitted by installed 0.160.1; not real-model quality, automatic-threshold behavior or guardian/ARW runtime acceptance.",
+  "raw_evidence_retention": "Full request and native events in project .tmp only; after deletion this resource and provenance remain, but full interaction cannot be replayed."
+}

@@ -1,0 +1,23 @@
+{
+  "version": "0.1.37",
+  "type": "integrity",
+  "results": {
+    "iq3_download_and_pack": {
+      "evidence_sha256": "f90d269d7bc9fee02cbf092409739a5e926bdb13114531e5f35430d6276d092d",
+      "statistics": {
+        "version": "0.1.37",
+        "quant": "IQ3_XXS",
+        "revision": "ed59f92082b1e93c0e96d60a8b11aab089b52f09",
+        "first_bytes": 47039860096,
+        "first_sha256": "219ea929900dfa9ef091f3aa473fdba6874b65fcb36526d7d851ac9e95856d15",
+        "second_bytes": 28800138432,
+        "second_sha256": "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113",
+        "both_fresh_whole_file_hashes_match": true,
+        "first_moved_from_downloads": true,
+        "second_hardlinked_to_existing_q2": true,
+        "no_assistant_download": true,
+        "setup_exit_code": 0
+      }
+    }
+  }
+}

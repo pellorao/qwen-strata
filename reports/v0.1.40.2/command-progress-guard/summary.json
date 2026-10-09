@@ -1,0 +1,1781 @@
+{
+  "schema_version": 1,
+  "status": "closed-diagnostic-human-review-required-no-default-adoption",
+  "created_at": "2026-10-08T01:27:52.899344+00:00",
+  "conclusion": "No demonstrated live intervention benefit. All3effective reviews still have confirmed reasoning loops; enhanced guard triggered, admitted and delivered0hints. Offline replay emitted4advisories:2same-failure observations remain supported;2delivery-stall observations were false positives caused by counting a progressing end and a harness clear as stalled ends. Mean diagnostic score/time changes cannot be attributed to this untriggered policy. Keep Q2_0 and existing daily prompts/defaults; active-turn reasoning/delivery stagnation coverage remains unresolved and requires human review before another group.",
+  "host_model": {
+    "host": "local",
+    "gpu": "RTX4070TiSUPER16GiB",
+    "cpu": "i9-14900K",
+    "ram_gib": 64,
+    "model": "Q2_0"
+  },
+  "versions": {
+    "strata": "0.1.40.2",
+    "strata_commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a",
+    "native_cli": {
+      "executable": "/home/pello/.codex/packages/standalone/releases/0.160.1-x86_64-unknown-linux-musl/bin/codex",
+      "version": "0.160.1",
+      "sha256": "f34a4d2301892ae96c90097786bfe5dc269f187b6f69faf42a7b357b8c081e35"
+    },
+    "arw_source": "benchmarks/reviewer-suite-v1/source-snapshots/previous-39fe7f508237/manifest.json"
+  },
+  "fixed_conditions": {
+    "model": "Q2_0",
+    "effort": "high",
+    "engine_overrides": {
+      "prefill": 16384,
+      "kv": "int8",
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pcie-frac": 0.0,
+      "spec": 4,
+      "spec-min-p": 0.7,
+      "expert-cache": "auto",
+      "vram-reserve-mib": 700,
+      "adapt-every": 4,
+      "adapt-swaps": 96,
+      "adapt-decay": 0.7,
+      "mtp-window": 32768,
+      "pcie-mode": "auto",
+      "expert-cache-per-layer": false,
+      "expert-cache-cpu-order": false,
+      "pool-affinity": "auto",
+      "ple-io": "direct",
+      "ple-inflight": 256,
+      "no-capture": false,
+      "no-host-worker": false,
+      "no-ple-prefetch": false,
+      "no-prefill-borrow": false,
+      "no-split-rows": false,
+      "no-coupled-draft": false,
+      "shared-late": false,
+      "keep-canonical": false,
+      "no-token-graph": false,
+      "no-fused-gr": false,
+      "no-hit-poke": false,
+      "ple-sync-submit": false,
+      "no-spec-split": false,
+      "gr-fp32-activations": false,
+      "ple-row-cache": 1048576,
+      "short-read": 64,
+      "suffix-draft": 3,
+      "mtp-max-t": 0,
+      "prompt-cache": 6,
+      "prompt-cache-every": 16384,
+      "prompt-cache-root": 2048,
+      "max-context": 156584
+    },
+    "engine_environment": {
+      "STRATA_HC_SPLIT": null,
+      "STRATA_ADAPT_NOWAIT": null,
+      "STRATA_SSD_KEEPALIVE": null,
+      "STRATA_BATCH_TRACE": 1
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 24576,
+      "reasoning_budget_tokens": 8192,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "high"
+    },
+    "context_window": 156584,
+    "auto_compact_token_limit": 100000,
+    "startup_instructions": true,
+    "project_compaction_instructions": true,
+    "generation_policy": "first-delivery-only",
+    "loop_prevention_instructions": false,
+    "automatic_continuation": true,
+    "archive_http": true,
+    "host_id": "local",
+    "host_hardware": {
+      "gpu": "NVIDIA RTX 4070 Ti SUPER",
+      "vram_gib": 16,
+      "cpu": "Intel Core i9-14900K",
+      "ram_gib": 64
+    },
+    "strata_version": "0.1.40.2",
+    "strata_commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a",
+    "native_cli": {
+      "executable": "/home/pello/.codex/packages/standalone/releases/0.160.1-x86_64-unknown-linux-musl/bin/codex",
+      "version": "0.160.1",
+      "sha256": "f34a4d2301892ae96c90097786bfe5dc269f187b6f69faf42a7b357b8c081e35"
+    }
+  },
+  "candidate": {
+    "enabled": true,
+    "algorithm": "project-progress-guard-v1",
+    "implementation_sha256": {
+      "progress_guard.py": "7b947f1b477096f2e9230446ed00b2955eebbc81d9ea6f9001cfba107321ee8d",
+      "native_command_evidence.py": "96e0b15f5dff3d30147a2b6d40b5aa712ec87f4b2cc6624d79d57d98a3189cf8",
+      "command_loop_guard.py": "527cb85b032bb2aff264525e187f1c48e3fb263379486470ce02fe5f0c7595de"
+    },
+    "transport": "Original ARW messages and original-thread followup only; no independent work budget or ownership",
+    "scope": "User authorized implementation and3real diagnostic reruns on2026-10-08"
+  },
+  "scope": {
+    "effective_instances": 3,
+    "actual_model_starts": 6,
+    "excluded_attempts": 3,
+    "new_baseline_instances": 0,
+    "effective_internal_stages": 207,
+    "excluded_recorded_internal_stages": 152,
+    "effective_review_work_seconds_sum": 4203.741910888672,
+    "excluded_review_work_seconds_known_sum": 2509.5138134040835,
+    "total_requirement_judgments": 354,
+    "effective_tool_calls": 124,
+    "all_effective_models_stopped": true,
+    "ownership_returned": true,
+    "arw_cleanup_ready": true,
+    "other_model_groups_started": false,
+    "remote_model_runs": 0
+  },
+  "observations": [
+    {
+      "repetition": 1,
+      "instance_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1",
+      "prepared_family": "df489eb6-56a0-42d0-8ebb-92fa1bb90b94",
+      "thread_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+      "score": 0.7795670970555872,
+      "native_complete": true,
+      "formal_acceptance": false,
+      "full_native_session_inspection": true,
+      "source_isolation_passed": true,
+      "report_only_writes_verified": false,
+      "mandatory_failures": [
+        "Ordinary single-file writable-root sandbox fails; original auto_review escalation used.",
+        "Native45writes staged.diff outside the only allowed review.jsonl; native284removes it. Cleanup does not erase the write-scope breach.",
+        "Concrete findings discussed at73but first29-row write103later; immediate finding-write contract fails.",
+        "The notification CLI was found but deliberately skipped (308/315); no ARW notification sent."
+      ],
+      "finding_checks": {
+        "total_requirements": 118,
+        "checked_requirements": 118,
+        "reported_non_satisfied": 37,
+        "semantic_result_mismatches": 6,
+        "mismatches": [
+          {
+            "row": 16,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+              "line": 39
+            },
+            "model_result": "satisfied",
+            "main_result": "uncertain",
+            "basis": "Opaque provider or adapter contract is absent; delegation does not establish the promised returned value."
+          },
+          {
+            "row": 36,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+              "line": 24
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "auth redaction removes token only, leaves credential data"
+          },
+          {
+            "row": 51,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+              "line": 45
+            },
+            "model_result": "gap",
+            "main_result": "satisfied",
+            "basis": "test invokes shadowed internal binding"
+          },
+          {
+            "row": 65,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 12
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "auth redaction removes token only, leaves credential data"
+          },
+          {
+            "row": 74,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 24
+            },
+            "model_result": "gap",
+            "main_result": "uncertain",
+            "basis": "rename failure has no temporary cleanup"
+          },
+          {
+            "row": 117,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 76
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "routeKey token does not apply required NFKC normalization"
+          }
+        ],
+        "scoring_candidates_checked": 33,
+        "scoring_candidates_matched": 32,
+        "binding_basis": "36business/public-context files byte-equal to the old independent Main review; complete current118records and each finding/evidence checked. Hidden scoring expectations not used as sole truth."
+      },
+      "additional_finding_errors": [],
+      "native_event_count": 322,
+      "unique_native_text_count": 119,
+      "tool_calls": 50,
+      "tool_results": 50,
+      "report_rows": 118,
+      "original_report_sha256": "59dc954a0cc2466870194ca6d19e3955ff05bda1d2522b077b4b471bea7eb80e",
+      "native_session_sha256": "d412cb419de3c39aab75789de7f4921ab6e3391fff8f97c0a6744e8403f689ee",
+      "main_inspection_sha256": "d6432c110163fc3b692d6690e3d04cd471e28530cbc5cbe123d1d6d008aeac51",
+      "score_receipt_sha256": "c071f844efea45683a0085e6a328fcaefba699e52e34c4493b3773150ca62678",
+      "loop_group_count": 10,
+      "total_loop_iterations": 44,
+      "extra_loop_repeats": 34,
+      "loop_groups": [
+        {
+          "group": 1,
+          "type": "reasoning",
+          "reason": "full audit remapping without writing",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              73,
+              33,
+              0
+            ],
+            [
+              83,
+              36,
+              0
+            ],
+            [
+              97,
+              44,
+              0
+            ]
+          ]
+        },
+        {
+          "group": 2,
+          "type": "reasoning",
+          "reason": "post-compaction full audit remapping without writing",
+          "total_iterations_including_first": 4,
+          "extra_repeats_after_first": 3,
+          "evidence_event_text_offset": [
+            [
+              192,
+              74,
+              0
+            ],
+            [
+              209,
+              83,
+              0
+            ],
+            [
+              216,
+              86,
+              0
+            ],
+            [
+              223,
+              88,
+              0
+            ]
+          ]
+        },
+        {
+          "group": 3,
+          "type": "reasoning",
+          "reason": "unchanged obsolete validator diagnosis revisited",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              246,
+              96,
+              170
+            ],
+            [
+              246,
+              96,
+              850
+            ],
+            [
+              246,
+              96,
+              1411
+            ]
+          ]
+        },
+        {
+          "group": 4,
+          "type": "reasoning",
+          "reason": "unchanged obsolete validator diagnosis revisited",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              256,
+              101,
+              0
+            ],
+            [
+              256,
+              101,
+              769
+            ],
+            [
+              256,
+              101,
+              961
+            ]
+          ]
+        },
+        {
+          "group": 5,
+          "type": "reasoning",
+          "reason": "unchanged obsolete validator diagnosis revisited",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              266,
+              106,
+              0
+            ],
+            [
+              266,
+              106,
+              1378
+            ],
+            [
+              266,
+              106,
+              1583
+            ]
+          ]
+        },
+        {
+          "group": 6,
+          "type": "reasoning",
+          "reason": "unchanged obsolete validator diagnosis revisited after unrelated audit remapping",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              266,
+              106,
+              12597
+            ],
+            [
+              266,
+              106,
+              13296
+            ],
+            [
+              266,
+              106,
+              14131
+            ]
+          ]
+        },
+        {
+          "group": 7,
+          "type": "reasoning",
+          "reason": "unchanged obsolete validator diagnosis revisited",
+          "total_iterations_including_first": 4,
+          "extra_repeats_after_first": 3,
+          "evidence_event_text_offset": [
+            [
+              273,
+              108,
+              579
+            ],
+            [
+              273,
+              108,
+              1298
+            ],
+            [
+              273,
+              108,
+              2079
+            ],
+            [
+              273,
+              108,
+              3305
+            ]
+          ]
+        },
+        {
+          "group": 8,
+          "type": "reasoning",
+          "reason": "unchanged obsolete validator diagnosis revisited",
+          "total_iterations_including_first": 8,
+          "extra_repeats_after_first": 7,
+          "evidence_event_text_offset": [
+            [
+              287,
+              112,
+              477
+            ],
+            [
+              287,
+              112,
+              1043
+            ],
+            [
+              287,
+              112,
+              1369
+            ],
+            [
+              287,
+              112,
+              2371
+            ],
+            [
+              287,
+              112,
+              3179
+            ],
+            [
+              287,
+              112,
+              3878
+            ],
+            [
+              287,
+              112,
+              4544
+            ],
+            [
+              287,
+              112,
+              4984
+            ]
+          ]
+        },
+        {
+          "group": 9,
+          "type": "reasoning",
+          "reason": "unchanged obsolete validator diagnosis revisited",
+          "total_iterations_including_first": 9,
+          "extra_repeats_after_first": 8,
+          "evidence_event_text_offset": [
+            [
+              301,
+              116,
+              624
+            ],
+            [
+              301,
+              116,
+              1498
+            ],
+            [
+              301,
+              116,
+              1806
+            ],
+            [
+              301,
+              116,
+              2567
+            ],
+            [
+              301,
+              116,
+              3370
+            ],
+            [
+              301,
+              116,
+              4025
+            ],
+            [
+              301,
+              116,
+              4841
+            ],
+            [
+              301,
+              116,
+              5099
+            ],
+            [
+              301,
+              116,
+              5946
+            ]
+          ]
+        },
+        {
+          "group": 10,
+          "type": "reasoning",
+          "reason": "notification authorization decision revisited without relevant new evidence",
+          "total_iterations_including_first": 4,
+          "extra_repeats_after_first": 3,
+          "evidence_event_text_offset": [
+            [
+              308,
+              117,
+              965
+            ],
+            [
+              308,
+              117,
+              1322
+            ],
+            [
+              315,
+              119,
+              0
+            ],
+            [
+              315,
+              119,
+              551
+            ]
+          ]
+        }
+      ],
+      "loop_text_sha256": {
+        "33": "66703dc8a3f91fa2788d49cf9cdc59d7863464ec03397f10c678d7a626d43a74",
+        "36": "6831a3675a9d5a0ecf48753b2dc665ee8a4e729f87f4911b6ac8e34937024f50",
+        "44": "88b9f10ac0c7e77e76a0b71fa7fe307b4f3f15cd6fcd7e83dbb49697f0e8f75e",
+        "74": "d655453d8f2fb9082cb66ff533a370fe8caa16ecbe1f8b9801de4439e3a9dd2d",
+        "83": "58af0b7ec8ef5721efd5b6e647af5cdaded1e9baf74b567f8a03004547a96a97",
+        "86": "373a8f07a46ec4f5505a1fcbeb155776d9eea35aa457ab5aa2a027ac15b3a55c",
+        "88": "df7740df64509bb14d4d0740764e646ed6970c2dd0122288d9133c1af1e883f7",
+        "96": "46383130fad4466cd0f2c363f2492840283d2f0f687eaef1c0929c88d9b31915",
+        "101": "1448f92f7cf9df419f997637512b3310262a47d490f459d6ddaf94c10f486a56",
+        "106": "2faef373129b0a32fe055c4a98c326265829579f2aa99a21811d46171bd0d1c2",
+        "108": "22216045f8a2a24cf73ebe2bc4d8cb32c29bfa674ab6f9c7dc424280da68cf23",
+        "112": "8df54ed35662a16b7f2dba58101a50930a83886bfffc0dbe21fd9c955cef1619",
+        "116": "9752a103a376cb81d3614fea98e64773a85e94f9a8ad7989a8305bd1a4db431c",
+        "117": "c1ef0e7cbd2594c6120a9d9f2cde4cec5a12dfcf391b62a44600f5af38844b6f",
+        "119": "ac5973ee250567bfda7f88868436a8397eca4eb7d6d680a54869aae125b96cee"
+      },
+      "loop_uncertainty": "Additional fine-grained validator revisits and redaction/checksum reasoning transitions are not all separable into exact rounds. Quote-only restatements are not counted. No reliable semantic upper bound assigned.",
+      "loop_exclusions": [
+        "Mirrored native records, service-injected concluding text and compaction summaries",
+        "Different requirement mappings within a first audit pass",
+        "Source re-reading after compaction before the first resumed full audit pass",
+        "Actual repairs of spurious source lines, evidence nesting, validator code and the bound path",
+        "Normal tool approvals and necessary sandbox recovery",
+        "An isolated reasonable verification is not automatically a loop"
+      ],
+      "dynamic_hint_triggered": 0,
+      "dynamic_hint_admitted": 0,
+      "dynamic_hint_native_delivered": 0,
+      "dynamic_hint_effect_demonstrated": false,
+      "guard_completed_command_facts": 46,
+      "guard_state_sha256": "cf9f4087443a102b8f724061f3eb20b224648ec4a35a53b4d371a5bc6ef21ef5",
+      "successful_compactions": 1,
+      "automatic_continuations": 0,
+      "profile_default_sha256_before": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "profile_default_sha256_after": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "profile_default_unchanged": true,
+      "model_stopped_clean": true,
+      "started_at": 1791415302.5041258,
+      "finished_at": 1791417246.2047265,
+      "startup_prompt_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+      "startup_source_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "compact_prompt_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+      "compact_sources": [
+        {
+          "kind": null,
+          "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+        },
+        {
+          "kind": null,
+          "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+        }
+      ],
+      "tokens": {
+        "uncached_input": 3428586,
+        "cached_input": 395505,
+        "output": 109536
+      },
+      "internal_stage_count": 87,
+      "review_work_seconds": 1943.7004665527343,
+      "review_work_seconds_estimated": false,
+      "engine_log_sha256": "f8bc5096a000ca917db9fae7bf344f1534ca96a2b425ed70a3776b4010ed2710",
+      "engine_input_seconds": 1073.19,
+      "engine_decode_seconds": 852.118,
+      "engine_input_tokens_per_second": 3194.76141223828,
+      "engine_output_tokens_per_second": 128.5455770210229,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 1943.7004665527343,
+      "task_input_tokens_per_second": 1763.9477167388843,
+      "task_output_tokens_per_second": 56.35436214833475
+    },
+    {
+      "repetition": 2,
+      "instance_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2",
+      "prepared_family": "e52735e4-f083-480b-9d87-40da578ad19e",
+      "thread_id": "01a118f4-34ef-7960-a487-265496ef278f",
+      "score": 0.6838545985556423,
+      "native_complete": true,
+      "formal_acceptance": false,
+      "full_native_session_inspection": true,
+      "source_isolation_passed": false,
+      "report_only_writes_verified": true,
+      "mandatory_failures": [
+        "Native155/157 broad env ARW|BACKGROUND query exposes platform/harness/configuration bindings beyond exact allowed communication runID; source isolation fails.",
+        "Default single-file writable-root sandbox fails; original auto_review escalation used.",
+        "Concrete findings at90, first write108 later; timely-write contract fails."
+      ],
+      "finding_checks": {
+        "total_requirements": 118,
+        "checked_requirements": 118,
+        "reported_non_satisfied": 33,
+        "semantic_result_mismatches": 10,
+        "mismatches": [
+          {
+            "row": 11,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+              "line": 31
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "generated accepted range is0,1,2;3 rejected"
+          },
+          {
+            "row": 16,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+              "line": 39
+            },
+            "model_result": "satisfied",
+            "main_result": "uncertain",
+            "basis": "Opaque provider return contract absent; delegation alone does not establish promised returned value."
+          },
+          {
+            "row": 36,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+              "line": 24
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "auth redaction removes token only, leaves credential data"
+          },
+          {
+            "row": 51,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+              "line": 45
+            },
+            "model_result": "gap",
+            "main_result": "satisfied",
+            "basis": "test invokes shadowed internal binding"
+          },
+          {
+            "row": 59,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+              "line": 56
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "deduplication occurs independently per group"
+          },
+          {
+            "row": 65,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 12
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "auth redaction removes token only, leaves credential data"
+          },
+          {
+            "row": 73,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 23
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "deduplication occurs independently per group"
+          },
+          {
+            "row": 74,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 24
+            },
+            "model_result": "gap",
+            "main_result": "uncertain",
+            "basis": "rename failure has no temporary cleanup"
+          },
+          {
+            "row": 105,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 61
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "generated accepted range is0,1,2;3 rejected"
+          },
+          {
+            "row": 117,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 76
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "routeKey token does not apply required NFKC normalization"
+          }
+        ],
+        "scoring_candidates_checked": 28,
+        "scoring_candidates_matched": 27,
+        "binding_basis": "36business/public-context files byte-equal to independent Main staged review; all current118judgments and everyfinding/evidence read. Rechecked actual retry, grouping, provider, redaction, normalization and adapter/public-import scope for all disagreements. Hidden scoring expectations not sole truth."
+      },
+      "additional_finding_errors": [],
+      "native_event_count": 285,
+      "unique_native_text_count": 93,
+      "tool_calls": 44,
+      "tool_results": 44,
+      "report_rows": 118,
+      "original_report_sha256": "ec0f95c5b3c8796023b87b86fb4084e63f67c21cadde6fccf378af7c0ac6b810",
+      "native_session_sha256": "519e9b8ab631669ba952ae3674578f97f2db0abf9bc1d2d4e127a73c28a9057e",
+      "main_inspection_sha256": "c6b38294098cd06c10a79f92de3e90d74cafde1f456e12cbff2bb8ccb4df05c9",
+      "score_receipt_sha256": "ae941c8ec102ff4766e50231aa1541e00eef53acbee5a6b760b1cd98bcf27b54",
+      "loop_group_count": 3,
+      "total_loop_iterations": 16,
+      "extra_loop_repeats": 13,
+      "loop_groups": [
+        {
+          "group": 1,
+          "type": "reasoning",
+          "reason": "Unchanged authentication-redaction interpretation revisited before first artifact write; explicit repeated decisions, not different requirement-table quotations",
+          "total_iterations_including_first": 6,
+          "extra_repeats_after_first": 5,
+          "evidence_event_text_offset": [
+            [
+              90,
+              41,
+              16542
+            ],
+            [
+              90,
+              41,
+              27962
+            ],
+            [
+              90,
+              41,
+              28489
+            ],
+            [
+              90,
+              41,
+              28791
+            ],
+            [
+              97,
+              43,
+              1039
+            ],
+            [
+              104,
+              45,
+              2635
+            ]
+          ]
+        },
+        {
+          "group": 2,
+          "type": "reasoning",
+          "reason": "Erroneous 12+12+12+12+11=69 and118-versus128 coverage expectation repeatedly reconstructed before eventual arithmetic correction",
+          "total_iterations_including_first": 6,
+          "extra_repeats_after_first": 5,
+          "evidence_event_text_offset": [
+            [
+              90,
+              41,
+              2348
+            ],
+            [
+              97,
+              43,
+              450
+            ],
+            [
+              104,
+              45,
+              962
+            ],
+            [
+              113,
+              48,
+              0
+            ],
+            [
+              120,
+              50,
+              0
+            ],
+            [
+              127,
+              53,
+              0
+            ]
+          ]
+        },
+        {
+          "group": 3,
+          "type": "reasoning",
+          "reason": "Settled token-removal interpretation revisited after the format rewrite with unchanged business inputs",
+          "total_iterations_including_first": 4,
+          "extra_repeats_after_first": 3,
+          "evidence_event_text_offset": [
+            [
+              127,
+              53,
+              8795
+            ],
+            [
+              150,
+              59,
+              1240
+            ],
+            [
+              150,
+              59,
+              4025
+            ],
+            [
+              150,
+              59,
+              4242
+            ]
+          ]
+        }
+      ],
+      "loop_text_sha256": {
+        "41": "7abc6c77f8f9e1fe17445e57c1392adbcbb6efc8cfcdf21db22ed7bb60aff6d3",
+        "43": "52f548af0d7078db01d5b6871e117e86e85c9e29e7b97060231a7eac80651af4",
+        "45": "ffbe9fe57bf7659a7b2aedbfe4d1e25d1ff7d5c79464e68b48cfd850ed2e07ec",
+        "48": "b62c567bd1bdd9fb50bd8a74fcb1aea365e1f5fb4b2954d5530bfde650dfc231",
+        "50": "3c0061b028f301aa0d36201e634b853c0af43b4f72355078862400a206e61023",
+        "53": "51c784082fe67f56b740390f64e68fe65cbb0f40cfabebe6f9f2d9c0eefda4ab",
+        "59": "5ff37d4fb3a1630bd0013d14ae3dd4b83592ac931e8473bb0bce7b353513e4d6"
+      },
+      "loop_uncertainty": "Additional full-audit remapping, checksum reconsideration and post-compaction final spot-check/notification revisits are visible, but their exact group boundaries overlap reasonable verification, new formatting checks or communication recovery. These candidates and finer transitions are not counted as zero; no reliable semantic upper bound.",
+      "loop_exclusions": [
+        "Native mirrors, compaction summary production/replacement history and injected concluding text",
+        "Different requirement table rows and evidence serialization planning",
+        "Actual first report write, range-format repair and arithmetic correction",
+        "Necessary sandbox escalation, malformed communication request correction and wrong Git/file-path repair",
+        "Single reasonable verification and checks that newly establish coverage or artifact integrity"
+      ],
+      "dynamic_hint_triggered": 0,
+      "dynamic_hint_admitted": 0,
+      "dynamic_hint_native_delivered": 0,
+      "dynamic_hint_effect_demonstrated": false,
+      "guard_completed_command_facts": 41,
+      "guard_state_sha256": "ed951252226bfd2d17e296c5af0c0252510534d7f4f34ce694f6c621017c2bc1",
+      "successful_compactions": 1,
+      "automatic_continuations": 0,
+      "profile_default_sha256_before": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "profile_default_sha256_after": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "profile_default_unchanged": true,
+      "model_stopped_clean": true,
+      "started_at": 1791420019.7205043,
+      "finished_at": 1791421322.9536507,
+      "startup_prompt_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+      "startup_source_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "compact_prompt_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+      "compact_sources": [
+        {
+          "kind": null,
+          "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+        },
+        {
+          "kind": null,
+          "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+        }
+      ],
+      "tokens": {
+        "uncached_input": 2215391,
+        "cached_input": 333261,
+        "output": 77928
+      },
+      "internal_stage_count": 72,
+      "review_work_seconds": 1303.2330209960937,
+      "review_work_seconds_estimated": false,
+      "engine_log_sha256": "b5f67983039d94888be73ab9a2cc43e9accd74f0b049986be4b50c0467f05f36",
+      "engine_input_seconds": 701.01,
+      "engine_decode_seconds": 588.84,
+      "engine_input_tokens_per_second": 3160.2844467268656,
+      "engine_output_tokens_per_second": 132.34155288363561,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 1303.2330209960937,
+      "task_input_tokens_per_second": 1699.9193270185258,
+      "task_output_tokens_per_second": 59.795906598835,
+      "final_status_notification": {
+        "initial_native_receipt": "accepted/nonpersisted",
+        "final_delivery_status": "delivered",
+        "final_persistence_status": "persisted",
+        "message_id": "832b98b4-aa8d-48c4-8fe9-34156dff24a7",
+        "thread_id": "01a118f4-34ef-7960-a487-265496ef278f",
+        "turn_id": "01a118f4-3506-7482-af68-c6b18859d26e",
+        "receipt_snapshot_sha256": "600dbe4cd1c32f74d2463bc9e83f813189d51444c1ea0c23fe20677cef8e102c",
+        "formal_acceptance_still_failed": true
+      }
+    },
+    {
+      "repetition": 3,
+      "instance_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3",
+      "prepared_family": "e52735e4-f083-480b-9d87-40da578ad19e",
+      "thread_id": "01a11908-53c0-74c1-933c-afd4b4b9bd89",
+      "score": 0.7397557135237964,
+      "native_complete": true,
+      "formal_acceptance": false,
+      "full_native_session_inspection": true,
+      "source_isolation_passed": true,
+      "report_only_writes_verified": true,
+      "mandatory_failures": [
+        "Default single-file writable-root sandbox fails; original auto_review escalation used.",
+        "Concrete findings at66, first write128 later; timely-write contract fails.",
+        "No ARW notification was sent before final ready."
+      ],
+      "finding_checks": {
+        "total_requirements": 118,
+        "checked_requirements": 118,
+        "reported_non_satisfied": 37,
+        "semantic_result_mismatches": 6,
+        "mismatches": [
+          {
+            "row": 16,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+              "line": 39
+            },
+            "model_result": "satisfied",
+            "main_result": "uncertain",
+            "basis": "Opaque provider return contract absent; delegation alone does not establish promised returned value."
+          },
+          {
+            "row": 36,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+              "line": 24
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "auth redaction removes token only, leaves credential data"
+          },
+          {
+            "row": 51,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+              "line": 45
+            },
+            "model_result": "gap",
+            "main_result": "satisfied",
+            "basis": "test invokes shadowed internal binding"
+          },
+          {
+            "row": 65,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 12
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "auth redaction removes token only, leaves credential data"
+          },
+          {
+            "row": 74,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 24
+            },
+            "model_result": "gap",
+            "main_result": "uncertain",
+            "basis": "rename failure has no temporary cleanup"
+          },
+          {
+            "row": 117,
+            "source": {
+              "filePath": ".scratch/0001-dispatch-control/spec.md",
+              "line": 76
+            },
+            "model_result": "satisfied",
+            "main_result": "gap",
+            "basis": "routeKey token does not apply required NFKC normalization"
+          }
+        ],
+        "scoring_candidates_checked": 31,
+        "scoring_candidates_matched": 30,
+        "binding_basis": "36business/public-context files byte-equal to independent Main staged review; all current118judgments and everyfinding/evidence read. Rechecked actual retry, grouping, provider, redaction, normalization and adapter/public-import scope for all disagreements. Hidden scoring expectations not sole truth."
+      },
+      "additional_finding_errors": [
+        {
+          "source": {
+            "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+            "line": 30
+          },
+          "error": "The A+U+FF21/A1 example is not NFKC-equivalent: AA differs from A1. The actual uppercase defect is independently proven by staged code and the a/A example; core score association retained, added example rejected."
+        },
+        {
+          "source": {
+            "filePath": ".scratch/0001-dispatch-control/spec.md",
+            "line": 57
+          },
+          "error": "Line5 invokes dispatchRoute and assigns pending; it does not await it. Core invoke-before-auth defect is real, added awaited wording is false. No corresponding scoring candidate was emitted."
+        }
+      ],
+      "native_event_count": 177,
+      "unique_native_text_count": 67,
+      "tool_calls": 30,
+      "tool_results": 30,
+      "report_rows": 118,
+      "original_report_sha256": "2d9dcca9e1b5b1c559923bb28d9f080f418720e0ac8eed84ec7b07a7998e1d0c",
+      "native_session_sha256": "5bc01c18bbdb83ac22a76431c707f850c9807de638b2876a5c344c924f1acdde",
+      "main_inspection_sha256": "b6d4c22a6c71c21881d8646da13f0bfc351ad20846e71f8615c929d47540ccbe",
+      "score_receipt_sha256": "ecc79de5ea48d730e45f256ad15b8333b646adf0f71c7f4ed288d74a406a27e7",
+      "loop_group_count": 6,
+      "total_loop_iterations": 32,
+      "extra_loop_repeats": 26,
+      "loop_groups": [
+        {
+          "group": 1,
+          "type": "reasoning",
+          "reason": "Missing restore-adapter contract judgment revisited with unchanged source evidence",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              66,
+              31,
+              9645
+            ],
+            [
+              66,
+              31,
+              10279
+            ],
+            [
+              66,
+              31,
+              11127
+            ]
+          ]
+        },
+        {
+          "group": 2,
+          "type": "reasoning",
+          "reason": "Authentication-redaction interpretation revisited before empirical probes",
+          "total_iterations_including_first": 6,
+          "extra_repeats_after_first": 5,
+          "evidence_event_text_offset": [
+            [
+              66,
+              31,
+              15272
+            ],
+            [
+              66,
+              31,
+              17303
+            ],
+            [
+              66,
+              31,
+              17559
+            ],
+            [
+              76,
+              34,
+              3727
+            ],
+            [
+              76,
+              34,
+              6761
+            ],
+            [
+              76,
+              34,
+              7122
+            ]
+          ]
+        },
+        {
+          "group": 3,
+          "type": "reasoning",
+          "reason": "Authentication-redaction interpretation revisited after the probe with unchanged observed result",
+          "total_iterations_including_first": 3,
+          "extra_repeats_after_first": 2,
+          "evidence_event_text_offset": [
+            [
+              93,
+              41,
+              72
+            ],
+            [
+              93,
+              41,
+              600
+            ],
+            [
+              93,
+              41,
+              1135
+            ]
+          ]
+        },
+        {
+          "group": 4,
+          "type": "reasoning",
+          "reason": "Unchanged erroneous47spec-lines/106total expectation repeatedly reconstructed before real arithmetic correction",
+          "total_iterations_including_first": 7,
+          "extra_repeats_after_first": 6,
+          "evidence_event_text_offset": [
+            [
+              76,
+              34,
+              1297
+            ],
+            [
+              76,
+              34,
+              1849
+            ],
+            [
+              76,
+              34,
+              2337
+            ],
+            [
+              93,
+              41,
+              6105
+            ],
+            [
+              124,
+              52,
+              5934
+            ],
+            [
+              140,
+              56,
+              0
+            ],
+            [
+              147,
+              59,
+              0
+            ]
+          ]
+        },
+        {
+          "group": 5,
+          "type": "reasoning",
+          "reason": "Resolved nested-interval grammar versus single-line list repeatedly reconsidered without artifact change",
+          "total_iterations_including_first": 4,
+          "extra_repeats_after_first": 3,
+          "evidence_event_text_offset": [
+            [
+              147,
+              59,
+              4328
+            ],
+            [
+              147,
+              59,
+              5620
+            ],
+            [
+              147,
+              59,
+              7200
+            ],
+            [
+              147,
+              59,
+              8700
+            ]
+          ]
+        },
+        {
+          "group": 6,
+          "type": "reasoning",
+          "reason": "Full-regeneration versus normalization/override-map choice repeatedly revisited after the evidence list was already planned",
+          "total_iterations_including_first": 9,
+          "extra_repeats_after_first": 8,
+          "evidence_event_text_offset": [
+            [
+              147,
+              59,
+              15743
+            ],
+            [
+              147,
+              59,
+              15986
+            ],
+            [
+              147,
+              59,
+              16250
+            ],
+            [
+              147,
+              59,
+              17089
+            ],
+            [
+              147,
+              59,
+              17557
+            ],
+            [
+              147,
+              59,
+              18558
+            ],
+            [
+              147,
+              59,
+              21389
+            ],
+            [
+              147,
+              59,
+              21790
+            ],
+            [
+              147,
+              59,
+              22311
+            ]
+          ]
+        }
+      ],
+      "loop_text_sha256": {
+        "31": "e1cde7a51d3b8a5601eba12f5ba5dc1d780d600e671f3dafa58cbbbba8cfea2b",
+        "34": "6411f815718e6b5bc7329e111507adbe374712eeb0ffbdf0a6c82c26ac4972e3",
+        "41": "5f7e1f5ff9789be5d0c47ce55c8f64baac8dde381030410d76d01d278ea4835e",
+        "52": "dae4e96e09edd4de22fdb932dd4294329a978b82233aee4947da1d395f0baadd",
+        "56": "e53642b1391f07cc6f79ef20af0521c8739993aab5c7ca9d822ef31a4a935c43",
+        "59": "a79094f21c1cd3b6527cfedc308f5b459f537e21e7bf47ad579fc52f577b9a37"
+      },
+      "loop_uncertainty": "Additional route-token/checksum reconsideration, smaller within-message transitions and final representation-check revisits are visible, but their exact group boundaries overlap reasonable verification, new formatting checks or communication recovery. These candidates and finer transitions are not counted as zero; no reliable semantic upper bound.",
+      "loop_exclusions": [
+        "Native mirrors, compaction summary production/replacement history and injected concluding text",
+        "Different requirement table rows and evidence serialization planning",
+        "Actual first report write, range-format repair and arithmetic correction",
+        "Necessary sandbox escalation and genuine one-shot syntax-error repair",
+        "Single reasonable verification and checks that newly establish coverage or artifact integrity"
+      ],
+      "dynamic_hint_triggered": 0,
+      "dynamic_hint_admitted": 0,
+      "dynamic_hint_native_delivered": 0,
+      "dynamic_hint_effect_demonstrated": false,
+      "guard_completed_command_facts": 28,
+      "guard_state_sha256": "9c617de1c29ef9df9f0dbdc0a1edd648f1efb215e9842e2e954559c101f4c6a3",
+      "successful_compactions": 0,
+      "automatic_continuations": 0,
+      "profile_default_sha256_before": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "profile_default_sha256_after": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "profile_default_unchanged": true,
+      "model_stopped_clean": true,
+      "started_at": 1791421338.5074027,
+      "finished_at": 1791422295.3159487,
+      "startup_prompt_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+      "startup_source_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "compact_prompt_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+      "compact_sources": [
+        {
+          "kind": null,
+          "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+        },
+        {
+          "kind": null,
+          "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+        }
+      ],
+      "tokens": {
+        "uncached_input": 1675349,
+        "cached_input": 331064,
+        "output": 55074
+      },
+      "internal_stage_count": 48,
+      "review_work_seconds": 956.8084233398438,
+      "review_work_seconds_estimated": false,
+      "engine_log_sha256": "83dea656c551f92ddaf382e84dda33ec9d67f816947efe37a2ebdb17b1259390",
+      "engine_input_seconds": 526.373,
+      "engine_decode_seconds": 421.564,
+      "engine_input_tokens_per_second": 3182.8171277782103,
+      "engine_output_tokens_per_second": 130.64208518753972,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 956.8084233398438,
+      "task_input_tokens_per_second": 1750.9764328286453,
+      "task_output_tokens_per_second": 57.56011198956445
+    }
+  ],
+  "arithmetic_mean": {
+    "score": 0.7343924697116754,
+    "review_work_seconds": 1401.2473036295573,
+    "engine_input_tokens_per_second": 3179.287662247785,
+    "engine_output_tokens_per_second": 130.50973836406607,
+    "task_input_tokens_per_second": 1738.2811588620184,
+    "task_output_tokens_per_second": 57.90346024557807,
+    "loop_group_count": 6.333333333333333,
+    "total_loop_iterations": 30.666666666666668,
+    "extra_loop_repeats": 24.333333333333332,
+    "dynamic_hint_triggered": 0,
+    "dynamic_hint_admitted": 0,
+    "dynamic_hint_native_delivered": 0,
+    "successful_compactions": 0.6666666666666666,
+    "tokens": {
+      "uncached_input": 2439775.3333333335,
+      "cached_input": 353276.6666666667,
+      "output": 80846
+    },
+    "review_work_seconds_population_stdev": 408.8146083000971,
+    "review_work_seconds_min": 956.8084233398438,
+    "review_work_seconds_max": 1943.7004665527343
+  },
+  "same_version_comparator": {
+    "source": "reports/v0.1.40.2/command-loop-guard/summary.json",
+    "sha256": "5c8632766636df9d55c87cc7a1e1ce8f33874da44e5b5d13098303e6744e1a71",
+    "strategy": "frozen-arw-strata-command-policy",
+    "observations": [
+      {
+        "repetition": 1,
+        "score": 0.6675719142955916,
+        "review_work_seconds": 2563.433688232422,
+        "review_work_seconds_estimated": true,
+        "review_work_seconds_bounds": [
+          2563.375688144684,
+          2565.3538623542786
+        ],
+        "tokens": {
+          "uncached_input": 3436402,
+          "cached_input": 1270883,
+          "output": 189157
+        },
+        "internal_stage_count": 111,
+        "engine_input_seconds": 1107.737,
+        "engine_decode_seconds": 1433.174,
+        "engine_input_tokens_per_second": 3102.182196676648,
+        "engine_output_tokens_per_second": 131.98467178444488,
+        "task_input_tokens_per_second": 1340.5464770846172,
+        "task_output_tokens_per_second": 73.79047910165777,
+        "task_speed_bounds": {
+          "input": [
+            1339.543074516177,
+            1340.576808890309
+          ],
+          "output": [
+            73.73524673372222,
+            73.79214871812557
+          ]
+        },
+        "loop_group_count": 14,
+        "total_loop_iterations": 47,
+        "extra_loop_repeats": 33,
+        "dynamic_hint_triggered": 0,
+        "dynamic_hint_native_delivered": 0,
+        "formal_acceptance": false
+      },
+      {
+        "repetition": 2,
+        "score": 0.7656659799465438,
+        "review_work_seconds": 2069.011069580078,
+        "review_work_seconds_estimated": false,
+        "review_work_seconds_bounds": [
+          2069.011069580078,
+          2069.011069580078
+        ],
+        "tokens": {
+          "uncached_input": 3976086,
+          "cached_input": 476608,
+          "output": 102285
+        },
+        "internal_stage_count": 102,
+        "engine_input_seconds": 1247.512,
+        "engine_decode_seconds": 800.885,
+        "engine_input_tokens_per_second": 3187.212628014801,
+        "engine_output_tokens_per_second": 127.71496531961517,
+        "task_input_tokens_per_second": 1921.7325892833321,
+        "task_output_tokens_per_second": 49.43666155481688,
+        "task_speed_bounds": {
+          "input": [
+            1921.7325892833321,
+            1921.7325892833321
+          ],
+          "output": [
+            49.43666155481688,
+            49.43666155481688
+          ]
+        },
+        "loop_group_count": 14,
+        "total_loop_iterations": 37,
+        "extra_loop_repeats": 23,
+        "dynamic_hint_triggered": 0,
+        "dynamic_hint_native_delivered": 0,
+        "formal_acceptance": false
+      },
+      {
+        "repetition": 3,
+        "score": 0.6721150770856342,
+        "review_work_seconds": 1621.6508918457032,
+        "review_work_seconds_estimated": true,
+        "review_work_seconds_bounds": [
+          1621.6398916893006,
+          1622.2060220890046
+        ],
+        "tokens": {
+          "uncached_input": 3158370,
+          "cached_input": 523590,
+          "output": 80030
+        },
+        "internal_stage_count": 82,
+        "engine_input_seconds": 991.538,
+        "engine_decode_seconds": 613.504,
+        "engine_input_tokens_per_second": 3185.3242134945913,
+        "engine_output_tokens_per_second": 130.44739724598372,
+        "task_input_tokens_per_second": 1947.6263453999397,
+        "task_output_tokens_per_second": 49.350942550225966,
+        "task_speed_bounds": {
+          "input": [
+            1946.9598540466468,
+            1947.6395568376474
+          ],
+          "output": [
+            49.33405431262111,
+            49.351277315107765
+          ]
+        },
+        "loop_group_count": 3,
+        "total_loop_iterations": 10,
+        "extra_loop_repeats": 7,
+        "dynamic_hint_triggered": 0,
+        "dynamic_hint_native_delivered": 0,
+        "formal_acceptance": false
+      }
+    ],
+    "arithmetic_mean": {
+      "score": 0.7017843237759233,
+      "review_work_seconds": 2084.6985498860677,
+      "engine_input_tokens_per_second": 3158.2396793953467,
+      "engine_output_tokens_per_second": 130.0490114500146,
+      "task_input_tokens_per_second": 1736.635137255963,
+      "task_output_tokens_per_second": 57.52602773556687,
+      "loop_group_count": 10.333333333333334,
+      "total_loop_iterations": 31.333333333333332,
+      "extra_loop_repeats": 21,
+      "dynamic_hint_triggered": 0,
+      "dynamic_hint_native_delivered": 0,
+      "successful_compactions": 1.3333333333333333,
+      "tokens": {
+        "uncached_input": 3523619.3333333335,
+        "cached_input": 757027,
+        "output": 123824
+      },
+      "review_work_seconds_bounds": [
+        2084.6755498046878,
+        2085.5236513411205
+      ],
+      "task_speed_bounds": {
+        "input": [
+          1736.0785059487187,
+          1736.6496516704294
+        ],
+        "output": [
+          57.50198753372007,
+          57.526695862683404
+        ]
+      },
+      "review_work_seconds_population_stdev": 384.64120222293747,
+      "review_work_seconds_min": 1621.6508918457032,
+      "review_work_seconds_max": 2563.433688232422
+    },
+    "loop_counts_are_lower_bounds": true
+  },
+  "comparison": {
+    "mean_work_change_percent": -32.78417622029151,
+    "mean_score_difference": 0.03260814593575212,
+    "causal_benefit_demonstrated": false,
+    "basis": "No dynamic feedback reached the model. Three repetitions are independent, not paired. Lower-bound loop counts lack reliable semantic upper bounds."
+  },
+  "offline_replay": {
+    "completed_commands": 155,
+    "candidate_advisories": 4,
+    "hints_by_kind": {
+      "delivery-stall": 2,
+      "same-failure": 2
+    },
+    "manual_all_candidate_advisories_checked": true,
+    "model_effectiveness_proven_by_replay": false,
+    "evidence_sha256": "2c61604c21fa90a4641b04a81d059796bbb3c0795515c0ff222a651b76b5a557",
+    "supported_candidate_advisories": 2,
+    "false_positive_candidate_advisories": 2,
+    "false_positive_kind": "delivery-stall",
+    "correction_reason": "observe_incomplete_end counts the end even when report progress reset the counter; external clearing changes the baseline, so a later empty end can incorrectly reach two."
+  },
+  "excluded_attempts": [
+    {
+      "eligible_sample": false,
+      "known_complete_internal_stages": 37,
+      "known_tokens": {
+        "uncached_input": 831427,
+        "cached_input": 240587,
+        "output": 26109
+      },
+      "review_seconds": 478.98300671577454,
+      "duration_basis": "Driver acceptance to confirmed original native terminal; subsecond boundary overhead retained",
+      "recorded_stage_engine_rates": {
+        "engine_input_seconds": 269.007,
+        "engine_decode_seconds": 202.377,
+        "engine_input_tokens_per_second": 3090.7262636288274,
+        "engine_output_tokens_per_second": 129.01169599312175,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+      },
+      "recorded_stage_task_rates": {
+        "task_review_seconds": 478.98300671577454,
+        "task_input_tokens_per_second": 1735.817321998155,
+        "task_output_tokens_per_second": 54.50924069106467
+      },
+      "unlogged_interrupted_stages": "Unknown until HTTP/internal completion reconciliation; recorded metrics are known portion, not entire consumption",
+      "report_bytes": 0,
+      "conditional_missing_phase_envelope": {
+        "recorded_complete_stage_tokens": {
+          "uncached_input": 831427,
+          "cached_input": 240587,
+          "output": 26109
+        },
+        "recorded_complete_stage_count": 37,
+        "tokens_interval": {
+          "uncached_input": [
+            831427,
+            988011
+          ],
+          "cached_input": [
+            240587,
+            397171
+          ],
+          "output": [
+            26109,
+            50685
+          ]
+        },
+        "engine_input_seconds_interval": [
+          269.007,
+          276.6060067157745
+        ],
+        "engine_decode_seconds_interval": [
+          202.377,
+          209.97600671577453
+        ],
+        "review_work_seconds_interval": [
+          478.626,
+          478.98300671577454
+        ],
+        "engine_input_tokens_per_second_interval": [
+          3005.816865193133,
+          3672.807770801503
+        ],
+        "engine_output_tokens_per_second_interval": [
+          124.34277805531079,
+          250.4484205220949
+        ],
+        "task_input_tokens_per_second_interval": [
+          1735.817321998155,
+          2064.265209161224
+        ],
+        "task_output_tokens_per_second_interval": [
+          54.50924069106467,
+          105.8968798184804
+        ],
+        "bound_type": "evidence-bounded marginal envelope, not a confidence interval"
+      },
+      "native_work_seconds": 478.626,
+      "missing_phase_assumptions": [
+        "At most one unlogged active engine phase at the sole terminal interruption. All earlier native turns/request recoveries have completed stages; no earlier native interruption was observed.",
+        "Same exclusive single-model execution scope; recorded prompt/decode stages and any terminal partial phase do not overlap in engine work. HTTP response headers are not treated as completed generation or token counters.",
+        "Use actual156584context and largest24576output budget as conservative marginal caps for an interrupted main/guardian phase; read+reused+generated cannot simultaneously attain their individual upper bounds.",
+        "Each missing phase input/decode duration is at most the7.6second unaccounted interval; their sum is also at most that interval. Tool/scheduling overhead may consume all of it."
+      ],
+      "bounds_status": "Conditional conservative envelope, not confirmed exact consumption or a confidence interval; if the one-phase/non-overlap assumptions do not hold, finite upper endpoints are not established.",
+      "http_reconciliation": {
+        "archived_rows": 32,
+        "additional_response_header_rows_recovered_readonly": 5,
+        "last_guardian_header_at": 1791414920,
+        "last_guardian_native_terminal": "turn_aborted",
+        "guardian_terminal_at": "2026-10-07T23:15:33.808Z",
+        "parent_native_terminal_at": "2026-10-07T23:15:33.810Z",
+        "no_token_counts_from_api": true,
+        "note": "HTTP tracing includes outer/worker aliases and does not give a unique engine phase identity;37headers cannot prove37complete requests."
+      },
+      "instanceId": "default-ee8797ca-104c-4ea8-9b41-4511ce819641-instance-1",
+      "reason": "NativeCLI0.161.0 differs from frozen0.160.1; stopped and excluded"
+    },
+    {
+      "instanceId": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-2",
+      "eligible_sample": false,
+      "reason": "Final-status false continuation invalidated original repeat2",
+      "known_complete_internal_stages": 97,
+      "known_tokens": {
+        "uncached_input": 3636550,
+        "cached_input": 489877,
+        "output": 90375
+      },
+      "review_work_seconds": 1864.1554526367188,
+      "review_work_seconds_estimated": false,
+      "duration_basis": "Persisted review-work intervals; tools and active recovery included, shutdown and ended-turn idle excluded; estimated transitions retained in the ledger.",
+      "engine_rates": {
+        "engine_input_seconds": 1145.364,
+        "engine_decode_seconds": 698.426,
+        "engine_input_tokens_per_second": 3175.016850538344,
+        "engine_output_tokens_per_second": 129.3981037361152,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+      },
+      "task_rates": {
+        "task_review_seconds": 1864.1554526367188,
+        "task_input_tokens_per_second": 1950.7761516650082,
+        "task_output_tokens_per_second": 48.48039892390456
+      },
+      "main_native_inspection_complete": true,
+      "counter_coverage": "Main verified full stopped logs and terminal; repeat3 final403 rejected before engine."
+    },
+    {
+      "instanceId": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-3",
+      "eligible_sample": false,
+      "reason": "Maintenance recovery interrupted already-started repeat3",
+      "known_complete_internal_stages": 18,
+      "known_tokens": {
+        "uncached_input": 308966,
+        "cached_input": 43641,
+        "output": 3771
+      },
+      "review_work_seconds": 166.37535405158997,
+      "review_work_seconds_estimated": true,
+      "duration_basis": "Driver acceptance to native terminal; minor boundary overhead included",
+      "engine_rates": {
+        "engine_input_seconds": 101.217,
+        "engine_decode_seconds": 27.587,
+        "engine_input_tokens_per_second": 3052.510941837834,
+        "engine_output_tokens_per_second": 136.6948200239243,
+        "unit": "token/s",
+        "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+      },
+      "task_rates": {
+        "task_review_seconds": 166.37535405158997,
+        "task_input_tokens_per_second": 1857.041878355344,
+        "task_output_tokens_per_second": 22.66561668040497
+      },
+      "main_native_inspection_complete": true,
+      "counter_coverage": "Main verified full stopped logs and terminal; repeat3 final403 rejected before engine."
+    }
+  ],
+  "operational_recovery": {
+    "native_version_drift_excluded": true,
+    "global_cli_or_configuration_changed": false,
+    "format_classifier_bug_fixed": true,
+    "false_continuation_and_maintenance_interruption_excluded": true,
+    "old_baseline_terminal_classifications_unchanged": 16,
+    "unaffected_first_effective_repeat_retained": true,
+    "second_and_third_reprepared_files_equal_per_instance": 36,
+    "arw_role_scenario_permission_scoring_changed": false,
+    "formal_failures_not_erased": true
+  },
+  "work_timing": {
+    "first_model_attempt_started_at": 1791414454.8905602,
+    "last_effective_review_finished_at": 1791422295.3159487,
+    "first_attempt_to_last_effective_end_seconds": 7840.4253885746,
+    "first_attempt_to_report_generation_seconds": 8418.008435487747,
+    "includes_excluded_attempts_and_maintenance_gaps": true,
+    "excludes_pre_first_run_implementation_offline_and_deployment": true,
+    "pre_first_run_full_task_wall_time": "not precisely recorded; no invented whole-task start"
+  },
+  "main_error_groups_by_requirement_records": {
+    "脱敏遗漏其他credential": 6,
+    "缺provider返回合同却宣称通过": 3,
+    "把只要求导入扩成必须调用": 3,
+    "缺renameTemporary合同却确定宣称泄漏": 3,
+    "路由token缺NFKC仍宣称通过": 3,
+    "错误接受retryCount上限3": 2,
+    "漏报跨组packageId重复": 2
+  },
+  "additional_finding_errors_not_merged_into_result_disagreements": 2,
+  "deployment": {
+    "source": "docs/installation-directory-readme.md",
+    "source_sha256": "9c97cec1269ff8ad0c4f3bbd872657c16b002a5eaa04136febbc37aaf3e70156",
+    "installed_filename": "README.md",
+    "harness_owned": true,
+    "real_model_effectiveness": "three-local-Q2_0-diagnostic-reruns-complete-zero-hints-no-demonstrated-intervention-benefit",
+    "deployment": [
+      {
+        "host": "local",
+        "files": 26,
+        "result_sha256": "f3d9c5eb120f0d589e541c34594303e5e6827cd12f8f48a2c533d301153f1018",
+        "source_sha_verified": true,
+        "controller_reloaded": true,
+        "maintenance_key_returned": true,
+        "model_requests": 0
+      },
+      {
+        "host": "rtx3080ti",
+        "files": 26,
+        "result_sha256": "fe3ff400283bd286da3932d30aa4b1a32a7dc677a5982123918cd25326fa8703",
+        "source_sha_verified": true,
+        "controller_reloaded": true,
+        "maintenance_key_returned": true,
+        "model_requests": 0
+      }
+    ],
+    "effective_model_runs": 3,
+    "guard_adopted_as_default": false
+  },
+  "verification": {
+    "related_unit_tests_passed": 45,
+    "closed_session_renderer_roundtrip_and_attached_reading_receipts_preserved": true,
+    "all354current_requirement_judgments_and_every_candidate_inspected": true,
+    "native_sessions_events_total": 784,
+    "native_session_unique_texts_total": 279,
+    "original_score_completed_used_per_exact_instance": true,
+    "engineering_arithmetic_mean_not_formal_arw_batch_pass": true
+  },
+  "loop_count_method": {
+    "first_round_included": true,
+    "extra_repeats_separate": true,
+    "all_confirmed_groups_summed": true,
+    "counts_are_lower_bounds": true,
+    "unconfirmed_or_unseparable_repeats_upper_bound": null,
+    "mirror_service_injection_compaction_summaries_excluded": true
+  },
+  "retention": "Compact exact statistics, loop positions/textSHA, decisions and failures persist here. Raw native sessions/tools/counter logs remain temporary; after deletion they cannot be replayed or independently re-inspected. Summary arithmetic does not depend on temporary files.",
+  "corrections_20261008": [
+    "Offline4 emitted advisories are not4 supported true positives:2 delivery-stall false positives retained and annotated.",
+    "Repeat2 initial notification accepted/nonpersisted was an interim state; final original ARW receipt is delivered/persisted. Source isolation, sandbox and timely-write failures remain. Historical bound Main inspection SHA remains the original inspection, not a corrected notification verdict."
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "stage": "cleaned-full-model-behavior-collection",
+  "status": "pass",
+  "traces": 235,
+  "facts": 8975,
+  "types": {
+    "boundary": 2473,
+    "task": 237,
+    "reasoning": 2265,
+    "assistant": 1329,
+    "tool": 1709,
+    "feedback": 962
+  },
+  "labels": {
+    "not-model-output": 3672,
+    "pending-review": 5036,
+    "contains-annotated-loop": 243,
+    "normal": 23,
+    "contains-normal-region": 1
+  },
+  "compressed_bytes": 6426090,
+  "manifest_bytes": 297166,
+  "cleaned_uncompressed_bytes": 30200064,
+  "source_native_bytes": 90043972,
+  "behavior_sha256": "784148f62f4e7d61e1d6465e8d101852e8b4083b2990ca13c7a99b9f95b5a39a",
+  "labelled_loop_groups_mapped": 142,
+  "unmapped_loop_evidence": [],
+  "content_validation_errors": [],
+  "normalizer_sha256": "9dad3e6f817adfc37f3e71cd5167bc934e342fea76f76cd8b6148a49c25ee38d",
+  "model_runs": 0,
+  "model_requests": 0,
+  "annotation_complete": true,
+  "detector_acceptance": false,
+  "remote_state_user_reported": "rtx3080ti shutdown; no SSH needed for current offline work",
+  "related_regressions_passed": {
+    "normalizer": 6,
+    "corpus": 5,
+    "progress_guard": 22,
+    "command_loop_guard": 5,
+    "review_continuations": 8
+  },
+  "labels_scope": "Original immutable collection labels only; current Main labels and integrity are in main-annotations.json and annotation-validation.json.",
+  "current_annotation_overlay": "main-annotations.json",
+  "current_annotation_sha256": "1d49d8607f4af8906c745916e577ea79c02b5df3442f7337f8b24057b3368ca6"
+}

@@ -1,0 +1,863 @@
+{
+  "status": "closed-nine-independent-worker-observations-main-verified",
+  "host": "rtx3080ti",
+  "versions": {
+    "strata": "0.1.40.1",
+    "engine": "0.1.40"
+  },
+  "hardware": {
+    "cpu": "i9-13900",
+    "physical_cores": 24,
+    "gpu": "RTX3080Ti",
+    "ram_gib": 64
+  },
+  "model_instances_valid": 9,
+  "actual_model_start_attempts": 9,
+  "logical_requests": 27,
+  "frontend_requests": 27,
+  "internal_stages": 27,
+  "validated_result_rows": 756,
+  "guardian_requests": 0,
+  "compression_requests": 0,
+  "fixed_conditions": {
+    "model": "Q2_0",
+    "engine_overrides": {
+      "prefill": 8192,
+      "kv": "int8",
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pcie-frac": 0.0,
+      "spec": 4,
+      "spec-min-p": 0.7,
+      "expert-cache": "auto",
+      "vram-reserve-mib": 700,
+      "adapt-every": 4,
+      "adapt-swaps": 96,
+      "adapt-decay": 0.7,
+      "mtp-window": 32768,
+      "pcie-mode": "auto",
+      "expert-cache-per-layer": false,
+      "expert-cache-cpu-order": false,
+      "pool-affinity": "all",
+      "ple-io": "direct",
+      "ple-inflight": 256,
+      "no-capture": false,
+      "no-host-worker": false,
+      "no-ple-prefetch": false,
+      "no-prefill-borrow": false,
+      "no-split-rows": false,
+      "no-coupled-draft": false,
+      "shared-late": false,
+      "keep-canonical": false,
+      "no-token-graph": false,
+      "no-fused-gr": false,
+      "no-hit-poke": false,
+      "ple-sync-submit": false,
+      "no-spec-split": false,
+      "gr-fp32-activations": false,
+      "ple-row-cache": 1048576,
+      "short-read": 64,
+      "suffix-draft": 3,
+      "mtp-max-t": 0,
+      "prompt-cache": 6,
+      "prompt-cache-every": 16384,
+      "prompt-cache-root": 2048,
+      "max-context": 156584
+    },
+    "engine_environment": {
+      "STRATA_HC_SPLIT": null,
+      "STRATA_ADAPT_NOWAIT": null,
+      "STRATA_SSD_KEEPALIVE": null
+    },
+    "request_defaults": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 24576,
+      "reasoning_budget_tokens": 8192,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "high"
+    },
+    "startup_instructions": true,
+    "loop_prevention_instructions": true
+  },
+  "startup_and_compaction_binding": {
+    "startup_source": "config/startup-instructions.txt",
+    "startup_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "compaction_policy": "project-base-plus-versioned-native-supplement",
+    "compaction_rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+    "compaction_sources": [
+      {
+        "source": "config/compact_prompt.txt",
+        "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+      },
+      {
+        "source": "tools/resources/codex/0.160.1/compact-prompt.txt",
+        "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+      }
+    ]
+  },
+  "workload_binding": {
+    "source": "benchmarks/resource-calibration-v1/workload.py",
+    "record_count": 787,
+    "user_prefix_tokens": 32752,
+    "request_user_tokens": [
+      33006,
+      33014,
+      33203
+    ],
+    "tokenizer_sha256": {
+      "chat_template.jinja": "12827f24b742ea4e80cdc12dbcf9622227056b9f797252a3149263d4f9aaadce",
+      "merges.txt": "080cf95432173729d160346b7882bd2a644b07f7a3813a3eb73f4e66787bfde9",
+      "tokenizer.json": "87be2ac47d8bc7393b7435df6ccd276740019a393941a2585d5edce59f450c54",
+      "token_type.json": "5088c8c298fc06af8382ddb3b76c888703ac2634e82263b97eedcc2ad202738b",
+      "vocab.json": "4ba64f0332abcfb0b600b7df1537d1e836e68009d5fb7cdb77339738dc6365c4"
+    },
+    "case_bindings": [
+      {
+        "id": "initial-extraction",
+        "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+        "expected_sha256": "a79eac60f4a13d3152444aec5e976b98fa5cd95a3ab6698c1ae13710d9829c35",
+        "expected_rows": 28
+      },
+      {
+        "id": "cached-calculation",
+        "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+        "expected_sha256": "981241594236afb80c77f5fee9c6d6d3ef5aed2e59d3a5a452ae2375eca3a691",
+        "expected_rows": 28
+      },
+      {
+        "id": "cached-update",
+        "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+        "expected_sha256": "9b202274bb231e305decbb3d6d66e15723a2facfc54808f1ce7c9e0a5e813575",
+        "expected_rows": 28
+      }
+    ]
+  },
+  "execution_order": [
+    {
+      "workers": 23,
+      "repetition": 1
+    },
+    {
+      "workers": 15,
+      "repetition": 1
+    },
+    {
+      "workers": 12,
+      "repetition": 1
+    },
+    {
+      "workers": 12,
+      "repetition": 2
+    },
+    {
+      "workers": 15,
+      "repetition": 2
+    },
+    {
+      "workers": 23,
+      "repetition": 2
+    },
+    {
+      "workers": 23,
+      "repetition": 3
+    },
+    {
+      "workers": 15,
+      "repetition": 3
+    },
+    {
+      "workers": 12,
+      "repetition": 3
+    }
+  ],
+  "rows": [
+    {
+      "label": "workers23-r1",
+      "condition": 23,
+      "repetition": 1,
+      "started_at": 1791374865.4980304,
+      "ended_at": 1791374977.1945891,
+      "load_seconds": 16.375857454000652,
+      "driver_sha256": "feba8deaeb774c2cc3f53cffe6fffc758a58c34952bafe05fef0af3cc4cd0a5d",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "engine_log_sha256": "975c897abe3b12e58029b9a90b9d8dabc1555f0059997e461a24e6536c90949f",
+      "ownership_returned": true,
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 7639
+      },
+      "review_work_seconds": 77.39237581700218,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 36.4444286379985,
+          "started_at": 1791374886.984599,
+          "ended_at": 1791374923.4290242,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "29adacee46076ec9c15308a315516e473fe322665f2d8acfee46500559682aa3"
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 16.702536612003314,
+          "started_at": 1791374923.4295623,
+          "ended_at": 1791374940.1320972,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "7160cfc61dcf95d60a4badb2990b761a159f95ecb90b61161077bbcc9f062b4c"
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 24.245410567000363,
+          "started_at": 1791374940.132415,
+          "ended_at": 1791374964.3778236,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "17492b51906f58ad8061772c374e231a6f2431f2ad4e74e1e99c18795c543d27"
+        }
+      ],
+      "pass_": true,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.613,
+      "engine_decode_seconds": 61.489,
+      "engine_input_tokens_per_second": 2249.0872990456674,
+      "engine_output_tokens_per_second": 124.23360275821692,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 77.39237581700218,
+      "task_input_tokens_per_second": 453.7268642977317,
+      "task_output_tokens_per_second": 98.70481322427375
+    },
+    {
+      "label": "workers15-r1",
+      "condition": 15,
+      "repetition": 1,
+      "started_at": 1791374977.195314,
+      "ended_at": 1791375089.5858862,
+      "load_seconds": 17.419895320999785,
+      "driver_sha256": "feba8deaeb774c2cc3f53cffe6fffc758a58c34952bafe05fef0af3cc4cd0a5d",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "engine_log_sha256": "0d05afff35adc39cd08f7285438c739d1893622c7c10fa6b97786c57983c11bd",
+      "ownership_returned": true,
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 7638
+      },
+      "review_work_seconds": 77.04493371500212,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 36.286954499002604,
+          "started_at": 1791374999.7412317,
+          "ended_at": 1791375036.0281842,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "fc82428b5f65feb73a3dd10293b392a1077a4c8c533d4c729aae13d8170536b7"
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 16.598761817000195,
+          "started_at": 1791375036.0286753,
+          "ended_at": 1791375052.6274354,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "4a65f129afaabff4cdc22222f5dad094beddcbe574cb05a052d4c1d820a2dc50"
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 24.159217398999317,
+          "started_at": 1791375052.6278055,
+          "ended_at": 1791375076.7870204,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "e7b62a1bb4952b7f7262502260a7cacdc3955ac94c8aca34a259c6af50885598"
+        }
+      ],
+      "pass_": true,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.708,
+      "engine_decode_seconds": 61.08,
+      "engine_input_tokens_per_second": 2235.485103132162,
+      "engine_output_tokens_per_second": 125.049115913556,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 77.04493371500212,
+      "task_input_tokens_per_second": 455.7729925486644,
+      "task_output_tokens_per_second": 99.13695335573682
+    },
+    {
+      "label": "workers12-r1",
+      "condition": 12,
+      "repetition": 1,
+      "started_at": 1791375089.5882506,
+      "ended_at": 1791375214.069877,
+      "load_seconds": 17.429005234000215,
+      "driver_sha256": "feba8deaeb774c2cc3f53cffe6fffc758a58c34952bafe05fef0af3cc4cd0a5d",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "engine_log_sha256": "9101c9d4981a8bf8c94c8d8ca34f4b1e5d3a60c9aecafafb80ea15a5df02c7e7",
+      "ownership_returned": true,
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 8570
+      },
+      "review_work_seconds": 89.04541913399589,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 37.63238591299887,
+          "started_at": 1791375112.1576784,
+          "ended_at": 1791375149.7900622,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "fa2874471eb023811dfa4d5d908052ab8f8eeeedbb9e90be8c0f09e07b858930"
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 19.269318601000123,
+          "started_at": 1791375149.7905455,
+          "ended_at": 1791375169.0598624,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "70dd9911be97c80d6bbf4404bd940557ad938350a56e63896fe38ff74806ae53"
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 32.1437146199969,
+          "started_at": 1791375169.0604398,
+          "ended_at": 1791375201.2041516,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "1d0aafa66211e3b6ebb05ac27f10c935ff18cc3a11f19f809589702479b7108d"
+        }
+      ],
+      "pass_": true,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.943,
+      "engine_decode_seconds": 72.847,
+      "engine_input_tokens_per_second": 2202.5340274728724,
+      "engine_output_tokens_per_second": 117.64382884676102,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 89.04541913399589,
+      "task_input_tokens_per_second": 394.3493145577631,
+      "task_output_tokens_per_second": 96.24301938658776
+    },
+    {
+      "label": "workers12-r2",
+      "condition": 12,
+      "repetition": 2,
+      "started_at": 1791375214.072566,
+      "ended_at": 1791375343.254052,
+      "load_seconds": 17.423449074001837,
+      "driver_sha256": "feba8deaeb774c2cc3f53cffe6fffc758a58c34952bafe05fef0af3cc4cd0a5d",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "engine_log_sha256": "83cb8694f1ea05f5b8eb07658f16154bbc5ac4e82cab94008c5518a7683b524f",
+      "ownership_returned": true,
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 9185
+      },
+      "review_work_seconds": 93.73697987999549,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 37.44200453599842,
+          "started_at": 1791375236.630937,
+          "ended_at": 1791375274.0729399,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "9685f9e78a6d2b0fcad3b145509c884401df35f421e696625de5ea032a629289"
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 19.235387367996736,
+          "started_at": 1791375274.073505,
+          "ended_at": 1791375293.308891,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "358835c9dde24e20e1aa6aa74a4143ce901f74599f176371101ff4a3fa2ee83f"
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 37.05958797600033,
+          "started_at": 1791375293.3093488,
+          "ended_at": 1791375330.368935,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "e730b318e04d0dda2671a25d290ae1387cd40b03b3295db47a9a13fed9e0c1d9"
+        }
+      ],
+      "pass_": true,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.766,
+      "engine_decode_seconds": 77.713,
+      "engine_input_tokens_per_second": 2227.261194976532,
+      "engine_output_tokens_per_second": 118.1912936059604,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 93.73697987999549,
+      "task_input_tokens_per_second": 374.6120265977753,
+      "task_output_tokens_per_second": 97.98694188525036
+    },
+    {
+      "label": "workers15-r2",
+      "condition": 15,
+      "repetition": 2,
+      "started_at": 1791375343.257333,
+      "ended_at": 1791375456.0787163,
+      "load_seconds": 17.427423899000132,
+      "driver_sha256": "feba8deaeb774c2cc3f53cffe6fffc758a58c34952bafe05fef0af3cc4cd0a5d",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "engine_log_sha256": "f173d8afdb99dd51316b627995b552b86f48ed38507881fcd0ffcf7ac1256a84",
+      "ownership_returned": true,
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 7638
+      },
+      "review_work_seconds": 77.41387784999824,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 36.66263677999814,
+          "started_at": 1791375365.8182425,
+          "ended_at": 1791375402.4808764,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "1dde0fefae3b6c3aea1a09de05a132746c0ab95ebd1edf22bdefd43ac3a6aeca"
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 16.621829952000553,
+          "started_at": 1791375402.4815898,
+          "ended_at": 1791375419.1034174,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "776b5f131d339951b326e8ccf79c82aa025e82287b102e750c82c6dfb61660e8"
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 24.129411117999553,
+          "started_at": 1791375419.106126,
+          "ended_at": 1791375443.2355359,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "935d9f6520ad6f4f76b9062c35e2c89a081da74f2b06f22e1b771abac413762a"
+        }
+      ],
+      "pass_": true,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.965,
+      "engine_decode_seconds": 61.173,
+      "engine_input_tokens_per_second": 2199.4989038521767,
+      "engine_output_tokens_per_second": 124.85900642440292,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 77.41387784999824,
+      "task_input_tokens_per_second": 453.60083973626695,
+      "task_output_tokens_per_second": 98.66447996313846
+    },
+    {
+      "label": "workers23-r2",
+      "condition": 23,
+      "repetition": 2,
+      "started_at": 1791375456.0796387,
+      "ended_at": 1791375568.8802195,
+      "load_seconds": 17.477685554000345,
+      "driver_sha256": "feba8deaeb774c2cc3f53cffe6fffc758a58c34952bafe05fef0af3cc4cd0a5d",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "engine_log_sha256": "bb5dc75381957b5acba06bc7592c0a6213ce24ad36f01424a4ae115c1dc84c8e",
+      "ownership_returned": true,
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 7638
+      },
+      "review_work_seconds": 77.34566472200095,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 36.33568355100215,
+          "started_at": 1791375478.668985,
+          "ended_at": 1791375515.0046659,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "5ad4c79e3162b1c7070271085b6f867504f9009a21a7ce55b50b845f016cdb09"
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 16.718072956999094,
+          "started_at": 1791375515.0053544,
+          "ended_at": 1791375531.7234254,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "497671278f20212272d222d637f5438e18723a0eccbe1163d991837a101688d4"
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 24.291908213999704,
+          "started_at": 1791375531.7241008,
+          "ended_at": 1791375556.016006,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "3c1124996bceb80af5a4d3e11859606954466bbe64442e15427dafd9944d8b65"
+        }
+      ],
+      "pass_": true,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.844,
+      "engine_decode_seconds": 61.209,
+      "engine_input_tokens_per_second": 2216.2963898005555,
+      "engine_output_tokens_per_second": 124.7855707493996,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 77.34566472200095,
+      "task_input_tokens_per_second": 454.000881965548,
+      "task_output_tokens_per_second": 98.75149470177575
+    },
+    {
+      "label": "workers23-r3",
+      "condition": 23,
+      "repetition": 3,
+      "started_at": 1791375568.8822784,
+      "ended_at": 1791375685.4603288,
+      "load_seconds": 17.412272507001035,
+      "driver_sha256": "feba8deaeb774c2cc3f53cffe6fffc758a58c34952bafe05fef0af3cc4cd0a5d",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "engine_log_sha256": "d3554f659c24649572c89ff908fd6a44c387f40e8b994adee07ab7fc7ef3b296",
+      "ownership_returned": true,
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 8121
+      },
+      "review_work_seconds": 81.27486956600114,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 36.73634804700123,
+          "started_at": 1791375591.376756,
+          "ended_at": 1791375628.1131027,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "484f6bb3f5e93f5544b393ef39d366612d76666fae141d9e059a6b0fcae10060"
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 18.45662135800012,
+          "started_at": 1791375628.1138985,
+          "ended_at": 1791375646.5705178,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "f30a9efd78a1b4e0d0a0fb01bd3e42a459839bd141b8143b4fdd67971d627028"
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 26.081900160999794,
+          "started_at": 1791375646.5708108,
+          "ended_at": 1791375672.6527102,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "5fff27419424eab493c9de180f0e25171980fc73bbccc77f9fa0fc336742c685"
+        }
+      ],
+      "pass_": true,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.771,
+      "engine_decode_seconds": 65.232,
+      "engine_input_tokens_per_second": 2226.5550694312346,
+      "engine_output_tokens_per_second": 124.49411331861663,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 81.27486956600114,
+      "task_input_tokens_per_second": 432.05236978552205,
+      "task_output_tokens_per_second": 99.92018496449451
+    },
+    {
+      "label": "workers15-r3",
+      "condition": 15,
+      "repetition": 3,
+      "started_at": 1791375685.4628508,
+      "ended_at": 1791375797.930203,
+      "load_seconds": 17.42000335299963,
+      "driver_sha256": "feba8deaeb774c2cc3f53cffe6fffc758a58c34952bafe05fef0af3cc4cd0a5d",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "engine_log_sha256": "9c4b6ec844b672254c4d70bac4a45b6e154fffd69a0c18f13903c60ede7c726b",
+      "ownership_returned": true,
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 7638
+      },
+      "review_work_seconds": 77.26803770599872,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 36.46749961000023,
+          "started_at": 1791375708.0134752,
+          "ended_at": 1791375744.4809718,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "613730b2a7fc6f74b04aa14e4a157c8051ff796350cc93f2d65dfaae275d938e"
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 16.6327669530001,
+          "started_at": 1791375744.481794,
+          "ended_at": 1791375761.114558,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "8522e7253bb23ba300d77be81699760170fd2d3a0e44caceb64e3526272215ad"
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 24.16777114299839,
+          "started_at": 1791375761.1154404,
+          "ended_at": 1791375785.2832096,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "69a0c797c1d84e6a03cf6af74db5db31697c761bbd6744f52ff6905dca3202ae"
+        }
+      ],
+      "pass_": true,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.898,
+      "engine_decode_seconds": 61.096,
+      "engine_input_tokens_per_second": 2208.768398540697,
+      "engine_output_tokens_per_second": 125.01636768364541,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 77.26803770599872,
+      "task_input_tokens_per_second": 454.4569920826893,
+      "task_output_tokens_per_second": 98.85070498441068
+    },
+    {
+      "label": "workers12-r3",
+      "condition": 12,
+      "repetition": 3,
+      "started_at": 1791375797.930979,
+      "ended_at": 1791375927.8406339,
+      "load_seconds": 17.381334285000776,
+      "driver_sha256": "feba8deaeb774c2cc3f53cffe6fffc758a58c34952bafe05fef0af3cc4cd0a5d",
+      "frontend_requests": 3,
+      "internal_stages": 3,
+      "engine_log_sha256": "5614959bf7ba58b63d36d20a23053cf84dc86ab5f1c8d6e23019999c03050f86",
+      "ownership_returned": true,
+      "tokens": {
+        "uncached_input": 35115,
+        "cached_input": 65536,
+        "output": 9185
+      },
+      "review_work_seconds": 94.58826765899721,
+      "requests": [
+        {
+          "id": "initial-extraction",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 37.979690009997285,
+          "started_at": 1791375820.434367,
+          "ended_at": 1791375858.4140534,
+          "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+          "response_sha256": "a66b2421fbadb24fe88e9771ec228a6cd2bb8609603f794f637c7521d7dd116c"
+        },
+        {
+          "id": "cached-calculation",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 19.470517295001628,
+          "started_at": 1791375858.415,
+          "ended_at": 1791375877.885513,
+          "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+          "response_sha256": "4e4940e2ccc27f6d1f4d670dc42e4490c61b00b7becc526b9f68f88ccf30e37e"
+        },
+        {
+          "id": "cached-update",
+          "calls": 1,
+          "correct_rows": 28,
+          "work_seconds": 37.1380603539983,
+          "started_at": 1791375877.8868027,
+          "ended_at": 1791375915.02486,
+          "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+          "response_sha256": "f27476b090ff517b5750f827aa4fa59cbc259621a37ddc5762696f8e4ee0ff28"
+        }
+      ],
+      "pass_": true,
+      "cache_slots": 4016,
+      "loaded_vram_free_mib": 480,
+      "engine_input_seconds": 15.99,
+      "engine_decode_seconds": 78.33,
+      "engine_input_tokens_per_second": 2196.060037523452,
+      "engine_output_tokens_per_second": 117.260308949317,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 94.58826765899721,
+      "task_input_tokens_per_second": 371.24054461589316,
+      "task_output_tokens_per_second": 97.10506627643397
+    }
+  ],
+  "groups": [
+    {
+      "condition": 23,
+      "repetitions": 3,
+      "correct_requests": 9,
+      "arithmetic_mean": {
+        "review_work_seconds": 78.67097003500142,
+        "load_seconds": 17.088605171667343,
+        "engine_input_tokens_per_second": 2230.6462527591525,
+        "engine_output_tokens_per_second": 124.50442894207771,
+        "task_input_tokens_per_second": 446.59337201626727,
+        "task_output_tokens_per_second": 99.12549763018134,
+        "tokens": {
+          "uncached_input": 35115,
+          "cached_input": 65536,
+          "output": 7799.333333333333
+        }
+      },
+      "work_seconds_population_stdev": 1.841333766097188,
+      "work_seconds_min": 77.34566472200095,
+      "work_seconds_max": 81.27486956600114
+    },
+    {
+      "condition": 15,
+      "repetitions": 3,
+      "correct_requests": 9,
+      "arithmetic_mean": {
+        "review_work_seconds": 77.24228309033303,
+        "load_seconds": 17.422440857666516,
+        "engine_input_tokens_per_second": 2214.584135175012,
+        "engine_output_tokens_per_second": 124.97483000720145,
+        "task_input_tokens_per_second": 454.61027478920687,
+        "task_output_tokens_per_second": 98.88404610109532,
+        "tokens": {
+          "uncached_input": 35115,
+          "cached_input": 65536,
+          "output": 7638
+        }
+      },
+      "work_seconds_population_stdev": 0.15171776177731214,
+      "work_seconds_min": 77.04493371500212,
+      "work_seconds_max": 77.41387784999824
+    },
+    {
+      "condition": 12,
+      "repetitions": 3,
+      "correct_requests": 9,
+      "arithmetic_mean": {
+        "review_work_seconds": 92.4568888909962,
+        "load_seconds": 17.411262864334276,
+        "engine_input_tokens_per_second": 2208.618419990952,
+        "engine_output_tokens_per_second": 117.6984771340128,
+        "task_input_tokens_per_second": 380.0672952571438,
+        "task_output_tokens_per_second": 97.11167584942403,
+        "tokens": {
+          "uncached_input": 35115,
+          "cached_input": 65536,
+          "output": 8980
+        }
+      },
+      "work_seconds_population_stdev": 2.437179674386661,
+      "work_seconds_min": 89.04541913399589,
+      "work_seconds_max": 94.58826765899721
+    }
+  ],
+  "comparisons_against_fresh_23": [
+    {
+      "workers": 15,
+      "work_change_percent": -1.8160281283334245,
+      "engine_output_change_percent": 0.37781874036191265
+    },
+    {
+      "workers": 12,
+      "work_change_percent": 17.52351451858456,
+      "engine_output_change_percent": -5.466433496298507
+    }
+  ],
+  "tokens_total": {
+    "uncached_input": 316035,
+    "cached_input": 589824,
+    "output": 73252
+  },
+  "model_work_seconds_sum": 745.1104260489919,
+  "load_seconds_sum": 155.7669266810044,
+  "execution_wall_seconds": 1063.8482608795166,
+  "failures": [],
+  "deployment_default_changed": false,
+  "recommendation": "Keep 23/all as the performance reference for subsequent candidate work: 15 is close within small-sample variation, 12 consistently slower. No claim of full Reviewer optimality.",
+  "main_verification": {
+    "all27_frozen_request_bodies_exact": true,
+    "all756_answer_rows_exact": true,
+    "all9_worker_and_affinity_arguments_match": true,
+    "all9_internal_counter_sets_recomputed": true,
+    "all9_clean_stops_and_key_returns": true
+  },
+  "limitations": [
+    "Three repetitions per condition, synthetic approximately32K direct Chat workload, not native Reviewer or long-context performance.",
+    "Generated reasoning lengths vary. No CPU frequency, thermal or memory-bandwidth trace; OS file cache not reset.",
+    "Engine/task rates computed per instance then arithmetic mean, never API usage or merged ratio.",
+    "Raw replies and engine logs remain temporary. After deletion full replay is unavailable; compact full-precision counts and rates permit table recomputation.",
+    "No loop-group/severity measure was collected. Completion does not establish absence of loops."
+  ],
+  "final_readback": {
+    "source_files_verified": 26,
+    "source_sha_verified": true,
+    "profile_sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+    "health": {
+      "status": "ok",
+      "service": "strata-responses-bridge",
+      "backend": "http://127.0.0.1:8100",
+      "controller": true,
+      "ownership": "free",
+      "available": true
+    }
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "version": "0.1.36",
+  "type": "compaction",
+  "results": {
+    "selected_facts": {
+      "evidence_sha256": "6713d3c7a0c6b7cf4620f31fcd84b9eefc8807a93f4d184ec4b97277c65b819d",
+      "statistics": {
+        "compaction-iq2_xs-custom": {
+          "automatic_triggered": true,
+          "manual_triggered": true,
+          "selected_fact_checks": [
+            {
+              "青岚-482731": true,
+              "松石-916204": true,
+              "0.1.36": true,
+              "200K": true,
+              "250K": true,
+              "duration.py": true,
+              "unittest": true,
+              "installation_path": true,
+              "no_downloads": true
+            },
+            {
+              "青岚-482731": true,
+              "松石-916204": true,
+              "0.1.36": true,
+              "200K": true,
+              "250K": true,
+              "duration.py": true,
+              "unittest": true,
+              "installation_path": true,
+              "no_downloads": true
+            }
+          ],
+          "summary_latency_s": [
+            95.79,
+            19.782
+          ]
+        },
+        "compaction-iq2_xs-default": {
+          "automatic_triggered": true,
+          "manual_triggered": true,
+          "selected_fact_checks": [
+            {
+              "青岚-482731": true,
+              "松石-916204": true,
+              "0.1.36": true,
+              "200K": true,
+              "250K": true,
+              "duration.py": true,
+              "unittest": true,
+              "installation_path": true,
+              "no_downloads": true
+            },
+            {
+              "青岚-482731": true,
+              "松石-916204": true,
+              "0.1.36": true,
+              "200K": true,
+              "250K": true,
+              "duration.py": true,
+              "unittest": true,
+              "installation_path": true,
+              "no_downloads": false
+            }
+          ],
+          "summary_latency_s": [
+            96.036,
+            20.972
+          ]
+        },
+        "compaction-q2_0-custom": {
+          "automatic_triggered": true,
+          "manual_triggered": true,
+          "selected_fact_checks": [
+            {
+              "青岚-482731": true,
+              "松石-916204": true,
+              "0.1.36": true,
+              "200K": true,
+              "250K": true,
+              "duration.py": true,
+              "unittest": true,
+              "installation_path": true,
+              "no_downloads": true
+            },
+            {
+              "青岚-482731": true,
+              "松石-916204": true,
+              "0.1.36": true,
+              "200K": true,
+              "250K": true,
+              "duration.py": true,
+              "unittest": true,
+              "installation_path": true,
+              "no_downloads": true
+            }
+          ],
+          "summary_latency_s": [
+            98.306,
+            23.152
+          ]
+        },
+        "compaction-verified": {
+          "automatic_triggered": true,
+          "manual_triggered": true,
+          "selected_fact_checks": [
+            {
+              "青岚-482731": false,
+              "松石-916204": false,
+              "0.1.36": true,
+              "200K": true,
+              "250K": true,
+              "duration.py": true,
+              "unittest": true,
+              "installation_path": true,
+              "no_downloads": true
+            },
+            {
+              "青岚-482731": false,
+              "松石-916204": false,
+              "0.1.36": true,
+              "200K": true,
+              "250K": true,
+              "duration.py": true,
+              "unittest": true,
+              "installation_path": false,
+              "no_downloads": true
+            }
+          ],
+          "summary_latency_s": [
+            93.108,
+            22.292
+          ]
+        }
+      }
+    }
+  }
+}

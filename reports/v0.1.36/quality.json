@@ -1,0 +1,50 @@
+{
+  "version": "0.1.36",
+  "type": "quality",
+  "results": {
+    "code_recall": {
+      "evidence_sha256": "b131c7d37e84c41cbc12ac1163fc39f9b54b4468172433dfa94fd0a8e4531fbd",
+      "statistics": {
+        "scope": "One exact 200K code-lookup case per model and reasoning setting; no broad quality equivalence or BF16 comparison. Prefix check_ is normalized only for separate value accuracy, never strict JSON acceptance.",
+        "results": {
+          "none": {
+            "q2_0": {
+              "correct_values": 4,
+              "total": 5,
+              "strict_keys_and_values_pass": false,
+              "normalized_all_values_pass": false,
+              "prompt_tokens": 200000,
+              "output_tokens": 59
+            },
+            "iq2_xs": {
+              "correct_values": 5,
+              "total": 5,
+              "strict_keys_and_values_pass": true,
+              "normalized_all_values_pass": true,
+              "prompt_tokens": 200000,
+              "output_tokens": 61
+            }
+          },
+          "low": {
+            "q2_0": {
+              "correct_values": 5,
+              "total": 5,
+              "strict_keys_and_values_pass": false,
+              "normalized_all_values_pass": true,
+              "prompt_tokens": 200000,
+              "output_tokens": 616
+            },
+            "iq2_xs": {
+              "correct_values": 5,
+              "total": 5,
+              "strict_keys_and_values_pass": false,
+              "normalized_all_values_pass": true,
+              "prompt_tokens": 200000,
+              "output_tokens": 580
+            }
+          }
+        }
+      }
+    }
+  }
+}

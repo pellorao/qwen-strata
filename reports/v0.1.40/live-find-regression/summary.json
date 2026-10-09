@@ -1,0 +1,580 @@
+{
+  "schema": 1,
+  "status": "closed-interface-diagnostic-batch",
+  "scope": "Focused streaming live find_in_page regression; not ARW capability scoring.",
+  "configuration": {
+    "version": {
+      "version": "0.1.40",
+      "commit": "1735d6471df29b42c26170efaac1f1446a58640f"
+    },
+    "model": "qwen3.8-flash-next-q2_0",
+    "effort": "high",
+    "profile": "default-no-save",
+    "compact_threshold_for_following_harness_runs": 100000,
+    "engine_overrides": {
+      "prefill": 16384,
+      "kv": "int8",
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pcie-frac": 0.0,
+      "spec": 4,
+      "spec-min-p": 0.7,
+      "expert-cache": "auto",
+      "vram-reserve-mib": 700,
+      "adapt-every": 4,
+      "adapt-swaps": 96,
+      "adapt-decay": 0.7,
+      "mtp-window": 32768,
+      "pcie-mode": "auto",
+      "expert-cache-per-layer": false,
+      "expert-cache-cpu-order": false,
+      "pool-affinity": "auto",
+      "ple-io": "direct",
+      "ple-inflight": 256,
+      "no-capture": false,
+      "no-host-worker": false,
+      "no-ple-prefetch": false,
+      "no-prefill-borrow": false,
+      "no-split-rows": false,
+      "no-coupled-draft": false,
+      "shared-late": false,
+      "keep-canonical": false,
+      "no-token-graph": false,
+      "no-fused-gr": false,
+      "no-hit-poke": false,
+      "ple-sync-submit": false,
+      "no-spec-split": false,
+      "gr-fp32-activations": false,
+      "ple-row-cache": 1048576,
+      "short-read": 64,
+      "suffix-draft": 3,
+      "mtp-max-t": 0,
+      "prompt-cache": 6,
+      "prompt-cache-every": 16384,
+      "prompt-cache-root": 2048,
+      "max-context": 156584
+    },
+    "engine_environment": {
+      "STRATA_HC_SPLIT": null,
+      "STRATA_ADAPT_NOWAIT": null,
+      "STRATA_SSD_KEEPALIVE": null
+    },
+    "request_defaults": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 24576,
+      "reasoning_budget_tokens": 8192,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "high"
+    },
+    "baseline_sha256": "243143d203c6c034f0df8f32919dea425e73f5ee62639190aafab76843a93ca8",
+    "repetitions": 3,
+    "model_instances": 3,
+    "frontend_requests_at_most": 3,
+    "model_api_rounds_at_most": 24,
+    "search_operations_at_most": 24,
+    "base_prompt_sha256": {
+      "startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+      "compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+    },
+    "requests_sha256": "75984ba1a20cd9b4a63ecd13e92cb8cceb03d977008951d1bfbeca9e1948ddc3",
+    "scope": "Focused real streaming live find_in_page and matching citation, with forced Hosted search choice. No replay or replacement of prior results.",
+    "new_opt_ins": "unchanged/off; no automatic retry or rerun",
+    "timeout_seconds_per_frontend_request": 180,
+    "indexed_find_pattern": "First alphabetic word of at least four characters in an actual repository indexed excerpt; chosen mechanically by Main, not supplied as an expected answer.",
+    "release_url": "https://github.com/Niko1221/Strata/releases/tag/v0.1.40",
+    "estimated_minutes": [
+      1,
+      3
+    ],
+    "estimate_basis": "Three observed approximately 14s model loads and approximately 12s live-page requests, plus tool/network and cleanup margin.",
+    "profile_binding": {
+      "profile": {
+        "choice": "default",
+        "installation_relative_path": "runtime/Strata/data/expert-profile.bin",
+        "sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+        "save_enabled": false
+      },
+      "prebuilt_config_sha256": "fa3fdd34cddba8fb75954a67c7535a7a9129014f606b6373142a090eb03b7093"
+    },
+    "task_mode": "live-find-only"
+  },
+  "protocol_sha256": "1c0c4f30219e6a0689ef300888e8e921bf710998ad6047553460a7b778dab5f9",
+  "rows": [
+    {
+      "repeat": 1,
+      "pass": true,
+      "observations": [
+        {
+          "name": "live-find",
+          "model_api_rounds": 2,
+          "search_actions": [
+            {
+              "action": "find_in_page",
+              "url": "https://github.com/Niko1221/Strata/releases/tag/v0.1.40",
+              "pattern": "0.1.40"
+            }
+          ],
+          "brave_requests": 0,
+          "seconds": 20.511473720005597
+        }
+      ],
+      "load_seconds": 13.808242507002433,
+      "work_seconds": 20.51150034699822,
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "tokens": {
+        "uncached_input": 1512,
+        "cached_input": 2018,
+        "output": 366
+      },
+      "engine_input_seconds": 3.233,
+      "engine_decode_seconds": 3.936,
+      "engine_input_tokens_per_second": 467.6770801113517,
+      "engine_output_tokens_per_second": 92.98780487804878,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 20.51150034699822,
+      "task_input_tokens_per_second": 73.71474413968335,
+      "task_output_tokens_per_second": 17.84364838301859,
+      "ownership_returned": true,
+      "internal_numeric_stages": [
+        {
+          "input": 949,
+          "cached": 0,
+          "uncached": 949,
+          "prompt_ms": 1643.0,
+          "output": 21,
+          "decode_ms": 237.0,
+          "log_line": 37
+        },
+        {
+          "input": 978,
+          "cached": 969,
+          "uncached": 9,
+          "prompt_ms": 78.0,
+          "output": 69,
+          "decode_ms": 753.0,
+          "log_line": 41
+        },
+        {
+          "input": 1603,
+          "cached": 1049,
+          "uncached": 554,
+          "prompt_ms": 1512.0,
+          "output": 276,
+          "decode_ms": 2946.0,
+          "log_line": 46
+        }
+      ],
+      "engine_record_sha256": "9faab44af4016805dea50a3a421fd229a226612818a26a4f1454251256f97111",
+      "equivalent_cost_usd": 0.0004311079999999999,
+      "cases": [
+        {
+          "name": "live-find",
+          "response_id": "resp_ae0719c58eab4e5eb58947266ac90593",
+          "stream_completed": true,
+          "actions": [
+            {
+              "action": "find_in_page",
+              "url": "https://github.com/Niko1221/Strata/releases/tag/v0.1.40",
+              "pattern": "0.1.40"
+            }
+          ],
+          "indexed_excerpt_flags": [
+            false
+          ],
+          "brave_requests": 0,
+          "model_api_rounds": 2,
+          "tool_failures": [],
+          "seconds": 20.511473720005597,
+          "response_sha256": "d5dac303622400b5222785dfb8d7f2e544718550f29163aec6c75eafd68ff99a"
+        }
+      ],
+      "diagnosis": "显式Hosted工具选择约束下实际调用一次实时find_in_page；目标和字面匹配正确，发布标签及回答中的行号与真实工具结果一致，引用指向该结果URL；SSE唯一completed终态、顺序及增量正文均通过，模型正常停止并归还独占权。"
+    },
+    {
+      "repeat": 2,
+      "pass": true,
+      "observations": [
+        {
+          "name": "live-find",
+          "model_api_rounds": 2,
+          "search_actions": [
+            {
+              "action": "find_in_page",
+              "url": "https://github.com/Niko1221/Strata/releases/tag/v0.1.40",
+              "pattern": "0.1.40"
+            }
+          ],
+          "brave_requests": 0,
+          "seconds": 10.91845310300414
+        }
+      ],
+      "load_seconds": 14.310360654999386,
+      "work_seconds": 10.91846765000082,
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "tokens": {
+        "uncached_input": 1515,
+        "cached_input": 2018,
+        "output": 385
+      },
+      "engine_input_seconds": 2.953,
+      "engine_decode_seconds": 4.136,
+      "engine_input_tokens_per_second": 513.0375888926516,
+      "engine_output_tokens_per_second": 93.08510638297872,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 10.91846765000082,
+      "task_input_tokens_per_second": 138.75573464742428,
+      "task_output_tokens_per_second": 35.26135830974148,
+      "ownership_returned": true,
+      "internal_numeric_stages": [
+        {
+          "input": 949,
+          "cached": 0,
+          "uncached": 949,
+          "prompt_ms": 1612.0,
+          "output": 21,
+          "decode_ms": 244.0,
+          "log_line": 37
+        },
+        {
+          "input": 978,
+          "cached": 969,
+          "uncached": 9,
+          "prompt_ms": 78.0,
+          "output": 69,
+          "decode_ms": 683.0,
+          "log_line": 41
+        },
+        {
+          "input": 1606,
+          "cached": 1049,
+          "uncached": 557,
+          "prompt_ms": 1263.0,
+          "output": 295,
+          "decode_ms": 3209.0,
+          "log_line": 46
+        }
+      ],
+      "engine_record_sha256": "a573edac21caf1300c229f587cde3725fec5f514930f9daef39cf7e2f1646aba",
+      "equivalent_cost_usd": 0.000440488,
+      "cases": [
+        {
+          "name": "live-find",
+          "response_id": "resp_e4d75525771a46888eb52ded4ea42e80",
+          "stream_completed": true,
+          "actions": [
+            {
+              "action": "find_in_page",
+              "url": "https://github.com/Niko1221/Strata/releases/tag/v0.1.40",
+              "pattern": "0.1.40"
+            }
+          ],
+          "indexed_excerpt_flags": [
+            false
+          ],
+          "brave_requests": 0,
+          "model_api_rounds": 2,
+          "tool_failures": [],
+          "seconds": 10.91845310300414,
+          "response_sha256": "5e176f985d60b98768bbbf6a0cc0de8661864aa591dbc5b5e8cf609f592b2d2d"
+        }
+      ],
+      "diagnosis": "显式Hosted工具选择约束下实际调用一次实时find_in_page；目标和字面匹配正确，发布标签及回答中的行号与真实工具结果一致，引用指向该结果URL；SSE唯一completed终态、顺序及增量正文均通过，模型正常停止并归还独占权。"
+    },
+    {
+      "repeat": 3,
+      "pass": true,
+      "observations": [
+        {
+          "name": "live-find",
+          "model_api_rounds": 2,
+          "search_actions": [
+            {
+              "action": "find_in_page",
+              "url": "https://github.com/Niko1221/Strata/releases/tag/v0.1.40",
+              "pattern": "0.1.40"
+            }
+          ],
+          "brave_requests": 0,
+          "seconds": 11.644137757000863
+        }
+      ],
+      "load_seconds": 13.793009546003304,
+      "work_seconds": 11.644150773994625,
+      "stop": {
+        "status": "stopped",
+        "clean_unload": true
+      },
+      "tokens": {
+        "uncached_input": 1514,
+        "cached_input": 2018,
+        "output": 407
+      },
+      "engine_input_seconds": 2.937,
+      "engine_decode_seconds": 4.278,
+      "engine_input_tokens_per_second": 515.4919986380661,
+      "engine_output_tokens_per_second": 95.137914913511,
+      "unit": "token/s",
+      "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+      "task_review_seconds": 11.644150773994625,
+      "task_input_tokens_per_second": 130.02236310622843,
+      "task_output_tokens_per_second": 34.953171588001965,
+      "ownership_returned": true,
+      "internal_numeric_stages": [
+        {
+          "input": 949,
+          "cached": 0,
+          "uncached": 949,
+          "prompt_ms": 1618.0,
+          "output": 21,
+          "decode_ms": 235.0,
+          "log_line": 37
+        },
+        {
+          "input": 978,
+          "cached": 969,
+          "uncached": 9,
+          "prompt_ms": 81.0,
+          "output": 69,
+          "decode_ms": 679.0,
+          "log_line": 41
+        },
+        {
+          "input": 1605,
+          "cached": 1049,
+          "uncached": 556,
+          "prompt_ms": 1238.0,
+          "output": 317,
+          "decode_ms": 3364.0,
+          "log_line": 46
+        }
+      ],
+      "engine_record_sha256": "3388a52eb7eea08a27afabd4eb5b0f16125a4b2d7d14606cf43d70197ca15523",
+      "equivalent_cost_usd": 0.000450678,
+      "cases": [
+        {
+          "name": "live-find",
+          "response_id": "resp_b71192d2ff204835830c9657bf5ca5cf",
+          "stream_completed": true,
+          "actions": [
+            {
+              "action": "find_in_page",
+              "url": "https://github.com/Niko1221/Strata/releases/tag/v0.1.40",
+              "pattern": "0.1.40"
+            }
+          ],
+          "indexed_excerpt_flags": [
+            false
+          ],
+          "brave_requests": 0,
+          "model_api_rounds": 2,
+          "tool_failures": [],
+          "seconds": 11.644137757000863,
+          "response_sha256": "d887d895082090e255c4285c5559326859c4826d707c311d20a7b32364f33a26"
+        }
+      ],
+      "diagnosis": "显式Hosted工具选择约束下实际调用一次实时find_in_page；目标和字面匹配正确，发布标签及回答中的行号与真实工具结果一致，引用指向该结果URL；SSE唯一completed终态、顺序及增量正文均通过，模型正常停止并归还独占权。"
+    }
+  ],
+  "summary": {
+    "mean": {
+      "load_seconds": 13.970537569335042,
+      "work_seconds": 14.358039590331222,
+      "equivalent_cost_usd": 0.00044075799999999997,
+      "engine_input_tokens_per_second": 498.7355558806898,
+      "engine_output_tokens_per_second": 93.7369420581795,
+      "task_input_tokens_per_second": 114.16428063111202,
+      "task_output_tokens_per_second": 29.352726093587346
+    },
+    "mean_tokens": {
+      "uncached_input": 1513.6666666666667,
+      "cached_input": 2018,
+      "output": 386
+    },
+    "work_min_seconds": 10.91846765000082,
+    "work_max_seconds": 20.51150034699822,
+    "work_population_stddev_seconds": 4.361227920512978,
+    "original_contract_passed": 3,
+    "total_instances": 3,
+    "frontend_requests": 3,
+    "model_api_rounds": 6,
+    "engine_stages": 9,
+    "search_operations": 3,
+    "brave_api_requests": 0,
+    "failed_response_terminals": 0,
+    "tool_failures": 0
+  },
+  "main_inspection": {
+    "status": "complete-for-live-find-interface-scope",
+    "completed_repeats": [
+      1,
+      2,
+      3
+    ],
+    "inspection_kind": "Main inspected complete frontend messages, reasoning, tool arguments/results, citations, raw SSE parity and internal engine logs; not ARW Reviewer session inspection.",
+    "repeats": [
+      {
+        "repeat": 1,
+        "diagnosis": "显式Hosted工具选择约束下实际调用一次实时find_in_page；目标和字面匹配正确，发布标签及回答中的行号与真实工具结果一致，引用指向该结果URL；SSE唯一completed终态、顺序及增量正文均通过，模型正常停止并归还独占权。",
+        "inspected_artifacts": [
+          "live-find.request.json",
+          "live-find.response.json",
+          "live-find.search-records.json",
+          "live-find.sse",
+          "live-find.events.json",
+          "engine-request-log.txt",
+          "start-status.json",
+          "result.json"
+        ],
+        "checks": {
+          "frozen_request": true,
+          "full_frontend_messages_and_reasoning_reviewed": true,
+          "actual_tool_arguments_and_results_reviewed": true,
+          "live_result_and_matching_label": true,
+          "citation_provenance_and_reported_lines_reviewed": true,
+          "raw_sse_matches_parsed_events": true,
+          "sequence_terminal_and_delta_text": true,
+          "all_internal_execution_segments_counted_once": true,
+          "loaded_startup_sha_and_window": true,
+          "clean_unload_and_ownership_returned": true
+        },
+        "sse_event_count": 309,
+        "numeric_internal_stage_count": 3,
+        "free_vram_mib": 248,
+        "api_usage_diagnostic": {
+          "input_tokens": 2552,
+          "output_tokens": 374,
+          "total_tokens": 2926,
+          "input_tokens_details": {
+            "cached_tokens": 2018
+          }
+        },
+        "api_output_minus_internal_generated": 8
+      },
+      {
+        "repeat": 2,
+        "diagnosis": "显式Hosted工具选择约束下实际调用一次实时find_in_page；目标和字面匹配正确，发布标签及回答中的行号与真实工具结果一致，引用指向该结果URL；SSE唯一completed终态、顺序及增量正文均通过，模型正常停止并归还独占权。",
+        "inspected_artifacts": [
+          "live-find.request.json",
+          "live-find.response.json",
+          "live-find.search-records.json",
+          "live-find.sse",
+          "live-find.events.json",
+          "engine-request-log.txt",
+          "start-status.json",
+          "result.json"
+        ],
+        "checks": {
+          "frozen_request": true,
+          "full_frontend_messages_and_reasoning_reviewed": true,
+          "actual_tool_arguments_and_results_reviewed": true,
+          "live_result_and_matching_label": true,
+          "citation_provenance_and_reported_lines_reviewed": true,
+          "raw_sse_matches_parsed_events": true,
+          "sequence_terminal_and_delta_text": true,
+          "all_internal_execution_segments_counted_once": true,
+          "loaded_startup_sha_and_window": true,
+          "clean_unload_and_ownership_returned": true
+        },
+        "sse_event_count": 329,
+        "numeric_internal_stage_count": 3,
+        "free_vram_mib": 248,
+        "api_usage_diagnostic": {
+          "input_tokens": 2555,
+          "output_tokens": 393,
+          "total_tokens": 2948,
+          "input_tokens_details": {
+            "cached_tokens": 2018
+          }
+        },
+        "api_output_minus_internal_generated": 8
+      },
+      {
+        "repeat": 3,
+        "diagnosis": "显式Hosted工具选择约束下实际调用一次实时find_in_page；目标和字面匹配正确，发布标签及回答中的行号与真实工具结果一致，引用指向该结果URL；SSE唯一completed终态、顺序及增量正文均通过，模型正常停止并归还独占权。",
+        "inspected_artifacts": [
+          "live-find.request.json",
+          "live-find.response.json",
+          "live-find.search-records.json",
+          "live-find.sse",
+          "live-find.events.json",
+          "engine-request-log.txt",
+          "start-status.json",
+          "result.json"
+        ],
+        "checks": {
+          "frozen_request": true,
+          "full_frontend_messages_and_reasoning_reviewed": true,
+          "actual_tool_arguments_and_results_reviewed": true,
+          "live_result_and_matching_label": true,
+          "citation_provenance_and_reported_lines_reviewed": true,
+          "raw_sse_matches_parsed_events": true,
+          "sequence_terminal_and_delta_text": true,
+          "all_internal_execution_segments_counted_once": true,
+          "loaded_startup_sha_and_window": true,
+          "clean_unload_and_ownership_returned": true
+        },
+        "sse_event_count": 351,
+        "numeric_internal_stage_count": 3,
+        "free_vram_mib": 215,
+        "api_usage_diagnostic": {
+          "input_tokens": 2554,
+          "output_tokens": 415,
+          "total_tokens": 2969,
+          "input_tokens_details": {
+            "cached_tokens": 2018
+          }
+        },
+        "api_output_minus_internal_generated": 8
+      }
+    ],
+    "control_operation_span_seconds": 91.17307925224304,
+    "control_span_basis": "First model-start request timestamp to final confirmed stop timestamp, includes loads/stops and driver overhead; individual work_seconds exclude these.",
+    "boundaries": [
+      "tool_choice explicitly forces Hosted search; does not establish unforced task adherence",
+      "Previous omitted-find and strict-check rejections remain unchanged",
+      "Short input only; no real 100K compaction, Codex/MCP/guardian, failure/cancel/resume or ARW capability validation",
+      "Low VRAM warning in all three instances, 248/248/215 MiB; no observed request failure; parameters unchanged",
+      "All API output totals exceed internal generated by 8 tokens; API usage retained only as diagnostic, not used as token counts"
+    ],
+    "final_controller_health": {
+      "status": "ok",
+      "service": "strata-responses-bridge",
+      "backend": "http://172.27.48.1:8100",
+      "controller": true,
+      "ownership": "free",
+      "available": true
+    },
+    "cache_conditions": {
+      "independent_model_process_and_fresh_kv_each_repeat": true,
+      "first_internal_stage_cached_tokens": [
+        0,
+        0,
+        0
+      ],
+      "later_stages_reuse_prefix_within_same_frontend_request": true,
+      "os_cache_flushed": false,
+      "engine_expert_arena_read_mode": "unbuffered; each startup logged 0/16 probe reads from file cache"
+    }
+  },
+  "unverified": [
+    "Codex/guardian compatibility",
+    "stream failures/cancellation/resume",
+    "long-context compaction",
+    "parameter optimality",
+    "ARW capability scores"
+  ]
+}

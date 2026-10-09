@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "status": "closed-read-only-historical-evidence-selection",
+  "scope": "Cross-request tool/no-progress loops. An independent attempt is positive once; iterations or multiple loop motifs do not multiply its count. Single-response thinking repetition separately noted.",
+  "selected_candidate": "Commit Audit original complete reviewer scenario",
+  "selection_basis": "Strict unchanged/no-progress evidence: Commit Audit at least3 independent cross-request tool-loop observations; Spec merged scene1 explicit loop plus3 suspected stagnation cases. Do not count generic duplicate calls or delayed writes as confirmed loops. Counts are report-based lower bounds, not a complete global incidence ranking.",
+  "rows": [
+    {
+      "scene": "Spec Readiness same-thread merged context scene",
+      "recorded_observations": 18,
+      "confirmed_loop_positive_lower_bound": 1,
+      "confirmed_loop_positive_proportion_lower_bound": 0.05555555555555555,
+      "exact_same_call_repeat_positive_observations": 16,
+      "exact_repeat_is_not_loop_classification": true,
+      "other_observations_loop_status": "unknown or insufficient evidence, not negative",
+      "confirmed_observations": [
+        {
+          "identifier": "150k-206584-补跑第1",
+          "source": "reports/v0.1.38/context-comparison/summary.md",
+          "basis": "Explicitly diagnosed repeated verification loop and 19 unsuccessful queries of a known wrong Input collection before first report write."
+        }
+      ],
+      "suspected_stagnation_observations": [
+        {
+          "identifier": "64k-120584-extra-1",
+          "source": "reports/v0.1.38/context-comparison/summary.md",
+          "basis": "Verified findings remained unwritten while unchanged Request/instruction reads and empty lookups repeated, documented native assessment."
+        },
+        {
+          "identifier": "150k-206584-新增第1",
+          "source": "reports/v0.1.38/context-comparison/summary.md",
+          "basis": "Report explicitly confirms stagnant repeated reads of the same Input, complete request repeatedly acknowledged, 32 tools/10 exact extra repeats, no report."
+        },
+        {
+          "identifier": "150k-206584-新增第2",
+          "source": "reports/v0.1.38/context-comparison/summary.md",
+          "basis": "All checks/finding verification acknowledged in summary with empty draft, repeated Request reads and empty wc before delayed first write."
+        }
+      ],
+      "suspected_stagnation_count": 3
+    },
+    {
+      "scene": "Commit Audit profile and reasoning batches",
+      "recorded_observations": 22,
+      "confirmed_tool_loop_positive_lower_bound": 3,
+      "confirmed_tool_loop_proportion_lower_bound": 0.13636363636363635,
+      "separate_thinking_loop_positive_observations": 1,
+      "thinking_loop_identifier": "effort-medium-3",
+      "other_observations_loop_status": "unknown; ordinary debugging is not counted as loop without unchanged/no-progress evidence",
+      "confirmed_observations": [
+        {
+          "identifier": "profile-trained-original-1",
+          "source": "docs/installation-directory-readme.md",
+          "basis": "Same ineffective JSON repair with same five failures, 98 iterations. Counts as one loop-positive observation."
+        },
+        {
+          "identifier": "profile-default-2",
+          "source": "docs/installation-directory-readme.md",
+          "basis": "Same failing probe18 times plus unchanged role rereads21 times, directly verified unchanged outputs."
+        },
+        {
+          "identifier": "effort-low-5",
+          "source": "reports/v0.1.38/reasoning-effort-comparison/summary.md",
+          "basis": "Same erroneous probe unchanged across three retries, locally verified; complete source/session inspection canceled."
+        }
+      ]
+    },
+    {
+      "scene": "Code Standards / Code Spec",
+      "confirmed_loop_frequency": null,
+      "reason": "Published statistical summaries lack per-observation loop verdicts; no mention is not proof of zero loops."
+    }
+  ],
+  "limitations": [
+    "Historical versions, efforts, capacities, prompt conditions and protocol differ; do not estimate one current-setting loop rate from pooled observations.",
+    "Old raw sessions were deleted by user request; cannot reclassify every old observation or resume canceled inspections.",
+    "Spec counts are per merged observation; bulk repeat counter does not locate every duplicate or prove no progress.",
+    "New frozen ARW rules/runtime differ from historical source; historical recurrence does not guarantee new reproduction."
+  ],
+  "excluded": "Current runtime driver-induced extra continuations and protocol failures are not spontaneous model tool loops.",
+  "source_sha256": {
+    "reports/v0.1.38/context-comparison/summary.json": "f5a8820fc60c3286e7ae7f6f1e20f313784bcfb8066b9185a5bfd37ee9ac6ac3",
+    "reports/v0.1.38/upgrade-cycle-20261003/profile-validation-first-pass.json": "6fec303e2e59ed7e1eb854410f764d54e1b9ce3f68d20fb465d468d72e13ea46",
+    "reports/v0.1.38/reasoning-effort-comparison/summary.json": "61d71ace9404296624526b0680ddec878ef4c1127ede7b3288f17a4793fa36bc"
+  },
+  "new_model_runs": 0
+}

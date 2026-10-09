@@ -1,0 +1,257 @@
+{
+  "scope": "Real installed controller, Q2_0 model, both APIs and invalid/revoked callers. No score benchmark.",
+  "checks": {
+    "model_loaded": true,
+    "chat_answer": true,
+    "responses_answer": true,
+    "restart_preserves_owner": true,
+    "return_stops_model": true,
+    "concurrent_acquire_single_winner": true,
+    "controller_remains_available": true,
+    "baseline_configs_unchanged": true
+  },
+  "observations": [
+    {
+      "path": "/health",
+      "native": false,
+      "status": 200,
+      "wall_s": 0.01277986700006295
+    },
+    {
+      "path": "/ownership/acquire",
+      "native": false,
+      "status": 200,
+      "wall_s": 0.025871469999401597
+    },
+    {
+      "path": "/ownership/start",
+      "native": false,
+      "status": 403,
+      "wall_s": 0.010902435999014415
+    },
+    {
+      "path": "/ownership/stop",
+      "native": false,
+      "status": 403,
+      "wall_s": 0.0011470030003692955
+    },
+    {
+      "path": "/ownership/release",
+      "native": false,
+      "status": 403,
+      "wall_s": 0.000746386001992505
+    },
+    {
+      "path": "/ownership/status",
+      "native": false,
+      "status": 403,
+      "wall_s": 0.0007333760004257783
+    },
+    {
+      "path": "/ownership/acquire",
+      "native": false,
+      "status": 409,
+      "wall_s": 0.0007404120005958248
+    },
+    {
+      "path": "/ownership/start",
+      "native": false,
+      "status": 200,
+      "wall_s": 14.384684717999335
+    },
+    {
+      "path": "/health",
+      "native": true,
+      "status": 403,
+      "wall_s": 0.005171059001440881
+    },
+    {
+      "path": "/v1/models",
+      "native": true,
+      "status": 403,
+      "wall_s": 0.0012998560014239047
+    },
+    {
+      "path": "/unload",
+      "native": true,
+      "status": 403,
+      "wall_s": 0.001437148999684723
+    },
+    {
+      "path": "/settings",
+      "native": true,
+      "status": 403,
+      "wall_s": 0.0009721290007291827
+    },
+    {
+      "path": "/v1/chat/completions",
+      "native": true,
+      "status": 403,
+      "wall_s": 0.0008287499986181501
+    },
+    {
+      "path": "/v1/chat/completions",
+      "native": false,
+      "status": 403,
+      "wall_s": 0.0008626679991721176
+    },
+    {
+      "path": "/v1/responses",
+      "native": false,
+      "status": 403,
+      "wall_s": 0.0014248549996409565
+    },
+    {
+      "path": "/v1/chat/completions",
+      "native": false,
+      "status": 200,
+      "wall_s": 0.8687032429988903
+    },
+    {
+      "path": "/v1/responses",
+      "native": false,
+      "status": 200,
+      "wall_s": 0.5207746230007615
+    },
+    {
+      "path": "/ownership/status",
+      "native": false,
+      "status": 200,
+      "wall_s": 0.03866923900204711
+    },
+    {
+      "path": "/ownership/acquire",
+      "native": false,
+      "status": 409,
+      "wall_s": 0.0010860299989872146
+    },
+    {
+      "path": "/ownership/status",
+      "native": false,
+      "status": 200,
+      "wall_s": 0.016379497999878367
+    },
+    {
+      "path": "/ownership/release",
+      "native": false,
+      "status": 200,
+      "wall_s": 2.235095072999684
+    },
+    {
+      "path": "/ownership/start",
+      "native": false,
+      "status": 403,
+      "wall_s": 0.004327439000917366
+    },
+    {
+      "path": "/ownership/stop",
+      "native": false,
+      "status": 403,
+      "wall_s": 0.0009746979994815774
+    },
+    {
+      "path": "/v1/responses",
+      "native": false,
+      "status": 403,
+      "wall_s": 0.001888188999146223
+    },
+    {
+      "path": "/ownership/acquire",
+      "native": false,
+      "status": 200,
+      "wall_s": 0.015952884998114314
+    },
+    {
+      "path": "/ownership/acquire",
+      "native": false,
+      "status": 409,
+      "wall_s": 0.018800358000589767
+    },
+    {
+      "path": "/ownership/acquire",
+      "native": false,
+      "status": 409,
+      "wall_s": 0.01872311199986143
+    },
+    {
+      "path": "/ownership/acquire",
+      "native": false,
+      "status": 409,
+      "wall_s": 0.019097301999863703
+    },
+    {
+      "path": "/ownership/acquire",
+      "native": false,
+      "status": 409,
+      "wall_s": 0.00434599200161756
+    },
+    {
+      "path": "/ownership/acquire",
+      "native": false,
+      "status": 409,
+      "wall_s": 0.020226439999532886
+    },
+    {
+      "path": "/ownership/acquire",
+      "native": false,
+      "status": 409,
+      "wall_s": 0.019221509999624686
+    },
+    {
+      "path": "/ownership/acquire",
+      "native": false,
+      "status": 409,
+      "wall_s": 0.0018784370004141238
+    },
+    {
+      "path": "/ownership/acquire",
+      "native": false,
+      "status": 409,
+      "wall_s": 0.0015691670014348347
+    },
+    {
+      "path": "/ownership/acquire",
+      "native": false,
+      "status": 409,
+      "wall_s": 0.0018066810007439926
+    },
+    {
+      "path": "/ownership/release",
+      "native": false,
+      "status": 200,
+      "wall_s": 0.04584344599788892
+    },
+    {
+      "path": "/health",
+      "native": false,
+      "status": 200,
+      "wall_s": 0.02258757899835473
+    }
+  ],
+  "credentials_published": false,
+  "pass": true,
+  "version": "0.1.38",
+  "type": "controller",
+  "local_tests_passed": 51,
+  "earlier_probe": {
+    "checks": {
+      "model_loaded": true,
+      "chat_answer": true,
+      "responses_answer": true,
+      "restart_preserves_owner": false,
+      "return_stops_model": true,
+      "concurrent_acquire_single_winner": true,
+      "controller_remains_available": true,
+      "baseline_configs_unchanged": true
+    },
+    "interpretation": "The first restart probe terminated the complete controller process tree, including its child model. Holder state still remained; the running-model check was false. The corrected probe kills only the controller and validates both holder and model survival. Earlier evidence is retained."
+  },
+  "source_sha256": {
+    "src/service_access.py": "4690a1613f54680bcf707f61a5daa778fdb6ecea4172a73d3b1155c1ae745eea",
+    "src/native_service.py": "07a8ed9e2a0b3e97053efc0cd3c125c6c4b1e2056667318d33d065c04149b615",
+    "src/controller_backend.py": "be153239be6b1b0014a6036499005db9c934072bc75562cf4610e72d04c0ef19",
+    "src/responses_bridge.py": "f2a8ed50cf87d74513b8251c2dac3c2832e8ddd2406a21390d53044b206c47b5",
+    "src/windows_host.py": "e999492327a0b1a373cc1d594e966c763de6b20a630a660edbcfc9b4552f0d74",
+    "src/wsl_launcher.py": "54cf47c8e6afe71ed4c0bf6f2ee284a4d8356db36e2596f8ba5ba05b4a71e5a2"
+  }
+}

@@ -1,0 +1,362 @@
+{
+  "schema": 1,
+  "status": "closed-single-upgrade-smoke",
+  "configuration": {
+    "status": "user-selected-runtime-starting-point",
+    "selected_on": "2026-10-06",
+    "selected_by": "user",
+    "reason": "User selects high as the base running effort after observing shorter task times in the current effort comparison.",
+    "strata": {
+      "version": "0.1.40",
+      "commit": "1735d6471df29b42c26170efaac1f1446a58640f"
+    },
+    "start_options": {
+      "model": "Q2_0",
+      "engine_overrides": {
+        "prefill": 16384,
+        "kv": "int8",
+        "kv-resident": 20480,
+        "pool-workers": 23,
+        "pcie-frac": 0.0,
+        "spec": 4,
+        "spec-min-p": 0.7,
+        "expert-cache": "auto",
+        "vram-reserve-mib": 700,
+        "adapt-every": 4,
+        "adapt-swaps": 96,
+        "adapt-decay": 0.7,
+        "mtp-window": 32768,
+        "pcie-mode": "auto",
+        "expert-cache-per-layer": false,
+        "expert-cache-cpu-order": false,
+        "pool-affinity": "auto",
+        "ple-io": "direct",
+        "ple-inflight": 256,
+        "no-capture": false,
+        "no-host-worker": false,
+        "no-ple-prefetch": false,
+        "no-prefill-borrow": false,
+        "no-split-rows": false,
+        "no-coupled-draft": false,
+        "shared-late": false,
+        "keep-canonical": false,
+        "no-token-graph": false,
+        "no-fused-gr": false,
+        "no-hit-poke": false,
+        "ple-sync-submit": false,
+        "no-spec-split": false,
+        "gr-fp32-activations": false,
+        "ple-row-cache": 1048576,
+        "short-read": 64,
+        "suffix-draft": 3,
+        "mtp-max-t": 0,
+        "prompt-cache": 6,
+        "prompt-cache-every": 16384,
+        "prompt-cache-root": 2048,
+        "max-context": 156584
+      },
+      "engine_environment": {
+        "STRATA_HC_SPLIT": null,
+        "STRATA_ADAPT_NOWAIT": null,
+        "STRATA_SSD_KEEPALIVE": null
+      },
+      "request_defaults": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20,
+        "max_tokens": 24576,
+        "reasoning_budget_tokens": 8192,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "penalty_last_n": 64,
+        "reasoning_effort": "high"
+      }
+    },
+    "request_options": {
+      "responses": {
+        "model": "qwen3.8-flash-next-q2_0",
+        "reasoning": {
+          "effort": "high"
+        },
+        "max_output_tokens": 24576,
+        "temperature": 0.0,
+        "top_p": 1.0
+      },
+      "chat": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20,
+        "max_tokens": 24576,
+        "reasoning_budget_tokens": 8192,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "penalty_last_n": 64,
+        "reasoning_effort": "high",
+        "model": "qwen3.8-flash-next-q2_0"
+      }
+    },
+    "harness": {
+      "model_reasoning_effort": "high",
+      "model_context_window": 156584,
+      "model_auto_compact_token_limit": 100000,
+      "guardian_effort": "low",
+      "guardian_reasoning_budget_tokens": 2048,
+      "guardian_max_tokens": 8192
+    },
+    "profile": {
+      "choice": "default",
+      "installation_relative_path": "runtime/Strata/data/expert-profile.bin",
+      "sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "save_enabled": false
+    },
+    "parameter_origin": {
+      "file": "reports/v0.1.38/upgrade-cycle-20261003/baseline.json",
+      "sha256": "ada9da61fe092b296964cd2aa6c03457825000ed7d61ddcf5e7ab1c03ae89ffe",
+      "scope": "Other parameters inherited from the v0.1.38 published baseline; that historical file is unchanged."
+    },
+    "selection_evidence": "reports/v0.1.38/reasoning-effort-comparison/summary.md",
+    "qualification": "A user configuration choice, not v0.1.40 runtime acceptance or a newly completed parameter comparison. Historical measurements keep their original effort and budgets.",
+    "model_run_performed_for_selection": false
+  },
+  "protocol_sha256": "4ff1d3dab2db38e0fc9eaa758552978198aba22eff706705faf6cf6481a577c1",
+  "baseline_sha256": "243143d203c6c034f0df8f32919dea425e73f5ee62639190aafab76843a93ca8",
+  "base_prompt_sha256": {
+    "startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+    "prompt-policy/compact-prompt.txt": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912"
+  },
+  "pass": true,
+  "observations": 1,
+  "load_seconds": 14.295692646002863,
+  "work_seconds": 215.91931802678621,
+  "model_lifecycle_seconds": 233.67509937286377,
+  "stages": {
+    "chat": {
+      "started_at": 1791297924.1726544,
+      "pass": true,
+      "seconds": 2.7165244770003483,
+      "finished_at": 1791297926.8891797
+    },
+    "tool-first": {
+      "started_at": 1791297926.8893738,
+      "pass": true,
+      "seconds": 3.128731966979103,
+      "finished_at": 1791297930.0181065
+    },
+    "tool-result": {
+      "started_at": 1791297930.0185263,
+      "pass": true,
+      "seconds": 1.0429102860216517,
+      "finished_at": 1791297931.0614367
+    },
+    "search": {
+      "started_at": 1791297931.0617716,
+      "pass": true,
+      "seconds": 18.297875126998406,
+      "finished_at": 1791297949.3596473
+    },
+    "mcp": {
+      "started_at": 1791297949.6460316,
+      "pass": true,
+      "seconds": 65.6815009765625,
+      "turns": 1,
+      "finished_at": 1791298015.3286495
+    },
+    "guardian": {
+      "started_at": 1791298015.3287153,
+      "pass": true,
+      "seconds": 48.19386645507812,
+      "turns": 1,
+      "finished_at": 1791298063.5236032
+    },
+    "compact": {
+      "started_at": 1791298063.5237222,
+      "pass": true,
+      "seconds": 51.212970994005445,
+      "finished_at": 1791298114.7366939
+    },
+    "resume": {
+      "started_at": 1791298114.8806431,
+      "pass": true,
+      "seconds": 25.644937744140623,
+      "turns": 1,
+      "finished_at": 1791298140.5266209
+    }
+  },
+  "tokens": {
+    "uncached_input": 107544,
+    "cached_input": 38954,
+    "output": 3576
+  },
+  "internal_numeric_stages": [
+    {
+      "input": 558,
+      "cached": 0,
+      "uncached": 558,
+      "prompt_ms": 1423.0,
+      "output": 72,
+      "decode_ms": 1257.0,
+      "log_line": 39
+    },
+    {
+      "input": 749,
+      "cached": 0,
+      "uncached": 749,
+      "prompt_ms": 1680.0,
+      "output": 67,
+      "decode_ms": 1397.0,
+      "log_line": 43
+    },
+    {
+      "input": 840,
+      "cached": 815,
+      "uncached": 25,
+      "prompt_ms": 360.0,
+      "output": 29,
+      "decode_ms": 656.0,
+      "log_line": 47
+    },
+    {
+      "input": 891,
+      "cached": 0,
+      "uncached": 891,
+      "prompt_ms": 2015.0,
+      "output": 77,
+      "decode_ms": 1632.0,
+      "log_line": 51
+    },
+    {
+      "input": 3177,
+      "cached": 967,
+      "uncached": 2210,
+      "prompt_ms": 4655.0,
+      "output": 280,
+      "decode_ms": 5063.0,
+      "log_line": 55
+    },
+    {
+      "input": 15691,
+      "cached": 0,
+      "uncached": 15691,
+      "prompt_ms": 21624.0,
+      "output": 112,
+      "decode_ms": 2406.0,
+      "log_line": 60
+    },
+    {
+      "input": 16074,
+      "cached": 0,
+      "uncached": 16074,
+      "prompt_ms": 19791.0,
+      "output": 68,
+      "decode_ms": 1208.0,
+      "log_line": 64
+    },
+    {
+      "input": 16251,
+      "cached": 10414,
+      "uncached": 5837,
+      "prompt_ms": 7257.0,
+      "output": 49,
+      "decode_ms": 820.0,
+      "log_line": 67
+    },
+    {
+      "input": 16349,
+      "cached": 10414,
+      "uncached": 5935,
+      "prompt_ms": 7855.0,
+      "output": 221,
+      "decode_ms": 4153.0,
+      "log_line": 71
+    },
+    {
+      "input": 16646,
+      "cached": 16344,
+      "uncached": 302,
+      "prompt_ms": 1103.0,
+      "output": 106,
+      "decode_ms": 2081.0,
+      "log_line": 75
+    },
+    {
+      "input": 11717,
+      "cached": 0,
+      "uncached": 11717,
+      "prompt_ms": 16602.0,
+      "output": 212,
+      "decode_ms": 3994.0,
+      "log_line": 79
+    },
+    {
+      "input": 16805,
+      "cached": 0,
+      "uncached": 16805,
+      "prompt_ms": 19744.0,
+      "output": 210,
+      "decode_ms": 4216.0,
+      "log_line": 83
+    },
+    {
+      "input": 13602,
+      "cached": 0,
+      "uncached": 13602,
+      "prompt_ms": 17675.0,
+      "output": 1789,
+      "decode_ms": 33419.0,
+      "log_line": 87
+    },
+    {
+      "input": 17148,
+      "cached": 0,
+      "uncached": 17148,
+      "prompt_ms": 20307.0,
+      "output": 284,
+      "decode_ms": 5189.0,
+      "log_line": 91
+    }
+  ],
+  "engine_log_sha256": "cd4f1bf081d0ed27d2ea9ba79e6313cb9b7c917e2e2b1ba2b29a1d0fa0ad85c7",
+  "engine_input_seconds": 142.091,
+  "engine_decode_seconds": 67.491,
+  "engine_input_tokens_per_second": 756.8670781400651,
+  "engine_output_tokens_per_second": 52.98484242343424,
+  "unit": "token/s",
+  "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator",
+  "task_review_seconds": 215.91931802678621,
+  "task_input_tokens_per_second": 498.0749336502557,
+  "task_output_tokens_per_second": 16.561741824121423,
+  "main_inspection": {
+    "completed": true,
+    "completed_at": 1791298594.3328571,
+    "native_session_records": 100,
+    "native_responses_requests": 9,
+    "passive_http_records": 9,
+    "frontend_model_requests": 13,
+    "target_facts_passed": true,
+    "original_thread_retained": true,
+    "extra_continuations": 0,
+    "source_checks": "Exact fixture reads/refusal, original bound thread and provider/efforts, command and exit, compact target facts, native IDs and internal stages inspected.",
+    "vram_free_mib": 207,
+    "summary_caveats": [
+      "Dependency-free batching description does not match sequential native calls."
+    ],
+    "final_health": {
+      "status": "ok",
+      "ownership": "free",
+      "available": true
+    },
+    "result_sha256": "719dc0707762494f1d5c0d810de6f4a05788c872c0c8f64859ba917fe16fb1fb",
+    "not_arw_capability_session_inspection": true,
+    "total_elapsed_seconds": 1179.4825584888458,
+    "total_started_at": 1791297565.394,
+    "total_closed_at": 1791298744.8765585,
+    "total_time_source": "Current native Codex user message timestamp 2026-10-06T14:39:25.394Z to closure marker; includes rule writes, preparation, run, Main inspection, report and parallel next-stage source precheck.",
+    "tool_search_classification_correction": "A completed native tool_search_call confirms real discovery; it is a distinct response_item type, not function_call. Previous Main statement that it was unrecorded was incorrect."
+  },
+  "raw_evidence_boundary": "Full sessions, HTTP observations, tool results and logs stay in .tmp. This JSON retains full-precision numeric stages and conclusions independently; deleting details prevents replay/session reinspection."
+}

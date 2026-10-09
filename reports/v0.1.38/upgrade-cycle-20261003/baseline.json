@@ -1,0 +1,233 @@
+{
+  "status": "selected-maintenance-baseline",
+  "selected_on": "2026-10-04",
+  "scope": "Short-task parameter selection, user-approved default profile and 100K context threshold; four-role formal benchmark is owned by ARW. Current medium recommendation remains until user selects after reasoning-effort comparison. Not a proof of global optimum.",
+  "versions": {
+    "strata": {
+      "version": "0.1.38",
+      "commit": "99f3dbd0b21d1401b3769e0c0d963913607f380b"
+    },
+    "codex_measured": "0.160.0",
+    "codex_observed_at_publication": "codex-cli 0.160.0",
+    "arw_source_head": "aa16da0fe9bfed823f34ab0e1fc524360b59e982",
+    "arw_includes_uncommitted_files": true,
+    "arw_source_manifest_sha256": "56937c9b6172198941dda5ddea8dc7e777fe27cbe265f0e0df0befef03d8b72f"
+  },
+  "start_options": {
+    "model": "Q2_0",
+    "engine_overrides": {
+      "prefill": 16384,
+      "kv": "int8",
+      "kv-resident": 20480,
+      "pool-workers": 23,
+      "pcie-frac": 0.0,
+      "spec": 4,
+      "spec-min-p": 0.7,
+      "expert-cache": "auto",
+      "vram-reserve-mib": 700,
+      "adapt-every": 4,
+      "adapt-swaps": 96,
+      "adapt-decay": 0.7,
+      "mtp-window": 32768,
+      "pcie-mode": "auto",
+      "expert-cache-per-layer": false,
+      "expert-cache-cpu-order": false,
+      "pool-affinity": "auto",
+      "ple-io": "direct",
+      "ple-inflight": 256,
+      "no-capture": false,
+      "no-host-worker": false,
+      "no-ple-prefetch": false,
+      "no-prefill-borrow": false,
+      "no-split-rows": false,
+      "no-coupled-draft": false,
+      "shared-late": false,
+      "keep-canonical": false,
+      "no-token-graph": false,
+      "no-fused-gr": false,
+      "no-hit-poke": false,
+      "ple-sync-submit": false,
+      "no-spec-split": false,
+      "gr-fp32-activations": false,
+      "ple-row-cache": 1048576,
+      "short-read": 64,
+      "suffix-draft": 3,
+      "mtp-max-t": 0,
+      "prompt-cache": 6,
+      "prompt-cache-every": 16384,
+      "prompt-cache-root": 2048,
+      "max-context": 156584
+    },
+    "engine_environment": {
+      "STRATA_HC_SPLIT": null,
+      "STRATA_ADAPT_NOWAIT": null,
+      "STRATA_SSD_KEEPALIVE": null
+    },
+    "request_defaults": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 16384,
+      "reasoning_budget_tokens": 4096,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "medium"
+    }
+  },
+  "request_options": {
+    "responses": {
+      "model": "qwen3.8-flash-next-q2_0",
+      "reasoning": {
+        "effort": "medium"
+      },
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "max_output_tokens": 16384
+    },
+    "chat": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 16384,
+      "reasoning_budget_tokens": 4096,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "model": "qwen3.8-flash-next-q2_0",
+      "reasoning_effort": "medium"
+    }
+  },
+  "profile": {
+    "choice": "default",
+    "installation_relative_path": "runtime/Strata/data/expert-profile.bin",
+    "sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+    "save_enabled": false,
+    "trained_adopted": false,
+    "future_training": "Optional explicit experiment; not an automatic upgrade step."
+  },
+  "harness": {
+    "model_context_window": 156584,
+    "model_auto_compact_token_limit": 100000,
+    "approval_policy": "on-request",
+    "approvals_reviewer": "auto_review",
+    "permissions": "Frozen native ARW :read-only plus explicitly granted writes; optional stricter isolation remains disabled.",
+    "model_provider": "qwen_strata",
+    "auto_review_model_override": "qwen3.8-flash-next-q2_0",
+    "reviewer_instructions": "Frozen ARW canonical reviewer and role documents, unchanged.",
+    "guardian_effort": "low",
+    "guardian_preset_reasoning_budget_tokens": 2048,
+    "guardian_preset_max_output_tokens": 8192,
+    "web_search_tool_type": "text"
+  },
+  "startup_instructions": {
+    "installation_relative_path": "config/startup-instructions.txt",
+    "sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e"
+  },
+  "installation_defaults": {
+    "base_config": "config/q2_0-prebuilt.json",
+    "base_config_sha256": "fa3fdd34cddba8fb75954a67c7535a7a9129014f606b6373142a090eb03b7093",
+    "base_config_spec_min_p": 0.5,
+    "selection_requires_explicit_overrides": true,
+    "model_catalog_sha256": "2215cd0a354ae83f3a507623d35f44c3d04ebc88633d27a3f6cc3e4d4bfc225c"
+  },
+  "measurement": {
+    "repetitions_per_condition": 3,
+    "comparison": "Serial dimensions, no matrix; independent repeats, not paired profile observations.",
+    "reviewer_deadlines_minutes": {
+      "initial_reminder": 55,
+      "initial_stop": 60,
+      "followup_reminder": 10,
+      "followup_stop": 15
+    },
+    "mechanical_format_repair": "Main repairs separate copies; original formal failures retained; no extra reviewer revisions for formatting.",
+    "consumption_source": "Sum attributed raw engine read/reused/generated stages for initial review; include guardian and internal continuations; exclude returned-for-revision rounds.",
+    "equivalent_cost_usd_per_million": {
+      "uncached_input": 0.15,
+      "cached_input": 0.016,
+      "output": 0.47
+    }
+  },
+  "evidence": {
+    "parameters": "parameter-comparison.md",
+    "parameter_scope": "parameter-scope.md",
+    "profile_comparison": "profile-validation-first-pass.md",
+    "profile_full_precision": "profile-validation-first-pass.json",
+    "summary": "summary.md",
+    "context_comparison": "../context-comparison/summary.md"
+  },
+  "remaining": "Commit Audit reasoning-effort comparison: low, medium, high; five independent initial reviews each, 15 total. Fixed Q2_0/default and 100000 compaction threshold / 156584 context window. Requires estimated duration and a user-approved run plan before starting. Four-role formal benchmark is owned by ARW.",
+  "startup_instructions_revision": {
+    "date": "2026-10-05",
+    "user_decision": "Require task completion and an independent completion check before ending; honor stop, deadlines, verified blockers, and current compaction scope.",
+    "previous_startup_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+    "previous_baseline_sha256": "8ad9a38f93421cd7f66f0dc5dc056702f41f73867da00e7daf2d14e3edc31aa8",
+    "applies_to": "Future model starts only; all published context observations used the previous prompt.",
+    "model_behavior_validated": false,
+    "other_parameters_changed": false,
+    "context_configuration_selected": false
+  },
+  "context_selection": {
+    "date": "2026-10-05",
+    "selected_by": "user",
+    "auto_compact_token_limit": 100000,
+    "context_window": 156584,
+    "capacity_formula": {
+      "threshold": 100000,
+      "compaction_overrun_budget": 32000,
+      "highest_effort_output_budget": 24576,
+      "safety_slack": 8
+    },
+    "reasons": [
+      "Observed score and elapsed time offer a balanced choice.",
+      "All five included 100K quality observations delivered both reports; no reportless early termination in this group."
+    ],
+    "complete_observations": 5,
+    "included_quality_observations": 5,
+    "evidence_conditions": "Three old 100K/125000 observations plus two 100K/156584 observations; mixed means are descriptive, not five identical-condition repeats.",
+    "qualification": "Historical infrastructure failure and source/timely-write/formal-scoring failures remain recorded. Complete delivery does not imply formal capability acceptance.",
+    "scope": "Future maintenance baseline and four-role benchmark; historical measurements unchanged. Other callers choose their own configuration.",
+    "model_run_performed_for_selection": false,
+    "formal_four_role_acceptance_pending": true,
+    "previous_baseline_sha256": "267580633b0ccd8e00a433d7abef958f26e1f3cc5d7658b85658307ac75b0312"
+  },
+  "planned_reasoning_effort_comparison": {
+    "decided_on": "2026-10-06",
+    "status": "planned-not-started",
+    "scenario": "commit-audit",
+    "efforts": [
+      "low",
+      "medium",
+      "high"
+    ],
+    "repetitions_per_effort": 5,
+    "total_initial_review_instances": 15,
+    "fixed_model": "Q2_0",
+    "fixed_profile": "default",
+    "fixed_compaction_threshold": 100000,
+    "fixed_context_window": 156584,
+    "effort_presets": {
+      "low": {
+        "reasoning_budget_tokens": 2048,
+        "max_output_tokens": 8192
+      },
+      "medium": {
+        "reasoning_budget_tokens": 4096,
+        "max_output_tokens": 16384
+      },
+      "high": {
+        "reasoning_budget_tokens": 8192,
+        "max_output_tokens": 24576
+      }
+    },
+    "guardian_effort": "low",
+    "scoring": "Frozen ARW per-repetition scores; arithmetic mean over five independent repetition scores per effort. No custom per-case scoring.",
+    "previous_results_reused": false,
+    "run_plan_approval_pending": true,
+    "formal_four_role_benchmark_owner": "ARW"
+  }
+}

@@ -1,0 +1,2254 @@
+{
+  "schema": "context-comparison-retained-v1",
+  "units": {
+    "time": "seconds",
+    "tokens": "integer tokens",
+    "compaction_time": "seconds"
+  },
+  "prices_usd_per_million": {
+    "uncached_input": 0.15,
+    "cached_input": 0.016,
+    "output": 0.47
+  },
+  "baseline_sha256": "8ad9a38f93421cd7f66f0dc5dc056702f41f73867da00e7daf2d14e3edc31aa8",
+  "frozen_source_manifest_sha256": "56937c9b6172198941dda5ddea8dc7e777fe27cbe265f0e0df0befef03d8b72f",
+  "frozen_native_source_head": "aa16da0fe9bfed823f34ab0e1fc524360b59e982",
+  "verified_frozen_files": 187,
+  "rows": [
+    {
+      "identifier": "64k-120584-original-1",
+      "configuration": "64k-120584",
+      "observation": "第1次",
+      "threshold": 64000,
+      "context_window": 120584,
+      "score": 0.5159094762936917,
+      "seconds": 1645.491,
+      "tokens": {
+        "uncached_input": 1484527,
+        "cached_input": 2047895,
+        "output": 140460
+      },
+      "equivalent_cost_usd": 0.32146157000000003,
+      "review_outcome": "complete",
+      "submitted_tasks": 2,
+      "score_kind": "diagnostic",
+      "native_formal_status": "failed",
+      "successful_compaction_count": 6,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 490.379,
+      "decode_seconds": 1133.515,
+      "native_pass_count": 79,
+      "completed_responses": 69,
+      "tool_call_count": 98,
+      "exact_call_extra_repeats": 6,
+      "tool_visible_failure_count": 3,
+      "action_durations_seconds": [
+        85.204,
+        55.641,
+        70.828,
+        65.199,
+        64.066,
+        52.333
+      ],
+      "compaction_wall_seconds": 393.271,
+      "no_summary_compaction_requests": 0,
+      "no_summary_compaction_engine_seconds": 0.0,
+      "explicit_compaction_error_events": 0,
+      "http_attribution_gap_actions": 0,
+      "evidence": {
+        "results_sha256": "f3789a08361c4e5b2f83febaf1895a428e718c2bbbf4fa2b396d1b4c5bfd5c11",
+        "engine_log_sha256": "211a68d4548cc2bfd2e49bd912ca99d11d0f681ea02e05bf8cdd2646711b35f9",
+        "history_sha256": "1461ddc7562185c08bbf2a7a9785ea2ef9ff79464f3c06a05b9308be7dc55132",
+        "reviewer_thread": "01a10a8a-7b4b-72a0-b585-85864be4a011"
+      },
+      "prompt_policy": {
+        "policy": "project-base-plus-supplements",
+        "rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+        "sources": [
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/config/compact_prompt.txt",
+            "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+          },
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/config/codex-default-compact-prompt.txt",
+            "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+          }
+        ],
+        "bridge_failure_terminal": "response.failed"
+      },
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "passed",
+        "issue_codes": []
+      },
+      "input_tokens_per_second": 3027.3054107129383,
+      "output_tokens_per_second": 123.91543120293952
+    },
+    {
+      "identifier": "64k-120584-original-2",
+      "configuration": "64k-120584",
+      "observation": "第2次",
+      "threshold": 64000,
+      "context_window": 120584,
+      "score": 0.5098051791382034,
+      "seconds": 3462.222,
+      "tokens": {
+        "uncached_input": 3152465,
+        "cached_input": 4204682,
+        "output": 292958
+      },
+      "equivalent_cost_usd": 0.6778349220000001,
+      "review_outcome": "complete",
+      "submitted_tasks": 2,
+      "score_kind": "diagnostic",
+      "native_formal_status": "failed",
+      "successful_compaction_count": 13,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 1040.52,
+      "decode_seconds": 2378.598,
+      "native_pass_count": 164,
+      "completed_responses": 141,
+      "tool_call_count": 189,
+      "exact_call_extra_repeats": 29,
+      "tool_visible_failure_count": 3,
+      "action_durations_seconds": [
+        75.219,
+        57.908,
+        124.222,
+        89.075,
+        55.598,
+        65.784,
+        73.265,
+        64.253,
+        65.411,
+        62.849,
+        47.688,
+        49.886,
+        51.612
+      ],
+      "compaction_wall_seconds": 882.77,
+      "no_summary_compaction_requests": null,
+      "no_summary_compaction_engine_seconds": null,
+      "explicit_compaction_error_events": 0,
+      "http_attribution_gap_actions": 5,
+      "evidence": {
+        "results_sha256": "6fcc12096ab34548ec2239e30d48f35c0f90c1900a9123371056676674226b73",
+        "engine_log_sha256": "b7503692f3e240e54eb024d6eaa8fa0285ea4d058e3302de3b2ce479ee1a666c",
+        "history_sha256": "2f9862e7e11c41582fe308475567b6efeb05a85bd1885694d0f6766bf24a3df6",
+        "reviewer_thread": "01a10aa3-eeba-7450-a715-0b11793c0cb0"
+      },
+      "prompt_policy": {
+        "policy": "project-base-plus-supplements",
+        "rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+        "sources": [
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/config/compact_prompt.txt",
+            "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+          },
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/config/codex-default-compact-prompt.txt",
+            "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+          }
+        ],
+        "bridge_failure_terminal": "response.failed"
+      },
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "passed",
+        "issue_codes": []
+      },
+      "input_tokens_per_second": 3029.7014954061433,
+      "output_tokens_per_second": 123.16414963772777,
+      "model_generations_without_summary": 0,
+      "no_summary_count_limit": "The all-HTTP metric is unknown for five actions; JSONL plus all internal stages establish zero model generations without summary."
+    },
+    {
+      "identifier": "64k-120584-original-3",
+      "configuration": "64k-120584",
+      "observation": "第3次（未交付，仅第一阶段）",
+      "threshold": 64000,
+      "context_window": 120584,
+      "score": 0,
+      "seconds": 522.078,
+      "tokens": {
+        "uncached_input": 465058,
+        "cached_input": 755986,
+        "output": 43901
+      },
+      "equivalent_cost_usd": 0.102487946,
+      "review_outcome": "incomplete-no-report",
+      "submitted_tasks": 1,
+      "score_kind": "diagnostic",
+      "native_formal_status": "failed",
+      "successful_compaction_count": 2,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 157.566,
+      "decode_seconds": 358.179,
+      "native_pass_count": 29,
+      "completed_responses": 25,
+      "tool_call_count": 37,
+      "exact_call_extra_repeats": 0,
+      "tool_visible_failure_count": 2,
+      "action_durations_seconds": [
+        90.62,
+        65.676
+      ],
+      "compaction_wall_seconds": 156.296,
+      "no_summary_compaction_requests": 0,
+      "no_summary_compaction_engine_seconds": 0.0,
+      "explicit_compaction_error_events": 0,
+      "http_attribution_gap_actions": 0,
+      "evidence": {
+        "results_sha256": "738410d99a8571f70d5b4e1ac41258b4209fb22909cec9b9e3c1f1a27c0e96cd",
+        "engine_log_sha256": "7edff1cd92e546becad7a5ad1a7ac713238aa3e49a760fe78498f20fd7430899",
+        "history_sha256": "2cab68445117d434b4fd3b788e398b948564c673ce2c6d5207318e5cf1d3b64b",
+        "reviewer_thread": "01a10ad9-141a-7d80-8ac2-4a09ba093691"
+      },
+      "prompt_policy": {
+        "policy": "project-base-plus-supplements",
+        "rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+        "sources": [
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/config/compact_prompt.txt",
+            "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+          },
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/config/codex-default-compact-prompt.txt",
+            "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+          }
+        ],
+        "bridge_failure_terminal": "response.failed"
+      },
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "failed",
+        "issue_codes": [
+          "required-report-not-delivered"
+        ]
+      },
+      "input_tokens_per_second": 2951.5123821128923,
+      "output_tokens_per_second": 122.56720801610369
+    },
+    {
+      "identifier": "64k-120584-extra-1",
+      "configuration": "64k-120584",
+      "score": 0.6110908930919533,
+      "seconds": 4120.098,
+      "tokens": {
+        "uncached_input": 3254828,
+        "cached_input": 5164297,
+        "output": 364177
+      },
+      "review_outcome": "complete",
+      "submitted_tasks": 2,
+      "successful_compaction_count": 15,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 1081.517,
+      "decode_seconds": 2994.3,
+      "native_pass_count": 179,
+      "completed_responses": 139,
+      "tool_call_count": 203,
+      "exact_call_extra_repeats": 57,
+      "tool_visible_failure_count": 4,
+      "observation": "补跑第1次",
+      "threshold": 64000,
+      "context_window": 120584,
+      "equivalent_cost_usd": 0.742016142,
+      "score_kind": "diagnostic",
+      "native_formal_status": "failed",
+      "action_durations_seconds": [
+        80.325,
+        78.563,
+        75.053,
+        82.869,
+        71.245,
+        144.963,
+        80.901,
+        98.841,
+        88.937,
+        89.698,
+        64.815,
+        67.694,
+        81.918,
+        88.474,
+        87.89
+      ],
+      "compaction_wall_seconds": 1282.186,
+      "no_summary_compaction_requests": 1,
+      "no_summary_compaction_engine_seconds": 66.605,
+      "explicit_compaction_error_events": 0,
+      "http_attribution_gap_actions": 0,
+      "evidence": {
+        "results_sha256": "4933e9ff3c11319c03ab0e6e2b9af332e920c24b4bdd810a14bbbc666cddea61",
+        "engine_log_sha256": "0b0d70e4a78216dff3eabf0e98ed5fe15498aabf3d27edf925099adf2279b218",
+        "history_sha256": "af201831a4e24fea5a2c0011465e4ae44303dae2cfc5bdf1089392dd6c7c31bf",
+        "reviewer_thread": "01a10b09-7c5e-7ad0-aed7-ed38319614e7"
+      },
+      "prompt_policy": {
+        "policy": "project-base-plus-supplements",
+        "sources": [
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/config/compact_prompt.txt",
+            "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+          },
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/tools/resources/codex/0.160.0/compact-prompt.txt",
+            "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+          }
+        ],
+        "rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+        "bridge_failure_terminal": "response.failed"
+      },
+      "input_tokens_per_second": 3009.502393397422,
+      "output_tokens_per_second": 121.62341782720502,
+      "replacement_of": "64k-120584-original-3",
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "failed",
+        "issue_codes": [
+          "late-finding-write",
+          "late-finding-write-runtime"
+        ]
+      }
+    },
+    {
+      "identifier": "100k-125k-original-1",
+      "configuration": "100k-125k",
+      "observation": "原第1次",
+      "score": 0.5985797679509832,
+      "seconds": 2186.989,
+      "tokens": {
+        "uncached_input": 2458119,
+        "cached_input": 3243666,
+        "output": 163119
+      },
+      "equivalent_cost_usd": 0.497282436,
+      "review_outcome": "complete",
+      "score_kind": "formal",
+      "native_formal_status": "failed",
+      "score_gate": "failed",
+      "mandatory_gate": "passed",
+      "successful_compaction_count": 3,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 778.307,
+      "decode_seconds": 1386.601,
+      "native_pass_count": 88,
+      "completed_responses": 66,
+      "tool_call_count": 90,
+      "exact_call_extra_repeats": 4,
+      "tool_visible_failure_count": 6,
+      "action_durations_seconds": [
+        71.951,
+        77.915,
+        46.908
+      ],
+      "compaction_wall_seconds": 196.774,
+      "no_summary_compaction_requests": 0,
+      "no_summary_compaction_engine_seconds": 0.0,
+      "explicit_compaction_error_events": 0,
+      "evidence": {
+        "results_sha256": "3edcc722fc4f8bfb29e97c69063931e06c8c0b77a1ddc339dbd7cd8fb933b55b",
+        "engine_log_sha256": "02d9a3e05cbfc8a892703c16fa24bd66cf50fe8a685d673628bdacaeb56a6e73",
+        "history_sha256": "87f794b9212583ce97c08bcd7c760ac17fa476cfea2bb10d72ea1fe8d3e76e64",
+        "reviewer_thread": "01a106ff-3566-7d83-ae74-4d670601fa84"
+      },
+      "input_tokens_per_second": 3158.2897237208454,
+      "output_tokens_per_second": 117.63946513813273,
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "passed",
+        "issue_codes": []
+      }
+    },
+    {
+      "identifier": "100k-125k-original-2",
+      "configuration": "100k-125k",
+      "observation": "原第2次",
+      "score": 0.5414099745919534,
+      "seconds": 2820.188,
+      "tokens": {
+        "uncached_input": 2096840,
+        "cached_input": 3507758,
+        "output": 160215
+      },
+      "equivalent_cost_usd": 0.445951178,
+      "review_outcome": "complete",
+      "score_kind": "formal",
+      "native_formal_status": "failed",
+      "score_gate": "failed",
+      "mandatory_gate": "passed",
+      "successful_compaction_count": 3,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 1284.543,
+      "decode_seconds": 1502.049,
+      "native_pass_count": 83,
+      "completed_responses": 58,
+      "tool_call_count": 80,
+      "exact_call_extra_repeats": 1,
+      "tool_visible_failure_count": 2,
+      "action_durations_seconds": [
+        102.91,
+        253.832,
+        82.636
+      ],
+      "compaction_wall_seconds": 439.378,
+      "no_summary_compaction_requests": 3,
+      "no_summary_compaction_engine_seconds": 192.612,
+      "explicit_compaction_error_events": 0,
+      "evidence": {
+        "results_sha256": "896861cb8cade8289637304c90ae3c044a7185ad4e0b59dfa132e2a40cc933c7",
+        "engine_log_sha256": "86f9ddc247f3c5c46b115490f1064a08aa3d1e357cf00861ccb941961e3bdd5a",
+        "history_sha256": "1d44a4fb840ddb13a9b3bca82f5d925d471069480b5e0ccc2a68c63bd49cc16e",
+        "reviewer_thread": "01a10749-fc8c-70c1-9520-a8ab2e67e3fb"
+      },
+      "input_tokens_per_second": 1632.3626379186996,
+      "output_tokens_per_second": 106.66429657088418,
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "passed",
+        "issue_codes": []
+      }
+    },
+    {
+      "identifier": "100k-125k-original-3",
+      "configuration": "100k-125k",
+      "observation": "原第3次",
+      "score": 0.691200780606827,
+      "seconds": 2301.716,
+      "tokens": {
+        "uncached_input": 1997351,
+        "cached_input": 4375093,
+        "output": 187522
+      },
+      "equivalent_cost_usd": 0.4577394779999999,
+      "review_outcome": "complete",
+      "score_kind": "formal",
+      "native_formal_status": "failed",
+      "score_gate": "failed",
+      "mandatory_gate": "passed",
+      "successful_compaction_count": 4,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 653.43,
+      "decode_seconds": 1616.497,
+      "native_pass_count": 99,
+      "completed_responses": 67,
+      "tool_call_count": 93,
+      "exact_call_extra_repeats": 8,
+      "tool_visible_failure_count": 0,
+      "action_durations_seconds": [
+        56.62,
+        61.034,
+        324.38,
+        51.393
+      ],
+      "compaction_wall_seconds": 493.427,
+      "no_summary_compaction_requests": 5,
+      "no_summary_compaction_engine_seconds": 263.788,
+      "explicit_compaction_error_events": 0,
+      "evidence": {
+        "results_sha256": "e4e3415c686c022cb27e92fa3f1400b9e6bbe9bd18a340e14a0c3c83cac498af",
+        "engine_log_sha256": "d7eadd4ae7fd902165fd99955c831ef5387d1bd3388898b808082e9f254bb31b",
+        "history_sha256": "a584146eca755b4de66e2d46e38d6352f566c9ea02b5452af108bf95984bc730",
+        "reviewer_thread": "01a107a4-146e-74f1-83b0-c12920126ca8"
+      },
+      "input_tokens_per_second": 3056.7176285141486,
+      "output_tokens_per_second": 116.0051642533206,
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "passed",
+        "issue_codes": []
+      }
+    },
+    {
+      "identifier": "100k-156584-新增第1",
+      "configuration": "100k-156584",
+      "observation": "新增第1次",
+      "score": 0.5484791683696794,
+      "seconds": 2827.856,
+      "tokens": {
+        "uncached_input": 2423076,
+        "cached_input": 5172503,
+        "output": 233080
+      },
+      "review_outcome": "complete",
+      "submitted_tasks": 2,
+      "successful_compaction_count": 5,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 811.709,
+      "decode_seconds": 1986.482,
+      "native_pass_count": 120,
+      "completed_responses": 86,
+      "tool_call_count": 126,
+      "exact_call_extra_repeats": 12,
+      "tool_visible_failure_count": 2,
+      "threshold": 100000,
+      "context_window": 156584,
+      "threshold_observation_index": 4,
+      "condition_group": "new-base-compact-prompt-and-capacity",
+      "score_kind": "diagnostic",
+      "native_formal_status": "not-a-complete-three-repetition-batch",
+      "native_scoring_status": "diagnostic",
+      "equivalent_cost_usd": 0.5557690479999999,
+      "action_durations_seconds": [
+        78.293,
+        100.535,
+        113.906,
+        85.389,
+        77.225
+      ],
+      "compaction_wall_seconds": 455.348,
+      "no_summary_compaction_requests": 0,
+      "no_summary_compaction_engine_seconds": 0.0,
+      "explicit_compaction_error_events": 0,
+      "http_attribution_gap_actions": 0,
+      "evidence": {
+        "results_sha256": "ff4635f6c33ffb2e8d291240987aeb97f0c4c8f5b6db9d1420ee35e487653d18",
+        "engine_log_sha256": "fe25df48efc86beee367307db85f1e7ba6bd5d3b480262a9698166c7285d0e67",
+        "history_sha256": "fffca865348616d6af962eee2403c05e6d506699c77750e18e329835089350b5",
+        "reviewer_thread": "01a10b9d-59d4-72b0-bb0e-a01e4a102263"
+      },
+      "input_tokens_per_second": 2985.1535464064095,
+      "output_tokens_per_second": 117.33305411274807,
+      "prompt_policy": {
+        "policy": "project-base-plus-supplements",
+        "sources": [
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/config/compact_prompt.txt",
+            "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+          },
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/tools/resources/codex/0.160.0/compact-prompt.txt",
+            "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+          }
+        ],
+        "rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+        "bridge_failure_terminal": "response.failed"
+      },
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "failed-attempt-no-content-observed",
+        "session_inspection_status": "failed",
+        "issue_codes": [
+          "delayed-finding-write-stage-1",
+          "delayed-finding-write-stage-2",
+          "failed-read-outside-request-snapshot"
+        ]
+      }
+    },
+    {
+      "identifier": "100k-156584-新增第2",
+      "configuration": "100k-156584",
+      "observation": "新增第2次",
+      "score": 0.5439230085275412,
+      "seconds": 1556.493,
+      "tokens": {
+        "uncached_input": 1674369,
+        "cached_input": 2226986,
+        "output": 116259
+      },
+      "review_outcome": "complete",
+      "submitted_tasks": 2,
+      "successful_compaction_count": 3,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 554.89,
+      "decode_seconds": 985.51,
+      "native_pass_count": 65,
+      "completed_responses": 51,
+      "tool_call_count": 77,
+      "exact_call_extra_repeats": 4,
+      "tool_visible_failure_count": 2,
+      "threshold": 100000,
+      "context_window": 156584,
+      "threshold_observation_index": 5,
+      "condition_group": "new-base-compact-prompt-and-capacity",
+      "score_kind": "diagnostic",
+      "native_formal_status": "not-a-complete-three-repetition-batch",
+      "native_scoring_status": "diagnostic",
+      "equivalent_cost_usd": 0.34142885599999995,
+      "action_durations_seconds": [
+        97.459,
+        101.156,
+        69.197
+      ],
+      "compaction_wall_seconds": 267.812,
+      "no_summary_compaction_requests": 0,
+      "no_summary_compaction_engine_seconds": 0.0,
+      "explicit_compaction_error_events": 0,
+      "http_attribution_gap_actions": 0,
+      "evidence": {
+        "results_sha256": "257dab6f3eecf8f49202a8368fbf9c77c6350e9b819ba25b643cb923c082b98b",
+        "engine_log_sha256": "75a91160a5fd96b1fa8157a53ab3251f6998e1f8bfd973b0c2ff13e7dbcefb34",
+        "history_sha256": "9154efbc5b5d799c542b29011450e3e114cfb1e6cd5ea7bda33bb668fcf34732",
+        "reviewer_thread": "01a10bc8-d5a6-7ba0-aa01-c2708db71016"
+      },
+      "input_tokens_per_second": 3017.4791400097315,
+      "output_tokens_per_second": 117.96836155898977,
+      "prompt_policy": {
+        "policy": "project-base-plus-supplements",
+        "sources": [
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/config/compact_prompt.txt",
+            "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+          },
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/tools/resources/codex/0.160.0/compact-prompt.txt",
+            "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+          }
+        ],
+        "rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+        "bridge_failure_terminal": "response.failed"
+      },
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "failed",
+        "issue_codes": [
+          "delayed-finding-write-stage-1",
+          "delayed-finding-write-stage-2"
+        ]
+      }
+    },
+    {
+      "identifier": "150k-188k-original-1",
+      "configuration": "150k-188k",
+      "observation": "原第1次",
+      "score": 0.5016637532645294,
+      "seconds": 1577.5,
+      "tokens": {
+        "uncached_input": 1635891,
+        "cached_input": 3481830,
+        "output": 113731
+      },
+      "equivalent_cost_usd": 0.3545465,
+      "review_outcome": "complete",
+      "score_kind": "diagnostic",
+      "native_formal_status": "failed",
+      "score_gate": "failed",
+      "mandatory_gate": "passed",
+      "successful_compaction_count": 2,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 551.341,
+      "decode_seconds": 1006.449,
+      "native_pass_count": 66,
+      "completed_responses": 48,
+      "tool_call_count": 69,
+      "exact_call_extra_repeats": 3,
+      "tool_visible_failure_count": 1,
+      "action_durations_seconds": [
+        92.098,
+        82.486
+      ],
+      "compaction_wall_seconds": 174.584,
+      "no_summary_compaction_requests": 0,
+      "no_summary_compaction_engine_seconds": 0.0,
+      "explicit_compaction_error_events": 0,
+      "evidence": {
+        "results_sha256": "161b8ba7e839a8571b8a8566fa1d02236095b37ac18d3218955cd709847937be",
+        "engine_log_sha256": "fc61a4f90e330c025cb5b907c1cbf31c60d4f554286bc1a2e631c016e9ec2037",
+        "history_sha256": "b534887c3d806a5411e1ab9e945b17f89bdab985cdd27eacaeb97481d2994000",
+        "reviewer_thread": "01a107cb-3454-71a3-9bd5-e27324c8c3f1"
+      },
+      "input_tokens_per_second": 2967.112911972808,
+      "output_tokens_per_second": 113.0022484994272,
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "passed",
+        "issue_codes": []
+      }
+    },
+    {
+      "identifier": "150k-188k-original-2",
+      "configuration": "150k-188k",
+      "observation": "原第2次",
+      "score": 0.5783956335208503,
+      "seconds": 2800.199,
+      "tokens": {
+        "uncached_input": 3235388,
+        "cached_input": 4507679,
+        "output": 194427
+      },
+      "equivalent_cost_usd": 0.6488117539999999,
+      "review_outcome": "complete",
+      "score_kind": "diagnostic",
+      "native_formal_status": "failed",
+      "score_gate": "failed",
+      "mandatory_gate": "passed",
+      "successful_compaction_count": 2,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 1083.884,
+      "decode_seconds": 1687.822,
+      "native_pass_count": 90,
+      "completed_responses": 62,
+      "tool_call_count": 83,
+      "exact_call_extra_repeats": 15,
+      "tool_visible_failure_count": 1,
+      "action_durations_seconds": [
+        85.464,
+        100.393
+      ],
+      "compaction_wall_seconds": 185.857,
+      "no_summary_compaction_requests": 0,
+      "no_summary_compaction_engine_seconds": 0.0,
+      "explicit_compaction_error_events": 0,
+      "evidence": {
+        "results_sha256": "c6330bcc356f8ff569621db1f1ba3ac269c8492d8336938976c86b6151da1c48",
+        "engine_log_sha256": "6b2f1a0a2a0737d1b0df757c1301b622a4bbceaa0fd3bf478c55d30d492249f1",
+        "history_sha256": "7d3cc374dd13288862132dbc386425741b7398e91ca74a7145a84c6e40d0db2b",
+        "reviewer_thread": "01a107e3-9845-73c2-a794-11c4c02bdcdc"
+      },
+      "input_tokens_per_second": 2984.994704230342,
+      "output_tokens_per_second": 115.19401927454436,
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "passed",
+        "issue_codes": []
+      }
+    },
+    {
+      "identifier": "150k-188k-original-3",
+      "configuration": "150k-188k",
+      "observation": "原第3次",
+      "score": 0.546272136790096,
+      "seconds": 2453.792,
+      "tokens": {
+        "uncached_input": 2804079,
+        "cached_input": 5056611,
+        "output": 166823
+      },
+      "equivalent_cost_usd": 0.579924436,
+      "review_outcome": "complete",
+      "score_kind": "diagnostic",
+      "native_formal_status": "failed",
+      "score_gate": "failed",
+      "mandatory_gate": "passed",
+      "successful_compaction_count": 2,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 935.359,
+      "decode_seconds": 1493.095,
+      "native_pass_count": 90,
+      "completed_responses": 62,
+      "tool_call_count": 89,
+      "exact_call_extra_repeats": 7,
+      "tool_visible_failure_count": 1,
+      "action_durations_seconds": [
+        151.091,
+        72.135
+      ],
+      "compaction_wall_seconds": 223.226,
+      "no_summary_compaction_requests": 1,
+      "no_summary_compaction_engine_seconds": 92.009,
+      "explicit_compaction_error_events": 0,
+      "evidence": {
+        "results_sha256": "07de6d084ce378cd42b0d06894d893c112f2999e7848cf4c9ca45c33830edcab",
+        "engine_log_sha256": "8c422ee971e269fd2a96e922e6285882fd9aa5584b06a3320110c2f2ca733ec2",
+        "history_sha256": "ea41eb6d7ddf2698d73990cee8ad4486f03b42e1d2f6acdbd0be0059b37ed5b7",
+        "reviewer_thread": "01a1080e-a8ae-7db2-93c6-1090ef32ede7"
+      },
+      "input_tokens_per_second": 2997.8639217669365,
+      "output_tokens_per_second": 111.7296622117146,
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "failed",
+        "session_inspection_status": "failed",
+        "issue_codes": [
+          "request-snapshot-source-violation"
+        ]
+      }
+    },
+    {
+      "identifier": "150k-206584-新增第1",
+      "configuration": "150k-206584",
+      "observation": "新增第1次",
+      "score": 0,
+      "seconds": 528.483,
+      "tokens": {
+        "uncached_input": 386513,
+        "cached_input": 1819456,
+        "output": 45788
+      },
+      "review_outcome": "incomplete-no-report",
+      "submitted_tasks": 1,
+      "successful_compaction_count": 0,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 136.017,
+      "decode_seconds": 385.632,
+      "native_pass_count": 26,
+      "completed_responses": 17,
+      "tool_call_count": 32,
+      "exact_call_extra_repeats": 10,
+      "tool_visible_failure_count": 0,
+      "threshold": 150000,
+      "context_window": 206584,
+      "threshold_observation_index": 4,
+      "condition_group": "new-base-compact-prompt-and-capacity",
+      "score_kind": "diagnostic",
+      "native_formal_status": "not-a-complete-three-repetition-batch",
+      "native_scoring_status": "diagnostic",
+      "equivalent_cost_usd": 0.108608606,
+      "action_durations_seconds": [],
+      "compaction_wall_seconds": 0,
+      "no_summary_compaction_requests": 0,
+      "no_summary_compaction_engine_seconds": 0,
+      "explicit_compaction_error_events": 0,
+      "http_attribution_gap_actions": 0,
+      "evidence": {
+        "results_sha256": "37c0aef9493c7cd1ea4c80f03593fe1ec0b8e5decf29e07001e453ef3a670df8",
+        "engine_log_sha256": "d00198b16ddd0b8cb38524215581a90fdecd6d511c8e4c9a2bb02fca62baedc4",
+        "history_sha256": "dd0294982ae60568c9436e48e5a63c0bd30764a60b3a9acd9011e97c4cf0a529",
+        "reviewer_thread": "01a10be0-e729-70c0-b824-50fba3e6e8fa"
+      },
+      "input_tokens_per_second": 2841.6521464228736,
+      "output_tokens_per_second": 118.73495975437723,
+      "prompt_policy": {
+        "policy": "project-base-plus-supplements",
+        "sources": [
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/config/compact_prompt.txt",
+            "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+          },
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/tools/resources/codex/0.160.0/compact-prompt.txt",
+            "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+          }
+        ],
+        "rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+        "bridge_failure_terminal": "response.failed"
+      },
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "failed",
+        "issue_codes": [
+          "missing-bound-report-stage-1",
+          "delayed-finding-write-stage-1"
+        ]
+      }
+    },
+    {
+      "identifier": "150k-206584-新增第2",
+      "configuration": "150k-206584",
+      "observation": "新增第2次",
+      "score": 0.5897707148550421,
+      "seconds": 2220.759,
+      "tokens": {
+        "uncached_input": 2311051,
+        "cached_input": 4511428,
+        "output": 159074
+      },
+      "review_outcome": "complete",
+      "submitted_tasks": 2,
+      "successful_compaction_count": 2,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 786.035,
+      "decode_seconds": 1412.829,
+      "native_pass_count": 83,
+      "completed_responses": 56,
+      "tool_call_count": 78,
+      "exact_call_extra_repeats": 10,
+      "tool_visible_failure_count": 2,
+      "threshold": 150000,
+      "context_window": 206584,
+      "threshold_observation_index": 5,
+      "condition_group": "new-base-compact-prompt-and-capacity",
+      "score_kind": "diagnostic",
+      "native_formal_status": "not-a-complete-three-repetition-batch",
+      "native_scoring_status": "diagnostic",
+      "equivalent_cost_usd": 0.4936052779999999,
+      "action_durations_seconds": [
+        101.513,
+        98.93
+      ],
+      "compaction_wall_seconds": 200.443,
+      "no_summary_compaction_requests": 0,
+      "no_summary_compaction_engine_seconds": 0.0,
+      "explicit_compaction_error_events": 0,
+      "http_attribution_gap_actions": 0,
+      "evidence": {
+        "results_sha256": "9796092bd2d9d84825a92ce3a94df7874a1a121a67e8f0f2c78c81e9f3cb9938",
+        "engine_log_sha256": "c27cb5d5c55490fcdc714a03c45fc03da0c6cb2d8d87637c3fbb5d8ae7f800ae",
+        "history_sha256": "5db7161ac9e137653e27315000b5b1e9e48c4231cf5e823b34a29deb219e2aa3",
+        "reviewer_thread": "01a10bec-daa9-79b2-a47e-859ab50cf15f"
+      },
+      "input_tokens_per_second": 2940.1375256826987,
+      "output_tokens_per_second": 112.59253596861333,
+      "prompt_policy": {
+        "policy": "project-base-plus-supplements",
+        "sources": [
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/config/compact_prompt.txt",
+            "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+          },
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/tools/resources/codex/0.160.0/compact-prompt.txt",
+            "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+          }
+        ],
+        "rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+        "bridge_failure_terminal": "response.failed"
+      },
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "failed",
+        "issue_codes": [
+          "delayed-finding-write-stage-1",
+          "delayed-finding-write-stage-2"
+        ]
+      }
+    },
+    {
+      "identifier": "150k-206584-补跑第1",
+      "configuration": "150k-206584",
+      "observation": "补跑第1次",
+      "score": 0.5777952678564517,
+      "seconds": 3901.088,
+      "tokens": {
+        "uncached_input": 4571547,
+        "cached_input": 7174063,
+        "output": 259923
+      },
+      "review_outcome": "complete",
+      "submitted_tasks": 2,
+      "successful_compaction_count": 3,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 1539.853,
+      "decode_seconds": 2320.945,
+      "native_pass_count": 131,
+      "completed_responses": 89,
+      "tool_call_count": 133,
+      "exact_call_extra_repeats": 18,
+      "tool_visible_failure_count": 2,
+      "threshold": 150000,
+      "context_window": 206584,
+      "threshold_observation_index": 6,
+      "condition_group": "new-base-compact-prompt-and-capacity",
+      "score_kind": "diagnostic",
+      "native_formal_status": "original-failure-preserved-diagnostic-only",
+      "native_scoring_status": "diagnostic",
+      "equivalent_cost_usd": 0.922680868,
+      "action_durations_seconds": [
+        113.293,
+        110.457,
+        105.58
+      ],
+      "compaction_wall_seconds": 329.33,
+      "no_summary_compaction_requests": 0,
+      "no_summary_compaction_engine_seconds": 0.0,
+      "explicit_compaction_error_events": 0,
+      "http_attribution_gap_actions": 0,
+      "evidence": {
+        "results_sha256": "f40f109980b36c7a1c18e946efc12b6f9f73db8068bb44cab14cf0b1d1328a7e",
+        "engine_log_sha256": "b48d6275d66f6235ce7c046f91261a6718a27f3fc59252a507d9a1375fc832b3",
+        "history_sha256": "0f2a5245d1810970895280fcde1edca4bff7cb9f627ba4dae864e1ceeaf9d510",
+        "reviewer_thread": "01a10c29-0fb7-74a0-97db-b110b2af040a"
+      },
+      "input_tokens_per_second": 2968.820400388868,
+      "output_tokens_per_second": 111.9901591808509,
+      "prompt_policy": {
+        "policy": "project-base-plus-supplements",
+        "sources": [
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/config/compact_prompt.txt",
+            "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+          },
+          {
+            "source": "/home/pello/projects/qwen-3.8-flash-next/tools/resources/codex/0.160.0/compact-prompt.txt",
+            "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+          }
+        ],
+        "rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+        "bridge_failure_terminal": "response.failed"
+      },
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "failed",
+        "issue_codes": [
+          "delayed-finding-write-stage-1",
+          "delayed-finding-write-stage-2"
+        ]
+      },
+      "replacement_of_identifier": "150k-206584-新增第1",
+      "original_failed_observation_retained": true
+    },
+    {
+      "identifier": "200k-250k-original-3",
+      "configuration": "200k-250k",
+      "observation": "原第3次",
+      "score": 0.5482272397940201,
+      "seconds": 2502.406,
+      "tokens": {
+        "uncached_input": 2798722,
+        "cached_input": 5779583,
+        "output": 180578
+      },
+      "equivalent_cost_usd": 0.5971532879999999,
+      "review_outcome": "complete",
+      "score_kind": "diagnostic",
+      "native_formal_status": "failed",
+      "score_gate": null,
+      "mandatory_gate": null,
+      "successful_compaction_count": 1,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 938.351,
+      "decode_seconds": 1539.067,
+      "native_pass_count": 83,
+      "completed_responses": 52,
+      "tool_call_count": 70,
+      "exact_call_extra_repeats": 5,
+      "tool_visible_failure_count": 1,
+      "action_durations_seconds": [
+        102.63
+      ],
+      "compaction_wall_seconds": 102.63,
+      "no_summary_compaction_requests": 0,
+      "no_summary_compaction_engine_seconds": 0.0,
+      "explicit_compaction_error_events": 0,
+      "evidence": {
+        "results_sha256": "f11eb9a1c882f6bd02521fae2795775f2a034a4776ab9ddcfbf9f5436c7b7f67",
+        "engine_log_sha256": "0b82851182b6c87fda59094c7cc6f21f1687cdd7ba634bae3472f43ab9cbf268",
+        "history_sha256": "4b61760ce48ae4c0eeb9cc111dd994cd729724945726221b232ec7fbe314f099",
+        "reviewer_thread": "01a10855-cb84-7381-8a12-a44e282f9504"
+      },
+      "input_tokens_per_second": 2982.59606479878,
+      "output_tokens_per_second": 117.32952496544985,
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "passed",
+        "issue_codes": []
+      }
+    },
+    {
+      "identifier": "200k-250k-extra-1",
+      "configuration": "200k-250k",
+      "observation": "额外第1次",
+      "score": 0.4700988178113826,
+      "seconds": 1075.322,
+      "tokens": {
+        "uncached_input": 823062,
+        "cached_input": 3737065,
+        "output": 83985
+      },
+      "equivalent_cost_usd": 0.22272529,
+      "review_outcome": "complete",
+      "successful_compaction_count": 0,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 299.09,
+      "decode_seconds": 757.956,
+      "native_pass_count": 43,
+      "completed_responses": 31,
+      "tool_call_count": 41,
+      "exact_call_extra_repeats": 0,
+      "tool_visible_failure_count": 3,
+      "action_durations_seconds": [],
+      "compaction_wall_seconds": 0,
+      "no_summary_compaction_requests": 0,
+      "no_summary_compaction_engine_seconds": 0,
+      "explicit_compaction_error_events": 0,
+      "evidence": {
+        "results_sha256": "5a04506494218136eb28e2c8e80a8c49f9e84e6547901fa6d71eadf16b6dcf26",
+        "engine_log_sha256": "032b54e4667ff7e9161f49739f2e3d930c518290967c4b70805ca321653811a4",
+        "history_sha256": "d03a6b47602f8cc57820f047129ddd49253cbab66d1ff626477d73b5636a5b72",
+        "reviewer_thread": "01a1096d-d47f-7061-8f6d-7b8f15815897"
+      },
+      "input_tokens_per_second": 2751.8873917549904,
+      "output_tokens_per_second": 110.80458496271551,
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "passed",
+        "issue_codes": []
+      }
+    },
+    {
+      "identifier": "200k-250k-extra-2",
+      "configuration": "200k-250k",
+      "observation": "额外第2次",
+      "score": 0.620706814089824,
+      "seconds": 1537.758,
+      "tokens": {
+        "uncached_input": 1555652,
+        "cached_input": 4503096,
+        "output": 105840
+      },
+      "equivalent_cost_usd": 0.355142136,
+      "review_outcome": "complete",
+      "successful_compaction_count": 1,
+      "observed_failed_compaction_count": 0,
+      "prompt_seconds": 554.729,
+      "decode_seconds": 960.076,
+      "native_pass_count": 53,
+      "completed_responses": 37,
+      "tool_call_count": 43,
+      "exact_call_extra_repeats": 2,
+      "tool_visible_failure_count": 1,
+      "action_durations_seconds": [
+        81.449
+      ],
+      "compaction_wall_seconds": 81.449,
+      "no_summary_compaction_requests": 0,
+      "no_summary_compaction_engine_seconds": 0.0,
+      "explicit_compaction_error_events": 0,
+      "evidence": {
+        "results_sha256": "7b34f5823bada1d4142bb9d8b6823718122400801ac3d05e2670a1a34bb11c3c",
+        "engine_log_sha256": "2fd1a9d645697599375f6e0364c2e6c868f9fa404b8e4df2a2ed48075d415697",
+        "history_sha256": "4bc1f55e78407fe14f336d8579438e2531dd844ee62e98b5d3227bd82cc5b1b9",
+        "reviewer_thread": "01a10985-0065-77a3-9a07-ca15a5944c70"
+      },
+      "input_tokens_per_second": 2804.3459058387066,
+      "output_tokens_per_second": 110.24127256592186,
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "request_source_status": "passed",
+        "session_inspection_status": "passed",
+        "issue_codes": []
+      }
+    }
+  ],
+  "excluded_observations": [
+    {
+      "configuration": "200k-250k",
+      "repetition": 1,
+      "score": 0,
+      "seconds": 906.146,
+      "tokens": {
+        "uncached_input": 688476,
+        "cached_input": 3646239,
+        "output": 71805
+      },
+      "equivalent_cost_usd": 0.19535957399999998,
+      "review_outcome": "incomplete-no-report",
+      "successful_compaction_count": 0,
+      "observed_failed_compaction_count": 0,
+      "native_formal_status": "failed",
+      "score_kind": "diagnostic",
+      "score_gate": null,
+      "mandatory_gate": null,
+      "comparison_included": false
+    },
+    {
+      "configuration": "200k-250k",
+      "repetition": 2,
+      "score": 0,
+      "seconds": 445.735,
+      "tokens": {
+        "uncached_input": 409416,
+        "cached_input": 1229925,
+        "output": 33724
+      },
+      "equivalent_cost_usd": 0.09694148,
+      "review_outcome": "incomplete-no-report",
+      "successful_compaction_count": 0,
+      "observed_failed_compaction_count": 0,
+      "native_formal_status": "failed",
+      "score_kind": "diagnostic",
+      "score_gate": null,
+      "mandatory_gate": null,
+      "comparison_included": false
+    }
+  ],
+  "excluded_infrastructure_attempt": {
+    "instance": "100k-125k-instance-3",
+    "excluded_from_valid_repeat_metrics": true,
+    "completed_subscenes": [
+      "runtime-migration"
+    ],
+    "observed_reviewer_seconds": 673.58,
+    "tokens": {
+      "uncached_input": 487888,
+      "cached_input": 1478966,
+      "output": 56705
+    },
+    "merged_score": null,
+    "reason": "First subscene delivered; orchestration incorrectly closed model/thread after formal generation failure. Second subscene never started."
+  },
+  "original_groups_including_failures": [
+    {
+      "configuration": "100k-125k",
+      "repetitions": 3,
+      "score": 0.6103968410499212,
+      "complete_review_count": 3,
+      "diagnostic_zero_review_count": 0,
+      "mean_seconds": 2436.297666666667,
+      "min_seconds": 2186.989,
+      "max_seconds": 2820.188,
+      "population_stddev_seconds": 275.4625348419556,
+      "mean_tokens": {
+        "uncached_input": 2184103.3333333335,
+        "cached_input": 3708839,
+        "output": 170285.33333333334
+      },
+      "mean_equivalent_cost_usd": 0.46699103066666664,
+      "mean_successful_compaction_count": 3.3333333333333335,
+      "mean_observed_failed_compaction_count": 0,
+      "native_formal_status": "failed",
+      "score_kind": "formal",
+      "score_gate": "failed",
+      "mandatory_gate": "passed"
+    },
+    {
+      "configuration": "150k-188k",
+      "repetitions": 3,
+      "score": 0.5421105078584919,
+      "complete_review_count": 3,
+      "diagnostic_zero_review_count": 0,
+      "mean_seconds": 2277.163666666667,
+      "min_seconds": 1577.5,
+      "max_seconds": 2800.199,
+      "population_stddev_seconds": 514.5524833952531,
+      "mean_tokens": {
+        "uncached_input": 2558452.6666666665,
+        "cached_input": 4348706.666666667,
+        "output": 158327
+      },
+      "mean_equivalent_cost_usd": 0.5277608966666666,
+      "mean_successful_compaction_count": 2,
+      "mean_observed_failed_compaction_count": 0,
+      "native_formal_status": "failed",
+      "score_kind": "diagnostic",
+      "score_gate": "failed",
+      "mandatory_gate": "passed"
+    },
+    {
+      "configuration": "200k-250k",
+      "repetitions": 3,
+      "score": 0.18274241326467336,
+      "complete_review_count": 1,
+      "diagnostic_zero_review_count": 2,
+      "mean_seconds": 1284.7623333333333,
+      "min_seconds": 445.735,
+      "max_seconds": 2502.406,
+      "population_stddev_seconds": 881.2818869731119,
+      "mean_tokens": {
+        "uncached_input": 1298871.3333333333,
+        "cached_input": 3551915.6666666665,
+        "output": 95369
+      },
+      "mean_equivalent_cost_usd": 0.2964847806666666,
+      "mean_successful_compaction_count": 0.3333333333333333,
+      "mean_observed_failed_compaction_count": 0,
+      "native_formal_status": "failed",
+      "score_kind": "diagnostic",
+      "score_gate": null,
+      "mandatory_gate": null
+    }
+  ],
+  "scoring_evidence_sha256": {
+    ".tmp/context-comparison-20261004/configuration-scoring/100k-125k/adjudicated.json": "43b0e868655dcd2dc82422b6f305defc0ad5922452d0deb1160835e6715e61fa",
+    ".tmp/context-comparison-20261004/configuration-scoring/150k-188k/adjudicated.json": "f801a27bdf523fd6cfd8ae4b093e646083da5252c669f7c93734909c0543f2d4",
+    ".tmp/context-comparison-20261004/configuration-scoring/200k-250k/adjudicated.json": "d4eacd20c412ca88680b386e64e804189b6ba2ac97f70bf5e212b5c18841aa76",
+    ".tmp/context-64k-120584-repaired-20261005/configuration-scoring/64k-120584/adjudicated.json": "5958d36773483580733ea2323a9dd1c7cecf86d6e230de666e9c123b33daa5c7",
+    "64k-120584-approved-replacement": "8ef244ef74f319fa1887edc178eab482685782b4dd1d25a170eae215689485cf",
+    "100k-156584-新增第1": "2e51f86953e13860002378b1b434a34d4dca42a43bd4c07c570cadcfa6af3093",
+    "100k-156584-新增第2": "89954604e34c135b7a77b98ec0d131f197e53b135c22b6896237fc61d2ac0a96",
+    "150k-206584-新增第1": "a40c40fb27b9129e34dac83dc9ddd20730b5583f418ca520db36d106ea7a0fec",
+    "150k-206584-新增第2": "fa5d8096b78fbc44fdff699eb0b7b308c9b6c69a9c2ae45929b16a1cd84c6d4f",
+    "150k-206584-补跑第1": "f4275bc130d7cd07485ce1eca4d4e748d2322edeced8acfe340ebf93cae3ee4b"
+  },
+  "consolidated_sources": [
+    {
+      "path": "reports/v0.1.38/context-comparison-20261004/summary.json",
+      "sha256": "b5e3b8f2c9cec60ec372bbf769d54d5936d0f4b26d0cd69f15772c40ac325208"
+    },
+    {
+      "path": "reports/v0.1.38/context-comparison-20261004/summary.md",
+      "sha256": "badb1b98e0ce3f93e6b672c4ac4249ebbc4815d2193486ab8072d76cacccb243"
+    },
+    {
+      "path": "reports/v0.1.38/context-extra-200k-20261005/summary.json",
+      "sha256": "4fbcf67934d490c2d245f31239c9182005553129fba774d2dfae2e258fbe98cd"
+    },
+    {
+      "path": "reports/v0.1.38/context-extra-200k-20261005/summary.md",
+      "sha256": "a8d126d9d3f3d600bb39873fd6b8c4fce85ca89600694d8ee3eaa7360fd3eda4"
+    },
+    {
+      "path": "reports/v0.1.38/context-successful-20261005/summary.json",
+      "sha256": "07ef1c494a92534b7866c6d9e9c6c11708efc7c20ad87c53a9675257138a5461"
+    },
+    {
+      "path": "reports/v0.1.38/context-successful-20261005/summary.md",
+      "sha256": "09b1d05c1c810c045491d9f31f562aad11774c1e237c01c7aa265df4afa38378"
+    },
+    {
+      "path": "reports/v0.1.38/context-successful-20261005/timing-analysis.json",
+      "sha256": "00a00602d7698634b483f32a7e9a59e88b82ed6341d552b1a1de410dea92abff"
+    },
+    {
+      "path": "reports/v0.1.38/context-successful-20261005/timing-analysis.md",
+      "sha256": "1039325800314374d1841984def9a19568b67eacfdc238a54e5eb97e32c8ef6b"
+    }
+  ],
+  "engine_speed_policy": {
+    "unit": "token/s",
+    "input": "sum raw read / sum prompt_ms * 1000",
+    "output": "sum raw generated / sum decode_ms * 1000",
+    "includes_reasoning_tool_call_and_compaction_generation": true,
+    "includes_cached_input_in_prefill_numerator": false,
+    "configuration_average": "arithmetic mean of the three instance rates",
+    "source": "Internal raw counters and engine phase timing, not API usage or task wall clock",
+    "display_decimal_places": 1,
+    "unknown_or_zero_denominator": null
+  },
+  "historical_context_session_inspection": {
+    "scope": "Historical context measurements only; other capability scenes excluded by user.",
+    "closed_sessions": 13,
+    "handoffs_checked": 24,
+    "tool_calls_checked": 776,
+    "hidden_answer_access_observed": false,
+    "source_violation_observations": 1,
+    "required_report_missing_handoffs": 3,
+    "completed_merged_observations": 9,
+    "completed_merged_session_compliance_passed": 8,
+    "completed_merged_session_compliance_failed": 1,
+    "scores_changed": false,
+    "new_model_calls": 0,
+    "evidence_sha256": "686cfd0b54b18874ed01b3ee7a879f6c2134e3e31bf978316cd3ce42939dfc55",
+    "inspection_report_sha256": [
+      "c25446daa50e4c509b752b599ce92a35df929067e5c9a9ce7a187a743546e77c",
+      "df86d95a26e8cd014b2955a456d5eeda9216a3d72bbe8181643215fd7f7015fd",
+      "00e0a3f245fdaa7f1866bdbfd7d333c2a19b5a614608c0489c92bf06c883eaaa",
+      "4858379f1b0a402b0aebb04638b1532800eeb8a3a3a11be234b1f7f83e791b88",
+      "2fdbeb6800d641802a2748183d3cc97f266a968394d6b69087e05260476549b0",
+      "08e4c4e4bf2541f7d3e399210d54955ed42b801f1a61677b71ecc86597a0a304"
+    ]
+  },
+  "prompt_policy_comparison": {
+    "historical_nine": {
+      "startup_base": "config/startup-instructions.txt",
+      "compaction_base_injected": false,
+      "compaction_supplement": "native Codex 0.160.0 default",
+      "metrics_unchanged": true
+    },
+    "approved_64k_repaired": {
+      "startup_base": "config/startup-instructions.txt",
+      "compaction_base": "config/compact_prompt.txt",
+      "compaction_supplement": "config/codex-default-compact-prompt.txt",
+      "bridge_failure_terminal": "response.failed",
+      "status": "three attempts closed; two complete and one no-report diagnostic zero",
+      "rendered_sha256": "ec0b5a7aa62392a14ad02d131eeabd5ac7a796f7b316faf7dd9e2c569f734912",
+      "sources": [
+        {
+          "source": "/home/pello/projects/qwen-3.8-flash-next/config/compact_prompt.txt",
+          "sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+        },
+        {
+          "source": "/home/pello/projects/qwen-3.8-flash-next/config/codex-default-compact-prompt.txt",
+          "sha256": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
+        }
+      ],
+      "native_snapshot_current_resource": "tools/resources/codex/0.160.0/compact-prompt.txt"
+    },
+    "causal_limit": "Context window and compaction prompt policy both differ; historical nine are not rerun."
+  },
+  "current_context_session_inspection": {
+    "closed_sessions": 3,
+    "handoffs_checked": 5,
+    "tool_calls_checked": 324,
+    "hidden_answer_access_observed": false,
+    "external_checkout_or_other_instance_access_observed": false,
+    "source": "Main full native-session assessment; structural extraction is only a reading aid",
+    "no_model_calls": true,
+    "evidence_sha256": "09b447dc5c88aa01871466835f79287db3d2e9dad93145978f95ef3fae69cff8"
+  },
+  "capacity_formula_policy": {
+    "formula": "threshold + 32000 + 24576 + 8",
+    "compaction_overrun_budget": 32000,
+    "highest_effort_output_budget": 24576,
+    "slack": 8,
+    "fit_max_tokens": false,
+    "actual_measured_effort": "medium",
+    "historical_groups_retained_at_original_capacity": true
+  },
+  "additional_diagnostic_batches": [
+    {
+      "configuration": "64k-120584",
+      "formal_status": "failed",
+      "native_status": "diagnostic",
+      "authority_score": 0.34190488514396505,
+      "repetition_scores": [
+        {
+          "repetition": 1,
+          "score": 0.5159094762936917
+        },
+        {
+          "repetition": 2,
+          "score": 0.5098051791382034
+        },
+        {
+          "repetition": 3,
+          "score": 0
+        }
+      ],
+      "zero_repetitions": [
+        3
+      ],
+      "completed_repetitions": 2,
+      "observed_repetitions": 3,
+      "mean_observed_seconds_including_failed_attempt": 1876.597,
+      "performance_limit": "Repetition 3 ran only runtime-migration; its short time is not complete-pair performance"
+    },
+    {
+      "configuration": "64k-120584",
+      "sample_selection": "Original repeats 1 and 2 plus the explicitly approved replacement of repeat 3",
+      "authority_score": 0.5456018495079494,
+      "repetition_scores": [
+        0.5159094762936917,
+        0.5098051791382034,
+        0.6110908930919533
+      ],
+      "completed_repetitions": 3,
+      "observed_attempts": 4,
+      "formal_status": "failed",
+      "diagnostic_only": true,
+      "original_failed_attempt_preserved": true
+    }
+  ],
+  "additional_infrastructure_attempts": [
+    {
+      "configuration": "64k-80k",
+      "score": null,
+      "seconds": 140.297,
+      "tokens": {
+        "uncached_input": 144141,
+        "cached_input": 329580,
+        "output": 9373
+      },
+      "review_outcome": "invalid-infrastructure",
+      "scope": "runtime-migration only; artifact-promotion never started",
+      "reason": "Strict capacity rejected compaction before generation",
+      "engine_capacity": 80000,
+      "compaction_input_tokens": 66147,
+      "requested_output_budget": 16384,
+      "slack": 8,
+      "successful_compactions": 0,
+      "failed_compaction_actions": 1,
+      "http_400_compaction_requests": 6,
+      "model_stopped_and_ownership_returned": true,
+      "included_in_64k_average": false
+    },
+    {
+      "configuration": "64k-120584",
+      "attempt": "before bridge failure and compaction prompt repairs",
+      "score": null,
+      "seconds": 2710.487,
+      "tokens": {
+        "uncached_input": 2049646,
+        "cached_input": 2997640,
+        "output": 180471
+      },
+      "review_outcome": "invalid-infrastructure",
+      "scope": "runtime complete; artifact report empty after stream failure",
+      "reason": "Compaction emitted reasoning and undeclared tools; old bridge lacked Responses failure terminal",
+      "successful_compactions": 7,
+      "failed_final_compaction_actions": 1,
+      "failed_final_compaction_http_200_requests": 6,
+      "model_stopped_and_ownership_returned": true,
+      "included_in_64k_average": false,
+      "history_thread": "01a10a18-d2bb-7273-a464-665d63f27583",
+      "results_sha256": "576da72cc6c35b4c1be89440b3336a02c5b74c151ccc055a31a09c10d278f1e4",
+      "cleanup_proof_sha256": "efc49dea05e4063c22d28be09751f59dda9eca5db7118721331633cc37fd580c",
+      "session_inspection": {
+        "parse_status": "passed",
+        "handoff_binding_status": "passed",
+        "startup_context_status": "passed",
+        "request_source_status": "failed",
+        "hidden_answer_access_observed": false,
+        "external_checkout_or_other_instance_access_observed": false,
+        "session_inspection_status": "failed"
+      },
+      "source_issue_history_line": 599,
+      "tool_calls_checked": 109,
+      "handoffs_checked": 2
+    }
+  ],
+  "complete_observation_statistics": [
+    {
+      "configuration": "64k-120584",
+      "complete": 3,
+      "observed": 4,
+      "mean_score": 0.5456018495079494,
+      "mean_seconds": 3075.937,
+      "min_seconds": 1645.491,
+      "max_seconds": 4120.098,
+      "population_stddev_seconds": 1046.5282372463726,
+      "mean_tokens": {
+        "uncached_input": 2630606.6666666665,
+        "cached_input": 3805624.6666666665,
+        "output": 265865
+      },
+      "mean_equivalent_cost_usd": 0.5804375446666667,
+      "mean_successful_compactions": 11.333333333333334,
+      "mean_input_tokens_per_second": 3022.1697665055012,
+      "mean_output_tokens_per_second": 122.90099955595744
+    },
+    {
+      "configuration": "100k-125k",
+      "complete": 3,
+      "observed": 3,
+      "mean_score": 0.6103968410499212,
+      "mean_seconds": 2436.297666666667,
+      "min_seconds": 2186.989,
+      "max_seconds": 2820.188,
+      "population_stddev_seconds": 275.4625348419556,
+      "mean_tokens": {
+        "uncached_input": 2184103.3333333335,
+        "cached_input": 3708839,
+        "output": 170285.33333333334
+      },
+      "mean_equivalent_cost_usd": 0.46699103066666664,
+      "mean_successful_compactions": 3.3333333333333335,
+      "mean_input_tokens_per_second": 2615.789996717898,
+      "mean_output_tokens_per_second": 113.43630865411251
+    },
+    {
+      "configuration": "150k-188k",
+      "complete": 3,
+      "observed": 3,
+      "mean_score": 0.5421105078584919,
+      "mean_seconds": 2277.163666666667,
+      "min_seconds": 1577.5,
+      "max_seconds": 2800.199,
+      "population_stddev_seconds": 514.5524833952531,
+      "mean_tokens": {
+        "uncached_input": 2558452.6666666665,
+        "cached_input": 4348706.666666667,
+        "output": 158327
+      },
+      "mean_equivalent_cost_usd": 0.5277608966666666,
+      "mean_successful_compactions": 2,
+      "mean_input_tokens_per_second": 2983.323845990029,
+      "mean_output_tokens_per_second": 113.30864332856206
+    },
+    {
+      "configuration": "200k-250k",
+      "complete": 3,
+      "observed": 5,
+      "mean_score": 0.5463442905650755,
+      "mean_seconds": 1705.162,
+      "min_seconds": 1075.322,
+      "max_seconds": 2502.406,
+      "population_stddev_seconds": 594.5083459890758,
+      "mean_tokens": {
+        "uncached_input": 1725812,
+        "cached_input": 4673248,
+        "output": 123467.66666666667
+      },
+      "mean_equivalent_cost_usd": 0.3916735713333333,
+      "mean_successful_compactions": 0.6666666666666666,
+      "mean_input_tokens_per_second": 2846.2764541308256,
+      "mean_output_tokens_per_second": 112.79179416469574
+    },
+    {
+      "configuration": "100k-156584",
+      "complete": 2,
+      "observed": 2,
+      "mean_score": 0.5462010884486103,
+      "mean_seconds": 2192.1745,
+      "min_seconds": 1556.493,
+      "max_seconds": 2827.856,
+      "population_stddev_seconds": 635.6815000000001,
+      "mean_tokens": {
+        "uncached_input": 2048722.5,
+        "cached_input": 3699744.5,
+        "output": 174669.5
+      },
+      "mean_equivalent_cost_usd": 0.44859895199999994,
+      "mean_successful_compactions": 4,
+      "mean_input_tokens_per_second": 3001.3163432080705,
+      "mean_output_tokens_per_second": 117.65070783586893,
+      "mixed_conditions": false,
+      "observation_identifiers": [
+        "100k-156584-新增第1",
+        "100k-156584-新增第2"
+      ]
+    },
+    {
+      "configuration": "150k-206584",
+      "complete": 2,
+      "observed": 3,
+      "mean_score": 0.5837829913557468,
+      "mean_seconds": 3060.9235,
+      "min_seconds": 2220.759,
+      "max_seconds": 3901.088,
+      "population_stddev_seconds": 840.1645000000001,
+      "mean_tokens": {
+        "uncached_input": 3441299,
+        "cached_input": 5842745.5,
+        "output": 209498.5
+      },
+      "mean_equivalent_cost_usd": 0.708143073,
+      "mean_successful_compactions": 2.5,
+      "mean_input_tokens_per_second": 2954.4789630357836,
+      "mean_output_tokens_per_second": 112.29134757473211,
+      "mixed_conditions": false,
+      "observation_identifiers": [
+        "150k-206584-新增第2",
+        "150k-206584-补跑第1"
+      ]
+    }
+  ],
+  "additional_context_session_inspection": {
+    "closed_sessions": 1,
+    "handoffs_checked": 2,
+    "tool_calls_checked": 203,
+    "session_inspection_status": "failed",
+    "hidden_answer_access_observed": false,
+    "assessment_sha256": "8a13bc35c9961019b6e4aa171995456a7e72487b7e2e59c8461a8f134ff51a44",
+    "timely_finding_recording_passed": false,
+    "source_inspection_status": "passed"
+  },
+  "replacement_execution_policy": {
+    "approved_extra_instances": 1,
+    "no_automatic_retries": true,
+    "frozen_preparation_reused": true,
+    "new_reviewer_thread": true,
+    "new_model_process": true,
+    "passive_http_log_archiving": true,
+    "request_archive_sha256": "f7f51219d6c7078b1695dc9156a9bf29e1ceeaf69d3308b103993a3705cbc250"
+  },
+  "threshold_observation_statistics": [
+    {
+      "configuration": "100000-mixed-five",
+      "complete": 5,
+      "observed": 5,
+      "mean_score": 0.5847185400093968,
+      "mean_seconds": 2338.6484,
+      "min_seconds": 1556.493,
+      "max_seconds": 2827.856,
+      "population_stddev_seconds": 470.60304032022583,
+      "mean_tokens": {
+        "uncached_input": 2129951,
+        "cached_input": 3705201.2,
+        "output": 172039
+      },
+      "mean_equivalent_cost_usd": 0.4596341992,
+      "mean_successful_compactions": 3.6,
+      "mean_input_tokens_per_second": 2770.000535313967,
+      "mean_output_tokens_per_second": 115.12206832681507,
+      "mixed_conditions": true,
+      "observation_identifiers": [
+        "100k-125k-original-1",
+        "100k-125k-original-2",
+        "100k-125k-original-3",
+        "100k-156584-新增第1",
+        "100k-156584-新增第2"
+      ],
+      "threshold": 100000,
+      "old_condition_count": 3,
+      "new_condition_count": 2,
+      "diagnostic_mean_score_including_failures": 0.5847185400093968,
+      "mean_actual_seconds_including_partial_failure": 2338.6484,
+      "failure_identifiers": [],
+      "context_windows": [
+        125000,
+        156584
+      ],
+      "interpretation": "Descriptive mean across different capacity and compaction-prompt conditions; not a homogeneous five-repeat or native three-repeat acceptance"
+    },
+    {
+      "configuration": "150000-mixed-six",
+      "complete": 5,
+      "observed": 6,
+      "mean_score": 0.558779501257394,
+      "mean_seconds": 2590.6676,
+      "min_seconds": 1577.5,
+      "max_seconds": 3901.088,
+      "population_stddev_seconds": 767.2262925944601,
+      "mean_tokens": {
+        "uncached_input": 2911591.2,
+        "cached_input": 4946322.2,
+        "output": 178795.6
+      },
+      "mean_equivalent_cost_usd": 0.5999137672,
+      "mean_successful_compactions": 2.2,
+      "mean_input_tokens_per_second": 2971.7858928083306,
+      "mean_output_tokens_per_second": 112.90172502703008,
+      "mixed_conditions": true,
+      "observation_identifiers": [
+        "150k-188k-original-1",
+        "150k-188k-original-2",
+        "150k-188k-original-3",
+        "150k-206584-新增第2",
+        "150k-206584-补跑第1"
+      ],
+      "threshold": 150000,
+      "old_condition_count": 3,
+      "new_condition_count": 3,
+      "diagnostic_mean_score_including_failures": 0.4656495843811616,
+      "mean_actual_seconds_including_partial_failure": 2246.9701666666665,
+      "failure_identifiers": [
+        "150k-206584-新增第1"
+      ],
+      "context_windows": [
+        188000,
+        206584
+      ],
+      "interpretation": "Descriptive mixed-condition means; original no-report failure retained. Five complete deliveries across six observations."
+    }
+  ],
+  "approved_100k_150k_extension": {
+    "merged_instances": 4,
+    "planned_initial_subscene_tasks": 8,
+    "actual_initial_subscene_tasks": 7,
+    "complete_merged_instances": 3,
+    "all_closed": true,
+    "all_ownership_returned": true,
+    "automatic_retries": false,
+    "conditions": [
+      {
+        "threshold": 100000,
+        "window": 156584,
+        "observations": 2
+      },
+      {
+        "threshold": 150000,
+        "window": 206584,
+        "observations": 2
+      }
+    ],
+    "default_profile": true,
+    "base_compaction_prompt_injected": true,
+    "passive_http_archiving_before_first_request": true,
+    "dispatch_metadata_repair": {
+      "native_prepared_bytes_restored": true,
+      "request_references_unchanged": true,
+      "model_retries": 0,
+      "proof_sha256": "6ab98266b890ac4e70b107db1a6cc370f336c883bbacdfad6e875a7af43d5729"
+    },
+    "audits": [
+      {
+        "identifier": "100k-156584-新增第1",
+        "assessment_sha256": "f51e6f71aac4b5b81c4fac2f2d5a663ef39cfaad658912d0af4d079964a6b110",
+        "finding_checks_sha256": "25573d68778abdd4cb94d564393b268854103f23a1ab7ec92b3a03076735633b",
+        "status": "failed",
+        "issues": [
+          {
+            "code": "delayed-finding-write-stage-1",
+            "description": "Request Consistency absence confirmed at result event102; unrelated Validation Report read106/109 preceded bound finding write125/128. Role requires write before continuing review.",
+            "native_events": [
+              99,
+              102,
+              106,
+              109,
+              125,
+              128
+            ]
+          },
+          {
+            "code": "delayed-finding-write-stage-2",
+            "description": "Compaction summary543 declares completed checks and confirmed findings, while bound draft is zero bytes at554/559. Further unrelated reads occur before first write777/780.",
+            "native_events": [
+              543,
+              554,
+              559,
+              564,
+              777,
+              780
+            ]
+          },
+          {
+            "code": "failed-read-outside-request-snapshot",
+            "description": "Tool690 attempts to read materialized Inputs/rules/02-external-policy.md rather than its Request content. Result695 is file-not-found; no extra content was obtained. Request-source/tool contract violation is retained; no hidden answer access observed.",
+            "native_events": [
+              690,
+              695
+            ]
+          }
+        ],
+        "handoffs_checked": 2,
+        "tool_calls_checked": 126,
+        "http_archive_sha256": "34fc4edd6d059d6420a25590327b17dbb622e6b25bc7ef3067bbcb54485ecc7e"
+      },
+      {
+        "identifier": "100k-156584-新增第2",
+        "assessment_sha256": "539ad6d6cc093d777b2742e577f7e09058d308a7ff0d774e724761264e397d4f",
+        "finding_checks_sha256": "63c8392b944447ad543e31af753a5095696938ba678348d89144a30004e00c78",
+        "status": "failed",
+        "issues": [
+          {
+            "code": "delayed-finding-write-stage-1",
+            "description": "Summary137 explicitly confirms completed Inputs/Requirements and five verified findings while draft remains empty at149/154. Subsequent unrelated Request reads158 onward occur before first bound write215.",
+            "native_events": [
+              137,
+              149,
+              154,
+              158,
+              215,
+              218
+            ]
+          },
+          {
+            "code": "delayed-finding-write-stage-2",
+            "description": "Summary320 identifies verified independent ADR/Interface gaps with an empty bound draft. After required agent-writes read331/336, additional unrelated Input reads351 onward precede first bound write425/428.",
+            "native_events": [
+              320,
+              331,
+              336,
+              351,
+              425,
+              428
+            ]
+          }
+        ],
+        "handoffs_checked": 2,
+        "tool_calls_checked": 77,
+        "http_archive_sha256": "9ff210999007121e114c0414e29560c5b06aff349c996881645a088f969e6dbc"
+      },
+      {
+        "identifier": "150k-206584-新增第1",
+        "assessment_sha256": "d7d78f26fcee1d7b43cd7ccaf8dfb85f9c778c5af3b10cb6e65d4edba390ac76",
+        "finding_checks_sha256": "42c91ec6091f4ad03a374fa03ed77189d105bf72c08b7c3459ee3671656ad021",
+        "status": "failed",
+        "issues": [
+          {
+            "code": "missing-bound-report-stage-1",
+            "description": "Native task ends normally at187 with progress prose at184; bound draft remains empty (observed98/101 and final SHA). No write tool invocation in32 calls. Status-only completion and necessary report write fail. Second subscene was not started.",
+            "native_events": [
+              98,
+              101,
+              184,
+              187
+            ]
+          },
+          {
+            "code": "delayed-finding-write-stage-1",
+            "description": "Available reasoning97 already confirms missing selected Request input and independent requirements conflicts. Subsequent unrelated reads105 and112 precede normal termination without any bound write.",
+            "native_events": [
+              97,
+              105,
+              112,
+              187
+            ]
+          }
+        ],
+        "handoffs_checked": 1,
+        "tool_calls_checked": 32,
+        "http_archive_sha256": "407395daf8aaf76943508646e5d824dc546a43f15f64f1f847eaea03703851e3"
+      },
+      {
+        "identifier": "150k-206584-新增第2",
+        "assessment_sha256": "5fd89da8c2a8045cec73178bfd2ed2d2096559d98a71637eaba35b825afbafee",
+        "finding_checks_sha256": "df36477530bfdfc514153a7d5eacf67a8e21698100375dab5821432231b199b2",
+        "status": "failed",
+        "issues": [
+          {
+            "code": "delayed-finding-write-stage-1",
+            "description": "Compaction summary155 explicitly declares Inputs and Requirements completed and six findings verified, draft empty. Further reads168 and empty wc169/174 plus179/188 occur before first write195 (fails) and successful202/205.",
+            "native_events": [
+              155,
+              168,
+              169,
+              174,
+              179,
+              188,
+              195,
+              198,
+              202,
+              205
+            ]
+          },
+          {
+            "code": "delayed-finding-write-stage-2",
+            "description": "Compaction summary374 declares all11 checks reasoned through and verified findings, bound draft zero and not yet written. After required instruction reads385/386 (agent-writes already246), repeated Request reads395 onward and469/470 precede first bound write481/484.",
+            "native_events": [
+              374,
+              385,
+              386,
+              395,
+              469,
+              470,
+              481,
+              484
+            ]
+          }
+        ],
+        "handoffs_checked": 2,
+        "tool_calls_checked": 78,
+        "http_archive_sha256": "9169648031a3fa800af8e23dd5a2a19923d77be9b7b2881daf7480bf13e914bf"
+      }
+    ]
+  },
+  "single_150k_replacement": {
+    "identifier": "150k-206584-补跑第1",
+    "replacement_of": "150k-206584-新增第1",
+    "all_closed": true,
+    "all_ownership_returned": true,
+    "merged_instances": 1,
+    "actual_initial_subscene_tasks": 2,
+    "automatic_additional_retries": false,
+    "failed_observation_retained": true,
+    "complete_150k_instances": 5,
+    "observed_150k_instances": 6,
+    "assessment_sha256": "5e03bd7c6776d07d099103850e25b6475491b893d0f4f4a8a8ca671d927a4c9a",
+    "finding_checks_sha256": "3c36879fb53d553eedcea1d6c4bba265cd9e73ffc0fb2d592831bd8ab0063407",
+    "session_inspection_status": "failed",
+    "issues": [
+      {
+        "code": "delayed-finding-write-stage-1",
+        "description": "First-stage visible reasoning67 identifies missing selected Input before additional substantive Request reads78-129; first finding written136/139 only afterward. Draft later erased199/202 and restored213/216. Canonical timely-write rule violated.",
+        "native_events": [
+          67,
+          78,
+          88,
+          98,
+          108,
+          115,
+          122,
+          129,
+          136,
+          139,
+          199,
+          202,
+          213,
+          216
+        ]
+      },
+      {
+        "code": "delayed-finding-write-stage-2",
+        "description": "Summaries496 and710 state verified findings while bound draft remains empty; repeated unchanged Request/instruction reads and empty lookups continue before first write792/795. Final report delivered, but timely-write rule violated.",
+        "native_events": [
+          496,
+          508,
+          509,
+          569,
+          579,
+          589,
+          596,
+          606,
+          616,
+          626,
+          636,
+          646,
+          653,
+          663,
+          673,
+          680,
+          681,
+          690,
+          691,
+          700,
+          701,
+          710,
+          723,
+          730,
+          737,
+          744,
+          745,
+          756,
+          766,
+          776,
+          783,
+          792,
+          795
+        ]
+      }
+    ],
+    "http_archive_sha256": "ad98b6bd2315b17c44935ea2af65c4e95190598fc8e697d4363d4d757bed6660",
+    "base_and_compaction_prompts_verified": true,
+    "failed_observation_cause": {
+      "observation": "150k-206584-新增第1",
+      "visible_failure": "Normal stop with only progress prose, no report write; second subscene not started.",
+      "seconds": 528.483,
+      "tool_calls": 32,
+      "exact_extra_repeats": 10,
+      "max_observed_input_tokens": 147422,
+      "capacity": 206584,
+      "final_engine_phases": [
+        {
+          "input": 143308,
+          "cached": 130782,
+          "uncached": 12526,
+          "prompt_ms": 4910.0,
+          "output": 4096,
+          "decode_ms": 32655.0,
+          "log_line": 103
+        },
+        {
+          "input": 147422,
+          "cached": 147403,
+          "uncached": 19,
+          "prompt_ms": 117.0,
+          "output": 20,
+          "decode_ms": 187.0,
+          "log_line": 107
+        }
+      ],
+      "no_observed_timeout_abort_transport_or_capacity_error": true,
+      "thinking_limit_mechanism": "Installed Strata server closes thinking and resumes with remaining output budget; this alone does not terminate the whole request.",
+      "local_implementation_references": [
+        "runtime/Strata/serve/server.py:1486",
+        "runtime/Strata/serve/server.py:1522",
+        "src/responses_bridge.py:266"
+      ],
+      "root_cause_status": "Model generation ended with non-delivery progress prose; deeper model/token/parser cause unproven.",
+      "no_model_probe_used": true
+    },
+    "diagnostic_mean_new_condition_including_failure": 0.38918866090383125,
+    "native_three_observation_diagnostic": {
+      "formal_status": "failed",
+      "repetition_scores": [
+        {
+          "repetition": 1,
+          "score": 0
+        },
+        {
+          "repetition": 2,
+          "score": 0.5897707148550421
+        },
+        {
+          "repetition": 3,
+          "score": 0.5777952678564517
+        }
+      ],
+      "scored_sha256": "b793ab00e92a6cb00e5967d23addc650446915437b4f04e07332dc9fc8380381",
+      "interpretation": "Original native formula with repetition1 zero retained; inspection failures remain; not formal acceptance."
+    },
+    "timing_diagnosis": {
+      "analysis_sha256": "41099846fb5edd8722d8fc39fada3332deb891c046a7939f93d583d514c36192",
+      "comparison_identifier": "150k-206584-新增第2",
+      "current_stage_metrics": [
+        {
+          "scenario": "runtime-migration",
+          "seconds": 1011.499,
+          "completed_responses": 28,
+          "native_passes": 35,
+          "tool_calls": 36,
+          "prompt_seconds": 544.563,
+          "decode_seconds": 454.946,
+          "other_seconds": 11.990000000000009,
+          "tokens": {
+            "uncached_input": 1645184,
+            "cached_input": 1338033,
+            "output": 50912
+          },
+          "input_tokens_per_second": 3021.108668785797,
+          "output_tokens_per_second": 111.90778685822053,
+          "tool_call_to_result_seconds_nonexclusive": 2.104999542236328
+        },
+        {
+          "scenario": "artifact-promotion",
+          "seconds": 2889.589,
+          "completed_responses": 61,
+          "native_passes": 96,
+          "tool_calls": 97,
+          "prompt_seconds": 995.29,
+          "decode_seconds": 1865.999,
+          "other_seconds": 28.299999999999955,
+          "tokens": {
+            "uncached_input": 2926363,
+            "cached_input": 5836030,
+            "output": 209011
+          },
+          "input_tokens_per_second": 2940.211395673623,
+          "output_tokens_per_second": 112.0102422348565,
+          "tool_call_to_result_seconds_nonexclusive": 6.410999536514282
+        }
+      ],
+      "previous_same_condition_stage_metrics": [
+        {
+          "scenario": "runtime-migration",
+          "seconds": 868.877,
+          "completed_responses": 25,
+          "native_passes": 35,
+          "tool_calls": 32,
+          "prompt_seconds": 318.784,
+          "decode_seconds": 541.132,
+          "other_seconds": 8.961000000000013,
+          "tokens": {
+            "uncached_input": 937556,
+            "cached_input": 1673337,
+            "output": 60927
+          },
+          "input_tokens_per_second": 2941.038446095162,
+          "output_tokens_per_second": 112.59175210484689,
+          "tool_call_to_result_seconds_nonexclusive": 2.033001184463501
+        },
+        {
+          "scenario": "artifact-promotion",
+          "seconds": 1351.882,
+          "completed_responses": 31,
+          "native_passes": 48,
+          "tool_calls": 46,
+          "prompt_seconds": 467.251,
+          "decode_seconds": 871.697,
+          "other_seconds": 12.934000000000083,
+          "tokens": {
+            "uncached_input": 1373495,
+            "cached_input": 2838091,
+            "output": 98147
+          },
+          "input_tokens_per_second": 2939.5228688649145,
+          "output_tokens_per_second": 112.59302257550502,
+          "tool_call_to_result_seconds_nonexclusive": 3.026000499725342
+        }
+      ],
+      "increase_seconds": {
+        "seconds": 1680.3290000000002,
+        "prompt_seconds": 753.8180000000001,
+        "decode_seconds": 908.1160000000002,
+        "completed_responses": 33,
+        "tool_call_count": 55
+      },
+      "stage2_share_of_wall_increase": 0.9151225742101694,
+      "empty_instruction_lookup": {
+        "tool_calls": 19,
+        "distinct_generating_responses": 15,
+        "first_timestamp": "2026-10-05T13:44:39.574Z",
+        "last_timestamp": "2026-10-05T14:06:38.869Z",
+        "span_seconds": 1319.295000076294,
+        "generating_prompt_seconds": 251.02200000000002,
+        "generating_decode_seconds": 605.069,
+        "generated_tokens": 66975,
+        "responses_reaching_4096_initial_output": 5,
+        "actual_tool_seconds_nonexclusive": 1.3480000495910645,
+        "attribution_note": "These response costs cover reasoning and tool-call generation that contains an empty instruction lookup. Some responses also issue other calls; do not equate the whole associated cost with recoverable wasted time. Reading returned results occurs in following responses, not this cost."
+      },
+      "post_second_summary_interval": {
+        "start_timestamp": "2026-10-05T13:43:08.273000+00:00",
+        "end_timestamp": "2026-10-05T14:01:27.388000+00:00",
+        "seconds": 1099.1150000095367,
+        "tool_calls": 39,
+        "empty_instruction_lookups": 18,
+        "completed_responses": 21,
+        "prompt_seconds": 314.299,
+        "decode_seconds": 774.936,
+        "output_tokens": 86967,
+        "note": "Second summary already records verified findings and an empty bound report. This interval includes repeated reads and empty lookups, but some work may be meaningful; not a counterfactual saving estimate."
+      },
+      "extra_compaction_seconds": 128.88699999999997,
+      "findings": [
+        "Second-stage repeated verification and unsuccessful instruction lookup continued after verified findings were recorded in the compaction summaries; draft remained empty until47.9minutes.",
+        "Agent instruction files were not Request Input snapshots;19 lookups returned empty and the same wrong selection method continued even after recognizing the cause.",
+        "Average engine throughput matches previous same-condition complete observation; response count/output volume account for most additional elapsed time.",
+        "All3 compactions succeeded without observed HTTP retry, guardian wait or streaming error."
+      ],
+      "limitations": [
+        "Costs of responses issuing empty lookup include reasoning and sometimes additional valid tools; not an estimate of fully avoidable wasted time.",
+        "Association uses unique raw engine phases mapped through response events. API usage never supplies token consumption.",
+        "Native wrap-up instruction appearing in reasoning text is injected by Strata; do not count it as model output or proof of voluntary self-termination.",
+        "No new model calls; original score, token consumption and all observation rows unchanged."
+      ]
+    }
+  },
+  "post_measurement_startup_prompt_change": {
+    "old_sha256": "c70ec78f688cd50ac00fe4e90b318cb0edbbdaf7240f9502d65a79ca32c3d917",
+    "new_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "measured_observations_used_new_prompt": 0,
+    "behavior_benefit_validated": false,
+    "model_or_context_choice_changed": false
+  },
+  "context_selection": {
+    "date": "2026-10-05",
+    "selected_by": "user",
+    "auto_compact_token_limit": 100000,
+    "context_window": 156584,
+    "capacity_formula": {
+      "threshold": 100000,
+      "compaction_overrun_budget": 32000,
+      "highest_effort_output_budget": 24576,
+      "safety_slack": 8
+    },
+    "reasons": [
+      "Observed score and elapsed time offer a balanced choice.",
+      "All five included 100K quality observations delivered both reports; no reportless early termination in this group."
+    ],
+    "complete_observations": 5,
+    "included_quality_observations": 5,
+    "evidence_conditions": "Three old 100K/125000 observations plus two 100K/156584 observations; mixed means are descriptive, not five identical-condition repeats.",
+    "qualification": "Historical infrastructure failure and source/timely-write/formal-scoring failures remain recorded. Complete delivery does not imply formal capability acceptance.",
+    "scope": "Future maintenance baseline and four-role benchmark; historical measurements unchanged. Other callers choose their own configuration.",
+    "model_run_performed_for_selection": false,
+    "formal_four_role_acceptance_pending": true,
+    "previous_baseline_sha256": "267580633b0ccd8e00a433d7abef958f26e1f3cc5d7658b85658307ac75b0312"
+  },
+  "raw_evidence_retention": {
+    "status": "deleted-by-user-request-2026-10-06",
+    "scope": "Old-version temporary run/session/log evidence in project and installation; old installation rollback backups and unused publication mirrors.",
+    "summary_numbers_preserved": true,
+    "raw_session_replay_available": false,
+    "does_not_change_historical_scores_or_inspection_verdicts": true
+  }
+}
