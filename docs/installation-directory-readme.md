@@ -117,13 +117,31 @@ Responses 使用 `reasoning.effort` 和 `max_output_tokens`，Chat 使用 `reaso
 - 上限不等于实际思考长度。输入加输出预算超出窗口返回 400，不静默裁剪。
 - Messages 接口不做补齐，按 Anthropic 协议由调用方设置。
 
+## 启动脚本（WSL）
+
+`bin/qwen-agent` 完成整个生命周期：领取租约 → 启动模型 → 运行 Codex 或 Claude Code → 退出后停止模型并归还租约。只依赖本安装目录和 Python 3 标准库。
+
+```bash
+qwen_install=/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next
+python3 "$qwen_install/bin/qwen-agent" codex                       # 交互式 Codex，Q2_0、high
+python3 "$qwen_install/bin/qwen-agent" --effort medium codex exec "任务描述"
+python3 "$qwen_install/bin/qwen-agent" --model IQ3_XXS claude      # Claude Code
+```
+
+- 租约已被他人持有时立即退出，不排队、不抢占。
+- rtx3080ti 加载 Q2_0 约 20 秒。Ctrl-C 交给 agent 处理；agent 退出、终端关闭或进程被终止时都会归还租约。归还失败时会提示重启前端任务。
+- key 只放在 agent 进程的环境变量里，不写入文件或命令行参数。
+- 脚本不修改调用方的 `~/.codex` 或 `~/.claude` 配置；所有设置都以命令行覆盖或环境变量传入。
+
 ## Codex 接入
+
+启动脚本传给 Codex 的设置如下；自行配置时照此设置：
 
 ```toml
 model = "qwen3.8-flash-next-q2_0"
 model_provider = "qwen_strata"
-model_catalog_json = '<安装目录>\config\model-catalog.json'
-experimental_compact_prompt_file = '<组合后的压缩提示文件>'
+model_catalog_json = "/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next/config/model-catalog.json"
+experimental_compact_prompt_file = "/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next/config/prompts/compact-prompt.txt"
 model_context_window = 156584
 model_auto_compact_token_limit = 100000
 web_search = "disabled"
@@ -133,21 +151,36 @@ name = "Local Strata"
 base_url = "http://192.168.60.212:8000/strata/v1"
 wire_api = "responses"
 env_key = "QWEN_STRATA_KEY"
+requires_openai_auth = false
+supports_websockets = false
+request_max_retries = 0
+stream_max_retries = 0
 ```
 
-key 通过 `env_key` 指定的环境变量只提供给该 harness。`config/model-catalog.json` 提供三种量化的模型信息；在启动 app-server 时传入实际路径。各条目的 `auto_review_model_override` 指向自身，是否启用 auto_review 由调用方决定。
+key 通过 `env_key` 指定的环境变量只提供给该 harness。请求重试设为 0，避免重试重复已执行的工具操作。
 
-原生 Responses 支持 function、namespace、custom 工具、`additional_tools`、客户端 `tool_search` 和推理内容回放。服务端托管工具（`web_search` 等）目前不可用：原生服务会丢弃这些声明，因此 Codex 须设置 `web_search = "disabled"`。
+`config/model-catalog.json` 只描述三种量化的模型事实：模型名、推理档位、156584 窗口、只接收文本、可使用网页搜索工具，以及 `auto_review_model_override` 指向自身。基础指令与消息结构取自所装 Codex 版本自带的 luna 模型条目，不额外限制工作内容；只读、可写范围等约束由各场景的提示词和沙箱权限决定。该文件对应 Codex 0.162.0，升级 Codex 后由维护工程重新生成。
 
-## Claude Code 接入（未验证）
+原生 Responses 支持 function、namespace、custom 工具、`additional_tools`、客户端 `tool_search` 和推理内容回放。服务端托管的网页搜索尚未提供：catalog 声明模型能使用搜索，但当前须设置 `web_search = "disabled"`，否则搜索工具声明会被原生服务丢弃，模型调用不到。
+
+## Claude Code 接入
+
+启动脚本传入的环境变量：
 
 ```bash
 export ANTHROPIC_BASE_URL=http://192.168.60.212:8000/strata
 export ANTHROPIC_AUTH_TOKEN=<key>
-export ANTHROPIC_MODEL=qwen3.8-flash-next-q2_0
+export ANTHROPIC_MODEL=qwen3.8-flash-next-q2_0          # OPUS / SONNET / HAIKU 默认模型也设为同一个
+export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=50               # 按 200K 假定窗口，约 100K 时压缩
 ```
 
-原生服务提供 `/v1/messages` 和 `/v1/messages/count_tokens`。Claude Code 的实际兼容性（工具调用、thinking、上下文窗口、内置 WebSearch）尚未验证。
+原生服务提供 `/v1/messages` 和 `/v1/messages/count_tokens`。2026-10-09 冒烟检查（Claude Code 2.1.295，`-p`，Read 工具）确认 thinking 和工具调用可用。已知差异：
+
+- Claude Code 不认识该模型名，会提示 `unrecognized_model`，并按 200K 窗口、32000 输出上限处理；实际窗口是 156584，因此靠上面的压缩比例在约 100K 时压缩。
+- `count_tokens` 不含服务端注入的启动提示，比实际输入少约 420 token。
+
+压缩时机、长会话和内置 WebSearch 尚未验证。
 
 ## Python 示例
 

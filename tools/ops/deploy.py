@@ -30,6 +30,7 @@ FILES.update({name: name for name in (
 FILES.update({f'config/{m.lower()}-prebuilt.json': f'config/templates/{m.lower()}-prebuilt.json' for m in MODELS})
 FILES['README.md'] = 'docs/installation-directory-readme.md'
 FILES['maintenance/Install-Frontend.ps1'] = 'scripts/windows/Install-Frontend.ps1'
+FILES['bin/qwen-agent'] = 'scripts/wsl/qwen-agent'
 # Left by the retired WSL controller and SSH bridge.
 OBSOLETE = ('Run-Strata-Controller.ps1', 'Run-Strata-Controller.sh', 'maintenance/Setup-Native-Network.ps1',
             'maintenance/Setup-WSL-Network.sh', 'config/service.json', 'config/startup-instructions.txt',

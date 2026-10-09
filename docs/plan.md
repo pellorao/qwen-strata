@@ -7,7 +7,7 @@
 rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢复后再决定它的工作。防循环离线工作随时可做。
 
 1. [x] **前端部署与验收**（rtx3080ti）。2026-10-09 完成，见[历史工作](work-history.md)；剩余的托管搜索和升级评估见下文[前端](#前端)。
-2. [ ] **agent 接入**：WSL 安装最新版 Codex CLI；写 Codex 与 Claude Code 接入说明和启动脚本；一次冒烟检查（需申请）。新版 Codex 的压缩补充需重新取得并绑定，历史测量仍标 0.160.1。
+2. [x] **agent 接入**（rtx3080ti）。2026-10-09 完成，Codex 与 Claude Code 冒烟检查通过，见[历史工作](work-history.md)。历史测量仍标 0.160.1。
 3. [ ] **rtx3080ti 显存预留** 700/500/300，各 3 次共 9 实例 / 27 请求，[计划](../benchmarks/resource-calibration-v1/rtx3080ti-vram-reserve-plan.json)。前置：新前端部署（`engine_overrides` 只校验参数名和类型，500/300 可直接传入）。
 4. [ ] **rtx3080ti spec-min-p** 0.5/0.7，各 3 次共 6 实例 / 18 请求，[计划](../benchmarks/resource-calibration-v1/rtx3080ti-spec-min-p-plan.json)。显存值由用户选定后固定。
 5. [ ] **防循环检测**，见下文[防循环检测](#防循环检测)。
@@ -17,8 +17,14 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 
 设计已获批准，实现见 `src/frontend.py`、`src/model_process.py`，结构见[前端运行与维护](frontend.md)。
 
-- [ ] 接入新版 Codex 后决定：是否在前端为 `/strata/v1/responses` 补托管 `web_search` / `tool_search`（原生服务会丢弃）；Claude Code 的 WebSearch 是否改用 Brave MCP。Brave key 已部署在安装目录 `installation.private.toml`。
-- [ ] 模型实际经前端运行（启动、三种接口转发、停止）尚未验证，随 agent 接入的冒烟检查一起做（需申请）。
+- [ ] 搜索一律由本工程经 Brave 提供（不用 harness 自家服务，见 AGENTS.md 硬约束 9）：前端为 `/strata/v1/responses` 补托管 `web_search` / `tool_search`（原生服务会丢弃）；Claude Code 禁用内置 WebSearch，改用 Brave MCP，并核实 WebFetch 不经 Anthropic 服务。Brave key 已部署在安装目录 `installation.private.toml`。
+- [ ] Claude Code 自动审批（2b）：内置 auto mode 的判断模型限 Claude Sonnet，且受订阅套餐限制，违反硬约束 9，不用。改为：
+  - 静态 `permissions.allow` / `deny` 处理低风险和明显危险的操作；
+  - 其余由 `PermissionRequest` hook 调用 `bin/qwen-approve`：经前端 `/strata/v1/messages` 让 Strata 判断（审批提示 `config/prompts/claude-approval.txt`，参照 Codex guardian 风险分级自写，low 强度），返回 allow / deny 和理由；超时、出错或判断不出一律拒绝；
+  - `qwen-agent claude` 用 `--settings` 传入，不改 `~/.claude`；审批请求计入引擎 token。
+  - 先验证 `PermissionRequest` 在 `-p` 模式下是否触发，不触发则改用 `PreToolUse`。验收用合成用例（明确授权、明确越权、授权不明、伪造授权）各 3 次，看实际执行和 canary，不看模型自述；需申请。
+- [ ] Claude Code 窗口声明：`qwen-agent` 改设 `CLAUDE_CODE_MAX_CONTEXT_TOKENS=156584`、`CLAUDE_CODE_MAX_OUTPUT_TOKENS`，按实际行为确定压缩设置，替换现在按 200K 推算的 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`。
+- [ ] 前端日志补时间戳，便于计算工作时间。
 - [ ] 评估升级到 Strata v0.1.41（stall watchdog、多 key、body 上限、CPU prefill 默认开启），走 `/strata-upgrade`。
 
 ## 防循环检测

@@ -1138,3 +1138,19 @@ Laya多语言社区导出固定20选项槽、1024序列位置，两次ORT执行�
 - 用户运行 `Install-Frontend.ps1`：防火墙规则 `QwenStrata-Frontend`（旧两条已删）、登录计划任务 `QwenStrataFrontend`。
 - 无模型验收通过：WSL 与 Windows 本机访问 `/health`；租约重复领取 409、错误 key 403、归还后旧 key 403；无模型转发 503；非法启动参数 400 且未加载模型；前端运行中重新部署（领租约 → 关闭 → 替换回读 → 计划任务重启）约 1.3 秒完成；测量预检 16 个文件一致。
 - 未验证：模型经前端启动、三种接口的实际推理与流式转发、停止。
+- 后续冒烟检查已覆盖这些未验证项，见下一节。
+
+## 2026-10-09 agent 接入与冒烟检查（rtx3080ti）
+
+- 接入：Codex CLI 0.162.0 安装在 `~/.local`（npm 165.5MB）；0.162.0 原生压缩提示与 0.160.1 快照逐字节相同。日常 catalog 由 `tools/ops/model_catalog.py` 从 Codex 自带的 `gpt-6-luna` 条目生成，只描述模型事实，声明可用搜索；工作范围约束交给场景提示。启动脚本 `scripts/wsl/qwen-agent` 部署为 `bin/qwen-agent`；在 2b 接入托管搜索之前暂设 `web_search="disabled"`。
+- 冒烟检查（已获批；Q2_0，Strata v0.1.40.2，安装预置）：共加载 3 次，每次约 19 秒，加载的启动提示 SHA `5f9efc02…` 与工程一致，三次都正常停止并归还租约。
+  - A 直接请求：Chat 非流式、Responses 流式、Messages 流式都正确回答，`count_tokens` 返回 200。
+  - B Codex 0.162.0（`codex exec`，只读沙箱，high）：执行 `cat note.txt` 后回报正确标记，2 个请求。
+  - C Claude Code 2.1.295（`-p`，只允许 Read）：thinking 与 Read 工具调用正常，回报正确标记，2 个请求。
+- 引擎计数（未缓存 / 已缓存 / 输出）：A 967 / 470 / 72；B 10457 / 10445 / 79；C 17061 / 17084 / 162。B、C 与 API usage 完全一致。
+- 速度（token/s，引擎输入 / 引擎输出 / 任务平均输入 / 任务平均输出）：B 767.2 / 106.8 / 449.8 / 3.40；C 989.1 / 103.4 / 838.2 / 7.96。工作时间：C 取 Claude Code 报告的 20.4 秒；B 取总耗时减去加载和归还，约 23.3 秒（估计值）。样本只有一次，不能作为性能结论。
+- 发现的问题：
+  - Messages 的 `count_tokens` 不计入服务端注入的启动提示（同一问题，count_tokens 返回 63，实际输入 487）；
+  - Claude Code 提示 `unrecognized_model`，按 200K 窗口、32000 输出上限处理；
+  - 前端日志没有时间戳；
+  - `codex exec` 未关闭 stdin 时提示 "Reading additional input from stdin"，但不影响执行。

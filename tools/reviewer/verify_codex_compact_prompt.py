@@ -18,6 +18,7 @@ import threading
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
+from tools.metrics.prompt_policy import NATIVE_COMPACT_VERSION
 from tools.safety.scripted_responses import scripted_stream
 
 
@@ -186,7 +187,7 @@ def run(folder):
                  for c in item.get('content', []) if c.get('type') == 'input_text']
         candidate = texts[-1]
         (folder / 'captured-native-compact-prompt.txt').write_text(candidate)
-        saved = (ROOT / 'tools/resources/codex/0.160.0/compact-prompt.txt').read_text()
+        saved = (ROOT / 'tools/resources/codex' / NATIVE_COMPACT_VERSION / 'compact-prompt.txt').read_text()
         result.update(status='passed', thread_id=thread_id, mock_requests=1,
             native_prompt_sha256=hashlib.sha256(candidate.encode()).hexdigest(),
             native_prompt_utf8_bytes=len(candidate.encode()),

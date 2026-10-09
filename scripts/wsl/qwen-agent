@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""Run Codex or Claude Code on the local Strata model, from lease to release.
+
+Usage: qwen-agent [--model Q2_0] [--effort high] {codex|claude} [agent arguments...]
+
+Takes the frontend lease (fails if someone else holds it), starts the model,
+runs the agent with the key in its environment, then stops the model and
+returns the lease when the agent exits. Needs only this installation.
+"""
+import argparse
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import sys
+import urllib.error
+import urllib.request
+
+INSTALL = Path(__file__).resolve().parents[1]
+MODELS = {'Q2_0': 'q2_0', 'IQ2_XS': 'iq2_xs', 'IQ3_XXS': 'iq3_xxs'}
+CONTEXT_WINDOW = 156584
+AUTO_COMPACT = 100000
+
+
+class Frontend:
+    def __init__(self):
+        config = json.loads((INSTALL / 'config/frontend.json').read_text(encoding='utf-8'))
+        self.base = f'http://{config["listen_address"]}:{config["port"]}'
+        self.key = None
+        self.opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+    def call(self, path, body=None, timeout=900):
+        headers = {'Content-Type': 'application/json'}
+        if self.key:
+            headers['Authorization'] = 'Bearer ' + self.key
+        request = urllib.request.Request(self.base + path, None if body is None else json.dumps(body).encode(), headers)
+        try:
+            with self.opener.open(request, timeout=timeout) as reply:
+                return json.load(reply)
+        except urllib.error.HTTPError as error:
+            message = json.loads(error.read() or b'{}').get('error', {}).get('message', '')
+            raise SystemExit(f'qwen-agent: {path} failed with HTTP {error.code}: {message}') from None
+
+
+def codex(frontend, model, effort, arguments):
+    config = {
+        'model': model, 'model_provider': 'qwen_strata', 'model_reasoning_effort': effort,
+        'model_catalog_json': str(INSTALL / 'config/model-catalog.json'),
+        'model_context_window': CONTEXT_WINDOW, 'model_auto_compact_token_limit': AUTO_COMPACT,
+        'experimental_compact_prompt_file': str(INSTALL / 'config/prompts/compact-prompt.txt'),
+        'web_search': 'disabled',  # hosted search is not served yet
+        'model_providers.qwen_strata.name': 'Local Strata',
+        'model_providers.qwen_strata.base_url': frontend.base + '/strata/v1',
+        'model_providers.qwen_strata.wire_api': 'responses',
+        'model_providers.qwen_strata.env_key': 'QWEN_STRATA_KEY',
+        'model_providers.qwen_strata.requires_openai_auth': False,
+        'model_providers.qwen_strata.supports_websockets': False,
+        'model_providers.qwen_strata.request_max_retries': 0,  # a retried request may repeat tool effects
+        'model_providers.qwen_strata.stream_max_retries': 0,
+    }
+    overrides = [item for key, value in config.items() for item in ('-c', f'{key}={json.dumps(value)}')]
+    return ['codex', *overrides, *arguments], {'QWEN_STRATA_KEY': frontend.key}
+
+
+def claude(frontend, model, effort, arguments):
+    environment = {
+        'ANTHROPIC_BASE_URL': frontend.base + '/strata', 'ANTHROPIC_AUTH_TOKEN': frontend.key,
+        'ANTHROPIC_MODEL': model, 'ANTHROPIC_DEFAULT_OPUS_MODEL': model,
+        'ANTHROPIC_DEFAULT_SONNET_MODEL': model, 'ANTHROPIC_DEFAULT_HAIKU_MODEL': model,
+        'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC': '1',
+        # Claude Code assumes a 200K window for unknown models; compact at about 100K.
+        'CLAUDE_AUTOCOMPACT_PCT_OVERRIDE': str(AUTO_COMPACT * 100 // 200000),
+    }
+    return ['claude', *arguments], environment
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--model', choices=MODELS, default='Q2_0')
+    parser.add_argument('--effort', choices=('low', 'medium', 'high'), default='high', help='Codex reasoning effort')
+    parser.add_argument('agent', choices=('codex', 'claude'))
+    parser.add_argument('arguments', nargs=argparse.REMAINDER)
+    args = parser.parse_args()
+    model = 'qwen3.8-flash-next-' + MODELS[args.model]
+    frontend = Frontend()
+    # A closed terminal or kill must still reach the release below.
+    for name in ('SIGHUP', 'SIGTERM'):
+        signal.signal(getattr(signal, name), lambda *_: sys.exit(1))
+    frontend.key = frontend.call('/lease/acquire', {})['key']
+    try:
+        print(f'qwen-agent: starting {args.model}...', file=sys.stderr, flush=True)
+        frontend.call('/model/start', {'model': args.model})
+        command, environment = (codex if args.agent == 'codex' else claude)(frontend, model, args.effort, args.arguments)
+        env = {k: v for k, v in os.environ.items() if not k.startswith(('ANTHROPIC_', 'OPENAI_'))}
+        process = subprocess.Popen(command, env=dict(env, **environment))
+        while True:
+            try:
+                code = process.wait()
+                break
+            except KeyboardInterrupt:
+                pass  # Ctrl-C belongs to the agent; keep waiting so the lease is returned
+        return code
+    finally:
+        try:
+            frontend.call('/lease/release', {}, timeout=300)
+            print('qwen-agent: model stopped, lease returned', file=sys.stderr)
+        except BaseException:
+            print('qwen-agent: release failed; restart the frontend task QwenStrataFrontend to free the lease',
+                  file=sys.stderr)
+            raise
+
+
+if __name__ == '__main__':
+    sys.exit(main())

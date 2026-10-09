@@ -10,6 +10,7 @@
 |---|---|
 | `deployment_source` | 由工程模板、`config/deployments/<host>.json` 和私有配置渲染每机安装文件 |
 | `deploy` | 经前端租约关闭前端，部署服务文件和调用手册，回读 SHA，再由计划任务重启前端 |
+| `model_catalog` | 由所装 Codex 的 luna 条目生成日常 `config/model-catalog.json`；`--check` 核对是否与当前 Codex 版本一致 |
 | `upgrade_release` | 安装已校验的 Strata 源包和引擎，带备份和回滚；同样经前端租约停服 |
 | `install_offline` | 在 Windows 上用已有文件离线重建安装 |
 | `controller_client`、`measurement_host` | 测量用的前端租约客户端和引擎内部日志读取 |

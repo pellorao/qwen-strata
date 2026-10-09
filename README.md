@@ -29,7 +29,6 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 
 ## 主线
 
-- [ ] **agent 接入**：WSL 安装最新版 Codex CLI，写 Codex 与 Claude Code 接入说明和启动脚本，做一次冒烟检查（需申请）。
 - [ ] **rtx3080ti 资源调参**：显存预留 700/500/300，然后 spec-min-p 0.5/0.7，见[调参手册](docs/host-tuning.md#rtx3080ti)。
 - [ ] **防循环检测**：用两机全部历史案例（235 会话 / 5303 行为 / 156 组循环）改进动态检测，离线进行，见[计划](docs/plan.md#防循环检测)。
 - [ ] **rtx4070tis 恢复后**：核对实际状态、补同步部署，再决定 ARW 安全恢复和 Spec Readiness 十二实例。
@@ -38,5 +37,6 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 
 - 2026-10-09 从 Codex 工程迁入：主机改按 GPU 命名；私有配置合并为 `project.private.toml`；tools 按用途分子目录，已关闭路线的脚本和测试删除；规则改写为 `AGENTS.md` + `.claude/rules/` + `.claude/skills/`。
 - 维护测量基线：[Q2_0/high/default](config/maintenance-baseline.json)，100K 压缩阈值 / 156584 窗口，8192 思考 / 24576 总输出。历史测量绑定 Codex 0.160.1，换新版 Codex 后的结果单独标注，不改历史标签。
-- 2026-10-09 前端重写并部署到 rtx3080ti：常驻 `192.168.60.212:8000`，独占租约 + `/strata/v1/*` 直通原生 Chat / Responses / Messages；WSL 可直连。无模型验收通过，模型经前端的实际运行尚未验证。托管搜索暂缺，见[计划](docs/plan.md#前端)。
+- 2026-10-09 前端重写并部署到 rtx3080ti：常驻 `192.168.60.212:8000`，独占租约 + `/strata/v1/*` 直通原生 Chat / Responses / Messages；WSL 可直连。无模型验收通过。
+- 2026-10-09 agent 接入：Codex 0.162.0 与 Claude Code 2.1.295 经 `bin/qwen-agent` 调用本地模型，冒烟检查通过（[记录](docs/work-history.md)）。托管搜索暂缺，见[计划](docs/plan.md#前端)。
 - 防循环：[CPU 小模型路线已关闭](reports/v0.1.40.2/small-model-decision-30m/summary.md)；下一步是 [Strata 判别](benchmarks/loop-detection-v2/strata-judge-design.md)、纯程序机械判断及两者组合三条路线，判别配置等待审核。
