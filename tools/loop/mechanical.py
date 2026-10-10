@@ -14,7 +14,8 @@ import re
 
 K = 2                 # occurrences before a repeat is reported (the scoring contract's k)
 SIMILARITY = 0.6      # weighted cosine between two segments to call them the same unit
-MIN_TERMS = 8         # segments with fewer distinct terms are too short to compare
+NOVELTY = 0.9         # an input segment less similar than this to every earlier input starts a new epoch
+MIN_TERMS = 20        # segments with fewer distinct terms are too short to compare
 SEGMENT_TERMS = 60    # long paragraphs are cut into pieces of about this many terms
 CANDIDATE_TERMS = 6   # rarest terms of a segment used to find earlier candidates
 
@@ -87,7 +88,7 @@ class Mechanical:
             novel = False
             for words in segments(payload.get('text')):
                 vector = Counter(words)
-                novel = novel or all(self._cosine(vector, earlier) < SIMILARITY for earlier in self.inputs)
+                novel = novel or all(self._cosine(vector, earlier) < NOVELTY for earlier in self.inputs)
                 self.inputs.append(vector)
                 self._add(words)
             self.epoch += novel
