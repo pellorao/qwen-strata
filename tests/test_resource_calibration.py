@@ -53,6 +53,17 @@ class ResourceCalibrationTests(unittest.TestCase):
         plan['conditions']=[1024,768,256]
         with self.assertRaises(ValueError):experiment_schedule(plan)
     def reply(self,value,raw=False):return {'choices':[{'finish_reason':'stop','message':{'content':value if raw else json.dumps(value)}}]}
+    def test_generic_conditions_carry_overrides_and_reject_gaps(self):
+        plan={'host':'rtx3080ti','candidate_dimension':'pcie-frac','schema':'conditions-v2',
+              'conditions':[{'id':'measured','overrides':{'pcie-frac':None}},{'id':'zero','overrides':{'pcie-frac':'0.00'}}],
+              'schedule':[{'condition':c,'repetition':r}for r in(1,2,3)for c in('measured','zero')]}
+        jobs=experiment_schedule(plan)
+        self.assertEqual(len(jobs),6);self.assertEqual(jobs[0]['overrides'],{'pcie-frac':None})
+        self.assertEqual(jobs[1]['label'],'zero-r1')
+        plan['schedule']=plan['schedule'][:-1]
+        with self.assertRaises(ValueError):experiment_schedule(plan)
+        plan['conditions'][0]={'id':'measured'}
+        with self.assertRaises(ValueError):experiment_schedule(plan)
     def test_complete_wrong_answer_is_not_retried(self):
         result=inspect_reply(self.reply([{'id':'x','available':8}]),[{'id':'x','available':9}])
         self.assertTrue(result['complete']);self.assertFalse(result['pass'])

@@ -68,6 +68,20 @@ def experiment_schedule(plan):
     """Admit only the concrete resource comparisons selected in this project."""
     if plan.get('host')!='rtx3080ti':raise ValueError('Unapproved resource host')
     dimension=plan['candidate_dimension']
+    if plan.get('schema')=='conditions-v2':
+        # Each condition names its own engine overrides (null drops a template flag) and environment.
+        conditions={c['id']:c for c in plan['conditions']}
+        if len(conditions)<2 or len(conditions)!=len(plan['conditions']):raise ValueError('Unapproved conditions')
+        for c in conditions.values():
+            if set(c)-{'id','overrides','environment'} or not c.get('overrides') and not c.get('environment'):
+                raise ValueError('Condition must change an engine override or environment value')
+        jobs=[{'label':f"{j['condition']}-r{j['repetition']}",'condition':j['condition'],'repetition':j['repetition'],
+               'overrides':dict(conditions[j['condition']].get('overrides',{})),
+               'environment':dict(conditions[j['condition']].get('environment',{}))}for j in plan['schedule']]
+        expected={(c,r)for c in conditions for r in [1,2,3]}
+        if len(jobs)!=len(expected) or {(j['condition'],j['repetition'])for j in jobs}!=expected:
+            raise ValueError('Duplicate, missing or extra resource observation')
+        return jobs
     if dimension=='pool-affinity':
         if plan['conditions']!=['auto','all'] or plan['pool_workers']!=23:
             raise ValueError('Unapproved affinity conditions')
@@ -149,7 +163,7 @@ def logical_request(owner,body,expected,folder,limit):
 
 
 def run_case(host,plan,workload,job,folder):
-    folder.mkdir();options=copy.deepcopy(plan['baseline']['start_options'])
+    folder.mkdir();options=copy.deepcopy(plan['baseline']['start_options']);model=options.get('model','Q2_0')
     options['engine_overrides'].update(job['overrides']);label=job['label'];condition=job['condition']
     options.setdefault('engine_environment',{}).update(job.get('environment',{}))
     row={'label':label,'condition':condition,'repetition':job['repetition'],'started_at':time.time(),'requests':[],
@@ -159,7 +173,7 @@ def run_case(host,plan,workload,job,folder):
     try:
         with owner:
             if owner.call('/model/status')['status']!='stopped':raise RuntimeError('Model was not stopped')
-            offset=log_offset(host.installation,'Q2_0',host);save(folder/'engine-offset.json',{'offset':offset})
+            offset=log_offset(host.installation,model,host);save(folder/'engine-offset.json',{'offset':offset})
             try:
                 status,row['load_seconds']=owner.start(**options);health=status['native_health'];startup=health['startup_instructions']
                 save(folder/'start-status.json',{'status':status['status'],'max_context':health.get('max_context'),
@@ -179,11 +193,18 @@ for p in psutil.process_iter(['pid','exe']):
 print(json.dumps(rows))
 ''',(str(host.windows_root),))
                     save(folder/'effective-engine-environment.json',binding)
-                    expected=str(job['environment']['STRATA_PREFILL_CPU_SHARE'])
+                    expected=str(job['environment'].get('STRATA_PREFILL_CPU_SHARE'))
                     if len(binding)!=1 or binding[0]['cpu_prefill_share']!=expected:
                         raise RuntimeError('Effective CPU-share environment differs from selected condition')
+                if plan.get('schema')=='conditions-v2':
+                    started=re.findall(r'engine started: (.*)',host.log_bytes_since(model,offset).decode(errors='replace'))
+                    args=started[-1].split() if started else []
+                    effective={k:(args[args.index('--'+k)+1]if '--'+k in args else None)for k in options['engine_overrides']}
+                    save(folder/'effective-engine-args.json',effective);row['effective_args']=effective
+                    if not started or any(effective[k]!=(None if v is None else str(v))for k,v in options['engine_overrides'].items()):
+                        raise RuntimeError('Effective engine arguments differ from selected condition')
                 if 'vram-reserve-mib' in job['overrides']:
-                    loaded=host.log_bytes_since('Q2_0',offset).decode(errors='replace')
+                    loaded=host.log_bytes_since(model,offset).decode(errors='replace')
                     cache=re.search(r'expert cache auto: ([\d.]+) GiB free, (\d+) MiB reserved.*?-> (\d+) slots',loaded)
                     after=re.search(r'(\d+) MiB of VRAM free with everything loaded',loaded)
                     effective={'free_gib_before_cache':float(cache[1])if cache else None,'reserve_mib':int(cache[2])if cache else None,
@@ -201,14 +222,14 @@ print(json.dumps(rows))
                     body=copy.deepcopy(plan['baseline']['request_options']['chat'])
                     body['messages']=[{'role':'user','content':case.get('user_text',workload.get('shared_prefix','')+case.get('question',''))}]
                     if plan.get('stream_chat'):body['stream']=True
-                    request_offset=log_offset(host.installation,'Q2_0',host)
+                    request_offset=log_offset(host.installation,model,host)
                     save(folder/f'request-{number}-engine-offset.json',{'offset':request_offset})
                     print(json.dumps({'instance':label,'request':case['id'],'event':'started'}),flush=True)
                     result=logical_request(owner,body,case['expected'],folder/f'request-{number}',plan['per_logical_request_work_seconds_limit'])
                     row['requests'].append(dict(result,id=case['id']));save(folder/'partial.json',row)
                     if plan.get('capture_each_request'):
                         from tools.reviewer.arw_measure import capture_engine_log
-                        detail=folder/f'request-{number}';st,tk=capture_engine_log(host.installation,'Q2_0',request_offset,detail,host)
+                        detail=folder/f'request-{number}';st,tk=capture_engine_log(host.installation,model,request_offset,detail,host)
                         save(detail/'engine-stages.json',st);save(detail/'engine-counts.json',tk)
                     print(json.dumps({'instance':label,'request':case['id'],'event':'closed','pass':result['pass'],
                                       'work_seconds':result['work_seconds'],'actual_calls':result['calls']}),flush=True)
@@ -216,7 +237,7 @@ print(json.dumps(rows))
                         row['remaining_requests_not_executed']='Work deadline; stop/cancel before issuing more work';break
             finally:
                 # Includes counters flushed by the stop/cancellation; never snapshot before stop.
-                stopped,stages,tokens=stop_and_capture_engine_log(owner,host.installation,'Q2_0',offset,folder,host)
+                stopped,stages,tokens=stop_and_capture_engine_log(owner,host.installation,model,offset,folder,host)
                 save(folder/'stop.json',stopped)
                 work=sum(r['work_seconds']for r in row['requests']);row.update(tokens=tokens,internal_stages=len(stages),
                     review_work_seconds=work,frontend_requests=sum(r['calls']for r in row['requests']),
@@ -241,7 +262,7 @@ def run(plan_path,workload_path,out,resume=False):
     progress_path=out/'progress.json'
     progress=json.loads(progress_path.read_text())if resume else{'status':'running','started_at':time.time(),'rows':[],'attempts':[]}
     host=MeasurementHost(plan['host']);save(out/'source-verification.json',host.verify_sources())
-    if host.profile_sha256('Q2_0')!=plan['default_profile_sha256_verified']:raise RuntimeError('Default profile changed')
+    if host.profile_sha256(plan['baseline']['start_options'].get('model','Q2_0'))!=plan['default_profile_sha256_verified']:raise RuntimeError('Default profile changed')
     for job in experiment_schedule(plan):
         label=job['label']
         if any(r['label']==label and r['status']=='closed-valid-observation'for r in progress['rows']):continue

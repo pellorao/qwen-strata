@@ -93,7 +93,10 @@ def model_configuration(model, identifier, project=None):
         overrides['max-context'] = defaults['max_context']
     for key, item in overrides.items():
         flag = '--' + key
-        if flag in value['args']:
+        if item is None:
+            if flag in value['args']:
+                del value['args'][value['args'].index(flag):value['args'].index(flag) + 2]
+        elif flag in value['args']:
             value['args'][value['args'].index(flag) + 1] = str(item)
         else:
             value['args'] += [flag, str(item)]

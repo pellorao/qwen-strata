@@ -182,6 +182,11 @@ class ConfigurationTests(unittest.TestCase):
         self.assertEqual(env['STRATA_PREFILL_CPU_SHARE'], 'auto')
         self.assertEqual(reasoning['reasoning_budget_tokens'], 8192)
 
+    def test_null_override_drops_template_flag(self):
+        args = model_process.configuration({'engine_overrides': {'prefill': None}}, 8100)[1]['args']
+        self.assertNotIn('--prefill', args)
+        self.assertEqual(len(args) % 2, 0)
+
     def test_another_effort_drops_installed_budget(self):
         reasoning = model_process.configuration({'request_defaults': {'reasoning_effort': 'medium'}}, 8100)[3]
         self.assertEqual(reasoning, {'reasoning_effort': 'medium'})

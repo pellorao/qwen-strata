@@ -58,6 +58,8 @@ installation_path='C:\\Strata'
         self.assertEqual(model_configuration('Q2_0', 'tuned', self.root)['args'],
                          ['--prefill', '8192', '--max-context', '250000', '--vram-reserve-mib', '512'])
         self.assertEqual(model_configuration('IQ3_XXS', 'tuned', self.root)['args'], ['--prefill', '8192'])
+        self.host('tuned', models=['Q2_0', 'IQ3_XXS'], engine_overrides={}, model_overrides={'IQ3_XXS': {'prefill': None}})
+        self.assertEqual(model_configuration('IQ3_XXS', 'tuned', self.root)['args'], [])
         self.host('stray', engine_overrides={}, model_overrides={'IQ2_XS': {'vram-reserve-mib': 512}})
         with self.assertRaisesRegex(ValueError, 'model_overrides'):
             load_host('stray', self.root)

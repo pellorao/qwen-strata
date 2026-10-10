@@ -56,6 +56,9 @@ def configuration(options, model_port):
         flag = '--' + name
         if name in BOOL_FLAGS and type(value) is bool:
             args[:] = [a for a in args if a != flag] + ([flag] if value else [])
+        elif name in VALUE_FLAGS and value is None:
+            if flag in args:
+                del args[args.index(flag):args.index(flag) + 2]
         elif name in VALUE_FLAGS and _scalar(value):
             if flag in args:
                 args[args.index(flag) + 1] = str(value)
