@@ -23,7 +23,7 @@ VALUE_FLAGS = {
     'pcie-mode', 'spec', 'spec-min-p', 'expert-cache', 'vram-reserve-mib', 'adapt-every',
     'adapt-swaps', 'adapt-decay', 'mtp-window', 'ple-io', 'ple-inflight', 'ple-row-cache',
     'short-read', 'suffix-draft', 'mtp-max-t', 'prompt-cache', 'prompt-cache-every',
-    'prompt-cache-root'}
+    'prompt-cache-root', 'conversation-cache-mib', 'conversation-cache-slots', 'conversation-cache-min-free-mib'}
 BOOL_FLAGS = {
     'expert-cache-per-layer', 'expert-cache-cpu-order', 'no-capture', 'no-host-worker',
     'no-ple-prefetch', 'no-prefill-borrow', 'no-split-rows', 'no-coupled-draft', 'shared-late',

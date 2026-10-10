@@ -12,7 +12,10 @@
     "kv-resident": 20480,
     "pool-workers": 23,
     "pool-affinity": "all",
-    "expert-cache": "auto"
+    "expert-cache": "auto",
+    "conversation-cache-mib": 8192,
+    "conversation-cache-slots": 4,
+    "conversation-cache-min-free-mib": 5120
   },
   "listen_address": "192.168.60.212",
   "port": 8000,
