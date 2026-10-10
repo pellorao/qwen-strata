@@ -46,7 +46,7 @@ def tool_text(payload):
 
 class Mechanical:
     def reset(self, trace):
-        self.seen = []                       # (Counter, records in chain, copies in its record, record, epoch)
+        self.seen = []                       # (Counter, records in chain, copies in its record, record, epoch, chain root)
         self.frequency = Counter()           # in how many earlier segments each term occurs
         self.index = defaultdict(list)       # term -> earlier segment numbers
         self.tools = defaultdict(list)       # exact call + result text -> records it occurred at
@@ -67,28 +67,35 @@ class Mechanical:
         rare = sorted(vector, key=lambda t: self.frequency[t])[:CANDIDATE_TERMS]
         candidates = Counter(n for t in rare for n in self.index[t])
         spread = inside = 1
-        for number, shared in candidates.items():
-            earlier, records, copies, record, epoch = self.seen[number]
+        number = root = len(self.seen)
+        for earlier_number, shared in candidates.items():
+            earlier, records, copies, record, epoch, earlier_root = self.seen[earlier_number]
             if (shared >= 2 and epoch == self.epoch and self.record - record <= WINDOW
                     and self._cosine(vector, earlier) >= SIMILARITY):
                 spread = max(spread, records + (record != self.record))
                 inside = max(inside, copies + 1 if record == self.record else 1)
-        number = len(self.seen)
-        self.seen.append((vector, spread, inside, self.record, self.epoch))
+                root = min(root, earlier_root)
+        self.seen.append((vector, spread, inside, self.record, self.epoch, root))
         for t in vector:
             self.frequency[t] += 1
             self.index[t].append(number)
-        return K if spread >= K or inside >= K_INSIDE else 1
+        if spread >= K or inside >= K_INSIDE:
+            self.chains.add(root)
+            return K
+        return 1
 
     def observe(self, observation):
         payload = observation.payload
         kind = payload.get('kind')
         self.record += 1
+        self.chains = set()                  # roots of the recurrence chains this record repeats
         if kind == 'tool':
             text = tool_text(payload)
             at = self.tools[text]
             at.append(self.record)
             chain = sum(self.record - r <= WINDOW for r in at)
+            if chain >= K:
+                self.chains.add(text)
             for words in segments(json.dumps(payload.get('arguments'), ensure_ascii=False)):
                 self._add(words)
         elif kind in ('reasoning', 'assistant'):
