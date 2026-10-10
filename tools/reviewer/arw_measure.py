@@ -153,6 +153,8 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
             'shell_environment_policy':{'set':review_shell_environment(os.environ['QWEN_ARW_RUNTIME_FILE'])},
             'model_providers':{'qwen_strata':{'name':'Local Strata','base_url':os.environ['QWEN_ARW_MODEL_BASE'],
                 'wire_api':'responses','env_key':'STRATA_API_KEY','requires_openai_auth':False,'supports_websockets':False}}}}
+    if selection.get('loop_reminder')=='off':  # baseline without the frontend loop reminder
+        settings['config']['model_providers']['qwen_strata']['http_headers']={'X-Loop-Reminder':'off'}
     if 'auto_compact_token_limit' in selection:
         settings['config']['model_auto_compact_token_limit']=selection['auto_compact_token_limit']
     settings['config']=compaction_config(settings['config'],folder/'prompt-policy',
