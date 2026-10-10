@@ -1,186 +1,102 @@
-"""Intervention replay preserves timing errors, normal logs and independent runs."""
-from pathlib import Path
+"""Scoring contract v3: full replay, probability thresholds, rule-relative first target and weights."""
 import sys
 import unittest
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.loop.loop_replay import Alert, LoopEpisode, Observation, replay
-from tools.loop.loop_reminders import reminder_text
+from tools.loop.loop_replay import LoopGroup, Observation, replay, verdict
 
 
-class ScriptedDetector:
-    def __init__(self, alerts):
-        self.alerts = alerts
-        self.seen = []
-        self.resets = []
+class Scripted:
+    """Returns a fixed probability per record and records what it was shown."""
+    def __init__(self, scores):
+        self.scores, self.seen, self.resets = scores, [], []
+
+    def reset(self, trace):
+        self.resets.append(trace)
 
     def observe(self, observation):
-        self.seen.append(observation.id)
-        return self.alerts.get(observation.id, [])
+        self.seen.append(observation)
+        return self.scores.get(observation.id, 0.0)
 
-    def reset(self, trace_id):
-        self.resets.append(trace_id)
+
+def records(*ids, trace='t'):
+    return [Observation(i, trace, {'text': i, 'label': 'loop', 'loop_annotations': ['g']}) for i in ids]
 
 
 class ReplayTests(unittest.TestCase):
-    def setUp(self):
-        self.units = [Observation(key, 'root', {'text': key}) for key in ['a1', 'a2', 'a3', 'a4', 'normal']]
-        self.episode = LoopEpisode('loop', 'root', ('a1', 'a2', 'a3', 'a4'), 'normal', {'two': 'a2', 'three': 'a3'})
+    def test_thresholds_and_uncertain_band(self):
+        self.assertEqual([verdict(p) for p in (0.61, 0.6, 0.5, 0.4, 0.39, True, False)],
+                         ['positive', 'uncertain', 'uncertain', 'uncertain', 'negative', 'positive', 'negative'])
+        with self.assertRaises(ValueError):
+            verdict(1.2)
 
-    def run_case(self, when, rule='three', evidence=None):
-        detector = ScriptedDetector({when: [Alert(rule, evidence or ('a1', when))]})
-        return replay(self.units, [self.episode], detector, [rule]), detector
+    def test_everything_is_replayed_and_answers_are_hidden(self):
+        detector = Scripted({'b': 0.9})
+        replay(records('a', 'b', 'n', 'c'), [LoopGroup('g', 't', ('a', 'b', 'c'))], detector, 2)
+        self.assertEqual([o.id for o in detector.seen], ['a', 'b', 'n', 'c'])
+        self.assertTrue(all(set(o.payload) == {'text'} for o in detector.seen))
+        self.assertEqual(detector.resets, ['t'])
 
-    def test_on_time_skips_remaining_repeat_and_resumes_normal(self):
-        result, detector = self.run_case('a3')
-        self.assertEqual((result['tp'], result['fp'], result['fn'], result['f1']), (1, 0, 0, 1))
-        self.assertEqual(detector.seen, ['a1', 'a2', 'a3', 'normal'])
-        self.assertEqual(result['skips'][0]['skipped_observation_ids'], ['a4'])
-        self.assertEqual(detector.resets, ['root', 'root'])
+    def test_first_target_follows_the_rule_and_later_records_share_half(self):
+        group = LoopGroup('g', 't', ('a', 'b', 'c', 'd'))
+        obs = records('a', 'b', 'n', 'c', 'd')
+        two = replay(obs, [group], Scripted({'b': 0.9, 'c': 0.9, 'd': 0.9}), 2)
+        self.assertEqual((two['tp'], two['fn'], two['fp']), (1.5, 0.0, 0.0))
+        self.assertEqual(two['f1'], 1.0)
+        # a k = 3 rule owes its first alert at c; b is neutral, a later miss at d costs only 0.5
+        three = replay(obs, [group], Scripted({'b': 0.9, 'c': 0.9}), 3)
+        self.assertEqual((three['tp'], three['fn'], three['fp'], three['neutral_records']), (1.0, 0.5, 0.0, 2))
+        self.assertEqual(three['first_hits'], 1)
 
-    def test_early_true_repeat_still_skips_but_keeps_fp_and_fn(self):
-        result, detector = self.run_case('a2')
-        self.assertEqual((result['tp'], result['fp'], result['fn']), (0, 1, 1))
-        self.assertEqual(detector.seen, ['a1', 'a2', 'normal'])
-        self.assertEqual(result['decisions'][0]['reason'], 'early')
+    def test_missing_the_first_costs_more_than_missing_later(self):
+        group = LoopGroup('g', 't', ('a', 'b', 'c', 'd'))
+        late = replay(records('a', 'b', 'c', 'd'), [group], Scripted({'c': 0.9, 'd': 0.9}), 2)
+        self.assertEqual((late['tp'], late['fn']), (0.5, 1.0))
+        self.assertEqual(late['group_recall'], 0.0)
 
-    def test_late_true_repeat_is_not_relabelled_to_tp(self):
-        result, detector = self.run_case('a4')
-        self.assertEqual((result['tp'], result['fp'], result['fn'], result['f1']), (0, 1, 1, 0))
-        self.assertIn('normal', detector.seen)
+    def test_uncertain_counts_as_wrong_on_both_sides(self):
+        result = replay(records('a', 'b', 'n'), [LoopGroup('g', 't', ('a', 'b'))], Scripted({'b': 0.5, 'n': 0.45}), 2)
+        self.assertEqual((result['tp'], result['fn'], result['fp']), (0.0, 1.0, 1.0))
+        self.assertEqual((result['uncertain_positive_records'], result['uncertain_negative_records']), (1, 1))
+        self.assertEqual(result['false_alarms'], ['n'])
 
-    def test_late_warning_skips_further_repeats_before_resuming_normal(self):
-        units = self.units[:4] + [Observation('a5', 'root', {'text': 'repeat'})] + self.units[4:]
-        episode = LoopEpisode('loop', 'root', ('a1', 'a2', 'a3', 'a4', 'a5'), 'normal', {'three': 'a3'})
-        detector = ScriptedDetector({'a4': [Alert('three', ('a1', 'a4'))]})
-        result = replay(units, [episode], detector, ['three'])
-        self.assertEqual((result['tp'], result['fp'], result['fn']), (0, 1, 1))
-        self.assertEqual(detector.seen, ['a1', 'a2', 'a3', 'a4', 'normal'])
-        self.assertEqual(result['skips'][0]['skipped_observation_ids'], ['a5'])
+    def test_short_group_is_unreachable_for_a_larger_k(self):
+        result = replay(records('a', 'b', 'n'), [LoopGroup('g', 't', ('a', 'b'))], Scripted({'b': 0.9}), 3)
+        self.assertEqual((result['tp'], result['fn'], result['fp']), (0.0, 1.0, 0.0))
+        self.assertEqual(result['unreachable_groups'], ['g'])
 
-    def test_different_rules_have_different_targets(self):
-        two, _ = self.run_case('a2', 'two')
-        three, _ = self.run_case('a3', 'three')
-        self.assertEqual(two['f1'], 1)
-        self.assertEqual(three['f1'], 1)
+    def test_single_response_group_has_one_detection_point(self):
+        group = LoopGroup('s', 't', ('a', 'a', 'a'), mode='single_response')
+        result = replay(records('a', 'n'), [group], Scripted({'a': 1.0}), 3)
+        self.assertEqual((result['tp'], result['fn'], result['fp']), (1.0, 0.0, 0.0))
+        with self.assertRaises(ValueError):
+            replay(records('a', 'b'), [LoopGroup('s', 't', ('a', 'b'), mode='single_response')], Scripted({}), 2)
 
-    def test_joint_replay_uses_earliest_target_and_does_not_hide_missed_target(self):
-        detector = ScriptedDetector({'a3': [Alert('three', ('a1', 'a3'))]})
-        result = replay(self.units, [self.episode], detector, ['two', 'three'])
-        self.assertEqual((result['tp'], result['fp'], result['fn']), (0, 1, 1))
+    def test_repeats_inside_the_first_record_put_the_target_there(self):
+        group = LoopGroup('g', 't', ('a', 'a', 'a', 'b'))
+        result = replay(records('a', 'b'), [group], Scripted({'a': 0.9}), 3)
+        self.assertEqual((result['tp'], result['fn']), (1.0, 0.5))
 
-    def test_semantic_false_positive_does_not_skip_or_reset(self):
-        result, detector = self.run_case('a2', evidence=('a1', 'foreign'))
-        self.assertEqual(detector.seen, [o.id for o in self.units])
-        self.assertEqual(result['skips'], [])
-        self.assertEqual(detector.resets, ['root'])
-        self.assertFalse(result['decisions'][0]['genuine_loop'])
+    def test_overlapping_groups_score_separately_with_one_verdict(self):
+        groups = [LoopGroup('g', 't', ('a', 'c')), LoopGroup('h', 't', ('b', 'c'))]
+        result = replay(records('a', 'b', 'c'), groups, Scripted({'c': 0.9}), 2)
+        self.assertEqual((result['tp'], result['fp'], result['negatives']), (2.0, 0.0, 0))
 
-    def test_future_witness_does_not_license_a_skip(self):
-        result, detector = self.run_case('a2', evidence=('a1', 'a4'))
-        self.assertEqual(result['skips'], [])
-        self.assertEqual(detector.seen, [o.id for o in self.units])
+    def test_unjudged_records_are_observed_but_not_scored_and_traces_reset(self):
+        obs = [Observation('x', 't', {}, judged=False), *records('a', 'b'), *records('n', trace='u')]
+        detector = Scripted({'x': 0.9, 'n': 0.9})
+        result = replay(obs, [LoopGroup('g', 't', ('a', 'b'))], detector, 2)
+        self.assertEqual(result['false_alarms'], ['n'])
+        self.assertEqual(detector.resets, ['t', 'u'])
+        with self.assertRaises(ValueError):
+            replay(obs, [LoopGroup('g', 't', ('x', 'a'))], Scripted({}), 2)
 
-    def test_previous_loop_is_late_without_rewinding_normal_logs(self):
-        result, detector = self.run_case('normal', evidence=('a1', 'a3'))
-        self.assertEqual(result['skips'], [])
-        self.assertEqual(detector.seen.count('normal'), 1)
-        self.assertTrue(result['decisions'][0]['genuine_loop'])
-
-    def test_normal_interleaving_requires_corrected_group_boundary(self):
-        bad = LoopEpisode('loop', 'root', ('a1', 'a3', 'a4'), 'normal', {'three': 'a3'})
-        with self.assertRaisesRegex(ValueError, 'intervening normal'):
-            replay(self.units, [bad], ScriptedDetector({}), ['three'])
-
-    def test_end_of_trace_skip_preserves_the_next_trace(self):
-        units = self.units[:4] + [Observation('next-trace', 'other', {'text': 'fresh'})]
-        episode = LoopEpisode('loop', 'root', ('a1', 'a2', 'a3', 'a4'), None, {'three': 'a3'})
-        detector = ScriptedDetector({'a3': [Alert('three', ('a1', 'a3'))]})
-        replay(units, [episode], detector, ['three'])
-        self.assertEqual(detector.seen, ['a1', 'a2', 'a3', 'next-trace'])
-
-    def test_same_step_duplicate_alerts_are_not_two_true_positives(self):
-        detector = ScriptedDetector({'a3': [Alert('three', ('a1', 'a3')), Alert('three', ('a2', 'a3'))]})
-        result = replay(self.units, [self.episode], detector, ['three'])
-        self.assertEqual((result['tp'], result['fp'], result['fn']), (1, 1, 0))
-
-    def test_empty_positive_scope_is_not_a_perfect_score(self):
-        result = replay([self.units[-1]], [], ScriptedDetector({}), ['three'])
-        self.assertIsNone(result['f1'])
-
-    def test_detector_never_receives_fixture_answers_or_mutates_future_runs(self):
-        payload = {'text': 'actual text', 'label': 'loop', 'targets': {'three': 'now'},
-                   'loop_annotations': ['hidden'], 'nested': {'value': 'original'}}
-        unit = Observation('visible', 'root', payload)
-        class MutatingDetector(ScriptedDetector):
-            def observe(self, observation):
-                assert 'label' not in observation.payload
-                assert 'targets' not in observation.payload
-                assert 'loop_annotations' not in observation.payload
-                observation.payload['nested']['value'] = 'altered'
-                return []
-        replay([unit], [], MutatingDetector({}), ['three'])
-        self.assertEqual(payload['nested']['value'], 'original')
-
-    def test_independent_rules_do_not_share_skip_cursors(self):
-        two, two_detector = self.run_case('a2', 'two')
-        three, three_detector = self.run_case('a3', 'three')
-        self.assertNotIn('a3', two_detector.seen)
-        self.assertIn('a3', three_detector.seen)
-        self.assertEqual((two['tp'], three['tp']), (1, 1))
-
-    def internal_case(self):
-        units = [Observation('response', 'root', {'text': 'aaa bbb aaa bbb aaa bbb'}),
-                 Observation('after', 'root', {'text': 'new work'})]
-        episode = LoopEpisode('inside', 'root', ('response',), 'after', {'internal': 'response'},
-                              mode='single_response', text_spans=((0, 7), (8, 15), (16, 23)))
-        return units, episode
-
-    def test_internal_loop_has_one_point_without_third_versus_fourth_timing(self):
-        units, episode = self.internal_case()
-        alert = Alert('internal', ('response',), (('response', 0, 7), ('response', 16, 23)))
-        detector = ScriptedDetector({'response': [alert]})
-        result = replay(units, [episode], detector, ['internal'])
-        self.assertEqual((result['tp'], result['fp'], result['fn']), (1, 0, 0))
-        self.assertEqual(result['decisions'][0]['reason'], 'single-point-match')
-        self.assertEqual(result['skips'], [])
-        self.assertEqual(detector.seen, ['response', 'after'])
-
-    def test_internal_detection_needs_two_independent_text_witnesses(self):
-        units, episode = self.internal_case()
-        alert = Alert('internal', ('response',), (('response', 0, 7), ('response', 1, 6)))
-        result = replay(units, [episode], ScriptedDetector({'response': [alert]}), ['internal'])
-        self.assertEqual((result['tp'], result['fp'], result['fn']), (0, 1, 1))
-
-    def test_internal_content_misjudgment_is_a_false_positive(self):
-        units, episode = self.internal_case()
-        alert = Alert('internal', ('response',), (('response', 7, 8), ('response', 15, 16)))
-        result = replay(units, [episode], ScriptedDetector({'response': [alert]}), ['internal'])
-        self.assertEqual((result['tp'], result['fp'], result['fn']), (0, 1, 1))
-
-    def test_multiple_internal_groups_share_availability_but_have_distinct_spans(self):
-        units = [Observation('response', 'root', {'text': 'aaa aaa xxx xxx'}),
-                 Observation('after', 'root', {'text': 'new work'})]
-        episodes = [LoopEpisode('a', 'root', ('response',), 'after', {'internal': 'response'},
-                               'single_response', ((0, 3), (4, 7))),
-                    LoopEpisode('x', 'root', ('response',), 'after', {'internal': 'response'},
-                               'single_response', ((8, 11), (12, 15)))]
-        alerts = [Alert('internal', ('response',), (('response', 0, 3), ('response', 4, 7))),
-                  Alert('internal', ('response',), (('response', 8, 11), ('response', 12, 15)))]
-        result = replay(units, episodes, ScriptedDetector({'response': alerts}), ['internal'])
-        self.assertEqual((result['tp'], result['fp'], result['fn']), (2, 0, 0))
-
-    def test_internal_warning_cannot_skip_later_normal_output(self):
-        units, episode = self.internal_case()
-        bad = LoopEpisode(episode.id, episode.trace_id, episode.occurrences, None, episode.targets,
-                          episode.mode, episode.text_spans)
-        with self.assertRaisesRegex(ValueError, 'later normal'):
-            replay(units, [bad], ScriptedDetector({}), ['internal'])
-
-    def test_two_warning_texts_are_distinct_and_do_not_supply_case_answers(self):
-        self.assertNotEqual(reminder_text('single_response'), reminder_text('cross_call'))
-        self.assertIn('completed response', reminder_text('single_response'))
-        self.assertIn('original task', reminder_text('single_response'))
+    def test_gate_is_weighted_f1_at_least_point_eight(self):
+        group = LoopGroup('g', 't', ('a', 'b', 'c'))
+        result = replay(records('a', 'b', 'c', 'n1', 'n2'), [group], Scripted({'b': 0.9, 'c': 0.9, 'n1': 0.9}), 2)
+        self.assertAlmostEqual(result['f1'], 0.75)
+        self.assertFalse(result['passes_gate'])
 
 
 if __name__ == '__main__':
