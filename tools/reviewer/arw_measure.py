@@ -443,7 +443,7 @@ def load_resume_cleanup(path, recovering_native=False):
     return json.loads(path.read_text())
 
 
-def run(installation,out,selection,preparation_paths,catalog,profile=None,schedule=None,resume=False,resume_native_install=None,host=None):
+def run(installation,out,selection,preparation_paths,catalog,profile=None,schedule=None,resume=False,resume_native_install=None,host=None,limit=None):
     from tools.reviewer.native_cli_binding import verify_native_cli
     native_cli = verify_native_cli(selection.get('native_cli'))
     if host is None:
@@ -482,6 +482,8 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
             raise ValueError('Schedule must retain all original prepared instances')
     else:jobs=[(p,h,profile) for p in preparations for h in p['handoffs']]
     save(out/'schedule.json',[{'preparation':p['preparedPath'],'instanceId':h['instanceId'],'profile':f} for p,h,f in jobs])
+    if limit is not None:  # run the first instances now; the rest stay prepared for a later --resume
+        save(out/'deferred.json',[h['instanceId'] for _,h,_ in jobs[limit:]]);jobs=jobs[:limit]
     records=json.loads((out/'results.json').read_text()) if resume else []
     completed={r['instanceId']:r for r in records}
     for _,handoff,current_profile in jobs:
@@ -658,7 +660,8 @@ if __name__=='__main__':
     parser.add_argument('--profile')
     parser.add_argument('--schedule',type=Path,help='Main-owned execution order and profile bindings; retain every original instance.')
     parser.add_argument('--resume',action='store_true',help='Continue a closed batch, verifying prior bytes and fixed conditions; never rerun recorded instances.')
+    parser.add_argument('--limit',type=int,help='Run only the first N scheduled instances; the others are listed in deferred.json.')
     parser.add_argument('--resume-native-install',type=Path,help='After verified native exit, retain old busy state and use fresh isolated state for never-started instances.')
     args=parser.parse_args()
     run(args.install_root,args.out.resolve(),json.loads(args.selection.read_text()),args.preparation,args.catalog.resolve(),args.profile,
-        json.loads(args.schedule.read_text()) if args.schedule else None,args.resume,args.resume_native_install,args.host)
+        json.loads(args.schedule.read_text()) if args.schedule else None,args.resume,args.resume_native_install,args.host,args.limit)
