@@ -1120,5 +1120,15 @@
     "tests/workflow-distribution/workflow-distribution-sync.test.mjs": 420,
     "tests/workflow-distribution/workflow-distribution.test.mjs": 420
   },
-  "scope": "Repository source/configuration/skills/tests only; no Git history, scratch plans, sessions, private credentials, installation or model state."
+  "scope": "Repository source/configuration/skills/tests only; no Git history, scratch plans, sessions, private credentials, installation or model state.",
+  "patches": [
+    {
+      "file": "../../arw-patches/codex-0.162-workspace-roots.patch",
+      "sha256": "b3fbf31571657c0aa2a68d9bfe9775960ba4222a9f271ac0e34e98520fb9d645",
+      "reason": "Codex 0.162 records workspace roots in session_meta.runtime_workspace_roots instead of turn_context.workspace_roots; the native fact parser falls back to it.",
+      "result": {
+        "lib/background-agent/codex-app-server.mjs": "bbaaac608c5cf7db36105e62769213ef27de1b68a3cd208c7cd1b70c71127d53"
+      }
+    }
+  ]
 }

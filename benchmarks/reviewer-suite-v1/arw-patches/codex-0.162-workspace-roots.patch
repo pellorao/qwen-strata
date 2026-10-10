@@ -1,0 +1,12 @@
+--- a/lib/background-agent/codex-app-server.mjs
++++ b/lib/background-agent/codex-app-server.mjs
+@@ -1069,7 +1069,8 @@
+       const model = text(payload.model);
+       const reasoningEffort = text(payload.effort);
+       const cwd = text(payload.cwd);
+-      const workspaceRoots = strings(payload.workspace_roots);
++      // Codex 0.162 records the roots once in session_meta instead of in every turn_context.
++      const workspaceRoots = strings(payload.workspace_roots) ?? strings(meta.runtime_workspace_roots);
+       if (!cwd) contextReasons.push('Native turn cwd is missing.');
+       if (!workspaceRoots) contextReasons.push('Native workspace roots are missing.');
+       const permissionsRules = permissions(payload, workspaceRoots, env);

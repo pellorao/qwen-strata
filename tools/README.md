@@ -48,7 +48,7 @@
 
 | 模块 | 用途 |
 |---|---|
-| `freeze_arw_source` | 冻结上游 ARW 源码字节 |
+| `freeze_arw_source` | 冻结上游 ARW 源码字节；展开时打上 manifest 列出的工程兼容补丁并校验结果 |
 | `arw_measure`、`arw_native.mjs`、`arw_native_setup.mjs`、`arw_runtime.mjs` | 用原版 ARW 运行层执行冻结交接 |
 | `context_measure` | 执行一个已批准的同线程合并实例 |
 | `review_deadlines`、`monitor_review_deadlines` | 55/60、10/15 分钟时限 |

@@ -1,7 +1,9 @@
 """Freeze current upstream source bytes; extract only verified source members.
 
 This never imports Git history or copies runtime state. Materialization and
-original ARW preparation happen in a separate temporary copy.
+original ARW preparation happen in a separate temporary copy. Project-owned
+compatibility patches listed in the manifest are applied after extraction and
+their results verified; a fresh freeze starts without them.
 """
 import argparse
 import hashlib
@@ -62,7 +64,7 @@ def freeze(source, destination):
     return manifest
 
 
-def materialize(manifest, archive_path, destination):
+def materialize(manifest, archive_path, destination, patch_directory=None):
     raw = archive_path.read_bytes()
     if sha(raw) != manifest['snapshot']['sha256']:
         raise ValueError('Frozen source archive differs')
@@ -85,6 +87,14 @@ def materialize(manifest, archive_path, destination):
             seen.add(member.name)
     if seen != set(manifest['sha256']):
         raise ValueError('Frozen source members are missing')
+    for entry in manifest.get('patches', []):
+        patch = (patch_directory or archive_path.parent) / entry['file']
+        if sha(patch.read_bytes()) != entry['sha256']:
+            raise ValueError('Compatibility patch differs: ' + entry['file'])
+        subprocess.run(['git', 'apply', '-p1', str(patch.resolve())], cwd=destination, check=True)
+        for name, expected in entry['result'].items():
+            if sha((destination / name).read_bytes()) != expected:
+                raise ValueError('Patched member differs: ' + name)
 
 
 if __name__ == '__main__':
@@ -103,4 +113,5 @@ if __name__ == '__main__':
         result = json.loads(args.manifest.read_text())
         archive = (args.archive_directory or args.manifest.parent) / result['snapshot']['file']
         materialize(result, archive, args.out)
-        print(json.dumps({'materialized_files': len(result['sha256'])}))
+        print(json.dumps({'materialized_files': len(result['sha256']),
+                          'patches': [entry['file'] for entry in result.get('patches', [])]}))
