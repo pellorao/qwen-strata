@@ -43,6 +43,15 @@ class ResourceCalibrationTests(unittest.TestCase):
         self.assertTrue(all(j['overrides']['pool-affinity']=='all'for j in jobs))
         plan['schedule'][1]=plan['schedule'][0]
         with self.assertRaises(ValueError):experiment_schedule(plan)
+    def test_vram_reserve_scope_has_nine_observations_changing_only_reserve(self):
+        root=Path(__file__).resolve().parents[1]
+        plan=json.loads((root/'benchmarks/resource-calibration-v1/rtx3080ti-vram-reserve-plan.json').read_text())
+        jobs=experiment_schedule(plan)
+        self.assertEqual(len(jobs),9)
+        self.assertEqual({(j['condition'],j['repetition'])for j in jobs},{(v,r)for v in [700,500,300]for r in [1,2,3]})
+        for job in jobs:self.assertEqual(job['overrides'],{'pool-affinity':'all','pool-workers':23,'vram-reserve-mib':job['condition']})
+        plan['conditions']=[700,500,256]
+        with self.assertRaises(ValueError):experiment_schedule(plan)
     def reply(self,value,raw=False):return {'choices':[{'finish_reason':'stop','message':{'content':value if raw else json.dumps(value)}}]}
     def test_complete_wrong_answer_is_not_retried(self):
         result=inspect_reply(self.reply([{'id':'x','available':8}]),[{'id':'x','available':9}])

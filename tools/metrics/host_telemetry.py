@@ -34,8 +34,10 @@ try:
  if str(r/'sampler.py') not in p.cmdline():raise RuntimeError('Sampler identity changed')
  p.wait(timeout=5)
 except psutil.NoSuchProcess:pass
-log=r/'samples.jsonl'
-print(json.dumps({'raw':base64.b64encode(log.read_bytes()).decode() if log.exists() else '', 'sampler_stopped':not psutil.pid_exists(pid)}))
+log=r/'samples.jsonl';raw=log.read_bytes() if log.exists() else b'';stopped=not psutil.pid_exists(pid)
+if stopped:
+ import shutil;shutil.rmtree(r,ignore_errors=True)
+print(json.dumps({'raw':base64.b64encode(raw).decode(), 'sampler_stopped':stopped}))
 ''',(binding['root'],str(binding['pid'])))
     raw=base64.b64decode(result.pop('raw'));(folder/'telemetry.jsonl').write_bytes(raw)
     rows=[json.loads(x) for x in raw.splitlines()]

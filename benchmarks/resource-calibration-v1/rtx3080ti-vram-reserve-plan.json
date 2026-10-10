@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "revised-user-candidates-awaiting-specific-run-review",
+  "status": "frozen-awaiting-user-approval",
   "created_at": "2026-10-07T20:05:26.134392+00:00",
   "host": "rtx3080ti",
   "authorization": {
@@ -61,9 +61,8 @@
     }
   ],
   "fixed_conditions": {
-    "strata_version": "0.1.40.2",
-    "strata_commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a",
-    "codex_version": "0.160.1",
+    "strata_version": "0.1.41",
+    "strata_commit": "fb58e0dbc8399662c0e47c76578c6e878b14f6cf",
     "model": "Q2_0",
     "profile": "default",
     "profile_save": false,
@@ -77,15 +76,11 @@
     "context_window": 156584,
     "startup_instructions": true,
     "project_compact_instructions": true,
-    "native_compact_supplement": "tools/resources/codex/0.160.1/compact-prompt.txt",
     "base_source": "config/maintenance-baseline.json",
-    "base_source_sha256": "feb26e5693ddfe6733afb2d14def6ada2d34d67d9389e0cec7c72a562ad459e1",
-    "prompt_sha256": {
-      "config/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
-      "config/compact_prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
-      "tools/resources/codex/0.160.1/compact-prompt.txt": "ab0c334d4faca17e3afbb9b16967c1b2fdcc7242a9a0880af57949fa236d6d07"
-    },
-    "loop_prevention_instructions": true
+    "spec_min_p": 0.5,
+    "cpu_prefill_share": "auto",
+    "api": "Chat Completions streamed through the frontend /strata/v1, no agent harness",
+    "base_source_sha256": "0deaad95f1aa8fa91cf0ab20b7787df734b660c3b97bc4fde888bf2909e63d29"
   },
   "fixed_hardware": {
     "gpu": "RTX3080Ti12GiB",
@@ -112,7 +107,39 @@
     ],
     "scope": "Same established32Ksynthetic resource workload, not a formalReviewer. Freeze originalinputs/expected/template/tokenizerSHA beforestart.",
     "old_results_reused_as_new_control": false,
-    "why_fresh_control": "Old32Kcontrol was0.1.40.1andCPUshareoff; onlycurrent same-version/same-setting results can attribute reserveeffects."
+    "why_fresh_control": "Old32Kcontrol was0.1.40.1andCPUshareoff; onlycurrent same-version/same-setting results can attribute reserveeffects.",
+    "case_bindings": [
+      {
+        "id": "initial-extraction",
+        "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+        "expected_sha256": "a79eac60f4a13d3152444aec5e976b98fa5cd95a3ab6698c1ae13710d9829c35",
+        "expected_rows": 28
+      },
+      {
+        "id": "cached-calculation",
+        "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+        "expected_sha256": "981241594236afb80c77f5fee9c6d6d3ef5aed2e59d3a5a452ae2375eca3a691",
+        "expected_rows": 28
+      },
+      {
+        "id": "cached-update",
+        "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+        "expected_sha256": "9b202274bb231e305decbb3d6d66e15723a2facfc54808f1ce7c9e0a5e813575",
+        "expected_rows": 28
+      }
+    ],
+    "tokenizer_sha256": {
+      "chat_template.jinja": "12827f24b742ea4e80cdc12dbcf9622227056b9f797252a3149263d4f9aaadce",
+      "merges.txt": "080cf95432173729d160346b7882bd2a644b07f7a3813a3eb73f4e66787bfde9",
+      "tokenizer.json": "87be2ac47d8bc7393b7435df6ccd276740019a393941a2585d5edce59f450c54",
+      "token_type.json": "5088c8c298fc06af8382ddb3b76c888703ac2634e82263b97eedcc2ad202738b",
+      "vocab.json": "4ba64f0332abcfb0b600b7df1537d1e836e68009d5fb7cdb77339738dc6365c4"
+    },
+    "request_user_tokens": [
+      33006,
+      33014,
+      33203
+    ]
   },
   "metrics": [
     "all504answerrows correctness",
@@ -123,10 +150,11 @@
     "realfailures/continuations/cleanstop/keyreturn"
   ],
   "telemetry": {
-    "collector_fix": "CREATE_BREAKAWAY_FROM_JOB verified afterSSHdisconnect with4idle samples, no models.",
+    "collector_fix": "Sampler runs on the Windows side through the installation runtime Python (MeasurementHost._remote, WSL interop); idle check 5 samples OK 2026-10-10.",
     "sampling_interval_seconds": 1,
     "before_model": "Verify thefixed collector whileunloaded; frozen sourceSHA identicalfor bothgroups.",
-    "do_not_use_old_missing_samples": true
+    "do_not_use_old_missing_samples": true,
+    "interval_seconds": 1
   },
   "preconditions": [
     "User approvespreviousCPUgroup interpretation and this newgroup scope.",
@@ -161,5 +189,151 @@
     "model": "Q2_0"
   },
   "selection_transfer": "OnlythishostQ2_0mayadoptresult; samehostIQ2_XS/IQ3_XXSneedindependentnewtuning. Splitper-modelsourcebeforedefaultchange; do notbroadcastviahostsharedoverrides.",
-  "other_quantizations_tuned": false
+  "other_quantizations_tuned": false,
+  "fixed_pool_affinity": "all",
+  "pool_workers": 23,
+  "baseline": {
+    "status": "user-selected-runtime-starting-point",
+    "selected_on": "2026-10-06",
+    "selected_by": "user",
+    "reason": "User selects high as the base running effort after observing shorter task times in the current effort comparison.",
+    "strata": {
+      "version": "0.1.41",
+      "commit": "fb58e0dbc8399662c0e47c76578c6e878b14f6cf"
+    },
+    "start_options": {
+      "model": "Q2_0",
+      "engine_overrides": {
+        "prefill": 8192,
+        "kv": "int8",
+        "kv-resident": 20480,
+        "pool-workers": 23,
+        "pcie-frac": 0.0,
+        "spec": 4,
+        "spec-min-p": 0.5,
+        "expert-cache": "auto",
+        "vram-reserve-mib": 700,
+        "adapt-every": 4,
+        "adapt-swaps": 96,
+        "adapt-decay": 0.7,
+        "mtp-window": 32768,
+        "pcie-mode": "auto",
+        "expert-cache-per-layer": false,
+        "expert-cache-cpu-order": false,
+        "pool-affinity": "all",
+        "ple-io": "direct",
+        "ple-inflight": 256,
+        "no-capture": false,
+        "no-host-worker": false,
+        "no-ple-prefetch": false,
+        "no-prefill-borrow": false,
+        "no-split-rows": false,
+        "no-coupled-draft": false,
+        "shared-late": false,
+        "keep-canonical": false,
+        "no-token-graph": false,
+        "no-fused-gr": false,
+        "no-hit-poke": false,
+        "ple-sync-submit": false,
+        "no-spec-split": false,
+        "gr-fp32-activations": false,
+        "ple-row-cache": 1048576,
+        "short-read": 64,
+        "suffix-draft": 3,
+        "mtp-max-t": 0,
+        "prompt-cache": 6,
+        "prompt-cache-every": 16384,
+        "prompt-cache-root": 2048,
+        "max-context": 156584
+      },
+      "engine_environment": {
+        "STRATA_HC_SPLIT": null,
+        "STRATA_ADAPT_NOWAIT": null,
+        "STRATA_SSD_KEEPALIVE": null
+      },
+      "request_defaults": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20,
+        "max_tokens": 24576,
+        "reasoning_budget_tokens": 8192,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "penalty_last_n": 64,
+        "reasoning_effort": "high"
+      }
+    },
+    "request_options": {
+      "responses": {
+        "model": "qwen3.8-flash-next-q2_0",
+        "reasoning": {
+          "effort": "high"
+        },
+        "max_output_tokens": 24576,
+        "temperature": 0.0,
+        "top_p": 1.0
+      },
+      "chat": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20,
+        "max_tokens": 24576,
+        "reasoning_budget_tokens": 8192,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "penalty_last_n": 64,
+        "reasoning_effort": "high",
+        "model": "qwen3.8-flash-next-q2_0"
+      }
+    },
+    "harness": {
+      "model_reasoning_effort": "high",
+      "model_context_window": 156584,
+      "model_auto_compact_token_limit": 100000,
+      "guardian_effort": "low",
+      "guardian_reasoning_budget_tokens": 2048,
+      "guardian_max_tokens": 8192
+    },
+    "profile": {
+      "choice": "default",
+      "installation_relative_path": "runtime/Strata/data/expert-profile.bin",
+      "sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "save_enabled": false
+    },
+    "parameter_origin": {
+      "file": "reports/v0.1.38/upgrade-cycle-20261003/baseline.json",
+      "sha256": "ada9da61fe092b296964cd2aa6c03457825000ed7d61ddcf5e7ab1c03ae89ffe",
+      "scope": "Other parameters inherited from the v0.1.38 published baseline; that historical file is unchanged."
+    },
+    "selection_evidence": "reports/v0.1.38/reasoning-effort-comparison/summary.md",
+    "qualification": "v0.1.41 installed on rtx3080ti only (rtx4070tis offline, pending sync); short call-chain check recorded in reports/v0.1.41/upgrade.md. User-selected parameters retained; full safety quality, 100K reliability and ARW Reviewer acceptance are not established.",
+    "model_run_performed_for_selection": false
+  },
+  "prompt_binding": {
+    "startup_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "compact_sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+  },
+  "default_profile_sha256_verified": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+  "stream_chat": true,
+  "capture_each_request": true,
+  "per_logical_request_work_seconds_limit": 150,
+  "version_note": "Drafted on 0.1.40.2 with the old remote controller; frozen on 0.1.41 with the resident frontend. Fresh 700 control in the same group; no old result reused.",
+  "effective_binding": "After each start the engine log line \"expert cache auto: X GiB free, N MiB reserved -> S slots\" must show the selected reserve; slots and loaded free VRAM are recorded.",
+  "source_sha256": {
+    "tools/tuning/resource_calibration.py": "5eb6fd46b520868a4c1a1e524be4f8346821ba54ad8e2c565fa2f3a9f75a483b",
+    "tools/metrics/streamed_chat.py": "6ab84674ae01a2b3e6c74576eac582744ee758fbe316c3033f29c0001018e5b2",
+    "tools/metrics/host_telemetry.py": "ea1a4a06a54dbf21810fc7f691ffa61b1c3b10717aa21c7a38e10d1582966657",
+    "tools/metrics/windows_resource_sampler.py": "03ee096346a30c1eb29e22d406bf56b28ee96a3e810b858511ad5868d2fbc467",
+    "tools/ops/measurement_host.py": "caf72fe2ad1f0c8a8a219997ad00d7a53fec5b4337250d02ec1e83cddd2c75d3",
+    "tools/metrics/strata_tokens.py": "2905bdb41b097c2b48467ae786ffc72501ff77f74b302e2a10cce9213c168878",
+    "benchmarks/resource-calibration-v1/workload.py": "049d204cae11050fc589f8fa77c337278589b61321315f9896a2474741d0429a",
+    "benchmarks/resource-calibration-v1/protocol.md": "fb8000489aa949a9a44552e9818213780f047e76c8291b83b603985cfacb079a",
+    "config/prompts/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "config/prompts/compact-prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+    "config/maintenance-baseline.json": "0deaad95f1aa8fa91cf0ab20b7787df734b660c3b97bc4fde888bf2909e63d29"
+  }
 }

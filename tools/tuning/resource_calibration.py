@@ -103,6 +103,12 @@ def experiment_schedule(plan):
         jobs=[{'label':f"cpu-{j['condition']}-r{j['repetition']}", 'condition':j['condition'],
                'repetition':j['repetition'],'overrides':{},
                'environment':{'STRATA_PREFILL_CPU_SHARE':values[j['condition']]}}for j in plan['schedule']]
+    elif dimension=='vram-reserve-mib':
+        if plan['conditions']!=[700,500,300] or plan['fixed_pool_affinity']!='all' or plan['pool_workers']!=23:
+            raise ValueError('Unapproved VRAM reserve conditions')
+        jobs=[{'label':f"reserve{j['reserve']}-r{j['repetition']}",'condition':j['reserve'],'repetition':j['repetition'],
+               'overrides':{'pool-affinity':'all','pool-workers':23,'vram-reserve-mib':j['reserve']}}
+              for j in plan['schedule']]
     else:raise ValueError('Unapproved resource dimension')
     conditions=[c['id']for c in plan['conditions']]if dimension=='STRATA_PREFILL_CPU_SHARE'else plan['conditions']
     expected={(c,r)for c in conditions for r in [1,2,3]}
@@ -176,6 +182,15 @@ print(json.dumps(rows))
                     expected=str(job['environment']['STRATA_PREFILL_CPU_SHARE'])
                     if len(binding)!=1 or binding[0]['cpu_prefill_share']!=expected:
                         raise RuntimeError('Effective CPU-share environment differs from selected condition')
+                if 'vram-reserve-mib' in job['overrides']:
+                    loaded=host.log_bytes_since('Q2_0',offset).decode(errors='replace')
+                    cache=re.search(r'expert cache auto: ([\d.]+) GiB free, (\d+) MiB reserved.*?-> (\d+) slots',loaded)
+                    after=re.search(r'(\d+) MiB of VRAM free with everything loaded',loaded)
+                    effective={'free_gib_before_cache':float(cache[1])if cache else None,'reserve_mib':int(cache[2])if cache else None,
+                               'cache_slots':int(cache[3])if cache else None,'free_mib_loaded':int(after[1])if after else None}
+                    save(folder/'effective-vram.json',effective);row['effective_vram']=effective
+                    if effective['reserve_mib']!=job['overrides']['vram-reserve-mib']:
+                        raise RuntimeError('Effective VRAM reserve differs from selected condition')
                 (folder/'startup-instructions.txt').write_bytes((ROOT/'config/prompts/startup-instructions.txt').read_bytes())
                 from tools.metrics.prompt_policy import compaction_config
                 compaction_config({},folder/'prompt-binding')

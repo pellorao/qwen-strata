@@ -25,6 +25,18 @@ class MeasurementHost:
         if installation is not None and Path(installation) != self.installation:
             raise ValueError('Installation differs from the selected host; use private host configuration')
 
+    def _remote(self, code, arguments=()):
+        """Run read-only Python on the host's Windows side with the installation runtime; return its JSON stdout.
+
+        WSL interop reaches only the Windows side of this machine, so this host must be the local one.
+        """
+        python = self.installation / 'runtime/Strata/.venv/Scripts/python.exe'
+        if not python.is_file():
+            raise RuntimeError('Host Windows side is not reachable from this machine')
+        reply = subprocess.run([str(python), '-I', '-c', code, *arguments], cwd='/mnt/c',
+                               capture_output=True, text=True, timeout=120, check=True)
+        return json.loads(reply.stdout)
+
     def controller(self, folder):
         return Controller(self.installation, folder, base_url=self.deployment['frontend_url'])
 

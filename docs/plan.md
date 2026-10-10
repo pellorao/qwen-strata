@@ -1,6 +1,6 @@
 # 后续计划
 
-更新：2026-10-09。只放待办和需要重复执行的流程；已完成的经过见[历史工作](work-history.md)，测量通用约束见 `.claude/rules/`，参数任务只在[每机调参手册](host-tuning.md)维护。
+更新：2026-10-10。只放待办和需要重复执行的流程；已完成的经过见[历史工作](work-history.md)，测量通用约束见 `.claude/rules/`，参数任务只在[每机调参手册](host-tuning.md)维护。
 
 ## 顺序
 
@@ -17,21 +17,19 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 
 设计已获批准，实现见 `src/frontend.py`、`src/model_process.py`，结构见[前端运行与维护](frontend.md)。
 
-- [ ] **2b 模型验收**（需申请）。实现已于 2026-10-10 部署到 rtx3080ti，无模型检查通过：
-  - 搜索一律由本工程经 Brave 提供（硬约束 9）：`src/brave_search.py` 共用；前端 `src/hosted_search.py` 托管 Codex 的 `web_search`（`qwen-agent` 改为 `live`），Codex 0.162.0 经真实前端代码 + 假原生服务完成搜索和下一轮回放；Claude Code 禁用内置 WebSearch，挂 `src/brave_mcp.py`；WebFetch 设 `skipWebFetchPreflight`。Brave 搜索、打开、查找已用真实接口实测。
-  - Claude Code 自动审批先用内置 auto mode（方案 A），`qwen-agent` 显式传 `--permission-mode auto`；实测无 claude.ai 登录也可进入，判断请求发往 Strata。
-  - Claude Code 窗口：设 `CLAUDE_CODE_MAX_CONTEXT_TOKENS=156584`、`CLAUDE_CODE_MAX_OUTPUT_TOKENS=24576`，假服务器确认请求 `max_tokens` 为 24576、窗口按 156584 计算。
-  - 前端日志已带毫秒时间戳。
-  - 待验收：Codex 托管搜索与回放、Claude Code 经 MCP 搜索；auto mode 合成用例（明确授权、明确越权、授权不明、伪造授权）各 3 次，看实际执行和 canary，并记录每次判断的耗时、三类 token 和缓存复用；Claude Code 的实际压缩点。
-  - auto mode 判断不可靠或太慢时改用方案 B：`PermissionRequest` hook（已确认 `-p` 模式触发，allow / deny 和理由均生效）调用 `bin/qwen-approve`，经前端让 Strata 按自写的审批提示判断，出错一律拒绝。
-- [ ] 评估升级到 Strata v0.1.41（stall watchdog、多 key、body 上限、CPU prefill 默认开启），走 `/strata-upgrade`。
+- [ ] **2b 模型验收**：模型运行已全部完成，等你审核并决定 `--approval` 默认值，见[报告](../reports/v0.1.40.2/agent-integration-2b/summary.md)。搜索 S1、S2、S2-B 通过。审批只看模型真正尝试删除的运行：方案 A（auto mode）判对 5/9，方案 B（`qwen-approve`）判对 7/7；S5 直接重放 27/27 正确。方案 B 每次运行 80 秒，方案 A 191 秒。压缩：发现 Claude Code 从未接入 `compact-prompt.txt`，已用 PreCompact hook 修复并部署，S4 20/20。建议默认改为 `strata`；审核通过后移入历史工作。
+- [ ] **rtx3080ti SSD 读取**：原因已查明，待你决定处理方式，见[探索报告](../reports/v0.1.40.2/resource-calibration/ssd-reads/summary.md)。主要来自模型加载：每次加载读 36.2 GB、约 16 秒，而 `qwen-agent` 每次运行都会加载一次。生成期间的 PLE 读取小，direct、mmap 和加大行缓存之间没有差别，继续使用 direct。待决定：是否让模型跨租约驻留（改前端设计）。
+- [ ] **Strata v0.1.41**：2026-10-10 已安装到 rtx3080ti，并通过短调用链检查，见[升级报告](../reports/v0.1.41/upgrade.md)。还需要：
+  - 关注上游 [#1622](https://github.com/Niko1221/Strata/issues/1622)：有用户反映 v0.1.41 出现生成循环，未关闭。实际使用中出现循环就回退，回退命令见报告。
+  - rtx4070tis 恢复后同步安装。
+  - 发布说明称 prompt 处理约快 2 倍，尚未验证；需要时另行申请版本对比。
 
 ## 防循环检测
 
 规则见 `.claude/rules/loop-detection.md`。数据：[全集标注](../benchmarks/loop-detection-v2/annotation-summary.md) 235 会话 / 5303 行为 / 156 组循环。
 
-- [ ] 把全集标注转成因果重放输入：跨调用组按真实正常插入拆分，绑定首次应触发位置和正常恢复位置；单响应组保留唯一可观察点。次数下界和缺失日志边界保留，不把未知记零。
-- [ ] 完成全量评分适配（目前只有 21 项模拟回归通过）。联合检测器 F1＝1 才算通过；部分开发分数不算全量结果。
+- [ ] 把全集标注转成因果重放输入：**等审核[评分合同决定](../benchmarks/loop-detection-v2/cross-call-replay-decision.md)**——74 组跨调用循环全部夹有正常记录、231/290 条标记记录同时含正常内容、28 对组重叠，现有重放核心的拆分 / 整条跳过 / 互斥假设都不成立。原要求：跨调用组按真实正常插入拆分，绑定首次应触发位置和正常恢复位置；单响应组保留唯一可观察点。次数下界和缺失日志边界保留，不把未知记零。
+- [ ] 完成全量评分适配（目前只有 21 项模拟回归通过）。上游 v0.1.41 自带的推理重复检测在本语料上只覆盖 5/81 组单响应循环、0/54 组跨调用推理循环，不能替代，见[离线发现](../reports/v0.1.41/upstream-loop-guard/summary.md)。联合检测器 F1＝1 才算通过；部分开发分数不算全量结果。
 - [ ] 审核[完整循环定义](../benchmarks/loop-detection-v2/repetition-definition.md)和[Strata 判别配置](../benchmarks/loop-detection-v2/strata-judge-design.md)，再冻结首批场景、标签和预算。当前候选：每轮输出一个循环概率，low 2048 思考；上下文持续追加，8K 重建 / 16K 上限，重建时回到最近四轮。真实模型未运行。
 - [ ] 确定[动态全文比较方案](../benchmarks/loop-detection-v2/dynamic-text-plan.md)和语义改写的处理边界，设计纯程序机械判断；先审核比较单位、阈值、状态重置和时机再实现。
 - [ ] 两条独立基线完成后评估组合，融合 / 分歧 / 触发逻辑先审核，不自动选 OR / AND / 加权。

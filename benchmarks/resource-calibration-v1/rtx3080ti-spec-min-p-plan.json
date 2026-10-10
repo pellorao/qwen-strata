@@ -44,7 +44,7 @@
   ],
   "fixed_conditions": {
     "model": "Q2_0",
-    "strata": "0.1.40.2",
+    "strata": "0.1.41",
     "effort": "high",
     "reasoning_budget_tokens": 8192,
     "max_tokens": 24576,
