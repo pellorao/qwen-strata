@@ -13,6 +13,7 @@ import time
 
 from brave_search import BraveSearch
 import hosted_search
+import loop_reminder
 from model_process import ROOT, ModelProcess
 
 MAX_BODY = 64 * 1024 * 1024
@@ -254,6 +255,12 @@ class Handler(BaseHTTPRequestHandler):
             body['model'] = loaded
             if path in ('/v1/chat/completions', '/v1/responses'):
                 apply_reasoning_defaults(body, path, frontend.model.reasoning_defaults)
+            if path != '/v1/messages/count_tokens':
+                try:
+                    if loop_reminder.apply(path, body, self.headers):
+                        log(f'loop reminder appended to {path}')
+                except Exception as error:  # a reminder is advice; never fail the request over it
+                    log(f'loop reminder skipped: {type(error).__name__}')  # no request text in the log
             if path == '/v1/responses':
                 try:
                     hosted = hosted_search.hosted_tool(body)

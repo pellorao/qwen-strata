@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 import frontend
 import model_process
 from test_hosted_search import FakeSearch, MESSAGE, SEARCH, native_round
+from test_loop_reminder import chat
 
 
 class FakeModel:
@@ -241,10 +242,10 @@ class PassthroughTests(unittest.TestCase):
             server.shutdown()
             server.server_close()
 
-    def post(self, path, body, key=None):
+    def post(self, path, body, key=None, headers=None):
         connection = http.client.HTTPConnection('127.0.0.1', self.server.server_port, timeout=10)
         connection.request('POST', path, json.dumps(body), {'Content-Type': 'application/json',
-                           **({'Authorization': 'Bearer ' + key} if key else {})})
+                           **({'Authorization': 'Bearer ' + key} if key else {}), **(headers or {})})
         reply = connection.getresponse()
         return reply.status, reply.read()
 
@@ -284,6 +285,17 @@ class PassthroughTests(unittest.TestCase):
         self.assertEqual(replayed[1]['output'], self.server.frontend.search_results.get(output[0]['id']))
         self.post('/lease/release', {}, key)
         self.assertIn(output[0]['id'], self.server.frontend.search_results)  # a resumed conversation takes a new lease
+
+    def test_loop_reminder_goes_only_to_the_model(self):
+        key = json.loads(self.post('/lease/acquire', {})[1])['key']
+        self.post('/model/start', {}, key)
+        body = chat(['node check.js', 'node check.js'])
+        self.post('/strata/v1/chat/completions', body, key)
+        forwarded = self.upstream.seen[-1][2]['messages']
+        self.assertEqual(forwarded[:-1], body['messages'])
+        self.assertTrue(forwarded[-1]['content'].startswith('[Loop check:'))
+        self.post('/strata/v1/chat/completions', body, key, {'X-Loop-Reminder': 'off'})
+        self.assertEqual(self.upstream.seen[-1][2]['messages'], body['messages'])
 
 
 if __name__ == '__main__':

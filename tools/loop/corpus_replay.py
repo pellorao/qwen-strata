@@ -80,7 +80,7 @@ class Silent:
         return 0.0
 
 
-from tools.loop.mechanical import Mechanical
+from src.loop_detector import Mechanical
 
 DETECTORS = {'silent': Silent, 'mechanical': Mechanical}
 

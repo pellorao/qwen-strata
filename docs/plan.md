@@ -27,11 +27,11 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 
 规则见 `.claude/rules/loop-detection.md`。数据：[全集标注](../benchmarks/loop-detection-v2/annotation-summary.md) 235 会话 / 5303 行为 / 156 组循环。
 
-评分合同 v7（主指标 F2，按组计分：首次与后续报警各占 0.5，线性衰减）、因果重放（`tools/loop/corpus_replay.py`）和开发集 / 验证集划分已完成。2026-10-10 用户决定：只用机械规则（`tools/loop/mechanical.py`），检测到重复只提醒 agent 自查，不中断；模型判断路线已关闭（[报告](../reports/v0.1.41/loop-strata-judge/summary.md)）。
+评分合同 v7（主指标 F2，按组计分：首次与后续报警各占 0.5，线性衰减）、因果重放（`tools/loop/corpus_replay.py`）和开发集 / 验证集划分已完成。2026-10-10 用户决定：只用机械规则（`src/loop_detector.py`，前端与离线重放共用），检测到重复只提醒 agent 自查，不中断；模型判断路线已关闭（[报告](../reports/v0.1.41/loop-strata-judge/summary.md)）。
 
-- [ ] 静态评估已完成，待用户审核：第一次划分验证集未通过（[报告](../reports/v0.1.41/loop-mechanical-gate/summary.md)）；重新随机划分并补齐伴随记录复核后，r5 开发集 F2 0.7586、验证集 0.7841、全量 0.7661；r6（连续概率）开发集 0.8043、验证集 0.7756、全量 0.7974。审核后实现协议桥提醒并提交真实试跑申请。
-- [ ] 实现提醒：把机械规则接到 agent（Codex / Claude Code）上，检测到重复时注入提醒，不拒绝调用。提醒的时机和措辞先审核。
-- [ ] 门槛：联合 F1 ≥ 0.8 原本是为"拒绝调用"设定的；改为只提醒后是否保留，由用户决定。门槛确认在验证集上做一次。
+- [x] 静态评估：第一次划分验证集未通过（[报告](../reports/v0.1.41/loop-mechanical-gate/summary.md)）；重新随机划分并补齐伴随记录复核后，r6（连续概率）开发集 F2 0.8043、验证集 0.7756、全量 0.7974。用户已审核，同意以 r6 进入提醒实现。
+- [ ] 协议桥提醒（`src/loop_reminder.py`）：已实现并测试，无状态、只进转发请求、按重复链去重（再出现 2 次才再提醒），请求头 `X-Loop-Reminder: off` 关闭；调用手册已更新。待用户审核措辞后部署。
+- [ ] 真实试跑申请：验证集 F2 0.7756 低于 0.8 门槛，申请里写明门槛豁免；静默期和提醒效果只在真实试跑中评估。
 - [ ] 清理旧的关键词循环工具（`tools/loop/` 下的 `reasoning_loop_guard.py`、`command_loop_guard.py`、`progress_guard.py` 等）和 `tools/README.md`。
 
 ## ARW 同步与 Spec 恢复
