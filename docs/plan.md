@@ -31,8 +31,8 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 
 - [x] 静态评估：第一次划分验证集未通过（[报告](../reports/v0.1.41/loop-mechanical-gate/summary.md)）；重新随机划分并补齐伴随记录复核后，r6（连续概率）开发集 F2 0.8043、验证集 0.7756、全量 0.7974。用户已审核，同意以 r6 进入提醒实现。
 - [ ] 协议桥提醒（`src/loop_reminder.py`）：已实现并测试，无状态、只进转发请求、按重复链去重（再出现 2 次才再提醒），请求头 `X-Loop-Reminder: off` 关闭；调用手册已更新。措辞和位置用户已审核，2026-10-10 已部署到 rtx3080ti（逐文件回读 SHA 一致，`/health` 正常）；rtx4070tis 待同步。
-- [ ] 真实试跑申请：验证集 F2 0.7756 低于 0.8 门槛，用户已豁免（2026-10-10），不再做静态优化；静默期和提醒效果只在真实试跑中评估。
-- [ ] 默认场景：用户 2026-10-10 要求在 Commit Audit 与 Spec Readiness 的 artifact-promotion 之间选耗时较短者。同条件历史（rtx4070tis、v0.1.38、medium、default 各三次）Commit Audit 平均 35.7 分钟，artifact-promotion 单独 47.3 分钟，选 Commit Audit。
+- [ ] 真实试跑：2026-10-10 完成 1 次（Commit Audit，rtx3080ti），待用户审核，见[报告](../reports/v0.1.41/loop-reminder-trial/summary.md)。提醒 3 次送达（1 次有依据、2 次误报），诊断分 0.472、8.2 分钟；冻结 ARW 与 Codex 0.162 的原生事实核验不兼容，由用户决定处理方式后才能继续第 2、3 次（已准备，见运行明细的 `deferred.json`）。
+- [x] 默认场景：用户 2026-10-10 决定用 Commit Audit。
 - [ ] Spec Readiness 单场景评分：原版高层 `score-completed` 要求两个子场景配对，单独 artifact-promotion 会被拒绝。需要先无模型调查原版是否有可单独评分的入口；若需改变评分合同，先列出差异并取得同意。
 - [ ] 清理旧的关键词循环工具（`tools/loop/` 下的 `reasoning_loop_guard.py`、`command_loop_guard.py`、`progress_guard.py` 等）和 `tools/README.md`。
 

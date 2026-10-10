@@ -76,6 +76,8 @@ def terminal_kind(native,observation,report):
   if fenced=={'status':'ready'}:return 'final-status-format-only',terminal
  try:status=json.loads(trimmed)
  except ValueError:status={}
+ # A plain ready status with a delivered report: the native completion check failed, not the model.
+ if status=={'status':'ready'} and report.stat().st_size:return 'ready-unverified-needs-main',terminal
  if isinstance(status,dict) and status.get('status')=='incomplete':return 'explicit-incomplete-needs-main',terminal
  return 'premature-normal-end',terminal
 

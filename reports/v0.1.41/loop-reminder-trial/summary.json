@@ -1,0 +1,155 @@
+{
+ "schema_version": 1,
+ "date": "2026-10-10",
+ "host": "rtx3080ti",
+ "strata": "v0.1.41",
+ "model": "Q2_0",
+ "codex": "0.162.0",
+ "arw_snapshot": "760007c2134d",
+ "instance": "default-734710fc-a5c7-45b0-af82-675863cb4a66-instance-1",
+ "selection": {
+  "model": "Q2_0",
+  "effort": "high",
+  "engine_overrides": {
+   "prefill": 8192,
+   "kv-resident": 20480,
+   "pool-workers": 23,
+   "pool-affinity": "all",
+   "expert-cache": "auto",
+   "conversation-cache-mib": 8192,
+   "conversation-cache-slots": 4,
+   "conversation-cache-min-free-mib": 5120
+  },
+  "engine_environment": {},
+  "sampling": {
+   "temperature": 0.0,
+   "top_p": 1.0,
+   "top_k": 20,
+   "max_tokens": 24576,
+   "reasoning_budget_tokens": 8192
+  },
+  "context_window": 156584,
+  "auto_compact_token_limit": 100000,
+  "startup_instructions": true,
+  "project_compaction_instructions": true,
+  "generation_policy": "first-delivery-only",
+  "loop_prevention_instructions": true,
+  "archive_http": true,
+  "native_cli": {
+   "executable": "/home/pello/.local/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex",
+   "version": "0.162.0",
+   "sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38"
+  },
+  "loop_reminder": "frontend default (src/loop_reminder.py r6)",
+  "automatic_continuation": true,
+  "host_id": "rtx3080ti",
+  "host_hardware": {
+   "gpu": "NVIDIA RTX 3080 Ti",
+   "vram_gib": 12,
+   "cpu": "Intel Core i9-13900",
+   "ram_gib": 64
+  }
+ },
+ "prompt_sha256": {
+  "startup_instructions": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+  "compact_prompt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+ },
+ "loop_reminder": {
+  "detector": "src/loop_detector.py r6",
+  "sent": 3,
+  "replay_matches_live": true,
+  "events": [
+   {
+    "utc": "14:16:58",
+    "step": 7,
+    "first": 4,
+    "verdict": "justified: repeated full requirement audit of step 6"
+   },
+   {
+    "utc": "14:18:56",
+    "step": 8,
+    "first": 6,
+    "verdict": "false alarm: report composition from established judgments"
+   },
+   {
+    "utc": "14:21:08",
+    "step": 13,
+    "first": 13,
+    "verdict": "false alarm: report rewrite after evidence-format fix (real repair)"
+   }
+  ]
+ },
+ "confirmed_loops": {
+  "groups": 1,
+  "occurrences": 2
+ },
+ "first_delivery": {
+  "report_sha256": "b414196cd24aa621b341ecc05e2948bf2b20bfe926494ff9c513154940a6b5f0",
+  "report_bytes": 41406,
+  "stages": 20,
+  "read": 98217,
+  "reused": 1166224,
+  "generated": 45474,
+  "prompt_s": 68.243,
+  "decode_s": 417.823,
+  "engine_in": 1439.22,
+  "engine_out": 108.84,
+  "work_s": 491.391,
+  "task_in": 199.88,
+  "task_out": 92.54,
+  "cost": 0.055
+ },
+ "contaminated_continuation": {
+  "stages": 3,
+  "read": 95883,
+  "reused": 191686,
+  "generated": 6413,
+  "prompt_s": 39.805,
+  "decode_s": 60.645,
+  "engine_in": 2408.82,
+  "engine_out": 105.75
+ },
+ "load_s": 16.440375212005165,
+ "score": {
+  "score": 0.47241620482457536,
+  "scoreBeforePenalty": 0.47241620482457536,
+  "problemDetectionRate": 0.42803642062716474,
+  "cleanAcceptanceRate": 0.8071752106753989,
+  "fullProblemCases": 10,
+  "passedCleanCases": 60,
+  "earnedProblemPoints": 17.12145682508659,
+  "earnedCleanPoints": 64.57401685403191,
+  "totalProblemCases": 40,
+  "totalCleanCases": 80
+ },
+ "score_scopes": [
+  {
+   "earnedCleanPoints": 33.36379173143084,
+   "earnedProblemPoints": 8.112271062271063,
+   "fullProblemCases": 5,
+   "passedCleanCases": 31,
+   "scope": "COMMIT-AUDIT-GATE-1",
+   "totalCleanCases": 40,
+   "totalProblemCases": 20
+  },
+  {
+   "earnedCleanPoints": 31.210225122601074,
+   "earnedProblemPoints": 9.009185762815527,
+   "fullProblemCases": 5,
+   "passedCleanCases": 29,
+   "scope": "COMMIT-AUDIT-GATE-2",
+   "totalCleanCases": 40,
+   "totalProblemCases": 20
+  }
+ ],
+ "adjudication": {
+  "candidates": 19,
+  "matched": 19
+ },
+ "measurement_issues": [
+  "ARW 760007c native-fact check requires turn_context.workspace_roots, absent in Codex 0.162.0",
+  "driver misclassified plain ready status as premature end and emptied the report before continuation acceptance (fixed)",
+  "reviewer notification EPERM in sandbox"
+ ],
+ "session_inspection": "all tool calls inside scenario root except the arw notification entry; no hidden or other-instance sources"
+}

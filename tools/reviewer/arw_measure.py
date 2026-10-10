@@ -324,7 +324,10 @@ def observe_review(machine,record,folder,*,continuation_start_timeout=120):
                         from tools.loop.command_loop_guard import progress_external_report_reset
                         progress_external_report_reset(record, folder)
                         continuation_requested_at=time.monotonic()
-                        accepted=machine.call('followup_task',bound)
+                        try:accepted=machine.call('followup_task',bound)
+                        except BaseException:
+                            report.write_bytes(prior)  # a refused continuation must not leave the delivered report empty
+                            raise
                         if accepted.get('runId')!=run_id:
                             raise RuntimeError('Automatic continuation changed the native run identity')
                         record.setdefault('continuations',[]).append({'classification':kind,

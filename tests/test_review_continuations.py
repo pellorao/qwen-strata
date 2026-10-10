@@ -40,6 +40,11 @@ class ContinuationBoundaries(unittest.TestCase):
         self.assertEqual(self.classify(terminal),'final-status-format-only')
         self.assertEqual(self.classify(terminal,report=''),'premature-normal-end')
 
+    def test_plain_ready_with_report_is_not_a_premature_end(self):
+        terminal={'type':'task_complete','last_agent_message':'{"status":"ready"}'}
+        self.assertEqual(self.classify(terminal),'ready-unverified-needs-main')
+        self.assertEqual(self.classify(terminal,report=''),'premature-normal-end')
+
     def test_multiple_blocks_or_non_ready_final_block_are_not_repaired(self):
         message='```json\n{"status":"incomplete"}\n```\n```json\n{"status":"ready"}\n```'
         self.assertEqual(self.classify({'type':'task_complete','last_agent_message':message}),'premature-normal-end')
