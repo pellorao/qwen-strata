@@ -1,4 +1,4 @@
-"""Full-corpus replay input for scoring contract v4, and a scoring CLI for registered detectors.
+"""Full-corpus replay input for scoring contract v5, and a scoring CLI for registered detectors.
 
 Observations come from behavior.jsonl.gz in native order (one per normalized record); loop groups come from the
 SHA-bound Main annotation overlay, each evidence mark being one occurrence; occurrence-companions.json adds the other
@@ -89,17 +89,18 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--detector', choices=sorted(DETECTORS), required=True)
     parser.add_argument('--k', type=int, required=True, help="the detector contract's occurrences before a repeat")
+    parser.add_argument('--k-inside', type=int, default=2, help='occurrences inside one response before a repeat')
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--split', choices=('development', 'validation'), default='development',
                         help='validation is only for the final gate confirmation')
     args = parser.parse_args()
     observations, groups, binding = load(args.split)
-    result = replay(observations, groups, DETECTORS[args.detector](), args.k)
+    result = replay(observations, groups, DETECTORS[args.detector](), args.k, args.k_inside)
     result.update(binding, detector=args.detector, observations=len(observations),
                   judged=sum(o.judged for o in observations), groups=len(groups))
     args.out.write_text(json.dumps(result, ensure_ascii=False, indent=1) + '\n')
-    print(json.dumps({k: result[k] for k in ('detector', 'k', 'judged', 'groups', 'tp', 'fn', 'fp', 'f1', 'f2',
-                                             'first_targets', 'neutral_records', 'negatives')}))
+    print(json.dumps({k: result[k] for k in ('detector', 'k', 'k_inside', 'judged', 'groups', 'precision', 'recall',
+                                             'f1', 'f2', 'on_time_groups', 'late_groups', 'alerts', 'fp')}))
 
 
 if __name__ == '__main__':

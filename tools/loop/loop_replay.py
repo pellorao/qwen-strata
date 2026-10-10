@@ -1,16 +1,17 @@
-"""Full causal offline replay under scoring contract v4 (benchmarks/loop-detection-v2/scoring-contract.md).
+"""Full causal offline replay under scoring contract v5 (benchmarks/loop-detection-v2/scoring-contract.md).
 
 Every record is replayed in order and nothing is skipped. The detector sees only the observations replayed so far
-and returns, for each model-behavior record, a probability that it is (or contains) a repetition. Frozen loop groups
-are used only here, to score. One occurrence may span several records (a repeated reasoning step and the call or
-answer it leads to). A rule that needs k occurrences first owes an alert at the earliest record of the k-th
-occurrence (weight 1); the group's other later records share weight 0.5; records with only earlier occurrences are not
-scored. Records outside every group are negatives. 0.4 <= p <= 0.6 is wrong either way.
+and returns, for each model-behavior record, a probability that it is (or contains) a repetition; p >= 0.5 is an
+alert. Frozen loop groups are used only here, to score. One occurrence may span several records (a repeated reasoning
+step and the call or answer it leads to). A rule that needs k occurrences owes its alert by the k-th occurrence: an
+alert there or earlier earns the group 1, each later occurrence halves it. A repeat inside one response has a single
+detection point (the response and its companions). Recall is the mean group credit; precision is the share of alerts
+that fall on repeated occurrences. Records with only an original occurrence are not scored.
 """
 from dataclasses import dataclass
 
-POSITIVE, NEGATIVE = 0.6, 0.4
-FIRST_WEIGHT, LATER_WEIGHT = 1.0, 0.5
+ALERT = 0.5            # p >= ALERT is an alert
+DECAY = 0.5            # credit kept per occurrence an alert comes late
 GATE_F2 = 0.8          # recall weighs more than precision: a detection only sends a reminder
 _ANSWER_FIELDS = frozenset(('loop_annotations', 'normal_annotations', 'label', 'loop_case_ids'))
 
@@ -35,45 +36,45 @@ class LoopGroup:
         return [(o,) if isinstance(o, str) else tuple(o) for o in self.occurrences]
 
 
-def verdict(p):
+def alert(p):
     if type(p) is bool:
         p = float(p)
     if type(p) not in (int, float) or not 0 <= p <= 1:
         raise ValueError('Detector must return a probability in [0, 1]')
-    return 'positive' if p > POSITIVE else 'negative' if p < NEGATIVE else 'uncertain'
+    return p >= ALERT
 
 
-def targets(groups, k, order):
-    """{record id: [(group id, 'first' | 'later', weight)]}, neutral record ids, unreachable group ids.
-
-    order maps record id -> replay position, to find the earliest record of an occurrence."""
-    owed, neutral, unreachable = {}, set(), []
+def credits(groups, k, k_inside):
+    """{group id: {record id: credit an alert there earns}}, repeated record ids, original-only record ids, unreachable."""
+    owed, repeated, original, unreachable = {}, set(), set(), []
     for group in groups:
-        occurrences = [sorted(o, key=order.__getitem__) for o in group.records()]
+        occurrences = group.records()
         if group.mode == 'single_response':
             if len({o[0] for o in occurrences}) != 1:
                 raise ValueError('A single-response group repeats inside one record: ' + group.id)
-            first, rest = occurrences[0][0], [r for o in occurrences for r in o]
-        elif group.mode != 'cross_call':
-            raise ValueError('Unknown loop mode')
-        elif len(occurrences) < k:
-            unreachable.append(group.id)
-            neutral.update(r for o in occurrences for r in o)
-            continue
+            here = {r: 1.0 for o in occurrences for r in o}
+            need = k_inside
+        elif group.mode == 'cross_call':
+            here = {}
+            for n, occurrence in enumerate(occurrences[1:], 1):
+                for r in occurrence:
+                    here.setdefault(r, DECAY ** max(0, n - (k - 1)))
+            need = k
         else:
-            first, rest = occurrences[k - 1][0], [r for o in occurrences[k - 1:] for r in o]
-            neutral.update(r for o in occurrences[:k - 1] for r in o)
-        owed.setdefault(first, []).append((group.id, 'first', FIRST_WEIGHT))
-        later = [r for r in dict.fromkeys(rest) if r != first]
-        for record in later:
-            owed.setdefault(record, []).append((group.id, 'later', LATER_WEIGHT / len(later)))
-    return owed, neutral - set(owed), unreachable
+            raise ValueError('Unknown loop mode')
+        repeated.update(here)
+        original.update(occurrences[0])
+        if len(occurrences) < need:
+            unreachable.append(group.id)
+            here = {}
+        owed[group.id] = here
+    return owed, repeated, original - repeated, unreachable
 
 
-def replay(observations, groups, detector, k):
+def replay(observations, groups, detector, k, k_inside=2):
     """detector.observe(observation) -> probability for judged records; detector.reset(trace_id) per trace."""
-    if type(k) is not int or k < 2:
-        raise ValueError('A cross-call rule needs at least two occurrences')
+    if type(k) is not int or k < 2 or type(k_inside) is not int or k_inside < 2:
+        raise ValueError('A rule needs at least two occurrences')
     observations, groups = list(observations), list(groups)
     ids = [o.id for o in observations]
     if len(set(ids)) != len(ids) or len({g.id for g in groups}) != len(groups):
@@ -82,8 +83,8 @@ def replay(observations, groups, detector, k):
     for group in groups:
         if not {r for o in group.records() for r in o} <= judged:
             raise ValueError('Group occurrences must be judged observations: ' + group.id)
-    owed, neutral, unreachable = targets(groups, k, {o.id: n for n, o in enumerate(observations)})
-    verdicts, trace = {}, None
+    owed, repeated, original, unreachable = credits(groups, k, k_inside)
+    alerts, trace = set(), None
     for observation in observations:
         if observation.trace_id != trace:
             trace = observation.trace_id
@@ -92,43 +93,25 @@ def replay(observations, groups, detector, k):
                               {key: value for key, value in observation.payload.items() if key not in _ANSWER_FIELDS},
                               observation.judged)
         p = detector.observe(visible)
-        if observation.judged:
-            verdicts[observation.id] = verdict(p)
-    tp = fn = fp = 0.0
-    first_hit = later_hit = later_total = 0.0
-    group_first = {g: False for g in [g.id for g in groups]}
-    detail = []
-    for record, owed_here in owed.items():
-        hit = verdicts[record] == 'positive'
-        for group, kind, weight in owed_here:
-            tp, fn = (tp + weight, fn) if hit else (tp, fn + weight)
-            if kind == 'first':
-                first_hit += hit
-                group_first[group] = hit
-            else:
-                later_total += weight
-                later_hit += weight * hit
-            detail.append({'record': record, 'group': group, 'kind': kind, 'weight': weight,
-                           'verdict': verdicts[record]})
-    fn += FIRST_WEIGHT * len(unreachable)
-    negatives = [r for r in judged if r not in owed and r not in neutral]
-    false_alarms = sorted(r for r in negatives if verdicts[r] != 'negative')
-    fp = float(len(false_alarms))
-    precision = tp / (tp + fp) if tp + fp else None
-    recall = tp / (tp + fn) if tp + fn else None
+        if observation.judged and alert(p):
+            alerts.add(observation.id)
+    credit = {g: max([c for r, c in here.items() if r in alerts] or [0.0]) for g, here in owed.items()}
+    negatives = judged - repeated - original
+    false_alarms = sorted(alerts & negatives)
+    justified = len(alerts & repeated)
+    recall = sum(credit.values()) / len(groups) if groups else None
+    precision = justified / (justified + len(false_alarms)) if justified + len(false_alarms) else None
     f1 = (2 * precision * recall / (precision + recall) if precision and recall else
           0.0 if precision is not None and recall is not None else None)
     f2 = (5 * precision * recall / (4 * precision + recall) if precision and recall else
           0.0 if precision is not None and recall is not None else None)
-    firsts = sum(kind == 'first' for owed_here in owed.values() for _, kind, _ in owed_here)
     return {
-        'k': k, 'tp': tp, 'fn': fn, 'fp': fp, 'precision': precision, 'recall': recall, 'f1': f1, 'f2': f2,
+        'k': k, 'k_inside': k_inside, 'precision': precision, 'recall': recall, 'f1': f1, 'f2': f2,
         'passes_gate': f2 is not None and f2 >= GATE_F2,
-        'first_targets': firsts, 'first_hits': int(first_hit), 'unreachable_groups': sorted(unreachable),
-        'later_weight': later_total, 'later_hit_weight': later_hit,
-        'group_recall': sum(group_first.values()) / len(groups) if groups else None,
-        'negatives': len(negatives), 'neutral_records': len(neutral),
-        'uncertain_positive_records': sum(verdicts[r] == 'uncertain' for r in owed),
-        'uncertain_negative_records': sum(verdicts[r] == 'uncertain' for r in negatives),
-        'false_alarms': false_alarms, 'targets': detail,
+        'on_time_groups': sum(c == 1 for c in credit.values()),
+        'late_groups': sum(0 < c < 1 for c in credit.values()),
+        'missed_groups': sorted(g for g, c in credit.items() if c == 0), 'unreachable_groups': sorted(unreachable),
+        'alerts': len(alerts), 'justified_alerts': justified, 'fp': len(false_alarms),
+        'original_only_records': len(original), 'negatives': len(negatives),
+        'false_alarms': false_alarms, 'credit': credit,
     }

@@ -1,10 +1,10 @@
-"""Scoring contract v3: full replay, probability thresholds, rule-relative first target and weights."""
+"""Scoring contract v5: full replay, one alert threshold, group credit that halves per late occurrence."""
 import sys
 import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.loop.loop_replay import LoopGroup, Observation, replay, verdict
+from tools.loop.loop_replay import LoopGroup, Observation, alert, replay
 
 
 class Scripted:
@@ -25,11 +25,10 @@ def records(*ids, trace='t'):
 
 
 class ReplayTests(unittest.TestCase):
-    def test_thresholds_and_uncertain_band(self):
-        self.assertEqual([verdict(p) for p in (0.61, 0.6, 0.5, 0.4, 0.39, True, False)],
-                         ['positive', 'uncertain', 'uncertain', 'uncertain', 'negative', 'positive', 'negative'])
+    def test_one_threshold(self):
+        self.assertEqual([alert(p) for p in (0.51, 0.5, 0.49, True, False)], [True, True, False, True, False])
         with self.assertRaises(ValueError):
-            verdict(1.2)
+            alert(1.2)
 
     def test_everything_is_replayed_and_answers_are_hidden(self):
         detector = Scripted({'b': 0.9})
@@ -38,61 +37,50 @@ class ReplayTests(unittest.TestCase):
         self.assertTrue(all(set(o.payload) == {'text'} for o in detector.seen))
         self.assertEqual(detector.resets, ['t'])
 
-    def test_first_target_follows_the_rule_and_later_records_share_half(self):
+    def test_credit_halves_per_late_occurrence(self):
         group = LoopGroup('g', 't', ('a', 'b', 'c', 'd'))
         obs = records('a', 'b', 'n', 'c', 'd')
-        two = replay(obs, [group], Scripted({'b': 0.9, 'c': 0.9, 'd': 0.9}), 2)
-        self.assertEqual((two['tp'], two['fn'], two['fp']), (1.5, 0.0, 0.0))
-        self.assertEqual(two['f1'], 1.0)
-        # a k = 3 rule owes its first alert at c; b is neutral, a later miss at d costs only 0.5
-        three = replay(obs, [group], Scripted({'b': 0.9, 'c': 0.9}), 3)
-        self.assertEqual((three['tp'], three['fn'], three['fp'], three['neutral_records']), (1.0, 0.5, 0.0, 2))
-        self.assertEqual(three['first_hits'], 1)
+        credit = lambda alerts, k: replay(obs, [group], Scripted(dict.fromkeys(alerts, 1.0)), k)['credit']['g']
+        self.assertEqual([credit(['b'], 2), credit(['c'], 2), credit(['d'], 2), credit([], 2)], [1, 0.5, 0.25, 0])
+        # a k = 3 rule is due at the third occurrence; an earlier alert is not late
+        self.assertEqual([credit(['c'], 3), credit(['b'], 3), credit(['d'], 3)], [1, 1, 0.5])
+        self.assertEqual(credit(['b', 'd'], 2), 1)
 
-    def test_missing_the_first_costs_more_than_missing_later(self):
-        group = LoopGroup('g', 't', ('a', 'b', 'c', 'd'))
-        late = replay(records('a', 'b', 'c', 'd'), [group], Scripted({'c': 0.9, 'd': 0.9}), 2)
-        self.assertEqual((late['tp'], late['fn']), (0.5, 1.0))
-        self.assertEqual(late['group_recall'], 0.0)
-
-    def test_uncertain_counts_as_wrong_on_both_sides(self):
-        result = replay(records('a', 'b', 'n'), [LoopGroup('g', 't', ('a', 'b'))], Scripted({'b': 0.5, 'n': 0.45}), 2)
-        self.assertEqual((result['tp'], result['fn'], result['fp']), (0.0, 1.0, 1.0))
-        self.assertEqual((result['uncertain_positive_records'], result['uncertain_negative_records']), (1, 1))
-        self.assertEqual(result['false_alarms'], ['n'])
+    def test_precision_counts_alerts_on_repeats_and_originals_are_not_scored(self):
+        group = LoopGroup('g', 't', ('a', 'b', 'c'))
+        result = replay(records('a', 'b', 'c', 'n1', 'n2'), [group], Scripted({'a': 1, 'b': 1, 'c': 1, 'n1': 1}), 2)
+        self.assertEqual((result['alerts'], result['justified_alerts'], result['fp']), (4, 2, 1))
+        self.assertAlmostEqual(result['precision'], 2 / 3)
+        self.assertEqual((result['recall'], result['original_only_records'], result['negatives']), (1, 1, 2))
 
     def test_short_group_is_unreachable_for_a_larger_k(self):
         result = replay(records('a', 'b', 'n'), [LoopGroup('g', 't', ('a', 'b'))], Scripted({'b': 0.9}), 3)
-        self.assertEqual((result['tp'], result['fn'], result['fp']), (0.0, 1.0, 0.0))
-        self.assertEqual(result['unreachable_groups'], ['g'])
+        self.assertEqual((result['recall'], result['fp'], result['unreachable_groups']), (0, 0, ['g']))
+        self.assertEqual(result['justified_alerts'], 1)
 
-    def test_single_response_group_has_one_detection_point(self):
-        group = LoopGroup('s', 't', ('a', 'a', 'a'), mode='single_response')
-        result = replay(records('a', 'n'), [group], Scripted({'a': 1.0}), 3)
-        self.assertEqual((result['tp'], result['fn'], result['fp']), (1.0, 0.0, 0.0))
+    def test_single_response_group_has_one_detection_point_with_its_companions(self):
+        group = LoopGroup('s', 't', (('a', 'b'), 'a', 'a'), mode='single_response')
+        self.assertEqual(replay(records('a', 'b', 'n'), [group], Scripted({'b': 1.0}), 2)['recall'], 1)
+        short = replay(records('a', 'b'), [group], Scripted({'a': 1.0}), 2, k_inside=4)
+        self.assertEqual((short['recall'], short['unreachable_groups']), (0, ['s']))
         with self.assertRaises(ValueError):
             replay(records('a', 'b'), [LoopGroup('s', 't', ('a', 'b'), mode='single_response')], Scripted({}), 2)
 
-    def test_repeats_inside_the_first_record_put_the_target_there(self):
+    def test_repeats_inside_one_record_take_its_latest_occurrence(self):
         group = LoopGroup('g', 't', ('a', 'a', 'a', 'b'))
-        result = replay(records('a', 'b'), [group], Scripted({'a': 0.9}), 3)
-        self.assertEqual((result['tp'], result['fn']), (1.0, 0.5))
+        self.assertEqual(replay(records('a', 'b'), [group], Scripted({'a': 0.9}), 3)['credit']['g'], 1)
 
-    def test_an_occurrence_spanning_records_owes_its_earliest_record(self):
-        # o2 is a repeated reasoning step r2 and the call t2 it leads to; o1's companion r1 stays neutral
+    def test_an_occurrence_spanning_records_is_one_step(self):
+        # o2 is a repeated reasoning step r2 and the call t2 it leads to; an alert at either is on time
         group = LoopGroup('g', 't', (('t1', 'r1'), ('t2', 'r2'), 't3'))
         obs = records('r1', 't1', 'r2', 't2', 't3')
-        result = replay(obs, [group], Scripted({'r2': 0.9, 't3': 0.9}), 2)
-        self.assertEqual((result['tp'], result['fn'], result['fp'], result['neutral_records']), (1.25, 0.25, 0.0, 2))
-        self.assertEqual(result['first_hits'], 1)
-        side = LoopGroup('s', 't', (('a', 'b'), 'a'), mode='single_response')
-        result = replay(records('a', 'b'), [side], Scripted({'a': 0.9, 'b': 0.9}), 2)
-        self.assertEqual((result['tp'], result['fn']), (1.5, 0.0))
+        self.assertEqual(replay(obs, [group], Scripted({'t2': 0.9}), 2)['credit']['g'], 1)
+        self.assertEqual(replay(obs, [group], Scripted({'t3': 0.9}), 2)['credit']['g'], 0.5)
 
-    def test_overlapping_groups_score_separately_with_one_verdict(self):
+    def test_overlapping_groups_score_separately_with_one_alert(self):
         groups = [LoopGroup('g', 't', ('a', 'c')), LoopGroup('h', 't', ('b', 'c'))]
         result = replay(records('a', 'b', 'c'), groups, Scripted({'c': 0.9}), 2)
-        self.assertEqual((result['tp'], result['fp'], result['negatives']), (2.0, 0.0, 0))
+        self.assertEqual((result['recall'], result['fp'], result['negatives']), (1, 0, 0))
 
     def test_unjudged_records_are_observed_but_not_scored_and_traces_reset(self):
         obs = [Observation('x', 't', {}, judged=False), *records('a', 'b'), *records('n', trace='u')]
@@ -103,16 +91,16 @@ class ReplayTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             replay(obs, [LoopGroup('g', 't', ('x', 'a'))], Scripted({}), 2)
 
-    def test_gate_is_weighted_f2_at_least_point_eight(self):
-        group = LoopGroup('g', 't', ('a', 'b', 'c'))
-        one = replay(records('a', 'b', 'c', 'n1', 'n2'), [group], Scripted({'b': 0.9, 'c': 0.9, 'n1': 0.9}), 2)
-        self.assertAlmostEqual(one['f1'], 0.75)
-        self.assertAlmostEqual(one['f2'], 3 / 3.4)
-        self.assertTrue(one['passes_gate'])
-        two = replay(records('a', 'b', 'c', 'n1', 'n2'), [group],
-                     Scripted({'b': 0.9, 'c': 0.9, 'n1': 0.9, 'n2': 0.9}), 2)
-        self.assertLess(two['f2'], 0.8)
-        self.assertFalse(two['passes_gate'])
+    def test_gate_is_f2_at_least_point_eight(self):
+        groups = [LoopGroup('g', 't', ('a', 'b')), LoopGroup('h', 't', ('c', 'd', 'e'))]
+        obs = records('a', 'b', 'c', 'd', 'e', 'n1', 'n2')
+        one = replay(obs, groups, Scripted({'b': 1, 'e': 1, 'n1': 1}), 2)
+        self.assertEqual((one['recall'], one['precision']), (0.75, 2 / 3))
+        self.assertAlmostEqual(one['f2'], 5 * 0.5 / (4 * 2 / 3 + 0.75))
+        self.assertFalse(one['passes_gate'])
+        two = replay(obs, groups, Scripted({'b': 1, 'd': 1, 'n1': 1}), 2)
+        self.assertAlmostEqual(two['f2'], 5 * 2 / 3 / (4 * 2 / 3 + 1))
+        self.assertTrue(two['passes_gate'])
 
 
 if __name__ == '__main__':
