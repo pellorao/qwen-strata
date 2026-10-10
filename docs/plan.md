@@ -29,7 +29,7 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
   - [ ] IQ3_XXS 全部参数调参（用户 2026-10-11：先把 IQ3_XXS 所有参数测完、定好默认值，再处理 Q2_0，之后继续任务列表）。逐维进行，每条件 3 次，每维沿用上一维胜者：
     1. `pcie-frac`：实测自动 / 0.00 —— 完成，采用实测（[报告](../reports/v0.1.42/iq3_xxs-tuning/pcie-frac/summary.md)）
     2. CPU 核心分配：auto / all —— 完成，保持 all（[报告](../reports/v0.1.42/iq3_xxs-tuning/pool-affinity/summary.md)）
-    3. CPU 专家线程数：23 / 15 / 12
+    3. CPU 专家线程数：23 / 15 / 12 —— 完成，保持 23（[报告](../reports/v0.1.42/iq3_xxs-tuning/pool-workers/summary.md)）
     4. PLE 读取：自动探测 / 强制 direct
     5. `prefill`：8192 / 16384
     6. CPU 辅助短输入：0 / auto
