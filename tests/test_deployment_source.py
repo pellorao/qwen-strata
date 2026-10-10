@@ -25,6 +25,8 @@ frontend_url='http://192.168.60.212:8000'
 brave_api_key='secret-sentinel'
 [hosts.plain]
 installation_path='C:\\Strata'
+[hosts.stray]
+installation_path='C:\\Strata'
 """, encoding='utf-8')
         template = {'exe': '${INSTALL_ROOT}\\runtime\\engine.exe', 'port': 8100,
                     'args': ['--prefill', '16384', '--max-context', '250000']}
@@ -47,6 +49,18 @@ installation_path='C:\\Strata'
         self.assertEqual(plain['args'], ['--prefill', '16384', '--max-context', '250000'])
         self.assertNotIn('request_defaults', plain)
         self.assertNotIn('engine_environment', plain)
+
+    def test_model_overrides_apply_only_to_that_model(self):
+        (self.root/'config/templates/iq3_xxs-prebuilt.json').write_text(
+            json.dumps({'exe': 'x', 'port': 8100, 'args': ['--prefill', '512']}), encoding='utf-8')
+        self.host('tuned', models=['Q2_0', 'IQ3_XXS'], engine_overrides={'prefill': 8192},
+                  model_overrides={'Q2_0': {'vram-reserve-mib': 512}})
+        self.assertEqual(model_configuration('Q2_0', 'tuned', self.root)['args'],
+                         ['--prefill', '8192', '--max-context', '250000', '--vram-reserve-mib', '512'])
+        self.assertEqual(model_configuration('IQ3_XXS', 'tuned', self.root)['args'], ['--prefill', '8192'])
+        self.host('stray', engine_overrides={}, model_overrides={'IQ2_XS': {'vram-reserve-mib': 512}})
+        with self.assertRaisesRegex(ValueError, 'model_overrides'):
+            load_host('stray', self.root)
 
     def test_public_outputs_never_carry_private_values(self):
         self.assertEqual(frontend_configuration('tuned', self.root),

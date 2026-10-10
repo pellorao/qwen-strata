@@ -7,7 +7,7 @@ import tomllib
 ROOT = Path(__file__).resolve().parents[2]
 MODELS = ('Q2_0', 'IQ2_XS', 'IQ3_XXS')
 MODEL_PORT = 8100
-PUBLIC_FIELDS = {'schema_version', 'id', 'cuda_arch', 'models', 'engine_overrides', 'hardware',
+PUBLIC_FIELDS = {'schema_version', 'id', 'cuda_arch', 'models', 'engine_overrides', 'model_overrides', 'hardware',
                  'qualification', 'listen_address', 'port', 'installation_defaults', 'note'}
 INSTALLATION_DEFAULTS = {'max_context', 'reasoning_effort', 'reasoning_budget_tokens', 'max_tokens',
                          'cpu_prefill_share', 'temperature', 'top_p', 'top_k'}
@@ -40,6 +40,10 @@ def load_host(identifier, project=None):
         raise ValueError('Invalid installed model selection')
     if not isinstance(value.get('engine_overrides'), dict):
         raise ValueError('engine_overrides must be an object')
+    per_model = value.setdefault('model_overrides', {})
+    if (not isinstance(per_model, dict) or set(per_model) - set(models)
+            or not all(isinstance(v, dict) for v in per_model.values())):
+        raise ValueError('model_overrides maps installed models to engine overrides tuned for that model')
     defaults = value.get('installation_defaults', {})
     if not isinstance(defaults, dict) or set(defaults) - INSTALLATION_DEFAULTS:
         raise ValueError('Unsupported per-host installation defaults')
@@ -83,7 +87,7 @@ def model_configuration(model, identifier, project=None):
 
     value = render(value)
     value['port'] = MODEL_PORT
-    overrides = dict(host['engine_overrides'])
+    overrides = {**host['engine_overrides'], **host['model_overrides'].get(model, {})}
     defaults = host.get('installation_defaults', {})
     if 'max_context' in defaults:
         overrides['max-context'] = defaults['max_context']
@@ -106,6 +110,7 @@ def baseline_configuration(identifier, project=None):
     host = load_host(identifier, project)
     value = json.loads((project / 'config/maintenance-baseline.json').read_text(encoding='utf-8'))
     value['start_options']['engine_overrides'].update(host['engine_overrides'])
+    value['start_options']['engine_overrides'].update(host['model_overrides'].get(value['start_options']['model'], {}))
     return value
 
 

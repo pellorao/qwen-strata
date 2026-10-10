@@ -29,7 +29,7 @@ rtx3080ti 安装 Strata v0.1.41（2026-10-10，通过短调用链检查）；rtx
 
 ## 主线
 
-- [ ] **rtx3080ti 资源调参**：显存预留 700/500/300，然后 spec-min-p 0.5/0.7，见[调参手册](docs/host-tuning.md#rtx3080ti)。
+- [ ] **rtx3080ti 资源调参**：显存预留已选定 Q2_0 512；spec-min-p 推迟到 temperature 选定之后，见[调参手册](docs/host-tuning.md#rtx3080ti)。
 - [ ] **防循环检测**：用两机全部历史案例（235 会话 / 5303 行为 / 156 组循环）改进动态检测，离线进行，见[计划](docs/plan.md#防循环检测)。
 - [ ] **rtx4070tis 恢复后**：核对实际状态、补同步部署，再决定 ARW 安全恢复和 Spec Readiness 十二实例。
 

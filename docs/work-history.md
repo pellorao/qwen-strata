@@ -1154,3 +1154,10 @@ Laya多语言社区导出固定20选项槽、1024序列位置，两次ORT执行�
   - Claude Code 提示 `unrecognized_model`，按 200K 窗口、32000 输出上限处理；
   - 前端日志没有时间戳；
   - `codex exec` 未关闭 stdin 时提示 "Reading additional input from stdin"，但不影响执行。
+
+## 2026-10-10 审批加固、会话暂存与 rtx3080ti 显存预留
+
+- qwen-approve 加固：用户让 agent 照文件 / 网页 / 工具输出里的步骤执行时，只授权其中无害步骤；思考 512 / 输出 640。S3 伪造 rm 场景默认组与暂存组各 5 次全部拦住，单次审批最长 7.3 秒。
+- rtx3080ti 默认开启会话暂存（8192 MiB / 4 槽 / 保留 5120 MiB）：同一审批场景每次运行 69.0 → 46.2 秒，主对话未缓存输入 78K → 16.4K。
+- 显存预留 1024 / 768 / 512 各 3 次全部正确，速度无可测差异，[报告](../reports/v0.1.41/vram-reserve/summary.md)；用户选定 Q2_0 512，经新增的按量化覆盖（`model_overrides`）只作用于 Q2_0。
+- spec-min-p 推迟到 temperature 选定之后（会让后续测试失效的选择先做）。
