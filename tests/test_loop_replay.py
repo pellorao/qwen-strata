@@ -1,4 +1,4 @@
-"""Scoring contract v6: full replay, one alert threshold, group credit that halves per late first alert."""
+"""Scoring contract v7: full replay, one alert threshold, group credit falling linearly with lateness."""
 import sys
 import unittest
 from pathlib import Path
@@ -37,16 +37,16 @@ class ReplayTests(unittest.TestCase):
         self.assertTrue(all(set(o.payload) == {'text'} for o in detector.seen))
         self.assertEqual(detector.resets, ['t'])
 
-    def test_first_alert_halves_per_late_occurrence_and_following_alerts_add_the_last_tenth(self):
+    def test_first_alert_and_following_alerts_each_earn_half_falling_linearly(self):
         group = LoopGroup('g', 't', ('a', 'b', 'c', 'd'))
         obs = records('a', 'b', 'n', 'c', 'd')
         credit = lambda alerts, k: replay(obs, [group], Scripted(dict.fromkeys(alerts, 1.0)), k)['credit']['g']
-        # k = 2 owes b, c and d; the first alert is due at b
-        for alerts, expected in ((['b'], 0.9 + 0.1 / 3), (['c'], 0.45 + 0.1 / 3), (['d'], 0.225 + 0.1 / 3),
-                                 ([], 0), (['b', 'c', 'd'], 1), (['c', 'd'], 0.45 + 0.2 / 3)):
+        # k = 2 owes b, c and d (first alert 1, 2/3, 1/3; following weights 3/6, 2/6, 1/6)
+        for alerts, expected in ((['b'], 0.75), (['c'], 0.5), (['d'], 0.25), ([], 0), (['b', 'c', 'd'], 1),
+                                 (['c', 'd'], 1 / 3 + 0.25)):
             self.assertAlmostEqual(credit(alerts, 2), expected)
-        # a k = 3 rule is due at the third occurrence; an earlier alert is not late but only c and d are owed after it
-        for alerts, expected in ((['c'], 0.95), (['b'], 0.9), (['d'], 0.5), (['c', 'd'], 1)):
+        # a k = 3 rule owes c and d; an alert at b is not late but owes nothing after it
+        for alerts, expected in ((['c'], 0.5 + 1 / 3), (['b'], 0.5), (['d'], 0.25 + 1 / 6), (['c', 'd'], 1)):
             self.assertAlmostEqual(credit(alerts, 3), expected)
 
     def test_precision_counts_alerts_on_repeats_and_originals_are_not_scored(self):
@@ -71,14 +71,14 @@ class ReplayTests(unittest.TestCase):
 
     def test_repeats_inside_one_record_take_its_latest_occurrence(self):
         group = LoopGroup('g', 't', ('a', 'a', 'a', 'b'))
-        self.assertAlmostEqual(replay(records('a', 'b'), [group], Scripted({'a': 0.9}), 3)['credit']['g'], 0.95)
+        self.assertAlmostEqual(replay(records('a', 'b'), [group], Scripted({'a': 0.9}), 3)['credit']['g'], 0.5 + 1 / 3)
 
     def test_an_occurrence_spanning_records_is_one_step(self):
         # o2 is a repeated reasoning step r2 and the call t2 it leads to; an alert at either is on time
         group = LoopGroup('g', 't', (('t1', 'r1'), ('t2', 'r2'), 't3'))
         obs = records('r1', 't1', 'r2', 't2', 't3')
-        self.assertAlmostEqual(replay(obs, [group], Scripted({'t2': 0.9}), 2)['credit']['g'], 0.95)
-        self.assertAlmostEqual(replay(obs, [group], Scripted({'t3': 0.9}), 2)['credit']['g'], 0.5)
+        self.assertAlmostEqual(replay(obs, [group], Scripted({'t2': 0.9}), 2)['credit']['g'], 0.5 + 1 / 3)
+        self.assertAlmostEqual(replay(obs, [group], Scripted({'t3': 0.9}), 2)['credit']['g'], 0.25 + 1 / 6)
 
     def test_overlapping_groups_score_separately_with_one_alert(self):
         groups = [LoopGroup('g', 't', ('a', 'c')), LoopGroup('h', 't', ('b', 'c'))]
@@ -98,7 +98,7 @@ class ReplayTests(unittest.TestCase):
         groups = [LoopGroup('g', 't', ('a', 'b')), LoopGroup('h', 't', ('c', 'd', 'e'))]
         obs = records('a', 'b', 'c', 'd', 'e', 'n1', 'n2')
         one = replay(obs, groups, Scripted({'b': 1, 'e': 1, 'n1': 1}), 2)
-        self.assertAlmostEqual(one['recall'], (1 + 0.45 + 0.05) / 2)
+        self.assertAlmostEqual(one['recall'], (1 + 0.25 + 1 / 6) / 2)
         self.assertAlmostEqual(one['precision'], 2 / 3)
         self.assertFalse(one['passes_gate'])
         two = replay(obs, groups, Scripted({'b': 1, 'd': 1, 'e': 1, 'n1': 1}), 2)

@@ -1,19 +1,18 @@
-"""Full causal offline replay under scoring contract v6 (benchmarks/loop-detection-v2/scoring-contract.md).
+"""Full causal offline replay under scoring contract v7 (benchmarks/loop-detection-v2/scoring-contract.md).
 
 Every record is replayed in order and nothing is skipped. The detector sees only the observations replayed so far
 and returns, for each model-behavior record, a probability that it is (or contains) a repetition; p >= 0.5 is an
 alert. Frozen loop groups are used only here, to score. One occurrence may span several records (a repeated reasoning
-step and the call or answer it leads to). A rule that needs k occurrences owes its alert by the k-th occurrence: a
-first alert there or earlier earns the group 0.9, each later occurrence halves it; alerting at every owed occurrence
-adds the last 0.1. A repeat inside one response has a single
+step and the call or answer it leads to). A rule that needs k occurrences owes alerts from the k-th occurrence on. Half
+of a group's score is for the first alert, falling linearly with the owed occurrences it came late; half is for
+alerting every owed occurrence, sooner ones weighing more. A repeat inside one response has a single
 detection point (the response and its companions). Recall is the mean group credit; precision is the share of alerts
 that fall on repeated occurrences. Records with only an original occurrence are not scored.
 """
 from dataclasses import dataclass
 
 ALERT = 0.5            # p >= ALERT is an alert
-DECAY = 0.5            # credit kept per occurrence the first alert comes late
-FOLLOW = 0.1           # share of a group's score earned by alerting every owed occurrence, not only the first
+FIRST = 0.5            # share of a group's score for the first alert; the rest is for alerting every repeat
 GATE_F2 = 0.8          # recall weighs more than precision: a detection only sends a reminder
 _ANSWER_FIELDS = frozenset(('loop_annotations', 'normal_annotations', 'label', 'loop_case_ids'))
 
@@ -47,33 +46,40 @@ def alert(p):
 
 
 def credits(groups, k, k_inside):
-    """{group id: ({record id: credit of a first alert there}, owed occurrences as record sets)}, repeated record ids,
-    original-only record ids, unreachable group ids."""
+    """{group id: (records alerting early, owed occurrences as record sets)}, repeated record ids, original-only
+    record ids, unreachable group ids. An early alert is one on a repeat before the k-th occurrence."""
     owed, repeated, original, unreachable = {}, set(), set(), []
     for group in groups:
         occurrences = group.records()
         if group.mode == 'single_response':
             if len({o[0] for o in occurrences}) != 1:
                 raise ValueError('A single-response group repeats inside one record: ' + group.id)
-            here = {r: 1.0 for o in occurrences for r in o}
-            steps = [set(here)]
-            need = k_inside
+            early, steps, need = set(), [{r for o in occurrences for r in o}], k_inside
         elif group.mode == 'cross_call':
-            here = {}
-            for n, occurrence in enumerate(occurrences[1:], 1):
-                for r in occurrence:
-                    here.setdefault(r, DECAY ** max(0, n - (k - 1)))
             steps = [set(o) for o in occurrences[k - 1:]]
+            early = {r for o in occurrences[1:k - 1] for r in o}
             need = k
         else:
             raise ValueError('Unknown loop mode')
-        repeated.update(here)
+        repeated.update(early, *steps)
         original.update(occurrences[0])
         if len(occurrences) < need:
             unreachable.append(group.id)
-            here, steps = {}, []
-        owed[group.id] = here, steps
+            early, steps = set(), []
+        owed[group.id] = early, steps
     return owed, repeated, original - repeated, unreachable
+
+
+def score(early, steps, alerts):
+    """Half for how soon the first alert came, half for how many owed occurrences were alerted, sooner ones weighing
+    more; both fall linearly over the owed occurrences."""
+    if not steps:
+        return 0.0
+    n = len(steps)
+    hit = [bool(step & alerts) for step in steps]
+    first = 1.0 if early & alerts else next((1 - j / n for j, h in enumerate(hit) if h), 0.0)
+    follow = sum(2 * (n - j) / (n * (n + 1)) for j, h in enumerate(hit) if h)
+    return FIRST * first + (1 - FIRST) * follow
 
 
 def replay(observations, groups, detector, k, k_inside=2):
@@ -100,9 +106,8 @@ def replay(observations, groups, detector, k, k_inside=2):
         p = detector.observe(visible)
         if observation.judged and alert(p):
             alerts.add(observation.id)
-    credit = {g: (1 - FOLLOW) * max([c for r, c in here.items() if r in alerts] or [0.0])
-                 + FOLLOW * (sum(bool(step & alerts) for step in steps) / len(steps) if steps else 0.0)
-              for g, (here, steps) in owed.items()}
+    credit = {g: score(early, steps, alerts) for g, (early, steps) in owed.items()}
+    on_time = {g for g, (early, steps) in owed.items() if steps and (early | steps[0]) & alerts}
     negatives = judged - repeated - original
     false_alarms = sorted(alerts & negatives)
     justified = len(alerts & repeated)
@@ -115,8 +120,8 @@ def replay(observations, groups, detector, k, k_inside=2):
     return {
         'k': k, 'k_inside': k_inside, 'precision': precision, 'recall': recall, 'f1': f1, 'f2': f2,
         'passes_gate': f2 is not None and f2 >= GATE_F2,
-        'on_time_groups': sum(c >= 1 - FOLLOW for c in credit.values()),
-        'late_groups': sum(0 < c < 1 - FOLLOW for c in credit.values()),
+        'on_time_groups': len(on_time),
+        'late_groups': sum(c > 0 and g not in on_time for g, c in credit.items()),
         'missed_groups': sorted(g for g, c in credit.items() if c == 0), 'unreachable_groups': sorted(unreachable),
         'alerts': len(alerts), 'justified_alerts': justified, 'fp': len(false_alarms),
         'original_only_records': len(original), 'negatives': len(negatives),

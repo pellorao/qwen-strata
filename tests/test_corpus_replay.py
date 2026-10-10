@@ -26,11 +26,9 @@ class SplitTests(unittest.TestCase):
                 self.assertEqual(seen.setdefault(task['source_text_sha256'], side[trace['trace_id']]),
                                  side[trace['trace_id']])
 
-    def test_companions_are_reviewed_on_development_only_and_join_their_occurrence(self):
+    def test_companions_join_their_occurrence(self):
         review = json.loads((CORPUS / 'occurrence-companions.json').read_text())
-        split = json.loads((CORPUS / 'split.json').read_text())
-        self.assertTrue({d['trace_id'] for d in review['decisions']} <= set(split['development']))
-        groups = {g.id: g for g in load('development')[1]}
+        groups = {g.id: g for g in load(None)[1]}
         for d in review['decisions']:
             record = d['trace_id'] + ':' + ','.join(map(str, d['events']))
             self.assertEqual(record in groups[d['case_id']].records()[d['occurrence']], d['decision'] == 'companion')

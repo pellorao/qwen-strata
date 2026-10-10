@@ -1,4 +1,4 @@
-"""Full-corpus replay input for scoring contract v6, and a scoring CLI for registered detectors.
+"""Full-corpus replay input for scoring contract v7, and a scoring CLI for registered detectors.
 
 Observations come from behavior.jsonl.gz in native order (one per normalized record); loop groups come from the
 SHA-bound Main annotation overlay, each evidence mark being one occurrence; occurrence-companions.json adds the other
