@@ -8,8 +8,8 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 
 1. [x] **前端部署与验收**（rtx3080ti）。2026-10-09 完成，见[历史工作](work-history.md)；剩余的托管搜索和升级评估见下文[前端](#前端)。
 2. [x] **agent 接入**（rtx3080ti）。2026-10-09 完成，Codex 与 Claude Code 冒烟检查通过，见[历史工作](work-history.md)。历史测量仍标 0.160.1。
-3. [ ] **rtx3080ti 显存预留** 700/500/300，各 3 次共 9 实例 / 27 请求，[计划](../benchmarks/resource-calibration-v1/rtx3080ti-vram-reserve-plan.json)。前置：新前端部署（`engine_overrides` 只校验参数名和类型，500/300 可直接传入）。
-4. [ ] **rtx3080ti spec-min-p** 0.5/0.7，各 3 次共 6 实例 / 18 请求，[计划](../benchmarks/resource-calibration-v1/rtx3080ti-spec-min-p-plan.json)。显存值由用户选定后固定。
+3. [ ] **rtx3080ti 显存预留** 1024/768/512 已测完（27/27 正确，速度无可测差异），[报告](../reports/v0.1.41/vram-reserve/summary.md)；建议 1024，待用户选定后改默认并部署。
+4. [ ] **rtx3080ti spec-min-p** 0.3/0.5/0.6/0.7/0.8/0.9：推迟到 temperature 在 ARW 能力验证中选定之后，在选定采样条件下测（用户 2026-10-10 决定）。
 5. [ ] **防循环检测**，见下文[防循环检测](#防循环检测)。
 6. [ ] **rtx4070tis 恢复后**：核对实际文件、版本、服务和持有状态；补同步离线期间的部署；再按[ARW 同步与 Spec 恢复](#arw-同步与-spec-恢复)和调参手册的本机待办安排。
 
