@@ -1,7 +1,8 @@
 """Full-corpus replay input for scoring contract v3, and a scoring CLI for registered detectors.
 
 Observations come from behavior.jsonl.gz in native order (one per normalized record); loop groups come from the
-SHA-bound Main annotation overlay, each evidence mark being one occurrence. Labels stay on the scoring side.
+SHA-bound Main annotation overlay, each evidence mark being one occurrence; occurrence-companions.json adds the other
+records of the same repeated step (its reasoning, call or answer) to an occurrence. Labels stay on the scoring side.
 split.json fixes which traces are for development and which are held out for the final gate confirmation.
 """
 import argparse
@@ -46,13 +47,25 @@ def load(split='development', corpus=CORPUS):
         observations.append(Observation(rid, fact['trace_id'], payload, fact['kind'] in JUDGED))
         for event in fact['source_events']:
             by_event[(fact['trace_id'], event)] = rid
+    companions = {}
+    path = corpus / 'occurrence-companions.json'
+    if path.exists():
+        review = json.loads(path.read_text())
+        if review['behavior_sha256'] != sha or review['annotation_revision'] != overlay.get('annotation_revision'):
+            raise ValueError('Occurrence companions are bound to different behavior data or annotations')
+        for entry in review['decisions']:
+            if entry['decision'] == 'companion':
+                companions.setdefault((entry['case_id'], entry['occurrence']), []).extend(
+                    by_event[(entry['trace_id'], e)] for e in entry['events'] if (entry['trace_id'], e) in by_event)
     groups = []
     for loop in overlay['loops']:
         if loop['trace_id'] not in traces:
             continue
         marks = sorted(loop['evidence_marks'],
                        key=lambda m: (position[by_event[(loop['trace_id'], m['event'])]], m.get('start', 0)))
-        occurrences = tuple(by_event[(loop['trace_id'], m['event'])] for m in marks)
+        occurrences = tuple(tuple(dict.fromkeys([by_event[(loop['trace_id'], m['event'])],
+                                                 *companions.get((loop['case_id'], n), [])]))
+                            for n, m in enumerate(marks))
         groups.append(LoopGroup(loop['case_id'], loop['trace_id'], occurrences, loop['mode']))
     return observations, groups, {'behavior_sha256': sha, 'annotation_revision': overlay.get('annotation_revision'),
                                   'split': split}
@@ -67,7 +80,9 @@ class Silent:
         return 0.0
 
 
-DETECTORS = {'silent': Silent}
+from tools.loop.mechanical import Mechanical
+
+DETECTORS = {'silent': Silent, 'mechanical': Mechanical}
 
 
 def main():

@@ -2,8 +2,9 @@
 
 Every record is replayed in order and nothing is skipped. The detector sees only the observations replayed so far
 and returns, for each model-behavior record, a probability that it is (or contains) a repetition. Frozen loop groups
-are used only here, to score: a rule that needs k occurrences first owes an alert at the record holding the k-th
-occurrence (weight 1); the group's later records share weight 0.5; records with only earlier occurrences are not
+are used only here, to score. One occurrence may span several records (a repeated reasoning step and the call or
+answer it leads to). A rule that needs k occurrences first owes an alert at the earliest record of the k-th
+occurrence (weight 1); the group's other later records share weight 0.5; records with only earlier occurrences are not
 scored. Records outside every group are negatives. 0.4 <= p <= 0.6 is wrong either way.
 """
 from dataclasses import dataclass
@@ -26,8 +27,12 @@ class Observation:
 class LoopGroup:
     id: str
     trace_id: str
-    occurrences: tuple[str, ...]  # record id of each occurrence, in order; one record may hold several
+    occurrences: tuple  # per occurrence, in order: a record id or a tuple of record ids; one record may hold several
     mode: str = 'cross_call'
+
+    def records(self):
+        """Record ids of each occurrence, as tuples."""
+        return [(o,) if isinstance(o, str) else tuple(o) for o in self.occurrences]
 
 
 def verdict(p):
@@ -38,27 +43,30 @@ def verdict(p):
     return 'positive' if p > POSITIVE else 'negative' if p < NEGATIVE else 'uncertain'
 
 
-def targets(groups, k):
-    """{record id: [(group id, 'first' | 'later', weight)]}, neutral record ids, unreachable group ids."""
+def targets(groups, k, order):
+    """{record id: [(group id, 'first' | 'later', weight)]}, neutral record ids, unreachable group ids.
+
+    order maps record id -> replay position, to find the earliest record of an occurrence."""
     owed, neutral, unreachable = {}, set(), []
     for group in groups:
+        occurrences = [sorted(o, key=order.__getitem__) for o in group.records()]
         if group.mode == 'single_response':
-            if len(set(group.occurrences)) != 1:
-                raise ValueError('A single-response group lies in one record: ' + group.id)
-            owed.setdefault(group.occurrences[0], []).append((group.id, 'first', FIRST_WEIGHT))
-            continue
-        if group.mode != 'cross_call':
+            if len({o[0] for o in occurrences}) != 1:
+                raise ValueError('A single-response group repeats inside one record: ' + group.id)
+            first, rest = occurrences[0][0], [r for o in occurrences for r in o]
+        elif group.mode != 'cross_call':
             raise ValueError('Unknown loop mode')
-        if len(group.occurrences) < k:
+        elif len(occurrences) < k:
             unreachable.append(group.id)
-            neutral.update(group.occurrences)
+            neutral.update(r for o in occurrences for r in o)
             continue
-        first = group.occurrences[k - 1]
-        later = list(dict.fromkeys(r for r in group.occurrences[k:] if r != first))
+        else:
+            first, rest = occurrences[k - 1][0], [r for o in occurrences[k - 1:] for r in o]
+            neutral.update(r for o in occurrences[:k - 1] for r in o)
         owed.setdefault(first, []).append((group.id, 'first', FIRST_WEIGHT))
+        later = [r for r in dict.fromkeys(rest) if r != first]
         for record in later:
             owed.setdefault(record, []).append((group.id, 'later', LATER_WEIGHT / len(later)))
-        neutral.update(group.occurrences[:k - 1])
     return owed, neutral - set(owed), unreachable
 
 
@@ -72,9 +80,9 @@ def replay(observations, groups, detector, k):
         raise ValueError('Observation and group identities must be unique')
     judged = {o.id for o in observations if o.judged}
     for group in groups:
-        if not set(group.occurrences) <= judged:
+        if not {r for o in group.records() for r in o} <= judged:
             raise ValueError('Group occurrences must be judged observations: ' + group.id)
-    owed, neutral, unreachable = targets(groups, k)
+    owed, neutral, unreachable = targets(groups, k, {o.id: n for n, o in enumerate(observations)})
     verdicts, trace = {}, None
     for observation in observations:
         if observation.trace_id != trace:

@@ -1,0 +1,3488 @@
+{
+ "schema_version": 1,
+ "behavior_sha256": "784148f62f4e7d61e1d6465e8d101852e8b4083b2990ca13c7a99b9f95b5a39a",
+ "annotation_revision": 2,
+ "approved": "2026-10-10 用户批准：一次出现可跨同一步的推理、调用和回答多条记录（评分合同第 3 版补充）",
+ "scope": "development split only; validation traces are not reviewed before the gate confirmation",
+ "reviewer": "Main (Claude Opus 5.5)",
+ "method": "Every judged record adjacent to an occurrence in the same turn was read against native evidence: for reasoning occurrences the next record, for tool and answer occurrences the previous record. companion = the record is part of the same repeated step (the reasoning that plans the repeated call or answer, the call or announcement that carries out the repeated reasoning, or a mirror of it); normal = a distinct step (first read, new probe, delivery, real repair, one reasonable recheck, final status). Occurrence is the 0-based index of the evidence mark in replay order. Detector output was not used.",
+ "decisions": [
+  {
+   "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-1/loop-1",
+   "trace_id": "01a116ac-59aa-7040-b0eb-bd904b0c828a",
+   "occurrence": 0,
+   "events": [
+    65,
+    68,
+    69
+   ],
+   "decision": "normal",
+   "reason": "首次读取另两份文档，是新步骤"
+  },
+  {
+   "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-1/loop-1",
+   "trace_id": "01a116ac-59aa-7040-b0eb-bd904b0c828a",
+   "occurrence": 7,
+   "events": [
+    82,
+    84,
+    85
+   ],
+   "decision": "normal",
+   "reason": "新的语义探针调用，不是重复动作"
+  },
+  {
+   "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-1/loop-3",
+   "trace_id": "01a116ac-59aa-7040-b0eb-bd904b0c828a",
+   "occurrence": 0,
+   "events": [
+    95,
+    94
+   ],
+   "decision": "companion",
+   "reason": "规划随后那次失败校验脚本的推理（同一检查清单）"
+  },
+  {
+   "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-1/loop-3",
+   "trace_id": "01a116ac-59aa-7040-b0eb-bd904b0c828a",
+   "occurrence": 1,
+   "events": [
+    105,
+    104
+   ],
+   "decision": "companion",
+   "reason": "以“修正后”为名再次规划同一检查清单，引出第二次同样失败的调用"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-1",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 0,
+   "events": [
+    222,
+    224,
+    225
+   ],
+   "decision": "normal",
+   "reason": "首次导出 evidence 区间，新检查"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-1",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 1,
+   "events": [
+    229,
+    231,
+    232
+   ],
+   "decision": "normal",
+   "reason": "首次核对要求原文与来源行，新检查"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-1",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 2,
+   "events": [
+    243,
+    245,
+    246
+   ],
+   "decision": "normal",
+   "reason": "规范化之后的首次合法性校验，一次合理复核"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-1",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 3,
+   "events": [
+    250,
+    252,
+    253
+   ],
+   "decision": "companion",
+   "reason": "重复的失败校验调用（同时是 loop-3 的出现），执行本次重复推理的“再核对一次”"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-1",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 4,
+   "events": [
+    257,
+    259,
+    260
+   ],
+   "decision": "companion",
+   "reason": "同上，重复失败校验"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-1",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 5,
+   "events": [
+    292,
+    295,
+    296
+   ],
+   "decision": "companion",
+   "reason": "同上，重复失败校验"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-1",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 6,
+   "events": [
+    302,
+    304,
+    305
+   ],
+   "decision": "normal",
+   "reason": "实际修补 evidence，属于进展"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-3",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 0,
+   "events": [
+    249,
+    248
+   ],
+   "decision": "companion",
+   "reason": "规划随后失败校验的推理"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-3",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 1,
+   "events": [
+    256,
+    255
+   ],
+   "decision": "companion",
+   "reason": "再次规划同一“再打印最终 evidence”校验"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-3",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 2,
+   "events": [
+    263,
+    262
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-3",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 3,
+   "events": [
+    270,
+    269
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-3",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 4,
+   "events": [
+    277,
+    276
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-3",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 5,
+   "events": [
+    284,
+    283
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-3",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 6,
+   "events": [
+    291,
+    290
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-2",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 0,
+   "events": [
+    258,
+    262,
+    263
+   ],
+   "decision": "normal",
+   "reason": "首次读取 reviewer.md，新步骤"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-3",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 0,
+   "events": [
+    258,
+    262,
+    263
+   ],
+   "decision": "normal",
+   "reason": "首次读取 reviewer.md，新步骤"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-4",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 0,
+   "events": [
+    258,
+    262,
+    263
+   ],
+   "decision": "normal",
+   "reason": "首次读取 reviewer.md，新步骤"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-2",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 4,
+   "events": [
+    268,
+    270,
+    271
+   ],
+   "decision": "normal",
+   "reason": "写出 review 文件，交付"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-2",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 6,
+   "events": [
+    282,
+    284,
+    285
+   ],
+   "decision": "normal",
+   "reason": "首次对照暂存字节的完整校验，一次合理复核"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-3",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 2,
+   "events": [
+    268,
+    270,
+    271
+   ],
+   "decision": "normal",
+   "reason": "写出 review 文件，交付"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-3",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 3,
+   "events": [
+    282,
+    284,
+    285
+   ],
+   "decision": "normal",
+   "reason": "首次对照暂存字节的完整校验，一次合理复核"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-4",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 5,
+   "events": [
+    268,
+    270,
+    271
+   ],
+   "decision": "normal",
+   "reason": "写出 review 文件，交付"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-5",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 0,
+   "events": [
+    296,
+    298,
+    299
+   ],
+   "decision": "normal",
+   "reason": "实际修补 finding 文字，真实修复"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-5",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 1,
+   "events": [
+    303,
+    305,
+    306
+   ],
+   "decision": "normal",
+   "reason": "首次列出嵌套区间，新查询"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-5",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 5,
+   "events": [
+    310,
+    312,
+    313
+   ],
+   "decision": "normal",
+   "reason": "普通格式校验，与重复的算术无关"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-5",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 6,
+   "events": [
+    318,
+    317
+   ],
+   "decision": "normal",
+   "reason": "最终状态，交付"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-6",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 0,
+   "events": [
+    109,
+    108
+   ],
+   "decision": "companion",
+   "reason": "规划随后失败检查脚本的推理"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-6",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 1,
+   "events": [
+    116,
+    115
+   ],
+   "decision": "companion",
+   "reason": "再次规划同一剩余检查清单"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-6",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 2,
+   "events": [
+    123,
+    122
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-7",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 0,
+   "events": [
+    137,
+    136
+   ],
+   "decision": "companion",
+   "reason": "规划随后失败检查脚本的推理"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-7",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 1,
+   "events": [
+    144,
+    143
+   ],
+   "decision": "companion",
+   "reason": "再次规划同一剩余检查清单"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-7",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 2,
+   "events": [
+    151,
+    150
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2/loop-1",
+   "trace_id": "01a116c0-4815-7292-856b-c4325bf830ac",
+   "occurrence": 0,
+   "events": [
+    95,
+    99,
+    100
+   ],
+   "decision": "normal",
+   "reason": "首次读取 reviewer.md，新步骤"
+  },
+  {
+   "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2/loop-1",
+   "trace_id": "01a116c0-4815-7292-856b-c4325bf830ac",
+   "occurrence": 4,
+   "events": [
+    105,
+    107,
+    108
+   ],
+   "decision": "normal",
+   "reason": "首次查看 manifest/executor 指定行，新读取"
+  },
+  {
+   "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2/loop-2",
+   "trace_id": "01a116c0-4815-7292-856b-c4325bf830ac",
+   "occurrence": 0,
+   "events": [
+    95,
+    99,
+    100
+   ],
+   "decision": "normal",
+   "reason": "首次读取 reviewer.md，新步骤"
+  },
+  {
+   "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2/loop-2",
+   "trace_id": "01a116c0-4815-7292-856b-c4325bf830ac",
+   "occurrence": 2,
+   "events": [
+    105,
+    107,
+    108
+   ],
+   "decision": "normal",
+   "reason": "首次查看 manifest/executor 指定行，新读取"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2/loop-1",
+   "trace_id": "01a114bc-6edd-7542-b0c5-488906983fe4",
+   "occurrence": 0,
+   "events": [
+    78,
+    82,
+    83
+   ],
+   "decision": "normal",
+   "reason": "首次读取角色文档，新步骤"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2/loop-1",
+   "trace_id": "01a114bc-6edd-7542-b0c5-488906983fe4",
+   "occurrence": 5,
+   "events": [
+    88,
+    92,
+    93
+   ],
+   "decision": "normal",
+   "reason": "首次带行号读取 access.mjs，新读取"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2/loop-2",
+   "trace_id": "01a114bc-6edd-7542-b0c5-488906983fe4",
+   "occurrence": 0,
+   "events": [
+    78,
+    82,
+    83
+   ],
+   "decision": "normal",
+   "reason": "首次读取角色文档，新步骤"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2/loop-2",
+   "trace_id": "01a114bc-6edd-7542-b0c5-488906983fe4",
+   "occurrence": 1,
+   "events": [
+    88,
+    92,
+    93
+   ],
+   "decision": "normal",
+   "reason": "首次带行号读取 access.mjs，新读取"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2/loop-2",
+   "trace_id": "01a114bc-6edd-7542-b0c5-488906983fe4",
+   "occurrence": 6,
+   "events": [
+    98,
+    100,
+    101
+   ],
+   "decision": "normal",
+   "reason": "写出 review 文件，交付"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2/loop-3",
+   "trace_id": "01a114bc-6edd-7542-b0c5-488906983fe4",
+   "occurrence": 0,
+   "events": [
+    88,
+    92,
+    93
+   ],
+   "decision": "normal",
+   "reason": "首次带行号读取 access.mjs，新读取"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2/loop-3",
+   "trace_id": "01a114bc-6edd-7542-b0c5-488906983fe4",
+   "occurrence": 4,
+   "events": [
+    98,
+    100,
+    101
+   ],
+   "decision": "normal",
+   "reason": "写出 review 文件，交付"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2/loop-4",
+   "trace_id": "01a114bc-6edd-7542-b0c5-488906983fe4",
+   "occurrence": 0,
+   "events": [
+    163,
+    162
+   ],
+   "decision": "companion",
+   "reason": "规划随后那次失败校验脚本（改用 escalated 重跑）"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-2/loop-4",
+   "trace_id": "01a114bc-6edd-7542-b0c5-488906983fe4",
+   "occurrence": 1,
+   "events": [
+    184,
+    183
+   ],
+   "decision": "companion",
+   "reason": "再次规划同一覆盖校验脚本，引出同样的 TypeError"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-3/loop-1",
+   "trace_id": "01a114ce-ba0a-7ae1-b6ef-af995caa36c0",
+   "occurrence": 0,
+   "events": [
+    85,
+    89,
+    90
+   ],
+   "decision": "normal",
+   "reason": "首次发现治理文档，新步骤"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-3/loop-1",
+   "trace_id": "01a114ce-ba0a-7ae1-b6ef-af995caa36c0",
+   "occurrence": 1,
+   "events": [
+    95,
+    99,
+    100
+   ],
+   "decision": "normal",
+   "reason": "首次读取 storage-contract，新读取"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-3/loop-1",
+   "trace_id": "01a114ce-ba0a-7ae1-b6ef-af995caa36c0",
+   "occurrence": 2,
+   "events": [
+    105,
+    107,
+    108
+   ],
+   "decision": "normal",
+   "reason": "首次读取 AGENTS.md 与配置，新读取"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-3/loop-1",
+   "trace_id": "01a114ce-ba0a-7ae1-b6ef-af995caa36c0",
+   "occurrence": 4,
+   "events": [
+    113,
+    112
+   ],
+   "decision": "normal",
+   "reason": "宣布开始写审计记录，进展"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-3/loop-2",
+   "trace_id": "01a114ce-ba0a-7ae1-b6ef-af995caa36c0",
+   "occurrence": 0,
+   "events": [
+    85,
+    89,
+    90
+   ],
+   "decision": "normal",
+   "reason": "首次发现治理文档，新步骤"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-3/loop-2",
+   "trace_id": "01a114ce-ba0a-7ae1-b6ef-af995caa36c0",
+   "occurrence": 1,
+   "events": [
+    105,
+    107,
+    108
+   ],
+   "decision": "normal",
+   "reason": "首次读取 AGENTS.md 与配置，新读取"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-3/loop-3",
+   "trace_id": "01a114ce-ba0a-7ae1-b6ef-af995caa36c0",
+   "occurrence": 0,
+   "events": [
+    85,
+    89,
+    90
+   ],
+   "decision": "normal",
+   "reason": "首次发现治理文档，新步骤"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-3/loop-3",
+   "trace_id": "01a114ce-ba0a-7ae1-b6ef-af995caa36c0",
+   "occurrence": 3,
+   "events": [
+    105,
+    107,
+    108
+   ],
+   "decision": "normal",
+   "reason": "首次读取 AGENTS.md 与配置，新读取"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-3/loop-3",
+   "trace_id": "01a114ce-ba0a-7ae1-b6ef-af995caa36c0",
+   "occurrence": 5,
+   "events": [
+    113,
+    112
+   ],
+   "decision": "normal",
+   "reason": "宣布开始写审计记录，进展"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 0,
+   "events": [
+    157,
+    159,
+    160
+   ],
+   "decision": "normal",
+   "reason": "首次读取 request 键，新检查"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 1,
+   "events": [
+    178,
+    180,
+    181
+   ],
+   "decision": "normal",
+   "reason": "新的暂存区证据校验（因命令错误失败）"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 2,
+   "events": [
+    185,
+    187,
+    188
+   ],
+   "decision": "normal",
+   "reason": "修正后的校验，发现真实合并问题，进展"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 3,
+   "events": [
+    192,
+    194,
+    195
+   ],
+   "decision": "normal",
+   "reason": "实际规范化区间，真实修复"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 4,
+   "events": [
+    199,
+    202,
+    203
+   ],
+   "decision": "normal",
+   "reason": "规范化后首次查看文件，一次合理复核"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 7,
+   "events": [
+    209,
+    213,
+    214
+   ],
+   "decision": "normal",
+   "reason": "首次读取 gate-2.md，新读取"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 10,
+   "events": [
+    219,
+    221,
+    222
+   ],
+   "decision": "normal",
+   "reason": "导出非 satisfied 记录及证据，新内容"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 11,
+   "events": [
+    226,
+    228,
+    229
+   ],
+   "decision": "normal",
+   "reason": "导出 satisfied 记录及证据，新内容"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 12,
+   "events": [
+    233,
+    237,
+    238
+   ],
+   "decision": "normal",
+   "reason": "首次检查换行与空行，新检查"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 13,
+   "events": [
+    243,
+    245,
+    246
+   ],
+   "decision": "normal",
+   "reason": "为新疑问重读 spec，新查询"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 14,
+   "events": [
+    250,
+    253,
+    254
+   ],
+   "decision": "normal",
+   "reason": "首次读取测试文件，新读取"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 15,
+   "events": [
+    260,
+    262,
+    263
+   ],
+   "decision": "normal",
+   "reason": "准备通知，检查环境变量，新步骤"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 16,
+   "events": [
+    267,
+    269,
+    270
+   ],
+   "decision": "normal",
+   "reason": "查看 arw 帮助，新步骤"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-3",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 17,
+   "events": [
+    289,
+    288
+   ],
+   "decision": "normal",
+   "reason": "最终状态，交付"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-1",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 0,
+   "events": [
+    75,
+    79,
+    80
+   ],
+   "decision": "normal",
+   "reason": "首次读取 storage-contract 与配置，新读取"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-1",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 4,
+   "events": [
+    85,
+    87,
+    88
+   ],
+   "decision": "normal",
+   "reason": "为取行号带 -n 重读，一次合理复核"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-2",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 0,
+   "events": [
+    227,
+    231,
+    232
+   ],
+   "decision": "normal",
+   "reason": "新的运行时探针"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-2",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 3,
+   "events": [
+    247,
+    249,
+    250
+   ],
+   "decision": "normal",
+   "reason": "首次修补第 11 行为 gap，真实修复"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-2",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 5,
+   "events": [
+    275,
+    277,
+    278
+   ],
+   "decision": "normal",
+   "reason": "并发追加后重新计数，一次合理复核"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-2",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 6,
+   "events": [
+    282,
+    286,
+    287
+   ],
+   "decision": "companion",
+   "reason": "同一行再次改写，只把 [1,6] 换成 [[1,6]]，是本次重复表示决定的落地"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-2",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 7,
+   "events": [
+    292,
+    296,
+    297
+   ],
+   "decision": "normal",
+   "reason": "首次检查换行与空行，新检查"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-2",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 11,
+   "events": [
+    302,
+    304,
+    305
+   ],
+   "decision": "normal",
+   "reason": "首次发送通知，新步骤"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-2",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 12,
+   "events": [
+    323,
+    325,
+    326
+   ],
+   "decision": "normal",
+   "reason": "与后续固定校验脚本不同的覆盖检查，通知失败后的一次复核"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-3",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 0,
+   "events": [
+    227,
+    231,
+    232
+   ],
+   "decision": "normal",
+   "reason": "新的运行时探针"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-3",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 2,
+   "events": [
+    247,
+    249,
+    250
+   ],
+   "decision": "normal",
+   "reason": "首次修补第 11 行为 gap，真实修复"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-3",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 3,
+   "events": [
+    254,
+    256,
+    257
+   ],
+   "decision": "normal",
+   "reason": "追加 issue 02 记录，交付"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-3",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 14,
+   "events": [
+    292,
+    296,
+    297
+   ],
+   "decision": "normal",
+   "reason": "首次检查换行与空行，新检查"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-3",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 15,
+   "events": [
+    302,
+    304,
+    305
+   ],
+   "decision": "normal",
+   "reason": "首次发送通知，新步骤"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-4",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 0,
+   "events": [
+    155,
+    154
+   ],
+   "decision": "normal",
+   "reason": "宣布开始写草稿，进展"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-4",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 1,
+   "events": [
+    268,
+    270,
+    271
+   ],
+   "decision": "normal",
+   "reason": "追加 spec 记录，交付"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-4",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 3,
+   "events": [
+    275,
+    277,
+    278
+   ],
+   "decision": "normal",
+   "reason": "并发追加后重新计数，一次合理复核"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-4",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 4,
+   "events": [
+    282,
+    286,
+    287
+   ],
+   "decision": "companion",
+   "reason": "同一行再次改写，只把 [1,6] 换成 [[1,6]]，是本次重复表示决定的落地"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-4",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 7,
+   "events": [
+    292,
+    296,
+    297
+   ],
+   "decision": "normal",
+   "reason": "首次检查换行与空行，新检查"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-4",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 8,
+   "events": [
+    302,
+    304,
+    305
+   ],
+   "decision": "normal",
+   "reason": "首次发送通知，新步骤"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-5",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 0,
+   "events": [
+    125,
+    124
+   ],
+   "decision": "companion",
+   "reason": "规划随后失败探针脚本的推理"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-5",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 1,
+   "events": [
+    132,
+    131
+   ],
+   "decision": "companion",
+   "reason": "再次规划同一剩余检查（“修正后”重跑）"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-5",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 2,
+   "events": [
+    139,
+    138
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 0,
+   "events": [
+    336,
+    335
+   ],
+   "decision": "companion",
+   "reason": "与之后每次校验前完全相同的推理镜像，规划这次校验"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 1,
+   "events": [
+    343,
+    342
+   ],
+   "decision": "companion",
+   "reason": "相同推理镜像，规划同一校验"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 2,
+   "events": [
+    350,
+    349
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 3,
+   "events": [
+    357,
+    356
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 4,
+   "events": [
+    364,
+    363
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 5,
+   "events": [
+    371,
+    370
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 6,
+   "events": [
+    378,
+    377
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 7,
+   "events": [
+    385,
+    384
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 8,
+   "events": [
+    392,
+    391
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 9,
+   "events": [
+    399,
+    398
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 10,
+   "events": [
+    408,
+    407
+   ],
+   "decision": "companion",
+   "reason": "用户催促后仍是相同推理，规划同一校验"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 10,
+   "events": [
+    415,
+    414
+   ],
+   "decision": "companion",
+   "reason": "最后一次相同推理，之后才给出最终状态"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2/loop-6",
+   "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+   "occurrence": 10,
+   "events": [
+    417,
+    416
+   ],
+   "decision": "normal",
+   "reason": "最终状态，交付"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3/loop-1",
+   "trace_id": "01a1149d-305a-73e3-baba-79bef1e96de9",
+   "occurrence": 0,
+   "events": [
+    75,
+    79,
+    80
+   ],
+   "decision": "normal",
+   "reason": "首次读取 agent 文档，新读取"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3/loop-1",
+   "trace_id": "01a1149d-305a-73e3-baba-79bef1e96de9",
+   "occurrence": 6,
+   "events": [
+    85,
+    88,
+    89
+   ],
+   "decision": "normal",
+   "reason": "新的运行时探针"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3/loop-2",
+   "trace_id": "01a1149d-305a-73e3-baba-79bef1e96de9",
+   "occurrence": 0,
+   "events": [
+    122,
+    126,
+    127
+   ],
+   "decision": "normal",
+   "reason": "不同的 executeAuthorizedPlan 探针（组理由已排除）"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3/loop-2",
+   "trace_id": "01a1149d-305a-73e3-baba-79bef1e96de9",
+   "occurrence": 1,
+   "events": [
+    132,
+    136,
+    137
+   ],
+   "decision": "normal",
+   "reason": "其他探针已改动（组理由已排除）"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3/loop-3",
+   "trace_id": "01a1149d-305a-73e3-baba-79bef1e96de9",
+   "occurrence": 0,
+   "events": [
+    241,
+    240
+   ],
+   "decision": "companion",
+   "reason": "规划随后失败检查脚本的推理"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3/loop-3",
+   "trace_id": "01a1149d-305a-73e3-baba-79bef1e96de9",
+   "occurrence": 1,
+   "events": [
+    248,
+    247
+   ],
+   "decision": "companion",
+   "reason": "再次规划同一剩余检查（“修正括号”），引出同样错误"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3/loop-4",
+   "trace_id": "01a1149d-305a-73e3-baba-79bef1e96de9",
+   "occurrence": 0,
+   "events": [
+    262,
+    261
+   ],
+   "decision": "companion",
+   "reason": "规划随后失败检查脚本的推理"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3/loop-4",
+   "trace_id": "01a1149d-305a-73e3-baba-79bef1e96de9",
+   "occurrence": 1,
+   "events": [
+    269,
+    268
+   ],
+   "decision": "companion",
+   "reason": "再次规划同一检查，引出字节相同的失败调用"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-1",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 0,
+   "events": [
+    92,
+    94,
+    95
+   ],
+   "decision": "normal",
+   "reason": "首次读取 storage-contract，新读取"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-1",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 11,
+   "events": [
+    99,
+    101,
+    102
+   ],
+   "decision": "normal",
+   "reason": "新的运行时探针"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-2",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 0,
+   "events": [
+    92,
+    94,
+    95
+   ],
+   "decision": "normal",
+   "reason": "首次读取 storage-contract，新读取"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-2",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 1,
+   "events": [
+    99,
+    101,
+    102
+   ],
+   "decision": "normal",
+   "reason": "新的运行时探针"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-2",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 3,
+   "events": [
+    106,
+    108,
+    109
+   ],
+   "decision": "normal",
+   "reason": "新的运行时探针"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-2",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 6,
+   "events": [
+    114,
+    113
+   ],
+   "decision": "normal",
+   "reason": "宣布开始写审计行，进展"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-3",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 0,
+   "events": [
+    302,
+    304,
+    305
+   ],
+   "decision": "normal",
+   "reason": "新的运行时探针"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-3",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 4,
+   "events": [
+    309,
+    311,
+    312
+   ],
+   "decision": "normal",
+   "reason": "新的运行时探针"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-3",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 9,
+   "events": [
+    316,
+    318,
+    319
+   ],
+   "decision": "normal",
+   "reason": "写出 review 文件，交付"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-3",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 11,
+   "events": [
+    362,
+    366,
+    367
+   ],
+   "decision": "normal",
+   "reason": "写完后首次格式检查，一次合理复核"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-3",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 16,
+   "events": [
+    484,
+    486,
+    487
+   ],
+   "decision": "normal",
+   "reason": "续写后读取 request 要求清单，新读取"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-4",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 0,
+   "events": [
+    292,
+    296,
+    297
+   ],
+   "decision": "normal",
+   "reason": "首次读取 gate-2.md，新读取"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-4",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 2,
+   "events": [
+    316,
+    318,
+    319
+   ],
+   "decision": "normal",
+   "reason": "写出 review 文件，交付"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-4",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 3,
+   "events": [
+    484,
+    486,
+    487
+   ],
+   "decision": "normal",
+   "reason": "续写后读取 request 要求清单，新读取"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-5",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 0,
+   "events": [
+    106,
+    108,
+    109
+   ],
+   "decision": "normal",
+   "reason": "新的运行时探针"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-5",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 1,
+   "events": [
+    114,
+    113
+   ],
+   "decision": "normal",
+   "reason": "宣布开始写审计行，进展"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-5",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 2,
+   "events": [
+    302,
+    304,
+    305
+   ],
+   "decision": "normal",
+   "reason": "新的运行时探针"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-5",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 6,
+   "events": [
+    309,
+    311,
+    312
+   ],
+   "decision": "normal",
+   "reason": "新的运行时探针"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-5",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 9,
+   "events": [
+    316,
+    318,
+    319
+   ],
+   "decision": "normal",
+   "reason": "写出 review 文件，交付"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-5",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 10,
+   "events": [
+    323,
+    325,
+    326
+   ],
+   "decision": "normal",
+   "reason": "新的运行时探针"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-5",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 11,
+   "events": [
+    331,
+    330
+   ],
+   "decision": "normal",
+   "reason": "宣布写剩余行，进展"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-5",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 13,
+   "events": [
+    362,
+    366,
+    367
+   ],
+   "decision": "normal",
+   "reason": "写完后首次格式检查，一次合理复核"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-5",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 15,
+   "events": [
+    484,
+    486,
+    487
+   ],
+   "decision": "normal",
+   "reason": "续写后读取 request 要求清单，新读取"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-6",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 0,
+   "events": [
+    383,
+    387,
+    388
+   ],
+   "decision": "normal",
+   "reason": "实际检查文件状态，新观察"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-6",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 1,
+   "events": [
+    454,
+    453
+   ],
+   "decision": "companion",
+   "reason": "可见回答复述同一过时疑问并要求再验证，是本次重复推理的镜像"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-7",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 0,
+   "events": [
+    400,
+    402,
+    403
+   ],
+   "decision": "normal",
+   "reason": "首次查看 request 结构，校验准备"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2/loop-7",
+   "trace_id": "01a1151c-f2f0-7933-bf5b-19cdac63becf",
+   "occurrence": 1,
+   "events": [
+    407,
+    409,
+    410
+   ],
+   "decision": "normal",
+   "reason": "第一次真正执行完整校验"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-1",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 5,
+   "events": [
+    83,
+    85,
+    86
+   ],
+   "decision": "normal",
+   "reason": "首次导出暂存 diff，新读取"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-1",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 8,
+   "events": [
+    91,
+    90
+   ],
+   "decision": "normal",
+   "reason": "宣布验证暂存字节与关键行为，进展"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-2",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 2,
+   "events": [
+    83,
+    85,
+    86
+   ],
+   "decision": "normal",
+   "reason": "首次导出暂存 diff，新读取"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-2",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 4,
+   "events": [
+    91,
+    90
+   ],
+   "decision": "normal",
+   "reason": "宣布验证暂存字节与关键行为，进展"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-8",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 0,
+   "events": [
+    83,
+    85,
+    86
+   ],
+   "decision": "normal",
+   "reason": "首次导出暂存 diff，新读取"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-8",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 4,
+   "events": [
+    91,
+    90
+   ],
+   "decision": "normal",
+   "reason": "宣布验证暂存字节与关键行为，进展"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-1",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 0,
+   "events": [
+    76,
+    78,
+    79
+   ],
+   "decision": "normal",
+   "reason": "首次读取角色文档，新读取"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-2",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 0,
+   "events": [
+    76,
+    78,
+    79
+   ],
+   "decision": "normal",
+   "reason": "首次读取角色文档，新读取"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-3",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 0,
+   "events": [
+    109,
+    111,
+    112
+   ],
+   "decision": "normal",
+   "reason": "新的导出与测试探针"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-3",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 2,
+   "events": [
+    117,
+    116
+   ],
+   "decision": "normal",
+   "reason": "宣布写完整草稿，进展"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-4",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 0,
+   "events": [
+    109,
+    111,
+    112
+   ],
+   "decision": "normal",
+   "reason": "新的导出与测试探针"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-4",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 1,
+   "events": [
+    117,
+    116
+   ],
+   "decision": "normal",
+   "reason": "宣布写完整草稿，进展"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-5",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 0,
+   "events": [
+    158,
+    157
+   ],
+   "decision": "companion",
+   "reason": "规划随后失败校验脚本的推理"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-5",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 1,
+   "events": [
+    165,
+    164
+   ],
+   "decision": "companion",
+   "reason": "再次规划同一校验（改成单行），引出同样的缺括号错误"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-6",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 0,
+   "events": [
+    180,
+    182,
+    183
+   ],
+   "decision": "companion",
+   "reason": "组理由：配对的工具调用属于同一次出现（重读 request 再确认）"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-6",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 1,
+   "events": [
+    187,
+    189,
+    190
+   ],
+   "decision": "companion",
+   "reason": "配对工具调用：再次覆盖校验"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-6",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 2,
+   "events": [
+    194,
+    198,
+    199
+   ],
+   "decision": "companion",
+   "reason": "配对工具调用：再次抽查非 satisfied 行"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-6",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 3,
+   "events": [
+    204,
+    208,
+    209
+   ],
+   "decision": "companion",
+   "reason": "配对工具调用：再次重读 issue 与 spec"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-6",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 4,
+   "events": [
+    214,
+    217,
+    218
+   ],
+   "decision": "companion",
+   "reason": "配对工具调用：再次重读源码"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-6",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 5,
+   "events": [
+    224,
+    226,
+    227
+   ],
+   "decision": "companion",
+   "reason": "配对工具调用：再次格式校验"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-6",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 6,
+   "events": [
+    231,
+    233,
+    234
+   ],
+   "decision": "companion",
+   "reason": "配对工具调用：检查通知通道，属同一轮重复确认"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-6",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 7,
+   "events": [
+    239,
+    238
+   ],
+   "decision": "normal",
+   "reason": "最终状态，交付"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-9",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 0,
+   "events": [
+    306,
+    305
+   ],
+   "decision": "companion",
+   "reason": "宣布“现在写完整报告”但没有写，与之后每次重映射后的同一宣布重复"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-9",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 1,
+   "events": [
+    319,
+    318
+   ],
+   "decision": "companion",
+   "reason": "同一宣布再次出现，仍未写入"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-9",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 2,
+   "events": [
+    332,
+    331
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-10",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 0,
+   "events": [
+    361,
+    360
+   ],
+   "decision": "companion",
+   "reason": "宣布“现在写完整报告”但没有写"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-10",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 1,
+   "events": [
+    374,
+    373
+   ],
+   "decision": "companion",
+   "reason": "同一宣布再次出现，仍未写入"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-10",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 2,
+   "events": [
+    387,
+    386
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-10",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 3,
+   "events": [
+    400,
+    399
+   ],
+   "decision": "companion",
+   "reason": "同上"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-1",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 0,
+   "events": [
+    75,
+    79,
+    80
+   ],
+   "decision": "normal",
+   "reason": "首次列出文件与提交，新检查"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-1",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 1,
+   "events": [
+    85,
+    87,
+    88
+   ],
+   "decision": "normal",
+   "reason": "新的运行时探针"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-1",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 2,
+   "events": [
+    100,
+    99
+   ],
+   "decision": "normal",
+   "reason": "只出现一次的进展宣布"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-2",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 0,
+   "events": [
+    194,
+    198,
+    199
+   ],
+   "decision": "normal",
+   "reason": "压缩后重读 issue 文件，取得行号"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-2",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 1,
+   "events": [
+    211,
+    213,
+    214
+   ],
+   "decision": "normal",
+   "reason": "打印已写行的证据，新检查"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-2",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 2,
+   "events": [
+    218,
+    220,
+    221
+   ],
+   "decision": "normal",
+   "reason": "检查暂存状态，新检查"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-2",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 3,
+   "events": [
+    226,
+    225
+   ],
+   "decision": "normal",
+   "reason": "宣布追加 Gate 2 记录，进展"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-10",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 0,
+   "events": [
+    310,
+    312,
+    313
+   ],
+   "decision": "normal",
+   "reason": "文件校验，与通知授权问题无关的步骤"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-10",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 2,
+   "events": [
+    318,
+    317
+   ],
+   "decision": "normal",
+   "reason": "最终状态，交付"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2/loop-1",
+   "trace_id": "01a118f4-34ef-7960-a487-265496ef278f",
+   "occurrence": 0,
+   "events": [
+    92,
+    94,
+    95
+   ],
+   "decision": "normal",
+   "reason": "首次读取 storage-contract 与配置，新读取"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2/loop-1",
+   "trace_id": "01a118f4-34ef-7960-a487-265496ef278f",
+   "occurrence": 4,
+   "events": [
+    99,
+    101,
+    102
+   ],
+   "decision": "normal",
+   "reason": "首次读取 reviewer.md，新读取"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2/loop-1",
+   "trace_id": "01a118f4-34ef-7960-a487-265496ef278f",
+   "occurrence": 5,
+   "events": [
+    107,
+    106
+   ],
+   "decision": "normal",
+   "reason": "宣布开始写草稿，进展"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2/loop-2",
+   "trace_id": "01a118f4-34ef-7960-a487-265496ef278f",
+   "occurrence": 0,
+   "events": [
+    92,
+    94,
+    95
+   ],
+   "decision": "normal",
+   "reason": "首次读取 storage-contract 与配置，新读取"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2/loop-2",
+   "trace_id": "01a118f4-34ef-7960-a487-265496ef278f",
+   "occurrence": 1,
+   "events": [
+    99,
+    101,
+    102
+   ],
+   "decision": "normal",
+   "reason": "首次读取 reviewer.md，新读取"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2/loop-2",
+   "trace_id": "01a118f4-34ef-7960-a487-265496ef278f",
+   "occurrence": 2,
+   "events": [
+    107,
+    106
+   ],
+   "decision": "normal",
+   "reason": "宣布开始写草稿，进展"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2/loop-2",
+   "trace_id": "01a118f4-34ef-7960-a487-265496ef278f",
+   "occurrence": 3,
+   "events": [
+    115,
+    117,
+    118
+   ],
+   "decision": "normal",
+   "reason": "首次完整校验"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2/loop-2",
+   "trace_id": "01a118f4-34ef-7960-a487-265496ef278f",
+   "occurrence": 4,
+   "events": [
+    122,
+    124,
+    125
+   ],
+   "decision": "normal",
+   "reason": "按文件列出行号，新信息并促成更正"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2/loop-2",
+   "trace_id": "01a118f4-34ef-7960-a487-265496ef278f",
+   "occurrence": 5,
+   "events": [
+    130,
+    129
+   ],
+   "decision": "normal",
+   "reason": "宣布调整区间格式，进展"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2/loop-3",
+   "trace_id": "01a118f4-34ef-7960-a487-265496ef278f",
+   "occurrence": 0,
+   "events": [
+    130,
+    129
+   ],
+   "decision": "normal",
+   "reason": "宣布调整区间格式，进展"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-2/loop-3",
+   "trace_id": "01a118f4-34ef-7960-a487-265496ef278f",
+   "occurrence": 1,
+   "events": [
+    153,
+    152
+   ],
+   "decision": "normal",
+   "reason": "宣布检查文件与通知通道，进展"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-2",
+   "trace_id": "01a11908-53c0-74c1-933c-afd4b4b9bd89",
+   "occurrence": 0,
+   "events": [
+    68,
+    72,
+    73
+   ],
+   "decision": "normal",
+   "reason": "首次核对暂存与工作区，新检查"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-2",
+   "trace_id": "01a11908-53c0-74c1-933c-afd4b4b9bd89",
+   "occurrence": 3,
+   "events": [
+    78,
+    82,
+    83
+   ],
+   "decision": "normal",
+   "reason": "首次查看 review 文件状态，新检查"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-4",
+   "trace_id": "01a11908-53c0-74c1-933c-afd4b4b9bd89",
+   "occurrence": 0,
+   "events": [
+    78,
+    82,
+    83
+   ],
+   "decision": "normal",
+   "reason": "首次查看 review 文件状态，新检查"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-4",
+   "trace_id": "01a11908-53c0-74c1-933c-afd4b4b9bd89",
+   "occurrence": 3,
+   "events": [
+    96,
+    95
+   ],
+   "decision": "normal",
+   "reason": "宣布逐项验证，进展"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-4",
+   "trace_id": "01a11908-53c0-74c1-933c-afd4b4b9bd89",
+   "occurrence": 4,
+   "events": [
+    127,
+    126
+   ],
+   "decision": "normal",
+   "reason": "宣布写草稿，进展"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-4",
+   "trace_id": "01a11908-53c0-74c1-933c-afd4b4b9bd89",
+   "occurrence": 5,
+   "events": [
+    142,
+    144,
+    145
+   ],
+   "decision": "normal",
+   "reason": "首次完整校验"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-4",
+   "trace_id": "01a11908-53c0-74c1-933c-afd4b4b9bd89",
+   "occurrence": 6,
+   "events": [
+    150,
+    149
+   ],
+   "decision": "normal",
+   "reason": "宣布调整区间格式，进展"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-1",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 0,
+   "events": [
+    81,
+    80
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-1",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 1,
+   "events": [
+    92,
+    91
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-1",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 2,
+   "events": [
+    103,
+    102
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-1",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 3,
+   "events": [
+    114,
+    113
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-1",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 4,
+   "events": [
+    125,
+    124
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-1",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 5,
+   "events": [
+    136,
+    135
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-2",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 0,
+   "events": [
+    153,
+    152
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-2",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 1,
+   "events": [
+    164,
+    163
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-2",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 2,
+   "events": [
+    175,
+    174
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-2",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 3,
+   "events": [
+    186,
+    185
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-2",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 4,
+   "events": [
+    197,
+    196
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-2",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 5,
+   "events": [
+    208,
+    207
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 0,
+   "events": [
+    225,
+    224
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 1,
+   "events": [
+    236,
+    235
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 2,
+   "events": [
+    247,
+    246
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 3,
+   "events": [
+    258,
+    257
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 4,
+   "events": [
+    269,
+    268
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 5,
+   "events": [
+    280,
+    279
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 6,
+   "events": [
+    291,
+    290
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 7,
+   "events": [
+    302,
+    301
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 8,
+   "events": [
+    313,
+    312
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 9,
+   "events": [
+    324,
+    323
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 10,
+   "events": [
+    335,
+    334
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 11,
+   "events": [
+    355,
+    354
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 12,
+   "events": [
+    366,
+    365
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 13,
+   "events": [
+    377,
+    376
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 14,
+   "events": [
+    388,
+    387
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 15,
+   "events": [
+    399,
+    398
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 16,
+   "events": [
+    410,
+    409
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 17,
+   "events": [
+    421,
+    420
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 18,
+   "events": [
+    432,
+    431
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 19,
+   "events": [
+    443,
+    442
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 20,
+   "events": [
+    454,
+    453
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 21,
+   "events": [
+    465,
+    464
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 22,
+   "events": [
+    476,
+    475
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 23,
+   "events": [
+    487,
+    486
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 24,
+   "events": [
+    498,
+    497
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1113b-e61c-77c2-b4e7-5b432aa8efe0/unchanged-resume-answer-3",
+   "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+   "occurrence": 25,
+   "events": [
+    509,
+    508
+   ],
+   "decision": "companion",
+   "reason": "产生这次重复回答的推理：判断后仍决定返回同一结果"
+  },
+  {
+   "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/90-validation-order",
+   "trace_id": "01a1167f-0d50-7712-a32c-14f937ba52ba",
+   "occurrence": 0,
+   "events": [
+    91,
+    93,
+    94
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/90-absent-prior-state",
+   "trace_id": "01a1167f-0d50-7712-a32c-14f937ba52ba",
+   "occurrence": 0,
+   "events": [
+    91,
+    93,
+    94
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/97-validation-order",
+   "trace_id": "01a1167f-0d50-7712-a32c-14f937ba52ba",
+   "occurrence": 0,
+   "events": [
+    98,
+    100,
+    101
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/97-authority-table",
+   "trace_id": "01a1167f-0d50-7712-a32c-14f937ba52ba",
+   "occurrence": 0,
+   "events": [
+    98,
+    100,
+    101
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/111-validation-order",
+   "trace_id": "01a1167f-0d50-7712-a32c-14f937ba52ba",
+   "occurrence": 0,
+   "events": [
+    112,
+    114,
+    115
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/111-absent-prior-state",
+   "trace_id": "01a1167f-0d50-7712-a32c-14f937ba52ba",
+   "occurrence": 0,
+   "events": [
+    112,
+    114,
+    115
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/192-retention-owner",
+   "trace_id": "01a1167f-0d50-7712-a32c-14f937ba52ba",
+   "occurrence": 0,
+   "events": [
+    193,
+    195,
+    196
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/199-retention-owner",
+   "trace_id": "01a1167f-0d50-7712-a32c-14f937ba52ba",
+   "occurrence": 0,
+   "events": [
+    201,
+    200
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "full-annotation/01a1167f-0d50-7712-a32c-14f937ba52ba/125-summary-length-recheck",
+   "trace_id": "01a1167f-0d50-7712-a32c-14f937ba52ba",
+   "occurrence": 0,
+   "events": [
+    126
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-ee8797ca-104c-4ea8-9b41-4511ce819641-instance-1/supplement-1",
+   "trace_id": "01a1189f-4b71-73a2-904d-26d45d871a2a",
+   "occurrence": 0,
+   "events": [
+    112,
+    115,
+    116
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-2/loop-1",
+   "trace_id": "01a11720-2f78-7801-bfc9-42d0770631a1",
+   "occurrence": 0,
+   "events": [
+    86,
+    88,
+    89
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-2/loop-2",
+   "trace_id": "01a11720-2f78-7801-bfc9-42d0770631a1",
+   "occurrence": 0,
+   "events": [
+    103,
+    107,
+    108
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-2/loop-3",
+   "trace_id": "01a11720-2f78-7801-bfc9-42d0770631a1",
+   "occurrence": 0,
+   "events": [
+    103,
+    107,
+    108
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-2/loop-4",
+   "trace_id": "01a11720-2f78-7801-bfc9-42d0770631a1",
+   "occurrence": 0,
+   "events": [
+    339,
+    341,
+    342
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-c0fa4026-4361-4770-8680-b7c23cfbc602-instance-3/loop-1",
+   "trace_id": "01a11757-a3bc-7b23-b8fa-338ca563faac",
+   "occurrence": 0,
+   "events": [
+    94,
+    96,
+    97
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-1/loop-2",
+   "trace_id": "01a116ac-59aa-7040-b0eb-bd904b0c828a",
+   "occurrence": 0,
+   "events": [
+    65,
+    68,
+    69
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2/loop-3",
+   "trace_id": "01a116c0-4815-7292-856b-c4325bf830ac",
+   "occurrence": 0,
+   "events": [
+    105,
+    107,
+    108
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2/loop-4",
+   "trace_id": "01a116c0-4815-7292-856b-c4325bf830ac",
+   "occurrence": 0,
+   "events": [
+    112,
+    114,
+    115
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-813c72b0-bfb7-4f8a-80fe-c62d1ffd30ae-instance-2/loop-5",
+   "trace_id": "01a116c0-4815-7292-856b-c4325bf830ac",
+   "occurrence": 0,
+   "events": [
+    120,
+    119
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-2/loop-2",
+   "trace_id": "01a1128b-cf68-7d00-96d0-fdc4f2db4b62",
+   "occurrence": 0,
+   "events": [
+    236,
+    238,
+    239
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-f45d6db0-cc5a-41c7-8170-be85d7201b9c-instance-1/loop-1",
+   "trace_id": "01a1149d-2176-72e2-be2e-1437ee5db8e0",
+   "occurrence": 0,
+   "events": [
+    96,
+    98,
+    99
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-1",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 0,
+   "events": [
+    82,
+    85,
+    86
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1/loop-2",
+   "trace_id": "01a1143e-684a-77f2-b295-67b5a22e9e4f",
+   "occurrence": 0,
+   "events": [
+    116,
+    118,
+    119
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-7",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 0,
+   "events": [
+    76,
+    78,
+    79
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3/loop-9",
+   "trace_id": "01a11554-6c6e-78b1-a363-18c32a8c8117",
+   "occurrence": 0,
+   "events": [
+    109,
+    111,
+    112
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-1",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 0,
+   "events": [
+    70,
+    74,
+    75
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-2",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 0,
+   "events": [
+    70,
+    74,
+    75
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-3",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 0,
+   "events": [
+    80,
+    83,
+    84
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-4",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 0,
+   "events": [
+    102,
+    105,
+    106
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-5",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 0,
+   "events": [
+    134,
+    133
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-6",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 0,
+   "events": [
+    157,
+    156
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-7",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 0,
+   "events": [
+    169,
+    171,
+    172
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-8",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 0,
+   "events": [
+    176
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-11",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 0,
+   "events": [
+    459,
+    463,
+    464
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-12",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 0,
+   "events": [
+    469,
+    471,
+    472
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-13",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 0,
+   "events": [
+    477,
+    476
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-b05032f6-bb6c-479f-bbd9-18710c298b00-instance-1/loop-14",
+   "trace_id": "01a117dc-aa8e-7bb0-806d-e994eaf3035d",
+   "occurrence": 0,
+   "events": [
+    469,
+    471,
+    472
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-3",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 0,
+   "events": [
+    248,
+    251,
+    252
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容；连续校验调用是否构成未标注的跨调用循环，在远处误报复核中单独判断"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-4",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 0,
+   "events": [
+    258,
+    261,
+    262
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容；连续校验调用是否构成未标注的跨调用循环，在远处误报复核中单独判断"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-5",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 0,
+   "events": [
+    268,
+    270,
+    271
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容；连续校验调用是否构成未标注的跨调用循环，在远处误报复核中单独判断"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-6",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 0,
+   "events": [
+    268,
+    270,
+    271
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-7",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 0,
+   "events": [
+    275,
+    277,
+    278
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容；连续校验调用是否构成未标注的跨调用循环，在远处误报复核中单独判断"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-8",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 0,
+   "events": [
+    289,
+    291,
+    292
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容；连续校验调用是否构成未标注的跨调用循环，在远处误报复核中单独判断"
+  },
+  {
+   "case_id": "default-df489eb6-56a0-42d0-8ebb-92fa1bb90b94-instance-1/loop-9",
+   "trace_id": "01a118ac-3a5c-7473-86a4-8a9ee872aedd",
+   "occurrence": 0,
+   "events": [
+    303,
+    305,
+    306
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-1",
+   "trace_id": "01a11908-53c0-74c1-933c-afd4b4b9bd89",
+   "occurrence": 0,
+   "events": [
+    68,
+    72,
+    73
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-3",
+   "trace_id": "01a11908-53c0-74c1-933c-afd4b4b9bd89",
+   "occurrence": 0,
+   "events": [
+    96,
+    95
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-5",
+   "trace_id": "01a11908-53c0-74c1-933c-afd4b4b9bd89",
+   "occurrence": 0,
+   "events": [
+    150,
+    149
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-e52735e4-f083-480b-9d87-40da578ad19e-instance-3/loop-6",
+   "trace_id": "01a11908-53c0-74c1-933c-afd4b4b9bd89",
+   "occurrence": 0,
+   "events": [
+    150,
+    149
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-3/supplement-1",
+   "trace_id": "01a112ad-25d8-7123-bd60-2f17200f77f0",
+   "occurrence": 0,
+   "events": [
+    82,
+    81
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-3/supplement-2",
+   "trace_id": "01a112ad-25d8-7123-bd60-2f17200f77f0",
+   "occurrence": 0,
+   "events": [
+    82,
+    81
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-3/supplement-3",
+   "trace_id": "01a112ad-25d8-7123-bd60-2f17200f77f0",
+   "occurrence": 0,
+   "events": [
+    93,
+    95,
+    96
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-3/supplement-4",
+   "trace_id": "01a112ad-25d8-7123-bd60-2f17200f77f0",
+   "occurrence": 0,
+   "events": [
+    93,
+    95,
+    96
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-97b054c9-4a74-4a36-a301-8339764f3b8c-instance-3/supplement-5",
+   "trace_id": "01a112ad-25d8-7123-bd60-2f17200f77f0",
+   "occurrence": 0,
+   "events": [
+    93,
+    95,
+    96
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-268332bd-6777-4a52-80bb-48f6c0cac040-instance-3/supplement-1",
+   "trace_id": "01a113d1-248d-7e30-a988-51d968834429",
+   "occurrence": 0,
+   "events": [
+    89,
+    91,
+    92
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-268332bd-6777-4a52-80bb-48f6c0cac040-instance-3/supplement-2",
+   "trace_id": "01a113d1-248d-7e30-a988-51d968834429",
+   "occurrence": 0,
+   "events": [
+    89,
+    91,
+    92
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-268332bd-6777-4a52-80bb-48f6c0cac040-instance-3/supplement-3",
+   "trace_id": "01a113d1-248d-7e30-a988-51d968834429",
+   "occurrence": 0,
+   "events": [
+    89,
+    91,
+    92
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-268332bd-6777-4a52-80bb-48f6c0cac040-instance-3/supplement-4",
+   "trace_id": "01a113d1-248d-7e30-a988-51d968834429",
+   "occurrence": 0,
+   "events": [
+    97,
+    96
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-268332bd-6777-4a52-80bb-48f6c0cac040-instance-3/supplement-5",
+   "trace_id": "01a113d1-248d-7e30-a988-51d968834429",
+   "occurrence": 0,
+   "events": [
+    97,
+    96
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-1950af9e-5e00-42ab-86c6-3b6fe26294ed-instance-3/supplement-1",
+   "trace_id": "01a113ab-f529-7a43-8cf0-00cab4092ac4",
+   "occurrence": 0,
+   "events": [
+    75,
+    78,
+    79
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "default-1950af9e-5e00-42ab-86c6-3b6fe26294ed-instance-3/supplement-2",
+   "trace_id": "01a113ab-f529-7a43-8cf0-00cab4092ac4",
+   "occurrence": 0,
+   "events": [
+    75,
+    78,
+    79
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  },
+  {
+   "case_id": "full-annotation/01a113ab-f529-7a43-8cf0-00cab4092ac4/second-response-token-redecision",
+   "trace_id": "01a113ab-f529-7a43-8cf0-00cab4092ac4",
+   "occurrence": 0,
+   "events": [
+    85,
+    87,
+    88
+   ],
+   "decision": "normal",
+   "reason": "单次响应内循环之后的下一步（新读取、探针、写出、宣布或压缩摘要），不重复循环内容"
+  }
+ ],
+ "far_review": {
+  "input": "the 243 development false alarms of the mechanical detector (round 1, after companions) were listed and read against native evidence; clusters of near-identical records were read in full sequence",
+  "confirmed_missed_loops": 0,
+  "classes": [
+   "generic work narration (\"Now let me read ...\", \"Now I have the full picture ...\")",
+   "compaction summaries resembling earlier summaries",
+   "formulaic approval reasoning (\"Read-only ... Low risk.\")",
+   "status recaps before different checks (annotation policy: recaps alone are not iterations)"
+  ],
+  "uncertain": [
+   {
+    "trace_id": "01a1145c-aee5-7960-837b-3228275ad4cc",
+    "events": [
+     329,
+     330
+    ],
+    "note": "reasoning text identical to the loop-6 mirrors, followed by a differently written validator; the group anchor is the first byte-identical validator 337. Counting it would move the first target earlier; left unchanged."
+   },
+   {
+    "trace_id": "01a1113b-e61c-77c2-b4e7-5b432aa8efe0",
+    "events": [
+     346
+    ],
+    "note": "the 22nd identical continuation produced the same deliberation but no answer in that turn; not an answer occurrence of unchanged-resume-answer-3; left unchanged."
+   }
+  ]
+ }
+}

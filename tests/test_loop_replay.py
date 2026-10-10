@@ -78,6 +78,17 @@ class ReplayTests(unittest.TestCase):
         result = replay(records('a', 'b'), [group], Scripted({'a': 0.9}), 3)
         self.assertEqual((result['tp'], result['fn']), (1.0, 0.5))
 
+    def test_an_occurrence_spanning_records_owes_its_earliest_record(self):
+        # o2 is a repeated reasoning step r2 and the call t2 it leads to; o1's companion r1 stays neutral
+        group = LoopGroup('g', 't', (('t1', 'r1'), ('t2', 'r2'), 't3'))
+        obs = records('r1', 't1', 'r2', 't2', 't3')
+        result = replay(obs, [group], Scripted({'r2': 0.9, 't3': 0.9}), 2)
+        self.assertEqual((result['tp'], result['fn'], result['fp'], result['neutral_records']), (1.25, 0.25, 0.0, 2))
+        self.assertEqual(result['first_hits'], 1)
+        side = LoopGroup('s', 't', (('a', 'b'), 'a'), mode='single_response')
+        result = replay(records('a', 'b'), [side], Scripted({'a': 0.9, 'b': 0.9}), 2)
+        self.assertEqual((result['tp'], result['fn']), (1.5, 0.0))
+
     def test_overlapping_groups_score_separately_with_one_verdict(self):
         groups = [LoopGroup('g', 't', ('a', 'c')), LoopGroup('h', 't', ('b', 'c'))]
         result = replay(records('a', 'b', 'c'), groups, Scripted({'c': 0.9}), 2)
