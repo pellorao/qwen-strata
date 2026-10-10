@@ -1,155 +1,416 @@
 {
- "schema_version": 1,
- "date": "2026-10-10",
- "host": "rtx3080ti",
- "strata": "v0.1.41",
- "model": "Q2_0",
- "codex": "0.162.0",
- "arw_snapshot": "760007c2134d",
- "instance": "default-734710fc-a5c7-45b0-af82-675863cb4a66-instance-1",
- "selection": {
-  "model": "Q2_0",
-  "effort": "high",
-  "engine_overrides": {
-   "prefill": 8192,
-   "kv-resident": 20480,
-   "pool-workers": 23,
-   "pool-affinity": "all",
-   "expert-cache": "auto",
-   "conversation-cache-mib": 8192,
-   "conversation-cache-slots": 4,
-   "conversation-cache-min-free-mib": 5120
-  },
-  "engine_environment": {},
-  "sampling": {
-   "temperature": 0.0,
-   "top_p": 1.0,
-   "top_k": 20,
-   "max_tokens": 24576,
-   "reasoning_budget_tokens": 8192
-  },
-  "context_window": 156584,
-  "auto_compact_token_limit": 100000,
-  "startup_instructions": true,
-  "project_compaction_instructions": true,
-  "generation_policy": "first-delivery-only",
-  "loop_prevention_instructions": true,
-  "archive_http": true,
-  "native_cli": {
-   "executable": "/home/pello/.local/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex",
-   "version": "0.162.0",
-   "sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38"
-  },
-  "loop_reminder": "frontend default (src/loop_reminder.py r6)",
-  "automatic_continuation": true,
-  "host_id": "rtx3080ti",
-  "host_hardware": {
-   "gpu": "NVIDIA RTX 3080 Ti",
-   "vram_gib": 12,
-   "cpu": "Intel Core i9-13900",
-   "ram_gib": 64
-  }
- },
- "prompt_sha256": {
-  "startup_instructions": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
-  "compact_prompt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
- },
- "loop_reminder": {
-  "detector": "src/loop_detector.py r6",
-  "sent": 3,
-  "replay_matches_live": true,
-  "events": [
-   {
-    "utc": "14:16:58",
-    "step": 7,
-    "first": 4,
-    "verdict": "justified: repeated full requirement audit of step 6"
+ "schema_version": 2,
+ "valid_batch": {
+  "date": "2026-10-11",
+  "host": "rtx3080ti",
+  "strata": "v0.1.41",
+  "codex": "0.162.0",
+  "arw_snapshot": "760007c2134d",
+  "arw_patches": [
+   "benchmarks/reviewer-suite-v1/arw-patches/codex-0.162-workspace-roots.patch"
+  ],
+  "preparation": "e6d8e036-3665-4b27-af3c-401b9b004515",
+  "selection": {
+   "model": "Q2_0",
+   "effort": "high",
+   "engine_overrides": {
+    "prefill": 8192,
+    "kv-resident": 20480,
+    "pool-workers": 23,
+    "pool-affinity": "all",
+    "expert-cache": "auto",
+    "conversation-cache-mib": 8192,
+    "conversation-cache-slots": 4,
+    "conversation-cache-min-free-mib": 5120
    },
-   {
-    "utc": "14:18:56",
-    "step": 8,
-    "first": 6,
-    "verdict": "false alarm: report composition from established judgments"
+   "engine_environment": {},
+   "sampling": {
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "top_k": 20,
+    "max_tokens": 24576,
+    "reasoning_budget_tokens": 8192
    },
-   {
-    "utc": "14:21:08",
-    "step": 13,
-    "first": 13,
-    "verdict": "false alarm: report rewrite after evidence-format fix (real repair)"
+   "context_window": 156584,
+   "auto_compact_token_limit": 100000,
+   "startup_instructions": true,
+   "project_compaction_instructions": true,
+   "generation_policy": "first-delivery-only",
+   "loop_prevention_instructions": true,
+   "archive_http": true,
+   "native_cli": {
+    "executable": "/home/pello/.local/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex",
+    "version": "0.162.0",
+    "sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38"
+   },
+   "loop_reminder": "frontend default (src/loop_reminder.py r6)",
+   "automatic_continuation": true,
+   "host_id": "rtx3080ti",
+   "host_hardware": {
+    "gpu": "NVIDIA RTX 3080 Ti",
+    "vram_gib": 12,
+    "cpu": "Intel Core i9-13900",
+    "ram_gib": 64
    }
-  ]
- },
- "confirmed_loops": {
-  "groups": 1,
-  "occurrences": 2
- },
- "first_delivery": {
-  "report_sha256": "b414196cd24aa621b341ecc05e2948bf2b20bfe926494ff9c513154940a6b5f0",
-  "report_bytes": 41406,
-  "stages": 20,
-  "read": 98217,
-  "reused": 1166224,
-  "generated": 45474,
-  "prompt_s": 68.243,
-  "decode_s": 417.823,
-  "engine_in": 1439.22,
-  "engine_out": 108.84,
-  "work_s": 491.391,
-  "task_in": 199.88,
-  "task_out": 92.54,
-  "cost": 0.055
- },
- "contaminated_continuation": {
-  "stages": 3,
-  "read": 95883,
-  "reused": 191686,
-  "generated": 6413,
-  "prompt_s": 39.805,
-  "decode_s": 60.645,
-  "engine_in": 2408.82,
-  "engine_out": 105.75
- },
- "load_s": 16.440375212005165,
- "score": {
-  "score": 0.47241620482457536,
-  "scoreBeforePenalty": 0.47241620482457536,
-  "problemDetectionRate": 0.42803642062716474,
-  "cleanAcceptanceRate": 0.8071752106753989,
-  "fullProblemCases": 10,
-  "passedCleanCases": 60,
-  "earnedProblemPoints": 17.12145682508659,
-  "earnedCleanPoints": 64.57401685403191,
-  "totalProblemCases": 40,
-  "totalCleanCases": 80
- },
- "score_scopes": [
-  {
-   "earnedCleanPoints": 33.36379173143084,
-   "earnedProblemPoints": 8.112271062271063,
-   "fullProblemCases": 5,
-   "passedCleanCases": 31,
-   "scope": "COMMIT-AUDIT-GATE-1",
-   "totalCleanCases": 40,
-   "totalProblemCases": 20
   },
-  {
-   "earnedCleanPoints": 31.210225122601074,
-   "earnedProblemPoints": 9.009185762815527,
-   "fullProblemCases": 5,
-   "passedCleanCases": 29,
-   "scope": "COMMIT-AUDIT-GATE-2",
-   "totalCleanCases": 40,
-   "totalProblemCases": 20
+  "prompt_sha256": {
+   "startup_instructions": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+   "compact_prompt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+  },
+  "native_facts": {
+   "unknown_reasons": 0,
+   "completion": "ready for all three",
+   "note": "state store reported recoveryIncomplete=true in the runtime snapshot; not investigated"
+  },
+  "loop_reminder": {
+   "detector": "src/loop_detector.py r6",
+   "sent": 7,
+   "replay_matches_live": true,
+   "events": [
+    {
+     "instance": 1,
+     "local": "00:06:51",
+     "step": 6,
+     "first": 6,
+     "kind": "same-step",
+     "verdict": "partly justified: one budget-truncated full audit revisits a few requirements several times"
+    },
+    {
+     "instance": 1,
+     "local": "00:09:16",
+     "step": 7,
+     "first": 6,
+     "kind": "cross-step",
+     "verdict": "false alarm: report composition from step 6 judgments"
+    },
+    {
+     "instance": 1,
+     "local": "00:10:46",
+     "step": 12,
+     "first": 12,
+     "kind": "same-step",
+     "verdict": "false alarm: evidence-format repair of the report builder (real repair; similarity mostly from the shared workdir path)"
+    },
+    {
+     "instance": 2,
+     "local": "00:14:53",
+     "step": 6,
+     "first": 6,
+     "kind": "same-step",
+     "verdict": "partly justified: one budget-truncated full audit revisits a few requirements several times"
+    },
+    {
+     "instance": 2,
+     "local": "00:15:36",
+     "step": 7,
+     "first": 6,
+     "kind": "cross-step",
+     "verdict": "false alarm: reads of different issue files paired through the shared workdir path (cosine 0.94)"
+    },
+    {
+     "instance": 2,
+     "local": "00:17:26",
+     "step": 8,
+     "first": 1,
+     "kind": "cross-step",
+     "verdict": "false alarm: report composition from established judgments"
+    },
+    {
+     "instance": 3,
+     "local": "00:22:17",
+     "step": 7,
+     "first": 7,
+     "kind": "same-step",
+     "verdict": "partly justified: one budget-truncated full audit reconsiders one judgment"
+    }
+   ],
+   "summary": {
+    "partly_justified": 3,
+    "false_alarm": 4,
+    "same_step_on_budget_truncated_steps": 3
+   }
+  },
+  "confirmed_loops": {
+   "cross_step_groups": 0,
+   "within_step_redeliberation": 3
+  },
+  "adjudication": {
+   "candidates": 89,
+   "matched": 86,
+   "not_matched": 3
+  },
+  "score": 0.6990315185753623,
+  "repetition_scores": [
+   0.7981620040520163,
+   0.5863177618160299,
+   0.7126147898580408
+  ],
+  "instances": [
+   {
+    "instance": "default-e6d8e036-3665-4b27-af3c-401b9b004515-instance-1",
+    "report_sha256": "55bf0a29fe9adffe686794bb623e84945f3cb3ac93423f0e930e11838fed4f80",
+    "load_s": 16.4001899520008,
+    "work_s": 467.58455395507815,
+    "stages": 17,
+    "read": 102134,
+    "reused": 761161,
+    "generated": 42353,
+    "engine_input_tps": 1535.43,
+    "engine_output_tps": 106.21,
+    "task_input_tps": 218.43,
+    "task_output_tps": 90.58,
+    "cost_usd": 0.047,
+    "score": 0.7981620040520163,
+    "problem_detection": 0.7764574769114128,
+    "clean_acceptance": 0.8986419341408028,
+    "gates": {
+     "COMMIT-AUDIT-GATE-1": {
+      "full_problem": 7,
+      "problems": 20,
+      "passed_clean": 31,
+      "clean": 40
+     },
+     "COMMIT-AUDIT-GATE-2": {
+      "full_problem": 6,
+      "problems": 20,
+      "passed_clean": 28,
+      "clean": 40
+     }
+    },
+    "reminders": 3
+   },
+   {
+    "instance": "default-e6d8e036-3665-4b27-af3c-401b9b004515-instance-2",
+    "report_sha256": "d4cad8278d39fa705ae480c562e16eea9448aebc4d1d86365b84bdc27a673186",
+    "load_s": 16.313877388995024,
+    "work_s": 421.5409567871094,
+    "stages": 15,
+    "read": 107043,
+    "reused": 709035,
+    "generated": 37716,
+    "engine_input_tps": 1591.65,
+    "engine_output_tps": 107.21,
+    "task_input_tps": 253.93,
+    "task_output_tps": 89.47,
+    "cost_usd": 0.045,
+    "score": 0.5863177618160299,
+    "problem_detection": 0.5438191466730486,
+    "clean_acceptance": 0.8529421324085386,
+    "gates": {
+     "COMMIT-AUDIT-GATE-1": {
+      "full_problem": 6,
+      "problems": 20,
+      "passed_clean": 31,
+      "clean": 40
+     },
+     "COMMIT-AUDIT-GATE-2": {
+      "full_problem": 6,
+      "problems": 20,
+      "passed_clean": 29,
+      "clean": 40
+     }
+    },
+    "reminders": 3
+   },
+   {
+    "instance": "default-e6d8e036-3665-4b27-af3c-401b9b004515-instance-3",
+    "report_sha256": "faadfe4dc91813150a6bd480758f5c44b2160cf4e006e62e606dcaa498532f37",
+    "load_s": 16.86685246599518,
+    "work_s": 445.9879367675781,
+    "stages": 25,
+    "read": 61940,
+    "reused": 1424453,
+    "generated": 43340,
+    "engine_input_tps": 1196.86,
+    "engine_output_tps": 110.92,
+    "task_input_tps": 138.88,
+    "task_output_tps": 97.18,
+    "cost_usd": 0.052,
+    "score": 0.7126147898580408,
+    "problem_detection": 0.6846675209243267,
+    "clean_acceptance": 0.8516714246156502,
+    "gates": {
+     "COMMIT-AUDIT-GATE-1": {
+      "full_problem": 7,
+      "problems": 20,
+      "passed_clean": 30,
+      "clean": 40
+     },
+     "COMMIT-AUDIT-GATE-2": {
+      "full_problem": 7,
+      "problems": 20,
+      "passed_clean": 28,
+      "clean": 40
+     }
+    },
+    "reminders": 1
+   }
+  ],
+  "mean": {
+   "work_s": 445.03,
+   "read": 90372.33,
+   "reused": 964883.0,
+   "gen": 41136.33,
+   "eng_in": 1441.31,
+   "eng_out": 108.11,
+   "task_in": 203.75,
+   "task_out": 92.41,
+   "cost": 0.05
   }
- ],
- "adjudication": {
-  "candidates": 19,
-  "matched": 19
  },
- "measurement_issues": [
-  "ARW 760007c native-fact check requires turn_context.workspace_roots, absent in Codex 0.162.0",
-  "driver misclassified plain ready status as premature end and emptied the report before continuation acceptance (fixed)",
-  "reviewer notification EPERM in sandbox"
- ],
- "session_inspection": "all tool calls inside scenario root except the arw notification entry; no hidden or other-instance sources"
+ "invalid_first_trial": {
+  "schema_version": 1,
+  "date": "2026-10-10",
+  "host": "rtx3080ti",
+  "strata": "v0.1.41",
+  "model": "Q2_0",
+  "codex": "0.162.0",
+  "arw_snapshot": "760007c2134d",
+  "instance": "default-734710fc-a5c7-45b0-af82-675863cb4a66-instance-1",
+  "selection": {
+   "model": "Q2_0",
+   "effort": "high",
+   "engine_overrides": {
+    "prefill": 8192,
+    "kv-resident": 20480,
+    "pool-workers": 23,
+    "pool-affinity": "all",
+    "expert-cache": "auto",
+    "conversation-cache-mib": 8192,
+    "conversation-cache-slots": 4,
+    "conversation-cache-min-free-mib": 5120
+   },
+   "engine_environment": {},
+   "sampling": {
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "top_k": 20,
+    "max_tokens": 24576,
+    "reasoning_budget_tokens": 8192
+   },
+   "context_window": 156584,
+   "auto_compact_token_limit": 100000,
+   "startup_instructions": true,
+   "project_compaction_instructions": true,
+   "generation_policy": "first-delivery-only",
+   "loop_prevention_instructions": true,
+   "archive_http": true,
+   "native_cli": {
+    "executable": "/home/pello/.local/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex",
+    "version": "0.162.0",
+    "sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38"
+   },
+   "loop_reminder": "frontend default (src/loop_reminder.py r6)",
+   "automatic_continuation": true,
+   "host_id": "rtx3080ti",
+   "host_hardware": {
+    "gpu": "NVIDIA RTX 3080 Ti",
+    "vram_gib": 12,
+    "cpu": "Intel Core i9-13900",
+    "ram_gib": 64
+   }
+  },
+  "prompt_sha256": {
+   "startup_instructions": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+   "compact_prompt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+  },
+  "loop_reminder": {
+   "detector": "src/loop_detector.py r6",
+   "sent": 3,
+   "replay_matches_live": true,
+   "events": [
+    {
+     "utc": "14:16:58",
+     "step": 7,
+     "first": 4,
+     "verdict": "justified: repeated full requirement audit of step 6"
+    },
+    {
+     "utc": "14:18:56",
+     "step": 8,
+     "first": 6,
+     "verdict": "false alarm: report composition from established judgments"
+    },
+    {
+     "utc": "14:21:08",
+     "step": 13,
+     "first": 13,
+     "verdict": "false alarm: report rewrite after evidence-format fix (real repair)"
+    }
+   ]
+  },
+  "confirmed_loops": {
+   "groups": 1,
+   "occurrences": 2
+  },
+  "first_delivery": {
+   "report_sha256": "b414196cd24aa621b341ecc05e2948bf2b20bfe926494ff9c513154940a6b5f0",
+   "report_bytes": 41406,
+   "stages": 20,
+   "read": 98217,
+   "reused": 1166224,
+   "generated": 45474,
+   "prompt_s": 68.243,
+   "decode_s": 417.823,
+   "engine_in": 1439.22,
+   "engine_out": 108.84,
+   "work_s": 491.391,
+   "task_in": 199.88,
+   "task_out": 92.54,
+   "cost": 0.055
+  },
+  "contaminated_continuation": {
+   "stages": 3,
+   "read": 95883,
+   "reused": 191686,
+   "generated": 6413,
+   "prompt_s": 39.805,
+   "decode_s": 60.645,
+   "engine_in": 2408.82,
+   "engine_out": 105.75
+  },
+  "load_s": 16.440375212005165,
+  "score": {
+   "score": 0.47241620482457536,
+   "scoreBeforePenalty": 0.47241620482457536,
+   "problemDetectionRate": 0.42803642062716474,
+   "cleanAcceptanceRate": 0.8071752106753989,
+   "fullProblemCases": 10,
+   "passedCleanCases": 60,
+   "earnedProblemPoints": 17.12145682508659,
+   "earnedCleanPoints": 64.57401685403191,
+   "totalProblemCases": 40,
+   "totalCleanCases": 80
+  },
+  "score_scopes": [
+   {
+    "earnedCleanPoints": 33.36379173143084,
+    "earnedProblemPoints": 8.112271062271063,
+    "fullProblemCases": 5,
+    "passedCleanCases": 31,
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "totalCleanCases": 40,
+    "totalProblemCases": 20
+   },
+   {
+    "earnedCleanPoints": 31.210225122601074,
+    "earnedProblemPoints": 9.009185762815527,
+    "fullProblemCases": 5,
+    "passedCleanCases": 29,
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "totalCleanCases": 40,
+    "totalProblemCases": 20
+   }
+  ],
+  "adjudication": {
+   "candidates": 19,
+   "matched": 19
+  },
+  "measurement_issues": [
+   "ARW 760007c native-fact check requires turn_context.workspace_roots, absent in Codex 0.162.0",
+   "driver misclassified plain ready status as premature end and emptied the report before continuation acceptance (fixed)",
+   "reviewer notification EPERM in sandbox"
+  ],
+  "session_inspection": "all tool calls inside scenario root except the arw notification entry; no hidden or other-instance sources"
+ }
 }
