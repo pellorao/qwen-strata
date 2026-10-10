@@ -1,0 +1,285 @@
+{
+ "status": "all-approved-observations-closed-awaiting-main-inspection",
+ "attempts": 6,
+ "conditions": {
+  "cpu-share-0": {
+   "mean": {
+    "requests_passed": 3,
+    "continuations": 0,
+    "load_s": 17.338227902999886,
+    "work_s": 111.70167262233342,
+    "engine_in": 1871.063340268499,
+    "engine_out": 115.42872168025194,
+    "task_out": 96.13081109566384,
+    "uncached_input": 34596,
+    "cached_input": 65536,
+    "output": 10742.333333333334,
+    "min_avail_ram_gib": 8.7535400390625,
+    "min_gpu_free_mib": 1086.0169270833333,
+    "mean_cpu_pct": 63.217936766623204,
+    "cache_hit": 0.6835102769762907,
+    "draft_accept": 0.9339003213280643,
+    "cache_slots": 2699,
+    "free_mib_loaded": 732.3333333333334,
+    "work_s_stdev": 8.582829951570652,
+    "all_pass": true,
+    "n": 3,
+    "engine_out_range": [
+     112.93212532267044,
+     116.97768283539936
+    ],
+    "work_s_range": [
+     101.8344702760005,
+     117.43758817899925
+    ]
+   },
+   "observations": [
+    {
+     "pass": true,
+     "requests_passed": 3,
+     "continuations": 0,
+     "load_s": 17.332118147000074,
+     "work_s": 115.83295941200049,
+     "engine_in": 1881.956155143339,
+     "engine_out": 116.97768283539936,
+     "task_out": 98.33125267470268,
+     "uncached_input": 34596,
+     "cached_input": 65536,
+     "output": 11390,
+     "min_avail_ram_gib": 8.804672241210938,
+     "min_gpu_free_mib": 1081.05859375,
+     "mean_cpu_pct": 63.70169491525424,
+     "cache_hit": 0.6852680304664832,
+     "draft_accept": 0.9377285191956124,
+     "cache_slots": 2699,
+     "free_mib_loaded": 737,
+     "effective": {
+      "pcie-frac": null,
+      "pool-affinity": "all",
+      "pool-workers": "23",
+      "ple-io": "direct",
+      "prefill": "8192"
+     },
+     "ple_switched_to_mmap": false,
+     "ple_probe_rows_s": [
+      13390
+     ],
+     "chunk_downgrades": [],
+     "pcie_share": [
+      0.2
+     ]
+    },
+    {
+     "pass": true,
+     "requests_passed": 3,
+     "continuations": 0,
+     "load_s": 17.32968588299991,
+     "work_s": 101.8344702760005,
+     "engine_in": 1865.818142595189,
+     "engine_out": 116.376356882686,
+     "task_out": 95.06604172203896,
+     "uncached_input": 34596,
+     "cached_input": 65536,
+     "output": 9681,
+     "min_avail_ram_gib": 8.750438690185547,
+     "min_gpu_free_mib": 1081.49609375,
+     "mean_cpu_pct": 62.597115384615385,
+     "cache_hit": 0.6890052034605221,
+     "draft_accept": 0.9342849447885807,
+     "cache_slots": 2699,
+     "free_mib_loaded": 730,
+     "effective": {
+      "pcie-frac": null,
+      "pool-affinity": "all",
+      "pool-workers": "23",
+      "ple-io": "direct",
+      "prefill": "8192"
+     },
+     "ple_switched_to_mmap": false,
+     "ple_probe_rows_s": [
+      12824
+     ],
+     "chunk_downgrades": [],
+     "pcie_share": [
+      0.2
+     ]
+    },
+    {
+     "pass": true,
+     "requests_passed": 3,
+     "continuations": 0,
+     "load_s": 17.35287967899967,
+     "work_s": 117.43758817899925,
+     "engine_in": 1865.4157230669687,
+     "engine_out": 112.93212532267044,
+     "task_out": 94.99513889024988,
+     "uncached_input": 34596,
+     "cached_input": 65536,
+     "output": 11156,
+     "min_avail_ram_gib": 8.705509185791016,
+     "min_gpu_free_mib": 1095.49609375,
+     "mean_cpu_pct": 63.355,
+     "cache_hit": 0.6762575970018669,
+     "draft_accept": 0.9296875,
+     "cache_slots": 2699,
+     "free_mib_loaded": 730,
+     "effective": {
+      "pcie-frac": null,
+      "pool-affinity": "all",
+      "pool-workers": "23",
+      "ple-io": "direct",
+      "prefill": "8192"
+     },
+     "ple_switched_to_mmap": false,
+     "ple_probe_rows_s": [
+      12690
+     ],
+     "chunk_downgrades": [],
+     "pcie_share": [
+      0.25,
+      0.2
+     ]
+    }
+   ]
+  },
+  "cpu-share-auto": {
+   "mean": {
+    "requests_passed": 3,
+    "continuations": 0,
+    "load_s": 17.31505103933311,
+    "work_s": 107.47510936800002,
+    "engine_in": 2086.3506134703384,
+    "engine_out": 116.30906548696217,
+    "task_out": 98.26280829207936,
+    "uncached_input": 34596,
+    "cached_input": 65536,
+    "output": 10562.666666666666,
+    "min_avail_ram_gib": 8.688000996907553,
+    "min_gpu_free_mib": 1081.3502604166667,
+    "mean_cpu_pct": 65.34531688716268,
+    "cache_hit": 0.6868021889217986,
+    "draft_accept": 0.9345411052733108,
+    "cache_slots": 2699,
+    "free_mib_loaded": 737,
+    "work_s_stdev": 2.448766649650581,
+    "all_pass": true,
+    "n": 3,
+    "engine_out_range": [
+     113.83242999096657,
+     118.80696488866329
+    ],
+    "work_s_range": [
+     105.17259439699956,
+     110.04773123699943
+    ]
+   },
+   "observations": [
+    {
+     "pass": true,
+     "requests_passed": 3,
+     "continuations": 0,
+     "load_s": 17.292433457999323,
+     "work_s": 107.20500247000109,
+     "engine_in": 2097.235693501455,
+     "engine_out": 118.80696488866329,
+     "task_out": 100.43374611192144,
+     "uncached_input": 34596,
+     "cached_input": 65536,
+     "output": 10767,
+     "min_avail_ram_gib": 8.779533386230469,
+     "min_gpu_free_mib": 1081.05859375,
+     "mean_cpu_pct": 65.09454545454545,
+     "cache_hit": 0.69006747803433,
+     "draft_accept": 0.9392692959109605,
+     "cache_slots": 2699,
+     "free_mib_loaded": 737,
+     "effective": {
+      "pcie-frac": null,
+      "pool-affinity": "all",
+      "pool-workers": "23",
+      "ple-io": "direct",
+      "prefill": "8192"
+     },
+     "ple_switched_to_mmap": false,
+     "ple_probe_rows_s": [
+      13415
+     ],
+     "chunk_downgrades": [],
+     "pcie_share": [
+      0.2
+     ]
+    },
+    {
+     "pass": true,
+     "requests_passed": 3,
+     "continuations": 0,
+     "load_s": 17.323380243999964,
+     "work_s": 110.04773123699943,
+     "engine_in": 2068.7675656281767,
+     "engine_out": 116.28780158125664,
+     "task_out": 98.50271221543781,
+     "uncached_input": 34596,
+     "cached_input": 65536,
+     "output": 10840,
+     "min_avail_ram_gib": 8.572128295898438,
+     "min_gpu_free_mib": 1081.49609375,
+     "mean_cpu_pct": 65.83392857142857,
+     "cache_hit": 0.6932990275984992,
+     "draft_accept": 0.9365403071017274,
+     "cache_slots": 2699,
+     "free_mib_loaded": 737,
+     "effective": {
+      "pcie-frac": null,
+      "pool-affinity": "all",
+      "pool-workers": "23",
+      "ple-io": "direct",
+      "prefill": "8192"
+     },
+     "ple_switched_to_mmap": false,
+     "ple_probe_rows_s": [
+      12657
+     ],
+     "chunk_downgrades": [],
+     "pcie_share": [
+      0.2
+     ]
+    },
+    {
+     "pass": true,
+     "requests_passed": 3,
+     "continuations": 0,
+     "load_s": 17.32933941600004,
+     "work_s": 105.17259439699956,
+     "engine_in": 2093.048581281384,
+     "engine_out": 113.83242999096657,
+     "task_out": 95.8519665488788,
+     "uncached_input": 34596,
+     "cached_input": 65536,
+     "output": 10081,
+     "min_avail_ram_gib": 8.71234130859375,
+     "min_gpu_free_mib": 1081.49609375,
+     "mean_cpu_pct": 65.10747663551402,
+     "cache_hit": 0.6770400611325665,
+     "draft_accept": 0.9278137128072445,
+     "cache_slots": 2699,
+     "free_mib_loaded": 737,
+     "effective": {
+      "pcie-frac": null,
+      "pool-affinity": "all",
+      "pool-workers": "23",
+      "ple-io": "direct",
+      "prefill": "8192"
+     },
+     "ple_switched_to_mmap": false,
+     "ple_probe_rows_s": [
+      12652
+     ],
+     "chunk_downgrades": [],
+     "pcie_share": [
+      0.2
+     ]
+    }
+   ]
+  }
+ }
+}

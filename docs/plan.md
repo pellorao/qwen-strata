@@ -32,7 +32,7 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
     3. CPU 专家线程数：23 / 15 / 12 —— 完成，保持 23（[报告](../reports/v0.1.42/iq3_xxs-tuning/pool-workers/summary.md)）
     4. PLE 读取：自动探测 / 强制 direct —— 完成，采用 direct（[报告](../reports/v0.1.42/iq3_xxs-tuning/ple-io/summary.md)）
     5. `prefill`：8192 / 16384 —— 完成，16384 被引擎降回 8192，保持 8192（[报告](../reports/v0.1.42/iq3_xxs-tuning/prefill/summary.md)）
-    6. CPU 辅助短输入：0 / auto
+    6. CPU 辅助短输入：0 / auto —— 完成，保持 auto（[报告](../reports/v0.1.42/iq3_xxs-tuning/cpu-prefill-share/summary.md)）；待办：显式 auto 与不设置在 1–3K 分块上的对照（显式 auto 上限 3072、不设置 1024）
     7. 显存预留：512 / 768 / 1024
     8. `spec-min-p`：0.3 / 0.5 / 0.7 / 0.9
     第 1–7 维用 32K 资源负载（`benchmarks/resource-calibration-v1/`），第 8 维用完整 Commit Audit。胜者只写入 rtx3080ti 的 IQ3_XXS（`model_overrides`）。

@@ -54,6 +54,7 @@ Q2/high/default、KV int8／resident20480、expert-cache auto、PCIe份额0、sp
 | CPU专家线程数 | 23／15／12，各3，共9；[报告](../reports/v0.1.42/iq3_xxs-tuning/pool-workers/summary.md) | 23 引擎输出最高（比 15 快 2.3%、比 12 快 4.9%），全对；保持 23（默认不变） |
 | PLE读取方式 | 自动探测（实际 mmap）／强制 direct，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/ple-io/summary.md) | direct 冷 32K 输入快 4.6%，解码持平，内存占用可预测，全对；已采用（`"ple-io": "direct"`）并部署；ARW 真实负载出现分钟级停顿则退回 |
 | 输入处理分块 | 请求 8192／16384，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/prefill/summary.md) | 16384 全部被引擎降为 8192，未形成对照，保持 8192；12 GB 卡当前布局下 16384 不可行（Q2_0 与 IQ3_XXS 两次相同），不再列为候选 |
+| CPU辅助短输入 | 0／auto，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/cpu-prefill-share/summary.md) | auto 引擎输入快 11.5%（短增量输入少约 1/3），输出持平，全对；保持 auto；显式 auto 下 1–3K 分块未验证 |
 
 ## rtx4070tis
 
