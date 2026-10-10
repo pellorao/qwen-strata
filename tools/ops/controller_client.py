@@ -57,6 +57,9 @@ class Controller:
                 json.dump({'base_url': self.base, 'key': self.key}, stream)
                 stream.flush()
                 os.fsync(stream.fileno())
+            # The frontend keeps a model loaded across leases; measurements always start from a cold load.
+            if self.call('/model/status')['status'] != 'stopped':
+                self.call('/model/stop', {}, timeout=300)
         except BaseException:
             if fd is not None:
                 os.close(fd)

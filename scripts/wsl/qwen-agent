@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Run Codex or Claude Code on the local Strata model, from lease to release.
 
-Usage: qwen-agent [--model Q2_0] [--effort high] [--approval auto|strata] {codex|claude} [agent arguments...]
+Usage: qwen-agent [--model Q2_0] [--effort high] {codex|claude} [agent arguments...]
 
-Takes the frontend lease (fails if someone else holds it), starts the model,
-runs the agent with the key in its environment, then stops the model and
-returns the lease when the agent exits. Needs only this installation.
+Takes the frontend lease (fails if someone else holds it), starts the model
+(or reuses one left loaded with the same options), runs the agent with the key
+in its environment, and returns the lease when the agent exits. The frontend
+keeps the model loaded for the next caller and stops it after an idle period.
+Needs only this installation.
 """
 import argparse
 import json
@@ -65,12 +67,7 @@ def codex(frontend, model, effort, arguments):
     return ['codex', *overrides, *arguments], {'QWEN_STRATA_KEY': frontend.key}
 
 
-BRAVE_NOTE = ('The built-in WebSearch tool is denied only because this session runs on a local model that cannot '
-              'serve it. The mcp__brave tools (web_search, open_page, find_in_page) are the sanctioned replacement '
-              'for web search and page reading, not a way around that deny rule.')
-
-
-def claude(frontend, model, effort, arguments, approval='auto'):
+def claude(frontend, model, effort, arguments):
     # Nothing may fall back to Anthropic services: search comes from the Brave MCP server,
     # WebFetch skips its Anthropic domain lookup, and approvals run on this model.
     # A PreCompact hook's stdout is appended to Claude Code's own summary instructions: the project
@@ -78,21 +75,15 @@ def claude(frontend, model, effort, arguments, approval='auto'):
     compact = {'type': 'command', 'command': f'cat {INSTALL / "config/prompts/compact-prompt.txt"}'}
     settings = {'skipWebFetchPreflight': True, 'permissions': {'deny': ['WebSearch']},
                 'hooks': {'PreCompact': [{'hooks': [compact]}]}}
-    if approval == 'auto':
-        # The auto mode classifier treats any tool doing what a deny rule blocks as circumvention, so it is told
-        # that the Brave tools replace WebSearch; its default rules (exfiltration and the rest) still apply.
-        mode = 'auto'
-        settings['autoMode'] = {'environment': ['$defaults', BRAVE_NOTE]}
-    else:
-        # Every permission prompt goes to bin/qwen-approve, which asks this model with its own short policy.
-        mode = 'default'
-        hook = {'type': 'command', 'command': f'{sys.executable} {INSTALL / "bin/qwen-approve"}',
-                'timeout': APPROVE_TIMEOUT}
-        settings['hooks']['PermissionRequest'] = [{'matcher': '*', 'hooks': [hook]}]
+    # Every permission prompt goes to bin/qwen-approve, which asks this model with its own short policy;
+    # Claude Code's auto mode judged worse and slower here (reports/v0.1.40.2/agent-integration-2b).
+    hook = {'type': 'command', 'command': f'{sys.executable} {INSTALL / "bin/qwen-approve"}',
+            'timeout': APPROVE_TIMEOUT}
+    settings['hooks']['PermissionRequest'] = [{'matcher': '*', 'hooks': [hook]}]
     servers = {'mcpServers': {'brave': {'type': 'stdio', 'command': sys.executable,
                                         'args': [str(INSTALL / 'src/brave_mcp.py')]}}}
     # --mcp-config takes several values, so a single-value option must follow it before the caller's arguments.
-    options = ['--mcp-config', json.dumps(servers), '--permission-mode', mode, '--settings', json.dumps(settings)]
+    options = ['--mcp-config', json.dumps(servers), '--permission-mode', 'default', '--settings', json.dumps(settings)]
     environment = {
         'ANTHROPIC_BASE_URL': frontend.base + '/strata', 'ANTHROPIC_AUTH_TOKEN': frontend.key,
         'ANTHROPIC_MODEL': model, 'ANTHROPIC_DEFAULT_OPUS_MODEL': model,
@@ -108,8 +99,6 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--model', choices=MODELS, default='Q2_0')
     parser.add_argument('--effort', choices=('low', 'medium', 'high'), default='high', help='Codex reasoning effort')
-    parser.add_argument('--approval', choices=('auto', 'strata'), default='auto',
-                        help='Claude Code approvals: built-in auto mode, or bin/qwen-approve with its own policy')
     parser.add_argument('agent', choices=('codex', 'claude'))
     parser.add_argument('arguments', nargs=argparse.REMAINDER)
     args = parser.parse_args()
@@ -121,11 +110,12 @@ def main():
     frontend.key = frontend.call('/lease/acquire', {})['key']
     try:
         print(f'qwen-agent: starting {args.model}...', file=sys.stderr, flush=True)
-        frontend.call('/model/start', {'model': args.model})
+        if frontend.call('/model/start', {'model': args.model}).get('reused'):
+            print('qwen-agent: reusing the loaded model', file=sys.stderr, flush=True)
         if args.agent == 'codex':
             command, environment = codex(frontend, model, args.effort, args.arguments)
         else:
-            command, environment = claude(frontend, model, args.effort, args.arguments, args.approval)
+            command, environment = claude(frontend, model, args.effort, args.arguments)
         env = {k: v for k, v in os.environ.items() if not k.startswith(('ANTHROPIC_', 'OPENAI_'))}
         process = subprocess.Popen(command, env=dict(env, **environment))
         while True:
@@ -138,7 +128,8 @@ def main():
     finally:
         try:
             frontend.call('/lease/release', {}, timeout=300)
-            print('qwen-agent: model stopped, lease returned', file=sys.stderr)
+            print('qwen-agent: lease returned; the frontend keeps the model loaded until it idles out',
+                  file=sys.stderr)
         except BaseException:
             print('qwen-agent: release failed; restart the frontend task QwenStrataFrontend to free the lease',
                   file=sys.stderr)

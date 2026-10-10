@@ -1,6 +1,6 @@
 # Strata 模型服务调用手册
 
-本安装提供 Qwen3.8-Flash-Next 的 Windows 原生推理服务。常驻前端监听局域网固定地址，负责独占租约、模型启停和推理转发。调用方领取 key，选择量化和参数，启动模型，再通过 OpenAI Chat、OpenAI Responses 或 Anthropic Messages 接口推理，最后停止并归还。
+本安装提供 Qwen3.8-Flash-Next 的 Windows 原生推理服务。常驻前端监听局域网固定地址，负责独占租约、模型启停和推理转发。调用方领取 key，选择量化和参数，启动模型，再通过 OpenAI Chat、OpenAI Responses 或 Anthropic Messages 接口推理，最后归还。
 
 长时间任务使用前，请阅读[已观察到的执行异常](#已观察到的执行异常)及[调用方动态防重复建议](#调用方动态防重复建议)，为整个任务设置截止时间。
 
@@ -20,9 +20,9 @@
 
 1. `POST /lease/acquire` 领取 key。已有持有者时返回 409；不排队、不抢占。
 2. 之后的请求都带 `Authorization: Bearer <key>`（也接受 `x-api-key: <key>`），包括模型启停、状态和推理。缺失、错误或已归还的 key 返回 403。
-3. `POST /model/start` 选择量化和参数并等待模型就绪。
+3. `POST /model/start` 选择量化和参数并等待模型就绪。如果上一个租约留下的模型正好是同一量化和同样参数，直接复用，不重新加载（返回 `reused: true`）；参数不同则先停再启动。
 4. `POST /model/stop` 只停模型，租约仍保留，可换参数重新启动。
-5. `POST /lease/release` 归还：先撤销 key，再停止模型。
+5. `POST /lease/release` 归还：撤销 key，**模型继续加载**，留给下一个调用方复用。没有租约的模型空闲 30 分钟后由前端停止。要立即释放内存和显存，归还前先调用 `/model/stop`。
 
 租约只保存在前端内存中，没有超时，也不自动回收。调用方必须在自己的 finally 路径里归还。key 丢失或持有者异常退出时，由维护者重启前端（重启会停止模型并清空租约），不提供无 key 夺取接口。key 是调用方凭据，不写入提示词、版本控制、共享日志或报告。
 
@@ -34,8 +34,8 @@
 |---|---|---|
 | `GET /health` | 不需要 | 前端身份、`lease`（free/held）、当前加载的模型 ID；不代表模型可推理 |
 | `POST /lease/acquire` | 不需要 | 请求 `{}`；返回 `key` |
-| `POST /lease/release` | 需要 | 请求 `{}`；撤销 key 并停止模型，返回停止结果 |
-| `POST /model/start` | 需要 | 启动参数见下文；就绪后返回状态 |
+| `POST /lease/release` | 需要 | 请求 `{}`；撤销 key，返回 `lease` 和仍加载的 `model`（不停模型） |
+| `POST /model/start` | 需要 | 启动参数见下文；就绪后返回状态，`reused` 表示是否复用了已加载的模型 |
 | `POST /model/stop` | 需要 | 请求 `{}`；返回 `status=stopped` 及是否正常卸载 |
 | `GET /model/status` | 需要 | `status` 为 stopped、starting、unloaded 或 running；运行时含 `native_health` |
 | `POST /admin/shutdown` | 需要 | 维护用；模型停止后关闭前端 |
@@ -90,7 +90,7 @@
 
 `request_defaults` 中的 reasoning_effort 与安装预置不同时，安装预置的预算和输出上限不再沿用，改用下表。每次启动重新设置默认值，不改写安装配置。
 
-启动完成时前端核对实际加载的模型和上下文容量。改变量化或参数必须先停止模型再启动。
+启动完成时前端核对实际加载的模型和上下文容量。换量化或参数时，`/model/start` 会自动先停掉旧模型；“参数相同”按校验后的完整运行配置比较，包括部署后改动的安装预置。
 
 | 量化 | 模型 ID |
 |---|---|
@@ -120,7 +120,7 @@ Responses 使用 `reasoning.effort` 和 `max_output_tokens`，Chat 使用 `reaso
 
 ## 启动脚本（WSL）
 
-`bin/qwen-agent` 完成整个生命周期：领取租约 → 启动模型 → 运行 Codex 或 Claude Code → 退出后停止模型并归还租约。只依赖本安装目录和 Python 3 标准库。
+`bin/qwen-agent` 完成整个生命周期：领取租约 → 启动模型 → 运行 Codex 或 Claude Code → 退出后归还租约（模型留给下一次复用）。只依赖本安装目录和 Python 3 标准库。
 
 ```bash
 qwen_install=/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next
@@ -185,15 +185,13 @@ export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 export CLAUDE_CODE_MAX_CONTEXT_TOKENS=156584            # 声明真实窗口
 export CLAUDE_CODE_MAX_OUTPUT_TOKENS=24576
 
-claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode auto \
+claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default \
        --settings '{"skipWebFetchPreflight": true, "permissions": {"deny": ["WebSearch"]},
-                   "hooks": {"PreCompact": [{"hooks": [{"type": "command", "command": "cat <安装目录>/config/prompts/compact-prompt.txt"}]}]},
-                   "autoMode": {"environment": ["$defaults", "<Brave 工具是 WebSearch 的替代>"]}}' [调用方参数]
+                   "hooks": {"PreCompact": [{"hooks": [{"type": "command", "command": "cat <安装目录>/config/prompts/compact-prompt.txt"}]}],
+                             "PermissionRequest": [{"matcher": "*", "hooks": [{"type": "command", "command": "python3 <安装目录>/bin/qwen-approve", "timeout": 180}]}]}}' [调用方参数]
 ```
 
-- auto mode 的判断会把 deny 规则当作"不得换工具绕过"，所以 `autoMode.environment` 说明 Brave 工具是批准的替代；其余默认判断规则不变。
-- 权限模式固定为 auto，不继承用户全局设置。auto mode 的安全判断请求同样发给本模型，不需要 claude.ai 订阅。要改模式，在调用方参数里再写一次 `--permission-mode`。
-- `qwen-agent --approval strata claude ...` 改用自写审批（试验中，尚未完成模型验收）：权限模式为 `default`，`--settings` 加 `PermissionRequest` hook 调用 `bin/qwen-approve`。它把用户消息（唯一授权来源）、最近 6 次工具调用与结果（标为不可信数据）和待审动作发给本模型（`reasoning_effort: low`），返回 allow / deny 及理由；超时、出错或答复无法解析一律拒绝。每次判断记一行到 `logs/approve.log`（工具、结论、理由、耗时、usage，不含 key）。
+- 审批固定由 `bin/qwen-approve` 完成，不使用 Claude Code 的 auto mode（2b 验收中 auto mode 判对 5/9、每次运行 191 秒；`qwen-approve` 判对 7/7、80 秒）。权限模式为 `default`，每次权限请求经 `PermissionRequest` hook 交给 `qwen-approve`：它把用户消息（唯一授权来源）、最近 6 次工具调用与结果（标为不可信数据）和待审动作发给本模型（`reasoning_effort: low`），返回 allow / deny 及理由；超时、出错或答复无法解析一律拒绝。每次判断记一行到 `logs/approve.log`（工具、结论、理由、耗时、usage，不含 key）。
 - 压缩：PreCompact hook 退出码为 0 时，其 stdout 会追加到 Claude Code 自带摘要指令之后，所以每次压缩（自动或手动）都带上 `compact-prompt.txt`，而且不替换内置提示。
 - `skipWebFetchPreflight` 关闭 WebFetch 抓网页前向 `api.anthropic.com` 的域名查询。
 
@@ -202,7 +200,7 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode auto \
 - Claude Code 不认识该模型名，会提示 `unrecognized_model`；窗口和输出上限按上面的环境变量生效。
 - `count_tokens` 不含服务端注入的启动提示，比实际输入少约 420 token。
 
-压缩时机、长会话、auto mode 的判断质量和 Brave MCP 的实际调用尚未用模型验证。
+2b 验收已用模型验证搜索、审批和自动压缩，见工程报告 `reports/v0.1.40.2/agent-integration-2b/`。长会话的可靠性尚未验证。
 
 ## Python 示例
 

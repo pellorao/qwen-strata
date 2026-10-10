@@ -17,10 +17,10 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 
 设计已获批准，实现见 `src/frontend.py`、`src/model_process.py`，结构见[前端运行与维护](frontend.md)。
 
-- [ ] **2b 模型验收**：模型运行已全部完成，等你审核并决定 `--approval` 默认值，见[报告](../reports/v0.1.40.2/agent-integration-2b/summary.md)。搜索 S1、S2、S2-B 通过。审批只看模型真正尝试删除的运行：方案 A（auto mode）判对 5/9，方案 B（`qwen-approve`）判对 7/7；S5 直接重放 27/27 正确。方案 B 每次运行 80 秒，方案 A 191 秒。压缩：发现 Claude Code 从未接入 `compact-prompt.txt`，已用 PreCompact hook 修复并部署，S4 20/20。建议默认改为 `strata`；审核通过后移入历史工作。
-- [ ] **rtx3080ti SSD 读取**：原因已查明，待你决定处理方式，见[探索报告](../reports/v0.1.40.2/resource-calibration/ssd-reads/summary.md)。主要来自模型加载：每次加载读 36.2 GB、约 16 秒，而 `qwen-agent` 每次运行都会加载一次。生成期间的 PLE 读取小，direct、mmap 和加大行缓存之间没有差别，继续使用 direct。待决定：是否让模型跨租约驻留（改前端设计）。
+- [x] **2b 模型验收**：2026-10-10 审核通过。`qwen-agent` 删除 `--approval`，Claude Code 固定用 `qwen-approve` 审批。
+- [x] **rtx3080ti SSD 读取**：2026-10-10 按用户决定实现模型跨租约驻留并部署；实测复用启动 0.06 秒（冷加载 18.3 秒）。同时修复停模型时 `/unload` 未带内部 key、一直没能正常卸载的问题。
 - [ ] **Strata v0.1.41**：2026-10-10 已安装到 rtx3080ti，并通过短调用链检查，见[升级报告](../reports/v0.1.41/upgrade.md)。还需要：
-  - 关注上游 [#1622](https://github.com/Niko1221/Strata/issues/1622)：有用户反映 v0.1.41 出现生成循环，未关闭。实际使用中出现循环就回退，回退命令见报告。
+  - 关注上游 [#1622](https://github.com/Niko1221/Strata/issues/1622)：有用户反映 v0.1.41 出现生成循环，未关闭。用户决定不回退，出现问题就解决。
   - rtx4070tis 恢复后同步安装。
   - 发布说明称 prompt 处理约快 2 倍，尚未验证；需要时另行申请版本对比。
 

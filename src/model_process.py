@@ -1,4 +1,5 @@
 """Start and stop the native Strata process for the frontend; nothing else launches it."""
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -110,10 +111,22 @@ class ModelProcess:
         self.port = model_port
         self.native_key = None
         self.reasoning_defaults = {}
+        self.fingerprint = None  # what the running model was started with
+
+    def _fingerprint(self, options):
+        return hashlib.sha256(json.dumps(configuration(options, self.port), sort_keys=True).encode()).hexdigest()
+
+    def matches(self, options):
+        """Whether the running, loaded model was started with exactly these (validated) options."""
+        return (self.fingerprint is not None and self._fingerprint(options) == self.fingerprint
+                and self.status()['status'] == 'running')
 
     def _request(self, path, data=None, timeout=5):
+        headers = {'Content-Type': 'application/json'}
+        if self.native_key:  # the native server requires its key on every POST, /unload included
+            headers['Authorization'] = 'Bearer ' + self.native_key
         request = urllib.request.Request(f'http://127.0.0.1:{self.port}{path}',
-            None if data is None else json.dumps(data).encode(), {'Content-Type': 'application/json'})
+            None if data is None else json.dumps(data).encode(), headers)
         with urllib.request.build_opener(urllib.request.ProxyHandler({})).open(request, timeout=timeout) as reply:
             return json.load(reply)
 
@@ -179,6 +192,7 @@ class ModelProcess:
                             or health.get('max_context') != expected_context):
                         raise RuntimeError('Loaded model differs from the requested configuration.')
                     self.native_key, self.reasoning_defaults = key, reasoning
+                    self.fingerprint = self._fingerprint(options)
                     return self.status()
                 time.sleep(1)
             raise TimeoutError(f'Model loading exceeded {LOAD_TIMEOUT} seconds.')
@@ -209,7 +223,7 @@ class ModelProcess:
             except psutil.NoSuchProcess:
                 pass
         psutil.wait_procs(owned, timeout=15)
-        self.native_key, self.reasoning_defaults = None, {}
+        self.native_key, self.reasoning_defaults, self.fingerprint = None, {}, None
         if not self.stopped():
             raise RuntimeError('Native model processes did not stop.')
         return {'status': 'stopped', 'clean_unload': clean}

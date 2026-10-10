@@ -18,13 +18,18 @@ from test_hosted_search import FakeSearch, MESSAGE, SEARCH, native_round
 class FakeModel:
     def __init__(self):
         self.port, self.native_key, self.reasoning_defaults = None, None, {}
-        self.running = False
+        self.running, self.options, self.starts = False, None, 0
 
     def stopped(self):
         return not self.running
 
+    def matches(self, options):
+        return self.running and options == self.options
+
     def start(self, options):
-        self.running, self.native_key = True, 'native-secret'
+        assert not self.running
+        self.running, self.native_key, self.options = True, 'native-secret', options
+        self.starts += 1
         self.reasoning_defaults = {'reasoning_effort': 'high', 'reasoning_budget_tokens': 8192, 'max_tokens': 24576}
         return {'status': 'running', 'model': 'qwen3.8-flash-next-q2_0'}
 
@@ -68,9 +73,9 @@ class LeaseTests(unittest.TestCase):
     def setUp(self):
         self.front = frontend.Frontend.__new__(frontend.Frontend)
         self.front.model, self.front.lock = FakeModel(), threading.Lock()
-        self.front.key_sha256 = self.front.loaded_model = None
+        self.front.key_sha256 = self.front.loaded_model = self.front.idle_since = None
 
-    def test_one_holder_and_release_revokes_and_stops(self):
+    def test_one_holder_and_release_revokes_but_keeps_model(self):
         key = self.front.acquire()['key']
         with self.assertRaises(frontend.Refused) as held:
             self.front.acquire()
@@ -78,11 +83,33 @@ class LeaseTests(unittest.TestCase):
         with self.assertRaises(frontend.Refused):
             self.front.start('wrong', {})
         self.front.start(key, {})
-        self.assertEqual(self.front.release(key)['model_stop']['status'], 'stopped')
-        self.assertTrue(self.front.model.stopped())
+        self.assertEqual(self.front.release(key), {'lease': 'free', 'model': 'qwen3.8-flash-next-q2_0'})
+        self.assertFalse(self.front.model.stopped())
         with self.assertRaises(frontend.Refused):
             self.front.status(key)
         self.assertEqual(self.front.health()['lease'], 'free')
+
+    def test_next_lease_reuses_same_options_and_restarts_for_different_ones(self):
+        key = self.front.acquire()['key']
+        self.assertFalse(self.front.start(key, {'model': 'Q2_0'})['reused'])
+        self.front.release(key)
+        key = self.front.acquire()['key']
+        self.assertTrue(self.front.start(key, {'model': 'Q2_0'})['reused'])
+        self.assertEqual(self.front.model.starts, 1)
+        self.assertFalse(self.front.start(key, {'model': 'Q2_0', 'engine_overrides': {'prefill': 4096}})['reused'])
+        self.assertEqual(self.front.model.starts, 2)
+
+    def test_idle_model_is_stopped_only_without_a_lease_after_the_limit(self):
+        key = self.front.acquire()['key']
+        self.front.start(key, {})
+        self.assertFalse(self.front.stop_if_idle(30))  # leased
+        self.front.release(key)
+        self.assertFalse(self.front.stop_if_idle(30))  # not idle long enough
+        self.assertFalse(self.front.stop_if_idle(0))  # 0 keeps it
+        self.front.idle_since -= 30 * 60
+        self.assertTrue(self.front.stop_if_idle(30))
+        self.assertTrue(self.front.model.stopped())
+        self.assertIsNone(self.front.health()['model'])
 
     def test_acquire_does_not_wait_behind_a_starting_model(self):
         self.front.lock.acquire()  # a holder's model load in progress
@@ -94,8 +121,8 @@ class LeaseTests(unittest.TestCase):
             self.front.lock.release()
         self.front.acquire()
 
-    def test_acquire_stops_a_model_left_without_lease(self):
-        self.front.model.running = True
+    def test_acquire_stops_a_model_from_a_failed_start(self):
+        self.front.model.running = True  # running but never recorded as loaded
         self.front.acquire()
         self.assertTrue(self.front.model.stopped())
 

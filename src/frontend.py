@@ -18,6 +18,10 @@ from model_process import ROOT, ModelProcess
 MAX_BODY = 64 * 1024 * 1024
 UPSTREAM_TIMEOUT = 900
 BIND_RETRY = 10
+# A model outlives its lease so the next caller with the same options skips the load (about 16 s and
+# 36 GB of SSD reads on rtx3080ti); it is stopped after this many idle minutes without a lease. 0 keeps it.
+IDLE_STOP_MINUTES = 30
+IDLE_CHECK_SECONDS = 30
 # Thinking budget and total output per effort, used when a request names neither.
 EFFORT_BUDGETS = {'none': (0, 8192), 'low': (2048, 8192), 'medium': (4096, 16384),
                   'high': (8192, 24576), 'xhigh': (8192, 24576), 'max': (8192, 24576)}
@@ -75,6 +79,7 @@ class Frontend:
         self.lock = threading.Lock()
         self.key_sha256 = None
         self.loaded_model = None
+        self.idle_since = None  # monotonic time the last lease was returned with the model still loaded
         self.networks, self.networks_at = [], 0.0
         self.search_results = hosted_search.Results()  # outlive leases: a resumed conversation replays them
         self.new_search_session()
@@ -105,8 +110,9 @@ class Frontend:
         try:
             if self.key_sha256:
                 raise Refused(409, 'The model is leased by another caller.')
-            if not self.model.stopped():
-                self.model.stop()  # left over from a failed release or an earlier frontend
+            if self.loaded_model is None and not self.model.stopped():
+                self.model.stop()  # a failed start, not a model kept from the previous lease
+            self.idle_since = None
             key = secrets.token_urlsafe(32)
             self.key_sha256 = hashlib.sha256(key.encode()).hexdigest()
             self.new_search_session()
@@ -117,17 +123,23 @@ class Frontend:
     def release(self, key):
         with self.lock:
             self.require(key)
-            self.key_sha256 = None  # revoked first, even if stopping fails
-            self.loaded_model = None
+            self.key_sha256 = None
             self.new_search_session()
-            return {'lease': 'free', 'model_stop': self.model.stop()}
+            if self.loaded_model:
+                self.idle_since = time.monotonic()
+            return {'lease': 'free', 'model': self.loaded_model}
 
     def start(self, key, options):
         with self.lock:
             self.require(key)
+            if not self.model.stopped():
+                if self.loaded_model and self.model.matches(options):
+                    return dict(self.model.status(), reused=True)
+                self.loaded_model = None
+                self.model.stop()
             status = self.model.start(options)
             self.loaded_model = status['model']
-            return status
+            return dict(status, reused=False)
 
     def stop(self, key):
         with self.lock:
@@ -138,6 +150,29 @@ class Frontend:
     def status(self, key):
         self.require(key)
         return self.model.status()
+
+    def stop_if_idle(self, minutes=IDLE_STOP_MINUTES):
+        """Stop a model nobody has leased for `minutes`; never waits behind a holder."""
+        if not minutes or not self.lock.acquire(blocking=False):
+            return False
+        try:
+            if (self.key_sha256 or self.idle_since is None
+                    or time.monotonic() - self.idle_since < minutes * 60):
+                return False
+            self.loaded_model = self.idle_since = None
+            self.model.stop()
+            log(f'model stopped after {minutes} idle minutes without a lease')
+            return True
+        finally:
+            self.lock.release()
+
+    def watch_idle(self):
+        while True:
+            time.sleep(IDLE_CHECK_SECONDS)
+            try:
+                self.stop_if_idle()
+            except Exception as error:  # keep watching; the next lease or check retries the stop
+                log(f'idle stop failed: {error}')
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -335,7 +370,8 @@ def main():
             time.sleep(BIND_RETRY)
     server.daemon_threads = True
     server.frontend = Frontend(config['model_port'])
-    server.frontend.model.stop()  # never inherit a model without its lease
+    server.frontend.model.stop()  # never inherit a model this process did not start
+    threading.Thread(target=server.frontend.watch_idle, daemon=True).start()
     log(f'frontend ready on http://{config["listen_address"]}:{config["port"]}')
     server.serve_forever()
     server.server_close()
