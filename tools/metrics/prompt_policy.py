@@ -8,13 +8,12 @@ NATIVE_COMPACT_VERSION = '0.160.1'
 
 
 def verify_loaded_startup(metadata, expected_sha256):
-    """The full-default service receipt has path/SHA; flags occur on exceptions."""
+    """The loaded SHA pins the exact prompt, with or without the deprecated loop prevention block."""
     if (not isinstance(metadata,dict)
             or metadata.get('path')!='config/prompts/startup-instructions.txt'
             or metadata.get('sha256')!=expected_sha256
-            or 'enabled' in metadata and metadata['enabled'] is not True
-            or 'loop_prevention_enabled' in metadata and metadata['loop_prevention_enabled'] is not True):
-        raise ValueError('Loaded full startup instructions differ from the frozen project prompt')
+            or 'enabled' in metadata and metadata['enabled'] is not True):
+        raise ValueError('Loaded startup instructions differ from the frozen project prompt')
     return metadata
 
 

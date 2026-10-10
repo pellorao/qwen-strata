@@ -31,7 +31,7 @@
 
 ## loop：防循环检测
 
-规则见 [loop-detection.md](../.claude/rules/loop-detection.md)，全部离线，不调用模型。
+**已弃用（2026-10-11）**，等用户触发后与服务端提醒一起删除。规则见 [loop-detection.md](../.claude/rules/loop-detection.md)，全部离线，不调用模型。
 
 | 模块 | 用途 |
 |---|---|

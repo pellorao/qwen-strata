@@ -6,6 +6,8 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 import loop_reminder
 
+ON = {'X-Loop-Reminder': 'on'}
+
 TEXT = ('The validator still fails because the evidence range for record ninety six spans adjacent lines that '
         'should be listed separately according to the gate rules about staged bytes and source coverage')
 
@@ -40,27 +42,27 @@ def messages(calls):
 class ReminderTests(unittest.TestCase):
     def test_a_repeated_call_with_the_same_result_is_reminded_once_in_chat(self):
         first = chat(['node check.js'])
-        self.assertIsNone(loop_reminder.apply('/v1/chat/completions', first, {}))
+        self.assertIsNone(loop_reminder.apply('/v1/chat/completions', first, ON))
         body = chat(['node check.js', 'node check.js'])
-        notice = loop_reminder.apply('/v1/chat/completions', body, {})
+        notice = loop_reminder.apply('/v1/chat/completions', body, ON)
         self.assertIn('step 2', notice)
         self.assertIn('first seen at step 1', notice)
         self.assertEqual(body['messages'][-1], {'role': 'user', 'content': notice})
         self.assertEqual(body['messages'][-2]['role'], 'tool')
 
     def test_an_already_reminded_chain_is_silent_until_it_recurs_again(self):
-        sent = [loop_reminder.apply('/v1/chat/completions', chat(['node check.js'] * n), {}) is not None
+        sent = [loop_reminder.apply('/v1/chat/completions', chat(['node check.js'] * n), ON) is not None
                 for n in range(1, 7)]
         self.assertEqual(sent, [False, True, False, True, False, True])
 
     def test_a_different_result_is_not_a_repeat(self):
         body = chat(['node check.js', 'node check.js'])
         body['messages'][-1]['content'] = 'exit 0'
-        self.assertIsNone(loop_reminder.apply('/v1/chat/completions', body, {}))
+        self.assertIsNone(loop_reminder.apply('/v1/chat/completions', body, ON))
 
     def test_repeated_reasoning_is_reminded_in_responses(self):
         body = responses(['Reading the request first and listing every requirement of both issues.', TEXT, TEXT])
-        notice = loop_reminder.apply('/v1/responses', body, {})
+        notice = loop_reminder.apply('/v1/responses', body, ON)
         self.assertIn('step 3', notice)
         self.assertIn('reasoning or text', notice)
         self.assertIn('first seen at step 2', notice)
@@ -69,7 +71,7 @@ class ReminderTests(unittest.TestCase):
 
     def test_messages_notice_joins_the_last_tool_result_turn(self):
         body = messages(['npm test', 'npm test'])
-        notice = loop_reminder.apply('/v1/messages', body, {})
+        notice = loop_reminder.apply('/v1/messages', body, ON)
         self.assertIsNotNone(notice)
         last = body['messages'][-1]
         self.assertEqual([p['type'] for p in last['content']], ['tool_result', 'text'])
@@ -78,27 +80,28 @@ class ReminderTests(unittest.TestCase):
     def test_an_input_after_the_step_closes_it(self):
         body = chat(['node check.js', 'node check.js'])
         body['messages'].append({'role': 'user', 'content': 'Summarize the conversation so far.'})
-        self.assertIsNone(loop_reminder.apply('/v1/chat/completions', body, {}))
+        self.assertIsNone(loop_reminder.apply('/v1/chat/completions', body, ON))
         body = responses(['Reading the request first and listing every requirement of both issues.', TEXT, TEXT])
         body['input'].append({'type': 'message', 'role': 'user', 'content': [{'type': 'input_text', 'text': 'go on'}]})
-        self.assertIsNone(loop_reminder.apply('/v1/responses', body, {}))
+        self.assertIsNone(loop_reminder.apply('/v1/responses', body, ON))
 
     def test_a_repeat_inside_one_step_is_named_as_such(self):
         body = responses(['Reading the request first and listing every requirement of both issues.', TEXT])
         body['input'].insert(-2, {'type': 'message', 'role': 'assistant',
                                   'content': [{'type': 'output_text', 'text': TEXT}]})
-        notice = loop_reminder.apply('/v1/responses', body, {})
+        notice = loop_reminder.apply('/v1/responses', body, ON)
         self.assertIn('step 2', notice)
         self.assertIn('earlier within this same step', notice)
         self.assertNotIn('first seen', notice)
 
-    def test_header_turns_the_reminder_off(self):
+    def test_reminder_is_off_unless_the_header_turns_it_on(self):  # deprecated: opt-in only
         body = chat(['node check.js', 'node check.js'])
-        self.assertIsNone(loop_reminder.apply('/v1/chat/completions', body, {'X-Loop-Reminder': 'off'}))
+        for headers in ({}, {'X-Loop-Reminder': 'off'}):
+            self.assertIsNone(loop_reminder.apply('/v1/chat/completions', body, headers))
         self.assertEqual(len(body['messages']), 6)
 
     def test_plain_string_input_has_no_history(self):
-        self.assertIsNone(loop_reminder.apply('/v1/responses', {'input': 'hello'}, {}))
+        self.assertIsNone(loop_reminder.apply('/v1/responses', {'input': 'hello'}, ON))
 
 
 if __name__ == '__main__':

@@ -9,11 +9,11 @@ from startup_instructions import load_startup_instructions, install_startup_inst
 
 
 class StartupInstructionsTests(unittest.TestCase):
-    def test_loop_only_diagnostic_preserves_completion_checks_and_caller_rules(self):
+    def test_default_omits_only_the_deprecated_loop_block_and_preserves_completion_checks_and_caller_rules(self):
         project=Path(__file__).resolve().parents[1]
         raw=(project/'config/prompts/startup-instructions.txt').read_bytes()
-        normal,normal_meta=load_startup_instructions(project)
-        partial,meta=load_startup_instructions(project,include_loop_prevention=False)
+        normal,normal_meta=load_startup_instructions(project,include_loop_prevention=True)
+        partial,meta=load_startup_instructions(project)  # default: deprecated block omitted
         self.assertNotIn('Progress and loop prevention:',partial)
         self.assertNotIn('If several consecutive steps repeat',partial)
         self.assertEqual(partial,normal[normal.index('Complete the assigned task:'):])
@@ -23,6 +23,8 @@ class StartupInstructionsTests(unittest.TestCase):
         self.assertTrue(meta['enabled'])
         self.assertFalse(meta['loop_prevention_enabled'])
         self.assertEqual(meta['source_sha256'],normal_meta['sha256'])
+        self.assertTrue(normal_meta['loop_prevention_enabled'])
+        self.assertEqual(normal_meta['scope'],'deprecated-loop-prevention-block')
         self.assertEqual((project/'config/prompts/startup-instructions.txt').read_bytes(),raw)
         class Service:
             def prepare(self,messages): return messages
@@ -48,7 +50,7 @@ class StartupInstructionsTests(unittest.TestCase):
             self.assertIsNone(text)
             self.assertFalse(metadata['enabled'])
             self.assertEqual(p.read_bytes(),before)
-            self.assertEqual(load_startup_instructions(root)[0],'Original added instructions.')
+            self.assertEqual(load_startup_instructions(root,include_loop_prevention=True)[0],'Original added instructions.')
             for invalid in (0,1,None,'false'):
                 with self.assertRaises(ValueError):load_startup_instructions(root,invalid)
 
@@ -62,7 +64,7 @@ class StartupInstructionsTests(unittest.TestCase):
             (root / 'config/prompts').mkdir(parents=True)
             path = root / 'config/prompts/startup-instructions.txt'
             path.write_text('Inspect actual results.\n')
-            text, first = load_startup_instructions(root)
+            text, first = load_startup_instructions(root, include_loop_prevention=True)
             install_startup_instructions(Service, text)
             service = Service()
             history = [{'role': 'system', 'content': 'Caller instructions.'},
@@ -76,7 +78,7 @@ class StartupInstructionsTests(unittest.TestCase):
                 self.assertEqual(messages[1:], history[1:])
                 self.assertEqual((tools, kwargs, budget), (['tool'], {'enable_thinking': True}, 100))
             self.assertEqual(history, before)
-            self.assertNotEqual(first['sha256'], load_startup_instructions(root)[1]['sha256'])
+            self.assertNotEqual(first['sha256'], load_startup_instructions(root, include_loop_prevention=True)[1]['sha256'])
 
     def test_chat_without_system_and_content_blocks_receive_instructions(self):
         class Service:

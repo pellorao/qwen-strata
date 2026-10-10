@@ -97,12 +97,13 @@ def configuration(options, model_port):
         if type(options['fit_max_tokens']) is not bool:
             raise ValueError('fit_max_tokens must be boolean.')
         config['fit_max_tokens'] = options['fit_max_tokens']
-    for name in ('startup_instructions', 'loop_prevention_instructions'):
-        if type(options.get(name, True)) is not bool:
+    for name, default in (('startup_instructions', True), ('loop_prevention_instructions', False)):
+        if type(options.get(name, default)) is not bool:
             raise ValueError(name + ' must be boolean.')
     env = {k: str(v) for k, v in environment.items() if v is not None}
     env['QWEN_PROJECT_STARTUP_INSTRUCTIONS'] = '1' if options.get('startup_instructions', True) else '0'
-    env['QWEN_PROJECT_LOOP_PREVENTION'] = '1' if options.get('loop_prevention_instructions', True) else '0'
+    # Loop prevention block: deprecated, off unless explicitly selected.
+    env['QWEN_PROJECT_LOOP_PREVENTION'] = '1' if options.get('loop_prevention_instructions', False) else '0'
     return model, config, env, reasoning
 
 

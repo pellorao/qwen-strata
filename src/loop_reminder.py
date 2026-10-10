@@ -1,4 +1,8 @@
-"""Loop reminders: replay the conversation a request carries through the mechanical detector and, when the model's
+"""DEPRECATED (2026-10-11): off by default, sent only when a request asks for it with `X-Loop-Reminder: on`.
+Real runs showed loops were rare without it and its notices were mostly false alarms; it will be removed once
+the deprecation has been observed for a while (removal is triggered by the user).
+
+Loop reminders: replay the conversation a request carries through the mechanical detector and, when the model's
 last step repeats earlier work, append a one-off notice to the request forwarded to the model.
 
 Nothing is kept between requests: the history in each request is the whole state, so a resumed or retried
@@ -13,7 +17,7 @@ from loop_detector import Mechanical
 
 ALERT = 0.5            # detector probability that counts as a repeat (the scoring contract's threshold)
 AGAIN = 2              # further recurrences of an already reminded chain before it is reminded again
-OPT_OUT = 'X-Loop-Reminder'  # request header; "off" disables the reminder for that request
+OPT_IN = 'X-Loop-Reminder'  # request header; "on" enables the deprecated reminder for that request
 
 NOTICE = ('[Loop check: automatic notice from the model service, not from the user]\n'
           'Your last step (step {step}) closely repeats {what} {where}. '
@@ -169,7 +173,7 @@ def decide(conversation):
 
 def apply(path, body, headers):
     """Append the notice to the request body when due; return the notice (for the log) or None."""
-    if (headers.get(OPT_OUT) or '').lower() == 'off':
+    if (headers.get(OPT_IN) or '').lower() != 'on':
         return None
     notice = decide(steps(path, body))
     if not notice:

@@ -3,8 +3,8 @@ import hashlib
 from pathlib import Path
 
 
-def startup_prompt_bytes(raw, include_loop_prevention=True):
-    """Omit only the named diagnostic block; preserve every remaining byte."""
+def startup_prompt_bytes(raw, include_loop_prevention=False):
+    """Omit only the loop prevention block (deprecated, kept in the source for opt-in); preserve every other byte."""
     if type(include_loop_prevention) is not bool:
         raise ValueError('Loop prevention selection must be boolean.')
     if include_loop_prevention:
@@ -17,7 +17,7 @@ def startup_prompt_bytes(raw, include_loop_prevention=True):
     return b'Complete the assigned task:\n' + raw.split(next_section, 1)[1]
 
 
-def load_startup_instructions(root, enabled=True, include_loop_prevention=True):
+def load_startup_instructions(root, enabled=True, include_loop_prevention=False):
     if type(enabled) is not bool:
         raise ValueError('Startup instruction selection must be boolean.')
     if not enabled:
@@ -29,12 +29,11 @@ def load_startup_instructions(root, enabled=True, include_loop_prevention=True):
     text = raw.decode('utf-8').strip()
     if not text:
         raise ValueError('Installation startup instructions must not be empty.')
-    metadata = {'path': 'config/prompts/startup-instructions.txt',
-                'sha256': hashlib.sha256(raw).hexdigest()}
-    if not include_loop_prevention:
-        metadata.update(enabled=True, loop_prevention_enabled=False,
-                        source_sha256=hashlib.sha256(source).hexdigest(),
-                        scope='explicit-diagnostic-without-loop-prevention-block')
+    metadata = {'path': 'config/prompts/startup-instructions.txt', 'sha256': hashlib.sha256(raw).hexdigest(),
+                'enabled': True, 'loop_prevention_enabled': include_loop_prevention,
+                'source_sha256': hashlib.sha256(source).hexdigest()}
+    if include_loop_prevention:
+        metadata['scope'] = 'deprecated-loop-prevention-block'
     return text, metadata
 
 

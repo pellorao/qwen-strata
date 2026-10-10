@@ -13,10 +13,10 @@ from tools.metrics.prompt_policy import verify_loaded_startup
 
 
 class ContextMeasurementTests(unittest.TestCase):
-    def test_full_prompt_receipt_needs_sha_but_not_diagnostic_only_flags(self):
+    def test_prompt_receipt_is_pinned_by_the_loaded_sha(self):
         sha='a'*64;metadata={'path':'config/prompts/startup-instructions.txt','sha256':sha}
         self.assertEqual(verify_loaded_startup(metadata,sha),metadata)
-        for changed in ({'enabled':False},{'loop_prevention_enabled':False},{'sha256':'b'*64},{'path':None}):
+        for changed in ({'enabled':False},{'sha256':'b'*64},{'path':None}):
             with self.assertRaises(ValueError):verify_loaded_startup({**metadata,**changed},sha)
     def test_current_baseline_works_without_legacy_startup_binding(self):
         root=Path(__file__).resolve().parents[1]

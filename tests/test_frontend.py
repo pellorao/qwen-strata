@@ -290,11 +290,11 @@ class PassthroughTests(unittest.TestCase):
         key = json.loads(self.post('/lease/acquire', {})[1])['key']
         self.post('/model/start', {}, key)
         body = chat(['node check.js', 'node check.js'])
-        self.post('/strata/v1/chat/completions', body, key)
+        self.post('/strata/v1/chat/completions', body, key, {'X-Loop-Reminder': 'on'})
         forwarded = self.upstream.seen[-1][2]['messages']
         self.assertEqual(forwarded[:-1], body['messages'])
         self.assertTrue(forwarded[-1]['content'].startswith('[Loop check:'))
-        self.post('/strata/v1/chat/completions', body, key, {'X-Loop-Reminder': 'off'})
+        self.post('/strata/v1/chat/completions', body, key)  # deprecated: off by default
         self.assertEqual(self.upstream.seen[-1][2]['messages'], body['messages'])
 
 

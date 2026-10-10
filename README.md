@@ -29,8 +29,7 @@ rtx3080ti 安装 Strata v0.1.41（2026-10-10，通过短调用链检查）；rtx
 
 ## 主线
 
-- [ ] **rtx3080ti 资源调参**：显存预留已选定 Q2_0 512；spec-min-p 推迟到 temperature 选定之后，见[调参手册](docs/host-tuning.md#rtx3080ti)。
-- [ ] **防循环检测**：用两机全部历史案例（235 会话 / 5303 行为 / 156 组循环）改进动态检测，离线进行，见[计划](docs/plan.md#防循环检测)。
+- [ ] **Strata v0.1.42 + 默认 IQ3_XXS**：升级 rtx3080ti，默认模型改为 IQ3_XXS 并在本机重新调参，见[计划](docs/plan.md#v0142-与-iq3_xxs)。
 - [ ] **rtx4070tis 恢复后**：核对实际状态、补同步部署，再决定 ARW 安全恢复和 Spec Readiness 十二实例。
 
 ## 进展
@@ -41,4 +40,4 @@ rtx3080ti 安装 Strata v0.1.41（2026-10-10，通过短调用链检查）；rtx
 - 2026-10-09 agent 接入：Codex 0.162.0 与 Claude Code 2.1.295 经 `bin/qwen-agent` 调用本地模型，冒烟检查通过（[记录](docs/work-history.md)）。托管搜索暂缺，见[计划](docs/plan.md#前端)。
 - 2026-10-10 2b 模型验收通过（[报告](reports/v0.1.40.2/agent-integration-2b/summary.md)）。搜索三项通过。Claude Code 自写审批（方案 B）优于内置 auto mode。补上了 Claude Code 压缩时的工程压缩提示（PreCompact hook）。SSD 大量读取的原因是每次加载模型都读 36 GB（[探索](reports/v0.1.40.2/resource-calibration/ssd-reads/summary.md)），已改为模型跨租约驻留，相同参数复用不再加载。`qwen-agent` 固定用 `qwen-approve` 审批。
 - 2026-10-10 rtx3080ti 升级到 Strata v0.1.41，短调用链检查通过（[报告](reports/v0.1.41/upgrade.md)）。上游有关于 v0.1.41 生成循环的未关闭 issue #1622；用户决定不回退，出现问题就解决。
-- 防循环：[CPU 小模型](reports/v0.1.40.2/small-model-decision-30m/summary.md)和 [Strata 判断](reports/v0.1.41/loop-strata-judge/summary.md)两条路线已关闭（Strata 复核在开发集上只把 F1 从 0.612 提到 0.621）。2026-10-10 用户决定只用机械规则，检测到重复只发提醒、不中断；评分合同第 7 版（F2 门槛 0.8，单阈值，按组计分：首次报警与后续报警各占 0.5，线性衰减）。机械规则 r5（窗口 10 条记录）：第一次划分开发集 0.8198、[验证集](reports/v0.1.41/loop-mechanical-gate/summary.md) 0.5409；全部重新随机划分并补齐伴随记录复核后，开发集 0.7586、验证集 0.7841，全量 0.7661。r6 改为连续概率（多处部分相似按 noisy-OR 累加）：开发集 0.8043、验证集 0.7756、全量 0.7974。前端协议桥提醒（`src/loop_reminder.py`）已部署到 rtx3080ti；[真实试跑](reports/v0.1.41/loop-reminder-trial/summary.md)和[无提示无提醒基线](reports/v0.1.41/loop-baseline/summary.md)各 3 次（得分 0.699 对 0.656；Commit Audit 场景里循环少见，防护作用测不出），待审核。
+- 防循环：[CPU 小模型](reports/v0.1.40.2/small-model-decision-30m/summary.md)和 [Strata 判断](reports/v0.1.41/loop-strata-judge/summary.md)两条路线已关闭（Strata 复核在开发集上只把 F1 从 0.612 提到 0.621）。2026-10-10 用户决定只用机械规则，检测到重复只发提醒、不中断；评分合同第 7 版（F2 门槛 0.8，单阈值，按组计分：首次报警与后续报警各占 0.5，线性衰减）。机械规则 r5（窗口 10 条记录）：第一次划分开发集 0.8198、[验证集](reports/v0.1.41/loop-mechanical-gate/summary.md) 0.5409；全部重新随机划分并补齐伴随记录复核后，开发集 0.7586、验证集 0.7841，全量 0.7661。r6 改为连续概率（多处部分相似按 noisy-OR 累加）：开发集 0.8043、验证集 0.7756、全量 0.7974。前端协议桥提醒（`src/loop_reminder.py`）已部署到 rtx3080ti；[真实试跑](reports/v0.1.41/loop-reminder-trial/summary.md)和[无提示无提醒基线](reports/v0.1.41/loop-baseline/summary.md)各 3 次（得分 0.699 对 0.656；Commit Audit 场景里循环少见，防护作用测不出）。2026-10-11 用户决定弃用：提醒默认关闭，启动提示默认不加载防循环段，由用户日后触发删除。

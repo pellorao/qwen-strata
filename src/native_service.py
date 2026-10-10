@@ -45,7 +45,7 @@ def main():
     if selection not in ('0', '1'):
         raise ValueError('Invalid process startup instruction selection.')
     enabled = selection == '1'
-    loop_selection = os.environ.get('QWEN_PROJECT_LOOP_PREVENTION', '1')
+    loop_selection = os.environ.get('QWEN_PROJECT_LOOP_PREVENTION', '0')
     if loop_selection not in ('0', '1'):
         raise ValueError('Invalid process loop prevention instruction selection.')
     instructions, metadata = load_startup_instructions(

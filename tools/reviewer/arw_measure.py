@@ -153,8 +153,8 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
             'shell_environment_policy':{'set':review_shell_environment(os.environ['QWEN_ARW_RUNTIME_FILE'])},
             'model_providers':{'qwen_strata':{'name':'Local Strata','base_url':os.environ['QWEN_ARW_MODEL_BASE'],
                 'wire_api':'responses','env_key':'STRATA_API_KEY','requires_openai_auth':False,'supports_websockets':False}}}}
-    if selection.get('loop_reminder')=='off':  # baseline without the frontend loop reminder
-        settings['config']['model_providers']['qwen_strata']['http_headers']={'X-Loop-Reminder':'off'}
+    if selection.get('loop_reminder')=='on':  # deprecated frontend loop reminder, off unless selected
+        settings['config']['model_providers']['qwen_strata']['http_headers']={'X-Loop-Reminder':'on'}
     if 'auto_compact_token_limit' in selection:
         settings['config']['model_auto_compact_token_limit']=selection['auto_compact_token_limit']
     settings['config']=compaction_config(settings['config'],folder/'prompt-policy',
@@ -570,11 +570,10 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
                             else (installation/startup['path']).read_bytes())
                         if source_raw!=installed_raw:
                             raise RuntimeError('Installed startup prompt differs from the project source')
-                        include_loop=selection.get('loop_prevention_instructions',True)
-                        if not include_loop and (startup.get('enabled') is not True or
-                                startup.get('loop_prevention_enabled') is not False or
-                                startup.get('source_sha256')!=hashlib.sha256(source_raw).hexdigest()):
-                            raise RuntimeError('Loop-only diagnostic selection did not take effect')
+                        include_loop=selection.get('loop_prevention_instructions',False)
+                        if (startup.get('enabled') is not True or startup.get('loop_prevention_enabled') is not include_loop
+                                or startup.get('source_sha256')!=hashlib.sha256(source_raw).hexdigest()):
+                            raise RuntimeError('Loop prevention selection did not take effect')
                         raw=startup_prompt_bytes(source_raw,include_loop)
                         if hashlib.sha256(raw).hexdigest()!=startup['sha256']:
                             raise RuntimeError('Loaded startup instructions differ from installed bytes')
