@@ -132,6 +132,13 @@
   },
   "confirmed_loops": {
    "cross_step_groups": 0,
+   "within_step_degenerate": [
+    {
+     "instance": 3,
+     "step": 20,
+     "note": "7-item spot-check cycle repeated about 62 times (474 items, 42 distinct) until the reasoning budget cut it; not detected because low-diversity pieces fall below MIN_TERMS"
+    }
+   ],
    "within_step_redeliberation": 3
   },
   "adjudication": {

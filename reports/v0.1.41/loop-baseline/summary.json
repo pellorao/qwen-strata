@@ -1,0 +1,219 @@
+{
+ "schema_version": 1,
+ "date": "2026-10-11",
+ "host": "rtx3080ti",
+ "strata": "v0.1.41",
+ "codex": "0.162.0",
+ "arw_snapshot": "760007c2134d",
+ "arw_patches": [
+  "benchmarks/reviewer-suite-v1/arw-patches/codex-0.162-workspace-roots.patch"
+ ],
+ "preparation": "d95dd9ac-7740-4ed6-aa7e-408fc543a102",
+ "conditions": {
+  "loop_prevention_instructions": false,
+  "loop_reminder": "off (X-Loop-Reminder: off on every Codex request; frontend log shows no reminder in the window)"
+ },
+ "selection": {
+  "model": "Q2_0",
+  "effort": "high",
+  "engine_overrides": {
+   "prefill": 8192,
+   "kv-resident": 20480,
+   "pool-workers": 23,
+   "pool-affinity": "all",
+   "expert-cache": "auto",
+   "conversation-cache-mib": 8192,
+   "conversation-cache-slots": 4,
+   "conversation-cache-min-free-mib": 5120
+  },
+  "engine_environment": {},
+  "sampling": {
+   "temperature": 0.0,
+   "top_p": 1.0,
+   "top_k": 20,
+   "max_tokens": 24576,
+   "reasoning_budget_tokens": 8192
+  },
+  "context_window": 156584,
+  "auto_compact_token_limit": 100000,
+  "startup_instructions": true,
+  "project_compaction_instructions": true,
+  "generation_policy": "first-delivery-only",
+  "loop_prevention_instructions": false,
+  "archive_http": true,
+  "native_cli": {
+   "executable": "/home/pello/.local/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex",
+   "version": "0.162.0",
+   "sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38"
+  },
+  "loop_reminder": "off",
+  "automatic_continuation": true,
+  "host_id": "rtx3080ti",
+  "host_hardware": {
+   "gpu": "NVIDIA RTX 3080 Ti",
+   "vram_gib": 12,
+   "cpu": "Intel Core i9-13900",
+   "ram_gib": 64
+  }
+ },
+ "prompt_sha256": {
+  "startup_instructions_loaded": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+  "startup_instructions_source": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+  "compact_prompt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+ },
+ "compactions": {
+  "instance-3": 1
+ },
+ "loops": {
+  "confirmed_cross_step": 0,
+  "within_step_degenerate": 0,
+  "borderline": [
+   {
+    "instance": 2,
+    "step": 10,
+    "note": "requirement-by-requirement walk again after the step 7 audit was cut by the reasoning budget and new node evidence in steps 8-9"
+   }
+  ],
+  "budget_truncated_steps": {
+   "1": [
+    9
+   ],
+   "2": [
+    7,
+    10
+   ],
+   "3": [
+    7,
+    8,
+    19
+   ]
+  },
+  "counterfactual_reminders": {
+   "1": 2,
+   "2": 3,
+   "3": 7
+  }
+ },
+ "adjudication": {
+  "candidates": 81,
+  "matched": 79,
+  "not_matched": 2
+ },
+ "score": 0.6558670036808011,
+ "repetition_scores": [
+  0.6996439261191365,
+  0.717814660132839,
+  0.5501424247904277
+ ],
+ "instances": [
+  {
+   "instance": "default-d95dd9ac-7740-4ed6-aa7e-408fc543a102-instance-1",
+   "report_sha256": "d5884fb8992b4b62ace94207c623c7786f9c2ce72d53ae9d255a480ca19890d5",
+   "load_s": 15.86183205499401,
+   "work_s": 413.5201528320313,
+   "stages": 25,
+   "read": 49169,
+   "reused": 1182270,
+   "generated": 39332,
+   "engine_input_tps": 1054.81,
+   "engine_output_tps": 108.09,
+   "task_input_tps": 118.9,
+   "task_output_tps": 95.12,
+   "cost_usd": 0.045,
+   "score": 0.6996439261191365,
+   "problem_detection": 0.6617294416781199,
+   "clean_acceptance": 0.9076668291634554,
+   "gates": {
+    "COMMIT-AUDIT-GATE-1": {
+     "full_problem": 7,
+     "problems": 20,
+     "passed_clean": 32,
+     "clean": 40
+    },
+    "COMMIT-AUDIT-GATE-2": {
+     "full_problem": 5,
+     "problems": 20,
+     "passed_clean": 28,
+     "clean": 40
+    }
+   }
+  },
+  {
+   "instance": "default-d95dd9ac-7740-4ed6-aa7e-408fc543a102-instance-2",
+   "report_sha256": "95bf1710e4ef98e082beab008780863603f200fcc3ca38375f847acd06d374ac",
+   "load_s": 15.2686151529997,
+   "work_s": 431.6223090820312,
+   "stages": 20,
+   "read": 63068,
+   "reused": 1144450,
+   "generated": 40328,
+   "engine_input_tps": 1139.19,
+   "engine_output_tps": 107.95,
+   "task_input_tps": 146.12,
+   "task_output_tps": 93.43,
+   "cost_usd": 0.047,
+   "score": 0.717814660132839,
+   "problem_detection": 0.680655634247128,
+   "clean_acceptance": 0.9183583770276605,
+   "gates": {
+    "COMMIT-AUDIT-GATE-1": {
+     "full_problem": 10,
+     "problems": 20,
+     "passed_clean": 33,
+     "clean": 40
+    },
+    "COMMIT-AUDIT-GATE-2": {
+     "full_problem": 8,
+     "problems": 20,
+     "passed_clean": 31,
+     "clean": 40
+    }
+   }
+  },
+  {
+   "instance": "default-d95dd9ac-7740-4ed6-aa7e-408fc543a102-instance-3",
+   "report_sha256": "c9280948c35cf503b3ee6d6abbb9bf74a553f3a8cc5a5999a9c5ba6a439eeef2",
+   "load_s": 16.812757734995103,
+   "work_s": 807.7816433105469,
+   "stages": 29,
+   "read": 216769,
+   "reused": 1440344,
+   "generated": 75384,
+   "engine_input_tps": 1853.87,
+   "engine_output_tps": 109.68,
+   "task_input_tps": 268.35,
+   "task_output_tps": 93.32,
+   "cost_usd": 0.091,
+   "score": 0.5501424247904277,
+   "problem_detection": 0.5087907145328435,
+   "clean_acceptance": 0.8151441549916278,
+   "gates": {
+    "COMMIT-AUDIT-GATE-1": {
+     "full_problem": 6,
+     "problems": 20,
+     "passed_clean": 28,
+     "clean": 40
+    },
+    "COMMIT-AUDIT-GATE-2": {
+     "full_problem": 7,
+     "problems": 20,
+     "passed_clean": 29,
+     "clean": 40
+    }
+   }
+  }
+ ],
+ "mean": {
+  "work_s": 550.97,
+  "read": 109668.67,
+  "reused": 1255688.0,
+  "gen": 51681.33,
+  "eng_in": 1349.29,
+  "eng_out": 108.57,
+  "task_in": 177.79,
+  "task_out": 93.96,
+  "cost": 0.06
+ },
+ "session_inspection": "all tool calls inside each scenario root; all three read the .prepared marker (commit-audit-reviewer:19:default, no expectations); instance 3 chose not to read input.json",
+ "comparison_with": "reports/v0.1.41/loop-reminder-trial/summary.json"
+}

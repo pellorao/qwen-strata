@@ -31,7 +31,7 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 
 - [x] 静态评估：第一次划分验证集未通过（[报告](../reports/v0.1.41/loop-mechanical-gate/summary.md)）；重新随机划分并补齐伴随记录复核后，r6（连续概率）开发集 F2 0.8043、验证集 0.7756、全量 0.7974。用户已审核，同意以 r6 进入提醒实现。
 - [ ] 协议桥提醒（`src/loop_reminder.py`）：已实现并测试，无状态、只进转发请求、按重复链去重（再出现 2 次才再提醒），请求头 `X-Loop-Reminder: off` 关闭；调用手册已更新。措辞和位置用户已审核，2026-10-10 已部署到 rtx3080ti（逐文件回读 SHA 一致，`/health` 正常）；rtx4070tis 待同步。
-- [ ] 真实试跑：2026-10-11 完成 3 次（Commit Audit，rtx3080ti，冻结 ARW 加 Codex 0.162 兼容补丁），待用户审核，见[报告](../reports/v0.1.41/loop-reminder-trial/summary.md)。提醒 7 次：3 次部分有依据（都落在推理被预算截断的整段审计步骤），4 次误报（写报告 2、`workdir` 长路径造成的相似 2）；批次得分 0.699，平均 7.4 分钟。第 1 次（2026-10-10）按用户决定作废。
+- [ ] 真实试跑与基线：2026-10-11 各 3 次（Commit Audit，rtx3080ti），待用户审核。[提醒组](../reports/v0.1.41/loop-reminder-trial/summary.md)（防循环提示 + 提醒）得分 0.699，提醒 7 次（3 次部分有依据、4 次误报），另有 1 处步内退化循环漏报（低多样性片段被 `MIN_TERMS` 丢弃）；[基线](../reports/v0.1.41/loop-baseline/summary.md)（都不加）得分 0.656，没有确认循环。这个场景里循环少见，防护的作用测不出来。
 - [x] 默认场景：用户 2026-10-10 决定用 Commit Audit。
 - [ ] Spec Readiness 单场景评分：原版高层 `score-completed` 要求两个子场景配对，单独 artifact-promotion 会被拒绝。需要先无模型调查原版是否有可单独评分的入口；若需改变评分合同，先列出差异并取得同意。
 - [ ] 清理旧的关键词循环工具（`tools/loop/` 下的 `reasoning_loop_guard.py`、`command_loop_guard.py`、`progress_guard.py` 等）和 `tools/README.md`。
