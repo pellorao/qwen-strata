@@ -29,7 +29,7 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 
 评分合同 v6（主指标 F2，按组计分：首次报警 0.9 迟报减半，后续报警 0.1）、因果重放（`tools/loop/corpus_replay.py`）和开发集 / 验证集划分已完成。2026-10-10 用户决定：只用机械规则（`tools/loop/mechanical.py`），检测到重复只提醒 agent 自查，不中断；模型判断路线已关闭（[报告](../reports/v0.1.41/loop-strata-judge/summary.md)）。
 
-- [ ] 用户审核评分合同第 5 版后，在验证集上做一次门槛确认（机械规则 r5 开发集 F2 0.8138（合同第 6 版）：P 0.637、R 0.875，按时 101 / 迟报 7 / 共 118 组，报警 297 条、误报 105 条）。
+- [ ] 验证集门槛未通过（F2 0.5251，开发集 0.8138，[报告](../reports/v0.1.41/loop-mechanical-gate/summary.md)）。由用户决定：带提醒直接试跑并采集新数据作新验证，或改路线。
 - [ ] 实现提醒：把机械规则接到 agent（Codex / Claude Code）上，检测到重复时注入提醒，不拒绝调用。提醒的时机和措辞先审核。
 - [ ] 门槛：联合 F1 ≥ 0.8 原本是为"拒绝调用"设定的；改为只提醒后是否保留，由用户决定。门槛确认在验证集上做一次。
 - [ ] 清理旧的关键词循环工具（`tools/loop/` 下的 `reasoning_loop_guard.py`、`command_loop_guard.py`、`progress_guard.py` 等）和 `tools/README.md`。
