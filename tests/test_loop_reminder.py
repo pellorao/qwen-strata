@@ -83,6 +83,15 @@ class ReminderTests(unittest.TestCase):
         body['input'].append({'type': 'message', 'role': 'user', 'content': [{'type': 'input_text', 'text': 'go on'}]})
         self.assertIsNone(loop_reminder.apply('/v1/responses', body, {}))
 
+    def test_a_repeat_inside_one_step_is_named_as_such(self):
+        body = responses(['Reading the request first and listing every requirement of both issues.', TEXT])
+        body['input'].insert(-2, {'type': 'message', 'role': 'assistant',
+                                  'content': [{'type': 'output_text', 'text': TEXT}]})
+        notice = loop_reminder.apply('/v1/responses', body, {})
+        self.assertIn('step 2', notice)
+        self.assertIn('earlier within this same step', notice)
+        self.assertNotIn('first seen', notice)
+
     def test_header_turns_the_reminder_off(self):
         body = chat(['node check.js', 'node check.js'])
         self.assertIsNone(loop_reminder.apply('/v1/chat/completions', body, {'X-Loop-Reminder': 'off'}))

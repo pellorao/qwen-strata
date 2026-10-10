@@ -16,7 +16,7 @@ AGAIN = 2              # further recurrences of an already reminded chain before
 OPT_OUT = 'X-Loop-Reminder'  # request header; "off" disables the reminder for that request
 
 NOTICE = ('[Loop check: automatic notice from the model service, not from the user]\n'
-          'Your last step (step {step}) closely repeats {what} first seen at step {first} of this conversation. '
+          'Your last step (step {step}) closely repeats {what} {where}. '
           'Check whether the current work is stuck in a loop without progress: compare what this step adds with '
           'what the earlier steps already produced. If nothing new is being learned or delivered, use the results '
           'you already have, change the approach, or report the blocker. If the repetition is deliberate and is '
@@ -161,7 +161,9 @@ def decide(conversation):
         if fire:
             what = 'the same tool call with the same result' if set(kinds) == {'tool'} else 'reasoning or text'
             first = min((origin(r) for r in roots if origin(r) is not None), default=step)
-            notice = NOTICE.format(step=step, what=what, first=first)
+            where = ('earlier within this same step' if first == step
+                     else f'first seen at step {first} of this conversation')
+            notice = NOTICE.format(step=step, what=what, where=where)
     return notice
 
 
