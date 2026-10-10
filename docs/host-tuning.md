@@ -52,6 +52,7 @@ Q2/high/default、KV int8／resident20480、expert-cache auto、PCIe份额0、sp
 | PCIe 分担 | 引擎实测／固定 0.00，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/pcie-frac/summary.md) | 实测（定为 0.20）引擎输出快 11.1%，工作少 8.9%，全对；已采用（`"pcie-frac": null`）并部署 |
 | CPU核心分配 | auto／all，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/pool-affinity/summary.md) | all 引擎输出快 16.9%，工作少 16.7%，全对；保持 all（默认不变） |
 | CPU专家线程数 | 23／15／12，各3，共9；[报告](../reports/v0.1.42/iq3_xxs-tuning/pool-workers/summary.md) | 23 引擎输出最高（比 15 快 2.3%、比 12 快 4.9%），全对；保持 23（默认不变） |
+| PLE读取方式 | 自动探测（实际 mmap）／强制 direct，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/ple-io/summary.md) | direct 冷 32K 输入快 4.6%，解码持平，内存占用可预测，全对；已采用（`"ple-io": "direct"`）并部署；ARW 真实负载出现分钟级停顿则退回 |
 
 ## rtx4070tis
 

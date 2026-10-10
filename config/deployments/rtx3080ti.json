@@ -22,7 +22,8 @@
       "vram-reserve-mib": 512
     },
     "IQ3_XXS": {
-      "pcie-frac": null
+      "pcie-frac": null,
+      "ple-io": "direct"
     }
   },
   "listen_address": "192.168.60.212",
