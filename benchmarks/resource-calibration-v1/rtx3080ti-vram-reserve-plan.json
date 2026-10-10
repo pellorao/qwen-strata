@@ -1,62 +1,64 @@
 {
   "schema_version": 1,
-  "status": "frozen-awaiting-user-approval",
-  "created_at": "2026-10-07T20:05:26.134392+00:00",
+  "status": "frozen-approved",
+  "created_at": "2026-10-10T04:47:06.095295+00:00",
   "host": "rtx3080ti",
   "authorization": {
-    "approved": false,
-    "scope": "One VRAM reserve comparison700/500/300,9coldinstances,27logicalrequests; source/API admission changes prepared before start. No CPUxVRAMmatrix."
+    "approved": true,
+    "approved_on": "2026-10-10",
+    "scope": "VRAM reserve 1024/768/512, 9 cold instances, 27 logical requests; spec-min-p deferred until temperature is chosen."
   },
-  "purpose": "Measure the tradeoff between GPUexpertcache capacity and extraWDDM/temporary-buffer headroom, using live telemetry now fixed. Increasing reserve is a hypothesis, not assumedbetter.",
+  "purpose": "Choose the rtx3080ti Q2_0 VRAM reserve: GPU expert-cache capacity against headroom for desktop growth and temporary buffers.",
   "basis": {
     "ours": "LatestQ2run all6loaded480MiBfree/capture428MiB,4015cache slots. True minimumunknown due missing telemetry; no stall was observed.",
     "upstream": "0.1.40.2DETAILS The expert cache size is a budget: oversizedWindows allocations may spill, reserve can trade cache forheadroom. Examples are othercards and cannot predetermine our optimum.",
-    "candidate_rationale": "700currentQ2default,500moderatelylessreserve,300moreaggressive expert-cache budget; actualremainingVRAMcanbesmaller, measurecorrectness/work/headroom rather than assumingmoreGPUcachemeansfaster."
+    "candidate_rationale": "1024 upstream example and room for about 300 MiB desktop swings; 768 near the current 700; 512 more expert slots with headroom about equal to the observed swing.",
+    "desktop_observation": "2026-10-10 desktop VRAM with the model off: 423-726 MiB, median 500 MiB (5 s samples, about 100 minutes)."
   },
   "candidate_dimension": "vram-reserve-mib",
   "conditions": [
-    700,
-    500,
-    300
+    1024,
+    768,
+    512
   ],
   "model_instances": 9,
   "logical_requests": 27,
   "repetitions_per_condition": 3,
   "schedule": [
     {
-      "reserve": 700,
+      "reserve": 1024,
       "repetition": 1
     },
     {
-      "reserve": 500,
+      "reserve": 768,
       "repetition": 1
     },
     {
-      "reserve": 300,
+      "reserve": 512,
       "repetition": 1
     },
     {
-      "reserve": 300,
+      "reserve": 512,
       "repetition": 2
     },
     {
-      "reserve": 500,
+      "reserve": 768,
       "repetition": 2
     },
     {
-      "reserve": 700,
+      "reserve": 1024,
       "repetition": 2
     },
     {
-      "reserve": 500,
+      "reserve": 768,
       "repetition": 3
     },
     {
-      "reserve": 700,
+      "reserve": 1024,
       "repetition": 3
     },
     {
-      "reserve": 300,
+      "reserve": 512,
       "repetition": 3
     }
   ],
@@ -80,7 +82,8 @@
     "spec_min_p": 0.5,
     "cpu_prefill_share": "auto",
     "api": "Chat Completions streamed through the frontend /strata/v1, no agent harness",
-    "base_source_sha256": "0deaad95f1aa8fa91cf0ab20b7787df734b660c3b97bc4fde888bf2909e63d29"
+    "base_source_sha256": "0deaad95f1aa8fa91cf0ab20b7787df734b660c3b97bc4fde888bf2909e63d29",
+    "conversation_cache": "off (not in the maintenance baseline); single-session workload never switches conversations"
   },
   "fixed_hardware": {
     "gpu": "RTX3080Ti12GiB",
@@ -172,7 +175,7 @@
     "upper_envelope_request_work_minutes": 67.5,
     "does_not_count_user_waiting": true
   },
-  "selection": "Chooseamong700/500/300bycompletecorrectresults, tasktime andactualresource observations; intrinsic candidateOOM/stall/failure remains evidence, nothiddenor replaced. Defaultstays700untilselection.",
+  "selection": "Complete correct results first; then work time against the spread between repetitions. Within noise choose the larger headroom; 512 only if clearly faster. Default stays 700 until the user selects.",
   "core_unknowns": [
     "CPU-prefill expert count/share absent fromAPIservebranch.",
     "This shorttest cannotprove100KReviewer or allRAM/VRAMparameters optimal."
@@ -180,9 +183,8 @@
   "model_runs_executed": 0,
   "source_default_changed": false,
   "stop_after_group": "Close results, analyze, plan nextgroup and end Mainreply for userreview/approval. No automatic nextdimension.",
-  "fixed_spec_min_p": 0.5,
-  "candidate_source": "User suggests700,500,300 to observe trend; replaces earlier700/981 and981/618/256proposals.",
-  "next_group": "Spec-min-p0.5/0.7onlyafterthisgroup report anduserreview, preserving selectedreserve inbothconditions.",
+  "candidate_source": "User chose 1024/768/512 on 2026-10-10 (replaces 700/500/300).",
+  "next_group": "spec-min-p is deferred until temperature is chosen in the ARW capability validation (user decision 2026-10-10).",
   "mandatory_peer_validation": "Each dimension must have local independent evidence and new hosts must independently calibrate; no remote result propagated to another host default.",
   "selection_key": {
     "host": "rtx3080ti",
@@ -321,10 +323,10 @@
   "stream_chat": true,
   "capture_each_request": true,
   "per_logical_request_work_seconds_limit": 150,
-  "version_note": "Drafted on 0.1.40.2 with the old remote controller; frozen on 0.1.41 with the resident frontend. Fresh 700 control in the same group; no old result reused.",
+  "version_note": "Re-frozen 2026-10-10 on v0.1.41 with the resident frontend; fresh conditions, no old result reused.",
   "effective_binding": "After each start the engine log line \"expert cache auto: X GiB free, N MiB reserved -> S slots\" must show the selected reserve; slots and loaded free VRAM are recorded.",
   "source_sha256": {
-    "tools/tuning/resource_calibration.py": "5eb6fd46b520868a4c1a1e524be4f8346821ba54ad8e2c565fa2f3a9f75a483b",
+    "tools/tuning/resource_calibration.py": "a98ee78d002680092a1ca466ed2848a37af07eacbff5db5a60d47da441b608f1",
     "tools/metrics/streamed_chat.py": "6ab84674ae01a2b3e6c74576eac582744ee758fbe316c3033f29c0001018e5b2",
     "tools/metrics/host_telemetry.py": "ea1a4a06a54dbf21810fc7f691ffa61b1c3b10717aa21c7a38e10d1582966657",
     "tools/metrics/windows_resource_sampler.py": "03ee096346a30c1eb29e22d406bf56b28ee96a3e810b858511ad5868d2fbc467",

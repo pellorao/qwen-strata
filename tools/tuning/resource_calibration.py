@@ -104,7 +104,7 @@ def experiment_schedule(plan):
                'repetition':j['repetition'],'overrides':{},
                'environment':{'STRATA_PREFILL_CPU_SHARE':values[j['condition']]}}for j in plan['schedule']]
     elif dimension=='vram-reserve-mib':
-        if plan['conditions']!=[700,500,300] or plan['fixed_pool_affinity']!='all' or plan['pool_workers']!=23:
+        if plan['conditions']!=[1024,768,512] or plan['fixed_pool_affinity']!='all' or plan['pool_workers']!=23:
             raise ValueError('Unapproved VRAM reserve conditions')
         jobs=[{'label':f"reserve{j['reserve']}-r{j['repetition']}",'condition':j['reserve'],'repetition':j['repetition'],
                'overrides':{'pool-affinity':'all','pool-workers':23,'vram-reserve-mib':j['reserve']}}
