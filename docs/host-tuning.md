@@ -50,6 +50,7 @@ Q2/high/default、KV int8／resident20480、expert-cache auto、PCIe份额0、sp
 | 参数维度 | 测试范围／次数 | 结论与选择 |
 | --- | --- | --- |
 | PCIe 分担 | 引擎实测／固定 0.00，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/pcie-frac/summary.md) | 实测（定为 0.20）引擎输出快 11.1%，工作少 8.9%，全对；已采用（`"pcie-frac": null`）并部署 |
+| CPU核心分配 | auto／all，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/pool-affinity/summary.md) | all 引擎输出快 16.9%，工作少 16.7%，全对；保持 all（默认不变） |
 
 ## rtx4070tis
 
