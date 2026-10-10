@@ -123,8 +123,10 @@ def steps(path, body):
                         records.append({'kind': 'tool', 'name': part.get('name'), 'arguments': part.get('input'),
                                         'output': outputs.get(part.get('id'))})
                 add('model', records)
-            elif m.get('role') == 'user':
-                add('input', [{'kind': 'feedback', 'text': _text([p for p in parts if p.get('type') == 'text'])}])
+            elif m.get('role') == 'user':  # a turn holding only tool results is not new input
+                text = _text([p for p in parts if p.get('type') == 'text'])
+                if text:
+                    add('input', [{'kind': 'feedback', 'text': text}])
     return out
 
 
@@ -147,7 +149,8 @@ def decide(conversation):
             if step is not None and p >= ALERT:
                 roots |= detector.roots
                 kinds.append(payload['kind'])
-        if step is None:
+        if step is None:     # an input after the step (a user turn, a compaction prompt) closes it
+            notice = None
             continue
         fire = False
         for root in roots:

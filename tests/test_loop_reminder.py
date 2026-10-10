@@ -75,6 +75,14 @@ class ReminderTests(unittest.TestCase):
         self.assertEqual([p['type'] for p in last['content']], ['tool_result', 'text'])
         self.assertEqual(last['content'][-1]['text'], notice)
 
+    def test_an_input_after_the_step_closes_it(self):
+        body = chat(['node check.js', 'node check.js'])
+        body['messages'].append({'role': 'user', 'content': 'Summarize the conversation so far.'})
+        self.assertIsNone(loop_reminder.apply('/v1/chat/completions', body, {}))
+        body = responses(['Reading the request first and listing every requirement of both issues.', TEXT, TEXT])
+        body['input'].append({'type': 'message', 'role': 'user', 'content': [{'type': 'input_text', 'text': 'go on'}]})
+        self.assertIsNone(loop_reminder.apply('/v1/responses', body, {}))
+
     def test_header_turns_the_reminder_off(self):
         body = chat(['node check.js', 'node check.js'])
         self.assertIsNone(loop_reminder.apply('/v1/chat/completions', body, {'X-Loop-Reminder': 'off'}))
