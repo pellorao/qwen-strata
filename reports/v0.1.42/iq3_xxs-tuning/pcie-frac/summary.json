@@ -1,0 +1,224 @@
+{
+ "status": "all-approved-observations-closed-awaiting-main-inspection",
+ "attempts": 6,
+ "conditions": {
+  "measured": {
+   "mean": {
+    "requests_passed": 3,
+    "continuations": 0,
+    "load_s": 17.324955944333357,
+    "work_s": 112.23334166633326,
+    "engine_in": 1972.7110798130423,
+    "engine_out": 114.16071377428639,
+    "task_out": 96.13234054612766,
+    "uncached_input": 34596,
+    "cached_input": 65536,
+    "output": 10789,
+    "min_avail_ram_gib": 8.821646372477213,
+    "min_gpu_free_mib": 1012.0963541666666,
+    "mean_cpu_pct": 64.81219250440917,
+    "cache_hit": 0.6882383987117401,
+    "draft_accept": 0.9345449112389089,
+    "cache_slots": 2699,
+    "free_mib_loaded": 734,
+    "work_s_stdev": 9.023590618943183,
+    "all_pass": true,
+    "n": 3,
+    "engine_out_range": [
+     112.46572332151764,
+     115.79656526902349
+    ],
+    "work_s_range": [
+     105.10156538099989,
+     122.37787046799986
+    ]
+   },
+   "observations": [
+    {
+     "pass": true,
+     "requests_passed": 3,
+     "continuations": 0,
+     "load_s": 17.340586377000022,
+     "work_s": 105.10156538099989,
+     "engine_in": 1985.651150777708,
+     "engine_out": 115.79656526902349,
+     "task_out": 96.48762093350587,
+     "uncached_input": 34596,
+     "cached_input": 65536,
+     "output": 10141,
+     "min_avail_ram_gib": 9.089263916015625,
+     "min_gpu_free_mib": 900.3359375,
+     "mean_cpu_pct": 63.745370370370374,
+     "cache_hit": 0.6914002023537946,
+     "draft_accept": 0.9387938793879388,
+     "cache_slots": 2699,
+     "free_mib_loaded": 714,
+     "effective": {
+      "pcie-frac": null
+     },
+     "pcie_share": [
+      0.2
+     ]
+    },
+    {
+     "pass": true,
+     "requests_passed": 3,
+     "continuations": 0,
+     "load_s": 17.282561689999966,
+     "work_s": 109.22058915000002,
+     "engine_in": 1967.3585442138185,
+     "engine_out": 114.21985273231803,
+     "task_out": 95.72370998330216,
+     "uncached_input": 34596,
+     "cached_input": 65536,
+     "output": 10455,
+     "min_avail_ram_gib": 8.694122314453125,
+     "min_gpu_free_mib": 1056.35546875,
+     "mean_cpu_pct": 64.76160714285714,
+     "cache_hit": 0.6887699309102596,
+     "draft_accept": 0.9342056536230096,
+     "cache_slots": 2699,
+     "free_mib_loaded": 744,
+     "effective": {
+      "pcie-frac": null
+     },
+     "pcie_share": [
+      0.2
+     ]
+    },
+    {
+     "pass": true,
+     "requests_passed": 3,
+     "continuations": 0,
+     "load_s": 17.351719766000087,
+     "work_s": 122.37787046799986,
+     "engine_in": 1965.1235444476001,
+     "engine_out": 112.46572332151764,
+     "task_out": 96.18569072157499,
+     "uncached_input": 34596,
+     "cached_input": 65536,
+     "output": 11771,
+     "min_avail_ram_gib": 8.68155288696289,
+     "min_gpu_free_mib": 1079.59765625,
+     "mean_cpu_pct": 65.9296,
+     "cache_hit": 0.684545062871166,
+     "draft_accept": 0.9306352007057785,
+     "cache_slots": 2699,
+     "free_mib_loaded": 744,
+     "effective": {
+      "pcie-frac": null
+     },
+     "pcie_share": [
+      0.2
+     ]
+    }
+   ]
+  },
+  "zero": {
+   "mean": {
+    "requests_passed": 3,
+    "continuations": 0,
+    "load_s": 17.670162154000007,
+    "work_s": 123.20295805366668,
+    "engine_in": 1961.1601104331876,
+    "engine_out": 102.71749613124743,
+    "task_out": 87.83526758905815,
+    "uncached_input": 34596,
+    "cached_input": 65536,
+    "output": 10794.333333333334,
+    "min_avail_ram_gib": 8.5908203125,
+    "min_gpu_free_mib": 1022.89453125,
+    "mean_cpu_pct": 65.60680338740944,
+    "cache_hit": 0.6428582260363517,
+    "draft_accept": 0.9230305293852528,
+    "cache_slots": 2699,
+    "free_mib_loaded": 726.6666666666666,
+    "work_s_stdev": 8.57075290716325,
+    "all_pass": true,
+    "n": 3,
+    "engine_out_range": [
+     94.96572463579717,
+     106.85527963894468
+    ],
+    "work_s_range": [
+     118.18496380800002,
+     133.09928254900012
+    ]
+   },
+   "observations": [
+    {
+     "pass": true,
+     "requests_passed": 3,
+     "continuations": 0,
+     "load_s": 17.302082315000007,
+     "work_s": 133.09928254900012,
+     "engine_in": 1964.7887323943662,
+     "engine_out": 94.96572463579717,
+     "task_out": 82.32951966488507,
+     "uncached_input": 34596,
+     "cached_input": 65536,
+     "output": 10958,
+     "min_avail_ram_gib": 8.046504974365234,
+     "min_gpu_free_mib": 956.84375,
+     "mean_cpu_pct": 66.08074074074074,
+     "cache_hit": 0.64554860178122,
+     "draft_accept": 0.9194607268464244,
+     "cache_slots": 2699,
+     "free_mib_loaded": 706,
+     "effective": {
+      "pcie-frac": "0.00"
+     },
+     "pcie_share": []
+    },
+    {
+     "pass": true,
+     "requests_passed": 3,
+     "continuations": 0,
+     "load_s": 18.389145781000025,
+     "work_s": 118.18496380800002,
+     "engine_in": 1955.0180831826399,
+     "engine_out": 106.33148411900042,
+     "task_out": 90.33298023718085,
+     "uncached_input": 34596,
+     "cached_input": 65536,
+     "output": 10676,
+     "min_avail_ram_gib": 9.0491943359375,
+     "min_gpu_free_mib": 1024.80859375,
+     "mean_cpu_pct": 65.10495867768596,
+     "cache_hit": 0.6372365450668299,
+     "draft_accept": 0.9238829338793207,
+     "cache_slots": 2699,
+     "free_mib_loaded": 730,
+     "effective": {
+      "pcie-frac": "0.00"
+     },
+     "pcie_share": []
+    },
+    {
+     "pass": true,
+     "requests_passed": 3,
+     "continuations": 0,
+     "load_s": 17.319258365999985,
+     "work_s": 118.32462780399987,
+     "engine_in": 1963.6735157225567,
+     "engine_out": 106.85527963894468,
+     "task_out": 90.84330286510851,
+     "uncached_input": 34596,
+     "cached_input": 65536,
+     "output": 10749,
+     "min_avail_ram_gib": 8.676761627197266,
+     "min_gpu_free_mib": 1087.03125,
+     "mean_cpu_pct": 65.63471074380165,
+     "cache_hit": 0.6457895312610051,
+     "draft_accept": 0.9257479274300132,
+     "cache_slots": 2699,
+     "free_mib_loaded": 744,
+     "effective": {
+      "pcie-frac": "0.00"
+     },
+     "pcie_share": []
+    }
+   ]
+  }
+ }
+}

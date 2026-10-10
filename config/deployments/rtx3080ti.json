@@ -20,6 +20,9 @@
   "model_overrides": {
     "Q2_0": {
       "vram-reserve-mib": 512
+    },
+    "IQ3_XXS": {
+      "pcie-frac": null
     }
   },
   "listen_address": "192.168.60.212",
