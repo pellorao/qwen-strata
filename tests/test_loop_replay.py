@@ -103,11 +103,16 @@ class ReplayTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             replay(obs, [LoopGroup('g', 't', ('x', 'a'))], Scripted({}), 2)
 
-    def test_gate_is_weighted_f1_at_least_point_eight(self):
+    def test_gate_is_weighted_f2_at_least_point_eight(self):
         group = LoopGroup('g', 't', ('a', 'b', 'c'))
-        result = replay(records('a', 'b', 'c', 'n1', 'n2'), [group], Scripted({'b': 0.9, 'c': 0.9, 'n1': 0.9}), 2)
-        self.assertAlmostEqual(result['f1'], 0.75)
-        self.assertFalse(result['passes_gate'])
+        one = replay(records('a', 'b', 'c', 'n1', 'n2'), [group], Scripted({'b': 0.9, 'c': 0.9, 'n1': 0.9}), 2)
+        self.assertAlmostEqual(one['f1'], 0.75)
+        self.assertAlmostEqual(one['f2'], 3 / 3.4)
+        self.assertTrue(one['passes_gate'])
+        two = replay(records('a', 'b', 'c', 'n1', 'n2'), [group],
+                     Scripted({'b': 0.9, 'c': 0.9, 'n1': 0.9, 'n2': 0.9}), 2)
+        self.assertLess(two['f2'], 0.8)
+        self.assertFalse(two['passes_gate'])
 
 
 if __name__ == '__main__':

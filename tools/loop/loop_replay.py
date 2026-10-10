@@ -1,4 +1,4 @@
-"""Full causal offline replay under scoring contract v3 (benchmarks/loop-detection-v2/scoring-contract.md).
+"""Full causal offline replay under scoring contract v4 (benchmarks/loop-detection-v2/scoring-contract.md).
 
 Every record is replayed in order and nothing is skipped. The detector sees only the observations replayed so far
 and returns, for each model-behavior record, a probability that it is (or contains) a repetition. Frozen loop groups
@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 POSITIVE, NEGATIVE = 0.6, 0.4
 FIRST_WEIGHT, LATER_WEIGHT = 1.0, 0.5
-GATE_F1 = 0.8
+GATE_F2 = 0.8          # recall weighs more than precision: a detection only sends a reminder
 _ANSWER_FIELDS = frozenset(('loop_annotations', 'normal_annotations', 'label', 'loop_case_ids'))
 
 
@@ -118,10 +118,12 @@ def replay(observations, groups, detector, k):
     recall = tp / (tp + fn) if tp + fn else None
     f1 = (2 * precision * recall / (precision + recall) if precision and recall else
           0.0 if precision is not None and recall is not None else None)
+    f2 = (5 * precision * recall / (4 * precision + recall) if precision and recall else
+          0.0 if precision is not None and recall is not None else None)
     firsts = sum(kind == 'first' for owed_here in owed.values() for _, kind, _ in owed_here)
     return {
-        'k': k, 'tp': tp, 'fn': fn, 'fp': fp, 'precision': precision, 'recall': recall, 'f1': f1,
-        'passes_gate': f1 is not None and f1 >= GATE_F1,
+        'k': k, 'tp': tp, 'fn': fn, 'fp': fp, 'precision': precision, 'recall': recall, 'f1': f1, 'f2': f2,
+        'passes_gate': f2 is not None and f2 >= GATE_F2,
         'first_targets': firsts, 'first_hits': int(first_hit), 'unreachable_groups': sorted(unreachable),
         'later_weight': later_total, 'later_hit_weight': later_hit,
         'group_recall': sum(group_first.values()) / len(groups) if groups else None,
