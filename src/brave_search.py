@@ -17,6 +17,7 @@ import tomllib
 from urllib.parse import urlencode, urljoin, urlsplit
 import urllib.error
 import urllib.request
+import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
 API = 'https://api.search.brave.com/res/v1/web/search'
@@ -121,6 +122,23 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
+def decoded(raw, headers):
+    """Undo gzip/deflate that some hosts send despite Accept-Encoding: identity; the limit applies after decoding."""
+    encoding = (headers.get('Content-Encoding') or 'identity').strip().lower()
+    if encoding == 'identity':
+        return raw
+    if encoding not in ('gzip', 'x-gzip', 'deflate'):
+        raise SearchError(f'Unsupported content encoding {encoding}.', 'unsupported_content')
+    try:
+        inflater = zlib.decompressobj(31 if 'gzip' in encoding else 15)
+        body = inflater.decompress(raw, PAGE_LIMIT + 1)
+    except zlib.error:
+        raise SearchError('Compressed response could not be decoded.', 'upstream_error') from None
+    if len(body) > PAGE_LIMIT:
+        raise SearchError('Response exceeds the size limit.', 'response_too_large')
+    return body
+
+
 def fetch(url, headers, check=lambda: None):
     """GET with manual redirects; returns (final url, content type, body). Never retries."""
     deadline = time.monotonic() + TIMEOUT
@@ -143,7 +161,7 @@ def fetch(url, headers, check=lambda: None):
                     if time.monotonic() > deadline:
                         raise SearchError('Request exceeded its time limit.', 'timeout')
                     chunks.append(chunk)
-                return url, reply.headers.get('Content-Type', ''), b''.join(chunks)
+                return url, reply.headers.get('Content-Type', ''), decoded(b''.join(chunks), reply.headers)
         except urllib.error.HTTPError as error:
             location = error.headers.get('Location')
             error.close()

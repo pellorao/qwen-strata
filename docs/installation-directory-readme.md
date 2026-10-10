@@ -169,7 +169,7 @@ key 通过 `env_key` 指定的环境变量只提供给该 harness。请求重试
 不使用 harness 自家的搜索服务，统一由本安装经 Brave 提供（key 在 `installation.private.toml`）。
 
 - **Codex**：设置 `web_search = "live"`。前端把 `web_search` 换成同名函数交给模型；模型调用时由前端执行 `search`、`open_page`、`find_in_page`，结果写回对话后继续生成，Codex 看到的是普通的 `web_search_call`。只支持流式；每个请求最多 8 次搜索、10 轮模型调用，各轮共用一个输出上限。支持 `filters.allowed_domains` 和 `search_context_size`，不支持 `user_location`。
-- 搜索结果按调用 id 保存在本次租约内，Codex 下一轮回传时还原给模型；归还租约后清空，旧会话里的搜索只会得到"结果不可用"。
+- 搜索结果按随机调用 id 保存在前端内存，跨租约保留（`codex exec resume` 每次领新租约），Codex 回传时还原给模型；总量超过上限时淘汰最旧的，前端重启后清空，此后旧会话里的搜索只会得到"结果不可用"。
 - **Claude Code**：内置 WebSearch 依赖 Anthropic 服务，启动脚本把它禁用，改为挂载 MCP 服务 `src/brave_mcp.py`（工具 `mcp__brave__web_search`、`open_page`、`find_in_page`）。
 - 只读取公网 http(s) 地址；内网、本机、带账号密码或非标准端口的地址都会拒绝，每次重定向重新检查。Brave key 只发给 Brave API。Brave 调用每秒最多一次，失败不重试。
 
@@ -186,10 +186,15 @@ export CLAUDE_CODE_MAX_CONTEXT_TOKENS=156584            # 声明真实窗口
 export CLAUDE_CODE_MAX_OUTPUT_TOKENS=24576
 
 claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode auto \
-       --settings '{"skipWebFetchPreflight": true, "permissions": {"deny": ["WebSearch"]}}' [调用方参数]
+       --settings '{"skipWebFetchPreflight": true, "permissions": {"deny": ["WebSearch"]},
+                   "hooks": {"PreCompact": [{"hooks": [{"type": "command", "command": "cat <安装目录>/config/prompts/compact-prompt.txt"}]}]},
+                   "autoMode": {"environment": ["$defaults", "<Brave 工具是 WebSearch 的替代>"]}}' [调用方参数]
 ```
 
+- auto mode 的判断会把 deny 规则当作"不得换工具绕过"，所以 `autoMode.environment` 说明 Brave 工具是批准的替代；其余默认判断规则不变。
 - 权限模式固定为 auto，不继承用户全局设置。auto mode 的安全判断请求同样发给本模型，不需要 claude.ai 订阅。要改模式，在调用方参数里再写一次 `--permission-mode`。
+- `qwen-agent --approval strata claude ...` 改用自写审批（试验中，尚未完成模型验收）：权限模式为 `default`，`--settings` 加 `PermissionRequest` hook 调用 `bin/qwen-approve`。它把用户消息（唯一授权来源）、最近 6 次工具调用与结果（标为不可信数据）和待审动作发给本模型（`reasoning_effort: low`），返回 allow / deny 及理由；超时、出错或答复无法解析一律拒绝。每次判断记一行到 `logs/approve.log`（工具、结论、理由、耗时、usage，不含 key）。
+- 压缩：PreCompact hook 退出码为 0 时，其 stdout 会追加到 Claude Code 自带摘要指令之后，所以每次压缩（自动或手动）都带上 `compact-prompt.txt`，而且不替换内置提示。
 - `skipWebFetchPreflight` 关闭 WebFetch 抓网页前向 `api.anthropic.com` 的域名查询。
 
 原生服务提供 `/v1/messages` 和 `/v1/messages/count_tokens`。2026-10-09 冒烟检查（Claude Code 2.1.295，`-p`，Read 工具）确认 thinking 和工具调用可用。已知差异：
@@ -288,7 +293,7 @@ finally:
 | 情况 | 提示词 | 谁负责接入 |
 |---|---|---|
 | 普通对话、文档/代码review、工具调用、训练等模型请求 | `config/prompts/startup-instructions.txt`：核验结果、识别无进展重复并调整方法、完成任务及结束前自检 | 模型服务自动追加；外部调用方无需重复加入 |
-| harness要压缩历史、生成后续任务摘要 | `config/prompts/compact-prompt.txt`：只生成摘要、禁止继续执行任务或调用工具、保留约束和行动状态 | 本工程活跃WSL/ARW入口自动组合；外部调用方须在自己的harness配置 |
+| harness要压缩历史、生成后续任务摘要 | `config/prompts/compact-prompt.txt`：只生成摘要、禁止继续执行任务或调用工具、保留约束和行动状态 | 本工程活跃WSL/ARW入口自动组合；`bin/qwen-agent` 为 Codex 设置 `experimental_compact_prompt_file`，为 Claude Code 设置 PreCompact hook；外部调用方须在自己的harness配置 |
 | 场景另有角色、任务或摘要要求 | 场景自己的提示词 | 调用方保留并追加为相应基础提示的补充；不能替代基础提示 |
 | 希望保留harness原生摘要要求 | 自己harness版本的默认摘要提示 | 将其作为基础压缩提示的补充；本工程使用经实际原生手动压缩路径核对的Codex 0.160.1快照，调用方无需复制维护资源 |
 

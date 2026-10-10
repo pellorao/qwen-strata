@@ -166,6 +166,35 @@ class ConfigurationTests(unittest.TestCase):
                 model_process.configuration(options, 8100)
 
 
+class StopTests(unittest.TestCase):
+    def test_process_exiting_while_tree_is_walked_still_stops(self):
+        class NoSuchProcess(Exception):
+            pass
+
+        class Process:
+            def __init__(self, gone=False):
+                self.gone, self.killed = gone, False
+
+            def children(self, recursive):
+                if self.gone:
+                    raise NoSuchProcess()
+                return [Process(gone=True)]
+
+            def kill(self):
+                if self.gone:
+                    raise NoSuchProcess()
+                self.killed = True
+        server = Process(gone=True)
+        fake = type(sys)('psutil')
+        fake.NoSuchProcess, fake.wait_procs = NoSuchProcess, lambda procs, timeout: None
+        model = model_process.ModelProcess.__new__(model_process.ModelProcess)
+        model.port = 1
+        with patch.dict(sys.modules, psutil=fake), \
+                patch.object(model, '_processes', side_effect=[[server], []]), \
+                patch.object(model, '_request', side_effect=OSError):
+            self.assertEqual(model.stop(), {'status': 'stopped', 'clean_unload': False})
+
+
 class PassthroughTests(unittest.TestCase):
     def setUp(self):
         self.upstream = serve(Upstream)
@@ -176,6 +205,7 @@ class PassthroughTests(unittest.TestCase):
         front.model.port = self.upstream.server_port
         front.key_sha256 = front.loaded_model = None
         front.allowed = lambda client: True
+        front.search_results = frontend.hosted_search.Results()
         front.new_search_session()
         self.server.frontend = front
 
@@ -220,8 +250,13 @@ class PassthroughTests(unittest.TestCase):
         self.assertEqual(len(self.upstream.seen), 2)
         self.assertEqual(self.upstream.seen[0][1], 'Bearer native-secret')
         self.assertIn(output[0]['id'], self.server.frontend.search_results)
+        # A request without the tool (Codex compaction) still replays the search as the model saw it.
+        self.post('/strata/v1/responses', {'input': [output[0]], 'stream': True}, key)
+        replayed = self.upstream.seen[-1][2]['input']
+        self.assertEqual([i['type'] for i in replayed], ['function_call', 'function_call_output'])
+        self.assertEqual(replayed[1]['output'], self.server.frontend.search_results.get(output[0]['id']))
         self.post('/lease/release', {}, key)
-        self.assertEqual(self.server.frontend.search_results, {})
+        self.assertIn(output[0]['id'], self.server.frontend.search_results)  # a resumed conversation takes a new lease
 
 
 if __name__ == '__main__':

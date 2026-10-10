@@ -165,6 +165,15 @@ class ToolTests(unittest.TestCase):
         self.assertTrue(hosted_search.hosted_tool({'stream': True, 'tools': [
             {'type': 'web_search', 'external_web_access': True, 'filters': {'allowed_domains': ['e.com']}}]}))
 
+    def test_result_store_drops_oldest_beyond_limit(self):
+        results = hosted_search.Results(limit=10)
+        results['ws_a'], results['ws_b'] = 'aaaa', 'bbbb'
+        results['ws_c'] = 'cccc'
+        self.assertNotIn('ws_a', results)
+        self.assertEqual((results.get('ws_b'), results.get('ws_c')), ('bbbb', 'cccc'))
+        results['ws_d'] = 'd' * 20  # a single oversized result is still kept
+        self.assertEqual([k for k in 'bcd' if 'ws_' + k in results], ['d'])
+
     def test_unknown_usage_is_omitted_not_zeroed(self):
         self.assertIsNone(hosted_search.sum_usage([{'input_tokens': 1, 'output_tokens': 1, 'total_tokens': 2}, {}]))
         self.assertEqual(hosted_search.sum_usage([{'input_tokens': 1, 'output_tokens': 1, 'total_tokens': 2}]),

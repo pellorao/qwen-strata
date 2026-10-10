@@ -1,0 +1,343 @@
+{
+ "host": "rtx3080ti",
+ "model": "Q2_0",
+ "strata": "0.1.40.2",
+ "date": "2026-10-10",
+ "kind": "exploratory: one model load per condition, 1 cold + 3 measured requests; not a formal 3-instance tuning comparison",
+ "disk_counter": "Windows PhysicalDisk(_Total) cumulative raw bytes, system-wide",
+ "fixed": "installed rtx3080ti Q2_0 defaults; reasoning_effort low; temperature 0; every request prefixed with a distinct run id",
+ "workloads": {
+  "s6": {
+   "input": "src/frontend.py (~4K tokens input), max_tokens 1500",
+   "input_sha256": "7cba473805ed5d7b5f8dfacd9d1d598ece8fd3a12bc6e4ce3e471bbecff567ac",
+   "question": "Review the Python module above. Explain in detail how the lease, model start/stop and request forwarding work, then list every potential bug or race you can find with a suggested fix for each.",
+   "startup_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+   "compact_sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+   "conditions": [
+    {
+     "condition": "direct",
+     "load_s": 16.9,
+     "cold": {
+      "wall": 20.618,
+      "read_mb": 258.811904,
+      "prefill_tps": 800.7944389275075,
+      "decode_tps": 95.24421593830334,
+      "ws_gb": 38.652035072,
+      "avail_gb": 17.80574208
+     },
+     "mean": {
+      "wall": 16.878666666666668,
+      "read_mb": 45.722623999999996,
+      "prefill_tps": 2042.3801320063194,
+      "decode_tps": 100.58604896175547,
+      "ws_gb": 38.663090176,
+      "avail_gb": 17.820962816
+     },
+     "measured": [
+      {
+       "wall": 16.518,
+       "read_mb": 49.079808,
+       "prefill_tps": 2116.535433070866,
+       "decode_tps": 101.62518000411438,
+       "ws_gb": 38.653382656,
+       "avail_gb": 17.813504
+      },
+      {
+       "wall": 16.821,
+       "read_mb": 41.596928,
+       "prefill_tps": 2109.89010989011,
+       "decode_tps": 99.54325631380978,
+       "ws_gb": 38.653415424,
+       "avail_gb": 17.83744512
+      },
+      {
+       "wall": 17.297,
+       "read_mb": 46.491136,
+       "prefill_tps": 1900.7148530579825,
+       "decode_tps": 100.58971056734224,
+       "ws_gb": 38.682472448,
+       "avail_gb": 17.811939328
+      }
+     ]
+    },
+    {
+     "condition": "mmap",
+     "load_s": 16.8,
+     "cold": {
+      "wall": 22.008,
+      "read_mb": 2768.075264,
+      "prefill_tps": 571.9148936170213,
+      "decode_tps": 99.24993302973479,
+      "ws_gb": 38.79276544,
+      "avail_gb": 17.630560256
+     },
+     "mean": {
+      "wall": 16.947666666666667,
+      "read_mb": 42.007552,
+      "prefill_tps": 2037.2346191329677,
+      "decode_tps": 100.17517107168875,
+      "ws_gb": 38.873681919999996,
+      "avail_gb": 17.546736981333336
+     },
+     "measured": [
+      {
+       "wall": 16.891,
+       "read_mb": 48.006656,
+       "prefill_tps": 2116.010498687664,
+       "decode_tps": 99.17742259078446,
+       "ws_gb": 38.830342144,
+       "avail_gb": 17.582465024
+      },
+      {
+       "wall": 16.569,
+       "read_mb": 42.522624,
+       "prefill_tps": 2066.6324961558175,
+       "decode_tps": 101.58338474192885,
+       "ws_gb": 38.866563072,
+       "avail_gb": 17.557078016
+      },
+      {
+       "wall": 17.383,
+       "read_mb": 35.493376,
+       "prefill_tps": 1929.0608625554214,
+       "decode_tps": 99.76470588235294,
+       "ws_gb": 38.924140544,
+       "avail_gb": 17.500667904
+      }
+     ]
+    },
+    {
+     "condition": "rowcache16m",
+     "load_s": 16.9,
+     "cold": {
+      "wall": 19.978,
+      "read_mb": 247.662592,
+      "prefill_tps": 841.3841559810294,
+      "decode_tps": 104.14475068377867,
+      "ws_gb": 40.148099072,
+      "avail_gb": 16.392003584
+     },
+     "mean": {
+      "wall": 16.666666666666668,
+      "read_mb": 53.55554133333334,
+      "prefill_tps": 2128.1568955592415,
+      "decode_tps": 100.53062601181524,
+      "ws_gb": 40.157997738666666,
+      "avail_gb": 16.375001088
+     },
+     "measured": [
+      {
+       "wall": 16.552,
+       "read_mb": 66.89792,
+       "prefill_tps": 2135.4497354497353,
+       "decode_tps": 101.22950819672131,
+       "ws_gb": 40.149409792,
+       "avail_gb": 16.37658624
+      },
+      {
+       "wall": 16.793,
+       "read_mb": 51.762688,
+       "prefill_tps": 2121.4511041009464,
+       "decode_tps": 99.73770932813237,
+       "ws_gb": 40.161783808,
+       "avail_gb": 16.380063744
+      },
+      {
+       "wall": 16.655,
+       "read_mb": 42.006016,
+       "prefill_tps": 2127.5698471270425,
+       "decode_tps": 100.62466051059208,
+       "ws_gb": 40.162799616,
+       "avail_gb": 16.36835328
+      }
+     ]
+    }
+   ]
+  },
+  "s6b": {
+   "input": "7 project files (~21.6K tokens input), max_tokens 800",
+   "input_sha256": "2ddeddd49feb7f677fccb1e7e2b5c95ff1ff2703cd068306f6e77cb1fd7052a9",
+   "question": "Review the material above. Explain in detail how the lease, model start/stop and request forwarding work, then list every potential bug or race you can find with a suggested fix for each.",
+   "startup_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+   "compact_sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+   "conditions": [
+    {
+     "condition": "direct",
+     "load_s": 16.3,
+     "cold": {
+      "wall": 25.774,
+      "read_mb": 954.19392,
+      "prefill_tps": 1241.67513263348,
+      "decode_tps": 98.44299347061778,
+      "ws_gb": 38.783655936,
+      "avail_gb": 17.700757504
+     },
+     "mean": {
+      "wall": 16.133666666666667,
+      "read_mb": 17.067008,
+      "prefill_tps": 2670.102915103432,
+      "decode_tps": 98.37156299023347,
+      "ws_gb": 38.796634794666666,
+      "avail_gb": 17.68186538666667
+     },
+     "measured": [
+      {
+       "wall": 16.024,
+       "read_mb": 17.888768,
+       "prefill_tps": 2679.072075424885,
+       "decode_tps": 99.33943089430893,
+       "ws_gb": 38.795952128,
+       "avail_gb": 17.679511552
+      },
+      {
+       "wall": 16.216,
+       "read_mb": 21.592064,
+       "prefill_tps": 2667.1606767938742,
+       "decode_tps": 97.4454828660436,
+       "ws_gb": 38.796967936,
+       "avail_gb": 17.677082624
+      },
+      {
+       "wall": 16.161,
+       "read_mb": 11.720192,
+       "prefill_tps": 2664.075993091537,
+       "decode_tps": 98.32977521034786,
+       "ws_gb": 38.79698432,
+       "avail_gb": 17.689001984
+      }
+     ]
+    },
+    {
+     "condition": "mmap",
+     "load_s": 16.3,
+     "cold": {
+      "wall": 35.483,
+      "read_mb": 13448.399872,
+      "prefill_tps": 789.5294848828282,
+      "decode_tps": 97.29998755754634,
+      "ws_gb": 39.599140864,
+      "avail_gb": 16.80207872
+     },
+     "mean": {
+      "wall": 16.151666666666667,
+      "read_mb": 23.027882666666667,
+      "prefill_tps": 2633.560888308503,
+      "decode_tps": 100.50409441083542,
+      "ws_gb": 39.650202965333335,
+      "avail_gb": 16.73449472
+     },
+     "measured": [
+      {
+       "wall": 15.849,
+       "read_mb": 23.2832,
+       "prefill_tps": 2675.9603469640647,
+       "decode_tps": 102.07274149393821,
+       "ws_gb": 39.61868288,
+       "avail_gb": 16.775868416
+      },
+      {
+       "wall": 16.434,
+       "read_mb": 23.873024,
+       "prefill_tps": 2574.906367041199,
+       "decode_tps": 100.60233243624248,
+       "ws_gb": 39.657422848,
+       "avail_gb": 16.722198528
+      },
+      {
+       "wall": 16.172,
+       "read_mb": 21.927424,
+       "prefill_tps": 2649.8159509202455,
+       "decode_tps": 98.83720930232558,
+       "ws_gb": 39.674503168,
+       "avail_gb": 16.705417216
+      }
+     ]
+    },
+    {
+     "condition": "rowcache16m",
+     "load_s": 16.8,
+     "cold": {
+      "wall": 26.511,
+      "read_mb": 964.16,
+      "prefill_tps": 1193.6999171041725,
+      "decode_tps": 93.92265193370166,
+      "ws_gb": 40.243130368,
+      "avail_gb": 16.222814208
+     },
+     "mean": {
+      "wall": 16.221,
+      "read_mb": 108.11050666666667,
+      "prefill_tps": 2666.2337524948593,
+      "decode_tps": 97.55706359214919,
+      "ws_gb": 40.258134016,
+      "avail_gb": 15.846064128
+     },
+     "measured": [
+      {
+       "wall": 16.168,
+       "read_mb": 24.978944,
+       "prefill_tps": 2671.6141001855285,
+       "decode_tps": 97.81113195747342,
+       "ws_gb": 40.2573312,
+       "avail_gb": 16.225959936
+      },
+      {
+       "wall": 16.412,
+       "read_mb": 285.91616,
+       "prefill_tps": 2665.0215916101174,
+       "decode_tps": 95.33097647202243,
+       "ws_gb": 40.258531328,
+       "avail_gb": 15.499608064
+      },
+      {
+       "wall": 16.083,
+       "read_mb": 13.436416,
+       "prefill_tps": 2662.0655656889326,
+       "decode_tps": 99.52908234695177,
+       "ws_gb": 40.25853952,
+       "avail_gb": 15.812624384
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "model_load": [
+  {
+   "workload": "s6",
+   "condition": "direct",
+   "load_seconds": 16.9,
+   "disk_read_bytes": 36213368832
+  },
+  {
+   "workload": "s6",
+   "condition": "mmap",
+   "load_seconds": 16.8,
+   "disk_read_bytes": 36199331328
+  },
+  {
+   "workload": "s6",
+   "condition": "rowcache16m",
+   "load_seconds": 16.9,
+   "disk_read_bytes": 36200146432
+  },
+  {
+   "workload": "s6b",
+   "condition": "direct",
+   "load_seconds": 16.3,
+   "disk_read_bytes": 36200631296
+  },
+  {
+   "workload": "s6b",
+   "condition": "mmap",
+   "load_seconds": 16.3,
+   "disk_read_bytes": 36213729280
+  },
+  {
+   "workload": "s6b",
+   "condition": "rowcache16m",
+   "load_seconds": 16.8,
+   "disk_read_bytes": 36211738112
+  }
+ ]
+}

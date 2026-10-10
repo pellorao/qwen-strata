@@ -32,6 +32,10 @@ class LauncherTests(unittest.TestCase):
         settings = json.loads(command[command.index('--settings') + 1])
         self.assertTrue(settings['skipWebFetchPreflight'])
         self.assertEqual(settings['permissions']['deny'], ['WebSearch'])
+        self.assertEqual(settings['autoMode']['environment'][0], '$defaults')
+        self.assertIn('mcp__brave', settings['autoMode']['environment'][1])
+        compact = settings['hooks']['PreCompact'][0]['hooks'][0]['command']
+        self.assertTrue(compact.startswith('cat ') and compact.endswith('config/prompts/compact-prompt.txt'))
         self.assertEqual(command[command.index('--mcp-config') + 2], '--permission-mode')
         server = json.loads(command[command.index('--mcp-config') + 1])['mcpServers']['brave']
         self.assertTrue(server['args'][0].endswith('src/brave_mcp.py'))
@@ -40,6 +44,16 @@ class LauncherTests(unittest.TestCase):
         self.assertEqual(env['ANTHROPIC_BASE_URL'], 'http://192.168.60.212:8000/strata')
         self.assertEqual(env['ANTHROPIC_AUTH_TOKEN'], 'lease-key')
         self.assertEqual({env[k] for k in env if k.endswith('_MODEL')}, {'qwen3.8-flash-next-q2_0'})
+
+    def test_claude_strata_approval_uses_hook_instead_of_auto_mode(self):
+        command, env = agent.claude(Fake(), 'qwen3.8-flash-next-q2_0', 'high', ['-p', 'hi'], 'strata')
+        self.assertEqual(command[command.index('--permission-mode') + 1], 'default')
+        settings = json.loads(command[command.index('--settings') + 1])
+        self.assertNotIn('autoMode', settings)
+        hook = settings['hooks']['PermissionRequest'][0]['hooks'][0]
+        self.assertTrue(hook['command'].endswith('bin/qwen-approve'))
+        self.assertGreaterEqual(hook['timeout'], 150)
+        self.assertIn('PreCompact', settings['hooks'])
 
 
 if __name__ == '__main__':

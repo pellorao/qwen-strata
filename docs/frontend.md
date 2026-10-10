@@ -14,7 +14,7 @@
 - 客户端允许列表按本机各网卡子网动态计算（每 60 秒刷新），WSL 虚拟网卡子网每次开机变化也能自动覆盖。
 - 租约只在内存中。前端启动时会先停掉遗留的模型进程，因此重启前端等于强制回收。没有超时回收。
 - 采样默认值写入原生运行配置的 `sampling`；前端只为 Chat 和 Responses 补推理强度、思考预算和输出上限。
-- 原生服务丢弃 `web_search` 等服务端托管工具。前端 `src/hosted_search.py` 为 Responses 流式请求补上，经 `src/brave_search.py` 调用 Brave；搜索结果只在本次租约内存中保存。
+- 原生服务丢弃 `web_search` 等服务端托管工具。前端 `src/hosted_search.py` 为 Responses 流式请求补上，经 `src/brave_search.py` 调用 Brave；搜索结果按随机 id 存在前端内存，跨租约保留以便 resume 回放，超过上限淘汰最旧的，前端重启清空。
 - 日志 `logs/frontend.log` 每行带本地时间（毫秒），用于计算工作时间。
 
 ## 一次性安装（需要管理员授权）

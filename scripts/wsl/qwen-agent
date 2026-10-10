@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run Codex or Claude Code on the local Strata model, from lease to release.
 
-Usage: qwen-agent [--model Q2_0] [--effort high] {codex|claude} [agent arguments...]
+Usage: qwen-agent [--model Q2_0] [--effort high] [--approval auto|strata] {codex|claude} [agent arguments...]
 
 Takes the frontend lease (fails if someone else holds it), starts the model,
 runs the agent with the key in its environment, then stops the model and
@@ -22,6 +22,7 @@ MODELS = {'Q2_0': 'q2_0', 'IQ2_XS': 'iq2_xs', 'IQ3_XXS': 'iq3_xxs'}
 CONTEXT_WINDOW = 156584
 AUTO_COMPACT = 100000
 MAX_OUTPUT = 24576
+APPROVE_TIMEOUT = 180  # seconds Claude Code waits for bin/qwen-approve
 
 
 class Frontend:
@@ -64,14 +65,34 @@ def codex(frontend, model, effort, arguments):
     return ['codex', *overrides, *arguments], {'QWEN_STRATA_KEY': frontend.key}
 
 
-def claude(frontend, model, effort, arguments):
+BRAVE_NOTE = ('The built-in WebSearch tool is denied only because this session runs on a local model that cannot '
+              'serve it. The mcp__brave tools (web_search, open_page, find_in_page) are the sanctioned replacement '
+              'for web search and page reading, not a way around that deny rule.')
+
+
+def claude(frontend, model, effort, arguments, approval='auto'):
     # Nothing may fall back to Anthropic services: search comes from the Brave MCP server,
-    # WebFetch skips its Anthropic domain lookup, and auto mode's safety checks run on this model.
-    settings = {'skipWebFetchPreflight': True, 'permissions': {'deny': ['WebSearch']}}
+    # WebFetch skips its Anthropic domain lookup, and approvals run on this model.
+    # A PreCompact hook's stdout is appended to Claude Code's own summary instructions: the project
+    # compact prompt is added to every compaction, never replacing the built-in one.
+    compact = {'type': 'command', 'command': f'cat {INSTALL / "config/prompts/compact-prompt.txt"}'}
+    settings = {'skipWebFetchPreflight': True, 'permissions': {'deny': ['WebSearch']},
+                'hooks': {'PreCompact': [{'hooks': [compact]}]}}
+    if approval == 'auto':
+        # The auto mode classifier treats any tool doing what a deny rule blocks as circumvention, so it is told
+        # that the Brave tools replace WebSearch; its default rules (exfiltration and the rest) still apply.
+        mode = 'auto'
+        settings['autoMode'] = {'environment': ['$defaults', BRAVE_NOTE]}
+    else:
+        # Every permission prompt goes to bin/qwen-approve, which asks this model with its own short policy.
+        mode = 'default'
+        hook = {'type': 'command', 'command': f'{sys.executable} {INSTALL / "bin/qwen-approve"}',
+                'timeout': APPROVE_TIMEOUT}
+        settings['hooks']['PermissionRequest'] = [{'matcher': '*', 'hooks': [hook]}]
     servers = {'mcpServers': {'brave': {'type': 'stdio', 'command': sys.executable,
                                         'args': [str(INSTALL / 'src/brave_mcp.py')]}}}
     # --mcp-config takes several values, so a single-value option must follow it before the caller's arguments.
-    options = ['--mcp-config', json.dumps(servers), '--permission-mode', 'auto', '--settings', json.dumps(settings)]
+    options = ['--mcp-config', json.dumps(servers), '--permission-mode', mode, '--settings', json.dumps(settings)]
     environment = {
         'ANTHROPIC_BASE_URL': frontend.base + '/strata', 'ANTHROPIC_AUTH_TOKEN': frontend.key,
         'ANTHROPIC_MODEL': model, 'ANTHROPIC_DEFAULT_OPUS_MODEL': model,
@@ -87,6 +108,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--model', choices=MODELS, default='Q2_0')
     parser.add_argument('--effort', choices=('low', 'medium', 'high'), default='high', help='Codex reasoning effort')
+    parser.add_argument('--approval', choices=('auto', 'strata'), default='auto',
+                        help='Claude Code approvals: built-in auto mode, or bin/qwen-approve with its own policy')
     parser.add_argument('agent', choices=('codex', 'claude'))
     parser.add_argument('arguments', nargs=argparse.REMAINDER)
     args = parser.parse_args()
@@ -99,7 +122,10 @@ def main():
     try:
         print(f'qwen-agent: starting {args.model}...', file=sys.stderr, flush=True)
         frontend.call('/model/start', {'model': args.model})
-        command, environment = (codex if args.agent == 'codex' else claude)(frontend, model, args.effort, args.arguments)
+        if args.agent == 'codex':
+            command, environment = codex(frontend, model, args.effort, args.arguments)
+        else:
+            command, environment = claude(frontend, model, args.effort, args.arguments, args.approval)
         env = {k: v for k, v in os.environ.items() if not k.startswith(('ANTHROPIC_', 'OPENAI_'))}
         process = subprocess.Popen(command, env=dict(env, **environment))
         while True:

@@ -102,6 +102,17 @@ class FetchTests(unittest.TestCase):
                 brave_search.fetch('https://example.com/', {})
         self.assertEqual(error.exception.code, 'invalid_url')
 
+    def test_compressed_pages_are_decoded_within_the_limit(self):
+        import gzip
+        self.assertEqual(brave_search.decoded(gzip.compress(PAGE), {'Content-Encoding': 'gzip'}), PAGE)
+        self.assertEqual(brave_search.decoded(PAGE, {}), PAGE)
+        bomb = gzip.compress(b'a' * (brave_search.PAGE_LIMIT + 1))
+        for raw, headers, code in ((bomb, {'Content-Encoding': 'gzip'}, 'response_too_large'),
+                                   (PAGE, {'Content-Encoding': 'br'}, 'unsupported_content')):
+            with self.assertRaises(SearchError) as error:
+                brave_search.decoded(raw, headers)
+            self.assertEqual(error.exception.code, code)
+
 
 class KeyTests(unittest.TestCase):
     def test_key_from_installation_private_file(self):

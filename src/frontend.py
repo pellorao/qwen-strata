@@ -76,11 +76,12 @@ class Frontend:
         self.key_sha256 = None
         self.loaded_model = None
         self.networks, self.networks_at = [], 0.0
+        self.search_results = hosted_search.Results()  # outlive leases: a resumed conversation replays them
         self.new_search_session()
 
     def new_search_session(self):
-        # Search pages and replayable results belong to one lease.
-        self.search, self.search_results = BraveSearch(), {}
+        # Pages read for open/find belong to one lease.
+        self.search = BraveSearch()
 
     def allowed(self, client):
         if time.monotonic() - self.networks_at > 60:
@@ -225,6 +226,8 @@ class Handler(BaseHTTPRequestHandler):
                     raise Refused(400, str(error)) from None
                 if hosted:
                     return self.hosted(body, native_key)
+                # Requests without the tool (e.g. Codex compaction) still replay earlier searches.
+                body['input'] = hosted_search.native_input(body.get('input'), frontend.search_results)
             raw = json.dumps(body, ensure_ascii=False).encode()
         headers = {k: v for k, v in self.headers.items()
                    if k.lower() in ('content-type', 'accept', 'anthropic-version', 'anthropic-beta')}

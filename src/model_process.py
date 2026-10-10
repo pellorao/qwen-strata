@@ -151,13 +151,20 @@ class ModelProcess:
         config_path.write_text(json.dumps(config), encoding='utf-8')
         key = secrets.token_urlsafe(32)
         (ROOT / 'logs').mkdir(exist_ok=True)
+        # The frontend runs under pythonw (no console). A console-less parent makes the engine
+        # (strata.exe, a console program) open its own visible window, so the native service gets
+        # a hidden console that the engine inherits.
+        python = Path(sys.executable).with_name('python.exe')
+        hidden = {}
+        if os.name == 'nt':
+            startup = subprocess.STARTUPINFO(dwFlags=subprocess.STARTF_USESHOWWINDOW, wShowWindow=0)  # SW_HIDE
+            hidden = {'startupinfo': startup, 'creationflags': subprocess.CREATE_NEW_CONSOLE}
         with (ROOT / 'logs/model-server.log').open('ab') as log:
             process = subprocess.Popen(
-                [sys.executable, '-B', str(ENTRY), '--engine', 'strata', '--config', str(config_path),
+                [str(python if python.exists() else sys.executable), '-B', str(ENTRY), '--engine', 'strata', '--config', str(config_path),
                  '--host', '127.0.0.1', '--port', str(self.port)],
                 cwd=RUNTIME, stdin=subprocess.DEVNULL, stdout=log, stderr=log,
-                env=dict(os.environ, STRATA_API_KEY=key, **env),
-                creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+                env=dict(os.environ, STRATA_API_KEY=key, **env), **hidden)
         deadline = time.monotonic() + LOAD_TIMEOUT
         try:
             while time.monotonic() < deadline:
@@ -189,13 +196,19 @@ class ModelProcess:
                 clean = True
             except (OSError, ValueError):
                 clean = False
+        owned = []
         for process in processes:
-            for owned in [*process.children(recursive=True), process]:
-                try:
-                    owned.kill()
-                except psutil.NoSuchProcess:
-                    pass
-        psutil.wait_procs(processes, timeout=15)
+            try:  # the tree changes while it is walked (an unloaded engine or its console host may exit)
+                owned += process.children(recursive=True)
+            except psutil.NoSuchProcess:
+                pass
+            owned.append(process)
+        for process in owned:
+            try:
+                process.kill()
+            except psutil.NoSuchProcess:
+                pass
+        psutil.wait_procs(owned, timeout=15)
         self.native_key, self.reasoning_defaults = None, {}
         if not self.stopped():
             raise RuntimeError('Native model processes did not stop.')
