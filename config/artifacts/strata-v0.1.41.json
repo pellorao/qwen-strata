@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "status": "installed-rtx3080ti-sha-verified-short-call-chain-checked",
+  "version": "0.1.41",
+  "commit": "fb58e0dbc8399662c0e47c76578c6e878b14f6cf",
+  "engine_version": "0.1.41",
+  "source": {
+    "project_file": "artifacts/strata/0.1.41/source.zip",
+    "bytes": 19149640,
+    "sha256": "b6b559866cf7d422d7acace638d542049ea7e3543720f574cb97b2d0bd530d7b",
+    "url": "https://codeload.github.com/Niko1221/Strata/zip/fb58e0dbc8399662c0e47c76578c6e878b14f6cf"
+  },
+  "engine": {
+    "project_file": "artifacts/strata/0.1.41/engine.zip",
+    "bytes": 137164559,
+    "sha256": "3dd7715f4844c0f9d2f28eb5067af0198f386df060c93523cd17e1d65b757f13",
+    "url": "https://github.com/Niko1221/Strata/releases/download/v0.1.41/strata-windows-x64.zip"
+  },
+  "build": {
+    "version": "0.1.41",
+    "source": "release",
+    "archs": [
+      75,
+      86,
+      89,
+      120
+    ],
+    "ptx": true,
+    "cuda": "13.0",
+    "vision": "gpu",
+    "portable": true
+  },
+  "instruction_dependency_comparison": {
+    "AGENTS.md": {
+      "unchanged": false,
+      "previous_sha256": "dcb3e9e4d58da5edba2be982f525dd4ace190959ef139a858e11a70a90bb0bed",
+      "new_sha256": "db66231d3d037ac2c5bdb3eaabf3bde0a23ecfb9e69970b088fbdf6be57c0671",
+      "review": "Only adds a \"Contributing a change or report\" section (contributor guidance); no runtime or agent-behaviour instructions changed."
+    },
+    "requirements.txt": {
+      "unchanged": true,
+      "previous_sha256": "b9c75993366079fbbcf80deb544e12f932228cf3c98f34b2481d45e1afddd5a8",
+      "new_sha256": "b9c75993366079fbbcf80deb544e12f932228cf3c98f34b2481d45e1afddd5a8"
+    }
+  },
+  "currently_installed": {
+    "rtx3080ti": true,
+    "rtx4070tis": "pending-sync (offline)"
+  },
+  "upstream_files_written": 2426,
+  "removed_upstream_files": [],
+  "backup_on_rtx3080ti": ".tmp/maintenance-backups/release-backup-20261010-045818-421025"
+}

@@ -42,7 +42,7 @@
       "new_sha256": "b9c75993366079fbbcf80deb544e12f932228cf3c98f34b2481d45e1afddd5a8"
     }
   },
-  "currently_installed": true,
+  "currently_installed": false,
   "cpu_share_source_inspection": {
     "path": "src/prefill/prefill.cpp",
     "sha256": "cfe076cc4b34cb03018c30a455bc0f5c583f8ee47fd4c33afc4bcd6624f42be3",

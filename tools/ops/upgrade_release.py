@@ -80,8 +80,14 @@ def upgrade(root, metadata, source, engine, cuda_arch=89):
                 raise RuntimeError('Unexpected source archive entry')
             relative = member(info.filename[len(prefix):])
             writes['runtime/Strata/' + relative] = archive.read(info)
+    # A changed file passes only when metadata binds the exact new bytes a maintainer reviewed.
+    reviewed, changed = metadata.get('reviewed_changes', {}), []
     for name in ('AGENTS.md', 'requirements.txt'):
-        if writes['runtime/Strata/' + name] != (root / 'runtime/Strata' / name).read_bytes():
+        data = writes['runtime/Strata/' + name]
+        if data == (root / 'runtime/Strata' / name).read_bytes():
+            continue
+        changed.append(name)
+        if reviewed.get(name) != hashlib.sha256(data).hexdigest():
             raise RuntimeError('Changed instructions/dependencies require review: ' + name)
     if not re.search(r'\bVERSION\s+' + re.escape(engine_version) + r'(?:\s|\)|$)', writes['runtime/Strata/CMakeLists.txt'].decode()):
         raise RuntimeError('Source version does not match release')
@@ -133,7 +139,8 @@ def upgrade(root, metadata, source, engine, cuda_arch=89):
               'installed_engine_unchanged': installed_engine_unchanged,
               'written_sha256': {r: sha(root / r) for r in writes}, 'removed_upstream_files': sorted(removals),
               'model_weights_modified': False, 'model_configuration_modified': False,
-              'dependencies_modified': False}
+              'dependencies_modified': 'requirements.txt' in changed,
+              'reviewed_changes': {n: reviewed[n] for n in changed}}
     atomic(backup / 'upgrade.json', (json.dumps(result, indent=2) + '\n').encode())
     return result
 

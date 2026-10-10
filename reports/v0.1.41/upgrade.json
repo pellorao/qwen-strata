@@ -1,0 +1,144 @@
+{
+  "status": "installed-rtx3080ti-short-check-passed",
+  "date": "2026-10-10",
+  "strata": {
+    "version": "0.1.41",
+    "commit": "fb58e0dbc8399662c0e47c76578c6e878b14f6cf"
+  },
+  "official_release": "https://github.com/Niko1221/Strata/releases/tag/v0.1.41",
+  "engine_zip": {
+    "bytes": 137164559,
+    "sha256": "3dd7715f4844c0f9d2f28eb5067af0198f386df060c93523cd17e1d65b757f13"
+  },
+  "source_zip": {
+    "bytes": 19149640,
+    "sha256": "b6b559866cf7d422d7acace638d542049ea7e3543720f574cb97b2d0bd530d7b"
+  },
+  "engine_build": {
+    "version": "0.1.41",
+    "source": "release",
+    "archs": [
+      75,
+      86,
+      89,
+      120
+    ],
+    "ptx": true,
+    "cuda": "13.0",
+    "vision": "gpu",
+    "portable": true
+  },
+  "upstream_files_written": 2426,
+  "removed_upstream_files": [],
+  "reviewed_changes": {
+    "AGENTS.md": "db66231d3d037ac2c5bdb3eaabf3bde0a23ecfb9e69970b088fbdf6be57c0671"
+  },
+  "dependencies_modified": false,
+  "model_weights_modified": false,
+  "hosts": {
+    "rtx3080ti": "installed",
+    "rtx4070tis": "offline, pending sync"
+  },
+  "prompts": {
+    "startup_instructions_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "compact_prompt_sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+    "installed_equals_project": true
+  },
+  "harness": {
+    "claude_code": "2.1.296",
+    "codex": "0.162.0",
+    "claude_approval": "strata"
+  },
+  "stages": {
+    "c1-tools-search": {
+      "exit": 0,
+      "wall_seconds": 52.474,
+      "load_seconds": 16.32,
+      "entry_requests": 5,
+      "engine_segments": 5,
+      "tokens": {
+        "uncached_input": 36200,
+        "cached_input": 18382,
+        "output": 650
+      },
+      "engine_input_tokens_per_second": 1378.3125190374658,
+      "engine_output_tokens_per_second": 103.15822885256308,
+      "engine_input_seconds": 26.264,
+      "engine_decode_seconds": 6.301
+    },
+    "c2-compact": {
+      "exit": 0,
+      "wall_seconds": 53.727,
+      "load_seconds": 16.851,
+      "entry_requests": 1,
+      "engine_segments": 1,
+      "tokens": {
+        "uncached_input": 20256,
+        "cached_input": 0,
+        "output": 1737
+      },
+      "engine_input_tokens_per_second": 1047.2005376622035,
+      "engine_output_tokens_per_second": 110.84168208793312,
+      "engine_input_seconds": 19.343,
+      "engine_decode_seconds": 15.671
+    },
+    "c3-resume": {
+      "exit": 0,
+      "wall_seconds": 37.441,
+      "load_seconds": 16.371,
+      "entry_requests": 1,
+      "engine_segments": 1,
+      "tokens": {
+        "uncached_input": 17940,
+        "cached_input": 0,
+        "output": 135
+      },
+      "engine_input_tokens_per_second": 1032.2209436133487,
+      "engine_output_tokens_per_second": 103.44827586206897,
+      "engine_input_seconds": 17.38,
+      "engine_decode_seconds": 1.305
+    },
+    "x1-codex": {
+      "exit": 0,
+      "wall_seconds": 38.451,
+      "load_seconds": 16.859,
+      "entry_requests": 2,
+      "engine_segments": 2,
+      "tokens": {
+        "uncached_input": 11537,
+        "cached_input": 9282,
+        "output": 434
+      },
+      "engine_input_tokens_per_second": 828.0341634967344,
+      "engine_output_tokens_per_second": 109.70677451971689,
+      "engine_input_seconds": 13.933,
+      "engine_decode_seconds": 3.956
+    }
+  },
+  "total_tokens": {
+    "uncached_input": 85933,
+    "cached_input": 27664,
+    "output": 2956
+  },
+  "work_seconds_excluding_loads": 115.692,
+  "task_input_tokens_per_second": 742.7739169519068,
+  "task_output_tokens_per_second": 25.550599868616672,
+  "work_time_note": "Wall time of each qwen-agent run minus model load (lease acquire to model start); includes model stop and lease release, so it is an upper bound on work time.",
+  "checks": {
+    "generation": true,
+    "bash_tool_via_qwen_approve": true,
+    "read_tool": true,
+    "brave_mcp_search": true,
+    "manual_compaction_with_precompact_hook": true,
+    "same_session_resume_without_tools": true,
+    "codex_shell": true,
+    "codex_hosted_web_search": true
+  },
+  "not_checked": [
+    "read-only file MCP (not wired into qwen-agent)",
+    "denied approval path",
+    "automatic compaction",
+    "looping behaviour reported upstream (#1622)",
+    "performance comparison with 0.1.40.2"
+  ]
+}

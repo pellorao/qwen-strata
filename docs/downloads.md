@@ -1,8 +1,16 @@
 # 下载与恢复清单
 
-当前双机已安装v0.1.40.2，源码及NVIDIA引擎下载完整性、每机2264文件回读和限定短调用链检查已完成，见[升级报告](../reports/v0.1.40.2/upgrade.md)。单个不超过200MB的文件可由助手下载；超过200MB的模型等由用户下载，来源与校验由工程维护。以下链接供恢复及后续升级核对。旧0.1.40／0.1.40.1制品继续作为历史恢复来源保留。
+rtx3080ti 已于 2026-10-10 安装 v0.1.41，见[升级报告](../reports/v0.1.41/upgrade.md)；rtx4070tis 离线，仍为 v0.1.40.2，恢复后待同步。单个不超过200MB的文件可由助手下载；超过200MB的模型等由用户下载，来源与校验由工程维护。以下链接供恢复及后续升级核对。旧0.1.40／0.1.40.1制品继续作为历史恢复来源保留。
 
 探索下载的候选模型、分词器和配套文件统一放工程`.tmp/`；仅在确认需要采用后才进入`artifacts/`。工程长期保留公共来源、固定版本、大小、SHA及必要结果，临时缓存位置不表示已采用或已部署；清空临时目录后重新下载／准备。此规则同时适用于助手和提供给用户的探索下载路径。
+
+## Strata v0.1.41（rtx3080ti 已安装）
+
+2026-10-10 核对官方最新发布，标签提交 `fb58e0dbc8399662c0e47c76578c6e878b14f6cf`。
+
+- 引擎：[strata-windows-x64.zip](https://github.com/Niko1221/Strata/releases/download/v0.1.41/strata-windows-x64.zip)，137164559 字节，官方 SHA256 `3dd7715f4844c0f9d2f28eb5067af0198f386df060c93523cd17e1d65b757f13`，下载后已核对一致。
+- 源码：[提交 ZIP](https://github.com/Niko1221/Strata/archive/fb58e0dbc8399662c0e47c76578c6e878b14f6cf.zip)，19149640 字节，本地 SHA256 `b6b559866cf7d422d7acace638d542049ea7e3543720f574cb97b2d0bd530d7b`（GitHub 归档没有官方摘要）。
+- 已采用：工程文件为 `artifacts/strata/0.1.41/engine.zip` 和 `artifacts/strata/0.1.41/source.zip`，版本清单见[制品清单](../config/artifacts/strata-v0.1.41.json)，`strata-release.json` 已指向本版。
 
 ## Strata v0.1.40下载记录
 
@@ -10,9 +18,9 @@
 
 - 下载：[strata-windows-x64.zip](https://github.com/Niko1221/Strata/releases/download/v0.1.40/strata-windows-x64.zip)。
 - 大小：131707082字节，约131.7MB／125.6MiB，在助手200MB下载上限以内。
-- 本次由助手保存到工程`.tmp/strata-upgrade-current/strata-windows-x64-v0.1.40.zip`，不再需要用户下载。
+- 当时由助手下载，临时副本已清理；需要恢复时按上面的链接重新下载并核对 SHA。
 - 官方SHA256：`cd264b2125fdb85e84a8264da2ab2343463e6c7f9a12f317d4ce7192cd2c6b33`。
-- [官方发布页](https://github.com/Niko1221/Strata/releases/tag/v0.1.40)；完整元数据和源码准备放在`.tmp/strata-upgrade-current/`，已完成的长期升级结果见[升级报告](../reports/v0.1.40/upgrade.md)。
+- [官方发布页](https://github.com/Niko1221/Strata/releases/tag/v0.1.40)；已完成的长期升级结果见[升级报告](../reports/v0.1.40/upgrade.md)。
 
 已核对大小、官方SHA、ZIP CRC、构建版本及sm_89，并通过维护独占及启动互斥完成安装；模型未启动，维护key已归还。完整结果见[安装记录](../reports/v0.1.40/installation.json)。
 

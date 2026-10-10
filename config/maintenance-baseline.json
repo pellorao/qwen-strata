@@ -4,8 +4,8 @@
   "selected_by": "user",
   "reason": "User selects high as the base running effort after observing shorter task times in the current effort comparison.",
   "strata": {
-    "version": "0.1.40.2",
-    "commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a"
+    "version": "0.1.41",
+    "commit": "fb58e0dbc8399662c0e47c76578c6e878b14f6cf"
   },
   "start_options": {
     "model": "Q2_0",
@@ -116,6 +116,6 @@
     "scope": "Other parameters inherited from the v0.1.38 published baseline; that historical file is unchanged."
   },
   "selection_evidence": "reports/v0.1.38/reasoning-effort-comparison/summary.md",
-  "qualification": "v0.1.40.2 passed one bounded short call-chain observation per host, with recorded remote driver recovery. User-selected parameters retained; full safety quality, 100K reliability and ARW Reviewer acceptance are not established.",
+  "qualification": "v0.1.41 installed on rtx3080ti only (rtx4070tis offline, pending sync); short call-chain check recorded in reports/v0.1.41/upgrade.md. User-selected parameters retained; full safety quality, 100K reliability and ARW Reviewer acceptance are not established.",
   "model_run_performed_for_selection": false
 }

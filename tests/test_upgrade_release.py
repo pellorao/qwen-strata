@@ -98,6 +98,19 @@ class UpgradeTests(unittest.TestCase):
         self.assertFalse((self.root/'.tmp').exists())
         self.assertFalse((self.project/'.tmp').exists())
 
+    def test_changed_instructions_need_review_bound_to_exact_bytes(self):
+        with zipfile.ZipFile(self.source,'a') as z:z.writestr('Strata-fixed/AGENTS.md','Instructions v2')
+        self.metadata['reviewed_changes']={'AGENTS.md':hashlib.sha256(b'Other text').hexdigest()}
+        with self.assertRaisesRegex(RuntimeError,'require review: AGENTS.md'):
+            upgrade_release.upgrade(self.root,self.metadata,self.source,self.engine)
+        self.assertFalse((self.project/'.tmp').exists())
+        digest=hashlib.sha256(b'Instructions v2').hexdigest()
+        self.metadata['reviewed_changes']={'AGENTS.md':digest}
+        result=upgrade_release.upgrade(self.root,self.metadata,self.source,self.engine)
+        self.assertEqual((self.root/'runtime/Strata/AGENTS.md').read_text(),'Instructions v2')
+        self.assertEqual(result['reviewed_changes'],{'AGENTS.md':digest})
+        self.assertFalse(result['dependencies_modified'])
+
     def test_archive_path_traversal_is_rejected_before_backup(self):
         with zipfile.ZipFile(self.source,'a') as z:z.writestr('Strata-fixed/../../escape.txt','bad')
         with self.assertRaisesRegex(ValueError,'Unsafe ZIP'):
