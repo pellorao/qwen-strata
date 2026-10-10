@@ -27,13 +27,12 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 
 规则见 `.claude/rules/loop-detection.md`。数据：[全集标注](../benchmarks/loop-detection-v2/annotation-summary.md) 235 会话 / 5303 行为 / 156 组循环。
 
-- [ ] 把全集标注转成因果重放输入：**等审核[评分合同决定](../benchmarks/loop-detection-v2/cross-call-replay-decision.md)**——74 组跨调用循环全部夹有正常记录、231/290 条标记记录同时含正常内容、28 对组重叠，现有重放核心的拆分 / 整条跳过 / 互斥假设都不成立。原要求：跨调用组按真实正常插入拆分，绑定首次应触发位置和正常恢复位置；单响应组保留唯一可观察点。次数下界和缺失日志边界保留，不把未知记零。
-- [ ] 完成全量评分适配（目前只有 21 项模拟回归通过）。上游 v0.1.41 自带的推理重复检测在本语料上只覆盖 5/81 组单响应循环、0/54 组跨调用推理循环，不能替代，见[离线发现](../reports/v0.1.41/upstream-loop-guard/summary.md)。联合检测器 F1＝1 才算通过；部分开发分数不算全量结果。
-- [ ] 审核[完整循环定义](../benchmarks/loop-detection-v2/repetition-definition.md)和[Strata 判别配置](../benchmarks/loop-detection-v2/strata-judge-design.md)，再冻结首批场景、标签和预算。当前候选：每轮输出一个循环概率，low 2048 思考；上下文持续追加，8K 重建 / 16K 上限，重建时回到最近四轮。真实模型未运行。
-- [ ] 确定[动态全文比较方案](../benchmarks/loop-detection-v2/dynamic-text-plan.md)和语义改写的处理边界，设计纯程序机械判断；先审核比较单位、阈值、状态重置和时机再实现。
-- [ ] 两条独立基线完成后评估组合，融合 / 分歧 / 触发逻辑先审核，不自动选 OR / AND / 加权。
-- [ ] 排除正常行为：不同要求的映射、一次合理复核、真实修复、输入变化、镜像 / 压缩、驱动重建。当前文本原型会误报正常审核。
-- [ ] 全量覆盖和反例回归通过后，申请一次 rtx3080ti 试跑；只跑一次，报告后由用户决定是否完成三次。
+评分合同 v3、因果重放（`tools/loop/corpus_replay.py`）和开发集 / 验证集划分已完成。2026-10-10 用户决定：只用机械规则（`tools/loop/mechanical.py`），检测到重复只提醒 agent 自查，不中断；模型判断路线已关闭（[报告](../reports/v0.1.41/loop-strata-judge/summary.md)）。
+
+- [ ] 由用户决定是否继续改机械规则（当前开发集 F1 0.6123，首次命中 102/118）。主要误报：单条长推理里的正常反复推敲、压缩摘要、状态复述。
+- [ ] 实现提醒：把机械规则接到 agent（Codex / Claude Code）上，检测到重复时注入提醒，不拒绝调用。提醒的时机和措辞先审核。
+- [ ] 门槛：联合 F1 ≥ 0.8 原本是为"拒绝调用"设定的；改为只提醒后是否保留，由用户决定。门槛确认在验证集上做一次。
+- [ ] 清理旧的关键词循环工具（`tools/loop/` 下的 `reasoning_loop_guard.py`、`command_loop_guard.py`、`progress_guard.py` 等）和 `tools/README.md`。
 
 ## ARW 同步与 Spec 恢复
 

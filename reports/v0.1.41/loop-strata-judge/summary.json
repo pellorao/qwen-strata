@@ -1,0 +1,79 @@
+{
+ "status": "closed",
+ "decision": {
+  "date": "2026-10-10",
+  "by": "user",
+  "text": "Drop Strata model judgment of repeats; mechanical rule only; on detection send a reminder to self-check for a no-progress loop, never force an interrupt."
+ },
+ "scope": {
+  "host": "rtx3080ti",
+  "strata": "0.1.41",
+  "model": "Q2_0",
+  "effort": "low",
+  "thinking_tokens": 512,
+  "corpus": "benchmarks/loop-detection-v2 development split",
+  "contract": "v3",
+  "validation_read": false
+ },
+ "development_f1": {
+  "mechanical_r3": {
+   "f1": 0.6123,
+   "tp": 121.3,
+   "fn": 22.7,
+   "fp": 131,
+   "first_hits": 102,
+   "first_targets": 118
+  },
+  "route_b_all_cross_flags": {
+   "f1": 0.6212,
+   "tp": 96.43,
+   "fn": 47.57,
+   "fp": 70,
+   "first_hits": 82,
+   "first_targets": 118,
+   "keep_rate": 0.7557,
+   "reject_rate": 0.6224,
+   "flags": 236
+  },
+  "route_b_ceiling": 0.8134,
+  "combination_rules": {
+   "same_step": 0.6233,
+   "same_step_and_no_progress": 0.6233,
+   "no_progress": 0.601
+  }
+ },
+ "mechanical_rounds": {
+  "r0": 0.317,
+  "r1": 0.4385,
+  "r1c": 0.4918,
+  "r2": 0.5615,
+  "r3": 0.6123
+ },
+ "inside_digest": {
+  "records": 100,
+  "broken": 34,
+  "hit_max_tokens": 27,
+  "echoed_record_instruction": 2,
+  "minutes": 43.5,
+  "target_ge_3": {
+   "targets": [
+    18,
+    41
+   ],
+   "false_alarms": [
+    11,
+    23
+   ]
+  }
+ },
+ "route_a_window_first_hits": [
+  9,
+  38
+ ],
+ "tokens_s7": {
+  "uncached_input": 601098,
+  "cached_input": 479448,
+  "output": 118937
+ },
+ "source_commit": "9d47d8d"
+}

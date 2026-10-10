@@ -6,9 +6,6 @@ that is close enough to earlier segments of the same trace forms a recurrence ch
 when some chain reaches K occurrences. Tool records compare the whole call and its result. A task or feedback input
 that brings new content (a segment unlike every earlier input segment) starts a new epoch: answers to a changed input
 are not repeats of answers to the old one. An input that only repeats earlier input ("continue") changes nothing.
-After each record, `internal` tells whether a reported repeat was found inside that record alone, and `evidence` lists
-the matched segment pairs (earlier record number, earlier words, words); an exact tool repeat names the earlier
-record with no words.
 """
 from collections import Counter, defaultdict
 import json
@@ -46,14 +43,10 @@ def tool_text(payload):
 
 class Mechanical:
     def reset(self, trace):
-        self.seen = []                       # (Counter, chain size, epoch, record number) per earlier segment
-        self.words = []                      # the words of each earlier segment
-        self.record = 0                      # number of the record being observed
-        self.internal = False                # the last repeat was found inside one record
-        self.evidence = []                   # (earlier record number, earlier words, words) for the last record
+        self.seen = []                       # (Counter, chain size, epoch) per earlier segment
         self.frequency = Counter()           # in how many earlier segments each term occurs
         self.index = defaultdict(list)       # term -> earlier segment numbers
-        self.tools = defaultdict(list)       # exact call + result text -> record numbers
+        self.tools = Counter()               # exact call + result text -> occurrences
         self.inputs = []                     # Counter per earlier task / feedback segment
         self.epoch = 0
 
@@ -67,21 +60,16 @@ class Mechanical:
 
     def _add(self, words):
         vector = Counter(words)
-        match = None
         rare = sorted(vector, key=lambda t: self.frequency[t])[:CANDIDATE_TERMS]
         candidates = Counter(n for t in rare for n in self.index[t])
-        chain, inside = 1, False
+        chain = 1
         for number, shared in candidates.items():
-            earlier, size, epoch, record = self.seen[number]
+            earlier, size, epoch = self.seen[number]
             if (shared >= 2 and epoch == self.epoch and size + 1 > chain
                     and self._cosine(vector, earlier) >= SIMILARITY):
-                chain, inside, match = size + 1, record == self.record, number
-        if chain >= K:
-            self.internal = self.internal or inside
-            self.evidence.append((self.seen[match][3], self.words[match], words))
+                chain = size + 1
         number = len(self.seen)
-        self.seen.append((vector, chain, self.epoch, self.record))
-        self.words.append(words)
+        self.seen.append((vector, chain, self.epoch))
         for t in vector:
             self.frequency[t] += 1
             self.index[t].append(number)
@@ -89,16 +77,11 @@ class Mechanical:
 
     def observe(self, observation):
         payload = observation.payload
-        self.record += 1
-        self.internal, self.evidence = False, []
         kind = payload.get('kind')
         if kind == 'tool':
             text = tool_text(payload)
-            earlier = self.tools[text]
-            if earlier:
-                self.evidence.append((earlier[-1], [], []))
-            earlier.append(self.record)
-            chain = len(earlier)
+            self.tools[text] += 1
+            chain = self.tools[text]
             for words in segments(json.dumps(payload.get('arguments'), ensure_ascii=False)):
                 self._add(words)
         elif kind in ('reasoning', 'assistant'):
