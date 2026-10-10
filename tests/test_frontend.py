@@ -160,7 +160,7 @@ class ConfigurationTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         root = Path(self.temp.name)
         (root / 'config').mkdir()
-        (root / 'config/q2_0-prebuilt.json').write_text(json.dumps({
+        (root / 'config/iq3_xxs-prebuilt.json').write_text(json.dumps({
             'args': ['--max-context', '156584', '--expert-profile', 'x'],
             'request_defaults': {'reasoning_effort': 'high', 'reasoning_budget_tokens': 8192,
                                  'max_tokens': 24576, 'top_k': 20},
@@ -175,7 +175,7 @@ class ConfigurationTests(unittest.TestCase):
     def test_overrides_sampling_and_environment(self):
         model, config, env, reasoning = model_process.configuration(
             {'engine_overrides': {'vram-reserve-mib': 500, 'no-capture': True}}, 8100)
-        self.assertEqual(model, 'Q2_0')
+        self.assertEqual(model, 'IQ3_XXS')  # default model since 2026-10-11
         self.assertEqual(config['args'][-3:], ['--vram-reserve-mib', '500', '--no-capture'])
         self.assertEqual(config['sampling'], {'top_k': 20})
         self.assertEqual((config['port'], config['host']), (8100, '127.0.0.1'))

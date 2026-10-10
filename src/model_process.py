@@ -46,7 +46,7 @@ def configuration(options, model_port):
     """Validate start options; return (model, native run config, env, reasoning defaults)."""
     if not isinstance(options, dict) or set(options) - START_OPTIONS:
         raise ValueError('Unknown model start option.')
-    model = options.get('model', 'Q2_0')
+    model = options.get('model', 'IQ3_XXS')
     if model not in MODELS:
         raise ValueError('Unknown model quantization.')
     config = json.loads((ROOT / f'config/{model.lower()}-prebuilt.json').read_text(encoding='utf-8'))

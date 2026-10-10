@@ -76,7 +76,7 @@
 
 | 字段 | 说明 |
 |---|---|
-| `model` | Q2_0、IQ2_XS、IQ3_XXS；省略为 Q2_0 |
+| `model` | Q2_0、IQ2_XS、IQ3_XXS；省略为 IQ3_XXS（2026-10-11 起，本机参数调整中） |
 | `engine_overrides` | 覆盖引擎命令行参数，键为不带 `--` 的参数名。数值参数：max-context、prefill、kv、kv-resident、pool-workers、pool-affinity、pcie-frac、pcie-mode、spec、spec-min-p、expert-cache、vram-reserve-mib、adapt-every、adapt-swaps、adapt-decay、mtp-window、ple-io、ple-inflight、ple-row-cache、short-read、suffix-draft、mtp-max-t、prompt-cache、prompt-cache-every、prompt-cache-root、conversation-cache-mib、conversation-cache-slots、conversation-cache-min-free-mib。布尔开关（只接受 JSON 布尔值）：expert-cache-per-layer、expert-cache-cpu-order、no-capture、no-host-worker、no-ple-prefetch、no-prefill-borrow、no-split-rows、no-coupled-draft、shared-late、keep-canonical、no-token-graph、no-fused-gr、no-hit-poke、ple-sync-submit、no-spec-split、gr-fp32-activations |
 | `engine_environment` | 引擎环境变量：STRATA_HC_SPLIT、STRATA_ADAPT_NOWAIT、STRATA_SSD_KEEPALIVE、STRATA_BATCH_TRACE、STRATA_PREFILL_CPU_SHARE；`null` 清除该机预置值 |
 | `request_defaults` | 本次运行的生成默认值。采样：temperature、top_p、top_k、min_p、presence_penalty、frequency_penalty、repetition_penalty、penalty_last_n，写入原生采样配置，对三种接口都生效。推理：reasoning_effort（low/medium/high）、reasoning_budget_tokens、max_tokens，由前端用于 Chat 和 Responses |
@@ -124,13 +124,13 @@ Responses 使用 `reasoning.effort` 和 `max_output_tokens`，Chat 使用 `reaso
 
 ```bash
 qwen_install=/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next
-python3 "$qwen_install/bin/qwen-agent" codex                       # 交互式 Codex，Q2_0、high
+python3 "$qwen_install/bin/qwen-agent" codex                       # 交互式 Codex，IQ3_XXS、high
 python3 "$qwen_install/bin/qwen-agent" --effort medium codex exec "任务描述"
-python3 "$qwen_install/bin/qwen-agent" --model IQ3_XXS claude      # Claude Code
+python3 "$qwen_install/bin/qwen-agent" --model Q2_0 claude         # Claude Code，Q2_0
 ```
 
 - 租约已被他人持有时立即退出，不排队、不抢占。
-- rtx3080ti 加载 Q2_0 约 20 秒。Ctrl-C 交给 agent 处理；agent 退出、终端关闭或进程被终止时都会归还租约。归还失败时会提示重启前端任务。
+- rtx3080ti 加载 Q2_0 约 20 秒；IQ3_XXS 待测。Ctrl-C 交给 agent 处理；agent 退出、终端关闭或进程被终止时都会归还租约。归还失败时会提示重启前端任务。
 - key 只放在 agent 进程的环境变量里，不写入文件或命令行参数。
 - 脚本不修改调用方的 `~/.codex` 或 `~/.claude` 配置；所有设置都以命令行覆盖或环境变量传入。
 
