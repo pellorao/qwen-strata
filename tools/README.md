@@ -39,7 +39,7 @@
 | `loop_replay`、`replay_model_behavior`、`replay_progress_guard` | 因果重放和全集观测 |
 | `verify_loop_detection_corpus` | 冻结样例回归 |
 | `progress_guard`、`command_loop_guard`、`arw_command_loop_guard.mjs`、`native_command_evidence` | 无进展 / 重复命令提示原型 |
-| `reasoning_loop_guard`、`local_text_similarity` | 文本复现原型和动态文本特征（未验证，不接入 harness） |
+| `reasoning_loop_guard` | 文本复现原型和动态文本特征（未验证，不接入 harness） |
 | `loop_reminders` | 跨调用和单响应两类提醒文本 |
 
 ## reviewer：ARW Reviewer 测量
