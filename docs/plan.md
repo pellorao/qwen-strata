@@ -32,7 +32,7 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
     3. CPU 专家线程数：23 / 15 / 12 —— 完成，保持 23（[报告](../reports/v0.1.42/iq3_xxs-tuning/pool-workers/summary.md)）
     4. PLE 读取：自动探测 / 强制 direct —— 完成，采用 direct（[报告](../reports/v0.1.42/iq3_xxs-tuning/ple-io/summary.md)）
     5. `prefill`：8192 / 16384 —— 完成，16384 被引擎降回 8192，保持 8192（[报告](../reports/v0.1.42/iq3_xxs-tuning/prefill/summary.md)）
-    6. CPU 辅助短输入：0 / auto —— 完成，保持 auto（[报告](../reports/v0.1.42/iq3_xxs-tuning/cpu-prefill-share/summary.md)）；待办：显式 auto 与不设置在 1–3K 分块上的对照（显式 auto 上限 3072、不设置 1024）
+    6. CPU 辅助短输入：0 / auto —— 完成，保持 auto（[报告](../reports/v0.1.42/iq3_xxs-tuning/cpu-prefill-share/summary.md)）；待办（用户 2026-10-11 同意排入计划）：显式 auto 与不设置在 1–3K 分块上的对照（显式 auto 上限 3072、不设置 1024）
     7. 显存预留：512 / 768 / 1024 —— 完成，采用 512（[报告](../reports/v0.1.42/iq3_xxs-tuning/vram-reserve/summary.md)）
     8. `spec-min-p`：0.3 / 0.5 / 0.7 / 0.9 —— 完成，采用 0.9（[报告](../reports/v0.1.42/iq3_xxs-tuning/spec-min-p/summary.md)）
     第 1–7 维用 32K 资源负载（`benchmarks/resource-calibration-v1/`），第 8 维用完整 Commit Audit。胜者只写入 rtx3080ti 的 IQ3_XXS（`model_overrides`）。
@@ -46,6 +46,7 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
   - [ ] 有余时间时：ARW 完整四场景 benchmark，只用 IQ3_XXS / high，其他参数用调参后的默认值，每场景 5 次取平均（用户 2026-10-11 授权，排在 IQ3_XXS 调参和高优先级任务之后）。
     - 自主模式决策（2026-10-11 10:10）：Main 判断与独立复核一致，选"只跑已能验证运行路径的部分、全部按诊断口径"，Spec Readiness 延后到用户回来（新来源上的同线程合并实例、报告目录、completion 交付和 10/5 次早退暂停都未验证，5 次约需 4 小时以上）。分歧：Main 原想复用第 8 维 p090 的 3 个 Commit Audit 实例再补 2 个，复核建议 5 次全部新跑以保持样本独立；采纳复核意见。顺序：Code Spec 先跑 1 个并完整检查会话，通过后补到 5 次；Code Standards 同样处理；最后 Commit Audit 5 次。停止条件：早退续跑累计 10 次；首个实例暴露驱动或来源问题且修不好；env 查询以外的安全违规；报错、崩溃、卡顿或输出低于 60 tok/s；用户回来或 key 被需要（当前实例结束后归还）。结果不算"四场景完成"，也不是正式分数。
     - 进度（2026-10-11 约 10:40，额度用尽暂停）：Code Spec 第 1 个实例完成（`.tmp/arw4/cs-a/`，ready，诊断分 0.807，clean 21/21，Main 已裁决 20/32 matched）；之前两次 spawn 前失败（驱动缺陷已修复并提交；漏设 `CODEX_THREAD_ID`），未产生 Reviewer 活动，租约已归还。会话检查 agent 被 API 安全过滤中断，**会话检查未完成**，需重做。Code Standards 第 1 个实例（`.tmp/arw4/cst-a/`）在后台运行中，结束后驱动自行归还租约；若留下 `run/recovery-required.json`，按 `.tmp/arw4/release.py` 的方式核对后归还。剩余：两个首实例的会话检查 → 各补到 5 次（第二批用 `.tmp/arw4/prepare.sh <tag> <reviewer>` 再 prepare，`--limit 2`）→ Commit Audit 5 次 → 汇总报告。驱动命令须带 `CODEX_THREAD_ID=b7635f94-ad60-429b-98e7-3ee5c19ba2bb`。 之后 Code Standards 第 1 个实例完成（ready，未评分、未做会话检查），租约已归还。2026-10-11 用户停止自主模式，benchmark 暂停在此，后续按用户决定。
+- **用户决定（2026-10-11 上午，自主模式结束后）**：显存预留维持 512；所有任务默认用 IQ3_XXS，除非有特殊理由；ARW 运行环境两项按"有缺陷就修复、没有缺陷就禁止查询"处理；Spec Readiness 要在本机修好并按要求跑完两个子场景，同时提供单场景评分能力供调参使用；Reviewer 网络规则与 Codex 默认一致（允许 web_search，不允许脚本访问网络）。先确认调参是否已做完，再修 benchmark 场景，之后决定重跑还是纳入已有两个实例。
 - **用户的夜间决定**（2026-10-11）：
   - S2 首次探测（2026-10-11）：冷加载 18.4 秒，解码 77–95 tok/s，生成期间只读 0.6 GB SSD；约 40 GiB 专家锁定在物理内存，物理可用内存最低 7.4 GB，页面文件几乎未用。但提交额度（内存 + 4 GB 自动页面文件）只剩 0.5 GiB，引擎因此跳过会话暂存（Windows 上按物理可用与剩余额度取较小值），并警告可能无提示退出。用户把页面文件改为固定 16384 MB 并重启。复测：提交额度剩 15.6 GiB / 79.8 GiB，没有警告；会话暂存恢复（每次约 45 ms）；解码 80–97 tok/s；物理可用内存最低 7.8 GB。PLE 探测把 `--ple-io direct` 改为 `mmap`（11680 行/秒）。
   - IQ3_XXS 模型 75.8 GB 大于 64 GB 内存：记录读量和内存，照常调参；只有出现错误、崩溃、系统明显卡顿，或输出低于 60 tok/s 时停下等用户。所以 IQ3_XXS 尽早测。
