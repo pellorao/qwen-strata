@@ -34,7 +34,9 @@ ENVIRONMENT = {'STRATA_HC_SPLIT', 'STRATA_ADAPT_NOWAIT', 'STRATA_SSD_KEEPALIVE',
 SAMPLING = {'temperature', 'top_p', 'top_k', 'min_p', 'presence_penalty', 'frequency_penalty',
             'repetition_penalty', 'penalty_last_n'}
 REASONING = {'reasoning_effort', 'reasoning_budget_tokens', 'max_tokens'}
-START_OPTIONS = {'model', 'engine_overrides', 'engine_environment', 'request_defaults', 'profile_file',
+# A caller chooses only the model and one published context tier; reasoning effort travels per request.
+PUBLIC_START_OPTIONS = {'model', 'context_window'}
+START_OPTIONS = {'model', 'context_window', 'engine_overrides', 'engine_environment', 'request_defaults', 'profile_file',
                  'profile_save_file', 'fit_max_tokens', 'startup_instructions', 'loop_prevention_instructions'}
 
 
@@ -66,6 +68,11 @@ def configuration(options, model_port):
                 args += [flag, str(value)]
         else:
             raise ValueError('Unsupported engine override: ' + str(name))
+    tiers = config.pop('context_tiers', [])
+    if 'context_window' in options:
+        if options['context_window'] not in [t['context_window'] for t in tiers] or type(options['context_window']) is not int:
+            raise ValueError('context_window must be one of the published context tiers for this model.')
+        args[args.index('--max-context') + 1] = str(options['context_window'])
     for field in ('profile_file', 'profile_save_file'):
         if field not in options:
             continue

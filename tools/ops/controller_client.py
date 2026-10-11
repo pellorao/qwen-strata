@@ -38,7 +38,7 @@ class Controller:
         confirmed_at=time.time()
         bounds=[requested_at,confirmed_at]
         status=result.get('status')
-        if path=='/model/start' and status=='running':
+        if path=='/maintenance/model/start' and status=='running':
             self.model_alive_clock.observe(True,requested_at,estimated=True,bounds=bounds)
         elif path=='/model/stop' and status=='stopped':
             self.model_alive_clock.observe(False,confirmed_at,estimated=True,bounds=bounds)
@@ -70,7 +70,7 @@ class Controller:
 
     def start(self, **options):
         started = time.monotonic()
-        value = self.call('/model/start', options)
+        value = self.call('/maintenance/model/start', options)
         return value, time.monotonic() - started
 
     def stop(self):

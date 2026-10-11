@@ -103,8 +103,17 @@ class LeaseTests(unittest.TestCase):
         key = self.front.acquire()['key']
         self.assertTrue(self.front.start(key, {'model': 'Q2_0'})['reused'])
         self.assertEqual(self.front.model.starts, 1)
-        self.assertFalse(self.front.start(key, {'model': 'Q2_0', 'engine_overrides': {'prefill': 4096}})['reused'])
+        self.assertFalse(self.front.start(key, {'model': 'Q2_0', 'engine_overrides': {'prefill': 4096}},
+                                          maintenance=True)['reused'])
         self.assertEqual(self.front.model.starts, 2)
+
+    def test_callers_choose_only_model_and_context_tier(self):
+        key = self.front.acquire()['key']
+        for options in ({'model': 'Q2_0', 'engine_overrides': {'prefill': 4096}},
+                        {'model': 'Q2_0', 'request_defaults': {'temperature': 0.7}}, {'startup_instructions': False}):
+            with self.assertRaisesRegex(ValueError, 'installation defaults'):
+                self.front.start(key, options)
+        self.assertEqual(self.front.model.starts, 0)
 
     def test_idle_model_is_stopped_only_without_a_lease_after_the_limit(self):
         key = self.front.acquire()['key']
@@ -170,7 +179,9 @@ class ConfigurationTests(unittest.TestCase):
             'args': ['--max-context', '156584', '--expert-profile', 'x'],
             'request_defaults': {'reasoning_effort': 'high', 'reasoning_budget_tokens': 8192,
                                  'max_tokens': 24576, 'top_k': 20},
-            'engine_environment': {'STRATA_PREFILL_CPU_SHARE': 'auto'}}))
+            'engine_environment': {'STRATA_PREFILL_CPU_SHARE': 'auto'},
+            'context_tiers': [{'context_window': 156584, 'auto_compact_token_limit': 100000},
+                              {'context_window': 65536, 'auto_compact_token_limit': 40000}]}))
         self.patch = patch.object(model_process, 'ROOT', root)
         self.patch.start()
 
@@ -187,6 +198,14 @@ class ConfigurationTests(unittest.TestCase):
         self.assertEqual((config['port'], config['host']), (8100, '127.0.0.1'))
         self.assertEqual(env['STRATA_PREFILL_CPU_SHARE'], 'auto')
         self.assertEqual(reasoning['reasoning_budget_tokens'], 8192)
+
+    def test_context_window_selects_only_a_published_tier(self):
+        _, config, _, _ = model_process.configuration({'context_window': 65536}, 8100)
+        self.assertEqual(config['args'][:2], ['--max-context', '65536'])
+        self.assertNotIn('context_tiers', config)
+        for window in (100000, '65536', True):
+            with self.assertRaisesRegex(ValueError, 'published context tiers'):
+                model_process.configuration({'context_window': window}, 8100)
 
     def test_adapt_lag_environment(self):
         _, _, env, _ = model_process.configuration({'engine_environment': {'STRATA_ADAPT_LAG': 2}}, 8100)

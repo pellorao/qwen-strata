@@ -20,8 +20,8 @@
 
 1. `POST /lease/acquire` 领取 key。已有持有者时返回 409；不排队、不抢占。
 2. 之后的请求都带 `Authorization: Bearer <key>`（也接受 `x-api-key: <key>`），包括模型启停、状态和推理。缺失、错误或已归还的 key 返回 403。
-3. `POST /model/start` 选择量化和参数并等待模型就绪。如果上一个租约留下的模型正好是同一量化和同样参数，直接复用，不重新加载（返回 `reused: true`）；参数不同则先停再启动。
-4. `POST /model/stop` 只停模型，租约仍保留，可换参数重新启动。
+3. `POST /model/start` 选择量化和上下文档位并等待模型就绪。如果上一个租约留下的模型正好是同一量化和同一档位，直接复用，不重新加载（返回 `reused: true`）；不同则先停再启动。
+4. `POST /model/stop` 只停模型，租约仍保留，可换量化或档位重新启动。
 5. `POST /lease/release` 归还：撤销 key，**模型继续加载**，留给下一个调用方复用。没有租约的模型空闲 30 分钟后由前端停止。要立即释放内存和显存，归还前先调用 `/model/stop`。
 
 租约只保存在前端内存中，没有超时，也不自动回收。调用方必须在自己的 finally 路径里归还。key 丢失或持有者异常退出时，由维护者重启前端（重启会停止模型并清空租约），不提供无 key 夺取接口。key 是调用方凭据，不写入提示词、版本控制、共享日志或报告。
@@ -35,7 +35,8 @@
 | `GET /health` | 不需要 | 前端身份、`lease`（free/held）、当前加载的模型 ID、该模型实际加载的启动提示 SHA（`startup_instructions`，只有 SHA 和开关，不含正文；未加载时为 null）；不代表模型可推理 |
 | `POST /lease/acquire` | 不需要 | 请求 `{}`；返回 `key` |
 | `POST /lease/release` | 需要 | 请求 `{}`；撤销 key，返回 `lease` 和仍加载的 `model`（不停模型） |
-| `POST /model/start` | 需要 | 启动参数见下文；就绪后返回状态，`reused` 表示是否复用了已加载的模型 |
+| `POST /model/start` | 需要 | 只接受 `model` 和 `context_window`，见下文；就绪后返回状态，`reused` 表示是否复用了已加载的模型 |
+| `POST /maintenance/model/start` | 需要 | 维护工程的测量和调参专用，接受完整维护选项；不是调用接口，调用方不得使用 |
 | `POST /model/stop` | 需要 | 请求 `{}`；返回 `status=stopped` 及是否正常卸载 |
 | `GET /model/status` | 需要 | `status` 为 stopped、starting、unloaded 或 running；运行时含 `native_health` |
 | `POST /admin/shutdown` | 需要 | 维护用；模型停止后关闭前端 |
@@ -64,33 +65,22 @@
 
 ## 启动参数
 
+调用方只能选择三项：**模型**、**上下文大小**（启动时选择档位）、**推理强度**（随每个请求传递）。引擎参数、环境变量、采样默认值、思考预算和输出上限都由安装目录按"本机 + 量化"预置，调用方不能覆盖。
+
 `POST /model/start` 示例：
 
 ```json
-{
-  "model": "Q2_0",
-  "engine_overrides": {"max-context": 156584},
-  "request_defaults": {"reasoning_effort": "high", "temperature": 0.0, "top_p": 1.0, "top_k": 20}
-}
+{"model": "IQ3_XXS", "context_window": 156584}
 ```
 
 | 字段 | 说明 |
 |---|---|
-| `model` | Q2_0、IQ2_XS、IQ3_XXS；省略为 IQ3_XXS（2026-10-11 起，本机参数调整中） |
-| `engine_overrides` | 覆盖引擎命令行参数，键为不带 `--` 的参数名。数值参数：max-context、prefill、kv、kv-resident、pool-workers、pool-affinity、pcie-frac、pcie-mode、spec、spec-min-p、expert-cache、vram-reserve-mib、adapt-every、adapt-swaps、adapt-decay、mtp-window、ple-io、ple-inflight、ple-row-cache、short-read、suffix-draft、mtp-max-t、prompt-cache、prompt-cache-every、prompt-cache-root、conversation-cache-mib、conversation-cache-slots、conversation-cache-min-free-mib。布尔开关（只接受 JSON 布尔值）：expert-cache-per-layer、expert-cache-cpu-order、no-capture、no-host-worker、no-ple-prefetch、no-prefill-borrow、no-split-rows、no-coupled-draft、shared-late、keep-canonical、no-token-graph、no-fused-gr、no-hit-poke、ple-sync-submit、no-spec-split、gr-fp32-activations。数值参数传 `null` 表示去掉配置里的该参数、交给引擎自行决定（例如 `"pcie-frac": null` 让引擎实测 PCIe 分担比例） |
-| `engine_environment` | 引擎环境变量：STRATA_HC_SPLIT、STRATA_ADAPT_NOWAIT、STRATA_SSD_KEEPALIVE、STRATA_BATCH_TRACE、STRATA_PREFILL_CPU_SHARE、STRATA_ADAPT_LAG；`null` 清除该机预置值 |
-| `request_defaults` | 本次运行的生成默认值。采样：temperature、top_p、top_k、min_p、presence_penalty、frequency_penalty、repetition_penalty、penalty_last_n，写入原生采样配置，对三种接口都生效。推理：reasoning_effort（low/medium/high）、reasoning_budget_tokens、max_tokens，由前端用于 Chat 和 Responses |
-| `profile_file` | 安装 `data/profiles/` 下已存在的 Windows 绝对路径，加载专家排序 |
-| `profile_save_file` | 同目录下的 Windows 绝对路径，正常退出时保存学习结果 |
-| `fit_max_tokens` | 布尔值；true 时输出预算超过剩余上下文会自动缩小，输入保留 |
-| `startup_instructions` | 布尔值，默认 true；false 只用于已获批准的无基础提示诊断 |
-| `loop_prevention_instructions` | 布尔值，默认 false（2026-10-11 起），即加载基础提示时去掉 `Progress and loop prevention` 段；true 加回该段。**已弃用，不建议使用**，以后会删除 |
+| `model` | Q2_0、IQ2_XS、IQ3_XXS；省略为 IQ3_XXS |
+| `context_window` | 可省略，省略为该量化的第一档。只能取安装目录 `config/deployment.json` 中 `context_tiers.<量化>` 列出的 `context_window`；每档附带实测的 `auto_compact_token_limit`，调用方必须把自己 harness 的窗口和自动压缩阈值设为同一档的这两个值。该量化没有列出档位时只能省略 |
 
-省略的参数使用该机安装预置（`config/*-prebuilt.json`）。参数名不在上述列表、类型不对或含空格时返回 400。接口只检查名称和类型，不检查取值是否合理；接受某个值不代表引擎能用它启动，例如当前专家池配置不能使用 `no-capture=true`。启动失败时返回 503，可查询状态后停止再调整。
+其他字段返回 400。推理强度见[推理强度与输出](#推理强度与输出)。
 
-`request_defaults` 中的 reasoning_effort 与安装预置不同时，安装预置的预算和输出上限不再沿用，改用下表。每次启动重新设置默认值，不改写安装配置。
-
-启动完成时前端核对实际加载的模型和上下文容量。换量化或参数时，`/model/start` 会自动先停掉旧模型；“参数相同”按校验后的完整运行配置比较，包括部署后改动的安装预置。
+启动完成时前端核对实际加载的模型和上下文容量。换量化或档位时，`/model/start` 会自动先停掉旧模型；"相同"按校验后的完整运行配置比较，包括部署后改动的安装预置。
 
 | 量化 | 模型 ID |
 |---|---|
@@ -100,7 +90,7 @@
 
 ### 安装预置
 
-rtx3080ti：窗口 156584，high，思考 8192／总输出 24576，temperature 0、top_p 1、top_k 20，CPU 辅助 auto。这是维护起点，不是完整质量验收或最优参数的结论。调用方还须把自己 harness 的上下文窗口设为 156584，自动压缩阈值设为 100000；服务不会替调用方压缩。完整维护覆盖选项见安装目录 `config/maintenance-baseline.json`。
+rtx3080ti：三种量化目前都只有一档，窗口 156584、自动压缩阈值 100000；high，思考 8192／总输出 24576，temperature 0、top_p 1、top_k 20，CPU 辅助 auto。这是维护起点，不是完整质量验收或最优参数的结论。服务不会替调用方压缩。
 
 ## 推理强度与输出
 

@@ -16,8 +16,10 @@ class SourceRenderingTests(unittest.TestCase):
         (root/'config/deployments').mkdir(parents=True)
         (root/'config/templates').mkdir()
         self.host('tuned', engine_overrides={'prefill': 8192}, listen_address='192.168.60.212', port=8000,
-                  installation_defaults={'max_context': 156584, 'reasoning_effort': 'high', 'max_tokens': 24576,
-                                         'cpu_prefill_share': 'auto', 'top_k': 20})
+                  installation_defaults={'reasoning_effort': 'high', 'max_tokens': 24576,
+                                         'cpu_prefill_share': 'auto', 'top_k': 20},
+                  context_tiers={'Q2_0': [{'context_window': 156584, 'auto_compact_token_limit': 100000},
+                                          {'context_window': 65536, 'auto_compact_token_limit': 40000}]})
         self.host('plain', engine_overrides={})
         (root/'project.private.toml').write_text("""[hosts.tuned]
 installation_path='D:\\模型\\Strata'
@@ -46,9 +48,16 @@ installation_path='C:\\Strata'
         self.assertEqual(tuned['args'], ['--prefill', '8192', '--max-context', '156584'])
         self.assertEqual(tuned['request_defaults'], {'reasoning_effort': 'high', 'max_tokens': 24576, 'top_k': 20})
         self.assertEqual(tuned['engine_environment'], {'STRATA_PREFILL_CPU_SHARE': 'auto'})
+        self.assertEqual(tuned['context_tiers'][1], {'context_window': 65536, 'auto_compact_token_limit': 40000})
         self.assertEqual(plain['args'], ['--prefill', '16384', '--max-context', '250000'])
+        self.assertNotIn('context_tiers', plain)
         self.assertNotIn('request_defaults', plain)
         self.assertNotIn('engine_environment', plain)
+
+    def test_context_tiers_need_a_compaction_limit_inside_the_window(self):
+        self.host('tuned', engine_overrides={}, context_tiers={'Q2_0': [{'context_window': 65536, 'auto_compact_token_limit': 65536}]})
+        with self.assertRaisesRegex(ValueError, 'context_tiers'):
+            model_configuration('Q2_0', 'tuned', self.root)
 
     def test_model_overrides_apply_only_to_that_model(self):
         (self.root/'config/templates/iq3_xxs-prebuilt.json').write_text(

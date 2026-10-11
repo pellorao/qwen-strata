@@ -14,7 +14,7 @@ import time
 from brave_search import BraveSearch
 import hosted_search
 import loop_reminder
-from model_process import ROOT, ModelProcess
+from model_process import PUBLIC_START_OPTIONS, ROOT, ModelProcess
 
 MAX_BODY = 64 * 1024 * 1024
 UPSTREAM_TIMEOUT = 900
@@ -137,9 +137,12 @@ class Frontend:
                 self.idle_since = time.monotonic()
             return {'lease': 'free', 'model': self.loaded_model}
 
-    def start(self, key, options):
+    def start(self, key, options, maintenance=False):
         with self.lock:
             self.require(key)
+            if not maintenance and (not isinstance(options, dict) or set(options) - PUBLIC_START_OPTIONS):
+                raise ValueError('Callers choose only the model and a published context_window; '
+                                 'engine and request settings are the installation defaults.')
             if not self.model.stopped():
                 if self.loaded_model and self.model.matches(options):
                     return dict(self.model.status(), reused=True)
@@ -222,6 +225,8 @@ class Handler(BaseHTTPRequestHandler):
                 ('POST', '/lease/acquire'): frontend.acquire,
                 ('POST', '/lease/release'): lambda: frontend.release(self.key()),
                 ('POST', '/model/start'): lambda: frontend.start(self.key(), options),
+                # Project measurement and tuning only; not part of the caller interface.
+                ('POST', '/maintenance/model/start'): lambda: frontend.start(self.key(), options, maintenance=True),
                 ('POST', '/model/stop'): lambda: frontend.stop(self.key()),
                 ('GET', '/model/status'): lambda: frontend.status(self.key()),
                 ('POST', '/admin/shutdown'): lambda: self.shutdown(self.key()),

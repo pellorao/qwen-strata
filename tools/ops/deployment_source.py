@@ -8,8 +8,8 @@ ROOT = Path(__file__).resolve().parents[2]
 MODELS = ('Q2_0', 'IQ2_XS', 'IQ3_XXS')
 MODEL_PORT = 8100
 PUBLIC_FIELDS = {'schema_version', 'id', 'cuda_arch', 'models', 'engine_overrides', 'model_overrides', 'model_environment', 'hardware',
-                 'qualification', 'listen_address', 'port', 'installation_defaults', 'note'}
-INSTALLATION_DEFAULTS = {'max_context', 'reasoning_effort', 'reasoning_budget_tokens', 'max_tokens',
+                 'qualification', 'listen_address', 'port', 'installation_defaults', 'context_tiers', 'note'}
+INSTALLATION_DEFAULTS = {'reasoning_effort', 'reasoning_budget_tokens', 'max_tokens',
                          'cpu_prefill_share', 'temperature', 'top_p', 'top_k'}
 
 
@@ -51,6 +51,13 @@ def load_host(identifier, project=None):
     defaults = value.get('installation_defaults', {})
     if not isinstance(defaults, dict) or set(defaults) - INSTALLATION_DEFAULTS:
         raise ValueError('Unsupported per-host installation defaults')
+    tiers = value.setdefault('context_tiers', {})
+    if not isinstance(tiers, dict) or set(tiers) - set(models) or not all(
+            isinstance(v, list) and v and len({t.get('context_window') for t in v}) == len(v) and all(
+                isinstance(t, dict) and set(t) == {'context_window', 'auto_compact_token_limit'}
+                and type(t['context_window']) is int and type(t['auto_compact_token_limit']) is int
+                and 0 < t['auto_compact_token_limit'] < t['context_window'] for t in v) for v in tiers.values()):
+        raise ValueError('context_tiers maps installed models to measured context windows with their compaction limits')
     return value
 
 
@@ -93,8 +100,10 @@ def model_configuration(model, identifier, project=None):
     value['port'] = MODEL_PORT
     overrides = {**host['engine_overrides'], **host['model_overrides'].get(model, {})}
     defaults = host.get('installation_defaults', {})
-    if 'max_context' in defaults:
-        overrides['max-context'] = defaults['max_context']
+    tiers = host['context_tiers'].get(model)
+    if tiers:
+        # The first published tier is the default window; callers may select only a published tier.
+        overrides['max-context'] = tiers[0]['context_window']
     for key, item in overrides.items():
         flag = '--' + key
         if item is None:
@@ -104,7 +113,9 @@ def model_configuration(model, identifier, project=None):
             value['args'][value['args'].index(flag) + 1] = str(item)
         else:
             value['args'] += [flag, str(item)]
-    request = {k: v for k, v in defaults.items() if k not in ('max_context', 'cpu_prefill_share')}
+    if tiers:
+        value['context_tiers'] = tiers
+    request = {k: v for k, v in defaults.items() if k != 'cpu_prefill_share'}
     if request:
         value['request_defaults'] = request
     if 'cpu_prefill_share' in defaults:
