@@ -7,7 +7,7 @@
 需要用户决定的事项只记在这里，处理后删除。
 
 - 页面文件：用户 2026-10-11 同意暂不修改，在长上下文补测时记录最低剩余 commit 后再定。
-- F3 修复（用户 2026-10-11 同意）：已完成无模型修补。新增 ARW 补丁 `arw-patches/reviewer-followup-original-scope.patch`：重开条目时先在原工作目录检查原报告，接受新任务后再切换到新目录；附复现测试，修复前失败、修复后通过。驱动遇到 `reviewer-busy` 时等待原任务到终态后重发 followup；遇到 ARW 早退暂停则交给用户决定。PLE 测量已取消，F3 试跑已重新准备并开跑（2026-10-11）。
+- F3 修复（用户 2026-10-11 同意）：已完成无模型修补。新增 ARW 补丁 `arw-patches/reviewer-followup-original-scope.patch`：重开条目时先在原工作目录检查原报告，接受新任务后再切换到新目录；附复现测试，修复前失败、修复后通过。驱动遇到 `reviewer-busy` 时等待原任务到终态后重发 followup；遇到 ARW 早退暂停则交给用户决定。PLE 测量已取消。F3 第 3 次试跑（2026-10-11 18:48–19:07，大页生效、Normal 优先级）通过：1 个合并实例，runtime-migration 与 artifact-promotion 在同一线程各 1 个回合完成，followup 在原作用域找到报告，没有出现 `reviewer-busy`、早退接续或停顿；两阶段各发生 1 次压缩，ARW 实际用的压缩提示是安装目录基础提示加 Codex 0.160.1 原生快照（与工程源同 SHA）；结束后 key 已归还、模型已停。runtime-migration 报告未通过 ARW `generate` 格式校验（要求 SPEC-READINESS-REQUIREMENTS 有问题时在需求范围检查后停止），属于模型输出质量，不是交接故障。明细在 `.tmp/arw4/sr-a/`。
 
 ## 顺序
 
@@ -82,7 +82,7 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 - [ ] 原版高层 `score-completed` 要求两个子场景配对，单独 artifact-promotion 会被拒绝。需要先无模型调查原版是否有可单独评分的入口；若需改变评分合同，先列出差异并取得同意。
   - 无模型调查（2026-10-11，ARW 760007c，只读代码和原版测试，没有用实际 Spec 报告执行）：当前原版 `score-completed`（局部评分）**不再拒绝**未配对的输入。`selectCompletedRepetitions(allowEmpty)` 接受只含 artifact-promotion 的实例；每个实例照常评分，`instances[]` 里有该实例自己的 `score`、clean/problem 比率和候选，状态为 `diagnostic`；但 `summarizeCapabilityScores` 只对两个子场景齐全的重复算重复分和总分，单场景时 `score` 为空（"Incomplete repetition set."）。原版测试 `reviewer-capability-conformance.test.mjs` 的局部评分用例覆盖了这一行为（以 Code Spec 为例）。早先"会被拒绝"的结论来自旧版 ARW。
   - 含义：不改评分合同就能拿到 artifact-promotion 的单实例诊断分（同一 F2 公式，只是不与 runtime-migration 融合），可以作同场景条件之间的比较；它不是原版正式分数，也不能和融合分混比。正式分数仍需两个子场景配对。
-  - F4 工具：`python3 -m tools.reviewer.single_scenario_score --arw <冻结 ARW> --prepared <prepared.json> --input <只含一个子场景的评分输入> [--adjudication <裁决>] --out <目录>`，调用原版 `score-completed`，只汇总单一子场景的逐实例分（标为 `diagnostic-single-scenario`、未融合），混入两个子场景时拒绝。已用 Code Spec 试跑报告核对，结果与原版一致（0.807）；artifact-promotion 的实际报告待 F3 试跑后再核对一次。用户已决定提供这项能力供调参使用（2026-10-11）。
+  - F4 工具：`python3 -m tools.reviewer.single_scenario_score --arw <冻结 ARW> --prepared <prepared.json> --input <只含一个子场景的评分输入> [--adjudication <裁决>] --out <目录>`，调用原版 `score-completed`，只汇总单一子场景的逐实例分（标为 `diagnostic-single-scenario`、未融合），混入两个子场景时拒绝。已用 Code Spec 试跑报告核对，结果与原版一致（0.807）；artifact-promotion 的实际报告已用 F3 第 3 次试跑核对：上游返回 8 个待裁决候选，裁决 6 个匹配、2 个不匹配后得到诊断分 0.320（clean acceptance 0.907，problem detection 0.275），工具流程正常。用户已决定提供这项能力供调参使用（2026-10-11）。
 
 ## ARW 同步与 Spec 恢复
 
