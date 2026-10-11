@@ -35,6 +35,7 @@
   2. 五个操作改为上面的新路径；解析新的返回字段（`acquire` 返回 `key` 与 `lease: "held"`，`release` 返回 `lease: "free"`）；前端把加载中的模型报告为 `starting`，按原 `partial` 处理。
   3. `start` 只传 `{model: <量化名>, context_window: <档位窗口>}`，不再写死引擎参数和采样参数。
   4. 去掉 `STRATA_CONTEXT_WINDOW` 和固定的 100000。新增 `readStrataContextTier`：读取安装目录 `config/deployment.json` 的 `context_tiers`，按 provider 配置的 `contextWindow` 选档（未配置用第一档），档位不存在时报错。模型启动窗口、模型目录里的 `context_window` / `max_context_window`、任务设置里的 `model_context_window` 和 `model_auto_compact_token_limit` 都取自同一档位。
+  4a. 档位按量化分别发布（2026-10-12 补）。模型目录一次覆盖所有 Strata 变体，选定窗口只套用到发布了该档的变体，其余变体保留各自的默认档；没有任何变体发布该档时才报错。启动与任务设置只针对所选模型，档位不存在时仍然报错。起因：第 9 维选 IQ3_XXS 的 206584 档时，Q2_0 没有这一档，模型目录生成失败，ARW daemon 退出。
   5. `models.custom.json` 的 Strata provider 新增可选字段 `contextWindow`（正整数，只允许 Strata driver）。模型目录先校验 provider，再用校验后的 provider 套档位。
   6. 压缩提示路径改为 `config/prompts/compact-prompt.txt`。
   7. 同步更新 ARW 自带的 driver、模型目录和 host 测试（旧 driver 测试仍按已删除的控制脚本断言；host 测试的夹具改为新压缩提示路径并提供档位）。改动后 `tests/background-agent/` 与 `tests/reviewer-runtime/` 只剩 1 个与本补丁无关、未打补丁时同样失败的终端标题测试。

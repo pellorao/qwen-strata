@@ -208,10 +208,10 @@ index ee61a91..d0bef02 100644
        return {ownership:/** @type {const} */ ('free'),previousKeyRevoked:true};
      },
 diff --git a/lib/background-agent/strata-models.mjs b/lib/background-agent/strata-models.mjs
-index 8fe4148..70db3e7 100644
+index 8fe4148..d1cc8be 100644
 --- a/lib/background-agent/strata-models.mjs
 +++ b/lib/background-agent/strata-models.mjs
-@@ -1,20 +1,51 @@
+@@ -1,20 +1,58 @@
 +import {readFile} from 'node:fs/promises';
 +import {join} from 'node:path';
  import {isJsonObject} from '../common/json.mjs';
@@ -266,12 +266,19 @@ index 8fe4148..70db3e7 100644
 +  const provider = Object.values(providers).find(value => value.driver === 'strata');
 +  if (!provider?.installationDirectory) return models;
 +  const installationDirectory=provider.installationDirectory;
-+  return Promise.all(models.map(async model => {
-+    if (!isJsonObject(model) || !Object.hasOwn(STRATA_MODEL_VARIANTS, String(model.slug))) return model;
-+    const {contextWindow}=await readStrataContextTier({installationDirectory,modelId:String(model.slug),
-+      ...(provider.contextWindow===undefined?{}:{contextWindow:provider.contextWindow}),readText});
-+    return {...model,context_window:contextWindow,max_context_window:contextWindow};
++  const selected=provider.contextWindow;
++  const applied=await Promise.all(models.map(async model => {
++    if (!isJsonObject(model) || !Object.hasOwn(STRATA_MODEL_VARIANTS, String(model.slug))) return {model,contextWindow:null};
++    /** @param {number} [contextWindow] */
++    const read=contextWindow=>readStrataContextTier({installationDirectory,modelId:String(model.slug),readText,
++      ...(contextWindow===undefined?{}:{contextWindow})});
++    // Tiers are measured per model: a selected window applies to the variants that publish it, the others keep their default tier.
++    const {contextWindow}=selected===undefined?await read():await read(selected).catch(()=>read());
++    return {model:{...model,context_window:contextWindow,max_context_window:contextWindow},contextWindow};
 +  }));
++  if (selected!==undefined && !applied.some(item => item.contextWindow===selected))
++    throw new Error(`Strata installation does not publish a ${selected}-token context tier for any configured model.`);
++  return applied.map(item => item.model);
  };
 diff --git a/lib/background-agent/strata-work-policy.mjs b/lib/background-agent/strata-work-policy.mjs
 index 8b0dd7e..02c71d4 100644
@@ -348,7 +355,7 @@ index a4d0298..b1aaa33 100644
      const driver = /** @type {NonNullable<Parameters<typeof fixture>[2]>} */ (/** @type {unknown} */ (() => ({
          async connect() {return {controllerUrl:'http://offline-controller',responsesUrl:'http://offline-responses/v1'};},
 diff --git a/tests/background-agent/model-catalog.test.mjs b/tests/background-agent/model-catalog.test.mjs
-index 6d74127..fd4f417 100644
+index 6d74127..ba9ca1b 100644
 --- a/tests/background-agent/model-catalog.test.mjs
 +++ b/tests/background-agent/model-catalog.test.mjs
 @@ -184,6 +184,8 @@ test('provider configuration rejects invalid shape, limits, and Strata directori
@@ -360,7 +367,7 @@ index 6d74127..fd4f417 100644
    ];
    for (const [source, pattern] of cases) {
      await writeFile(customPath, JSON.stringify({models: [], ...source}));
-@@ -192,6 +194,32 @@ test('provider configuration rejects invalid shape, limits, and Strata directori
+@@ -192,6 +194,34 @@ test('provider configuration rejects invalid shape, limits, and Strata directori
    await assert.rejects(readFile(join(runtimeDirectory, 'models.json')), {code: 'ENOENT'});
  });
  
@@ -372,10 +379,11 @@ index 6d74127..fd4f417 100644
 +  await mkdir(codexHome);
 +  await mkdir(join(strataDirectory, 'config'), {recursive: true});
 +  await writeFile(join(strataDirectory, 'config', 'deployment.json'), JSON.stringify({context_tiers: {
++    Q2_0: [{context_window: 156584, auto_compact_token_limit: 100000}],
 +    IQ3_XXS: [{context_window: 156584, auto_compact_token_limit: 100000}, {context_window: 65536, auto_compact_token_limit: 40000}]}}));
 +  await writeFile(join(codexHome, 'models_cache.json'), '{"models":[{"slug":"gpt"}]}');
 +  const customPath = join(codexHome, 'models.custom.json');
-+  const models = [{slug: 'qwen3.8-flash-next-iq3_xxs', context_window: 1}];
++  const models = [{slug: 'qwen3.8-flash-next-iq3_xxs', context_window: 1}, {slug: 'qwen3.8-flash-next-q2_0', context_window: 1}];
 +  /** @param {Record<string, unknown>} provider */
 +  const generated = async provider => {
 +    await writeFile(customPath, JSON.stringify({models, providers: {qwen_strata: {driver: 'strata', installationDirectory: strataDirectory, ...provider}}}));
@@ -387,7 +395,8 @@ index 6d74127..fd4f417 100644
 +  const selected = await generated({contextWindow: 65536});
 +  assert.equal(selected.providers.qwen_strata.contextWindow, 65536);
 +  assert.deepEqual(selected.models[1], {slug: 'qwen3.8-flash-next-iq3_xxs', context_window: 65536, max_context_window: 65536});
-+  await assert.rejects(generated({contextWindow: 100000}), /does not publish a 100000-token context tier for IQ3_XXS/);
++  assert.deepEqual(selected.models[2], {slug: 'qwen3.8-flash-next-q2_0', context_window: 156584, max_context_window: 156584});
++  await assert.rejects(generated({contextWindow: 100000}), /does not publish a 100000-token context tier for any configured model/);
 +});
 +
  test('missing or invalid sources cannot produce a partial shared catalog', async t => {

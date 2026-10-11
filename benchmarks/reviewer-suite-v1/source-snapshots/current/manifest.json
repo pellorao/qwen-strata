@@ -1132,16 +1132,16 @@
     },
     {
       "file": "../../arw-patches/strata-frontend-protocol.patch",
-      "sha256": "5e77be29361328e60e21a47f525e369762ea01c83c56162453c9f603d67e4a58",
-      "reason": "ARW 760007c drives Strata through the retired controller (Run-Strata-Controller.sh, /ownership/*, config/compact_prompt.txt), pins spec-min-p 0.7, max-context and sampling at model start, and hardcodes a 156584-token window with a 100000-token compaction limit. The patch uses the resident frontend (config/frontend.json, /lease/*, /model/*, /strata/v1); the caller chooses only the model and a context tier published in the installation's config/deployment.json (provider contextWindow, default the first tier), and the model window, catalog metadata and compaction limit all come from that tier; engine arguments are the installation per-host per-model defaults; the compaction base is config/prompts/compact-prompt.txt. Driver, catalog and host tests are updated. Recorded for upstream in docs/arw-upstream-issues.md.",
+      "sha256": "184f84c2c1bc8e6d83baffc01e1fe07c009509b5522a19c58a321e7b05b469b6",
+      "reason": "ARW 760007c drives Strata through the retired controller (Run-Strata-Controller.sh, /ownership/*, config/compact_prompt.txt), pins spec-min-p 0.7, max-context and sampling at model start, and hardcodes a 156584-token window with a 100000-token compaction limit. The patch uses the resident frontend (config/frontend.json, /lease/*, /model/*, /strata/v1); the caller chooses only the model and a context tier published in the installation's config/deployment.json (provider contextWindow, default the first tier), and the model window, catalog metadata and compaction limit all come from that tier (tiers are per model: in the catalog, a selected window applies to the variants that publish it and the others keep their default tier); engine arguments are the installation per-host per-model defaults; the compaction base is config/prompts/compact-prompt.txt. Driver, catalog and host tests are updated. Recorded for upstream in docs/arw-upstream-issues.md.",
       "result": {
         "lib/background-agent/manager.mjs": "06a2c93950a27d14ed02d9e5748fd2c2ba97afdc2d1f920a1f0329461676bd19",
         "lib/background-agent/model-catalog.mjs": "ec2e2fc2db43752c87744855fa6aa5019a0f0eeb2d5c9948b0eebb9ab80bcd4e",
         "lib/background-agent/strata-driver.mjs": "6ce2a8d093911042ca8c4d94af90e4717c3da83962166aa4bf27e87a604103a4",
-        "lib/background-agent/strata-models.mjs": "43d90017d90c0b7bdd4b840e3d688272b86334fc3f1271e87a49147b526df612",
+        "lib/background-agent/strata-models.mjs": "1a9c316606c36fede44520ec25c58b880b3fd3794887cf3177bf5330729bb4ad",
         "lib/background-agent/strata-work-policy.mjs": "4a9bff8c488a09ad3a98baf9ab6c8a50ac2febd64c1c1c7beebcf282b1101785",
         "tests/background-agent/host.test.mjs": "3631134302e4ea70c7d7c8c118ef6c97dd8a78ca68e33ef5780b29f79f751e40",
-        "tests/background-agent/model-catalog.test.mjs": "9e4b76c869396b2b9c5208ff45448a8481933cd8145b3117af112f7c6b442ec5",
+        "tests/background-agent/model-catalog.test.mjs": "736357cf0af7e20e555dcd2e556bf7ca011b8072cb205fc11e8ba0022e3729e4",
         "tests/background-agent/strata-driver.test.mjs": "d2ca3cb50ad1219520650955dc573fbe6dc542f29950f7789aca38f3714f8d47"
       }
     },
