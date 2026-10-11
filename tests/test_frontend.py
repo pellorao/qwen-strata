@@ -182,6 +182,10 @@ class ConfigurationTests(unittest.TestCase):
         self.assertEqual(env['STRATA_PREFILL_CPU_SHARE'], 'auto')
         self.assertEqual(reasoning['reasoning_budget_tokens'], 8192)
 
+    def test_adapt_lag_environment(self):
+        _, _, env, _ = model_process.configuration({'engine_environment': {'STRATA_ADAPT_LAG': 2}}, 8100)
+        self.assertEqual(env['STRATA_ADAPT_LAG'], '2')
+
     def test_null_override_drops_template_flag(self):
         args = model_process.configuration({'engine_overrides': {'prefill': None}}, 8100)[1]['args']
         self.assertNotIn('--prefill', args)

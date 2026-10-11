@@ -30,7 +30,7 @@ BOOL_FLAGS = {
     'keep-canonical', 'no-token-graph', 'no-fused-gr', 'no-hit-poke', 'ple-sync-submit',
     'no-spec-split', 'gr-fp32-activations'}
 ENVIRONMENT = {'STRATA_HC_SPLIT', 'STRATA_ADAPT_NOWAIT', 'STRATA_SSD_KEEPALIVE',
-               'STRATA_BATCH_TRACE', 'STRATA_PREFILL_CPU_SHARE'}
+               'STRATA_BATCH_TRACE', 'STRATA_PREFILL_CPU_SHARE', 'STRATA_ADAPT_LAG'}
 SAMPLING = {'temperature', 'top_p', 'top_k', 'min_p', 'presence_penalty', 'frequency_penalty',
             'repetition_penalty', 'penalty_last_n'}
 REASONING = {'reasoning_effort', 'reasoning_budget_tokens', 'max_tokens'}

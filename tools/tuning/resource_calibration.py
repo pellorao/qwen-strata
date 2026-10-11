@@ -189,13 +189,13 @@ expected=os.path.normcase(str(Path(sys.argv[1])/'runtime/Strata/engine/strata.ex
 rows=[]
 for p in psutil.process_iter(['pid','exe']):
  if os.path.normcase(p.info['exe'] or '')==expected:
-  rows.append({'pid':p.pid,'cpu_prefill_share':p.environ().get('STRATA_PREFILL_CPU_SHARE')})
+  env=p.environ();rows.append({'pid':p.pid,'environment':{k:env.get(k)for k in sys.argv[2:]}})
 print(json.dumps(rows))
-''',(str(host.windows_root),))
+''',(str(host.windows_root),*sorted(job['environment'])))
                     save(folder/'effective-engine-environment.json',binding)
-                    expected=str(job['environment'].get('STRATA_PREFILL_CPU_SHARE'))
-                    if len(binding)!=1 or binding[0]['cpu_prefill_share']!=expected:
-                        raise RuntimeError('Effective CPU-share environment differs from selected condition')
+                    expected={k:None if v is None else str(v)for k,v in job['environment'].items()}
+                    if len(binding)!=1 or binding[0]['environment']!=expected:
+                        raise RuntimeError('Effective engine environment differs from selected condition')
                 if plan.get('schema')=='conditions-v2':
                     started=re.findall(r'engine started: (.*)',host.log_bytes_since(model,offset).decode(errors='replace'))
                     args=started[-1].split() if started else []
