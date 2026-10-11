@@ -23,9 +23,9 @@ def message(role, text):
 
 
 class InspectSessionTest(unittest.TestCase):
-    def run_session(self, *calls):
+    def run_session(self, *calls, developer='role'):
         events = [{'type': 'session_meta', 'payload': {'id': 't', 'cwd': ROOT, 'base_instructions': 'x'}},
-                  message('developer', 'role'), message('user', 'ARW messageId: m1\n\nhandoff')]
+                  message('developer', developer), message('user', 'ARW messageId: m1\n\nhandoff')]
         for i, c in enumerate(calls):
             events += call(i, *c) if isinstance(c, tuple) else call(i, c)
         events.append(message('assistant', '{"status":"ready"}'))
@@ -53,6 +53,13 @@ class InspectSessionTest(unittest.TestCase):
         self.assertIn('workdir outside root', reasons[2])
         self.assertIn('environment/identity query', reasons[3])
         self.assertIn('environment or home path', reasons[4])
+
+    def test_startup_sha_ignores_date_and_codex_home(self):
+        a = self.run_session(developer='date 2026-10-11; skills /x/01-a/run/codex-home/skills/.system')
+        b = self.run_session(developer='date 2026-10-12; skills /x/02-b/run/codex-home/skills/.system')
+        c = self.run_session(developer='date 2026-10-12; other role')
+        self.assertEqual(a['startup']['developer@1'], b['startup']['developer@1'])
+        self.assertNotEqual(a['startup']['developer@1'], c['startup']['developer@1'])
 
 
 if __name__ == '__main__':

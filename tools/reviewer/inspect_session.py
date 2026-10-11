@@ -32,6 +32,10 @@ RISKY = [
 ]
 DENIED = re.compile(r'sandbox denied|Operation not permitted|Permission denied|EPERM|EACCES|CreateProcess', re.I)
 UUID = re.compile(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
+# Startup text that differs per instance by design: the run date and the
+# per-instance Codex home holding the platform skills
+DATE = re.compile(r'\b\d{4}-\d{2}-\d{2}\b')
+CODEX_HOME = re.compile(r'\S*/codex-home/')
 
 
 def inside(path, root):
@@ -87,7 +91,8 @@ def inspect(session, root=None, allow=()):
     root = os.path.normpath(root or meta['cwd'])
     allow = [os.path.normpath(a) for a in allow]
     norm = lambda s: UUID.sub('<UUID>', s.replace(root, '<ROOT>'))
-    sha = lambda s: hashlib.sha256(norm(s).encode()).hexdigest()[:16]
+    sha = lambda s: hashlib.sha256(
+        DATE.sub('<DATE>', CODEX_HOME.sub('<CODEX_HOME>/', norm(s))).encode()).hexdigest()[:16]
     startup = {'base_instructions': sha(json.dumps(meta.get('base_instructions'), ensure_ascii=False))}
     handoff_seen = False
     actions, flagged, messages, compactions = [], [], [], 0
@@ -161,7 +166,7 @@ def render(r, out):
     lines = [f"# 会话动作检查 {r['threadId']}", '',
              f"- 会话：`{r['session']}`", f"- 根目录 `<ROOT>`：`{r['root']}`",
              f"- 来源：{r['source']} / {r['thread_source']}；找到交接：{r['handoff_found']}；压缩 {r['compactions']} 次",
-             f"- 启动上下文 SHA（`<ROOT>`、UUID 已归一，跨实例应一致）：`{json.dumps(r['startup'], ensure_ascii=False)}`",
+             f"- 启动上下文 SHA（`<ROOT>`、UUID、日期、codex-home 路径已归一，跨实例应一致）：`{json.dumps(r['startup'], ensure_ascii=False)}`",
              f"- 工具调用 {len(r['actions'])} 次，标记 {sum(bool(a['reasons']) for a in r['actions'])} 次",
              '', '## 动作', '']
     for a in r['actions']:
