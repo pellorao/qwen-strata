@@ -42,7 +42,8 @@ secedit /export /cfg "$rights.inf" /areas USER_RIGHTS | Out-Null
 if ($LASTEXITCODE) { throw 'secedit export failed' }
 $line = Get-Content "$rights.inf" | Where-Object { $_ -match '^SeLockMemoryPrivilege\s*=' }
 $LargePages = 'already granted'
-if ($line -notmatch "\*$sid(,|$)") {
+# No match yields an empty collection, and an empty collection never satisfies -notmatch.
+if (-not $line -or $line -notmatch "\*$sid(,|$)") {
     $granted = if ($line) { "$line,*$sid" } else { "SeLockMemoryPrivilege = *$sid" }
     @('[Unicode]', 'Unicode=yes', '[Version]', 'signature="$CHICAGO$"', 'Revision=1', '[Privilege Rights]', $granted) |
         Set-Content "$rights.new.inf" -Encoding Unicode
