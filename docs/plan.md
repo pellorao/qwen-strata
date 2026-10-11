@@ -14,8 +14,8 @@
 
 1. [x] 第 6 维 CPU 辅助显式 auto / 不设置，6 实例：完成。两者实质等价（CPU 辅助都开着，只差上限），差距在噪声内，Main 与复核一致维持 auto，配置不改（[报告](../reports/v0.1.42/iq3_xxs-tuning/cpu-prefill-share-unset/summary.md)）。
 2. [x] 第 8 项采样，9 实例：完成。三者分差 ≤0.08，greedy 解码最快，Main 与复核一致维持 0/1/20，配置不改（[报告](../reports/v0.1.42/iq3_xxs-tuning/sampling/summary.md)）。
-3. [ ] 长上下文 KV 驻留：20480 / 32768 × 64K/100K/150K/200K × 3，24 实例。定 kv-resident 默认值；最优值随长度不同且双方一致时，实现档位绑定 `kv-resident`（档位条目带引擎覆盖）并部署，否则各档沿用 20480。150K/200K 稳定且 commit 有余量、双方一致时，部署 206584/256584 为可选档位（默认仍 156584）。
-4. [ ] 第 9 维窗口：156584/206584/256584 × 3 个 Spec Readiness 合并实例，只比已验证的档位。不一致保留 156584。
+3. [x] 长上下文 KV 驻留，24 实例：完成。各档 kv-resident 保持 20480，不按档位绑定（只有 150K 可分辨且偏 20480）；206584／150000 发布为 IQ3_XXS 可选档位并部署（默认仍 156584，已验证提示约 151K 以内）；256584 不发布（200K 下 6 实例同一记录检索错误，与条件无关）。Main 与复核一致（[报告](../reports/v0.1.42/iq3_xxs-tuning/kv-resident-long/summary.md)）。
+4. [ ] 第 9 维窗口：156584/206584 × 3 个 Spec Readiness 合并实例，共 6 个（256584 未发布，按计划整列删除，拉丁方改为 ABBAAB）。不一致保留 156584。
 5. [ ] F6：四场景各 5 次（Commit Audit → Code Spec → Code Standards → Spec Readiness），只出 benchmark 报告。
 
 决策、双方意见和结果记在本节下方和各项报告。
