@@ -21,5 +21,10 @@ paths:
 - Spec Readiness 合并实例的定义：同一线程先跑 runtime-migration，再跑 artifact-promotion，两份报告分别绑定，按原版融合评分。
 
 ## 会话检查
-- 按冻结 ARW 的 `docs/agents/reviewer-capability-session-inspection.md`，完整检查每个原生会话：准备项、线程身份、启动上下文、全部消息和工具调用、读写范围、报告和终态，并排查隐藏答案、其他实例等禁止来源。
-- 自动评分、token 对账、关键词搜索都不能代替这项检查。检查完成前不清理原始记录。
+- 按冻结 ARW 的 `docs/agents/reviewer-capability-session-inspection.md` 检查每个原生会话：准备项、线程身份、启动上下文、交接后的全部消息、每次工具调用及结果、读写范围、报告和终态，并排查隐藏答案、其他实例等禁止来源。
+- 用 `tools.reviewer.inspect_session` 提取，Main 逐条审阅动作（用户 2026-10-11）：
+  - 必读 `actions.md` 全文和 `flagged.md` 全文。后者含被标记调用（目标出根目录、`..` 越界、未赋值变量、环境与身份查询、网络、会话或凭据材料、拒绝报错、无结果）的完整命令和结果，以及交接后的非 assistant 消息。
+  - 推理、元数据、压缩摘要和未标记调用的结果不作例行阅读。依据：Reviewer 只能经工具调用接触来源，调用目标限于场景根时，结果也只来自场景根。ARW 文档不要求检查推理。诊断早停、卡住等问题时按事件号调取原文。
+  - 启动上下文按 `summary.json` 的归一化 SHA 在同批实例间比对，不一致时读原文。
+  - 程序只做提取和标记，结论由 Main 根据逐条动作作出；标记项逐条写明判定。
+- 检查完成前不清理原始记录。

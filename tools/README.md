@@ -54,7 +54,7 @@
 | `review_deadlines`、`monitor_review_deadlines` | 55/60、10/15 分钟时限 |
 | `review_continuations`、`prepare_continuation_score`、`arw_recovery` | 早停接续、上游诊断评分、停止后恢复核对 |
 | `arw_metrics`、`review_observations` | 补充每轮计量；提取可见执行观测 |
-| `render_reviewer_session`、`render_reviewer_session_deltas`、`render_session_event_deltas`、`reading_text_deltas` | 生成原生会话的人工检查视图 |
+| `inspect_session` | 会话检查：提取并判定每次工具调用，输出逐条动作表和标记项全文 |
 | `repair_reviewer_report` | 在副本上做机械格式修复 |
 | `native_cli_binding`、`native_codex_runtime`、`wsl_client`、`verify_codex_compact_prompt` | Codex CLI 绑定、app-server 客户端、原生压缩提示采集 |
 
