@@ -6,7 +6,6 @@
 
 需要用户决定的事项只记在这里，处理后删除。
 
-- 页面文件：用户 2026-10-11 同意暂不修改，在长上下文补测时记录最低剩余 commit 后再定。
 - F3 修复（用户 2026-10-11 同意）：已完成无模型修补。新增 ARW 补丁 `arw-patches/reviewer-followup-original-scope.patch`：重开条目时先在原工作目录检查原报告，接受新任务后再切换到新目录；附复现测试，修复前失败、修复后通过。驱动遇到 `reviewer-busy` 时等待原任务到终态后重发 followup；遇到 ARW 早退暂停则交给用户决定。PLE 测量已取消。F3 第 3 次试跑（2026-10-11 18:48–19:07，大页生效、Normal 优先级）通过：1 个合并实例，runtime-migration 与 artifact-promotion 在同一线程各 1 个回合完成，followup 在原作用域找到报告，没有出现 `reviewer-busy`、早退接续或停顿；两阶段各发生 1 次压缩，ARW 实际用的压缩提示是安装目录基础提示加 Codex 0.160.1 原生快照（与工程源同 SHA）；结束后 key 已归还、模型已停。runtime-migration 报告未通过 ARW `generate` 格式校验（要求 SPEC-READINESS-REQUIREMENTS 有问题时在需求范围检查后停止），属于模型输出质量，不是交接故障。明细在 `.tmp/arw4/sr-a/`。
 
 ## 顺序
