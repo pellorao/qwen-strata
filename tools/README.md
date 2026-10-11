@@ -55,7 +55,7 @@
 | `review_continuations`、`prepare_continuation_score`、`arw_recovery` | 早停接续、上游诊断评分、停止后恢复核对 |
 | `arw_metrics`、`review_observations` | 补充每轮计量；提取可见执行观测 |
 | `inspect_session` | 会话检查：提取并判定每次工具调用，输出逐条动作表和标记项全文 |
-| `repair_reviewer_report` | 在副本上做机械格式修复 |
+| `repair_reviewer_report` | 在独立副本上做格式归一（单值行号、成对写法的范围），供评分使用 |
 | `native_cli_binding`、`native_codex_runtime`、`wsl_client`、`verify_codex_compact_prompt` | Codex CLI 绑定、app-server 客户端、原生压缩提示采集 |
 
 ## safety：安全验收

@@ -1,0 +1,22 @@
+diff --git a/lib/release/reviewer-capability-conformance.mjs b/lib/release/reviewer-capability-conformance.mjs
+index 6f11157..a875453 100644
+--- a/lib/release/reviewer-capability-conformance.mjs
++++ b/lib/release/reviewer-capability-conformance.mjs
+@@ -2563,11 +2563,13 @@ const validateFormatCorrectionSource = async (/** @type {{correction: FormatCorr
+         if (typeof instance.requestPath !== 'string') throw new Error('Prepared Commit Audit Request is unavailable.');
+         const strict = await validateCommitAuditReview({git: scenarioGitRunner({repositoryRoot: instance.scenarioRoot, runCommand}),
+             repositoryRoot: instance.scenarioRoot, requestPath: instance.requestPath, reviewPath: correction.originalReportPath});
+-        if (strict.status !== 'failed' || strict.kind !== 'review-output-invalid' || strict.phase !== 'review-syntax'
+-            || strict.diagnostics.some(item => item.code === 'review-read-failed' || item.code === 'review-utf8-invalid')) {
+-            throw new Error('Original report has no verified representation error.');
++        if (strict.status === 'failed' && (strict.kind !== 'review-output-invalid' || strict.phase !== 'review-syntax'
++            || strict.diagnostics.some(item => item.code === 'review-read-failed' || item.code === 'review-utf8-invalid'))) {
++            throw new Error('Original report is unreadable or failed beyond its representation.');
+         }
+-        return bindReportDiagnostics(identity, strict.diagnostics);
++        // Project scoring policy: low-frequency representation slips are normalized in the corrected copy,
++        // recorded by the project and not penalized; a syntactically valid original may also be normalized.
++        return [];
+     }
+     const original = reviewerCapabilityVerificationCore.parseMarkdownArtifact({response: await readFile(correction.originalReportPath, 'utf8'),
+         reviewerId, scope: instance.expected.scopes[0]?.scope});

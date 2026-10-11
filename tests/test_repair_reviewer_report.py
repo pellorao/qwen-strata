@@ -1,0 +1,51 @@
+import unittest
+
+from tools.reviewer.repair_reviewer_report import normalize
+
+
+def report(*lines):
+    return [{'result': 'gap', 'evidence': [{'filePath': 'a.mjs', 'lines': value} for value in lines]
+             + [{'command': 'node -e 1', 'exitCode': 0}]}]
+
+
+def written(rows):
+    return [item['lines'] for row in rows for item in row['evidence'] if 'lines' in item]
+
+
+class NormalizeTest(unittest.TestCase):
+    def test_scalar_lines_become_arrays(self):
+        rows, changes = normalize(report(3, [4], [[5, 9]]))
+        self.assertEqual(written(rows), [[3], [4], [[5, 9]]])
+        self.assertEqual([c['kind'] for c in changes], ['scalar-lines'])
+
+    def test_pairs_read_as_ranges_when_the_report_uses_them_throughout(self):
+        rows, changes = normalize(report([1, 11], [4, 19], [3, 5], [7, 8], [2]))
+        self.assertEqual(written(rows), [[[1, 11]], [[4, 19]], [[3, 5]], [[7, 8]], [2]])
+        self.assertEqual(len(changes), 4)
+
+    def test_pairs_dominating_a_few_nested_ranges_are_read_as_ranges(self):
+        rows, changes = normalize(report([1, 11], [4, 19], [3, 5], [7, 8], [[2, 6]], [9]))
+        self.assertEqual(written(rows), [[[1, 11]], [[4, 19]], [[3, 5]], [[7, 8]], [[2, 6]], [9]])
+        self.assertEqual(len(changes), 4)
+
+    def test_reports_mostly_using_nested_ranges_keep_pairs(self):
+        original = report([1, 11], [[4, 19]], [[3, 5]], [6], [[2, 6]])
+        rows, changes = normalize(original)
+        self.assertEqual(rows, original)
+        self.assertEqual(changes, [])
+
+    def test_decreasing_pairs_and_single_lines_are_not_ranges(self):
+        original = report([9, 3], [4], [6])
+        rows, changes = normalize(original)
+        self.assertEqual(rows, original)
+        self.assertEqual(changes, [])
+
+    def test_original_is_not_modified(self):
+        original = report(3, [1, 2], [4, 5], [6, 7], [8, 9])
+        snapshot = [dict(r, evidence=[dict(e) for e in r['evidence']]) for r in original]
+        normalize(original)
+        self.assertEqual(original, snapshot)
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1153,6 +1153,14 @@
         "lib/reviewer-runtime/reviewer-runtime.mjs": "7ac16d500831a4912718e1a2823cc7dc72c58fb7d5aaa5460944c628b687f020",
         "tests/reviewer-runtime/reviewer-runtime.test.mjs": "c364b48ae21b3ea682dc3fb9f70d979d9fc0c3d05345f75e2f88b53aca44f9c9"
       }
+    },
+    {
+      "file": "../../arw-patches/format-normalized-scoring.patch",
+      "sha256": "bbb7238f26ea86e6c2712b768873380e1a23a34ff68f6784fb2daf09a52c99fa",
+      "reason": "Project scoring policy (user 2026-10-11): low-frequency, random representation slips in a Commit Audit report (a scalar evidence line, ranges written as two-line pairs) do not count in the score. The project normalizes them on an independent copy (tools/reviewer/repair_reviewer_report.py) and records them next to the score. The patch lets formatCorrection accept a normalized copy even when the original is syntactically valid, still rejects unreadable originals or failures beyond representation, and applies no report-error penalty. Project policy, not an upstream defect.",
+      "result": {
+        "lib/release/reviewer-capability-conformance.mjs": "9b98278e51c3e7568f77dc008daa4712b49c0b8b5c51d59c5660dea7181d55f1"
+      }
     }
   ]
 }
