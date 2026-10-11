@@ -141,7 +141,7 @@
   "tools/metrics/streamed_chat.py": "6ab84674ae01a2b3e6c74576eac582744ee758fbe316c3033f29c0001018e5b2",
   "tools/metrics/host_telemetry.py": "29dde08f79ca97b6dfa94a56710b97a81fa49c177a2c9f1f0e9377e3a051c490",
   "tools/metrics/windows_resource_sampler.py": "1b781dfa8c23a4a8a65f8d195d0faf6f64f81f147a30113d6655049f0897b6cf",
-  "tools/ops/measurement_host.py": "fa4229a5a83f074de23501967ac0545f2e869068059a733da0fb2e8b3e93d24c",
+  "tools/ops/measurement_host.py": "734bda3b43298503acfe758c3c2efe39eb6ae81d8ce306c8dde4ee4423d515cf",
   "tools/metrics/strata_tokens.py": "2905bdb41b097c2b48467ae786ffc72501ff77f74b302e2a10cce9213c168878",
   "benchmarks/resource-calibration-v1/workload.py": "f10e887f9a29a186e7fb8a2f7dd6c8d308ce45892492f8475fe3332bf95d946a",
   "config/prompts/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
@@ -149,5 +149,7 @@
   "config/deployments/rtx3080ti.json": "2a853a8a1ef844a62618f8583bda1f6e2ff314019741e5314e44b758809ae33f",
   "config/templates/iq3_xxs-prebuilt.json": "0d1fc8f5eee5db7d3adf91a07858bc773adc5d4c3565b7fc7ae4540d4417bf78",
   "src/model_process.py": "082fe686f7f0c2b516062ba051d06c8dd7f4cc74865acaa34488fc5e7c5877ef"
- }
+ },
+ "default_profile_sha256_verified": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+ "source_rebind_note": "2026-10-12 开跑前：tools/ops/measurement_host.py 因 52cb873（新增服务日志读取，原接口不变）重绑 SHA；补上 default_profile_sha256_verified（开跑前核对专家档案 SHA 与已安装一致）。不改输入、条件或评分。"
 }
