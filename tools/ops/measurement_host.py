@@ -118,7 +118,9 @@ def host_selection(source, identifier):
     """Freeze host hardware values before a run; never silently change them in run."""
     result = copy.deepcopy(source)
     deployment = load_host(identifier)
-    result['engine_overrides'].update(deployment['engine_overrides'])
+    if result.get('model_owner') != 'arw':
+        # ARW-owned runs start the model with the installation defaults, recorded in the preflight receipt.
+        result['engine_overrides'].update(deployment['engine_overrides'])
     result['host_id'] = identifier
     result['host_hardware'] = deployment.get('hardware')
     return result

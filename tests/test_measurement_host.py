@@ -37,6 +37,9 @@ class MeasurementHostTests(unittest.TestCase):
         self.assertEqual(result['engine_overrides'],{'prefill':8192,'spec-min-p':.7})
         self.assertEqual(result['sampling'],source['sampling'])
         self.assertEqual(result['host_id'],'rtx3080ti')
+        with patch('tools.ops.measurement_host.load_host',return_value=self.remote().deployment):
+            owned=host_selection({'model_owner':'arw','engine_overrides':{}},'rtx3080ti')
+        self.assertEqual(owned['engine_overrides'],{})  # ARW starts the model with installation defaults
 
     def test_smoke_baseline_retains_host_overrides_and_generation_budget(self):
         host=self.remote();host.deployment['engine_overrides']['pool-affinity']='all'
