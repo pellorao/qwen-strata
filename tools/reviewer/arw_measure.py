@@ -27,13 +27,21 @@ from startup_instructions import startup_prompt_bytes
 ARW_PAUSE_PREFIX='The Reviewer runtime paused this same task after '
 
 
+def strata_provider(installation, context_window=None):
+    """ARW provider entry: callers choose only the model and, optionally, a published context tier."""
+    if context_window is not None and type(context_window) is not int:
+        raise ValueError('Unsupported measurement context window')
+    return {'driver': 'strata', 'installationDirectory': str(installation),
+            **({} if context_window is None else {'contextWindow': context_window})}
+
+
 def local_review_catalog(source, target, model, context_window=None, strata_installation=None):
     """Declare installed text search and route guardian to the local model."""
     catalog = json.loads(Path(source).read_text())
     if strata_installation is not None:
         # ARW's own Strata provider: it takes the lease, starts the model with the installation
-        # defaults, and applies its continuation, pause and work-budget policy.
-        catalog['providers'] = {'qwen_strata': {'driver': 'strata', 'installationDirectory': str(strata_installation)}}
+        # defaults and a published context tier, and applies its continuation, pause and work-budget policy.
+        catalog['providers'] = {'qwen_strata': strata_provider(strata_installation, context_window)}
     slug = 'qwen3.8-flash-next-' + model.lower()
     selected = next((m for m in catalog['models'] if m['slug'] == slug), None)
     if selected is None:
@@ -42,7 +50,7 @@ def local_review_catalog(source, target, model, context_window=None, strata_inst
     # Borrowed OpenAI metadata advertised image search, which the installed
     # text-only Brave adapter does not implement.
     selected['web_search_tool_type'] = 'text'
-    if context_window is not None:
+    if context_window is not None and strata_installation is None:
         if type(context_window) is not int or context_window not in (80000,125000,188000,250000,*CONTEXT_WINDOWS):
             raise ValueError('Unsupported measurement context window')
         selected['context_window'] = context_window
@@ -166,10 +174,11 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
     state.mkdir(parents=True,exist_ok=True)
     settings={'model':'qwen3.8-flash-next-'+selection['model'].lower(),'modelProvider':'qwen_strata',
         'reasoningEffort':selection['effort'],'serviceTier':'default','config':{
-            'model_context_window':selection.get('context_window',250000),
             'shell_environment_policy':{'set':review_shell_environment(os.environ['QWEN_ARW_RUNTIME_FILE'])},
             'model_providers':{'qwen_strata':{'name':'Local Strata','base_url':os.environ['QWEN_ARW_MODEL_BASE'],
                 'wire_api':'responses','env_key':'STRATA_API_KEY','requires_openai_auth':False,'supports_websockets':False}}}}
+    if selection.get('model_owner')!='arw':  # ARW's provider sets the window from the selected installation tier
+        settings['config']['model_context_window']=selection.get('context_window',250000)
     if selection.get('loop_reminder')=='on':  # deprecated frontend loop reminder, off unless selected
         settings['config']['model_providers']['qwen_strata']['http_headers']={'X-Loop-Reminder':'on'}
     if 'auto_compact_token_limit' in selection:
@@ -491,10 +500,26 @@ def capture_segment(measurement_host,model,start,end,folder):
     return requests,sum_engine_tokens(requests),started[-1] if started else None
 
 
-def close_arw_segment(record,measurement_host,model,end):
+def start_arw_telemetry(measurement_host,folder):
+    """Host resource and GPU thermal sampling for one instance, from its dispatch to its segment close."""
+    from tools.metrics.host_telemetry import start
+    folder.mkdir(parents=True,exist_ok=False)
+    return start(measurement_host,folder),folder
+
+
+def finish_arw_telemetry(measurement_host,telemetry):
+    from tools.metrics.host_telemetry import finish
+    binding,folder=telemetry
+    return finish(measurement_host,binding,folder)
+
+
+def close_arw_segment(record,measurement_host,model,end,telemetry=None):
     folder=Path(record['binding_path']).parent
     requests,tokens,started=capture_segment(measurement_host,model,record['engine_log_start_offset'],end,folder)
     record.update(engine_requests=requests,engine_tokens=tokens,engine_log_end_offset=end,engine_started=started)
+    if telemetry:
+        record['telemetry']=finish_arw_telemetry(measurement_host,telemetry)
+        record['telemetry_folder']=str(telemetry[1])
     incomplete=not record.get('complete',False)
     record['token_consumption']=None if incomplete else tokens
     record['token_consumption_source']='engine log segment between this and the next dispatch; API usage is diagnostic only'
@@ -528,8 +553,9 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
     arw_owned=selection.get('model_owner')=='arw'
     if arw_owned and (selection.get('engine_overrides') or selection.get('engine_environment') or selection.get('sampling')
             or selection.get('automatic_continuation') or selection.get('startup_instructions') is False
-            or selection.get('loop_prevention_instructions') or profile or resume):
-        raise ValueError('ARW-owned model runs use installation defaults and ARW continuation only, without resume')
+            or selection.get('loop_prevention_instructions') or 'auto_compact_token_limit' in selection or profile or resume):
+        raise ValueError('ARW-owned model runs choose only the model, effort and a published context tier; '
+                         'engine, sampling and compaction settings are installation defaults, with ARW continuation and no resume')
     old_runtime=json.loads((out/'runtime.json').read_text()) if resume else {}
     cleanup_path=Path(old_runtime.get('cleanupPath',out/'arw-cleanup.json'))
     if resume:
@@ -595,7 +621,7 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
         expected_startup={'enabled':True,'sha256':hashlib.sha256(startup_prompt_bytes(source_raw,False)).hexdigest(),
                           'source_sha256':hashlib.sha256(source_raw).hexdigest(),'loop_prevention_enabled':False}
     controller=None if arw_owned else measurement_host.controller(out).__enter__()
-    open_segment=None
+    open_segment=None;telemetry=None
     safe_to_release=True
     try:
         if recovery_proof:
@@ -622,6 +648,12 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
         try:
             value=read_daemon_message(daemon_reader,daemon)
             if not value.get('ready'):raise RuntimeError('Original ARW manager did not start')
+            if arw_owned:
+                # The manager must hold exactly the provider this run bound, read through ARW's own catalog.
+                expected={**strata_provider(installation,selection.get('context_window')),'maxInstances':1}
+                if value.get('providers',{}).get('qwen_strata')!=expected:
+                    raise RuntimeError('ARW manager did not read the bound Strata provider')
+                save(out/'arw-providers.json',value['providers'])
             machine=Machine(source,runtime,out)
             if selection.get('archive_http'):
                 from tools.reviewer.review_continuations import HttpArchive
@@ -635,8 +667,8 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
                     if arw_owned:
                         offset=log_offset(installation,selection['model'],measurement_host)
                         if open_segment:
-                            close_arw_segment(open_segment,measurement_host,selection['model'],offset)
-                            save(out/'results.json',records);open_segment=None
+                            close_arw_segment(open_segment,measurement_host,selection['model'],offset,telemetry)
+                            save(out/'results.json',records);open_segment=None;telemetry=None
                         previous=None
                         if handoff.get('scenarioId')=='artifact-promotion':
                             repetition=handoff['instanceId'].rsplit('-',1)[1]
@@ -650,6 +682,7 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
                                          'skipped':'runtime-migration of this repetition did not complete'}
                                 save(out/'skipped-'+handoff['instanceId']+'.json',skipped);continue
                         safe_to_release=False
+                        telemetry=start_arw_telemetry(measurement_host,out/'telemetry'/handoff['instanceId'])
                         record=execute_review(machine,source,preparation,handoff,out/handoff['instanceId'],selection,catalog,
                             {'runtime_installation':str(native_install),'engine_log_start_offset':offset,
                              'measurement_host':measurement_host.metadata(),'model_owner':'arw'},previous=previous)
@@ -765,12 +798,15 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
             if open_segment and safe_to_release:
                 # ARW released its lease at closure; the last instance's segment ends at the log's end now.
                 close_arw_segment(open_segment,measurement_host,selection['model'],
-                                  log_offset(installation,selection['model'],measurement_host))
-                save(out/'results.json',records)
+                                  log_offset(installation,selection['model'],measurement_host),telemetry)
+                save(out/'results.json',records);telemetry=None
             if http_archive:http_archive.close()
             os.environ['PATH']=old_path
             for key in ('STRATA_API_KEY','QWEN_ARW_MODEL_BASE','QWEN_ARW_RUNTIME_FILE'):os.environ.pop(key,None)
     finally:
+        if telemetry:  # an instance that never reached its segment close must not leave the sampler running
+            try:save(telemetry[1]/'unclosed-segment.json',finish_arw_telemetry(measurement_host,telemetry))
+            except Exception as error:print('Telemetry sampler stop failed: '+type(error).__name__,flush=True)
         if safe_to_release:
             if controller:controller.__exit__(None,None,None)
         else:

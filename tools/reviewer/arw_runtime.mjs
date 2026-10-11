@@ -17,14 +17,15 @@ if(operation==='daemon') {
  const {createBackgroundAgentHost}=await upstream('arw-background-agent-host.mjs');
  const {createBackgroundAgentDaemon}=await upstream('background-agent/daemon.mjs');
  const {backgroundAgentRuntimeDirectory}=clientModule;
- const nativeSessions=await createIsolatedNativeSessions(info);
+ const {sessions:nativeSessions,modelCatalog}=await createIsolatedNativeSessions(info);
  const host=await createBackgroundAgentHost({installationDirectory:info.installationDirectory,
-  programDirectory:info.programDirectory??info.repositoryRoot,nativeSessions});
+  programDirectory:info.programDirectory??info.repositoryRoot,nativeSessions,modelCatalog});
  const daemon=await createBackgroundAgentDaemon({runtimeDirectory:host.runtimeDirectory,
   dispatch:host.dispatch,list:host.manager.list,prepareMaintenance:host.manager.prepareMaintenance,
   port:0,maintenancePort:0});
  writeFileSync(configuration,JSON.stringify({...info,port:daemon.port,runtimeDirectory:host.runtimeDirectory},null,2)+'\n');
- console.log(JSON.stringify({ready:true,port:daemon.port}));
+ // The providers upstream's manager actually reads, so the caller can check them before dispatch.
+ console.log(JSON.stringify({ready:true,port:daemon.port,providers:await modelCatalog.getProviders()}));
  process.stdin.resume();
  process.stdin.on('end',async()=>{
   const result=await host.manager.prepareMaintenance({stopBackgroundAgents:false,allowIdleEviction:true});

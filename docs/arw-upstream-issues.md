@@ -27,15 +27,25 @@
 
 ### A. Strata provider 改用常驻前端接口（`arw-patches/strata-frontend-protocol.patch`）
 
-- **版本**：ARW 760007c，`lib/background-agent/strata-driver.mjs`、`lib/background-agent/strata-work-policy.mjs`。
-- **原做法**：每次连接都运行安装目录的 `Run-Strata-Controller.sh` 启动控制进程，用 `/ownership/acquire|status|start|stop|release` 管理独占和模型；启动模型时写死 `spec-min-p 0.7`、`max-context 156584` 和 temperature 0 / top_p 1 / top_k 20；压缩提示读取 `config/compact_prompt.txt`。
-- **本工程现状**：安装目录有一个常驻前端，地址写在 `config/frontend.json`（`listen_address`、`port`），接口为 `POST /lease/acquire`、`GET /model/status`、`POST /model/start`、`POST /model/stop`、`POST /lease/release`，模型请求走 `/strata/v1`。引擎参数和请求默认值由安装目录按"主机 + 量化"实测选定（例如 rtx3080ti 的 IQ3_XXS 用 `spec-min-p 0.9`），调用方只需给出量化名。压缩提示位于 `config/prompts/compact-prompt.txt`。旧的控制脚本和 `/ownership/*` 已经删除。
+- **版本**：ARW 760007c，`lib/background-agent/strata-driver.mjs`、`strata-work-policy.mjs`、`strata-models.mjs`、`model-catalog.mjs`、`manager.mjs`，以及对应测试 `tests/background-agent/strata-driver.test.mjs`、`model-catalog.test.mjs`、`host.test.mjs`。
+- **原做法**：每次连接都运行安装目录的 `Run-Strata-Controller.sh` 启动控制进程，用 `/ownership/acquire|status|start|stop|release` 管理独占和模型；启动模型时写死 `spec-min-p 0.7`、`max-context 156584` 和 temperature 0 / top_p 1 / top_k 20；`strata-models.mjs` 的 `STRATA_CONTEXT_WINDOW = 156584` 同时写进模型目录和任务设置，压缩阈值写死为 100000；压缩提示读取 `config/compact_prompt.txt`。
+- **本工程现状**：安装目录有一个常驻前端，地址写在 `config/frontend.json`（`listen_address`、`port`），接口为 `POST /lease/acquire`、`GET /model/status`、`POST /model/start`、`POST /model/stop`、`POST /lease/release`，模型请求走 `/strata/v1`。引擎参数和请求默认值由安装目录按"主机 + 量化"实测选定（例如 rtx3080ti 的 IQ3_XXS 用 `spec-min-p 0.9`）。公开的 `/model/start` 只接受 `{model, context_window}`，其他字段一律拒绝；`context_window` 必须是安装目录 `config/deployment.json` 里该量化 `context_tiers` 发布的档位之一（每档带 `context_window` 和 `auto_compact_token_limit`，第一档为默认）。调用方因此只选三项：模型、推理强度（随请求）、上下文档位。压缩提示位于 `config/prompts/compact-prompt.txt`。旧的控制脚本和 `/ownership/*` 已经删除。
 - **修改**：
   1. `connect()` 不再运行脚本，改为读取 `config/frontend.json`，得到控制地址，模型地址为 `<控制地址>/strata/v1`。
   2. 五个操作改为上面的新路径；解析新的返回字段（`acquire` 返回 `key` 与 `lease: "held"`，`release` 返回 `lease: "free"`）；前端把加载中的模型报告为 `starting`，按原 `partial` 处理。
-  3. `start` 只传 `{model: <量化名>}`，不再写死引擎参数和采样参数。
-  4. 压缩提示路径改为 `config/prompts/compact-prompt.txt`。
-- **建议**：ARW 按上述新接口适配；不要在 ARW 中写死引擎参数，由安装方的每机每量化默认值决定。补丁只改了实现，没有改 ARW 自带的 driver 测试，上游适配时需要同步更新这些测试。
+  3. `start` 只传 `{model: <量化名>, context_window: <档位窗口>}`，不再写死引擎参数和采样参数。
+  4. 去掉 `STRATA_CONTEXT_WINDOW` 和固定的 100000。新增 `readStrataContextTier`：读取安装目录 `config/deployment.json` 的 `context_tiers`，按 provider 配置的 `contextWindow` 选档（未配置用第一档），档位不存在时报错。模型启动窗口、模型目录里的 `context_window` / `max_context_window`、任务设置里的 `model_context_window` 和 `model_auto_compact_token_limit` 都取自同一档位。
+  5. `models.custom.json` 的 Strata provider 新增可选字段 `contextWindow`（正整数，只允许 Strata driver）。模型目录先校验 provider，再用校验后的 provider 套档位。
+  6. 压缩提示路径改为 `config/prompts/compact-prompt.txt`。
+  7. 同步更新 ARW 自带的 driver、模型目录和 host 测试（旧 driver 测试仍按已删除的控制脚本断言；host 测试的夹具改为新压缩提示路径并提供档位）。改动后 `tests/background-agent/` 与 `tests/reviewer-runtime/` 只剩 1 个与本补丁无关、未打补丁时同样失败的终端标题测试。
+- **建议**：ARW 按上述新接口适配；不要在 ARW 中写死引擎参数、窗口或压缩阈值，由安装方的每机每量化默认值和发布档位决定。
+
+### C. 嵌入式宿主传入 `nativeSessions` 时，管理器读不到 provider（本工程运行层已绕开，未改 ARW）
+
+- **版本**：ARW 760007c，`lib/arw-background-agent-host.mjs` 的 `createBackgroundAgentHost`。
+- **现象**：调用方传入 `nativeSessions` 而没有传 `modelCatalog` 时，宿主既不创建共享模型目录，也不设 Strata driver 工厂；管理器的 `providerConfigurations()` 因此为空，`model_owner = "arw"` 的任务不会领 key、不会启动模型，模型请求直接被前端以 403（缺少有效 key）拒绝。本工程 2026-10-11 的 F3 试跑即因此失败。
+- **本工程处理**：运行层 `tools/reviewer/arw_native_setup.mjs` 按 ARW 宿主自己的做法，创建一个共享目录（`CODEX_HOME` 指向隔离的 codex-home），同时传给 App Server 和宿主；provider 写进 codex-home 的 `models.custom.json`（ARW 只从这里读 provider）；daemon 就绪时回报 ARW 实际读到的 provider，`arw_measure` 核对一致后才派发。
+- **建议**：宿主在收到 `nativeSessions` 时也应接受或创建 `modelCatalog`，或在缺少目录而 provider 需要 driver 时明确报错，而不是静默丢掉 provider。
 
 ### B. 能力测量中不要求每实例冷启动
 

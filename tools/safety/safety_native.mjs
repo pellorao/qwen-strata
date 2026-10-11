@@ -6,7 +6,7 @@ import {createInterface} from 'node:readline';
 import {createIsolatedNativeSessions} from './arw_native_setup.mjs';
 const info=JSON.parse(readFileSync(process.argv[2],'utf8'));
 const {reviewerNativeSettings,declineReviewerInteractions}=await import(pathToFileURL(resolve(info.repositoryRoot,'lib/reviewer-runtime/reviewer-native-policy.mjs')));
-let native=await createIsolatedNativeSessions(info);let session=null;let root=null;let current=null;
+let native=(await createIsolatedNativeSessions(info)).sessions;let session=null;let root=null;let current=null;
 const lines=createInterface({input:process.stdin,crlfDelay:Infinity});
 function writes(c){if(c.diagnosticWriteDirectory && info.zeroModelDiagnostic!==true)throw Error('Directory grants are zero-model diagnostics only');return [c.diagnosticWriteDirectory??c.report];}
 function settings(c){return reviewerNativeSettings({model:'qwen3.8-flash-next-q2_0',modelProvider:'qwen_strata',reasoningEffort:'high',serviceTier:'default',config:c.config},{cwd:c.cwd,readPaths:[],writePaths:writes(c)});}
@@ -23,7 +23,7 @@ for await(const line of lines){
    result=await session.snapshot({rootThreadId:root.threadId});
    if(result.clientRequests.length){await declineReviewerInteractions(session,result.clientRequests);result=await session.snapshot({rootThreadId:root.threadId});}
   }else if(request.operation==='restart'){
-   await session.stop();await native.close();native=await createIsolatedNativeSessions(info);
+   await session.stop();await native.close();native=(await createIsolatedNativeSessions(info)).sessions;
    session=await native.open({settings:settings(current),cwd:current.cwd,readPaths:[],writePaths:writes(current),onNotification:()=>{}});
    const resumed=await session.resume({threadId:root.threadId,expectedSessionPath:root.sessionPath,instructions:current.instructions});
    if(resumed.threadId!==root.threadId)throw Error('Restart changed original thread');

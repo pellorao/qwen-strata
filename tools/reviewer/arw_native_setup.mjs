@@ -6,6 +6,7 @@ import {pathToFileURL} from 'node:url';
 export async function createIsolatedNativeSessions(info) {
  const upstream=async name=>import(pathToFileURL(resolve(info.repositoryRoot,'lib',name)));
  const {createCodexAppServerSessions}=await upstream('background-agent/codex-app-server.mjs');
+ const {createSharedModelCatalog}=await upstream('background-agent/model-catalog.mjs');
  const {backgroundAgentRuntimeDirectory}=await upstream('background-agent/client.mjs');
  const codexHome=resolve(info.installationDirectory,'codex-home');
  mkdirSync(codexHome,{recursive:true,mode:0o700});
@@ -19,11 +20,17 @@ export async function createIsolatedNativeSessions(info) {
   if(existsSync(cache)) {
    if(!readFileSync(cache).equals(raw))throw Error('Isolated model cache differs from its bound source.');
   } else writeFileSync(cache,raw,{flag:'wx',mode:0o600});
+  // Upstream reads provider configurations only from the custom catalog.
   const custom=resolve(codexHome,'models.custom.json');
-  if(!existsSync(custom))writeFileSync(custom,JSON.stringify({models:[],providers:{}})+'\n',{flag:'wx',mode:0o600});
+  const providers=Buffer.from(JSON.stringify({models:[],providers:catalog.providers??{}})+'\n');
+  if(existsSync(custom)) {
+   if(!readFileSync(custom).equals(providers))throw Error('Isolated provider catalog differs from its bound source.');
+  } else writeFileSync(custom,providers,{flag:'wx',mode:0o600});
  }
+ // As in upstream's host, one catalog serves the App Server and the manager, which takes its providers from it.
+ const modelCatalog=createSharedModelCatalog({runtimeDirectory,environment:()=>({CODEX_HOME:codexHome})});
  const sessions=createCodexAppServerSessions({
-  runtimeDirectory,
+  runtimeDirectory,modelCatalog,
   ...(info.codexExecutable ? {codexExecutable:info.codexExecutable} : {}),
   environment:()=>{
    const env={...process.env};
@@ -31,5 +38,5 @@ export async function createIsolatedNativeSessions(info) {
    env.CODEX_HOME=codexHome;return env;
   },
  });
- return sessions;
+ return {sessions,modelCatalog};
 }

@@ -33,6 +33,39 @@ class ArwOwnedTests(unittest.TestCase):
             self.assertNotIn('providers', plain)
             owned = json.loads(local_review_catalog(source, folder / 'b.json', 'IQ3_XXS', None, '/install').read_text())
             self.assertEqual(owned['providers'], {'qwen_strata': {'driver': 'strata', 'installationDirectory': '/install'}})
+            tier = json.loads(local_review_catalog(source, folder / 'c.json', 'IQ3_XXS', 65536, '/install').read_text())
+            # The window is a provider choice that ARW resolves against the installation's published tiers.
+            self.assertEqual(tier['providers']['qwen_strata']['contextWindow'], 65536)
+            self.assertNotIn('context_window', tier['models'][0])
+
+    def test_arw_reads_the_bound_provider_and_installation_tier_through_its_own_catalog(self):
+        import subprocess
+        from tools.reviewer.freeze_arw_source import materialize
+        root = Path(__file__).resolve().parents[1]
+        snapshots = root / 'benchmarks/reviewer-suite-v1/source-snapshots/current'
+        manifest = json.loads((snapshots / 'manifest.json').read_text())
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            materialize(manifest, snapshots / manifest['snapshot']['file'], folder / 'arw')
+            (folder / 'strata/config').mkdir(parents=True)
+            (folder / 'strata/config/deployment.json').write_text(json.dumps({'context_tiers': {'IQ3_XXS': [
+                {'context_window': 156584, 'auto_compact_token_limit': 100000},
+                {'context_window': 65536, 'auto_compact_token_limit': 40000}]}}))
+            source = folder / 'catalog.json'
+            source.write_text(json.dumps({'models': [{'slug': 'qwen3.8-flash-next-iq3_xxs', 'context_window': 1}]}))
+            catalog = local_review_catalog(source, folder / 'bound.json', 'IQ3_XXS', 65536, folder / 'strata')
+            info = {'repositoryRoot': str(folder / 'arw'), 'installationDirectory': str(folder / 'install'), 'catalog': str(catalog)}
+            script = ("import {createIsolatedNativeSessions} from %s;"
+                      "const {modelCatalog}=await createIsolatedNativeSessions(%s);"
+                      "const path=await modelCatalog.prepare();"
+                      "console.log(JSON.stringify({providers:await modelCatalog.getProviders(),"
+                      "models:JSON.parse((await import('node:fs')).readFileSync(path,'utf8')).models}));"
+                      % (json.dumps((root / 'tools/reviewer/arw_native_setup.mjs').as_uri()), json.dumps(info)))
+            (folder / 'install').mkdir(mode=0o700)
+            value = json.loads(subprocess.run(['node', '--input-type=module', '-e', script], capture_output=True, text=True, check=True).stdout)
+            self.assertEqual(value['providers'], {'qwen_strata': {'driver': 'strata', 'installationDirectory': str(folder / 'strata'),
+                                                                  'contextWindow': 65536, 'maxInstances': 1}})
+            self.assertEqual(value['models'][0]['context_window'], 65536)
 
     def test_segment_is_bounded_by_the_next_dispatch(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -45,6 +78,20 @@ class ArwOwnedTests(unittest.TestCase):
             _, _, started = capture_segment(Host(), 'IQ3_XXS', start, end, folder)
             self.assertEqual((folder / 'engine-request-log.txt').read_text(), 'engine started: --max-context 156584\nmine\n')
             self.assertEqual(started, '--max-context 156584')
+
+    def test_segment_close_collects_that_instance_telemetry(self):
+        from unittest.mock import patch
+        from tools.reviewer.arw_measure import close_arw_segment
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            record = {'binding_path': str(folder / 'binding.json'), 'engine_log_start_offset': 0, 'complete': True}
+            class Host:
+                def log_bytes_since(self, model, offset):
+                    return b''
+            with patch('tools.metrics.host_telemetry.finish', return_value={'samples': 3}) as finish:
+                close_arw_segment(record, Host(), 'IQ3_XXS', 0, ({'pid': 1}, folder / 'telemetry'))
+            finish.assert_called_once()
+            self.assertEqual(record['telemetry'], {'samples': 3})
 
     def test_spec_readiness_runs_as_merged_same_thread_pairs(self):
         ids = [('runtime-migration', 1), ('runtime-migration', 2), ('artifact-promotion', 2), ('artifact-promotion', 1)]
@@ -63,6 +110,9 @@ class ArwOwnedTests(unittest.TestCase):
         with patch('tools.reviewer.native_cli_binding.verify_native_cli', return_value=None), \
                 patch('tools.ops.measurement_host.MeasurementHost', Host):
             with self.assertRaisesRegex(ValueError, 'installation defaults'):
+                run(None, Path('/nonexistent'), selection, [], Path('c'), host='rtx3080ti')
+            selection = {**selection, 'engine_overrides': {}, 'auto_compact_token_limit': 100000}
+            with self.assertRaisesRegex(ValueError, 'published context tier'):
                 run(None, Path('/nonexistent'), selection, [], Path('c'), host='rtx3080ti')
 
 
