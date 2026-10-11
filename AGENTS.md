@@ -52,7 +52,7 @@
 | `tools/{ops,metrics,loop,reviewer,tuning,safety}/` | 部署运维、计量、防循环、ARW 测量、资源校准、安全探针 |
 | `benchmarks/` | 冻结场景、标注语料和评分协议 |
 | `reports/` | 已结束测量的摘要与完整精度 JSON |
-| `docs/` | 主题文档（ARW 上游缺陷记在 `arw-upstream-issues.md`）；`installation-directory-readme.md` 是安装目录调用手册的源文件 |
+| `docs/` | 主题文档（ARW、Strata 上游缺陷分别记在 `arw-upstream-issues.md`、`strata-upstream-issues.md`）；`installation-directory-readme.md` 是安装目录调用手册的源文件 |
 | `.tmp/` | 运行明细和临时文件，可随时删除；长期文档不得依赖它 |
 
 ## 命令
