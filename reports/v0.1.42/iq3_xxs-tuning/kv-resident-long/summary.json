@@ -1,0 +1,437 @@
+{
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "strata": "0.1.42",
+ "item": "autonomous item 3: kv-resident long context",
+ "plans": "benchmarks/resource-calibration-v1/iq3_xxs-night-2026-10-12/kv-long/plan-{64k,100k,150k,200k}.json",
+ "plan_rebind": "commit 70dff0c: measurement_host.py SHA rebound (52cb873 added service-log reading, existing interface unchanged); default_profile_sha256_verified added after checking installed expert profile SHA 8f59b4aa...",
+ "method": "tools.tuning.resource_calibration; per instance cold start through frontend ownership with --max-context (64K/100K->156584, 150K->206584, 200K->256584) and condition --kv-resident; 3 logical requests (initial-extraction, cached-calculation, cached-update), each 28 expected rows; order per length A B B A A B; run 2026-10-12 04:00-05:19",
+ "effect_check": "effective engine args and engine kv facts show the condition kv-resident and the length's max-context in all 24 instances",
+ "per_condition": {
+  "kv20480-64k": {
+   "n": 3,
+   "passes": 3,
+   "wrong_requests": 0,
+   "engine_in": 2505.1869196293173,
+   "engine_out": 118.59574412242989,
+   "engine_out_each": [
+    119.8,
+    116.5,
+    119.5
+   ],
+   "work_s": 122.89373152433109,
+   "task_out": 81.91766390395647,
+   "output_tokens": 10089.333333333334,
+   "kv_pinned_gib": [
+    1.85
+   ],
+   "expert_slots": [
+    2252
+   ],
+   "free_mib": [
+    274
+   ],
+   "commit_left": [
+    27.8,
+    27.8
+   ],
+   "max_context": [
+    "156584"
+   ],
+   "kv_resident": [
+    20480
+   ],
+   "load_s": 21.94381450833559,
+   "gpu_max": 79,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "stages": [
+    3,
+    3,
+    3
+   ],
+   "calls": [
+    3,
+    3,
+    3
+   ]
+  },
+  "kv32768-64k": {
+   "n": 3,
+   "passes": 3,
+   "wrong_requests": 0,
+   "engine_in": 2494.283906566911,
+   "engine_out": 119.00077740839738,
+   "engine_out_each": [
+    119.3,
+    119.9,
+    117.8
+   ],
+   "work_s": 135.60558464666732,
+   "task_out": 85.62247747957426,
+   "output_tokens": 11619.333333333334,
+   "kv_pinned_gib": [
+    1.85
+   ],
+   "expert_slots": [
+    2184
+   ],
+   "free_mib": [
+    276
+   ],
+   "commit_left": [
+    27.8,
+    27.9
+   ],
+   "max_context": [
+    "156584"
+   ],
+   "kv_resident": [
+    32768
+   ],
+   "load_s": 22.091906194999563,
+   "gpu_max": 78,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "stages": [
+    3,
+    3,
+    3
+   ],
+   "calls": [
+    3,
+    3,
+    3
+   ]
+  },
+  "kv20480-100k": {
+   "n": 3,
+   "passes": 3,
+   "wrong_requests": 0,
+   "engine_in": 2384.0424576419255,
+   "engine_out": 117.69515731909928,
+   "engine_out_each": [
+    116.7,
+    118.7,
+    117.7
+   ],
+   "work_s": 134.6432815736674,
+   "task_out": 79.13025254013931,
+   "output_tokens": 10655,
+   "kv_pinned_gib": [
+    1.85
+   ],
+   "expert_slots": [
+    2252
+   ],
+   "free_mib": [
+    274
+   ],
+   "commit_left": [
+    27.8,
+    27.8
+   ],
+   "max_context": [
+    "156584"
+   ],
+   "kv_resident": [
+    20480
+   ],
+   "load_s": 21.75572771733035,
+   "gpu_max": 78,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "stages": [
+    3,
+    3,
+    3
+   ],
+   "calls": [
+    3,
+    3,
+    3
+   ]
+  },
+  "kv32768-100k": {
+   "n": 3,
+   "passes": 3,
+   "wrong_requests": 0,
+   "engine_in": 2382.6478840018035,
+   "engine_out": 117.36211216059647,
+   "engine_out_each": [
+    116.9,
+    117.2,
+    118.0
+   ],
+   "work_s": 133.86237111199685,
+   "task_out": 78.63737005256739,
+   "output_tokens": 10528,
+   "kv_pinned_gib": [
+    1.85
+   ],
+   "expert_slots": [
+    2184
+   ],
+   "free_mib": [
+    276
+   ],
+   "commit_left": [
+    27.8,
+    27.9
+   ],
+   "max_context": [
+    "156584"
+   ],
+   "kv_resident": [
+    32768
+   ],
+   "load_s": 21.770953673333377,
+   "gpu_max": 79,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap",
+    "sw_thermal"
+   ],
+   "stages": [
+    3,
+    3,
+    3
+   ],
+   "calls": [
+    3,
+    3,
+    3
+   ]
+  },
+  "kv20480-150k": {
+   "n": 3,
+   "passes": 3,
+   "wrong_requests": 0,
+   "engine_in": 2394.3488880887217,
+   "engine_out": 115.3119205107059,
+   "engine_out_each": [
+    115.7,
+    114.2,
+    116.0
+   ],
+   "work_s": 164.28724738133315,
+   "task_out": 69.01555523406117,
+   "output_tokens": 11339.666666666666,
+   "kv_pinned_gib": [
+    2.44
+   ],
+   "expert_slots": [
+    2213
+   ],
+   "free_mib": [
+    274
+   ],
+   "commit_left": [
+    26.9,
+    27.1
+   ],
+   "max_context": [
+    "206584"
+   ],
+   "kv_resident": [
+    20480
+   ],
+   "load_s": 23.745588636998338,
+   "gpu_max": 79,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "stages": [
+    3,
+    3,
+    3
+   ],
+   "calls": [
+    3,
+    3,
+    3
+   ]
+  },
+  "kv32768-150k": {
+   "n": 3,
+   "passes": 2,
+   "wrong_requests": 1,
+   "engine_in": 2397.6514862191034,
+   "engine_out": 113.58063249642981,
+   "engine_out_each": [
+    114.0,
+    112.8,
+    114.0
+   ],
+   "work_s": 165.5449099969992,
+   "task_out": 68.36760139604179,
+   "output_tokens": 11321.333333333334,
+   "kv_pinned_gib": [
+    2.44
+   ],
+   "expert_slots": [
+    2145
+   ],
+   "free_mib": [
+    276
+   ],
+   "commit_left": [
+    27.1,
+    27.1
+   ],
+   "max_context": [
+    "206584"
+   ],
+   "kv_resident": [
+    32768
+   ],
+   "load_s": 23.335111877332867,
+   "gpu_max": 79,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "stages": [
+    3,
+    3,
+    3
+   ],
+   "calls": [
+    3,
+    3,
+    3
+   ]
+  },
+  "kv20480-200k": {
+   "n": 3,
+   "passes": 0,
+   "wrong_requests": 6,
+   "engine_in": 2348.9252042191524,
+   "engine_out": 111.6410168349623,
+   "engine_out_each": [
+    112.1,
+    112.4,
+    110.5
+   ],
+   "work_s": 206.9607056466654,
+   "task_out": 62.41118517714927,
+   "output_tokens": 12954.666666666666,
+   "kv_pinned_gib": [
+    3.03
+   ],
+   "expert_slots": [
+    2173
+   ],
+   "free_mib": [
+    276
+   ],
+   "commit_left": [
+    26.4,
+    26.5
+   ],
+   "max_context": [
+    "256584"
+   ],
+   "kv_resident": [
+    20480
+   ],
+   "load_s": 25.715717186663824,
+   "gpu_max": 79,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "stages": [
+    3,
+    3,
+    4
+   ],
+   "calls": [
+    3,
+    3,
+    3
+   ]
+  },
+  "kv32768-200k": {
+   "n": 3,
+   "passes": 0,
+   "wrong_requests": 4,
+   "engine_in": 2355.31260311311,
+   "engine_out": 111.72175528925935,
+   "engine_out_each": [
+    111.1,
+    113.0,
+    111.1
+   ],
+   "work_s": 192.37270927999876,
+   "task_out": 59.751724784180055,
+   "output_tokens": 11503,
+   "kv_pinned_gib": [
+    3.03
+   ],
+   "expert_slots": [
+    2107
+   ],
+   "free_mib": [
+    274
+   ],
+   "commit_left": [
+    26.3,
+    26.5
+   ],
+   "max_context": [
+    "256584"
+   ],
+   "kv_resident": [
+    32768
+   ],
+   "load_s": 26.22400875966802,
+   "gpu_max": 79,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "stages": [
+    3,
+    3,
+    3
+   ],
+   "calls": [
+    3,
+    3,
+    3
+   ]
+  }
+ },
+ "correctness_notes": [
+  "kv32768-150k-r1 cached-update: 1 of 28 rows wrong (R00703 available expected 90 got 43)",
+  "all 6 instances at 200k (both conditions): initial-extraction row R00999 answered with values of R01999 (capacity 105/used 0/reserve 2 vs 92/50/1); both records carry label parcel-969 (labels repeat every 1000 records); identical wrong values across conditions; in 3 instances cached-calculation carries the same row error; kv20480-200k-r3 cached-update also wrong on R00888 (expected 0 got 82)",
+  "R01999 is present in the 100k and 150k workloads too (label parcel-969 appears 2 and 3 times); no R00999 error there",
+  "kv20480-200k-r3 cached-update hit the 8192 reasoning budget; engine shows a 4th internal stage (continuation) under one frontend call"
+ ],
+ "resources": "no OOM, no load failure; free VRAM after load 274-276 MiB in all; commit left 26.3-27.9 GiB; GPU max 78-79C; throttle gpu_idle/sw_power_cap (one sw_thermal at kv32768-100k)",
+ "cached_input_per_followup_request": {
+  "64k": 49152,
+  "100k": 98304,
+  "150k": 147456,
+  "200k": 196608
+ },
+ "decision": {
+  "kv_resident": "20480 at all tiers, no per-tier binding",
+  "tier_206584": "published as optional tier (auto_compact 150000), default stays 156584; verified prompts up to about 151K",
+  "tier_256584": "not published: consistent R00999->R01999 retrieval error in all 6 instances; int8 KV only, no non-int8 control"
+ },
+ "opinions": {
+  "main": "keep 20480, no binding; publish 206584; 256584 not published or with caveat",
+  "reviewer": "keep 20480 (only 150K distinguishable, favours 20480); publish 206584 with verified-boundary note; do not publish 256584; doubts: cached-update masks error at 200K, kv20480-200k-r3 reasoning budget continuation, 16384-granular cache reuse at 64K, greedy output length varies"
+ },
+ "agreed": true,
+ "date": "2026-10-12"
+}
