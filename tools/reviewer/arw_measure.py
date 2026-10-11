@@ -567,7 +567,8 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
     if host is None:
         raise ValueError('Provide a registered host')
     from tools.ops.measurement_host import MeasurementHost
-    measurement_host=MeasurementHost(host,installation)
+    # a tuning condition is deployed before the run; sources and model configuration are checked with it overlaid
+    measurement_host=MeasurementHost(host,installation,selection.get('deployment_condition'))
     installation=measurement_host.installation
     if selection.get('host_id')!=host or selection.get('host_hardware')!=measurement_host.deployment.get('hardware'):
         raise ValueError('Selection is not frozen for this host; prepare a host-specific selection first')

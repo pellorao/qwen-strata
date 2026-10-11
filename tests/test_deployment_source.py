@@ -84,6 +84,32 @@ installation_path='C:\\Strata'
         with self.assertRaisesRegex(ValueError, 'model_environment'):
             load_host('stray', self.root)
 
+    def test_condition_overlays_one_model_until_a_plain_render(self):
+        (self.root/'config/templates/iq3_xxs-prebuilt.json').write_text(
+            json.dumps({'exe': 'x', 'port': 8100, 'args': ['--spec', '4', '--expert-profile', 'shipped']}), encoding='utf-8')
+        self.host('tuned', models=['Q2_0', 'IQ3_XXS'], engine_overrides={},
+                  installation_defaults={'cpu_prefill_share': 'auto'},
+                  model_environment={'IQ3_XXS': {'STRATA_ADAPT_LAG': 2}})
+        condition = {'id': 'trial', 'model': 'IQ3_XXS',
+                     'model_overrides': {'spec': 3, 'expert-profile': '${INSTALL_ROOT}\\data\\profiles\\p.bin'},
+                     'model_environment': {'STRATA_PREFILL_CPU_SHARE': None}}
+        tried = model_configuration('IQ3_XXS', 'tuned', self.root, condition)
+        self.assertEqual(tried['args'], ['--spec', '3', '--expert-profile', 'D:\\模型\\Strata\\data\\profiles\\p.bin'])
+        # null leaves the variable unset; the host's own environment stays
+        self.assertEqual(tried['engine_environment'], {'STRATA_ADAPT_LAG': 2})
+        plain = model_configuration('IQ3_XXS', 'tuned', self.root)
+        self.assertEqual(plain['args'], ['--spec', '4', '--expert-profile', 'shipped'])
+        self.assertEqual(plain['engine_environment'], {'STRATA_PREFILL_CPU_SHARE': 'auto', 'STRATA_ADAPT_LAG': 2})
+        self.assertEqual(model_configuration('Q2_0', 'tuned', self.root, condition),
+                         model_configuration('Q2_0', 'tuned', self.root))
+        public = json.loads(source_bytes('config/deployment.json', 'tuned', self.root, condition))
+        self.assertEqual(public['deployment_condition'], 'trial')
+        self.assertNotIn('deployment_condition', json.loads(source_bytes('config/deployment.json', 'tuned', self.root)))
+        for bad in ({**condition, 'model': 'IQ2_XS'}, {**condition, 'model_environment': {'PATH': 'x'}},
+                    {**condition, 'extra': 1}):
+            with self.assertRaisesRegex(ValueError, 'deployment condition'):
+                load_host('tuned', self.root, bad)
+
     def test_public_outputs_never_carry_private_values(self):
         self.assertEqual(frontend_configuration('tuned', self.root),
                          {'listen_address': '192.168.60.212', 'port': 8000, 'model_port': 8100})

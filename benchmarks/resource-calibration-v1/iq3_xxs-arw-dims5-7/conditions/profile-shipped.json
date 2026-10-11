@@ -1,0 +1,7 @@
+{
+  "id": "profile-shipped",
+  "model": "IQ3_XXS",
+  "model_overrides": {
+    "expert-profile": "${INSTALL_ROOT}\\runtime\\Strata\\data\\expert-profile.bin"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "schema": "arw-dimension-v1",
+  "host": "rtx3080ti",
+  "model": "IQ3_XXS",
+  "reviewer": "commit-audit-reviewer",
+  "authorization": {
+    "approved": true,
+    "source": "用户 2026-10-11 批准申请一（IQ3_XXS 补测调参第 5–7 维），并同意开始无模型准备；部署留到开跑时",
+    "scope": "第 5 维 --spec 3/4/5/6 各 3 次（12）；第 6 维 CPU 辅助显式 auto/不设置各 3 次（6）；第 7 维学习型专家档案关/开各 3 次（6），另加训练（细节待用户决定）"
+  },
+  "method": "方案 A：每个实例前用 tools.ops.deploy 把该条件叠加到 rtx3080ti 默认配置部署到安装目录（部署会停模型并重启前端，因此每个实例冷启动引擎），ARW 持有模型运行 1 个 Commit Audit 实例；实例后从引擎日志和进程环境核对实际生效值。",
+  "fixed_conditions": {
+    "strata": "0.1.42",
+    "codex": "0.162.0",
+    "effort": "high",
+    "context_window": 156584,
+    "auto_compact_token_limit": 100000,
+    "engine_defaults": "config/deployments/rtx3080ti.json 中 IQ3_XXS 的当前默认值（含前几维胜者），每个实例绑定部署后 config/deployment.json 与 iq3_xxs-prebuilt.json 的 SHA",
+    "startup_instructions": "config/prompts/startup-instructions.txt（去掉防循环段），compact-prompt.txt 接入；开跑前核对已安装 SHA",
+    "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
+    "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
+    "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json",
+    "host_environment": "2026-10-11 起：大页生效（expert arena large pages）、前端计划任务 Normal 优先级与最高权限、页面文件 32 GiB（Windows commit 上限 95.8 GiB）"
+  },
+  "codex_thread_id": "b7635f94-ad60-429b-98e7-3ee5c19ba2bb",
+  "dimensions": [
+    {
+      "order": 5,
+      "id": "spec",
+      "default": "spec-4",
+      "schedule_design": "4×4 Williams 拉丁方前 3 行（每行一轮，各条件每轮一次）",
+      "schedule": ["spec-3", "spec-4", "spec-6", "spec-5",
+                   "spec-4", "spec-5", "spec-3", "spec-6",
+                   "spec-5", "spec-6", "spec-4", "spec-3"],
+      "conditions": {
+        "spec-3": {"log_present": ["strata verify: window up to 5 tokens"]},
+        "spec-4": {"log_present": ["strata verify: window up to 6 tokens"]},
+        "spec-5": {"log_present": ["strata verify: window up to 7 tokens"]},
+        "spec-6": {"log_present": ["strata verify: window up to 8 tokens"]}
+      },
+      "note": "窗口 = spec + 2（--suffix-draft 可再长 2，上限 8，见 strata.exe 帮助）；spec 4 → 6 已在现有日志中见到，3/5/6 的窗口值是按帮助推算的，首个实例核对。"
+    },
+    {
+      "order": 6,
+      "id": "cpu-share",
+      "default": "cpu-share-auto",
+      "schedule_design": "A-B、B-A、A-B（A = 显式 auto）",
+      "schedule": ["cpu-share-auto", "cpu-share-unset",
+                   "cpu-share-unset", "cpu-share-auto",
+                   "cpu-share-auto", "cpu-share-unset"],
+      "conditions": {
+        "cpu-share-auto": {"log_absent": ["the CPU share is ON by default", "the CPU prefill share is not armed by default"]},
+        "cpu-share-unset": {"log_present": ["the CPU share is ON by default for prompt chunks below 1024 tokens|the CPU prefill share is not armed by default"]}
+      },
+      "note": "显式 auto：分担上限 3072；不设置：0.1.41 起等同 auto 但上限 1024，内存不足时不启用并打印原因（日志出现 not armed 则该实例实际为关闭，如实记录）。进程环境变量另行核对。"
+    },
+    {
+      "order": 7,
+      "id": "expert-profile",
+      "default": "profile-shipped",
+      "schedule_design": "B-A、A-B、B-A（A = 关；按上一维轮换为候选先开头）",
+      "schedule": ["profile-learned", "profile-shipped",
+                   "profile-shipped", "profile-learned",
+                   "profile-learned", "profile-shipped"],
+      "conditions": {
+        "profile-shipped": {"expert_profile_sha256": null},
+        "profile-learned": {"expert_profile_sha256": null}
+      },
+      "blocked": "训练材料、训练方式和冻结方式待用户决定；训练后把档案放到安装目录 data/profiles/iq3_xxs-learned-dim7.bin 并在此填两份档案的 SHA。比较时两条件都只读（不开 expert_profile_save），避免实例之间累积。"
+    }
+  ],
+  "after_dimension": "Main 与独立复核意见一致才采用：把胜者写入 config/deployments/rtx3080ti.json 的 model_overrides.IQ3_XXS / model_environment.IQ3_XXS 并提交，再无条件部署；不一致或默认胜出时直接无条件部署恢复默认。下一维的条件叠加在新的默认值上。"
+}

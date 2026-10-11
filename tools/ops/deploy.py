@@ -17,7 +17,7 @@ import time
 import urllib.error
 import urllib.request
 
-from tools.ops.deployment_source import MODELS, load_host, load_private, source_bytes
+from tools.ops.deployment_source import MODELS, load_condition, load_host, load_private, source_bytes
 
 ROOT = Path(__file__).resolve().parents[2]
 TASK = 'QwenStrataFrontend'
@@ -114,13 +114,17 @@ def maintenance(base):
     frontend.wait(True)
 
 
-def deploy(identifier, docs_only=False):
-    host = load_host(identifier)
+def deploy(identifier, docs_only=False, condition=None):
+    """`condition`, a frozen tuning condition and its file SHA, overlays the host default until a plain deploy."""
+    condition, condition_sha = condition or (None, None)
+    if docs_only and condition:
+        raise ValueError('A tuning condition changes model configuration, not only the manual')
+    host = load_host(identifier, condition=condition)
     root = local_path(host['installation_root'])
     if not (root / 'runtime/Strata/.venv').is_dir():
         raise RuntimeError('Installation runtime is missing')
     files = {t: s for t, s in FILES.items() if not docs_only or t == 'README.md'}
-    expected = {target: source_bytes(source, identifier) for target, source in files.items()}
+    expected = {target: source_bytes(source, identifier, condition=condition) for target, source in files.items()}
     private = None if docs_only else private_bytes()
     backup = ROOT / '.tmp/maintenance-backups' / ('deploy-' + datetime.now().strftime('%Y%m%d-%H%M%S-%f'))
     before = {}
@@ -161,6 +165,7 @@ def deploy(identifier, docs_only=False):
             raise RuntimeError('Read-back of ' + PRIVATE + ' differs')
         if not docs_only:
             manifest = {'deployment': identifier, 'source': 'maintenance project only',
+                        'condition': condition and {'id': condition['id'], 'sha256': condition_sha},
                         'files': {t: {'source': files[t], 'sha256': actual[t]} for t in sorted(actual)}}
             (root / 'deployment-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
         return removed, actual
@@ -172,6 +177,8 @@ def deploy(identifier, docs_only=False):
         with maintenance(host['frontend_url']):
             removed, actual = write()
     return {'host': identifier, 'files': len(actual), 'read_back_verified': True,
+            'condition': condition and {'id': condition['id'], 'sha256': condition_sha},
+            'model_configuration_sha256': {t: actual[t] for t in actual if t.endswith('-prebuilt.json')},
             'private_file': None if private is None else PRIVATE + ' written and verified',
             'removed': removed, 'backup': str(backup)}
 
@@ -180,8 +187,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--host', required=True)
     parser.add_argument('--docs-only', action='store_true', help='Only replace the caller manual; frontend keeps running.')
+    parser.add_argument('--condition', type=Path, help='Frozen tuning condition file; a later plain deploy restores the default.')
     args = parser.parse_args()
-    print(json.dumps(deploy(args.host, args.docs_only), indent=2))
+    print(json.dumps(deploy(args.host, args.docs_only, args.condition and load_condition(args.condition)), indent=2))
 
 
 if __name__ == '__main__':

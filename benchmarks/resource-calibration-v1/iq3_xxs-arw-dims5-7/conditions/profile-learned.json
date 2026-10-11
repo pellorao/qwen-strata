@@ -1,0 +1,7 @@
+{
+  "id": "profile-learned",
+  "model": "IQ3_XXS",
+  "model_overrides": {
+    "expert-profile": "${INSTALL_ROOT}\\data\\profiles\\iq3_xxs-learned-dim7.bin"
+  }
+}

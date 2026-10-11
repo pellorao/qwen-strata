@@ -1,0 +1,7 @@
+{
+  "id": "spec-3",
+  "model": "IQ3_XXS",
+  "model_overrides": {
+    "spec": 3
+  }
+}

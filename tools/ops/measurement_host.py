@@ -16,10 +16,25 @@ def local_path(windows):
     return Path(subprocess.check_output(['wslpath', '-u', str(windows)], text=True).strip())
 
 
+ENGINE_ENVIRONMENT = '''import json,sys,os
+from pathlib import Path
+import psutil
+expected=os.path.normcase(str(Path(sys.argv[1])/'runtime/Strata/engine/strata.exe'))
+rows=[]
+for p in psutil.process_iter(['pid','exe']):
+ if os.path.normcase(p.info['exe'] or '')==expected:
+  env=p.environ();rows.append({'pid':p.pid,'environment':{k:env.get(k)for k in sys.argv[2:]}})
+print(json.dumps(rows))
+'''
+
+
 class MeasurementHost:
-    def __init__(self, identifier, installation=None):
-        self.identifier = identifier
-        self.deployment = load_host(identifier)
+    condition = None
+
+    def __init__(self, identifier, installation=None, condition=None):
+        """`condition` is the tuning condition deployed for this run; sources are checked with it overlaid."""
+        self.identifier, self.condition = identifier, condition
+        self.deployment = load_host(identifier, condition=condition)
         self.windows_root = PureWindowsPath(self.deployment['installation_root'])
         self.installation = local_path(self.windows_root)
         if installation is not None and Path(installation) != self.installation:
@@ -44,6 +59,7 @@ class MeasurementHost:
         return {'host_id': self.identifier, 'hardware': self.deployment.get('hardware'),
                 'hardware_source_overrides': self.deployment['engine_overrides'],
                 'installation_root': str(self.windows_root),
+                'deployment_condition': self.condition,
                 'source': 'project deployment templates and host configuration'}
 
     def installed_release(self):
@@ -76,7 +92,7 @@ class MeasurementHost:
 
     def verify_sources(self):
         from tools.ops.deploy import FILES
-        expected = {target: hashlib.sha256(source_bytes(source, self.identifier)).hexdigest()
+        expected = {target: hashlib.sha256(source_bytes(source, self.identifier, condition=self.condition)).hexdigest()
                     for target, source in FILES.items()}
         actual = {target: hashlib.sha256((self.installation / target).read_bytes()).hexdigest()
                   for target in expected}
@@ -85,7 +101,7 @@ class MeasurementHost:
         return {'files': actual, 'source_sha_verified': True, **self.metadata()}
 
     def configuration(self, model):
-        expected = model_configuration(model, self.identifier)
+        expected = model_configuration(model, self.identifier, condition=self.condition)
         actual = json.loads(self.read_deployed_bytes('config/' + model.lower() + '-prebuilt.json'))
         if actual != expected:
             raise RuntimeError('Installed model configuration differs from its host project source')
@@ -95,6 +111,10 @@ class MeasurementHost:
         arguments = self.configuration(model)['args']
         profile = local_path(arguments[arguments.index('--expert-profile') + 1])
         return hashlib.sha256(profile.read_bytes()).hexdigest()
+
+    def engine_environment(self, names):
+        """The named variables as each running engine process actually holds them (None: unset)."""
+        return self._remote(ENGINE_ENVIRONMENT, (str(self.windows_root), *sorted(names)))
 
     def log_path(self, model):
         return local_path(self.configuration(model)['log'])
@@ -133,9 +153,9 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=False)
-    host = MeasurementHost(args.host)
-    if args.selection:
-        selection = host_selection(json.loads(args.selection.read_text(encoding='utf-8')), args.host)
+    selection = args.selection and host_selection(json.loads(args.selection.read_text(encoding='utf-8')), args.host)
+    host = MeasurementHost(args.host, condition=selection and selection.get('deployment_condition'))
+    if selection:
         (args.out / 'selection.json').write_text(json.dumps(selection, ensure_ascii=False, indent=2) + '\n')
     receipt = host.verify_sources()
     health = host.controller(args.out / 'controller').call('/health', timeout=15)

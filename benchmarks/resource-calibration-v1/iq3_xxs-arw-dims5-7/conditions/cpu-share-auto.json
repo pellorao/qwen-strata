@@ -1,0 +1,7 @@
+{
+  "id": "cpu-share-auto",
+  "model": "IQ3_XXS",
+  "model_environment": {
+    "STRATA_PREFILL_CPU_SHARE": "auto"
+  }
+}

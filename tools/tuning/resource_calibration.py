@@ -227,16 +227,7 @@ def run_case(host,plan,workload,job,folder):
                     raise RuntimeError('Actual capacity or startup policy differs')
                 verify_loaded_startup(startup,plan['prompt_binding']['startup_sha256'])
                 if job.get('environment'):
-                    binding=host._remote('''import json,sys,os
-from pathlib import Path
-import psutil
-expected=os.path.normcase(str(Path(sys.argv[1])/'runtime/Strata/engine/strata.exe'))
-rows=[]
-for p in psutil.process_iter(['pid','exe']):
- if os.path.normcase(p.info['exe'] or '')==expected:
-  env=p.environ();rows.append({'pid':p.pid,'environment':{k:env.get(k)for k in sys.argv[2:]}})
-print(json.dumps(rows))
-''',(str(host.windows_root),*sorted(job['environment'])))
+                    binding=host.engine_environment(job['environment'])
                     save(folder/'effective-engine-environment.json',binding)
                     expected={k:None if v is None else str(v)for k,v in job['environment'].items()}
                     if len(binding)!=1 or binding[0]['environment']!=expected:
