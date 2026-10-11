@@ -1,0 +1,70 @@
+diff --git a/lib/reviewer-runtime/reviewer-runtime.mjs b/lib/reviewer-runtime/reviewer-runtime.mjs
+index 2a64293..d045abc 100644
+--- a/lib/reviewer-runtime/reviewer-runtime.mjs
++++ b/lib/reviewer-runtime/reviewer-runtime.mjs
+@@ -788,7 +788,10 @@ export const createReviewerRuntime = ({nativeSessions, recoveryBoundary, filesys
+                 await session.resume({runId, threadId: previous.threadId, expectedSessionPath: previous.sessionPath,
+                     instructions: handoff.instructions, deferRestore: true});
+                 if (session.runId !== runId) throw reviewerFailure('recovery-thread-mismatch', 'The original managed run identity changed.');
+-                entry = {record: previous, session, filesystem: recordFilesystem, reviewFilesystem,
++                // The reattached entry still describes the original task, so check its report in the original scope;
++                // the new handoff's scope replaces it only after the task is accepted.
++                entry = {record: previous, session, filesystem: recordFilesystem,
++                    reviewFilesystem: await checkReportBinding(previous, false, recoveryPath),
+                     recoveryRecordPath: location.relativePath, serial: createSerialExecutor(), persistSerial: recordSerial(recoveryPath), snapshot: null,
+                     persistedRecord: JSON.stringify(previous),
+                     refreshScheduled: false, refreshAgain: false, stopping: false, stopped: false, interruptRequested: false,
+diff --git a/tests/reviewer-runtime/reviewer-runtime.test.mjs b/tests/reviewer-runtime/reviewer-runtime.test.mjs
+index 63647f6..2a6106c 100644
+--- a/tests/reviewer-runtime/reviewer-runtime.test.mjs
++++ b/tests/reviewer-runtime/reviewer-runtime.test.mjs
+@@ -713,6 +713,49 @@ test('an unloaded Reviewer reattaches by the same run and Thread.id before its n
+     await runtime.close();
+ });
+ 
++test('an unloaded Reviewer checks its original report in the original scope before a followup in another cwd', async () => {
++    const fixture = createReviewerRuntimeFixture();
++    // A provider that continues tasks (Strata) must not see the original delivered report as missing.
++    let continuations = 0;
++    const nativeSessions = {open: async (/** @type {Parameters<typeof fixture.native.nativeSessions.open>[0]} */ input) => {
++        const session = await fixture.native.nativeSessions.open(input);
++        return Object.assign(session, {continueTask: async () => {continuations++; throw new Error('Unexpected recovery continuation.');}});
++    }};
++    const runtime = createReviewerRuntime({...options(fixture), nativeSessions});
++    const receipt = succeeded(await runtime.execute({operation: 'spawn_agent', input: reviewerHandoff}));
++    const observed = succeeded(await runtime.inspect({runId: receipt.runId}));
++    const threadId = /** @type {string} */ (observed.threadId);
++    await fixture.writeReport('Original full report.');
++    fixture.native.finish(threadId);
++    assert.equal(succeeded(await runtime.inspect({runId: observed.runId})).completion?.status, 'ready');
++    fixture.native.sessions[0].environmentState = 'exited';
++    const root = fixture.native.members.get(threadId);
++    assert.ok(root);
++    root.state = 'exited';
++    const managed = await managedBinding(fixture, observed, 'exited');
++    assert.equal(succeeded(await runtime.inspect({runId: observed.runId,managed})).completion?.status, 'ready');
++    // Only the thread unloaded: the shared App Server keeps running, so the reattached thread is live again.
++    fixture.native.sessions[0].environmentState = 'running';
++    root.state = 'idle';
++    const cwd = '/second-review';
++    const reportPath = join(cwd, '.tmp', 'codex', 'test-session', 'second', 'reports', 'report.md');
++    const opened = await fixture.filesystem.open({root: cwd, createRoot: true});
++    assert.equal(opened.status, 'succeeded');
++    if (opened.status !== 'succeeded') throw new Error('Scripted second repository unavailable.');
++    const directory = relative(cwd, dirname(reportPath)).split('\\').join('/');
++    assert.equal((await opened.scopedFilesystem.createDirectory({path: directory, recursive: true})).status, 'succeeded');
++    assert.equal((await opened.scopedFilesystem.write({path: relative(cwd, reportPath).split('\\').join('/'), bytes: Buffer.alloc(0), mode: 'create'})).status, 'succeeded');
++    const accepted = succeeded(await runtime.execute({operation: 'followup_task', input: {...reviewerHandoff,
++        runId: observed.runId, cwd, reportPath, writePaths: [dirname(reportPath)]}}));
++    assert.equal(accepted.deliveryStatus, 'accepted');
++    assert.equal(continuations, 0);
++    assert.equal(fixture.native.calls.filter(call => call.operation === 'resume').length, 1);
++    const next = succeeded(await runtime.inspect({runId: accepted.runId}));
++    assert.equal(next.threadId, threadId);
++    assert.equal(fixture.native.sessions.at(-1)?.input.cwd, cwd);
++    await runtime.close();
++});
++
+ test('an unexpected extra Agent invalidates the result while ended historical members do not enter usage', async () => {
+     const fixture = createReviewerRuntimeFixture();
+     const {runtime, observed} = await start(fixture);

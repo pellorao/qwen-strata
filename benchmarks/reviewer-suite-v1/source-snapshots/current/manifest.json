@@ -1144,6 +1144,15 @@
         "tests/background-agent/model-catalog.test.mjs": "9e4b76c869396b2b9c5208ff45448a8481933cd8145b3117af112f7c6b442ec5",
         "tests/background-agent/strata-driver.test.mjs": "d2ca3cb50ad1219520650955dc573fbe6dc542f29950f7789aca38f3714f8d47"
       }
+    },
+    {
+      "file": "../../arw-patches/reviewer-followup-original-scope.patch",
+      "sha256": "8c6bfc9c5d9f3830d90b73c442f51b0da8ec4ff9a1b3236b2b5ca3106dd20344",
+      "reason": "After the original Reviewer thread unloads (thread_unload_delay_secs=0), followup_task rebuilt the entry with the new handoff's filesystem while the record still described the original task, so the pre-acceptance refresh looked for the original report under the new cwd, judged it missing and started native recovery (reviewer-busy, up to 10 continuations). The reattached entry now checks the original report in the original scope; the new handoff's scope replaces it only after the task is accepted. Adds a regression test. Recorded for upstream in docs/arw-upstream-issues.md (D).",
+      "result": {
+        "lib/reviewer-runtime/reviewer-runtime.mjs": "7ac16d500831a4912718e1a2823cc7dc72c58fb7d5aaa5460944c628b687f020",
+        "tests/reviewer-runtime/reviewer-runtime.test.mjs": "c364b48ae21b3ea682dc3fb9f70d979d9fc0c3d05345f75e2f88b53aca44f9c9"
+      }
     }
   ]
 }

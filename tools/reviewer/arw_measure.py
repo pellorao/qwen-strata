@@ -220,7 +220,7 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
     # Bind the actual startup snapshot before dispatch, including a failed or
     # interrupted submission that never returns a terminal result.
     save(folder/'result.json',record)
-    record['accepted']=machine.call('followup_task' if previous else 'spawn_agent',bound)
+    record['accepted']=followup_when_idle(machine,bound) if previous else machine.call('spawn_agent',bound)
     save(folder/'result.json',record)
     record=observe_review(machine,record,folder)
     if previous is not None and record['runtime_result'].get('threadId')!=previous['runtime_result'].get('threadId'):
@@ -228,6 +228,27 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
     record['report_sha256']=hashlib.sha256(report.read_bytes()).hexdigest()
     save(folder/'result.json',record)
     return record
+
+
+def followup_when_idle(machine,bound,*,poll=5,limit=3600):
+    """Send a same-thread follow-up once ARW has finished the original task.
+
+    reviewer-busy means ARW is still running (or natively continuing) the original task;
+    wait for its terminal state instead of abandoning the run. An ARW early-exit pause
+    belongs to the user and is not waited out."""
+    deadline=time.monotonic()+limit
+    while True:
+        try:return machine.call('followup_task',bound)
+        except RuntimeError as error:
+            if '"reviewer-busy"' not in str(error) or time.monotonic()>=deadline:raise
+        while True:
+            state=machine.call('list_agents',{'runId':bound['runId']})
+            if any(n.get('type')=='message' and str(n.get('text','')).startswith(ARW_PAUSE_PREFIX)
+                   for n in state.get('notifications',[])):
+                raise RuntimeError('ARW paused the original task before the follow-up; the user decides')
+            if state.get('completion') and state.get('state') not in ('starting','running','working'):break
+            if time.monotonic()>=deadline:raise RuntimeError('Original task did not reach a terminal state for the follow-up')
+            time.sleep(poll)
 
 
 def observe_review(machine,record,folder,*,continuation_start_timeout=120):

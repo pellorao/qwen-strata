@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.arw_measure import ARW_PAUSE_PREFIX, capture_segment, local_review_catalog, merged_spec_order, observe_review, run
+from tools.reviewer.arw_measure import ARW_PAUSE_PREFIX, capture_segment, followup_when_idle, local_review_catalog, merged_spec_order, observe_review, run
 
 
 class ArwOwnedTests(unittest.TestCase):
@@ -23,6 +23,34 @@ class ArwOwnedTests(unittest.TestCase):
             result = observe_review(Machine(), record, folder)
             self.assertEqual(result['arw_pause']['notification'], pause)
             self.assertFalse(result['complete'])
+
+    def test_followup_waits_for_the_original_task_instead_of_abandoning_on_busy(self):
+        busy = RuntimeError(json.dumps({'code': 'reviewer-busy', 'message': 'The original Reviewer is still executing.'}))
+
+        class Machine:
+            def __init__(self, states, followups):
+                self.states, self.followups, self.calls = states, followups, []
+
+            def call(self, operation, value, **kwargs):
+                self.calls.append(operation)
+                if operation == 'list_agents':
+                    return self.states.pop(0)
+                outcome = self.followups.pop(0)
+                if isinstance(outcome, Exception):
+                    raise outcome
+                return outcome
+
+        machine = Machine([{'state': 'running', 'completion': None}, {'state': 'idle', 'completion': {'status': 'ready'}}],
+                          [busy, {'runId': 'r', 'accepted': True}])
+        self.assertEqual(followup_when_idle(machine, {'runId': 'r'}, poll=0), {'runId': 'r', 'accepted': True})
+        self.assertEqual(machine.calls, ['followup_task', 'list_agents', 'list_agents', 'followup_task'])
+        paused = Machine([{'state': 'idle', 'completion': None,
+                           'notifications': [{'type': 'message', 'text': ARW_PAUSE_PREFIX + '10 early exits.'}]}], [busy])
+        with self.assertRaisesRegex(RuntimeError, 'user decides'):
+            followup_when_idle(paused, {'runId': 'r'}, poll=0)
+        other = Machine([], [RuntimeError(json.dumps({'code': 'recovery-not-found'}))])
+        with self.assertRaisesRegex(RuntimeError, 'recovery-not-found'):
+            followup_when_idle(other, {'runId': 'r'}, poll=0)
 
     def test_catalog_enables_arw_strata_provider_only_when_arw_owns_the_model(self):
         with tempfile.TemporaryDirectory() as directory:

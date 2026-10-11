@@ -47,12 +47,13 @@
 - **本工程处理**：运行层 `tools/reviewer/arw_native_setup.mjs` 按 ARW 宿主自己的做法，创建一个共享目录（`CODEX_HOME` 指向隔离的 codex-home），同时传给 App Server 和宿主；provider 写进 codex-home 的 `models.custom.json`（ARW 只从这里读 provider）；daemon 就绪时回报 ARW 实际读到的 provider，`arw_measure` 核对一致后才派发。
 - **建议**：宿主在收到 `nativeSessions` 时也应接受或创建 `modelCatalog`，或在缺少目录而 provider 需要 driver 时明确报错，而不是静默丢掉 provider。
 
-### D. 原线程已卸载时，followup_task 用新交接的文件系统检查原报告，判定"报告缺失"并无限接续（未修复，待用户决定是否打补丁）
+### D. 原线程已卸载时，followup_task 用新交接的文件系统检查原报告，判定"报告缺失"并无限接续（`arw-patches/reviewer-followup-original-scope.patch`）
 
 - **版本**：ARW 760007c，`lib/reviewer-runtime/reviewer-runtime.mjs` 的 `followup`。
 - **现象**：App Server 以 `thread_unload_delay_secs=0` 启动，Reviewer 回合一结束原线程就卸载。此时发 `followup_task`，若新交接的 `cwd` 与原任务不同（本工程 Spec Readiness 合并实例：runtime-migration 后在同一线程接续 artifact-promotion），`followup` 重开条目时把**新交接**的 `reviewFilesystem`（根为新 `cwd`）与**原记录**（原 `cwd`、原报告路径）放在一起，接受任务前的 `refresh` 在错误的根下找原报告，判定缺失，于是走原生接续：发"报告缺失"指示、开新回合，`followup_task` 本身返回 `reviewer-busy`。之后每次刷新都用同一错误作用域，Reviewer 每回合都重写报告并回答 `ready`，ARW 仍判缺失，直到第 10 次早退暂停。2026-10-11 F3 第二次试跑：runtime-migration 首回合 09:13:57 回答 ready，驱动看到 completion=ready 并立即 followup；09:14:01 起连续 10 次接续，报告文件始终存在。
-- **依据**：代码路径（`followup` 中 `managementState()==='exited'` 时以 `checkReportBinding(handoff,…)` 的结果建条目，接受后才赋值 `held.reviewFilesystem`）与会话记录、报告文件 mtime 吻合；未单独写复现测试。
-- **建议修改**：重开条目时用原记录建文件系统（`checkReportBinding(previous, false, recoveryPath)`），新交接的文件系统只在接受任务后替换，与条目仍在内存时的路径一致。
+- **依据**：代码路径（`followup` 在条目不在内存时，用 `checkReportBinding(handoff,…)` 的结果建条目，接受任务后才赋值 `held.reviewFilesystem`）与会话记录、报告文件修改时间一致。补丁附带复现测试 `an unloaded Reviewer checks its original report in the original scope before a followup in another cwd`：只卸载线程、App Server 仍在运行，provider 能接续任务，followup 改用另一个 cwd。修复前，测试因为触发恢复接续而失败；修复后通过。
+- **本工程修改**（2026-10-11）：重开条目时，`reviewFilesystem` 改用 `checkReportBinding(previous, false, recoveryPath)`，也就是原记录的作用域，与条目仍在内存时的路径一致。新交接的文件系统照旧在 `acceptTask` 成功后替换。新交接仍按原样先做 `fresh` 校验。ARW 全套测试的失败集合和未修改时完全相同，都是安装、发布、终端标题类的环境性失败，与本补丁无关。
+- **建议上游**：采用同样的修改。更一般地说，条目的文件系统应当始终和 `entry.record` 描述的任务一致，只有在任务切换（接受新任务）时才一起替换。
 
 ### B. 能力测量中不要求每实例冷启动
 
