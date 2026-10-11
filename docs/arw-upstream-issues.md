@@ -47,6 +47,13 @@
 - **本工程处理**：运行层 `tools/reviewer/arw_native_setup.mjs` 按 ARW 宿主自己的做法，创建一个共享目录（`CODEX_HOME` 指向隔离的 codex-home），同时传给 App Server 和宿主；provider 写进 codex-home 的 `models.custom.json`（ARW 只从这里读 provider）；daemon 就绪时回报 ARW 实际读到的 provider，`arw_measure` 核对一致后才派发。
 - **建议**：宿主在收到 `nativeSessions` 时也应接受或创建 `modelCatalog`，或在缺少目录而 provider 需要 driver 时明确报错，而不是静默丢掉 provider。
 
+### D. 原线程已卸载时，followup_task 用新交接的文件系统检查原报告，判定"报告缺失"并无限接续（未修复，待用户决定是否打补丁）
+
+- **版本**：ARW 760007c，`lib/reviewer-runtime/reviewer-runtime.mjs` 的 `followup`。
+- **现象**：App Server 以 `thread_unload_delay_secs=0` 启动，Reviewer 回合一结束原线程就卸载。此时发 `followup_task`，若新交接的 `cwd` 与原任务不同（本工程 Spec Readiness 合并实例：runtime-migration 后在同一线程接续 artifact-promotion），`followup` 重开条目时把**新交接**的 `reviewFilesystem`（根为新 `cwd`）与**原记录**（原 `cwd`、原报告路径）放在一起，接受任务前的 `refresh` 在错误的根下找原报告，判定缺失，于是走原生接续：发"报告缺失"指示、开新回合，`followup_task` 本身返回 `reviewer-busy`。之后每次刷新都用同一错误作用域，Reviewer 每回合都重写报告并回答 `ready`，ARW 仍判缺失，直到第 10 次早退暂停。2026-10-11 F3 第二次试跑：runtime-migration 首回合 09:13:57 回答 ready，驱动看到 completion=ready 并立即 followup；09:14:01 起连续 10 次接续，报告文件始终存在。
+- **依据**：代码路径（`followup` 中 `managementState()==='exited'` 时以 `checkReportBinding(handoff,…)` 的结果建条目，接受后才赋值 `held.reviewFilesystem`）与会话记录、报告文件 mtime 吻合；未单独写复现测试。
+- **建议修改**：重开条目时用原记录建文件系统（`checkReportBinding(previous, false, recoveryPath)`），新交接的文件系统只在接受任务后替换，与条目仍在内存时的路径一致。
+
 ### B. 能力测量中不要求每实例冷启动
 
 - 本工程以前在每个实例之间停模型、冷启动，以便按引擎日志分段计量。这是本工程自己的旧做法，ARW 本身不这样做（它在整个共享 App Server 期间持有独占，关闭时才归还，也不停模型）。现在本工程也不再停模型，引擎日志按派发时刻分段。
