@@ -23,7 +23,9 @@ expected=os.path.normcase(str(Path(sys.argv[1])/'runtime/Strata/engine/strata.ex
 rows=[]
 for p in psutil.process_iter(['pid','exe']):
  if os.path.normcase(p.info['exe'] or '')==expected:
-  env=p.environ();rows.append({'pid':p.pid,'environment':{k:env.get(k)for k in sys.argv[2:]}})
+  try:env=p.environ()
+  except psutil.AccessDenied:rows.append({'pid':p.pid,'environment':None,'unreadable':'access denied: the engine runs elevated'});continue
+  rows.append({'pid':p.pid,'environment':{k:env.get(k)for k in sys.argv[2:]}})
 print(json.dumps(rows))
 '''
 
@@ -49,7 +51,8 @@ class MeasurementHost:
         if not python.is_file():
             raise RuntimeError('Host Windows side is not reachable from this machine')
         reply = subprocess.run([str(python), '-I', '-c', code, *arguments], cwd='/mnt/c',
-                               capture_output=True, text=True, timeout=120, check=True)
+                               capture_output=True, text=True, encoding='utf-8',
+                               errors='replace', timeout=120, check=True)
         return json.loads(reply.stdout)
 
     def controller(self, folder):

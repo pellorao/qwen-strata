@@ -75,7 +75,9 @@ def verify_effect(log, environment_rows, condition, configuration, checks):
     # an engine ARW already stopped leaves only the log lines as evidence
     if wanted and len(environment_rows) > 1:
         problems.append(f'expected one running engine process, found {len(environment_rows)}')
-    elif wanted and environment_rows and environment_rows[0]['environment'] != wanted:
+    # an elevated engine hides its environment from this unelevated reader; the log lines remain
+    elif wanted and environment_rows and environment_rows[0]['environment'] is not None \
+            and environment_rows[0]['environment'] != wanted:
         problems.append(f'engine environment {environment_rows[0]["environment"]} differs from {wanted}')
     for pattern in checks.get('log_present', []):
         if not re.search(pattern, log):

@@ -58,6 +58,9 @@ class EffectTests(unittest.TestCase):
         row = lambda value: [{'pid': 1, 'environment': {'STRATA_PREFILL_CPU_SHARE': value}}]
         self.assertTrue(verify_effect(log, row(None), unset, self.configuration, checks)['ok'])
         self.assertFalse(verify_effect(log, row('auto'), unset, self.configuration, checks)['ok'])
+        hidden = [{'pid': 1, 'environment': None, 'unreadable': 'access denied: the engine runs elevated'}]
+        self.assertTrue(verify_effect(log, hidden, unset, self.configuration, checks)['ok'])
+        self.assertFalse(verify_effect(STARTED.format(spec=4), hidden, unset, self.configuration, checks)['ok'])
         self.assertTrue(verify_effect(log, [], unset, self.configuration, checks)['ok'])  # engine already stopped
         auto = {'id': 'cpu-share-auto', 'model': 'IQ3_XXS', 'model_environment': {'STRATA_PREFILL_CPU_SHARE': 'auto'}}
         self.assertFalse(verify_effect(log, row('auto'), auto, self.configuration,
