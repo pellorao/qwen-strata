@@ -68,6 +68,9 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 ## Spec Readiness 单场景评分
 
 - [ ] 原版高层 `score-completed` 要求两个子场景配对，单独 artifact-promotion 会被拒绝。需要先无模型调查原版是否有可单独评分的入口；若需改变评分合同，先列出差异并取得同意。
+  - 无模型调查（2026-10-11，ARW 760007c，只读代码和原版测试，没有用实际 Spec 报告执行）：当前原版 `score-completed`（局部评分）**不再拒绝**未配对的输入。`selectCompletedRepetitions(allowEmpty)` 接受只含 artifact-promotion 的实例；每个实例照常评分，`instances[]` 里有该实例自己的 `score`、clean/problem 比率和候选，状态为 `diagnostic`；但 `summarizeCapabilityScores` 只对两个子场景齐全的重复算重复分和总分，单场景时 `score` 为空（"Incomplete repetition set."）。原版测试 `reviewer-capability-conformance.test.mjs` 的局部评分用例覆盖了这一行为（以 Code Spec 为例）。早先"会被拒绝"的结论来自旧版 ARW。
+  - 含义：不改评分合同就能拿到 artifact-promotion 的单实例诊断分（同一 F2 公式，只是不与 runtime-migration 融合），可以作同场景条件之间的比较；它不是原版正式分数，也不能和融合分混比。正式分数仍需两个子场景配对。
+  - 剩余：等 rtx4070tis 恢复或有现成 Spec 报告时，用一份实际 artifact-promotion 报告无模型执行一次确认；是否采用单场景诊断分作比较口径，由用户决定。
 
 ## ARW 同步与 Spec 恢复
 
