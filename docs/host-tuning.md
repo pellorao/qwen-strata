@@ -56,6 +56,7 @@ Q2/high/default、KV int8／resident20480、expert-cache auto、PCIe份额0、sp
 | 输入处理分块 | 请求 8192／16384，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/prefill/summary.md) | 16384 全部被引擎降为 8192，未形成对照，保持 8192；12 GB 卡当前布局下 16384 不可行（Q2_0 与 IQ3_XXS 两次相同），不再列为候选 |
 | CPU辅助短输入 | 0／auto，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/cpu-prefill-share/summary.md) | auto 引擎输入快 11.5%（短增量输入少约 1/3），输出持平，全对；保持 auto；显式 auto 下 1–3K 分块未验证 |
 | 显存预留 | 1024／768／512，各3，共9；[报告](../reports/v0.1.42/iq3_xxs-tuning/vram-reserve/summary.md) | 768 与 512 速度打平，均快于 1024；按用户“用满”偏好采用 512（Main 初倾 768，综合复核后改 512）并部署；出现共享显存或卡顿退回 768 |
+| spec-min-p | 0.3／0.5／0.7／0.9，完整 Commit Audit 各3，共12；[报告](../reports/v0.1.42/iq3_xxs-tuning/spec-min-p/summary.md) | 诊断得分 0.705／0.809／0.800／0.837；0.5–0.9 差 ≤0.08，按速度选 0.9（解码 104.0 tok/s，现值 0.5 为 102.5，草稿接受 92% 对 78%），已采用（`"spec-min-p": 0.9`）并部署；p090 一次环境身份查询使该批正式验收失败，分数只作诊断；0.95／1.0 未测；解码稳定低于约 102 tok/s 或出现投机解码相关输出异常时退回 0.5 |
 
 ## rtx4070tis
 

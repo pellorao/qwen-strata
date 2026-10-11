@@ -24,6 +24,7 @@
     "IQ3_XXS": {
       "pcie-frac": null,
       "ple-io": "direct",
+      "spec-min-p": 0.9,
       "vram-reserve-mib": 512
     }
   },

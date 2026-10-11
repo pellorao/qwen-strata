@@ -26,7 +26,7 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 - **步骤**：
   - [x] 升级并部署弃用改动（2026-10-11）；升级报告等 Q2_0 短检查后一起写。
   - [x] S2：默认切到 IQ3_XXS 后短检查，量冷加载、复用、SSD 读取、内存和日志中的自动调整。
-  - [ ] IQ3_XXS 全部参数调参（用户 2026-10-11：先把 IQ3_XXS 所有参数测完、定好默认值，再处理 Q2_0，之后继续任务列表）。逐维进行，每条件 3 次，每维沿用上一维胜者：
+  - [x] IQ3_XXS 全部参数调参（用户 2026-10-11：先把 IQ3_XXS 所有参数测完、定好默认值，再处理 Q2_0，之后继续任务列表）。逐维进行，每条件 3 次，每维沿用上一维胜者：
     1. `pcie-frac`：实测自动 / 0.00 —— 完成，采用实测（[报告](../reports/v0.1.42/iq3_xxs-tuning/pcie-frac/summary.md)）
     2. CPU 核心分配：auto / all —— 完成，保持 all（[报告](../reports/v0.1.42/iq3_xxs-tuning/pool-affinity/summary.md)）
     3. CPU 专家线程数：23 / 15 / 12 —— 完成，保持 23（[报告](../reports/v0.1.42/iq3_xxs-tuning/pool-workers/summary.md)）
@@ -34,9 +34,10 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
     5. `prefill`：8192 / 16384 —— 完成，16384 被引擎降回 8192，保持 8192（[报告](../reports/v0.1.42/iq3_xxs-tuning/prefill/summary.md)）
     6. CPU 辅助短输入：0 / auto —— 完成，保持 auto（[报告](../reports/v0.1.42/iq3_xxs-tuning/cpu-prefill-share/summary.md)）；待办：显式 auto 与不设置在 1–3K 分块上的对照（显式 auto 上限 3072、不设置 1024）
     7. 显存预留：512 / 768 / 1024 —— 完成，采用 512（[报告](../reports/v0.1.42/iq3_xxs-tuning/vram-reserve/summary.md)）
-    8. `spec-min-p`：0.3 / 0.5 / 0.7 / 0.9
+    8. `spec-min-p`：0.3 / 0.5 / 0.7 / 0.9 —— 完成，采用 0.9（[报告](../reports/v0.1.42/iq3_xxs-tuning/spec-min-p/summary.md)）
     第 1–7 维用 32K 资源负载（`benchmarks/resource-calibration-v1/`），第 8 维用完整 Commit Audit。胜者只写入 rtx3080ti 的 IQ3_XXS（`model_overrides`）。
   - [ ] Q2_0：v0.1.42 上的 Commit Audit 对照（3 次）和升级短检查（S1），然后写 v0.1.42 升级报告。用户 2026-10-11：Q2_0 只作 IQ3_XXS 的基线对比，不做详细调参（第 5 项 Q2_0 spec-min-p 不再进行）。
+  - [ ] ARW 运行环境两项（第 8 维会话检查发现，2026-10-11）：① 中途消息 `send_message` 连接本地 socket 被沙箱拒绝（`connect EPERM 127.0.0.1:…`），未送达；② Reviewer 为找 `ARW_BACKGROUND_AGENT_RUN_ID` 用 `env | grep` 宽泛查询，触发"环境身份"违规。先无模型调查原版是否已有直接提供运行标识的方式；如需改 Role 或交接（ARW 合同变化），先列出差异取得同意。
   - [ ] 有余时间时：ARW 完整四场景 benchmark，只用 IQ3_XXS / high，其他参数用调参后的默认值，每场景 5 次取平均（用户 2026-10-11 授权，排在 IQ3_XXS 调参和高优先级任务之后）。
 - **用户的夜间决定**（2026-10-11）：
   - S2 首次探测（2026-10-11）：冷加载 18.4 秒，解码 77–95 tok/s，生成期间只读 0.6 GB SSD；约 40 GiB 专家锁定在物理内存，物理可用内存最低 7.4 GB，页面文件几乎未用。但提交额度（内存 + 4 GB 自动页面文件）只剩 0.5 GiB，引擎因此跳过会话暂存（Windows 上按物理可用与剩余额度取较小值），并警告可能无提示退出。用户把页面文件改为固定 16384 MB 并重启。复测：提交额度剩 15.6 GiB / 79.8 GiB，没有警告；会话暂存恢复（每次约 45 ms）；解码 80–97 tok/s；物理可用内存最低 7.8 GB。PLE 探测把 `--ple-io direct` 改为 `mmap`（11680 行/秒）。
