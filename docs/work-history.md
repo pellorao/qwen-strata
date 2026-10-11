@@ -1168,3 +1168,7 @@ Laya多语言社区导出固定20选项槽、1024序列位置，两次ORT执行�
   - [提醒组](../reports/v0.1.41/loop-reminder-trial/summary.md)（防循环提示 + 提醒）得分 0.699，提醒 7 次（3 次部分有依据、4 次误报），另漏报 1 处步内退化循环；
   - [基线](../reports/v0.1.41/loop-baseline/summary.md)（都不加）得分 0.656，没有确认循环。
 - 用户 2026-10-11 审核通过两份报告，运行明细已删除，并决定：提醒默认关闭（`X-Loop-Reminder: on` 才开启），启动提示默认不加载防循环段（源文件保留），两者标为已弃用、不建议使用。不设删除条件，观察一段时间没有明显重复后由用户触发删除，届时连同检测器、旧关键词守卫工具（`tools/loop/` 和 `arw_measure.py` 的命令守卫分支）一起清理。检测器改进停止。
+
+## v0.1.42 升级、默认 IQ3_XXS 与 IQ3_XXS 调参（2026-10-11，rtx3080ti）
+
+用户授权升级 v0.1.42、默认模型改为 IQ3_XXS 并在本机重新调参；当晚自主模式推进，每个默认值决定都由 Main 与独立复核 agent 各自给意见，一致才采用。升级通过短检查（S1，Q2_0）。IQ3_XXS 8 维调参结果：不传 `--pcie-frac`（引擎实测，解码 +11%）、`--ple-io direct`、`--vram-reserve-mib 512`、`--spec-min-p 0.9` 改值并部署；affinity all、23 线程、prefill 8192、CPU 辅助 auto 保持。第 8 维和 Q2_0 基线都用完整 Commit Audit（各 3 次），诊断得分 IQ3_XXS 0.837、Q2_0 0.773；两批各有 1 个实例做了 `env` 环境身份查询，正式验收失败，分数只作诊断。见[升级报告](../reports/v0.1.42/upgrade.md)、[调参手册](host-tuning.md#iq3_xxs)和各维报告 `reports/v0.1.42/iq3_xxs-tuning/`。rtx4070tis 离线，待同步。
