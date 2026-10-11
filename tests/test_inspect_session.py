@@ -40,8 +40,9 @@ class InspectSessionTest(unittest.TestCase):
         r = self.run_session(f'cat {ROOT}/request.json', 'rg -n foo src',
                              'R=reports; cat "$R/x"; node -e "fs.readFileSync(ROOT + \'/reports/a\')"',
                              'printf "%s" "$f" | sort; [ "$(ls)" ] && echo /dev/null',
-                             'ls | while read -r g; do echo "$g"; done')
-        self.assertEqual([a['reasons'] for a in r['actions']], [[], [], [], ['unassigned variable: $f'], []])
+                             'ls | while read -r g; do echo "$g"; done',
+                             "jq -r --arg h x '.[]|select(.p==$h)' request.json")
+        self.assertEqual([a['reasons'] for a in r['actions']], [[], [], [], ['unassigned variable: $f'], [], []])
         self.assertEqual(r['startup']['messageId'], 'm1')
         self.assertEqual(r['final'], '{"status":"ready"}')
 

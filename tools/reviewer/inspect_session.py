@@ -61,6 +61,7 @@ def path_reasons(text, workdir, root, allow):
     assigned = set(re.findall(r'(?:^|[\s;&|(])(?:export\s+|local\s+)?([A-Za-z_]\w*)=', text, re.M))
     assigned |= set(re.findall(r'\bfor\s+([A-Za-z_]\w*)\s+in\b', text))
     assigned |= set(re.findall(r'\bread\s+(?:-\w+\s+)*([A-Za-z_]\w*)', text))
+    assigned |= set(re.findall(r'--(?:arg|argjson)\s+([A-Za-z_]\w*)', text))  # jq variables
     for v in sorted(set(SHELL_VAR.findall(text)) - assigned):
         reasons.append(f'unassigned variable: ${v}')
     return reasons
