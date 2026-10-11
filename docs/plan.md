@@ -2,6 +2,12 @@
 
 更新：2026-10-11。只放待办和需要重复执行的流程；已完成的经过见[历史工作](work-history.md)，测量通用约束见 `.claude/rules/`，参数任务只在[每机调参手册](host-tuning.md)维护。
 
+## 待你决定
+
+需要用户决定的事项只记在这里，处理后删除。
+
+- **环境整改**（2026-10-11，任务 5）：页面文件从 16 GiB 改为固定 64 GiB；授予"Lock pages in memory"，前端计划任务改为最高权限、Normal 优先级（`scripts/windows/Install-Frontend.ps1` 目前写的是 `-RunLevel Limited`）；完成后重新登录或重启。PLE direct 读取慢的问题另行申请测量。
+
 ## 顺序
 
 rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢复后再决定它的工作。
