@@ -61,6 +61,7 @@ Q2/high/default、KV int8／resident20480、expert-cache auto、PCIe份额0、sp
 | 自适应层换入预算 `--adapt-swaps` | 96／160／48，各3，共9；[报告](../reports/v0.1.42/iq3_xxs-tuning/adapt-swaps/summary.md) | 160 引擎输出 117.9 对 115.2 tok/s，单次范围重叠、工作秒持平，去掉冷启动约 +1.4%；48 缓存命中最低、工作秒最长；全对；保持 96。adapt-every/decay 有收益时与 160 组合复测 |
 | 自适应层重新评估间隔 `--adapt-every` | 4／2／8，各3，共9；[报告](../reports/v0.1.42/iq3_xxs-tuning/adapt-every/summary.md) | 引擎输出 116.4／114.1／117.7 tok/s，8 落在 4 的范围内，效应在 ±1.5% 内；2 命中率最高但不更快；全对；保持 4。不做 swaps 160 组合复测 |
 | 自适应层衰减 `--adapt-decay` | 0.7／0.5／0.9，各3，共9；[报告](../reports/v0.1.42/iq3_xxs-tuning/adapt-decay/summary.md) | 引擎输出 118.4／113.9／118.3 tok/s；0.5 的劣势来自单个离群实例；缓存命中相同；全对；保持 0.7。长会话中命中下降时复测 0.9 |
+| KV 显存驻留 `--kv-resident` | 20480／32768／12288，各3，共9；[报告](../reports/v0.1.42/iq3_xxs-tuning/kv-resident/summary.md) | 12288 被引擎静默抬到 20480，该组无效；32768 在约 33K 负载上无收益（−0.9%）且少 90 个专家槽位；全对；保持 20480。长上下文（64K、约 100K）未测，上游对 64K 以上推荐 32768 |
 
 ## rtx4070tis
 
