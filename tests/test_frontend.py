@@ -39,7 +39,11 @@ class FakeModel:
         return {'status': 'stopped', 'clean_unload': True}
 
     def status(self):
-        return {'status': 'running' if self.running else 'stopped'}
+        if not self.running:
+            return {'status': 'stopped'}
+        return {'status': 'running', 'native_health': {'startup_instructions': {
+            'path': 'config/prompts/startup-instructions.txt', 'sha256': 'loaded', 'source_sha256': 'source',
+            'enabled': True, 'loop_prevention_enabled': False}}}
 
 
 class Upstream(BaseHTTPRequestHandler):
@@ -89,6 +93,8 @@ class LeaseTests(unittest.TestCase):
         with self.assertRaises(frontend.Refused):
             self.front.status(key)
         self.assertEqual(self.front.health()['lease'], 'free')
+        self.assertEqual(self.front.health()['startup_instructions'], {
+            'enabled': True, 'sha256': 'loaded', 'source_sha256': 'source', 'loop_prevention_enabled': False})
 
     def test_next_lease_reuses_same_options_and_restarts_for_different_ones(self):
         key = self.front.acquire()['key']

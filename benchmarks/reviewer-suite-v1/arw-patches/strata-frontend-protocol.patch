@@ -1,0 +1,149 @@
+diff --git a/lib/background-agent/strata-driver.mjs b/lib/background-agent/strata-driver.mjs
+index ee61a91..4d374cb 100644
+--- a/lib/background-agent/strata-driver.mjs
++++ b/lib/background-agent/strata-driver.mjs
+@@ -1,7 +1,7 @@
+-import {execFile} from 'node:child_process';
++import {readFile} from 'node:fs/promises';
+ import {isAbsolute, join} from 'node:path';
+ import {isJsonObject} from '../common/json.mjs';
+-import {STRATA_CONTEXT_WINDOW,STRATA_MODEL_VARIANTS} from './strata-models.mjs';
++import {STRATA_MODEL_VARIANTS} from './strata-models.mjs';
+ import {createStrataTaskSupport} from './strata-work-policy.mjs';
+ 
+ /** Select the installed provider's task support without exposing its policy to the manager.
+@@ -11,14 +11,18 @@ export const reviewerTaskSupport = configuration => configuration?.driver==='str
+   ? createStrataTaskSupport({installationDirectory:configuration.installationDirectory}) : null;
+ 
+ /** @typedef {{controllerUrl:string,leaseKey:string}} LeaseRequest */
+-/** @typedef {(executable:string,args:string[],options:{cwd:string,encoding:'utf8'})=>Promise<{stdout:string}>} RunCommand */
++/** @typedef {(path:string)=>Promise<string>} ReadText */
+ 
+-/** @type {RunCommand} */
+-const defaultRunCommand = (executable,args,options) => new Promise((resolve,reject) => {
+-  execFile(executable,args,options,(error,stdout) => {
+-    if(error)reject(error);
+-    else resolve({stdout});
+-  });
++/** @type {ReadText} */
++const defaultReadText = path => readFile(path,'utf8');
++
++/** Installed frontend protocol: each driver operation and its method and path. */
++const ROUTES = Object.freeze({
++  acquire:['POST','/lease/acquire'],
++  status:['GET','/model/status'],
++  start:['POST','/model/start'],
++  stop:['POST','/model/stop'],
++  release:['POST','/lease/release'],
+ });
+ 
+ /** @param {unknown} value */
+@@ -37,14 +41,15 @@ function httpUrl(value) {
+ /**
+  * Implements only the installed Strata service protocol. The manager owns
+  * admission, lease persistence, model switching and release timing.
+- * @param {{installationDirectory:string,runCommand?:RunCommand,fetchImpl?:typeof fetch}} input
++ * @param {{installationDirectory:string,readText?:ReadText,fetchImpl?:typeof fetch}} input
+  */
+-export function createStrataDriver({installationDirectory,runCommand=defaultRunCommand,fetchImpl=fetch}) {
++export function createStrataDriver({installationDirectory,readText=defaultReadText,fetchImpl=fetch}) {
+   if(typeof installationDirectory!=='string'||!isAbsolute(installationDirectory))
+     throw new Error('Strata installation directory must be absolute.');
+ 
+-  /** @param {string} operation @param {string} controllerUrl @param {string|null} leaseKey @param {'GET'|'POST'} method @param {Record<string,unknown>|null} body */
+-  const request = async (operation,controllerUrl,leaseKey,method,body) => {
++  /** @param {keyof typeof ROUTES} operation @param {string} controllerUrl @param {string|null} leaseKey @param {Record<string,unknown>|null} body */
++  const request = async (operation,controllerUrl,leaseKey,body) => {
++    const [method,path]=ROUTES[operation];
+     const base=httpUrl(controllerUrl);
+     /** @type {Record<string,string>} */ const headers={};
+     if(body!==null)headers['Content-Type']='application/json';
+@@ -53,7 +58,7 @@ export function createStrataDriver({installationDirectory,runCommand=defaultRunC
+       headers.Authorization=`Bearer ${leaseKey}`;
+     }
+     /** @type {Response} */ let response;
+-    try {response=await fetchImpl(new URL(`/ownership/${operation}`,base),{
++    try {response=await fetchImpl(new URL(path,base),{
+       method,headers,...(body===null?{}:{body:JSON.stringify(body)}),
+     });}
+     catch {throw new Error(`Strata ${operation} request could not reach the controller.`);}
+@@ -71,26 +76,27 @@ export function createStrataDriver({installationDirectory,runCommand=defaultRunC
+ 
+   return {
+     async connect() {
+-      let launched;
+-      try {launched=await runCommand('bash',[join(installationDirectory,'Run-Strata-Controller.sh')],
+-        {cwd:installationDirectory,encoding:'utf8'});}
+-      catch(error){throw new Error('Strata controller launch failed.',{cause:error});}
++      // The resident frontend is the controller; its address is the installation's public frontend configuration.
+       let parsed;
+-      try {parsed=object(JSON.parse(launched.stdout));}
+-      catch {throw new Error('Strata controller returned invalid JSON.');}
+-      if(!parsed)throw new Error('Strata controller returned an invalid response.');
+-      return {controllerUrl:httpUrl(parsed.controller_base_url),responsesUrl:httpUrl(parsed.responses_base_url)};
++      try {parsed=object(JSON.parse(await readText(join(installationDirectory,'config','frontend.json'))));}
++      catch(error){throw new Error('Strata frontend configuration is unavailable.',{cause:error});}
++      if(!parsed||typeof parsed.listen_address!=='string'||!Number.isSafeInteger(parsed.port))
++        throw new Error('Strata frontend configuration is invalid.');
++      const controllerUrl=httpUrl(`http://${parsed.listen_address}:${parsed.port}`);
++      return {controllerUrl,responsesUrl:`${controllerUrl}/strata/v1`};
+     },
+     /** @param {{controllerUrl:string}} input */
+     async acquire({controllerUrl}) {
+-      const payload=await request('acquire',controllerUrl,null,'POST',{});
+-      if(typeof payload.key!=='string'||!payload.key||payload.ownership!=='held')
++      const payload=await request('acquire',controllerUrl,null,{});
++      if(typeof payload.key!=='string'||!payload.key||payload.lease!=='held')
+         throw new Error('Strata acquire did not confirm ownership.');
+       return {leaseKey:payload.key};
+     },
+     /** @param {LeaseRequest} input */
+     async status({controllerUrl,leaseKey}) {
+-      const payload=await request('status',controllerUrl,leaseKey,'GET',null);
++      const payload=await request('status',controllerUrl,leaseKey,null);
++      // The frontend reports a loading model as starting; the manager treats it as partial.
++      if(payload.status==='starting')payload.status='partial';
+       if(!['stopped','partial','unloaded','running'].includes(String(payload.status)))
+         throw new Error('Strata status is invalid.');
+       if(payload.status==='running' && typeof payload.model!=='string')
+@@ -102,22 +108,22 @@ export function createStrataDriver({installationDirectory,runCommand=defaultRunC
+     async start({controllerUrl,leaseKey,modelId}) {
+       const variant=Object.hasOwn(STRATA_MODEL_VARIANTS,modelId) ? STRATA_MODEL_VARIANTS[/** @type {keyof typeof STRATA_MODEL_VARIANTS} */ (modelId)] : null;
+       if(!variant)throw new Error('Unsupported Strata model ID.');
+-      const payload=await request('start',controllerUrl,leaseKey,'POST',{model:variant,engine_overrides:{'spec-min-p':0.7,'max-context':STRATA_CONTEXT_WINDOW},
+-        request_defaults:{temperature:0,top_p:1,top_k:20}});
++      // Engine arguments and request defaults are the installation's per-host, per-model tuned defaults.
++      const payload=await request('start',controllerUrl,leaseKey,{model:variant});
+       if(payload.status!=='running'||payload.model!==modelId)
+         throw new Error('Strata start did not confirm the requested model.');
+       return {status:/** @type {const} */ ('running'),model:modelId};
+     },
+     /** @param {LeaseRequest} input */
+     async stop({controllerUrl,leaseKey}) {
+-      const payload=await request('stop',controllerUrl,leaseKey,'POST',{});
++      const payload=await request('stop',controllerUrl,leaseKey,{});
+       if(payload.status!=='stopped')throw new Error('Strata stop did not confirm model exit.');
+       return {status:/** @type {const} */ ('stopped'),cleanUnload:payload.clean_unload===true?true:payload.clean_unload===false?false:null};
+     },
+     /** @param {LeaseRequest} input */
+     async release({controllerUrl,leaseKey}) {
+-      const payload=await request('release',controllerUrl,leaseKey,'POST',{});
+-      if(payload.ownership!=='free'||payload.previous_key_revoked!==true)
++      const payload=await request('release',controllerUrl,leaseKey,{});
++      if(payload.lease!=='free')
+         throw new Error('Strata release did not confirm ownership return.');
+       return {ownership:/** @type {const} */ ('free'),previousKeyRevoked:true};
+     },
+diff --git a/lib/background-agent/strata-work-policy.mjs b/lib/background-agent/strata-work-policy.mjs
+index 8b0dd7e..2d8636f 100644
+--- a/lib/background-agent/strata-work-policy.mjs
++++ b/lib/background-agent/strata-work-policy.mjs
+@@ -30,7 +30,7 @@ export async function prepareStrataSettings({settings,installationDirectory,stat
+   if(binding) {
+     await verifyStrataCompactBinding(binding);
+   } else {
+-    const base=await readFile(join(installationDirectory,'config','compact_prompt.txt'));
++    const base=await readFile(join(installationDirectory,'config','prompts','compact-prompt.txt'));
+     const supplementPath=settings.config.experimental_compact_prompt_file;
+     const supplement=typeof supplementPath==='string'?await readFile(supplementPath):null;
+     const combined=supplement&&!supplement.equals(base)?Buffer.concat([base,Buffer.from('\n\n'),supplement]):base;

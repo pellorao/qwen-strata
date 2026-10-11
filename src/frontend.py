@@ -101,8 +101,15 @@ class Frontend:
             raise Refused(403, 'A valid lease key is required.')
 
     def health(self):
+        # The loaded model's startup-prompt hashes (never the text), so a caller that let
+        # another client start the model can still bind the prompt it ran with.
+        startup = None
+        if self.loaded_model:
+            loaded = (self.model.status().get('native_health') or {}).get('startup_instructions') or {}
+            startup = {k: loaded[k] for k in ('enabled', 'sha256', 'source_sha256', 'loop_prevention_enabled')
+                       if k in loaded}
         return {'service': 'qwen-strata-frontend', 'lease': 'held' if self.key_sha256 else 'free',
-                'model': self.loaded_model}
+                'model': self.loaded_model, 'startup_instructions': startup}
 
     def acquire(self):
         # Never wait behind a holder, who may keep the lock for a whole model load.

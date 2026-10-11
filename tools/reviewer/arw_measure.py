@@ -24,9 +24,16 @@ sys.path.append(str(ROOT / 'src'))
 from startup_instructions import startup_prompt_bytes
 
 
-def local_review_catalog(source, target, model, context_window=None):
+ARW_PAUSE_PREFIX='The Reviewer runtime paused this same task after '
+
+
+def local_review_catalog(source, target, model, context_window=None, strata_installation=None):
     """Declare installed text search and route guardian to the local model."""
     catalog = json.loads(Path(source).read_text())
+    if strata_installation is not None:
+        # ARW's own Strata provider: it takes the lease, starts the model with the installation
+        # defaults, and applies its continuation, pause and work-budget policy.
+        catalog['providers'] = {'qwen_strata': {'driver': 'strata', 'installationDirectory': str(strata_installation)}}
     slug = 'qwen3.8-flash-next-' + model.lower()
     selected = next((m for m in catalog['models'] if m['slug'] == slug), None)
     if selected is None:
@@ -217,6 +224,7 @@ def observe_review(machine,record,folder,*,continuation_start_timeout=120):
     deadline=ReviewDeadline(folder,record['accepted'],phase_start,
         phase='revision' if record.get('revisions') else 'initial',
         work_elapsed=lambda:work_clock.elapsed(phase_start,time.time()))
+    arw_owned=record.get('selection',{}).get('model_owner')=='arw'
     while True:
         if record.get('user_pause_at') is not None and time.time()>=record['user_pause_at']:
             record['user_pause']={'at':time.time(),'reason':'User local-machine deadline; do not auto-continue.'}
@@ -246,7 +254,16 @@ def observe_review(machine,record,folder,*,continuation_start_timeout=120):
                 continue
         result=machine.call('list_agents',{'runId':run_id})
         save(folder/'latest.json',result)
-        deadline.advance(machine,result)
+        if arw_owned:
+            # ARW enforces the work budget itself; its early-exit pause waits for the user.
+            pause=next((n for n in result.get('notifications',[]) if n.get('type')=='message'
+                        and str(n.get('text','')).startswith(ARW_PAUSE_PREFIX)),None)
+            if pause:
+                record['arw_pause']={'at':time.time(),'notification':pause}
+                record['runtime_result']=result;record['measurement']=result.get('measurement',{})
+                record['tokens']=native_tokens(record['measurement']);record['complete']=False
+                break
+        else:deadline.advance(machine,result)
         if record.get('selection',{}).get('command_loop_guard',{}).get('enabled'):
             from tools.loop.command_loop_guard import observe_command_loops
             observe_command_loops(machine,record,result,folder)
@@ -447,6 +464,38 @@ def audit_generation(machine,source,preparation,handoff,folder,record):
         if not record['complete']:return record
 
 
+def arw_owned_health(measurement_host):
+    """Frontend /health needs no lease: the loaded model and its startup-prompt hashes."""
+    import urllib.request
+    opener=urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    with opener.open(measurement_host.deployment['frontend_url'].rstrip('/')+'/health',timeout=30) as reply:
+        return json.load(reply)
+
+
+def capture_segment(measurement_host,model,start,end,folder):
+    """Engine log bytes [start,end) belong to one instance: ARW holds the lease for the whole batch."""
+    content=measurement_host.log_bytes_since(model,start)[:end-start].decode(errors='replace')
+    (folder/'engine-request-log.txt').write_text(content)
+    requests=parse_engine_log(content)
+    save(folder/'engine-rates.json',engine_rates(requests))
+    started=re.findall(r'engine started: (.*)',content)
+    return requests,sum_engine_tokens(requests),started[-1] if started else None
+
+
+def close_arw_segment(record,measurement_host,model,end):
+    folder=Path(record['binding_path']).parent
+    requests,tokens,started=capture_segment(measurement_host,model,record['engine_log_start_offset'],end,folder)
+    record.update(engine_requests=requests,engine_tokens=tokens,engine_log_end_offset=end,engine_started=started)
+    incomplete=not record.get('complete',False)
+    record['token_consumption']=None if incomplete else tokens
+    record['token_consumption_source']='engine log segment between this and the next dispatch; API usage is diagnostic only'
+    if incomplete:
+        save(folder/'internal-counter-coverage.json',{'complete_instance_token_counts':False,
+            'reason':'Unfinished instance requires a Main audit of pending main/compaction/guardian requests.',
+            'recorded_complete_stages':len(requests),'api_usage_used_as_consumption':False})
+    save(folder/'result.json',record)
+
+
 def load_resume_cleanup(path, recovering_native=False):
     """An absent cleanup record is uncertain, never evidence of safe closure."""
     path=Path(path)
@@ -467,6 +516,11 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
     installation=measurement_host.installation
     if selection.get('host_id')!=host or selection.get('host_hardware')!=measurement_host.deployment.get('hardware'):
         raise ValueError('Selection is not frozen for this host; prepare a host-specific selection first')
+    arw_owned=selection.get('model_owner')=='arw'
+    if arw_owned and (selection.get('engine_overrides') or selection.get('engine_environment') or selection.get('sampling')
+            or selection.get('automatic_continuation') or selection.get('startup_instructions') is False
+            or selection.get('loop_prevention_instructions') or profile or resume):
+        raise ValueError('ARW-owned model runs use installation defaults and ARW continuation only, without resume')
     old_runtime=json.loads((out/'runtime.json').read_text()) if resume else {}
     cleanup_path=Path(old_runtime.get('cleanupPath',out/'arw-cleanup.json'))
     if resume:
@@ -479,7 +533,8 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
         if resume_native_install is not None:raise ValueError('Native recovery requires resume.')
         out.mkdir(parents=True,exist_ok=False)
     compaction_config({},out/'prompt-policy-preflight',include_project_base=selection.get('project_compaction_instructions',True))
-    catalog = local_review_catalog(catalog, out/'native-model-catalog.json', selection['model'],selection.get('context_window'))
+    catalog = local_review_catalog(catalog, out/'native-model-catalog.json', selection['model'],selection.get('context_window'),
+                                   installation if arw_owned else None)
     preparations=[json.loads(p.read_text()) for p in preparation_paths]
     source=Path(preparations[0]['repositoryRoot'])
     if any(p['repositoryRoot']!=str(source) or p['identity']!=preparations[0]['identity'] for p in preparations):raise ValueError('Mixed upstream preparation identity')
@@ -522,7 +577,15 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
     entry.write_text('#!/bin/sh\nexec node '+shlex.quote(str(ROOT/'tools/reviewer/arw_runtime.mjs'))+' client "$@"\n');entry.chmod(0o755)
     if measurement_host:
         save(out/'host-source-preflight.json',measurement_host.verify_sources())
-    controller=measurement_host.controller(out).__enter__()
+    expected_startup=None
+    if arw_owned:
+        source_raw=(ROOT/'config/prompts/startup-instructions.txt').read_bytes()
+        if measurement_host.read_deployed_bytes('config/prompts/startup-instructions.txt')!=source_raw:
+            raise RuntimeError('Installed startup prompt differs from the project source')
+        expected_startup={'enabled':True,'sha256':hashlib.sha256(startup_prompt_bytes(source_raw,False)).hexdigest(),
+                          'source_sha256':hashlib.sha256(source_raw).hexdigest(),'loop_prevention_enabled':False}
+    controller=None if arw_owned else measurement_host.controller(out).__enter__()
+    open_segment=None
     safe_to_release=True
     try:
         if recovery_proof:
@@ -532,8 +595,10 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
                       'installationDirectory':str(native_install),
                       **({'codexExecutable':native_cli['executable'],'nativeCliBinding':native_cli} if native_cli else {}),
                       'catalog':str(catalog),'cleanupPath':str(cleanup_path)})
-        os.environ['STRATA_API_KEY']=controller.key
-        os.environ['QWEN_ARW_MODEL_BASE']=controller.model_base+'/v1'
+        # With ARW owning the model, its provider connection replaces this base URL and key.
+        os.environ['STRATA_API_KEY']=controller.key if controller else 'arw-owned'
+        os.environ['QWEN_ARW_MODEL_BASE']=(controller.model_base if controller
+            else measurement_host.deployment['frontend_url'].rstrip('/')+'/strata')+'/v1'
         os.environ['QWEN_ARW_RUNTIME_FILE']=str(runtime)
         old_path=os.environ['PATH'];os.environ['PATH']=str(shim)+os.pathsep+old_path
         suffix=('-resume-'+str(time.time_ns())) if resume else ''
@@ -556,6 +621,31 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
                     verify_native_cli(selection.get('native_cli'))
                     if handoff['instanceId'] in completed:
                         print(json.dumps({'instanceId':handoff['instanceId'],'reuse':'exact prior report/settings/profile; no Reviewer rerun'}),flush=True)
+                        continue
+                    if arw_owned:
+                        offset=log_offset(installation,selection['model'],measurement_host)
+                        if open_segment:
+                            close_arw_segment(open_segment,measurement_host,selection['model'],offset)
+                            save(out/'results.json',records);open_segment=None
+                        safe_to_release=False
+                        record=execute_review(machine,source,preparation,handoff,out/handoff['instanceId'],selection,catalog,
+                            {'runtime_installation':str(native_install),'engine_log_start_offset':offset,
+                             'measurement_host':measurement_host.metadata(),'model_owner':'arw'})
+                        if record.get('arw_pause'):
+                            raise RuntimeError('ARW paused the Reviewer task after repeated early exits; the user decides '
+                                               'whether to continue it (send_message) or end it (interrupt_agent)')
+                        if record['runtime_result'].get('state') in ('starting','running','working','unknown'):
+                            raise RuntimeError('Current native work is not terminal; preserve the ARW runtime for recovery')
+                        health=arw_owned_health(measurement_host)
+                        record['frontend_health']=health
+                        if (health.get('model')!='qwen3.8-flash-next-'+selection['model'].lower()
+                                or health.get('startup_instructions')!=expected_startup):
+                            raise RuntimeError('Loaded model or startup prompt differs from the approved selection')
+                        if record['complete']:record['generation']=generate_original(source,preparation,handoff,out/handoff['instanceId'])
+                        safe_to_release=True
+                        record['cost']=collect_cost(record,native_install/'codex-home')
+                        save(out/handoff['instanceId']/'result.json',record);records.append(record);open_segment=record
+                        save(out/'results.json',records)
                         continue
                     options={'model':selection['model'],'engine_overrides':selection['engine_overrides'],
                         'request_defaults':dict(selection.get('sampling',{}),reasoning_effort=selection['effort']),
@@ -650,14 +740,21 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
                     safe_to_release=cleanup.get('cleanup',{}).get('status')=='ready'
                 if safe_to_release:daemon.wait(timeout=30)
             daemon_log.close();daemon_output.close();daemon_reader.close()
+            if open_segment and safe_to_release:
+                # ARW released its lease at closure; the last instance's segment ends at the log's end now.
+                close_arw_segment(open_segment,measurement_host,selection['model'],
+                                  log_offset(installation,selection['model'],measurement_host))
+                save(out/'results.json',records)
             if http_archive:http_archive.close()
             os.environ['PATH']=old_path
             for key in ('STRATA_API_KEY','QWEN_ARW_MODEL_BASE','QWEN_ARW_RUNTIME_FILE'):os.environ.pop(key,None)
     finally:
-        if safe_to_release:controller.__exit__(None,None,None)
+        if safe_to_release:
+            if controller:controller.__exit__(None,None,None)
         else:
             save(out/'recovery-required.json',{'reason':'Reviewer completion or native cleanup is uncertain; preserve ownership and model.',
-                'runtime':str(runtime),'credential_file':str(controller.credential),
+                'runtime':str(runtime),'credential_file':str(controller.credential) if controller else None,
+                'model_owner':'arw' if arw_owned else 'driver',
                 'daemon_pid':daemon.pid if 'daemon' in locals() else None})
             print('Reviewer state requires recovery; the private ownership file has been preserved.',flush=True)
 

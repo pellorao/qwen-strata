@@ -32,7 +32,7 @@
 
 | 方法与路径 | key | 说明 |
 |---|---|---|
-| `GET /health` | 不需要 | 前端身份、`lease`（free/held）、当前加载的模型 ID；不代表模型可推理 |
+| `GET /health` | 不需要 | 前端身份、`lease`（free/held）、当前加载的模型 ID、该模型实际加载的启动提示 SHA（`startup_instructions`，只有 SHA 和开关，不含正文；未加载时为 null）；不代表模型可推理 |
 | `POST /lease/acquire` | 不需要 | 请求 `{}`；返回 `key` |
 | `POST /lease/release` | 需要 | 请求 `{}`；撤销 key，返回 `lease` 和仍加载的 `model`（不停模型） |
 | `POST /model/start` | 需要 | 启动参数见下文；就绪后返回状态，`reused` 表示是否复用了已加载的模型 |

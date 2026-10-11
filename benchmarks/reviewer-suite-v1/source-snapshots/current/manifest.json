@@ -1129,6 +1129,15 @@
       "result": {
         "lib/background-agent/codex-app-server.mjs": "bbaaac608c5cf7db36105e62769213ef27de1b68a3cd208c7cd1b70c71127d53"
       }
+    },
+    {
+      "file": "../../arw-patches/strata-frontend-protocol.patch",
+      "sha256": "5779e7e21b2b5d57f9d297797050ecb7d4ff8a11611335c97aa2377f00cc894b",
+      "reason": "ARW 760007c drives Strata through the retired controller (Run-Strata-Controller.sh, /ownership/*, config/compact_prompt.txt) and pins spec-min-p 0.7 and sampling at model start. The patch uses the resident frontend (config/frontend.json, /lease/*, /model/*, /strata/v1), starts the model with the installation per-host per-model defaults, and reads config/prompts/compact-prompt.txt. Recorded for upstream in docs/arw-upstream-issues.md.",
+      "result": {
+        "lib/background-agent/strata-driver.mjs": "f1dcccaddbf78845818efd6cb4ed652215ba9153593ef3df443b512ad2890d63",
+        "lib/background-agent/strata-work-policy.mjs": "b62c1a04be07b26a71d12784d599c918987476f68dbcca77960ff0dcfb239c73"
+      }
     }
   ]
 }

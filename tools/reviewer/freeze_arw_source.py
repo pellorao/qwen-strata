@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import io
 import json
+import os
 from pathlib import Path, PurePosixPath
 import subprocess
 import tarfile
@@ -91,7 +92,10 @@ def materialize(manifest, archive_path, destination, patch_directory=None):
         patch = (patch_directory or archive_path.parent) / entry['file']
         if sha(patch.read_bytes()) != entry['sha256']:
             raise ValueError('Compatibility patch differs: ' + entry['file'])
-        subprocess.run(['git', 'apply', '-p1', str(patch.resolve())], cwd=destination, check=True)
+        # Stop repository discovery: inside an enclosing repository git apply resolves paths
+        # against that repository and silently skips patches with git headers.
+        subprocess.run(['git', 'apply', '-p1', str(patch.resolve())], cwd=destination, check=True,
+                       env=dict(os.environ, GIT_CEILING_DIRECTORIES=str(Path(destination).resolve().parent)))
         for name, expected in entry['result'].items():
             if sha((destination / name).read_bytes()) != expected:
                 raise ValueError('Patched member differs: ' + name)

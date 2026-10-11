@@ -21,6 +21,28 @@
 - **影响**：Role 的要求与检查规范互相冲突。模型按 Role 去取运行标识时，最自然的做法就是宽泛查询环境变量，而这正是检查规范判失败的行为。
 - **建议**：与第 1 条一起处理。若保留中途消息，在 Role 中写明"直接读取环境变量 `ARW_BACKGROUND_AGENT_RUN_ID`，不得枚举其他环境变量"；更好的做法是由运行层把运行标识注入 `arw` 命令，Reviewer 不必知道它。
 
+## 本工程对 ARW 的修改（建议上游同样修改）
+
+本工程按自己当前的 Strata 工作方式修改了冻结的 ARW。修改以补丁形式登记在 `benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json` 的 `patches` 里，展开冻结源码时打上，并校验打完后的 SHA。这些不是 ARW 的缺陷，而是本工程升级了 Strata 的接入方式，建议 ARW 适配。
+
+### A. Strata provider 改用常驻前端接口（`arw-patches/strata-frontend-protocol.patch`）
+
+- **版本**：ARW 760007c，`lib/background-agent/strata-driver.mjs`、`lib/background-agent/strata-work-policy.mjs`。
+- **原做法**：每次连接都运行安装目录的 `Run-Strata-Controller.sh` 启动控制进程，用 `/ownership/acquire|status|start|stop|release` 管理独占和模型；启动模型时写死 `spec-min-p 0.7`、`max-context 156584` 和 temperature 0 / top_p 1 / top_k 20；压缩提示读取 `config/compact_prompt.txt`。
+- **本工程现状**：安装目录有一个常驻前端，地址写在 `config/frontend.json`（`listen_address`、`port`），接口为 `POST /lease/acquire`、`GET /model/status`、`POST /model/start`、`POST /model/stop`、`POST /lease/release`，模型请求走 `/strata/v1`。引擎参数和请求默认值由安装目录按"主机 + 量化"实测选定（例如 rtx3080ti 的 IQ3_XXS 用 `spec-min-p 0.9`），调用方只需给出量化名。压缩提示位于 `config/prompts/compact-prompt.txt`。旧的控制脚本和 `/ownership/*` 已经删除。
+- **修改**：
+  1. `connect()` 不再运行脚本，改为读取 `config/frontend.json`，得到控制地址，模型地址为 `<控制地址>/strata/v1`。
+  2. 五个操作改为上面的新路径；解析新的返回字段（`acquire` 返回 `key` 与 `lease: "held"`，`release` 返回 `lease: "free"`）；前端把加载中的模型报告为 `starting`，按原 `partial` 处理。
+  3. `start` 只传 `{model: <量化名>}`，不再写死引擎参数和采样参数。
+  4. 压缩提示路径改为 `config/prompts/compact-prompt.txt`。
+- **建议**：ARW 按上述新接口适配；不要在 ARW 中写死引擎参数，由安装方的每机每量化默认值决定。补丁只改了实现，没有改 ARW 自带的 driver 测试，上游适配时需要同步更新这些测试。
+
+### B. 能力测量中不要求每实例冷启动
+
+- 本工程以前在每个实例之间停模型、冷启动，以便按引擎日志分段计量。这是本工程自己的旧做法，ARW 本身不这样做（它在整个共享 App Server 期间持有独占，关闭时才归还，也不停模型）。现在本工程也不再停模型，引擎日志按派发时刻分段。
+- 实例之间只会复用 Strata 的精确前缀缓存（系统提示和工具列表等逐 token 相同的开头），模型输入不变，不会看到上一个实例的内容。
+- **建议**：ARW 的能力验证和 benchmark 规则如果要求冷启动，应改为只要求"不复用上一个实例的上下文"，不要求停模型。
+
 ## 已修复
 
 （暂无）
