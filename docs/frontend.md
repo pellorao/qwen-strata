@@ -29,9 +29,10 @@
 
 脚本会请求一次 UAC，然后：
 - 删除旧规则 `QwenStrata-WSL-API`、`QwenStrata-Native-8000`，创建 `QwenStrata-Frontend`：入站 TCP，本地地址和端口取自 `config/frontend.json`，远端限 `LocalSubnet`。
-- 注册计划任务 `QwenStrataFrontend`：当前用户登录时用安装 venv 的 `pythonw.exe` 运行前端，无运行时限，不重复启动；并立即启动一次。
+- 给当前用户授予"Lock pages in memory"（`SeLockMemoryPrivilege`），引擎的专家区要用它分配大页；重新登录后才生效。
+- 注册计划任务 `QwenStrataFrontend`：当前用户登录时用安装 venv 的 `pythonw.exe` 运行前端，无运行时限，不重复启动，以最高权限、Normal 优先级运行；并立即启动一次。
 
-前端以普通用户权限运行。地址或端口变化时重新运行该脚本。
+前端和它启动的引擎以管理员令牌运行。原因是受限令牌会去掉 `SeLockMemoryPrivilege`，而上游实测计划任务默认的 Below normal 优先级会使专家加载慢约 24 倍。前端只接受本机子网，文件 MCP 只读。地址或端口变化时重新运行该脚本。
 
 ## 部署
 

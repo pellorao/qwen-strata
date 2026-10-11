@@ -6,7 +6,8 @@
 
 需要用户决定的事项只记在这里，处理后删除。
 
-- **环境整改**（2026-10-11，任务 5）：页面文件从 16 GiB 改为固定 64 GiB；授予"Lock pages in memory"，前端计划任务改为最高权限、Normal 优先级（`scripts/windows/Install-Frontend.ps1` 目前写的是 `-RunLevel Limited`）；完成后重新登录或重启。PLE direct 读取慢的问题另行申请测量。
+- **大页整改**（2026-10-11 已批准）：`Install-Frontend.ps1` 已改为授予"Lock pages in memory"，并以最高权限、Normal 优先级注册计划任务。部署后需要用户运行一次（UAC），然后重新登录；之后核对引擎日志不再出现 1314。
+- 页面文件：用户 2026-10-11 同意暂不修改，在长上下文补测时记录最低剩余 commit 后再定。PLE direct 读取慢的问题另行申请测量。
 
 ## 顺序
 

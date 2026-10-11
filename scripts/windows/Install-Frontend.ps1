@@ -1,5 +1,5 @@
 #Requires -Version 7
-# One-time setup for the resident frontend: firewall rule and logon task.
+# One-time setup for the resident frontend: firewall rule, large-page right and logon task.
 # Deployed to <installation>\maintenance\; run once as the installation user (asks for UAC).
 param([string]$TaskUser)
 
@@ -35,15 +35,35 @@ foreach ($name in $RetiredRules + $RuleName) {
 New-NetFirewallRule -DisplayName $RuleName -Direction Inbound -Action Allow -Protocol TCP `
     -LocalAddress $ListenAddress -LocalPort $Port -RemoteAddress LocalSubnet -Profile Any | Out-Null
 
+# Large pages need SeLockMemoryPrivilege for the task user; Windows adds it to tokens at the next logon.
+$sid = ([Security.Principal.NTAccount]$TaskUser).Translate([Security.Principal.SecurityIdentifier]).Value
+$rights = Join-Path $env:TEMP 'qwen-strata-rights'
+secedit /export /cfg "$rights.inf" /areas USER_RIGHTS | Out-Null
+if ($LASTEXITCODE) { throw 'secedit export failed' }
+$line = Get-Content "$rights.inf" | Where-Object { $_ -match '^SeLockMemoryPrivilege\s*=' }
+$LargePages = 'already granted'
+if ($line -notmatch "\*$sid(,|$)") {
+    $granted = if ($line) { "$line,*$sid" } else { "SeLockMemoryPrivilege = *$sid" }
+    @('[Unicode]', 'Unicode=yes', '[Version]', 'signature="$CHICAGO$"', 'Revision=1', '[Privilege Rights]', $granted) |
+        Set-Content "$rights.new.inf" -Encoding Unicode
+    secedit /configure /db "$rights.sdb" /cfg "$rights.new.inf" /areas USER_RIGHTS | Out-Null
+    if ($LASTEXITCODE) { throw 'secedit configure failed' }
+    $LargePages = 'granted; log off and on (or reboot) before it takes effect'
+}
+Remove-Item "$rights*" -ErrorAction SilentlyContinue
+
 $action = New-ScheduledTaskAction -Execute $Python -Argument "-B `"$Entry`"" -WorkingDirectory $Root
 $trigger = New-ScheduledTaskTrigger -AtLogOn -User $TaskUser
 $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit ([TimeSpan]::Zero) -MultipleInstances IgnoreNew `
-    -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
-$taskPrincipal = New-ScheduledTaskPrincipal -UserId $TaskUser -LogonType Interactive -RunLevel Limited
+    -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -Priority 4
+# Normal priority and the full token: the defaults (Below normal, limited token) slow model loading and strip
+# SeLockMemoryPrivilege, so large pages would stay refused (Strata docs/DETAILS.md, Task Scheduler section).
+$taskPrincipal = New-ScheduledTaskPrincipal -UserId $TaskUser -LogonType Interactive -RunLevel Highest
 Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings `
     -Principal $taskPrincipal -Force | Out-Null
 Start-ScheduledTask -TaskName $TaskName
 
 Write-Host "Firewall rule ${RuleName}: TCP $ListenAddress`:$Port from LocalSubnet"
+Write-Host "Lock pages in memory for ${TaskUser}: $LargePages"
 Write-Host "Task $TaskName registered for $TaskUser and started"
 Read-Host 'Press Enter to close'
