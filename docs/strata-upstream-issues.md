@@ -2,7 +2,12 @@
 
 本工程在使用 Strata 时发现的上游缺陷或疑点。用户会定期整理后反馈给上游。ARW 的问题另见 [ARW 上游问题](arw-upstream-issues.md)。
 
-## 1. Windows 上 `--ple-io direct` 的读取速度只达到磁盘能力的约 1/10
+## 1. Windows 上 `--ple-io direct` 的读取速度只达到磁盘能力的约 1/10（已撤回：本机环境原因）
+
+- **撤回说明**（2026-10-11）：前端计划任务从默认的 Below normal（Priority 7）、受限令牌，改为 Normal（Priority 4）、最高权限，大页也授权生效。重启后，同一安装、同一模型纯加载时，PLE 探测值从 12850 rows/s 变为 `PLE direct read probe: 171347 rows/s (fine)`，告警消失。最可能的原因是计划任务的低优先级同时压低了引擎的 I/O 优先级，上游 DETAILS.md 的 Task Scheduler 一节已经说明过这类影响。优先级和大页两项是同时改的，没有分开验证各自的作用。这一项不再作为 Strata 缺陷反馈。
+- **可以给上游的建议**：启动时的慢读告警可以像加载慢的提示一样，提到计划任务的优先级可能是原因。
+
+以下是撤回前的原始记录：
 
 - **环境**：rtx3080ti，Windows 11，三星 990 PRO 2TB NVMe；Strata v0.1.42（release），IQ3_XXS。
 - **现象**：引擎启动时探测 PLE 读取速度为 12850 rows/s（约 53 MB/s 的 4 KiB 随机读），并警告长提示可能在读第 1 层时耗时数分钟，触发停滞看门狗（上游 #1425、#1629）。
