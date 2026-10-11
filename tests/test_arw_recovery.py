@@ -92,7 +92,7 @@ class RecoveryTests(unittest.TestCase):
         with self.assertRaises(json.JSONDecodeError):
             load_resume_cleanup(broken,recovering_native=True)
 
-    def test_startup_snapshot_survives_failed_dispatch(self):
+    def failed_dispatch(self, selection, metadata=None, error='submission failed'):
         shim = self.out / 'bin/arw'
         shim.parent.mkdir()
         shim.write_text('#!/bin/sh\nexit 0\n')
@@ -109,20 +109,38 @@ class RecoveryTests(unittest.TestCase):
         handoff = {'scenarioRoot': str(project), 'instanceId': 'next',
                    'resultPath': str(project / '.tmp/report.md'),
                    'reviewerId': 'code-spec-reviewer', 'agentType': 'reviewer', 'prompt': 'Original handoff'}
-        metadata = {'startup_instructions': {'sha256': 'snapshot', 'text': 'Service instructions'},
-                    'runtime_installation': str(self.new)}
         class FailedMachine:
             def call(self, *_args):
                 raise RuntimeError('Native submission failed')
         with patch.dict('os.environ', {'QWEN_ARW_RUNTIME_FILE': str(self.out / 'runtime.json'),
                                       'QWEN_ARW_MODEL_BASE': 'http://localhost/v1'}):
-            with self.assertRaisesRegex(RuntimeError, 'submission failed'):
+            with self.assertRaisesRegex(RuntimeError, error):
                 execute_review(FailedMachine(), self.source, preparation, handoff, self.out / 'next',
-                               {'model': 'Q2_0', 'effort': 'medium'}, self.out / 'catalog.json', metadata)
+                               selection, self.out / 'catalog.json', metadata)
+
+    def test_startup_snapshot_survives_failed_dispatch(self):
+        metadata = {'startup_instructions': {'sha256': 'snapshot', 'text': 'Service instructions'},
+                    'runtime_installation': str(self.new)}
+        self.failed_dispatch({'model': 'Q2_0', 'effort': 'medium'}, metadata)
         record = json.loads((self.out / 'next/result.json').read_text())
         self.assertEqual(record['startup_instructions'], metadata['startup_instructions'])
         self.assertEqual(record['runtime_installation'], str(self.new))
         self.assertNotIn('accepted', record)
+
+    def test_measurement_note_is_appended_and_bound(self):
+        note = {'path': 'benchmarks/reviewer-suite-v1/measurement-note.txt',
+                'sha256': '0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb'}
+        self.failed_dispatch({'model': 'IQ3_XXS', 'effort': 'high', 'measurement_note': note})
+        binding = json.loads((self.out / 'next/binding.json').read_text())
+        self.assertTrue(binding['handoff'].startswith('Original handoff\n\nMeasurement note: '))
+        self.assertTrue(binding['handoff'].endswith('outside the scenario root).'))
+        self.assertEqual(json.loads((self.out / 'next/result.json').read_text())['measurement_note'], note)
+
+    def test_changed_measurement_note_is_refused(self):
+        note = {'path': 'benchmarks/reviewer-suite-v1/measurement-note.txt', 'sha256': '0' * 64}
+        self.failed_dispatch({'model': 'IQ3_XXS', 'effort': 'high', 'measurement_note': note},
+                             error='Measurement note differs')
+        self.assertFalse((self.out / 'next/binding.json').exists())
 
 
 if __name__ == '__main__':

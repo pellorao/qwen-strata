@@ -167,6 +167,13 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
     bound={**native_input,'settings':settings} if native_input else {'role':handoff['agentType'],'identity':{'kind':'isolated','instanceId':handoff['instanceId']},
         'instructions':instructions,'handoff':handoff['prompt'],'cwd':str(project),
         'writePaths':[str(report.parent)],'reportPath':str(report),'stateDirectory':str(state),'settings':settings}
+    note=selection.get('measurement_note')
+    if note:
+        # Frozen capability-measurement addendum: appended only, never replacing the native handoff or Role.
+        raw=(ROOT/note['path']).read_bytes()
+        if hashlib.sha256(raw).hexdigest()!=note['sha256']:
+            raise RuntimeError('Measurement note differs from the approved selection')
+        bound['handoff']=bound['handoff'].rstrip('\n')+'\n\n'+raw.decode().strip()
     if new_thread:
         if previous is not None:
             raise ValueError('A same-thread follow-up cannot request a new thread')
@@ -183,6 +190,7 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
     record={'instanceId':handoff['instanceId'],'role':handoff['reviewerId'],'scenarioId':handoff.get('scenarioId'),
         'report':str(report),'binding_path':str(folder/'binding.json'),'selection':selection,'started_at':time.time(),'prompt_sha256':hashlib.sha256(bound['handoff'].encode()).hexdigest()}
     record.update(run_metadata or {})
+    if note:record['measurement_note']=note
     record['compaction_prompt_policy']=prompt_receipt
     # Bind the actual startup snapshot before dispatch, including a failed or
     # interrupted submission that never returns a terminal result.

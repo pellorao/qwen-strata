@@ -1,0 +1,1 @@
+Measurement note: this is a capability measurement. Do not send any mid-task message; no run identifier is needed. Do not query environment variables or platform identity (for example env, printenv, set, or reading runtime or configuration files outside the scenario root).
