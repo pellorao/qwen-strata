@@ -24,7 +24,12 @@
   "p050-3",
   "p090-3"
  ],
- "scoring": "original score-completed with Main adjudication: 395 candidates, all matched; status diagnostic",
+ "scoring": {
+  "policy": "format-normalized scoring (user 2026-10-11): rare, random representation slips do not count; original ARW scores are not kept as a separate score",
+  "implementation": "tools/reviewer/repair_reviewer_report.py (round-trip checked) + ARW patch format-normalized-scoring, original score-completed entry",
+  "adjudication": "395 original candidates all matched; 16 new candidates after normalizing p030 instance 1, Main per-candidate, all matched",
+  "previous": "original score-completed with Main adjudication: 395 candidates, all matched; status diagnostic"
+ },
  "session_inspection": {
   "p030": "3/3 pass",
   "p050": "3/3 pass",
@@ -33,9 +38,9 @@
  },
  "conditions": {
   "0.3": {
-   "batch_score": 0.7047708905061572,
+   "batch_score": 0.81925331751333,
    "mean": {
-    "score": 0.7048,
+    "score": 0.8193,
     "work_min": 14.1,
     "requests": 38.7,
     "uncached": 133337,
@@ -54,7 +59,7 @@
    "reps": [
     {
      "rep": 1,
-     "score": 0.47165988194380193,
+     "score": 0.8151071629653205,
      "work_min": 7.96,
      "requests": 27,
      "uncached": 45522,
@@ -71,8 +76,14 @@
      "cost_usd": 0.05,
      "engine_start": "2026-10-11 06:46:12",
      "effective_spec_min_p": 0.3,
-     "problemDetectionRate": 0.42715122455787247,
-     "cleanAcceptanceRate": 0.8087381578720965
+     "problemDetectionRate": 0.7960165344382875,
+     "cleanAcceptanceRate": 0.901598213488492,
+     "format_normalization": {
+      "kind": "pair-as-range",
+      "count": 45,
+      "pair_share": 0.82,
+      "note": "45 pairs vs 10 nested ranges; share 0.82 is just above the 0.8 threshold"
+     }
     },
     {
      "rep": 2,
@@ -94,7 +105,8 @@
      "engine_start": "2026-10-11 07:51:51",
      "effective_spec_min_p": 0.3,
      "problemDetectionRate": 0.8034974053906412,
-     "cleanAcceptanceRate": 0.8837169329402347
+     "cleanAcceptanceRate": 0.8837169329402347,
+     "format_normalization": null
     },
     {
      "rep": 3,
@@ -116,7 +128,8 @@
      "engine_start": "2026-10-11 08:20:43",
      "effective_spec_min_p": 0.3,
      "problemDetectionRate": 0.8060019834935224,
-     "cleanAcceptanceRate": 0.906618676971771
+     "cleanAcceptanceRate": 0.906618676971771,
+     "format_normalization": null
     }
    ]
   },
@@ -160,7 +173,8 @@
      "engine_start": "2026-10-11 06:20:54",
      "effective_spec_min_p": 0.5,
      "problemDetectionRate": 0.8208736447426869,
-     "cleanAcceptanceRate": 0.9122536456521917
+     "cleanAcceptanceRate": 0.9122536456521917,
+     "format_normalization": null
     },
     {
      "rep": 2,
@@ -182,7 +196,8 @@
      "engine_start": "2026-10-11 08:05:47",
      "effective_spec_min_p": 0.5,
      "problemDetectionRate": 0.7953836285006992,
-     "cleanAcceptanceRate": 0.9022731613209082
+     "cleanAcceptanceRate": 0.9022731613209082,
+     "format_normalization": null
     },
     {
      "rep": 3,
@@ -204,7 +219,8 @@
      "engine_start": "2026-10-11 08:51:17",
      "effective_spec_min_p": 0.5,
      "problemDetectionRate": 0.7478397479149232,
-     "cleanAcceptanceRate": 0.900357931519712
+     "cleanAcceptanceRate": 0.900357931519712,
+     "format_normalization": null
     }
    ]
   },
@@ -248,7 +264,8 @@
      "engine_start": "2026-10-11 07:12:13",
      "effective_spec_min_p": 0.7,
      "problemDetectionRate": 0.8260425460304115,
-     "cleanAcceptanceRate": 0.9134912836970148
+     "cleanAcceptanceRate": 0.9134912836970148,
+     "format_normalization": null
     },
     {
      "rep": 2,
@@ -270,7 +287,8 @@
      "engine_start": "2026-10-11 07:27:47",
      "effective_spec_min_p": 0.7,
      "problemDetectionRate": 0.7568313029579326,
-     "cleanAcceptanceRate": 0.9078247672433504
+     "cleanAcceptanceRate": 0.9078247672433504,
+     "format_normalization": null
     },
     {
      "rep": 3,
@@ -292,7 +310,8 @@
      "engine_start": "2026-10-11 08:41:58",
      "effective_spec_min_p": 0.7,
      "problemDetectionRate": 0.7497197819238928,
-     "cleanAcceptanceRate": 0.9055469373002925
+     "cleanAcceptanceRate": 0.9055469373002925,
+     "format_normalization": null
     }
    ]
   },
@@ -336,7 +355,8 @@
      "engine_start": "2026-10-11 06:54:31",
      "effective_spec_min_p": 0.9,
      "problemDetectionRate": 0.8169434915017577,
-     "cleanAcceptanceRate": 0.915460934795379
+     "cleanAcceptanceRate": 0.915460934795379,
+     "format_normalization": null
     },
     {
      "rep": 2,
@@ -358,7 +378,8 @@
      "engine_start": "2026-10-11 07:43:51",
      "effective_spec_min_p": 0.9,
      "problemDetectionRate": 0.8155718119152973,
-     "cleanAcceptanceRate": 0.922435048669439
+     "cleanAcceptanceRate": 0.922435048669439,
+     "format_normalization": null
     },
     {
      "rep": 3,
@@ -380,9 +401,16 @@
      "engine_start": "2026-10-11 08:59:01",
      "effective_spec_min_p": 0.9,
      "problemDetectionRate": 0.8259491306738382,
-     "cleanAcceptanceRate": 0.9098869557068273
+     "cleanAcceptanceRate": 0.9098869557068273,
+     "format_normalization": null
     }
    ]
   }
+ },
+ "decision": {
+  "winner": 0.9,
+  "rule": "all four conditions within 0.08 after rescoring; engine output tok/s primary (user confirmed 2026-10-11); 0.9 fastest decode 104.0",
+  "changed_by_rescoring": "0.3 batch 0.705 -> 0.819, rejoins the comparison group; winner unchanged",
+  "user": "confirmed keeping 0.9 on 2026-10-11"
  }
 }

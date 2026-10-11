@@ -37,8 +37,30 @@ def evidence(rows):
                 yield row_index, evidence_index, item
 
 
+def without_lines(rows):
+    rows = copy.deepcopy(rows)
+    for _, _, item in evidence(rows):
+        del item['lines']
+    return rows
+
+
+def check_only_lines_changed(original, normalized, changes):
+    """Round trip: apart from `lines`, the copy equals the original field by
+    field, and every changed `lines` is exactly the recorded before -> [before]."""
+    assert without_lines(normalized) == without_lines(original), 'normalization changed more than lines'
+    changed = {(c['row'], c['evidence']): c for c in changes}
+    for (row, index, before), (_, _, after) in zip(evidence(original), evidence(normalized)):
+        change = changed.get((row, index))
+        if change is None:
+            assert after['lines'] == before['lines'], f'unrecorded lines change at row {row}'
+        else:
+            assert before['lines'] == change['before'] and after['lines'] == [before['lines']], \
+                f'lines change at row {row} is not before -> [before]'
+
+
 def normalize(rows):
     """Return the normalized copy and the list of changes."""
+    original = rows
     rows = copy.deepcopy(rows)
     changes = []
     for row, index, item in evidence(rows):
@@ -55,6 +77,7 @@ def normalize(rows):
                 changes.append({'kind': 'pair-as-range', 'row': row, 'evidence': index,
                                 'before': item['lines'], 'after': [item['lines']]})
                 item['lines'] = [item['lines']]
+    check_only_lines_changed(original, rows, changes)
     return rows, changes
 
 

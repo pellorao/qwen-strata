@@ -1,6 +1,6 @@
 import unittest
 
-from tools.reviewer.repair_reviewer_report import normalize
+from tools.reviewer.repair_reviewer_report import check_only_lines_changed, normalize
 
 
 def report(*lines):
@@ -45,6 +45,21 @@ class NormalizeTest(unittest.TestCase):
         snapshot = [dict(r, evidence=[dict(e) for e in r['evidence']]) for r in original]
         normalize(original)
         self.assertEqual(original, snapshot)
+
+    def test_round_trip_rejects_changes_outside_lines(self):
+        original = report(3, [1, 2], [4, 5], [6, 7], [8, 9])
+        rows, changes = normalize(original)
+        check_only_lines_changed(original, rows, changes)
+        rows[0]['result'] = 'satisfied'
+        with self.assertRaises(AssertionError):
+            check_only_lines_changed(original, rows, changes)
+
+    def test_round_trip_rejects_unrecorded_lines_changes(self):
+        original = report([1, 2], [[4, 5]], [[6, 7]])
+        rows, changes = normalize(original)
+        rows[0]['evidence'][0]['lines'] = [1, 3]
+        with self.assertRaises(AssertionError):
+            check_only_lines_changed(original, rows, changes)
 
 
 if __name__ == '__main__':
