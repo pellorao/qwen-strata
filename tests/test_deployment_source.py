@@ -110,6 +110,21 @@ installation_path='C:\\Strata'
             with self.assertRaisesRegex(ValueError, 'deployment condition'):
                 load_host('tuned', self.root, bad)
 
+    def test_condition_sampling_overlays_only_its_model(self):
+        (self.root/'config/templates/iq3_xxs-prebuilt.json').write_text(
+            json.dumps({'exe': 'x', 'port': 8100, 'args': []}), encoding='utf-8')
+        self.host('tuned', models=['Q2_0', 'IQ3_XXS'], engine_overrides={},
+                  installation_defaults={'reasoning_effort': 'high', 'temperature': 0.0, 'top_p': 1.0, 'top_k': 20})
+        condition = {'id': 'sampling-t06', 'model': 'IQ3_XXS', 'request_defaults': {'temperature': 0.6, 'top_p': 0.95}}
+        self.assertEqual(model_configuration('IQ3_XXS', 'tuned', self.root, condition)['request_defaults'],
+                         {'reasoning_effort': 'high', 'temperature': 0.6, 'top_p': 0.95, 'top_k': 20})
+        self.assertEqual(model_configuration('Q2_0', 'tuned', self.root, condition),
+                         model_configuration('Q2_0', 'tuned', self.root))
+        self.assertEqual(model_configuration('IQ3_XXS', 'tuned', self.root)['request_defaults']['temperature'], 0.0)
+        for bad in ({'max_tokens': 1}, {'reasoning_effort': 'low'}, {'temperature': '0.6'}, []):
+            with self.assertRaisesRegex(ValueError, 'deployment condition'):
+                load_host('tuned', self.root, {**condition, 'request_defaults': bad})
+
     def test_public_outputs_never_carry_private_values(self):
         self.assertEqual(frontend_configuration('tuned', self.root),
                          {'listen_address': '192.168.60.212', 'port': 8000, 'model_port': 8100})

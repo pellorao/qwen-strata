@@ -152,6 +152,18 @@ def load_facts(log):
             'load_gib_per_s':float(rate)if rate else None}
 
 
+def kv_facts(log):
+    """Effective KV residency and the memory it leaves: resident/total cells, pinned K/V, expert slots, commit."""
+    last=lambda pattern:(re.findall(pattern,log)or[None])[-1]
+    kv=last(r'KV streaming: (\d+) of (\d+) cells per QSA layer in VRAM, the K/V in ([\d.]+) GiB of pinned RAM')
+    slots=last(r'expert cache auto: .*?-> (\d+) slots')
+    free=last(r'(\d+) MiB of VRAM free with everything loaded')
+    commit=last(r'Windows commit: ([\d.]+) GiB left')
+    return {'kv_resident_cells':int(kv[0])if kv else None,'kv_total_cells':int(kv[1])if kv else None,
+            'kv_pinned_gib':float(kv[2])if kv else None,'expert_slots':int(slots)if slots else None,
+            'free_mib_loaded':int(free)if free else None,'commit_left_gib':float(commit)if commit else None}
+
+
 DISK_READS='''import json,sys,os
 from pathlib import Path
 import psutil
@@ -223,7 +235,8 @@ def run_case(host,plan,workload,job,folder):
                 status,row['load_seconds']=owner.start(**options);health=status['native_health'];startup=health['startup_instructions']
                 save(folder/'start-status.json',{'status':status['status'],'max_context':health.get('max_context'),
                     'model_pid':status.get('model_pid'),'startup_instructions':startup})
-                if health.get('max_context')!=156584:
+                # a plan may select a longer capacity through the engine override; the default stays the 156584 tier
+                if health.get('max_context')!=int(options['engine_overrides'].get('max-context',156584)):
                     raise RuntimeError('Actual capacity or startup policy differs')
                 verify_loaded_startup(startup,plan['prompt_binding']['startup_sha256'])
                 if job.get('environment'):
@@ -248,6 +261,11 @@ def run_case(host,plan,workload,job,folder):
                     save(folder/'effective-vram.json',effective);row['effective_vram']=effective
                     if effective['reserve_mib']!=job['overrides']['vram-reserve-mib']:
                         raise RuntimeError('Effective VRAM reserve differs from selected condition')
+                if plan.get('record_kv_facts'):
+                    facts=kv_facts(host.log_bytes_since(model,offset).decode(errors='replace'))
+                    save(folder/'kv-facts.json',facts);row['kv_facts']=facts
+                    if 'kv-resident' in options['engine_overrides'] and facts['kv_resident_cells']!=int(options['engine_overrides']['kv-resident']):
+                        raise RuntimeError('Effective KV residency differs from selected condition')
                 if plan.get('record_load_facts'):
                     facts=load_facts(host.log_bytes_since(model,offset).decode(errors='replace'))
                     save(folder/'load-facts.json',facts);row['load_facts']=facts

@@ -3,7 +3,7 @@ import json
 
 
 def build(record_count=640):
-    if not 64 <= record_count <= 2048:
+    if not 64 <= record_count <= 5120:  # up to about 210K prompt tokens for long-context residency
         raise ValueError('Record count outside the calibration workload range')
     records = [dict(id=f'R{i:05d}', region=('north', 'east', 'west', 'south')[i % 4],
                     capacity=80+i % 47, used=(i*17+7) % 110,

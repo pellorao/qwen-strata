@@ -12,7 +12,9 @@ PUBLIC_FIELDS = {'schema_version', 'id', 'cuda_arch', 'models', 'engine_override
                  'qualification', 'listen_address', 'port', 'installation_defaults', 'context_tiers', 'note'}
 INSTALLATION_DEFAULTS = {'reasoning_effort', 'reasoning_budget_tokens', 'max_tokens',
                          'cpu_prefill_share', 'temperature', 'top_p', 'top_k'}
-CONDITION_FIELDS = {'id', 'model', 'model_overrides', 'model_environment'}
+CONDITION_FIELDS = {'id', 'model', 'model_overrides', 'model_environment', 'request_defaults'}
+# A tuning condition may vary only these request defaults, and only for its own model
+CONDITION_REQUEST_DEFAULTS = {'temperature', 'top_p', 'top_k'}
 
 
 def load_private(project=None):
@@ -21,7 +23,7 @@ def load_private(project=None):
 
 
 def load_host(identifier, project=None, condition=None):
-    """Host deployment; a tuning `condition` overlays one model's overrides/environment until the default returns."""
+    """Host deployment; a tuning `condition` overlays one model's overrides/environment/sampling until the default returns."""
     project = Path(project or ROOT)
     if not isinstance(identifier, str) or not re.fullmatch(r'[a-z0-9][a-z0-9-]*', identifier):
         raise ValueError('Invalid host identifier')
@@ -66,12 +68,17 @@ def load_host(identifier, project=None, condition=None):
         if (not isinstance(condition, dict) or set(condition) - CONDITION_FIELDS
                 or not re.fullmatch(r'[a-z0-9][a-z0-9.-]*', str(condition.get('id', '')))
                 or condition.get('model') not in models
-                or not all(isinstance(condition.get(k, {}), dict) for k in ('model_overrides', 'model_environment'))
-                or set(condition.get('model_environment', {})) - ENVIRONMENT):
-            raise ValueError('A deployment condition names one installed model and its engine overrides/environment')
+                or not all(isinstance(condition.get(k, {}), dict)
+                           for k in ('model_overrides', 'model_environment', 'request_defaults'))
+                or set(condition.get('model_environment', {})) - ENVIRONMENT
+                or set(condition.get('request_defaults', {})) - CONDITION_REQUEST_DEFAULTS
+                or not all(type(v) in (int, float) for v in condition.get('request_defaults', {}).values())):
+            raise ValueError('A deployment condition names one installed model and its engine overrides/environment/sampling')
         model = condition['model']
         per_model[model] = {**per_model.get(model, {}), **condition.get('model_overrides', {})}
         environment[model] = {**environment.get(model, {}), **condition.get('model_environment', {})}
+        if condition.get('request_defaults'):
+            value['condition_request_defaults'] = {model: condition['request_defaults']}
         value['deployment_condition'] = condition['id']
     return value
 
@@ -137,6 +144,7 @@ def model_configuration(model, identifier, project=None, condition=None):
     if tiers:
         value['context_tiers'] = tiers
     request = {k: v for k, v in defaults.items() if k != 'cpu_prefill_share'}
+    request.update(host.get('condition_request_defaults', {}).get(model, {}))
     if request:
         value['request_defaults'] = request
     if 'cpu_prefill_share' in defaults:

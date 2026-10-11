@@ -2,7 +2,7 @@ import sys,json,unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import importlib.util,tempfile
-from tools.tuning.resource_calibration import inspect_reply, experiment_schedule, frozen_inputs, load_facts, disk_read_delta
+from tools.tuning.resource_calibration import inspect_reply, experiment_schedule, frozen_inputs, load_facts, kv_facts, disk_read_delta
 ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('ple_workload',ROOT/'benchmarks/resource-calibration-v1/ple_workload.py')
 ple_workload=importlib.util.module_from_spec(spec);spec.loader.exec_module(ple_workload)
@@ -135,6 +135,14 @@ class PleReadPathTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'Frozen request'):frozen_inputs(*paths)
             del workload['repetitions']['3'];paths[1].write_text(json.dumps(workload))
             with self.assertRaisesRegex(ValueError,'Frozen request'):frozen_inputs(*paths)
+
+    def test_kv_facts_read_the_effective_residency(self):
+        log = ('strata generate: KV streaming: 20480 of 256584 cells per QSA layer in VRAM, the K/V in 3.03 GiB of pinned RAM\n'
+               'strata generate: expert cache auto: 5.57 GiB free, 512 MiB reserved (+183 MiB for the draft head) -> 2990 slots\n'
+               'Windows commit: 29.4 GiB left of a 95.8 GiB limit\nstrata serve: 280 MiB of VRAM free with everything loaded')
+        self.assertEqual(kv_facts(log), {'kv_resident_cells': 20480, 'kv_total_cells': 256584, 'kv_pinned_gib': 3.03,
+                                         'expert_slots': 2990, 'free_mib_loaded': 280, 'commit_left_gib': 29.4})
+        self.assertIsNone(kv_facts('')['kv_resident_cells'])
 
     def test_load_facts_read_effective_ple_mode_and_large_pages(self):
         slow=('strata generate: loaded 39.97 GiB at 5.84 GiB/s\nexpert arena: large pages refused for 1 B\n'

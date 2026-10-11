@@ -66,6 +66,22 @@ class EffectTests(unittest.TestCase):
         self.assertFalse(verify_effect(log, row('auto'), auto, self.configuration,
                                        {'log_absent': ['the CPU share is ON by default']})['ok'])
 
+    def test_condition_sampling_must_be_installed(self):
+        condition = {'id': 'sampling-t06', 'model': 'IQ3_XXS', 'request_defaults': {'temperature': 0.6}}
+        log = STARTED.format(spec=4) + '[native-sampling-trace] temperature=0.6 top_p=0.95 top_k=20\n'
+        checks = {'log_present': [r'\[native-sampling-trace\][^\n]*temperature=0\.6\b']}
+        installed = dict(self.configuration, request_defaults={'temperature': 0.6, 'top_k': 20})
+        self.assertTrue(verify_effect(log, [], condition, installed, checks)['ok'])
+        stale = dict(self.configuration, request_defaults={'temperature': 0.0})
+        self.assertIn('request default temperature', verify_effect(log, [], condition, stale, checks)['problems'][0])
+
+    def test_selected_tier_must_reach_the_engine(self):
+        plain = {'id': 'window-206584', 'model': 'IQ3_XXS'}
+        self.assertTrue(verify_effect(STARTED.format(spec=4), [], plain, self.configuration,
+                                      {'context_window': 156584})['ok'])
+        self.assertIn('--max-context', verify_effect(STARTED.format(spec=4), [], plain, self.configuration,
+                                                     {'context_window': 206584})['problems'][0])
+
     def test_flag_values_and_manual_config(self):
         self.assertEqual(flag_values('x --spec 3 --suffix-draft --max-context 9'),
                          {'--spec': '3', '--suffix-draft': True, '--max-context': '9'})

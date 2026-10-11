@@ -71,6 +71,13 @@ def verify_effect(log, environment_rows, condition, configuration, checks):
         expected = args[args.index(flag) + 1] if flag in args else None
         if flags.get(flag) != expected:
             problems.append(f'{flag}: engine ran with {flags.get(flag)!r}, condition deploys {expected!r}')
+    if checks.get('context_window') is not None and flags.get('--max-context') != str(checks['context_window']):
+        problems.append(f"--max-context: engine ran with {flags.get('--max-context')!r}, "
+                        f"the slot selects tier {checks['context_window']}")
+    installed = configuration.get('request_defaults', {})
+    for key, value in condition.get('request_defaults', {}).items():
+        if installed.get(key) != value:
+            problems.append(f'request default {key}: installed {installed.get(key)!r}, condition deploys {value!r}')
     wanted = {k: None if v is None else str(v) for k, v in condition.get('model_environment', {}).items()}
     # an engine ARW already stopped leaves only the log lines as evidence
     if wanted and len(environment_rows) > 1:
@@ -106,7 +113,7 @@ def extract_agent_config(manual):
     return block.group(1)
 
 
-def selection(plan, condition):
+def selection(plan, condition, context_window=None):
     note = (ROOT / MEASUREMENT_NOTE).read_bytes()
     codex = CODEX.read_bytes()
     fixed = plan['fixed_conditions']
@@ -118,22 +125,24 @@ def selection(plan, condition):
             'archive_http': True, 'automatic_continuation': False,
             'native_cli': {'executable': str(CODEX), 'version': fixed['codex'], 'sha256': sha(codex)},
             'loop_reminder': 'off', 'measurement_note': {'path': MEASUREMENT_NOTE, 'sha256': sha(note)},
-            'deployment_condition': condition}
+            'deployment_condition': condition,
+            # a published context tier the caller selects; omitted, ARW starts the installation default tier
+            **({} if context_window is None else {'context_window': context_window})}
 
 
-def prepare(plan, condition, folder):
-    """Fresh ARW batch for one slot; only its first handoff runs, the others stay deferred."""
+def prepare(plan, condition, folder, reviewer=None, context_window=None):
+    """Fresh ARW batch for one slot; only its first handoff(s) run, the others stay deferred."""
     folder.mkdir(parents=True)
     arw = folder / 'arw'
     subprocess.run([sys.executable, '-m', 'tools.reviewer.freeze_arw_source', '--manifest',
                     plan['fixed_conditions']['arw_source_manifest'], '--out', str(arw)],
                    cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
     (arw / 'config.json').write_text(extract_agent_config((arw / 'docs/manuals/agent-cli.md').read_text()))
-    save(folder / 'selection-source.json', selection(plan, condition))
+    save(folder / 'selection-source.json', selection(plan, condition, context_window))
     subprocess.run(['git', 'init', '-q'], cwd=arw, check=True)
     env = dict(os.environ, CODEX_THREAD_ID=plan['codex_thread_id'])
     with (folder / 'prepare.json').open('w') as out, (folder / 'prepare.err').open('w') as err:
-        subprocess.run(['node', 'scripts/reviewer-capability-conformance.mjs', 'prepare', '--reviewer', plan['reviewer']],
+        subprocess.run(['node', 'scripts/reviewer-capability-conformance.mjs', 'prepare', '--reviewer', reviewer or plan['reviewer']],
                        cwd=arw, env=env, stdout=out, stderr=err, check=True)
     prepared = json.loads((folder / 'prepare.json').read_text())
     prepared.update(repositoryRoot=str(arw.resolve()), programDirectory=str(arw.resolve()),
@@ -166,7 +175,8 @@ def run(plan_path, dimension_id, out, limit=None):
     for slot, name in pending[:limit]:
         condition, digest = conditions[name]
         folder = out / f'{slot + 1:02d}-{name}'
-        prepare(plan, condition, folder)
+        checks = dimension['conditions'][name]
+        prepare(plan, condition, folder, dimension.get('reviewer'), checks.get('context_window'))
         deployed = deploy(plan['host'], condition=(condition, digest))
         save(folder / 'deploy.json', deployed)
         preflight(plan, folder)
@@ -179,14 +189,13 @@ def run(plan_path, dimension_id, out, limit=None):
         measured = subprocess.run(
             [sys.executable, '-m', 'tools.reviewer.arw_measure', '--host', plan['host'], '--out', str(folder / 'run'),
              '--selection', str(folder / 'preflight/selection.json'), '--preparation', str(folder / 'preparation.json'),
-             '--catalog', str(CATALOG), '--limit', '1'],
+             '--catalog', str(CATALOG), '--limit', str(dimension.get('instances_per_slot', 1))],
             cwd=ROOT, env=dict(os.environ, CODEX_THREAD_ID=plan['codex_thread_id']))
         log = host.log_bytes_since(plan['model'], offset).decode(errors='replace')
         (folder / 'engine-log-since-deploy.txt').write_text(log)
         environment = host.engine_environment(condition.get('model_environment', {})) \
             if condition.get('model_environment') else []
-        effect = verify_effect(log, environment, condition, host.configuration(plan['model']),
-                               dimension['conditions'][name])
+        effect = verify_effect(log, environment, condition, host.configuration(plan['model']), checks)
         records.append({'slot': slot, 'condition': name, 'condition_sha256': digest, 'folder': str(folder),
                         'started': started, 'arw_measure_exit': measured.returncode,
                         'model_configuration_sha256': deployed['model_configuration_sha256'], 'effect': effect})
@@ -219,22 +228,32 @@ def check(plan_path):
                      for f in ('--' + k for k in condition.get('model_overrides', {}))}
             env = {k: (default.get('engine_environment', {}).get(k), rendered.get('engine_environment', {}).get(k))
                    for k in condition.get('model_environment', {})}
+            sampling = {k: (default.get('request_defaults', {}).get(k), rendered.get('request_defaults', {}).get(k))
+                        for k in condition.get('request_defaults', {})}
             result[name] = {'sha256': digest, 'flags_default_to_condition': flags,
                             'environment_default_to_condition': env,
+                            'request_defaults_default_to_condition': sampling,
                             'changes_default': rendered != default}
     return result
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('check', 'run', 'restore'))
+    parser.add_argument('command', choices=('check', 'run', 'restore', 'prepare'))
     parser.add_argument('--plan', type=Path, required=True)
     parser.add_argument('--dimension')
     parser.add_argument('--out', type=Path)
     parser.add_argument('--limit', type=int, help='Run at most N further slots of the schedule.')
+    parser.add_argument('--reviewer', help='prepare: ARW reviewer of the batch (default: the plan reviewer)')
+    parser.add_argument('--context-window', type=int, help='prepare: published context tier the batch selects')
     args = parser.parse_args()
     if args.command == 'check':
         result = check(args.plan)
+    elif args.command == 'prepare':
+        # a benchmark batch on the deployed default: fresh ARW preparation and preflight, no deployment
+        plan, _, _ = load_plan(args.plan)
+        result = prepare(plan, None, args.out.resolve(), args.reviewer, args.context_window)
+        preflight(plan, args.out.resolve())
     elif args.command == 'run':
         result = run(args.plan, args.dimension, args.out.resolve(), args.limit)
     else:
