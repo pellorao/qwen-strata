@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.arw_measure import ARW_PAUSE_PREFIX, capture_segment, local_review_catalog, observe_review, run
+from tools.reviewer.arw_measure import ARW_PAUSE_PREFIX, capture_segment, local_review_catalog, merged_spec_order, observe_review, run
 
 
 class ArwOwnedTests(unittest.TestCase):
@@ -45,6 +45,13 @@ class ArwOwnedTests(unittest.TestCase):
             _, _, started = capture_segment(Host(), 'IQ3_XXS', start, end, folder)
             self.assertEqual((folder / 'engine-request-log.txt').read_text(), 'engine started: --max-context 156584\nmine\n')
             self.assertEqual(started, '--max-context 156584')
+
+    def test_spec_readiness_runs_as_merged_same_thread_pairs(self):
+        ids = [('runtime-migration', 1), ('runtime-migration', 2), ('artifact-promotion', 2), ('artifact-promotion', 1)]
+        jobs = [(None, {'scenarioId': s, 'instanceId': f'{s}-x-instance-{n}'}, None) for s, n in ids]
+        order = [(h['scenarioId'], h['instanceId'][-1]) for _, h, _ in merged_spec_order(jobs)]
+        self.assertEqual(order, [('runtime-migration', '1'), ('artifact-promotion', '1'),
+                                 ('runtime-migration', '2'), ('artifact-promotion', '2')])
 
     def test_arw_owned_runs_refuse_driver_parameters(self):
         from unittest.mock import patch
