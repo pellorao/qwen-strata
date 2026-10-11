@@ -39,8 +39,9 @@ class InspectSessionTest(unittest.TestCase):
     def test_confined_calls_are_not_flagged(self):
         r = self.run_session(f'cat {ROOT}/request.json', 'rg -n foo src',
                              'R=reports; cat "$R/x"; node -e "fs.readFileSync(ROOT + \'/reports/a\')"',
-                             'printf "%s" "$f" | sort; [ "$(ls)" ] && echo /dev/null')
-        self.assertEqual([a['reasons'] for a in r['actions']], [[], [], [], ['unassigned variable: $f']])
+                             'printf "%s" "$f" | sort; [ "$(ls)" ] && echo /dev/null',
+                             'ls | while read -r g; do echo "$g"; done')
+        self.assertEqual([a['reasons'] for a in r['actions']], [[], [], [], ['unassigned variable: $f'], []])
         self.assertEqual(r['startup']['messageId'], 'm1')
         self.assertEqual(r['final'], '{"status":"ready"}')
 
