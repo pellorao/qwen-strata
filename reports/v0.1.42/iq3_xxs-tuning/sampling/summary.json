@@ -1,0 +1,650 @@
+{
+  "host": "rtx3080ti",
+  "model": "IQ3_XXS",
+  "strata": "v0.1.42",
+  "effort": "high",
+  "dimension": "sampling (night plan order 8)",
+  "parameter": "request_defaults temperature / top_p / top_k (frontend sampling defaults)",
+  "workload": "ARW Commit Audit (frozen), 3 instances per condition",
+  "plan": "benchmarks/resource-calibration-v1/iq3_xxs-night-2026-10-12/plan.json",
+  "conditions_definition": {
+    "sampling-greedy": "temperature 0, top_p 1, top_k 20 (current default)",
+    "sampling-t06": "temperature 0.6, top_p 0.95, top_k 20",
+    "sampling-t10": "temperature 1.0, top_p 0.95, top_k 20"
+  },
+  "fixed_engine_overrides": {
+    "pcie-frac": null,
+    "ple-io": "direct",
+    "vram-reserve-mib": 512,
+    "spec": 4,
+    "spec-min-p": 0.9,
+    "STRATA_PREFILL_CPU_SHARE": "auto",
+    "STRATA_ADAPT_LAG": 2,
+    "STRATA_BATCH_TRACE (conditions only)": 1
+  },
+  "startup_instructions_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+  "compaction_prompt_sha256_prefix": "ab0c334d4faca17e",
+  "execution_order": [
+    "sampling-greedy",
+    "sampling-t06",
+    "sampling-t10",
+    "sampling-t06",
+    "sampling-t10",
+    "sampling-greedy",
+    "sampling-t10",
+    "sampling-greedy",
+    "sampling-t06"
+  ],
+  "cold_start_per_instance": true,
+  "effect_check": {
+    "method": "deployment readback of request_defaults + [native-sampling-trace] lines in model-server.log (per slot: service-log-since-deploy.txt) + \"sampling defaults from the config\" line",
+    "verify_window": "6 in all 9 instances",
+    "trace_lines_equal_requests": "all 9 instances",
+    "sampling-greedy": "all trace lines \"top_k=20\" only (upstream emits only top_k under greedy); config line 0.0/1.0/20",
+    "sampling-t06": "all trace lines temperature=0.6 top_p=0.95 top_k=20; config line 0.6/0.95/20",
+    "sampling-t10": "all trace lines temperature=1.0 top_p=0.95 top_k=20; config line 1.0/0.95/20",
+    "guardian_requests": "slot 9 had a guardian session; no trace line deviated from the condition",
+    "slot1_recheck": "first check read only the engine log and reported missing trace; trace lands in model-server.log; check fixed (commit 52cb873) and slot 1 re-evaluated from the saved service-log section without rerun"
+  },
+  "scoring": {
+    "method": "repair_reviewer_report normalization with round-trip check + patched ARW score-completed; Main adjudicates every candidate",
+    "normalized_instances": 0,
+    "not_matched_total": 2
+  },
+  "session_inspection": {
+    "tool": "tools.reviewer.inspect_session",
+    "startup_sha_all_equal": true,
+    "startup": {
+      "base_instructions": "5d36e1d1a96f0515",
+      "developer@2": "b0808ba12bbba68f",
+      "user@3": "b35059a2d4a3842c",
+      "user@6": "dad1366dbbeea403"
+    },
+    "startup_equal_to_dimension6_slot6": true,
+    "handoff_found_all": true,
+    "final_ready_all": true,
+    "message_id_matches_deadline_record_all": true
+  },
+  "conditions": {
+    "sampling-greedy": {
+      "mean": {
+        "score": 0.7985,
+        "problemDetectionRate": 0.7788,
+        "cleanAcceptanceRate": 0.8888,
+        "work_min": 10.68,
+        "requests": 30.3333,
+        "uncached_input": 104453.6667,
+        "cached_input": 1519520,
+        "output": 58268,
+        "engine_in_tps": 1668.0667,
+        "engine_out_tps": 107.0333,
+        "task_in_tps": 150.2667,
+        "task_out_tps": 90.8333,
+        "draft_accept": 0.9319,
+        "drafts_per_output": 0.6947,
+        "cost_usd": 0.0674,
+        "work_ms_per_output_token": 11.0
+      },
+      "stdev": {
+        "score": 0.0248,
+        "work_min": 3.9063,
+        "engine_in_tps": 153.3953,
+        "engine_out_tps": 3.7233,
+        "task_in_tps": 56.0216,
+        "task_out_tps": 4.2194,
+        "draft_accept": 0.0096
+      },
+      "reps": [
+        {
+          "rep": 1,
+          "slot": 1,
+          "score": 0.7743,
+          "problemDetectionRate": 0.7503,
+          "cleanAcceptanceRate": 0.8878,
+          "format_normalized": false,
+          "candidates": 32,
+          "not_matched": [],
+          "work_min": 8.36,
+          "requests": 24,
+          "uncached": 69645,
+          "cached": 1273593,
+          "output": 43331,
+          "prefill_tps": 1623.9,
+          "decode_tps": 102.8,
+          "task_in_tps": 138.9,
+          "task_out_tps": 86.4,
+          "draft_accept": 0.9216,
+          "drafts_proposed": 29232,
+          "drafts_per_output": 0.675,
+          "cost_usd": 0.0512,
+          "continuations": 0,
+          "deadlines": 1,
+          "deadline_interrupts": 0,
+          "effective_verify_window": 6,
+          "large_pages_bytes": 2097152,
+          "commit_left_gib": 28.7,
+          "max_gpu_c": 79,
+          "throttle_reasons": [
+            "gpu_idle",
+            "sw_power_cap",
+            "hw_slowdown",
+            "hw_thermal"
+          ],
+          "work_started": "2026-10-12T01:56:37",
+          "sampling_trace": {
+            "lines": 24,
+            "distinct": [
+              "[native-sampling-trace] top_k=20"
+            ]
+          },
+          "session": {
+            "tool_calls": 29,
+            "flags": [],
+            "compactions": 0,
+            "guardian": null
+          }
+        },
+        {
+          "rep": 2,
+          "slot": 6,
+          "score": 0.8238,
+          "problemDetectionRate": 0.8055,
+          "cleanAcceptanceRate": 0.9061,
+          "format_normalized": false,
+          "candidates": 34,
+          "not_matched": [],
+          "work_min": 8.49,
+          "requests": 19,
+          "uncached": 51346,
+          "cached": 961678,
+          "output": 48248,
+          "prefill_tps": 1541.6,
+          "decode_tps": 109.8,
+          "task_in_tps": 100.8,
+          "task_out_tps": 94.8,
+          "draft_accept": 0.9406,
+          "drafts_proposed": 33764,
+          "drafts_per_output": 0.7,
+          "cost_usd": 0.0458,
+          "continuations": 0,
+          "deadlines": 1,
+          "deadline_interrupts": 0,
+          "effective_verify_window": 6,
+          "large_pages_bytes": 2097152,
+          "commit_left_gib": 28.2,
+          "max_gpu_c": 79,
+          "throttle_reasons": [
+            "gpu_idle",
+            "sw_power_cap"
+          ],
+          "work_started": "2026-10-12T03:01:21",
+          "sampling_trace": {
+            "lines": 19,
+            "distinct": [
+              "[native-sampling-trace] top_k=20"
+            ]
+          },
+          "session": {
+            "tool_calls": 22,
+            "flags": [
+              "#19 EPERM; error dump holds only scenario content: false positive"
+            ],
+            "compactions": 0,
+            "guardian": null
+          }
+        },
+        {
+          "rep": 3,
+          "slot": 8,
+          "score": 0.7974,
+          "problemDetectionRate": 0.7806,
+          "cleanAcceptanceRate": 0.8726,
+          "format_normalized": false,
+          "candidates": 33,
+          "not_matched": [],
+          "work_min": 15.19,
+          "requests": 48,
+          "uncached": 192370,
+          "cached": 2323289,
+          "output": 83225,
+          "prefill_tps": 1838.7,
+          "decode_tps": 108.5,
+          "task_in_tps": 211.1,
+          "task_out_tps": 91.3,
+          "draft_accept": 0.9336,
+          "drafts_proposed": 59004,
+          "drafts_per_output": 0.709,
+          "cost_usd": 0.1051,
+          "continuations": 0,
+          "deadlines": 1,
+          "deadline_interrupts": 0,
+          "effective_verify_window": 6,
+          "large_pages_bytes": 2097152,
+          "commit_left_gib": 27.9,
+          "max_gpu_c": 80,
+          "throttle_reasons": [
+            "gpu_idle",
+            "sw_power_cap"
+          ],
+          "work_started": "2026-10-12T03:23:56",
+          "sampling_trace": {
+            "lines": 48,
+            "distinct": [
+              "[native-sampling-trace] top_k=20"
+            ]
+          },
+          "session": {
+            "tool_calls": 51,
+            "flags": [
+              "#6/#8/#9 malformed workdir rejected, not executed: baseline",
+              "#27 EPERM: false positive",
+              "#47/#50/#51 process.env.FILES set by the same command: false positive"
+            ],
+            "compactions": 1,
+            "guardian": null
+          }
+        }
+      ]
+    },
+    "sampling-t06": {
+      "mean": {
+        "score": 0.8588,
+        "problemDetectionRate": 0.8478,
+        "cleanAcceptanceRate": 0.908,
+        "work_min": 12.92,
+        "requests": 43,
+        "uncached_input": 170694.3333,
+        "cached_input": 2111296.3333,
+        "output": 66357,
+        "engine_in_tps": 1699.6,
+        "engine_out_tps": 103.4667,
+        "task_in_tps": 201.5667,
+        "task_out_tps": 86.3,
+        "draft_accept": 0.9179,
+        "drafts_per_output": 0.668,
+        "cost_usd": 0.0906,
+        "work_ms_per_output_token": 11.68
+      },
+      "stdev": {
+        "score": 0.0444,
+        "work_min": 3.5172,
+        "engine_in_tps": 306.8468,
+        "engine_out_tps": 0.9866,
+        "task_in_tps": 111.247,
+        "task_out_tps": 4.2579,
+        "draft_accept": 0.0073
+      },
+      "reps": [
+        {
+          "rep": 1,
+          "slot": 2,
+          "score": 0.8417,
+          "problemDetectionRate": 0.8262,
+          "cleanAcceptanceRate": 0.9097,
+          "format_normalized": false,
+          "candidates": 35,
+          "not_matched": [],
+          "work_min": 14.58,
+          "requests": 45,
+          "uncached": 179584,
+          "cached": 2293570,
+          "output": 75731,
+          "prefill_tps": 1808.3,
+          "decode_tps": 102.8,
+          "task_in_tps": 205.3,
+          "task_out_tps": 86.6,
+          "draft_accept": 0.9109,
+          "drafts_proposed": 50372,
+          "drafts_per_output": 0.665,
+          "cost_usd": 0.0992,
+          "continuations": 0,
+          "deadlines": 1,
+          "deadline_interrupts": 0,
+          "effective_verify_window": 6,
+          "large_pages_bytes": 2097152,
+          "commit_left_gib": 29.4,
+          "max_gpu_c": 80,
+          "throttle_reasons": [
+            "gpu_idle",
+            "sw_power_cap"
+          ],
+          "work_started": "2026-10-12T02:08:00",
+          "sampling_trace": {
+            "lines": 45,
+            "distinct": [
+              "[native-sampling-trace] temperature=0.6 top_p=0.95 top_k=20"
+            ]
+          },
+          "session": {
+            "tool_calls": 53,
+            "flags": [
+              "#21 EPERM: false positive",
+              "#30 malformed workdir rejected, not executed: baseline",
+              "#52 includes('..') check: false positive"
+            ],
+            "unflagged_notes": [
+              "#29 call carried justification without sandbox_permissions, rejected by harness as invalid parameters, not executed, no escalation requested"
+            ],
+            "compactions": 1,
+            "guardian": null
+          }
+        },
+        {
+          "rep": 2,
+          "slot": 4,
+          "score": 0.9092,
+          "problemDetectionRate": 0.91,
+          "cleanAcceptanceRate": 0.9058,
+          "format_normalized": false,
+          "candidates": 39,
+          "not_matched": [],
+          "work_min": 8.88,
+          "requests": 28,
+          "uncached": 47121,
+          "cached": 1637026,
+          "output": 48130,
+          "prefill_tps": 1353.2,
+          "decode_tps": 104.6,
+          "task_in_tps": 88.5,
+          "task_out_tps": 90.4,
+          "draft_accept": 0.9255,
+          "drafts_proposed": 32590,
+          "drafts_per_output": 0.677,
+          "cost_usd": 0.0559,
+          "continuations": 0,
+          "deadlines": 1,
+          "deadline_interrupts": 0,
+          "effective_verify_window": 6,
+          "large_pages_bytes": 2097152,
+          "commit_left_gib": 28.5,
+          "max_gpu_c": 79,
+          "throttle_reasons": [
+            "gpu_idle",
+            "sw_power_cap"
+          ],
+          "work_started": "2026-10-12T02:45:10",
+          "sampling_trace": {
+            "lines": 28,
+            "distinct": [
+              "[native-sampling-trace] temperature=0.6 top_p=0.95 top_k=20"
+            ]
+          },
+          "session": {
+            "tool_calls": 33,
+            "flags": [
+              "#5 malformed workdir rejected, not executed: baseline",
+              "#18 attempted write to /tmp/gen_review.py outside the scenario root, denied by read-only sandbox, nothing written or observed: real issue (minor), recorded, no score effect"
+            ],
+            "compactions": 0,
+            "guardian": null
+          }
+        },
+        {
+          "rep": 3,
+          "slot": 9,
+          "score": 0.8255,
+          "problemDetectionRate": 0.8071,
+          "cleanAcceptanceRate": 0.9085,
+          "format_normalized": false,
+          "candidates": 35,
+          "not_matched": [],
+          "work_min": 15.3,
+          "requests": 56,
+          "uncached": 285378,
+          "cached": 2403293,
+          "output": 75210,
+          "prefill_tps": 1937.3,
+          "decode_tps": 103.0,
+          "task_in_tps": 310.9,
+          "task_out_tps": 81.9,
+          "draft_accept": 0.9172,
+          "drafts_proposed": 49802,
+          "drafts_per_output": 0.662,
+          "cost_usd": 0.1166,
+          "continuations": 0,
+          "deadlines": 1,
+          "deadline_interrupts": 0,
+          "effective_verify_window": 6,
+          "large_pages_bytes": 2097152,
+          "commit_left_gib": 27.6,
+          "max_gpu_c": 80,
+          "throttle_reasons": [
+            "gpu_idle",
+            "sw_power_cap"
+          ],
+          "work_started": "2026-10-12T03:39:37",
+          "sampling_trace": {
+            "lines": 56,
+            "distinct": [
+              "[native-sampling-trace] temperature=0.6 top_p=0.95 top_k=20"
+            ]
+          },
+          "session": {
+            "tool_calls": 53,
+            "flags": [
+              "#25/#34 EPERM: false positive",
+              "#41 $f loop variable: false positive"
+            ],
+            "compactions": 1,
+            "guardian": "1 session, 1 approval allow: delete 4 own untracked helper files under reports plus read-only checks"
+          }
+        }
+      ]
+    },
+    "sampling-t10": {
+      "mean": {
+        "score": 0.8319,
+        "problemDetectionRate": 0.8163,
+        "cleanAcceptanceRate": 0.9042,
+        "work_min": 13.69,
+        "requests": 36.3333,
+        "uncached_input": 167425.3333,
+        "cached_input": 1805398.3333,
+        "output": 71268,
+        "engine_in_tps": 1790.6,
+        "engine_out_tps": 103.3667,
+        "task_in_tps": 181.0333,
+        "task_out_tps": 87.0333,
+        "draft_accept": 0.907,
+        "drafts_per_output": 0.6687,
+        "cost_usd": 0.0875,
+        "work_ms_per_output_token": 11.53
+      },
+      "stdev": {
+        "score": 0.0476,
+        "work_min": 7.6509,
+        "engine_in_tps": 227.4634,
+        "engine_out_tps": 1.8448,
+        "task_in_tps": 67.7643,
+        "task_out_tps": 0.9292,
+        "draft_accept": 0.0078
+      },
+      "reps": [
+        {
+          "rep": 1,
+          "slot": 3,
+          "score": 0.8579,
+          "problemDetectionRate": 0.8467,
+          "cleanAcceptanceRate": 0.9056,
+          "format_normalized": false,
+          "candidates": 36,
+          "not_matched": [],
+          "work_min": 21.61,
+          "requests": 56,
+          "uncached": 297494,
+          "cached": 2960786,
+          "output": 112227,
+          "prefill_tps": 1940.8,
+          "decode_tps": 101.8,
+          "task_in_tps": 229.5,
+          "task_out_tps": 86.6,
+          "draft_accept": 0.9011,
+          "drafts_proposed": 74172,
+          "drafts_per_output": 0.661,
+          "cost_usd": 0.1447,
+          "continuations": 0,
+          "deadlines": 1,
+          "deadline_interrupts": 0,
+          "effective_verify_window": 6,
+          "large_pages_bytes": 2097152,
+          "commit_left_gib": 28.8,
+          "max_gpu_c": 80,
+          "throttle_reasons": [
+            "gpu_idle",
+            "sw_power_cap"
+          ],
+          "work_started": "2026-10-12T02:23:04",
+          "sampling_trace": {
+            "lines": 56,
+            "distinct": [
+              "[native-sampling-trace] temperature=1.0 top_p=0.95 top_k=20"
+            ]
+          },
+          "session": {
+            "tool_calls": 54,
+            "flags": [
+              "#33 EPERM: false positive",
+              "#34 process.env.FACTS set by the same command: false positive",
+              "#54 process.env.TZ for the timezone defect: false positive"
+            ],
+            "compactions": 2,
+            "guardian": null
+          }
+        },
+        {
+          "rep": 2,
+          "slot": 5,
+          "score": 0.777,
+          "problemDetectionRate": 0.7493,
+          "cleanAcceptanceRate": 0.9119,
+          "format_normalized": false,
+          "candidates": 34,
+          "not_matched": [
+            {
+              "candidate": "scope-1:problem-6 parseRetryCount",
+              "reason": "finding describes Number() coercion accepting '2'/true, not the Array.from [0,1,2] mechanism rejecting 3"
+            },
+            {
+              "candidate": "scope-2:problem-16 parseRetryCount",
+              "reason": "finding describes Number() coercion and says valid integers are accepted, opposite of the expected mechanism"
+            }
+          ],
+          "work_min": 6.34,
+          "requests": 17,
+          "uncached": 39427,
+          "cached": 764521,
+          "output": 33522,
+          "prefill_tps": 1528.9,
+          "decode_tps": 105.4,
+          "task_in_tps": 103.6,
+          "task_out_tps": 88.1,
+          "draft_accept": 0.9158,
+          "drafts_proposed": 22556,
+          "drafts_per_output": 0.673,
+          "cost_usd": 0.0339,
+          "continuations": 0,
+          "deadlines": 1,
+          "deadline_interrupts": 0,
+          "effective_verify_window": 6,
+          "large_pages_bytes": 2097152,
+          "commit_left_gib": 28.4,
+          "max_gpu_c": 80,
+          "throttle_reasons": [
+            "gpu_idle",
+            "sw_power_cap"
+          ],
+          "work_started": "2026-10-12T02:54:32",
+          "sampling_trace": {
+            "lines": 17,
+            "distinct": [
+              "[native-sampling-trace] temperature=1.0 top_p=0.95 top_k=20"
+            ]
+          },
+          "session": {
+            "tool_calls": 20,
+            "flags": [
+              "#14 EPERM: false positive"
+            ],
+            "compactions": 0,
+            "guardian": null
+          }
+        },
+        {
+          "rep": 3,
+          "slot": 7,
+          "score": 0.8608,
+          "problemDetectionRate": 0.8527,
+          "cleanAcceptanceRate": 0.895,
+          "format_normalized": false,
+          "candidates": 36,
+          "not_matched": [],
+          "work_min": 13.12,
+          "requests": 36,
+          "uncached": 165355,
+          "cached": 1690888,
+          "output": 68055,
+          "prefill_tps": 1902.1,
+          "decode_tps": 102.9,
+          "task_in_tps": 210.0,
+          "task_out_tps": 86.4,
+          "draft_accept": 0.904,
+          "drafts_proposed": 45761,
+          "drafts_per_output": 0.672,
+          "cost_usd": 0.0838,
+          "continuations": 0,
+          "deadlines": 1,
+          "deadline_interrupts": 0,
+          "effective_verify_window": 6,
+          "large_pages_bytes": 2097152,
+          "commit_left_gib": 28.1,
+          "max_gpu_c": 80,
+          "throttle_reasons": [
+            "gpu_idle",
+            "sw_power_cap"
+          ],
+          "work_started": "2026-10-12T03:10:20",
+          "sampling_trace": {
+            "lines": 36,
+            "distinct": [
+              "[native-sampling-trace] temperature=1.0 top_p=0.95 top_k=20"
+            ]
+          },
+          "session": {
+            "tool_calls": 40,
+            "flags": [],
+            "compactions": 1,
+            "guardian": null
+          }
+        }
+      ]
+    }
+  },
+  "pairwise_mean_score_gap_to_highest": {
+    "sampling-greedy": 0.0603,
+    "sampling-t06": 0.0,
+    "sampling-t10": 0.0269
+  },
+  "restore": {
+    "command": "python3 -m tools.ops.deploy --host rtx3080ti",
+    "read_back_verified": true,
+    "iq3_xxs_config_sha256": "24a9d6062583d781da1d09fc35370c2e7f94ca14c6c8d952eee3b63a100b3f49",
+    "readback": "spec 4, spec-min-p 0.9, ple-io direct, vram-reserve 512, no pcie-frac, env CPU_SHARE auto + ADAPT_LAG 2 (no BATCH_TRACE), sampling 0.0/1.0/20",
+    "frontend_health": {
+      "lease": "free",
+      "model": null
+    }
+  },
+  "raw_details_boundary": "Raw sessions, engine/service logs, per-slot scoring and adjudication live only in .tmp/night/sampling/ and .tmp/night/inspect/ and may be deleted; this file holds all numbers needed to recompute the tables.",
+  "decision": {
+    "rule": "score gap <= 0.08 to the highest mean -> engine output tok/s is the primary criterion",
+    "mechanical_result": "all three within 0.08 of t06 (greedy -0.060, t10 -0.027); engine output tok/s greedy 107.0 > t06 103.5 > t10 103.4 -> sampling-greedy (current default)",
+    "default_changed": false,
+    "worker_opinion": "keep greedy; do not change the default. Greedy decodes fastest and has the highest draft acceptance (93.2% vs 91.8% / 90.7%), consistent with sampling lowering speculative acceptance. The t06 mean score lead (0.06) is within the threshold and below about 1.5 within-condition stdev with n=3; t06 is the only candidate worth a larger-sample recheck if quality becomes the focus.",
+    "reviewer_opinion": "keep greedy as existing value; mechanical rule and draft-acceptance mechanism both favor greedy; ~3% speed edge driven by greedy runs 2-3, weak-to-moderate evidence; t06 3/3 higher scores offset by cross-batch variance (same config scored 0.853 in spec dim, 0.745 seen in cpu-share dim) and fewer greedy requests (30.3 vs 43); no defects in effect check, scoring, session inspection, metering; untested risk: greedy repetition loops in thinking mode across clients, long outputs not measured",
+    "main_opinion": "agree with reviewer; keep greedy",
+    "agreement": true,
+    "date": "2026-10-12",
+    "mode": "autonomous",
+    "fallback": "recompare if t06 persistently beats greedy by >0.08 in same-protocol runs, or greedy shows reproducible repetition loops"
+  }
+}
