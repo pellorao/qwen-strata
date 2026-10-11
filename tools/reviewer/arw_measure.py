@@ -140,8 +140,9 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
     native_input=handoff.get('input')
     project=Path(native_input['cwd'] if native_input else handoff['scenarioRoot']);folder.mkdir(parents=True,exist_ok=False)
     generation=next((g for g in preparation['generations'] if g['instanceId']==handoff['instanceId']),None)
-    request_path=review_request_path(preparation,handoff)
-    report=Path(native_input['reportPath']) if native_input else Path(handoff['resultPath']) if 'resultPath' in handoff else Path(generation['draftPath']) if generation and 'draftPath' in generation else Path(json.loads(Path(request_path).read_text())['draftPath'])
+    # Code Spec and Code Standards handoffs carry no Request; resolve it only
+    # when the report binding must come from that Request.
+    report=Path(native_input['reportPath']) if native_input else Path(handoff['resultPath']) if 'resultPath' in handoff else Path(generation['draftPath']) if generation and 'draftPath' in generation else Path(json.loads(Path(review_request_path(preparation,handoff)).read_text())['draftPath'])
     report.parent.mkdir(parents=True,exist_ok=True)
     if not report.exists():report.write_text('')
     instructions=native_input['instructions'] if native_input else (project/f'docs/agents/roles/{handoff["reviewerId"]}.md').read_text()+'\n'+(project/'docs/agents/reviewer.md').read_text()
