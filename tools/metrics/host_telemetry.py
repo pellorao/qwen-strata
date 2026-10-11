@@ -8,6 +8,23 @@ from tools.reviewer.wsl_client import save
 SOURCE=Path(__file__).with_name('windows_resource_sampler.py')
 
 
+# NVML clocks-event (throttle) reason bits; idle is normal at low load and not a slowdown.
+THROTTLE_REASONS={0x1:'gpu_idle',0x2:'applications_clocks',0x4:'sw_power_cap',0x8:'hw_slowdown',0x10:'sync_boost',
+                  0x20:'sw_thermal',0x40:'hw_thermal',0x80:'hw_power_brake',0x100:'display_clocks'}
+
+
+def gpu_thermal(rows):
+    """Peak temperature, lowest SM clock and every limiting reason seen; unknown stays None."""
+    gpu=[r['gpu'] for r in rows if r.get('gpu')]
+    known=lambda key:[g[key] for g in gpu if g.get(key) is not None]
+    temperatures,clocks,reasons=known('temperature_c'),known('sm_clock_mhz'),known('throttle_reasons')
+    seen=0
+    for value in reasons:seen|=value
+    return {'max_gpu_temperature_c':max(temperatures) if temperatures else None,
+            'min_sm_clock_mhz':min(clocks) if clocks else None,
+            'throttle_reasons_seen':[name for bit,name in THROTTLE_REASONS.items() if seen&bit] if reasons else None}
+
+
 def start(host, folder):
     raw=SOURCE.read_bytes()
     result=host._remote('''import base64,json,sys,tempfile,uuid,subprocess
@@ -41,5 +58,5 @@ print(json.dumps({'raw':base64.b64encode(raw).decode(), 'sampler_stopped':stoppe
 ''',(binding['root'],str(binding['pid'])))
     raw=base64.b64decode(result.pop('raw'));(folder/'telemetry.jsonl').write_bytes(raw)
     rows=[json.loads(x) for x in raw.splitlines()]
-    result.update(samples=len(rows),raw_sha256=hashlib.sha256(raw).hexdigest(),interval_seconds=1)
+    result.update(samples=len(rows),raw_sha256=hashlib.sha256(raw).hexdigest(),interval_seconds=1,**gpu_thermal(rows))
     save(folder/'telemetry-result.json',result);return result

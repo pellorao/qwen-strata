@@ -39,6 +39,11 @@ def sample(root, output, stop):
                 mem=Memory();util=Utilization()
                 if nvml.nvmlDeviceGetMemoryInfo(handle,ctypes.byref(mem))==0 and nvml.nvmlDeviceGetUtilizationRates(handle,ctypes.byref(util))==0:
                     row['gpu']={'used_bytes':mem.used,'free_bytes':mem.free,'total_bytes':mem.total,'utilization_percent':util.gpu}
+                    # Thermal evidence: core temperature, SM clock, and NVML's active clock-limiting reasons.
+                    temperature=ctypes.c_uint();clock=ctypes.c_uint();reasons=ctypes.c_ulonglong()
+                    row['gpu']['temperature_c']=temperature.value if nvml.nvmlDeviceGetTemperature(handle,0,ctypes.byref(temperature))==0 else None
+                    row['gpu']['sm_clock_mhz']=clock.value if nvml.nvmlDeviceGetClockInfo(handle,1,ctypes.byref(clock))==0 else None
+                    row['gpu']['throttle_reasons']=reasons.value if nvml.nvmlDeviceGetCurrentClocksThrottleReasons(handle,ctypes.byref(reasons))==0 else None
             stream.write(json.dumps(row)+'\n');stream.flush();time.sleep(1)
     if nvml:nvml.nvmlShutdown()
 
