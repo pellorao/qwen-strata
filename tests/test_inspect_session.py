@@ -54,6 +54,20 @@ class InspectSessionTest(unittest.TestCase):
         self.assertIn('environment/identity query', reasons[3])
         self.assertIn('environment or home path', reasons[4])
 
+    def test_second_scenario_root_is_allowed(self):
+        second = '/home/u/run/ap/1'
+        events = [{'type': 'session_meta', 'payload': {'id': 't', 'cwd': ROOT, 'base_instructions': 'x'}},
+                  message('developer', 'role'), message('user', 'ARW messageId: m1\n\nhandoff')]
+        events += call(0, 'cat docs/a.md', second) + call(1, 'cat ../../x', second)
+        with tempfile.NamedTemporaryFile('w', suffix='.jsonl', delete=False) as f:
+            f.write('\n'.join(json.dumps(e) for e in events))
+        try:
+            r = inspect(f.name, allow=[second])
+        finally:
+            Path(f.name).unlink()
+        self.assertEqual(r['actions'][0]['reasons'], [])
+        self.assertIn('escapes root', ' '.join(r['actions'][1]['reasons']))
+
     def test_startup_sha_ignores_date_and_codex_home(self):
         a = self.run_session(developer='date 2026-10-11; skills /x/01-a/run/codex-home/skills/.system')
         b = self.run_session(developer='date 2026-10-12; skills /x/02-b/run/codex-home/skills/.system')

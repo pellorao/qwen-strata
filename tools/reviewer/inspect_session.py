@@ -53,8 +53,10 @@ def path_reasons(text, workdir, root, allow):
         if not (inside(p, root) or any(inside(p, a) for a in allow)
                 or p.startswith(SYSTEM_PATHS)):
             reasons.append(f'outside root: {p}')
+    # a merged Spec Readiness thread moves to a second scenario root, passed with --allow
+    home = next((r for r in (root, *allow) if inside(workdir, r)), root)
     for p in DOTDOT.findall(text):
-        if not inside(os.path.join(workdir, p), root):
+        if not inside(os.path.join(workdir, p), home):
             reasons.append(f'.. escapes root: {p}')
     assigned = set(re.findall(r'(?:^|[\s;&|(])(?:export\s+|local\s+)?([A-Za-z_]\w*)=', text, re.M))
     assigned |= set(re.findall(r'\bfor\s+([A-Za-z_]\w*)\s+in\b', text))
@@ -123,7 +125,7 @@ def inspect(session, root=None, allow=()):
             reasons = []
             if name not in KNOWN_TOOLS:
                 reasons.append(f'unknown tool {name}')
-            if workdir and not inside(wd, root):
+            if workdir and not any(inside(wd, r) for r in (root, *allow)):
                 reasons.append(f'workdir outside root: {workdir}')
             if name == 'apply_patch':
                 for a, b in patch_paths(text):
