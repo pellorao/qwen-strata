@@ -64,6 +64,17 @@ installation_path='C:\\Strata'
         with self.assertRaisesRegex(ValueError, 'model_overrides'):
             load_host('stray', self.root)
 
+    def test_model_environment_applies_only_to_that_model(self):
+        (self.root/'config/templates/iq3_xxs-prebuilt.json').write_text(
+            json.dumps({'exe': 'x', 'port': 8100, 'args': []}), encoding='utf-8')
+        self.host('tuned', models=['Q2_0', 'IQ3_XXS'], engine_overrides={},
+                  model_environment={'IQ3_XXS': {'STRATA_ADAPT_LAG': 2}})
+        self.assertEqual(model_configuration('IQ3_XXS', 'tuned', self.root)['engine_environment']['STRATA_ADAPT_LAG'], 2)
+        self.assertNotIn('STRATA_ADAPT_LAG', model_configuration('Q2_0', 'tuned', self.root).get('engine_environment', {}))
+        self.host('stray', engine_overrides={}, model_environment={'IQ2_XS': {'STRATA_ADAPT_LAG': 2}})
+        with self.assertRaisesRegex(ValueError, 'model_environment'):
+            load_host('stray', self.root)
+
     def test_public_outputs_never_carry_private_values(self):
         self.assertEqual(frontend_configuration('tuned', self.root),
                          {'listen_address': '192.168.60.212', 'port': 8000, 'model_port': 8100})

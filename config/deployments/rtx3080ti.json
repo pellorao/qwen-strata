@@ -28,6 +28,11 @@
       "vram-reserve-mib": 512
     }
   },
+  "model_environment": {
+    "IQ3_XXS": {
+      "STRATA_ADAPT_LAG": 2
+    }
+  },
   "listen_address": "192.168.60.212",
   "port": 8000,
   "hardware": {

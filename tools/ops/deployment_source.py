@@ -7,7 +7,7 @@ import tomllib
 ROOT = Path(__file__).resolve().parents[2]
 MODELS = ('Q2_0', 'IQ2_XS', 'IQ3_XXS')
 MODEL_PORT = 8100
-PUBLIC_FIELDS = {'schema_version', 'id', 'cuda_arch', 'models', 'engine_overrides', 'model_overrides', 'hardware',
+PUBLIC_FIELDS = {'schema_version', 'id', 'cuda_arch', 'models', 'engine_overrides', 'model_overrides', 'model_environment', 'hardware',
                  'qualification', 'listen_address', 'port', 'installation_defaults', 'note'}
 INSTALLATION_DEFAULTS = {'max_context', 'reasoning_effort', 'reasoning_budget_tokens', 'max_tokens',
                          'cpu_prefill_share', 'temperature', 'top_p', 'top_k'}
@@ -44,6 +44,10 @@ def load_host(identifier, project=None):
     if (not isinstance(per_model, dict) or set(per_model) - set(models)
             or not all(isinstance(v, dict) for v in per_model.values())):
         raise ValueError('model_overrides maps installed models to engine overrides tuned for that model')
+    environment = value.setdefault('model_environment', {})
+    if (not isinstance(environment, dict) or set(environment) - set(models)
+            or not all(isinstance(v, dict) for v in environment.values())):
+        raise ValueError('model_environment maps installed models to engine environment tuned for that model')
     defaults = value.get('installation_defaults', {})
     if not isinstance(defaults, dict) or set(defaults) - INSTALLATION_DEFAULTS:
         raise ValueError('Unsupported per-host installation defaults')
@@ -105,6 +109,8 @@ def model_configuration(model, identifier, project=None):
         value['request_defaults'] = request
     if 'cpu_prefill_share' in defaults:
         value['engine_environment'] = {'STRATA_PREFILL_CPU_SHARE': defaults['cpu_prefill_share']}
+    if host['model_environment'].get(model):
+        value['engine_environment'] = {**value.get('engine_environment', {}), **host['model_environment'][model]}
     return value
 
 
