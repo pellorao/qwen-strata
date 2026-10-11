@@ -1,0 +1,437 @@
+{
+ "dimension": 9,
+ "plan": "benchmarks/resource-calibration-v1/iq3_xxs-night-2026-10-12/plan.json",
+ "schedule": [
+  156584,
+  206584,
+  206584,
+  156584,
+  156584,
+  206584
+ ],
+ "scenario": "Spec Readiness 合并实例（同线程 runtime-migration → artifact-promotion），格式归一融合评分；停止规则违规 ×0.9（模型行为，保留）",
+ "scope_change": "256584 未发布（第 3 项决策），按计划整列删除，拉丁方改为 ABBAAB",
+ "held_constant": "kv-resident 20480、spec 4、spec-min-p 0.9、ple-io direct、vram-reserve 512、无 pcie-frac、采样 0/1/20、CPU share auto、ADAPT_LAG 2；条件只改 ARW provider contextWindow 选档（156584/100000 vs 206584/150000），引擎 --max-context 随档",
+ "startup_sha": {
+  "base": "5d36e1d1",
+  "developer@2": "50bd785d",
+  "user@3": "c8957099",
+  "user@6": "f80645dd"
+ },
+ "environment_caveats": [
+  "各槽大页被拒（VirtualAlloc error 1450，退回 4 KB 页），主机内存碎片，需用户重启修复；引擎输出 95–102 tok/s，此前各维约 107",
+  "GPU 最高 79–80°C，含 sw_thermal/sw_power_cap 节流",
+  "slot 2 attempt 1 因补丁把选定档位套到 Q2_0 而在建目录时失败（未启动模型），修补丁 0d380d9 后只重跑 slot 2"
+ ],
+ "compaction_note": "压缩触发前请求输入：156584 槽 88–100K，206584 槽 119–125K（slot 3 达 127585 未压缩）；触发值不等于阈值，是 Codex 本地估算口径与服务端计数不同；206584 槽最大请求输入 119–130K，均在已验证的约 151K 以内",
+ "catalog_note": "run/native-model-catalog.json 与 models_cache.json 在 206584 槽仍只列 156584（原生目录默认档）；实际窗口以会话 model_context_window 206584 为准",
+ "restore": {
+  "command": "python3 -m tools.ops.deploy --host rtx3080ti",
+  "read_back_verified": true,
+  "iq3_xxs_config_sha256": "cf7b20ea83f7d15b4f2bca8c411f534b3a6e37f2ba28cceb0361d5126f004cd3",
+  "context_tiers": [
+   [
+    156584,
+    100000
+   ],
+   [
+    206584,
+    150000
+   ]
+  ],
+  "max_context": 156584
+ },
+ "by_condition": {
+  "window-156584": {
+   "n": 3,
+   "score_mean": 0.3892,
+   "score_sd": 0.0476,
+   "score_range": [
+    0.3402,
+    0.4352
+   ],
+   "score_before_penalty_mean": 0.4199,
+   "rm_mean": 0.9044,
+   "ap_mean": 0.2807,
+   "work_min_mean": 17.43,
+   "requests_mean": 54.7,
+   "uncached_input_mean": 312724,
+   "output_mean": 82137,
+   "engine_out_tps_mean": 98.3,
+   "task_out_tps_mean": 78.7,
+   "draft_accept_mean": 0.9031,
+   "stop_rule_penalties": 2,
+   "matched_total": 29,
+   "candidates_total": 42
+  },
+  "window-206584": {
+   "n": 3,
+   "score_mean": 0.4498,
+   "score_sd": 0.1531,
+   "score_range": [
+    0.273,
+    0.5386
+   ],
+   "score_before_penalty_mean": 0.4799,
+   "rm_mean": 0.8948,
+   "ap_mean": 0.3615,
+   "work_min_mean": 14.59,
+   "requests_mean": 46.7,
+   "uncached_input_mean": 234187,
+   "output_mean": 69603,
+   "engine_out_tps_mean": 98.9,
+   "task_out_tps_mean": 79.3,
+   "draft_accept_mean": 0.9053,
+   "stop_rule_penalties": 2,
+   "matched_total": 34,
+   "candidates_total": 53
+  }
+ },
+ "paired_by_schedule": [
+  {
+   "A_156584": 1,
+   "B_206584": 2,
+   "B_minus_A": 0.1456
+  },
+  {
+   "A_156584": 4,
+   "B_206584": 3,
+   "B_minus_A": 0.1984
+  },
+  {
+   "A_156584": 5,
+   "B_206584": 6,
+   "B_minus_A": -0.1622
+  }
+ ],
+ "slots": [
+  {
+   "slot": 1,
+   "dir": "01-window-156584",
+   "condition": "window-156584",
+   "score": 0.3923,
+   "score_before_penalty": 0.4358,
+   "stop_rule_penalty": true,
+   "runtime_migration": {
+    "score": 0.9883,
+    "problemDetectionRate": 0.9855,
+    "cleanAcceptanceRate": 1
+   },
+   "artifact_promotion": {
+    "score": 0.2744,
+    "problemDetectionRate": 0.2329,
+    "cleanAcceptanceRate": 0.9535
+   },
+   "rm_submitted": "raw-jsonl",
+   "candidates": 15,
+   "matched": 10,
+   "not_matched_notes": "#2/#3 结果字段交叉；#10 reader path vs Policy Adapter 失败结果；#11 测试 vs failureCode；#13 Adapter 提交失败 vs recoveryState 形状",
+   "work_min": 19.31,
+   "work_min_rm_ap": [
+    8.53,
+    10.78
+   ],
+   "requests": 53,
+   "uncached_input": 373883,
+   "cached_input": 2994025,
+   "output": 88071,
+   "engine_in_tps": 1993.1,
+   "engine_out_tps": 95.3,
+   "task_in_tps": 322.7,
+   "task_out_tps": 76.0,
+   "draft_accept": 0.8978,
+   "compaction_trigger_inputs": [
+    100065,
+    98138
+   ],
+   "max_request_input": 100065,
+   "kv": [
+    "20480 of 156584"
+   ],
+   "large_pages_refused": true,
+   "commit_left_gib": "27.3",
+   "max_gpu_c": 80,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap",
+    "sw_thermal"
+   ],
+   "inspection_flags": "#15 畸形 workdir 拒绝未执行（基线现象）；#34 printenv ARW_BACKGROUND_AGENT_RUN_ID >/dev/null（环境变量查询，违反测量说明，输出未进入上下文）",
+   "started": "2026-10-12T05:27:40"
+  },
+  {
+   "slot": 2,
+   "dir": "02-window-206584",
+   "condition": "window-206584",
+   "score": 0.5379,
+   "score_before_penalty": 0.5379,
+   "stop_rule_penalty": false,
+   "runtime_migration": {
+    "score": 0.9125,
+    "problemDetectionRate": 0.893,
+    "cleanAcceptanceRate": 1
+   },
+   "artifact_promotion": {
+    "score": 0.4332,
+    "problemDetectionRate": 0.3795,
+    "cleanAcceptanceRate": 1
+   },
+   "rm_submitted": "canonical",
+   "candidates": 18,
+   "matched": 13,
+   "not_matched_notes": "#2/#3 结果字段交叉；#13 测试 vs failureCode；#15 source 类型 vs 首个诊断顺序；#17 source 类型 vs 诊断 path",
+   "work_min": 16.85,
+   "work_min_rm_ap": [
+    7.64,
+    9.21
+   ],
+   "requests": 47,
+   "uncached_input": 268465,
+   "cached_input": 2941015,
+   "output": 82598,
+   "engine_in_tps": 1924.1,
+   "engine_out_tps": 100.1,
+   "task_in_tps": 265.5,
+   "task_out_tps": 81.7,
+   "draft_accept": 0.9022,
+   "compaction_trigger_inputs": [
+    125287
+   ],
+   "max_request_input": 129991,
+   "kv": [
+    "20480 of 206584"
+   ],
+   "large_pages_refused": true,
+   "commit_left_gib": "27.9",
+   "max_gpu_c": 80,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap",
+    "sw_thermal"
+   ],
+   "inspection_flags": "#11 畸形 workdir 拒绝未执行（基线现象）",
+   "started": "2026-10-12T05:49:58"
+  },
+  {
+   "slot": 3,
+   "dir": "03-window-206584",
+   "condition": "window-206584",
+   "score": 0.5386,
+   "score_before_penalty": 0.5985,
+   "stop_rule_penalty": true,
+   "runtime_migration": {
+    "score": 0.996,
+    "problemDetectionRate": 0.995,
+    "cleanAcceptanceRate": 1
+   },
+   "artifact_promotion": {
+    "score": 0.4865,
+    "problemDetectionRate": 0.4311,
+    "cleanAcceptanceRate": 1
+   },
+   "rm_submitted": "raw-jsonl",
+   "candidates": 21,
+   "matched": 14,
+   "not_matched_notes": "#2/#3 结果字段交叉；#12 测试 vs failureCode；#16 unexpected-field 顺序 vs 诊断 path；#17 source 类型 vs 诊断 path；#18/#20 独立 Module 替代方案 vs 策略权威、依赖方向",
+   "work_min": 11.28,
+   "work_min_rm_ap": [
+    6.54,
+    4.74
+   ],
+   "requests": 38,
+   "uncached_input": 172800,
+   "cached_input": 2348437,
+   "output": 52647,
+   "engine_in_tps": 1796.5,
+   "engine_out_tps": 98.5,
+   "task_in_tps": 255.3,
+   "task_out_tps": 77.8,
+   "draft_accept": 0.909,
+   "compaction_trigger_inputs": [],
+   "max_request_input": 127585,
+   "kv": [
+    "20480 of 206584"
+   ],
+   "large_pages_refused": true,
+   "commit_left_gib": "28.0",
+   "max_gpu_c": 80,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "inspection_flags": "#22 jq 输出写 /tmp（场景根外），只读文件系统拒绝；#20 apply_patch 重复拼接路径触发 guardian（allow），补丁失败后改用 heredoc",
+   "started": "2026-10-12T06:07:23"
+  },
+  {
+   "slot": 4,
+   "dir": "04-window-156584",
+   "condition": "window-156584",
+   "score": 0.3402,
+   "score_before_penalty": 0.3402,
+   "stop_rule_penalty": false,
+   "runtime_migration": {
+    "score": 0.7385,
+    "problemDetectionRate": 0.6932,
+    "cleanAcceptanceRate": 1
+   },
+   "artifact_promotion": {
+    "score": 0.2288,
+    "problemDetectionRate": 0.1918,
+    "cleanAcceptanceRate": 1
+   },
+   "rm_submitted": "canonical",
+   "candidates": 11,
+   "matched": 8,
+   "not_matched_notes": "#2 summary vs operation；#9/#10 独立 Module 替代方案 vs 策略权威、依赖方向",
+   "work_min": 18.33,
+   "work_min_rm_ap": [
+    9.67,
+    8.65
+   ],
+   "requests": 64,
+   "uncached_input": 365578,
+   "cached_input": 3160376,
+   "output": 87566,
+   "engine_in_tps": 1932.6,
+   "engine_out_tps": 101.6,
+   "task_in_tps": 332.5,
+   "task_out_tps": 79.6,
+   "draft_accept": 0.9073,
+   "compaction_trigger_inputs": [
+    98387,
+    88429
+   ],
+   "max_request_input": 98740,
+   "kv": [
+    "20480 of 156584"
+   ],
+   "large_pages_refused": true,
+   "commit_left_gib": "28.5",
+   "max_gpu_c": 80,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "inspection_flags": "#40 畸形 workdir 拒绝未执行（基线现象）",
+   "started": "2026-10-12T06:19:15"
+  },
+  {
+   "slot": 5,
+   "dir": "05-window-156584",
+   "condition": "window-156584",
+   "score": 0.4352,
+   "score_before_penalty": 0.4836,
+   "stop_rule_penalty": true,
+   "runtime_migration": {
+    "score": 0.9863,
+    "problemDetectionRate": 0.9829,
+    "cleanAcceptanceRate": 1
+   },
+   "artifact_promotion": {
+    "score": 0.3389,
+    "problemDetectionRate": 0.2919,
+    "cleanAcceptanceRate": 0.9535
+   },
+   "rm_submitted": "raw-jsonl",
+   "candidates": 16,
+   "matched": 11,
+   "not_matched_notes": "#2/#3 结果字段交叉；#10 测试 vs failureCode；#14/#15 独立 Module 替代方案 vs 策略权威、依赖方向",
+   "work_min": 14.65,
+   "work_min_rm_ap": [
+    7.81,
+    6.84
+   ],
+   "requests": 47,
+   "uncached_input": 198710,
+   "cached_input": 2275259,
+   "output": 70774,
+   "engine_in_tps": 1794.1,
+   "engine_out_tps": 98.1,
+   "task_in_tps": 226.1,
+   "task_out_tps": 80.5,
+   "draft_accept": 0.9041,
+   "compaction_trigger_inputs": [
+    92847
+   ],
+   "max_request_input": 92847,
+   "kv": [
+    "20480 of 156584"
+   ],
+   "large_pages_refused": true,
+   "commit_left_gib": "28.3",
+   "max_gpu_c": 79,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "inspection_flags": "#23 jq 输出写 /tmp/lines.txt（场景根外），只读文件系统拒绝",
+   "started": "2026-10-12T06:38:09"
+  },
+  {
+   "slot": 6,
+   "dir": "06-window-206584",
+   "condition": "window-206584",
+   "score": 0.273,
+   "score_before_penalty": 0.3033,
+   "stop_rule_penalty": true,
+   "runtime_migration": {
+    "score": 0.7758,
+    "problemDetectionRate": 0.75,
+    "cleanAcceptanceRate": 0.9
+   },
+   "artifact_promotion": {
+    "score": 0.1649,
+    "problemDetectionRate": 0.1367,
+    "cleanAcceptanceRate": 0.9535
+   },
+   "rm_submitted": "raw-jsonl",
+   "candidates": 14,
+   "matched": 7,
+   "not_matched_notes": "#2/#5 recoverPromotion 是否面向调用方 vs 结果字段；#3/#4 结果字段交叉；#8 断定 export-retention 段不属于本 issue vs 适用性无法确定（边界判定）；#10 测试 vs failureCode；#12 保留策略权威归属 vs Promotion Flow 缺读调用",
+   "work_min": 15.65,
+   "work_min_rm_ap": [
+    8.45,
+    7.19
+   ],
+   "requests": 55,
+   "uncached_input": 261295,
+   "cached_input": 3425007,
+   "output": 73564,
+   "engine_in_tps": 1850.7,
+   "engine_out_tps": 98.2,
+   "task_in_tps": 278.3,
+   "task_out_tps": 78.4,
+   "draft_accept": 0.9048,
+   "compaction_trigger_inputs": [
+    118697
+   ],
+   "max_request_input": 119414,
+   "kv": [
+    "20480 of 206584"
+   ],
+   "large_pages_refused": true,
+   "commit_left_gib": "27.5",
+   "max_gpu_c": 80,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap",
+    "sw_thermal"
+   ],
+   "inspection_flags": "#7、#45 畸形 workdir 拒绝未执行（基线现象）",
+   "started": "2026-10-12T06:53:22"
+  }
+ ],
+ "status": "finished",
+ "decision": {
+  "result": "keep 156584 as default; keep 206584/150000 as optional tier; config unchanged",
+  "rule": "batch score diff 0.061 <= 0.08 -> tie; engine output tok/s 98.9 vs 98.3 (0.6%) within single-run range 95.3-101.6 -> no demonstrable difference, keep current",
+  "main_opinion": "keep 156584; paired diffs +0.146/+0.198/-0.162 inconsistent; 206584 within-group sd 0.153; 206584 has smaller margin to the ~151K verified retrieval boundary",
+  "reviewer_opinion": "keep 156584 (Opus, independent, facts only); keep 206584 optional: score not worse, fewer compactions (1 vs ~1.67 per slot), fewer requests 46.7 vs 54.7, max request input 119-130K within verified ~151K",
+  "agreement": true,
+  "date": "2026-10-12"
+ },
+ "session_inspection_followup": {
+  "slot3_20_21": "#20 apply_patch failed (duplicated path, inside root); #21 heredoc single write target is the handoff-declared writable draft path <ROOT>/.tmp/codex/.../reviewer-drafts/<id>/reports/draft.jsonl, relative to workdir <ROOT>, no .. segment: inside root, verified",
+  "slot1_34": "printenv ARW_BACKGROUND_AGENT_RUN_ID >/dev/null: environment query violating measurement note; single ARW variable, output discarded, not in context; sample kept and annotated"
+ }
+}

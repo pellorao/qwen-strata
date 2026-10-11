@@ -15,7 +15,7 @@
 1. [x] 第 6 维 CPU 辅助显式 auto / 不设置，6 实例：完成。两者实质等价（CPU 辅助都开着，只差上限），差距在噪声内，Main 与复核一致维持 auto，配置不改（[报告](../reports/v0.1.42/iq3_xxs-tuning/cpu-prefill-share-unset/summary.md)）。
 2. [x] 第 8 项采样，9 实例：完成。三者分差 ≤0.08，greedy 解码最快，Main 与复核一致维持 0/1/20，配置不改（[报告](../reports/v0.1.42/iq3_xxs-tuning/sampling/summary.md)）。
 3. [x] 长上下文 KV 驻留，24 实例：完成。各档 kv-resident 保持 20480，不按档位绑定（只有 150K 可分辨且偏 20480）；206584／150000 发布为 IQ3_XXS 可选档位并部署（默认仍 156584，已验证提示约 151K 以内）；256584 不发布（200K 下 6 实例同一记录检索错误，与条件无关）。Main 与复核一致（[报告](../reports/v0.1.42/iq3_xxs-tuning/kv-resident-long/summary.md)）。
-4. [ ] 第 9 维窗口：156584/206584 × 3 个 Spec Readiness 合并实例，共 6 个（256584 未发布，按计划整列删除，拉丁方改为 ABBAAB）。不一致保留 156584。
+4. [x] 第 9 维窗口，156584/206584 × 3 个 Spec Readiness 合并实例，共 6 个（256584 未发布，整列删除，拉丁方 ABBAAB）：完成。分差 0.061 ≤0.08 为平手，引擎输出 98.9 对 98.3 差 0.6% 在噪声内，配对差 +0.146/+0.198/−0.162 方向不一；Main 与复核一致默认维持 156584，206584/150000 保留为可选档，配置不改。本维全部在大页被拒状态下运行，绝对速度偏低（[报告](../reports/v0.1.42/iq3_xxs-tuning/window/summary.md)）。
 5. [ ] F6：四场景各 5 次（Commit Audit → Code Spec → Code Standards → Spec Readiness），只出 benchmark 报告。
 
 决策、双方意见和结果记在本节下方和各项报告。
