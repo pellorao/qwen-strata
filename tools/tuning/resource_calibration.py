@@ -51,11 +51,17 @@ def frozen_inputs(plan_path,workload_path):
     if plan['authorization'].get('paused_by_user'):
         raise ValueError('This exact resource work is not approved and resumed')
     schedule=experiment_schedule(plan)
-    if len(schedule)!=plan['model_instances'] or len(schedule)*3!=plan['logical_requests']:
+    if len(schedule)!=plan['model_instances'] or len(schedule)*(0 if plan.get('probe_only')else 3)!=plan['logical_requests']:
         raise ValueError('Requested execution count differs from the approved work')
     for path,sha in plan['source_sha256'].items():
         if digest((ROOT/path).read_bytes())!=sha:raise ValueError('Frozen source changed: '+path)
-    for case,binding in zip(workload['cases'],plan['workload']['case_bindings'],strict=True):
+    if 'repetitions' in workload:
+        # Per-repetition text: bind every repetition's cases; a missing or extra repetition is a changed input.
+        bound=plan['workload']['case_bindings']
+        if set(workload['repetitions'])!=set(bound):raise ValueError('Frozen request changed')
+        pairs=[pair for r in bound for pair in zip(workload['repetitions'][r]['cases'],bound[r],strict=True)]
+    else:pairs=zip(workload['cases'],plan['workload']['case_bindings'],strict=True)
+    for case,binding in pairs:
         text=case.get('user_text',workload.get('shared_prefix','')+case.get('question',''))
         if case['id']!=binding['id'] or digest(text.encode())!=binding['user_text_sha256']:
             raise ValueError('Frozen request changed')
@@ -78,7 +84,8 @@ def experiment_schedule(plan):
         jobs=[{'label':f"{j['condition']}-r{j['repetition']}",'condition':j['condition'],'repetition':j['repetition'],
                'overrides':dict(conditions[j['condition']].get('overrides',{})),
                'environment':dict(conditions[j['condition']].get('environment',{}))}for j in plan['schedule']]
-        expected={(c,r)for c in conditions for r in [1,2,3]}
+        repetitions=range(1,plan.get('repetitions_per_condition',3)+1)
+        expected={(c,r)for c in conditions for r in repetitions}
         if len(jobs)!=len(expected) or {(j['condition'],j['repetition'])for j in jobs}!=expected:
             raise ValueError('Duplicate, missing or extra resource observation')
         return jobs
@@ -129,6 +136,44 @@ def experiment_schedule(plan):
     if len(jobs)!=len(expected) or {(j['condition'],j['repetition'])for j in jobs}!=expected:
         raise ValueError('Duplicate, missing or extra resource observation')
     return jobs
+
+
+def load_facts(log):
+    """Effective load-time facts the engine prints: PLE direct probe, large pages, commit headroom, load rate."""
+    last=lambda pattern:(re.findall(pattern,log)or[None])[-1]
+    probe=last(r'(?:PLE direct read probe: |--ple-io direct measures slow here \()(\d+) rows/s')
+    commit=last(r'Windows commit: ([\d.]+) GiB left')
+    rate=last(r'loaded [\d.]+ GiB at ([\d.]+) GiB/s')
+    refused=last(r'large pages (refused)')
+    return {'ple_probe_rows_per_s':int(probe)if probe else None,
+            'ple_switched_to_mmap':'using --ple-io mmap instead' in log,
+            'large_pages_refused':refused is not None,
+            'commit_left_gib':float(commit)if commit else None,
+            'load_gib_per_s':float(rate)if rate else None}
+
+
+DISK_READS='''import json,sys,os
+from pathlib import Path
+import psutil
+expected=os.path.normcase(str(Path(sys.argv[1])/'runtime/Strata/engine/strata.exe'))
+disks=psutil.disk_io_counters(perdisk=True)
+process=None
+for p in psutil.process_iter(['pid','exe']):
+ if os.path.normcase(p.info['exe'] or '')==expected:
+  try:process=p.io_counters().read_bytes
+  except psutil.Error:pass
+print(json.dumps({'system_read_bytes':sum(d.read_bytes for d in disks.values()),'process_read_bytes':process}))
+'''
+
+
+def disk_reads(host):
+    """Physical disk reads (all disks: includes mapped-file paging) and the engine's own file reads."""
+    return host._remote(DISK_READS,(str(host.windows_root),))
+
+
+def disk_read_delta(before,after):
+    known=lambda k:before.get(k)is not None and after.get(k)is not None
+    return {k:after[k]-before[k]if known(k)else None for k in('system_read_bytes','process_read_bytes')}
 
 
 def logical_request(owner,body,expected,folder,limit):
@@ -212,20 +257,30 @@ print(json.dumps(rows))
                     save(folder/'effective-vram.json',effective);row['effective_vram']=effective
                     if effective['reserve_mib']!=job['overrides']['vram-reserve-mib']:
                         raise RuntimeError('Effective VRAM reserve differs from selected condition')
+                if plan.get('record_load_facts'):
+                    facts=load_facts(host.log_bytes_since(model,offset).decode(errors='replace'))
+                    save(folder/'load-facts.json',facts);row['load_facts']=facts
+                    if options['engine_overrides'].get('ple-io')=='direct' and (facts['ple_probe_rows_per_s'] is None or facts['ple_switched_to_mmap']):
+                        raise RuntimeError('Direct PLE reads were not in effect')
+                    if options['engine_overrides'].get('ple-io')=='mmap' and facts['ple_probe_rows_per_s'] is not None:
+                        raise RuntimeError('Mapped PLE reads were not in effect')
                 (folder/'startup-instructions.txt').write_bytes((ROOT/'config/prompts/startup-instructions.txt').read_bytes())
                 from tools.metrics.prompt_policy import compaction_config
                 compaction_config({},folder/'prompt-binding')
                 if plan.get('telemetry',{}).get('interval_seconds')==1:
                     from tools.metrics.host_telemetry import start
                     telemetry=start(host,folder)
-                for number,case in enumerate(workload['cases'],1):
+                cases=workload['repetitions'][str(job['repetition'])]['cases']if 'repetitions' in workload else workload['cases']
+                for number,case in enumerate([]if plan.get('probe_only')else cases,1):
                     body=copy.deepcopy(plan['baseline']['request_options']['chat'])
                     body['messages']=[{'role':'user','content':case.get('user_text',workload.get('shared_prefix','')+case.get('question',''))}]
                     if plan.get('stream_chat'):body['stream']=True
                     request_offset=log_offset(host.installation,model,host)
+                    if plan.get('disk_io'):before=disk_reads(host)
                     save(folder/f'request-{number}-engine-offset.json',{'offset':request_offset})
                     print(json.dumps({'instance':label,'request':case['id'],'event':'started'}),flush=True)
                     result=logical_request(owner,body,case['expected'],folder/f'request-{number}',plan['per_logical_request_work_seconds_limit'])
+                    if plan.get('disk_io'):result['disk_reads']=disk_read_delta(before,disk_reads(host))
                     row['requests'].append(dict(result,id=case['id']));save(folder/'partial.json',row)
                     if plan.get('capture_each_request'):
                         from tools.reviewer.arw_measure import capture_engine_log
@@ -248,7 +303,8 @@ print(json.dumps(rows))
                     from tools.metrics.host_telemetry import finish
                     row['telemetry']=finish(host,telemetry,folder)
         row['ownership_returned']=True
-        row['pass']=len(row['requests'])==3 and all(r['pass']for r in row['requests']) and row['tokens'] is not None
+        row['pass']=(row.get('load_facts')is not None if plan.get('probe_only')else
+                     len(row['requests'])==3 and all(r['pass']for r in row['requests']) and row['tokens'] is not None)
         row['status']='closed-valid-observation'
     except Exception as error:
         row['error_type']=type(error).__name__;row['status']='infrastructure-error-needs-impact-assessment'
