@@ -38,6 +38,11 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
     第 1–7 维用 32K 资源负载（`benchmarks/resource-calibration-v1/`），第 8 维用完整 Commit Audit。胜者只写入 rtx3080ti 的 IQ3_XXS（`model_overrides`）。
   - [x] Q2_0：v0.1.42 上的 Commit Audit 对照（3 次）和升级短检查（S1），然后写 v0.1.42 升级报告。—— 完成（2026-10-11）：S1 通过；Q2_0 诊断得分 0.773 对 IQ3_XXS 0.837，见[升级报告](../reports/v0.1.42/upgrade.md)。用户 2026-10-11：Q2_0 只作 IQ3_XXS 的基线对比，不做详细调参（第 5 项 Q2_0 spec-min-p 不再进行）。
   - [ ] ARW 运行环境两项（第 8 维会话检查发现，2026-10-11）：① 中途消息 `send_message` 连接本地 socket 被沙箱拒绝（`connect EPERM 127.0.0.1:…`），未送达；② Reviewer 为找 `ARW_BACKGROUND_AGENT_RUN_ID` 用 `env | grep` 宽泛查询，触发"环境身份"违规（IQ3 p090 与 Q2_0 对照各 1 次；Q2_0 那次还两次提权调用 `arw background-agent list_agents`，触发 guardian 子线程）。先无模型调查原版是否已有直接提供运行标识的方式；如需改 Role 或交接（ARW 合同变化），先列出差异取得同意。
+    - 无模型调查结论（2026-10-11，ARW 760007c 原版代码与规格）：两项都是原版合同下的模型行为，不是本工程部署错误。
+      - ①：原版 Reviewer 权限是 `:read-only` 加显式读写路径（`lib/reviewer-runtime/reviewer-native-policy.mjs`），没有命令网络；规格写明管理进程的 127.0.0.1 控制连接"不决定 Agent 的模型网络权限"，网络沿用原生 `on-request` + `auto_review`。所以不提权的 `send_message` 必然 EPERM；要送达就得提权，每次触发一个 guardian 子线程（Q2_0 那次约 13K 未缓存输入/次）。
+      - ②：原版只通过环境变量 `ARW_BACKGROUND_AGENT_RUN_ID` 提供运行标识（`codex-app-server.mjs` 写入 `shell_environment_policy.set`），没有别的入口；Role 只写"运行环境提供的 `ARW_BACKGROUND_AGENT_RUN_ID`"，没说它是环境变量、可直接读取，模型于是用 `env | grep` 去找。检查规范允许使用这个变量本身，宽泛 `env` 查询才算违规。
+      - 中途消息不是 Commit Audit 得分的一部分，最终结果由运行层 `completion` 交付。
+    - 待用户选择（都会改变冻结交接或 Role，需同意，并且之后的结果与已有基线不完全可比）：A. 保持原版，会话检查照常判定（现状，推荐用于继续与已有基线比较）；B. 在本工程场景提示里追加一句：运行标识可用 `printenv ARW_BACKGROUND_AGENT_RUN_ID` 读取、禁止宽泛 `env`、发送需提权；C. 追加"能力测量中不发送中途消息"，同时免去两类违规和 guardian 开销。
   - [ ] 有余时间时：ARW 完整四场景 benchmark，只用 IQ3_XXS / high，其他参数用调参后的默认值，每场景 5 次取平均（用户 2026-10-11 授权，排在 IQ3_XXS 调参和高优先级任务之后）。
 - **用户的夜间决定**（2026-10-11）：
   - S2 首次探测（2026-10-11）：冷加载 18.4 秒，解码 77–95 tok/s，生成期间只读 0.6 GB SSD；约 40 GiB 专家锁定在物理内存，物理可用内存最低 7.4 GB，页面文件几乎未用。但提交额度（内存 + 4 GB 自动页面文件）只剩 0.5 GiB，引擎因此跳过会话暂存（Windows 上按物理可用与剩余额度取较小值），并警告可能无提示退出。用户把页面文件改为固定 16384 MB 并重启。复测：提交额度剩 15.6 GiB / 79.8 GiB，没有警告；会话暂存恢复（每次约 45 ms）；解码 80–97 tok/s；物理可用内存最低 7.8 GB。PLE 探测把 `--ple-io direct` 改为 `mmap`（11680 行/秒）。
