@@ -52,7 +52,7 @@ Q2/high/default、KV int8／resident20480、expert-cache auto、PCIe份额0、sp
 | PCIe 分担 | 引擎实测／固定 0.00，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/pcie-frac/summary.md) | 实测（定为 0.20）引擎输出快 11.1%，工作少 8.9%，全对；已采用（`"pcie-frac": null`）并部署 |
 | CPU核心分配 | auto／all，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/pool-affinity/summary.md) | all 引擎输出快 16.9%，工作少 16.7%，全对；保持 all（默认不变） |
 | CPU专家线程数 | 23／15／12，各3，共9；[报告](../reports/v0.1.42/iq3_xxs-tuning/pool-workers/summary.md) | 23 引擎输出最高（比 15 快 2.3%、比 12 快 4.9%），全对；保持 23（默认不变） |
-| PLE读取方式 | 自动探测（实际 mmap）／强制 direct，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/ple-io/summary.md) | direct 冷 32K 输入快 4.6%，解码持平，内存占用可预测，全对；已采用（`"ple-io": "direct"`）并部署；ARW 真实负载出现分钟级停顿则退回 |
+| PLE读取方式 | 自动探测（实际 mmap）／强制 direct，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/ple-io/summary.md) | direct 冷 32K 输入快 4.6%，解码持平，内存占用可预测，全对；已采用（`"ple-io": "direct"`）并部署；ARW 真实负载出现分钟级停顿则退回。2026-10-11 计划任务改为 Normal 优先级、大页生效后，direct 探测从 12850 变为 171347 rows/s 且不再告警；原定的 direct/mmap/读并发补测由用户取消，冻结准备保留在 a4e0907 |
 | 输入处理分块 | 请求 8192／16384，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/prefill/summary.md) | 16384 全部被引擎降为 8192，未形成对照，保持 8192；12 GB 卡当前布局下 16384 不可行（Q2_0 与 IQ3_XXS 两次相同），不再列为候选 |
 | CPU辅助短输入 | 0／auto，各3，共6；[报告](../reports/v0.1.42/iq3_xxs-tuning/cpu-prefill-share/summary.md) | auto 引擎输入快 11.5%（短增量输入少约 1/3），输出持平，全对；保持 auto；显式 auto 下 1–3K 分块未验证 |
 | 显存预留 | 1024／768／512，各3，共9；[报告](../reports/v0.1.42/iq3_xxs-tuning/vram-reserve/summary.md) | 768 与 512 速度打平，均快于 1024；按用户“用满”偏好采用 512（Main 初倾 768，综合复核后改 512）并部署；出现共享显存或卡顿退回 768 |
