@@ -122,14 +122,19 @@ class MeasurementHost:
     def log_path(self, model):
         return local_path(self.configuration(model)['log'])
 
-    def log_offset(self, model):
-        log = self.log_path(model)
+    def service_log_path(self):
+        """model-server.log: the native service's own stderr (sampling trace), apart from the engine log."""
+        return self.installation / 'logs/model-server.log'
+
+    def log_offset(self, model=None):
+        log = self.log_path(model) if model else self.service_log_path()
         return log.stat().st_size if log.exists() else 0
 
     def log_bytes_since(self, model, offset):
+        """Bytes appended since offset to the model's engine log, or to the service log when model is None."""
         if type(offset) is not int or offset < 0:
             raise ValueError('Log offset must be a nonnegative byte count')
-        log = self.log_path(model)
+        log = self.log_path(model) if model else self.service_log_path()
         if log.stat().st_size < offset:
             raise RuntimeError('Bound engine log shrank; cannot attribute stages')
         with log.open('rb') as stream:

@@ -59,8 +59,10 @@ def flag_values(started):
             for i, w in enumerate(words) if w.startswith('--')}
 
 
-def verify_effect(log, environment_rows, condition, configuration, checks):
-    """Compare one cold start's engine log and process environment with the deployed condition."""
+def verify_effect(log, environment_rows, condition, configuration, checks, service_log=''):
+    """Compare one cold start's engine log and process environment with the deployed condition.
+
+    log_present / log_absent also search the service log, where the native sampling trace lands."""
     problems, started = [], re.findall(r'engine started: (.*)', log)
     if len(started) != 1:
         problems.append(f'expected one engine start in the instance log, found {len(started)}')
@@ -86,11 +88,12 @@ def verify_effect(log, environment_rows, condition, configuration, checks):
     elif wanted and environment_rows and environment_rows[0]['environment'] is not None \
             and environment_rows[0]['environment'] != wanted:
         problems.append(f'engine environment {environment_rows[0]["environment"]} differs from {wanted}')
+    logs = log + '\n' + service_log
     for pattern in checks.get('log_present', []):
-        if not re.search(pattern, log):
+        if not re.search(pattern, logs):
             problems.append('missing log line: ' + pattern)
     for pattern in checks.get('log_absent', []):
-        if re.search(pattern, log):
+        if re.search(pattern, logs):
             problems.append('unexpected log line: ' + pattern)
     facts = {name: (re.findall(pattern, log) or [None])[-1] for name, pattern in (
         ('verify_window', r'strata verify: window up to (\d+) tokens'),
@@ -184,7 +187,7 @@ def run(plan_path, dimension_id, out, limit=None):
         if 'expert_profile_sha256' in dimension['conditions'][name] and \
                 host.profile_sha256(plan['model']) != dimension['conditions'][name]['expert_profile_sha256']:
             raise RuntimeError(name + ': installed expert profile differs from the frozen one')
-        offset = host.log_offset(plan['model'])
+        offset, service_offset = host.log_offset(plan['model']), host.log_offset()
         started = datetime.now().isoformat(timespec='seconds')
         measured = subprocess.run(
             [sys.executable, '-m', 'tools.reviewer.arw_measure', '--host', plan['host'], '--out', str(folder / 'run'),
@@ -193,9 +196,11 @@ def run(plan_path, dimension_id, out, limit=None):
             cwd=ROOT, env=dict(os.environ, CODEX_THREAD_ID=plan['codex_thread_id']))
         log = host.log_bytes_since(plan['model'], offset).decode(errors='replace')
         (folder / 'engine-log-since-deploy.txt').write_text(log)
+        service_log = host.log_bytes_since(None, service_offset).decode(errors='replace')
+        (folder / 'service-log-since-deploy.txt').write_text(service_log)
         environment = host.engine_environment(condition.get('model_environment', {})) \
             if condition.get('model_environment') else []
-        effect = verify_effect(log, environment, condition, host.configuration(plan['model']), checks)
+        effect = verify_effect(log, environment, condition, host.configuration(plan['model']), checks, service_log)
         records.append({'slot': slot, 'condition': name, 'condition_sha256': digest, 'folder': str(folder),
                         'started': started, 'arw_measure_exit': measured.returncode,
                         'model_configuration_sha256': deployed['model_configuration_sha256'], 'effect': effect})

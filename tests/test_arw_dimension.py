@@ -68,12 +68,15 @@ class EffectTests(unittest.TestCase):
 
     def test_condition_sampling_must_be_installed(self):
         condition = {'id': 'sampling-t06', 'model': 'IQ3_XXS', 'request_defaults': {'temperature': 0.6}}
-        log = STARTED.format(spec=4) + '[native-sampling-trace] temperature=0.6 top_p=0.95 top_k=20\n'
+        log = STARTED.format(spec=4)
+        trace = '[native-sampling-trace] temperature=0.6 top_p=0.95 top_k=20\n'  # the service log, not the engine's
         checks = {'log_present': [r'\[native-sampling-trace\][^\n]*temperature=0\.6\b']}
         installed = dict(self.configuration, request_defaults={'temperature': 0.6, 'top_k': 20})
-        self.assertTrue(verify_effect(log, [], condition, installed, checks)['ok'])
+        self.assertTrue(verify_effect(log, [], condition, installed, checks, trace)['ok'])
+        self.assertFalse(verify_effect(log, [], condition, installed, checks)['ok'])
         stale = dict(self.configuration, request_defaults={'temperature': 0.0})
-        self.assertIn('request default temperature', verify_effect(log, [], condition, stale, checks)['problems'][0])
+        self.assertIn('request default temperature',
+                      verify_effect(log, [], condition, stale, checks, trace)['problems'][0])
 
     def test_selected_tier_must_reach_the_engine(self):
         plain = {'id': 'window-206584', 'model': 'IQ3_XXS'}
