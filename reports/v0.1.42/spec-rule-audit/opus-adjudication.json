@@ -1,0 +1,364 @@
+{
+ "decisions": [
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-1:problem-1:SPEC-READINESS-INPUTS:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 request-consistency 被选定但缺 Input"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-2:problem-1:SPEC-READINESS-REQUIREMENTS:finding-3",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Runtime Migration successful result omits the summary required by Result Summary."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-2:problem-1:SPEC-READINESS-REQUIREMENTS:finding-5",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 RM 成功结果缺 Result Summary 要求的 summary"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-3",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 RM 期望文件系统失败缺 Promotion Runtime 的 operation 字段"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-5",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Runtime Migration expected filesystem failure omits the operation field required by Promotion Runtime."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-2:problem-3:SPEC-READINESS-REQUIREMENTS:finding-2",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 image-cache 预览清理与本 issue 无关"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-2:problem-4:SPEC-READINESS-REQUIREMENTS:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 export-retention 条件段能否归属本 issue 无法确定"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-4:problem-1:SPEC-READINESS-ADR-EVALUATION:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指恢复 ADR 评估把新公开结果契约当作既有回滚职责"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-5:problem-1:MODULE-DESIGN-APPLICABILITY:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 result-summary 改变调用方可见 Interface 不能用豁免"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-6:problem-1:MODULE-DESIGN-EXEMPTION:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 parser 豁免只泛称架构不变"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-7:problem-1:MODULE-DESIGN-MODULES:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 Readiness 与 Promotion 重复拥有校验"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-8:problem-2:MODULE-DESIGN-INTERFACES:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 reviewAccess 缺 Policy Adapter 失败结果"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-8:problem-2:MODULE-DESIGN-INTERFACES:finding-3",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Access Review omits a caller-visible result for Policy Adapter execution failure."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-8:problem-3:MODULE-DESIGN-INTERFACES:finding-4",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Rollback-failure result does not define whether failureCode identifies the commit or rollback failure."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-8:problem-3:MODULE-DESIGN-INTERFACES:finding-5",
+   "decision": "matched",
+   "reason": "同一缺陷：均指回滚失败结果未定义 failureCode 取值"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-8:problem-4:MODULE-DESIGN-INTERFACES:finding-4",
+   "decision": "matched",
+   "reason": "同一缺陷：均指恢复 Testing Decisions 缺回滚失败的公开生命周期测试"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-8:problem-5:MODULE-DESIGN-INTERFACES:finding-2",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 Invalid Artifact Contract 未给 unexpected-field 排序"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-8:problem-6:MODULE-DESIGN-INTERFACES:finding-6",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 renderReport 的 source 未定义输入类型"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-8:problem-7:MODULE-DESIGN-INTERFACES:finding-2",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：The report diagnostic path is an artifact source path, but the contract does not define how to extract that path from so"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-8:problem-7:MODULE-DESIGN-INTERFACES:finding-6",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：The report diagnostic path is an artifact source path, but the contract does not define how to extract that path from so"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-10:problem-1:MODULE-DESIGN-DEPENDENCIES-DATA-FLOW:finding-1",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Recovery Dependencies and Data Flow omits the required authoritative-source table even though its source facts are descr"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-10:problem-2:MODULE-DESIGN-DEPENDENCIES-DATA-FLOW:finding-1",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Promotion Flow does not include the call to the declared Artifact Storage read operation."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1:scope-11:problem-1:MODULE-DESIGN-RATIONALE:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 Access Review 边界未与授权归属替代方案比较"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-1:problem-1:SPEC-READINESS-INPUTS:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 request-consistency 被选定但缺 Input"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-2:problem-1:SPEC-READINESS-REQUIREMENTS:finding-6",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 RM 成功结果缺 Result Summary 要求的 summary"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-2:problem-1:SPEC-READINESS-REQUIREMENTS:finding-7",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Runtime Migration successful result omits the summary required by Result Summary."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-2:problem-1:SPEC-READINESS-REQUIREMENTS:finding-8",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Runtime Migration successful result omits the summary required by Result Summary."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-6",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Runtime Migration expected filesystem failure omits the operation field required by Promotion Runtime."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-7",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 RM 期望文件系统失败缺 Promotion Runtime 的 operation 字段"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-8",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Runtime Migration expected filesystem failure omits the operation field required by Promotion Runtime."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-2:problem-3:SPEC-READINESS-REQUIREMENTS:finding-2",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 image-cache 预览清理与本 issue 无关"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-2:problem-4:SPEC-READINESS-REQUIREMENTS:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 export-retention 条件段能否归属本 issue 无法确定"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-4:problem-1:SPEC-READINESS-ADR-EVALUATION:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指恢复 ADR 评估把新公开结果契约当作既有回滚职责"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-5:problem-1:MODULE-DESIGN-APPLICABILITY:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 result-summary 改变调用方可见 Interface 不能用豁免"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-6:problem-1:MODULE-DESIGN-EXEMPTION:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 parser 豁免只泛称架构不变"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-7:problem-1:MODULE-DESIGN-MODULES:finding-2",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 Readiness 与 Promotion 重复拥有校验"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-8:problem-2:MODULE-DESIGN-INTERFACES:finding-2",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 reviewAccess 缺 Policy Adapter 失败结果"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-8:problem-3:MODULE-DESIGN-INTERFACES:finding-3",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Rollback-failure result does not define whether failureCode identifies the commit or rollback failure."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-8:problem-3:MODULE-DESIGN-INTERFACES:finding-4",
+   "decision": "matched",
+   "reason": "同一缺陷：均指回滚失败结果未定义 failureCode 取值"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-8:problem-4:MODULE-DESIGN-INTERFACES:finding-3",
+   "decision": "matched",
+   "reason": "同一缺陷：均指恢复 Testing Decisions 缺回滚失败的公开生命周期测试"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-8:problem-5:MODULE-DESIGN-INTERFACES:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 Invalid Artifact Contract 未给 unexpected-field 排序"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-8:problem-6:MODULE-DESIGN-INTERFACES:finding-5",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 renderReport 的 source 未定义输入类型"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-8:problem-7:MODULE-DESIGN-INTERFACES:finding-1",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：The report diagnostic path is an artifact source path, but the contract does not define how to extract that path from so"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-8:problem-7:MODULE-DESIGN-INTERFACES:finding-5",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：The report diagnostic path is an artifact source path, but the contract does not define how to extract that path from so"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-10:problem-1:MODULE-DESIGN-DEPENDENCIES-DATA-FLOW:finding-1",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Recovery Dependencies and Data Flow omits the required authoritative-source table even though its source facts are descr"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-10:problem-1:MODULE-DESIGN-DEPENDENCIES-DATA-FLOW:finding-2",
+   "decision": "matched",
+   "reason": "同一缺陷：均指恢复 Dependencies and Data Flow 缺权威来源表"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2:scope-10:problem-2:MODULE-DESIGN-DEPENDENCIES-DATA-FLOW:finding-1",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Promotion Flow does not include the call to the declared Artifact Storage read operation."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-1:problem-1:SPEC-READINESS-INPUTS:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 request-consistency 被选定但缺 Input"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-2:problem-1:SPEC-READINESS-REQUIREMENTS:finding-4",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 RM 成功结果缺 Result Summary 要求的 summary"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-2:problem-1:SPEC-READINESS-REQUIREMENTS:finding-5",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Runtime Migration successful result omits the summary required by Result Summary."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-2:problem-1:SPEC-READINESS-REQUIREMENTS:finding-6",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Runtime Migration successful result omits the summary required by Result Summary."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-4",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Runtime Migration expected filesystem failure omits the operation field required by Promotion Runtime."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-5",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 RM 期望文件系统失败缺 Promotion Runtime 的 operation 字段"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-6",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Runtime Migration expected filesystem failure omits the operation field required by Promotion Runtime."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-2:problem-3:SPEC-READINESS-REQUIREMENTS:finding-2",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 image-cache 预览清理与本 issue 无关"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-2:problem-4:SPEC-READINESS-REQUIREMENTS:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 export-retention 条件段能否归属本 issue 无法确定"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-4:problem-1:SPEC-READINESS-ADR-EVALUATION:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指恢复 ADR 评估把新公开结果契约当作既有回滚职责"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-5:problem-1:MODULE-DESIGN-APPLICABILITY:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 result-summary 改变调用方可见 Interface 不能用豁免"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-6:problem-1:MODULE-DESIGN-EXEMPTION:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 parser 豁免只泛称架构不变"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-7:problem-1:MODULE-DESIGN-MODULES:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 Readiness 与 Promotion 重复拥有校验"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-8:problem-1:MODULE-DESIGN-INTERFACES:finding-4",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 reviewAccess 输入缺认证边界要求的已验证主体"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-8:problem-2:MODULE-DESIGN-INTERFACES:finding-5",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 reviewAccess 缺 Policy Adapter 失败结果"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-8:problem-3:MODULE-DESIGN-INTERFACES:finding-6",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Rollback-failure result does not define whether failureCode identifies the commit or rollback failure."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-8:problem-3:MODULE-DESIGN-INTERFACES:finding-7",
+   "decision": "matched",
+   "reason": "同一缺陷：均指回滚失败结果未定义 failureCode 取值"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-8:problem-4:MODULE-DESIGN-INTERFACES:finding-6",
+   "decision": "matched",
+   "reason": "同一缺陷：均指恢复 Testing Decisions 缺回滚失败的公开生命周期测试"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-8:problem-5:MODULE-DESIGN-INTERFACES:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 Invalid Artifact Contract 未给 unexpected-field 排序"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-8:problem-6:MODULE-DESIGN-INTERFACES:finding-8",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 renderReport 的 source 未定义输入类型"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-8:problem-7:MODULE-DESIGN-INTERFACES:finding-1",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：The report diagnostic path is an artifact source path, but the contract does not define how to extract that path from so"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-8:problem-7:MODULE-DESIGN-INTERFACES:finding-8",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：The report diagnostic path is an artifact source path, but the contract does not define how to extract that path from so"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-9:problem-1:MODULE-DESIGN-SEAMS-ADAPTERS:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 Recovery Storage 缺成功 recoveryState 的公共形状"
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-10:problem-2:MODULE-DESIGN-DEPENDENCIES-DATA-FLOW:finding-1",
+   "decision": "not-matched",
+   "reason": "finding 指另一缺陷（交叉候选），不是：Promotion Flow does not include the call to the declared Artifact Storage read operation."
+  },
+  {
+   "candidateId": "spec-readiness-reviewer:artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3:scope-11:problem-1:MODULE-DESIGN-RATIONALE:finding-1",
+   "decision": "matched",
+   "reason": "同一缺陷：均指 Access Review 边界未与授权归属替代方案比较"
+  }
+ ]
+}

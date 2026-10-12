@@ -1,0 +1,2391 @@
+{
+  "diagnostics": [],
+  "results": [
+    {
+      "finalRepetitionScores": [
+        0.6187429979185075,
+        0.623998998134442,
+        0.6725761456995658
+      ],
+      "instances": [
+        {
+          "caseScores": {
+            "clean": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "problem": [
+              1,
+              1,
+              1,
+              1,
+              0.9478260869565218
+            ]
+          },
+          "cleanAcceptanceRate": 0.9,
+          "earnedCleanPoints": 9,
+          "earnedProblemPoints": 4.947826086956522,
+          "fullProblemCases": 4,
+          "instanceId": "runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1",
+          "measurement": null,
+          "measurementExplanation": "Reviewer measurement was not supplied.",
+          "passedCleanCases": 9,
+          "problemDetectionRate": 0.9895652173913044,
+          "repetition": 1,
+          "reportDiagnostics": [],
+          "scenarioId": "runtime-migration",
+          "scopes": [
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 1,
+              "fullProblemCases": 1,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-INPUTS",
+              "totalCleanCases": 4,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 3.947826086956522,
+              "fullProblemCases": 3,
+              "passedCleanCases": 5,
+              "scope": "SPEC-READINESS-REQUIREMENTS",
+              "totalCleanCases": 6,
+              "totalProblemCases": 4
+            }
+          ],
+          "score": 0.9702538840469876,
+          "totalCleanCases": 10,
+          "totalProblemCases": 5
+        },
+        {
+          "caseScores": {
+            "clean": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "problem": [
+              0,
+              0.9750000000000001,
+              1,
+              0.9636363636363636,
+              0.9636363636363636,
+              0,
+              0.9750000000000001,
+              0.9478260869565218,
+              0.980952380952381,
+              0.8,
+              0.9333333333333333,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.8,
+              0,
+              0,
+              0
+            ]
+          },
+          "cleanAcceptanceRate": 0.9302325581395349,
+          "earnedCleanPoints": 40,
+          "earnedProblemPoints": 9.339384528514964,
+          "fullProblemCases": 1,
+          "instanceId": "artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1",
+          "measurement": null,
+          "measurementExplanation": "Reviewer measurement was not supplied.",
+          "passedCleanCases": 40,
+          "problemDetectionRate": 0.46696922642574823,
+          "repetition": 1,
+          "reportDiagnostics": [],
+          "scenarioId": "artifact-promotion",
+          "scopes": [
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-INPUTS",
+              "totalCleanCases": 4,
+              "totalProblemCases": 0
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 5,
+              "scope": "SPEC-READINESS-REQUIREMENTS",
+              "totalCleanCases": 6,
+              "totalProblemCases": 0
+            },
+            {
+              "earnedCleanPoints": 3,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 3,
+              "scope": "SPEC-READINESS-RATIONALE",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 0.9750000000000001,
+              "fullProblemCases": 0,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-ADR-EVALUATION",
+              "totalCleanCases": 4,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 1,
+              "fullProblemCases": 1,
+              "passedCleanCases": 5,
+              "scope": "MODULE-DESIGN-APPLICABILITY",
+              "totalCleanCases": 5,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 3,
+              "earnedProblemPoints": 0.9636363636363636,
+              "fullProblemCases": 0,
+              "passedCleanCases": 3,
+              "scope": "MODULE-DESIGN-EXEMPTION",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 3,
+              "earnedProblemPoints": 0.9636363636363636,
+              "fullProblemCases": 0,
+              "passedCleanCases": 3,
+              "scope": "MODULE-DESIGN-MODULES",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 4.637111801242236,
+              "fullProblemCases": 0,
+              "passedCleanCases": 4,
+              "scope": "MODULE-DESIGN-INTERFACES",
+              "totalCleanCases": 5,
+              "totalProblemCases": 7
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 5,
+              "scope": "MODULE-DESIGN-SEAMS-ADAPTERS",
+              "totalCleanCases": 5,
+              "totalProblemCases": 2
+            },
+            {
+              "earnedCleanPoints": 2,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 2,
+              "scope": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW",
+              "totalCleanCases": 3,
+              "totalProblemCases": 2
+            },
+            {
+              "earnedCleanPoints": 2,
+              "earnedProblemPoints": 0.8,
+              "fullProblemCases": 0,
+              "passedCleanCases": 2,
+              "scope": "MODULE-DESIGN-RATIONALE",
+              "totalCleanCases": 2,
+              "totalProblemCases": 4
+            }
+          ],
+          "score": 0.5186251273757414,
+          "totalCleanCases": 43,
+          "totalProblemCases": 20
+        },
+        {
+          "caseScores": {
+            "clean": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "problem": [
+              1,
+              1,
+              1,
+              1,
+              0.9478260869565218
+            ]
+          },
+          "cleanAcceptanceRate": 0.9,
+          "earnedCleanPoints": 9,
+          "earnedProblemPoints": 4.947826086956522,
+          "fullProblemCases": 4,
+          "instanceId": "runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2",
+          "measurement": null,
+          "measurementExplanation": "Reviewer measurement was not supplied.",
+          "passedCleanCases": 9,
+          "problemDetectionRate": 0.9895652173913044,
+          "repetition": 2,
+          "reportDiagnostics": [],
+          "scenarioId": "runtime-migration",
+          "scopes": [
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 1,
+              "fullProblemCases": 1,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-INPUTS",
+              "totalCleanCases": 4,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 3.947826086956522,
+              "fullProblemCases": 3,
+              "passedCleanCases": 5,
+              "scope": "SPEC-READINESS-REQUIREMENTS",
+              "totalCleanCases": 6,
+              "totalProblemCases": 4
+            }
+          ],
+          "score": 0.9702538840469876,
+          "totalCleanCases": 10,
+          "totalProblemCases": 5
+        },
+        {
+          "caseScores": {
+            "clean": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "problem": [
+              0,
+              0.8666666666666667,
+              0.9870967741935484,
+              0.9636363636363636,
+              0.9333333333333333,
+              0,
+              0.9870967741935484,
+              0.9636363636363636,
+              1,
+              0.8,
+              0.9333333333333333,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "cleanAcceptanceRate": 0.9534883720930233,
+          "earnedCleanPoints": 41,
+          "earnedProblemPoints": 9.434799608993158,
+          "fullProblemCases": 2,
+          "instanceId": "artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2",
+          "measurement": null,
+          "measurementExplanation": "Reviewer measurement was not supplied.",
+          "passedCleanCases": 41,
+          "problemDetectionRate": 0.4717399804496579,
+          "repetition": 2,
+          "reportDiagnostics": [],
+          "scenarioId": "artifact-promotion",
+          "scopes": [
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-INPUTS",
+              "totalCleanCases": 4,
+              "totalProblemCases": 0
+            },
+            {
+              "earnedCleanPoints": 6,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 6,
+              "scope": "SPEC-READINESS-REQUIREMENTS",
+              "totalCleanCases": 6,
+              "totalProblemCases": 0
+            },
+            {
+              "earnedCleanPoints": 3,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 3,
+              "scope": "SPEC-READINESS-RATIONALE",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 0.8666666666666667,
+              "fullProblemCases": 0,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-ADR-EVALUATION",
+              "totalCleanCases": 4,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 0.9870967741935484,
+              "fullProblemCases": 0,
+              "passedCleanCases": 5,
+              "scope": "MODULE-DESIGN-APPLICABILITY",
+              "totalCleanCases": 5,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 3,
+              "earnedProblemPoints": 0.9636363636363636,
+              "fullProblemCases": 0,
+              "passedCleanCases": 3,
+              "scope": "MODULE-DESIGN-EXEMPTION",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 2,
+              "earnedProblemPoints": 0.9333333333333333,
+              "fullProblemCases": 0,
+              "passedCleanCases": 2,
+              "scope": "MODULE-DESIGN-MODULES",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 4.684066471163246,
+              "fullProblemCases": 1,
+              "passedCleanCases": 5,
+              "scope": "MODULE-DESIGN-INTERFACES",
+              "totalCleanCases": 5,
+              "totalProblemCases": 7
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 5,
+              "scope": "MODULE-DESIGN-SEAMS-ADAPTERS",
+              "totalCleanCases": 5,
+              "totalProblemCases": 2
+            },
+            {
+              "earnedCleanPoints": 2,
+              "earnedProblemPoints": 1,
+              "fullProblemCases": 1,
+              "passedCleanCases": 2,
+              "scope": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW",
+              "totalCleanCases": 3,
+              "totalProblemCases": 2
+            },
+            {
+              "earnedCleanPoints": 2,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 2,
+              "scope": "MODULE-DESIGN-RATIONALE",
+              "totalCleanCases": 2,
+              "totalProblemCases": 4
+            }
+          ],
+          "score": 0.5247675659521682,
+          "totalCleanCases": 43,
+          "totalProblemCases": 20
+        },
+        {
+          "caseScores": {
+            "clean": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ]
+            ],
+            "problem": [
+              1,
+              1,
+              1,
+              1,
+              0.5478260869565218
+            ]
+          },
+          "cleanAcceptanceRate": 0.9,
+          "earnedCleanPoints": 9,
+          "earnedProblemPoints": 4.547826086956522,
+          "fullProblemCases": 4,
+          "instanceId": "runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3",
+          "measurement": null,
+          "measurementExplanation": "Reviewer measurement was not supplied.",
+          "passedCleanCases": 9,
+          "problemDetectionRate": 0.9095652173913044,
+          "repetition": 3,
+          "reportDiagnostics": [],
+          "scenarioId": "runtime-migration",
+          "scopes": [
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 1,
+              "fullProblemCases": 1,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-INPUTS",
+              "totalCleanCases": 4,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 3.5478260869565217,
+              "fullProblemCases": 3,
+              "passedCleanCases": 5,
+              "scope": "SPEC-READINESS-REQUIREMENTS",
+              "totalCleanCases": 6,
+              "totalProblemCases": 4
+            }
+          ],
+          "score": 0.907635942923255,
+          "totalCleanCases": 10,
+          "totalProblemCases": 5
+        },
+        {
+          "caseScores": {
+            "clean": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "problem": [
+              0,
+              0.9750000000000001,
+              1,
+              0.9636363636363636,
+              0.9333333333333333,
+              0.9478260869565218,
+              1,
+              0.9636363636363636,
+              0.980952380952381,
+              0.980952380952381,
+              0.9636363636363636,
+              0,
+              0.8,
+              0,
+              0,
+              0,
+              0.8,
+              0,
+              0,
+              0
+            ]
+          },
+          "cleanAcceptanceRate": 0.8837209302325582,
+          "earnedCleanPoints": 38,
+          "earnedProblemPoints": 11.308973273103708,
+          "fullProblemCases": 2,
+          "instanceId": "artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3",
+          "measurement": null,
+          "measurementExplanation": "Reviewer measurement was not supplied.",
+          "passedCleanCases": 38,
+          "problemDetectionRate": 0.5654486636551854,
+          "repetition": 3,
+          "reportDiagnostics": [],
+          "scenarioId": "artifact-promotion",
+          "scopes": [
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-INPUTS",
+              "totalCleanCases": 4,
+              "totalProblemCases": 0
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 5,
+              "scope": "SPEC-READINESS-REQUIREMENTS",
+              "totalCleanCases": 6,
+              "totalProblemCases": 0
+            },
+            {
+              "earnedCleanPoints": 3,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 3,
+              "scope": "SPEC-READINESS-RATIONALE",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 0.9750000000000001,
+              "fullProblemCases": 0,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-ADR-EVALUATION",
+              "totalCleanCases": 4,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 1,
+              "fullProblemCases": 1,
+              "passedCleanCases": 5,
+              "scope": "MODULE-DESIGN-APPLICABILITY",
+              "totalCleanCases": 5,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 3,
+              "earnedProblemPoints": 0.9636363636363636,
+              "fullProblemCases": 0,
+              "passedCleanCases": 3,
+              "scope": "MODULE-DESIGN-EXEMPTION",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 1,
+              "earnedProblemPoints": 0.9333333333333333,
+              "fullProblemCases": 0,
+              "passedCleanCases": 1,
+              "scope": "MODULE-DESIGN-MODULES",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 5.837003576134012,
+              "fullProblemCases": 1,
+              "passedCleanCases": 4,
+              "scope": "MODULE-DESIGN-INTERFACES",
+              "totalCleanCases": 5,
+              "totalProblemCases": 7
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 0.8,
+              "fullProblemCases": 0,
+              "passedCleanCases": 5,
+              "scope": "MODULE-DESIGN-SEAMS-ADAPTERS",
+              "totalCleanCases": 5,
+              "totalProblemCases": 2
+            },
+            {
+              "earnedCleanPoints": 2,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 2,
+              "scope": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW",
+              "totalCleanCases": 3,
+              "totalProblemCases": 2
+            },
+            {
+              "earnedCleanPoints": 2,
+              "earnedProblemPoints": 0.8,
+              "fullProblemCases": 0,
+              "passedCleanCases": 2,
+              "scope": "MODULE-DESIGN-RATIONALE",
+              "totalCleanCases": 2,
+              "totalProblemCases": 4
+            }
+          ],
+          "score": 0.6093394049256345,
+          "totalCleanCases": 43,
+          "totalProblemCases": 20
+        }
+      ],
+      "repetitionScores": [
+        0.6187429979185075,
+        0.623998998134442,
+        0.6725761456995658
+      ],
+      "repetitions": [
+        {
+          "caseScores": {
+            "clean": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "problem": [
+              1,
+              1,
+              1,
+              1,
+              0.9478260869565218,
+              0,
+              0.9750000000000001,
+              1,
+              0.9636363636363636,
+              0.9636363636363636,
+              0,
+              0.9750000000000001,
+              0.9478260869565218,
+              0.980952380952381,
+              0.8,
+              0.9333333333333333,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.8,
+              0,
+              0,
+              0
+            ]
+          },
+          "cleanAcceptanceRate": 0.9245283018867925,
+          "earnedCleanPoints": 49,
+          "earnedProblemPoints": 14.287210615471487,
+          "fullProblemCases": 5,
+          "instances": [
+            {
+              "caseScores": {
+                "clean": [
+                  [
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0
+                  ]
+                ],
+                "problem": [
+                  1,
+                  1,
+                  1,
+                  1,
+                  0.9478260869565218
+                ]
+              },
+              "cleanAcceptanceRate": 0.9,
+              "earnedCleanPoints": 9,
+              "earnedProblemPoints": 4.947826086956522,
+              "fullProblemCases": 4,
+              "instanceId": "runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1",
+              "measurement": null,
+              "measurementExplanation": "Reviewer measurement was not supplied.",
+              "passedCleanCases": 9,
+              "problemDetectionRate": 0.9895652173913044,
+              "repetition": 1,
+              "reportDiagnostics": [],
+              "scenarioId": "runtime-migration",
+              "scopes": [
+                {
+                  "earnedCleanPoints": 4,
+                  "earnedProblemPoints": 1,
+                  "fullProblemCases": 1,
+                  "passedCleanCases": 4,
+                  "scope": "SPEC-READINESS-INPUTS",
+                  "totalCleanCases": 4,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 5,
+                  "earnedProblemPoints": 3.947826086956522,
+                  "fullProblemCases": 3,
+                  "passedCleanCases": 5,
+                  "scope": "SPEC-READINESS-REQUIREMENTS",
+                  "totalCleanCases": 6,
+                  "totalProblemCases": 4
+                }
+              ],
+              "score": 0.9702538840469876,
+              "totalCleanCases": 10,
+              "totalProblemCases": 5
+            },
+            {
+              "caseScores": {
+                "clean": [
+                  [
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ],
+                "problem": [
+                  0,
+                  0.9750000000000001,
+                  1,
+                  0.9636363636363636,
+                  0.9636363636363636,
+                  0,
+                  0.9750000000000001,
+                  0.9478260869565218,
+                  0.980952380952381,
+                  0.8,
+                  0.9333333333333333,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0.8,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "cleanAcceptanceRate": 0.9302325581395349,
+              "earnedCleanPoints": 40,
+              "earnedProblemPoints": 9.339384528514964,
+              "fullProblemCases": 1,
+              "instanceId": "artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-1",
+              "measurement": null,
+              "measurementExplanation": "Reviewer measurement was not supplied.",
+              "passedCleanCases": 40,
+              "problemDetectionRate": 0.46696922642574823,
+              "repetition": 1,
+              "reportDiagnostics": [],
+              "scenarioId": "artifact-promotion",
+              "scopes": [
+                {
+                  "earnedCleanPoints": 4,
+                  "earnedProblemPoints": 0,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 4,
+                  "scope": "SPEC-READINESS-INPUTS",
+                  "totalCleanCases": 4,
+                  "totalProblemCases": 0
+                },
+                {
+                  "earnedCleanPoints": 5,
+                  "earnedProblemPoints": 0,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 5,
+                  "scope": "SPEC-READINESS-REQUIREMENTS",
+                  "totalCleanCases": 6,
+                  "totalProblemCases": 0
+                },
+                {
+                  "earnedCleanPoints": 3,
+                  "earnedProblemPoints": 0,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 3,
+                  "scope": "SPEC-READINESS-RATIONALE",
+                  "totalCleanCases": 3,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 4,
+                  "earnedProblemPoints": 0.9750000000000001,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 4,
+                  "scope": "SPEC-READINESS-ADR-EVALUATION",
+                  "totalCleanCases": 4,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 5,
+                  "earnedProblemPoints": 1,
+                  "fullProblemCases": 1,
+                  "passedCleanCases": 5,
+                  "scope": "MODULE-DESIGN-APPLICABILITY",
+                  "totalCleanCases": 5,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 3,
+                  "earnedProblemPoints": 0.9636363636363636,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 3,
+                  "scope": "MODULE-DESIGN-EXEMPTION",
+                  "totalCleanCases": 3,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 3,
+                  "earnedProblemPoints": 0.9636363636363636,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 3,
+                  "scope": "MODULE-DESIGN-MODULES",
+                  "totalCleanCases": 3,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 4,
+                  "earnedProblemPoints": 4.637111801242236,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 4,
+                  "scope": "MODULE-DESIGN-INTERFACES",
+                  "totalCleanCases": 5,
+                  "totalProblemCases": 7
+                },
+                {
+                  "earnedCleanPoints": 5,
+                  "earnedProblemPoints": 0,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 5,
+                  "scope": "MODULE-DESIGN-SEAMS-ADAPTERS",
+                  "totalCleanCases": 5,
+                  "totalProblemCases": 2
+                },
+                {
+                  "earnedCleanPoints": 2,
+                  "earnedProblemPoints": 0,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 2,
+                  "scope": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW",
+                  "totalCleanCases": 3,
+                  "totalProblemCases": 2
+                },
+                {
+                  "earnedCleanPoints": 2,
+                  "earnedProblemPoints": 0.8,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 2,
+                  "scope": "MODULE-DESIGN-RATIONALE",
+                  "totalCleanCases": 2,
+                  "totalProblemCases": 4
+                }
+              ],
+              "score": 0.5186251273757414,
+              "totalCleanCases": 43,
+              "totalProblemCases": 20
+            }
+          ],
+          "passedCleanCases": 49,
+          "problemDetectionRate": 0.5714884246188595,
+          "repetition": 1,
+          "reportDiagnostics": [],
+          "scopes": [
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 1,
+              "fullProblemCases": 1,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-INPUTS",
+              "totalCleanCases": 4,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 3.947826086956522,
+              "fullProblemCases": 3,
+              "passedCleanCases": 5,
+              "scope": "SPEC-READINESS-REQUIREMENTS",
+              "totalCleanCases": 6,
+              "totalProblemCases": 4
+            },
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-INPUTS",
+              "totalCleanCases": 4,
+              "totalProblemCases": 0
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 5,
+              "scope": "SPEC-READINESS-REQUIREMENTS",
+              "totalCleanCases": 6,
+              "totalProblemCases": 0
+            },
+            {
+              "earnedCleanPoints": 3,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 3,
+              "scope": "SPEC-READINESS-RATIONALE",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 0.9750000000000001,
+              "fullProblemCases": 0,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-ADR-EVALUATION",
+              "totalCleanCases": 4,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 1,
+              "fullProblemCases": 1,
+              "passedCleanCases": 5,
+              "scope": "MODULE-DESIGN-APPLICABILITY",
+              "totalCleanCases": 5,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 3,
+              "earnedProblemPoints": 0.9636363636363636,
+              "fullProblemCases": 0,
+              "passedCleanCases": 3,
+              "scope": "MODULE-DESIGN-EXEMPTION",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 3,
+              "earnedProblemPoints": 0.9636363636363636,
+              "fullProblemCases": 0,
+              "passedCleanCases": 3,
+              "scope": "MODULE-DESIGN-MODULES",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 4.637111801242236,
+              "fullProblemCases": 0,
+              "passedCleanCases": 4,
+              "scope": "MODULE-DESIGN-INTERFACES",
+              "totalCleanCases": 5,
+              "totalProblemCases": 7
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 5,
+              "scope": "MODULE-DESIGN-SEAMS-ADAPTERS",
+              "totalCleanCases": 5,
+              "totalProblemCases": 2
+            },
+            {
+              "earnedCleanPoints": 2,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 2,
+              "scope": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW",
+              "totalCleanCases": 3,
+              "totalProblemCases": 2
+            },
+            {
+              "earnedCleanPoints": 2,
+              "earnedProblemPoints": 0.8,
+              "fullProblemCases": 0,
+              "passedCleanCases": 2,
+              "scope": "MODULE-DESIGN-RATIONALE",
+              "totalCleanCases": 2,
+              "totalProblemCases": 4
+            }
+          ],
+          "score": 0.6187429979185075,
+          "scoreBeforePenalty": 0.6187429979185075,
+          "totalCleanCases": 53,
+          "totalProblemCases": 25
+        },
+        {
+          "caseScores": {
+            "clean": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "problem": [
+              1,
+              1,
+              1,
+              1,
+              0.9478260869565218,
+              0,
+              0.8666666666666667,
+              0.9870967741935484,
+              0.9636363636363636,
+              0.9333333333333333,
+              0,
+              0.9870967741935484,
+              0.9636363636363636,
+              1,
+              0.8,
+              0.9333333333333333,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "cleanAcceptanceRate": 0.9433962264150944,
+          "earnedCleanPoints": 50,
+          "earnedProblemPoints": 14.382625695949681,
+          "fullProblemCases": 6,
+          "instances": [
+            {
+              "caseScores": {
+                "clean": [
+                  [
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0
+                  ]
+                ],
+                "problem": [
+                  1,
+                  1,
+                  1,
+                  1,
+                  0.9478260869565218
+                ]
+              },
+              "cleanAcceptanceRate": 0.9,
+              "earnedCleanPoints": 9,
+              "earnedProblemPoints": 4.947826086956522,
+              "fullProblemCases": 4,
+              "instanceId": "runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2",
+              "measurement": null,
+              "measurementExplanation": "Reviewer measurement was not supplied.",
+              "passedCleanCases": 9,
+              "problemDetectionRate": 0.9895652173913044,
+              "repetition": 2,
+              "reportDiagnostics": [],
+              "scenarioId": "runtime-migration",
+              "scopes": [
+                {
+                  "earnedCleanPoints": 4,
+                  "earnedProblemPoints": 1,
+                  "fullProblemCases": 1,
+                  "passedCleanCases": 4,
+                  "scope": "SPEC-READINESS-INPUTS",
+                  "totalCleanCases": 4,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 5,
+                  "earnedProblemPoints": 3.947826086956522,
+                  "fullProblemCases": 3,
+                  "passedCleanCases": 5,
+                  "scope": "SPEC-READINESS-REQUIREMENTS",
+                  "totalCleanCases": 6,
+                  "totalProblemCases": 4
+                }
+              ],
+              "score": 0.9702538840469876,
+              "totalCleanCases": 10,
+              "totalProblemCases": 5
+            },
+            {
+              "caseScores": {
+                "clean": [
+                  [
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ],
+                "problem": [
+                  0,
+                  0.8666666666666667,
+                  0.9870967741935484,
+                  0.9636363636363636,
+                  0.9333333333333333,
+                  0,
+                  0.9870967741935484,
+                  0.9636363636363636,
+                  1,
+                  0.8,
+                  0.9333333333333333,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "cleanAcceptanceRate": 0.9534883720930233,
+              "earnedCleanPoints": 41,
+              "earnedProblemPoints": 9.434799608993158,
+              "fullProblemCases": 2,
+              "instanceId": "artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-2",
+              "measurement": null,
+              "measurementExplanation": "Reviewer measurement was not supplied.",
+              "passedCleanCases": 41,
+              "problemDetectionRate": 0.4717399804496579,
+              "repetition": 2,
+              "reportDiagnostics": [],
+              "scenarioId": "artifact-promotion",
+              "scopes": [
+                {
+                  "earnedCleanPoints": 4,
+                  "earnedProblemPoints": 0,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 4,
+                  "scope": "SPEC-READINESS-INPUTS",
+                  "totalCleanCases": 4,
+                  "totalProblemCases": 0
+                },
+                {
+                  "earnedCleanPoints": 6,
+                  "earnedProblemPoints": 0,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 6,
+                  "scope": "SPEC-READINESS-REQUIREMENTS",
+                  "totalCleanCases": 6,
+                  "totalProblemCases": 0
+                },
+                {
+                  "earnedCleanPoints": 3,
+                  "earnedProblemPoints": 0,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 3,
+                  "scope": "SPEC-READINESS-RATIONALE",
+                  "totalCleanCases": 3,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 4,
+                  "earnedProblemPoints": 0.8666666666666667,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 4,
+                  "scope": "SPEC-READINESS-ADR-EVALUATION",
+                  "totalCleanCases": 4,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 5,
+                  "earnedProblemPoints": 0.9870967741935484,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 5,
+                  "scope": "MODULE-DESIGN-APPLICABILITY",
+                  "totalCleanCases": 5,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 3,
+                  "earnedProblemPoints": 0.9636363636363636,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 3,
+                  "scope": "MODULE-DESIGN-EXEMPTION",
+                  "totalCleanCases": 3,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 2,
+                  "earnedProblemPoints": 0.9333333333333333,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 2,
+                  "scope": "MODULE-DESIGN-MODULES",
+                  "totalCleanCases": 3,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 5,
+                  "earnedProblemPoints": 4.684066471163246,
+                  "fullProblemCases": 1,
+                  "passedCleanCases": 5,
+                  "scope": "MODULE-DESIGN-INTERFACES",
+                  "totalCleanCases": 5,
+                  "totalProblemCases": 7
+                },
+                {
+                  "earnedCleanPoints": 5,
+                  "earnedProblemPoints": 0,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 5,
+                  "scope": "MODULE-DESIGN-SEAMS-ADAPTERS",
+                  "totalCleanCases": 5,
+                  "totalProblemCases": 2
+                },
+                {
+                  "earnedCleanPoints": 2,
+                  "earnedProblemPoints": 1,
+                  "fullProblemCases": 1,
+                  "passedCleanCases": 2,
+                  "scope": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW",
+                  "totalCleanCases": 3,
+                  "totalProblemCases": 2
+                },
+                {
+                  "earnedCleanPoints": 2,
+                  "earnedProblemPoints": 0,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 2,
+                  "scope": "MODULE-DESIGN-RATIONALE",
+                  "totalCleanCases": 2,
+                  "totalProblemCases": 4
+                }
+              ],
+              "score": 0.5247675659521682,
+              "totalCleanCases": 43,
+              "totalProblemCases": 20
+            }
+          ],
+          "passedCleanCases": 50,
+          "problemDetectionRate": 0.5753050278379872,
+          "repetition": 2,
+          "reportDiagnostics": [],
+          "scopes": [
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 1,
+              "fullProblemCases": 1,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-INPUTS",
+              "totalCleanCases": 4,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 3.947826086956522,
+              "fullProblemCases": 3,
+              "passedCleanCases": 5,
+              "scope": "SPEC-READINESS-REQUIREMENTS",
+              "totalCleanCases": 6,
+              "totalProblemCases": 4
+            },
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-INPUTS",
+              "totalCleanCases": 4,
+              "totalProblemCases": 0
+            },
+            {
+              "earnedCleanPoints": 6,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 6,
+              "scope": "SPEC-READINESS-REQUIREMENTS",
+              "totalCleanCases": 6,
+              "totalProblemCases": 0
+            },
+            {
+              "earnedCleanPoints": 3,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 3,
+              "scope": "SPEC-READINESS-RATIONALE",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 0.8666666666666667,
+              "fullProblemCases": 0,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-ADR-EVALUATION",
+              "totalCleanCases": 4,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 0.9870967741935484,
+              "fullProblemCases": 0,
+              "passedCleanCases": 5,
+              "scope": "MODULE-DESIGN-APPLICABILITY",
+              "totalCleanCases": 5,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 3,
+              "earnedProblemPoints": 0.9636363636363636,
+              "fullProblemCases": 0,
+              "passedCleanCases": 3,
+              "scope": "MODULE-DESIGN-EXEMPTION",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 2,
+              "earnedProblemPoints": 0.9333333333333333,
+              "fullProblemCases": 0,
+              "passedCleanCases": 2,
+              "scope": "MODULE-DESIGN-MODULES",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 4.684066471163246,
+              "fullProblemCases": 1,
+              "passedCleanCases": 5,
+              "scope": "MODULE-DESIGN-INTERFACES",
+              "totalCleanCases": 5,
+              "totalProblemCases": 7
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 5,
+              "scope": "MODULE-DESIGN-SEAMS-ADAPTERS",
+              "totalCleanCases": 5,
+              "totalProblemCases": 2
+            },
+            {
+              "earnedCleanPoints": 2,
+              "earnedProblemPoints": 1,
+              "fullProblemCases": 1,
+              "passedCleanCases": 2,
+              "scope": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW",
+              "totalCleanCases": 3,
+              "totalProblemCases": 2
+            },
+            {
+              "earnedCleanPoints": 2,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 2,
+              "scope": "MODULE-DESIGN-RATIONALE",
+              "totalCleanCases": 2,
+              "totalProblemCases": 4
+            }
+          ],
+          "score": 0.623998998134442,
+          "scoreBeforePenalty": 0.623998998134442,
+          "totalCleanCases": 53,
+          "totalProblemCases": 25
+        },
+        {
+          "caseScores": {
+            "clean": [
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "problem": [
+              1,
+              1,
+              1,
+              1,
+              0.5478260869565218,
+              0,
+              0.9750000000000001,
+              1,
+              0.9636363636363636,
+              0.9333333333333333,
+              0.9478260869565218,
+              1,
+              0.9636363636363636,
+              0.980952380952381,
+              0.980952380952381,
+              0.9636363636363636,
+              0,
+              0.8,
+              0,
+              0,
+              0,
+              0.8,
+              0,
+              0,
+              0
+            ]
+          },
+          "cleanAcceptanceRate": 0.8867924528301887,
+          "earnedCleanPoints": 47,
+          "earnedProblemPoints": 15.85679936006023,
+          "fullProblemCases": 6,
+          "instances": [
+            {
+              "caseScores": {
+                "clean": [
+                  [
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0
+                  ]
+                ],
+                "problem": [
+                  1,
+                  1,
+                  1,
+                  1,
+                  0.5478260869565218
+                ]
+              },
+              "cleanAcceptanceRate": 0.9,
+              "earnedCleanPoints": 9,
+              "earnedProblemPoints": 4.547826086956522,
+              "fullProblemCases": 4,
+              "instanceId": "runtime-migration-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3",
+              "measurement": null,
+              "measurementExplanation": "Reviewer measurement was not supplied.",
+              "passedCleanCases": 9,
+              "problemDetectionRate": 0.9095652173913044,
+              "repetition": 3,
+              "reportDiagnostics": [],
+              "scenarioId": "runtime-migration",
+              "scopes": [
+                {
+                  "earnedCleanPoints": 4,
+                  "earnedProblemPoints": 1,
+                  "fullProblemCases": 1,
+                  "passedCleanCases": 4,
+                  "scope": "SPEC-READINESS-INPUTS",
+                  "totalCleanCases": 4,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 5,
+                  "earnedProblemPoints": 3.5478260869565217,
+                  "fullProblemCases": 3,
+                  "passedCleanCases": 5,
+                  "scope": "SPEC-READINESS-REQUIREMENTS",
+                  "totalCleanCases": 6,
+                  "totalProblemCases": 4
+                }
+              ],
+              "score": 0.907635942923255,
+              "totalCleanCases": 10,
+              "totalProblemCases": 5
+            },
+            {
+              "caseScores": {
+                "clean": [
+                  [
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ],
+                "problem": [
+                  0,
+                  0.9750000000000001,
+                  1,
+                  0.9636363636363636,
+                  0.9333333333333333,
+                  0.9478260869565218,
+                  1,
+                  0.9636363636363636,
+                  0.980952380952381,
+                  0.980952380952381,
+                  0.9636363636363636,
+                  0,
+                  0.8,
+                  0,
+                  0,
+                  0,
+                  0.8,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "cleanAcceptanceRate": 0.8837209302325582,
+              "earnedCleanPoints": 38,
+              "earnedProblemPoints": 11.308973273103708,
+              "fullProblemCases": 2,
+              "instanceId": "artifact-promotion-69edab23-a816-4561-ad33-3b1affd0c5f6-instance-3",
+              "measurement": null,
+              "measurementExplanation": "Reviewer measurement was not supplied.",
+              "passedCleanCases": 38,
+              "problemDetectionRate": 0.5654486636551854,
+              "repetition": 3,
+              "reportDiagnostics": [],
+              "scenarioId": "artifact-promotion",
+              "scopes": [
+                {
+                  "earnedCleanPoints": 4,
+                  "earnedProblemPoints": 0,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 4,
+                  "scope": "SPEC-READINESS-INPUTS",
+                  "totalCleanCases": 4,
+                  "totalProblemCases": 0
+                },
+                {
+                  "earnedCleanPoints": 5,
+                  "earnedProblemPoints": 0,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 5,
+                  "scope": "SPEC-READINESS-REQUIREMENTS",
+                  "totalCleanCases": 6,
+                  "totalProblemCases": 0
+                },
+                {
+                  "earnedCleanPoints": 3,
+                  "earnedProblemPoints": 0,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 3,
+                  "scope": "SPEC-READINESS-RATIONALE",
+                  "totalCleanCases": 3,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 4,
+                  "earnedProblemPoints": 0.9750000000000001,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 4,
+                  "scope": "SPEC-READINESS-ADR-EVALUATION",
+                  "totalCleanCases": 4,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 5,
+                  "earnedProblemPoints": 1,
+                  "fullProblemCases": 1,
+                  "passedCleanCases": 5,
+                  "scope": "MODULE-DESIGN-APPLICABILITY",
+                  "totalCleanCases": 5,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 3,
+                  "earnedProblemPoints": 0.9636363636363636,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 3,
+                  "scope": "MODULE-DESIGN-EXEMPTION",
+                  "totalCleanCases": 3,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 1,
+                  "earnedProblemPoints": 0.9333333333333333,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 1,
+                  "scope": "MODULE-DESIGN-MODULES",
+                  "totalCleanCases": 3,
+                  "totalProblemCases": 1
+                },
+                {
+                  "earnedCleanPoints": 4,
+                  "earnedProblemPoints": 5.837003576134012,
+                  "fullProblemCases": 1,
+                  "passedCleanCases": 4,
+                  "scope": "MODULE-DESIGN-INTERFACES",
+                  "totalCleanCases": 5,
+                  "totalProblemCases": 7
+                },
+                {
+                  "earnedCleanPoints": 5,
+                  "earnedProblemPoints": 0.8,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 5,
+                  "scope": "MODULE-DESIGN-SEAMS-ADAPTERS",
+                  "totalCleanCases": 5,
+                  "totalProblemCases": 2
+                },
+                {
+                  "earnedCleanPoints": 2,
+                  "earnedProblemPoints": 0,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 2,
+                  "scope": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW",
+                  "totalCleanCases": 3,
+                  "totalProblemCases": 2
+                },
+                {
+                  "earnedCleanPoints": 2,
+                  "earnedProblemPoints": 0.8,
+                  "fullProblemCases": 0,
+                  "passedCleanCases": 2,
+                  "scope": "MODULE-DESIGN-RATIONALE",
+                  "totalCleanCases": 2,
+                  "totalProblemCases": 4
+                }
+              ],
+              "score": 0.6093394049256345,
+              "totalCleanCases": 43,
+              "totalProblemCases": 20
+            }
+          ],
+          "passedCleanCases": 47,
+          "problemDetectionRate": 0.6342719744024091,
+          "repetition": 3,
+          "reportDiagnostics": [],
+          "scopes": [
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 1,
+              "fullProblemCases": 1,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-INPUTS",
+              "totalCleanCases": 4,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 3.5478260869565217,
+              "fullProblemCases": 3,
+              "passedCleanCases": 5,
+              "scope": "SPEC-READINESS-REQUIREMENTS",
+              "totalCleanCases": 6,
+              "totalProblemCases": 4
+            },
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-INPUTS",
+              "totalCleanCases": 4,
+              "totalProblemCases": 0
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 5,
+              "scope": "SPEC-READINESS-REQUIREMENTS",
+              "totalCleanCases": 6,
+              "totalProblemCases": 0
+            },
+            {
+              "earnedCleanPoints": 3,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 3,
+              "scope": "SPEC-READINESS-RATIONALE",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 0.9750000000000001,
+              "fullProblemCases": 0,
+              "passedCleanCases": 4,
+              "scope": "SPEC-READINESS-ADR-EVALUATION",
+              "totalCleanCases": 4,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 1,
+              "fullProblemCases": 1,
+              "passedCleanCases": 5,
+              "scope": "MODULE-DESIGN-APPLICABILITY",
+              "totalCleanCases": 5,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 3,
+              "earnedProblemPoints": 0.9636363636363636,
+              "fullProblemCases": 0,
+              "passedCleanCases": 3,
+              "scope": "MODULE-DESIGN-EXEMPTION",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 1,
+              "earnedProblemPoints": 0.9333333333333333,
+              "fullProblemCases": 0,
+              "passedCleanCases": 1,
+              "scope": "MODULE-DESIGN-MODULES",
+              "totalCleanCases": 3,
+              "totalProblemCases": 1
+            },
+            {
+              "earnedCleanPoints": 4,
+              "earnedProblemPoints": 5.837003576134012,
+              "fullProblemCases": 1,
+              "passedCleanCases": 4,
+              "scope": "MODULE-DESIGN-INTERFACES",
+              "totalCleanCases": 5,
+              "totalProblemCases": 7
+            },
+            {
+              "earnedCleanPoints": 5,
+              "earnedProblemPoints": 0.8,
+              "fullProblemCases": 0,
+              "passedCleanCases": 5,
+              "scope": "MODULE-DESIGN-SEAMS-ADAPTERS",
+              "totalCleanCases": 5,
+              "totalProblemCases": 2
+            },
+            {
+              "earnedCleanPoints": 2,
+              "earnedProblemPoints": 0,
+              "fullProblemCases": 0,
+              "passedCleanCases": 2,
+              "scope": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW",
+              "totalCleanCases": 3,
+              "totalProblemCases": 2
+            },
+            {
+              "earnedCleanPoints": 2,
+              "earnedProblemPoints": 0.8,
+              "fullProblemCases": 0,
+              "passedCleanCases": 2,
+              "scope": "MODULE-DESIGN-RATIONALE",
+              "totalCleanCases": 2,
+              "totalProblemCases": 4
+            }
+          ],
+          "score": 0.6725761456995658,
+          "scoreBeforePenalty": 0.6725761456995658,
+          "totalCleanCases": 53,
+          "totalProblemCases": 25
+        }
+      ],
+      "reportDiagnostics": [],
+      "reviewerId": "spec-readiness-reviewer",
+      "score": 0.6384393805841718,
+      "scoreBeforePenalty": 0.6384393805841718,
+      "scoreExplanation": "Final score: 0.638. Score before penalty: 0.638. Repetition scores before penalty: 0.619, 0.624, 0.673. Final repetition scores: 0.619, 0.624, 0.673. Report errors: None."
+    }
+  ],
+  "reviewerIds": [
+    "spec-readiness-reviewer"
+  ],
+  "status": "diagnostic"
+}
