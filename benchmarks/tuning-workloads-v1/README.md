@@ -1,6 +1,16 @@
 # 调参专用负载 v1：采样题库与窗口回忆
 
-用途：采样参数、上下文窗口与压缩这两类影响输出的调参维度（规则见 [测量规则 · 评分口径](../../.claude/rules/measurement.md#评分口径)）。两个负载都经原生 Codex 运行，基础提示照常接入；答案全部程序判定，不用 ARW 场景。状态：**设计与无模型部分完成，未运行模型，采样题库待 Opus 标定**（2026-10-12）。
+用途：采样参数、上下文窗口与压缩这两类影响输出的调参维度（规则见 [测量规则 · 评分口径](../../.claude/rules/measurement.md#评分口径)）。两个负载都经原生 Codex 运行，基础提示照常接入；答案全部程序判定，不用 ARW 场景。状态：**未运行模型**（2026-10-12）。Opus 标定 r1：5 次全部满分（102–350 秒），Opus 用解释器、暴力搜索和参考实现把题机械化解出，草稿套题过易作废。题库生成器已改为 v2（见下"v2 改动"），新题与标定包尚未生成。
+
+## v2 改动（用户 2026-10-12）
+
+- **难度**：可以用工具，所以难度不能来自手算。trace 第 4 层改为读计数器精确值的长循环（数千次，可直接解释执行），第 5 层循环约 10¹¹–10¹³ 次，只能靠发现（寄存器，计数器 mod p）状态循环来做；count 第 3 层长串（需 DP），第 4 层旋转等价的项链（可枚举，但要处理旋转和首尾相接），第 5 层项链规模不可枚举（需 Burnside）；grid 第 4–5 层加"恰好隔 k 间"和"两句恰有一句为真"线索。strfun、ledger 第 4–5 层去掉示例、strfun 第 5 层改为实现编码器的逆函数，这两项**尚未实现**。
+- **采样候选**（用户 2026-10-12）：greedy 0/1/20（现默认）、模型卡思考模式 1.0/0.95/20、低温 0.6/0.95/20，presence_penalty 均为 0；多候选判定规则见测量规则。presence_penalty 留到循环统计显示问题时再测。
+- **单实例 ≤10 分钟**（暂行，普通场景）：分值同时按难度和耗时，由 `sampling_bank design` 依据 Opus 标定（通过率、按答案写入间隔估计的耗时）和 Qwen 试跑（每会话 1 题的实测耗时）提出选题、层数（3 或 5 档）和分值，用户确认后 `freeze` 生成带分值的定稿套题；计分 = 答对题分值和 / 总分，另报各层正确率。非试跑的采样计划要求套题带分值。
+- **Qwen 试跑**：`sampling-pilot-plan.json`（`"pilot": true`，greedy、每会话 1 题、全部候选题），按会话切分引擎日志记录每题 token 与耗时。
+- **隔离**：每个会话一个临时工作目录（题面复制进去），工具命令经 Codex 原生权限 profile 只能读写该目录，CODEX_HOME 拒绝访问，`STRATA_*`/`CODEX_*` 不进命令环境，`TMPDIR` 指向工作区。无模型验证 `python3 -m tools.tuning.sandbox_probe`（本地模拟模型让真实 Codex 执行探测命令，含申请提权一次）：改前答案库、工程、CODEX_HOME、`~/.codex`、`/tmp`、`/mnt/c`、`STRATA_API_KEY` 全部可读；改后全部读不到，工作区读写和 python 正常，提权被拒。`codex_workload check` 每次都跑这个探测。
+- **窗口**：每实例一个长度，`window-plan.json` 为 L130（L180 另立计划）。估计 L130 单实例约 8–12 分钟、L180 约 11–15 分钟（按原合计 20–25 分钟拆分，未实测）；压缩场景允许超过 10 分钟。
+
 
 ## 文件
 
@@ -14,7 +24,8 @@
 | `sampling/set-draft.json` | 草稿套题：同上 50 道，按层交错编号 P01–P50（每连续 5 题各层一道） |
 | `window/window-seed1.json` | 窗口负载 L130、L180 两个长度，各 40 题 |
 | `conditions/` | 采样两条件的部署叠加（request_defaults 加 `STRATA_BATCH_TRACE=1`） |
-| `sampling-plan.json`、`window-plan.json` | 草稿计划，`authorization.approved=false`，驱动拒绝运行 |
+| `sampling-pilot-plan.json`、`window-plan.json` | 草稿计划，`authorization.approved=false`，驱动拒绝运行 |
+| `tools/tuning/sandbox_probe.py` | 会话隔离的无模型探测 |
 
 无模型预检：`python3 -m tools.tuning.codex_workload check --plan <计划>`；单元测试 `tests/test_tuning_workloads.py`。
 

@@ -5,6 +5,10 @@ instance's context tier -> verify the loaded startup prompt and engine window ->
 model, capture the engine log -> score, analyse the sessions and check the condition took effect.  The staged
 decision (tools.tuning.staged_decision) decides whether another round of +2 instances per condition is needed.
 
+Every tool command runs in a native Codex permission profile that sees only the session's workspace (`isolation`,
+verified without a model by tools.tuning.sandbox_probe, which `check` runs).  A sampling plan with `"pilot": true`
+runs one instance of one condition, one item per session, to measure Qwen's per-item time and tokens.
+
     python3 -m tools.tuning.codex_workload check --plan PLAN
     python3 -m tools.tuning.codex_workload run --plan PLAN --out DIR [--limit N]
     python3 -m tools.tuning.codex_workload decide --out DIR
@@ -24,8 +28,8 @@ from tools.tuning import sampling_bank, staged_decision, window_bank
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / 'config/model-catalog.json'
-CODEX = Path.home() / ('.local/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/'
-                       'vendor/x86_64-unknown-linux-musl/bin/codex')
+CODEX_VENDOR = Path.home() / '.local/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor'
+CODEX = CODEX_VENDOR / 'x86_64-unknown-linux-musl/bin/codex'
 STARTUP = ROOT / 'config/prompts/startup-instructions.txt'
 TIERS = {156584: 100000, 206584: 150000}
 
@@ -48,9 +52,17 @@ def load_plan(path):
     if sha(raw) != plan['input']['sha256']:
         raise ValueError('Frozen workload input changed')
     names = set(plan['conditions'])
-    if len(names) != 2 or set(plan['first_round']) != names or \
+    data = json.loads(raw)
+    if plan.get('pilot'):
+        if plan['workload'] != 'sampling' or len(names) != 1 or plan['first_round'] != list(names) or plan['chunk'] != 1:
+            raise ValueError('A pilot runs one sampling condition once, one item per session')
+    elif len(names) not in staged_decision.FINAL_BOUNDS or set(plan['first_round']) != names or \
             any(plan['first_round'].count(n) != staged_decision.SIZES[0] for n in names):
-        raise ValueError('First round must run each of the two conditions three times')
+        raise ValueError('First round must run each of the 2-6 conditions three times')
+    if plan['workload'] == 'sampling' and not plan.get('pilot') and sampling_bank.points_of(data) is None:
+        raise ValueError('A tuning sampling set must carry per-item points')
+    if plan['workload'] == 'window' and plan['length'] not in data['lengths']:
+        raise ValueError('A window plan runs exactly one frozen length per instance')
     conditions = {}
     for name, spec in plan['conditions'].items():
         window = spec['context_window']
@@ -66,16 +78,29 @@ def load_plan(path):
             conditions[name] = (condition, digest)
         else:
             conditions[name] = (None, None)
-    return plan, json.loads(raw), conditions
+    return plan, data, conditions
 
 
-def schedule(plan, rounds):
-    """ABBA-style order: the frozen first round, then +2 per condition per round, alternating which goes first."""
-    order = list(plan['first_round'])
-    a, b = order[0], next(n for n in order if n != order[0])
-    for r in range(1, rounds):
-        order += [b, a, a, b] if r % 2 else [a, b, b, a]
-    return order
+def next_round(sampled, round_number):
+    """+2 instances for each candidate still sampled, mirrored (a b c c b a), direction alternating per round."""
+    order = list(sampled) if round_number % 2 else list(reversed(sampled))
+    return order + order[::-1]
+
+
+def isolation(workload, folder):
+    """Native Codex permission profile: tool commands see only the system minimum, the Codex binary (the sandbox
+    helper re-executes it) and this session's workspace, never the bank, the project, CODEX_HOME or /tmp.  Sampling
+    may write its workspace; window recall only reads.  The provider key is kept out of the shell environment.
+    Codex would otherwise add its own CODEX_HOME (the live rollout we analyse) as readable, so it is denied.
+    Verified without a model by tools.tuning.sandbox_probe."""
+    workspace = str((Path(folder) / 'workspace').resolve())
+    return {'default_permissions': 'tuning_workspace',
+            'permissions.tuning_workspace.filesystem': {
+                ':minimal': 'read', str(CODEX_VENDOR): 'read',
+                workspace: 'write' if workload == 'sampling' else 'read',
+                str((Path(folder) / 'codex-home').resolve()): 'none'},
+            'shell_environment_policy.exclude': ['STRATA_*', 'CODEX_*'],
+            'shell_environment_policy.set': {'TMPDIR': workspace}}
 
 
 def codex_overrides(plan, spec, folder, base_url):
@@ -88,7 +113,6 @@ def codex_overrides(plan, spec, folder, base_url):
               'model_context_window': spec['context_window'],
               'model_auto_compact_token_limit': spec['threshold'], 'model_auto_compact_token_limit_scope': 'total',
               'model_reasoning_effort': plan['fixed_conditions']['effort'], 'web_search': 'disabled',
-              'sandbox_mode': 'workspace-write' if plan['workload'] == 'sampling' else 'read-only',
               'approval_policy': 'never', 'agents.enabled': False, 'features.memories': False,
               'model_providers.qwen_strata.name': 'Local Strata tuning workload',
               'model_providers.qwen_strata.base_url': base_url,
@@ -97,12 +121,20 @@ def codex_overrides(plan, spec, folder, base_url):
               'model_providers.qwen_strata.requires_openai_auth': False,
               'model_providers.qwen_strata.supports_websockets': False,
               'model_providers.qwen_strata.request_max_retries': 0,
-              'model_providers.qwen_strata.stream_max_retries': 0}
+              'model_providers.qwen_strata.stream_max_retries': 0,
+              **isolation(plan['workload'], folder)}
     values = compaction_config(values, folder / 'prompt-policy')
     args = []
     for key, value in values.items():
-        args += ['-c', key + '=' + json.dumps(value)]
+        args += ['-c', key + '=' + toml_value(value)]
     return args
+
+
+def toml_value(value):
+    """JSON already is TOML for strings, numbers, booleans and arrays; tables need TOML's inline form."""
+    if isinstance(value, dict):
+        return '{' + ', '.join(json.dumps(k) + ' = ' + toml_value(v) for k, v in value.items()) + '}'
+    return json.dumps(value)
 
 
 def codex_exec(args, workspace, home, key, prompt, log, timeout, resume=None):
@@ -210,8 +242,9 @@ def session_effect(workload, spec, length, analysis):
     return problems
 
 
-def run_sampling(plan, data, spec, folder, args_for, key):
-    """Problem set in chunks; each chunk is a fresh Codex session in its own workspace."""
+def run_sampling(plan, data, spec, folder, args_for, key, mark):
+    """Problem set in chunks; each chunk is a fresh Codex session in its own workspace.  `mark()` is the engine log
+    offset, taken around each session so its tokens can be attributed after the final capture."""
     chunk, rows, sessions = plan['chunk'], [], []
     numbers = [x['number'] for x in data['items']]
     for start in range(0, len(numbers), chunk):
@@ -223,23 +256,26 @@ def run_sampling(plan, data, spec, folder, args_for, key):
         subprocess.run(['git', 'init', '-q'], cwd=workspace, check=True)
         prompt = (f'Solve the problems in this directory ({", ".join(part)}). Read README.md first and follow it. '
                   'Finish when every answer or solution file is written.')
+        log_start = mark()
         code, thread, seconds = codex_exec(args_for(here), workspace, home, key, prompt, here / 'codex.jsonl',
                                            plan['per_session_seconds_limit'])
+        log_end = mark()
         analysis = analyse_session(rollout(home))
         analysis['escapes'] = escapes(analysis['calls'], workspace)
         save(here / 'session-analysis.json', analysis)
-        sessions.append({'escapes': len(analysis['escapes']), 'chunk': part, 'exit': code, 'thread': thread, 'seconds': seconds,
+        sessions.append({'escapes': len(analysis['escapes']), 'chunk': part, 'exit': code, 'thread': thread,
+                         'seconds': seconds, 'log_bytes': [log_start, log_end],
                          'compactions': len(analysis['compactions']), 'tool_calls': analysis['tool_calls'],
                          'loop': analysis['loop'], 'effect_problems': session_effect('sampling', spec, None, analysis)})
         rows += sampling_bank.score({**data, 'items': [x for x in data['items'] if x['number'] in part]},
                                     workspace)['rows']
-    return {'score': sum(r['correct'] for r in rows) / len(rows), 'rows': rows, 'sessions': sessions}
+    return {**sampling_bank.weighted(rows), 'sessions': sessions}
 
 
-def run_window(plan, data, spec, folder, args_for, key):
-    """One conversation per length: opening, record batches, question turns, all in the same thread."""
+def run_window(plan, data, spec, folder, args_for, key, mark):
+    """One conversation of the plan's single length: opening, record batches, question turns, in one thread."""
     results = {}
-    for name in plan['lengths']:
+    for name in [plan['length']]:
         length = data['lengths'][name]
         here = folder / name
         workspace, home = here / 'workspace', here / 'codex-home'
@@ -285,7 +321,7 @@ def engine_effect(log, health, spec, condition, configuration):
 def run_instance(plan, data, conditions, name, folder):
     from tools.ops.measurement_host import MeasurementHost
     from tools.reviewer.arw_measure import stop_and_capture_engine_log
-    from tools.metrics.strata_tokens import engine_rates
+    from tools.metrics.strata_tokens import engine_rates, parse_engine_log, sum_engine_tokens
     spec, (condition, digest) = plan['conditions'][name], conditions[name]
     folder.mkdir(parents=True)
     if condition is not None:
@@ -304,7 +340,7 @@ def run_instance(plan, data, conditions, name, folder):
             args_for = lambda here: codex_overrides(plan, spec, here, owner.model_base + '/v1')
             runner = run_sampling if plan['workload'] == 'sampling' else run_window
             began = time.monotonic()
-            record.update(runner(plan, data, spec, folder, args_for, owner.key))
+            record.update(runner(plan, data, spec, folder, args_for, owner.key, lambda: host.log_offset(plan['model'])))
             record['session_seconds'] = time.monotonic() - began
         finally:
             stopped, requests, tokens = stop_and_capture_engine_log(owner, host.installation, plan['model'], offset,
@@ -312,6 +348,10 @@ def run_instance(plan, data, conditions, name, folder):
             record.update(stop=stopped.get('status'), tokens=tokens, **engine_rates(requests),
                           max_request_input=max((r['input'] for r in requests), default=None))
     log = (folder / 'engine-request-log.txt').read_text()
+    for session in record.get('sessions', []):
+        start, end = (b - offset for b in session['log_bytes'])
+        records = parse_engine_log(log.encode()[start:end].decode(errors='replace'))
+        session.update(tokens=sum_engine_tokens(records), **engine_rates(records))
     problems, effect = engine_effect(log, health, spec, condition, host.configuration(plan['model']))
     sessions = record.get('sessions') or list(record.get('lengths', {}).values())
     problems += [p for s in sessions for p in s['effect_problems']]
@@ -326,18 +366,18 @@ def run_instance(plan, data, conditions, name, folder):
 
 
 def run(plan_path, out, limit=None):
-    """Run the next scheduled instances; stop after each round so the staged decision can be taken."""
+    """Run the scheduled instances not yet done; stop at the end of the round so the staged decision can be taken."""
     plan, data, conditions = load_plan(plan_path)
     if (plan.get('authorization') or {}).get('approved') is not True:
         raise ValueError('This plan is not approved for model runs')
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
     progress_path = out / 'progress.json'
-    progress = json.loads(progress_path.read_text()) if progress_path.exists() else {'rounds': 1, 'instances': []}
-    order = schedule(plan, progress['rounds'])
-    done = progress['instances']
+    progress = json.loads(progress_path.read_text()) if progress_path.exists() else \
+        {'order': list(plan['first_round']), 'instances': [], 'decisions': [], 'tied': []}
+    order, done = progress['order'], progress['instances']
     if [r['condition'] for r in done] != order[:len(done)]:
-        raise ValueError('Recorded instances differ from the frozen schedule')
+        raise ValueError('Recorded instances differ from the recorded schedule')
     if done and not done[-1]['effect_ok']:
         raise RuntimeError('The last instance failed its effect check; assess the impact before continuing')
     for slot in range(len(done), len(order))[:limit]:
@@ -352,19 +392,22 @@ def run(plan_path, out, limit=None):
 
 
 def decide(out, plan_path):
-    """Staged decision on the closed instances; on 'continue' the next run adds one round (+2 per condition)."""
+    """Staged decision over the candidates still sampled; on 'continue' the next round (+2 each) is scheduled."""
     plan, _, _ = load_plan(plan_path)
+    if plan.get('pilot'):
+        raise ValueError('A pilot is a measurement of item cost, not a decision')
     progress_path = Path(out) / 'progress.json'
     progress = json.loads(progress_path.read_text())
-    a, b = list(plan['conditions'])
-    scores = {n: [r['score'] for r in progress['instances'] if r['condition'] == n] for n in (a, b)}
-    if len(scores[a]) != len(scores[b]) or len(progress['instances']) != len(schedule(plan, progress['rounds'])):
+    if len(progress['instances']) != len(progress['order']):
         raise ValueError('The current round is not complete')
-    result = staged_decision.judge(scores[a], scores[b])
-    result.update(a=a, b=b, means={n: sum(v) / len(v) for n, v in scores.items()})
-    progress.setdefault('decisions', []).append(result)
+    sampled = progress['decisions'][-1]['sampled_next'] if progress['decisions'] else list(plan['conditions'])
+    scores = {n: [r['score'] for r in progress['instances'] if r['condition'] == n] for n in sampled}
+    result = staged_decision.judge_many(scores, len(plan['conditions']))
+    progress['tied'] += result['tied']
+    result['tie_group'] = [result['leader'], *progress['tied']] if result['decision'] == 'equivalent' else None
+    progress['decisions'].append(result)
     if result['decision'] == 'continue':
-        progress['rounds'] += 1
+        progress['order'] += next_round(result['sampled_next'], len(progress['decisions']))
     save(progress_path, progress)
     return result
 
@@ -376,8 +419,13 @@ def check(plan_path):
     if sha(codex) != plan['fixed_conditions']['native_cli_sha256']:
         raise ValueError('Native Codex binary differs from the frozen plan')
     own = sampling_bank.self_check(data) if plan['workload'] == 'sampling' else window_bank.self_check(data)
+    from tools.tuning.sandbox_probe import probe
+    folder = ROOT / '.tmp/sandbox-probe' / datetime.now().strftime('%Y%m%d-%H%M%S')
+    isolated = probe(folder, plan['workload'])
     return {'workload': plan['workload'], 'input_sha256': plan['input']['sha256'], 'self_check': own,
-            'first_round': schedule(plan, 1), 'second_round_adds': schedule(plan, 2)[6:],
+            'sandbox_probe': {'ok': isolated['ok'], 'problems': isolated['problems'], 'folder': str(folder)},
+            'first_round': plan['first_round'],
+            'second_round_if_all_open': next_round(list(plan['conditions']), 1),
             'conditions': {n: {'context_window': plan['conditions'][n]['context_window'],
                                'deployment_condition_sha256': conditions[n][1]} for n in plan['conditions']}}
 

@@ -17,7 +17,7 @@
   "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
   "effort": "high"
  },
- "chunk": 5,
+ "chunk": 1,
  "per_session_seconds_limit": 3600,
  "conditions": {
   "sampling-greedy": {
@@ -33,29 +33,11 @@
      "\\[native-sampling-trace\\][^\\n]*temperature=(?!0(?:\\.0+)?(?:\\s|$))"
     ]
    }
-  },
-  "sampling-card": {
-   "context_window": 156584,
-   "threshold": 100000,
-   "deployment_condition": "conditions/sampling-card.json",
-   "deployment_condition_sha256": "92d7cc4edc47fc328f66889ebe4fddc6bb9df4c59aea00ac478e4fa044858cbe",
-   "checks": {
-    "log_present": [
-     "\\[native-sampling-trace\\][^\\n]*temperature=1(?:\\.0+)?\\b[^\\n]*top_p=0\\.95\\b[^\\n]*top_k=20\\b"
-    ],
-    "log_absent": [
-     "\\[native-sampling-trace\\](?![^\\n]*temperature=1(?:\\.0+)?\\b)"
-    ]
-   }
   }
  },
  "first_round": [
-  "sampling-greedy",
-  "sampling-card",
-  "sampling-card",
-  "sampling-greedy",
-  "sampling-greedy",
-  "sampling-card"
+  "sampling-greedy"
  ],
- "note": "输入为未标定的草稿套题；Opus 标定后换成定稿套题并更新 SHA。"
+ "note": "Qwen 试跑计划草稿：默认条件、全部候选题、每会话 1 题，实测每题耗时与 token。输入仍是 r1 草稿套题（Opus 标定显示过易，待换 v2 题库后更新 SHA）。",
+ "pilot": true
 }

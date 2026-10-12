@@ -12,15 +12,24 @@ from tools.tuning import codex_workload, sampling_bank, staged_decision, window_
 class StagedDecisionTest(unittest.TestCase):
     def test_bounds_follow_obrien_fleming(self):
         self.assertEqual([round(staged_decision.bound(r), 2) for r in range(1, 6)], [5.03, 3.56, 2.9, 2.52, 2.25])
+        self.assertGreater(staged_decision.bound(5, 5), staged_decision.bound(5, 2))
 
-    def test_outcomes(self):
-        self.assertEqual(staged_decision.judge([0.9, 0.91, 0.9], [0.5, 0.52, 0.5])['decision'], 'a')
-        self.assertEqual(staged_decision.judge([0.80, 0.81, 0.80], [0.80, 0.80, 0.81])['decision'], 'equivalent')
-        self.assertEqual(staged_decision.judge([0.7, 0.9, 0.8], [0.6, 0.85, 0.75])['decision'], 'continue')
+    def test_two_candidates(self):
+        judge = lambda a, b: staged_decision.judge_many({'a': a, 'b': b}, 2)
+        self.assertEqual(judge([0.9, 0.91, 0.9], [0.5, 0.52, 0.5])['decision'], 'winner')
+        self.assertEqual(judge([0.80, 0.81, 0.80], [0.80, 0.80, 0.81])['decision'], 'equivalent')
+        self.assertEqual(judge([0.7, 0.9, 0.8], [0.6, 0.85, 0.75])['decision'], 'continue')
         spread = [0.6, 0.9] * 5 + [0.75]
-        self.assertEqual(staged_decision.judge(spread, [s - 0.03 for s in spread[::-1]])['decision'], 'undecided')
+        self.assertEqual(judge(spread, [s - 0.03 for s in spread[::-1]])['decision'], 'undecided')
         with self.assertRaises(ValueError):
-            staged_decision.judge([0.5] * 4, [0.5] * 4)
+            judge([0.5] * 4, [0.5] * 4)
+
+    def test_many_candidates_exit_and_tie(self):
+        result = staged_decision.judge_many({'a': [0.80, 0.81, 0.80], 'b': [0.80, 0.80, 0.81],
+                                             'c': [0.2, 0.21, 0.2], 'd': [0.7, 0.9, 0.8]}, 4)
+        self.assertEqual(result['leaving'], ['c'])
+        self.assertEqual(result['tied'], ['b'])
+        self.assertEqual(result['sampled_next'], ['a', 'd'])
 
 
 class SamplingBankTest(unittest.TestCase):
@@ -63,6 +72,34 @@ class SamplingBankTest(unittest.TestCase):
         self.assertEqual(sampling_bank.run_trace(program, None, False), [4, 5, 4])
         self.assertEqual(sampling_bank.run_trace([('SET', 'A', 2), ('SUB', 'A', 5), ('OUT', 'A')], 7, True), [3])
 
+    def test_necklaces_match_brute_force(self):
+        rng = random.Random(5)
+        for _ in range(30):
+            n, letters = rng.randint(1, 10), 'abc'[:rng.choice([2, 3])]
+            forbidden = sorted({''.join(rng.choice(letters) for _ in range(rng.choice([2, 3]))) for _ in range(2)})
+            a = rng.choice([None, rng.randint(0, n)])
+            seen = {min(w[i:] + w[:i] for i in range(n)) for w in map(''.join, itertools.product(letters, repeat=n))
+                    if sampling_bank.cyclic_ok(w, forbidden) and (a is None or w.count(letters[0]) == a)}
+            self.assertEqual(sampling_bank.necklaces(n, letters, forbidden, a), len(seen))
+
+    def test_counted_loop_cycle_detection_matches_plain_run(self):
+        body = [('ADD', 'A', 'C'), ('SKIP', 'A', 'B', 1), ('MUL', 'B', 3), ('SUB', 'B', 'A')]
+        program = [('SET', 'A', 4), ('SET', 'B', 7), ('SET', 'C', 5000), ('LABEL', 'L1')] + body + \
+                  [('DEC', 'C'), ('LOOP', 'C', 'L1'), ('OUT', 'A'), ('OUT', 'B')]
+        regs = {'A': 4, 'B': 7}
+        plain = []
+        c = 5000
+        while c:
+            # reference semantics with the counter exempt from reduction
+            regs['A'] = (regs['A'] + c) % 97
+            if not regs['A'] > regs['B']:
+                regs['B'] = regs['B'] * 3 % 97
+            regs['B'] = (regs['B'] - regs['A']) % 97
+            c -= 1
+        plain = [regs['A'], regs['B']]
+        self.assertEqual(sampling_bank.run_counted_loop({'A': 4, 'B': 7}, body, 'C', 5000, 97, False, ['A', 'B']),
+                         plain)
+
     def test_grid_answers_are_unique_solutions(self):
         for x in self.bank['items']:
             if x['family'] == 'grid' and x['tier'] <= 2:
@@ -95,6 +132,15 @@ def ledger_rules_from(bank, ledger):
     """Recreate the item's rules from its seed exactly as the generator drew them."""
     rng = random.Random(f'ledger/{ledger["tier"]}/{ledger["seed"]}')
     return sampling_bank.ledger_rules(rng, ledger['tier'])
+
+
+class SandboxProbeTest(unittest.TestCase):
+    @unittest.skipUnless(codex_workload.CODEX.exists(), 'native Codex not installed')
+    def test_workspace_is_the_only_readable_place(self):
+        from tools.tuning import sandbox_probe
+        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[1] / '.tmp') as tmp:
+            result = sandbox_probe.probe(tmp)
+        self.assertTrue(result['ok'], result['problems'])
 
 
 class WindowBankTest(unittest.TestCase):
@@ -174,13 +220,16 @@ class CodexWorkloadTest(unittest.TestCase):
         flagged = codex_workload.escapes(calls, '/w')
         self.assertEqual(len(flagged), 2)
 
-    def test_schedule_alternates(self):
-        plan = {'first_round': ['a', 'b', 'b', 'a', 'a', 'b']}
-        self.assertEqual(codex_workload.schedule(plan, 3)[6:], ['b', 'a', 'a', 'b', 'a', 'b', 'b', 'a'])
+    def test_next_round_mirrors_and_alternates(self):
+        self.assertEqual(codex_workload.next_round(['a', 'b', 'c'], 1), ['a', 'b', 'c', 'c', 'b', 'a'])
+        self.assertEqual(codex_workload.next_round(['a', 'b'], 2), ['b', 'a', 'a', 'b'])
+
+    def test_override_tables_are_toml(self):
+        self.assertEqual(codex_workload.toml_value({':minimal': 'read', 'x': ['a']}), '{":minimal" = "read", "x" = ["a"]}')
 
     def test_frozen_plans_check_without_model(self):
         folder = Path(__file__).resolve().parents[1] / 'benchmarks/tuning-workloads-v1'
-        for name in ('window-plan.json', 'sampling-plan.json'):
+        for name in ('window-plan.json', 'sampling-pilot-plan.json'):
             plan, data, conditions = codex_workload.load_plan(folder / name)
             self.assertNotEqual(plan.get('authorization', {}).get('approved'), True)
             own = sampling_bank.self_check(data) if plan['workload'] == 'sampling' else window_bank.self_check(data)

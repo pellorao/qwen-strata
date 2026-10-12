@@ -4,6 +4,12 @@ Five families (trace, grid, count: one exact answer; strfun, ledger: a function 
 each.  Every item is drawn from its own seeded generator with randomized names, mnemonics, rules and parameters, so
 the text is new and the answer is computed by a reference implementation here, never written by hand.
 
+The solver may use a shell, so difficulty cannot come from hand computation (calibration r1: Opus solved every item of
+the first version by writing interpreters and brute force).  Higher tiers instead need an idea that brute force does
+not replace (cycle detection over 10^12 loop iterations, Burnside counting of necklaces), carry easy-to-misread
+clauses (counter registers exempt from reduction, gap and exclusive-or clues, cyclic forbidden patterns), or give no
+worked examples to check an implementation against (code tiers 4-5, tier 5 asks for the inverse of an encoder).
+
     python3 -m tools.tuning.sampling_bank build --seed S --out bank.json         # candidate bank (with answers)
     python3 -m tools.tuning.sampling_bank export --bank bank.json --out DIR      # answer-free workspace
     python3 -m tools.tuning.sampling_bank score --bank bank.json --workspace DIR # instance score
@@ -13,6 +19,7 @@ from fractions import Fraction
 import hashlib
 import itertools
 import json
+import math
 from pathlib import Path
 import random
 import subprocess
@@ -49,6 +56,8 @@ def trace_item(rng, tier):
 
 
 def trace_attempt(rng, tier):
+    if tier >= 4:
+        return long_loop_attempt(rng, tier)
     names = rng.sample('ABDEFGHKMNPRSTVWXYZ', {1: 2, 2: 3, 3: 3, 4: 4, 5: 5}[tier] + (0 if tier < 3 else 2))
     counters = names[-2:] if tier >= 3 else []
     data = [n for n in names if n not in counters]
@@ -117,6 +126,86 @@ def trace_attempt(rng, tier):
     return {'kind': 'answer', 'prompt': prompt, 'answer': ','.join(map(str, output))}
 
 
+def long_loop_attempt(rng, tier):
+    """One counted loop run N times (thousands at tier 4, ~10^12 at tier 5); the body reads the counter's exact value,
+    data registers are reduced modulo p, the counter never is.  Tier 5 is only feasible by noticing the state
+    (data registers, counter mod p) repeats."""
+    names = rng.sample('ABDEFGHKMNPRSTVWXYZ', 4 if tier == 4 else 5)
+    counter, data = names[0], names[1:]
+    modulus = rng.choice([89, 97, 101, 103, 107, 109])
+    swapped_sub = rng.random() < 0.5
+    mnemonic = dict(zip(['SET', 'ADD', 'SUB', 'MUL', 'OUT', 'DEC', 'LOOP', 'SKIP'], tokens(rng, 8)))
+    count = rng.randint(2000, 9000) if tier == 4 else rng.randint(10 ** 11, 10 ** 13)
+    readable = data + [counter]
+    body = []
+    for _ in range(5 if tier == 4 else 6):
+        op = rng.choice(['ADD', 'SUB', 'MUL', 'ADD'])
+        x = rng.choice(readable) if rng.random() < 0.7 else rng.randint(-4, 9)
+        body.append((op, rng.choice(data), x))
+    at = rng.randrange(len(body) - 1)
+    a, b = rng.sample(data, 2)
+    body.insert(at, ('SKIP', a, b, rng.randint(1, min(2, len(body) - at - 1))))
+    start = {r: rng.randint(0, 9) for r in data}
+    program = [('SET', r, v) for r, v in start.items()] + [('SET', counter, count), ('LABEL', 'L1')] + body
+    program += [('DEC', counter), ('LOOP', counter, 'L1')] + [('OUT', r) for r in rng.sample(data, len(data))]
+    output = run_counted_loop(start, body, counter, count, modulus, swapped_sub, [op[1] for op in program[-len(data):]])
+
+    def render(op):
+        if op[0] == 'LABEL':
+            return op[1] + ':'
+        return '    ' + ' '.join([mnemonic[op[0]]] + [str(x) for x in op[1:]])
+    sub = 'x - r' if swapped_sub else 'r - x'
+    table = [f'{mnemonic["SET"]} r x: r = x', f'{mnemonic["ADD"]} r x: r = r + x', f'{mnemonic["SUB"]} r x: r = {sub}',
+             f'{mnemonic["MUL"]} r x: r = r * x', f'{mnemonic["OUT"]} r: append the value of r to the output',
+             f'{mnemonic["DEC"]} r: r = r - 1',
+             f'{mnemonic["LOOP"]} r L: if r is not 0, continue at label L; otherwise go on',
+             f'{mnemonic["SKIP"]} a b n: if a > b, skip the next n instructions (labels are not instructions)']
+    prompt = ('A register machine runs the program below. Registers hold integers. In each instruction x is either a '
+              f'register name or an integer literal; r is a register. After every {mnemonic["SET"]}, '
+              f'{mnemonic["ADD"]}, {mnemonic["SUB"]} and {mnemonic["MUL"]} the target register is reduced modulo '
+              f'{modulus} into the range 0..{modulus - 1} (for example -3 becomes {modulus - 3}), except when the '
+              f'target is register {counter}: {counter} is never reduced and always holds its exact value, also when '
+              'another instruction reads it.\n\nInstructions:\n' + '\n'.join('- ' + t for t in table)
+              + '\n\nProgram:\n```\n' + '\n'.join(map(render, program)) + '\n```\n\n'
+              'Question: which values does the program output, in order? '
+              'Write them as integers separated by commas, for example `3,1,7`.')
+    return {'kind': 'answer', 'prompt': prompt, 'answer': ','.join(map(str, output))}
+
+
+def run_counted_loop(start, body, counter, count, modulus, swapped_sub, outputs):
+    """Reference for long_loop_attempt: iterate the body with cycle detection on (registers, counter mod p)."""
+    def step(regs, c):
+        regs, pc = dict(regs), 0
+        value = lambda x: c if x == counter else regs[x] if isinstance(x, str) else x
+        while pc < len(body):
+            op = body[pc]
+            pc += 1
+            if op[0] == 'SKIP':
+                if value(op[1]) > value(op[2]):
+                    pc += op[3]
+                continue
+            r, x = op[1], value(op[2])
+            result = {'ADD': lambda: regs[r] + x, 'MUL': lambda: regs[r] * x,
+                      'SUB': lambda: x - regs[r] if swapped_sub else regs[r] - x}[op[0]]()
+            regs[r] = result % modulus
+        return regs
+    regs, c, seen, done = {r: v % modulus for r, v in start.items()}, count, {}, 0
+    while done < count:
+        key = (tuple(sorted(regs.items())), c % modulus)
+        if key in seen:
+            period = done - seen[key]
+            skip = (count - done) // period * period
+            done, c = done + skip, c - skip
+            seen = {}
+            if done == count:
+                break
+        seen[key] = done
+        regs = step(regs, c)
+        c -= 1
+        done += 1
+    return [regs[r] for r in outputs]
+
+
 def run_trace(program, modulus, swapped_sub, limit=50000):
     labels = {op[1]: i for i, op in enumerate(program) if op[0] == 'LABEL'}
     regs, out, pc, steps = {}, [], 0, 0
@@ -163,23 +252,27 @@ def grid_item(rng, tier):
     solution = {a: rng.sample(GRID_VALUES[a], houses) for a in attributes}
     kinds = ['at', 'not_at', 'same', 'not_same', 'left', 'before', 'next']
     if tier >= 4:
-        kinds = kinds[1:]
-    if tier == 5:
-        kinds = ['not_at', 'same', 'not_same', 'left', 'before', 'next', 'next', 'before']
+        kinds = ['not_at', 'same', 'not_same', 'left', 'before', 'next', 'gap', 'xor', 'xor']
 
     def where(assign, a, v):
         return assign[a].index(v)
 
     def holds(clue, assign):
+        if clue[0] == 'xor':
+            return holds(clue[1], assign) != holds(clue[2], assign)
         kind, (a1, v1), second = clue[0], clue[1], clue[2]
         p1 = where(assign, a1, v1)
         if kind in ('at', 'not_at'):
             return (p1 == second) == (kind == 'at')
         p2 = where(assign, *second)
+        if kind == 'gap':
+            return abs(p1 - p2) == clue[3] + 1
         return {'same': p1 == p2, 'not_same': p1 != p2, 'left': p1 + 1 == p2,
                 'before': p1 < p2, 'next': abs(p1 - p2) == 1}[kind]
 
     def involved(clue):
+        if clue[0] == 'xor':
+            return involved(clue[1]) | involved(clue[2])
         return {clue[1][0]} | ({clue[2][0]} if isinstance(clue[2], tuple) else set())
 
     def solutions(clues, stop=2):
@@ -203,18 +296,27 @@ def grid_item(rng, tier):
 
     GRID_VALUES_SELECTED = {a: sorted(solution[a]) for a in attributes}
 
-    def random_clue():
-        kind = rng.choice(kinds)
+    def random_clue(kind=None, truth=True):
+        """A clue that is true of the solution (or false, for one half of an exclusive-or clue)."""
+        kind = kind or rng.choice(kinds)
+        if kind == 'xor':
+            simple = [k for k in kinds if k not in ('xor', 'gap')]
+            parts = [random_clue(rng.choice(simple)), random_clue(rng.choice(simple), truth=False)]
+            if None in parts or parts[0][1:] == parts[1][1:]:
+                return None
+            rng.shuffle(parts)
+            return ('xor', *parts)
         a1 = rng.choice(attributes)
         v1 = rng.choice(solution[a1])
         p1 = solution[a1].index(v1)
         if kind in ('at', 'not_at'):
-            positions = [p1] if kind == 'at' else [p for p in range(houses) if p != p1]
+            positions = [p for p in range(houses) if ((p == p1) == (kind == 'at')) == truth]
             return (kind, (a1, v1), rng.choice(positions))
         a2 = rng.choice([a for a in attributes if a != a1] if kind in ('same', 'not_same') else attributes)
+        extra = (rng.randint(1, houses - 2),) if kind == 'gap' else ()
         options = [v for v in solution[a2] if (a2, v) != (a1, v1)]
-        options = [v for v in options if holds((kind, (a1, v1), (a2, v)), solution)]
-        return (kind, (a1, v1), (a2, rng.choice(options))) if options else None
+        options = [v for v in options if holds((kind, (a1, v1), (a2, v), *extra), solution) == truth]
+        return (kind, (a1, v1), (a2, rng.choice(options)), *extra) if options else None
 
     clues = []
     while len(solutions(clues)) != 1:
@@ -233,13 +335,18 @@ def grid_item(rng, tier):
     asked = rng.choice(attributes)
 
     def text(clue):
-        kind, (a1, v1), second = clue
+        if clue[0] == 'xor':
+            one, two = (text(c).rstrip('.') for c in clue[1:])
+            return f'Exactly one of these two statements is true: ({one}) / ({two}).'
+        kind, (a1, v1), second = clue[:3]
         first = f'`{a1}={v1}`'
         if kind == 'at':
             return f'{first} is in house {second + 1}.'
         if kind == 'not_at':
             return f'{first} is not in house {second + 1}.'
         other = f'`{second[0]}={second[1]}`'
+        if kind == 'gap':
+            return f'Exactly {clue[3]} house{"s" if clue[3] > 1 else ""} stand{"" if clue[3] > 1 else "s"} between {first} and {other}.'
         return {'same': f'{first} and {other} are in the same house.',
                 'not_same': f'{first} and {other} are in different houses.',
                 'left': f'{first} is in the house immediately to the left of {other}.',
@@ -298,26 +405,83 @@ def count_strings(n, letters, forbidden, tally=None, first_last=None, equal_pair
     return total
 
 
+def cyclic_ok(word, forbidden):
+    """No forbidden pattern occurs in the infinite periodic repetition of `word` (so also across the wrap)."""
+    longest = max(map(len, forbidden))
+    text = word * (longest // len(word) + 2)
+    return not any(f in text[:len(word) + longest - 1] for f in forbidden)
+
+
+def necklaces(n, letters, forbidden, a_count=None):
+    """Necklaces (strings up to rotation) of length n avoiding the forbidden patterns cyclically, optionally with
+    exactly a_count copies of letters[0].  Burnside: (1/n) * sum over d | n of phi(n/d) * W(d), where W(d) counts
+    periodic words of period d; W(d) by brute force for small d, else by closed walks over the last two letters."""
+    first = letters[0]
+
+    def words(d):
+        if a_count is not None and (a_count * d) % n:
+            return 0
+        need = None if a_count is None else a_count * d // n
+        if d <= 8:
+            return sum(cyclic_ok(''.join(w), forbidden) and (need is None or w.count(first) == need)
+                       for w in itertools.product(letters, repeat=d))
+        if max(map(len, forbidden)) > 3:
+            raise ValueError('Closed walks assume patterns of length at most 3')
+        states = [''.join(p) for p in itertools.product(letters, repeat=2)]
+        total = 0
+        for s0 in states:
+            # walk d letters starting after state s0; the walk must end in state s0
+            ways = {(s0, 0): 1}
+            for _ in range(d):
+                following = {}
+                for (state, counted), w in ways.items():
+                    for c in letters:
+                        window = state + c
+                        if any(window.endswith(f) for f in forbidden):
+                            continue
+                        key = (window[1:], counted + (c == first))
+                        if need is not None and key[1] > need:
+                            continue
+                        following[key] = following.get(key, 0) + w
+                ways = following
+            total += sum(w for (state, counted), w in ways.items()
+                         if state == s0 and (need is None or counted == need))
+        return total
+
+    def phi(m):
+        return sum(1 for k in range(1, m + 1) if math.gcd(k, m) == 1)
+    total = sum(phi(n // d) * words(d) for d in range(1, n + 1) if n % d == 0)
+    if total % n:
+        raise ArithmeticError('Burnside sum not divisible by n')
+    return total // n
+
+
 def count_item(rng, tier):
+    """Tiers 1-2 brute-forceable strings; tier 3 long strings (needs a DP); tier 4 necklaces small enough to
+    enumerate but with rotation and wrap-around to get right; tier 5 necklaces far too many to enumerate."""
     while True:
-        k = {1: rng.choice([2, 3]), 2: 3, 3: 3, 4: 3, 5: rng.choice([3, 4])}[tier]
+        k = {1: rng.choice([2, 3]), 2: 3, 3: 3, 4: rng.choice([2, 3]), 5: 3}[tier]
         letters = 'abcd'[:k]
-        n = {1: rng.randint(4, 5), 2: rng.randint(6, 7), 3: rng.randint(8, 10), 4: rng.randint(11, 14),
-             5: rng.randint(18, 30)}[tier]
-        shapes = {1: [2], 2: [2, 2], 3: [2], 4: [3, 2], 5: [3, 3]}[tier]
+        shapes = {1: [2], 2: [2, 2], 3: [3, 2], 4: [3, 2], 5: [3, 3, 2]}[tier]
         forbidden = sorted({''.join(rng.choice(letters) for _ in range(size)) for size in shapes})
-        tally = first_last = equal_pairs = None
-        if tier == 3:
-            tally = (rng.choice(letters), 'exact', rng.randint(2, 4))
-        if tier >= 4:
-            m = rng.choice([3, 4, 5])
-            tally = (rng.choice(letters), 'mod', m, rng.randrange(m))
-        if tier == 4:
-            first_last = rng.choice(['same', 'differ'])
-        if tier == 5:
-            equal_pairs = rng.randint(2, 6)
-        answer = count_strings(n, letters, forbidden, tally, first_last, equal_pairs)
-        if answer > 0:
+        if any(f == f[0] * len(f) for f in forbidden) and tier >= 4 and rng.random() < 0.5:
+            continue
+        tally = first_last = a_count = None
+        if tier <= 3:
+            n = {1: rng.randint(5, 6), 2: rng.randint(8, 10), 3: rng.randint(40, 70)}[tier]
+            if tier >= 2:
+                m = rng.choice([3, 4, 5])
+                tally = (rng.choice(letters), 'exact', rng.randint(2, 4)) if tier == 2 else \
+                    (rng.choice(letters), 'mod', m, rng.randrange(m))
+            if tier == 3:
+                first_last = rng.choice(['same', 'differ'])
+            answer = count_strings(n, letters, forbidden, tally, first_last)
+        else:
+            n = rng.randint(10, 13) if tier == 4 else rng.choice([30, 32, 36, 40, 42, 45, 48])
+            if tier == 5:
+                a_count = rng.choice([d for d in range(n // 6, n // 2) if math.gcd(d, n) > 1])
+            answer = necklaces(n, letters, forbidden, a_count)
+        if answer > 1:
             break
     rules = ['it never contains ' + ' or '.join(f'`{f}`' for f in forbidden) + ' as a contiguous substring']
     if tally and tally[1] == 'exact':
@@ -327,10 +491,18 @@ def count_item(rng, tier):
                      f'by {tally[2]}')
     if first_last:
         rules.append('its first and last letters are ' + ('the same' if first_last == 'same' else 'different'))
-    if equal_pairs is not None:
-        rules.append(f'exactly {equal_pairs} positions i have s[i] equal to s[i+1]')
-    prompt = (f'Consider strings of length {n} over the letters {", ".join(letters)}. Count the strings for which '
-              + '; '.join(rules) + '.\n\nQuestion: how many such strings are there? Write one integer.')
+    if tier <= 3:
+        prompt = (f'Consider strings of length {n} over the letters {", ".join(letters)}. Count the strings for which '
+                  + '; '.join(rules) + '.\n\nQuestion: how many such strings are there? Write one integer.')
+    else:
+        rules[0] = ('reading around the circle (so also across the point where the last bead meets the first), it '
+                    'never shows ' + ' or '.join(f'`{f}`' for f in forbidden) + ' as consecutive beads')
+        if a_count is not None:
+            rules.append(f'exactly {a_count} beads are `{letters[0]}`')
+        prompt = (f'A necklace has {n} beads on a circle, each bead one of the colours {", ".join(letters)}. Two '
+                  'necklaces are the same when one is a rotation of the other (turning it over is not allowed). '
+                  'Count the different necklaces for which ' + '; '.join(rules)
+                  + '.\n\nQuestion: how many different necklaces are there? Write one integer (exact, no modulus).')
     return {'kind': 'answer', 'prompt': prompt, 'answer': str(answer)}
 
 
@@ -583,15 +755,17 @@ def select(bank, ids):
     return {**bank, 'schema': 'sampling-set-v1', 'items': items}
 
 
-def interleaved(bank, seed):
-    """Set order in which every run of five consecutive items holds one item of each tier (chunks stay balanced)."""
+def interleaved(bank, seed, tiers=TIERS):
+    """Set order in which every run of len(tiers) consecutive items holds one item of each tier (chunks stay
+    balanced)."""
     rng = random.Random(f'order/{seed}')
-    tiers = {t: [x['id'] for x in bank['items'] if x['tier'] == t] for t in TIERS}
+    order = list(tiers)
+    tiers = {t: [x['id'] for x in bank['items'] if x['tier'] == t] for t in order}
     for ids in tiers.values():
         rng.shuffle(ids)
     if len({len(v) for v in tiers.values()}) != 1:
         raise ValueError('Every tier needs the same number of items')
-    return [tiers[t][k] for k in range(len(tiers[TIERS[0]])) for t in TIERS]
+    return [tiers[t][k] for k in range(len(tiers[order[0]])) for t in order]
 
 
 # ---------------------------------------------------------------- workspace and scoring
@@ -660,9 +834,21 @@ def run_tests(source, entry, tests):
     return passed
 
 
+def points_of(bank):
+    """Per-item points of a frozen set (all items carry `points`), or None for an unweighted draft or pilot set."""
+    given = [x.get('points') for x in bank['items']]
+    if all(p is None for p in given):
+        return None
+    if any(p is None or p <= 0 for p in given):
+        raise ValueError('Either every item has positive points or none has')
+    return {x['id']: x['points'] for x in bank['items']}
+
+
 def score(bank, workspace):
-    """Per item: correct is all-or-nothing; the instance score is the share of correct items."""
+    """Per item: correct is all-or-nothing.  Instance score = points of correct items / all points (each item one
+    point in an unweighted set); per-tier rates are reported unweighted."""
     workspace, rows = Path(workspace), []
+    points = points_of(bank)
     for x in bank['items']:
         if x['kind'] == 'answer':
             path = workspace / 'answers' / (x['number'] + '.txt')
@@ -677,9 +863,16 @@ def score(bank, workspace):
             rows.append({'number': x['number'], 'id': x['id'], 'tier': x['tier'], 'family': x['family'],
                          'answered': bool(source) and source != x['stub'].encode(), 'correct': passed == len(x['tests']),
                          'tests_passed': passed, 'tests_total': len(x['tests'])})
+        rows[-1]['points'] = points[x['id']] if points else 1
+    return weighted(rows)
+
+
+def weighted(rows):
     by_tier = {t: [r['correct'] for r in rows if r['tier'] == t] for t in TIERS}
-    return {'score': sum(r['correct'] for r in rows) / len(rows), 'correct': sum(r['correct'] for r in rows),
-            'items': len(rows), 'by_tier': {t: sum(v) / len(v) for t, v in by_tier.items() if v}, 'rows': rows}
+    total = sum(r['points'] for r in rows)
+    return {'score': sum(r['points'] for r in rows if r['correct']) / total, 'points_total': total,
+            'correct': sum(r['correct'] for r in rows), 'items': len(rows),
+            'by_tier': {t: sum(v) / len(v) for t, v in by_tier.items() if v}, 'rows': rows}
 
 
 def self_check(bank):
@@ -727,27 +920,111 @@ def calibration_prepare(bank, out, runs, minutes):
     return manifest
 
 
+def write_intervals(bank, workspace, started):
+    """Rough per-item Opus time: gap between consecutive answer/solution writes (first gap from the start).
+    Only a relative cost signal; Qwen's own per-item time comes from the pilot run."""
+    workspace, stamps = Path(workspace), []
+    for x in bank['items']:
+        path = workspace / ('answers' if x['kind'] == 'answer' else 'solutions') / (x['number'] + ('.txt' if x['kind'] == 'answer' else '.py'))
+        if path.is_file() and (x['kind'] == 'answer' or path.read_text(errors='replace') != x['stub']):
+            stamps.append((path.stat().st_mtime, x['id']))
+    stamps.sort()
+    previous, result = started, {}
+    for stamp, item_id in stamps:
+        result[item_id] = max(0.0, stamp - previous)
+        previous = stamp
+    return result
+
+
 def calibration_score(bank, out):
     """Per item: Opus passes out of the runs; per run: score and time.  Items with zero passes must be replaced."""
     out = Path(out)
     manifest = json.loads((out / 'manifest.json').read_text())
-    runs, passes = [], {x['id']: 0 for x in bank['items']}
+    runs, passed, seconds = [], {x['id']: [] for x in bank['items']}, {x['id']: [] for x in bank['items']}
+    start = out / 'start-epoch'
     for row in manifest['runs']:
         result = score(bank, row['workspace'])
         timing = out / f'run-{row["run"]}' / 'timing.json'
         runs.append({'run': row['run'], 'score': result['score'], 'by_tier': result['by_tier'],
                      'seconds': json.loads(timing.read_text())['seconds'] if timing.exists() else None})
         for r in result['rows']:
-            passes[r['id']] += r['correct']
+            if r['correct']:
+                passed[r['id']].append(row['run'])
+        if start.exists():
+            for item_id, spent in write_intervals(bank, row['workspace'], float(start.read_text())).items():
+                seconds[item_id].append(spent)
+    passes = {k: len(v) for k, v in passed.items()}
     n = len(runs)
     items = [{'id': x['id'], 'number': x['number'], 'tier': x['tier'], 'family': x['family'], 'passes': passes[x['id']],
-              'runs': n} for x in bank['items']]
+              'passed_runs': passed[x['id']], 'runs': n,
+              'opus_seconds': sorted(seconds[x['id']])[len(seconds[x['id']]) // 2] if seconds[x['id']] else None}
+             for x in bank['items']]
     return {'runs': runs, 'opus_mean_score': sum(r['score'] for r in runs) / n if n else None,
             'opus_full_marks_runs': sum(r['score'] == 1 for r in runs),
             'replace': [i['id'] for i in items if i['passes'] == 0],
             'pass_rate_by_tier': {t: sum(i['passes'] for i in items if i['tier'] == t)
                                   / (n * sum(i['tier'] == t for i in items)) for t in TIERS if n},
             'items': items}
+
+
+# ---------------------------------------------------------------- final set design (after Opus calibration and Qwen pilot)
+
+def design(bank, calibration, pilot, tiers, budget_seconds, chunk, session_overhead):
+    """Proposal for the frozen set: equal items per chosen tier, as many as fit the per-instance time budget.
+
+    Eligible items: Opus solved at least once.  Within a tier the shortest (Qwen pilot seconds) go first, so
+    difficulty does not come from length.  Expected instance time = item seconds + one overhead per session.
+    Proposed points (to be confirmed by the user): tier rank among the chosen tiers (1..k) times the item's Qwen
+    time relative to its tier median, clamped to [0.5, 2] and rounded to 0.5.  Opus must not get full marks on the
+    subset in any calibration run.
+    """
+    by_number = {x['number']: x['id'] for x in bank['items']}
+    seconds = {}
+    for session in pilot['sessions']:
+        if len(session['chunk']) != 1:
+            raise ValueError('The pilot must run one item per session')
+        seconds[by_number[session['chunk'][0]]] = session['seconds']
+    opus = {i['id']: i for i in calibration['items']}
+    eligible = {t: sorted((x['id'] for x in bank['items'] if x['tier'] == t and opus[x['id']]['passes'] > 0
+                           and x['id'] in seconds), key=lambda i: seconds[i]) for t in tiers}
+    chosen, expected = None, None
+    for n in range(1, min(len(v) for v in eligible.values()) + 1):
+        ids = [i for t in tiers for i in eligible[t][:n]]
+        cost = sum(seconds[i] for i in ids) + session_overhead * -(-len(ids) // chunk)
+        if cost > budget_seconds:
+            break
+        chosen, expected = ids, cost
+    if chosen is None:
+        return {'ok': False, 'problems': ['not even one item per tier fits the budget']}
+    points = {}
+    for rank, t in enumerate(tiers, 1):
+        here = sorted(seconds[i] for i in chosen if bank_tier(bank, i) == t)
+        median = here[len(here) // 2]
+        for i in chosen:
+            if bank_tier(bank, i) == t:
+                points[i] = max(0.5, round(rank * min(2.0, max(0.5, seconds[i] / median)) * 2) / 2)
+    total = sum(points.values())
+    run_scores = {r['run']: sum(points[i] for i in chosen if r['run'] in opus[i]['passed_runs']) / total
+                  for r in calibration['runs']}
+    problems = [f'Opus run {r} gets full marks on the subset' for r, v in run_scores.items() if v == 1]
+    return {'ok': not problems, 'problems': problems, 'tiers': list(tiers), 'per_tier': len(chosen) // len(tiers),
+            'expected_seconds': round(expected, 1), 'budget_seconds': budget_seconds, 'chunk': chunk,
+            'session_overhead_seconds': session_overhead, 'ids': chosen, 'points': points,
+            'opus_subset_scores': run_scores,
+            'excluded_opus_zero': [x['id'] for x in bank['items'] if x['tier'] in tiers and opus[x['id']]['passes'] == 0]}
+
+
+def bank_tier(bank, item_id):
+    return next(x['tier'] for x in bank['items'] if x['id'] == item_id)
+
+
+def freeze(bank, proposal, seed):
+    """Final set from an approved design proposal: chosen items, tiers interleaved, points attached."""
+    chosen = {**bank, 'items': [dict(x, points=proposal['points'][x['id']]) for x in bank['items']
+                                if x['id'] in proposal['points']]}
+    order = interleaved(chosen, seed, proposal['tiers'])
+    return {**select(chosen, order), 'design': {k: proposal[k] for k in ('tiers', 'per_tier', 'expected_seconds',
+                                                                          'chunk', 'budget_seconds')}}
 
 
 def main():
@@ -778,7 +1055,32 @@ def main():
     cs = sub.add_parser('calibrate-score')
     cs.add_argument('--bank', type=Path, required=True)
     cs.add_argument('--out', type=Path, required=True)
+    d = sub.add_parser('design', help='propose the frozen set from Opus calibration and the Qwen pilot')
+    d.add_argument('--bank', type=Path, required=True)
+    d.add_argument('--calibration', type=Path, required=True)
+    d.add_argument('--pilot', type=Path, required=True, help="the pilot instance's result.json")
+    d.add_argument('--tiers', default='1,2,3,4,5', help='e.g. 1,3,5 for three tiers')
+    d.add_argument('--budget-seconds', type=float, default=600)
+    d.add_argument('--chunk', type=int, default=5)
+    d.add_argument('--session-overhead', type=float, required=True, help='seconds per Codex session')
+    d.add_argument('--out', type=Path, required=True)
+    f = sub.add_parser('freeze', help='final set from an approved design proposal')
+    f.add_argument('--bank', type=Path, required=True)
+    f.add_argument('--design', type=Path, required=True)
+    f.add_argument('--interleave-seed', type=int, required=True)
+    f.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
+    if args.command == 'design':
+        result = design(json.loads(args.bank.read_text()), json.loads(args.calibration.read_text()),
+                        json.loads(args.pilot.read_text()), [int(t) for t in args.tiers.split(',')],
+                        args.budget_seconds, args.chunk, args.session_overhead)
+        args.out.write_text(json.dumps(result, indent=1) + '\n')
+        print(json.dumps({k: v for k, v in result.items() if k not in ('ids', 'points')}))
+        return
+    if args.command == 'freeze':
+        result = freeze(json.loads(args.bank.read_text()), json.loads(args.design.read_text()), args.interleave_seed)
+        args.out.write_text(json.dumps(result, ensure_ascii=False, indent=1) + '\n')
+        return
     if args.command == 'calibrate-prepare':
         print(json.dumps(calibration_prepare(json.loads(args.bank.read_text()), args.out, args.runs, args.minutes)))
         return
