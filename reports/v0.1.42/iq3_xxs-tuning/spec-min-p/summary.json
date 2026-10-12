@@ -28,7 +28,8 @@
   "policy": "format-normalized scoring (user 2026-10-11): rare, random representation slips do not count; original ARW scores are not kept as a separate score",
   "implementation": "tools/reviewer/repair_reviewer_report.py (round-trip checked) + ARW patch format-normalized-scoring, original score-completed entry",
   "adjudication": "395 original candidates all matched; 16 new candidates after normalizing p030 instance 1, Main per-candidate, all matched",
-  "previous": "original score-completed with Main adjudication: 395 candidates, all matched; status diagnostic"
+  "previous": "original score-completed with Main adjudication: 395 candidates, all matched; status diagnostic",
+  "locator_rule_2026_10_12": "pair-as-range repair withdrawn (top-level [a,b] = two lines per commit-audit-reviewer.md); p030 instance 1 rescored on the original"
  },
  "session_inspection": {
   "p030": "3/3 pass",
@@ -38,9 +39,9 @@
  },
  "conditions": {
   "0.3": {
-   "batch_score": 0.81925331751333,
+   "batch_score": 0.7047708905061572,
    "mean": {
-    "score": 0.8193,
+    "score": 0.7048,
     "work_min": 14.1,
     "requests": 38.7,
     "uncached": 133337,
@@ -59,7 +60,7 @@
    "reps": [
     {
      "rep": 1,
-     "score": 0.8151071629653205,
+     "score": 0.47165988194380193,
      "work_min": 7.96,
      "requests": 27,
      "uncached": 45522,
@@ -76,14 +77,10 @@
      "cost_usd": 0.05,
      "engine_start": "2026-10-11 06:46:12",
      "effective_spec_min_p": 0.3,
-     "problemDetectionRate": 0.7960165344382875,
-     "cleanAcceptanceRate": 0.901598213488492,
-     "format_normalization": {
-      "kind": "pair-as-range",
-      "count": 45,
-      "pair_share": 0.82,
-      "note": "45 pairs vs 10 nested ranges; share 0.82 is just above the 0.8 threshold"
-     }
+     "problemDetectionRate": 0.42715122455787247,
+     "cleanAcceptanceRate": 0.8087381578720965,
+     "format_normalization": null,
+     "locator_rule_change": "2026-10-12: top-level [a,b] is two lines per ARW; pair-as-range repair withdrawn; rescored on the original with identical candidates (88, no new/changed) and the original adjudication"
     },
     {
      "rep": 2,
@@ -411,7 +408,8 @@
   "winner": 0.9,
   "rule": "all four conditions within 0.08 after rescoring; engine output tok/s primary (user confirmed 2026-10-11); 0.9 fastest decode 104.0",
   "changed_by_rescoring": "0.3 batch 0.705 -> 0.819, rejoins the comparison group; winner unchanged",
-  "user": "confirmed keeping 0.9 on 2026-10-11"
+  "user": "confirmed keeping 0.9 on 2026-10-11",
+  "locator_rule_change": "2026-10-12: 0.3 batch 0.819 -> 0.705 (out, gap 0.132); 0.5/0.7/0.9 within 0.08, 0.9 fastest 104.0; winner unchanged"
  },
  "scoring_recheck": {
   "date": "2026-10-12",
