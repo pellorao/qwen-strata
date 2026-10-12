@@ -21,6 +21,14 @@
 - **影响**：Role 的要求与检查规范互相冲突。模型按 Role 去取运行标识时，最自然的做法就是宽泛查询环境变量，而这正是检查规范判失败的行为。
 - **建议**：与第 1 条一起处理。若保留中途消息，在 Role 中写明"直接读取环境变量 `ARW_BACKGROUND_AGENT_RUN_ID`，不得枚举其他环境变量"；更好的做法是由运行层把运行标识注入 `arw` 命令，Reviewer 不必知道它。
 
+### 3. 报告目录"只能有绑定报告"的检查与 Codex 沙箱挂载点竞态
+
+- **版本**：ARW 760007c。
+- **现象**：`lib/reviewer-runtime/reviewer-runtime.mjs` 的 `checkReportBinding` 非递归列出报告目录，只要有绑定报告以外的条目就报 `report-binding-invalid`（"The Reviewer report directory must contain only its exact bound report."）。报告目录同时是 Reviewer 的可写根，Codex 沙箱会在可写根内为受保护名称建空的挂载点目录（`.agents`、`.aws`、`.codex`、`.git`），建立和清理时机由沙箱决定。如果检查时挂载点还没被清理，Reviewer 已经完成的审核会被判为绑定失败。
+- **证据**：2026-10-12 rtx3080ti F6 commit-audit-a 实例 3：Reviewer 已返回 ready，`wait_agent` 报上述错误；报告目录里有派发时刻（07:57）创建的四个空目录，Reviewer 命令没有创建它们。同批实例 2 的同一目录在 07:57 有增删，检查时已清理，所以没有出错。处理是停掉该 agent，单独补跑 1 次（commit-audit-c）。
+- **影响**：偶发，与 Reviewer 行为无关，但会让已完成的实例失败，还会让批次缺少重复、拿不到原版批分。
+- **建议**：检查时忽略沙箱的受保护名称挂载点（空目录），或者把报告目录与可写根分开，让沙箱挂载点不落在报告目录里。
+
 ## 本工程对 ARW 的修改（建议上游同样修改）
 
 本工程按自己当前的 Strata 工作方式修改了冻结的 ARW。修改以补丁形式登记在 `benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json` 的 `patches` 里，展开冻结源码时打上，并校验打完后的 SHA。这些不是 ARW 的缺陷，而是本工程升级了 Strata 的接入方式，建议 ARW 适配。
