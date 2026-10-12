@@ -1,0 +1,1 @@
+{"id": "sampling-greedy", "model": "IQ3_XXS", "model_environment": {"STRATA_BATCH_TRACE": 1}, "request_defaults": {"temperature": 0.0, "top_p": 1.0, "top_k": 20}}

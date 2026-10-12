@@ -1,0 +1,61 @@
+{
+ "schema": "codex-workload-v1",
+ "status": "draft-not-approved",
+ "authorization": {
+  "approved": false
+ },
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "workload": "sampling",
+ "input": {
+  "path": "benchmarks/tuning-workloads-v1/sampling/set-draft.json",
+  "sha256": "e22df951734bc63cc3afd8127dc54626c9d1eed2307ba5f32d004c34905e2f91"
+ },
+ "fixed_conditions": {
+  "strata": "0.1.42",
+  "codex": "0.162.0",
+  "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
+  "effort": "high"
+ },
+ "chunk": 5,
+ "per_session_seconds_limit": 3600,
+ "conditions": {
+  "sampling-greedy": {
+   "context_window": 156584,
+   "threshold": 100000,
+   "deployment_condition": "conditions/sampling-greedy.json",
+   "deployment_condition_sha256": "76022f10b059b82d8e0e34e99883c15f4be97b3a4a43ada1fe841a6c0aa91c97",
+   "checks": {
+    "log_present": [
+     "\\[native-sampling-trace\\][^\\n]*top_k=20"
+    ],
+    "log_absent": [
+     "\\[native-sampling-trace\\][^\\n]*temperature=(?!0(?:\\.0+)?(?:\\s|$))"
+    ]
+   }
+  },
+  "sampling-card": {
+   "context_window": 156584,
+   "threshold": 100000,
+   "deployment_condition": "conditions/sampling-card.json",
+   "deployment_condition_sha256": "92d7cc4edc47fc328f66889ebe4fddc6bb9df4c59aea00ac478e4fa044858cbe",
+   "checks": {
+    "log_present": [
+     "\\[native-sampling-trace\\][^\\n]*temperature=1(?:\\.0+)?\\b[^\\n]*top_p=0\\.95\\b[^\\n]*top_k=20\\b"
+    ],
+    "log_absent": [
+     "\\[native-sampling-trace\\](?![^\\n]*temperature=1(?:\\.0+)?\\b)"
+    ]
+   }
+  }
+ },
+ "first_round": [
+  "sampling-greedy",
+  "sampling-card",
+  "sampling-card",
+  "sampling-greedy",
+  "sampling-greedy",
+  "sampling-card"
+ ],
+ "note": "输入为未标定的草稿套题；Opus 标定后换成定稿套题并更新 SHA。"
+}
