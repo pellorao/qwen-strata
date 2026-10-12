@@ -188,7 +188,8 @@ def codex_exec(args, workspace, home, key, prompt, log, timeout, resume=None):
     """One `codex exec` turn under a hard limit; returns (exit code or 'timeout', thread id, seconds)."""
     command = [str(CODEX), 'exec', *(['resume', resume] if resume else []), '--json', '--skip-git-repo-check',
                *args, '-']
-    env = dict(os.environ, CODEX_HOME=str(home), STRATA_API_KEY=key)
+    # Codex runs inside the workspace, so a relative CODEX_HOME would not resolve there.
+    env = dict(os.environ, CODEX_HOME=str(Path(home).resolve()), STRATA_API_KEY=key)
     started = time.monotonic()
     with open(log, 'a') as out:
         code = run_limited(command, prompt, out, workspace, env, timeout)
@@ -461,7 +462,7 @@ def run(plan_path, out, limit=None):
     plan, data, conditions = load_plan(plan_path)
     if (plan.get('authorization') or {}).get('approved') is not True:
         raise ValueError('This plan is not approved for model runs')
-    out = Path(out)
+    out = Path(out).resolve()
     out.mkdir(parents=True, exist_ok=True)
     progress_path = out / 'progress.json'
     progress = json.loads(progress_path.read_text()) if progress_path.exists() else \

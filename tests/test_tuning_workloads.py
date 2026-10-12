@@ -1,6 +1,7 @@
 import inspect
 import itertools
 import json
+import os
 import random
 import tempfile
 import time
@@ -218,6 +219,24 @@ def call(cmd):
 
 
 class CodexWorkloadTest(unittest.TestCase):
+    def test_codex_home_is_absolute_for_relative_out(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fake = Path(tmp) / 'codex'
+            fake.write_text('#!/bin/sh\necho "{\\"home\\": \\"$CODEX_HOME\\"}"\n')
+            fake.chmod(0o755)
+            workspace = Path(tmp) / 'ws'
+            workspace.mkdir()
+            original = codex_workload.CODEX
+            codex_workload.CODEX = fake
+            try:
+                relative = Path(os.path.relpath(Path(tmp) / 'home'))
+                codex_workload.codex_exec([], workspace, relative, 'k', '', Path(tmp) / 'log.jsonl', 30)
+            finally:
+                codex_workload.CODEX = original
+            home = json.loads((Path(tmp) / 'log.jsonl').read_text().splitlines()[0])['home']
+            self.assertTrue(Path(home).is_absolute())
+            self.assertEqual(Path(home), (Path(tmp) / 'home').resolve())
+
     def test_loaded_startup_sha_excludes_deprecated_loop_block(self):
         import sys
         sys.path.append(str(codex_workload.STARTUP.parents[2] / 'src'))
