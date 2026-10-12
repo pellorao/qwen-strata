@@ -184,11 +184,11 @@ class DefaultTests(unittest.TestCase):
                     client_metadata={'x-codex-turn-metadata': json.dumps(turn)})
 
     def test_guardian_is_told_by_turn_metadata_and_gets_its_own_limits(self):
-        guarded = dict(self.installed, guardian_reasoning_budget_tokens=1536, guardian_max_tokens=2048)
+        guarded = dict(self.installed, guardian_reasoning_budget_tokens=512, guardian_max_tokens=1024)
         for effort in ('low', 'high'):
             body = frontend.apply_reasoning_defaults(self.codex_request('guardian_review', effort),
                                                      '/v1/responses', guarded)
-            self.assertEqual((body['reasoning_budget_tokens'], body['max_output_tokens']), (1536, 2048))
+            self.assertEqual((body['reasoning_budget_tokens'], body['max_output_tokens']), (512, 1024))
         # The main thread at the installed effort keeps the installed limits.
         body = frontend.apply_reasoning_defaults(self.codex_request('user', 'high'), '/v1/responses', guarded)
         self.assertEqual((body['reasoning_budget_tokens'], body['max_output_tokens']), (8192, 24576))
@@ -295,9 +295,9 @@ class ConfigurationTests(unittest.TestCase):
 
     def test_guardian_defaults_outlive_another_default_effort(self):
         reasoning = model_process.configuration({'request_defaults': {
-            'reasoning_effort': 'medium', 'guardian_reasoning_budget_tokens': 1536, 'guardian_max_tokens': 2048}}, 8100)[3]
-        self.assertEqual(reasoning, {'reasoning_effort': 'medium', 'guardian_reasoning_budget_tokens': 1536,
-                                     'guardian_max_tokens': 2048})
+            'reasoning_effort': 'medium', 'guardian_reasoning_budget_tokens': 512, 'guardian_max_tokens': 1024}}, 8100)[3]
+        self.assertEqual(reasoning, {'reasoning_effort': 'medium', 'guardian_reasoning_budget_tokens': 512,
+                                     'guardian_max_tokens': 1024})
 
     def test_rejects_unknown_or_injected_values(self):
         for options in ({'engine_overrides': {'api-key': 'x'}}, {'engine_overrides': {'prefill': '1 --x'}},

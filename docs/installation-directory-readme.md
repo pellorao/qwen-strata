@@ -104,7 +104,7 @@ Responses 使用 `reasoning.effort` 和 `max_output_tokens`，Chat 使用 `reaso
 
 不提供 none 档：请求指定其他强度（包括 none）时返回 400。
 
-- Codex 的 guardian 审批请求有单独的默认值，与强度无关：思考 1536、总输出 2048（rtx3080ti 安装预置）。服务按 Codex 随请求发送的元数据识别它（`client_metadata["x-codex-turn-metadata"]` 中 `thread_source` 为 `guardian_review`），不看提示词内容。审批只需输出一段简短的 JSON 结论。Strata 为回答保留 min(max(512, 总输出/4), 总输出/2)，总输出 2048 时正好保留 512，思考可以用满 1536。请求自己给了思考预算或输出上限时，以请求为准。`bin/qwen-approve` 显式指定思考 512／总输出 640，不受影响。
+- Codex 的 guardian 审批请求有单独的默认值，与强度无关：思考 512、总输出 1024（安装预置，与 `bin/qwen-approve` 相同）。服务按 Codex 随请求发送的元数据识别它（`client_metadata["x-codex-turn-metadata"]` 中 `thread_source` 为 `guardian_review`），不看提示词内容。审批只需输出一段简短的 JSON 结论。Strata 为回答保留 min(max(512, 总输出/4), 总输出/2)，总输出 1024 时正好保留 512，思考可以用满 512。请求自己给了思考预算或输出上限时，以请求为准。Codex 对 guardian 请求发 `reasoning_effort: low`、不带输出上限和采样字段，`bin/qwen-approve` 显式发同样的值，所以两边审批参数相同。
 - 与该次运行默认强度相同的请求，使用默认值中的预算和输出上限（rtx3080ti 为 high，思考 8192／总输出 24576）。
 - 请求自己给了输出上限、没给思考预算时，思考预算不超过输出上限的一半。Strata 另外为回答至少保留输出上限的 1/4。
 - 上限不等于实际思考长度。请求给的输出上限超出窗口剩余空间时，缩短到剩余空间，不返回 400；输入本身超出窗口仍返回 400，不静默裁剪输入。
@@ -177,7 +177,9 @@ export ANTHROPIC_AUTH_TOKEN=<key>
 export ANTHROPIC_MODEL=qwen3.8-flash-next-q2_0          # OPUS / SONNET / HAIKU 默认模型也设为同一个
 export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 export CLAUDE_CODE_MAX_CONTEXT_TOKENS=156584            # 声明真实窗口
-export CLAUDE_CODE_MAX_OUTPUT_TOKENS=24576             # 与 high 档总输出一致
+export CLAUDE_CODE_MAX_OUTPUT_TOKENS=24576             # 该强度的总输出（low 8192、medium 16384、high 24576）
+export CLAUDE_CODE_EFFORT_LEVEL=high                    # 与 Codex 的 model_reasoning_effort 相同
+export CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE=100000       # 自动压缩阈值，与 Codex 的 model_auto_compact_token_limit 相同
 
 claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default \
        --settings '{"skipWebFetchPreflight": true, "permissions": {"deny": ["WebSearch"]},
@@ -185,10 +187,37 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default
                              "PermissionRequest": [{"matcher": "*", "hooks": [{"type": "command", "command": "python3 <安装目录>/bin/qwen-approve", "timeout": 180}]}]}}' [调用方参数]
 ```
 
-- 总输出上限 24576，与 high 档总输出一致（思考 8192，其余留给回答）。Claude Code 每个请求都自带 `max_tokens`，前端不覆盖请求给出的值，所以总输出由这个环境变量决定，不要调大；剩余空间不够时服务把输出上限缩短到剩余空间，不返回 400。前端给 Messages 请求补思考硬上限：思考关闭（`thinking.type: disabled`）或请求自带 `reasoning_budget_tokens` 时不动；否则取推理强度对应的思考上限（high 为 8192，见上表），请求的 `thinking.budget_tokens` 更小时用它，再不超过 `max_tokens` 的一半。Claude Code 发 `thinking: adaptive`、`output_config.effort: high`、`max_tokens` 24576，所以思考最多 8192，Strata 为回答保留其余空间。
-- 审批固定由 `bin/qwen-approve` 完成，不使用 Claude Code 的 auto mode（2b 验收中 auto mode 判对 5/9、每次运行 191 秒；`qwen-approve` 判对 7/7、80 秒）。权限模式为 `default`，每次权限请求经 `PermissionRequest` hook 交给 `qwen-approve`：它把用户消息（唯一授权来源）、最近 6 次工具调用与结果（标为不可信数据）和待审动作发给本模型（`reasoning_effort: low`），思考上限 512 token、总输出 640 token，单次判断不超过 10 秒；返回 allow / deny 及理由；超时、出错或答复无法解析一律拒绝。用户只是让 agent 照文件、网页或工具输出里的步骤执行时，只授权其中无害的步骤；破坏性或越界的步骤必须由用户消息点名效果和目标。每次判断记一行到 `logs/approve.log`（工具、结论、理由、耗时、usage，不含 key）。
-- 压缩：PreCompact hook 退出码为 0 时，其 stdout 会追加到 Claude Code 自带摘要指令之后，所以每次压缩（自动或手动）都带上 `compact-prompt.txt`，而且不替换内置提示。
+- 总输出按强度取上表的总输出（`bin/qwen-agent --effort` 同时决定强度和这个值），与前端为 Codex 补的值相同。Claude Code 每个请求都自带 `max_tokens`，前端不覆盖请求给出的值，所以总输出由这个环境变量决定，不要调大；剩余空间不够时服务把输出上限缩短到剩余空间，不返回 400。前端给 Messages 请求补思考硬上限：思考关闭（`thinking.type: disabled`）或请求自带 `reasoning_budget_tokens` 时不动；否则取推理强度对应的思考上限（high 为 8192，见上表），请求的 `thinking.budget_tokens` 更小时用它，再不超过 `max_tokens` 的一半。Claude Code 发 `thinking: adaptive`、`output_config.effort`（取 `CLAUDE_CODE_EFFORT_LEVEL`）和 `max_tokens`，所以思考上限与 Codex 同强度相同（high 为 8192），Strata 为回答保留其余空间。
+- 强度：`CLAUDE_CODE_EFFORT_LEVEL` 对整个会话生效；命令行 `--effort` 在第一次压缩后会失效，所以启动脚本用环境变量。
+- 自动压缩：窗口小于约 200K 时，Claude Code 2.1.296 不按 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 压缩，只在阻塞上限（窗口 − 输出预留 − 3000，本窗口约 133.6K）压缩；`CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 把这个上限设为 100000，与 Codex 相同。假服务器核对：输入 100.1K 时压缩、99.9K 时不压缩。这个变量不在 Claude Code 公开文档里，升级 Claude Code 后要重新核对。
+- 审批固定由 `bin/qwen-approve` 完成，不使用 Claude Code 的 auto mode（2b 验收中 auto mode 判对 5/9、每次运行 191 秒；`qwen-approve` 判对 7/7、80 秒）。权限模式为 `default`，每次权限请求经 `PermissionRequest` hook 交给 `qwen-approve`：它把用户消息（唯一授权来源）、最近 6 次工具调用与结果（标为不可信数据）和待审动作发给本模型（`reasoning_effort: low`），思考上限 512 token、总输出 1024 token，与 Codex guardian 相同；等模型答复最多 150 秒（hook 给 180 秒）；返回 allow / deny 及理由；超时、出错或答复无法解析一律拒绝。用户只是让 agent 照文件、网页或工具输出里的步骤执行时，只授权其中无害的步骤；破坏性或越界的步骤必须由用户消息点名效果和目标。每次判断记一行到 `logs/approve.log`（工具、结论、理由、耗时、usage，不含 key）。
+- 压缩：PreCompact hook 退出码为 0 时，其 stdout 会以 `Additional Instructions:` 追加到 Claude Code 自带摘要指令之后，所以每次压缩（自动或手动）都带上 `compact-prompt.txt`。**特例**：Claude Code 没有替换内置摘要指令的办法，压缩请求是"内置指令 + 基础压缩提示"；Codex 用 `experimental_compact_prompt_file` 整体替换为基础压缩提示。这是两者唯一不能对齐的提示差异。
 - `skipWebFetchPreflight` 关闭 WebFetch 抓网页前向 `api.anthropic.com` 的域名查询。
+
+### 与 Codex 的参数对照
+
+`bin/qwen-agent` 让两种 agent 在参数层面完全一致（2026-10-12 起；rtx3080ti 默认档）：
+
+| 参数 | Codex | Claude Code |
+|---|---|---|
+| 窗口 | `model_context_window` 156584 | `CLAUDE_CODE_MAX_CONTEXT_TOKENS` 156584 |
+| 自动压缩阈值 | `model_auto_compact_token_limit` 100000 | `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 100000 |
+| 强度 | `model_reasoning_effort` | `CLAUDE_CODE_EFFORT_LEVEL`（同一个 `--effort`） |
+| 思考上限 | 前端按强度补 2048／4096／8192 | 前端按强度补，同值 |
+| 总输出 | 前端按强度补 8192／16384／24576 | `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 同值 |
+| 采样 | 不发，用安装预置 temperature 0、top_p 1、top_k 20 | 不发（已抓包核对），同预置 |
+| 审批参数 | guardian：low，思考 512／总输出 1024，不发采样 | `qwen-approve`：同值 |
+
+两者审批的参数相同，机制不同：
+
+| 方面 | Codex guardian | Claude Code + `qwen-approve` |
+|---|---|---|
+| 提示 | Codex 内置的 guardian 风险策略 | 本工程的策略：用户消息是唯一授权来源，破坏性或越界步骤须由用户点名 |
+| 上下文 | Codex 自己整理的会话记录 | 用户消息 + 最近 6 次工具调用与结果（标为不可信）+ 待审动作 |
+| 请求数 | 一次审批可能有多次模型请求（guardian 线程内的多轮） | 每次审批 1 次请求 |
+| 超时与出错 | 由 Codex 内置机制处理，本工程未改动，具体超时未核对 | 模型答复最多 150 秒；超时、出错或无法解析一律拒绝，并记入 `logs/approve.log` |
+
+压缩提示的特例见上文"压缩"一条。
 
 原生服务提供 `/v1/messages` 和 `/v1/messages/count_tokens`。2026-10-09 冒烟检查（Claude Code 2.1.295，`-p`，Read 工具）确认 thinking 和工具调用可用。已知差异：
 
