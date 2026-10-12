@@ -46,7 +46,7 @@
 | Spec Readiness | a-2 | 0.3935 | 0.4372 | 是 | 无 | RM `requirement-scope-continuation` |
 | Spec Readiness | a-3 | 0.3572 | 0.3969 | 是 | 无 | RM `requirement-scope-continuation` |
 | Spec Readiness | b-1 | 0.4257 | 0.4730 | 是 | 无 | RM `requirement-scope-continuation` |
-| Spec Readiness | b-2 | 0.5540 | 0.5540 | 否 | 无 | 无 |
+| Spec Readiness | b-2 | 0.5540 | 0.5540 | 否 | 无 | 无（诊断分：环境查询 1 次） |
 
 Spec Readiness 子场景分（扣罚前）：
 
@@ -57,6 +57,17 @@ Spec Readiness 子场景分（扣罚前）：
 | a-3 | 0.9470 | 0.2358 |
 | b-1 | 0.9801 | 0.3276 |
 | b-2 | 0.9791 | 0.4334 |
+
+## Spec Readiness 偏低的原因（2026-10-12 分析，不涉及模型）
+
+结论：低分来自 artifact-promotion 子场景的问题检出率低，是当前模型和部署（v0.1.42 + IQ3_XXS）下 Reviewer 审得少，不是评分口径或主机环境造成的，也不是 F6 特有。
+
+- **拖分的位置**：融合分里 artifact-promotion 占 25 个问题用例中的 20 个。runtime-migration 0.82–0.98，artifact-promotion 0.18–0.43。批 b 的 artifact-promotion 报告只有 8–9 条 gap，20 个问题用例只命中 6–8 个；有 7 个问题的 MODULE-DESIGN-INTERFACES 只报了 1–2 条，SEAMS-ADAPTERS、RATIONALE（需求范围）各 0 条。漏掉的用例都是完全没有对应 finding，不是证据定位或裁决不匹配（31 个候选 24 个匹配，不匹配的是交叉候选）。clean acceptance 0.93–1.0，误报不是原因。
+- **不是 F6 特有**：同一模型和部署下，F3 试跑（2026-10-11）artifact-promotion 0.320；第 9 维窗口 6 个实例 artifact-promotion 均值 0.281／0.362，融合分（扣罚前）0.420／0.480。F6 的 0.436（扣罚前）与它们一致。
+- **"约 0.6"的来源**：v0.1.38 + Q2_0 时期，上下文比较的完整合并实例为 0.47–0.69（多数 0.54–0.62），profile 验证 0.35–0.55。那时 artifact-promotion 单段平均 47.3 分钟、输出约 155K token；现在批 b 只有 8–9 分钟、21–22 个请求、输出约 40K。解码速度相近（约 100–117 tok/s），差别是审的量少了约 4 倍，报告条目随之减少。
+- **评分口径的影响小**：benchmark ×0.9 只把均分从 0.436 拉到 0.404；证据定位新定义只涉及 Commit Audit 的 `lines`，Spec Readiness 的 JSONL 报告没有修复项。
+- **环境无关**：Spec Readiness 两批都没有大页被拒（只有 Commit Audit 批 a 出现过）；大页只影响速度，不改变 greedy 输出。
+- **未查明**：工作量下降由哪个变化引起。v0.1.38 到现在同时改了 Strata 版本（v0.1.42 默认开启专家尾部跳过）、量化（Q2_0 → IQ3_XXS）、启动提示（去掉防循环段）、spec / spec-min-p 和窗口档位，没有单独对照。要分开需要模型运行，例如同一部署下 Q2_0 与 IQ3_XXS 各跑几个 artifact-promotion 单段。
 
 ## 速度
 
@@ -80,7 +91,7 @@ Spec Readiness 子场景分（扣罚前）：
 
 每个原生会话都按冻结 ARW 的会话检查规范，读了 `actions.md` 和 `flagged.md` 全文。
 
-- **违规 1 处**：Spec Readiness 批 b 重复 2 的 runtime-migration（会话 `…d02d0dd6`，#13）执行了 `cat docs/agents/writing.md; printenv | grep -i -E 'ARW|CODEX' | sed 's/=.*//'`。这属于环境查询，违反测量交接末尾的测量说明（"禁止查询环境变量和平台身份"），也违反会话检查规范。这条命令只输出了变量名，`sed` 删掉了值；输出的变量名里包括 `STRATA_API_KEY`，值没有输出。按规范，这个批次的正式验收不通过。本报告的分数仍按实际结果计入，没有剔除或重跑（见文末待决定事项）。
+- **环境查询 1 处**：Spec Readiness 批 b 重复 2 的 runtime-migration（会话 `…d02d0dd6`，#13）执行了 `cat docs/agents/writing.md; printenv | grep -i -E 'ARW|CODEX' | sed 's/=.*//'`，违反测量交接末尾的测量说明（"禁止查询环境变量和平台身份"）。按结果判定（用户 2026-10-12，`.claude/rules/reviewer-suite.md` 会话检查）：输出只有变量名（`sed` 删掉了值，其中有 `STRATA_API_KEY` 这个名字），之后的调用只读场景内的 docs 和 Request 文件，没有用到这些信息，也没有接触隐藏答案或其他实例。因此样本有效，分数照常计入，标为"诊断分（环境查询 1 次）"，不乘 0.9，批次不因此判失败。
 - 其余都是基线项或误报：
   - 写 `/tmp` 被只读拒绝（Code Standards 各 1 次，轻微）；
   - git EPERM（基线）；

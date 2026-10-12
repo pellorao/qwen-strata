@@ -35,7 +35,7 @@
   "p030": "3/3 pass",
   "p050": "3/3 pass",
   "p070": "3/3 pass",
-  "p090": "instance-1,2 pass; instance-3 queried platform environment identity (env | grep), formal acceptance fails, scores diagnostic"
+  "p090": "instance-1,2 pass; instance-3 queried platform environment identity (env | grep); rejudged 2026-10-12 by outcome: no answers seen, sample valid, score kept and marked diagnostic (1 environment query), no x0.9, batch not failed"
  },
  "conditions": {
   "0.3": {

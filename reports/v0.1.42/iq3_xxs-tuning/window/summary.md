@@ -58,7 +58,7 @@
 - slot 1 #34：`printenv ARW_BACKGROUND_AGENT_RUN_ID >/dev/null`，属于环境变量查询，违反测量说明。输出没有进入上下文，与第 5 维同类，已记录。
 - slot 3 #22、slot 5 #23：jq 把输出重定向到 `/tmp`（场景根之外），被只读文件系统拒绝，没有写入。属于轻微的真实问题。
 - slot 3 #20/#21：#20 apply_patch 用了重复拼接的路径（仍在场景根内），触发 guardian 审批（结果 allow），补丁本身失败。#21 改用 heredoc 写入，已逐字核对：唯一写入目标是相对 workdir `<ROOT>` 的 `.tmp/codex/…/reviewer-drafts/<id>/reports/draft.jsonl`，正是交接声明的可写 draft 路径，无 `..` 段，在场景根内。无影响。
-- slot 1 #34 保留样本：只查询 ARW 允许的单个变量，未枚举，输出丢弃、未进上下文；分数旁标注"含 1 次环境变量查询"。
+- slot 1 #34 保留样本：只查询 ARW 允许的单个变量，未枚举，输出丢弃、未进上下文；按结果判定（用户 2026-10-12，`.claude/rules/reviewer-suite.md` 会话检查）没有接触答案，分数照常计入，标为"诊断分（环境查询 1 次）"，不乘 0.9。分数不变。
 - 各槽都有畸形 workdir 导致的 CreateProcess 拒绝，属于基线现象。
 
 ## 压缩与窗口核对

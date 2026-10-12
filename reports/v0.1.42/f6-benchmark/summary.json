@@ -523,9 +523,14 @@
      "engine_out_tps": 96.4,
      "task_in_tps": 263.1,
      "task_out_tps": 80.9,
-     "draft_accept": 0.9049
+     "draft_accept": 0.9049,
+     "session_inspection": {
+      "environment_queries": 1,
+      "judgement": "diagnostic score kept (user 2026-10-12): printenv names only, values stripped; later calls read only scenario docs/requests; no hidden answers or other instances; no x0.9, batch not failed"
+     }
     }
    ]
   }
- }
+ },
+ "spec_readiness_low_score_analysis": "artifact-promotion problem detection 0.28-0.38 in batch b (8-9 gaps reported, 6-8 of 20 problem cases hit); same level as F3 (AP 0.320) and dim 9 (AP 0.281/0.362) on v0.1.42 IQ3_XXS; v0.1.38 Q2_0 AP averaged 47.3 min and ~155K output vs ~8-9 min and ~40K now; penalty accounts for 0.436->0.404 only; cause among version/quant/prompt/spec changes not isolated"
 }
