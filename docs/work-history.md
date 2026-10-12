@@ -1172,3 +1172,7 @@ Laya多语言社区导出固定20选项槽、1024序列位置，两次ORT执行�
 ## v0.1.42 升级、默认 IQ3_XXS 与 IQ3_XXS 调参（2026-10-11，rtx3080ti）
 
 用户授权升级 v0.1.42、默认模型改为 IQ3_XXS 并在本机重新调参；当晚自主模式推进，每个默认值决定都由 Main 与独立复核 agent 各自给意见，一致才采用。升级通过短检查（S1，Q2_0）。IQ3_XXS 8 维调参结果：不传 `--pcie-frac`（引擎实测，解码 +11%）、`--ple-io direct`、`--vram-reserve-mib 512`、`--spec-min-p 0.9` 改值并部署；affinity all、23 线程、prefill 8192、CPU 辅助 auto 保持。第 8 维和 Q2_0 基线都用完整 Commit Audit（各 3 次），诊断得分 IQ3_XXS 0.837、Q2_0 0.773；两批各有 1 个实例做了 `env` 环境身份查询，正式验收失败，分数只作诊断。见[升级报告](../reports/v0.1.42/upgrade.md)、[调参手册](host-tuning.md#iq3_xxs)和各维报告 `reports/v0.1.42/iq3_xxs-tuning/`。rtx4070tis 离线，待同步。
+
+## F3：ARW reviewer 续审交接修复（2026-10-11 至 10-12，rtx3080ti）
+
+reviewer 在同一线程接第二个任务时，会先切到新目录而找不到原报告。新增 ARW 补丁 `arw-patches/reviewer-followup-original-scope.patch`（重开条目时先在原工作目录检查原报告，接受新任务后再切换），附复现测试；驱动遇到 `reviewer-busy` 时等原任务结束再重发。第 3 次试跑（2026-10-11）通过：runtime-migration 与 artifact-promotion 在同一线程各 1 个回合完成，没有 `reviewer-busy`、早退或停顿。该次 runtime-migration 报告在需求有问题后未停止、多写了 10 行后续检查，属于模型输出质量；这不是可机械修复的错误，冻结 ARW 也拒绝整理副本，按 ARW 原版判为正式失败（诊断分扣罚前 0.468、扣罚后 0.421）。用户 2026-10-12 同意：交接修复判为已验证并关闭，该报告保留为正式失败，不再为 F3 单独跑模型。
