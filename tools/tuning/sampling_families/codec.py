@@ -3,7 +3,7 @@
 Every step is invertible and has a reference inverse here (the tests check the round trip on random text), so the
 hidden tests are simply (encoded, original) pairs.  Tier 1 has 5 steps and one worked example; tier 2 has 6 steps
 including run-length coding or a rail fence; tier 3 has 7 steps including both and a letter-counting shift, without
-examples.
+examples; level 4 has 8 such steps and always ends with the checksum letter.  (`tier` in this module is the level.)
 """
 import json
 
@@ -192,10 +192,10 @@ def steps(rng, tier):
     plain = [shift(rng.randint(1, 25)), reverse_words(), evens_odds(), block_reverse(rng.randint(3, 5)),
              pair_swap(), vowel_cycle(), flip_case(rng.randint(2, 4)), rotate(rng.randint(3, 7))]
     need = {1: [], 2: [rng.choice([rle(), rail(rng.randint(3, 4))])],
-            3: [rle(), rail(rng.randint(3, 4)), progressive(rng.randint(1, 9), rng.randint(2, 7))]}[tier]
-    chosen = rng.sample(plain, {1: 5, 2: 6, 3: 7}[tier] - len(need)) + need
+            3: [rle(), rail(rng.randint(3, 4)), progressive(rng.randint(1, 9), rng.randint(2, 7))]}[min(tier, 3)]
+    chosen = rng.sample(plain, {1: 5, 2: 6, 3: 7, 4: 8}[tier] - len(need)) + need
     rng.shuffle(chosen)
-    if tier >= 2 and rng.random() < 0.5:
+    if tier >= 4 or tier >= 2 and rng.random() < 0.5:
         chosen.append(checksum())
     return chosen
 

@@ -2,7 +2,8 @@
 
 Five packages (invoice, scheduler, calendar, calculator, layout), each with a correct reference and a list of
 injectable bugs.  Tier 1 injects one bug and the report shows a failing call; tier 2 two bugs in different files, one
-shown; tier 3 three bugs, described by symptoms only.  Each injected bug alone must fail some hidden test, and the
+shown; tier 3 three bugs, described by symptoms only; level 4 four bugs, symptoms only.  (`tier` here is the
+level.)  Each injected bug alone must fail some hidden test, and the
 expected values come from running the reference package.
 """
 import json
@@ -628,7 +629,7 @@ def item(rng, tier, seed):
         got = call(inject(files, bugs), package['module'], package['entry'], args)
         return [k for k, (g, t) in enumerate(zip(got, tests)) if g.get('value', g) != t['expected']]
     for _ in range(100):
-        count = {1: 1, 2: 2, 3: 3}[tier]
+        count = {1: 1, 2: 2, 3: 3, 4: 4}[tier]
         bugs = rng.sample(package['bugs'], count)
         if len({b[0] for b in bugs}) < min(count, 2):
             continue

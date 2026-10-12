@@ -2,8 +2,9 @@
 
 Running the program is easy with a shell; the difficulty is reading the semantics right: reversed SUB operands, a
 flag that SHR sets from the bit shifted out, DJNZ that decrements before testing (0 wraps), signed comparisons, jump
-numbering.  An item is kept only when every listed misreading gives a different answer.  Tier 3 repeats a block
-10^11-10^13 times, which only cycle detection over the (registers, flag) state can finish.
+numbering.  An item is kept only when every listed misreading gives a different answer.  Level 3 repeats a block
+10^11-10^13 times, which only cycle detection over the (registers, flag) state can finish; level 4 has two such
+blocks around a flag test and a signed-comparison loop.  (`tier` in this module is the level.)
 """
 REGISTERS = 'ABDGKMNPRSTVXZ'
 MODULI = (100, 128, 200, 256, 1000)
@@ -53,8 +54,11 @@ def run(program, r, info=None):
         if op == 'REP':
             count, body = ins[1], program[pc + 1:pc + 1 + ins[2]]
             names = sorted(set(regs) | {b[1] for b in body})
-            seen, k = {}, 0
+            seen, k, executed = {}, 0, 0
             while k < count:
+                executed += 1
+                if executed > STEP_LIMIT:
+                    raise OverflowError('no cycle found in a long REP block')
                 state = (tuple(regs.get(n, 0) for n in names), flag)
                 if count > DIRECT_REP_LIMIT and state in seen:
                     if info is not None:
@@ -149,6 +153,10 @@ def attempt(rng, tier, r):
         body = ops(rng, data, m, rng.randint(4, 6), allowed=('ADD', 'SUB', 'ADD', 'SUB', 'MUL', 'SHR'), units=True)
         p += [('REP', rng.randint(10 ** 11, 10 ** 13), len(body))] + body
         p += [('JF', '@carry'), ('OUT', data[0]), ('LABEL', 'carry')]
+        if tier >= 4:
+            body = ops(rng, data, m, rng.randint(3, 5), allowed=('ADD', 'SUB', 'MUL', 'SHR'), units=True)
+            p += [('OUT', data[2]), ('REP', rng.randint(10 ** 11, 10 ** 13), len(body))] + body
+            p += [('JF', '@flag2'), ('OUT', data[1]), ('LABEL', 'flag2')]
         p += [('SET', counter, rng.randint(3, 6)), ('LABEL', 'loop')]
         p += [('JLT', data[1], operand(rng, data, m), '@skip')] + ops(rng, regs, m, 1, data) + [('LABEL', 'skip')]
         p += ops(rng, regs, m, 1, data) + [('OUT', rng.choice(data)), ('DJNZ', counter, '@loop')]
@@ -195,7 +203,9 @@ def describe(r):
         'SHR R: R := floor(R / 2). F := whether the bit shifted out was 1 (the old R was odd).',
         f'JF n: jump if F is true; {jump}.',
         f'JLT R x n: jump if R < x; {jump}.'
-        + (f' The comparison is signed: a value v of {m // 2} or more counts as v - {m}.' if r['signed'] else ''),
+        + (f' The comparison is signed: both sides, R and x (whether x is a register or a literal), are first read as '
+           f'signed numbers, where a value v of {m // 2} or more counts as v - {m} (so {m - 1} counts as -1).'
+           if r['signed'] else ' The comparison uses the plain values.'),
         f'DJNZ R n: first R := R - 1 (modulo {m}, so 0 becomes {m - 1}; F unchanged), then jump if R is not 0; '
         f'{jump}.',
         'REP k n: execute the n lines after this one k times in a row, then continue after them. Those n lines never '

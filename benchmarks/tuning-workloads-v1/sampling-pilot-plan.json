@@ -1,18 +1,18 @@
 {
  "schema": "codex-workload-v1",
- "status": "approved",
+ "status": "draft",
  "authorization": {
-  "approved": true,
-  "approved_by": "user",
-  "date": "2026-10-12",
-  "scope": "v3 Qwen 试跑：rtx3080ti、IQ3_XXS、greedy；1 个实例，v3 75 题按组运行（每方向档 1+2 十题一组、档 3 五题一组，共 10 组），组时限 Σ档 × 30 秒，加载 1 次；故障修复和受影响的重跑在授权内"
+  "approved": false,
+  "approved_by": null,
+  "date": null,
+  "scope": "待批准：v4 Qwen 试跑，rtx3080ti、IQ3_XXS、greedy；1 个实例，v4 72 题混组运行（6 组 × 12 题），组时限 Σ档 × 30 秒（每组 720 秒），加载 1 次"
  },
  "host": "rtx3080ti",
  "model": "IQ3_XXS",
  "workload": "sampling",
  "input": {
   "path": "benchmarks/tuning-workloads-v1/sampling/set-draft.json",
-  "sha256": "148315ed0ff506fc7913e9667ef81afd4ae96930608cb72dec2f4c22a5ad11ee"
+  "sha256": "ac2a6f5951f34dfbcdc3fd7f3327d468fbe4657a1f3b922e0b60b12089e229a9"
  },
  "fixed_conditions": {
   "strata": "0.1.42",
@@ -39,8 +39,8 @@
  "first_round": [
   "sampling-greedy"
  ],
- "note": "Qwen 试跑草稿（待批准；此前的每会话 1 题版本和逐题门控版本均作废）：默认条件 greedy、v3 全部 75 道候选题（set-draft.json，按方向、档排序）。按组运行（用户 2026-10-12）：组大小 10，每个方向内按档从低到高填满 10 题，剩余自成一组，即档 1+2 一组（10 题）、档 3 一组（5 题），5 个方向共 10 组；顺序为方向依次（ledger、machine、count、codec、debug），方向内档 1→3。每组一个全新 Codex 会话，工作区只放本组题，模型可逐题做也可一起做（只测调参效果，不测逐题解法）。组时限 = 组内各题档之和 × 30 秒（两组均为 450 秒，75 题总上限 4500 秒），到时强制停止并按已写文件计分；暂定值，按试跑实测调整。组耗时与组 token 精确；每题耗时按结果文件写入间隔近似。会话发生压缩则该组无效、在新会话中重跑一次，仍压缩则实例效果检查失败。",
+ "note": "Qwen 试跑草稿（待批准；v3 版本作废）：默认条件 greedy、v4 全部 72 道候选题（set-draft.json，8 个方向 × 3 档 × 3 题）。混组运行（用户 2026-10-12）：题目按方向、档排序后轮流发到 6 组，每组 12 题，覆盖全部 8 个方向，档 1/2/3 各 4 题；组顺序固定。每组一个全新 Codex 会话，工作区只放本组题。组时限 = 组内各题档之和 × 30 秒（每组 720 秒，总上限 4320 秒），到时强制停止并按已写文件计分；暂定值，按试跑实测调整。按题计分，误差按组聚类估计（result.json 的 clustered）。组耗时与组 token 精确；每题耗时按结果文件写入间隔近似。会话发生压缩则该组无效、在新会话中重跑一次，仍压缩则实例效果检查失败。",
  "pilot": true,
- "group_size": 10,
+ "group_size": 12,
  "group_seconds_per_tier": 30
 }

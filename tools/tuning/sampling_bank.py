@@ -1,12 +1,18 @@
-"""Generated, program-judged question bank for the sampling tuning workload (v3).
+"""Generated, program-judged question bank for the sampling tuning workload (v4).
 
-Five directions, three tiers (tools.tuning.sampling_families): ledger (implement a long settlement specification),
-machine (output of a register machine whose semantics are easy to misread), count (counting that needs modelling,
-far beyond enumeration), codec (inverse of a multi-step text encoder), debug (fix a small multi-file package from a
-bug report).  The solver has a shell, so difficulty never comes from computation: run2/run3 showed Qwen solving every
-computable v2 item.  It comes from reading long rules exactly, traps and edge cases, long chains of steps, and having
-to work out what to compute.  Answers and hidden tests come from reference code, checked against brute force or a
-round trip in the tests.
+Eight directions, three tiers (tools.tuning.sampling_families).  Carried over from v3, one level harder: ledger
+(implement a long settlement specification), machine (output of a register machine whose semantics are easy to
+misread), count (counting that needs modelling, far beyond enumeration), codec (inverse of a multi-step text
+encoder), debug (fix a small multi-file package from a bug report).  New, solved by reasoning rather than by a
+program: logic (deduce a row of houses from clues in prose), policy (apply a written fee regulation to cases),
+incident (root cause of an outage from interleaved logs).  The solver has a shell, so difficulty never comes from
+computation: it comes from reading rules exactly, traps and edge cases, long chains of deductions, and having to work
+out what to compute.  Answers and hidden tests come from reference code, checked against brute force, a round trip or
+a uniqueness search in the tests.
+
+The set runs in mixed groups (`grouped`): every group holds items of most directions and of all tiers, so a group
+cannot be solved by one generic program; the score is per item and its uncertainty is estimated with the groups as
+clusters (`cluster_se`).
 
     python3 -m tools.tuning.sampling_bank build --seed S --out bank.json         # candidate bank (with answers)
     python3 -m tools.tuning.sampling_bank export --bank bank.json --out DIR      # answer-free workspace
@@ -38,7 +44,7 @@ def build(seed, per_cell):
     """Candidate bank: `per_cell` items for every family and tier, seeds seed*1000 + k."""
     items = [item(f, t, seed * 1000 + k) for t in TIERS for f in FAMILIES for k in range(per_cell)]
     items = [dict(x, number=f'C{n:03d}') for n, x in enumerate(items, 1)]
-    return {'schema': 'sampling-bank-v3', 'generator_sha256': generator_sha(), 'seed': seed,
+    return {'schema': 'sampling-bank-v4', 'generator_sha256': generator_sha(), 'seed': seed,
             'per_cell': per_cell, 'items': items}
 
 
@@ -49,10 +55,25 @@ def select(bank, ids):
     return {**bank, 'schema': 'sampling-set-v1', 'items': items}
 
 
-def grouped(bank):
-    """Fixed set order: direction by direction (FAMILIES order), tiers ascending, candidate order within a cell; the
-    driver runs the set in groups along this order (tools.tuning.codex_workload.groups)."""
-    return [x['id'] for x in sorted(bank['items'], key=lambda x: (FAMILIES.index(x['family']), x['tier']))]
+def grouped(bank, size):
+    """Fixed set order in mixed groups of at most `size`: the items sorted by direction, tier and candidate order are
+    dealt in turn to ceil(N / size) groups, and the set lists group 1, then group 2, ...  Each group so gets items of
+    most directions and of every tier, with similar tier sums; the driver cuts the set into consecutive groups of
+    the same `size` (tools.tuning.codex_workload.groups)."""
+    ordered = sorted(bank['items'], key=lambda x: (FAMILIES.index(x['family']), x['tier']))
+    count = -(-len(ordered) // size)
+    return [x['id'] for g in range(count) for x in ordered[g::count]]
+
+
+def chunks(items, size):
+    """The set's groups: consecutive runs in set order, sized as `grouped` dealt them (sizes differ by at most one)."""
+    count = -(-len(items) // size)
+    out, start = [], 0
+    for g in range(count):
+        n = len(range(g, len(items), count))
+        out.append(items[start:start + n])
+        start += n
+    return out
 
 
 # ---------------------------------------------------------------- workspace and scoring
@@ -202,6 +223,26 @@ def weighted(rows):
             'by_family': {f: sum(v) / len(v) for f, v in by_family.items() if v}, 'rows': rows}
 
 
+def cluster_se(rows):
+    """Instance score (points of correct items / all points) with its standard error, the groups (`group` of each
+    row) taken as clusters: items of one group share a session and are not independent.  CR1 sandwich estimator
+    G/(G-1) * sum_g (y_g - score * n_g)^2 / N^2 over group totals y_g (points correct) and n_g (points); the design
+    effect compares it with the variance as if every item were independent."""
+    totals = {}
+    for r in rows:
+        y_n = totals.setdefault(r['group'], [0, 0])
+        y_n[0] += r['points'] * r['correct']
+        y_n[1] += r['points']
+    clusters, points = len(totals), sum(n for _, n in totals.values())
+    score = sum(y for y, _ in totals.values()) / points
+    if clusters < 2:
+        return {'score': score, 'se': None, 'clusters': clusters, 'design_effect': None}
+    variance = clusters / (clusters - 1) * sum((y - score * n) ** 2 for y, n in totals.values()) / points ** 2
+    independent = sum(r['points'] ** 2 for r in rows) * score * (1 - score) / points ** 2
+    return {'score': score, 'se': variance ** 0.5, 'clusters': clusters,
+            'design_effect': variance / independent if independent else None}
+
+
 def reference_files(x):
     """A package item's reference: the given files with every injected bug reverted."""
     files = dict(x['files'])
@@ -247,24 +288,27 @@ CALIBRATION_PROMPT = """You are solving a timed problem set. Work only inside {w
 follow it. Do not read, list or search any other directory, and do not use the network. Solve every problem as well
 as you can. The hard limit is {minutes} minutes: at the limit the files are taken as they are and you are stopped, so
 write each answer or solution file as soon as that problem is done.
-When you are done, reply with the single word DONE."""
+This run also checks the problems themselves. If a problem's statement can reasonably be read in more than one way
+that changes the answer, or seems to have no answer or several, still write your best answer, and also write
+notes/<P>.txt with the passage and the readings (one short paragraph). Write no note for a problem that is clear.
+When you are done, reply with the single word DONE, followed by the problem numbers you wrote notes for, if any."""
 
 
-def calibration_prepare(bank, out, runs, minutes):
-    """Per independent Opus run, one job per family (a fresh answer-free workspace with that family's items and the
-    exact prompt): a whole bank in one agent context would need compaction."""
+def calibration_prepare(bank, out, runs, minutes, size):
+    """Per independent Opus run, one job per group of the set (`chunks` of `size`, the same mixed groups Qwen runs):
+    a fresh answer-free workspace with that group's items and the exact prompt.  A whole bank in one agent context
+    would need compaction."""
     out = Path(out)
     jobs = []
     for k in range(1, runs + 1):
-        for family in FAMILIES:
-            numbers = {x['number'] for x in bank['items'] if x['family'] == family}
-            if not numbers:
-                continue
-            here = out / f'run-{k}' / family
-            workspace = export(bank, here / 'workspace', numbers).resolve()
+        for g, group in enumerate(chunks(bank['items'], size), 1):
+            numbers = sorted(x['number'] for x in group)
+            here = out / f'run-{k}' / f'group-{g:02d}'
+            workspace = export(bank, here / 'workspace', set(numbers)).resolve()
             prompt = CALIBRATION_PROMPT.format(workspace=workspace, minutes=minutes)
             (here / 'prompt.txt').write_text(prompt)
-            jobs.append({'run': k, 'part': family, 'folder': str(here.relative_to(out)), 'workspace': str(workspace),
+            jobs.append({'run': k, 'part': f'group-{g:02d}', 'numbers': numbers,
+                         'folder': str(here.relative_to(out)), 'workspace': str(workspace),
                          'items': len(numbers), 'prompt_sha256': sha(prompt.encode())})
     manifest = {'bank_sha256': sha(json.dumps(bank, sort_keys=True).encode()), 'runs': runs, 'jobs': jobs,
                 'minutes': minutes,
@@ -297,7 +341,7 @@ def calibration_score(bank, out):
         here = out / job['folder']
         snapshot = here / 'deadline-snapshot'
         workspace = snapshot if snapshot.is_dir() else Path(job['workspace'])  # the hard limit: files at the deadline
-        part = {**bank, 'items': [x for x in bank['items'] if x['family'] == job['part']]}
+        part = {**bank, 'items': [x for x in bank['items'] if x['number'] in job['numbers']]}
         result = score(part, workspace)
         rows.setdefault(job['run'], []).extend(result['rows'])
         spent = here / 'timing.json'
@@ -393,11 +437,12 @@ def bank_family(bank, item_id):
     return next(x['family'] for x in bank['items'] if x['id'] == item_id)
 
 
-def freeze(bank, proposal):
-    """Fixed formal set from an approved proposal: the chosen items in group order, points attached."""
+def freeze(bank, proposal, size):
+    """Fixed formal set from an approved proposal: the chosen items in mixed group order (`grouped`), points
+    attached."""
     chosen = {**bank, 'items': [dict(x, points=proposal['points'][x['id']]) for x in bank['items']
                                 if x['id'] in proposal['points']]}
-    return {**select(chosen, grouped(chosen)),
+    return {**select(chosen, grouped(chosen, size)),
             'design': {k: proposal[k] for k in ('count', 'pilot_accuracy', 'expected_instance_seconds')}}
 
 
@@ -406,11 +451,12 @@ def main():
     sub = parser.add_subparsers(dest='command', required=True)
     b = sub.add_parser('build')
     b.add_argument('--seed', type=int, required=True)
-    b.add_argument('--per-cell', type=int, default=5)
+    b.add_argument('--per-cell', type=int, default=3)
     b.add_argument('--out', type=Path, required=True)
     s = sub.add_parser('select')
     s.add_argument('--bank', type=Path, required=True)
-    s.add_argument('--ids', type=Path, help='JSON list of item ids in set order (default: all, group order)')
+    s.add_argument('--ids', type=Path, help='JSON list of item ids in set order (default: all, mixed group order)')
+    s.add_argument('--group-size', type=int, default=12)
     s.add_argument('--out', type=Path, required=True)
     e = sub.add_parser('export')
     e.add_argument('--bank', type=Path, required=True)
@@ -424,7 +470,8 @@ def main():
     cp.add_argument('--bank', type=Path, required=True)
     cp.add_argument('--out', type=Path, required=True)
     cp.add_argument('--runs', type=int, default=2)
-    cp.add_argument('--minutes', type=int, default=45, help='per job (one family)')
+    cp.add_argument('--minutes', type=int, default=40, help='per job (one group)')
+    cp.add_argument('--group-size', type=int, default=12)
     cs = sub.add_parser('calibrate-score')
     cs.add_argument('--bank', type=Path, required=True)
     cs.add_argument('--out', type=Path, required=True)
@@ -439,6 +486,7 @@ def main():
     f = sub.add_parser('freeze', help='fixed formal set from an approved choose proposal')
     f.add_argument('--bank', type=Path, required=True)
     f.add_argument('--design', type=Path, required=True)
+    f.add_argument('--group-size', type=int, default=12)
     f.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
     if args.command == 'choose':
@@ -448,11 +496,12 @@ def main():
         print(json.dumps({k: v for k, v in result.items() if k not in ('ids', 'points')}))
         return
     if args.command == 'freeze':
-        result = freeze(json.loads(args.bank.read_text()), json.loads(args.design.read_text()))
+        result = freeze(json.loads(args.bank.read_text()), json.loads(args.design.read_text()), args.group_size)
         args.out.write_text(json.dumps(result, ensure_ascii=False, indent=1) + '\n')
         return
     if args.command == 'calibrate-prepare':
-        print(json.dumps(calibration_prepare(json.loads(args.bank.read_text()), args.out, args.runs, args.minutes)))
+        print(json.dumps(calibration_prepare(json.loads(args.bank.read_text()), args.out, args.runs, args.minutes,
+                                             args.group_size)))
         return
     if args.command == 'calibrate-score':
         result = calibration_score(json.loads(args.bank.read_text()), args.out)
@@ -463,7 +512,7 @@ def main():
         args.out.write_text(json.dumps(build(args.seed, args.per_cell), ensure_ascii=False, indent=1) + '\n')
     elif args.command == 'select':
         bank = json.loads(args.bank.read_text())
-        ids = json.loads(args.ids.read_text()) if args.ids else grouped(bank)
+        ids = json.loads(args.ids.read_text()) if args.ids else grouped(bank, args.group_size)
         args.out.write_text(json.dumps(select(bank, ids), ensure_ascii=False, indent=1) + '\n')
     elif args.command == 'export':
         export(json.loads(args.bank.read_text()), args.out)

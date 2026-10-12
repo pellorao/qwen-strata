@@ -10,7 +10,7 @@ import unittest
 from pathlib import Path
 
 from tools.tuning import codex_workload, sampling_bank, staged_decision, window_bank
-from tools.tuning.sampling_families import codec, count, debug, ledger, machine
+from tools.tuning.sampling_families import codec, count, debug, incident, ledger, logic, machine, policy
 
 
 class StagedDecisionTest(unittest.TestCase):
@@ -79,6 +79,19 @@ class SamplingBankTest(unittest.TestCase):
             parity = rng.choice('abc')
             linear = sum(1 for w in words if not any(f in w for f in forbidden) and w.count(parity) % 2 == 0)
             self.assertEqual(count.huge_linear(n, 'abc', forbidden, parity), linear)
+        for _ in range(30):
+            n, size = rng.randint(1, 8), rng.choice([2, 3])
+            allowed = [[1] * size for _ in range(size)]
+            for x, y in rng.sample([(x, y) for x in range(size) for y in range(x, size)], rng.choice([1, 2])):
+                allowed[x][y] = allowed[y][x] = 0
+            factors = {}
+            for prime in (2, 3, 5, 7):
+                while n % prime ** (factors.get(prime, 0) + 1) == 0:
+                    factors[prime] = factors.get(prime, 0) + 1
+            words = [w for w in itertools.product(range(size), repeat=n)
+                     if all(allowed[w[i]][w[(i + 1) % n]] for i in range(n))]
+            turned = {min(min(v[i:] + v[:i] for i in range(n)) for v in (w, w[::-1])) for w in words}
+            self.assertEqual(count.huge_bracelets(n, factors, allowed), len(turned), (n, allowed))
 
     def test_machine_semantics_and_cycle_skip(self):
         r = {'tier': 2, 'modulus': 100, 'sub': 'reversed', 'jumps': 'absolute', 'signed': True, 'shr_flag': True,
@@ -112,8 +125,8 @@ class SamplingBankTest(unittest.TestCase):
     def test_codec_steps_round_trip(self):
         for seed in range(80):
             rng = random.Random(seed)
-            for tier in sampling_bank.TIERS:
-                chosen = codec.steps(rng, tier)
+            for level in (1, 2, 3, 4):
+                chosen = codec.steps(rng, level)
                 for text in codec.samples(rng, 40):
                     encoded = text
                     for encode, _, _ in chosen:
@@ -139,14 +152,22 @@ class SamplingBankTest(unittest.TestCase):
         # day 1: id 7 runs before id 6 and moves 100; id 6 counts 6000 > cap; reversing 4 gives back 450 (a 3900);
         # b (100) cannot close; interest adds 39 and 1
         self.assertEqual(result, {'balances': {'a': 3939, 'b': 101}, 'rejected': [5, 6, 9, 11], 'fees': 0})
+        held = dict(r, tier=4, expiry=1, fee=0, fee_bp=0)
+        events = [{'id': 1, 't': 0, 'op': 'open', 'acct': 'a'}, {'id': 2, 't': 1, 'op': 'deposit', 'acct': 'a', 'amount': 1000},
+                  {'id': 3, 't': 2, 'op': 'hold', 'acct': 'a', 'amount': 300},
+                  {'id': 4, 't': 3, 'op': 'withdraw', 'acct': 'a', 'amount': 800},  # only 700 is available
+                  {'id': 5, 't': 4, 'op': 'close', 'acct': 'a'},  # an active hold blocks closing
+                  {'id': 6, 't': 5, 'op': 'capture', 'target': 3},
+                  {'id': 7, 't': 6, 'op': 'release', 'target': 3}]  # already captured
+        self.assertEqual(ledger.settle(events, held), {'balances': {'a': 700}, 'rejected': [4, 5, 7], 'fees': 0})
         rng = random.Random(4)
-        for tier in sampling_bank.TIERS:  # money is conserved apart from deposits, withdrawals, fees and interest
-            r = ledger.rules(rng, tier)
+        for level in (1, 2, 3, 4):  # money is conserved apart from deposits, withdrawals, fees and interest
+            r = ledger.rules(rng, level)
             for _ in range(30):
                 events = ledger.events(rng, r)
                 result = ledger.settle(events, r)
                 self.assertEqual(len(result['rejected']), len(set(result['rejected'])))
-                if tier < 3:
+                if level < 3:
                     rejected = set(result['rejected'])
                     reversed_ids = {e['target'] for e in events if e['op'] == 'reverse' and e['id'] not in rejected}
                     flow = sum((e['amount'] if e['op'] == 'deposit' else -e['amount'])
@@ -171,7 +192,7 @@ class SamplingBankTest(unittest.TestCase):
         answer = next(x for x in bank['items'] if x['kind'] == 'answer')
         package = next(x for x in bank['items'] if x['kind'] == 'package')
         code = next(x for x in bank['items'] if x['family'] == 'ledger' and x['tier'] == 3)
-        rules = ledger.rules(random.Random(f'ledger/3/{code["seed"]}'), 3)
+        rules = ledger.rules(random.Random(f'ledger/3/{code["seed"]}'), 4)
         with tempfile.TemporaryDirectory() as tmp:
             sampling_bank.export(bank, tmp)
             self.assertIn(f'solutions/{package["number"]}/', (Path(tmp) / 'problems' / (package['number'] + '.md')).read_text())
@@ -188,26 +209,60 @@ class SamplingBankTest(unittest.TestCase):
         self.assertTrue(rows[package['number']]['correct'])
         self.assertEqual(result['correct'], 3)
 
-    def test_only_tier_one_code_shows_an_example(self):
+    def test_code_problems_show_no_example(self):  # v4 tier 1 is the v3 level 2, which already had none
         for x in self.bank['items']:
             if x['family'] in ('ledger', 'codec'):
-                self.assertEqual('xample' in x['prompt'].split('No examples')[0], x['tier'] == 1, x['id'])
+                self.assertNotIn('xample', x['prompt'].split('No examples')[0], x['id'])
+
+    def test_logic_puzzles_have_exactly_one_arrangement(self):
+        for tier in sampling_bank.TIERS:
+            for seed in range(2):
+                rng = random.Random(f'logic-test/{tier}/{seed}')
+                n, values, hidden, clues = logic.puzzle(rng, tier) or self.fail('no puzzle')
+                self.assertEqual(logic.count(n, values, clues), 1)
+                where = lambda cat, value: hidden[cat][values[cat].index(value)]
+                self.assertTrue(all(logic.holds(c, where) for c in clues))
+                for k in range(len(clues)):  # every clue is needed
+                    self.assertEqual(logic.count(n, values, clues[:k] + clues[k + 1:]), 2)
+
+    def test_policy_misreadings_each_change_some_answer(self):
+        from datetime import date
+        for x in (i for i in self.bank['items'] if i['family'] == 'policy'):
+            r, wrongs = x['policy']['rules'], x['policy']['misreadings']
+            cases = [{k: date.fromisoformat(v) if k in ('event', 'application', 'registered', 'born') else v
+                      for k, v in c.items()} for c in x['policy']['cases']]
+            self.assertEqual(','.join(str(policy.fee(c, r)) for c in cases), x['answer'])
+            self.assertEqual(len({c['name'] for c in cases}), len(cases))
+            for w in wrongs:
+                self.assertNotEqual(','.join(str(policy.fee(c, r, {w})) for c in cases), x['answer'], (x['id'], w))
+
+    def test_incident_root_is_in_the_log(self):
+        for tier in sampling_bank.TIERS:
+            for seed in range(6):
+                x = incident.item(random.Random(f'incident-test/{tier}/{seed}'), tier)
+                service, code = x['incident']['root']
+                self.assertIsNotNone(x['incident']['root_line'], x['incident']['scenario'])
+                self.assertEqual(x['answer'], f'{service},{code}'.lower())
+                self.assertIn(f'- {code}:', x['prompt'])
+                self.assertIn(f' {service} ', x['prompt'].split('```')[1])
 
     def test_calibration_scores_the_deadline_snapshot(self):
         import shutil
         bank = sampling_bank.select(self.bank, [x['id'] for x in self.bank['items']])
         answer = next(x for x in bank['items'] if x['kind'] == 'answer')
         with tempfile.TemporaryDirectory() as tmp:
-            manifest = sampling_bank.calibration_prepare(bank, tmp, 1, 10)
-            self.assertEqual(len(manifest['jobs']), len(sampling_bank.FAMILIES))
-            job = Path(tmp) / 'run-1' / answer['family']
-            self.assertEqual(len(list((job / 'workspace' / 'problems').glob('*.md'))), 3)
+            manifest = sampling_bank.calibration_prepare(bank, tmp, 1, 10, 5)
+            groups = sampling_bank.chunks(bank['items'], 5)
+            self.assertEqual(len(manifest['jobs']), len(groups))
+            g = next(k for k, group in enumerate(groups, 1) if answer in group)
+            job = Path(tmp) / 'run-1' / f'group-{g:02d}'
+            self.assertEqual(len(list((job / 'workspace' / 'problems').glob('*.md'))), len(groups[g - 1]))
             (job / 'start-epoch').write_text(str(time.time()))
             shutil.copytree(job / 'workspace', job / 'deadline-snapshot')
             (job / 'deadline-snapshot' / 'answers' / (answer['number'] + '.txt')).write_text(answer['answer'])
             (job / 'workspace' / 'answers' / (answer['number'] + '.txt')).write_text('written after the limit')
             result = sampling_bank.calibration_score(bank, tmp)
-        self.assertEqual(result['runs'][0]['scored'][answer['family']], 'deadline-snapshot')
+        self.assertEqual(result['runs'][0]['scored'][f'group-{g:02d}'], 'deadline-snapshot')
         self.assertEqual(next(i for i in result['items'] if i['id'] == answer['id'])['passes'], 1)
 
     def test_broken_code_scores_zero(self):
@@ -394,26 +449,36 @@ class CodexWorkloadTest(unittest.TestCase):
             with open(Path(tmp) / 'log', 'w') as out:
                 self.assertEqual(codex_workload.run_limited(['sh', '-c', 'read x; exit $x'], '3\n', out, tmp, None, 5), 3)
 
-    def test_groups_fill_each_direction_by_tier(self):
-        items = [{'number': f'X{n}', 'family': f, 'tier': t} for n, (t, f, k) in
-                 enumerate(itertools.product((3, 1, 2), reversed(sampling_bank.FAMILIES), range(5)))]
-        five = codex_workload.groups(items, 5)
-        self.assertEqual([(g[0]['family'], {x['tier'] for x in g}, len(g)) for g in five],
-                         [(f, {t}, 5) for f in sampling_bank.FAMILIES for t in (1, 2, 3)])
-        self.assertEqual([codex_workload.group_seconds_limit(g, 30) for g in five[:3]], [150, 300, 450])
-        ten = codex_workload.groups(items, 10)
-        self.assertEqual([(g[0]['family'], sorted({x['tier'] for x in g}), len(g)) for g in ten],
-                         [(f, tiers, n) for f in sampling_bank.FAMILIES for tiers, n in (([1, 2], 10), ([3], 5))])
-        self.assertEqual({codex_workload.group_seconds_limit(g, 30) for g in ten}, {450})
-        for size in (5, 10):
-            self.assertEqual(sum(codex_workload.group_seconds_limit(g, 30)
-                                 for g in codex_workload.groups(items, size)), 4500)
+    def test_groups_mix_directions_and_tiers(self):
+        bank = {'items': [{'id': f'{f}{t}{k}', 'family': f, 'tier': t}
+                          for f in sampling_bank.FAMILIES for t in sampling_bank.TIERS for k in range(3)]}
+        ids = sampling_bank.grouped(bank, 12)
+        items = [next(x for x in bank['items'] if x['id'] == i) for i in ids]
+        groups = codex_workload.groups(items, 12)
+        self.assertEqual([len(g) for g in groups], [12] * 6)
+        for g in groups:  # every direction and every tier in each group, the same time limit
+            self.assertEqual({x['family'] for x in g}, set(sampling_bank.FAMILIES))
+            self.assertEqual(sorted(x['tier'] for x in g), [1] * 4 + [2] * 4 + [3] * 4)
+            self.assertEqual(codex_workload.group_seconds_limit(g, 30), 720)
+        uneven = codex_workload.groups(items[:70], 12)  # sizes differ by at most one, nothing lost or reordered
+        self.assertEqual([len(g) for g in uneven], [12, 12, 12, 12, 11, 11])
+        self.assertEqual([x for g in uneven for x in g], items[:70])
+
+    def test_cluster_se_treats_groups_as_clusters(self):
+        rows = [{'group': g, 'points': 1, 'correct': c} for g, cs in enumerate([[1, 1, 1], [0, 0, 0], [1, 1, 1],
+                                                                              [0, 0, 0]]) for c in cs]
+        result = sampling_bank.cluster_se(rows)
+        # group totals 3, 0, 3, 0 around 1.5 each: 4/3 * 4 * 2.25 / 144 = 1/12; independent 12 * 0.25 / 144
+        self.assertEqual((result['score'], result['clusters']), (0.5, 4))
+        self.assertAlmostEqual(result['se'], (1 / 12) ** 0.5)
+        self.assertAlmostEqual(result['design_effect'], 4)
+        self.assertIsNone(sampling_bank.cluster_se(rows[:3])['se'])
 
     def test_sampling_recovery_runs_only_the_chosen_groups_with_full_set_numbering(self):
         self.assertEqual(codex_workload.parse_groups('7-10'), [7, 8, 9, 10])
         self.assertEqual(codex_workload.parse_groups('2,5,7-8'), [2, 5, 7, 8])
         bank = sampling_bank.build(7, 1)
-        data = sampling_bank.select(bank, sampling_bank.grouped(bank))
+        data = sampling_bank.select(bank, sampling_bank.grouped(bank, 2))
         plan = {'group_size': 2, 'group_seconds_per_tier': 30, 'only_groups': [3, 4]}
         everything = codex_workload.groups(data['items'], 2)
         seen = []
@@ -444,8 +509,10 @@ class CodexWorkloadTest(unittest.TestCase):
 
     def test_sampling_runs_groups_with_limits_and_reruns_compacted_groups(self):
         bank = sampling_bank.build(7, 1)
-        data = sampling_bank.select(bank, sampling_bank.grouped(bank))
-        ledger, machine = data['items'][0:3], data['items'][3:6]
+        data = sampling_bank.select(bank, sampling_bank.grouped(bank, 2))
+        everything = codex_workload.groups(data['items'], 2)
+        first, second = everything[:2]
+        third = next(g for g in everything[2:] if g[0]['kind'] == 'answer')
         plan = {'group_size': 2, 'group_seconds_per_tier': 30}
         seen, settled = [], []
 
@@ -457,14 +524,13 @@ class CodexWorkloadTest(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             events = [{'type': 'event_msg', 'payload': {'type': 'token_count', 'info': {
                 'last_token_usage': {'total_tokens': 20000}}}}]
-            # ledger tiers 1-2 compact once; ledger tier 3 compacts every time
-            if group[0] is ledger[2] or (group[0] is ledger[0] and sum(s[0] == problems for s in seen) == 1):
+            # group 1 compacts once; group 2 compacts every time
+            if group == second or (group == first and sum(s[0] == problems for s in seen) == 1):
                 events.append({'type': 'compacted', 'payload': {}})
             path.write_text(''.join(json.dumps(e) + '\n' for e in events))
-            first = group[0]
-            if first['kind'] == 'answer':
-                (Path(workspace) / 'answers' / (first['number'] + '.txt')).write_text(first['answer'])
-            if group[0] is machine[0]:  # machine tiers 1-2: one answer written, then the hard limit
+            if group[0]['kind'] == 'answer':
+                (Path(workspace) / 'answers' / (group[0]['number'] + '.txt')).write_text(group[0]['answer'])
+            if group == third:  # one answer written, then the hard limit
                 return 'timeout', None, timeout
             return 0, 'thread', 1.5
 
@@ -479,10 +545,11 @@ class CodexWorkloadTest(unittest.TestCase):
             codex_workload.codex_exec = original
         numbers = lambda xs: [x['number'] for x in xs]
         # each session sees only its group, one fresh session per group (never resumed), limit = sum of tiers x 30
-        self.assertEqual(seen[0], (numbers(ledger[:2]), 90, None))
-        self.assertEqual(seen[1], (numbers(ledger[:2]), 90, None))
-        self.assertEqual([s[0] for s in seen[2:4]], [numbers(ledger[2:])] * 2)
-        self.assertEqual(seen[4][:2], (numbers(machine[:2]), 90))
+        limit = lambda g: 30 * sum(x['tier'] for x in g)
+        self.assertEqual(seen[0], (sorted(numbers(first)), limit(first), None))
+        self.assertEqual(seen[1], (sorted(numbers(first)), limit(first), None))
+        self.assertEqual([s[0] for s in seen[2:4]], [sorted(numbers(second))] * 2)
+        self.assertIn((sorted(numbers(third)), limit(third), None), seen[4:])
         self.assertEqual(len(seen), len(codex_workload.groups(data['items'], 2)) + 2)
         self.assertEqual(folders[:4], ['group-01-1', 'group-01-2', 'group-02-1', 'group-02-2'])
         runs = result['groups']
@@ -493,13 +560,12 @@ class CodexWorkloadTest(unittest.TestCase):
         self.assertEqual(result['compacted_attempts'], 2)
         # the timed-out group is settled and scored on what it wrote
         timed = next(r for r in runs if r['timed_out'])
-        self.assertEqual((timed['items'], timed['engine_idle_after_seconds']), (numbers(machine[:2]), 2.0))
+        self.assertEqual((timed['items'], timed['engine_idle_after_seconds']), (numbers(third), 2.0))
         self.assertEqual((settled, result['timed_out_groups']), ([1], 1))
         rows = {r['number']: r for r in result['items']}
-        self.assertEqual(machine[0]['kind'], 'answer')
-        self.assertTrue(rows[machine[0]['number']]['correct'])
-        self.assertFalse(rows[machine[1]['number']]['answered'])
-        self.assertTrue(rows[machine[1]['number']]['approx_from_remainder'])
+        self.assertTrue(rows[third[0]['number']]['correct'])
+        self.assertFalse(rows[third[1]['number']]['answered'])
+        self.assertTrue(rows[third[1]['number']]['approx_from_remainder'])
         self.assertEqual(len(result['items']), len(data['items']))
 
     def test_sampling_trace_is_checked_in_the_service_log(self):
@@ -533,7 +599,7 @@ class CodexWorkloadTest(unittest.TestCase):
 
     def test_sampling_gate_runs_before_each_group_and_its_failure_stops_the_run(self):
         bank = sampling_bank.build(7, 1)
-        data = sampling_bank.select(bank, sampling_bank.grouped(bank))
+        data = sampling_bank.select(bank, sampling_bank.grouped(bank, 2))
         plan = {'group_size': 2, 'group_seconds_per_tier': 30, 'only_groups': [1, 2, 3]}
         events = []
 

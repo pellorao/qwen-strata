@@ -6,9 +6,9 @@ model, capture the engine log -> score, analyse the sessions and check the condi
 decision (tools.tuning.staged_decision) decides whether another round of +2 instances per condition is needed.
 
 Every tool command runs in a native Codex permission profile that sees only the session's workspace (`isolation`,
-verified without a model by tools.tuning.sandbox_probe, which `check` runs).  Sampling runs the set in groups of
-same-direction items (one direction x tier cell for size 5), one fresh Codex session and one hard limit per group
-(`run_sampling`).  A sampling plan with `"pilot": true` runs one instance of one condition to measure Qwen's
+verified without a model by tools.tuning.sandbox_probe, which `check` runs).  Sampling runs the set in mixed groups
+(directions and tiers dealt across groups by the frozen set's order), one fresh Codex session and one hard limit per
+group (`run_sampling`).  A sampling plan with `"pilot": true` runs one instance of one condition to measure Qwen's
 per-item correctness, time and tokens.
 
     python3 -m tools.tuning.codex_workload check --plan PLAN
@@ -332,17 +332,10 @@ def context_tokens(path):
 
 
 def groups(items, size):
-    """Fixed group order: direction by direction (in sampling_families.FAMILIES order), tiers ascending within a
-    direction, chunks of `size`.  With 5 items per cell, size 5 is one cell (direction x tier) and size 10 merges
-    tiers 1-2 of a direction (tier 3 stays alone).  Same-kind items share a group on purpose: the model may solve them
-    together; the workload measures tuning effects, not per-item solving."""
-    result = []
-    for family in sampling_bank.FAMILIES:
-        own = sorted((x for x in items if x['family'] == family), key=lambda x: x['tier'])  # stable: set order kept
-        result += [own[k:k + size] for k in range(0, len(own), size)]
-    if sum(map(len, result)) != len(items):
-        raise ValueError('An item of the set belongs to no known direction')
-    return result
+    """The set's fixed groups: consecutive runs in set order (`sampling_bank.chunks`).  A frozen set lists its items
+    in mixed group order (`sampling_bank.grouped` with the same size), so every group mixes directions and tiers and
+    cannot be solved by one generic program; the model may still work on a group's items in any order."""
+    return sampling_bank.chunks(items, size)
 
 
 def group_seconds_limit(group, per_tier):
@@ -382,7 +375,7 @@ def wait_for_free_commit(read, minimum_gib, log=print, sleep=time.sleep, clock=t
 
 
 def run_sampling(plan, data, spec, folder, args_for, key, mark, settle, gate=lambda: 0.0):
-    """The set in groups of `group_size` same-direction items (`groups`), each in a fresh Codex session whose
+    """The set in mixed groups of at most `group_size` items (`groups`), each in a fresh Codex session whose
     workspace holds only that group; the model reads and answers them in any order, together if it likes.  A group's hard limit is the sum of its tiers times
     `group_seconds_per_tier`: at the limit the session is killed, `settle()` waits until Strata has cancelled the
     generation, and the group is scored on what it wrote.  Group time is exact and `mark()` around the session
@@ -433,7 +426,7 @@ def run_sampling(plan, data, spec, folder, args_for, key, mark, settle, gate=lam
         rows += [{**r, 'group': g, 'approx_seconds': approx[r['id']], 'approx_from_remainder': r['id'] in unwritten,
                   'group_timed_out': timed_out} for r in result['rows']]
     valid = [r for r in runs if r['valid']]
-    return {**sampling_bank.weighted(rows), 'items': rows, 'groups': runs,
+    return {**sampling_bank.weighted(rows), 'clustered': sampling_bank.cluster_se(rows), 'items': rows, 'groups': runs,
             'timed_out_groups': sum(r['timed_out'] for r in valid), 'answered': sum(r['answered'] for r in rows),
             'compacted_attempts': sum(not r['valid'] for r in runs)}
 

@@ -1,7 +1,9 @@
 """ledger: implement settlement for a long, multi-rule account specification (hidden tests cover the edge cases).
 
-Tiers add rules: 1 ordering, opening, overdraft, withdrawal fee; 2 daily cap, freezing, fee waiver, reversals;
-3 interest and overdraft charges, closing, large withdrawals counted double, a percentage fee with a floor.
+Levels add rules: 1 ordering, opening, overdraft, withdrawal fee; 2 daily cap, freezing, fee waiver, reversals;
+3 interest and overdraft charges, closing, large withdrawals counted double, a percentage fee with a floor; 4 holds
+that reserve money until they are captured, released or expire, checked against the available balance (balance minus
+active holds) while interest and the fee waiver still use the balance.  (`tier` in this module is the level.)
 """
 import json
 import math
@@ -17,7 +19,8 @@ def rules(rng, tier):
             'rate': rng.choice([50, 125, 200]) if tier >= 3 else None,
             'charge': rng.choice([300, 500, 1000]) if tier >= 3 else None,
             'large': rng.choice([400, 500, 600]) if tier >= 3 else None,
-            'fee_bp': rng.choice([100, 150, 250]) if tier >= 3 else None}
+            'fee_bp': rng.choice([100, 150, 250]) if tier >= 3 else None,
+            'expiry': rng.choice([1, 2]) if tier >= 4 else None}
 
 
 def settle(events, r):
@@ -26,6 +29,7 @@ def settle(events, r):
     order = sorted(events, key=lambda e: (e['t'], e['id'] if r['tie'] == 'ascending' else -e['id']))
     balance, overdraft, frozen, closed, fees, rejected = {}, {}, set(), set(), 0, []
     spent, done = {}, {}  # (account, day) -> capped amount; id -> accepted reversible event with its fee
+    holds = {}  # id -> (account, amount, time placed); dropped once captured, released or expired
 
     def live(a):
         return a in balance and a not in closed
@@ -38,9 +42,15 @@ def settle(events, r):
     def positive(e):
         return isinstance(e.get('amount'), int) and not isinstance(e.get('amount'), bool) and e['amount'] > 0
 
+    def held(a, now):
+        return sum(x for h, (b, x, t) in holds.items() if b == a and now < t + r['expiry'] * DAY) if tier >= 4 else 0
+
+    def active_hold(h, now):
+        return h in holds and now < holds[h][2] + r['expiry'] * DAY
+
     for e in order:
         op, ok = e['op'], False
-        day = e['t'] // DAY
+        day, now = e['t'] // DAY, e['t']
         if op == 'open':
             a = e['acct']
             ok = a not in balance
@@ -57,7 +67,7 @@ def settle(events, r):
                 amount = e['amount']
                 fee = 0 if tier >= 2 and balance[a] >= r['waiver'] else fee_of(amount)
                 counted = amount * (2 if tier >= 3 and amount > r['large'] else 1)
-                ok = balance[a] - amount - fee >= -overdraft[a] and \
+                ok = balance[a] - held(a, now) - amount - fee >= -overdraft[a] and \
                     (tier < 2 or spent.get((a, day), 0) + counted <= r['cap'])
                 if ok:
                     balance[a] -= amount + fee
@@ -69,7 +79,7 @@ def settle(events, r):
             a, b = e['from'], e['to']
             if live(a) and live(b) and a != b and positive(e) and not (tier >= 2 and a in frozen):
                 amount = e['amount']
-                ok = balance[a] - amount >= -overdraft[a] and \
+                ok = balance[a] - held(a, now) - amount >= -overdraft[a] and \
                     (tier < 2 or spent.get((a, day), 0) + amount <= r['cap'])
                 if ok:
                     balance[a] -= amount
@@ -92,7 +102,8 @@ def settle(events, r):
                     moves = {t['acct']: t['amount'] + fee}
                 else:
                     moves = {t['from']: t['amount'], t['to']: -t['amount']}
-                ok = all(live(a) for a in moves) and all(balance[a] + v >= -overdraft[a] for a, v in moves.items())
+                ok = all(live(a) for a in moves) and \
+                    all(balance[a] - held(a, now) + v >= -overdraft[a] for a, v in moves.items())
                 if ok:
                     for a, v in moves.items():
                         balance[a] += v
@@ -111,9 +122,32 @@ def settle(events, r):
                     fees += charge
         elif op == 'close' and tier >= 3:
             a = e['acct']
-            ok = live(a) and balance[a] == 0 and a not in frozen
+            ok = live(a) and balance[a] == 0 and a not in frozen and not held(a, now)
             if ok:
                 closed.add(a)
+        elif op == 'hold' and tier >= 4:
+            a = e['acct']
+            ok = live(a) and positive(e) and a not in frozen and \
+                balance[a] - held(a, now) - e['amount'] >= -overdraft[a]
+            if ok:
+                holds[e['id']] = (a, e['amount'], now)
+        elif op == 'capture' and tier >= 4:
+            h = e.get('target')
+            if active_hold(h, now) and live(holds[h][0]) and holds[h][0] not in frozen:
+                a, amount, _ = holds[h]
+                fee = 0 if balance[a] >= r['waiver'] else fee_of(amount)
+                counted = amount * (2 if amount > r['large'] else 1)
+                ok = balance[a] - (held(a, now) - amount) - amount - fee >= -overdraft[a] and \
+                    spent.get((a, day), 0) + counted <= r['cap']
+                if ok:
+                    del holds[h]
+                    balance[a] -= amount + fee
+                    fees += fee
+                    spent[(a, day)] = spent.get((a, day), 0) + counted
+        elif op == 'release' and tier >= 4:
+            ok = active_hold(e.get('target'), now)
+            if ok:
+                del holds[e['target']]
         if not ok:
             rejected.append(e['id'])
     return {'balances': {a: v for a, v in sorted(balance.items()) if a not in closed}, 'rejected': rejected,
@@ -162,7 +196,28 @@ def describe(r):
             f'charge of ceil(-balance * {r["charge"]} / 10000), which counts in the fee total. Interest and charges '
             'cannot be reversed.',
             '`{"op": "close", "acct": A}` closes A; it is rejected unless A\'s balance is exactly 0 and A is not '
-            'frozen. A closed account no longer counts as open.',
+            'frozen' + (' and has no active hold' if tier >= 4 else '') + '. A closed account no longer counts as open.',
+        ]
+    if tier >= 4:
+        days = 'one day' if r['expiry'] == 1 else f'{r["expiry"]} days'
+        lines += [
+            '`{"op": "hold", "acct": A, "amount": X}` places a hold of X on A (the hold is identified by this event\'s '
+            'id). It does not change the balance, pays no fee and does not count towards the daily cap. It is '
+            'rejected when A is frozen or when A\'s available balance minus X would be below minus the overdraft '
+            'allowance.',
+            f'A hold placed at time t is active until it is captured or released, but only while the time is less '
+            f'than t + {r["expiry"] * DAY} ({days}); from then on it has expired and no longer exists.',
+            'The available balance of an account is its balance minus the amounts of its active holds. Every '
+            'overdraft-allowance check of withdrawals, transfers, reversals and holds uses the available balance '
+            'instead of the balance. The fee waiver and interest/overdraft charges still use the balance itself.',
+            '`{"op": "capture", "target": H}` turns the active hold H into a withdrawal of its amount from its account '
+            'at the capture\'s time: the hold ends, and the amount plus the usual withdrawal fee (with the waiver) is '
+            'subtracted. It counts towards that day\'s cap like a withdrawal (large amounts count twice). It is '
+            'rejected when H is not an active hold, the account is frozen, the cap would be exceeded, or the '
+            'available balance (not counting H itself) minus the amount and fee would be below minus the overdraft '
+            'allowance. A capture cannot be reversed.',
+            '`{"op": "release", "target": H}` ends the active hold H without moving money; it is rejected when H is '
+            'not an active hold.',
         ]
     lines += ['A rejected event changes nothing. Any other `op` is rejected.']
     result = ('Return `{"balances": {account: balance, ...}, "rejected": [ids], "fees": total}`: balances of every '
@@ -182,11 +237,15 @@ def events(rng, r, shortest=8, longest=30):
             if rng.random() < 0.25:
                 e['overdraft'] = rng.choice([0, 50, 500])
             out.append(e)
+            if tier >= 4:  # funded early, so holds and captures can succeed
+                out.append({'op': 'deposit', 'acct': a, 'amount': rng.randint(500, 2500)})
     ops = ['deposit'] * 4 + ['withdraw'] * 5 + ['transfer'] * 4 + ['open']
     if tier >= 2:
         ops += ['freeze', 'unfreeze', 'reverse', 'reverse']
     if tier >= 3:
         ops += ['interest', 'close', 'close']
+    if tier >= 4:
+        ops += ['hold', 'hold', 'hold', 'capture', 'capture', 'release']
     size = rng.randint(shortest, longest)
     while len(out) < size:
         op, a = rng.choice(ops), rng.choice(names + ['zed'] * (rng.random() < 0.05))
@@ -203,6 +262,11 @@ def events(rng, r, shortest=8, longest=30):
             out.append({'op': op, 'target': rng.choice(money) if money and rng.random() < 0.85 else len(out)})
         elif op == 'interest':
             out.append({'op': op})
+        elif op == 'hold':
+            out.append({'op': op, 'acct': a, 'amount': amount if bad else rng.randint(1, 400)})
+        elif op in ('capture', 'release'):  # mostly a recent hold, so it can still be active
+            placed = [k for k, x in enumerate(out) if x['op'] == 'hold'][-2:]
+            out.append({'op': op, 'target': rng.choice(placed) if placed and rng.random() < 0.9 else len(out)})
         elif op == 'close' and rng.random() < 0.5:  # empty the account first, so a close can succeed
             out.append({'op': 'withdraw', 'acct': a, 'amount': rng.randint(1, 900)})
             out.append({'op': op, 'acct': a})
@@ -217,9 +281,9 @@ def events(rng, r, shortest=8, longest=30):
     for k, e in enumerate(out):
         e['id'] = ids[k]
         e['t'] = t
-        t += rng.choice([0, 0, 1, 60, 3600, 20000, 40000])
+        t += rng.choice([0, 0, 1, 60, 3600, 20000, 40000] + ([DAY, DAY - 1, 50000] if tier >= 4 else []))
     for e in out:
-        if e['op'] == 'reverse':  # the target was an index into the timeline
+        if e['op'] in ('reverse', 'capture', 'release'):  # the target was an index into the timeline
             e['target'] = out[e['target']]['id'] if e['target'] < len(out) else max(ids) + 1
     rng.shuffle(out)
     return [dict(sorted(e.items())) for e in out]

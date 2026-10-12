@@ -4,7 +4,10 @@ Tier 1: necklaces (rotations identified) with forbidden neighbouring colours and
 (weighted Burnside).  Tier 2: the same as bracelets (reflections identified too), where the reflection terms
 depend on the parity of n.  Tier 3: n around 10^11-10^13, answer modulo a prime: necklaces under forbidden
 neighbours or forbidden runs of three (Burnside over divisors with matrix powers and a modular inverse), or linear
-strings with a parity condition (matrix power).  Every formula is checked against brute force on small n in the tests.
+strings with a parity condition (matrix power).  Level 4: the same huge sizes for bracelets (reflections identified
+too) under forbidden neighbours, whose reflection terms depend on the parity of n and on which colours may sit next
+to themselves.  Every formula is checked against brute force on small n in the tests.  (`tier` in this module is the
+level.)
 """
 from math import gcd
 
@@ -206,6 +209,45 @@ def huge_linear(n, letters, forbidden, parity_letter, p=PRIME):
     return sum(start[i] * power[i][j] for i in range(2 * size) for j in range(size)) % p
 
 
+def huge_bracelets(n, factors, allowed, p=PRIME):
+    """Bracelets of n beads (rotations and reflections identified) where neighbours x, y need allowed[x][y]
+    (symmetric), modulo p: Burnside over the dihedral group."""
+    size = len(allowed)
+    rotations = 0
+    for d in divisors(factors):
+        power = mod_mat_pow(allowed, d, p)
+        rotations += phi(n // d, factors) * sum(power[i][i] for i in range(size))
+    loops = [allowed[i][i] for i in range(size)]
+    if n % 2:  # each axis through a bead and the opposite edge, whose two beads are mirror images
+        power = mod_mat_pow(allowed, (n - 1) // 2, p)
+        reflections = n * sum(power[i][j] * loops[j] for i in range(size) for j in range(size))
+    else:  # n/2 axes through two beads, n/2 through two edges
+        through_beads = sum(sum(row) for row in mod_mat_pow(allowed, n // 2, p))
+        power = mod_mat_pow(allowed, n // 2 - 1, p)
+        through_edges = sum(loops[i] * power[i][j] * loops[j] for i in range(size) for j in range(size))
+        reflections = n // 2 * (through_beads + through_edges)
+    return (rotations + reflections) % p * pow(2 * n, -1, p) % p
+
+
+def huge_bracelet_item(rng):
+    for _ in range(100):
+        size = rng.choice([3, 4])
+        colours = rng.sample(COLOURS, size)
+        allowed, words = adjacency(rng, colours)
+        if any(allowed[i][i] for i in range(size)) and not all(allowed[i][i] for i in range(size)):
+            break  # some colour may and some may not touch itself: both kinds of reflection term matter
+    n, factors = huge_n(rng)
+    answer = huge_bracelets(n, factors, allowed)
+    prompt = (f'A bracelet is a closed loop of n = {n} beads; each bead is {", ".join(colours[:-1])} or '
+              f'{colours[-1]}. Around the whole loop (including between the last and the first bead), '
+              f'{" and ".join(words)}. Two bracelets are the same if one can be rotated into the other, or turned '
+              f'over and then rotated into the other.\n\nQuestion: How many different bracelets are there, modulo '
+              f'{PRIME}? Answer with an integer from 0 to {PRIME - 1}.')
+    return {'kind': 'answer', 'prompt': prompt, 'answer': str(answer),
+            'count': {'template': 'bracelets', 'n': n, 'factors': {str(k): v for k, v in factors.items()},
+                      'allowed': allowed, 'colours': colours}}
+
+
 # ---------------------------------------------------------------- items
 
 def adjacency(rng, colours):
@@ -290,4 +332,4 @@ def huge_item(rng):
 
 
 def item(rng, tier):
-    return small_item(rng, tier) if tier <= 2 else huge_item(rng)
+    return small_item(rng, tier) if tier <= 2 else huge_item(rng) if tier == 3 else huge_bracelet_item(rng)
