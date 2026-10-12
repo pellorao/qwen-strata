@@ -1,0 +1,13 @@
+{
+  "id": "q2-iq3params",
+  "model": "Q2_0",
+  "model_overrides": {
+    "pcie-frac": null,
+    "ple-io": "direct",
+    "spec": 4,
+    "spec-min-p": 0.9
+  },
+  "model_environment": {
+    "STRATA_ADAPT_LAG": 2
+  }
+}

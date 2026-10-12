@@ -1,0 +1,51 @@
+{
+ "schema": "arw-dimension-v1",
+ "host": "rtx3080ti",
+ "model": "Q2_0",
+ "reviewer": "spec-readiness-reviewer",
+ "authorization": {
+  "approved": true,
+  "source": "用户 2026-10-12 批准 Spec Readiness 低分主因调查：0 无模型检查 → 1 medium×3 → 2 Q2_0+IQ3_XXS 参数（high）×3，某步定位即停；150K 阈值与 Q2 原有参数不跑",
+  "scope": "第 2 步（第 1 步未定位时）：Q2_0 + 与 IQ3_XXS 相同的引擎参数，effort=high，3 个合并实例（一批冻结 ARW 的 6 个交接，一个槽连跑）；部署条件文件，跑完恢复默认部署"
+ },
+ "method": "arw_dimension run：新准备一批冻结 ARW → 部署 Q2_0 条件（停模型冷启动）→ 预检 → ARW 持有模型用 arw_measure 跑全部 6 个交接 → 核对引擎日志与进程环境 → restore 恢复默认部署。",
+ "fixed_conditions": {
+  "strata": "0.1.42",
+  "codex": "0.162.0",
+  "effort": "high",
+  "context_window": 156584,
+  "auto_compact_token_limit": 100000,
+  "engine_defaults": "Q2_0，引擎参数取 IQ3_XXS 当前默认（spec 4、spec-min-p 0.9、ple-io direct、pcie-frac 不设、STRATA_ADAPT_LAG 2、vram-reserve 512，其余主机默认相同）；high 8192/24576（方案 A 已回滚）；guardian 1536/2048；fit_max_tokens 开",
+  "startup_instructions": "config/prompts/startup-instructions.txt（去掉防循环段），compact-prompt.txt 接入；开跑前核对已安装 SHA",
+  "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
+  "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
+  "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json",
+  "host_environment": "2026-10-12 起：页面文件 64 GiB（Windows commit 上限约 127.8 GiB）；WSL memory=16GB、autoMemoryReclaim=gradual；大页生效；前端计划任务 Normal 优先级与最高权限"
+ },
+ "codex_thread_id": "b7635f94-ad60-429b-98e7-3ee5c19ba2bb",
+ "dimensions": [
+  {
+   "order": 2,
+   "id": "q2-iq3params",
+   "default": "q2-iq3params",
+   "reviewer": "spec-readiness-reviewer",
+   "instances_per_slot": 6,
+   "schedule_design": "单条件一个槽连跑 3 个合并实例；基线为 F6 Spec Readiness 5 个实例（IQ3_XXS high 8192/24576）",
+   "schedule": [
+    "q2-iq3params"
+   ],
+   "conditions": {
+    "q2-iq3params": {
+     "log_present": [
+      "budget 8192 \\(max 24576\\)"
+     ],
+     "log_absent": [
+      "budget 4096 ",
+      "budget 28672 "
+     ]
+    }
+   },
+   "note": "判据同第 1 步：AP 单段平均输出 ≥ F6 基线 1.5 倍且时长回升即算定位；同时看重复调用、首次写入时间与问题用例命中。"
+  }
+ ]
+}
