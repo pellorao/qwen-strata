@@ -208,6 +208,27 @@ class DefaultTests(unittest.TestCase):
         body = frontend.apply_reasoning_defaults({'reasoning_budget_tokens': 1}, '/v1/chat/completions', self.installed)
         self.assertEqual(body['reasoning_budget_tokens'], 1)
 
+    def test_claude_code_messages_get_the_effort_budget(self):
+        # As Claude Code 2.1.296 sends them (captured from a local stand-in server).
+        sent = {'max_tokens': 57344, 'thinking': {'type': 'adaptive', 'display': 'omitted'},
+                'output_config': {'effort': 'high'}}
+        body = frontend.apply_messages_budget(dict(sent), self.installed)
+        self.assertEqual(body, dict(sent, reasoning_budget_tokens=28672))
+        body = frontend.apply_messages_budget({'max_tokens': 32000, 'output_config': {'effort': 'max'}}, self.installed)
+        self.assertEqual(body['reasoning_budget_tokens'], 16000)
+
+    def test_messages_keep_a_smaller_budget_and_leave_disabled_thinking_alone(self):
+        body = frontend.apply_messages_budget(
+            {'max_tokens': 57344, 'thinking': {'type': 'enabled', 'budget_tokens': 4096}}, self.installed)
+        self.assertEqual(body['reasoning_budget_tokens'], 4096)
+        body = frontend.apply_messages_budget(
+            {'max_tokens': 57344, 'thinking': {'type': 'enabled', 'budget_tokens': 100000}}, self.installed)
+        self.assertEqual(body['reasoning_budget_tokens'], 28672)
+        off = {'max_tokens': 512, 'thinking': {'type': 'disabled'}}
+        self.assertEqual(frontend.apply_messages_budget(dict(off), self.installed), off)
+        own = {'max_tokens': 57344, 'reasoning_budget_tokens': 0}
+        self.assertEqual(frontend.apply_messages_budget(dict(own), self.installed), own)
+
 
 class ConfigurationTests(unittest.TestCase):
     def setUp(self):
@@ -347,6 +368,8 @@ class PassthroughTests(unittest.TestCase):
         self.assertEqual(body['model'], 'qwen3.8-flash-next-q2_0')
         self.assertEqual(body['reasoning_budget_tokens'], 8192)
         self.post('/strata/v1/messages', {'max_tokens': 5}, key)
+        self.assertEqual(self.upstream.seen[-1][2]['reasoning_budget_tokens'], 2)  # at most half of max_tokens
+        self.post('/strata/v1/messages/count_tokens', {'max_tokens': 5}, key)
         self.assertNotIn('reasoning_budget_tokens', self.upstream.seen[-1][2])
 
     def test_hosted_web_search_runs_between_native_rounds(self):

@@ -66,6 +66,31 @@ def guardian_request(body):
     return isinstance(turn, dict) and turn.get('thread_source') == 'guardian_review'
 
 
+def apply_messages_budget(body, defaults):
+    """Cap the thinking of a Messages request (Claude Code) as Chat and Responses are capped.  Strata reads
+    thinking.budget_tokens and output_config.effort only as an effort level, so the hard cap is its own
+    reasoning_budget_tokens.  A request that turns thinking off, or names its own budget, is left alone; a
+    smaller budget_tokens is kept as the cap.  Messages always carry max_tokens, so the budget is at most half
+    of it, and Strata keeps room for the answer (#984).  Claude Code sends thinking adaptive, effort high and
+    max_tokens CLAUDE_CODE_MAX_OUTPUT_TOKENS (57344 in the manual's example), which gives the full 28672."""
+    thinking = body.get('thinking') if isinstance(body.get('thinking'), dict) else {}
+    if thinking.get('type') == 'disabled' or 'reasoning_budget_tokens' in body:
+        return body
+    config = body.get('output_config') if isinstance(body.get('output_config'), dict) else {}
+    effort = config.get('effort') or defaults.get('reasoning_effort', 'high')
+    budget = EFFORT_BUDGETS.get(effort, EFFORT_BUDGETS['high'])
+    if effort == defaults.get('reasoning_effort'):
+        budget = defaults.get('reasoning_budget_tokens', budget)
+    asked = thinking.get('budget_tokens')
+    if type(asked) is int and 0 < asked < budget:
+        budget = asked
+    if type(body.get('max_tokens')) is int and body['max_tokens'] > 0:
+        budget = min(budget, body['max_tokens'] // 2)
+    if budget:
+        body['reasoning_budget_tokens'] = budget
+    return body
+
+
 def apply_reasoning_defaults(body, path, defaults):
     """Fill effort, thinking budget and output limit a Chat or Responses request leaves out."""
     responses = path == '/v1/responses'
@@ -289,6 +314,8 @@ class Handler(BaseHTTPRequestHandler):
             body['model'] = loaded
             if path in ('/v1/chat/completions', '/v1/responses'):
                 apply_reasoning_defaults(body, path, frontend.model.reasoning_defaults)
+            elif path == '/v1/messages':
+                apply_messages_budget(body, frontend.model.reasoning_defaults)
             if path != '/v1/messages/count_tokens':
                 try:
                     if loop_reminder.apply(path, body, self.headers):
