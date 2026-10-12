@@ -6,9 +6,10 @@ model, capture the engine log -> score, analyse the sessions and check the condi
 decision (tools.tuning.staged_decision) decides whether another round of +2 instances per condition is needed.
 
 Every tool command runs in a native Codex permission profile that sees only the session's workspace (`isolation`,
-verified without a model by tools.tuning.sandbox_probe, which `check` runs).  Sampling gives one problem per turn
-and moves each finished problem out of reach (`run_sampling`).  A sampling plan with `"pilot": true` runs one instance
-of one condition to measure Qwen's per-item correctness, time and tokens.
+verified without a model by tools.tuning.sandbox_probe, which `check` runs).  Sampling runs the set in groups of
+same-direction items (one direction x tier cell for size 5), one fresh Codex session and one hard limit per group
+(`run_sampling`).  A sampling plan with `"pilot": true` runs one instance of one condition to measure Qwen's
+per-item correctness, time and tokens.
 
     python3 -m tools.tuning.codex_workload check --plan PLAN
     python3 -m tools.tuning.codex_workload run --plan PLAN --out DIR [--limit N]
@@ -22,7 +23,6 @@ import json
 import os
 from pathlib import Path
 import re
-import shutil
 import signal
 import subprocess
 import time
@@ -37,6 +37,7 @@ STARTUP = ROOT / 'config/prompts/startup-instructions.txt'
 TIERS = {156584: 100000, 206584: 150000}
 KILL_GRACE_SECONDS = 5          # SIGTERM to the session's process group, then SIGKILL
 ENGINE_IDLE_LIMIT_SECONDS = 120  # a cancelled request must leave Strata idle within this
+GROUP_ATTEMPTS = 2              # a compacted sampling group is invalid and rerun once in a fresh session
 
 
 def sha(raw):
@@ -67,16 +68,10 @@ def load_plan(path):
     if plan['workload'] == 'sampling' and not plan.get('pilot') and sampling_bank.points_of(data) is None:
         raise ValueError('A tuning sampling set must carry per-item points')
     if plan['workload'] == 'sampling':
-        estimates = plan.get('item_token_estimate') or {}
-        if not isinstance(plan.get('item_seconds_limit'), (int, float)) or plan['item_seconds_limit'] <= 0 or \
-                'instance_seconds_limit' in plan or 'chunk' in plan:
-            raise ValueError('A sampling plan sets item_seconds_limit (one problem per turn), no instance limit')
-        if {str(x['tier']) for x in data['items']} - set(estimates):
-            raise ValueError('item_token_estimate must cover every tier of the set')
-        # an item starts only if context + its estimate <= budget; threshold - budget is the slack for an item that
-        # grows the context beyond its estimate
-        if any(plan['session_token_budget'] >= TIERS[s['context_window']] for s in plan['conditions'].values()):
-            raise ValueError('session_token_budget must stay below the compaction threshold')
+        size, per_tier = plan.get('group_size'), plan.get('group_seconds_per_tier')
+        if not isinstance(size, int) or size <= 0 or not isinstance(per_tier, (int, float)) or per_tier <= 0 or \
+                {'instance_seconds_limit', 'item_seconds_limit', 'session_token_budget'} & set(plan):
+            raise ValueError('A sampling plan sets group_size and group_seconds_per_tier (one limit per group)')
     elif not isinstance(plan.get('instance_seconds_limit'), (int, float)) or plan['instance_seconds_limit'] <= 0:
         raise ValueError('A window plan sets instance_seconds_limit')
     if plan['workload'] == 'window' and plan['length'] not in data['lengths']:
@@ -304,21 +299,17 @@ def escapes(calls, workspace):
     return flagged
 
 
-def session_effect(workload, spec, length, analysis):
-    """Did compaction happen where this condition must make it happen (window) or not at all (sampling)?"""
-    problems, count = [], len(analysis['compactions'])
-    if workload == 'sampling' and count:
-        problems.append(f'sampling session compacted {count} times; the workload must stay below the threshold')
-    if workload == 'window':
-        tier = spec['context_window']
-        if length == 'L130' and tier == 156584 and count < 1:
-            problems.append('L130 at 156584 did not compact')
-        if length == 'L130' and tier == 206584 and count:
-            problems.append(f'L130 at 206584 compacted {count} times')
-        if length == 'L180' and count < 1:
-            problems.append(f'L180 at {tier} did not compact')
-        if analysis['tool_calls']:
-            problems.append(f'{analysis["tool_calls"]} tool calls in a conversation-only recall session')
+def window_effect(spec, length, analysis):
+    """Did compaction happen where this window condition must make it happen, and nowhere else?"""
+    problems, count, tier = [], len(analysis['compactions']), spec['context_window']
+    if length == 'L130' and tier == 156584 and count < 1:
+        problems.append('L130 at 156584 did not compact')
+    if length == 'L130' and tier == 206584 and count:
+        problems.append(f'L130 at 206584 compacted {count} times')
+    if length == 'L180' and count < 1:
+        problems.append(f'L180 at {tier} did not compact')
+    if analysis['tool_calls']:
+        problems.append(f'{analysis["tool_calls"]} tool calls in a conversation-only recall session')
     return problems
 
 
@@ -336,79 +327,88 @@ def context_tokens(path):
     return size
 
 
-def item_prompt(x, limit, first):
-    where = f'problems/{x["number"]}.md'
-    opening = ('Read README.md first and follow it. ' if first else
-               'Next problem. The previous problem and all your files for it have been removed; README.md still '
-               'applies. ')
-    return (f'{opening}Solve problem {x["number"]} ({where}). It has a hard limit of {round(limit / 60, 1):g} '
-            'minutes: write its answer or solution as soon as it is done. End your turn when it is written.')
+def groups(items, size):
+    """Fixed group order: direction by direction (in sampling_families.FAMILIES order), tiers ascending within a
+    direction, chunks of `size`.  With 5 items per cell, size 5 is one cell (direction x tier) and size 10 merges
+    tiers 1-2 of a direction (tier 3 stays alone).  Same-kind items share a group on purpose: the model may solve them
+    together; the workload measures tuning effects, not per-item solving."""
+    result = []
+    for family in sampling_bank.FAMILIES:
+        own = sorted((x for x in items if x['family'] == family), key=lambda x: x['tier'])  # stable: set order kept
+        result += [own[k:k + size] for k in range(0, len(own), size)]
+    if sum(map(len, result)) != len(items):
+        raise ValueError('An item of the set belongs to no known direction')
+    return result
+
+
+def group_seconds_limit(group, per_tier):
+    """Hard limit of a group: the sum of its items' tiers times `group_seconds_per_tier`."""
+    return sum(x['tier'] for x in group) * per_tier
+
+
+def group_prompt(group, limit):
+    numbers = ', '.join(x['number'] for x in group)
+    return (f'Read README.md first and follow it. Solve problems {numbers} (problems/<P>.md), in any order. Together '
+            f'they have a hard limit of {round(limit / 60, 1):g} minutes: write each answer or solution as soon as it '
+            'is done. End your turn when all of them are written.')
+
+
+def approximate_seconds(part, workspace, started, seconds):
+    """Per item: gap between consecutive result writes; the group time left after the last write is shared by the
+    items with nothing written (the model may work on several items at once, so this is only approximate)."""
+    gaps = sampling_bank.write_intervals(part, workspace, started)
+    missing = [x['id'] for x in part['items'] if x['id'] not in gaps]
+    left = max(0.0, seconds - sum(gaps.values()))
+    return {**gaps, **{i: left / len(missing) for i in missing}}, set(missing)
 
 
 def run_sampling(plan, data, spec, folder, args_for, key, mark, settle):
-    """One problem per turn.  A session is one Codex thread; each turn's workspace holds only the current problem,
-    and after the turn the driver moves the whole workspace out of reach (to the session folder, which the sandbox
-    cannot read), so a finished problem and its answer can never be revisited.  The turn's wall time is the item's
-    time and `mark()` around it attributes its engine tokens.  A new session starts when the measured context plus
-    the next item's estimate would exceed `session_token_budget` (no compaction may happen), and after a timeout:
-    the killed turn is left behind instead of being carried into the next problem.  A turn that hits the item limit
-    is killed, `settle()` waits until Strata has cancelled the generation, and the item is scored on what it wrote."""
-    limit, budget, estimate = plan['item_seconds_limit'], plan['session_token_budget'], plan['item_token_estimate']
-    turns, sessions, current = [], [], None
-
-    def close(session):
-        analysis = analyse_session(rollout(session['home'], session['timed_out']))
-        analysis['escapes'] = escapes(analysis['calls'], session['workspace'])
-        save(session['folder'] / 'session-analysis.json', analysis)
-        sessions.append({'session': session['index'], 'thread': session['thread'], 'items': session['items'],
-                         'escapes': len(analysis['escapes']), 'compactions': len(analysis['compactions']),
-                         'tool_calls': analysis['tool_calls'], 'loop': analysis['loop'],
-                         'effect_problems': session_effect('sampling', spec, None, analysis)})
-        if analysis['compactions']:  # the measured context missed a compaction: every item of the session is affected
-            for t in turns:
-                if t['session'] == session['index']:
-                    t['compacted_session'] = True
-
-    for x in data['items']:
-        if current and (current['timed_out'] or current['context'] + estimate[str(x['tier'])] > budget):
-            close(current)
-            current = None
-        if current is None:
-            here = folder / f'session-{len(sessions) + 1:02d}'
-            current = {'index': len(sessions) + 1, 'folder': here, 'workspace': here / 'workspace',
-                       'home': here / 'codex-home', 'thread': None, 'items': [], 'context': 0, 'timed_out': False,
-                       'tool_calls': 0}
-            current['home'].mkdir(parents=True)
-        workspace = current['workspace']
-        sampling_bank.export(data, workspace, {x['number']})
-        subprocess.run(['git', 'init', '-q'], cwd=workspace, check=True)
-        log_start = mark()
-        code, thread, seconds = codex_exec(args_for(current['folder']), workspace, current['home'], key,
-                                           item_prompt(x, limit, not current['items']),
-                                           current['folder'] / 'codex.jsonl', limit, resume=current['thread'])
-        timed_out = code == 'timeout'
-        idle_seconds = settle() if timed_out else None
-        log_end = mark()
-        kept = current['folder'] / 'items' / x['number']
-        kept.parent.mkdir(exist_ok=True)
-        shutil.move(str(workspace), str(kept))
-        path = rollout(current['home'], timed_out)
-        before = current['context']
-        current.update(thread=current['thread'] or thread, timed_out=timed_out, context=context_tokens(path))
-        calls = analyse_session(path)['tool_calls']
-        row = sampling_bank.score({**data, 'items': [x]}, kept)['rows'][0]
-        turns.append({**row, 'session': current['index'], 'turn': len(current['items']) + 1, 'exit': code,
-                      'seconds': seconds, 'limit_seconds': limit, 'timed_out': timed_out,
-                      'engine_idle_after_seconds': idle_seconds, 'log_bytes': [log_start, log_end],
-                      'context_before': before, 'context_after': current['context'],
-                      'tool_calls': calls - current['tool_calls']})
-        current['tool_calls'] = calls
-        current['items'].append(x['number'])
-    if current:
-        close(current)
-    return {**sampling_bank.weighted(turns), 'turns': turns, 'sessions': sessions,
-            'timed_out_items': sum(t['timed_out'] for t in turns), 'answered': sum(t['answered'] for t in turns),
-            'compacted_items': sum(bool(t.get('compacted_session')) for t in turns)}
+    """The set in groups of `group_size` same-direction items (`groups`), each in a fresh Codex session whose
+    workspace holds only that group; the model reads and answers them in any order, together if it likes.  A group's hard limit is the sum of its tiers times
+    `group_seconds_per_tier`: at the limit the session is killed, `settle()` waits until Strata has cancelled the
+    generation, and the group is scored on what it wrote.  Group time is exact and `mark()` around the session
+    attributes its engine tokens; per-item time is approximate (write intervals).  A compacted group is invalid and
+    rerun in a fresh session; if every attempt compacts the instance fails its effect check."""
+    rows, runs = [], []
+    for g, group in enumerate(groups(data['items'], plan['group_size']), 1):
+        part, limit = {**data, 'items': group}, group_seconds_limit(group, plan['group_seconds_per_tier'])
+        for attempt in range(1, GROUP_ATTEMPTS + 1):
+            here = folder / f'group-{g:02d}-{attempt}'
+            workspace, home = here / 'workspace', here / 'codex-home'
+            home.mkdir(parents=True)
+            sampling_bank.export(part, workspace)
+            subprocess.run(['git', 'init', '-q'], cwd=workspace, check=True)
+            log_start, started = mark(), time.time()
+            code, thread, seconds = codex_exec(args_for(here), workspace, home, key, group_prompt(group, limit),
+                                               here / 'codex.jsonl', limit)
+            timed_out = code == 'timeout'
+            idle_seconds = settle() if timed_out else None
+            log_end = mark()
+            path = rollout(home, timed_out)
+            analysis = analyse_session(path)
+            analysis['escapes'] = escapes(analysis['calls'], workspace)
+            save(here / 'session-analysis.json', analysis)
+            run = {'group': g, 'attempt': attempt, 'items': [x['number'] for x in group], 'thread': thread,
+                   'exit': code, 'seconds': seconds, 'limit_seconds': limit, 'timed_out': timed_out,
+                   'engine_idle_after_seconds': idle_seconds, 'log_bytes': [log_start, log_end],
+                   'context_after': context_tokens(path), 'compactions': len(analysis['compactions']),
+                   'valid': not analysis['compactions'], 'escapes': len(analysis['escapes']),
+                   'tool_calls': analysis['tool_calls'], 'loop': analysis['loop'], 'effect_problems': []}
+            runs.append(run)
+            if run['valid']:
+                break
+        if not run['valid']:
+            run['valid'] = True  # the attempt that counts; its compaction fails the instance's effect check
+            run['effect_problems'] = [f'group {g} compacted in all {GROUP_ATTEMPTS} attempts']
+        result = sampling_bank.score(part, workspace)
+        approx, unwritten = approximate_seconds(part, workspace, started, seconds)
+        run.update(score=result['score'], correct=result['correct'])
+        rows += [{**r, 'group': g, 'approx_seconds': approx[r['id']], 'approx_from_remainder': r['id'] in unwritten,
+                  'group_timed_out': timed_out} for r in result['rows']]
+    valid = [r for r in runs if r['valid']]
+    return {**sampling_bank.weighted(rows), 'items': rows, 'groups': runs,
+            'timed_out_groups': sum(r['timed_out'] for r in valid), 'answered': sum(r['answered'] for r in rows),
+            'compacted_attempts': sum(not r['valid'] for r in runs)}
 
 
 def run_window(plan, data, spec, folder, args_for, key, mark, settle):
@@ -448,7 +448,7 @@ def run_window(plan, data, spec, folder, args_for, key, mark, settle):
                          'thread': thread, 'turns': turns, 'turns_planned': len(prompts), 'timed_out': timed_out,
                          'compactions': analysis['compactions'],
                          'tool_calls': analysis['tool_calls'], 'loop': analysis['loop'],
-                         'effect_problems': session_effect('window', spec, name, analysis)}
+                         'effect_problems': window_effect(spec, name, analysis)}
     rows = [r for v in results.values() for r in v['rows']]
     return {'score': sum(r['correct'] for r in rows) / len(rows), 'lengths': results}
 
@@ -478,7 +478,7 @@ def engine_effect(log, health, spec, condition, configuration):
 
 
 def session_records(log, sessions, offset):
-    """Engine token records per window (sampling turn).  The log is parsed whole, then each record goes to the one whose byte
+    """Engine token records per window (sampling group).  The log is parsed whole, then each record goes to the one whose byte
     window holds the start of its line: an offset taken while a line was being written must not split the record."""
     from tools.metrics.strata_tokens import parse_engine_log
     starts, position = [], 0
@@ -527,11 +527,11 @@ def run_instance(plan, data, conditions, name, folder):
             record.update(stop=stopped.get('status'), tokens=tokens, **engine_rates(requests),
                           max_request_input=max((r['input'] for r in requests), default=None))
     log = (folder / 'engine-request-log.txt').read_text()
-    turns = record.get('turns', [])  # sampling: one problem per turn, each with its own engine log window
-    for turn, records in zip(turns, session_records(log, turns, offset)):
-        turn.update(tokens=sum_engine_tokens(records), **engine_rates(records))
+    windows = record.get('groups', [])  # sampling: every group attempt has its own engine log window
+    for window, records in zip(windows, session_records(log, windows, offset)):
+        window.update(tokens=sum_engine_tokens(records), **engine_rates(records))
     problems, effect = engine_effect(log, health, spec, condition, host.configuration(plan['model']))
-    sessions = record.get('sessions') or list(record.get('lengths', {}).values())
+    sessions = [r for r in record.get('groups', []) if r['valid']] or list(record.get('lengths', {}).values())
     problems += [p for s in sessions for p in s['effect_problems']]
     # The sandbox already blocks every path outside the workspace (sandbox_probe); flagged calls are judged by
     # outcome in the session inspection: only a call that actually saw outside content invalidates the instance.

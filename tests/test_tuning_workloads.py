@@ -218,23 +218,25 @@ class SamplingBankTest(unittest.TestCase):
 
     def test_choose_mixes_right_and_wrong_items_per_family(self):
         families = ['a', 'b']
-        items = [{'id': f'{f}{k}', 'family': f, 'tier': 1 + k % 2} for f in families for k in range(6)]
+        items = [{'id': f'{f}{k}', 'number': f'{f}{k}', 'family': f, 'tier': 1 + k % 2}
+                 for f in families for k in range(6)]
         bank = {'items': items}
         calibration = {'runs': [{'run': 1}, {'run': 2}],
                        'items': [{'id': x['id'], 'passes': 0 if x['id'] == 'a0' else 1,
                                   'passed_runs': [] if x['id'] == 'a0' else [2 if x['family'] == 'b' else 1]}
                                  for x in items]}
-        turns = [{'id': x['id'], 'correct': int(x['id'][1]) % 2 == 0, 'seconds': 10 + int(x['id'][1]),
-                  'timed_out': False, 'context_before': 0, 'context_after': 9000} for x in items]
-        result = sampling_bank.choose(bank, calibration, {'turns': turns}, 4)
+        rows = [{'id': x['id'], 'correct': int(x['id'][1]) % 2 == 0, 'approx_seconds': 10 + int(x['id'][1]),
+                 'group_timed_out': False} for x in items]
+        groups = [{'items': [x['number'] for x in items if x['family'] == f], 'valid': True, 'compactions': 0,
+                   'context_after': 30000} for f in families]
+        result = sampling_bank.choose(bank, calibration, {'items': rows, 'groups': groups}, 4)
         self.assertTrue(result['ok'], result)
         # a0 is excluded (Opus never solved it); per family one right and one wrong, shortest first
         self.assertEqual(result['ids'], ['a2', 'a1', 'b0', 'b1'])
         self.assertEqual((result['pilot_accuracy'], result['expected_instance_seconds']), (0.5, 44))
-        turns[0]['compacted_session'] = True
-        self.assertFalse(sampling_bank.choose(bank, calibration, {'turns': turns}, 4)['ok'])
-        order = sampling_bank.interleaved(bank, 1)
-        self.assertEqual([x[0] for x in order], ['a', 'b'] * 6)
+        self.assertEqual(result['max_group_context'], 30000)
+        groups[0]['compactions'] = 1
+        self.assertFalse(sampling_bank.choose(bank, calibration, {'items': rows, 'groups': groups}, 4)['ok'])
 
 
 class SandboxProbeTest(unittest.TestCase):
@@ -348,9 +350,8 @@ class CodexWorkloadTest(unittest.TestCase):
         self.assertEqual(result['replies'][-1]['text'], 'Q01: a\nQ02: b')
         self.assertEqual(result['loop']['longest_identical_call_run'], 3)
         spec = {'context_window': 206584}
-        self.assertIn('L130 at 206584 compacted 1 times', codex_workload.session_effect('window', spec, 'L130', result))
-        self.assertTrue(any('tool calls' in p for p in codex_workload.session_effect('window', spec, 'L180', result)))
-        self.assertTrue(codex_workload.session_effect('sampling', spec, None, result))
+        self.assertIn('L130 at 206584 compacted 1 times', codex_workload.window_effect(spec, 'L130', result))
+        self.assertTrue(any('tool calls' in p for p in codex_workload.window_effect(spec, 'L180', result)))
 
     def test_escapes(self):
         calls = [{'arguments': json.dumps({'cmd': 'cat /w/problems/P01.md'})},
@@ -393,32 +394,46 @@ class CodexWorkloadTest(unittest.TestCase):
             with open(Path(tmp) / 'log', 'w') as out:
                 self.assertEqual(codex_workload.run_limited(['sh', '-c', 'read x; exit $x'], '3\n', out, tmp, None, 5), 3)
 
-    def test_sampling_gives_one_problem_per_turn(self):
+    def test_groups_fill_each_direction_by_tier(self):
+        items = [{'number': f'X{n}', 'family': f, 'tier': t} for n, (t, f, k) in
+                 enumerate(itertools.product((3, 1, 2), reversed(sampling_bank.FAMILIES), range(5)))]
+        five = codex_workload.groups(items, 5)
+        self.assertEqual([(g[0]['family'], {x['tier'] for x in g}, len(g)) for g in five],
+                         [(f, {t}, 5) for f in sampling_bank.FAMILIES for t in (1, 2, 3)])
+        self.assertEqual([codex_workload.group_seconds_limit(g, 30) for g in five[:3]], [150, 300, 450])
+        ten = codex_workload.groups(items, 10)
+        self.assertEqual([(g[0]['family'], sorted({x['tier'] for x in g}), len(g)) for g in ten],
+                         [(f, tiers, n) for f in sampling_bank.FAMILIES for tiers, n in (([1, 2], 10), ([3], 5))])
+        self.assertEqual({codex_workload.group_seconds_limit(g, 30) for g in ten}, {450})
+        for size in (5, 10):
+            self.assertEqual(sum(codex_workload.group_seconds_limit(g, 30)
+                                 for g in codex_workload.groups(items, size)), 4500)
+
+    def test_sampling_runs_groups_with_limits_and_reruns_compacted_groups(self):
         bank = sampling_bank.build(7, 1)
-        data = sampling_bank.select(bank, [x['id'] for x in bank['items']][:4])
-        first, second = data['items'][0], data['items'][1]
-        tiers = {str(x['tier']) for x in data['items']}
-        plan = {'item_seconds_limit': 300, 'session_token_budget': 30000,
-                'item_token_estimate': {t: 10000 for t in tiers}}
+        data = sampling_bank.select(bank, sampling_bank.grouped(bank))
+        ledger, machine = data['items'][0:3], data['items'][3:6]
+        plan = {'group_size': 2, 'group_seconds_per_tier': 30}
         seen, settled = [], []
 
         def fake_exec(args, workspace, home, key, prompt, log, timeout, resume=None):
-            visible = sorted(p.name for p in Path(workspace).rglob('*') if p.is_file() and '.git' not in p.parts)
-            seen.append((resume, visible, timeout))
-            number = re.search(r'problem (P\d+)', prompt).group(1)
-            item = next(x for x in data['items'] if x['number'] == number)
-            if item is first:
-                written = Path(workspace) / ('answers' if item['kind'] == 'answer' else 'solutions')
-                (written / (number + ('.txt' if item['kind'] == 'answer' else '.py'))).write_text('wrong\n')
+            problems = sorted(p.stem for p in (Path(workspace) / 'problems').glob('*.md'))
+            seen.append((problems, timeout, resume))
+            group = [x for x in data['items'] if x['number'] in problems]
             path = Path(home) / 'sessions/2026/10/12/rollout-a.jsonl'
             path.parent.mkdir(parents=True, exist_ok=True)
-            size = 12000 * (len(path.read_text().splitlines()) + 1) if path.exists() else 12000
-            with open(path, 'a') as out:
-                out.write(json.dumps({'type': 'event_msg', 'payload': {'type': 'token_count', 'info': {
-                    'last_token_usage': {'total_tokens': size}}}}) + '\n')
-            if item is second:
+            events = [{'type': 'event_msg', 'payload': {'type': 'token_count', 'info': {
+                'last_token_usage': {'total_tokens': 20000}}}}]
+            # ledger tiers 1-2 compact once; ledger tier 3 compacts every time
+            if group[0] is ledger[2] or (group[0] is ledger[0] and sum(s[0] == problems for s in seen) == 1):
+                events.append({'type': 'compacted', 'payload': {}})
+            path.write_text(''.join(json.dumps(e) + '\n' for e in events))
+            first = group[0]
+            if first['kind'] == 'answer':
+                (Path(workspace) / 'answers' / (first['number'] + '.txt')).write_text(first['answer'])
+            if group[0] is machine[0]:  # machine tiers 1-2: one answer written, then the hard limit
                 return 'timeout', None, timeout
-            return 0, resume or f'thread-{len(seen)}', 1.5
+            return 0, 'thread', 1.5
 
         original = codex_workload.codex_exec
         codex_workload.codex_exec = fake_exec
@@ -426,23 +441,33 @@ class CodexWorkloadTest(unittest.TestCase):
             with tempfile.TemporaryDirectory() as tmp:
                 result = codex_workload.run_sampling(plan, data, {'context_window': 156584}, Path(tmp),
                                                      lambda here: [], 'k', lambda: 0, lambda: settled.append(1) or 2.0)
-                kept = sorted(str(p.relative_to(tmp)) for p in Path(tmp).glob('session-*/items/*'))
+                folders = sorted(p.name for p in Path(tmp).iterdir())
         finally:
             codex_workload.codex_exec = original
-        for resume, visible, timeout in seen:  # only the current problem is ever in the workspace
-            self.assertEqual(sum(name.endswith('.md') and name != 'README.md' for name in visible), 1)
-            self.assertEqual(timeout, 300)
-        # item 2 resumes item 1's thread and times out; item 3 opens a new session; at 12000 + 10000 <= 30000
-        # item 4 resumes it
-        self.assertEqual([r for r, _, _ in seen], [None, 'thread-1', None, 'thread-3'])
-        self.assertEqual(settled, [1])
-        self.assertEqual([(t['session'], t['turn'], t['timed_out']) for t in result['turns']],
-                         [(1, 1, False), (1, 2, True), (2, 1, False), (2, 2, False)])
-        self.assertEqual(result['turns'][0]['answered'], True)
-        self.assertEqual((result['turns'][2]['context_before'], result['turns'][2]['context_after']), (0, 12000))
-        self.assertEqual(kept, ['session-01/items/P01', 'session-01/items/P02', 'session-02/items/P03',
-                                'session-02/items/P04'])
-        self.assertEqual(result['timed_out_items'], 1)
+        numbers = lambda xs: [x['number'] for x in xs]
+        # each session sees only its group, one fresh session per group (never resumed), limit = sum of tiers x 30
+        self.assertEqual(seen[0], (numbers(ledger[:2]), 90, None))
+        self.assertEqual(seen[1], (numbers(ledger[:2]), 90, None))
+        self.assertEqual([s[0] for s in seen[2:4]], [numbers(ledger[2:])] * 2)
+        self.assertEqual(seen[4][:2], (numbers(machine[:2]), 90))
+        self.assertEqual(len(seen), len(codex_workload.groups(data['items'], 2)) + 2)
+        self.assertEqual(folders[:4], ['group-01-1', 'group-01-2', 'group-02-1', 'group-02-2'])
+        runs = result['groups']
+        self.assertEqual([(r['group'], r['attempt'], r['valid']) for r in runs[:4]],
+                         [(1, 1, False), (1, 2, True), (2, 1, False), (2, 2, True)])
+        self.assertEqual(runs[1]['effect_problems'], [])
+        self.assertEqual(runs[3]['effect_problems'], ['group 2 compacted in all 2 attempts'])
+        self.assertEqual(result['compacted_attempts'], 2)
+        # the timed-out group is settled and scored on what it wrote
+        timed = next(r for r in runs if r['timed_out'])
+        self.assertEqual((timed['items'], timed['engine_idle_after_seconds']), (numbers(machine[:2]), 2.0))
+        self.assertEqual((settled, result['timed_out_groups']), ([1], 1))
+        rows = {r['number']: r for r in result['items']}
+        self.assertEqual(machine[0]['kind'], 'answer')
+        self.assertTrue(rows[machine[0]['number']]['correct'])
+        self.assertFalse(rows[machine[1]['number']]['answered'])
+        self.assertTrue(rows[machine[1]['number']]['approx_from_remainder'])
+        self.assertEqual(len(result['items']), len(data['items']))
 
     def test_wait_engine_idle_polls_native_status(self):
         import http.server
