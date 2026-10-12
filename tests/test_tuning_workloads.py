@@ -3,6 +3,7 @@ import itertools
 import json
 import os
 import random
+import re
 import tempfile
 import time
 import unittest
@@ -158,6 +159,27 @@ class SamplingBankTest(unittest.TestCase):
     def test_broken_code_scores_zero(self):
         self.assertEqual(sampling_bank.run_tests(b'def f():\n    return 2\n', 'f', [{'args': [], 'expected': 1}]), 0)
         self.assertEqual(sampling_bank.run_tests(b'def f():\n    return 1\n', 'f', [{'args': [], 'expected': 1}]), 1)
+
+
+    def test_choose_mixes_right_and_wrong_items_per_family(self):
+        families = ['a', 'b']
+        items = [{'id': f'{f}{k}', 'family': f, 'tier': 1 + k % 2} for f in families for k in range(6)]
+        bank = {'items': items}
+        calibration = {'runs': [{'run': 1}, {'run': 2}],
+                       'items': [{'id': x['id'], 'passes': 0 if x['id'] == 'a0' else 1,
+                                  'passed_runs': [] if x['id'] == 'a0' else [2 if x['family'] == 'b' else 1]}
+                                 for x in items]}
+        turns = [{'id': x['id'], 'correct': int(x['id'][1]) % 2 == 0, 'seconds': 10 + int(x['id'][1]),
+                  'timed_out': False, 'context_before': 0, 'context_after': 9000} for x in items]
+        result = sampling_bank.choose(bank, calibration, {'turns': turns}, 4)
+        self.assertTrue(result['ok'], result)
+        # a0 is excluded (Opus never solved it); per family one right and one wrong, shortest first
+        self.assertEqual(result['ids'], ['a2', 'a1', 'b0', 'b1'])
+        self.assertEqual((result['pilot_accuracy'], result['expected_instance_seconds']), (0.5, 44))
+        turns[0]['compacted_session'] = True
+        self.assertFalse(sampling_bank.choose(bank, calibration, {'turns': turns}, 4)['ok'])
+        order = sampling_bank.interleaved(bank, 1)
+        self.assertEqual([x[0] for x in order], ['a', 'b'] * 6)
 
 
 def ledger_rules_from(bank, ledger):
@@ -322,16 +344,32 @@ class CodexWorkloadTest(unittest.TestCase):
             with open(Path(tmp) / 'log', 'w') as out:
                 self.assertEqual(codex_workload.run_limited(['sh', '-c', 'read x; exit $x'], '3\n', out, tmp, None, 5), 3)
 
-    def test_timed_out_session_is_scored_on_written_files(self):
-        data = sampling_bank.select(sampling_bank.build(7, 1), [x['id'] for x in sampling_bank.build(7, 1)['items']])
-        first = next(x for x in data['items'] if x['kind'] == 'answer')
-        plan = {'chunk': len(data['items']), 'instance_seconds_limit': 600}
-        settled, limits = [], []
+    def test_sampling_gives_one_problem_per_turn(self):
+        bank = sampling_bank.build(7, 1)
+        data = sampling_bank.select(bank, [x['id'] for x in bank['items']][:4])
+        first, second = data['items'][0], data['items'][1]
+        tiers = {str(x['tier']) for x in data['items']}
+        plan = {'item_seconds_limit': 300, 'session_token_budget': 30000,
+                'item_token_estimate': {t: 10000 for t in tiers}}
+        seen, settled = [], []
 
         def fake_exec(args, workspace, home, key, prompt, log, timeout, resume=None):
-            limits.append(timeout)
-            (Path(workspace) / 'answers' / (first['number'] + '.txt')).write_text(first['answer'] + '\n')
-            return 'timeout', None, timeout
+            visible = sorted(p.name for p in Path(workspace).rglob('*') if p.is_file() and '.git' not in p.parts)
+            seen.append((resume, visible, timeout))
+            number = re.search(r'problem (P\d+)', prompt).group(1)
+            item = next(x for x in data['items'] if x['number'] == number)
+            if item is first:
+                written = Path(workspace) / ('answers' if item['kind'] == 'answer' else 'solutions')
+                (written / (number + ('.txt' if item['kind'] == 'answer' else '.py'))).write_text('wrong\n')
+            path = Path(home) / 'sessions/2026/10/12/rollout-a.jsonl'
+            path.parent.mkdir(parents=True, exist_ok=True)
+            size = 12000 * (len(path.read_text().splitlines()) + 1) if path.exists() else 12000
+            with open(path, 'a') as out:
+                out.write(json.dumps({'type': 'event_msg', 'payload': {'type': 'token_count', 'info': {
+                    'last_token_usage': {'total_tokens': size}}}}) + '\n')
+            if item is second:
+                return 'timeout', None, timeout
+            return 0, resume or f'thread-{len(seen)}', 1.5
 
         original = codex_workload.codex_exec
         codex_workload.codex_exec = fake_exec
@@ -339,15 +377,23 @@ class CodexWorkloadTest(unittest.TestCase):
             with tempfile.TemporaryDirectory() as tmp:
                 result = codex_workload.run_sampling(plan, data, {'context_window': 156584}, Path(tmp),
                                                      lambda here: [], 'k', lambda: 0, lambda: settled.append(1) or 2.0)
+                kept = sorted(str(p.relative_to(tmp)) for p in Path(tmp).glob('session-*/items/*'))
         finally:
             codex_workload.codex_exec = original
-        self.assertEqual(limits, [600])
+        for resume, visible, timeout in seen:  # only the current problem is ever in the workspace
+            self.assertEqual(sum(name.endswith('.md') and name != 'README.md' for name in visible), 1)
+            self.assertEqual(timeout, 300)
+        # item 2 resumes item 1's thread and times out; item 3 opens a new session; at 12000 + 10000 <= 30000
+        # item 4 resumes it
+        self.assertEqual([r for r, _, _ in seen], [None, 'thread-1', None, 'thread-3'])
         self.assertEqual(settled, [1])
-        session = result['sessions'][0]
-        self.assertTrue(session['timed_out'])
-        self.assertEqual(session['engine_idle_after_seconds'], 2.0)
-        self.assertEqual((result['timed_out_sessions'], result['answered'], result['correct']), (1, 1, 1))
-        self.assertGreater(result['score'], 0)
+        self.assertEqual([(t['session'], t['turn'], t['timed_out']) for t in result['turns']],
+                         [(1, 1, False), (1, 2, True), (2, 1, False), (2, 2, False)])
+        self.assertEqual(result['turns'][0]['answered'], True)
+        self.assertEqual((result['turns'][2]['context_before'], result['turns'][2]['context_after']), (0, 12000))
+        self.assertEqual(kept, ['session-01/items/P01', 'session-01/items/P02', 'session-02/items/P03',
+                                'session-02/items/P04'])
+        self.assertEqual(result['timed_out_items'], 1)
 
     def test_wait_engine_idle_polls_native_status(self):
         import http.server
@@ -377,12 +423,6 @@ class CodexWorkloadTest(unittest.TestCase):
             server.shutdown()
             server.server_close()
         self.assertEqual(seen, [('/strata/v1/status', 'Bearer lease-key')] * 3)
-
-    def test_session_limit_splits_the_instance_limit(self):
-        data = {'items': [{}] * 25}
-        self.assertEqual(codex_workload.session_limit({'chunk': 5, 'instance_seconds_limit': 600}, data), 120)
-        self.assertEqual(codex_workload.session_limit({'pilot': True, 'chunk': 1, 'per_session_seconds_limit': 900},
-                                                      data), 900)
 
     def test_frozen_plans_check_without_model(self):
         folder = Path(__file__).resolve().parents[1] / 'benchmarks/tuning-workloads-v1'

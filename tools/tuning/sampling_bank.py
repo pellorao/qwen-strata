@@ -813,32 +813,54 @@ def select(bank, ids):
     return {**bank, 'schema': 'sampling-set-v1', 'items': items}
 
 
-def interleaved(bank, seed, tiers=TIERS):
-    """Set order in which every run of len(tiers) consecutive items holds one item of each tier (chunks stay
-    balanced)."""
+def interleaved(bank, seed, key='family'):
+    """Fixed set order: items grouped by `key` (family or tier), shuffled within the group by `seed`, then dealt round
+    robin so consecutive items cycle through the groups."""
     rng = random.Random(f'order/{seed}')
-    order = list(tiers)
-    tiers = {t: [x['id'] for x in bank['items'] if x['tier'] == t] for t in order}
-    for ids in tiers.values():
-        rng.shuffle(ids)
-    if len({len(v) for v in tiers.values()}) != 1:
-        raise ValueError('Every tier needs the same number of items')
-    return [tiers[t][k] for k in range(len(tiers[order[0]])) for t in order]
+    groups = {}
+    for x in bank['items']:
+        groups.setdefault(x[key], []).append(x['id'])
+    for name in sorted(groups):
+        rng.shuffle(groups[name])
+    return [groups[g][k] for k in range(max(map(len, groups.values()))) for g in sorted(groups) if k < len(groups[g])]
 
 
 # ---------------------------------------------------------------- workspace and scoring
 
-WORKSPACE_README = '''# Problem set
+WORKSPACE_README = '''# Problem
+
+Problems come one at a time. This directory holds only the current one, `problems/<P>.md`; the message that gave it
+to you names it. Solve it, then write the result:
+
+- Answer problems (they end with a "Question:"): write only the final answer to `answers/<P>.txt`, one line,
+  in the format the problem asks for.
+- Code problems (they ask you to implement or fix code): write the requested function in `solutions/<P>.py` (a stub
+  is there), or, when the problem's files are under `solutions/<P>/`, fix those files in place. Only the Python 3
+  standard library is available.
+
+You may use the shell and write scratch files anywhere inside this directory. Paths outside it, including /tmp,
+are not available. Nothing outside this directory is needed. Answers are checked automatically after you finish;
+there is no partial credit inside a problem.
+
+When your turn ends, the problem and everything you wrote here are removed and cannot be seen again; the next
+problem, if any, comes in a new message. Each problem has a hard time limit: when it is reached you are stopped
+without warning and only the files already written are scored, so write the answer or solution file as soon as you
+have it (you may still improve it before ending the turn).
+'''
+
+CALIBRATION_README = '''# Problem set
 
 Each problem is in `problems/<P>.md`. Solve every problem.
 
 - Answer problems (they end with a "Question:"): write only the final answer to `answers/<P>.txt`, one line,
   in the format the problem asks for.
-- Code problems (they ask you to implement a function): write the requested function in `solutions/<P>.py`
-  (a stub is there). Only the Python 3 standard library is available.
+- Code problems (they ask you to implement or fix code): write the requested function in `solutions/<P>.py` (a stub
+  is there), or, when the problem's files are under `solutions/<P>/`, fix those files in place. Only the Python 3
+  standard library is available.
 
 You may use the shell and write scratch files anywhere inside this directory. Paths outside it, including /tmp,
-are not available. Nothing outside this directory is needed. Answers are checked automatically after you finish; there is no partial credit inside a problem.
+are not available. Nothing outside this directory is needed. Answers are checked automatically after you finish;
+there is no partial credit inside a problem.
 
 There is a hard time limit. When it is reached you are stopped without warning and only the files already written
 are scored; a problem with no written answer or solution scores zero. So write each answer or solution file as soon
@@ -846,12 +868,12 @@ as that problem is done, before moving to the next one, and do the problems you 
 '''
 
 
-def export(bank, folder, numbers=None):
+def export(bank, folder, numbers=None, readme=WORKSPACE_README):
     """Answer-free workspace for the selected numbers (all by default)."""
     folder = Path(folder)
     for sub in ('problems', 'answers', 'solutions'):
         (folder / sub).mkdir(parents=True, exist_ok=True)
-    (folder / 'README.md').write_text(WORKSPACE_README)
+    (folder / 'README.md').write_text(readme)
     for x in bank['items']:
         if numbers and x['number'] not in numbers:
             continue
@@ -973,7 +995,7 @@ def calibration_prepare(bank, out, runs, minutes):
     out = Path(out)
     rows = []
     for k in range(1, runs + 1):
-        workspace = export(bank, out / f'run-{k}' / 'workspace').resolve()
+        workspace = export(bank, out / f'run-{k}' / 'workspace', readme=CALIBRATION_README).resolve()
         prompt = CALIBRATION_PROMPT.format(workspace=workspace, minutes=minutes)
         (out / f'run-{k}' / 'prompt.txt').write_text(prompt)
         rows.append({'run': k, 'workspace': str(workspace), 'prompt_sha256': sha(prompt.encode())})
@@ -1036,64 +1058,77 @@ def calibration_score(bank, out):
             'items': items}
 
 
-# ---------------------------------------------------------------- final set design (after Opus calibration and Qwen pilot)
+# ---------------------------------------------------------------- fixed formal set (after Opus calibration and Qwen pilot)
 
-def design(bank, calibration, pilot, tiers, budget_seconds, chunk, session_overhead):
-    """Proposal for the frozen set: equal items per chosen tier, as many as fit the per-instance time budget.
+def choose(bank, calibration, pilot, count, low=0.3, high=0.7):
+    """Proposal for the fixed formal set (every instance runs the same items; nothing is drawn at random).
 
-    Eligible items: Opus solved at least once.  Within a tier the shortest (Qwen pilot seconds) go first, so
-    difficulty does not come from length.  Expected instance time = item seconds + one overhead per session.
-    Proposed points (to be confirmed by the user): tier rank among the chosen tiers (1..k) times the item's Qwen
-    time relative to its tier median, clamped to [0.5, 2] and rounded to 0.5.  Opus must not get full marks on the
-    subset in any calibration run.
+    Eligible: Opus solved the item at least once, and the Qwen pilot ran it in a session without compaction.  Each
+    family gets an equal share of `count`; within a family the items Qwen got right and wrong are mixed so the whole
+    set's pilot accuracy lands at the middle of [low, high], shortest pilot time first.  The instance time is
+    estimated as the sum of the chosen items' pilot turn times (a timed-out item counts its limit, a lower bound),
+    and is reported for the user to weigh against the per-instance limit.  Proposed points = the item's tier (to be
+    confirmed).  Opus must not get full marks on the subset in any calibration run.
     """
-    by_number = {x['number']: x['id'] for x in bank['items']}
-    seconds = {}
-    for session in pilot['sessions']:
-        if len(session['chunk']) != 1:
-            raise ValueError('The pilot must run one item per session')
-        seconds[by_number[session['chunk'][0]]] = session['seconds']
+    turns = {t['id']: t for t in pilot['turns']}
+    affected = sorted(i for i, t in turns.items() if t.get('compacted_session'))
+    if affected:
+        return {'ok': False, 'problems': [f'items in a compacted pilot session must be rerun: {affected}']}
     opus = {i['id']: i for i in calibration['items']}
-    eligible = {t: sorted((x['id'] for x in bank['items'] if x['tier'] == t and opus[x['id']]['passes'] > 0
-                           and x['id'] in seconds), key=lambda i: seconds[i]) for t in tiers}
-    chosen, expected = None, None
-    for n in range(1, min(len(v) for v in eligible.values()) + 1):
-        ids = [i for t in tiers for i in eligible[t][:n]]
-        cost = sum(seconds[i] for i in ids) + session_overhead * -(-len(ids) // chunk)
-        if cost > budget_seconds:
-            break
-        chosen, expected = ids, cost
-    if chosen is None:
-        return {'ok': False, 'problems': ['not even one item per tier fits the budget']}
-    points = {}
-    for rank, t in enumerate(tiers, 1):
-        here = sorted(seconds[i] for i in chosen if bank_tier(bank, i) == t)
-        median = here[len(here) // 2]
-        for i in chosen:
-            if bank_tier(bank, i) == t:
-                points[i] = max(0.5, round(rank * min(2.0, max(0.5, seconds[i] / median)) * 2) / 2)
+    families = sorted({x['family'] for x in bank['items']})
+    eligible = {f: sorted((x['id'] for x in bank['items'] if x['family'] == f and x['id'] in turns
+                           and opus[x['id']]['passes'] > 0), key=lambda i: (turns[i]['seconds'], i)) for f in families}
+    right_target = round(count * (low + high) / 2)
+    chosen, problems = [], []
+    for n, f in enumerate(families):
+        share = count // len(families) + (n < count % len(families))
+        want_right = round(right_target * share / count)
+        right = [i for i in eligible[f] if turns[i]['correct']]
+        wrong = [i for i in eligible[f] if not turns[i]['correct']]
+        take_right = min(len(right), max(want_right, share - len(wrong)))
+        picked = right[:take_right] + wrong[:share - take_right]
+        if len(picked) < share:
+            problems.append(f'{f}: only {len(picked)} eligible items for a share of {share}')
+        chosen += picked
+    accuracy = sum(turns[i]['correct'] for i in chosen) / len(chosen) if chosen else None
+    if accuracy is not None and not low <= accuracy <= high:
+        problems.append(f'pilot accuracy {accuracy:.2f} outside [{low}, {high}]')
+    points = {i: bank_tier(bank, i) for i in chosen}
     total = sum(points.values())
     run_scores = {r['run']: sum(points[i] for i in chosen if r['run'] in opus[i]['passed_runs']) / total
-                  for r in calibration['runs']}
-    problems = [f'Opus run {r} gets full marks on the subset' for r, v in run_scores.items() if v == 1]
-    return {'ok': not problems, 'problems': problems, 'tiers': list(tiers), 'per_tier': len(chosen) // len(tiers),
-            'expected_seconds': round(expected, 1), 'budget_seconds': budget_seconds, 'chunk': chunk,
-            'session_overhead_seconds': session_overhead, 'ids': chosen, 'points': points,
-            'opus_subset_scores': run_scores,
-            'excluded_opus_zero': [x['id'] for x in bank['items'] if x['tier'] in tiers and opus[x['id']]['passes'] == 0]}
+                  for r in calibration['runs']} if total else {}
+    problems += [f'Opus run {r} gets full marks on the subset' for r, v in run_scores.items() if v == 1]
+    seconds = sorted(turns[i]['seconds'] for i in chosen)
+    growth = {}
+    for i in chosen:
+        t = turns[i]
+        growth[str(bank_tier(bank, i))] = max(growth.get(str(bank_tier(bank, i)), 0),
+                                              t['context_after'] - t['context_before'])
+    return {'ok': not problems, 'problems': problems, 'count': len(chosen), 'ids': chosen, 'points': points,
+            'pilot_accuracy': accuracy, 'band': [low, high],
+            'by_family': {f: sum(bank_family(bank, i) == f for i in chosen) for f in families},
+            'by_tier': {t: sum(bank_tier(bank, i) == t for i in chosen) for t in sorted({bank_tier(bank, i) for i in chosen})},
+            'expected_instance_seconds': round(sum(seconds), 1),
+            'expected_is_lower_bound': any(turns[i]['timed_out'] for i in chosen),
+            'item_seconds': {'median': seconds[len(seconds) // 2], 'max': seconds[-1]} if seconds else None,
+            'max_context_growth_by_tier': growth, 'opus_subset_scores': run_scores,
+            'excluded_opus_zero': [x['id'] for x in bank['items'] if opus[x['id']]['passes'] == 0]}
 
 
 def bank_tier(bank, item_id):
     return next(x['tier'] for x in bank['items'] if x['id'] == item_id)
 
 
+def bank_family(bank, item_id):
+    return next(x['family'] for x in bank['items'] if x['id'] == item_id)
+
+
 def freeze(bank, proposal, seed):
-    """Final set from an approved design proposal: chosen items, tiers interleaved, points attached."""
+    """Fixed formal set from an approved proposal: the chosen items, families interleaved, points attached."""
     chosen = {**bank, 'items': [dict(x, points=proposal['points'][x['id']]) for x in bank['items']
                                 if x['id'] in proposal['points']]}
-    order = interleaved(chosen, seed, proposal['tiers'])
-    return {**select(chosen, order), 'design': {k: proposal[k] for k in ('tiers', 'per_tier', 'expected_seconds',
-                                                                          'chunk', 'budget_seconds')}}
+    return {**select(chosen, interleaved(chosen, seed)),
+            'design': {k: proposal[k] for k in ('count', 'pilot_accuracy', 'expected_instance_seconds')}}
 
 
 def main():
@@ -1106,7 +1141,7 @@ def main():
     s = sub.add_parser('select')
     s.add_argument('--bank', type=Path, required=True)
     s.add_argument('--ids', type=Path, help='JSON list of item ids in set order')
-    s.add_argument('--interleave-seed', type=int, help='all items, tiers interleaved (instead of --ids)')
+    s.add_argument('--interleave-seed', type=int, help='all items, families interleaved (instead of --ids)')
     s.add_argument('--out', type=Path, required=True)
     e = sub.add_parser('export')
     e.add_argument('--bank', type=Path, required=True)
@@ -1124,25 +1159,23 @@ def main():
     cs = sub.add_parser('calibrate-score')
     cs.add_argument('--bank', type=Path, required=True)
     cs.add_argument('--out', type=Path, required=True)
-    d = sub.add_parser('design', help='propose the frozen set from Opus calibration and the Qwen pilot')
+    d = sub.add_parser('choose', help='propose the fixed formal set from Opus calibration and the Qwen pilot')
     d.add_argument('--bank', type=Path, required=True)
     d.add_argument('--calibration', type=Path, required=True)
     d.add_argument('--pilot', type=Path, required=True, help="the pilot instance's result.json")
-    d.add_argument('--tiers', default='1,2,3,4,5', help='e.g. 1,3,5 for three tiers')
-    d.add_argument('--budget-seconds', type=float, default=600)
-    d.add_argument('--chunk', type=int, default=5)
-    d.add_argument('--session-overhead', type=float, required=True, help='seconds per Codex session')
+    d.add_argument('--count', type=int, default=20)
+    d.add_argument('--low', type=float, default=0.3)
+    d.add_argument('--high', type=float, default=0.7)
     d.add_argument('--out', type=Path, required=True)
-    f = sub.add_parser('freeze', help='final set from an approved design proposal')
+    f = sub.add_parser('freeze', help='fixed formal set from an approved choose proposal')
     f.add_argument('--bank', type=Path, required=True)
     f.add_argument('--design', type=Path, required=True)
     f.add_argument('--interleave-seed', type=int, required=True)
     f.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
-    if args.command == 'design':
-        result = design(json.loads(args.bank.read_text()), json.loads(args.calibration.read_text()),
-                        json.loads(args.pilot.read_text()), [int(t) for t in args.tiers.split(',')],
-                        args.budget_seconds, args.chunk, args.session_overhead)
+    if args.command == 'choose':
+        result = choose(json.loads(args.bank.read_text()), json.loads(args.calibration.read_text()),
+                        json.loads(args.pilot.read_text()), args.count, args.low, args.high)
         args.out.write_text(json.dumps(result, indent=1) + '\n')
         print(json.dumps({k: v for k, v in result.items() if k not in ('ids', 'points')}))
         return

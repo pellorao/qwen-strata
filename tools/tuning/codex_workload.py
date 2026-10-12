@@ -6,8 +6,9 @@ model, capture the engine log -> score, analyse the sessions and check the condi
 decision (tools.tuning.staged_decision) decides whether another round of +2 instances per condition is needed.
 
 Every tool command runs in a native Codex permission profile that sees only the session's workspace (`isolation`,
-verified without a model by tools.tuning.sandbox_probe, which `check` runs).  A sampling plan with `"pilot": true`
-runs one instance of one condition, one item per session, to measure Qwen's per-item time and tokens.
+verified without a model by tools.tuning.sandbox_probe, which `check` runs).  Sampling gives one problem per turn
+and moves each finished problem out of reach (`run_sampling`).  A sampling plan with `"pilot": true` runs one instance
+of one condition to measure Qwen's per-item correctness, time and tokens.
 
     python3 -m tools.tuning.codex_workload check --plan PLAN
     python3 -m tools.tuning.codex_workload run --plan PLAN --out DIR [--limit N]
@@ -21,6 +22,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import signal
 import subprocess
 import time
@@ -57,16 +59,26 @@ def load_plan(path):
     names = set(plan['conditions'])
     data = json.loads(raw)
     if plan.get('pilot'):
-        if plan['workload'] != 'sampling' or len(names) != 1 or plan['first_round'] != list(names) or plan['chunk'] != 1:
-            raise ValueError('A pilot runs one sampling condition once, one item per session')
+        if plan['workload'] != 'sampling' or len(names) != 1 or plan['first_round'] != list(names):
+            raise ValueError('A pilot runs one sampling condition once')
     elif len(names) not in staged_decision.FINAL_BOUNDS or set(plan['first_round']) != names or \
             any(plan['first_round'].count(n) != staged_decision.SIZES[0] for n in names):
         raise ValueError('First round must run each of the 2-6 conditions three times')
     if plan['workload'] == 'sampling' and not plan.get('pilot') and sampling_bank.points_of(data) is None:
         raise ValueError('A tuning sampling set must carry per-item points')
-    limit, other = ('per_session_seconds_limit', 'instance_seconds_limit')[::1 if plan.get('pilot') else -1]
-    if not isinstance(plan.get(limit), (int, float)) or plan[limit] <= 0 or other in plan:
-        raise ValueError('A pilot sets per_session_seconds_limit; every other plan sets instance_seconds_limit only')
+    if plan['workload'] == 'sampling':
+        estimates = plan.get('item_token_estimate') or {}
+        if not isinstance(plan.get('item_seconds_limit'), (int, float)) or plan['item_seconds_limit'] <= 0 or \
+                'instance_seconds_limit' in plan or 'chunk' in plan:
+            raise ValueError('A sampling plan sets item_seconds_limit (one problem per turn), no instance limit')
+        if {str(x['tier']) for x in data['items']} - set(estimates):
+            raise ValueError('item_token_estimate must cover every tier of the set')
+        # an item starts only if context + its estimate <= budget; threshold - budget is the slack for an item that
+        # grows the context beyond its estimate
+        if any(plan['session_token_budget'] >= TIERS[s['context_window']] for s in plan['conditions'].values()):
+            raise ValueError('session_token_budget must stay below the compaction threshold')
+    elif not isinstance(plan.get('instance_seconds_limit'), (int, float)) or plan['instance_seconds_limit'] <= 0:
+        raise ValueError('A window plan sets instance_seconds_limit')
     if plan['workload'] == 'window' and plan['length'] not in data['lengths']:
         raise ValueError('A window plan runs exactly one frozen length per instance')
     conditions = {}
@@ -310,54 +322,93 @@ def session_effect(workload, spec, length, analysis):
     return problems
 
 
-def session_limit(plan, data):
-    """Hard seconds per sampling session: a pilot sets it directly; a tuning plan splits its instance limit evenly
-    over the sessions, so every chunk gets the same chance whatever happened in the chunks before it."""
-    if plan.get('pilot'):
-        return plan['per_session_seconds_limit']
-    sessions = -(-len(data['items']) // plan['chunk'])
-    return plan['instance_seconds_limit'] / sessions
+def context_tokens(path):
+    """Context size after the last request of a rollout (input plus output of that request); 0 before any."""
+    size = 0
+    for line in (Path(path).read_text().splitlines() if path else []):
+        try:
+            e = json.loads(line)
+        except ValueError:
+            continue
+        info = (e.get('payload') or {}).get('info') if e.get('type') == 'event_msg' else None
+        if (e.get('payload') or {}).get('type') == 'token_count' and info:
+            size = info['last_token_usage']['total_tokens']
+    return size
+
+
+def item_prompt(x, limit, first):
+    where = f'problems/{x["number"]}.md'
+    opening = ('Read README.md first and follow it. ' if first else
+               'Next problem. The previous problem and all your files for it have been removed; README.md still '
+               'applies. ')
+    return (f'{opening}Solve problem {x["number"]} ({where}). It has a hard limit of {round(limit / 60, 1):g} '
+            'minutes: write its answer or solution as soon as it is done. End your turn when it is written.')
 
 
 def run_sampling(plan, data, spec, folder, args_for, key, mark, settle):
-    """Problem set in chunks; each chunk is a fresh Codex session in its own workspace.  `mark()` is the engine log
-    offset, taken around each session so its tokens can be attributed after the final capture.  A session that hits
-    its hard limit is killed, `settle()` waits until Strata has cancelled the generation, and the session is scored
-    on the files it had written; the timeout itself does not invalidate the instance."""
-    chunk, rows, sessions = plan['chunk'], [], []
-    numbers = [x['number'] for x in data['items']]
-    limit = session_limit(plan, data)
-    for start in range(0, len(numbers), chunk):
-        part = numbers[start:start + chunk]
-        here = folder / f'chunk-{start // chunk + 1:02d}'
-        workspace, home = here / 'workspace', here / 'codex-home'
-        home.mkdir(parents=True)
-        sampling_bank.export(data, workspace, set(part))
+    """One problem per turn.  A session is one Codex thread; each turn's workspace holds only the current problem,
+    and after the turn the driver moves the whole workspace out of reach (to the session folder, which the sandbox
+    cannot read), so a finished problem and its answer can never be revisited.  The turn's wall time is the item's
+    time and `mark()` around it attributes its engine tokens.  A new session starts when the measured context plus
+    the next item's estimate would exceed `session_token_budget` (no compaction may happen), and after a timeout:
+    the killed turn is left behind instead of being carried into the next problem.  A turn that hits the item limit
+    is killed, `settle()` waits until Strata has cancelled the generation, and the item is scored on what it wrote."""
+    limit, budget, estimate = plan['item_seconds_limit'], plan['session_token_budget'], plan['item_token_estimate']
+    turns, sessions, current = [], [], None
+
+    def close(session):
+        analysis = analyse_session(rollout(session['home'], session['timed_out']))
+        analysis['escapes'] = escapes(analysis['calls'], session['workspace'])
+        save(session['folder'] / 'session-analysis.json', analysis)
+        sessions.append({'session': session['index'], 'thread': session['thread'], 'items': session['items'],
+                         'escapes': len(analysis['escapes']), 'compactions': len(analysis['compactions']),
+                         'tool_calls': analysis['tool_calls'], 'loop': analysis['loop'],
+                         'effect_problems': session_effect('sampling', spec, None, analysis)})
+        if analysis['compactions']:  # the measured context missed a compaction: every item of the session is affected
+            for t in turns:
+                if t['session'] == session['index']:
+                    t['compacted_session'] = True
+
+    for x in data['items']:
+        if current and (current['timed_out'] or current['context'] + estimate[str(x['tier'])] > budget):
+            close(current)
+            current = None
+        if current is None:
+            here = folder / f'session-{len(sessions) + 1:02d}'
+            current = {'index': len(sessions) + 1, 'folder': here, 'workspace': here / 'workspace',
+                       'home': here / 'codex-home', 'thread': None, 'items': [], 'context': 0, 'timed_out': False,
+                       'tool_calls': 0}
+            current['home'].mkdir(parents=True)
+        workspace = current['workspace']
+        sampling_bank.export(data, workspace, {x['number']})
         subprocess.run(['git', 'init', '-q'], cwd=workspace, check=True)
-        prompt = (f'Solve the problems in this directory ({", ".join(part)}). Read README.md first and follow it. '
-                  f'This session has a hard limit of {round(limit / 60, 1):g} minutes: write each answer or solution '
-                  'file as soon as its problem is done. Finish when every answer or solution file is written.')
         log_start = mark()
-        code, thread, seconds = codex_exec(args_for(here), workspace, home, key, prompt, here / 'codex.jsonl',
-                                           limit)
+        code, thread, seconds = codex_exec(args_for(current['folder']), workspace, current['home'], key,
+                                           item_prompt(x, limit, not current['items']),
+                                           current['folder'] / 'codex.jsonl', limit, resume=current['thread'])
         timed_out = code == 'timeout'
         idle_seconds = settle() if timed_out else None
         log_end = mark()
-        analysis = analyse_session(rollout(home, timed_out))
-        analysis['escapes'] = escapes(analysis['calls'], workspace)
-        save(here / 'session-analysis.json', analysis)
-        scored = sampling_bank.score({**data, 'items': [x for x in data['items'] if x['number'] in part]},
-                                     workspace)['rows']
-        sessions.append({'escapes': len(analysis['escapes']), 'chunk': part, 'exit': code, 'thread': thread,
-                         'seconds': seconds, 'limit_seconds': limit, 'timed_out': timed_out,
-                         'engine_idle_after_seconds': idle_seconds,
-                         'answered': sum(r['answered'] for r in scored), 'log_bytes': [log_start, log_end],
-                         'compactions': len(analysis['compactions']), 'tool_calls': analysis['tool_calls'],
-                         'loop': analysis['loop'], 'effect_problems': session_effect('sampling', spec, None, analysis)})
-        rows += scored
-    return {**sampling_bank.weighted(rows), 'sessions': sessions,
-            'timed_out_sessions': sum(x['timed_out'] for x in sessions),
-            'answered': sum(r['answered'] for r in rows)}
+        kept = current['folder'] / 'items' / x['number']
+        kept.parent.mkdir(exist_ok=True)
+        shutil.move(str(workspace), str(kept))
+        path = rollout(current['home'], timed_out)
+        before = current['context']
+        current.update(thread=current['thread'] or thread, timed_out=timed_out, context=context_tokens(path))
+        calls = analyse_session(path)['tool_calls']
+        row = sampling_bank.score({**data, 'items': [x]}, kept)['rows'][0]
+        turns.append({**row, 'session': current['index'], 'turn': len(current['items']) + 1, 'exit': code,
+                      'seconds': seconds, 'limit_seconds': limit, 'timed_out': timed_out,
+                      'engine_idle_after_seconds': idle_seconds, 'log_bytes': [log_start, log_end],
+                      'context_before': before, 'context_after': current['context'],
+                      'tool_calls': calls - current['tool_calls']})
+        current['tool_calls'] = calls
+        current['items'].append(x['number'])
+    if current:
+        close(current)
+    return {**sampling_bank.weighted(turns), 'turns': turns, 'sessions': sessions,
+            'timed_out_items': sum(t['timed_out'] for t in turns), 'answered': sum(t['answered'] for t in turns),
+            'compacted_items': sum(bool(t.get('compacted_session')) for t in turns)}
 
 
 def run_window(plan, data, spec, folder, args_for, key, mark, settle):
@@ -427,7 +478,7 @@ def engine_effect(log, health, spec, condition, configuration):
 
 
 def session_records(log, sessions, offset):
-    """Engine token records per session.  The log is parsed whole, then each record goes to the session whose byte
+    """Engine token records per window (sampling turn).  The log is parsed whole, then each record goes to the one whose byte
     window holds the start of its line: an offset taken while a line was being written must not split the record."""
     from tools.metrics.strata_tokens import parse_engine_log
     starts, position = [], 0
@@ -476,8 +527,9 @@ def run_instance(plan, data, conditions, name, folder):
             record.update(stop=stopped.get('status'), tokens=tokens, **engine_rates(requests),
                           max_request_input=max((r['input'] for r in requests), default=None))
     log = (folder / 'engine-request-log.txt').read_text()
-    for session, records in zip(record.get('sessions', []), session_records(log, record.get('sessions', []), offset)):
-        session.update(tokens=sum_engine_tokens(records), **engine_rates(records))
+    turns = record.get('turns', [])  # sampling: one problem per turn, each with its own engine log window
+    for turn, records in zip(turns, session_records(log, turns, offset)):
+        turn.update(tokens=sum_engine_tokens(records), **engine_rates(records))
     problems, effect = engine_effect(log, health, spec, condition, host.configuration(plan['model']))
     sessions = record.get('sessions') or list(record.get('lengths', {}).values())
     problems += [p for s in sessions for p in s['effect_problems']]
