@@ -6,7 +6,8 @@
  "authorization": {
   "approved": true,
   "source": "用户 2026-10-13 批准 Q3×5（IQ3_XXS，v2，RM 与 AP 独立线程）及四场景重构的一切模型运行；同日夜间进入自主模式，豁免审批",
-  "scope": "Spec Readiness v2 能力验证：5 次重复（10 个交接），分两批冻结 ARW 准备（第一批 3 次全跑，第二批只跑前 2 次）；effort=high；不部署条件，用已部署默认值"
+  "scope": "Spec Readiness v2 能力验证：5 次重复（10 个交接），分两批冻结 ARW 准备（第一批 3 次全跑，第二批只跑前 2 次）；effort=high；不部署条件，用已部署默认值",
+  "extra_runs": "用户 2026-10-13 授权 GPU 空闲时加测（AGENTS.md ddcd158、54b6388）：目标总数 10 次重复，在读取第二批分数前写入。前 5 次（批 A 3 次 + 批 B 2 次）为原定结果，“一切正常”只按前 5 次判定；加测 5 次（批 C 3 次 + 批 D 2 次，同计划同条件，各自独立线程）在后台并行，不得拖慢第 4 步；GPU 另有需要或出故障时原定 5 次优先。不按中间结果决定是否停止。Opus 维持 ×3。"
  },
  "method": "arw_dimension prepare 准备冻结 ARW（manifest 含 spec-readiness-v2.patch）并预检 → ARW 持有模型，arw_measure 按交接顺序运行（RM、AP 交替，各自全新根线程）→ 服务日志 budget 行核对生效值（high：budget 8192 (max 24576)）→ score-completed 与盲化裁决 → 会话检查。",
  "fixed_conditions": {
@@ -32,15 +33,32 @@
    "id": "spec-v2-baseline",
    "default": "effort-high",
    "reviewer": "spec-readiness-reviewer",
-   "schedule_design": "单条件 5 次重复，按 prepare 命令分两批运行，不用 run 子命令（不部署）",
-   "schedule": ["effort-high", "effort-high", "effort-high", "effort-high", "effort-high"],
+   "schedule_design": "单条件重复，原定 5 次 + 加测 5 次（目标 10 次），按 prepare 命令分四批运行（A 3 次、B 前 2 次、C 3 次、D 前 2 次），不用 run 子命令（不部署）；报告同时给前 5 次和全部 10 次的均值、组内标准差与逐用例命中率",
+   "schedule": [
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high"
+   ],
    "conditions": {
     "effort-high": {
-     "log_present": ["budget 8192 \\(max 24576\\)"],
-     "log_absent": ["budget 4096 "]
+     "log_present": [
+      "budget 8192 \\(max 24576\\)"
+     ],
+     "log_absent": [
+      "budget 4096 "
+     ]
     }
    },
    "note": "\"一切正常\"判据（用户 2026-10-13）：Opus 明显高于 Q3；无双方 0 命中且审计可疑的用例；Q3 5 个会话全部有效；评分可复现。组内标准差明显低于 0.1 才考虑用于调参。"
   }
- ]
+ ],
+ "target_repetitions": 10,
+ "primary_repetitions": 5
 }
