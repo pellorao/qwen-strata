@@ -302,8 +302,8 @@ from merge import merge
 
 
 def free_slots(busy, day_start, day_end, shortest):
-    """Free gaps between day_start and day_end ("H:MM") that are at least `shortest` minutes long, as
-    "H:MM-H:MM" strings in time order.  busy: list of "H:MM-H:MM" (a busy interval may reach outside the day;
+    """Free gaps between day_start and day_end ("H:MM") that are at least `shortest` minutes long
+    (`shortest` is always a positive whole number of minutes), as "H:MM-H:MM" strings in time order.  busy: list of "H:MM-H:MM" (a busy interval may reach outside the day;
     only its part inside the day counts)."""
     lo, hi = to_minutes(day_start), to_minutes(day_end)
     taken = []

@@ -347,6 +347,14 @@ def call(cmd):
 
 
 class CodexWorkloadTest(unittest.TestCase):
+    def test_overrides_turn_off_plugin_marketplace_clone(self):
+        plan = json.loads((Path(__file__).resolve().parents[1] /
+                           'benchmarks/tuning-workloads-v1/sampling-pilot-plan.json').read_text())
+        with tempfile.TemporaryDirectory() as tmp:
+            args = codex_workload.codex_overrides(plan, {'context_window': 156584, 'threshold': 100000},
+                                                  Path(tmp), 'http://127.0.0.1:1/v1')
+        self.assertIn('features.plugins=false', args)
+
     def test_codex_home_is_absolute_for_relative_out(self):
         with tempfile.TemporaryDirectory() as tmp:
             fake = Path(tmp) / 'codex'

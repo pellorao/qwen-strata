@@ -160,9 +160,11 @@ def describe(r):
     lines = [
         'Each event is a dict with an integer `id` (unique), an integer time `t` in seconds, and `op`. The list is '
         f'NOT in order: process events by `t` ascending, and events with equal `t` by `id` {r["tie"]}.',
-        'Amounts are integer cents. An event whose `amount` is missing, not an int, or not positive is rejected.',
-        '`{"op": "open", "acct": A}` (optionally with `"overdraft": N`) opens account A with balance 0 and overdraft '
-        f'allowance N (default {r["overdraft"]}). Opening an account that was already opened is rejected'
+        'Amounts are integer cents. A ' + ('deposit, withdrawal, transfer or hold' if tier >= 4 else
+        'deposit, withdrawal or transfer') + ' whose `amount` is missing, not an int (a bool is not an int), or not '
+        'positive is rejected; the other ops carry no amount and this rule does not apply to them.',
+        '`{"op": "open", "acct": A}` (optionally with `"overdraft": N`, which is always a non-negative int and is '
+        f'used as given) opens account A with balance 0 and overdraft allowance N (default {r["overdraft"]}). Opening an account that was already opened is rejected'
         + (' (also after it was closed).' if tier >= 3 else '.'),
         'Every other event that names an account that is not open at that point is rejected.',
         '`{"op": "deposit", "acct": A, "amount": X}` adds X.',
@@ -187,7 +189,9 @@ def describe(r):
             '(the fee no longer counts in the fee total), a transfer\'s amount moves back from B to A. It is rejected '
             'when I is not such an event, was already reversed, or any account it changes would end below minus its '
             'overdraft allowance' + (' or is closed' if tier >= 3 else '') + '. A reversal ignores freezing and the '
-            'daily cap, and does not give back the cap the original event used.',
+            'daily cap, and does not give back the cap the original event used. The allowance check covers every '
+            'account the reversal changes, including one whose balance it raises: if such an account would still '
+            'end below minus its allowance, the reversal is rejected.',
         ]
     if tier >= 3:
         lines += [

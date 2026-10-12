@@ -130,6 +130,9 @@ def codex_overrides(plan, spec, folder, base_url):
               'model_auto_compact_token_limit': spec['threshold'], 'model_auto_compact_token_limit_scope': 'total',
               'model_reasoning_effort': plan['fixed_conditions']['effort'], 'web_search': 'disabled',
               'approval_policy': 'never', 'agents.enabled': False, 'features.memories': False,
+              # Codex 0.162 otherwise clones the curated plugin marketplace (~105 MB git checkout) into every fresh
+              # CODEX_HOME at startup; its instructions never reach the model (plugins_instructions stays false).
+              'features.plugins': False,
               'model_providers.qwen_strata.name': 'Local Strata tuning workload',
               'model_providers.qwen_strata.base_url': base_url,
               'model_providers.qwen_strata.wire_api': 'responses',

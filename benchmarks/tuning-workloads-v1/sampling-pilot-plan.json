@@ -12,7 +12,7 @@
  "workload": "sampling",
  "input": {
   "path": "benchmarks/tuning-workloads-v1/sampling/set-draft.json",
-  "sha256": "ac2a6f5951f34dfbcdc3fd7f3327d468fbe4657a1f3b922e0b60b12089e229a9"
+  "sha256": "806200827aa02cb502ea5c45dc290358741b9cd229206947286010687b557d0b"
  },
  "fixed_conditions": {
   "strata": "0.1.42",
