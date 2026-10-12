@@ -183,11 +183,12 @@ def wait_engine_idle(model_base, key, limit=ENGINE_IDLE_LIMIT_SECONDS):
     while True:
         request = urllib.request.Request(model_base + '/v1/status', headers={'Authorization': 'Bearer ' + key})
         with opener.open(request, timeout=30) as reply:
-            live = json.load(reply).get('live') or {}
-        if live.get('state') == 'idle' and not live.get('queued') and not live.get('running'):
+            # /v1/status reports activity.in_flight = the running request plus those queued behind it.
+            in_flight = (json.load(reply).get('activity') or {}).get('in_flight')
+        if in_flight == 0:
             return time.monotonic() - started
         if time.monotonic() - started > limit:
-            raise RuntimeError(f'Engine still {live.get("state")} {limit} s after the forced stop')
+            raise RuntimeError(f'Engine still has {in_flight} requests in flight {limit} s after the forced stop')
         time.sleep(2)
 
 

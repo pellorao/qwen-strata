@@ -472,12 +472,12 @@ class CodexWorkloadTest(unittest.TestCase):
     def test_wait_engine_idle_polls_native_status(self):
         import http.server
         import threading
-        states, seen = ['generating', 'reading', 'idle'], []
+        states, seen = [2, 1, 0], []
 
         class Status(http.server.BaseHTTPRequestHandler):
             def do_GET(self):
                 seen.append((self.path, self.headers.get('Authorization')))
-                body = json.dumps({'live': {'state': states.pop(0), 'queued': 0}}).encode()
+                body = json.dumps({'activity': {'requests': 9, 'in_flight': states.pop(0)}}).encode()
                 self.send_response(200)
                 self.send_header('Content-Length', str(len(body)))
                 self.end_headers()
