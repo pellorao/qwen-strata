@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from tools.tuning import codex_workload, sampling_bank, staged_decision, window_bank
+from tools.tuning.sampling_families import codec, count, debug, ledger, machine
 
 
 class StagedDecisionTest(unittest.TestCase):
@@ -47,119 +48,173 @@ class SamplingBankTest(unittest.TestCase):
         self.assertEqual(len(cells), len(sampling_bank.FAMILIES) * len(sampling_bank.TIERS))
         self.assertTrue(sampling_bank.self_check(self.bank)['ok'])
 
-    def test_count_matches_brute_force(self):
-        rng = random.Random(3)
-        for _ in range(25):
-            n, letters = rng.randint(2, 8), 'abc'[:rng.choice([2, 3])]
-            forbidden = sorted({''.join(rng.choice(letters) for _ in range(rng.choice([2, 3]))) for _ in range(2)})
-            tally = rng.choice([None, ('a', 'exact', 2), ('b', 'mod', 3, 1)])
-            first_last, pairs = rng.choice([None, 'same', 'differ']), rng.choice([None, 1, 2])
+    def test_bead_counts_match_brute_force(self):
+        rng = random.Random(1)
+        for _ in range(120):
+            size, n = rng.choice([2, 3]), rng.randint(1, 8)
+            allowed = [[1] * size for _ in range(size)]
+            for x, y in rng.sample([(x, y) for x in range(size) for y in range(x, size)], rng.choice([0, 1, 2])):
+                allowed[x][y] = allowed[y][x] = 0
+            marked, k = rng.randrange(size), rng.randint(0, n)
+            words = [w for w in itertools.product(range(size), repeat=n) if w.count(marked) == k
+                     and all(allowed[w[i]][w[(i + 1) % n]] for i in range(n))]
+            rotations = {min(w[i:] + w[:i] for i in range(n)) for w in words}
+            turned = {min(min(v[i:] + v[:i] for i in range(n)) for v in (w, w[::-1])) for w in words}
+            self.assertEqual(count.necklaces(n, allowed, marked, k), len(rotations))
+            self.assertEqual(count.bracelets(n, allowed, marked, k), len(turned))
 
-            def fits(s):
-                if any(f in s for f in forbidden):
-                    return False
-                if tally and tally[1] == 'exact' and s.count(tally[0]) != tally[2]:
-                    return False
-                if tally and tally[1] == 'mod' and s.count(tally[0]) % tally[2] != tally[3]:
-                    return False
-                if first_last and (s[0] == s[-1]) != (first_last == 'same'):
-                    return False
-                return pairs is None or sum(s[i] == s[i + 1] for i in range(len(s) - 1)) == pairs
-            brute = sum(fits(''.join(t)) for t in itertools.product(letters, repeat=n))
-            self.assertEqual(sampling_bank.count_strings(n, letters, forbidden, tally, first_last, pairs), brute)
+    def test_huge_counts_match_brute_force_on_small_n(self):
+        rng = random.Random(2)
+        for _ in range(60):
+            n = rng.randint(2, 9)
+            forbidden = sorted({''.join(rng.choice('abc') for _ in range(rng.choice([2, 3]))) for _ in range(2)})
+            factors = {}
+            for prime in (2, 3, 5, 7):
+                while n % prime ** (factors.get(prime, 0) + 1) == 0:
+                    factors[prime] = factors.get(prime, 0) + 1
+            words = [''.join(w) for w in itertools.product('abc', repeat=n)]
+            cyclic = {min(w[i:] + w[:i] for i in range(n)) for w in words
+                      if not any(f in (w * 3)[i:i + len(f)] for i in range(n) for f in forbidden)}
+            self.assertEqual(count.huge_necklaces(n, factors, 'abc', forbidden), len(cyclic))
+            parity = rng.choice('abc')
+            linear = sum(1 for w in words if not any(f in w for f in forbidden) and w.count(parity) % 2 == 0)
+            self.assertEqual(count.huge_linear(n, 'abc', forbidden, parity), linear)
 
-    def test_trace_semantics(self):
-        program = [('SET', 'A', 3), ('SET', 'C', 3), ('LABEL', 'L1'), ('SKIP', 'A', 4, 1), ('ADD', 'A', 2),
-                   ('SUB', 'A', 1), ('OUT', 'A'), ('DEC', 'C'), ('LOOP', 'C', 'L1')]
-        # SKIP fires once A exceeds 4, so ADD runs only while A <= 4; SUB is r - x
-        self.assertEqual(sampling_bank.run_trace(program, None, False), [4, 5, 4])
-        self.assertEqual(sampling_bank.run_trace([('SET', 'A', 2), ('SUB', 'A', 5), ('OUT', 'A')], 7, True), [3])
+    def test_machine_semantics_and_cycle_skip(self):
+        r = {'tier': 2, 'modulus': 100, 'sub': 'reversed', 'jumps': 'absolute', 'signed': True, 'shr_flag': True,
+             'djnz': 'first'}
+        program = [('SET', 'A', 5), ('SUB', 'A', 3), ('OUT', 'A'), ('SHR', 'A'), ('JF', 6), ('OUT', 'A'),
+                   ('SET', 'C', 0), ('ADD', 'B', 1), ('DJNZ', 'C', 7), ('OUT', 'B'), ('SET', 'D', 60),
+                   ('JLT', 'D', 1, 13), ('HALT',), ('OUT', 'D')]
+        # SUB is 3 - 5 = 98; SHR of 98 leaves F false; DJNZ from 0 runs 100 times; 60 is negative when signed
+        self.assertEqual(machine.run(program, r), [98, 49, 0, 60])
+        self.assertEqual(machine.run(program, dict(r, signed=False)), [98, 49, 0])
+        body = [('ADD', 'A', 'B'), ('MUL', 'B', 7), ('SUB', 'A', 3), ('SHR', 'B')]
+        for count_ in (7, 1234, 99999):
+            direct = machine.run([('SET', 'A', 4), ('SET', 'B', 9), ('REP', count_, 4)] + body
+                                 + [('OUT', 'A'), ('OUT', 'B')], r)
+            regs, flag = {'A': 4, 'B': 9}, False
+            for _ in range(count_):
+                regs['A'] = (regs['A'] + regs['B']) % 100
+                regs['B'] = regs['B'] * 7 % 100
+                regs['A'] = (3 - regs['A']) % 100
+                regs['B'] //= 2
+            self.assertEqual(direct, [regs['A'], regs['B']])
+        original = machine.DIRECT_REP_LIMIT
+        machine.DIRECT_REP_LIMIT = 10  # the same counts through cycle detection
+        try:
+            skipped = machine.run([('SET', 'A', 4), ('SET', 'B', 9), ('REP', 99999, 4)] + body
+                                  + [('OUT', 'A'), ('OUT', 'B')], r)
+        finally:
+            machine.DIRECT_REP_LIMIT = original
+        self.assertEqual(skipped, direct)
 
-    def test_necklaces_match_brute_force(self):
-        rng = random.Random(5)
-        for _ in range(30):
-            n, letters = rng.randint(1, 10), 'abc'[:rng.choice([2, 3])]
-            forbidden = sorted({''.join(rng.choice(letters) for _ in range(rng.choice([2, 3]))) for _ in range(2)})
-            a = rng.choice([None, rng.randint(0, n)])
-            seen = {min(w[i:] + w[:i] for i in range(n)) for w in map(''.join, itertools.product(letters, repeat=n))
-                    if sampling_bank.cyclic_ok(w, forbidden) and (a is None or w.count(letters[0]) == a)}
-            self.assertEqual(sampling_bank.necklaces(n, letters, forbidden, a), len(seen))
+    def test_codec_steps_round_trip(self):
+        for seed in range(80):
+            rng = random.Random(seed)
+            for tier in sampling_bank.TIERS:
+                chosen = codec.steps(rng, tier)
+                for text in codec.samples(rng, 40):
+                    encoded = text
+                    for encode, _, _ in chosen:
+                        encoded = encode(encoded)
+                    for _, decode, _ in reversed(chosen):
+                        encoded = decode(encoded)
+                    self.assertEqual(encoded, text)
 
-    def test_counted_loop_cycle_detection_matches_plain_run(self):
-        body = [('ADD', 'A', 'C'), ('SKIP', 'A', 'B', 1), ('MUL', 'B', 3), ('SUB', 'B', 'A')]
-        program = [('SET', 'A', 4), ('SET', 'B', 7), ('SET', 'C', 5000), ('LABEL', 'L1')] + body + \
-                  [('DEC', 'C'), ('LOOP', 'C', 'L1'), ('OUT', 'A'), ('OUT', 'B')]
-        regs = {'A': 4, 'B': 7}
-        plain = []
-        c = 5000
-        while c:
-            # reference semantics with the counter exempt from reduction
-            regs['A'] = (regs['A'] + c) % 97
-            if not regs['A'] > regs['B']:
-                regs['B'] = regs['B'] * 3 % 97
-            regs['B'] = (regs['B'] - regs['A']) % 97
-            c -= 1
-        plain = [regs['A'], regs['B']]
-        self.assertEqual(sampling_bank.run_counted_loop({'A': 4, 'B': 7}, body, 'C', 5000, 97, False, ['A', 'B']),
-                         plain)
+    def test_ledger_rules(self):
+        r = {'tier': 3, 'tie': 'descending', 'overdraft': 0, 'fee': 50, 'cap': 1000, 'waiver': 3000, 'rate': 100,
+             'charge': 500, 'large': 400, 'fee_bp': 100}
+        events = [{'id': 1, 't': 0, 'op': 'open', 'acct': 'a'}, {'id': 2, 't': 0, 'op': 'open', 'acct': 'b'},
+                  {'id': 3, 't': 5, 'op': 'deposit', 'acct': 'a', 'amount': 4000},
+                  {'id': 4, 't': 6, 'op': 'withdraw', 'acct': 'a', 'amount': 450},  # waived, counts 900 to the cap
+                  {'id': 5, 't': 7, 'op': 'transfer', 'from': 'a', 'to': 'b', 'amount': 200},  # 1100 > cap
+                  {'id': 6, 't': 86400, 'op': 'withdraw', 'acct': 'a', 'amount': 3000},  # fee max(50, 30), cap 6000
+                  {'id': 7, 't': 86400, 'op': 'transfer', 'from': 'a', 'to': 'b', 'amount': 100},  # id 7 first
+                  {'id': 8, 't': 86401, 'op': 'reverse', 'target': 4},
+                  {'id': 9, 't': 86402, 'op': 'close', 'acct': 'b'},
+                  {'id': 10, 't': 86403, 'op': 'interest'},
+                  {'id': 11, 't': 86404, 'op': 'deposit', 'acct': 'b', 'amount': '5'}]
+        result = ledger.settle(list(reversed(events)), r)
+        # day 1: id 7 runs before id 6 and moves 100; id 6 counts 6000 > cap; reversing 4 gives back 450 (a 3900);
+        # b (100) cannot close; interest adds 39 and 1
+        self.assertEqual(result, {'balances': {'a': 3939, 'b': 101}, 'rejected': [5, 6, 9, 11], 'fees': 0})
+        rng = random.Random(4)
+        for tier in sampling_bank.TIERS:  # money is conserved apart from deposits, withdrawals, fees and interest
+            r = ledger.rules(rng, tier)
+            for _ in range(30):
+                events = ledger.events(rng, r)
+                result = ledger.settle(events, r)
+                self.assertEqual(len(result['rejected']), len(set(result['rejected'])))
+                if tier < 3:
+                    rejected = set(result['rejected'])
+                    reversed_ids = {e['target'] for e in events if e['op'] == 'reverse' and e['id'] not in rejected}
+                    flow = sum((e['amount'] if e['op'] == 'deposit' else -e['amount'])
+                               for e in events if e['op'] in ('deposit', 'withdraw') and e['id'] not in rejected
+                               and e['id'] not in reversed_ids)
+                    self.assertEqual(sum(result['balances'].values()) + result['fees'], flow)
 
-    def test_grid_answers_are_unique_solutions(self):
-        for x in self.bank['items']:
-            if x['family'] == 'grid' and x['tier'] <= 2:
-                self.assertIn('exactly one solution', x['prompt'])
-                self.assertEqual(len(x['answer'].split(',')), {1: 3, 2: 4}[x['tier']])
+    def test_debug_packages_reference_passes_and_each_bug_fails(self):
+        for name, package in debug.PACKAGES.items():
+            files = dict(package['files'])
+            for key, value in (package['setup'](random.Random(1)).items() if 'setup' in package else []):
+                files = {n: t.replace(key, value) for n, t in files.items()}
+            args = package['args'](random.Random(2), 40)
+            reference = debug.call(files, package['module'], package['entry'], args)
+            self.assertGreater(sum('value' in r for r in reference), 30, name)
+            for bug in package['bugs']:
+                broken = debug.call(debug.inject(files, [bug]), package['module'], package['entry'], args)
+                self.assertNotEqual(broken, reference, (name, bug[3]))
 
-    def test_scoring_answers_and_hidden_tests(self):
+    def test_scoring_answers_code_and_packages(self):
         bank = sampling_bank.select(self.bank, [x['id'] for x in self.bank['items']])
-        ledger = next(x for x in bank['items'] if x['family'] == 'ledger' and x['tier'] == 5)
         answer = next(x for x in bank['items'] if x['kind'] == 'answer')
-        rules = ledger_rules_from(bank, ledger)
+        package = next(x for x in bank['items'] if x['kind'] == 'package')
+        code = next(x for x in bank['items'] if x['family'] == 'ledger' and x['tier'] == 3)
+        rules = ledger.rules(random.Random(f'ledger/3/{code["seed"]}'), 3)
         with tempfile.TemporaryDirectory() as tmp:
             sampling_bank.export(bank, tmp)
+            self.assertIn(f'solutions/{package["number"]}/', (Path(tmp) / 'problems' / (package['number'] + '.md')).read_text())
             (Path(tmp) / 'answers' / (answer['number'] + '.txt')).write_text(' ' + answer['answer'].upper() + '\n')
-            reference = inspect.getsource(sampling_bank.settle).replace('def settle(events, r):', 'def _settle(events, r):')
-            (Path(tmp) / 'solutions' / (ledger['number'] + '.py')).write_text(
+            reference = inspect.getsource(ledger).replace('def settle(events, r):', 'def _settle(events, r):')
+            (Path(tmp) / 'solutions' / (code['number'] + '.py')).write_text(
                 reference + f'\nRULES = {rules!r}\n\ndef settle(events):\n    return _settle(events, RULES)\n')
+            for name, raw in sampling_bank.reference_files(package).items():
+                (Path(tmp) / 'solutions' / package['number'] / name).write_bytes(raw)
             result = sampling_bank.score(bank, tmp)
         rows = {r['number']: r for r in result['rows']}
         self.assertTrue(rows[answer['number']]['correct'])
-        self.assertTrue(rows[ledger['number']]['correct'])
-        self.assertEqual(result['correct'], 2)
+        self.assertTrue(rows[code['number']]['correct'])
+        self.assertTrue(rows[package['number']]['correct'])
+        self.assertEqual(result['correct'], 3)
 
-    def test_invertible_strfun_steps_are_injective(self):
-        rng = random.Random(5)
-        words = {''.join(rng.choice('abzAZu 0 9!') for _ in range(rng.randint(0, 9))) for _ in range(3000)}
-        for seed in range(6):
-            for op, text, invertible in sampling_bank.strfun_ops(random.Random(seed)):
-                if invertible:
-                    self.assertEqual(len({op(w) for w in words}), len(words), text)
-
-    def test_hard_code_tiers_show_no_examples(self):
+    def test_only_tier_one_code_shows_an_example(self):
         for x in self.bank['items']:
-            if x['kind'] == 'code':
-                self.assertEqual('Examples:' in x['prompt'], x['tier'] <= 3, x['id'])
-                self.assertEqual(x['entry'], 'decode' if (x['family'], x['tier']) == ('strfun', 5) else
-                                 {'strfun': 'transform', 'ledger': 'settle'}[x['family']])
+            if x['family'] in ('ledger', 'codec'):
+                self.assertEqual('xample' in x['prompt'].split('No examples')[0], x['tier'] == 1, x['id'])
 
     def test_calibration_scores_the_deadline_snapshot(self):
         import shutil
         bank = sampling_bank.select(self.bank, [x['id'] for x in self.bank['items']])
         answer = next(x for x in bank['items'] if x['kind'] == 'answer')
         with tempfile.TemporaryDirectory() as tmp:
-            sampling_bank.calibration_prepare(bank, tmp, 1, 10)
-            run = Path(tmp) / 'run-1'
-            (run / 'start-epoch').write_text(str(time.time()))
-            shutil.copytree(run / 'workspace', run / 'deadline-snapshot')
-            (run / 'deadline-snapshot' / 'answers' / (answer['number'] + '.txt')).write_text(answer['answer'])
-            (run / 'workspace' / 'answers' / (answer['number'] + '.txt')).write_text('written after the limit')
+            manifest = sampling_bank.calibration_prepare(bank, tmp, 1, 10)
+            self.assertEqual(len(manifest['jobs']), len(sampling_bank.FAMILIES))
+            job = Path(tmp) / 'run-1' / answer['family']
+            self.assertEqual(len(list((job / 'workspace' / 'problems').glob('*.md'))), 3)
+            (job / 'start-epoch').write_text(str(time.time()))
+            shutil.copytree(job / 'workspace', job / 'deadline-snapshot')
+            (job / 'deadline-snapshot' / 'answers' / (answer['number'] + '.txt')).write_text(answer['answer'])
+            (job / 'workspace' / 'answers' / (answer['number'] + '.txt')).write_text('written after the limit')
             result = sampling_bank.calibration_score(bank, tmp)
-        self.assertEqual(result['runs'][0]['scored'], 'deadline-snapshot')
+        self.assertEqual(result['runs'][0]['scored'][answer['family']], 'deadline-snapshot')
         self.assertEqual(next(i for i in result['items'] if i['id'] == answer['id'])['passes'], 1)
 
     def test_broken_code_scores_zero(self):
-        self.assertEqual(sampling_bank.run_tests(b'def f():\n    return 2\n', 'f', [{'args': [], 'expected': 1}]), 0)
-        self.assertEqual(sampling_bank.run_tests(b'def f():\n    return 1\n', 'f', [{'args': [], 'expected': 1}]), 1)
-
+        self.assertEqual(sampling_bank.run_tests({'s.py': b'def f():\n    return 2\n'}, 's', 'f',
+                                                 [{'args': [], 'expected': 1}]), 0)
+        self.assertEqual(sampling_bank.run_tests({'s.py': b'def f():\n    return 1\n'}, 's', 'f',
+                                                 [{'args': [], 'expected': 1}]), 1)
 
     def test_choose_mixes_right_and_wrong_items_per_family(self):
         families = ['a', 'b']
@@ -180,12 +235,6 @@ class SamplingBankTest(unittest.TestCase):
         self.assertFalse(sampling_bank.choose(bank, calibration, {'turns': turns}, 4)['ok'])
         order = sampling_bank.interleaved(bank, 1)
         self.assertEqual([x[0] for x in order], ['a', 'b'] * 6)
-
-
-def ledger_rules_from(bank, ledger):
-    """Recreate the item's rules from its seed exactly as the generator drew them."""
-    rng = random.Random(f'ledger/{ledger["tier"]}/{ledger["seed"]}')
-    return sampling_bank.ledger_rules(rng, ledger['tier'])
 
 
 class SandboxProbeTest(unittest.TestCase):
