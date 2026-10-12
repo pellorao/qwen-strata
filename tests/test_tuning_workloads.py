@@ -348,7 +348,10 @@ class CodexWorkloadTest(unittest.TestCase):
         folder = Path(__file__).resolve().parents[1] / 'benchmarks/tuning-workloads-v1'
         for name in ('window-plan.json', 'sampling-pilot-plan.json'):
             plan, data, conditions = codex_workload.load_plan(folder / name)
-            self.assertNotEqual(plan.get('authorization', {}).get('approved'), True)
+            authorization = plan.get('authorization', {})
+            if authorization.get('approved') is True:  # only with a recorded user approval
+                self.assertEqual(authorization.get('approved_by'), 'user')
+                self.assertTrue(authorization.get('date') and authorization.get('scope'))
             own = sampling_bank.self_check(data) if plan['workload'] == 'sampling' else window_bank.self_check(data)
             self.assertTrue(own['ok'], own)
 

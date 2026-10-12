@@ -1,8 +1,11 @@
 {
  "schema": "codex-workload-v1",
- "status": "draft-not-approved",
+ "status": "approved",
  "authorization": {
-  "approved": false
+  "approved": true,
+  "approved_by": "user",
+  "date": "2026-10-12",
+  "scope": "1 实例、75 会话（每会话 1 题）、greedy 默认条件（sampling-greedy），每会话硬时限 300 秒"
  },
  "host": "rtx3080ti",
  "model": "IQ3_XXS",
@@ -18,7 +21,7 @@
   "effort": "high"
  },
  "chunk": 1,
- "per_session_seconds_limit": 900,
+ "per_session_seconds_limit": 300,
  "conditions": {
   "sampling-greedy": {
    "context_window": 156584,
@@ -38,6 +41,6 @@
  "first_round": [
   "sampling-greedy"
  ],
- "note": "Qwen 试跑计划草稿：默认条件、全部候选题（v2 草稿套题 75 道）、每会话 1 题，实测每题耗时与 token。待 Opus 标定 r2 后按需替换题目并更新 SHA。 每会话硬时限 900 秒：试跑是为量每题耗时，取宽；单题超过 15 分钟本身就放不进 10 分钟的实例，记为下界。",
+ "note": "Qwen 试跑（用户 2026-10-12 批准）：默认条件、全部候选题（v2 草稿套题 75 道）、每会话 1 题，实测每题对错、耗时与 token。每会话硬时限 300 秒：单题超过 5 分钟本身就放不进 10 分钟、含多题的实例，记为下界；最坏总耗时约 6 小时。",
  "pilot": true
 }
