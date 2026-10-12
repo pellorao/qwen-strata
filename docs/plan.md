@@ -6,7 +6,6 @@
 
 需要用户决定的事项只记在这里，处理后删除。
 
-- 历史调参按新调参口径重算（2026-10-12 提出）：spec、spec-min-p、CPU 辅助、采样、窗口等用 ARW 评分的维度，改取扣罚前分重算，F6 结束后进行（不涉及模型；与 F6 共用评分代码，故串行）。结论变化的维度先给新旧对比，用户决定后再改默认值和部署。
 - F3 修复（用户 2026-10-11 同意）：已完成无模型修补。新增 ARW 补丁 `arw-patches/reviewer-followup-original-scope.patch`：重开条目时先在原工作目录检查原报告，接受新任务后再切换到新目录；附复现测试，修复前失败、修复后通过。驱动遇到 `reviewer-busy` 时等待原任务到终态后重发 followup；遇到 ARW 早退暂停则交给用户决定。PLE 测量已取消。F3 第 3 次试跑（2026-10-11 18:48–19:07，大页生效、Normal 优先级）通过：1 个合并实例，runtime-migration 与 artifact-promotion 在同一线程各 1 个回合完成，followup 在原作用域找到报告，没有出现 `reviewer-busy`、早退接续或停顿；两阶段各发生 1 次压缩，ARW 实际用的压缩提示是安装目录基础提示加 Codex 0.160.1 原生快照（与工程源同 SHA）；结束后 key 已归还、模型已停。runtime-migration 报告未通过 ARW `generate` 格式校验（要求 SPEC-READINESS-REQUIREMENTS 有问题时在需求范围检查后停止），属于模型输出质量，不是交接故障。评分（2026-10-11，Main 处理，不调用模型）：停止点核实在第 6 行之后（第 0–5 行为 INPUTS/REQUIREMENTS），按 protocol 新规则在副本中删除第 6–15 行（10 行 ADR 与 MODULE-DESIGN 检查）；但冻结 ARW 的 `score-completed` 拒绝这份整理副本（"Original report has no verified representation error"：格式修正只接受原件有表示错误的情况，未停止被它当作原生诊断项 `requirement-scope-continuation` 直接对原件评分），所以拿不到经整理的诊断分。原版对原件的诊断：runtime-migration 0.967（clean acceptance 0.900，problem detection 0.985；7 个候选裁决 5 个匹配、2 个不匹配，均为两个结果契约问题之间的交叉候选）；融合诊断分罚前 0.468、罚后 0.421（报告错误：RM 未停止 1 项，AP 证据未指向正文行 4 项）。正式失败保留。明细在 `.tmp/arw4/sr-a/`。
 
 ## 自主模式（2026-10-12 夜，用户一次性授权）
@@ -20,6 +19,8 @@
 5. [ ] F6：四场景各 5 次（Commit Audit → Code Spec → Code Standards → Spec Readiness），只出 benchmark 报告。
 
 决策、双方意见和结果记在本节下方和各项报告。
+
+- 调参口径重算（用户 2026-10-12，取 ARW 扣罚前分）：完成，结论全部不变。spec、spec-min-p、CPU 辅助、采样四维（Commit Audit）归一后本无残留诊断，分数不变；第 9 维窗口改为扣罚前融合分 0.420 对 0.480，差 0.060 仍为平手，维持 156584。各报告已加口径说明。
 
 ## 顺序
 

@@ -9,7 +9,7 @@
   156584,
   206584
  ],
- "scenario": "Spec Readiness 合并实例（同线程 runtime-migration → artifact-promotion），格式归一融合评分；停止规则违规 ×0.9（模型行为，保留）",
+ "scenario": "Spec Readiness 合并实例（同线程 runtime-migration → artifact-promotion），格式归一融合评分；调参口径取扣罚前分，停止规则违规只记录（用户 2026-10-12）",
  "scope_change": "256584 未发布（第 3 项决策），按计划整列删除，拉丁方改为 ABBAAB",
  "held_constant": "kv-resident 20480、spec 4、spec-min-p 0.9、ple-io direct、vram-reserve 512、无 pcie-frac、采样 0/1/20、CPU share auto、ADAPT_LAG 2；条件只改 ARW provider contextWindow 选档（156584/100000 vs 206584/150000），引擎 --max-context 随档",
  "startup_sha": {
@@ -44,13 +44,6 @@
  "by_condition": {
   "window-156584": {
    "n": 3,
-   "score_mean": 0.3892,
-   "score_sd": 0.0476,
-   "score_range": [
-    0.3402,
-    0.4352
-   ],
-   "score_before_penalty_mean": 0.4199,
    "rm_mean": 0.9044,
    "ap_mean": 0.2807,
    "work_min_mean": 17.43,
@@ -60,19 +53,19 @@
    "engine_out_tps_mean": 98.3,
    "task_out_tps_mean": 78.7,
    "draft_accept_mean": 0.9031,
-   "stop_rule_penalties": 2,
    "matched_total": 29,
-   "candidates_total": 42
+   "candidates_total": 42,
+   "penalized_score_mean_recorded_only": 0.3892,
+   "score_mean": 0.4199,
+   "score_sd": 0.073,
+   "score_range": [
+    0.3402,
+    0.4836
+   ],
+   "stop_rule_diagnostics": 2
   },
   "window-206584": {
    "n": 3,
-   "score_mean": 0.4498,
-   "score_sd": 0.1531,
-   "score_range": [
-    0.273,
-    0.5386
-   ],
-   "score_before_penalty_mean": 0.4799,
    "rm_mean": 0.8948,
    "ap_mean": 0.3615,
    "work_min_mean": 14.59,
@@ -82,26 +75,33 @@
    "engine_out_tps_mean": 98.9,
    "task_out_tps_mean": 79.3,
    "draft_accept_mean": 0.9053,
-   "stop_rule_penalties": 2,
    "matched_total": 34,
-   "candidates_total": 53
+   "candidates_total": 53,
+   "penalized_score_mean_recorded_only": 0.4498,
+   "score_mean": 0.4799,
+   "score_sd": 0.1559,
+   "score_range": [
+    0.3033,
+    0.5985
+   ],
+   "stop_rule_diagnostics": 2
   }
  },
  "paired_by_schedule": [
   {
    "A_156584": 1,
    "B_206584": 2,
-   "B_minus_A": 0.1456
+   "B_minus_A": 0.1021
   },
   {
    "A_156584": 4,
    "B_206584": 3,
-   "B_minus_A": 0.1984
+   "B_minus_A": 0.2583
   },
   {
    "A_156584": 5,
    "B_206584": 6,
-   "B_minus_A": -0.1622
+   "B_minus_A": -0.1803
   }
  ],
  "slots": [
@@ -109,9 +109,6 @@
    "slot": 1,
    "dir": "01-window-156584",
    "condition": "window-156584",
-   "score": 0.3923,
-   "score_before_penalty": 0.4358,
-   "stop_rule_penalty": true,
    "runtime_migration": {
     "score": 0.9883,
     "problemDetectionRate": 0.9855,
@@ -157,15 +154,15 @@
     "sw_thermal"
    ],
    "inspection_flags": "#15 畸形 workdir 拒绝未执行（基线现象）；#34 printenv ARW_BACKGROUND_AGENT_RUN_ID >/dev/null（环境变量查询，违反测量说明，输出未进入上下文）",
-   "started": "2026-10-12T05:27:40"
+   "started": "2026-10-12T05:27:40",
+   "penalized_score_recorded_only": 0.3923,
+   "score": 0.4358,
+   "stop_rule_diagnostic": true
   },
   {
    "slot": 2,
    "dir": "02-window-206584",
    "condition": "window-206584",
-   "score": 0.5379,
-   "score_before_penalty": 0.5379,
-   "stop_rule_penalty": false,
    "runtime_migration": {
     "score": 0.9125,
     "problemDetectionRate": 0.893,
@@ -210,15 +207,15 @@
     "sw_thermal"
    ],
    "inspection_flags": "#11 畸形 workdir 拒绝未执行（基线现象）",
-   "started": "2026-10-12T05:49:58"
+   "started": "2026-10-12T05:49:58",
+   "penalized_score_recorded_only": 0.5379,
+   "score": 0.5379,
+   "stop_rule_diagnostic": false
   },
   {
    "slot": 3,
    "dir": "03-window-206584",
    "condition": "window-206584",
-   "score": 0.5386,
-   "score_before_penalty": 0.5985,
-   "stop_rule_penalty": true,
    "runtime_migration": {
     "score": 0.996,
     "problemDetectionRate": 0.995,
@@ -260,15 +257,15 @@
     "sw_power_cap"
    ],
    "inspection_flags": "#22 jq 输出写 /tmp（场景根外），只读文件系统拒绝；#20 apply_patch 重复拼接路径触发 guardian（allow），补丁失败后改用 heredoc",
-   "started": "2026-10-12T06:07:23"
+   "started": "2026-10-12T06:07:23",
+   "penalized_score_recorded_only": 0.5386,
+   "score": 0.5985,
+   "stop_rule_diagnostic": true
   },
   {
    "slot": 4,
    "dir": "04-window-156584",
    "condition": "window-156584",
-   "score": 0.3402,
-   "score_before_penalty": 0.3402,
-   "stop_rule_penalty": false,
    "runtime_migration": {
     "score": 0.7385,
     "problemDetectionRate": 0.6932,
@@ -313,15 +310,15 @@
     "sw_power_cap"
    ],
    "inspection_flags": "#40 畸形 workdir 拒绝未执行（基线现象）",
-   "started": "2026-10-12T06:19:15"
+   "started": "2026-10-12T06:19:15",
+   "penalized_score_recorded_only": 0.3402,
+   "score": 0.3402,
+   "stop_rule_diagnostic": false
   },
   {
    "slot": 5,
    "dir": "05-window-156584",
    "condition": "window-156584",
-   "score": 0.4352,
-   "score_before_penalty": 0.4836,
-   "stop_rule_penalty": true,
    "runtime_migration": {
     "score": 0.9863,
     "problemDetectionRate": 0.9829,
@@ -365,15 +362,15 @@
     "sw_power_cap"
    ],
    "inspection_flags": "#23 jq 输出写 /tmp/lines.txt（场景根外），只读文件系统拒绝",
-   "started": "2026-10-12T06:38:09"
+   "started": "2026-10-12T06:38:09",
+   "penalized_score_recorded_only": 0.4352,
+   "score": 0.4836,
+   "stop_rule_diagnostic": true
   },
   {
    "slot": 6,
    "dir": "06-window-206584",
    "condition": "window-206584",
-   "score": 0.273,
-   "score_before_penalty": 0.3033,
-   "stop_rule_penalty": true,
    "runtime_migration": {
     "score": 0.7758,
     "problemDetectionRate": 0.75,
@@ -418,13 +415,16 @@
     "sw_thermal"
    ],
    "inspection_flags": "#7、#45 畸形 workdir 拒绝未执行（基线现象）",
-   "started": "2026-10-12T06:53:22"
+   "started": "2026-10-12T06:53:22",
+   "penalized_score_recorded_only": 0.273,
+   "score": 0.3033,
+   "stop_rule_diagnostic": true
   }
  ],
  "status": "finished",
  "decision": {
   "result": "keep 156584 as default; keep 206584/150000 as optional tier; config unchanged",
-  "rule": "batch score diff 0.061 <= 0.08 -> tie; engine output tok/s 98.9 vs 98.3 (0.6%) within single-run range 95.3-101.6 -> no demonstrable difference, keep current",
+  "rule": "batch score (pre-penalty, tuning rule 2026-10-12) diff 0.060 <= 0.08 -> tie; engine output tok/s 98.9 vs 98.3 (0.6%) within single-run range 95.3-101.6 -> no demonstrable difference, keep current",
   "main_opinion": "keep 156584; paired diffs +0.146/+0.198/-0.162 inconsistent; 206584 within-group sd 0.153; 206584 has smaller margin to the ~151K verified retrieval boundary",
   "reviewer_opinion": "keep 156584 (Opus, independent, facts only); keep 206584 optional: score not worse, fewer compactions (1 vs ~1.67 per slot), fewer requests 46.7 vs 54.7, max request input 119-130K within verified ~151K",
   "agreement": true,
@@ -433,5 +433,21 @@
  "session_inspection_followup": {
   "slot3_20_21": "#20 apply_patch failed (duplicated path, inside root); #21 heredoc single write target is the handoff-declared writable draft path <ROOT>/.tmp/codex/.../reviewer-drafts/<id>/reports/draft.jsonl, relative to workdir <ROOT>, no .. segment: inside root, verified",
   "slot1_34": "printenv ARW_BACKGROUND_AGENT_RUN_ID >/dev/null: environment query violating measurement note; single ARW variable, output discarded, not in context; sample kept and annotated"
+ },
+ "scoring_change": {
+  "date": "2026-10-12",
+  "rule": ".claude/rules/measurement.md 评分口径：调参排除 ARW 有诊断就 ×0.9 类罚分，取扣罚前分",
+  "previous_formal_score": "penalized fused score (stop-rule ×0.9 kept)",
+  "previous": {
+   "window-156584": 0.3892,
+   "window-206584": 0.4498,
+   "diff": 0.0606
+  },
+  "new": {
+   "window-156584": 0.4199,
+   "window-206584": 0.4799,
+   "diff": 0.06
+  },
+  "conclusion_changed": false
  }
 }

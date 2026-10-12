@@ -602,5 +602,10 @@
   "deployed": "2026-10-11, config/deployments/rtx3080ti.json model_overrides.IQ3_XXS \"spec\": 4 (explicit), read back, source SHAs verified, lease free, no model loaded",
   "user": "confirmed spec 4 on 2026-10-11"
  },
- "raw_details_boundary": "Raw rollouts, engine logs and per-slot scoring live only in .tmp/dims5-7/ and may be deleted; this file holds all numbers needed to recompute the table."
+ "raw_details_boundary": "Raw rollouts, engine logs and per-slot scoring live only in .tmp/dims5-7/ and may be deleted; this file holds all numbers needed to recompute the table.",
+ "scoring_recheck": {
+  "date": "2026-10-12",
+  "rule": ".claude/rules/measurement.md 评分口径：调参取 ARW 扣罚前分（scoreBeforePenalty）",
+  "result": "every instance score equals F2(problemDetectionRate, cleanAcceptanceRate) = scoreBeforePenalty (|diff| < 0.0006); no remaining report diagnostics after normalization; scores and conclusion unchanged"
+ }
 }

@@ -412,5 +412,10 @@
   "rule": "all four conditions within 0.08 after rescoring; engine output tok/s primary (user confirmed 2026-10-11); 0.9 fastest decode 104.0",
   "changed_by_rescoring": "0.3 batch 0.705 -> 0.819, rejoins the comparison group; winner unchanged",
   "user": "confirmed keeping 0.9 on 2026-10-11"
+ },
+ "scoring_recheck": {
+  "date": "2026-10-12",
+  "rule": ".claude/rules/measurement.md 评分口径：调参取 ARW 扣罚前分（scoreBeforePenalty）",
+  "result": "every instance score equals F2(problemDetectionRate, cleanAcceptanceRate) = scoreBeforePenalty (|diff| < 0.0006); no remaining report diagnostics after normalization; scores and conclusion unchanged"
  }
 }

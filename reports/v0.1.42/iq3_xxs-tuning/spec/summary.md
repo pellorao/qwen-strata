@@ -12,6 +12,8 @@
 
 **回退条件**：后续同口径运行中 spec 4 的解码优势不复现，且其他 spec 分数持续高出 0.08 以上时，重新比较。
 
+**评分口径复核（2026-10-12）**：按用户确定的调参口径（[测量规则 · 评分口径](../../../../.claude/rules/measurement.md#评分口径)），调参取 ARW 扣罚前分。本维每个实例的分数都等于由 problemDetectionRate、cleanAcceptanceRate 按 ARW F2 公式算出的扣罚前分（逐实例核对，差 <0.0006），即格式归一后没有残留报告诊断、没有 ×0.9 罚分，分数和结论都不变。
+
 **适用范围**：仅限 rtx3080ti、IQ3_XXS、Strata v0.1.42、Codex high、ARW Commit Audit 单一场景。spec 2 和 spec ≥7 未测，长输出和代码生成也未单独验证。
 
 ## 条件

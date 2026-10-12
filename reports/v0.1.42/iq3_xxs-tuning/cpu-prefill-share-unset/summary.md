@@ -8,6 +8,8 @@
 - **对上次报告疑点的意义**：[CPU 辅助 0 / auto 报告](../cpu-prefill-share/summary.md)担心"显式 auto 在 1–3K 分块变慢"，本维在 ARW 场景上没有看到这种现象，但没有直接测量分块。
 - **CPU 辅助开/关本身**已在上述报告比较过（0 对 auto，保持 auto）；本维不涉及开/关。
 
+**评分口径复核（2026-10-12）**：按用户确定的调参口径（[测量规则 · 评分口径](../../../../.claude/rules/measurement.md#评分口径)），调参取 ARW 扣罚前分。本维每个实例的分数都等于由 problemDetectionRate、cleanAcceptanceRate 按 ARW F2 公式算出的扣罚前分（逐实例核对，差 <0.0006），即格式归一后没有残留报告诊断、没有 ×0.9 罚分，分数和结论都不变。
+
 **适用范围**：仅限 rtx3080ti、IQ3_XXS、Strata v0.1.42、Codex high、ARW Commit Audit 单一场景。
 
 ## 条件

@@ -347,5 +347,10 @@
     "mode": "autonomous",
     "deploy": "2026-10-12 01:52 tools.ops.deploy --host rtx3080ti; readback spec 4, spec-min-p 0.9, STRATA_PREFILL_CPU_SHARE=auto; 23 source SHAs verified; lease free, model not loaded"
   },
-  "startup_context_check": "base_instructions, user@3, user@6 identical across 6 instances; developer@2 differed only by per-slot codex-home skills path; an execution note claiming slot 2 user@3 differed compared it against dimension 5 slot 1 (only <current_date> differs). After inspect_session normalized date and codex-home path, all 4 startup SHAs match across the 6 instances and dimension 5 slot 1."
+  "startup_context_check": "base_instructions, user@3, user@6 identical across 6 instances; developer@2 differed only by per-slot codex-home skills path; an execution note claiming slot 2 user@3 differed compared it against dimension 5 slot 1 (only <current_date> differs). After inspect_session normalized date and codex-home path, all 4 startup SHAs match across the 6 instances and dimension 5 slot 1.",
+  "scoring_recheck": {
+    "date": "2026-10-12",
+    "rule": ".claude/rules/measurement.md 评分口径：调参取 ARW 扣罚前分（scoreBeforePenalty）",
+    "result": "every instance score equals F2(problemDetectionRate, cleanAcceptanceRate) = scoreBeforePenalty (|diff| < 0.0006); no remaining report diagnostics after normalization; scores and conclusion unchanged"
+  }
 }
