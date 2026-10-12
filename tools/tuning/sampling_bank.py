@@ -28,7 +28,6 @@ import tempfile
 
 FAMILIES = ('trace', 'grid', 'count', 'strfun', 'ledger')
 TIERS = (1, 2, 3, 4, 5)
-CODE_FAMILIES = {'strfun': 'transform', 'ledger': 'settle'}
 CODE_TIMEOUT_SECONDS = 20
 
 
@@ -509,14 +508,23 @@ def count_item(rng, tier):
 # ---------------------------------------------------------------- strfun: implement a string pipeline (hidden tests)
 
 VOWELS = 'aeiou'
+ORDINAL = {2: 'second', 3: 'third', 4: 'fourth'}
 
 
 def strfun_ops(rng):
+    """(function, text, invertible).  Invertible steps are bijections on strings, so a pipeline of them has an
+    inverse; the hardest tier asks for that inverse."""
     k, m, a, b, n = rng.randint(1, 5), rng.randint(1, 3), rng.choice([3, 7, 9]), rng.randint(1, 9), rng.randint(2, 4)
 
+    def shift(c, by):
+        base = ord('a') if c.islower() else ord('A')
+        return chr((ord(c) - base + by) % 26 + base)
+
+    def letter(c):
+        return c.isascii() and c.isalpha()
+
     def caesar(s):
-        return ''.join(chr((ord(c) - base + k) % 26 + base) if c.isascii() and c.isalpha() else c
-                       for c in s for base in [ord('a') if c.islower() else ord('A')])
+        return ''.join(shift(c, k) if letter(c) else c for c in s)
 
     def rotate(s):
         return s[k % len(s):] + s[:k % len(s)] if s else s
@@ -540,7 +548,7 @@ def strfun_ops(rng):
     def alternate(s):
         out, seen = [], 0
         for c in s:
-            if c.isascii() and c.isalpha():
+            if letter(c):
                 out.append(c.upper() if seen % 2 == 0 else c.lower())
                 seen += 1
             else:
@@ -554,33 +562,51 @@ def strfun_ops(rng):
     def mirror(s):
         return s + s[-m - 1:][::-1] if s else s
 
+    def interleave(s):
+        return s[0::2] + s[1::2]
+
+    def progressive(s):
+        out, seen = [], 0
+        for c in s:
+            if letter(c):
+                out.append(shift(c, k + seen))
+                seen += 1
+            else:
+                out.append(c)
+        return ''.join(out)
+
     return [
-        (caesar, f'Shift every ASCII letter {k} places forward in the alphabet, wrapping z to a and Z to A and keeping '
-                 'its case; leave other characters unchanged.'),
-        (rotate, f'Rotate the whole string left by {k} characters (by {k} modulo the length; the empty string stays '
-                 'empty).'),
+        (caesar, f'Shift every ASCII letter {k} place' + ('s' if k > 1 else '') + ' forward in the alphabet, wrapping z to a and Z to A and keeping '
+                 'its case; leave other characters unchanged.', True),
+        (rotate, f'Rotate the whole string left by {k} position' + ('s' if k > 1 else '') + f' (by {k} modulo the length; the '
+                 'empty string stays empty).', True),
         (reverse_runs, 'Reverse the characters inside every maximal run of non-whitespace characters; whitespace '
-                       'characters stay exactly where they are.'),
-        (swap_pairs, 'Swap the characters at positions 0 and 1, 2 and 3, and so on; a final unpaired character stays.'),
-        (collapse, f'Shorten every run of one repeated character that is longer than {m} to exactly {m} copies.'),
-        (digits, f'Replace every decimal digit d by the digit ({a} * d + {b}) mod 10.'),
-        (drop, f'Delete every {n}-th character, counting positions from 1 (positions {n}, {2 * n}, ...).'),
+                       'characters stay exactly where they are.', True),
+        (swap_pairs, 'Swap the characters at positions 0 and 1, 2 and 3, and so on; a final unpaired character stays.',
+         True),
+        (collapse, f'Shorten every run of one repeated character that is longer than {m} to exactly {m} copies.', False),
+        (digits, f'Replace every decimal digit d by the digit ({a} * d + {b}) mod 10.', True),
+        (drop, f'Delete every {ORDINAL[n]} character, counting positions from 1 (positions {n}, {2 * n}, ...).',
+         False),
         (alternate, 'Among ASCII letters only, make the 1st, 3rd, 5th, ... letter (counted over letters only) '
-                    'uppercase and the 2nd, 4th, ... letter lowercase; leave other characters unchanged.'),
+                    'uppercase and the 2nd, 4th, ... letter lowercase; leave other characters unchanged.', False),
         (vowels, 'Replace each vowel by the next one in the cycle a, e, i, o, u, a, keeping its case (A becomes E, '
-                 'u becomes a); y is not a vowel.'),
+                 'u becomes a); y is not a vowel.', True),
         (mirror, f'Append the reverse of the last {m + 1} characters (the reverse of the whole string if it is '
-                 'shorter); the empty string stays empty.'),
+                 'shorter); the empty string stays empty.', False),
+        (interleave, 'Write the characters at even positions (0, 2, 4, ...) in order, followed by the characters at '
+                     'odd positions (1, 3, 5, ...) in order.', True),
+        (progressive, f'Shift the ASCII letters forward in the alphabet by a growing number of places, keeping case '
+                      f'and wrapping as usual: the first letter by {k}, the second letter by {k + 1}, the third by '
+                      f'{k + 2}, and so on (letters only are counted); leave other characters unchanged.', True),
     ]
 
 
-def strfun_item(rng, tier):
-    chosen = rng.sample(strfun_ops(rng), {1: 1, 2: 2, 3: 3, 4: 4, 5: 6}[tier])
+STRFUN_STEPS = {1: 1, 2: 2, 3: 3, 4: 4, 5: 6}
+STRFUN_EXAMPLES = (1, 2, 3)  # tiers that show examples; from tier 4 on the specification alone must be followed
 
-    def apply(s):
-        for op, _ in chosen:
-            s = op(s)
-        return s
+
+def strfun_samples(rng):
     alphabet = 'abcdeiouxyzAEIOUQZ0123456789  !?-.'
     samples = ['', 'a', 'Zz 9', 'aaa   bbbb!!', 'Hello World 2024', 'u U y Y']
     while len(samples) < 34:
@@ -589,13 +615,42 @@ def strfun_item(rng, tier):
         if rng.random() < 0.3:
             word = word.replace(word[0], word[0] * 3, 1)
         samples.append(word)
+    return samples
+
+
+def strfun_item(rng, tier):
+    ops = strfun_ops(rng)
+    decode = tier == 5
+    chosen = rng.sample([o for o in ops if o[2]] if decode else ops, STRFUN_STEPS[tier])
+
+    def apply(s):
+        for op, _, _ in chosen:
+            s = op(s)
+        return s
+    samples = strfun_samples(rng)
+    steps = '\n'.join(f'{i}. {text}' for i, (_, text, _) in enumerate(chosen, 1))
+    if decode:
+        samples = samples[:4] + samples[6:]  # 4 and 5 are shown as transform examples in lower tiers
+        encoded = [apply(s) for s in samples]
+        if len(set(encoded)) != len(encoded):
+            raise AssertionError('strfun decode pipeline is not injective')
+        cases = [{'args': [e], 'expected': s} for s, e in zip(samples, encoded)]
+        prompt = ('An encoder applies these steps in order, each to the result of the previous one:\n\n'
+                  f'{steps}\n\nImplement `decode(s: str) -> str`, the exact inverse of this encoder: for every string '
+                  't, decode(encoder(t)) == t. No examples are given; follow the steps exactly as written. Use only the '
+                  'Python 3 standard library. Hidden tests call decode on encoded strings.')
+        return {'kind': 'code', 'entry': 'decode', 'prompt': prompt, 'tests': cases,
+                'stub': 'def decode(s: str) -> str:\n    raise NotImplementedError\n'}
     cases = [{'args': [s], 'expected': apply(s)} for s in samples]
-    visible, hidden = cases[4:6], cases[:4] + cases[6:]
-    steps = '\n'.join(f'{i}. {text}' for i, (_, text) in enumerate(chosen, 1))
+    if tier in STRFUN_EXAMPLES:
+        visible, hidden = cases[4:6], cases[:4] + cases[6:]
+        shown = ('Examples:\n' + '\n'.join(f'- transform({json.dumps(c["args"][0])}) == {json.dumps(c["expected"])}'
+                                            for c in visible) + '\n\n')
+    else:
+        hidden, shown = cases, 'No examples are given; follow the steps exactly as written.\n\n'
     prompt = ('Implement `transform(s: str) -> str` that applies these steps in order, each to the result of the '
-              f'previous one:\n\n{steps}\n\nExamples:\n'
-              + '\n'.join(f'- transform({json.dumps(c["args"][0])}) == {json.dumps(c["expected"])}' for c in visible)
-              + '\n\nUse only the Python 3 standard library. Hidden tests call transform on other strings.')
+              f'previous one:\n\n{steps}\n\n{shown}'
+              'Use only the Python 3 standard library. Hidden tests call transform on other strings.')
     return {'kind': 'code', 'entry': 'transform', 'prompt': prompt, 'tests': hidden,
             'stub': 'def transform(s: str) -> str:\n    raise NotImplementedError\n'}
 
@@ -692,7 +747,8 @@ def ledger_item(rng, tier):
     r = ledger_rules(rng, tier)
     w = r['words']
     cases = [{'args': [e], 'expected': settle(e, r)} for e in (ledger_events(rng, r) for _ in range(26))]
-    # short visible examples keep the problem text short; hidden tests use the full-length lists
+    # short visible examples keep the problem text short; hidden tests use the full-length lists.  From tier 4 on
+    # there are none: the rules alone must be followed.
     examples = [{'args': [e], 'expected': settle(e, r)} for e in (ledger_events(rng, r, 6, 9) for _ in range(2))]
     rules = [f'`{w["deposit"]} <account> <amount>`: add amount to the account.',
              f'`{w["withdraw"]} <account> <amount>`: subtract amount'
@@ -708,24 +764,26 @@ def ledger_item(rng, tier):
         rules.append(f'`{w["hold"]} <account> <amount> <id>`: reserve amount on the account under hold id. It does '
                      'not change the balance. Rejected if the id is already an active hold.')
         rules.append(f'`{w["release"]} <id>`: remove the active hold. `{w["capture"]} <id>`: remove the active hold '
-                     'and subtract its amount from the balance (no fee, no limit). Both are rejected if the id is not '
+                     'and subtract its amount from the balance (no fee, no limit, not counted as a withdrawal). Both are rejected if the id is not '
                      'an active hold.')
     limits = [f'Available funds = balance + {r["overdraft"]} (overdraft allowance)'
               + (' - the sum of the active holds on that account' if tier >= 5 else '') + '.',
               f'A {w["withdraw"]}' + (f' or {w["transfer"]}' if tier >= 3 else '')
-              + (f' or {w["hold"]}' if tier >= 5 else '') + ' is rejected when the amount plus its fee (holds have no '
-              'fee) exceeds the available funds.']
+              + (f' or {w["hold"]}' if tier >= 5 else '') + ' is rejected when the amount plus its fee' + (' (holds have no fee)' if tier >= 5 else '')
+              + ' exceeds the available funds.']
     if tier >= 4:
         limits.append(f'A {w["withdraw"]} is also rejected when the account\'s successful withdrawal amounts (fees not '
                       f'counted) since the last {w["close"]} would exceed {r["daily"]}.')
     limits.append('A rejected event changes nothing.')
-    visible = examples
+    visible = examples if tier < 4 else []
     prompt = ('Implement `settle(events: list[str]) -> dict` for this ledger. Every account starts at 0 and exists from '
               'the first event that names it (even a rejected one). Amounts are integers.\n\nEvents:\n'
               + '\n'.join('- ' + x for x in rules) + '\n\nLimits:\n' + '\n'.join('- ' + x for x in limits)
               + '\n\nReturn a dict mapping every account name to its final balance, plus the key "_rejected" with the '
-              'number of rejected events.\n\nExamples:\n'
-              + '\n'.join(f'- settle({json.dumps(c["args"][0])}) == {json.dumps(c["expected"])}' for c in visible)
+              'number of rejected events.\n\n'
+              + ('Examples:\n' + '\n'.join(f'- settle({json.dumps(c["args"][0])}) == {json.dumps(c["expected"])}'
+                                            for c in visible) if visible else
+                 'No examples are given; follow the rules exactly as written.')
               + '\n\nUse only the Python 3 standard library. Hidden tests use other event lists.')
     return {'kind': 'code', 'entry': 'settle', 'prompt': prompt, 'tests': cases,
             'stub': 'def settle(events: list[str]) -> dict:\n    raise NotImplementedError\n'}
@@ -776,7 +834,7 @@ Each problem is in `problems/<P>.md`. Solve every problem.
 
 - Answer problems (they end with a "Question:"): write only the final answer to `answers/<P>.txt`, one line,
   in the format the problem asks for.
-- Code problems (they start with "Implement"): write the requested function in `solutions/<P>.py`
+- Code problems (they ask you to implement a function): write the requested function in `solutions/<P>.py`
   (a stub is there). Only the Python 3 standard library is available.
 
 You may use the shell and write scratch files anywhere inside this directory. Nothing outside this directory is

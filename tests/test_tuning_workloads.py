@@ -123,6 +123,21 @@ class SamplingBankTest(unittest.TestCase):
         self.assertTrue(rows[ledger['number']]['correct'])
         self.assertEqual(result['correct'], 2)
 
+    def test_invertible_strfun_steps_are_injective(self):
+        rng = random.Random(5)
+        words = {''.join(rng.choice('abzAZu 0 9!') for _ in range(rng.randint(0, 9))) for _ in range(3000)}
+        for seed in range(6):
+            for op, text, invertible in sampling_bank.strfun_ops(random.Random(seed)):
+                if invertible:
+                    self.assertEqual(len({op(w) for w in words}), len(words), text)
+
+    def test_hard_code_tiers_show_no_examples(self):
+        for x in self.bank['items']:
+            if x['kind'] == 'code':
+                self.assertEqual('Examples:' in x['prompt'], x['tier'] <= 3, x['id'])
+                self.assertEqual(x['entry'], 'decode' if (x['family'], x['tier']) == ('strfun', 5) else
+                                 {'strfun': 'transform', 'ledger': 'settle'}[x['family']])
+
     def test_broken_code_scores_zero(self):
         self.assertEqual(sampling_bank.run_tests(b'def f():\n    return 2\n', 'f', [{'args': [], 'expected': 1}]), 0)
         self.assertEqual(sampling_bank.run_tests(b'def f():\n    return 1\n', 'f', [{'args': [], 'expected': 1}]), 1)
