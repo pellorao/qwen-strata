@@ -1176,3 +1176,7 @@ Laya多语言社区导出固定20选项槽、1024序列位置，两次ORT执行�
 ## F3：ARW reviewer 续审交接修复（2026-10-11 至 10-12，rtx3080ti）
 
 reviewer 在同一线程接第二个任务时，会先切到新目录而找不到原报告。新增 ARW 补丁 `arw-patches/reviewer-followup-original-scope.patch`（重开条目时先在原工作目录检查原报告，接受新任务后再切换），附复现测试；驱动遇到 `reviewer-busy` 时等原任务结束再重发。第 3 次试跑（2026-10-11）通过：runtime-migration 与 artifact-promotion 在同一线程各 1 个回合完成，没有 `reviewer-busy`、早退或停顿。该次 runtime-migration 报告在需求有问题后未停止、多写了 10 行后续检查，属于模型输出质量；这不是可机械修复的错误，冻结 ARW 也拒绝整理副本，按 ARW 原版判为正式失败（诊断分扣罚前 0.468、扣罚后 0.421）。用户 2026-10-12 同意：交接修复判为已验证并关闭，该报告保留为正式失败，不再为 F3 单独跑模型。
+
+## Spec Readiness 思考上限诊断（2026-10-12，rtx3080ti IQ3_XXS）
+
+当前默认（方案 A，思考上限 28672）跑 3 个 Spec Readiness 合并实例，对照 F6 旧设置（8192 / 24576）的 5 个实例。思考触顶从平均 3.5 次降到 0.67 次，artifact-promotion +0.099（d/SE 1.18）、融合分 +0.056，均不显著：8192 截断不是低分主因，方案 A 也无明显代价（[报告](../reports/v0.1.42/spec-budget-diagnostic/summary.md)）。
