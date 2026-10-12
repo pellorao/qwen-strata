@@ -1,10 +1,11 @@
 """debug: fix a small multi-file Python package from a bug report; hidden tests call its entry function.
 
 Five packages (invoice, scheduler, calendar, calculator, layout), each with a correct reference and a list of
-injectable bugs.  Tier 1 injects one bug and the report shows a failing call; tier 2 two bugs in different files, one
-shown; tier 3 three bugs, described by symptoms only; level 4 four bugs, symptoms only.  (`tier` here is the
-level.)  Each injected bug alone must fail some hidden test, and the
-expected values come from running the reference package.
+injectable bugs (8, 6, 6, 5 and 5).  Level 4 injects four bugs, all described by symptoms only; level 5 four bugs of
+which only three are reported; level 6 five bugs of which only three are reported.  The prompt says when the report
+is incomplete, so the unreported bugs must be found by reading the code against its docstrings.  No failing example
+is shown.  Each injected bug alone must fail some hidden test, and the expected values come from running the
+reference package.
 """
 import json
 from pathlib import Path
@@ -612,7 +613,7 @@ def inject(files, bugs):
     return out
 
 
-def item(rng, tier, seed):
+def item(rng, level, seed):
     name = ORDER[seed % len(ORDER)]
     package = PACKAGES[name]
     files = dict(package['files'])
@@ -628,32 +629,21 @@ def item(rng, tier, seed):
     def failing(bugs):
         got = call(inject(files, bugs), package['module'], package['entry'], args)
         return [k for k, (g, t) in enumerate(zip(got, tests)) if g.get('value', g) != t['expected']]
+    count, unreported = {4: (4, 0), 5: (4, 1), 6: (5, 2)}[level]
     for _ in range(100):
-        count = {1: 1, 2: 2, 3: 3, 4: 4}[tier]
         bugs = rng.sample(package['bugs'], count)
-        if len({b[0] for b in bugs}) < min(count, 2):
+        if len({b[0] for b in bugs}) < 2:
             continue
-        if all(len(failing([b])) >= 2 for b in bugs):  # one failing call may be shown, another stays hidden
+        if all(len(failing([b])) >= 2 for b in bugs):
             break
     else:
         raise AssertionError(f'{name}: no detectable bug set')
     broken = inject(files, bugs)
-    first = failing(bugs[:1])[0]
-    shown = call(broken, package['module'], package['entry'], [args[first]])[0]
-    call_text = f'{package["entry"]}({", ".join(map(repr, args[first]))})'
-    example = (f'For example, `{call_text}` returns `{shown["value"]!r}`, but the correct result is '
-               f'`{tests[first]["expected"]!r}`.' if 'value' in shown else
-               f'For example, `{call_text}` raises {shown["error"]}, but the correct result is '
-               f'`{tests[first]["expected"]!r}`.')
-    symptoms = [b[3] for b in bugs]
-    if tier == 1:
-        report = f'{symptoms[0][0].upper() + symptoms[0][1:]}. {example}'
-    elif tier == 2:
-        report = (f'Two problems were reported. {example} Separately, users say that {symptoms[1]}.')
-    else:
-        report = 'Users report several problems: ' + '; '.join(symptoms) + '. No failing example is available.'
-    if tier <= 2:  # the shown call is not a hidden test
-        tests = [t for k, t in enumerate(tests) if k != first]
+    symptoms = [b[3] for b in bugs[unreported:]]
+    report = 'Users report several problems: ' + '; '.join(symptoms) + '. No failing example is available.'
+    if unreported:
+        report += (' The report is known to be incomplete: the code may have other defects that nobody has noticed '
+                   'yet, and the hidden tests check every behaviour the docstrings describe.')
     listing = ', '.join(f'`{n}`' for n in sorted(files))
     prompt = (f'The Python package in `solutions/{{P}}/` ({listing}) {package["about"]}. The docstrings and comments '
               f'describe the intended behaviour and are correct; the code has bugs.\n\nBug report: {report}\n\n'

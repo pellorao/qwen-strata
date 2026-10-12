@@ -1,17 +1,18 @@
-"""Generated, program-judged question bank for the sampling tuning workload (v4).
+"""Generated, program-judged question bank for the sampling tuning workload (v5).
 
-Eight directions, three tiers (tools.tuning.sampling_families).  Carried over from v3, one level harder: ledger
+Eight directions, three tiers (tools.tuning.sampling_families).  Carried over from v3, tier 1 at v4's hardest level
+and tiers 2 and 3 harder still: ledger
 (implement a long settlement specification), machine (output of a register machine whose semantics are easy to
 misread), count (counting that needs modelling, far beyond enumeration), codec (inverse of a multi-step text
 encoder), debug (fix a small multi-file package from a bug report).  New, solved by reasoning rather than by a
 program: logic (deduce a row of houses from clues in prose), policy (apply a written fee regulation to cases),
 incident (root cause of an outage from interleaved logs).  The solver has a shell, so difficulty never comes from
-computation: it comes from reading rules exactly, traps and edge cases, long chains of deductions, and having to work
-out what to compute.  Answers and hidden tests come from reference code, checked against brute force, a round trip or
+computation: it comes from reading rules exactly, traps and edge cases, long chains of deductions, sizes where
+enumeration or plain simulation cannot finish, and having to work out what to compute.  Answers and hidden tests come from reference code, checked against brute force, a round trip or
 a uniqueness search in the tests.
 
-The set runs in mixed groups (`grouped`): every group holds items of most directions and of all tiers, so a group
-cannot be solved by one generic program; the score is per item and its uncertainty is estimated with the groups as
+The set runs in mixed groups of 10 (`grouped`): every group holds items of most directions and of all tiers, so a
+group cannot be solved by one generic program; the score is per item and its uncertainty is estimated with the groups as
 clusters (`cluster_se`).
 
     python3 -m tools.tuning.sampling_bank build --seed S --out bank.json         # candidate bank (with answers)
@@ -40,12 +41,15 @@ def generator_sha():
     return sha(b''.join(f.name.encode() + b'\0' + f.read_bytes() for f in files))
 
 
-def build(seed, per_cell):
-    """Candidate bank: `per_cell` items for every family and tier, seeds seed*1000 + k."""
-    items = [item(f, t, seed * 1000 + k) for t in TIERS for f in FAMILIES for k in range(per_cell)]
+PER_TIER = (3, 4, 3)  # items per family in tiers 1, 2, 3: tier sum 20 per family, 80 items, 600 s per group of 10
+
+
+def build(seed, per_tier=PER_TIER):
+    """Candidate bank: `per_tier[t - 1]` items for every family in tier t, seeds seed*1000 + k."""
+    items = [item(f, t, seed * 1000 + k) for t in TIERS for f in FAMILIES for k in range(per_tier[t - 1])]
     items = [dict(x, number=f'C{n:03d}') for n, x in enumerate(items, 1)]
-    return {'schema': 'sampling-bank-v4', 'generator_sha256': generator_sha(), 'seed': seed,
-            'per_cell': per_cell, 'items': items}
+    return {'schema': 'sampling-bank-v5', 'generator_sha256': generator_sha(), 'seed': seed,
+            'per_tier': list(per_tier), 'items': items}
 
 
 def select(bank, ids):
@@ -57,12 +61,18 @@ def select(bank, ids):
 
 def grouped(bank, size):
     """Fixed set order in mixed groups of at most `size`: the items sorted by direction, tier and candidate order are
-    dealt in turn to ceil(N / size) groups, and the set lists group 1, then group 2, ...  Each group so gets items of
-    most directions and of every tier, with similar tier sums; the driver cuts the set into consecutive groups of
-    the same `size` (tools.tuning.codex_workload.groups)."""
+    dealt to ceil(N / size) groups in snake order (1..G, then G..1, ...), and the set lists group 1, then group 2, ...
+    Each group so gets items of most directions and of every tier, and with equal counts per family and tier the
+    tier sums (so the time limits) come out equal; the driver cuts the set into consecutive groups of the same
+    `size` (tools.tuning.codex_workload.groups)."""
     ordered = sorted(bank['items'], key=lambda x: (FAMILIES.index(x['family']), x['tier']))
     count = -(-len(ordered) // size)
-    return [x['id'] for g in range(count) for x in ordered[g::count]]
+    groups = [[] for _ in range(count)]
+    for k, x in enumerate(ordered):
+        turn, place = divmod(k, count)
+        groups[place if turn % 2 == 0 else count - 1 - place].append(x['id'])
+    groups.sort(key=len, reverse=True)  # stable: larger groups first, as `chunks` cuts them
+    return [i for g in groups for i in g]
 
 
 def chunks(items, size):
@@ -451,12 +461,12 @@ def main():
     sub = parser.add_subparsers(dest='command', required=True)
     b = sub.add_parser('build')
     b.add_argument('--seed', type=int, required=True)
-    b.add_argument('--per-cell', type=int, default=3)
+    b.add_argument('--per-tier', default=','.join(map(str, PER_TIER)), help='items per family in tiers 1,2,3')
     b.add_argument('--out', type=Path, required=True)
     s = sub.add_parser('select')
     s.add_argument('--bank', type=Path, required=True)
     s.add_argument('--ids', type=Path, help='JSON list of item ids in set order (default: all, mixed group order)')
-    s.add_argument('--group-size', type=int, default=12)
+    s.add_argument('--group-size', type=int, default=10)
     s.add_argument('--out', type=Path, required=True)
     e = sub.add_parser('export')
     e.add_argument('--bank', type=Path, required=True)
@@ -471,7 +481,7 @@ def main():
     cp.add_argument('--out', type=Path, required=True)
     cp.add_argument('--runs', type=int, default=2)
     cp.add_argument('--minutes', type=int, default=40, help='per job (one group)')
-    cp.add_argument('--group-size', type=int, default=12)
+    cp.add_argument('--group-size', type=int, default=10)
     cs = sub.add_parser('calibrate-score')
     cs.add_argument('--bank', type=Path, required=True)
     cs.add_argument('--out', type=Path, required=True)
@@ -486,7 +496,7 @@ def main():
     f = sub.add_parser('freeze', help='fixed formal set from an approved choose proposal')
     f.add_argument('--bank', type=Path, required=True)
     f.add_argument('--design', type=Path, required=True)
-    f.add_argument('--group-size', type=int, default=12)
+    f.add_argument('--group-size', type=int, default=10)
     f.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
     if args.command == 'choose':
@@ -509,7 +519,7 @@ def main():
         print(json.dumps({k: v for k, v in result.items() if k != 'items'}))
         return
     if args.command == 'build':
-        args.out.write_text(json.dumps(build(args.seed, args.per_cell), ensure_ascii=False, indent=1) + '\n')
+        args.out.write_text(json.dumps(build(args.seed, tuple(int(n) for n in args.per_tier.split(','))), ensure_ascii=False, indent=1) + '\n')
     elif args.command == 'select':
         bank = json.loads(args.bank.read_text())
         ids = json.loads(args.ids.read_text()) if args.ids else grouped(bank, args.group_size)

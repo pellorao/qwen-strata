@@ -1,11 +1,13 @@
 """codec: implement the exact inverse of a multi-step text encoder that is described only in prose.
 
 Every step is invertible and has a reference inverse here (the tests check the round trip on random text), so the
-hidden tests are simply (encoded, original) pairs.  Tier 1 has 5 steps and one worked example; tier 2 has 6 steps
-including run-length coding or a rail fence; tier 3 has 7 steps including both and a letter-counting shift, without
-examples; level 4 has 8 such steps and always ends with the checksum letter.  (`tier` in this module is the level.)
+hidden tests are simply (encoded, original) pairs and no example is shown.  Level 4 has 8 steps (run-length coding,
+a rail fence and a growing shift among them) and ends with the checksum letter.  Level 5 has 8 steps including a
+Burrows-Wheeler transform whose end marker "|" is not the smallest character (it sorts after letters and digits but
+before "~") and an autokey shift keyed by the previous plaintext or ciphertext letter.  Level 6 has 9 steps with
+the transform, the autokey, run-length coding, a rail fence, a growing shift and a checksum letter that need not
+come last.  (`tier` in this module is the level.)
 """
-import json
 
 ALPHABET = 'abcdefghijklmnopqrstuvwxyz'
 VOWELS = 'aeiou'
@@ -188,15 +190,63 @@ def checksum():
             'codes of the string) mod 26, where a has index 0.')
 
 
+def bwt():
+    def enc(s):
+        s += '|'
+        return ''.join(r[-1] for r in sorted(s[i:] + s[:i] for i in range(len(s))))
+
+    def dec(s):
+        order = sorted(range(len(s)), key=lambda i: (s[i], i))  # stable: the k-th c of the last column is the
+        out, row = [], s.index('|')                               # k-th c of the first column
+        for _ in range(len(s) - 1):
+            row = order[row]
+            out.append(s[row])
+        return ''.join(out)
+    return (enc, dec, 'Append "|" (no text reaching this step contains "|"). Take every rotation of the result '
+            '(rotation i is the string from character i to the end followed by the characters before i), sort the '
+            'rotations by comparing character codes from the left, and write the last character of each rotation '
+            'in sorted order. Note that "|" (code 124) sorts after every digit and letter but before "~" (126).')
+
+
+def autokey(k, source, base):
+    def shift_of(prev):
+        return k if prev is None else ALPHABET.index(prev.lower()) + base
+
+    def enc(s):
+        out, prev = [], None
+        for c in s:
+            if c.isalpha():
+                x = shift_letter(c, shift_of(prev))
+                prev = c if source == 'input' else x
+                c = x
+            out.append(c)
+        return ''.join(out)
+
+    def dec(s):
+        out, prev = [], None
+        for c in s:
+            if c.isalpha():
+                x = shift_letter(c, -shift_of(prev))
+                prev = x if source == 'input' else c
+                c = x
+            out.append(c)
+        return ''.join(out)
+    return (enc, dec, f'Autokey shift, keeping case and wrapping: the first letter of the string moves forward by '
+            f'{k} places; every later letter moves forward by the alphabet index (a and A are {base}, b and B are '
+            f'{base + 1}, and so on) of the previous letter of this step\'s {source} '
+            f'({"before" if source == "input" else "after"} that previous letter was shifted). Other characters '
+            'are unchanged and are skipped when looking for the previous letter.')
+
+
 def steps(rng, tier):
     plain = [shift(rng.randint(1, 25)), reverse_words(), evens_odds(), block_reverse(rng.randint(3, 5)),
              pair_swap(), vowel_cycle(), flip_case(rng.randint(2, 4)), rotate(rng.randint(3, 7))]
-    need = {1: [], 2: [rng.choice([rle(), rail(rng.randint(3, 4))])],
-            3: [rle(), rail(rng.randint(3, 4)), progressive(rng.randint(1, 9), rng.randint(2, 7))]}[min(tier, 3)]
-    chosen = rng.sample(plain, {1: 5, 2: 6, 3: 7, 4: 8}[tier] - len(need)) + need
+    hard = [rle(), rail(rng.randint(3, 4)), progressive(rng.randint(1, 9), rng.randint(2, 7))]
+    key = autokey(rng.randint(1, 25), rng.choice(['input', 'output']), rng.choice([0, 1]))
+    need = {4: hard, 5: [bwt(), key, rng.choice(hard)], 6: hard + [bwt(), key]}[tier]
+    chosen = rng.sample(plain, {4: 8, 5: 7, 6: 8}[tier] - len(need)) + need
     rng.shuffle(chosen)
-    if tier >= 4 or tier >= 2 and rng.random() < 0.5:
-        chosen.append(checksum())
+    chosen.insert(rng.randint(2, len(chosen)) if tier == 6 else len(chosen), checksum())
     return chosen
 
 
@@ -227,14 +277,10 @@ def item(rng, tier):
         raise AssertionError('codec pipeline is not injective on the samples')
     cases = [{'args': [e], 'expected': s} for s, e in zip(texts, encoded)]
     listed = '\n'.join(f'{i}. {text}' for i, (_, _, text) in enumerate(chosen, 1))
-    if tier == 1:
-        shown, hidden = cases[-1], cases[:-1]  # a random sample: the fixed edge cases stay hidden everywhere
-        example = f'Example: decode({json.dumps(shown["args"][0])}) == {json.dumps(shown["expected"])}\n\n'
-    else:
-        hidden, example = cases, 'No examples are given; follow the steps exactly as written.\n\n'
+    domain = 'every string t' + (' without "|"' if tier >= 5 else '')
     prompt = ('An encoder applies these steps in order, each to the result of the previous one (positions count '
               f'from 0):\n\n{listed}\n\nImplement `decode(s: str) -> str`, the exact inverse of this encoder: '
-              f'decode(encoder(t)) == t for every string t.\n\n{example}Use only the Python 3 standard library. '
-              'Hidden tests call decode on encoder outputs.')
-    return {'kind': 'code', 'entry': 'decode', 'prompt': prompt, 'tests': hidden,
+              f'decode(encoder(t)) == t for {domain}.\n\nNo examples are given; follow the steps exactly as '
+              'written.\n\nUse only the Python 3 standard library. Hidden tests call decode on encoder outputs.')
+    return {'kind': 'code', 'entry': 'decode', 'prompt': prompt, 'tests': cases,
             'stub': 'def decode(s: str) -> str:\n    raise NotImplementedError\n'}

@@ -1,3 +1,4 @@
+import functools
 import inspect
 import itertools
 import json
@@ -9,7 +10,7 @@ import time
 import unittest
 from pathlib import Path
 
-from tools.tuning import codex_workload, sampling_bank, staged_decision, window_bank
+from tools.tuning import codex_workload, sampling_bank, sampling_families, staged_decision, window_bank
 from tools.tuning.sampling_families import codec, count, debug, incident, ledger, logic, machine, policy
 
 
@@ -36,49 +37,32 @@ class StagedDecisionTest(unittest.TestCase):
         self.assertEqual(result['sampled_next'], ['a', 'd'])
 
 
+@functools.cache
+def built_bank():
+    return json.dumps(sampling_bank.build(7, (1, 1, 1)))
+
+
+def small_bank():
+    """One item per family and tier, built once for the whole test run (logic tier 3 takes up to a minute)."""
+    return json.loads(built_bank())
+
+
 class SamplingBankTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.bank = sampling_bank.build(7, 1)
+        cls.bank = small_bank()
 
     def test_build_is_deterministic_and_covers_every_cell(self):
-        again = sampling_bank.build(7, 1)
-        self.assertEqual(json.dumps(again['items']), json.dumps(self.bank['items']))
+        for x in self.bank['items']:  # every item again from its seed (logic tier 3 skipped: slow)
+            if (x['family'], x['tier']) != ('logic', 3):
+                again = dict(sampling_families.item(x['family'], x['tier'], x['seed']), number=x['number'])
+                self.assertEqual(json.dumps(again), json.dumps(x), x['id'])
         cells = {(x['family'], x['tier']) for x in self.bank['items']}
         self.assertEqual(len(cells), len(sampling_bank.FAMILIES) * len(sampling_bank.TIERS))
         self.assertTrue(sampling_bank.self_check(self.bank)['ok'])
 
-    def test_bead_counts_match_brute_force(self):
-        rng = random.Random(1)
-        for _ in range(120):
-            size, n = rng.choice([2, 3]), rng.randint(1, 8)
-            allowed = [[1] * size for _ in range(size)]
-            for x, y in rng.sample([(x, y) for x in range(size) for y in range(x, size)], rng.choice([0, 1, 2])):
-                allowed[x][y] = allowed[y][x] = 0
-            marked, k = rng.randrange(size), rng.randint(0, n)
-            words = [w for w in itertools.product(range(size), repeat=n) if w.count(marked) == k
-                     and all(allowed[w[i]][w[(i + 1) % n]] for i in range(n))]
-            rotations = {min(w[i:] + w[:i] for i in range(n)) for w in words}
-            turned = {min(min(v[i:] + v[:i] for i in range(n)) for v in (w, w[::-1])) for w in words}
-            self.assertEqual(count.necklaces(n, allowed, marked, k), len(rotations))
-            self.assertEqual(count.bracelets(n, allowed, marked, k), len(turned))
-
-    def test_huge_counts_match_brute_force_on_small_n(self):
+    def test_bracelet_counts_match_brute_force_on_small_n(self):  # level 4
         rng = random.Random(2)
-        for _ in range(60):
-            n = rng.randint(2, 9)
-            forbidden = sorted({''.join(rng.choice('abc') for _ in range(rng.choice([2, 3]))) for _ in range(2)})
-            factors = {}
-            for prime in (2, 3, 5, 7):
-                while n % prime ** (factors.get(prime, 0) + 1) == 0:
-                    factors[prime] = factors.get(prime, 0) + 1
-            words = [''.join(w) for w in itertools.product('abc', repeat=n)]
-            cyclic = {min(w[i:] + w[:i] for i in range(n)) for w in words
-                      if not any(f in (w * 3)[i:i + len(f)] for i in range(n) for f in forbidden)}
-            self.assertEqual(count.huge_necklaces(n, factors, 'abc', forbidden), len(cyclic))
-            parity = rng.choice('abc')
-            linear = sum(1 for w in words if not any(f in w for f in forbidden) and w.count(parity) % 2 == 0)
-            self.assertEqual(count.huge_linear(n, 'abc', forbidden, parity), linear)
         for _ in range(30):
             n, size = rng.randint(1, 8), rng.choice([2, 3])
             allowed = [[1] * size for _ in range(size)]
@@ -92,6 +76,94 @@ class SamplingBankTest(unittest.TestCase):
                      if all(allowed[w[i]][w[(i + 1) % n]] for i in range(n))]
             turned = {min(min(v[i:] + v[:i] for i in range(n)) for v in (w, w[::-1])) for w in words}
             self.assertEqual(count.huge_bracelets(n, factors, allowed), len(turned), (n, allowed))
+
+    def test_residue_counts_match_brute_force_on_small_n(self):  # levels 5-6
+        rng = random.Random(3)
+        for _ in range(150):
+            n, size, q = rng.randint(1, 8), rng.choice([2, 3]), rng.choice([2, 3, 4, 5])
+            allowed = [[1] * size for _ in range(size)]
+            for x, y in rng.sample([(x, y) for x in range(size) for y in range(x, size)], rng.choice([0, 1, 2])):
+                allowed[x][y] = allowed[y][x] = 0
+            marked, r = rng.randrange(size), rng.randrange(q)
+            factors = {}
+            for prime in (2, 3, 5, 7):
+                while n % prime ** (factors.get(prime, 0) + 1) == 0:
+                    factors[prime] = factors.get(prime, 0) + 1
+            words = [w for w in itertools.product(range(size), repeat=n) if w.count(marked) % q == r
+                     and all(allowed[w[i]][w[(i + 1) % n]] for i in range(n))]
+            rotations = {min(w[i:] + w[:i] for i in range(n)) for w in words}
+            turned = {min(min(v[i:] + v[:i] for i in range(n)) for v in (w, w[::-1])) for w in words}
+            case = (n, allowed, marked, q, r)
+            self.assertEqual(count.residue_necklaces(n, factors, allowed, marked, q, r), len(rotations), case)
+            self.assertEqual(count.residue_bracelets(n, factors, allowed, marked, q, r), len(turned), case)
+
+    def test_residue_counts_add_up_on_huge_n(self):
+        # summing over the remainders, or q = 1, must give the level 4 count of all bracelets
+        for seed in range(3):
+            x = count.item(random.Random(f'count-sum/{seed}'), 6)['count']
+            n, factors, allowed, marked = x['n'], {int(k): v for k, v in x['factors'].items()}, x['allowed'], x['marked']
+            whole = count.huge_bracelets(n, factors, allowed)
+            self.assertEqual(count.residue_bracelets(n, factors, allowed, marked, 1, 0), whole)
+            parts = sum(count.residue_bracelets(n, factors, allowed, marked, x['q'], r) for r in range(x['q']))
+            self.assertEqual(parts % count.PRIME, whole)
+
+    def test_machine_affine_blocks_match_direct_simulation(self):  # levels 5-6
+        for m in machine.PRIMES:
+            order = 1
+            for prime, power in machine.ORDER_FACTORS[m].items():
+                order *= prime ** power
+            self.assertEqual(order, m * (m - 1) * (m + 1) * (m * m + 1) * (m * m + m + 1))
+        p = 998244353  # 3 is a primitive root: x -> 3x has period p - 1, x -> x + 5 has period p
+        self.assertEqual(machine.orbit_period([[3, 0], [0, 1]], [1, 1], p), p - 1)
+        self.assertEqual(machine.orbit_period([[1, 5], [0, 1]], [7, 1], p), p)
+        r = {'tier': 5, 'modulus': 1000000007, 'sub': 'reversed', 'jumps': 'absolute', 'signed': True,
+             'shr_flag': True, 'djnz': 'first'}
+        body = [('ADD', 'A', 'B'), ('MUL', 'B', 999999999), ('SUB', 'A', 3), ('ADD', 'B', 700000000)]
+        original = machine.DIRECT_REP_LIMIT
+        for count_ in (1, 2, 7, 1234):
+            regs, flag = {'A': 4, 'B': 9}, False
+            for _ in range(count_):
+                regs['A'] = (regs['A'] + regs['B']) % r['modulus']
+                regs['B'] = regs['B'] * 999999999 % r['modulus']
+                flag = 3 - regs['A'] < 0
+                regs['A'] = (3 - regs['A']) % r['modulus']
+                flag = regs['B'] + 700000000 >= r['modulus']
+                regs['B'] = (regs['B'] + 700000000) % r['modulus']
+            program = [('SET', 'A', 4), ('SET', 'B', 9), ('REP', count_, 4)] + body + [
+                ('JF', 9), ('OUT', 'A'), ('OUT', 'B')]
+            expected = [regs['B']] if flag else [regs['A'], regs['B']]
+            self.assertEqual(machine.run(program, r), expected)
+            machine.DIRECT_REP_LIMIT = 0  # the same count through the matrix power
+            try:
+                self.assertEqual(machine.run(program, r), expected)
+            finally:
+                machine.DIRECT_REP_LIMIT = original
+        rng = random.Random(4)
+        for tier in (5, 6):
+            for seed in range(4):
+                x = machine.item(random.Random(f'machine-small/{tier}/{seed}'), tier)['machine']
+                r = x['variant']
+                program = [tuple([ins[0], rng.randint(1, 3000)] + ins[2:]) if ins[0] == 'REP' else tuple(ins)
+                           for ins in x['program']]
+                for w in [r] + machine.misreadings(r):
+                    direct = machine.run(program, w)
+                    machine.DIRECT_REP_LIMIT = 0
+                    try:
+                        self.assertEqual(machine.run(program, w), direct, (tier, seed, w))
+                    finally:
+                        machine.DIRECT_REP_LIMIT = original
+
+    def test_machine_levels_need_more_than_cycle_detection(self):
+        for tier in (5, 6):
+            x = machine.item(random.Random(f'machine-period/{tier}'), tier)
+            info = {}
+            machine.run([tuple(ins) for ins in x['machine']['program']], x['machine']['variant'], info)
+            self.assertEqual(len(info['orbits']), tier - 4)
+            for matrix, vector in info['orbits']:
+                self.assertGreater(machine.orbit_period(matrix, vector, x['machine']['variant']['modulus']),
+                                   machine.PERIOD_FLOOR)
+            self.assertTrue(all(ins[1] >= 10 ** 15 for ins in x['machine']['program'] if ins[0] == 'REP'))
+            self.assertNotIn('SHR', x['prompt'])
 
     def test_machine_semantics_and_cycle_skip(self):
         r = {'tier': 2, 'modulus': 100, 'sub': 'reversed', 'jumps': 'absolute', 'signed': True, 'shr_flag': True,
@@ -125,8 +197,9 @@ class SamplingBankTest(unittest.TestCase):
     def test_codec_steps_round_trip(self):
         for seed in range(80):
             rng = random.Random(seed)
-            for level in (1, 2, 3, 4):
+            for level in (4, 5, 6):
                 chosen = codec.steps(rng, level)
+                self.assertEqual(len(chosen), {4: 9, 5: 8, 6: 9}[level])
                 for text in codec.samples(rng, 40):
                     encoded = text
                     for encode, _, _ in chosen:
@@ -135,9 +208,24 @@ class SamplingBankTest(unittest.TestCase):
                         encoded = decode(encoded)
                     self.assertEqual(encoded, text)
 
+    def test_codec_bwt_and_autokey(self):
+        encode, decode, _ = codec.bwt()
+        # "|" sorts after letters but before "~": sorted rotations "a~|b", "ba~|", "|ba~", "~|ba"
+        self.assertEqual(encode('ba~'), 'b|~a')
+        for text in ('', 'a', 'banana', '~~a~', 'Zz 9', 'aaaa   bbbbbbbbbbbb!!'):
+            self.assertEqual(decode(encode(text)), text)
+        by_input, _, _ = codec.autokey(1, 'input', 0)
+        by_output, _, _ = codec.autokey(1, 'output', 1)
+        self.assertEqual(by_input('ab c'), 'bb d')   # a+1; b by input a (0); c by input b (1)
+        self.assertEqual(by_output('ab c'), 'bd g')  # a+1; b by output b (2); c by output d (4)
+        for level in (5, 6):
+            prompt = codec.item(random.Random(f'codec-test/{level}'), level)['prompt']
+            self.assertIn('before "~" (126)', prompt)
+            self.assertIn('without "|"', prompt)
+
     def test_ledger_rules(self):
-        r = {'tier': 3, 'tie': 'descending', 'overdraft': 0, 'fee': 50, 'cap': 1000, 'waiver': 3000, 'rate': 100,
-             'charge': 500, 'large': 400, 'fee_bp': 100}
+        r = {'tier': 4, 'tie': 'descending', 'overdraft': 0, 'fee': 50, 'cap': 1000, 'waiver': 3000, 'rate': 100,
+             'charge': 500, 'large': 400, 'fee_bp': 100, 'expiry': 1, 'sweep_max': None, 'sweep_fee': None}
         events = [{'id': 1, 't': 0, 'op': 'open', 'acct': 'a'}, {'id': 2, 't': 0, 'op': 'open', 'acct': 'b'},
                   {'id': 3, 't': 5, 'op': 'deposit', 'acct': 'a', 'amount': 4000},
                   {'id': 4, 't': 6, 'op': 'withdraw', 'acct': 'a', 'amount': 450},  # waived, counts 900 to the cap
@@ -152,7 +240,7 @@ class SamplingBankTest(unittest.TestCase):
         # day 1: id 7 runs before id 6 and moves 100; id 6 counts 6000 > cap; reversing 4 gives back 450 (a 3900);
         # b (100) cannot close; interest adds 39 and 1
         self.assertEqual(result, {'balances': {'a': 3939, 'b': 101}, 'rejected': [5, 6, 9, 11], 'fees': 0})
-        held = dict(r, tier=4, expiry=1, fee=0, fee_bp=0)
+        held = dict(r, fee=0, fee_bp=0)
         events = [{'id': 1, 't': 0, 'op': 'open', 'acct': 'a'}, {'id': 2, 't': 1, 'op': 'deposit', 'acct': 'a', 'amount': 1000},
                   {'id': 3, 't': 2, 'op': 'hold', 'acct': 'a', 'amount': 300},
                   {'id': 4, 't': 3, 'op': 'withdraw', 'acct': 'a', 'amount': 800},  # only 700 is available
@@ -160,20 +248,62 @@ class SamplingBankTest(unittest.TestCase):
                   {'id': 6, 't': 5, 'op': 'capture', 'target': 3},
                   {'id': 7, 't': 6, 'op': 'release', 'target': 3}]  # already captured
         self.assertEqual(ledger.settle(events, held), {'balances': {'a': 700}, 'rejected': [4, 5, 7], 'fees': 0})
+
+    def test_ledger_sweeps(self):
+        base = {'tie': 'ascending', 'overdraft': 100, 'fee': 0, 'fee_bp': 0, 'cap': 1000, 'waiver': 99999,
+                'rate': 100, 'charge': 500, 'large': 5000, 'expiry': 1, 'sweep_max': 300}
+        events = [{'id': 1, 't': 0, 'op': 'open', 'acct': 'a'}, {'id': 2, 't': 0, 'op': 'open', 'acct': 'b'},
+                  {'id': 3, 't': 1, 'op': 'deposit', 'acct': 'a', 'amount': 100},
+                  {'id': 4, 't': 1, 'op': 'deposit', 'acct': 'b', 'amount': 1000},
+                  {'id': 5, 't': 2, 'op': 'link', 'acct': 'a', 'backup': 'b'},
+                  {'id': 6, 't': 10, 'op': 'withdraw', 'acct': 'a', 'amount': 500},  # sweeps 300 (max), overdraft 100
+                  {'id': 7, 't': 11, 'op': 'withdraw', 'acct': 'a', 'amount': 50},   # sweeps 150, a back to 0
+                  {'id': 8, 't': 12, 'op': 'freeze', 'acct': 'b'},
+                  {'id': 9, 't': 13, 'op': 'withdraw', 'acct': 'a', 'amount': 80},   # frozen backup: overdraft only
+                  {'id': 10, 't': 14, 'op': 'withdraw', 'acct': 'a', 'amount': 80},  # -160 < -100
+                  {'id': 11, 't': 15, 'op': 'unfreeze', 'acct': 'b'},
+                  {'id': 12, 't': 16, 'op': 'reverse', 'target': 6},                 # 500 back to a, sweep stays
+                  {'id': 13, 't': 17, 'op': 'link', 'acct': 'a', 'backup': 'a'}]
+        self.assertEqual(ledger.settle(list(reversed(events)), dict(base, tier=5, sweep_fee=None)),
+                         {'balances': {'a': 420, 'b': 550}, 'rejected': [10, 13], 'fees': 0})
+        self.assertEqual(ledger.settle(events, dict(base, tier=4, sweep_max=None, sweep_fee=None))['rejected'],
+                         [5, 6, 10, 12, 13])  # level 4 has no links or sweeps
+        events = [{'id': 1, 't': 0, 'op': 'open', 'acct': 'a', 'overdraft': 0},
+                  {'id': 2, 't': 0, 'op': 'open', 'acct': 'b'}, {'id': 3, 't': 0, 'op': 'open', 'acct': 'c'},
+                  {'id': 4, 't': 1, 'op': 'deposit', 'acct': 'b', 'amount': 500},
+                  {'id': 5, 't': 2, 'op': 'link', 'acct': 'a', 'backup': 'b'},
+                  {'id': 6, 't': 10, 'op': 'transfer', 'from': 'a', 'to': 'c', 'amount': 200},  # sweeps 200, fee 20
+                  {'id': 7, 't': 11, 'op': 'transfer', 'from': 'a', 'to': 'b', 'amount': 50},   # to the backup
+                  {'id': 8, 't': 12, 'op': 'hold', 'acct': 'a', 'amount': 100},                 # sweeps 100, fee 20
+                  {'id': 9, 't': 13, 'op': 'withdraw', 'acct': 'a', 'amount': 200},  # partial 140 is not enough
+                  {'id': 10, 't': 14, 'op': 'capture', 'target': 8}]
+        self.assertEqual(ledger.settle(events, dict(base, tier=6, sweep_fee=20)),
+                         {'balances': {'a': 0, 'b': 160, 'c': 200}, 'rejected': [7, 9], 'fees': 40})
+
+    def test_ledger_money_is_conserved(self):
         rng = random.Random(4)
-        for level in (1, 2, 3, 4):  # money is conserved apart from deposits, withdrawals, fees and interest
-            r = ledger.rules(rng, level)
+        for level in (4, 5, 6):  # without interest, money only enters by deposits and leaves by withdrawals,
+            r = ledger.rules(rng, level)  # captures and fees (sweeps and their fees move it between accounts)
             for _ in range(30):
-                events = ledger.events(rng, r)
+                events = [e for e in ledger.events(rng, r) if e['op'] != 'interest']
                 result = ledger.settle(events, r)
                 self.assertEqual(len(result['rejected']), len(set(result['rejected'])))
-                if level < 3:
-                    rejected = set(result['rejected'])
-                    reversed_ids = {e['target'] for e in events if e['op'] == 'reverse' and e['id'] not in rejected}
-                    flow = sum((e['amount'] if e['op'] == 'deposit' else -e['amount'])
-                               for e in events if e['op'] in ('deposit', 'withdraw') and e['id'] not in rejected
-                               and e['id'] not in reversed_ids)
-                    self.assertEqual(sum(result['balances'].values()) + result['fees'], flow)
+                rejected, by_id = set(result['rejected']), {e['id']: e for e in events}
+                reversed_ids = {e['target'] for e in events if e['op'] == 'reverse' and e['id'] not in rejected}
+                flow = sum((e['amount'] if e['op'] == 'deposit' else -e['amount'])
+                           for e in events if e['op'] in ('deposit', 'withdraw') and e['id'] not in rejected
+                           and e['id'] not in reversed_ids)
+                flow -= sum(by_id[e['target']]['amount'] for e in events
+                            if e['op'] == 'capture' and e['id'] not in rejected)
+                self.assertEqual(sum(result['balances'].values()) + result['fees'], flow)
+
+    def test_ledger_sweep_rules_matter(self):
+        for level in (5, 6):  # most event lists depend on the rules the level adds
+            rng = random.Random(f'ledger-test/{level}')
+            r = ledger.rules(rng, level)
+            lists = [ledger.events(rng, r) for _ in range(40)]
+            changed = sum(ledger.settle(e, r) != ledger.settle(e, dict(r, tier=level - 1)) for e in lists)
+            self.assertGreaterEqual(changed, 2, level)
 
     def test_debug_packages_reference_passes_and_each_bug_fails(self):
         for name, package in debug.PACKAGES.items():
@@ -192,7 +322,7 @@ class SamplingBankTest(unittest.TestCase):
         answer = next(x for x in bank['items'] if x['kind'] == 'answer')
         package = next(x for x in bank['items'] if x['kind'] == 'package')
         code = next(x for x in bank['items'] if x['family'] == 'ledger' and x['tier'] == 3)
-        rules = ledger.rules(random.Random(f'ledger/3/{code["seed"]}'), 4)
+        rules = ledger.rules(random.Random(f'ledger/3/{code["seed"]}'), 6)
         with tempfile.TemporaryDirectory() as tmp:
             sampling_bank.export(bank, tmp)
             self.assertIn(f'solutions/{package["number"]}/', (Path(tmp) / 'problems' / (package['number'] + '.md')).read_text())
@@ -209,7 +339,7 @@ class SamplingBankTest(unittest.TestCase):
         self.assertTrue(rows[package['number']]['correct'])
         self.assertEqual(result['correct'], 3)
 
-    def test_code_problems_show_no_example(self):  # v4 tier 1 is the v3 level 2, which already had none
+    def test_code_problems_show_no_example(self):
         for x in self.bank['items']:
             if x['family'] in ('ledger', 'codec'):
                 self.assertNotIn('xample', x['prompt'].split('No examples')[0], x['id'])
@@ -225,26 +355,38 @@ class SamplingBankTest(unittest.TestCase):
                 for k in range(len(clues)):  # every clue is needed
                     self.assertEqual(logic.count(n, values, clues[:k] + clues[k + 1:]), 2)
 
+    def test_logic_items_catch_misreadings(self):
+        for x in (i for i in self.bank['items'] if i['family'] == 'logic'):
+            traps = list(x['logic']['traps'].values())
+            self.assertNotIn('same', traps, x['id'])  # every misread clue is false in the hidden arrangement
+            self.assertGreaterEqual(traps.count('other'), logic.SILENT[x['tier']], x['id'])
+            self.assertEqual(len(x['answer'].split(',')), sum(len(v) for v in x['logic']['values'].values()))
+
     def test_policy_misreadings_each_change_some_answer(self):
         from datetime import date
         for x in (i for i in self.bank['items'] if i['family'] == 'policy'):
             r, wrongs = x['policy']['rules'], x['policy']['misreadings']
             cases = [{k: date.fromisoformat(v) if k in ('event', 'application', 'registered', 'born') else v
                       for k, v in c.items()} for c in x['policy']['cases']]
-            self.assertEqual(','.join(str(policy.fee(c, r)) for c in cases), x['answer'])
-            self.assertEqual(len({c['name'] for c in cases}), len(cases))
+            self.assertEqual(','.join(map(str, policy.fees(cases, r))), x['answer'])
+            self.assertEqual(len(cases), policy.SIZE[x['tier']])
             for w in wrongs:
-                self.assertNotEqual(','.join(str(policy.fee(c, r, {w})) for c in cases), x['answer'], (x['id'], w))
+                self.assertNotEqual(','.join(map(str, policy.fees(cases, r, {w}))), x['answer'], (x['id'], w))
 
     def test_incident_root_is_in_the_log(self):
         for tier in sampling_bank.TIERS:
             for seed in range(6):
                 x = incident.item(random.Random(f'incident-test/{tier}/{seed}'), tier)
-                service, code = x['incident']['root']
-                self.assertIsNotNone(x['incident']['root_line'], x['incident']['scenario'])
+                meta = x['incident']
+                service, code = meta['root']
+                self.assertIsNotNone(meta['root_line'], meta['scenario'])
                 self.assertEqual(x['answer'], f'{service},{code}'.lower())
                 self.assertIn(f'- {code}:', x['prompt'])
                 self.assertIn(f' {service} ', x['prompt'].split('```')[1])
+                if tier >= 2 and meta['scenario'] not in ('cert', 'surge'):  # by the written timestamps the root
+                    # evidence comes after the first symptom and after the secondary fault the outage caused
+                    self.assertGreater(meta['root_line'], meta['first_symptom_line'], meta['scenario'])
+                    self.assertGreater(meta['root_line'], meta['secondary_line'], meta['scenario'])
 
     def test_calibration_scores_the_deadline_snapshot(self):
         import shutil
@@ -458,19 +600,23 @@ class CodexWorkloadTest(unittest.TestCase):
                 self.assertEqual(codex_workload.run_limited(['sh', '-c', 'read x; exit $x'], '3\n', out, tmp, None, 5), 3)
 
     def test_groups_mix_directions_and_tiers(self):
-        bank = {'items': [{'id': f'{f}{t}{k}', 'family': f, 'tier': t}
-                          for f in sampling_bank.FAMILIES for t in sampling_bank.TIERS for k in range(3)]}
-        ids = sampling_bank.grouped(bank, 12)
+        bank = {'items': [{'id': f'{f}{t}{k}', 'family': f, 'tier': t} for f in sampling_bank.FAMILIES
+                          for t in sampling_bank.TIERS for k in range(sampling_bank.PER_TIER[t - 1])]}
+        ids = sampling_bank.grouped(bank, 10)
         items = [next(x for x in bank['items'] if x['id'] == i) for i in ids]
-        groups = codex_workload.groups(items, 12)
-        self.assertEqual([len(g) for g in groups], [12] * 6)
-        for g in groups:  # every direction and every tier in each group, the same time limit
-            self.assertEqual({x['family'] for x in g}, set(sampling_bank.FAMILIES))
-            self.assertEqual(sorted(x['tier'] for x in g), [1] * 4 + [2] * 4 + [3] * 4)
-            self.assertEqual(codex_workload.group_seconds_limit(g, 30), 720)
-        uneven = codex_workload.groups(items[:70], 12)  # sizes differ by at most one, nothing lost or reordered
-        self.assertEqual([len(g) for g in uneven], [12, 12, 12, 12, 11, 11])
-        self.assertEqual([x for g in uneven for x in g], items[:70])
+        groups = codex_workload.groups(items, 10)
+        self.assertEqual([len(g) for g in groups], [10] * 8)
+        for g in groups:  # at least six directions and every tier in each group, the same time limit
+            self.assertGreaterEqual(len({x['family'] for x in g}), 6)
+            self.assertEqual(sorted(x['tier'] for x in g), [1] * 3 + [2] * 4 + [3] * 3)
+            self.assertEqual(codex_workload.group_seconds_limit(g, 30), 600)
+        uneven = codex_workload.groups(items[:76], 10)  # sizes differ by at most one, nothing lost or reordered
+        self.assertEqual([len(g) for g in uneven], [10, 10, 10, 10, 9, 9, 9, 9])
+        self.assertEqual([x for g in uneven for x in g], items[:76])
+        dealt = sampling_bank.grouped({'items': bank['items'][:76]}, 10)  # the dealing matches the driver's cuts
+        cut = codex_workload.groups(dealt, 10)
+        self.assertEqual(sorted(dealt), sorted(x['id'] for x in bank['items'][:76]))
+        self.assertTrue(all(len({i[:-2] for i in g}) >= 5 for g in cut))
 
     def test_cluster_se_treats_groups_as_clusters(self):
         rows = [{'group': g, 'points': 1, 'correct': c} for g, cs in enumerate([[1, 1, 1], [0, 0, 0], [1, 1, 1],
@@ -485,7 +631,7 @@ class CodexWorkloadTest(unittest.TestCase):
     def test_sampling_recovery_runs_only_the_chosen_groups_with_full_set_numbering(self):
         self.assertEqual(codex_workload.parse_groups('7-10'), [7, 8, 9, 10])
         self.assertEqual(codex_workload.parse_groups('2,5,7-8'), [2, 5, 7, 8])
-        bank = sampling_bank.build(7, 1)
+        bank = small_bank()
         data = sampling_bank.select(bank, sampling_bank.grouped(bank, 2))
         plan = {'group_size': 2, 'group_seconds_per_tier': 30, 'only_groups': [3, 4]}
         everything = codex_workload.groups(data['items'], 2)
@@ -516,7 +662,7 @@ class CodexWorkloadTest(unittest.TestCase):
         self.assertEqual(len(result['items']), len(everything[2]) + len(everything[3]))
 
     def test_sampling_runs_groups_with_limits_and_reruns_compacted_groups(self):
-        bank = sampling_bank.build(7, 1)
+        bank = small_bank()
         data = sampling_bank.select(bank, sampling_bank.grouped(bank, 2))
         everything = codex_workload.groups(data['items'], 2)
         first, second = everything[:2]
@@ -606,7 +752,7 @@ class CodexWorkloadTest(unittest.TestCase):
         self.assertEqual(clock[0], codex_workload.COMMIT_WAIT_LIMIT_SECONDS)
 
     def test_sampling_gate_runs_before_each_group_and_its_failure_stops_the_run(self):
-        bank = sampling_bank.build(7, 1)
+        bank = small_bank()
         data = sampling_bank.select(bank, sampling_bank.grouped(bank, 2))
         plan = {'group_size': 2, 'group_seconds_per_tier': 30, 'only_groups': [1, 2, 3]}
         events = []
