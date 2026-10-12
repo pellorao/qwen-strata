@@ -1,0 +1,46 @@
+{
+ "schema": "arw-dimension-v1",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "reviewer": "spec-readiness-reviewer",
+ "authorization": {
+  "approved": true,
+  "source": "用户 2026-10-13 批准 Q3×5（IQ3_XXS，v2，RM 与 AP 独立线程）及四场景重构的一切模型运行；同日夜间进入自主模式，豁免审批",
+  "scope": "Spec Readiness v2 能力验证：5 次重复（10 个交接），分两批冻结 ARW 准备（第一批 3 次全跑，第二批只跑前 2 次）；effort=high；不部署条件，用已部署默认值"
+ },
+ "method": "arw_dimension prepare 准备冻结 ARW（manifest 含 spec-readiness-v2.patch）并预检 → ARW 持有模型，arw_measure 按交接顺序运行（RM、AP 交替，各自全新根线程）→ 服务日志 budget 行核对生效值（high：budget 8192 (max 24576)）→ score-completed 与盲化裁决 → 会话检查。",
+ "fixed_conditions": {
+  "strata": "0.1.42",
+  "codex": "0.162.0",
+  "effort": "high",
+  "effort_reason": "与 ARW 原生 agent-cli 配置（model_reasoning_effort=\"high\"）及 F6 基线一致",
+  "context_window": 156584,
+  "auto_compact_token_limit": 100000,
+  "engine_defaults": "config/deployments/rtx3080ti.json 的安装默认值：high 思考 8192、总输出 24576；guardian 512/1024；IQ3_XXS spec 4、ple-io direct、STRATA_ADAPT_LAG 2。每批绑定部署后 config/deployment.json 与模型配置的 SHA（IQ3_XXS 配置 bf6e6465b95d30dcbb5775920e03cd93ab744f248c4da8d41251fc3de6211e7d）",
+  "deployed_source_head": "861a2c5（部署集合自 8056e86 起未变）",
+  "startup_instructions": "config/prompts/startup-instructions.txt（源 SHA 5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e，去掉防循环段），compact-prompt.txt（3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af）接入；开跑前核对已安装 SHA",
+  "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
+  "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
+  "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json",
+  "scenario": "Spec Readiness v2（SCENARIO_REVISIONS 41，arw-patches/spec-readiness-v2.patch sha256 b93ffbca57c45976791aeafdf0fb83d37e216075a2927997d527383001520f20）",
+  "scoring": "能力验证口径：完全按 ARW 原版罚分"
+ },
+ "codex_thread_id": "b7635f94-ad60-429b-98e7-3ee5c19ba2bb",
+ "dimensions": [
+  {
+   "order": 1,
+   "id": "spec-v2-baseline",
+   "default": "effort-high",
+   "reviewer": "spec-readiness-reviewer",
+   "schedule_design": "单条件 5 次重复，按 prepare 命令分两批运行，不用 run 子命令（不部署）",
+   "schedule": ["effort-high", "effort-high", "effort-high", "effort-high", "effort-high"],
+   "conditions": {
+    "effort-high": {
+     "log_present": ["budget 8192 \\(max 24576\\)"],
+     "log_absent": ["budget 4096 "]
+    }
+   },
+   "note": "\"一切正常\"判据（用户 2026-10-13）：Opus 明显高于 Q3；无双方 0 命中且审计可疑的用例；Q3 5 个会话全部有效；评分可复现。组内标准差明显低于 0.1 才考虑用于调参。"
+  }
+ ]
+}
