@@ -38,7 +38,7 @@ paths:
 - 证据定位的含义只有一个，以冻结 ARW 的定义为准，调参和 benchmark 相同，修复不得改变含义（用户 2026-10-12）：
   - Commit Audit（角色文档 `commit-audit-reviewer.md`）：`lines` 是数组，元素为正整数（单行）或 `[起,止]`（闭区间）。所以 `"lines":[12,20]` 表示第 12 行和第 20 行两行，`[[12,20]]` 才是区间。
   - Code Review markdown（`reviewer-capability-scenarios.md#locator-matching`）：`完整路径:行,起-止`；同一对反引号内仅含行号的片段归属最近的文件路径；新文件必须写出完整路径。
-  - Spec Readiness（`spec-readiness-reviewer/findings.md`）：以 Input 完整 `filePath` 开头，后接行号或范围。
+  - Spec Readiness（`spec-readiness-reviewer/findings.md`）：以 Input 完整 `filePath` 开头，后接行号或范围；同一文件的后续片段可以省略路径，换文件时写出完整路径。
 - 可机械修复（在上述定义下有唯一含义、只是写法不合规）：`lines` 写成数组外的单个整数（补成 `[n]`）；markdown 报告第一个编号或 `- ` 条目之前的标题和说明段；正文中省略目录、能唯一对应冻结源中一个文件且行号在文件范围内的简写证据引用。只纠正写法，不改判断、finding 或证据指向；修复在绑定原实例的独立副本中进行，往返断言确认只改了这些位置，原报告不改。符合 ARW 定义的写法（如顶层 `[a,b]`）按定义解释，不做修复，即使模型可能本意是区间。
 - 无法机械修复：行号越界、证据写成非定位内容（如时间比较）、简写对应多个文件。
 - 修复不改变样本数，每个实例无论得分高低都用同一套规则。

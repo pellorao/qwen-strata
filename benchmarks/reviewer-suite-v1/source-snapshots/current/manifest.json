@@ -1161,6 +1161,37 @@
       "result": {
         "lib/release/reviewer-capability-conformance.mjs": "51e2e22bf9412fa0c6f2fef18d7d08fdb89d049205973f9502da304043aa6c2b"
       }
+    },
+    {
+      "file": "../../arw-patches/spec-readiness-v2.patch",
+      "sha256": "b93ffbca57c45976791aeafdf0fb83d37e216075a2927997d527383001520f20",
+      "reason": "Spec Readiness capability scenario v2 (scenario revision 41): fixture and answer-key revision after six rounds of the ARW two-stage fixture review; merged overlapping/dependent cases, registered or removed unregistered supported defects, widened placements. Change note: benchmarks/reviewer-suite-v1/spec-readiness-v2.md. Scores are comparable only within v2.",
+      "result": {
+        "lib/release/reviewer-capability-conformance.mjs": "db6ffb504421f5446907cc5b4a3cb5a2f8645179600a8573c098e65855796c4b",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/expected.json": "fe3131abc559db92ecec741da9b61114aae1113f9927ebef6adaaeabcd7a78a3",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/base/.scratch/0001-reviewer-capability/issues/01-review-readiness.md": "8b9aa68ac4b72620c542851add5ccd71faab4716cc4f5988e8532b951d981f10",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/base/architecture/04-seams.md": "adf6d587ef946604ffc0d1bc66516ea72cc951792914ec72196e38bc8224153f",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/base/architecture/05-validation-report.md": "c83bedbc5cb1ee25c4c4bdc43b1c4b7985bab856ede1807eb39a7fd064dbf5ea",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/base/docs/adr/0005-external-policy.md": "abc0fb60d2d487707c5e8c3c5e03c188c2f1333c075cd0ca9179ebaba67ee457",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/base/rules/05-ordering.md": "45750b2b170ce319dfa5aeddc073529682b2fecc57523a5e1e66ea5a675d9a56",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/base/specs/export-retention.md": "87e59dd335154b8fe7ed481c41381a2603bdc0719c4a03e0217947ed72808529",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/base/specs/validation-report.md": "5e6f99627cd2612d462406264112b994111c48d23a40b29472c2811adc2ff893",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/access-review.md": "41c1bad8c0c6793d0a7bb3c7ec6b93a39207054e04f7e3223437f7353ff39ebf",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/parser-scan.md": "4ab26ddd48c21d3536dffce5d489a0d04b44b4ffd8287b032e062b2ca2884018",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/promotion-recovery.md": "aadc75d17bd62ed5ae6e9fabb4b0f04cf0fde953e8ce43872b4c77fe08a1fa9c",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/promotion-runtime.md": "d4f8f7c8acbc9b99c66220eba503bc00d0a4e4b88ae650b5cbea8842aade3150",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/runtime-migration.md": "fee95e2507264a07347842e9f5eb90f027aff2fc303dce3b049c3c5189b5a16f",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/base/.scratch/0001-reviewer-capability/issues/01-review-readiness.md": "04582f7219509e5b2499b999d03b4cfc4ca38549431aeaed5522d2d5ed773abc",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/base/architecture/04-seams.md": "adf6d587ef946604ffc0d1bc66516ea72cc951792914ec72196e38bc8224153f",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/base/architecture/05-validation-report.md": "50070f16639f1d4744e4210de087997ec868324f773d4626f2d138f26247f51f",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/base/docs/adr/0005-external-policy.md": "abc0fb60d2d487707c5e8c3c5e03c188c2f1333c075cd0ca9179ebaba67ee457",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/base/rules/02-external-policy.md": "99788db8117517ed7c474727f6d6adf011733b7bbde1ec02369df93d3b18d12a",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/base/specs/validation-report.md": "23036e4be4b1dbbf21f4db961c92d5eaf08f83f0b916bb1f24ec8a5ed91a6213",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/access-review.md": "41c1bad8c0c6793d0a7bb3c7ec6b93a39207054e04f7e3223437f7353ff39ebf",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-recovery.md": "99ee4245daeb1efd52304a3f207d6e92e82d8b6ee86b82b9ea7ed55ee8dfef80",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-runtime.md": "d4f8f7c8acbc9b99c66220eba503bc00d0a4e4b88ae650b5cbea8842aade3150",
+        "tests/release/reviewer-capability-conformance.test.mjs": "1ef6a207f107aebbb727ea8b9829f5eb0f6b5a6dacd072318fa4fc2a795170a5"
+      }
     }
   ]
 }
