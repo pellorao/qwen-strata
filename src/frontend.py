@@ -71,7 +71,7 @@ def apply_messages_budget(body, defaults):
     reasoning_budget_tokens.  A request that turns thinking off, or names its own budget, is left alone; a
     smaller budget_tokens is kept as the cap.  Messages always carry max_tokens, so the budget is at most half
     of it, and Strata keeps room for the answer (#984).  Claude Code sends thinking adaptive, effort high and
-    max_tokens CLAUDE_CODE_MAX_OUTPUT_TOKENS (57344 in the manual's example), which gives high's 8192."""
+    max_tokens CLAUDE_CODE_MAX_OUTPUT_TOKENS (24576 in the manual's example), which gives high's 8192."""
     thinking = body.get('thinking') if isinstance(body.get('thinking'), dict) else {}
     if thinking.get('type') == 'disabled' or 'reasoning_budget_tokens' in body:
         return body
