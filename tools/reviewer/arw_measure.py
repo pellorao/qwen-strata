@@ -163,8 +163,8 @@ def review_shell_policy(runtime_file):
 SPEC_STAGES={'runtime-migration':0,'artifact-promotion':1}
 
 
-def merged_spec_order(jobs):
-    """Order each Spec Readiness repetition as one merged instance: runtime-migration, then artifact-promotion."""
+def spec_repetition_order(jobs):
+    """Order each Spec Readiness repetition runtime-migration, then artifact-promotion; each runs in its own fresh root thread."""
     return sorted(jobs,key=lambda j:(j[1]['instanceId'].rsplit('-',1)[1],SPEC_STAGES[j[1]['scenarioId']])
                   if j[1].get('scenarioId') in SPEC_STAGES else ('',0))
 
@@ -616,7 +616,7 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
         if seen!={h['instanceId'] for p in preparations for h in p['handoffs']}:
             raise ValueError('Schedule must retain all original prepared instances')
     else:jobs=[(p,h,profile) for p in preparations for h in p['handoffs']]
-    if arw_owned:jobs=merged_spec_order(jobs)
+    if arw_owned:jobs=spec_repetition_order(jobs)
     save(out/'schedule.json',[{'preparation':p['preparedPath'],'instanceId':h['instanceId'],'profile':f} for p,h,f in jobs])
     if limit is not None:  # run the first instances now; the rest stay prepared for a later --resume
         save(out/'deferred.json',[h['instanceId'] for _,h,_ in jobs[limit:]]);jobs=jobs[:limit]
@@ -700,23 +700,11 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
                         if open_segment:
                             close_arw_segment(open_segment,measurement_host,selection['model'],offset,telemetry)
                             save(out/'results.json',records);open_segment=None;telemetry=None
-                        previous=None
-                        if handoff.get('scenarioId')=='artifact-promotion':
-                            repetition=handoff['instanceId'].rsplit('-',1)[1]
-                            previous=next((r for r in records if r.get('scenarioId')=='runtime-migration'
-                                           and r['instanceId'].rsplit('-',1)[1]==repetition),None)
-                            if previous is not None and hashlib.sha256(Path(previous['report']).read_bytes()).hexdigest()!=previous['report_sha256']:
-                                raise RuntimeError('First bound report changed before the same-thread follow-up')
-                            if previous is None or not previous.get('complete'):
-                                # The follow-up needs a completed first task; keep the gap, never substitute.
-                                skipped={'instanceId':handoff['instanceId'],'scenarioId':'artifact-promotion',
-                                         'skipped':'runtime-migration of this repetition did not complete'}
-                                save(out/'skipped-'+handoff['instanceId']+'.json',skipped);continue
                         safe_to_release=False
                         telemetry=start_arw_telemetry(measurement_host,out/'telemetry'/handoff['instanceId'])
                         record=execute_review(machine,source,preparation,handoff,out/handoff['instanceId'],selection,catalog,
                             {'runtime_installation':str(native_install),'engine_log_start_offset':offset,
-                             'measurement_host':measurement_host.metadata(),'model_owner':'arw'},previous=previous)
+                             'measurement_host':measurement_host.metadata(),'model_owner':'arw'})
                         if record.get('arw_pause'):
                             raise RuntimeError('ARW paused the Reviewer task after repeated early exits; the user decides '
                                                'whether to continue it (send_message) or end it (interrupt_agent)')

@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.arw_measure import ARW_PAUSE_PREFIX, capture_segment, followup_when_idle, local_review_catalog, merged_spec_order, observe_review, run
+from tools.reviewer.arw_measure import ARW_PAUSE_PREFIX, capture_segment, followup_when_idle, local_review_catalog, spec_repetition_order, observe_review, run
 
 
 class ArwOwnedTests(unittest.TestCase):
@@ -123,10 +123,10 @@ class ArwOwnedTests(unittest.TestCase):
             finish.assert_called_once()
             self.assertEqual(record['telemetry'], {'samples': 3})
 
-    def test_spec_readiness_runs_as_merged_same_thread_pairs(self):
+    def test_spec_readiness_orders_each_repetition_runtime_migration_first(self):
         ids = [('runtime-migration', 1), ('runtime-migration', 2), ('artifact-promotion', 2), ('artifact-promotion', 1)]
         jobs = [(None, {'scenarioId': s, 'instanceId': f'{s}-x-instance-{n}'}, None) for s, n in ids]
-        order = [(h['scenarioId'], h['instanceId'][-1]) for _, h, _ in merged_spec_order(jobs)]
+        order = [(h['scenarioId'], h['instanceId'][-1]) for _, h, _ in spec_repetition_order(jobs)]
         self.assertEqual(order, [('runtime-migration', '1'), ('artifact-promotion', '1'),
                                  ('runtime-migration', '2'), ('artifact-promotion', '2')])
 
