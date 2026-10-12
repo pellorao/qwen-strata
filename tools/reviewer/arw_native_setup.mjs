@@ -10,6 +10,12 @@ export async function createIsolatedNativeSessions(info) {
  const {backgroundAgentRuntimeDirectory}=await upstream('background-agent/client.mjs');
  const codexHome=resolve(info.installationDirectory,'codex-home');
  mkdirSync(codexHome,{recursive:true,mode:0o700});
+ // Codex 0.162 otherwise clones the curated plugin marketplace (~105 MB git checkout) into every fresh home;
+ // its instructions never reach the model (plugins_instructions stays false), so only the download goes.
+ const config=resolve(codexHome,'config.toml');const features='[features]\nplugins = false\n';
+ if(existsSync(config)) {
+  if(readFileSync(config,'utf8')!==features)throw Error('Isolated Codex config differs from the bound plugins-off setting.');
+ } else writeFileSync(config,features,{flag:'wx',mode:0o600});
  const runtimeDirectory=backgroundAgentRuntimeDirectory(info.installationDirectory);
  mkdirSync(runtimeDirectory,{recursive:true,mode:0o700});
  if(info.catalog) {

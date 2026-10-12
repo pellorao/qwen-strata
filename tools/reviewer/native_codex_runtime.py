@@ -35,6 +35,7 @@ def configuration(out, workspace, base_url, *, model_slug, effort, extra_config)
         'model_auto_compact_token_limit': harness['model_auto_compact_token_limit'],
         'model_auto_compact_token_limit_scope': 'total',
         'model_reasoning_effort': effort,
+        'features.plugins': False,  # skip the ~105 MB plugin marketplace clone per fresh home
         'model_providers.qwen_strata.name': 'Local Strata native compatibility probe',
         'model_providers.qwen_strata.base_url': base_url,
         'model_providers.qwen_strata.wire_api': 'responses',

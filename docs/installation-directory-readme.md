@@ -152,6 +152,8 @@ stream_max_retries = 0
 
 key 通过 `env_key` 指定的环境变量只提供给该 harness。请求重试设为 0，避免重试重复已执行的工具操作。
 
+程序每次运行都新建 `CODEX_HOME` 时（测量、批处理），另加 `-c features.plugins=false`（或在该目录的 `config.toml` 写 `[features]` `plugins = false`）：否则 Codex 0.162 会在每个新目录克隆约 105MB 的插件仓库，这些内容不进入模型输入。固定使用 `~/.codex` 的交互式用法只克隆一次，不需要设置。
+
 `config/model-catalog.json` 只描述三种量化的模型事实：模型名、推理档位、156584 窗口、只接收文本、可使用网页搜索工具，以及 `auto_review_model_override` 指向自身。基础指令与消息结构取自所装 Codex 版本自带的 luna 模型条目，不额外限制工作内容；只读、可写范围等约束由各场景的提示词和沙箱权限决定。该文件对应 Codex 0.162.0，升级 Codex 后由维护工程重新生成。
 
 原生 Responses 支持 function、namespace、custom 工具、`additional_tools`、客户端 `tool_search` 和推理内容回放。网页搜索由前端托管，见下文。

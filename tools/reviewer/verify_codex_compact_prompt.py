@@ -63,7 +63,7 @@ class Client:
             'model': model['slug'], 'model_provider': 'loopback_mock',
             'model_catalog_json': str(folder / 'catalog.json'),
             'model_context_window': 156584, 'model_auto_compact_token_limit': 100000,
-            'model_reasoning_effort': 'high',
+            'model_reasoning_effort': 'high', 'features.plugins': False,
             'model_providers.loopback_mock.name': 'Loopback mock, no inference',
             'model_providers.loopback_mock.base_url': base_url,
             'model_providers.loopback_mock.wire_api': 'responses',

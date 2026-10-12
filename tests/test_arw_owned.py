@@ -94,6 +94,8 @@ class ArwOwnedTests(unittest.TestCase):
             self.assertEqual(value['providers'], {'qwen_strata': {'driver': 'strata', 'installationDirectory': str(folder / 'strata'),
                                                                   'contextWindow': 65536, 'maxInstances': 1}})
             self.assertEqual(value['models'][0]['context_window'], 65536)
+            # The isolated home turns off the per-home plugin marketplace clone.
+            self.assertEqual((folder / 'install/codex-home/config.toml').read_text(), '[features]\nplugins = false\n')
 
     def test_segment_is_bounded_by_the_next_dispatch(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -3,7 +3,7 @@ import {readFileSync,mkdirSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createInterface} from 'node:readline';
-import {createIsolatedNativeSessions} from './arw_native_setup.mjs';
+import {createIsolatedNativeSessions} from '../reviewer/arw_native_setup.mjs';
 const info=JSON.parse(readFileSync(process.argv[2],'utf8'));
 const {reviewerNativeSettings,declineReviewerInteractions}=await import(pathToFileURL(resolve(info.repositoryRoot,'lib/reviewer-runtime/reviewer-native-policy.mjs')));
 let native=(await createIsolatedNativeSessions(info)).sessions;let session=null;let root=null;let current=null;
