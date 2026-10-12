@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.arw_measure import review_shell_environment
+from tools.reviewer.arw_measure import review_shell_environment, review_shell_policy
 
 
 class ReviewShellEnvironmentTests(unittest.TestCase):
@@ -26,6 +26,16 @@ class ReviewShellEnvironmentTests(unittest.TestCase):
             self.assertEqual(reply.stdout.splitlines(),[str(entry),'isolated-machine-entry'])
             self.assertEqual(settings['QWEN_ARW_RUNTIME_FILE'],str(root/'runtime.json'))
             self.assertTrue((root/'shell-bootstrap.json').exists())
+
+    def test_policy_hides_provider_key_and_keeps_shim(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            (root/'bin').mkdir()
+            (root/'bin'/'arw').write_text('#!/bin/sh\n')
+            policy=review_shell_policy(root/'runtime.json')
+            self.assertEqual(policy['exclude'],['STRATA_API_KEY'])
+            self.assertEqual(policy['set']['QWEN_ARW_RUNTIME_FILE'],str(root/'runtime.json'))
+            self.assertNotIn('STRATA_API_KEY',policy['set'])
 
     def test_missing_measurement_entry_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -151,6 +151,15 @@ def review_shell_environment(runtime_file):
     return {'QWEN_ARW_RUNTIME_FILE':str(runtime),'BASH_ENV':str(bootstrap)}
 
 
+# The provider key is read by Codex itself through env_key; Reviewer shell commands never need it (user 2026-10-12).
+REVIEW_SHELL_EXCLUDE=['STRATA_API_KEY']
+
+
+def review_shell_policy(runtime_file):
+    """Codex shell_environment_policy for Reviewer commands: hide the provider key, restore the arw shim."""
+    return {'exclude':list(REVIEW_SHELL_EXCLUDE),'set':review_shell_environment(runtime_file)}
+
+
 SPEC_STAGES={'runtime-migration':0,'artifact-promotion':1}
 
 
@@ -174,7 +183,7 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
     state.mkdir(parents=True,exist_ok=True)
     settings={'model':'qwen3.8-flash-next-'+selection['model'].lower(),'modelProvider':'qwen_strata',
         'reasoningEffort':selection['effort'],'serviceTier':'default','config':{
-            'shell_environment_policy':{'set':review_shell_environment(os.environ['QWEN_ARW_RUNTIME_FILE'])},
+            'shell_environment_policy':review_shell_policy(os.environ['QWEN_ARW_RUNTIME_FILE']),
             'model_providers':{'qwen_strata':{'name':'Local Strata','base_url':os.environ['QWEN_ARW_MODEL_BASE'],
                 'wire_api':'responses','env_key':'STRATA_API_KEY','requires_openai_auth':False,'supports_websockets':False}}}}
     if selection.get('model_owner')!='arw':  # ARW's provider sets the window from the selected installation tier

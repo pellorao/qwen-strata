@@ -18,6 +18,7 @@ paths:
 - 能力验证和 benchmark 中，早停接续使用 ARW 原版运行层的接续机制，本工程驱动不另发继续指示（用户 2026-10-11：最大限度还原 ARW，便于与 ARW 自己的结果直接对比）。到达原版 10 / 5 次早退暂停点时，停下交给用户决定。
 - 能力验证和 benchmark 由 ARW 自己的 Strata provider 持有独占并启动模型（打了本工程接口补丁的 ARW，`selection.model_owner = "arw"`），引擎参数用安装目录的每机每量化默认值。实例之间不停模型，只允许 Strata 精确前缀缓存的复用，不复用上一个实例的上下文；token 按派发时刻切分的引擎日志段计算（用户 2026-10-11）。
 - 测量交接末尾追加冻结的测量说明（不发送中途消息、不需要运行标识、禁止查询环境变量和平台身份），记录 SHA；只追加，不改原版交接和 Role。
+- Reviewer 的命令环境用 Codex 原生 `shell_environment_policy.exclude` 去掉 `STRATA_API_KEY`（用户 2026-10-12；provider key 由 Codex 自己经 `env_key` 读取，命令不需要）。Codex 0.162.0 默认会把它传给命令，无模型探测已确认排除生效、`set` 的变量照常可见。
 - Spec Readiness 合并实例的定义：同一线程先跑 runtime-migration，再跑 artifact-promotion，两份报告分别绑定，按原版融合评分。
 
 ## 会话检查
