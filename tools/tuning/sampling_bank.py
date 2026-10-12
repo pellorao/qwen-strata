@@ -839,6 +839,10 @@ Each problem is in `problems/<P>.md`. Solve every problem.
 
 You may use the shell and write scratch files anywhere inside this directory. Nothing outside this directory is
 needed. Answers are checked automatically after you finish; there is no partial credit inside a problem.
+
+There is a hard time limit. When it is reached you are stopped without warning and only the files already written
+are scored; a problem with no written answer or solution scores zero. So write each answer or solution file as soon
+as that problem is done, before moving to the next one, and do the problems you are surest of first.
 '''
 
 
@@ -959,7 +963,8 @@ def self_check(bank):
 
 CALIBRATION_PROMPT = """You are solving a timed problem set. Work only inside {workspace}: read README.md there and
 follow it. Do not read, list or search any other directory, and do not use the network. Solve every problem as well
-as you can within about {minutes} minutes, writing each answer or solution file as soon as it is ready.
+as you can. The hard limit is {minutes} minutes: at the limit the files are taken as they are and you are stopped, so
+write each answer or solution file as soon as that problem is done.
 When you are done, reply with the single word DONE."""
 
 
@@ -972,8 +977,10 @@ def calibration_prepare(bank, out, runs, minutes):
         prompt = CALIBRATION_PROMPT.format(workspace=workspace, minutes=minutes)
         (out / f'run-{k}' / 'prompt.txt').write_text(prompt)
         rows.append({'run': k, 'workspace': str(workspace), 'prompt_sha256': sha(prompt.encode())})
-    manifest = {'bank_sha256': sha(json.dumps(bank, sort_keys=True).encode()), 'runs': rows,
-                'timing': 'Main writes run-<k>/timing.json as {"seconds": <wall seconds of the whole set>}'}
+    manifest = {'bank_sha256': sha(json.dumps(bank, sort_keys=True).encode()), 'runs': rows, 'minutes': minutes,
+                'timing': 'Main writes run-<k>/start-epoch before the run and run-<k>/timing.json as '
+                          '{"seconds": <wall seconds of the whole set>}; at the hard limit it copies the workspace to '
+                          'run-<k>/deadline-snapshot, which is then scored instead of the workspace'}
     (out / 'manifest.json').write_text(json.dumps(manifest, indent=1) + '\n')
     return manifest
 
@@ -999,17 +1006,21 @@ def calibration_score(bank, out):
     out = Path(out)
     manifest = json.loads((out / 'manifest.json').read_text())
     runs, passed, seconds = [], {x['id']: [] for x in bank['items']}, {x['id']: [] for x in bank['items']}
-    start = out / 'start-epoch'
     for row in manifest['runs']:
-        result = score(bank, row['workspace'])
+        here = out / f'run-{row["run"]}'
+        snapshot = here / 'deadline-snapshot'
+        workspace = snapshot if snapshot.is_dir() else Path(row['workspace'])  # the hard limit: files at the deadline
+        start = here / 'start-epoch' if (here / 'start-epoch').exists() else out / 'start-epoch'
+        result = score(bank, workspace)
         timing = out / f'run-{row["run"]}' / 'timing.json'
         runs.append({'run': row['run'], 'score': result['score'], 'by_tier': result['by_tier'],
-                     'seconds': json.loads(timing.read_text())['seconds'] if timing.exists() else None})
+                     'seconds': json.loads(timing.read_text())['seconds'] if timing.exists() else None,
+                     'scored': 'deadline-snapshot' if snapshot.is_dir() else 'workspace'})
         for r in result['rows']:
             if r['correct']:
                 passed[r['id']].append(row['run'])
         if start.exists():
-            for item_id, spent in write_intervals(bank, row['workspace'], float(start.read_text())).items():
+            for item_id, spent in write_intervals(bank, workspace, float(start.read_text())).items():
                 seconds[item_id].append(spent)
     passes = {k: len(v) for k, v in passed.items()}
     n = len(runs)

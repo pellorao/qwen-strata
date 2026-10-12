@@ -21,6 +21,7 @@ import json
 import os
 from pathlib import Path
 import re
+import signal
 import subprocess
 import time
 
@@ -32,6 +33,8 @@ CODEX_VENDOR = Path.home() / '.local/lib/node_modules/@openai/codex/node_modules
 CODEX = CODEX_VENDOR / 'x86_64-unknown-linux-musl/bin/codex'
 STARTUP = ROOT / 'config/prompts/startup-instructions.txt'
 TIERS = {156584: 100000, 206584: 150000}
+KILL_GRACE_SECONDS = 5          # SIGTERM to the session's process group, then SIGKILL
+ENGINE_IDLE_LIMIT_SECONDS = 120  # a cancelled request must leave Strata idle within this
 
 
 def sha(raw):
@@ -61,6 +64,9 @@ def load_plan(path):
         raise ValueError('First round must run each of the 2-6 conditions three times')
     if plan['workload'] == 'sampling' and not plan.get('pilot') and sampling_bank.points_of(data) is None:
         raise ValueError('A tuning sampling set must carry per-item points')
+    limit, other = ('per_session_seconds_limit', 'instance_seconds_limit')[::1 if plan.get('pilot') else -1]
+    if not isinstance(plan.get(limit), (int, float)) or plan[limit] <= 0 or other in plan:
+        raise ValueError('A pilot sets per_session_seconds_limit; every other plan sets instance_seconds_limit only')
     if plan['workload'] == 'window' and plan['length'] not in data['lengths']:
         raise ValueError('A window plan runs exactly one frozen length per instance')
     conditions = {}
@@ -137,19 +143,55 @@ def toml_value(value):
     return json.dumps(value)
 
 
+def run_limited(command, prompt, out, cwd, env, timeout):
+    """Run in its own process group; at the hard limit kill the whole group (Codex and every shell it started).
+    Returns the exit code, or 'timeout'.  Killing Codex drops its HTTP stream, which makes the frontend and then
+    Strata cancel the generation (`wait_engine_idle` confirms it)."""
+    process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=out, stderr=subprocess.STDOUT, text=True,
+                               cwd=cwd, env=env, start_new_session=True)
+    try:
+        process.communicate(prompt, timeout=max(timeout, 0.1))
+        return process.returncode
+    except subprocess.TimeoutExpired:
+        for sig in (signal.SIGTERM, signal.SIGKILL):
+            try:
+                os.killpg(process.pid, sig)
+            except ProcessLookupError:
+                break
+            try:
+                process.wait(timeout=KILL_GRACE_SECONDS)
+                break
+            except subprocess.TimeoutExpired:
+                continue
+        process.wait()
+        return 'timeout'
+
+
+def wait_engine_idle(model_base, key, limit=ENGINE_IDLE_LIMIT_SECONDS):
+    """After a forced stop: poll Strata's /v1/status (through the frontend) until no request runs or waits.
+    Returns the seconds waited; raises if the engine is still busy at the limit."""
+    import urllib.request
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    started = time.monotonic()
+    while True:
+        request = urllib.request.Request(model_base + '/v1/status', headers={'Authorization': 'Bearer ' + key})
+        with opener.open(request, timeout=30) as reply:
+            live = json.load(reply).get('live') or {}
+        if live.get('state') == 'idle' and not live.get('queued') and not live.get('running'):
+            return time.monotonic() - started
+        if time.monotonic() - started > limit:
+            raise RuntimeError(f'Engine still {live.get("state")} {limit} s after the forced stop')
+        time.sleep(2)
+
+
 def codex_exec(args, workspace, home, key, prompt, log, timeout, resume=None):
-    """One `codex exec` turn; returns (exit code, thread id, seconds).  The prompt goes through stdin."""
+    """One `codex exec` turn under a hard limit; returns (exit code or 'timeout', thread id, seconds)."""
     command = [str(CODEX), 'exec', *(['resume', resume] if resume else []), '--json', '--skip-git-repo-check',
                *args, '-']
     env = dict(os.environ, CODEX_HOME=str(home), STRATA_API_KEY=key)
     started = time.monotonic()
     with open(log, 'a') as out:
-        try:
-            done = subprocess.run(command, input=prompt, text=True, stdout=out, stderr=subprocess.STDOUT,
-                                  cwd=workspace, env=env, timeout=timeout)
-            code = done.returncode
-        except subprocess.TimeoutExpired:
-            code = 'timeout'
+        code = run_limited(command, prompt, out, workspace, env, timeout)
     thread = None
     for line in Path(log).read_text(errors='replace').splitlines():
         try:
@@ -161,17 +203,25 @@ def codex_exec(args, workspace, home, key, prompt, log, timeout, resume=None):
     return code, thread, time.monotonic() - started
 
 
-def rollout(home):
-    """The single session file under this isolated CODEX_HOME."""
+def rollout(home, timed_out=False):
+    """The single session file under this isolated CODEX_HOME (None if a forced stop came before Codex wrote it)."""
     files = sorted(Path(home).glob('sessions/**/rollout-*.jsonl'))
+    if not files and timed_out:
+        return None
     if len(files) != 1:
         raise RuntimeError(f'Expected one Codex session in {home}, found {len(files)}')
     return files[0]
 
 
 def analyse_session(path):
-    """Compactions (with the batch they follow), tool calls, repetition and the assistant's final reply per turn."""
-    events = [json.loads(line) for line in Path(path).read_text().splitlines() if line.strip()]
+    """Compactions (with the batch they follow), tool calls, repetition and the assistant's final reply per turn.
+    A rollout cut by a forced stop may end in a partial line, which is skipped."""
+    events = []
+    for line in (Path(path).read_text().splitlines() if path else []):
+        try:
+            events.append(json.loads(line))
+        except ValueError:
+            continue
     calls, replies, compactions, last_user = [], [], [], None
     current = None
     for e in events:
@@ -242,11 +292,23 @@ def session_effect(workload, spec, length, analysis):
     return problems
 
 
-def run_sampling(plan, data, spec, folder, args_for, key, mark):
+def session_limit(plan, data):
+    """Hard seconds per sampling session: a pilot sets it directly; a tuning plan splits its instance limit evenly
+    over the sessions, so every chunk gets the same chance whatever happened in the chunks before it."""
+    if plan.get('pilot'):
+        return plan['per_session_seconds_limit']
+    sessions = -(-len(data['items']) // plan['chunk'])
+    return plan['instance_seconds_limit'] / sessions
+
+
+def run_sampling(plan, data, spec, folder, args_for, key, mark, settle):
     """Problem set in chunks; each chunk is a fresh Codex session in its own workspace.  `mark()` is the engine log
-    offset, taken around each session so its tokens can be attributed after the final capture."""
+    offset, taken around each session so its tokens can be attributed after the final capture.  A session that hits
+    its hard limit is killed, `settle()` waits until Strata has cancelled the generation, and the session is scored
+    on the files it had written; the timeout itself does not invalidate the instance."""
     chunk, rows, sessions = plan['chunk'], [], []
     numbers = [x['number'] for x in data['items']]
+    limit = session_limit(plan, data)
     for start in range(0, len(numbers), chunk):
         part = numbers[start:start + chunk]
         here = folder / f'chunk-{start // chunk + 1:02d}'
@@ -255,26 +317,37 @@ def run_sampling(plan, data, spec, folder, args_for, key, mark):
         sampling_bank.export(data, workspace, set(part))
         subprocess.run(['git', 'init', '-q'], cwd=workspace, check=True)
         prompt = (f'Solve the problems in this directory ({", ".join(part)}). Read README.md first and follow it. '
-                  'Finish when every answer or solution file is written.')
+                  f'This session has a hard limit of {round(limit / 60, 1):g} minutes: write each answer or solution '
+                  'file as soon as its problem is done. Finish when every answer or solution file is written.')
         log_start = mark()
         code, thread, seconds = codex_exec(args_for(here), workspace, home, key, prompt, here / 'codex.jsonl',
-                                           plan['per_session_seconds_limit'])
+                                           limit)
+        timed_out = code == 'timeout'
+        idle_seconds = settle() if timed_out else None
         log_end = mark()
-        analysis = analyse_session(rollout(home))
+        analysis = analyse_session(rollout(home, timed_out))
         analysis['escapes'] = escapes(analysis['calls'], workspace)
         save(here / 'session-analysis.json', analysis)
+        scored = sampling_bank.score({**data, 'items': [x for x in data['items'] if x['number'] in part]},
+                                     workspace)['rows']
         sessions.append({'escapes': len(analysis['escapes']), 'chunk': part, 'exit': code, 'thread': thread,
-                         'seconds': seconds, 'log_bytes': [log_start, log_end],
+                         'seconds': seconds, 'limit_seconds': limit, 'timed_out': timed_out,
+                         'engine_idle_after_seconds': idle_seconds,
+                         'answered': sum(r['answered'] for r in scored), 'log_bytes': [log_start, log_end],
                          'compactions': len(analysis['compactions']), 'tool_calls': analysis['tool_calls'],
                          'loop': analysis['loop'], 'effect_problems': session_effect('sampling', spec, None, analysis)})
-        rows += sampling_bank.score({**data, 'items': [x for x in data['items'] if x['number'] in part]},
-                                    workspace)['rows']
-    return {**sampling_bank.weighted(rows), 'sessions': sessions}
+        rows += scored
+    return {**sampling_bank.weighted(rows), 'sessions': sessions,
+            'timed_out_sessions': sum(x['timed_out'] for x in sessions),
+            'answered': sum(r['answered'] for r in rows)}
 
 
-def run_window(plan, data, spec, folder, args_for, key, mark):
-    """One conversation of the plan's single length: opening, record batches, question turns, in one thread."""
+def run_window(plan, data, spec, folder, args_for, key, mark, settle):
+    """One conversation of the plan's single length: opening, record batches, question turns, in one thread.
+    The instance limit covers the whole conversation; each turn gets what is left.  At the limit the turn is killed,
+    `settle()` waits for Strata to go idle, no further turn is sent and unanswered questions score zero."""
     results = {}
+    deadline = time.monotonic() + plan['instance_seconds_limit']
     for name in [plan['length']]:
         length = data['lengths'][name]
         here = folder / name
@@ -282,20 +355,29 @@ def run_window(plan, data, spec, folder, args_for, key, mark):
         workspace.mkdir(parents=True)
         home.mkdir()
         subprocess.run(['git', 'init', '-q'], cwd=workspace, check=True)
-        log, thread, turns = here / 'codex.jsonl', None, []
-        for prompt in [length['opening'], *length['turns'], *length['question_turns']]:
-            code, started, seconds = codex_exec(args_for(here), workspace, home, key, prompt, log,
-                                                plan['per_session_seconds_limit'], resume=thread)
+        log, thread, turns, timed_out = here / 'codex.jsonl', None, [], False
+        prompts = [length['opening'], *length['turns'], *length['question_turns']]
+        for prompt in prompts:
+            left = deadline - time.monotonic()
+            if left <= 0:
+                timed_out = True
+                break
+            code, started, seconds = codex_exec(args_for(here), workspace, home, key, prompt, log, left,
+                                                resume=thread)
             thread = thread or started
             turns.append({'exit': code, 'seconds': seconds})
+            if code == 'timeout':
+                timed_out = True
+                turns[-1]['engine_idle_after_seconds'] = settle()
             if code != 0:
                 break
-        analysis = analyse_session(rollout(home))
+        analysis = analyse_session(rollout(home, timed_out))
         save(here / 'session-analysis.json', analysis)
         answers = [r['text'] for r in analysis['replies'] if r['turn'] == 'questions']
         scored = window_bank.score(length, answers)
         results[name] = {'score': scored['score'], 'by_group': scored['by_group'], 'rows': scored['rows'],
-                         'thread': thread, 'turns': turns, 'compactions': analysis['compactions'],
+                         'thread': thread, 'turns': turns, 'turns_planned': len(prompts), 'timed_out': timed_out,
+                         'compactions': analysis['compactions'],
                          'tool_calls': analysis['tool_calls'], 'loop': analysis['loop'],
                          'effect_problems': session_effect('window', spec, name, analysis)}
     rows = [r for v in results.values() for r in v['rows']]
@@ -348,7 +430,8 @@ def run_instance(plan, data, conditions, name, folder):
             args_for = lambda here: codex_overrides(plan, spec, here, owner.model_base + '/v1')
             runner = run_sampling if plan['workload'] == 'sampling' else run_window
             began = time.monotonic()
-            record.update(runner(plan, data, spec, folder, args_for, owner.key, lambda: host.log_offset(plan['model'])))
+            record.update(runner(plan, data, spec, folder, args_for, owner.key, lambda: host.log_offset(plan['model']),
+                                 lambda: wait_engine_idle(owner.model_base, owner.key)))
             record['session_seconds'] = time.monotonic() - began
         finally:
             stopped, requests, tokens = stop_and_capture_engine_log(owner, host.installation, plan['model'], offset,

@@ -3,6 +3,7 @@ import itertools
 import json
 import random
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -138,6 +139,21 @@ class SamplingBankTest(unittest.TestCase):
                 self.assertEqual(x['entry'], 'decode' if (x['family'], x['tier']) == ('strfun', 5) else
                                  {'strfun': 'transform', 'ledger': 'settle'}[x['family']])
 
+    def test_calibration_scores_the_deadline_snapshot(self):
+        import shutil
+        bank = sampling_bank.select(self.bank, [x['id'] for x in self.bank['items']])
+        answer = next(x for x in bank['items'] if x['kind'] == 'answer')
+        with tempfile.TemporaryDirectory() as tmp:
+            sampling_bank.calibration_prepare(bank, tmp, 1, 10)
+            run = Path(tmp) / 'run-1'
+            (run / 'start-epoch').write_text(str(time.time()))
+            shutil.copytree(run / 'workspace', run / 'deadline-snapshot')
+            (run / 'deadline-snapshot' / 'answers' / (answer['number'] + '.txt')).write_text(answer['answer'])
+            (run / 'workspace' / 'answers' / (answer['number'] + '.txt')).write_text('written after the limit')
+            result = sampling_bank.calibration_score(bank, tmp)
+        self.assertEqual(result['runs'][0]['scored'], 'deadline-snapshot')
+        self.assertEqual(next(i for i in result['items'] if i['id'] == answer['id'])['passes'], 1)
+
     def test_broken_code_scores_zero(self):
         self.assertEqual(sampling_bank.run_tests(b'def f():\n    return 2\n', 'f', [{'args': [], 'expected': 1}]), 0)
         self.assertEqual(sampling_bank.run_tests(b'def f():\n    return 1\n', 'f', [{'args': [], 'expected': 1}]), 1)
@@ -249,6 +265,84 @@ class CodexWorkloadTest(unittest.TestCase):
 
     def test_override_tables_are_toml(self):
         self.assertEqual(codex_workload.toml_value({':minimal': 'read', 'x': ['a']}), '{":minimal" = "read", "x" = ["a"]}')
+
+    def test_hard_limit_kills_the_whole_process_group(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            script = 'sleep 60 & echo $! > child.pid; wait'
+            with open(Path(tmp) / 'log', 'w') as out:
+                code = codex_workload.run_limited(['sh', '-c', script], '', out, tmp, None, 1)
+            self.assertEqual(code, 'timeout')
+            child = int((Path(tmp) / 'child.pid').read_text())
+            for _ in range(50):
+                if not Path(f'/proc/{child}').exists() or 'Z' in Path(f'/proc/{child}/stat').read_text().split()[2]:
+                    break
+                time.sleep(0.1)
+            else:
+                self.fail('the shell started by the session outlived the hard limit')
+            with open(Path(tmp) / 'log', 'w') as out:
+                self.assertEqual(codex_workload.run_limited(['sh', '-c', 'read x; exit $x'], '3\n', out, tmp, None, 5), 3)
+
+    def test_timed_out_session_is_scored_on_written_files(self):
+        data = sampling_bank.select(sampling_bank.build(7, 1), [x['id'] for x in sampling_bank.build(7, 1)['items']])
+        first = next(x for x in data['items'] if x['kind'] == 'answer')
+        plan = {'chunk': len(data['items']), 'instance_seconds_limit': 600}
+        settled, limits = [], []
+
+        def fake_exec(args, workspace, home, key, prompt, log, timeout, resume=None):
+            limits.append(timeout)
+            (Path(workspace) / 'answers' / (first['number'] + '.txt')).write_text(first['answer'] + '\n')
+            return 'timeout', None, timeout
+
+        original = codex_workload.codex_exec
+        codex_workload.codex_exec = fake_exec
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                result = codex_workload.run_sampling(plan, data, {'context_window': 156584}, Path(tmp),
+                                                     lambda here: [], 'k', lambda: 0, lambda: settled.append(1) or 2.0)
+        finally:
+            codex_workload.codex_exec = original
+        self.assertEqual(limits, [600])
+        self.assertEqual(settled, [1])
+        session = result['sessions'][0]
+        self.assertTrue(session['timed_out'])
+        self.assertEqual(session['engine_idle_after_seconds'], 2.0)
+        self.assertEqual((result['timed_out_sessions'], result['answered'], result['correct']), (1, 1, 1))
+        self.assertGreater(result['score'], 0)
+
+    def test_wait_engine_idle_polls_native_status(self):
+        import http.server
+        import threading
+        states, seen = ['generating', 'reading', 'idle'], []
+
+        class Status(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                seen.append((self.path, self.headers.get('Authorization')))
+                body = json.dumps({'live': {'state': states.pop(0), 'queued': 0}}).encode()
+                self.send_response(200)
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args):
+                pass
+
+        server = http.server.HTTPServer(('127.0.0.1', 0), Status)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        original = codex_workload.time.sleep
+        codex_workload.time.sleep = lambda seconds: None
+        try:
+            codex_workload.wait_engine_idle(f'http://127.0.0.1:{server.server_port}/strata', 'lease-key')
+        finally:
+            codex_workload.time.sleep = original
+            server.shutdown()
+            server.server_close()
+        self.assertEqual(seen, [('/strata/v1/status', 'Bearer lease-key')] * 3)
+
+    def test_session_limit_splits_the_instance_limit(self):
+        data = {'items': [{}] * 25}
+        self.assertEqual(codex_workload.session_limit({'chunk': 5, 'instance_seconds_limit': 600}, data), 120)
+        self.assertEqual(codex_workload.session_limit({'pilot': True, 'chunk': 1, 'per_session_seconds_limit': 900},
+                                                      data), 900)
 
     def test_frozen_plans_check_without_model(self):
         folder = Path(__file__).resolve().parents[1] / 'benchmarks/tuning-workloads-v1'
