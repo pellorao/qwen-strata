@@ -33,7 +33,8 @@ ENVIRONMENT = {'STRATA_HC_SPLIT', 'STRATA_ADAPT_NOWAIT', 'STRATA_SSD_KEEPALIVE',
                'STRATA_BATCH_TRACE', 'STRATA_PREFILL_CPU_SHARE', 'STRATA_ADAPT_LAG'}
 SAMPLING = {'temperature', 'top_p', 'top_k', 'min_p', 'presence_penalty', 'frequency_penalty',
             'repetition_penalty', 'penalty_last_n'}
-REASONING = {'reasoning_effort', 'reasoning_budget_tokens', 'max_tokens'}
+REASONING = {'reasoning_effort', 'reasoning_budget_tokens', 'max_tokens',
+             'guardian_reasoning_budget_tokens', 'guardian_max_tokens'}
 # A caller chooses only the model and one published context tier; reasoning effort travels per request.
 PUBLIC_START_OPTIONS = {'model', 'context_window'}
 START_OPTIONS = {'model', 'context_window', 'engine_overrides', 'engine_environment', 'request_defaults', 'profile_file',

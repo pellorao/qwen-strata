@@ -11,6 +11,7 @@ MODEL_PORT = 8100
 PUBLIC_FIELDS = {'schema_version', 'id', 'cuda_arch', 'models', 'engine_overrides', 'model_overrides', 'model_environment', 'hardware',
                  'qualification', 'listen_address', 'port', 'installation_defaults', 'context_tiers', 'note'}
 INSTALLATION_DEFAULTS = {'reasoning_effort', 'reasoning_budget_tokens', 'max_tokens',
+                         'guardian_reasoning_budget_tokens', 'guardian_max_tokens',
                          'cpu_prefill_share', 'temperature', 'top_p', 'top_k'}
 CONDITION_FIELDS = {'id', 'model', 'model_overrides', 'model_environment', 'request_defaults'}
 # A tuning condition may vary only these request defaults, and only for its own model
@@ -56,6 +57,9 @@ def load_host(identifier, project=None, condition=None):
     defaults = value.get('installation_defaults', {})
     if not isinstance(defaults, dict) or set(defaults) - INSTALLATION_DEFAULTS:
         raise ValueError('Unsupported per-host installation defaults')
+    guardian = [defaults.get(k) for k in ('guardian_reasoning_budget_tokens', 'guardian_max_tokens')]
+    if guardian != [None, None] and not all(type(v) is int and v > 0 for v in guardian):
+        raise ValueError('Guardian defaults need both a thinking budget and a total output limit')
     tiers = value.setdefault('context_tiers', {})
     if not isinstance(tiers, dict) or set(tiers) - set(models) or not all(
             isinstance(v, list) and v and len({t.get('context_window') for t in v}) == len(v) and all(

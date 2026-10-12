@@ -26,7 +26,8 @@ IDLE_CHECK_SECONDS = 30
 # Thinking budget per effort, used when a request names none. Total output is left to Strata, which uses the
 # room left in the window. 28672 is half the worst-case room left once compaction is due (156584 - 100000).
 # Efforts differ by their prompt, as in Strata and the model's own design; the cap is only a safety net.
-EFFORT_BUDGETS = {'none': 0, 'low': 28672, 'medium': 28672, 'high': 28672, 'xhigh': 28672, 'max': 28672}
+# There is no 'none' effort: every request thinks, and one asking for none is refused.
+EFFORT_BUDGETS = {'low': 28672, 'medium': 28672, 'high': 28672, 'xhigh': 28672, 'max': 28672}
 GENERATION = ('/v1/chat/completions', '/v1/responses', '/v1/messages', '/v1/messages/count_tokens')
 
 
@@ -53,6 +54,18 @@ def local_networks():
     return networks
 
 
+def guardian_request(body):
+    """Codex's approval reviewer, told apart by the turn metadata Codex sends with every request
+    (client_metadata["x-codex-turn-metadata"], a JSON string), never by its prompt."""
+    meta = body.get('client_metadata')
+    raw = meta.get('x-codex-turn-metadata') if isinstance(meta, dict) else None
+    try:
+        turn = json.loads(raw) if isinstance(raw, str) else None
+    except ValueError:
+        return False
+    return isinstance(turn, dict) and turn.get('thread_source') == 'guardian_review'
+
+
 def apply_reasoning_defaults(body, path, defaults):
     """Fill effort, thinking budget and output limit a Chat or Responses request leaves out."""
     responses = path == '/v1/responses'
@@ -64,8 +77,15 @@ def apply_reasoning_defaults(body, path, defaults):
     else:
         effort = body.setdefault('reasoning_effort', defaults.get('reasoning_effort', 'high'))
         output = 'max_tokens'
-    budget, total = EFFORT_BUDGETS.get(effort, EFFORT_BUDGETS['high']), None
-    if effort == defaults.get('reasoning_effort'):
+    if effort not in EFFORT_BUDGETS:
+        raise Refused(400, f'Unsupported reasoning effort {effort!r}; use one of {", ".join(EFFORT_BUDGETS)}.')
+    budget, total = EFFORT_BUDGETS[effort], None
+    if guardian_request(body) and 'guardian_max_tokens' in defaults:
+        # A guardian decision is a short JSON verdict, so its limits are its own, whatever effort it names.
+        # Strata keeps min(max(512, total // 4), total // 2) of the total for the answer: a total of 2048
+        # keeps exactly 512 and leaves the thinking budget its full 1536.
+        budget, total = defaults['guardian_reasoning_budget_tokens'], defaults['guardian_max_tokens']
+    elif effort == defaults.get('reasoning_effort'):
         budget = defaults.get('reasoning_budget_tokens', budget)
         total = defaults.get('max_tokens')
     explicit_output = body.get(output) is not None

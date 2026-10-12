@@ -7,10 +7,6 @@
    "default_reasoning_level": "high",
    "supported_reasoning_levels": [
     {
-     "effort": "none",
-     "description": "Strata frontend budget preset; see installation manual."
-    },
-    {
      "effort": "low",
      "description": "Strata frontend budget preset; see installation manual."
     },
@@ -122,10 +118,6 @@
    "default_reasoning_level": "high",
    "supported_reasoning_levels": [
     {
-     "effort": "none",
-     "description": "Strata frontend budget preset; see installation manual."
-    },
-    {
      "effort": "low",
      "description": "Strata frontend budget preset; see installation manual."
     },
@@ -236,10 +228,6 @@
    "description": "Local Qwen3.8 Flash Next IQ3_XXS served by Strata.",
    "default_reasoning_level": "high",
    "supported_reasoning_levels": [
-    {
-     "effort": "none",
-     "description": "Strata frontend budget preset; see installation manual."
-    },
     {
      "effort": "low",
      "description": "Strata frontend budget preset; see installation manual."

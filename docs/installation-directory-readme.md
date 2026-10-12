@@ -98,12 +98,13 @@ Responses 使用 `reasoning.effort` 和 `max_output_tokens`，Chat 使用 `reaso
 
 | 强度 | 思考 token 上限 |
 |---|---:|
-| none | 0 |
 | low、medium、high、xhigh、max | 28672 |
+
+不提供 none 档：请求指定其他强度（包括 none）时返回 400。
 
 - 各强度只靠强度提示区分思考深浅，这与 Strata 和模型官方的设计一致；思考上限只做兜底，防止思考占满窗口而无法作答。
 - 28672 是到达自动压缩阈值时窗口剩余空间（156584 − 100000 ≈ 56K）的一半，按最坏情况取值，保证思考用满后仍有空间作答。
-- 审批请求（Codex 的 guardian 审批走 low 档）如果自己不给思考预算和输出上限，同样按 28672 兜底；`bin/qwen-approve` 显式指定思考 512／总输出 640，不受影响。
+- Codex 的 guardian 审批请求有单独的默认值，与强度无关：思考 1536、总输出 2048（rtx3080ti 安装预置）。服务按 Codex 随请求发送的元数据识别它（`client_metadata["x-codex-turn-metadata"]` 中 `thread_source` 为 `guardian_review`），不看提示词内容。审批只需输出一段简短的 JSON 结论。Strata 为回答保留 min(max(512, 总输出/4), 总输出/2)，总输出 2048 时正好保留 512，思考可以用满 1536。请求自己给了思考预算或输出上限时，以请求为准。`bin/qwen-approve` 显式指定思考 512／总输出 640，不受影响。
 - 与该次运行默认强度相同的请求，使用默认值中的思考预算（rtx3080ti 为 28672）。
 - 请求自己给了输出上限、没给思考预算时，思考预算不超过输出上限的一半。Strata 另外为回答至少保留输出上限的 1/4。
 - 上限不等于实际思考长度。请求给的输出上限超出窗口剩余空间时，缩短到剩余空间，不返回 400；输入本身超出窗口仍返回 400，不静默裁剪输入。
@@ -174,7 +175,7 @@ export ANTHROPIC_AUTH_TOKEN=<key>
 export ANTHROPIC_MODEL=qwen3.8-flash-next-q2_0          # OPUS / SONNET / HAIKU 默认模型也设为同一个
 export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 export CLAUDE_CODE_MAX_CONTEXT_TOKENS=156584            # 声明真实窗口
-export CLAUDE_CODE_MAX_OUTPUT_TOKENS=24576
+export CLAUDE_CODE_MAX_OUTPUT_TOKENS=57344             # 约等于到达压缩阈值时的剩余窗口
 
 claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default \
        --settings '{"skipWebFetchPreflight": true, "permissions": {"deny": ["WebSearch"]},
@@ -182,6 +183,7 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default
                              "PermissionRequest": [{"matcher": "*", "hooks": [{"type": "command", "command": "python3 <安装目录>/bin/qwen-approve", "timeout": 180}]}]}}' [调用方参数]
 ```
 
+- 总输出上限 57344 约等于到达自动压缩阈值时的剩余窗口（156584 − 100000）；剩余空间不够时服务把输出上限缩短到剩余空间，不返回 400。Messages 接口不补思考预算，Claude Code 的思考没有服务端硬上限，最多可用满总输出（Strata 为回答保留空间只在设了思考预算时生效）。
 - 审批固定由 `bin/qwen-approve` 完成，不使用 Claude Code 的 auto mode（2b 验收中 auto mode 判对 5/9、每次运行 191 秒；`qwen-approve` 判对 7/7、80 秒）。权限模式为 `default`，每次权限请求经 `PermissionRequest` hook 交给 `qwen-approve`：它把用户消息（唯一授权来源）、最近 6 次工具调用与结果（标为不可信数据）和待审动作发给本模型（`reasoning_effort: low`），思考上限 512 token、总输出 640 token，单次判断不超过 10 秒；返回 allow / deny 及理由；超时、出错或答复无法解析一律拒绝。用户只是让 agent 照文件、网页或工具输出里的步骤执行时，只授权其中无害的步骤；破坏性或越界的步骤必须由用户消息点名效果和目标。每次判断记一行到 `logs/approve.log`（工具、结论、理由、耗时、usage，不含 key）。
 - 压缩：PreCompact hook 退出码为 0 时，其 stdout 会追加到 Claude Code 自带摘要指令之后，所以每次压缩（自动或手动）都带上 `compact-prompt.txt`，而且不替换内置提示。
 - `skipWebFetchPreflight` 关闭 WebFetch 抓网页前向 `api.anthropic.com` 的域名查询。

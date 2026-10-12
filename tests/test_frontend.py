@@ -167,8 +167,42 @@ class DefaultTests(unittest.TestCase):
         body = frontend.apply_reasoning_defaults({'reasoning_effort': 'medium', 'max_tokens': 4000},
                                                  '/v1/chat/completions', self.installed)
         self.assertEqual(body['reasoning_budget_tokens'], 2000)
-        self.assertEqual(frontend.apply_reasoning_defaults({'reasoning_effort': 'none'}, '/v1/chat/completions',
-                                                           self.installed).get('reasoning_budget_tokens'), None)
+
+    def test_none_and_unknown_efforts_are_refused(self):
+        for effort in ('none', 'minimal'):
+            with self.assertRaises(frontend.Refused) as caught:
+                frontend.apply_reasoning_defaults({'reasoning_effort': effort}, '/v1/chat/completions', self.installed)
+            self.assertEqual(caught.exception.status, 400)
+        with self.assertRaises(frontend.Refused):
+            frontend.apply_reasoning_defaults({'reasoning': {'effort': 'none'}}, '/v1/responses', self.installed)
+
+    @staticmethod
+    def codex_request(thread_source, **body):
+        turn = {'session_id': 's', 'thread_id': 't', 'request_kind': 'turn', 'thread_source': thread_source}
+        return dict(body, reasoning={'effort': 'low'}, client_metadata={'x-codex-turn-metadata': json.dumps(turn)})
+
+    def test_guardian_is_told_by_turn_metadata_and_gets_its_own_limits(self):
+        guarded = dict(self.installed, guardian_reasoning_budget_tokens=1536, guardian_max_tokens=2048)
+        body = frontend.apply_reasoning_defaults(self.codex_request('guardian_review'), '/v1/responses', guarded)
+        self.assertEqual((body['reasoning_budget_tokens'], body['max_output_tokens']), (1536, 2048))
+        # The main thread at the same effort keeps the effort's budget and leaves output to Strata.
+        body = frontend.apply_reasoning_defaults(self.codex_request('user'), '/v1/responses', guarded)
+        self.assertEqual((body['reasoning_budget_tokens'], body.get('max_output_tokens')), (28672, None))
+        # Prompt text alone never makes a request a guardian one.
+        body = frontend.apply_reasoning_defaults(
+            {'reasoning': {'effort': 'low'}, 'instructions': 'You are judging one planned coding-agent action.'},
+            '/v1/responses', guarded)
+        self.assertEqual(body['reasoning_budget_tokens'], 28672)
+        # A guardian request's own limits win.
+        body = frontend.apply_reasoning_defaults(self.codex_request('guardian_review', max_output_tokens=1000),
+                                                 '/v1/responses', guarded)
+        self.assertEqual((body['reasoning_budget_tokens'], body['max_output_tokens']), (500, 1000))
+        # Without guardian defaults in the installation it is an ordinary low request; bad metadata is ignored.
+        body = frontend.apply_reasoning_defaults(self.codex_request('guardian_review'), '/v1/responses', self.installed)
+        self.assertEqual(body['reasoning_budget_tokens'], 28672)
+        broken = dict(self.codex_request('guardian_review'), client_metadata={'x-codex-turn-metadata': '{'})
+        self.assertEqual(frontend.apply_reasoning_defaults(broken, '/v1/responses', guarded)['reasoning_budget_tokens'],
+                         28672)
 
     def test_explicit_budget_is_kept(self):
         body = frontend.apply_reasoning_defaults({'reasoning_budget_tokens': 1}, '/v1/chat/completions', self.installed)
@@ -230,6 +264,12 @@ class ConfigurationTests(unittest.TestCase):
     def test_another_effort_drops_installed_budget(self):
         reasoning = model_process.configuration({'request_defaults': {'reasoning_effort': 'medium'}}, 8100)[3]
         self.assertEqual(reasoning, {'reasoning_effort': 'medium'})
+
+    def test_guardian_defaults_outlive_another_default_effort(self):
+        reasoning = model_process.configuration({'request_defaults': {
+            'reasoning_effort': 'medium', 'guardian_reasoning_budget_tokens': 1536, 'guardian_max_tokens': 2048}}, 8100)[3]
+        self.assertEqual(reasoning, {'reasoning_effort': 'medium', 'guardian_reasoning_budget_tokens': 1536,
+                                     'guardian_max_tokens': 2048})
 
     def test_rejects_unknown_or_injected_values(self):
         for options in ({'engine_overrides': {'api-key': 'x'}}, {'engine_overrides': {'prefill': '1 --x'}},

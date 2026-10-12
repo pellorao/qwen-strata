@@ -54,6 +54,15 @@ installation_path='C:\\Strata'
         self.assertNotIn('request_defaults', plain)
         self.assertNotIn('engine_environment', plain)
 
+    def test_guardian_defaults_render_and_come_in_pairs(self):
+        self.host('tuned', engine_overrides={}, installation_defaults={
+            'reasoning_effort': 'high', 'guardian_reasoning_budget_tokens': 1536, 'guardian_max_tokens': 2048})
+        self.assertEqual(model_configuration('Q2_0', 'tuned', self.root)['request_defaults'],
+                         {'reasoning_effort': 'high', 'guardian_reasoning_budget_tokens': 1536, 'guardian_max_tokens': 2048})
+        self.host('tuned', engine_overrides={}, installation_defaults={'guardian_max_tokens': 2048})
+        with self.assertRaisesRegex(ValueError, 'Guardian'):
+            model_configuration('Q2_0', 'tuned', self.root)
+
     def test_context_tiers_need_a_compaction_limit_inside_the_window(self):
         self.host('tuned', engine_overrides={}, context_tiers={'Q2_0': [{'context_window': 65536, 'auto_compact_token_limit': 65536}]})
         with self.assertRaisesRegex(ValueError, 'context_tiers'):

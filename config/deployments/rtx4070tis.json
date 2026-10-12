@@ -22,7 +22,9 @@
   "installation_defaults": {
     "reasoning_effort": "high",
     "reasoning_budget_tokens": 8192,
-    "max_tokens": 24576
+    "max_tokens": 24576,
+    "guardian_reasoning_budget_tokens": 1536,
+    "guardian_max_tokens": 2048
   },
-  "note": "Offline; listen_address and port are set when the host returns and its actual state is verified. installation_defaults pin the earlier high budget 8192 / output 24576 until the user decides whether this host adopts the 2026-10-12 rtx3080ti scheme (thinking 28672, output = room left); pending sync."
+  "note": "Offline; listen_address and port are set when the host returns and its actual state is verified. installation_defaults pin the earlier high budget 8192 / output 24576 until the user decides whether this host adopts the 2026-10-12 rtx3080ti scheme (thinking 28672, output = room left); the guardian defaults (thinking 1536 / output 2048, 2026-10-12) are also pending sync."
 }

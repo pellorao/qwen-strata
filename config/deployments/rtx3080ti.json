@@ -46,6 +46,8 @@
   "installation_defaults": {
     "reasoning_effort": "high",
     "reasoning_budget_tokens": 28672,
+    "guardian_reasoning_budget_tokens": 1536,
+    "guardian_max_tokens": 2048,
     "cpu_prefill_share": "auto",
     "temperature": 0.0,
     "top_p": 1.0,

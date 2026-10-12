@@ -100,9 +100,7 @@
     "model_reasoning_effort": "high",
     "model_context_window": 156584,
     "model_auto_compact_token_limit": 100000,
-    "guardian_effort": "low",
-    "guardian_reasoning_budget_tokens": 2048,
-    "guardian_max_tokens": 8192
+    "guardian_effort": "low"
   },
   "profile": {
     "choice": "default",

@@ -18,7 +18,7 @@ TEMPLATE = 'gpt-6-luna'
 CONTEXT_WINDOW = 156584
 DEFAULT_EFFORT = 'high'
 MODELS = {'Q2_0': 'q2_0', 'IQ2_XS': 'iq2_xs', 'IQ3_XXS': 'iq3_xxs'}
-EFFORTS = ('none', 'low', 'medium', 'high', 'xhigh', 'max')
+EFFORTS = ('low', 'medium', 'high', 'xhigh', 'max')  # the frontend offers no 'none'
 FACTS = {
     'visibility': 'list', 'supported_in_api': True, 'availability_nux': None, 'upgrade': None,
     'additional_speed_tiers': [], 'service_tiers': [],
