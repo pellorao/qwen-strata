@@ -409,6 +409,36 @@ class CodexWorkloadTest(unittest.TestCase):
             self.assertEqual(sum(codex_workload.group_seconds_limit(g, 30)
                                  for g in codex_workload.groups(items, size)), 4500)
 
+    def test_sampling_recovery_runs_only_the_chosen_groups_with_full_set_numbering(self):
+        self.assertEqual(codex_workload.parse_groups('7-10'), [7, 8, 9, 10])
+        self.assertEqual(codex_workload.parse_groups('2,5,7-8'), [2, 5, 7, 8])
+        bank = sampling_bank.build(7, 1)
+        data = sampling_bank.select(bank, sampling_bank.grouped(bank))
+        plan = {'group_size': 2, 'group_seconds_per_tier': 30, 'only_groups': [3, 4]}
+        everything = codex_workload.groups(data['items'], 2)
+        seen = []
+
+        def fake_exec(args, workspace, home, key, prompt, log, timeout, resume=None):
+            seen.append(sorted(p.stem for p in (Path(workspace) / 'problems').glob('*.md')))
+            path = Path(home) / 'sessions/2026/10/12/rollout-a.jsonl'
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text('')
+            return 0, 'thread', 1.0
+
+        original = codex_workload.codex_exec
+        codex_workload.codex_exec = fake_exec
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                result = codex_workload.run_sampling(plan, data, {'context_window': 156584}, Path(tmp),
+                                                     lambda here: [], 'k', lambda: 0, lambda: 0)
+                folders = sorted(p.name for p in Path(tmp).iterdir())
+        finally:
+            codex_workload.codex_exec = original
+        self.assertEqual(seen, [sorted(x['number'] for x in everything[i]) for i in (2, 3)])
+        self.assertEqual(folders, ['group-03-1', 'group-04-1'])
+        self.assertEqual([r['group'] for r in result['groups']], [3, 4])
+        self.assertEqual(len(result['items']), len(everything[2]) + len(everything[3]))
+
     def test_sampling_runs_groups_with_limits_and_reruns_compacted_groups(self):
         bank = sampling_bank.build(7, 1)
         data = sampling_bank.select(bank, sampling_bank.grouped(bank))

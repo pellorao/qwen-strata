@@ -371,7 +371,10 @@ def run_sampling(plan, data, spec, folder, args_for, key, mark, settle):
     attributes its engine tokens; per-item time is approximate (write intervals).  A compacted group is invalid and
     rerun in a fresh session; if every attempt compacts the instance fails its effect check."""
     rows, runs = [], []
+    only = plan.get('only_groups')  # recovery: run just these group numbers (numbering of the full set kept)
     for g, group in enumerate(groups(data['items'], plan['group_size']), 1):
+        if only and g not in only:
+            continue
         part, limit = {**data, 'items': group}, group_seconds_limit(group, plan['group_seconds_per_tier'])
         for attempt in range(1, GROUP_ATTEMPTS + 1):
             here = folder / f'group-{g:02d}-{attempt}'
@@ -546,9 +549,24 @@ def run_instance(plan, data, conditions, name, folder):
     return record
 
 
-def run(plan_path, out, limit=None):
-    """Run the scheduled instances not yet done; stop at the end of the round so the staged decision can be taken."""
+def parse_groups(text):
+    """'7-10' or '2,5,7-9' -> sorted group numbers."""
+    numbers = set()
+    for part in text.split(','):
+        first, _, last = part.partition('-')
+        numbers.update(range(int(first), int(last or first) + 1))
+    return sorted(numbers)
+
+
+def run(plan_path, out, limit=None, only_groups=None):
+    """Run the scheduled instances not yet done; stop at the end of the round so the staged decision can be taken.
+    `only_groups` (sampling, recovery after an interrupted instance): run just those groups, into a fresh `out`;
+    the result covers those groups only and is merged with the interrupted instance's finished groups by hand."""
     plan, data, conditions = load_plan(plan_path)
+    if only_groups:
+        if plan['workload'] != 'sampling':
+            raise ValueError('--groups applies to the sampling workload only')
+        plan = {**plan, 'only_groups': only_groups}
     if (plan.get('authorization') or {}).get('approved') is not True:
         raise ValueError('This plan is not approved for model runs')
     out = Path(out).resolve()
@@ -621,11 +639,12 @@ def main():
             p.add_argument('--out', type=Path, required=True)
         if command == 'run':
             p.add_argument('--limit', type=int)
+            p.add_argument('--groups', type=parse_groups, help="sampling recovery: run only these groups, e.g. 7-10")
     args = parser.parse_args()
     if args.command == 'check':
         result = check(args.plan)
     elif args.command == 'run':
-        result = run(args.plan, args.out, args.limit)
+        result = run(args.plan, args.out, args.limit, args.groups)
     else:
         result = decide(args.out, args.plan)
     print(json.dumps(result, ensure_ascii=False, indent=2))
