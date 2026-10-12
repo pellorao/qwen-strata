@@ -302,13 +302,21 @@ def run_window(plan, data, spec, folder, args_for, key, mark):
     return {'score': sum(r['correct'] for r in rows) / len(rows), 'lengths': results}
 
 
+def loaded_startup_sha():
+    """The engine loads the startup prompt without the deprecated loop prevention block."""
+    import sys
+    sys.path.append(str(Path(__file__).resolve().parents[2] / 'src'))
+    from startup_instructions import startup_prompt_bytes
+    return sha(startup_prompt_bytes(STARTUP.read_bytes(), False))
+
+
 def engine_effect(log, health, spec, condition, configuration):
     """Engine window, startup prompt and (sampling) deployed request defaults as the engine actually ran them."""
     from tools.metrics.prompt_policy import verify_loaded_startup
     from tools.tuning.arw_dimension import verify_effect
     problems = []
     try:
-        verify_loaded_startup(health.get('startup_instructions'), sha(STARTUP.read_bytes()))
+        verify_loaded_startup(health.get('startup_instructions'), loaded_startup_sha())
     except ValueError as error:
         problems.append(str(error))
     if health.get('max_context') not in (None, spec['context_window']):

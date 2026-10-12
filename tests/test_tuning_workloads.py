@@ -202,6 +202,14 @@ def call(cmd):
 
 
 class CodexWorkloadTest(unittest.TestCase):
+    def test_loaded_startup_sha_excludes_deprecated_loop_block(self):
+        import sys
+        sys.path.append(str(codex_workload.STARTUP.parents[2] / 'src'))
+        from startup_instructions import startup_prompt_bytes
+        raw = codex_workload.STARTUP.read_bytes()
+        self.assertEqual(codex_workload.loaded_startup_sha(), codex_workload.sha(startup_prompt_bytes(raw, False)))
+        self.assertNotEqual(codex_workload.loaded_startup_sha(), codex_workload.sha(raw))
+
     def analyse(self, events):
         with tempfile.NamedTemporaryFile('w', suffix='.jsonl', delete=False) as f:
             f.write(rollout_lines(events))
