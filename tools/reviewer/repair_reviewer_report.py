@@ -12,7 +12,8 @@ the original report is never changed.
       its ranges as pairs: each such [a, b] becomes [[a, b]]. Reports that
       mostly use nested ranges keep their pairs as two single lines.
 
-Markdown reports (Code Spec, user 2026-10-12): everything before the first
+Markdown reports (every markdown report scenario, such as Code Spec and
+Code Standards; user 2026-10-12): everything before the first
 finding (a line starting with `1. ` style numbering or `- `) is a preamble
 such as a title or scope note and is removed. Findings and their evidence
 locators stay as written; locator errors still count.
