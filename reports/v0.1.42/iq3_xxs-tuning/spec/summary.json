@@ -182,9 +182,9 @@
    ]
   },
   "4": {
-   "batch_score": 0.8527,
+   "batch_score": 0.7365,
    "mean": {
-    "score": 0.8527,
+    "score": 0.7365,
     "work_min": 14.7167,
     "requests": 43.6667,
     "uncached_input": 183694.3333,
@@ -200,7 +200,7 @@
     "work_ms_per_output_token": 11.2
    },
    "stdev": {
-    "score": 0.0257,
+    "score": 0.179,
     "work_min": 8.5554,
     "engine_in_tps": 268.0367,
     "engine_out_tps": 2.4111,
@@ -281,9 +281,9 @@
     {
      "rep": 3,
      "slot": 11,
-     "score": 0.878666207660526,
-     "problemDetectionRate": 0.8745331869097115,
-     "cleanAcceptanceRate": 0.8955964687185418,
+     "score": 0.5303174536634533,
+     "problemDetectionRate": 0.4880098954282257,
+     "cleanAcceptanceRate": 0.811846537155936,
      "work_min": 8.53,
      "requests": 26,
      "uncached": 53620,
@@ -311,10 +311,8 @@
      "work_started": "2026-10-11T22:16:02",
      "report_format_issue": "evidence ranges written as \"lines\":[a,b] (50 rows)",
      "score_before_rule_change": 0.5303174536634533,
-     "format_normalization": {
-      "kind": "pair-as-range",
-      "count": 52
-     }
+     "format_normalization": null,
+     "locator_rule_change": "2026-10-12: top-level [a,b] is two lines per ARW; pair-as-range repair withdrawn; rescored on the original with identical candidates (21) and original adjudication"
     }
    ]
   },
@@ -456,9 +454,9 @@
    ]
   },
   "6": {
-   "batch_score": 0.8271,
+   "batch_score": 0.7176,
    "mean": {
-    "score": 0.8271,
+    "score": 0.7176,
     "work_min": 11.9767,
     "requests": 38.3333,
     "uncached_input": 150202.3333,
@@ -474,7 +472,7 @@
     "work_ms_per_output_token": 11.4
    },
    "stdev": {
-    "score": 0.0158,
+    "score": 0.1742,
     "work_min": 4.3035,
     "engine_in_tps": 209.833,
     "engine_out_tps": 4.0632,
@@ -519,9 +517,9 @@
     {
      "rep": 2,
      "slot": 8,
-     "score": 0.8449873554908481,
-     "problemDetectionRate": 0.8302246716227832,
-     "cleanAcceptanceRate": 0.9096901708577239,
+     "score": 0.5165142610834763,
+     "problemDetectionRate": 0.47506791398002884,
+     "cleanAcceptanceRate": 0.7933825297909045,
      "work_min": 12.86,
      "requests": 41,
      "uncached": 207917,
@@ -549,10 +547,8 @@
      "work_started": "2026-10-11T21:31:49",
      "report_format_issue": "evidence ranges written as \"lines\":[a,b] (57 rows)",
      "score_before_rule_change": 0.5165142610834763,
-     "format_normalization": {
-      "kind": "pair-as-range",
-      "count": 57
-     }
+     "format_normalization": null,
+     "locator_rule_change": "2026-10-12: top-level [a,b] is two lines per ARW; pair-as-range repair withdrawn; rescored on the original with identical candidates (21) and original adjudication"
     },
     {
      "rep": 3,
@@ -594,18 +590,19 @@
  },
  "decision": {
   "winner": "spec 4",
-  "rule": "frozen winner rule: spec-5 trails best by 0.0807 > 0.08 and is out; 3/4/6 within 0.08 compared by speed",
+  "rule": "parameter does not affect output (greedy: drafts kept only when equal to the model's token; Strata DETAILS.md): select by engine output tok/s, score only for anomaly detection (user 2026-10-12); spec 4 fastest 105.9",
   "tie_break": "within 0.08: engine output tok/s is the primary criterion; work time is not a strong criterion (user confirmed 2026-10-11)",
   "withdrawn": "spec 3 was adopted earlier on 2026-10-11 under the old scoring (0.848 vs 0.737) and deployed; withdrawn after the scoring change",
   "main": "spec 4",
   "independent_review": "spec 4",
   "deployed": "2026-10-11, config/deployments/rtx3080ti.json model_overrides.IQ3_XXS \"spec\": 4 (explicit), read back, source SHAs verified, lease free, no model loaded",
-  "user": "confirmed spec 4 on 2026-10-11"
+  "user": "confirmed spec 4 on 2026-10-11",
+  "locator_rule_change": "2026-10-12: slots 8/11 rescored on originals (pair = two lines): spec 3 0.848, 4 0.737, 5 0.772, 6 0.718; low scores each from one instance's report writing, not a program error; selection unchanged (speed)"
  },
  "raw_details_boundary": "Raw rollouts, engine logs and per-slot scoring live only in .tmp/dims5-7/ and may be deleted; this file holds all numbers needed to recompute the table.",
  "scoring_recheck": {
   "date": "2026-10-12",
   "rule": ".claude/rules/measurement.md 评分口径：调参取 ARW 扣罚前分（scoreBeforePenalty）",
-  "result": "every instance score equals F2(problemDetectionRate, cleanAcceptanceRate) = scoreBeforePenalty (|diff| < 0.0006); no remaining report diagnostics after normalization; scores and conclusion unchanged"
+  "result": "pre-penalty: every instance score equals F2 (no x0.9). Locator rule 2026-10-12: pair-as-range withdrawn, slots 8/11 rescored on originals; selection by speed unchanged"
  }
 }
