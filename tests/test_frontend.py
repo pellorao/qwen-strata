@@ -151,22 +151,23 @@ class LeaseTests(unittest.TestCase):
 
 
 class DefaultTests(unittest.TestCase):
-    installed = {'reasoning_effort': 'high', 'reasoning_budget_tokens': 28672}
+    installed = {'reasoning_effort': 'high', 'reasoning_budget_tokens': 8192, 'max_tokens': 24576}
 
-    def test_installed_effort_uses_installed_budget_and_leaves_output_to_strata(self):
+    def test_installed_effort_uses_installed_budget_and_output(self):
         body = frontend.apply_reasoning_defaults({}, '/v1/responses', self.installed)
-        self.assertEqual(body, {'reasoning': {'effort': 'high'}, 'reasoning_budget_tokens': 28672})
-
-    def test_installed_output_limit_is_still_filled(self):
-        body = frontend.apply_reasoning_defaults({}, '/v1/chat/completions', dict(self.installed, max_tokens=24576))
-        self.assertEqual((body['max_tokens'], body['reasoning_budget_tokens']), (24576, 28672))
+        self.assertEqual(body, {'reasoning': {'effort': 'high'}, 'reasoning_budget_tokens': 8192,
+                                'max_output_tokens': 24576})
+        body = frontend.apply_reasoning_defaults({}, '/v1/chat/completions', self.installed)
+        self.assertEqual((body['max_tokens'], body['reasoning_budget_tokens']), (24576, 8192))
 
     def test_other_effort_uses_table_and_explicit_output_caps_budget(self):
         body = frontend.apply_reasoning_defaults({'reasoning_effort': 'low'}, '/v1/chat/completions', self.installed)
-        self.assertEqual(body, {'reasoning_effort': 'low', 'reasoning_budget_tokens': 28672})
+        self.assertEqual(body, {'reasoning_effort': 'low', 'max_tokens': 8192, 'reasoning_budget_tokens': 2048})
+        body = frontend.apply_reasoning_defaults({'reasoning_effort': 'medium'}, '/v1/chat/completions', self.installed)
+        self.assertEqual((body['max_tokens'], body['reasoning_budget_tokens']), (16384, 4096))
         body = frontend.apply_reasoning_defaults({'reasoning_effort': 'medium', 'max_tokens': 4000},
                                                  '/v1/chat/completions', self.installed)
-        self.assertEqual(body['reasoning_budget_tokens'], 2000)
+        self.assertEqual((body['max_tokens'], body['reasoning_budget_tokens']), (4000, 2000))
 
     def test_none_and_unknown_efforts_are_refused(self):
         for effort in ('none', 'minimal'):
@@ -177,32 +178,35 @@ class DefaultTests(unittest.TestCase):
             frontend.apply_reasoning_defaults({'reasoning': {'effort': 'none'}}, '/v1/responses', self.installed)
 
     @staticmethod
-    def codex_request(thread_source, **body):
+    def codex_request(thread_source, effort='low', **body):
         turn = {'session_id': 's', 'thread_id': 't', 'request_kind': 'turn', 'thread_source': thread_source}
-        return dict(body, reasoning={'effort': 'low'}, client_metadata={'x-codex-turn-metadata': json.dumps(turn)})
+        return dict(body, reasoning={'effort': effort},
+                    client_metadata={'x-codex-turn-metadata': json.dumps(turn)})
 
     def test_guardian_is_told_by_turn_metadata_and_gets_its_own_limits(self):
         guarded = dict(self.installed, guardian_reasoning_budget_tokens=1536, guardian_max_tokens=2048)
-        body = frontend.apply_reasoning_defaults(self.codex_request('guardian_review'), '/v1/responses', guarded)
-        self.assertEqual((body['reasoning_budget_tokens'], body['max_output_tokens']), (1536, 2048))
-        # The main thread at the same effort keeps the effort's budget and leaves output to Strata.
-        body = frontend.apply_reasoning_defaults(self.codex_request('user'), '/v1/responses', guarded)
-        self.assertEqual((body['reasoning_budget_tokens'], body.get('max_output_tokens')), (28672, None))
+        for effort in ('low', 'high'):
+            body = frontend.apply_reasoning_defaults(self.codex_request('guardian_review', effort),
+                                                     '/v1/responses', guarded)
+            self.assertEqual((body['reasoning_budget_tokens'], body['max_output_tokens']), (1536, 2048))
+        # The main thread at the installed effort keeps the installed limits.
+        body = frontend.apply_reasoning_defaults(self.codex_request('user', 'high'), '/v1/responses', guarded)
+        self.assertEqual((body['reasoning_budget_tokens'], body['max_output_tokens']), (8192, 24576))
         # Prompt text alone never makes a request a guardian one.
         body = frontend.apply_reasoning_defaults(
             {'reasoning': {'effort': 'low'}, 'instructions': 'You are judging one planned coding-agent action.'},
             '/v1/responses', guarded)
-        self.assertEqual(body['reasoning_budget_tokens'], 28672)
+        self.assertEqual((body['reasoning_budget_tokens'], body['max_output_tokens']), (2048, 8192))
         # A guardian request's own limits win.
         body = frontend.apply_reasoning_defaults(self.codex_request('guardian_review', max_output_tokens=1000),
                                                  '/v1/responses', guarded)
         self.assertEqual((body['reasoning_budget_tokens'], body['max_output_tokens']), (500, 1000))
         # Without guardian defaults in the installation it is an ordinary low request; bad metadata is ignored.
         body = frontend.apply_reasoning_defaults(self.codex_request('guardian_review'), '/v1/responses', self.installed)
-        self.assertEqual(body['reasoning_budget_tokens'], 28672)
+        self.assertEqual(body['reasoning_budget_tokens'], 2048)
         broken = dict(self.codex_request('guardian_review'), client_metadata={'x-codex-turn-metadata': '{'})
         self.assertEqual(frontend.apply_reasoning_defaults(broken, '/v1/responses', guarded)['reasoning_budget_tokens'],
-                         28672)
+                         2048)
 
     def test_explicit_budget_is_kept(self):
         body = frontend.apply_reasoning_defaults({'reasoning_budget_tokens': 1}, '/v1/chat/completions', self.installed)
@@ -213,9 +217,12 @@ class DefaultTests(unittest.TestCase):
         sent = {'max_tokens': 57344, 'thinking': {'type': 'adaptive', 'display': 'omitted'},
                 'output_config': {'effort': 'high'}}
         body = frontend.apply_messages_budget(dict(sent), self.installed)
-        self.assertEqual(body, dict(sent, reasoning_budget_tokens=28672))
-        body = frontend.apply_messages_budget({'max_tokens': 32000, 'output_config': {'effort': 'max'}}, self.installed)
-        self.assertEqual(body['reasoning_budget_tokens'], 16000)
+        self.assertEqual(body, dict(sent, reasoning_budget_tokens=8192))
+        body = frontend.apply_messages_budget({'max_tokens': 32000, 'output_config': {'effort': 'medium'}},
+                                              self.installed)
+        self.assertEqual(body['reasoning_budget_tokens'], 4096)
+        body = frontend.apply_messages_budget({'max_tokens': 6000, 'output_config': {'effort': 'max'}}, self.installed)
+        self.assertEqual(body['reasoning_budget_tokens'], 3000)
 
     def test_messages_keep_a_smaller_budget_and_leave_disabled_thinking_alone(self):
         body = frontend.apply_messages_budget(
@@ -223,7 +230,7 @@ class DefaultTests(unittest.TestCase):
         self.assertEqual(body['reasoning_budget_tokens'], 4096)
         body = frontend.apply_messages_budget(
             {'max_tokens': 57344, 'thinking': {'type': 'enabled', 'budget_tokens': 100000}}, self.installed)
-        self.assertEqual(body['reasoning_budget_tokens'], 28672)
+        self.assertEqual(body['reasoning_budget_tokens'], 8192)
         off = {'max_tokens': 512, 'thinking': {'type': 'disabled'}}
         self.assertEqual(frontend.apply_messages_budget(dict(off), self.installed), off)
         own = {'max_tokens': 57344, 'reasoning_budget_tokens': 0}

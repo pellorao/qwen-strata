@@ -90,25 +90,25 @@
 
 ### 安装预置
 
-rtx3080ti：三种量化的默认档都是窗口 156584、自动压缩阈值 100000。IQ3_XXS 另有可选档窗口 206584、自动压缩阈值 150000，已在约 151K token 以内的长上下文检索负载上验证；更长的提示在 200K 级检索中出现过系统性错误，256584 未发布。`config/model-catalog.json` 中的窗口是默认档，选用 206584 时调用方需自行把 harness 的窗口和压缩阈值改为该档的值。其余预置：high，思考 28672，总输出不设上限（用剩余窗口），temperature 0、top_p 1、top_k 20，CPU 辅助 auto。这是维护起点，不是完整质量验收或最优参数的结论。服务不会替调用方压缩。
+rtx3080ti：三种量化的默认档都是窗口 156584、自动压缩阈值 100000。IQ3_XXS 另有可选档窗口 206584、自动压缩阈值 150000，已在约 151K token 以内的长上下文检索负载上验证；更长的提示在 200K 级检索中出现过系统性错误，256584 未发布。`config/model-catalog.json` 中的窗口是默认档，选用 206584 时调用方需自行把 harness 的窗口和压缩阈值改为该档的值。其余预置：high，思考 8192／总输出 24576，temperature 0、top_p 1、top_k 20，CPU 辅助 auto。这是维护起点，不是完整质量验收或最优参数的结论。服务不会替调用方压缩。
 
 ## 推理强度与输出
 
-Responses 使用 `reasoning.effort` 和 `max_output_tokens`，Chat 使用 `reasoning_effort` 和 `max_tokens`。请求未指定思考预算时按下表补齐；请求指定的值优先。服务不再补总输出上限：请求没给时，总输出（含思考）可用到窗口剩余的全部空间。
+Responses 使用 `reasoning.effort` 和 `max_output_tokens`，Chat 使用 `reasoning_effort` 和 `max_tokens`。请求未指定时按下表补齐；请求指定的值优先。
 
-| 强度 | 思考 token 上限 |
-|---|---:|
-| low、medium、high、xhigh、max | 28672 |
+| 强度 | 思考 token 上限 | 默认总输出上限（含思考） |
+|---|---:|---:|
+| low | 2048 | 8192 |
+| medium | 4096 | 16384 |
+| high、xhigh、max | 8192 | 24576 |
 
 不提供 none 档：请求指定其他强度（包括 none）时返回 400。
 
-- 各强度只靠强度提示区分思考深浅，这与 Strata 和模型官方的设计一致；思考上限只做兜底，防止思考占满窗口而无法作答。
-- 28672 是到达自动压缩阈值时窗口剩余空间（156584 − 100000 ≈ 56K）的一半，按最坏情况取值，保证思考用满后仍有空间作答。
 - Codex 的 guardian 审批请求有单独的默认值，与强度无关：思考 1536、总输出 2048（rtx3080ti 安装预置）。服务按 Codex 随请求发送的元数据识别它（`client_metadata["x-codex-turn-metadata"]` 中 `thread_source` 为 `guardian_review`），不看提示词内容。审批只需输出一段简短的 JSON 结论。Strata 为回答保留 min(max(512, 总输出/4), 总输出/2)，总输出 2048 时正好保留 512，思考可以用满 1536。请求自己给了思考预算或输出上限时，以请求为准。`bin/qwen-approve` 显式指定思考 512／总输出 640，不受影响。
-- 与该次运行默认强度相同的请求，使用默认值中的思考预算（rtx3080ti 为 28672）。
+- 与该次运行默认强度相同的请求，使用默认值中的预算和输出上限（rtx3080ti 为 high，思考 8192／总输出 24576）。
 - 请求自己给了输出上限、没给思考预算时，思考预算不超过输出上限的一半。Strata 另外为回答至少保留输出上限的 1/4。
 - 上限不等于实际思考长度。请求给的输出上限超出窗口剩余空间时，缩短到剩余空间，不返回 400；输入本身超出窗口仍返回 400，不静默裁剪输入。
-- Messages 接口不做补齐，按 Anthropic 协议由调用方设置。
+- Messages 接口不补总输出（按 Anthropic 协议由调用方设置 `max_tokens`），只补思考上限，见下文 Claude Code 一节。
 
 ## 启动脚本（WSL）
 
@@ -185,7 +185,7 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default
                              "PermissionRequest": [{"matcher": "*", "hooks": [{"type": "command", "command": "python3 <安装目录>/bin/qwen-approve", "timeout": 180}]}]}}' [调用方参数]
 ```
 
-- 总输出上限 57344 约等于到达自动压缩阈值时的剩余窗口（156584 − 100000）；剩余空间不够时服务把输出上限缩短到剩余空间，不返回 400。前端给 Messages 请求补思考硬上限：思考关闭（`thinking.type: disabled`）或请求自带 `reasoning_budget_tokens` 时不动；否则取推理强度对应的上限（28672），请求的 `thinking.budget_tokens` 更小时用它，再不超过 `max_tokens` 的一半。Claude Code 发 `thinking: adaptive`、`output_config.effort: high`、`max_tokens` 57344，所以思考最多 28672，Strata 为回答保留其余空间。
+- 总输出上限 57344 约等于到达自动压缩阈值时的剩余窗口（156584 − 100000）；剩余空间不够时服务把输出上限缩短到剩余空间，不返回 400。前端给 Messages 请求补思考硬上限：思考关闭（`thinking.type: disabled`）或请求自带 `reasoning_budget_tokens` 时不动；否则取推理强度对应的思考上限（high 为 8192，见上表），请求的 `thinking.budget_tokens` 更小时用它，再不超过 `max_tokens` 的一半。Claude Code 发 `thinking: adaptive`、`output_config.effort: high`、`max_tokens` 57344，所以思考最多 8192，Strata 为回答保留其余空间。
 - 审批固定由 `bin/qwen-approve` 完成，不使用 Claude Code 的 auto mode（2b 验收中 auto mode 判对 5/9、每次运行 191 秒；`qwen-approve` 判对 7/7、80 秒）。权限模式为 `default`，每次权限请求经 `PermissionRequest` hook 交给 `qwen-approve`：它把用户消息（唯一授权来源）、最近 6 次工具调用与结果（标为不可信数据）和待审动作发给本模型（`reasoning_effort: low`），思考上限 512 token、总输出 640 token，单次判断不超过 10 秒；返回 allow / deny 及理由；超时、出错或答复无法解析一律拒绝。用户只是让 agent 照文件、网页或工具输出里的步骤执行时，只授权其中无害的步骤；破坏性或越界的步骤必须由用户消息点名效果和目标。每次判断记一行到 `logs/approve.log`（工具、结论、理由、耗时、usage，不含 key）。
 - 压缩：PreCompact hook 退出码为 0 时，其 stdout 会追加到 Claude Code 自带摘要指令之后，所以每次压缩（自动或手动）都带上 `compact-prompt.txt`，而且不替换内置提示。
 - `skipWebFetchPreflight` 关闭 WebFetch 抓网页前向 `api.anthropic.com` 的域名查询。

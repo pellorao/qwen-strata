@@ -23,11 +23,10 @@ BIND_RETRY = 10
 # 36 GB of SSD reads on rtx3080ti); it is stopped after this many idle minutes without a lease. 0 keeps it.
 IDLE_STOP_MINUTES = 30
 IDLE_CHECK_SECONDS = 30
-# Thinking budget per effort, used when a request names none. Total output is left to Strata, which uses the
-# room left in the window. 28672 is half the worst-case room left once compaction is due (156584 - 100000).
-# Efforts differ by their prompt, as in Strata and the model's own design; the cap is only a safety net.
+# Thinking budget and total output per effort, used when a request names neither.
 # There is no 'none' effort: every request thinks, and one asking for none is refused.
-EFFORT_BUDGETS = {'low': 28672, 'medium': 28672, 'high': 28672, 'xhigh': 28672, 'max': 28672}
+EFFORT_BUDGETS = {'low': (2048, 8192), 'medium': (4096, 16384),
+                  'high': (8192, 24576), 'xhigh': (8192, 24576), 'max': (8192, 24576)}
 GENERATION = ('/v1/chat/completions', '/v1/responses', '/v1/messages', '/v1/messages/count_tokens')
 
 
@@ -72,13 +71,13 @@ def apply_messages_budget(body, defaults):
     reasoning_budget_tokens.  A request that turns thinking off, or names its own budget, is left alone; a
     smaller budget_tokens is kept as the cap.  Messages always carry max_tokens, so the budget is at most half
     of it, and Strata keeps room for the answer (#984).  Claude Code sends thinking adaptive, effort high and
-    max_tokens CLAUDE_CODE_MAX_OUTPUT_TOKENS (57344 in the manual's example), which gives the full 28672."""
+    max_tokens CLAUDE_CODE_MAX_OUTPUT_TOKENS (57344 in the manual's example), which gives high's 8192."""
     thinking = body.get('thinking') if isinstance(body.get('thinking'), dict) else {}
     if thinking.get('type') == 'disabled' or 'reasoning_budget_tokens' in body:
         return body
     config = body.get('output_config') if isinstance(body.get('output_config'), dict) else {}
     effort = config.get('effort') or defaults.get('reasoning_effort', 'high')
-    budget = EFFORT_BUDGETS.get(effort, EFFORT_BUDGETS['high'])
+    budget = EFFORT_BUDGETS.get(effort, EFFORT_BUDGETS['high'])[0]
     if effort == defaults.get('reasoning_effort'):
         budget = defaults.get('reasoning_budget_tokens', budget)
     asked = thinking.get('budget_tokens')
@@ -104,7 +103,7 @@ def apply_reasoning_defaults(body, path, defaults):
         output = 'max_tokens'
     if effort not in EFFORT_BUDGETS:
         raise Refused(400, f'Unsupported reasoning effort {effort!r}; use one of {", ".join(EFFORT_BUDGETS)}.')
-    budget, total = EFFORT_BUDGETS[effort], None
+    budget, total = EFFORT_BUDGETS[effort]
     if guardian_request(body) and 'guardian_max_tokens' in defaults:
         # A guardian decision is a short JSON verdict, so its limits are its own, whatever effort it names.
         # Strata keeps min(max(512, total // 4), total // 2) of the total for the answer: a total of 2048
@@ -112,10 +111,9 @@ def apply_reasoning_defaults(body, path, defaults):
         budget, total = defaults['guardian_reasoning_budget_tokens'], defaults['guardian_max_tokens']
     elif effort == defaults.get('reasoning_effort'):
         budget = defaults.get('reasoning_budget_tokens', budget)
-        total = defaults.get('max_tokens')
+        total = defaults.get('max_tokens', total)
     explicit_output = body.get(output) is not None
-    if not explicit_output and total is not None:
-        body[output] = total
+    body.setdefault(output, total)
     if budget and 'reasoning_budget_tokens' not in body:
         body['reasoning_budget_tokens'] = min(budget, body[output] // 2) if explicit_output else budget
     return body
