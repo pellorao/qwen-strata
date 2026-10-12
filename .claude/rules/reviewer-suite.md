@@ -19,7 +19,7 @@ paths:
 - 能力验证和 benchmark 由 ARW 自己的 Strata provider 持有独占并启动模型（打了本工程接口补丁的 ARW，`selection.model_owner = "arw"`），引擎参数用安装目录的每机每量化默认值。实例之间不停模型，只允许 Strata 精确前缀缓存的复用，不复用上一个实例的上下文；token 按派发时刻切分的引擎日志段计算（用户 2026-10-11）。
 - 测量交接末尾追加冻结的测量说明（不发送中途消息、不需要运行标识、禁止查询环境变量和平台身份），记录 SHA；只追加，不改原版交接和 Role。
 - Reviewer 的命令环境用 Codex 原生 `shell_environment_policy.exclude` 去掉 `STRATA_API_KEY`（用户 2026-10-12；provider key 由 Codex 自己经 `env_key` 读取，命令不需要）。Codex 0.162.0 默认会把它传给命令，无模型探测已确认排除生效、`set` 的变量照常可见。
-- Spec Readiness 合并实例的定义：同一线程先跑 runtime-migration，再跑 artifact-promotion，两份报告分别绑定，按原版融合评分。
+- Spec Readiness 的 runtime-migration 与 artifact-promotion 各用全新根线程，互不可见，与 ARW 准备规则一致（每个 instanceId 一个独立线程和一次审核）；两份报告分别绑定，按原版融合评分。原"合并实例"（同一线程先 RM 后 AP）已停用（用户 2026-10-13）：它偏离 ARW，且有 AP 照搬 RM finding、引用 RM 专有约定的污染证据（[审查报告](../../reports/v0.1.42/spec-rule-audit/summary.md)）；此前用合并实例得到的 Spec Readiness 结果只在合并实例之间可比。
 
 ## 会话检查
 - 按冻结 ARW 的 `docs/agents/reviewer-capability-session-inspection.md` 检查每个原生会话：准备项、线程身份、启动上下文、交接后的全部消息、每次工具调用及结果、读写范围、报告和终态，并排查隐藏答案、其他实例等禁止来源。
