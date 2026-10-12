@@ -1,0 +1,43 @@
+{
+ "host": "rtx3080ti", "strata": "0.1.42", "codex": "0.162.0", "dates": ["2026-10-12", "2026-10-13"],
+ "criterion": {"ap_mean_output_min": 62000, "f6_ap_output": 41000, "also_requires_duration_recovery": true},
+ "startup_instructions_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+ "startup_source_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+ "conformance_sha256_prefix": "51e2e22b",
+ "located": false,
+ "step1": {
+  "plan": "benchmarks/resource-calibration-v1/iq3_xxs-spec-cause-2026-10-12/plan.json",
+  "model": "IQ3_XXS", "effort": "medium", "budget": "4096/16384",
+  "effect": {"budget_lines_4096": 1449, "budget_reached": 21, "guardian_requests": 0},
+  "adjudication": {"candidates": 40, "matched": 29},
+  "instances": [
+   {"rep": 1, "ap": {"work_min": 9.97, "requests": 33, "output": 46940, "uncached_input": 179626, "cached_input": 1749800, "gaps": 6, "budget_hits": 4, "score": 0.173, "pdr": 0.144}, "rm": {"work_min": 9.4, "output": 41156, "budget_hits": 4, "score": 0.904, "diagnostics": ["requirement-scope-continuation"]}, "fused_before_penalty": 0.3382, "fused_final": 0.3044, "compactions": 2},
+   {"rep": 2, "ap": {"work_min": 6.07, "requests": 21, "output": 27205, "uncached_input": 172937, "cached_input": 1187612, "gaps": 15, "budget_hits": 2, "score": 0.336, "pdr": 0.292}, "rm": {"work_min": 7.32, "output": 36573, "budget_hits": 4, "score": 0.965, "diagnostics": ["requirement-scope-continuation"]}, "fused_before_penalty": 0.4784, "fused_final": 0.4306, "compactions": 1},
+   {"rep": 3, "ap": {"work_min": 6.83, "requests": 16, "output": 30877, "uncached_input": 155010, "cached_input": 786678, "gaps": 10, "budget_hits": 4, "score": 0.276, "pdr": 0.234}, "rm": {"work_min": 4.66, "output": 22344, "budget_hits": 3, "score": 0.994, "diagnostics": []}, "fused_before_penalty": 0.4385, "fused_final": 0.4385, "compactions": 1}
+  ],
+  "means": {"ap_output": 35007, "ap_work_min": 7.62, "ap_score": 0.262, "fused_before_penalty": 0.4184, "fused_final": 0.3912}
+ },
+ "step2": {
+  "plan": "benchmarks/resource-calibration-v1/q2_0-spec-cause-2026-10-12/plan.json",
+  "model": "Q2_0", "effort": "high", "budget": "8192/24576",
+  "condition": {"id": "q2-iq3params", "sha256": "0e61e62ed2bd43578eb6e6c249f3e8e591984be882b5efd174e206cbd968cc95", "spec": 4, "spec_min_p": 0.9, "ple_io": "direct", "pcie_frac": null, "STRATA_ADAPT_LAG": 2, "vram_reserve_mib": 512},
+  "interruption": {"at": "2026-10-12T23:56:44", "cause": "external uncommitted edits to deployment source; MeasurementHost refused instance 3", "completed_handoffs": 4, "rerun": "new batch, 2026-10-13T00:03-00:15"},
+  "adjudication": {"original": {"candidates": 41, "matched": 27}, "rerun": {"candidates": 16, "matched": 9}},
+  "instances": [
+   {"rep": 1, "batch": "original", "ap": {"work_min": 13.04, "requests": 35, "output": 70945, "uncached_input": 319418, "cached_input": 1682790, "gaps": 14, "budget_hits": 6, "score": 0.526, "pdr": 0.478}, "rm": {"work_min": 6.08, "output": 33156, "budget_hits": 2, "score": 0.965, "diagnostics": ["requirement-scope-continuation"]}, "fused_before_penalty": 0.6220, "fused_final": 0.5598, "compactions": 2},
+   {"rep": 2, "batch": "original", "ap": {"work_min": 6.48, "requests": 24, "output": 34923, "uncached_input": 158059, "cached_input": 1155694, "gaps": 10, "budget_hits": 2, "score": 0.378, "pdr": 0.330, "tokens_from": "manual engine-log slice"}, "rm": {"work_min": 8.5, "output": 45575, "budget_hits": 2, "score": 0.968, "diagnostics": []}, "fused_before_penalty": 0.5113, "fused_final": 0.5113, "compactions": 2},
+   {"rep": 3, "batch": "rerun", "ap": {"work_min": 5.39, "requests": 20, "output": 28426, "uncached_input": 155187, "cached_input": 1047254, "gaps": 10, "budget_hits": 1, "score": 0.286, "pdr": 0.245}, "rm": {"work_min": 5.47, "output": 29003, "budget_hits": 2, "score": 0.701, "diagnostics": ["review-evidence-invalid", "review-evidence-invalid", "review-evidence-invalid"]}, "fused_before_penalty": 0.3791, "fused_final": 0.3412, "compactions": 1}
+  ],
+  "means": {"ap_output": 44765, "ap_work_min": 8.30, "ap_score": 0.397, "fused_before_penalty": 0.5041, "fused_final": 0.4708}
+ },
+ "baselines": {
+  "f6": {"instances": 5, "ap_output_batch_b": [39237, 42948], "ap_work_min_batch_b": [8.29, 9.05], "ap_score": 0.2923, "fused_before_penalty": 0.436, "fused_final": 0.4035},
+  "plan_a": {"instances": 3, "ap_output": [61102, 50923, 43285], "ap_score": 0.3916, "fused_before_penalty": 0.5106, "fused_final": 0.4595}
+ },
+ "ap_case_detection_rate_9_segments": [0.33, 0.78, 0.56, 1.0, 0.78, 0.33, 0.56, 0.33, 0.78, 0.22, 0.22, 0.0, 0.0, 0.0, 0.22, 0.0, 0.33, 0.0, 0.0, 0.0],
+ "ap_case_scopes": {"SPEC-READINESS-RATIONALE": [0], "SPEC-READINESS-ADR-EVALUATION": [1], "MODULE-DESIGN-APPLICABILITY": [2], "MODULE-DESIGN-EXEMPTION": [3], "MODULE-DESIGN-MODULES": [4], "MODULE-DESIGN-INTERFACES": [5, 11], "MODULE-DESIGN-SEAMS-ADAPTERS": [12, 13], "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW": [14, 15], "MODULE-DESIGN-RATIONALE": [16, 19]},
+ "ap_output_score_correlation": {"segments": 11, "r": 0.55},
+ "session_inspection": {"sessions": 6, "flagged_actions": 1, "flagged_action_judgement": "medium rep2 #5 workdir typo, process not created, no out-of-root read", "all_valid": true},
+ "unverified": ["STRATA_ADAPT_LAG in engine process environment", "step2 rep2 AP tokens from manual log slice", "v0.1.38 gap-per-check pattern", "case-to-scope mapping inferred from scope order"],
+ "final_state": {"default_deploy_restored": "2026-10-13T00:15:57", "condition": null, "files_read_back": 23, "lease": "free", "model": null}
+}
