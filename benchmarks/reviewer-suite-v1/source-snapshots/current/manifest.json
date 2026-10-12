@@ -1192,6 +1192,21 @@
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-runtime.md": "d4f8f7c8acbc9b99c66220eba503bc00d0a4e4b88ae650b5cbea8842aade3150",
         "tests/release/reviewer-capability-conformance.test.mjs": "1ef6a207f107aebbb727ea8b9829f5eb0f6b5a6dacd072318fa4fc2a795170a5"
       }
+    },
+    {
+      "file": "../../arw-patches/spec-readiness-v3.patch",
+      "sha256": "06b7a468ccc6b11f9126aaef0a44a97397c092df157eb246f7d587c693336d04",
+      "reason": "Spec Readiness capability scenario v3 (scenario revision 42), applied after v2: removes ambiguities found by the post-v2 audits (validation-report.md:31 Parser/renderReport relationship made explicit and justified at :90; runtime-migration.md:15/:45 authorization wording; RM validation-report.md:11 path wording; promotion-runtime.md:11 precondition wording; AP-only runtime-migration override aligned with the public result contracts; validation-report.md:100 no-ADR conclusion), narrows four expectations and turns SEAMS#0 into placements. Three rounds of the ARW two-stage fixture review. Change note: benchmarks/reviewer-suite-v1/spec-readiness-v3.md. Scores are comparable only within v3.",
+      "result": {
+        "lib/release/reviewer-capability-conformance.mjs": "8a4c33f6d014ac0fa98da322b57dceef0ec5aad3c9e9d174ec2d77d88a767a0f",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/expected.json": "d3f56d39f60d58c9772094709d388df4f150f74d260babb89f898da3c4ebd46a",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/base/specs/validation-report.md": "d9d10a98fb347bb2b45500e01847db9dfee838836000e9343ddcf76db7071509",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/promotion-runtime.md": "c36abf385078ff9ed8eeb915a21f71b8941895fa6a0897647bd5baaf81bc128a",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/runtime-migration.md": "9e8573dd30e71735bf0e40bbd973ace12b046eb35c8a656778be0a6bba325773",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/base/specs/validation-report.md": "780d8b4aeeb3dca65428f80b3f0f3aa6e9a5a6cce84b7979cc095562137d15b2",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-runtime.md": "c36abf385078ff9ed8eeb915a21f71b8941895fa6a0897647bd5baaf81bc128a",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/runtime-migration.md": "0144a22f142c1dfbcacc339666bf5693323e67e66782070274e50235a8400743"
+      }
     }
   ]
 }
