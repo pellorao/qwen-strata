@@ -1,4 +1,4 @@
-"""Format normalization of a Commit Audit report on an independent copy.
+"""Format normalization of a Reviewer report on an independent copy.
 
 Project scoring policy (user 2026-10-11): low-frequency, random representation
 slips do not count against the score. Only the way evidence lines are written
@@ -11,11 +11,17 @@ the original report is never changed.
       of strictly increasing integers rather than nested [[a, b]] ranges wrote
       its ranges as pairs: each such [a, b] becomes [[a, b]]. Reports that
       mostly use nested ranges keep their pairs as two single lines.
+
+Markdown reports (Code Spec, user 2026-10-12): everything before the first
+finding (a line starting with `1. ` style numbering or `- `) is a preamble
+such as a title or scope note and is removed. Findings and their evidence
+locators stay as written; locator errors still count.
 """
 import argparse
 import copy
 import hashlib
 import json
+import re
 from pathlib import Path
 
 RANGE_SHARE = 0.8
@@ -81,6 +87,30 @@ def normalize(rows):
     return rows, changes
 
 
+FINDING_START = re.compile(r'(?:[1-9][0-9]*\. |- )')
+
+
+def check_only_preamble_removed(original, normalized, changes):
+    """Round trip: the copy is the original minus the recorded leading lines,
+    and none of those lines starts a finding."""
+    lines = original.splitlines(keepends=True)
+    removed = changes[0]['before'] if changes else []
+    assert lines[:len(removed)] == removed, 'removed lines are not the leading lines'
+    assert not any(FINDING_START.match(line) for line in removed), 'removed lines include a finding'
+    assert normalized == ''.join(lines[len(removed):]), 'normalization changed more than the preamble'
+
+
+def normalize_markdown(text):
+    """Return the copy without the preamble and the list of changes."""
+    lines = text.splitlines(keepends=True)
+    first = next((i for i, line in enumerate(lines) if FINDING_START.match(line)), 0)
+    removed = lines[:first]
+    changes = [{'kind': 'markdown-preamble', 'before': removed}] if any(line.strip() for line in removed) else []
+    normalized = ''.join(lines[len(removed):]) if changes else text
+    check_only_preamble_removed(text, normalized, changes)
+    return normalized, changes
+
+
 def summary(changes):
     counts = {}
     for change in changes:
@@ -90,17 +120,22 @@ def summary(changes):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--report', type=Path, required=True, help='Original bound review.jsonl')
+    parser.add_argument('--report', type=Path, required=True, help='Original bound report (review.jsonl or .md)')
     parser.add_argument('--out', type=Path, required=True, help='Normalized copy (a new file)')
     args = parser.parse_args()
     raw = args.report.read_bytes()
-    rows = [json.loads(line) for line in raw.decode('utf-8').splitlines() if line.strip()]
-    normalized, changes = normalize(rows)
+    if args.report.suffix == '.md':
+        normalized, changes = normalize_markdown(raw.decode('utf-8'))
+        output = normalized
+    else:
+        rows = [json.loads(line) for line in raw.decode('utf-8').splitlines() if line.strip()]
+        normalized, changes = normalize(rows)
+        output = ''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in normalized)
     record = {'original': str(args.report), 'original_sha256': hashlib.sha256(raw).hexdigest(),
               'changes': summary(changes), 'details': changes}
     args.out.parent.mkdir(parents=True, exist_ok=True)
     if changes:
-        args.out.write_text(''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in normalized), encoding='utf-8')
+        args.out.write_text(output, encoding='utf-8')
         record['normalized'] = str(args.out)
         record['normalized_sha256'] = hashlib.sha256(args.out.read_bytes()).hexdigest()
     assert hashlib.sha256(args.report.read_bytes()).hexdigest() == record['original_sha256']

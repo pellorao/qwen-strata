@@ -1,8 +1,8 @@
 diff --git a/lib/release/reviewer-capability-conformance.mjs b/lib/release/reviewer-capability-conformance.mjs
-index 6f11157..a875453 100644
+index 6f11157..66a503c 100644
 --- a/lib/release/reviewer-capability-conformance.mjs
 +++ b/lib/release/reviewer-capability-conformance.mjs
-@@ -2563,11 +2563,13 @@ const validateFormatCorrectionSource = async (/** @type {{correction: FormatCorr
+@@ -2563,17 +2563,20 @@ const validateFormatCorrectionSource = async (/** @type {{correction: FormatCorr
          if (typeof instance.requestPath !== 'string') throw new Error('Prepared Commit Audit Request is unavailable.');
          const strict = await validateCommitAuditReview({git: scenarioGitRunner({repositoryRoot: instance.scenarioRoot, runCommand}),
              repositoryRoot: instance.scenarioRoot, requestPath: instance.requestPath, reviewPath: correction.originalReportPath});
@@ -20,3 +20,13 @@ index 6f11157..a875453 100644
      }
      const original = reviewerCapabilityVerificationCore.parseMarkdownArtifact({response: await readFile(correction.originalReportPath, 'utf8'),
          reviewerId, scope: instance.expected.scopes[0]?.scope});
+-    const diagnostics = original.reportDiagnostics ?? [];
+-    if (!diagnostics.some(item => item.code === 'review-format-invalid')) throw new Error('Original report has no verified representation error.');
+-    return bindReportDiagnostics(identity, diagnostics);
++    if (original.checks === undefined) throw new Error('Original report is unreadable or failed beyond its representation.');
++    // Project scoring policy: a preamble before the first finding is removed in the corrected copy and not penalized;
++    // evidence diagnostics come from the corrected copy and still count.
++    return [];
+ };
+ 
+ const zeroCapabilityScore = (/** @type {ExpectedFixture} */ expected) => {

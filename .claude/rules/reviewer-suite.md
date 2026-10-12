@@ -9,7 +9,7 @@ paths:
 
 ## 合同
 - 直接使用冻结 ARW 的原场景、完整规则、准备 / 生成 / 评分入口和 Reviewer 运行层。不裁剪用例。确实需要改变合同时，先列出差异并取得同意。
-- 评分 = 原版评分入口 + 本工程格式归一（用户 2026-10-11：去掉无法稳定评分的因素，不保留原版分数）。`tools.reviewer.repair_reviewer_report` 在绑定原实例的独立副本中归一证据行号写法；ARW 补丁 `format-normalized-scoring.patch` 让评分接受归一副本，不对格式错误扣分。取实例分 `score`。原报告不改，归一处数和类型标在分数旁。
+- 评分 = 原版评分入口 + 本工程格式归一（用户 2026-10-11：去掉无法稳定评分的因素，不保留原版分数）。`tools.reviewer.repair_reviewer_report` 在绑定原实例的独立副本中归一：JSONL 报告（Commit Audit）只归一证据行号写法；markdown 报告（Code Spec，用户 2026-10-12）只删除第一个编号或 `- ` 条目之前的前言（标题、范围说明等），往返断言确认只删了这段，证据定位写错（如写成时间比较）不归一、照扣。ARW 补丁 `format-normalized-scoring.patch` 让评分接受归一副本，不对原报告的格式错误扣分，副本自身的证据诊断照常计入；上游 5 个预期格式扣罚的 conformance 测试因此按设计失败。取实例分 `score`。原报告不改，归一处数和类型标在分数旁。
 - 权限沿用原生设置：`:read-only` 加显式写路径，审批走 on-request / auto_review；网络、搜索、MCP 保持原生。不额外收紧，不启用可选的严格隔离。
 - 正式能力测量之前，先确认所需的安全证据（原生沙箱行为、auto_review 审批质量）。见 `docs/plan.md`。
 
