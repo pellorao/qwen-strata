@@ -23,7 +23,9 @@ INSTALL = Path(__file__).resolve().parents[1]
 MODELS = {'Q2_0': 'q2_0', 'IQ2_XS': 'iq2_xs', 'IQ3_XXS': 'iq3_xxs'}
 CONTEXT_WINDOW = 156584
 AUTO_COMPACT = 100000
-MAX_OUTPUT = 24576
+# Total output per effort: the totals the frontend fills in for Codex (src/frontend.py EFFORT_BUDGETS).
+# Claude Code always sends its own max_tokens, so it is given the same value here.
+MAX_OUTPUT = {'low': 8192, 'medium': 16384, 'high': 24576}
 APPROVE_TIMEOUT = 180  # seconds Claude Code waits for bin/qwen-approve
 
 
@@ -90,7 +92,13 @@ def claude(frontend, model, effort, arguments):
         'ANTHROPIC_DEFAULT_SONNET_MODEL': model, 'ANTHROPIC_DEFAULT_HAIKU_MODEL': model,
         'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC': '1',
         # Unknown models are assumed to have a 200K window; declare the real limits.
-        'CLAUDE_CODE_MAX_CONTEXT_TOKENS': str(CONTEXT_WINDOW), 'CLAUDE_CODE_MAX_OUTPUT_TOKENS': str(MAX_OUTPUT),
+        'CLAUDE_CODE_MAX_CONTEXT_TOKENS': str(CONTEXT_WINDOW), 'CLAUDE_CODE_MAX_OUTPUT_TOKENS': str(MAX_OUTPUT[effort]),
+        # The same effort as Codex; --effort would last only until the first compaction.
+        'CLAUDE_CODE_EFFORT_LEVEL': effort,
+        # Compact at Codex's threshold.  Below a 200K window Claude Code 2.1.296 compacts only at its blocking
+        # limit (window - output reserve - 3000, about 133.6K here) and ignores CLAUDE_AUTOCOMPACT_PCT_OVERRIDE;
+        # this sets that limit, and a fake server showed compaction at 100.1K but not at 99.9K.
+        'CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE': str(AUTO_COMPACT),
     }
     return ['claude', *options, *arguments], environment
 
@@ -98,7 +106,7 @@ def claude(frontend, model, effort, arguments):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--model', choices=MODELS, default='IQ3_XXS')
-    parser.add_argument('--effort', choices=('low', 'medium', 'high'), default='high', help='Codex reasoning effort')
+    parser.add_argument('--effort', choices=('low', 'medium', 'high'), default='high', help='reasoning effort for either agent')
     parser.add_argument('agent', choices=('codex', 'claude'))
     parser.add_argument('arguments', nargs=argparse.REMAINDER)
     args = parser.parse_args()

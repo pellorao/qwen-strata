@@ -16,9 +16,12 @@ import urllib.request
 INSTALL = Path(__file__).resolve().parents[1]
 LOG = INSTALL / 'logs/approve.log'
 TIMEOUT = 150           # seconds for the model's answer; the hook itself is given 180
+# The same limits as Codex's guardian (installation guardian_* defaults): effort low, as Codex sends for its
+# guardian; Strata keeps min(max(512, total // 4), total // 2) of the total for the answer, so a total of
+# 1024 keeps 512 and leaves the full 512 for reasoning.  No sampling fields, as Codex sends none.
 EFFORT = 'low'
-THINKING = 512          # reasoning tokens; keeps one decision under 10 seconds
-MAX_TOKENS = 640        # reasoning plus the JSON answer
+THINKING = 512
+MAX_TOKENS = 1024
 RECENT_CALLS = 6        # tool calls (with their results) shown as context
 CLIP = 2000             # characters kept of each message, call or result
 

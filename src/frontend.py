@@ -106,8 +106,8 @@ def apply_reasoning_defaults(body, path, defaults):
     budget, total = EFFORT_BUDGETS[effort]
     if guardian_request(body) and 'guardian_max_tokens' in defaults:
         # A guardian decision is a short JSON verdict, so its limits are its own, whatever effort it names.
-        # Strata keeps min(max(512, total // 4), total // 2) of the total for the answer: a total of 2048
-        # keeps exactly 512 and leaves the thinking budget its full 1536.
+        # Strata keeps min(max(512, total // 4), total // 2) of the total for the answer: a total of 1024
+        # keeps 512 and leaves the thinking budget its full 512.  bin/qwen-approve uses the same limits.
         budget, total = defaults['guardian_reasoning_budget_tokens'], defaults['guardian_max_tokens']
     elif effort == defaults.get('reasoning_effort'):
         budget = defaults.get('reasoning_budget_tokens', budget)
