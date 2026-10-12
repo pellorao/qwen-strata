@@ -1,6 +1,6 @@
 import unittest
 
-from tools.reviewer.repair_reviewer_report import (check_only_lines_changed, check_only_preamble_removed, normalize,
+from tools.reviewer.repair_reviewer_report import (check_only_lines_changed, check_only_markdown_changes, normalize,
                                                    normalize_markdown)
 
 
@@ -91,9 +91,36 @@ class NormalizeMarkdownTest(unittest.TestCase):
         original = '# Title\n' + FINDINGS
         text, changes = normalize_markdown(original)
         with self.assertRaises(AssertionError):
-            check_only_preamble_removed(original, text.replace('first', 'changed'), changes)
+            check_only_markdown_changes(original, text.replace('first', 'changed'), changes)
         with self.assertRaises(AssertionError):
-            check_only_preamble_removed(original, text, [{'kind': 'markdown-preamble', 'before': ['# Title\n', '1. `a.mjs:3` - first\n']}])
+            check_only_markdown_changes(original, text, [{'kind': 'markdown-preamble', 'before': ['# Title\n', '1. `a.mjs:3` - first\n']}])
+
+
+SOURCES = {'src/a/one.mjs': 40, 'src/b/two.mjs': 10, 'src/b/same.mjs': 5, 'src/c/same.mjs': 5}
+
+
+class ShortLocatorTest(unittest.TestCase):
+    def test_unique_short_locators_in_range_get_their_directory(self):
+        text = '1. `src/a/one.mjs:3` - x\n   - fee at `one.mjs:20-26`, days at `two.mjs:1,3`\n'
+        fixed, changes = normalize_markdown(text, SOURCES)
+        self.assertEqual(fixed, '1. `src/a/one.mjs:3` - x\n   - fee at `src/a/one.mjs:20-26`, days at `src/b/two.mjs:1,3`\n')
+        self.assertEqual([c['kind'] for c in changes], ['short-evidence-path'] * 2)
+
+    def test_ambiguous_out_of_range_or_unknown_locators_stay(self):
+        text = '1. `src/a/one.mjs:3` - x\n   - `same.mjs:2`, `two.mjs:11`, `nine.mjs:1`, `:109`, `09:00 <= 11:00`\n'
+        self.assertEqual(normalize_markdown(text, SOURCES), (text, []))
+
+    def test_preamble_and_short_locators_are_both_recorded(self):
+        fixed, changes = normalize_markdown('# T\n\n1. `one.mjs:3` - x\n', SOURCES)
+        self.assertEqual(fixed, '1. `src/a/one.mjs:3` - x\n')
+        self.assertEqual([c['kind'] for c in changes], ['markdown-preamble', 'short-evidence-path'])
+
+    def test_round_trip_rejects_a_locator_rewritten_to_another_file(self):
+        text = '1. `one.mjs:3` - x\n'
+        fixed, changes = normalize_markdown(text, SOURCES)
+        changes[0]['after'] = '`src/b/two.mjs:3`'
+        with self.assertRaises(AssertionError):
+            check_only_markdown_changes(text, fixed, changes)
 
 
 if __name__ == '__main__':

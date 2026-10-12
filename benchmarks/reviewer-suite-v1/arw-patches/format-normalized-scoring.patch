@@ -1,8 +1,8 @@
 diff --git a/lib/release/reviewer-capability-conformance.mjs b/lib/release/reviewer-capability-conformance.mjs
-index 6f11157..66a503c 100644
+index 6f11157..a7991e2 100644
 --- a/lib/release/reviewer-capability-conformance.mjs
 +++ b/lib/release/reviewer-capability-conformance.mjs
-@@ -2563,17 +2563,20 @@ const validateFormatCorrectionSource = async (/** @type {{correction: FormatCorr
+@@ -2563,16 +2563,22 @@ const validateFormatCorrectionSource = async (/** @type {{correction: FormatCorr
          if (typeof instance.requestPath !== 'string') throw new Error('Prepared Commit Audit Request is unavailable.');
          const strict = await validateCommitAuditReview({git: scenarioGitRunner({repositoryRoot: instance.scenarioRoot, runCommand}),
              repositoryRoot: instance.scenarioRoot, requestPath: instance.requestPath, reviewPath: correction.originalReportPath});
@@ -14,19 +14,19 @@ index 6f11157..66a503c 100644
 +            throw new Error('Original report is unreadable or failed beyond its representation.');
          }
 -        return bindReportDiagnostics(identity, strict.diagnostics);
-+        // Project scoring policy: low-frequency representation slips are normalized in the corrected copy,
-+        // recorded by the project and not penalized; a syntactically valid original may also be normalized.
-+        return [];
++        // Project policy: a syntactically valid original may also be normalized (tuning scores read scoreBeforePenalty).
++        // The original's diagnostics are kept, so the upstream penalty still applies.
++        return strict.status === 'failed' ? bindReportDiagnostics(identity, strict.diagnostics) : [];
      }
      const original = reviewerCapabilityVerificationCore.parseMarkdownArtifact({response: await readFile(correction.originalReportPath, 'utf8'),
          reviewerId, scope: instance.expected.scopes[0]?.scope});
--    const diagnostics = original.reportDiagnostics ?? [];
+     const diagnostics = original.reportDiagnostics ?? [];
 -    if (!diagnostics.some(item => item.code === 'review-format-invalid')) throw new Error('Original report has no verified representation error.');
--    return bindReportDiagnostics(identity, diagnostics);
-+    if (original.checks === undefined) throw new Error('Original report is unreadable or failed beyond its representation.');
-+    // Project scoring policy: a preamble before the first finding is removed in the corrected copy and not penalized;
-+    // evidence diagnostics come from the corrected copy and still count.
-+    return [];
++    // Project policy: an evidence locator error that the project repairs mechanically (a short path with one match)
++    // is also a representation error; the original's diagnostics are kept, so the upstream penalty still applies.
++    if (!diagnostics.some(item => item.code === 'review-format-invalid' || item.code === 'review-evidence-invalid')) {
++        throw new Error('Original report has no verified representation error.');
++    }
+     return bindReportDiagnostics(identity, diagnostics);
  };
  
- const zeroCapabilityScore = (/** @type {ExpectedFixture} */ expected) => {
