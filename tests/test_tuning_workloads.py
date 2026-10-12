@@ -499,6 +499,69 @@ class CodexWorkloadTest(unittest.TestCase):
         self.assertTrue(rows[machine[1]['number']]['approx_from_remainder'])
         self.assertEqual(len(result['items']), len(data['items']))
 
+    def test_sampling_trace_is_checked_in_the_service_log(self):
+        spec = json.loads((Path(codex_workload.ROOT) / 'benchmarks/tuning-workloads-v1/sampling-pilot-plan.json')
+                          .read_text())['conditions']['sampling-greedy']
+        trace = 'missing log line: \\[native-sampling-trace\\][^\\n]*top_k=20'
+        args = ('engine lines only\n', {}, spec, None, {'args': []})
+        self.assertIn(trace, codex_workload.engine_effect(*args)[0])
+        problems = codex_workload.engine_effect(*args, '[native-sampling-trace] top_k=20\n')[0]
+        self.assertFalse([p for p in problems if 'native-sampling-trace' in p])
+        problems = codex_workload.engine_effect(*args, '[native-sampling-trace] temperature=0.6 top_k=20\n')[0]
+        self.assertTrue([p for p in problems if 'native-sampling-trace' in p])
+
+    def test_free_commit_gate_waits_outside_group_time_and_gives_up(self):
+        clock, slept, lines = [0.0], [], []
+        readings = iter([5.0, 7.9, 12.0])
+
+        def sleep(seconds):
+            slept.append(seconds)
+            clock[0] += seconds
+
+        waited = codex_workload.wait_for_free_commit(lambda: next(readings), 8, lines.append, sleep,
+                                                     lambda: clock[0])
+        self.assertEqual((waited, slept, len(lines)), (60.0, [30, 30], 2))
+        self.assertIn('5.0 GiB < 8 GiB', lines[0])
+        self.assertEqual(codex_workload.wait_for_free_commit(lambda: 8.0, 8, lines.append, sleep, lambda: 0.0), 0.0)
+        clock[0] = 0.0
+        with self.assertRaisesRegex(RuntimeError, 'below 8 GiB for 600 s'):
+            codex_workload.wait_for_free_commit(lambda: 2.0, 8, lambda line: None, sleep, lambda: clock[0])
+        self.assertEqual(clock[0], codex_workload.COMMIT_WAIT_LIMIT_SECONDS)
+
+    def test_sampling_gate_runs_before_each_group_and_its_failure_stops_the_run(self):
+        bank = sampling_bank.build(7, 1)
+        data = sampling_bank.select(bank, sampling_bank.grouped(bank))
+        plan = {'group_size': 2, 'group_seconds_per_tier': 30, 'only_groups': [1, 2, 3]}
+        events = []
+
+        def fake_exec(args, workspace, home, key, prompt, log, timeout, resume=None):
+            events.append('exec')
+            path = Path(home) / 'sessions/2026/10/12/rollout-a.jsonl'
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text('')
+            return 0, 'thread', 1.0
+
+        def gate():
+            events.append('gate')
+            if events.count('gate') == 3:
+                raise RuntimeError('commit exhausted')
+            return 12.5
+
+        original = codex_workload.codex_exec
+        codex_workload.codex_exec = fake_exec
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                result = codex_workload.run_sampling({**plan, 'only_groups': [1]}, data, {'context_window': 156584},
+                                                     Path(tmp) / 'a', lambda here: [], 'k', lambda: 0, lambda: 0,
+                                                     gate)
+                with self.assertRaisesRegex(RuntimeError, 'commit exhausted'):
+                    codex_workload.run_sampling(plan, data, {'context_window': 156584}, Path(tmp) / 'b',
+                                                lambda here: [], 'k', lambda: 0, lambda: 0, gate)
+        finally:
+            codex_workload.codex_exec = original
+        self.assertEqual(events, ['gate', 'exec', 'gate', 'exec', 'gate'])
+        self.assertEqual((result['groups'][0]['commit_wait_seconds'], result['groups'][0]['seconds']), (12.5, 1.0))
+
     def test_wait_engine_idle_polls_native_status(self):
         import http.server
         import threading

@@ -48,6 +48,14 @@ class Controller:
             self.model_alive_clock.observe(status=='running',confirmed_at,estimated=True,bounds=bounds)
         return result
 
+    @classmethod
+    def resume(cls, folder):
+        """The holder whose key a run that died left in `folder`, to finish its release (base URL from the same file)."""
+        saved = json.loads((Path(folder) / 'controller-key.private.json').read_text())
+        owner = cls('', folder, base_url=saved['base_url'])
+        owner.key = saved['key']
+        return owner
+
     def __enter__(self):
         fd = os.open(self.credential, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         try:

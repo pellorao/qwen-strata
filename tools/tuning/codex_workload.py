@@ -12,7 +12,7 @@ same-direction items (one direction x tier cell for size 5), one fresh Codex ses
 per-item correctness, time and tokens.
 
     python3 -m tools.tuning.codex_workload check --plan PLAN
-    python3 -m tools.tuning.codex_workload run --plan PLAN --out DIR [--limit N]
+    python3 -m tools.tuning.codex_workload run --plan PLAN --out DIR [--limit N] [--groups 7-10]
     python3 -m tools.tuning.codex_workload decide --out DIR
 """
 import argparse
@@ -38,6 +38,9 @@ TIERS = {156584: 100000, 206584: 150000}
 KILL_GRACE_SECONDS = 5          # SIGTERM to the session's process group, then SIGKILL
 ENGINE_IDLE_LIMIT_SECONDS = 120  # a cancelled request must leave Strata idle within this
 GROUP_ATTEMPTS = 2              # a compacted sampling group is invalid and rerun once in a fresh session
+MIN_FREE_COMMIT_GIB = 8         # default plan `min_free_commit_gib`: a group starts only with this much Windows commit
+COMMIT_POLL_SECONDS = 30        # below it the group waits, rechecking this often
+COMMIT_WAIT_LIMIT_SECONDS = 600  # and the instance fails after this long (exhausted commit crashed WSL, 2026-10-12)
 
 
 def sha(raw):
@@ -363,13 +366,29 @@ def approximate_seconds(part, workspace, started, seconds):
     return {**gaps, **{i: left / len(missing) for i in missing}}, set(missing)
 
 
-def run_sampling(plan, data, spec, folder, args_for, key, mark, settle):
+def wait_for_free_commit(read, minimum_gib, log=print, sleep=time.sleep, clock=time.monotonic):
+    """Block while Windows' free commit (`read()`, GiB) is below `minimum_gib`, logging each recheck; give up with an
+    error after COMMIT_WAIT_LIMIT_SECONDS.  Returns the seconds waited, which a group's time leaves out."""
+    began = clock()
+    while (free := read()) < minimum_gib:
+        waited = clock() - began
+        if waited >= COMMIT_WAIT_LIMIT_SECONDS:
+            raise RuntimeError(f'Windows free commit stayed below {minimum_gib} GiB for {waited:.0f} s '
+                               f'(now {free:.1f} GiB)')
+        log(f'{datetime.now():%H:%M:%S} Windows free commit {free:.1f} GiB < {minimum_gib} GiB; '
+            f'waiting {waited:.0f} s so far')
+        sleep(COMMIT_POLL_SECONDS)
+    return clock() - began
+
+
+def run_sampling(plan, data, spec, folder, args_for, key, mark, settle, gate=lambda: 0.0):
     """The set in groups of `group_size` same-direction items (`groups`), each in a fresh Codex session whose
     workspace holds only that group; the model reads and answers them in any order, together if it likes.  A group's hard limit is the sum of its tiers times
     `group_seconds_per_tier`: at the limit the session is killed, `settle()` waits until Strata has cancelled the
     generation, and the group is scored on what it wrote.  Group time is exact and `mark()` around the session
     attributes its engine tokens; per-item time is approximate (write intervals).  A compacted group is invalid and
-    rerun in a fresh session; if every attempt compacts the instance fails its effect check."""
+    rerun in a fresh session; if every attempt compacts the instance fails its effect check.  `gate()` runs before
+    each attempt, outside its time (the free commit wait)."""
     rows, runs = [], []
     only = plan.get('only_groups')  # recovery: run just these group numbers (numbering of the full set kept)
     for g, group in enumerate(groups(data['items'], plan['group_size']), 1):
@@ -382,6 +401,7 @@ def run_sampling(plan, data, spec, folder, args_for, key, mark, settle):
             home.mkdir(parents=True)
             sampling_bank.export(part, workspace)
             subprocess.run(['git', 'init', '-q'], cwd=workspace, check=True)
+            waited = gate()
             log_start, started = mark(), time.time()
             code, thread, seconds = codex_exec(args_for(here), workspace, home, key, group_prompt(group, limit),
                                                here / 'codex.jsonl', limit)
@@ -393,7 +413,7 @@ def run_sampling(plan, data, spec, folder, args_for, key, mark, settle):
             analysis['escapes'] = escapes(analysis['calls'], workspace)
             save(here / 'session-analysis.json', analysis)
             run = {'group': g, 'attempt': attempt, 'items': [x['number'] for x in group], 'thread': thread,
-                   'exit': code, 'seconds': seconds, 'limit_seconds': limit, 'timed_out': timed_out,
+                   'exit': code, 'seconds': seconds, 'commit_wait_seconds': waited, 'limit_seconds': limit, 'timed_out': timed_out,
                    'engine_idle_after_seconds': idle_seconds, 'log_bytes': [log_start, log_end],
                    'context_after': context_tokens(path), 'compactions': len(analysis['compactions']),
                    'valid': not analysis['compactions'], 'escapes': len(analysis['escapes']),
@@ -465,7 +485,7 @@ def loaded_startup_sha():
     return sha(startup_prompt_bytes(STARTUP.read_bytes(), False))
 
 
-def engine_effect(log, health, spec, condition, configuration):
+def engine_effect(log, health, spec, condition, configuration, service_log=''):
     """Engine window, startup prompt and (sampling) deployed request defaults as the engine actually ran them."""
     from tools.metrics.prompt_policy import verify_loaded_startup
     from tools.tuning.arw_dimension import verify_effect
@@ -477,7 +497,7 @@ def engine_effect(log, health, spec, condition, configuration):
     if health.get('max_context') not in (None, spec['context_window']):
         problems.append(f'native health reports max_context {health.get("max_context")}')
     checks = {'context_window': spec['context_window'], **spec.get('checks', {})}
-    effect = verify_effect(log, [], condition or {}, configuration, checks)
+    effect = verify_effect(log, [], condition or {}, configuration, checks, service_log)
     return problems + effect['problems'], effect
 
 
@@ -514,16 +534,19 @@ def run_instance(plan, data, conditions, name, folder):
     owner = host.controller(folder / 'controller')
     record = {'condition': name, 'condition_sha256': digest, 'started': datetime.now().isoformat(timespec='seconds')}
     with owner:
-        offset = host.log_offset(plan['model'])
+        offset, service_offset = host.log_offset(plan['model']), host.log_offset()
         try:
             state, load = owner.start(model=plan['model'], context_window=spec['context_window'])
             health = state.get('native_health') or {}
             save(folder / 'start.json', {'status': state.get('status'), 'load_seconds': load, 'native_health': health})
             args_for = lambda here: codex_overrides(plan, spec, here, owner.model_base + '/v1')
             runner = run_sampling if plan['workload'] == 'sampling' else run_window
+            extra = {'gate': lambda: wait_for_free_commit(host.free_commit_gib, plan.get('min_free_commit_gib',
+                                                                                          MIN_FREE_COMMIT_GIB))
+                     } if runner is run_sampling else {}
             began = time.monotonic()
             record.update(runner(plan, data, spec, folder, args_for, owner.key, lambda: host.log_offset(plan['model']),
-                                 lambda: wait_engine_idle(owner.model_base, owner.key)))
+                                 lambda: wait_engine_idle(owner.model_base, owner.key), **extra))
             record['session_seconds'] = time.monotonic() - began
         finally:
             stopped, requests, tokens = stop_and_capture_engine_log(owner, host.installation, plan['model'], offset,
@@ -531,10 +554,12 @@ def run_instance(plan, data, conditions, name, folder):
             record.update(stop=stopped.get('status'), tokens=tokens, **engine_rates(requests),
                           max_request_input=max((r['input'] for r in requests), default=None))
     log = (folder / 'engine-request-log.txt').read_text()
+    service_log = host.log_bytes_since(None, service_offset).decode(errors='replace')  # the sampling trace lives here
+    (folder / 'service-log-since-start.txt').write_text(service_log)
     windows = record.get('groups', [])  # sampling: every group attempt has its own engine log window
     for window, records in zip(windows, session_records(log, windows, offset)):
         window.update(tokens=sum_engine_tokens(records), **engine_rates(records))
-    problems, effect = engine_effect(log, health, spec, condition, host.configuration(plan['model']))
+    problems, effect = engine_effect(log, health, spec, condition, host.configuration(plan['model']), service_log)
     sessions = [r for r in record.get('groups', []) if r['valid']] or list(record.get('lengths', {}).values())
     problems += [p for s in sessions for p in s['effect_problems']]
     # The sandbox already blocks every path outside the workspace (sandbox_probe); flagged calls are judged by

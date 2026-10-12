@@ -55,6 +55,13 @@ class MeasurementHost:
                                errors='replace', timeout=120, check=True)
         return json.loads(reply.stdout)
 
+    def free_commit_gib(self):
+        """Windows commit still available (commit limit minus committed), GiB; this host must be the local one."""
+        reply = subprocess.run(['pwsh.exe', '-NoProfile', '-NonInteractive', '-Command',
+                                '(Get-CimInstance Win32_OperatingSystem).FreeVirtualMemory'],
+                               capture_output=True, text=True, timeout=60, check=True)
+        return int(reply.stdout.strip()) / 2 ** 20  # KiB
+
     def controller(self, folder):
         return Controller(self.installation, folder, base_url=self.deployment['frontend_url'])
 
