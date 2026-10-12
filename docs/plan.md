@@ -33,6 +33,7 @@ artifact-promotion 现在只审约 8–9 分钟、输出约 40K token，v0.1.38 
 调参不再使用 ARW 场景。采样和窗口两个影响输出的维度，原结论（greedy、156584）在 ARW 上分不出高下，暂时维持现值；需另行设计答案可机械判定、低波动的专用负载，按「评分口径」的分阶段判定重新测量。负载设计和模型运行计划先交用户审批。
 - [x] 主机重启（2026-10-12）：用户关闭快速启动（`powercfg /h off`）后于 12:34 完整重启。核对：LastBootUpTime 12:34、休眠已关闭、前端正常（lease free、模型未加载）、计划任务优先级 4、SeLockMemoryPrivilege 已授予、页面文件 32768 MB、安装目录 23 个部署文件与工程生成结果一致、沙箱读限制探测通过、全量测试 328 通过。加载冒烟检查（用户批准，12:5x）：IQ3_XXS／156584 冷加载 23.2 秒，引擎日志 `expert arena: cudaHostRegister PORTABLE ok; large pages (2097152 B)`，无 1450／1314；Windows commit 剩 29.3 GiB／95.8 GiB；短请求引擎输出 94.9 tok/s；启动提示加载 SHA 1cae169a…（源 5f9efc02… 去掉防循环段）与预期一致；之后模型已停、lease free。
 - [ ] 采样负载设计（同时测循环率）。模型卡（huggingface.co/Qwen/Qwen3.8-Flash-Next，2026-10-12 查）：思考模式推荐 temperature 1.0、top_p 0.95、top_k 20、min_p 0、presence_penalty 0；agent 编程评测用 temp 1.0、top_p 0.95；未提 greedy；重复时可调 presence_penalty 0–2。原生上下文 262,144。
+- [ ] 试跑结束后：调参驱动实现加载后预热、分数类参数同条件连跑、速度类参数按块交替（AA BB BB AA）与运行顺序趋势检查、各实例 reused 比例核对（规则见 measurement.md「预热与连跑」，bcceb93）。
 - [ ] 窗口负载设计（跨压缩阈值的长上下文任务，压缩前后事实保持可机械判定）。
 
 ## 顺序
