@@ -1,0 +1,51 @@
+{
+ "schema": "arw-dimension-v1",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "reviewer": "spec-readiness-reviewer",
+ "authorization": {
+  "approved": true,
+  "source": "用户 2026-10-12 批准 Spec Readiness 思考上限诊断；同日改为只跑当前默认（方案 A，思考 28672），旧设置基线用 F6 的 5 个实例",
+  "scope": "3 个 Spec Readiness 合并实例（一批冻结 ARW 的 6 个交接，与 F6 批 a 同法）；不部署条件"
+ },
+ "method": "与 F6 批 a 相同：arw_dimension prepare 新准备一批冻结 ARW 并预检（不部署，用已部署默认值）→ ARW 持有模型用 arw_measure 运行全部 6 个交接（3 个合并实例）→ 用服务日志的 Strata budget 行核对生效值。",
+ "fixed_conditions": {
+  "strata": "0.1.42",
+  "codex": "0.162.0",
+  "effort": "high",
+  "context_window": 156584,
+  "auto_compact_token_limit": 100000,
+  "engine_defaults": "config/deployments/rtx3080ti.json 中 IQ3_XXS 的当前默认值（方案 A 已部署：high 思考上限 28672、不补总输出；guardian 1536/2048；fit_max_tokens 开），每个实例绑定部署后 config/deployment.json 与 iq3_xxs-prebuilt.json 的 SHA",
+  "startup_instructions": "config/prompts/startup-instructions.txt（去掉防循环段），compact-prompt.txt 接入；开跑前核对已安装 SHA",
+  "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
+  "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
+  "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json",
+  "host_environment": "2026-10-12 起：页面文件 64 GiB（Windows commit 上限约 127.8 GiB）；WSL memory=16GB、autoMemoryReclaim=gradual；大页生效；前端计划任务 Normal 优先级与最高权限"
+ },
+ "codex_thread_id": "b7635f94-ad60-429b-98e7-3ee5c19ba2bb",
+ "dimensions": [
+  {
+   "order": 1,
+   "id": "thinking-budget",
+   "default": "budget-28672",
+   "reviewer": "spec-readiness-reviewer",
+   "schedule_design": "单条件 3 个合并实例，一批运行（F6 批 a 的做法）；基线为 F6 Spec Readiness 5 个实例（旧 high 档 8192/24576）",
+   "schedule": [
+    "budget-28672",
+    "budget-28672",
+    "budget-28672"
+   ],
+   "conditions": {
+    "budget-28672": {
+     "log_present": [
+      "budget 28672 "
+     ],
+     "log_absent": [
+      "budget 8192 \\(max 24576\\)"
+     ]
+    }
+   },
+   "note": "A = 当前默认（方案 A）。比较对象为 F6 的 5 个实例（reports/v0.1.42/f6-benchmark）。比较 artifact-promotion 子场景分、融合分、思考触顶请求数（budget reached）、审核时长、请求数、输出 token、gap 条目数，以及 guardian 请求数和裁决；3 对 5 样本只作诊断。"
+  }
+ ]
+}
