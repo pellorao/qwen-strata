@@ -23,9 +23,10 @@ BIND_RETRY = 10
 # 36 GB of SSD reads on rtx3080ti); it is stopped after this many idle minutes without a lease. 0 keeps it.
 IDLE_STOP_MINUTES = 30
 IDLE_CHECK_SECONDS = 30
-# Thinking budget and total output per effort, used when a request names neither.
-EFFORT_BUDGETS = {'none': (0, 8192), 'low': (2048, 8192), 'medium': (4096, 16384),
-                  'high': (8192, 24576), 'xhigh': (8192, 24576), 'max': (8192, 24576)}
+# Thinking budget per effort, used when a request names none. Total output is left to Strata, which uses the
+# room left in the window. 28672 is half the worst-case room left once compaction is due (156584 - 100000).
+# Efforts differ by their prompt, as in Strata and the model's own design; the cap is only a safety net.
+EFFORT_BUDGETS = {'none': 0, 'low': 28672, 'medium': 28672, 'high': 28672, 'xhigh': 28672, 'max': 28672}
 GENERATION = ('/v1/chat/completions', '/v1/responses', '/v1/messages', '/v1/messages/count_tokens')
 
 
@@ -63,12 +64,13 @@ def apply_reasoning_defaults(body, path, defaults):
     else:
         effort = body.setdefault('reasoning_effort', defaults.get('reasoning_effort', 'high'))
         output = 'max_tokens'
-    budget, total = EFFORT_BUDGETS.get(effort, EFFORT_BUDGETS['high'])
+    budget, total = EFFORT_BUDGETS.get(effort, EFFORT_BUDGETS['high']), None
     if effort == defaults.get('reasoning_effort'):
         budget = defaults.get('reasoning_budget_tokens', budget)
-        total = defaults.get('max_tokens', total)
+        total = defaults.get('max_tokens')
     explicit_output = body.get(output) is not None
-    body.setdefault(output, total)
+    if not explicit_output and total is not None:
+        body[output] = total
     if budget and 'reasoning_budget_tokens' not in body:
         body['reasoning_budget_tokens'] = min(budget, body[output] // 2) if explicit_output else budget
     return body

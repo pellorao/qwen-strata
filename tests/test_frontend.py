@@ -151,14 +151,19 @@ class LeaseTests(unittest.TestCase):
 
 
 class DefaultTests(unittest.TestCase):
-    installed = {'reasoning_effort': 'high', 'reasoning_budget_tokens': 8192, 'max_tokens': 24576}
+    installed = {'reasoning_effort': 'high', 'reasoning_budget_tokens': 28672}
 
-    def test_installed_effort_uses_installed_budget(self):
+    def test_installed_effort_uses_installed_budget_and_leaves_output_to_strata(self):
         body = frontend.apply_reasoning_defaults({}, '/v1/responses', self.installed)
-        self.assertEqual(body, {'reasoning': {'effort': 'high'}, 'max_output_tokens': 24576,
-                                'reasoning_budget_tokens': 8192})
+        self.assertEqual(body, {'reasoning': {'effort': 'high'}, 'reasoning_budget_tokens': 28672})
+
+    def test_installed_output_limit_is_still_filled(self):
+        body = frontend.apply_reasoning_defaults({}, '/v1/chat/completions', dict(self.installed, max_tokens=24576))
+        self.assertEqual((body['max_tokens'], body['reasoning_budget_tokens']), (24576, 28672))
 
     def test_other_effort_uses_table_and_explicit_output_caps_budget(self):
+        body = frontend.apply_reasoning_defaults({'reasoning_effort': 'low'}, '/v1/chat/completions', self.installed)
+        self.assertEqual(body, {'reasoning_effort': 'low', 'reasoning_budget_tokens': 28672})
         body = frontend.apply_reasoning_defaults({'reasoning_effort': 'medium', 'max_tokens': 4000},
                                                  '/v1/chat/completions', self.installed)
         self.assertEqual(body['reasoning_budget_tokens'], 2000)
@@ -198,6 +203,12 @@ class ConfigurationTests(unittest.TestCase):
         self.assertEqual((config['port'], config['host']), (8100, '127.0.0.1'))
         self.assertEqual(env['STRATA_PREFILL_CPU_SHARE'], 'auto')
         self.assertEqual(reasoning['reasoning_budget_tokens'], 8192)
+
+    def test_fit_max_tokens_defaults_on_and_explicit_false_is_kept(self):
+        self.assertIs(model_process.configuration({}, 8100)[1]['fit_max_tokens'], True)
+        self.assertIs(model_process.configuration({'fit_max_tokens': False}, 8100)[1]['fit_max_tokens'], False)
+        with self.assertRaises(ValueError):
+            model_process.configuration({'fit_max_tokens': 1}, 8100)
 
     def test_context_window_selects_only_a_published_tier(self):
         _, config, _, _ = model_process.configuration({'context_window': 65536}, 8100)

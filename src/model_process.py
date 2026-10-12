@@ -103,10 +103,10 @@ def configuration(options, model_port):
     reasoning = {k: v for k, v in defaults.items() if k in REASONING}
     if reasoning.get('reasoning_effort', 'high') not in ('low', 'medium', 'high'):
         raise ValueError('Invalid default reasoning effort.')
-    if 'fit_max_tokens' in options:
-        if type(options['fit_max_tokens']) is not bool:
-            raise ValueError('fit_max_tokens must be boolean.')
-        config['fit_max_tokens'] = options['fit_max_tokens']
+    # An output limit larger than the room left is shortened rather than refused; callers may ask for the 400.
+    if type(options.get('fit_max_tokens', True)) is not bool:
+        raise ValueError('fit_max_tokens must be boolean.')
+    config['fit_max_tokens'] = options.get('fit_max_tokens', True)
     for name, default in (('startup_instructions', True), ('loop_prevention_instructions', False)):
         if type(options.get(name, default)) is not bool:
             raise ValueError(name + ' must be boolean.')

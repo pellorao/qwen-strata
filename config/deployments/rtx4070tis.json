@@ -19,5 +19,10 @@
     "ram_gib": 64
   },
   "qualification": "Existing installation settings; not a new parameter optimum. Host offline since 2026-10-09; connection method to be decided when it returns.",
-  "note": "Offline; listen_address and port are set when the host returns and its actual state is verified."
+  "installation_defaults": {
+    "reasoning_effort": "high",
+    "reasoning_budget_tokens": 8192,
+    "max_tokens": 24576
+  },
+  "note": "Offline; listen_address and port are set when the host returns and its actual state is verified. installation_defaults pin the earlier high budget 8192 / output 24576 until the user decides whether this host adopts the 2026-10-12 rtx3080ti scheme (thinking 28672, output = room left); pending sync."
 }
