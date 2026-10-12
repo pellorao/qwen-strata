@@ -237,6 +237,17 @@ class CodexWorkloadTest(unittest.TestCase):
             self.assertTrue(Path(home).is_absolute())
             self.assertEqual(Path(home), (Path(tmp) / 'home').resolve())
 
+    def test_session_records_never_split_a_line(self):
+        line = ('strata serve: prompt {} tokens = 0 reused + {} read in 10 ms (1.0 tok/s), '
+                '5 generated in 50 ms (100.0 tok/s), drafts accepted 1 of 1, 1 checkpoints\n')
+        log = 'boot\n' + line.format(100, 100) + line.format(200, 200) + line.format(300, 300)
+        offset = 1000
+        # a mark taken while the 200 line was being written: that request finished in the first session
+        first_end = offset + len('boot\n') + len(line.format(100, 100)) + 7
+        sessions = [{'log_bytes': [offset, first_end]}, {'log_bytes': [first_end, offset + len(log.encode())]}]
+        grouped = codex_workload.session_records(log, sessions, offset)
+        self.assertEqual([[r['input'] for r in g] for g in grouped], [[100, 200], [300]])
+
     def test_loaded_startup_sha_excludes_deprecated_loop_block(self):
         import sys
         sys.path.append(str(codex_workload.STARTUP.parents[2] / 'src'))
@@ -277,6 +288,16 @@ class CodexWorkloadTest(unittest.TestCase):
                  {'arguments': json.dumps({'cmd': 'cat ../x'})}]
         flagged = codex_workload.escapes(calls, '/w')
         self.assertEqual(len(flagged), 2)
+
+    def test_escapes_ignore_code_and_sed_scripts(self):
+        # pilot run3: integer division, sed scripts and arithmetic were flagged as paths
+        harmless = ['python3 - <<EOF\nprint(7 // 2, n /1000)\nEOF', "sed -i 's/if op/if le/g' scratch.py",
+                    "sed -i '/ns = trans(s0, x0)/d' s.py", 'print("...")', 'cat /w/ws/solutions/P01.py']
+        risky = ['cat > /tmp/sim.py <<EOF\nx = 1\nEOF', 'rg -l TIDA /home/u/qwen_strata', 'ls ~/.codex',
+                 'cat ../codex-home/sessions/x.jsonl', 'echo $CODEX_HOME']
+        calls = lambda texts: [{'arguments': json.dumps({'cmd': t})} for t in texts]
+        self.assertEqual(codex_workload.escapes(calls(harmless), '/w/ws'), [])
+        self.assertEqual(len(codex_workload.escapes(calls(risky), '/w/ws')), len(risky))
 
     def test_next_round_mirrors_and_alternates(self):
         self.assertEqual(codex_workload.next_round(['a', 'b', 'c'], 1), ['a', 'b', 'c', 'c', 'b', 'a'])

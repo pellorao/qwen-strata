@@ -262,15 +262,32 @@ def analyse_session(path):
             'replies': replies}
 
 
+ROOT_DIRECTORIES = {'bin', 'boot', 'dev', 'etc', 'home', 'lib', 'lib64', 'media', 'mnt', 'opt', 'proc', 'root',
+                    'run', 'sbin', 'srv', 'sys', 'tmp', 'usr', 'var'}
+
+
+def path_arguments(text):
+    """Path-shaped words of a tool call: absolute paths under a real root directory, `~` paths and parent steps.
+    Code and sed scripts in the same call (`a // b`, `/1000`, `s/x/y/g`) are not paths and are not returned."""
+    words = re.findall(r'[^\s\'"`;|&<>(){}\[\],=:]+', text.replace('\\n', ' ').replace('\\t', ' '))
+    found = []
+    for word in words:
+        if word.startswith('/') and word.split('/')[1] in ROOT_DIRECTORIES or word == '~' or word.startswith('~/'):
+            found.append(word)
+        elif word == '..' or word.startswith('../') or '/../' in word or word.endswith('/..'):
+            found.append(word)
+    return found
+
+
 def escapes(calls, workspace):
-    """Tool calls naming an absolute path outside the workspace, a parent directory or Codex session material."""
+    """Tool calls naming a path outside the workspace, a parent directory step, or Codex session material."""
     workspace, flagged = str(Path(workspace).resolve()), []
     for c in calls:
         text = str(c['arguments'])
-        paths = re.findall(r'(?<![\w.])(/[\w.\-/]+|~[\w.\-/]*)', text)
-        outside = [p for p in paths if not p.startswith(workspace) and p not in ('/dev/null', '/tmp')
-                   and not p.startswith(('/usr/', '/bin/'))]
-        if outside or '..' in text or 'sessions' in text or 'CODEX_HOME' in text:
+        outside = [p for p in path_arguments(text)
+                   if not (p.startswith('/') and (p == workspace or p.startswith(workspace + '/')))
+                   and p not in ('/dev/null', '/tmp') and not p.startswith(('/usr/', '/bin/'))]
+        if outside or 'CODEX_HOME' in text:
             flagged.append({'call': c, 'outside': outside})
     return flagged
 
@@ -409,10 +426,29 @@ def engine_effect(log, health, spec, condition, configuration):
     return problems + effect['problems'], effect
 
 
+def session_records(log, sessions, offset):
+    """Engine token records per session.  The log is parsed whole, then each record goes to the session whose byte
+    window holds the start of its line: an offset taken while a line was being written must not split the record."""
+    from tools.metrics.strata_tokens import parse_engine_log
+    starts, position = [], 0
+    for line in log.splitlines(keepends=True):  # the same line split as parse_engine_log, measured in bytes
+        starts.append(position + offset)
+        position += len(line.encode())
+    windows = [s['log_bytes'] for s in sessions]
+    grouped = [[] for _ in sessions]
+    for r in parse_engine_log(log):
+        byte = starts[r['log_line'] - 1]
+        for i, (start, end) in enumerate(windows):
+            if start <= byte < end:
+                grouped[i].append(r)
+                break
+    return grouped
+
+
 def run_instance(plan, data, conditions, name, folder):
     from tools.ops.measurement_host import MeasurementHost
     from tools.reviewer.arw_measure import stop_and_capture_engine_log
-    from tools.metrics.strata_tokens import engine_rates, parse_engine_log, sum_engine_tokens
+    from tools.metrics.strata_tokens import engine_rates, sum_engine_tokens
     spec, (condition, digest) = plan['conditions'][name], conditions[name]
     folder.mkdir(parents=True)
     if condition is not None:
@@ -440,9 +476,7 @@ def run_instance(plan, data, conditions, name, folder):
             record.update(stop=stopped.get('status'), tokens=tokens, **engine_rates(requests),
                           max_request_input=max((r['input'] for r in requests), default=None))
     log = (folder / 'engine-request-log.txt').read_text()
-    for session in record.get('sessions', []):
-        start, end = (b - offset for b in session['log_bytes'])
-        records = parse_engine_log(log.encode()[start:end].decode(errors='replace'))
+    for session, records in zip(record.get('sessions', []), session_records(log, record.get('sessions', []), offset)):
         session.update(tokens=sum_engine_tokens(records), **engine_rates(records))
     problems, effect = engine_effect(log, health, spec, condition, host.configuration(plan['model']))
     sessions = record.get('sessions') or list(record.get('lengths', {}).values())
