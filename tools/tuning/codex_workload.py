@@ -419,6 +419,8 @@ def run_sampling(plan, data, spec, folder, args_for, key, mark, settle, gate=lam
                    'valid': not analysis['compactions'], 'escapes': len(analysis['escapes']),
                    'tool_calls': analysis['tool_calls'], 'loop': analysis['loop'], 'effect_problems': []}
             runs.append(run)
+            # On disk at once, so a run that dies (2026-10-12: WSL lost its memory) still attributes this group's tokens.
+            save(here / 'group.json', run)
             if run['valid']:
                 break
         if not run['valid']:
@@ -427,6 +429,7 @@ def run_sampling(plan, data, spec, folder, args_for, key, mark, settle, gate=lam
         result = sampling_bank.score(part, workspace)
         approx, unwritten = approximate_seconds(part, workspace, started, seconds)
         run.update(score=result['score'], correct=result['correct'])
+        save(here / 'group.json', run)
         rows += [{**r, 'group': g, 'approx_seconds': approx[r['id']], 'approx_from_remainder': r['id'] in unwritten,
                   'group_timed_out': timed_out} for r in result['rows']]
     valid = [r for r in runs if r['valid']]
@@ -535,6 +538,8 @@ def run_instance(plan, data, conditions, name, folder):
     record = {'condition': name, 'condition_sha256': digest, 'started': datetime.now().isoformat(timespec='seconds')}
     with owner:
         offset, service_offset = host.log_offset(plan['model']), host.log_offset()
+        # The windows in each group.json are byte offsets into these logs; kept for a run that never reaches its result.
+        save(folder / 'log-offsets.json', {'engine_log': offset, 'service_log': service_offset})
         try:
             state, load = owner.start(model=plan['model'], context_window=spec['context_window'])
             health = state.get('native_health') or {}

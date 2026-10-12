@@ -432,8 +432,11 @@ class CodexWorkloadTest(unittest.TestCase):
                 result = codex_workload.run_sampling(plan, data, {'context_window': 156584}, Path(tmp),
                                                      lambda here: [], 'k', lambda: 0, lambda: 0)
                 folders = sorted(p.name for p in Path(tmp).iterdir())
+                saved = json.loads((Path(tmp) / 'group-04-1/group.json').read_text())
         finally:
             codex_workload.codex_exec = original
+        self.assertEqual((saved['group'], saved['log_bytes']), (4, [0, 0]))
+        self.assertIn('score', saved)
         self.assertEqual(seen, [sorted(x['number'] for x in everything[i]) for i in (2, 3)])
         self.assertEqual(folders, ['group-03-1', 'group-04-1'])
         self.assertEqual([r['group'] for r in result['groups']], [3, 4])
