@@ -837,8 +837,8 @@ Each problem is in `problems/<P>.md`. Solve every problem.
 - Code problems (they ask you to implement a function): write the requested function in `solutions/<P>.py`
   (a stub is there). Only the Python 3 standard library is available.
 
-You may use the shell and write scratch files anywhere inside this directory. Nothing outside this directory is
-needed. Answers are checked automatically after you finish; there is no partial credit inside a problem.
+You may use the shell and write scratch files anywhere inside this directory. Paths outside it, including /tmp,
+are not available. Nothing outside this directory is needed. Answers are checked automatically after you finish; there is no partial credit inside a problem.
 
 There is a hard time limit. When it is reached you are stopped without warning and only the files already written
 are scored; a problem with no written answer or solution scores zero. So write each answer or solution file as soon

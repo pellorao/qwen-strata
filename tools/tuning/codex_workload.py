@@ -447,7 +447,9 @@ def run_instance(plan, data, conditions, name, folder):
     problems, effect = engine_effect(log, health, spec, condition, host.configuration(plan['model']))
     sessions = record.get('sessions') or list(record.get('lengths', {}).values())
     problems += [p for s in sessions for p in s['effect_problems']]
-    problems += [f'{s["escapes"]} tool calls leave the workspace' for s in sessions if s.get('escapes')]
+    # The sandbox already blocks every path outside the workspace (sandbox_probe); flagged calls are judged by
+    # outcome in the session inspection: only a call that actually saw outside content invalidates the instance.
+    record['escapes_for_review'] = sum(s.get('escapes', 0) for s in sessions)
     if plan['workload'] == 'window' and spec['context_window'] == 206584 and \
             (record['max_request_input'] or 0) > plan['verified_prompt_tokens']:
         problems.append(f'a request input of {record["max_request_input"]} exceeds the verified '
