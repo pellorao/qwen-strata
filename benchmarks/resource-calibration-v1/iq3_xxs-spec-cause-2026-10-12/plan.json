@@ -1,0 +1,52 @@
+{
+ "schema": "arw-dimension-v1",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "reviewer": "spec-readiness-reviewer",
+ "authorization": {
+  "approved": true,
+  "source": "用户 2026-10-12 批准 Spec Readiness 低分主因调查：0 无模型检查 → 1 medium×3 → 2 Q2_0+IQ3_XXS 参数（high）×3，某步定位即停；150K 阈值与 Q2 原有参数不跑",
+  "scope": "第 1 步：3 个 Spec Readiness 合并实例（一批冻结 ARW 的 6 个交接），effort=medium；不部署条件"
+ },
+ "method": "与诊断相同：arw_dimension prepare 新准备一批冻结 ARW 并预检（不部署，用已部署默认值）→ ARW 持有模型用 arw_measure 运行全部 6 个交接 → 用服务日志的 Strata budget 行核对生效值（medium：budget 4096 (max 16384)）。",
+ "fixed_conditions": {
+  "strata": "0.1.42",
+  "codex": "0.162.0",
+  "effort": "medium",
+  "context_window": 156584,
+  "auto_compact_token_limit": 100000,
+  "engine_defaults": "config/deployments/rtx3080ti.json 中 IQ3_XXS 的当前默认值（方案 A 已回滚，6657937：medium 思考 4096、总输出 16384；high 8192/24576；guardian 1536/2048；fit_max_tokens 开），每个实例绑定部署后 config/deployment.json 与 iq3_xxs-prebuilt.json 的 SHA",
+  "startup_instructions": "config/prompts/startup-instructions.txt（去掉防循环段），compact-prompt.txt 接入；开跑前核对已安装 SHA",
+  "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
+  "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
+  "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json",
+  "host_environment": "2026-10-12 起：页面文件 64 GiB（Windows commit 上限约 127.8 GiB）；WSL memory=16GB、autoMemoryReclaim=gradual；大页生效；前端计划任务 Normal 优先级与最高权限"
+ },
+ "codex_thread_id": "b7635f94-ad60-429b-98e7-3ee5c19ba2bb",
+ "dimensions": [
+  {
+   "order": 1,
+   "id": "effort-medium",
+   "default": "effort-medium",
+   "reviewer": "spec-readiness-reviewer",
+   "schedule_design": "单条件 3 个合并实例，一批运行；基线为 F6 Spec Readiness 5 个实例（high 8192/24576，与回滚后部署一致，只差 guardian）；方案 A 诊断 3 个实例作附加参考",
+   "schedule": [
+    "effort-medium",
+    "effort-medium",
+    "effort-medium"
+   ],
+   "conditions": {
+    "effort-medium": {
+     "log_present": [
+      "budget 4096 \\(max 16384\\)"
+     ],
+     "log_absent": [
+      "budget 8192 ",
+      "budget 28672 "
+     ]
+    }
+   },
+   "note": "判据（用户批准）：artifact-promotion 单段平均输出 ≥ F6 基线 1.5 倍（约 62K）且时长同步回升即算定位，停止后续步骤；分数为次要参考（3 对 5 只能分辨约 0.2）。"
+  }
+ ]
+}
