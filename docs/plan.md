@@ -52,6 +52,12 @@ artifact-promotion 现在只审约 8–9 分钟、输出约 40K token，v0.1.38 
   - (2) 第 7 轮限定审计：r6 之后的改动、7 项残余风险、Opus RM3 的 INPUTS 额外 finding、`rules/01-required-inputs.md:5` 与 `access-review.md` 的 requested operation 冲突、用 not-matched finding 反查未登记缺陷；只改答案键或 placement 时只重新评分，要改夹具文字则定为 v2.1，现有结果仍按 v2 报告；
   - (3) runtime-migration.md 措辞只记录为 v3 必修，报告附"恢复该 clean 用例后的 Q3 分"作为敏感性数字；
   - (4) C053 维持 matched。
+- 第 4 步补充（2026-10-13 06:20）：全量独立复裁 135/136 一致，唯一分歧 C053 维持 matched，判据 4 成立。第 7 轮限定审计无阻断，有两项主要问题：(a) vr:31 被答案键误登为 MODULES clean，实为未登记缺陷（4 次独立发现）；(b) runtime-migration.md:15 "已批准的 access policy"没有来源，属可辩护。原文见 `.tmp/spec-v2/step4-addendum.md`，第二次独立意见见 `.tmp/spec-v2/review/second-opinion-v21.md`。
+- 自主模式决策（Main 综合 worker、第 7 轮审计和第二次独立意见）：
+  - **v2.1 只改答案键**：删 MODULES clean C0，新增 AP 问题用例。placement 按夹具能推出的位置在重裁前写定，不照已报 finding 凑。所有涉及 parseArtifact/vr:31 的 finding（含原 not-matched、no-candidate）放回候选池盲裁。Opus ×3、Q3 ×10 只重评分，不重跑。
+  - **v3 今晚就做**，不推迟：rm:15/:45 改写、AP 误导措辞（标明待交付或对齐字段）、vr:100 补结论句。三处同一批改动，runtime-migration.md 是 RM 和 AP 共用的 Input，一次改完、两侧一起重跑。流程：两阶段审计加盲答，直到无阻断和主要问题 → Opus ×3 → Q3 ×5（GPU 空闲时按规则加测）→ 评估含独立复裁。仍是同一场景，符合逐个场景的顺序；Code Spec 等 v3 交审后再开始，不并行（独立意见建议并行，与用户"逐个场景"的决定冲突，不采纳）。
+  - **Opus 参考分低于 0.75**（v2.1 约 0.744，SD 0.024，差距在噪声内）：只说明比原版难。该场景用相对口径（Q3 / Opus 参考上限），0.75 不作 Q3 通过线；报告列出所有双方 0 命中的用例。
+  - **偏离**：用户目标是"修到无问题"。若 v3 后仍有已知残余项，报告中列为偏离，请用户认可，Main 不自行宣布已满足。
 - 调参判定标准（在读取批 C、D 分数之前写定）：10 次组内 SD ≤ 0.068，即单侧 90% 上限 < 0.1，扣罚前和扣罚后两个口径都满足，才考虑把 v2 用于调参。
 - [ ] 另外三个场景（Commit Audit、Code Spec、Code Standards）：先检查（规则冲突、场景与答案键含义、F6 中 Qwen 5 次都漏的用例），再各出一次 Opus 盲答，之后按同一流程升级版本（用户 2026-10-13 同意先检查，版本肯定会升级）。逐个场景进行：Spec Readiness v2 完成并交审后再开始下一个，不并行（用户 2026-10-13）。
 
