@@ -210,7 +210,8 @@ class ContinuationRunner:
    os.environ['STRATA_API_KEY']=controller.key;os.environ['QWEN_ARW_MODEL_BASE']=controller.model_base+'/v1';os.environ['QWEN_ARW_RUNTIME_FILE']=str(f/'runtime.json')
    observer_dir=where/'http-observers'/str(time.time_ns());observer_dir.mkdir(parents=True)
    observer=HttpArchive(f/'arw-installation/codex-home/logs_2.sqlite',observer_dir);observer.thread.start()
-   options={'model':selection['model'],'engine_overrides':selection['engine_overrides'],'request_defaults':selection['sampling'],'engine_environment':selection['engine_environment'],'fit_max_tokens':False}
+   # Continuations resume threads bound to the 100K tier, whatever the installation default is.
+   options={'model':selection['model'],'context_window':156584,'engine_overrides':selection['engine_overrides'],'request_defaults':selection['sampling'],'engine_environment':selection['engine_environment'],'fit_max_tokens':False}
    held_status=controller.call('/model/status')
    if held_status['status']=='running':
     status=held_status;load_s=0

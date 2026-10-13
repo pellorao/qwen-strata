@@ -189,6 +189,15 @@ def source_bytes(relative, identifier, project=None, condition=None):
         return (json.dumps(public_host(identifier, project, condition), indent=2) + '\n').encode()
     if path.as_posix() == 'config/frontend.json':
         return (json.dumps(frontend_configuration(identifier, project), indent=2) + '\n').encode()
+    if path.as_posix() == 'config/model-catalog.json':
+        # The catalog window states each model's default (first published) tier on this host.
+        raw = (project / path).read_bytes()
+        tiers, value = load_host(identifier, project, condition)['context_tiers'], json.loads(raw)
+        for entry in value['models']:
+            model_tiers = tiers.get(entry['slug'].removeprefix('qwen3.8-flash-next-').upper())
+            if model_tiers:
+                entry['context_window'] = entry['max_context_window'] = model_tiers[0]['context_window']
+        return raw if value == json.loads(raw) else (json.dumps(value, ensure_ascii=False, indent=1) + '\n').encode()
     if path.as_posix() == 'config/maintenance-baseline.json':
         raw = (project / path).read_bytes()
         value = baseline_configuration(identifier, project, condition)

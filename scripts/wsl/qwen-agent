@@ -21,6 +21,8 @@ import urllib.request
 
 INSTALL = Path(__file__).resolve().parents[1]
 MODELS = {'Q2_0': 'q2_0', 'IQ2_XS': 'iq2_xs', 'IQ3_XXS': 'iq3_xxs'}
+# Both agents run on the 100K tier, not the IQ3_XXS default: Claude Code's compaction with a window above
+# 200K (206584) has not been checked, and the two agents must keep identical limits.
 CONTEXT_WINDOW = 156584
 AUTO_COMPACT = 100000
 # Total output per effort: the totals the frontend fills in for Codex (src/frontend.py EFFORT_BUDGETS).
@@ -118,7 +120,11 @@ def main():
     frontend.key = frontend.call('/lease/acquire', {})['key']
     try:
         print(f'qwen-agent: starting {args.model}...', file=sys.stderr, flush=True)
-        if frontend.call('/model/start', {'model': args.model}).get('reused'):
+        tiers = json.loads((INSTALL / 'config/deployment.json').read_text(encoding='utf-8')).get('context_tiers', {})
+        start = {'model': args.model}
+        if any(t['context_window'] == CONTEXT_WINDOW for t in tiers.get(args.model, [])):
+            start['context_window'] = CONTEXT_WINDOW  # a model without published tiers runs its only window
+        if frontend.call('/model/start', start).get('reused'):
             print('qwen-agent: reusing the loaded model', file=sys.stderr, flush=True)
         if args.agent == 'codex':
             command, environment = codex(frontend, model, args.effort, args.arguments)

@@ -69,12 +69,12 @@
     ],
     "IQ3_XXS": [
       {
-        "context_window": 156584,
-        "auto_compact_token_limit": 100000
-      },
-      {
         "context_window": 206584,
         "auto_compact_token_limit": 150000
+      },
+      {
+        "context_window": 156584,
+        "auto_compact_token_limit": 100000
       }
     ]
   }
