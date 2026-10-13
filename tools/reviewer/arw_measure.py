@@ -733,7 +733,8 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
                         telemetry=start_arw_telemetry(measurement_host,out/'telemetry'/handoff['instanceId'])
                         record=execute_review(machine,source,preparation,handoff,out/handoff['instanceId'],selection,catalog,
                             {'runtime_installation':str(native_install),'engine_log_start_offset':offset,
-                             'measurement_host':measurement_host.metadata(),'model_owner':'arw'})
+                             'measurement_host':measurement_host.metadata(),'strata_release':measurement_host.installed_release(),
+                             'model_owner':'arw'})
                         if record.get('arw_pause'):
                             raise RuntimeError('ARW paused the Reviewer task after repeated early exits; the user decides '
                                                'whether to continue it (send_message) or end it (interrupt_agent)')
@@ -785,6 +786,7 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
                               'runtime_installation':str(native_install),'engine_log_start_offset':offset}
                     if measurement_host:
                         metadata['measurement_host']=measurement_host.metadata()
+                        metadata['strata_release']=measurement_host.installed_release()
                         metadata['default_profile_sha256_before']=profile_before
                     if startup:metadata['startup_instructions']=dict(startup,text=raw.decode('utf-8'))
                     safe_to_release=False
