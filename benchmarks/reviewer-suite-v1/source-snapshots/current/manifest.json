@@ -1219,6 +1219,18 @@
         "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md": "cc73f6f1d0d2b6dd1f35646ed7330a61de69329eda86e56304183b6a50ea5f52",
         "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/access-policy.mjs": "ce7d5009fdf9985184aca779d313b521d14dc1b674613b22a66ffbde66cc26d1"
       }
+    },
+    {
+      "file": "../../arw-patches/spec-readiness-v4.patch",
+      "sha256": "b1695ecc0087cb80eaf2da234e5defa32251358b2dd474f0a8e4add449401b60",
+      "reason": "Spec Readiness capability scenario v4 (scenario revision 43), applied after v3: fixes the non-intelligence causes of the two cases no model found in v3. AP validation-report.md:45 now states that an extra field returns unexpected-field with its JSON path (the missing position in the validation order is then a defect of the selected spec, not only of the unselected architecture/05:29); promotion-recovery.md:59 says the exact failure shape is the recoveryState the Seam returns. Key: includes the v3.1 MODULE-DESIGN-RATIONALE#3 placements, rewrites INTERFACES#5 and SEAMS-ADAPTERS#1 expectations, adds an INTERFACES#5 placement, drops the INTERFACES source placement anchored at vr:45, clarifies the Recovery Adapters clean case. One round of the ARW two-stage fixture review. Change note: benchmarks/reviewer-suite-v1/spec-readiness-v4.md. Scores are comparable only within v4.",
+      "result": {
+        "lib/release/reviewer-capability-conformance.mjs": "0b76d2269670ab1803d1104b8dd3cbf97cb618f0290dbe642a471247fe292321",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/expected.json": "34d99ab0295f82ef5036bc254ff1b6dbea8608870321045a155890961ce0b484",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/promotion-recovery.md": "deacdf53ef571bd4192d36c270bab36db14b5f35f4737dd77f6ccfe545b0470b",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/base/specs/validation-report.md": "98a82f513317980a15faf91cde9e010416c94f03e47a2776c899d8478fd0d5c7",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-recovery.md": "11a4d053c1e4746e37f623746445ffeb1fc40b1817305de6984cebc95a788d18"
+      }
     }
   ]
 }
