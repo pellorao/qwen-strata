@@ -6,11 +6,7 @@
 
 需要用户决定的事项只记在这里，处理后删除。
 
-1. Code Spec v2 的用途（[报告](../reports/v0.1.42/code-spec-v2/summary.md)）：21 个问题用例 Opus、Q3 全部检出，Q3 0.815 ≥ Opus 0.799，判据 1 不成立，没有区分度。选项：(a) 只作"基础对照规范"的通过性检查，不作能力区分和调参，另做更难版本留待以后；(b) 现在就做更难的 v3（跨文件、隐含要求的缺陷），走同一流程；(c) 用作调参场景（两种 SD 都 ≤0.068，但波动只来自格式罚分和证据精度，worker 不建议）。
-2. 是否现在开始 Code Standards（逐个场景；Spec v3 的 0 命中用例分析只做文字与答案键分析，不占 GPU）？
-3. 是否现在做 Spec Readiness v4？v3.1 后剩 INTERFACES#5、SEAMS#1 两个双 0 用例，成因都是非智力问题（前者缺陷只在未选定 Input 里，后者措辞不能唯一推出且与 clean C3 相撞），按用户规则需改夹具：vr:45 补 unexpected-field 规定（不给顺序位置）、INTERFACES#5 expectation 去掉 root 举例并加 vr:45+vr:104、prec:59 首句写明是 Seam 返回的 recoveryState。v4 走审计 + 盲答 → Opus ×3 → Q3 ×5（空闲加测到 10），与 Code Standards 共用 GPU，只能先后进行。
-4. 测量报告是否固定保留每个实例的耗时和 token 数（原始记录删除后仍可比较速度）？
-5. 引擎常驻修复（0e90ad5）的真实加载验证：在下一批 ARW 测量中顺带验证（查该批 `cold-start.json` 与批前进程状态），还是现在单独做一次（加载 IQ3_XXS 一次、不推理，约 2–3 分钟）？验证通过后删除 reviewer-suite.md 的临时规则。
+无。
 
 ## 调参负载与诊断（用户 2026-10-12 已定）
 
@@ -67,6 +63,12 @@ artifact-promotion 现在只审约 8–9 分钟、输出约 40K token，v0.1.38 
 - [ ] **引擎常驻与前端空闲不一致**：已定位并修复（见[历史记录](work-history.md)「ARW 批次引擎常驻与 Code Spec 简写路径修复门」）。剩一次真实加载验证（需用户批准），通过后删除 reviewer-suite.md 的临时规则。
 - 调参判定标准（在读取批 C、D 分数之前写定）：10 次组内 SD ≤ 0.068，即单侧 90% 上限 < 0.1，扣罚前和扣罚后两个口径都满足，才考虑把 v2 用于调参。
 - Code Spec v2（2026-10-13）：冻结 6f60c8c，两轮审计；Opus 0.799、Q3 ×5 0.815、Q3 ×10 0.806（SD 0.048 / 0.040）；21 用例双方全检出，判据 1 不成立，用途见"待你决定"（[报告](../reports/v0.1.42/code-spec-v2/summary.md)）。Q3 的 evidence-invalid 全部来自反引号时刻被当作定位，登记为 ARW 上游问题 4。
+- **用户决定（2026-10-13 白天）**：
+  - 继续重构 Spec Readiness，做 v4（INTERFACES#5、SEAMS#1 的非智力成因改夹具），流程同 v3。
+  - Code Spec v2 要加难度，保证 Q3 与 Opus 有明显区分度；排在 Spec 之后。
+  - Code Standards 暂不开始。
+  - 引擎常驻修复在 v4 的第一批真实测量中顺带验证（`cold-start.json` 与批前进程状态），通过后删除 reviewer-suite.md 的临时规则。
+  - 报告固定保留逐实例耗时、token、两种口径速度；耗时不含模型加载（已写入测量规则 ea698a9）。
 - [ ] 另外三个场景（Spec v3 判定成立，2026-10-13 开始 Code Spec）（Commit Audit、Code Spec、Code Standards）：先检查（规则冲突、场景与答案键含义、F6 中 Qwen 5 次都漏的用例），再各出一次 Opus 盲答，之后按同一流程升级版本（用户 2026-10-13 同意先检查，版本肯定会升级）。逐个场景进行：Spec Readiness v2 完成并交审后再开始下一个，不并行（用户 2026-10-13）。
 
 ## 采样与窗口重新测量（用户 2026-10-12）
