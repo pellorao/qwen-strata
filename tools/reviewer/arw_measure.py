@@ -239,6 +239,12 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
     return record
 
 
+def native_work_start(result):
+    """ARW measurement.startedAt in seconds: set when the native root exists, after the provider loaded the model."""
+    started=result.get('measurement',{}).get('startedAt')
+    return started/1000 if type(started) in (int,float) and started>0 else None
+
+
 def followup_when_idle(machine,bound,*,poll=5,limit=3600):
     """Send a same-thread follow-up once ARW has finished the original task.
 
@@ -273,6 +279,7 @@ def observe_review(machine,record,folder,*,continuation_start_timeout=120):
         phase='revision' if record.get('revisions') else 'initial',
         work_elapsed=lambda:work_clock.elapsed(phase_start,time.time()))
     arw_owned=record.get('selection',{}).get('model_owner')=='arw'
+    native_start=None
     while True:
         if record.get('user_pause_at') is not None and time.time()>=record['user_pause_at']:
             record['user_pause']={'at':time.time(),'reason':'User local-machine deadline; do not auto-continue.'}
@@ -302,6 +309,7 @@ def observe_review(machine,record,folder,*,continuation_start_timeout=120):
                 continue
         result=machine.call('list_agents',{'runId':run_id})
         save(folder/'latest.json',result)
+        if native_start is None:native_start=native_work_start(result)
         if arw_owned:
             # ARW enforces the work budget itself; its early-exit pause waits for the user.
             pause=next((n for n in result.get('notifications',[]) if n.get('type')=='message'
@@ -423,6 +431,13 @@ def observe_review(machine,record,folder,*,continuation_start_timeout=120):
     record['review_work_seconds']=work_clock.elapsed(phase_start,record['finished_at'])
     record['review_work_seconds_estimated']=any(e.get('estimated',False) for e in work_clock.events)
     record['review_work_time_source']='Persisted review-work intervals; tools and active recovery included, shutdown and ended-turn idle excluded; estimated transitions retained in the ledger.'
+    if arw_owned and native_start is not None and phase_start<native_start<=record['finished_at']:
+        # ARW-owned dispatch includes the provider's model load (first instance of a batch) and daemon startup.
+        # Work starts when ARW creates the native root and sends the first model request.
+        record['review_dispatch_work_seconds']=record['review_work_seconds']
+        record['review_work_seconds']=work_clock.elapsed(native_start,record['finished_at'])
+        record['review_work_time_source']=('From ARW measurement.startedAt (native root created, first model request follows; '
+            'provider model load and daemon dispatch excluded) to task end; '+record['review_work_time_source'])
     record.setdefault('deadlines',[]).append(deadline.facts())
     save(folder/'result.json',record)
     return record
