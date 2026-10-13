@@ -40,6 +40,7 @@
 - 05:24 自主计划全部完成，后台工作全部结束，租约空闲，定时检查已删除；过去 12 小时无 WHEA、Kernel-Power 41 事件。按规则停下等用户审核，不自动开新工作组。
 - 用户回来后决定（2026-10-14）：认可 Code Spec 两层目标（场景职责 + 测量目标）；方向选 E——以 v4.3（语言语义型）为基础，主体是 P15 式缺陷（缺陷行写得自然，只有懂语义或追到最终结果才能判错），同时保留一部分步数少但隐晦的缺陷（如 `save` 前少 `await`）和少量保底，一套题不只一种题型和难度（已写入 reviewer 规则）。先 Code Spec，再 Code Standards。
 - 用户决定 Code Standards（2026-10-14，在 Code Spec v4.7 之后做）：答案键漏收的正确发现按 (a) 处理——`order-service.mjs:74/:82` 纯转发、`shared/path.mjs` 再导出、`order-store` 用 class 按 `writing.md:49/:111` 补为问题用例，删改与 `writing.md:49` 矛盾的 path helper clean 用例，并登记为 ARW 上游问题；P11 重写为"承运商选择规则在两个模块各有一份"（对应 `writing.md:40` 单一权威来源）；设计 1（仓库搜索式复用/归属）与设计 2（同形异质成对题）都认可；代码题阅读量可以相对较大（已写入 reviewer 规则），仍守时长上限。
+- 用户决定阅读量维度（2026-10-14，已写入 reviewer 规则）：代码题大阅读量是正确出题方式，压缩不限制；独立维度，目标 100K–150K、工作 20 分钟内截止并按截至时刻计分（写进 handoff）；防搜索捷径；接受 Opus 窗口更大。压缩阈值可改为 150K，前提是 Spec Readiness 上 100K 与 150K 无明显得分差异。顺序：v4.7 校准 → 150K 档可行性 → 在 150K 档上测阅读量 → Code Standards。
 - 意外：Main 清理 `.tmp` 时删了 `.tmp/code-spec-v3`（worker 仍在引用其中的 score.py），worker 已在 `.tmp/code-spec-v4/check/score.py` 重建并复算一致。
 
 ## 自主模式（2026-10-13 夜，已结束）
