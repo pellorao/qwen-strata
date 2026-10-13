@@ -1,0 +1,626 @@
+{
+ "scenario": "spec-readiness",
+ "version": "v4 fixture (revision 43, freeze 61287ee) + v4.1 answer key (8510561)",
+ "host": "rtx3080ti",
+ "strata": "0.1.42",
+ "model": "IQ3_XXS",
+ "codex": "0.162.0",
+ "date": "2026-10-13",
+ "reference": "Opus medium x3 (Claude Code sub-agents)",
+ "key_sha256": "3093980fc37278abd16a935cd10d143dbcbab19435671bdee7e7fd2f13c3526f",
+ "problem_cases": 21,
+ "clean_cases": 43,
+ "startup_instructions_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+ "startup_source_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+ "original": {
+  "opus": {
+   "n": 3,
+   "mean": 0.7735829796010012,
+   "sd": 0.050412422203319825,
+   "before_mean": 0.7735829796010012,
+   "before_sd": 0.050412422203319825
+  },
+  "q3": {
+   "n": 5,
+   "mean": 0.5925883629967906,
+   "sd": 0.035991454504718426,
+   "before_mean": 0.6584315144408784,
+   "before_sd": 0.03999050500524268
+  },
+  "q3_over_opus": 0.7660307667348576
+ },
+ "appendix_10": {
+  "q3": {
+   "n": 10,
+   "mean": 0.603757718588908,
+   "sd": 0.07313733006341788,
+   "before_mean": 0.6552884174197707,
+   "before_sd": 0.062488816769988055
+  },
+  "q3_over_opus": 0.7804692379611484,
+  "add_on_q3": {
+   "n": 5,
+   "mean": 0.6149270741810255,
+   "sd": 0.10211823687074145,
+   "before_mean": 0.652145320398663,
+   "before_sd": 0.08462847842286889
+  },
+  "tuning_criterion": "10-run SD <= 0.068 on both final and before-penalty",
+  "tuning_criterion_met": false
+ },
+ "double_zero_cases": [
+  "MD-RATIONALE#3"
+ ],
+ "v4_key_original_for_reference": {
+  "opus_mean": 0.744,
+  "q3_mean": 0.569,
+  "q3_over_opus": 0.765
+ },
+ "adjudication": {
+  "A1_A2": {
+   "candidates": 147,
+   "agreement": "147/147",
+   "matched": 113,
+   "adjudicators": 2
+  },
+  "B1": {
+   "candidates": 96,
+   "new": 84,
+   "anchors": 12,
+   "anchor_agreement": "12/12",
+   "matched": 71,
+   "adjudicators": 1
+  },
+  "scoring_repeat_identical": true
+ },
+ "opus_instances": [
+  {
+   "final": 0.7451568538719989,
+   "before_penalty": 0.7451568538719989,
+   "clean_acceptance": 0.9811320754716981,
+   "diagnostics": [],
+   "problem": {
+    "SR-INPUTS#1": 1,
+    "SR-REQUIREMENTS#1": 1,
+    "SR-REQUIREMENTS#2": 1,
+    "SR-REQUIREMENTS#3": 1,
+    "SR-REQUIREMENTS#4": 0.9478260869565218,
+    "SR-RATIONALE#1": 1,
+    "SR-ADR-EVALUATION#1": 0.9870967741935484,
+    "MD-APPLICABILITY#1": 0.9870967741935484,
+    "MD-EXEMPTION#1": 0.9636363636363636,
+    "MD-MODULES#1": 0.9636363636363636,
+    "MD-INTERFACES#1": 0,
+    "MD-INTERFACES#2": 1,
+    "MD-INTERFACES#3": 0.9478260869565218,
+    "MD-INTERFACES#4": 0.9636363636363636,
+    "MD-INTERFACES#5": 1,
+    "MD-INTERFACES#6": 0,
+    "MD-DEPENDENCIES-DATA-FLOW#1": 1,
+    "MD-DEPENDENCIES-DATA-FLOW#2": 0,
+    "MD-RATIONALE#1": 0,
+    "MD-RATIONALE#2": 0,
+    "MD-RATIONALE#3": 0
+   }
+  },
+  {
+   "final": 0.8317889833132678,
+   "before_penalty": 0.8317889833132678,
+   "clean_acceptance": 1,
+   "diagnostics": [],
+   "problem": {
+    "SR-INPUTS#1": 1,
+    "SR-REQUIREMENTS#1": 1,
+    "SR-REQUIREMENTS#2": 1,
+    "SR-REQUIREMENTS#3": 1,
+    "SR-REQUIREMENTS#4": 0.9333333333333333,
+    "SR-RATIONALE#1": 1,
+    "SR-ADR-EVALUATION#1": 0.9750000000000001,
+    "MD-APPLICABILITY#1": 1,
+    "MD-EXEMPTION#1": 1,
+    "MD-MODULES#1": 0.980952380952381,
+    "MD-INTERFACES#1": 0.9478260869565218,
+    "MD-INTERFACES#2": 1,
+    "MD-INTERFACES#3": 0.9636363636363636,
+    "MD-INTERFACES#4": 0.980952380952381,
+    "MD-INTERFACES#5": 0,
+    "MD-INTERFACES#6": 0,
+    "MD-DEPENDENCIES-DATA-FLOW#1": 1,
+    "MD-DEPENDENCIES-DATA-FLOW#2": 0,
+    "MD-RATIONALE#1": 1,
+    "MD-RATIONALE#2": 0.980952380952381,
+    "MD-RATIONALE#3": 0
+   }
+  },
+  {
+   "final": 0.7438031016177369,
+   "before_penalty": 0.7438031016177369,
+   "clean_acceptance": 0.9811320754716981,
+   "diagnostics": [],
+   "problem": {
+    "SR-INPUTS#1": 1,
+    "SR-REQUIREMENTS#1": 0.9870967741935484,
+    "SR-REQUIREMENTS#2": 1,
+    "SR-REQUIREMENTS#3": 1,
+    "SR-REQUIREMENTS#4": 0.9333333333333333,
+    "SR-RATIONALE#1": 1,
+    "SR-ADR-EVALUATION#1": 0.9870967741935484,
+    "MD-APPLICABILITY#1": 1,
+    "MD-EXEMPTION#1": 0.9636363636363636,
+    "MD-MODULES#1": 0.980952380952381,
+    "MD-INTERFACES#1": 0,
+    "MD-INTERFACES#2": 1,
+    "MD-INTERFACES#3": 0.9478260869565218,
+    "MD-INTERFACES#4": 0.980952380952381,
+    "MD-INTERFACES#5": 0,
+    "MD-INTERFACES#6": 0,
+    "MD-DEPENDENCIES-DATA-FLOW#1": 0.9846153846153847,
+    "MD-DEPENDENCIES-DATA-FLOW#2": 0.9636363636363636,
+    "MD-RATIONALE#1": 0,
+    "MD-RATIONALE#2": 0,
+    "MD-RATIONALE#3": 0
+   }
+  }
+ ],
+ "q3_instances": [
+  {
+   "final": 0.6229679776340572,
+   "before_penalty": 0.6921866418156191,
+   "clean_acceptance": 0.9811320754716981,
+   "diagnostics": [
+    "requirement-scope-continuation"
+   ],
+   "problem": {
+    "SR-INPUTS#1": 0.9076923076923078,
+    "SR-REQUIREMENTS#1": 0.9870967741935484,
+    "SR-REQUIREMENTS#2": 0.980952380952381,
+    "SR-REQUIREMENTS#3": 1,
+    "SR-REQUIREMENTS#4": 0,
+    "SR-RATIONALE#1": 1,
+    "SR-ADR-EVALUATION#1": 0.9636363636363636,
+    "MD-APPLICABILITY#1": 0,
+    "MD-EXEMPTION#1": 0.9636363636363636,
+    "MD-MODULES#1": 0,
+    "MD-INTERFACES#1": 0.9333333333333333,
+    "MD-INTERFACES#2": 0.9870967741935484,
+    "MD-INTERFACES#3": 0.9478260869565218,
+    "MD-INTERFACES#4": 0.9478260869565218,
+    "MD-INTERFACES#5": 0,
+    "MD-INTERFACES#6": 0.9199999999999999,
+    "MD-DEPENDENCIES-DATA-FLOW#1": 1,
+    "MD-DEPENDENCIES-DATA-FLOW#2": 0,
+    "MD-RATIONALE#1": 1,
+    "MD-RATIONALE#2": 0,
+    "MD-RATIONALE#3": 0
+   },
+   "batch": "A",
+   "metrics": {
+    "rep": 1,
+    "work_s": 1334.6964643554688,
+    "read": 298365,
+    "reused": 3354587,
+    "generated": 102291,
+    "engine_in_tps": 1766.780162842339,
+    "engine_out_tps": 88.30346606491868,
+    "task_in_tps": 223.5452089431299,
+    "task_out_tps": 76.63989733380825
+   }
+  },
+  {
+   "final": 0.6252365450211735,
+   "before_penalty": 0.6947072722457484,
+   "clean_acceptance": 0.9622641509433962,
+   "diagnostics": [
+    "requirement-scope-continuation"
+   ],
+   "problem": {
+    "SR-INPUTS#1": 0.9636363636363636,
+    "SR-REQUIREMENTS#1": 0.9750000000000001,
+    "SR-REQUIREMENTS#2": 0.980952380952381,
+    "SR-REQUIREMENTS#3": 0.980952380952381,
+    "SR-REQUIREMENTS#4": 0,
+    "SR-RATIONALE#1": 0.9636363636363636,
+    "SR-ADR-EVALUATION#1": 0.9870967741935484,
+    "MD-APPLICABILITY#1": 1,
+    "MD-EXEMPTION#1": 0.9636363636363636,
+    "MD-MODULES#1": 1,
+    "MD-INTERFACES#1": 0.9478260869565218,
+    "MD-INTERFACES#2": 0,
+    "MD-INTERFACES#3": 0.9636363636363636,
+    "MD-INTERFACES#4": 0,
+    "MD-INTERFACES#5": 0,
+    "MD-INTERFACES#6": 0.9333333333333333,
+    "MD-DEPENDENCIES-DATA-FLOW#1": 1,
+    "MD-DEPENDENCIES-DATA-FLOW#2": 0,
+    "MD-RATIONALE#1": 0.980952380952381,
+    "MD-RATIONALE#2": 0,
+    "MD-RATIONALE#3": 0
+   },
+   "batch": "A",
+   "metrics": {
+    "rep": 2,
+    "work_s": 1444.327708251953,
+    "read": 400765,
+    "reused": 3784095,
+    "generated": 108860,
+    "engine_in_tps": 1847.6436797506753,
+    "engine_out_tps": 89.3323135805468,
+    "task_in_tps": 277.4751171152422,
+    "task_out_tps": 75.37070664645182
+   }
+  },
+  {
+   "final": 0.5947910871784755,
+   "before_penalty": 0.6608789857538616,
+   "clean_acceptance": 1,
+   "diagnostics": [
+    "review-evidence-invalid",
+    "requirement-scope-continuation"
+   ],
+   "problem": {
+    "SR-INPUTS#1": 0.9333333333333333,
+    "SR-REQUIREMENTS#1": 1,
+    "SR-REQUIREMENTS#2": 1,
+    "SR-REQUIREMENTS#3": 1,
+    "SR-REQUIREMENTS#4": 0.9478260869565218,
+    "SR-RATIONALE#1": 1,
+    "SR-ADR-EVALUATION#1": 1,
+    "MD-APPLICABILITY#1": 1,
+    "MD-EXEMPTION#1": 0.9636363636363636,
+    "MD-MODULES#1": 0.980952380952381,
+    "MD-INTERFACES#1": 0,
+    "MD-INTERFACES#2": 0.9870967741935484,
+    "MD-INTERFACES#3": 0,
+    "MD-INTERFACES#4": 0.980952380952381,
+    "MD-INTERFACES#5": 0,
+    "MD-INTERFACES#6": 0,
+    "MD-DEPENDENCIES-DATA-FLOW#1": 1,
+    "MD-DEPENDENCIES-DATA-FLOW#2": 0,
+    "MD-RATIONALE#1": 0,
+    "MD-RATIONALE#2": 0,
+    "MD-RATIONALE#3": 0
+   },
+   "batch": "A",
+   "metrics": {
+    "rep": 3,
+    "work_s": 1362.9751936035154,
+    "read": 399895,
+    "reused": 2554910,
+    "generated": 100536,
+    "engine_in_tps": 2018.591057312752,
+    "engine_out_tps": 86.78298039838546,
+    "task_in_tps": 293.3985899939482,
+    "task_out_tps": 73.76216417717545
+   }
+  },
+  {
+   "final": 0.5369475515948767,
+   "before_penalty": 0.5966083906609742,
+   "clean_acceptance": 0.9245283018867925,
+   "diagnostics": [
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid"
+   ],
+   "problem": {
+    "SR-INPUTS#1": 0.9636363636363636,
+    "SR-REQUIREMENTS#1": 0.9870967741935484,
+    "SR-REQUIREMENTS#2": 1,
+    "SR-REQUIREMENTS#3": 1,
+    "SR-REQUIREMENTS#4": 0,
+    "SR-RATIONALE#1": 1,
+    "SR-ADR-EVALUATION#1": 0.9636363636363636,
+    "MD-APPLICABILITY#1": 1,
+    "MD-EXEMPTION#1": 0.9636363636363636,
+    "MD-MODULES#1": 0,
+    "MD-INTERFACES#1": 0,
+    "MD-INTERFACES#2": 0.8666666666666667,
+    "MD-INTERFACES#3": 0,
+    "MD-INTERFACES#4": 0,
+    "MD-INTERFACES#5": 0,
+    "MD-INTERFACES#6": 0.9636363636363636,
+    "MD-DEPENDENCIES-DATA-FLOW#1": 1,
+    "MD-DEPENDENCIES-DATA-FLOW#2": 0,
+    "MD-RATIONALE#1": 0.8,
+    "MD-RATIONALE#2": 0,
+    "MD-RATIONALE#3": 0
+   },
+   "batch": "B",
+   "metrics": {
+    "rep": 4,
+    "work_s": 1380.569014404297,
+    "read": 296927,
+    "reused": 4839004,
+    "generated": 104926,
+    "engine_in_tps": 1647.4253344207905,
+    "engine_out_tps": 88.12334547213675,
+    "task_in_tps": 215.0758106997797,
+    "task_out_tps": 76.0019954853721
+   }
+  },
+  {
+   "final": 0.58299865355537,
+   "before_penalty": 0.6477762817281888,
+   "clean_acceptance": 1,
+   "diagnostics": [
+    "requirement-scope-continuation"
+   ],
+   "problem": {
+    "SR-INPUTS#1": 0.7538461538461538,
+    "SR-REQUIREMENTS#1": 1,
+    "SR-REQUIREMENTS#2": 1,
+    "SR-REQUIREMENTS#3": 0.9870967741935484,
+    "SR-REQUIREMENTS#4": 0,
+    "SR-RATIONALE#1": 1,
+    "SR-ADR-EVALUATION#1": 0.9870967741935484,
+    "MD-APPLICABILITY#1": 0.9870967741935484,
+    "MD-EXEMPTION#1": 0.9636363636363636,
+    "MD-MODULES#1": 0.9478260869565218,
+    "MD-INTERFACES#1": 0,
+    "MD-INTERFACES#2": 0,
+    "MD-INTERFACES#3": 0.9636363636363636,
+    "MD-INTERFACES#4": 0,
+    "MD-INTERFACES#5": 0,
+    "MD-INTERFACES#6": 0.9199999999999999,
+    "MD-DEPENDENCIES-DATA-FLOW#1": 0.9921568627450981,
+    "MD-DEPENDENCIES-DATA-FLOW#2": 0,
+    "MD-RATIONALE#1": 1,
+    "MD-RATIONALE#2": 0,
+    "MD-RATIONALE#3": 0
+   },
+   "batch": "B",
+   "metrics": {
+    "rep": 5,
+    "work_s": 1243.378781982422,
+    "read": 264558,
+    "reused": 4625253,
+    "generated": 97681,
+    "engine_in_tps": 1545.08979413053,
+    "engine_out_tps": 92.02348798233407,
+    "task_in_tps": 212.7734555500402,
+    "task_out_tps": 78.56093526403842
+   }
+  },
+  {
+   "final": 0.6565941645186055,
+   "before_penalty": 0.7295490716873395,
+   "clean_acceptance": 0.9811320754716981,
+   "diagnostics": [
+    "requirement-scope-continuation"
+   ],
+   "problem": {
+    "SR-INPUTS#1": 0.781818181818182,
+    "SR-REQUIREMENTS#1": 1,
+    "SR-REQUIREMENTS#2": 1,
+    "SR-REQUIREMENTS#3": 1,
+    "SR-REQUIREMENTS#4": 0.9636363636363636,
+    "SR-RATIONALE#1": 0.9333333333333333,
+    "SR-ADR-EVALUATION#1": 0.9870967741935484,
+    "MD-APPLICABILITY#1": 0.9870967741935484,
+    "MD-EXEMPTION#1": 0.9333333333333333,
+    "MD-MODULES#1": 0,
+    "MD-INTERFACES#1": 0.9333333333333333,
+    "MD-INTERFACES#2": 0.9636363636363636,
+    "MD-INTERFACES#3": 0.9333333333333333,
+    "MD-INTERFACES#4": 0,
+    "MD-INTERFACES#5": 1,
+    "MD-INTERFACES#6": 0,
+    "MD-DEPENDENCIES-DATA-FLOW#1": 1,
+    "MD-DEPENDENCIES-DATA-FLOW#2": 0,
+    "MD-RATIONALE#1": 0.980952380952381,
+    "MD-RATIONALE#2": 0,
+    "MD-RATIONALE#3": 0
+   },
+   "batch": "C",
+   "metrics": {
+    "rep": 6,
+    "work_s": 1402.8927927246093,
+    "read": 394192,
+    "reused": 3521863,
+    "generated": 105851,
+    "engine_in_tps": 1913.8599872795157,
+    "engine_out_tps": 89.0248569181795,
+    "task_in_tps": 280.9851202061031,
+    "task_out_tps": 75.45195224392229
+   }
+  },
+  {
+   "final": 0.5112426930589102,
+   "before_penalty": 0.5680474367321224,
+   "clean_acceptance": 0.9811320754716981,
+   "diagnostics": [
+    "requirement-scope-continuation"
+   ],
+   "problem": {
+    "SR-INPUTS#1": 0.9333333333333333,
+    "SR-REQUIREMENTS#1": 0.9750000000000001,
+    "SR-REQUIREMENTS#2": 1,
+    "SR-REQUIREMENTS#3": 1,
+    "SR-REQUIREMENTS#4": 0,
+    "SR-RATIONALE#1": 0,
+    "SR-ADR-EVALUATION#1": 0.9529411764705884,
+    "MD-APPLICABILITY#1": 1,
+    "MD-EXEMPTION#1": 0.9636363636363636,
+    "MD-MODULES#1": 0,
+    "MD-INTERFACES#1": 0,
+    "MD-INTERFACES#2": 0.9870967741935484,
+    "MD-INTERFACES#3": 0.980952380952381,
+    "MD-INTERFACES#4": 0,
+    "MD-INTERFACES#5": 0,
+    "MD-INTERFACES#6": 0,
+    "MD-DEPENDENCIES-DATA-FLOW#1": 1,
+    "MD-DEPENDENCIES-DATA-FLOW#2": 0,
+    "MD-RATIONALE#1": 1,
+    "MD-RATIONALE#2": 0,
+    "MD-RATIONALE#3": 0
+   },
+   "batch": "C",
+   "metrics": {
+    "rep": 7,
+    "work_s": 1187.4187990722655,
+    "read": 269582,
+    "reused": 3217692,
+    "generated": 91120,
+    "engine_in_tps": 1758.0441105502734,
+    "engine_out_tps": 88.71390156183978,
+    "task_in_tps": 227.0319454354482,
+    "task_out_tps": 76.73787889428093
+   }
+  },
+  {
+   "final": 0.5069842222161707,
+   "before_penalty": 0.5633158024624119,
+   "clean_acceptance": 1,
+   "diagnostics": [
+    "requirement-scope-continuation",
+    "review-evidence-invalid",
+    "review-evidence-invalid"
+   ],
+   "problem": {
+    "SR-INPUTS#1": 1,
+    "SR-REQUIREMENTS#1": 0.9870967741935484,
+    "SR-REQUIREMENTS#2": 1,
+    "SR-REQUIREMENTS#3": 1,
+    "SR-REQUIREMENTS#4": 0.9478260869565218,
+    "SR-RATIONALE#1": 0,
+    "SR-ADR-EVALUATION#1": 0,
+    "MD-APPLICABILITY#1": 0,
+    "MD-EXEMPTION#1": 0.9333333333333333,
+    "MD-MODULES#1": 0.980952380952381,
+    "MD-INTERFACES#1": 0,
+    "MD-INTERFACES#2": 0.9870967741935484,
+    "MD-INTERFACES#3": 0.9478260869565218,
+    "MD-INTERFACES#4": 0,
+    "MD-INTERFACES#5": 0,
+    "MD-INTERFACES#6": 0.9333333333333333,
+    "MD-DEPENDENCIES-DATA-FLOW#1": 0.9478260869565218,
+    "MD-DEPENDENCIES-DATA-FLOW#2": 0,
+    "MD-RATIONALE#1": 0,
+    "MD-RATIONALE#2": 0,
+    "MD-RATIONALE#3": 0
+   },
+   "batch": "C",
+   "metrics": {
+    "rep": 8,
+    "work_s": 1158.2754780273438,
+    "read": 378400,
+    "reused": 3368843,
+    "generated": 86225,
+    "engine_in_tps": 1892.6624318511479,
+    "engine_out_tps": 90.69270398364218,
+    "task_in_tps": 326.6925763156552,
+    "task_out_tps": 74.44256710575415
+   }
+  },
+  {
+   "final": 0.6603403946878758,
+   "before_penalty": 0.6603403946878758,
+   "clean_acceptance": 1,
+   "diagnostics": [],
+   "problem": {
+    "SR-INPUTS#1": 1,
+    "SR-REQUIREMENTS#1": 0.9750000000000001,
+    "SR-REQUIREMENTS#2": 1,
+    "SR-REQUIREMENTS#3": 1,
+    "SR-REQUIREMENTS#4": 0,
+    "SR-RATIONALE#1": 0,
+    "SR-ADR-EVALUATION#1": 0.9870967741935484,
+    "MD-APPLICABILITY#1": 1,
+    "MD-EXEMPTION#1": 0.9636363636363636,
+    "MD-MODULES#1": 0.9636363636363636,
+    "MD-INTERFACES#1": 0,
+    "MD-INTERFACES#2": 1,
+    "MD-INTERFACES#3": 0.9478260869565218,
+    "MD-INTERFACES#4": 0.9636363636363636,
+    "MD-INTERFACES#5": 0,
+    "MD-INTERFACES#6": 0,
+    "MD-DEPENDENCIES-DATA-FLOW#1": 1,
+    "MD-DEPENDENCIES-DATA-FLOW#2": 0,
+    "MD-RATIONALE#1": 0.980952380952381,
+    "MD-RATIONALE#2": 0,
+    "MD-RATIONALE#3": 0
+   },
+   "batch": "D",
+   "metrics": {
+    "rep": 9,
+    "work_s": 1100.0641103515625,
+    "read": 271962,
+    "reused": 3154474,
+    "generated": 82886,
+    "engine_in_tps": 1712.9630212827603,
+    "engine_out_tps": 88.79532915528415,
+    "task_in_tps": 247.2237730881752,
+    "task_out_tps": 75.34651773478092
+   }
+  },
+  {
+   "final": 0.7394738964235655,
+   "before_penalty": 0.7394738964235655,
+   "clean_acceptance": 0.9622641509433962,
+   "diagnostics": [],
+   "problem": {
+    "SR-INPUTS#1": 0.9636363636363636,
+    "SR-REQUIREMENTS#1": 0.980952380952381,
+    "SR-REQUIREMENTS#2": 1,
+    "SR-REQUIREMENTS#3": 1,
+    "SR-REQUIREMENTS#4": 0.980952380952381,
+    "SR-RATIONALE#1": 1,
+    "SR-ADR-EVALUATION#1": 0.9870967741935484,
+    "MD-APPLICABILITY#1": 0,
+    "MD-EXEMPTION#1": 0.9636363636363636,
+    "MD-MODULES#1": 0.980952380952381,
+    "MD-INTERFACES#1": 0.9636363636363636,
+    "MD-INTERFACES#2": 0.9870967741935484,
+    "MD-INTERFACES#3": 0.9636363636363636,
+    "MD-INTERFACES#4": 0,
+    "MD-INTERFACES#5": 1,
+    "MD-INTERFACES#6": 0.9076923076923078,
+    "MD-DEPENDENCIES-DATA-FLOW#1": 1,
+    "MD-DEPENDENCIES-DATA-FLOW#2": 0,
+    "MD-RATIONALE#1": 0,
+    "MD-RATIONALE#2": 0,
+    "MD-RATIONALE#3": 0
+   },
+   "batch": "D",
+   "metrics": {
+    "rep": 10,
+    "work_s": 1001.4943020019531,
+    "read": 283292,
+    "reused": 2758743,
+    "generated": 74325,
+    "engine_in_tps": 1792.522193607988,
+    "engine_out_tps": 88.83451978562584,
+    "task_in_tps": 282.869307827023,
+    "task_out_tps": 74.21410171922781
+   }
+  }
+ ],
+ "telemetry": {
+  "A": {
+   "power_mean_w": 306,
+   "power_max_w": 349,
+   "temp_max_c": 80
+  },
+  "B": {
+   "power_mean_w": 301,
+   "power_max_w": 349,
+   "temp_max_c": 80
+  },
+  "C": {
+   "power_mean_w": 304,
+   "power_max_w": 349,
+   "temp_max_c": 80
+  },
+  "D": {
+   "power_mean_w": 303,
+   "power_max_w": 350,
+   "temp_max_c": 79
+  }
+ }
+}
