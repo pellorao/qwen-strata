@@ -1,0 +1,283 @@
+diff --git a/lib/release/reviewer-capability-conformance.mjs b/lib/release/reviewer-capability-conformance.mjs
+index f383498..a0f0230 100644
+--- a/lib/release/reviewer-capability-conformance.mjs
++++ b/lib/release/reviewer-capability-conformance.mjs
+@@ -185,7 +185,7 @@ const SCENARIO_SEGMENTS = new Map([
+     ['spec-readiness-reviewer', 'sr'],
+ ]);
+ const SCENARIO_REVISIONS = new Map([
+-    ['code-spec-reviewer', 11],
++    ['code-spec-reviewer', 12],
+     ['code-standards-reviewer', 14],
+     ['commit-audit-reviewer', 19],
+     ['spec-readiness-reviewer', 42],
+diff --git a/tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json b/tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json
+index 6f291bf..6eaad77 100644
+--- a/tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json
++++ b/tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json
+@@ -301,6 +301,37 @@
+                   "line": 12
+                 }
+               ]
++            },
++            {
++              "associationEvidence": [
++                {
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 20
++                }
++              ],
++              "check": "CODE-SPEC-FINDINGS",
++              "evidence": [
++                {
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 20
++                },
++                {
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 14
++                },
++                {
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 31
++                },
++                {
++                  "filePath": "src/reservations/reservation-store.mjs",
++                  "line": 8
++                },
++                {
++                  "filePath": "governing-spec.md",
++                  "line": 12
++                }
++              ]
+             }
+           ],
+           "findingTerms": [
+@@ -726,24 +757,52 @@
+         {
+           "expectation": "A new hold expires after five minutes instead of the required ten minutes.",
+           "result": "gap",
+-          "associationEvidence": [
+-            {
+-              "filePath": "src/reservations/hold-policy.mjs",
+-              "line": 5
+-            }
+-          ],
+-          "evidence": [
+-            {
+-              "filePath": "src/reservations/hold-policy.mjs",
+-              "line": 5
+-            },
++          "placements": [
+             {
+-              "filePath": "src/reservations/hold-policy.mjs",
+-              "line": 18
++              "associationEvidence": [
++                {
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 5
++                }
++              ],
++              "check": "CODE-SPEC-FINDINGS",
++              "evidence": [
++                {
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 5
++                },
++                {
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 18
++                },
++                {
++                  "filePath": "governing-spec.md",
++                  "line": 31
++                }
++              ]
+             },
+             {
+-              "filePath": "governing-spec.md",
+-              "line": 31
++              "associationEvidence": [
++                {
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 18
++                }
++              ],
++              "check": "CODE-SPEC-FINDINGS",
++              "evidence": [
++                {
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 5
++                },
++                {
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 18
++                },
++                {
++                  "filePath": "governing-spec.md",
++                  "line": 31
++                }
++              ]
+             }
+           ],
+           "findingTerms": [
+@@ -1002,24 +1061,52 @@
+         {
+           "expectation": "Building access begins only ten minutes before the reservation instead of fifteen minutes before it.",
+           "result": "gap",
+-          "associationEvidence": [
+-            {
+-              "filePath": "src/reservations/access-policy.mjs",
+-              "line": 4
+-            }
+-          ],
+-          "evidence": [
+-            {
+-              "filePath": "src/reservations/access-policy.mjs",
+-              "line": 4
+-            },
++          "placements": [
+             {
+-              "filePath": "src/reservations/access-policy.mjs",
+-              "line": 9
++              "associationEvidence": [
++                {
++                  "filePath": "src/reservations/access-policy.mjs",
++                  "line": 4
++                }
++              ],
++              "check": "CODE-SPEC-FINDINGS",
++              "evidence": [
++                {
++                  "filePath": "src/reservations/access-policy.mjs",
++                  "line": 4
++                },
++                {
++                  "filePath": "src/reservations/access-policy.mjs",
++                  "line": 9
++                },
++                {
++                  "filePath": "governing-spec.md",
++                  "line": 46
++                }
++              ]
+             },
+             {
+-              "filePath": "governing-spec.md",
+-              "line": 46
++              "associationEvidence": [
++                {
++                  "filePath": "src/reservations/access-policy.mjs",
++                  "line": 9
++                }
++              ],
++              "check": "CODE-SPEC-FINDINGS",
++              "evidence": [
++                {
++                  "filePath": "src/reservations/access-policy.mjs",
++                  "line": 4
++                },
++                {
++                  "filePath": "src/reservations/access-policy.mjs",
++                  "line": 9
++                },
++                {
++                  "filePath": "governing-spec.md",
++                  "line": 46
++                }
++              ]
+             }
+           ],
+           "findingTerms": [
+@@ -1044,24 +1131,52 @@
+         {
+           "expectation": "Building access checks time and building but never requires the reservation to be confirmed.",
+           "result": "gap",
+-          "associationEvidence": [
+-            {
+-              "filePath": "src/reservations/access-policy.mjs",
+-              "line": 7
+-            }
+-          ],
+-          "evidence": [
+-            {
+-              "filePath": "src/reservations/access-policy.mjs",
+-              "line": 7
+-            },
++          "placements": [
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 79
++              "associationEvidence": [
++                {
++                  "filePath": "src/reservations/access-policy.mjs",
++                  "line": 7
++                }
++              ],
++              "check": "CODE-SPEC-FINDINGS",
++              "evidence": [
++                {
++                  "filePath": "src/reservations/access-policy.mjs",
++                  "line": 7
++                },
++                {
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 79
++                },
++                {
++                  "filePath": "governing-spec.md",
++                  "line": 48
++                }
++              ]
+             },
+             {
+-              "filePath": "governing-spec.md",
+-              "line": 48
++              "associationEvidence": [
++                {
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 79
++                }
++              ],
++              "check": "CODE-SPEC-FINDINGS",
++              "evidence": [
++                {
++                  "filePath": "src/reservations/access-policy.mjs",
++                  "line": 7
++                },
++                {
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 79
++                },
++                {
++                  "filePath": "governing-spec.md",
++                  "line": 48
++                }
++              ]
+             }
+           ],
+           "findingTerms": [
+diff --git a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md
+index b93b64f..4a731aa 100644
+--- a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md
++++ b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md
+@@ -39,7 +39,7 @@
+ 
+ ## Cancellation and access
+ 
+-- Only reservations in the `held` or `confirmed` state may be canceled.
++- Only reservations in the `held` or `confirmed` state may be canceled; any state other than `held`, `confirmed`, or `canceled` must be rejected.
+ - Canceling an already canceled reservation returns it unchanged and performs no persistence or notification work.
+ - A successful cancellation records `canceledAt` from the injected `now()` function.
+ - The canceled record must be saved before its cancellation notification is sent.
+diff --git a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/access-policy.mjs b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/access-policy.mjs
+index 2962e4c..c426ae5 100644
+--- a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/access-policy.mjs
++++ b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/access-policy.mjs
+@@ -7,5 +7,5 @@ const LATE_ACCESS_MS = 15 * 60 * 1_000;
+ export const reviewerCapabilityCanEnterBuilding = (/** @type {EntryRequest} */ {buildingId, reservation, now}) => (
+     reservation.buildingId === buildingId
+     && now() >= reservation.startAt - EARLY_ACCESS_MS
+-    && now() <= reservation.endAt + LATE_ACCESS_MS
++    && now() < reservation.endAt + LATE_ACCESS_MS
+ );

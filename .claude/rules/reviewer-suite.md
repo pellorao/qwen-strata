@@ -23,6 +23,7 @@ paths:
 - Spec Readiness 的 runtime-migration 与 artifact-promotion 各用全新根线程，互不可见，与 ARW 准备规则一致（每个 instanceId 一个独立线程和一次审核）；两份报告分别绑定，按原版融合评分。原"合并实例"（同一线程先 RM 后 AP）已停用（用户 2026-10-13）：它偏离 ARW，且有 AP 照搬 RM finding、引用 RM 专有约定的污染证据（[审查报告](../../reports/v0.1.42/spec-rule-audit/summary.md)）；此前用合并实例得到的 Spec Readiness 结果只在合并实例之间可比。
 - Spec Readiness 使用 v2 场景（修订号 41，用户 2026-10-13 决定 ARW 采用 v2）：夹具与答案键由 `arw-patches/spec-readiness-v2.patch` 提供，冻结源 manifest 登记；与原版的差异、原因和审查依据见 [v2 变更说明](../../benchmarks/reviewer-suite-v1/spec-readiness-v2.md)。v2 的分数只与 v2 比较。v2 先用于能力验证和 benchmark；是否用于调参，待 IQ3_XXS ×5 的组内标准差明显低于 0.1 再定。
 - 冻结源现已叠加 v3（修订号 42，`arw-patches/spec-readiness-v3.patch`，自主模式按 main 计划 587fe9b 登记，待用户确认是否采用）：消除 v2 审计后发现的歧义，见 [v3 变更说明](../../benchmarks/reviewer-suite-v1/spec-readiness-v3.md)。v3 的分数只与 v3 比较；v2 结果仍只与 v2 比较。
+- Code Spec 使用 v2 场景（code-spec-reviewer 修订号 12，`arw-patches/code-spec-v2.patch`，自主模式登记，待用户确认是否采用）：访问窗口结束边界改为半开、取消状态要求写明、答案键补 4 个直接证据关联点，见 [Code Spec v2 变更说明](../../benchmarks/reviewer-suite-v1/code-spec-v2.md)。v2 的分数只与 v2 比较，不与 F6 等原版结果直接比较。
 
 ## 会话检查
 - 按冻结 ARW 的 `docs/agents/reviewer-capability-session-inspection.md` 检查每个原生会话：准备项、线程身份、启动上下文、交接后的全部消息、每次工具调用及结果、读写范围、报告和终态，并排查隐藏答案、其他实例等禁止来源。
