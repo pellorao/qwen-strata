@@ -44,6 +44,10 @@ def sample(root, output, stop):
                     row['gpu']['temperature_c']=temperature.value if nvml.nvmlDeviceGetTemperature(handle,0,ctypes.byref(temperature))==0 else None
                     row['gpu']['sm_clock_mhz']=clock.value if nvml.nvmlDeviceGetClockInfo(handle,1,ctypes.byref(clock))==0 else None
                     row['gpu']['throttle_reasons']=reasons.value if nvml.nvmlDeviceGetCurrentClocksThrottleReasons(handle,ctypes.byref(reasons))==0 else None
+                    # Board power draw (NVML averages it over its own short window) and memory clock, for power-related resets.
+                    power=ctypes.c_uint();mem_clock=ctypes.c_uint()
+                    row['gpu']['power_w']=power.value/1000 if nvml.nvmlDeviceGetPowerUsage(handle,ctypes.byref(power))==0 else None
+                    row['gpu']['mem_clock_mhz']=mem_clock.value if nvml.nvmlDeviceGetClockInfo(handle,2,ctypes.byref(mem_clock))==0 else None
             stream.write(json.dumps(row)+'\n');stream.flush();time.sleep(1)
     if nvml:nvml.nvmlShutdown()
 
