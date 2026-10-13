@@ -13,7 +13,7 @@
   - 0.75 不是 Q3 在此场景的通过线。
   - Opus 参照是 medium、未接入本工程提示、在 Claude Code 中运行，不是 ARW 定 0.75 线时用的参考模型。
   - 本次 Opus 0.770 高于 0.75；v2.1 键下 Opus 是 0.744，低于 0.75。这只说明场景比原版难，不能用来判断场景有效与否。
-- **调参**：判据是两种口径的 SD 都 ≤ 0.068。原定 5 次的扣罚后 SD 0.069、扣罚前 0.080，**未达**。是否用于调参等 10 次附录再定。
+- **调参**：判据是两种口径的 SD 都 ≤ 0.068。原定 5 次未达（扣罚后 0.069、扣罚前 0.080）；10 次也未达（扣罚后 0.097、扣罚前 0.109，见文末附录）。**v3 不用于调参**，只用于 ARW 能力验证和 benchmark。
 - v3 未能宣称"修到无问题"，残余与偏离见下文"偏离清单"。
 
 ## 分数（能力验证口径，ARW 原版罚分）
@@ -187,3 +187,98 @@ v3 三轮的盲答结果：
   - 不阻断进入 Code Spec，但要先处理引擎常驻与前端空闲不一致，它违反独占 key 硬约束。
 - **双方一致**，没有分歧。证据链缺口：v3 第 2、3 轮阶段 2 的审计结论原文只保存了摘要（见 `benchmarks/reviewer-suite-v1/spec-readiness-v3.md` 的变更说明）。
 - **残余 (a)**（RM 的 `#requirements` 把失败结果交给未选定的节）要在 10 次附录里核对是否造成失分；如果造成失分，升为修复项。
+
+## 附录：v3 加测至 10 次（批 C/D）
+
+### 结论
+- Q3 ×10 扣罚后均值 0.546、SD 0.097；扣罚前均值 0.594、SD 0.109。**两种口径都明显高于判据 ≤0.068，不成立**，v3 不宜作为调参用的低噪声场景。
+- 加测 5 次（批 C/D）自身均值 0.528、SD 0.125，比原定 5 次（0.563 / 0.069）更散，主要由两次低值驱动（见"离群"）。
+- 相对口径：Q3 ×10 / Opus = 0.546 / 0.770 = 0.709（原定 5 次为 0.731）。0.75 不是 Q3 的及格线。
+- 三个双 0 用例在 10 次中仍为 0/10（INTERFACES#5、SEAMS#1、MD-RATIONALE#3）；另 MD-RATIONALE#2 为 Q3 0/10（Opus 2/3）。
+
+### 运行与有效性
+| 批 | 时间 | 次数 | RM 正式生成 | 候选 | 会话检查 | 服务日志 thinking 预算 |
+|---|---|---|---|---|---|---|
+| C | 09:04–09:52 | 3 | RM2 被拒，用草稿 | 40 | 6 线程全部有效 | 1631 行全为 8192 |
+| D | 09:52–10:24 | 2 | RM1、RM2 都被拒，用草稿 | 36 | 4 线程全部有效 | 987 行全为 8192 |
+
+- 启动上下文 SHA（`5d36e1d1…` / `50bd785d…` / `c8957099…`）与批 A 一致。
+- 会话标记项：jq `$f`/`$k` 变量假阳性；错乱 workdir 被拒且无结果；写 `/tmp`（含 `/tmp/w1.py`）被只读文件系统拒绝。没有接触隐藏答案或其他实例。
+- 评分可复现：两批 `score-completed` 带裁决各跑两次，`final`/`repeat` 逐字节一致。
+
+### 裁决
+- 76 个候选去来源、按用例分组、新乱序种子，交全新 Opus-high 盲裁（`v3run/adjudicate-B1/`）：matched 59、not-matched 17（批 C 29/40，批 D 30/36）。
+- 裁决者列出的最难判项，worker 逐条复核，全部同意：
+
+| 候选 | 用例 | 裁决 | 复核理由 |
+|---|---|---|---|
+| C009 | DEPS#2 | not-matched | 讲的是不可变 request 的权威来源，不是 Promotion Flow 缺 Artifact Storage 读调用 |
+| C010 | （同组） | matched | 点名 Flow 中缺读调用与调用方向，符合用例 |
+| C021 / C023 / C024 | INTERFACES#3 | not-matched | 讲的是 recoverPromotion 回滚失败缺测试（INTERFACES#4 的缺陷），不是 failureCode 歧义 |
+| C022 / C035 | INTERFACES#3、SEAMS#1 | 两用例都 not-matched | 讲的是 Adapter 接口缺 restore 失败合同，不是成功路径缺 recoveryState 形状 |
+| C030 | MODULES#1 | matched | 明确指出 Readiness 与 Promotion 重复校验 |
+| C034 | MD-RATIONALE#1 | not-matched | 见下方观察 |
+
+- **C034 观察**：该 finding 说缺 Policy Evaluation Seam 与依赖方向理由（证据 `ar:27/51/67/68/71`），实际描述的是 MD-RATIONALE#3 的缺陷。但 MD-RATIONALE#3 的关联证据是 `ar:79`/`ar:55`，所以这个候选没有进入 MD-RATIONALE#3 的池。MD-RATIONALE#3 的 0/10 可能部分来自 placement 过窄。这一点未改分，列为 v3 键的待查项：给 MD-RATIONALE#3 加 `ar:51/67/68/71` 关联、并对全部批次重新池化盲裁后才能确认。
+
+### 10 次分数
+| 次 | 批 | 扣罚前 | 扣罚后 | 诊断数 | clean 接受率 |
+|---|---|---|---|---|---|
+| 1 | A | 0.575 | 0.575 | 0 | 0.981 |
+| 2 | A | 0.623 | 0.560 | 1 | 0.962 |
+| 3 | A | 0.701 | 0.631 | 1 | 0.981 |
+| 4 | B | 0.499 | 0.449 | 3 | 0.981 |
+| 5 | B | 0.668 | 0.601 | 1 | 1.000 |
+| 6 | C | 0.547 | 0.547 | 0 | 1.000 |
+| 7 | C | 0.494 | 0.444 | 4 | 0.981 |
+| 8 | C | 0.406 | 0.366 | 1 | 0.887 |
+| 9 | D | 0.671 | 0.604 | 1 | 0.981 |
+| 10 | D | 0.755 | 0.680 | 1 | 1.000 |
+| 均值 / SD | | 0.594 / 0.109 | 0.546 / 0.097 | | |
+
+扣罚按每条诊断 ×0.9 计入每次；上表"扣罚后"一栏与 `score-completed` 输出一致。
+
+### 离群
+- **第 7 次（0.444）**：RM 越过停止点（requirement-scope-continuation），AP2 另有 3 条 review-evidence-invalid（JSONL 第 2、4、6 行，"Evidence does not identify body lines"）。
+- **第 8 次（0.366）**：只有 1 条 review-evidence-invalid（AP3 第 3 行，同一信息）。低分主要来自 clean 接受率 0.887 和问题检出率 0.358，不是罚分。
+- v2/v3 管线都没有运行 `tools/reviewer/repair_reviewer_report.py`。该工具只修 JSONL 标量 `lines`、Markdown 前言和只含文件的 locator，不覆盖"证据没有指到正文行"这类错误，因此判断它对上述诊断无效。**未实测验证。**
+
+### 逐用例命中（Opus ×3 / Q3 前 5 次 / Q3 ×10，命中次数与均分）
+| 用例 | Opus | Q3 ×5 | Q3 ×10 |
+|---|---|---|---|
+| SR-INPUTS#1 | 3/3 1.00 | 5/5 0.88 | 10/10 0.93 |
+| SR-REQUIREMENTS#1 | 3/3 0.99 | 5/5 0.99 | 10/10 0.99 |
+| SR-REQUIREMENTS#2 | 3/3 1.00 | 5/5 1.00 | 10/10 0.99 |
+| SR-REQUIREMENTS#3 | 3/3 1.00 | 5/5 1.00 | 10/10 1.00 |
+| SR-REQUIREMENTS#4 | 3/3 0.95 | 2/5 0.38 | 5/10 0.48 |
+| SR-RATIONALE#1 | 3/3 1.00 | 5/5 0.98 | 9/10 0.88 |
+| SR-ADR-EVALUATION#1 | 3/3 0.98 | 4/5 0.77 | 8/10 0.76 |
+| MD-APPLICABILITY#1 | 3/3 0.99 | 3/5 0.58 | 7/10 0.68 |
+| MD-EXEMPTION#1 | 3/3 1.00 | 5/5 0.95 | 10/10 0.95 |
+| MD-MODULES#1 | 3/3 0.98 | 2/5 0.39 | 4/10 0.39 |
+| MD-INTERFACES#1 | 1/3 0.31 | 2/5 0.36 | 3/10 0.28 |
+| MD-INTERFACES#2 | 3/3 0.99 | 5/5 0.98 | 8/10 0.79 |
+| MD-INTERFACES#3 | 3/3 0.95 | 1/5 0.19 | 3/10 0.29 |
+| MD-INTERFACES#4 | 3/3 0.98 | 3/5 0.58 | 6/10 0.58 |
+| MD-INTERFACES#5 | 0/3 | 0/5 | 0/10 |
+| MD-INTERFACES#6 | 0/3 | 3/5 0.55 | 3/10 0.27 |
+| MD-SEAMS-ADAPTERS#1 | 0/3 | 0/5 | 0/10 |
+| MD-DEPS-DATA-FLOW#1 | 3/3 1.00 | 4/5 0.80 | 8/10 0.80 |
+| MD-DEPS-DATA-FLOW#2 | 1/3 0.33 | 0/5 | 1/10 0.10 |
+| MD-RATIONALE#1 | 3/3 1.00 | 5/5 0.99 | 8/10 0.79 |
+| MD-RATIONALE#2 | 2/3 0.64 | 0/5 | 0/10 |
+| MD-RATIONALE#3 | 0/3 | 0/5 | 0/10 |
+
+### 残余 (a) 是否造成失分：没有
+- 13 份 RM 报告（Opus 3、Q3 10）的 INPUTS、REQUIREMENTS clean 全部通过，没有一条 REQUIREMENTS finding 因残余 (a) 被判为误报。
+- 只有 2 份报告提到 `promotion-runtime.md:11` 与 `:27` 的张力：Q3 第 2 次和第 10 次的 RM。两条都以 MODULES / DEPS 报出，属于越过停止点的 continuation 内容。这两份报告里还有多条其他 Module Design finding，所以去掉这一条也照样会触发 continuation 罚分。
+- 引用 `access-review.md:15` 的只有批 C RM1 一条，内容是 INPUTS#1（缺 request-consistency Input），已正确匹配，与残余 (a) 无关。
+
+### Opus DEPS#2 为何下降（v2 3/3 → v3 1/3）
+- 命中的是 Opus AP1：它明确指出 Promotion Flow 没写由谁、何时调用 `readArtifact(path)`，以及读失败在哪一段产生。AP2、AP3 的 DEPS 只报了 DEPS#1（缺 Source/Authority 表）。全文也没有其他提到 Artifact Storage 读调用的 finding，所以没有候选进池，不是裁决问题，而是没报。
+- v3 在这一带只改了 `promotion-runtime.md:11`（"Readiness 在调用 Promotion Persistence Interface 前确认 …"）。DEPS#2 的证据行 `:45/:51/:57/:79` 没改。改动可能让 Flow 看起来更完整、降低了这处缺口的显眼度，但 n=3 时 3/3 与 1/3 的差异没有统计意义，这只是推测，**未验证**。Q3 在 v2/v3 都几乎不命中（v3 为 1/10）。
+
+### 收尾状态
+- Spec v3 加测在 10:24 结束后，worker 用 `Controller`（`with c:`）领取租约，停止常驻模型后释放：`{'status': 'stopped', 'model': None}`，当时 strata.exe 已退出，租约空闲。
+- 10:45 复查时 strata.exe 又在运行（PID 2764）。这是 Code Spec v2 worker 10:35 开跑的 Q3 批 A（`arw_measure --out .tmp/code-spec-v2/q3/batch-a/run`），属于它的租约，不是 Spec v3 遗留，worker 未干预。
+- 引擎常驻问题在批 D 后再次出现（前端按设计跨租约保留模型，ARW provider 在批次之间不停引擎）。建议 `arw_measure` 每批开跑前显式停止模型，见上文"引擎常驻"一节。
