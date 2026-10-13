@@ -176,12 +176,13 @@ def main():
     health = host.controller(args.out / 'controller').call('/health', timeout=15)
     if health.get('lease') != 'free':
         raise RuntimeError('Selected host is leased; do not displace its holder')
-    receipt.update(lease='free', model_started=False, generation_requests=0,
+    # The frontend keeps a released model resident (idle stop after 30 minutes); report it, never assume a stopped engine.
+    receipt.update(lease='free', resident_model=health.get('model'), generation_requests=0,
                    model_configurations={m: host.configuration(m) for m in host.deployment['models']},
                    default_profile_sha256={m: host.profile_sha256(m) for m in host.deployment['models']})
     (args.out / 'preflight.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n')
     print(json.dumps({'host': args.host, 'source_files': len(receipt['files']), 'lease': 'free',
-                      'model_started': False, 'generation_requests': 0}))
+                      'resident_model': receipt['resident_model'], 'generation_requests': 0}))
 
 
 if __name__ == '__main__':

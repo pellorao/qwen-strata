@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.arw_measure import ARW_PAUSE_PREFIX, capture_segment, followup_when_idle, local_review_catalog, spec_repetition_order, observe_review, run
+from tools.reviewer.arw_measure import ARW_PAUSE_PREFIX, capture_segment, cold_start_arw_batch, followup_when_idle, local_review_catalog, spec_repetition_order, observe_review, run
 
 
 class ArwOwnedTests(unittest.TestCase):
@@ -145,6 +145,39 @@ class ArwOwnedTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'published context tier'):
                 run(None, Path('/nonexistent'), selection, [], Path('c'), host='rtx3080ti')
 
+
+    def test_batch_starts_cold_through_a_lease_and_reports_the_stopped_model(self):
+        from unittest.mock import patch
+        class Frontend:
+            """Approved residency: release keeps the model; acquiring a measurement lease stops it."""
+            def __init__(self, stops):
+                self.model, self.lease, self.calls, self.stops = 'qwen3.8-flash-next-iq3_xxs', 'free', [], stops
+            def health(self):
+                return {'lease': self.lease, 'model': self.model}
+        class Controller:
+            def __init__(self, frontend): self.frontend = frontend
+            def __enter__(self):
+                assert self.frontend.lease == 'free'  # never displaces a holder
+                self.frontend.lease = 'held'; self.frontend.calls.append('acquire')
+                if self.frontend.stops: self.frontend.model = None; self.frontend.calls.append('stop')
+                return self
+            def call(self, path):
+                return {'status': 'stopped' if self.frontend.model is None else 'running'}
+            def __exit__(self, *exc):
+                self.frontend.lease = 'free'; self.frontend.calls.append('release')
+        for stops in (True, False):
+            frontend = Frontend(stops)
+            class Host:
+                def controller(self, folder): return Controller(frontend)
+            with patch('tools.reviewer.arw_measure.arw_owned_health', lambda host: frontend.health()):
+                if stops:
+                    result = cold_start_arw_batch(Host(), Path('unused'))
+                    self.assertEqual(result['health'], {'lease': 'free', 'model': None})
+                else:
+                    with self.assertRaisesRegex(RuntimeError, 'did not stop'):
+                        cold_start_arw_batch(Host(), Path('unused'))
+            self.assertEqual(frontend.lease, 'free')  # the lease is returned even when the stop fails
+            self.assertEqual(frontend.calls, ['acquire', 'stop', 'release'] if stops else ['acquire', 'release'])
 
 if __name__ == '__main__':
     unittest.main()

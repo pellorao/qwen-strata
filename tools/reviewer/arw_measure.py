@@ -520,6 +520,18 @@ def arw_owned_health(measurement_host):
         return json.load(reply)
 
 
+def cold_start_arw_batch(measurement_host,folder):
+    """ARW's provider reuses a resident model, so take the lease first, stop the model and return the lease."""
+    with measurement_host.controller(folder) as controller:  # acquiring stops a resident model
+        status=controller.call('/model/status')
+        if status.get('status')!='stopped':
+            raise RuntimeError('Resident model did not stop before the ARW-owned batch')
+    health=arw_owned_health(measurement_host)
+    if health.get('model') is not None:
+        raise RuntimeError('Frontend still reports a loaded model after the cold-start stop')
+    return {'model_status':status,'health':health}
+
+
 def capture_segment(measurement_host,model,start,end,folder):
     """Engine log bytes [start,end) belong to one instance: ARW holds the lease for the whole batch."""
     content=measurement_host.log_bytes_since(model,start)[:end-start].decode(errors='replace')
@@ -651,6 +663,8 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
             raise RuntimeError('Installed startup prompt differs from the project source')
         expected_startup={'enabled':True,'sha256':hashlib.sha256(startup_prompt_bytes(source_raw,False)).hexdigest(),
                           'source_sha256':hashlib.sha256(source_raw).hexdigest(),'loop_prevention_enabled':False}
+    if arw_owned:
+        save(out/'cold-start.json',cold_start_arw_batch(measurement_host,out/'cold-start'))
     controller=None if arw_owned else measurement_host.controller(out).__enter__()
     open_segment=None;telemetry=None
     safe_to_release=True

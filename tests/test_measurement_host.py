@@ -102,4 +102,23 @@ class MeasurementHostTests(unittest.TestCase):
             read.assert_called_once_with('Q2_0',37)
 
 
+    def test_preflight_reports_a_resident_model_instead_of_assuming_stopped(self):
+        from tools.ops import measurement_host
+        with tempfile.TemporaryDirectory() as directory:
+            out=Path(directory)/'preflight'
+            class Host:
+                def __init__(self,*a,**k):self.deployment={'models':[]}
+                def verify_sources(self):return {'files':[]}
+                def controller(self,folder):
+                    class C:
+                        def call(self,path,timeout):return {'lease':'free','model':'qwen3.8-flash-next-iq3_xxs'}
+                    return C()
+            with patch.object(measurement_host,'MeasurementHost',Host),\
+                 patch('sys.argv',['measurement_host','--host','rtx3080ti','--out',str(out)]),\
+                 patch('builtins.print'):
+                measurement_host.main()
+            receipt=json.loads((out/'preflight.json').read_text())
+        self.assertEqual(receipt['resident_model'],'qwen3.8-flash-next-iq3_xxs')
+        self.assertNotIn('model_started',receipt)
+
 if __name__=='__main__':unittest.main()
