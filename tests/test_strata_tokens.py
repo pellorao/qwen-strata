@@ -13,7 +13,11 @@ class StrataTokenTests(unittest.TestCase):
                 '2 generated in 4 ms\n')
         self.assertEqual(sum_engine_tokens(parse_engine_log(text)),
                          {'uncached_input': 15, 'cached_input': 5, 'output': 2})
-        for text in ('strata serve: prompt ', 'strata serve: prompt chunk 16384 ->'):
+        for text in ('strata serve: prompt chunk 8192 -> 4096 tokens for this request: its buffers do not fit '
+                     'the slots that can be lent (#2090)', 'strata serve: prompt chunk auto: 8192 tokens, a 3-slot ring'):
+            self.assertEqual(parse_engine_log(text), [])
+        for text in ('strata serve: prompt ', 'strata serve: prompt chunk 16384 ->',
+                     'strata serve: prompt chunk 8192 -> 4096 tokens for this request: its buf'):
             with self.assertRaises(ValueError):
                 parse_engine_log(text)
     def test_budget_continuation_counts_both_physical_passes(self):

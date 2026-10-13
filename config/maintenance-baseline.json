@@ -4,8 +4,8 @@
   "selected_by": "user",
   "reason": "User selects high as the base running effort after observing shorter task times in the current effort comparison.",
   "strata": {
-    "version": "0.1.42",
-    "commit": "61b3fb5dd3f1e8ec09cf7e4e05208bc6d3c46406"
+    "version": "0.1.43.1",
+    "commit": "a0116b2782a5b82622358c04a06496485d12b2d6"
   },
   "start_options": {
     "model": "Q2_0",
@@ -114,6 +114,6 @@
     "scope": "Other parameters inherited from the v0.1.38 published baseline; that historical file is unchanged."
   },
   "selection_evidence": "reports/v0.1.38/reasoning-effort-comparison/summary.md",
-  "qualification": "v0.1.42 installed on rtx3080ti only (rtx4070tis offline, pending sync); short call-chain check recorded in reports/v0.1.42/upgrade.md. This baseline remains the Q2_0 measurement baseline; the service default model is IQ3_XXS (2026-10-11) and its parameters are being tuned. User-selected parameters retained; full safety quality, 100K reliability and ARW Reviewer acceptance are not established.",
+  "qualification": "v0.1.43.1 installed on rtx3080ti only (rtx4070tis offline, pending sync); short call-chain check recorded in reports/v0.1.43.1/upgrade.md. This baseline remains the Q2_0 measurement baseline; the service default model is IQ3_XXS (2026-10-11) and its parameters are being tuned. User-selected parameters retained; full safety quality, 100K reliability and ARW Reviewer acceptance are not established.",
   "model_run_performed_for_selection": false
 }

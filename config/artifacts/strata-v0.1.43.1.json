@@ -1,0 +1,49 @@
+{
+ "schema_version": 1,
+ "status": "installed-rtx3080ti-sha-verified",
+ "version": "0.1.43.1",
+ "commit": "a0116b2782a5b82622358c04a06496485d12b2d6",
+ "engine_version": "0.1.43.1",
+ "source": {
+  "project_file": "artifacts/strata/0.1.43.1/source.zip",
+  "bytes": 21786355,
+  "sha256": "9e37f07e87473210ac98ee6041e6651c02e1c473bf75eae65191840fa2b80768",
+  "url": "https://github.com/Niko1221/Strata/archive/refs/tags/v0.1.43.1.zip",
+  "archive": "tag archive, top directory Strata-0.1.43.1/, ZIP comment = commit"
+ },
+ "engine": {
+  "project_file": "artifacts/strata/0.1.43.1/engine.zip",
+  "bytes": 138187009,
+  "sha256": "38b5f1116bcd76554dd46f5344a6d0f5aa428f02e49db64a7d8e2137356e93d0",
+  "url": "https://github.com/Niko1221/Strata/releases/download/v0.1.43.1/strata-windows-x64.zip"
+ },
+ "build": {
+  "version": "0.1.43.1",
+  "source": "release",
+  "archs": [
+   75,
+   86,
+   89,
+   120
+  ],
+  "ptx": true,
+  "cuda": "13.0",
+  "vision": "gpu",
+  "portable": true
+ },
+ "instruction_dependency_comparison": {
+  "AGENTS.md": {
+   "unchanged": true
+  },
+  "requirements.txt": {
+   "unchanged": true
+  }
+ },
+ "currently_installed": {
+  "rtx3080ti": true,
+  "rtx4070tis": "pending-sync (offline)"
+ },
+ "upstream_files_written": 2984,
+ "removed_upstream_files": [],
+ "backup_on_rtx3080ti": ".tmp/maintenance-backups/release-backup-20261013-230826-710453"
+}

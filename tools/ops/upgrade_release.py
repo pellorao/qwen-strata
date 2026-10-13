@@ -68,11 +68,15 @@ def upgrade(root, metadata, source, engine, cuda_arch=89):
         raise RuntimeError('Engine differs from the official release size or SHA256')
     if not (root / 'config/installed-release.json').is_file():
         raise RuntimeError('An existing installation is required')
-    prefix = 'Strata-' + commit + '/'
     writes = {}
     with zipfile.ZipFile(source) as archive:
         if archive.testzip():
             raise RuntimeError('Source ZIP CRC failure')
+        # Commit archives are named by commit; tag archives by version and carry the commit as the ZIP comment.
+        prefix = 'Strata-' + commit + '/'
+        tag_prefix = 'Strata-' + version + '/'
+        if archive.comment == commit.encode() and all(n.startswith(tag_prefix) for n in archive.namelist()):
+            prefix = tag_prefix
         for info in archive.infolist():
             if info.is_dir():
                 continue

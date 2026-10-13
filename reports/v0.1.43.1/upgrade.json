@@ -1,0 +1,99 @@
+{
+ "version": "0.1.43.1",
+ "host": "rtx3080ti",
+ "install": {
+  "commit": "a0116b2782a5b82622358c04a06496485d12b2d6",
+  "source_zip_sha256": "9e37f07e87473210ac98ee6041e6651c02e1c473bf75eae65191840fa2b80768",
+  "engine_zip_sha256": "38b5f1116bcd76554dd46f5344a6d0f5aa428f02e49db64a7d8e2137356e93d0",
+  "engine_build": {
+   "version": "0.1.43.1",
+   "source": "release",
+   "archs": [
+    75,
+    86,
+    89,
+    120
+   ],
+   "ptx": true,
+   "cuda": "13.0",
+   "vision": "gpu",
+   "portable": true
+  },
+  "model_weights_modified": false,
+  "model_configuration_modified": false,
+  "dependencies_modified": false
+ },
+ "upstream_files_written": 2984,
+ "clients": {
+  "claude_code": "2.1.296",
+  "codex": "0.162.0"
+ },
+ "host_conditions": {
+  "bios": "1.C0 (microcode 0x137)",
+  "cpu_power_profile": "Intel Default Settings",
+  "memory": "XMP 6600"
+ },
+ "prompts": {
+  "startup_source": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+  "startup_loaded": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+  "compact": "3856cb62\u2026"
+ },
+ "short_check": {
+  "model": "IQ3_XXS",
+  "stages": {
+   "c1-tools-search": {
+    "wall": 66.063,
+    "requests": 5,
+    "uncached": 21864,
+    "cached": 38200,
+    "output": 799,
+    "in_tps": 1714.6890439965493,
+    "out_tps": 97.47468586068075
+   },
+   "c2-compact": {
+    "wall": 46.922,
+    "requests": 1,
+    "uncached": 1947,
+    "cached": 20363,
+    "output": 3270,
+    "in_tps": 987.8234398782344,
+    "out_tps": 93.48466222590697
+   },
+   "c3-resume": {
+    "wall": 15.178,
+    "requests": 1,
+    "uncached": 6094,
+    "cached": 13545,
+    "output": 192,
+    "in_tps": 1884.3537414965986,
+    "out_tps": 96.87184661957619
+   },
+   "x1-codex": {
+    "wall": 50.829,
+    "requests": 6,
+    "uncached": 16701,
+    "cached": 55052,
+    "output": 1030,
+    "in_tps": 1677.144004820245,
+    "out_tps": 102.76364361967475
+   }
+  },
+  "total": {
+   "wall": 178.99200000000002,
+   "requests": 13,
+   "uncached": 46606,
+   "cached": 127160,
+   "output": 5291,
+   "input_seconds": 27.914,
+   "decode_seconds": 55.181
+  },
+  "vram_low_warnings": {
+   "requests": 2,
+   "of": 13,
+   "free_mib": [
+    128,
+    276
+   ]
+  }
+ }
+}

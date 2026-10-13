@@ -1232,3 +1232,7 @@ reviewer 在同一线程接第二个任务时，会先切到新目录而找不�
 - **Spec Readiness 单场景评分**：关闭。调参不再使用 ARW 场景，改用专用负载（见计划「采样与窗口重新测量」）；F4 工具 `tools.reviewer.single_scenario_score` 与 2026-10-11 无模型调查结论（原版 `score-completed` 局部评分接受单子场景，只给逐实例诊断分）保留备用。
 - **Strata v0.1.41 后续**：关闭。rtx3080ti 已于 2026-10-11 升级到 v0.1.42；上游 #1622 的跟踪并入每次升级的发布说明核查；"prompt 处理约快 2 倍"不再单独验证；rtx4070tis 同步并入计划「顺序」第 6 项。
 - **ARW 原生运行层关闭插件克隆**：计划条目已过时，关闭。改动早在 0bb2a56（2026-10-12）提交：隔离 codex-home 写 `[features] plugins = false`，采样驱动（67a0ed1）、`wsl_client`、`native_codex_runtime`、`verify_codex_compact_prompt` 都带 `features.plugins=false`，调用手册已有说明。2026-10-13 核对 Code Spec v3 批 A 的真实 ARW codex-home：`config.toml` 为绑定内容，目录共 11 MB，没有约 105 MB 的插件克隆。
+
+## v0.1.43.1 升级（2026-10-13，rtx3080ti）
+
+从 v0.1.42 直接升级（跳过 v0.1.43），参数全部沿用，短检查通过（IQ3_XXS，[报告](../reports/v0.1.43.1/upgrade.md)）。外网当时只有几 KB/s，制品由用户下载。升级工具改为也接受标签源码归档（ZIP 注释须等于标签提交）；计量解析器适配 #2090 新增的分块诊断行。新版显存检查在 2/13 个请求上告警，显存预留 512 待长任务观察。

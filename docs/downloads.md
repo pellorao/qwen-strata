@@ -1,16 +1,24 @@
 # 下载与恢复清单
 
-rtx3080ti 已于 2026-10-10 安装 v0.1.41，见[升级报告](../reports/v0.1.41/upgrade.md)；rtx4070tis 离线，仍为 v0.1.40.2，恢复后待同步。单个不超过200MB的文件可由助手下载；超过200MB的模型等由用户下载，来源与校验由工程维护。以下链接供恢复及后续升级核对。旧0.1.40／0.1.40.1制品继续作为历史恢复来源保留。
+rtx3080ti 已于 2026-10-13 安装 v0.1.43.1，见[升级报告](../reports/v0.1.43.1/upgrade.md)；rtx4070tis 离线，仍为 v0.1.40.2，恢复后待同步。单个不超过200MB的文件可由助手下载；超过200MB的模型等由用户下载，来源与校验由工程维护。以下链接供恢复及后续升级核对。旧0.1.40／0.1.40.1制品继续作为历史恢复来源保留。
 
 探索下载的候选模型、分词器和配套文件统一放工程`.tmp/`；仅在确认需要采用后才进入`artifacts/`。工程长期保留公共来源、固定版本、大小、SHA及必要结果，临时缓存位置不表示已采用或已部署；清空临时目录后重新下载／准备。此规则同时适用于助手和提供给用户的探索下载路径。
 
-## Strata v0.1.41（rtx3080ti 已安装）
+## Strata v0.1.43.1（rtx3080ti 已安装）
+
+2026-10-13 核对官方最新发布，标签提交 `a0116b2782a5b82622358c04a06496485d12b2d6`。当时外网只有几 KB/s，两个文件由用户下载，Main 核对后采用。
+
+- 引擎：[strata-windows-x64.zip](https://github.com/Niko1221/Strata/releases/download/v0.1.43.1/strata-windows-x64.zip)，138187009 字节，官方 SHA256 `38b5f1116bcd76554dd46f5344a6d0f5aa428f02e49db64a7d8e2137356e93d0`，已核对一致。同一发布的 `-cuda12`（约 200MB）和 `-hip`（约 629MB）包不用。
+- 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.1.43.1.zip)，21786355 字节，本地 SHA256 `9e37f07e87473210ac98ee6041e6651c02e1c473bf75eae65191840fa2b80768`（顶层目录 `Strata-0.1.43.1/`，ZIP 注释为标签提交；GitHub 归档没有官方摘要）。
+- 已采用：工程文件为 `artifacts/strata/0.1.43.1/engine.zip` 和 `artifacts/strata/0.1.43.1/source.zip`，版本清单见[制品清单](../config/artifacts/strata-v0.1.43.1.json)，`strata-release.json` 已指向本版。v0.1.42 的制品保留在 `artifacts/strata/0.1.42/`，供回退。
+
+## Strata v0.1.41（rtx3080ti 曾安装）
 
 2026-10-10 核对官方最新发布，标签提交 `fb58e0dbc8399662c0e47c76578c6e878b14f6cf`。
 
 - 引擎：[strata-windows-x64.zip](https://github.com/Niko1221/Strata/releases/download/v0.1.41/strata-windows-x64.zip)，137164559 字节，官方 SHA256 `3dd7715f4844c0f9d2f28eb5067af0198f386df060c93523cd17e1d65b757f13`，下载后已核对一致。
 - 源码：[提交 ZIP](https://github.com/Niko1221/Strata/archive/fb58e0dbc8399662c0e47c76578c6e878b14f6cf.zip)，19149640 字节，本地 SHA256 `b6b559866cf7d422d7acace638d542049ea7e3543720f574cb97b2d0bd530d7b`（GitHub 归档没有官方摘要）。
-- 已采用：工程文件为 `artifacts/strata/0.1.41/engine.zip` 和 `artifacts/strata/0.1.41/source.zip`，版本清单见[制品清单](../config/artifacts/strata-v0.1.41.json)，`strata-release.json` 已指向本版。
+- 已采用：工程文件为 `artifacts/strata/0.1.41/engine.zip` 和 `artifacts/strata/0.1.41/source.zip`，版本清单见[制品清单](../config/artifacts/strata-v0.1.41.json)。
 
 ## Strata v0.1.40下载记录
 

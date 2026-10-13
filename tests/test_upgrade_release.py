@@ -34,6 +34,16 @@ class UpgradeTests(unittest.TestCase):
             upgrade_release.upgrade(self.root,self.metadata,self.source,self.engine)
         self.assertFalse((self.project/'.tmp').exists())
 
+    def test_tag_archive_is_accepted_only_when_its_comment_binds_the_commit(self):
+        with zipfile.ZipFile(self.source) as old,zipfile.ZipFile(self.folder/'tag.zip','w') as new:
+            for name in old.namelist():new.writestr(name.replace('Strata-fixed/','Strata-0.1.38/'),old.read(name))
+        with self.assertRaisesRegex(RuntimeError,'Unexpected source archive entry'):
+            upgrade_release.upgrade(self.root,self.metadata,self.folder/'tag.zip',self.engine)
+        with zipfile.ZipFile(self.folder/'tag.zip','a') as z:z.comment=b'fixed'
+        result=upgrade_release.upgrade(self.root,self.metadata,self.folder/'tag.zip',self.engine)
+        self.assertEqual((self.root/'runtime/Strata/new.txt').read_text(),'new file')
+        self.assertEqual(result['commit'],'fixed')
+
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.folder=Path(self.temp.name)
         self.project=self.folder/'maintenance'

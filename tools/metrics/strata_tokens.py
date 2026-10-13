@@ -12,11 +12,12 @@ def parse_engine_log(content):
     for line_number, line in enumerate(content.splitlines(), 1):
         match = PATTERN.search(line)
         if match is None:
-            # Startup can report "prompt chunk16384 ->8192". This is a
-            # configuration diagnostic, not a partially written token row.
+            # Chunk-size diagnostics (startup clamp, auto ring, v0.1.43.1 per-request
+            # loan clamp #2090) are complete lines, not partially written token rows.
             chunk_notice = re.search(
-                r'strata serve: prompt chunk \d+ -> \d+ tokens '
-                r'so its buffers fit in every expert cache\s*$', line)
+                r'strata serve: prompt chunk (\d+ -> \d+ tokens (so its buffers fit in every expert cache'
+                r'|for this request: its buffers do not fit the slots that can be lent \(#2090\))'
+                r'|auto: \d+ tokens, a \d+-slot ring)\s*$', line)
             if 'strata serve: prompt ' in line and chunk_notice is None:
                 raise ValueError(f'Incomplete native token record at log line {line_number}')
             continue
