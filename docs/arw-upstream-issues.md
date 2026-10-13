@@ -29,6 +29,15 @@
 - **影响**：偶发，与 Reviewer 行为无关，但会让已完成的实例失败，还会让批次缺少重复、拿不到原版批分。
 - **建议**：检查时忽略沙箱的受保护名称挂载点（空目录），或者把报告目录与可写根分开，让沙箱挂载点不落在报告目录里。
 
+### 4. Markdown 证据解析把反引号里的时刻当作 `路径:行` 定位
+
+- **版本**：ARW 760007c（Code Spec Reviewer，`markdown-findings` 评分路径）。
+- **现象**：`lib/release/reviewer-capability-conformance.mjs` 的 Markdown 报告解析把 finding 正文中反引号内形如 `a:b` 的片段都当作证据定位。`` `13:45` `` 被读成文件 `13` 的第 45 行，`` `startAt: 12:00` ``、`` `11:00 <= 11:00` `` 同理；随后第 2638 行按冻结源核对，记 `review-evidence-invalid`（"Markdown evidence is outside the frozen source."），整个实例分数 ×0.9。
+- **证据**：2026-10-13 rtx3080ti Code Spec v2，IQ3_XXS ×10 中有 7 次被 ×0.9，其中全部 `review-evidence-invalid` 都来自这一点（另有 3 次 `review-format-invalid`），没有一条是真实的代码或 spec 引用错误；场景本身是预约时间规则，引用时刻是正常写法。报告见 `reports/v0.1.42/code-spec-v2/summary.md`。
+- **影响**：罚的是写作习惯，不是证据错误；在时间、端口、比例等含冒号内容常见的场景里，会给分数加入与审查能力无关的噪声，也会把调参引向"别把时刻写进反引号"。
+- **建议**：只把路径部分能在冻结源中解析为文件的片段视为定位（或要求定位出现在 Evidence 字段、带文件扩展名）；无法解析为文件的 `a:b` 片段当作普通代码文本，不产生诊断。
+- **本工程临时措施**：无，按 ARW 原版照罚并在报告中注明。
+
 ## 本工程对 ARW 的修改（建议上游同样修改）
 
 本工程按自己当前的 Strata 工作方式修改了冻结的 ARW。修改以补丁形式登记在 `benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json` 的 `patches` 里，展开冻结源码时打上，并校验打完后的 SHA。这些不是 ARW 的缺陷，而是本工程升级了 Strata 的接入方式，建议 ARW 适配。
