@@ -334,3 +334,53 @@ v3 三轮的盲答结果：
 | v3.1 | 0/3 | 0/5 | 1/10，均分 0.10 |
 
 - 其余用例的命中与上文 10 次表相同。
+
+## 剩余两个双 0 用例的成因分析（用户 2026-10-13 指示；只做文字与答案键分析）
+
+依据：
+- Opus ×3、Q3 ×10 的全部 AP 报告；
+- v3 第 2、3 轮的 Opus 盲答（两轮都没有命中这两个用例）；
+- 第 1 轮阶段 1 审计要点；
+- Role `spec-readiness-reviewer.md` 与 `module-design.md`；
+- AP subject 的选定引用。
+
+MD-RATIONALE#3 在 v3.1 中已有命中（Q3 1/10），不再属于本节。
+
+### MD-INTERFACES#5（unexpected-field 顺序）
+- **缺陷大体成立，但答案键的举例不能唯一推出。**
+  - `architecture/05-validation-report.md:29` 列出了 reason `unexpected-field`，但校验顺序里没有它的位置。数组 entry 中出现额外键时（`finding` 以外的未知键），首个 diagnostic 不确定，这一半能从 Input 推出。
+  - expectation 举的例子是"多余根字段 vs 无效 requestId"。可以把 root object 步骤读成包含 `{requestId, checks}` 形状检查：失败时用 `field: "$"`，排在 requestId 之前。按这种读法，这个例子是有定义的。所以举例不能唯一推出，需要改措辞。
+- **漏检原因以非智力原因为主：**
+  1. **缺陷完全位于未选定的 Input 中。** `architecture/05` 不在 AP subject 的选定引用里，issue 写明"其他 Inputs 仅作为 supporting evidence"。Role `spec-readiness-reviewer.md:23` 规定未选定 Input 只作比较证据，"不能变成…独立审查范围"。选定的 `vr:45` 只说"使用该合同的 validation order"，Reviewer 照 Role 把架构合同当作既定事实，是合理行为。
+  2. 键的举例不唯一，见上。
+- **智力成分**：需要逐项比对一行 600 余字里的 reason 集合与顺序表。第 1 轮阶段 1 审计在"穷尽找缺陷"的指示下找到了它（A7），说明深读能发现。
+- 证据：
+  - 13 份 AP 报告里没有任何 finding 提到 unexpected-field，也没有讨论校验顺序是否完整。
+  - 唯一含 "validation order" 的 finding 是 Opus AP1 的 MODULES 重复责任，与本用例无关。
+  - 两轮 Opus 盲答都是 0。
+- **处理**：只改键无法补救，因为没有任何候选，改键不改变分数。要修就要改夹具（v4），候选改动见末尾。
+
+### MD-SEAMS-ADAPTERS#1（recoveryState 成功形状）
+- **按现有文字不能唯一推出。**
+  - 这个缺陷的前提是：`promotion-recovery.md:59` 的 `{status: "failed", restoreFailureCode, baselineStatus}` 是 Seam `restore()` 失败时返回的 `recoveryState`。
+  - 但 `:59` 只说"Restore failure 的内部结果精确为 …"，接着说 Recovery 据此形成公开 shape，没有说这是 Seam 的返回值。
+  - `:57` 又说 Recovery Module 用输入事实形成成功的公开结果，成功时似乎不需要 recoveryState 的字段。
+  - 因此另一种读法同样成立：失败形状是 Recovery 的内部结构，Seam 合同对成功和失败都没有形状。
+- **漏检原因主要是措辞，加上与 clean 用例相撞：**
+  1. Q3 批 C 第 3 次的 SEAMS finding 正是按另一种读法写的："restore 失败合同不属于两个 Adapter 实现的 Interface"。它进入了 SEAMS#1 的候选，但语义是失败合同，判 not-matched。
+  2. 同两行（`:57+:59`）上的 clean C3 断言"Recovery Adapters 共享 restore-failure 结构"。Reviewer 只要对这个 Seam 起疑，最自然的写法就会落到 clean 用例上。
+  3. Opus 3 次都没有报 SEAMS 问题，说明按现有文字，这个 Seam 读起来是完整的。
+  4. 第 1 轮阶段 1 审计也没有列出它；它是阶段 2 对照键才确认的。
+- **智力成分**：措辞改清楚以后，要发现"失败有精确形状、成功只有语义"的不对称，仍然需要对照 Role 的"相同的操作和结果合同"。这一部分保留。
+- **处理**：只改键无法补救，需要改夹具（v4）。
+
+### v4 候选改动（只列出，未实施；冻结和运行需 Main / 用户确认）
+
+| 用例 | 位置 | 改动 | 目的 |
+|---|---|---|---|
+| INTERFACES#5 | `specs/validation-report.md:45`（选定） | 增加一句：额外字段返回 `unexpected-field`，`field` 为该额外字段的 JSON path；不说明它在顺序中的位置 | 让缺陷落在选定的 spec 自身，不再只存在于未选定的 Input |
+| INTERFACES#5 | 答案键 expectation | 去掉"多余根字段 vs requestId"的举例，改为"unexpected-field 在校验顺序中没有位置，同时存在其他错误或多个额外字段时首个 diagnostic 不确定" | 不依赖 root object 的读法 |
+| INTERFACES#5 | 答案键 placement | 关联点 `vr:45` 保留；增加 `vr:45 + vr:104` 组合 | 与新句对应 |
+| SEAMS#1 | `specs/promotion-recovery.md:59` | 首句改为"restore 失败时 Seam 返回的 `recoveryState` 精确为 `{status: "failed", …}`"，其余不变；成功仍只写语义 | 消除"内部结果属于谁"的歧义，使缺陷可以唯一推出；clean C3 仍然成立 |
+
+v4 改夹具，要按既定流程做两阶段审计加盲答，再跑 Opus ×3 和 Q3。分数只与 v4 比较。
