@@ -9,6 +9,8 @@
 1. Code Spec v2 的用途（[报告](../reports/v0.1.42/code-spec-v2/summary.md)）：21 个问题用例 Opus、Q3 全部检出，Q3 0.815 ≥ Opus 0.799，判据 1 不成立，没有区分度。选项：(a) 只作"基础对照规范"的通过性检查，不作能力区分和调参，另做更难版本留待以后；(b) 现在就做更难的 v3（跨文件、隐含要求的缺陷），走同一流程；(c) 用作调参场景（两种 SD 都 ≤0.068，但波动只来自格式罚分和证据精度，worker 不建议）。
 2. 是否现在开始 Code Standards（逐个场景；Spec v3 的 0 命中用例分析只做文字与答案键分析，不占 GPU）？
 3. 是否现在做 Spec Readiness v4？v3.1 后剩 INTERFACES#5、SEAMS#1 两个双 0 用例，成因都是非智力问题（前者缺陷只在未选定 Input 里，后者措辞不能唯一推出且与 clean C3 相撞），按用户规则需改夹具：vr:45 补 unexpected-field 规定（不给顺序位置）、INTERFACES#5 expectation 去掉 root 举例并加 vr:45+vr:104、prec:59 首句写明是 Seam 返回的 recoveryState。v4 走审计 + 盲答 → Opus ×3 → Q3 ×5（空闲加测到 10），与 Code Standards 共用 GPU，只能先后进行。
+4. 测量报告是否固定保留每个实例的耗时和 token 数（原始记录删除后仍可比较速度）？
+5. 引擎常驻修复（0e90ad5）的真实加载验证：在下一批 ARW 测量中顺带验证（查该批 `cold-start.json` 与批前进程状态），还是现在单独做一次（加载 IQ3_XXS 一次、不推理，约 2–3 分钟）？验证通过后删除 reviewer-suite.md 的临时规则。
 
 ## 调参负载与诊断（用户 2026-10-12 已定）
 
