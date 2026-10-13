@@ -124,8 +124,9 @@ def normalize_markdown(text, sources=None):
     for index, line in enumerate(body):
         offset = 0
         for match in SHORT_LOCATOR.finditer(line):
+            # A root-level source (`governing-spec.md:3`) is already a complete locator.
             paths = [p for p in sources or {} if p.rsplit('/', 1)[-1] == match['name']]
-            if len(paths) != 1 or max(line_numbers(match['lines'])) > sources[paths[0]]:
+            if match['name'] in (sources or {}) or len(paths) != 1 or max(line_numbers(match['lines'])) > sources[paths[0]]:
                 continue
             before, after = match[0], f"`{paths[0]}:{match['lines']}`"
             changes.append({'kind': 'short-evidence-path', 'line': index, 'column': match.start() + offset,

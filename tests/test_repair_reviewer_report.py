@@ -90,6 +90,13 @@ class ShortLocatorTest(unittest.TestCase):
         self.assertEqual(fixed, '1. `src/a/one.mjs:3` - x\n   - fee at `src/a/one.mjs:20-26`, days at `src/b/two.mjs:1,3`\n')
         self.assertEqual([c['kind'] for c in changes], ['short-evidence-path'] * 2)
 
+    def test_root_level_source_locators_are_already_complete(self):
+        sources = dict(SOURCES, **{'governing-spec.md': 40})
+        text = '1. `governing-spec.md:19` - x\n'
+        fixed, changes = normalize_markdown(text, sources)
+        self.assertEqual(fixed, text)
+        self.assertEqual(changes, [])
+
     def test_ambiguous_out_of_range_or_unknown_locators_stay(self):
         text = '1. `src/a/one.mjs:3` - x\n   - `same.mjs:2`, `two.mjs:11`, `nine.mjs:1`, `:109`, `09:00 <= 11:00`\n'
         self.assertEqual(normalize_markdown(text, SOURCES), (text, []))
