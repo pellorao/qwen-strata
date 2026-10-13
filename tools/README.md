@@ -1,6 +1,6 @@
 # 测量与维护工具
 
-从工程根目录以包方式运行：`python3 -m tools.<子目录>.<模块>`；`.mjs` 用 `node tools/<子目录>/<文件>`。各工具的参数见 `--help`。会加载模型的工具，运行前都需要按 [模型运行申请](../.claude/skills/model-run-proposal/SKILL.md) 获批。原始明细写入 `.tmp/`，只有结束后的汇总进 `reports/`。
+从工程根目录以包方式运行：`python3 -m tools.<子目录>.<模块>`；`.mjs` 用 `node tools/<子目录>/<文件>`。各工具的参数见 `--help`。会加载模型的工具，运行前按 [运行计划](../.claude/skills/run-plan/SKILL.md) 写下计划并核对条件。原始明细写入 `.tmp/`，只有结束后的汇总进 `reports/`。
 
 ## ops：部署与运维
 
