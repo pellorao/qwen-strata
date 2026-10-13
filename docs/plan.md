@@ -6,9 +6,8 @@
 
 需要用户决定的事项只记在这里，处理后删除。
 
-1. Spec Readiness v3 有 3 个用例两个模型都是 0 命中：INTERFACES#5、SEAMS#1、MD-RATIONALE#3。是否删除或改写？Main 与独立意见都建议保留：删除后缺陷仍在夹具里，会变成未登记缺陷。
-2. Spec v3 的 MD-RATIONALE#3 是否补关联行（`access-review.md:51/67/68/71`），再对全部批次重新池化盲裁？依据：C/D 的候选 C034 实际描述了这个缺陷，但因证据不在关联行内没进池，所以 0/10 可能部分来自 placement 过窄。只改答案键，不重跑。Main 建议做。
-3. Spec 重构的原始记录（`.tmp/spec-v2/`，约 600MB）和 `.tmp/spec-rule-audit/opus/`（17MB）何时清理？建议 10 次附录写入报告后清理。
+1. Spec Readiness v3 有 3 个用例（INTERFACES#5、SEAMS#1、MD-RATIONALE#3）两个模型都是 0 命中，v2/v3 各轮 Opus-high 盲答也都没命中。是否删除或改写？Main 与独立意见都建议保留：删除后缺陷仍在夹具里，会变成未登记缺陷。MD-RATIONALE#3 的 placement 正在放宽并重裁，结果可能改变它的 0 命中。
+2. 是否认可"v3 + 偏离清单"作为这一轮 Spec 重构的终点？
 
 ## 调参负载与诊断（用户 2026-10-12 已定）
 
