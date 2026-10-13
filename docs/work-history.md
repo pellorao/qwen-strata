@@ -1195,3 +1195,33 @@ reviewer 在同一线程接第二个任务时，会先切到新目录而找不�
 - `arw-patches/format-normalized-scoring.patch` 的修正门只看 `parseMarkdownArtifact` 的诊断。解析器接受只写文件名的证据引用，这类引用只在评分阶段的冻结源核对中才得到 `review-evidence-invalid`，所以只修了简写路径的报告被判 scoring-input-invalid，只能按原报告评分。
 - 修复：把冻结源证据核对提成 `markdownEvidenceDiagnostics`，评分和修正门共用；修正门对原报告同样执行，纯简写修复因此被接受。原报告的诊断照常保留，benchmark 仍按 ×0.9 扣罚。补丁新增回归测试（旧补丁下失败、新补丁下通过），冻结源 manifest 更新该补丁及其后各补丁的结果哈希。
 
+## Spec Readiness 重构 v2→v4.1（2026-10-13，rtx3080ti IQ3_XXS）
+
+用户 2026-10-13 决定到 v4.1 收尾、不再迭代。v2 依据[规则、场景与评分审查](../reports/v0.1.42/spec-rule-audit/summary.md)重构；v2.1 只改答案键；v3 消除审计歧义（[报告](../reports/v0.1.42/spec-readiness-v3/summary.md)，Q3/Opus 0.731）；v3.1 放宽 MD-RATIONALE#3 placement；v4 修两个双 0 用例的非智力成因；v4.1 删除答案不成立的 SEAMS#1（[报告](../reports/v0.1.42/spec-readiness-v4/summary.md)：Opus 0.774、Q3 ×5 0.593、Q3/Opus 0.766，判据四条成立；Q3 ×10 扣罚后 SD 0.073，不用于调参）。冻结源依次叠加 `arw-patches/spec-readiness-v2/v3/v4/v4.1.patch`（v4.1 修订号 44）。以下为迁出时的计划原文。
+
+## Spec Readiness v2 重构（用户 2026-10-13）
+
+依据[规则、场景与评分审查](../reports/v0.1.42/spec-rule-audit/summary.md)，不在原版上修补，重构一版 v2；以 v2 为准，不再与 ARW 官方原版结果直接比较。ARW 之后会采用 v2，不分叉，所以按可交给上游的标准做：保持 ARW 文件格式与目录约定，附一份相对原版的变更说明（每处改动的原因与证据，引用审查报告），评分规则文档自洽、不依赖本工程 `.claude` 规则即可读懂。RM 与 AP 各用全新根线程。
+- [ ] 流程：0 整理规则、场景、答案键与评分 → 1 Opus（high）审计 + 盲答循环，至多 6 轮，直到无问题 → 2 Opus（medium）基准 ×3 → 3 IQ3_XXS ×5 → 4 评估 Q3 回答（逐 finding 复核裁决、会话检查、对比 Opus、组内标准差）。完成 4 后停下交审。盲答漏检不自动成为删题理由，只有审计确认"从 Input 推不出或有歧义"才改或删。
+- 批准（用户 2026-10-13）：Q3 ×5（IQ3_XXS、v2、独立线程）及为重构四个 reviewer 场景进行的一切模型运行；故障修复与受影响范围重跑在授权内。GPU 等租约空闲才开始，不抢占，跑完恢复默认部署。
+- "一切正常"判据（用户 2026-10-13）：Opus 基准明显高于 Q3；没有 Opus 与 Q3 都 0 命中且审计认为可疑的用例；Q3 5 次会话全部有效；评分可复现（独立复评一致）。
+- 用途：v2 先用于 ARW 能力验证和 benchmark；是否用于调参，等 Q3 ×5 组内标准差出来再定（明显低于 0.1 才考虑）。
+- 进展（2026-10-13 自主模式）：第 0–4 步按原定 5 次完成。Opus medium ×3 均值 0.773（SD 0.024），Q3 ×5 均值 0.510（SD 0.067；扣罚前 0.555，SD 0.083）；Q3 5 个会话全部有效；4 个用例（INTERFACES#5、SEAMS#1、MD-RATIONALE#2、MD-RATIONALE#3）双方 0 命中。worker 报告原文 `.tmp/spec-v2/step4-report.md`，独立意见 `.tmp/spec-v2/review/independent-review.md`。
+- "一切正常"判定（自主模式决策，Main 综合 worker 与独立 Opus-high 意见）：判据 1、3 成立。判据 2 成立：独立审查直接读夹具，确认 4 个双方 0 命中用例都可推出、不跨检查复制，但区分度为 0，报告中写明。判据 4 暂不成立：只有一个裁决者，worker 复核 10 项，不算独立复评。分歧：worker 认为四条都已满足；独立意见要求补全量独立复裁和限定范围的第 7 轮审计。Main 采纳独立意见，两项都不跑 GPU。完成后再判定，判定成立才进入下一个场景。
+- 采纳的处理：
+  - (1) 全新 Opus-high 盲裁全部 136 个候选，报告与原裁决的一致率；
+  - (2) 第 7 轮限定审计：r6 之后的改动、7 项残余风险、Opus RM3 的 INPUTS 额外 finding、`rules/01-required-inputs.md:5` 与 `access-review.md` 的 requested operation 冲突、用 not-matched finding 反查未登记缺陷；只改答案键或 placement 时只重新评分，要改夹具文字则定为 v2.1，现有结果仍按 v2 报告；
+  - (3) runtime-migration.md 措辞只记录为 v3 必修，报告附"恢复该 clean 用例后的 Q3 分"作为敏感性数字；
+  - (4) C053 维持 matched。
+- 第 4 步补充（2026-10-13 06:20）：全量独立复裁 135/136 一致，唯一分歧 C053 维持 matched，判据 4 成立。第 7 轮限定审计无阻断，有两项主要问题：(a) vr:31 被答案键误登为 MODULES clean，实为未登记缺陷（4 次独立发现）；(b) runtime-migration.md:15 "已批准的 access policy"没有来源，属可辩护。原文见 `.tmp/spec-v2/step4-addendum.md`，第二次独立意见见 `.tmp/spec-v2/review/second-opinion-v21.md`。
+- 自主模式决策（Main 综合 worker、第 7 轮审计和第二次独立意见）：
+  - **v2.1 只改答案键**：删 MODULES clean C0，新增 AP 问题用例。placement 按夹具能推出的位置在重裁前写定，不照已报 finding 凑。所有涉及 parseArtifact/vr:31 的 finding（含原 not-matched、no-candidate）放回候选池盲裁。Opus ×3、Q3 ×10 只重评分，不重跑。
+  - **v3 今晚就做**，不推迟：rm:15/:45 改写、AP 误导措辞（标明待交付或对齐字段）、vr:100 补结论句。三处同一批改动，runtime-migration.md 是 RM 和 AP 共用的 Input，一次改完、两侧一起重跑。流程：两阶段审计加盲答，直到无阻断和主要问题 → Opus ×3 → Q3 ×5（GPU 空闲时按规则加测）→ 评估含独立复裁。仍是同一场景，符合逐个场景的顺序；Code Spec 等 v3 交审后再开始，不并行（独立意见建议并行，与用户"逐个场景"的决定冲突，不采纳）。
+  - **Opus 参考分低于 0.75**（v2.1 约 0.744，SD 0.024，差距在噪声内）：只说明比原版难。该场景用相对口径（Q3 / Opus 参考上限），0.75 不作 Q3 通过线（用户 2026-10-13 认可，并定为所有场景都用相对口径，已写入 reviewer-suite 规则）；报告列出所有双方 0 命中的用例。
+  - **偏离**：用户目标是"修到无问题"。若 v3 后仍有已知残余项，报告中列为偏离，请用户认可，Main 不自行宣布已满足。
+- **v3 结果**（2026-10-13）：v3 冻结（b3566a5）。原定样本 Opus 0.770、Q3 0.563，Q3/Opus 0.731；判据四条成立，Main 与第三次独立意见一致（[报告](../reports/v0.1.42/spec-readiness-v3/summary.md)）。v3 用于 ARW 能力验证和 benchmark；10 次附录：Q3 均值 0.546，扣罚后 SD 0.097、扣罚前 SD 0.109，不达 ≤0.068，v3 不用于调参。v2/v2.1 的 10 次结果：v2 两种口径 SD 都超 0.068，v2.1 两种口径都满足；按计划以 v3 的 10 次为准。v3.1 键（MD-RATIONALE#3 放宽，只重评分）：Q3 ×10 均值 0.550，扣罚后 SD 0.089、扣罚前 SD 0.101，仍不达判据；Opus 与 Q3 前 5 次不变。
+- **用户决定（2026-10-13）**：两个模型都 0 命中的用例，先对照答案分析缺陷是否确实成立；成立再分析无法命中的原因，只修非智力原因（placement、措辞误导、与 clean 用例冲突、裁决或评分机制等），纯智力原因不改。"v3 + 偏离清单"还不是 Spec 重构的终点。MD-RATIONALE#3 的 placement 已放宽（v3.1 键，4cbc9bb）并重裁：13 个候选盲判 1 matched，Q3 0/10→1/10、Opus 仍 0/3，不再是双 0；INTERFACES#5、SEAMS#1 仍是双 0，分析进行中。
+- **v4 结果**（2026-10-13，[报告](../reports/v0.1.42/spec-readiness-v4/summary.md)）：用户决定删除 SEAMS#1（答案不成立），v4.1 只改答案键（8510561），21 问题 / 43 clean，满足 20/20 下限，不补用例。原定样本（v4.1 键）Opus ×3 0.774（SD 0.050），Q3 ×5 0.593（SD 0.036 / 扣罚前 0.040），Q3/Opus 0.766；判据四条成立，双 0 只剩 MD-RATIONALE#3（智力因素）。10 次附录：Q3 0.604，Q3/Opus 0.780，扣罚后 SD 0.073 超 0.068、扣罚前 0.062，v4 不用于调参。加测用增量盲裁（84 新候选 + 12 锚点，1 个 Opus-high，锚点 12/12 一致）。
+- [ ] v4.1 键并入冻结源：`benchmarks/reviewer-suite-v1/spec-readiness-v4-iq3_xxs-2026-10-13/v4.1-key.patch` 移为 `arw-patches/spec-readiness-v4.1.patch` 并登记 manifest（是用户删除 SEAMS#1 决定的直接结果，今后准备批次不再带回该用例）；reviewer-suite 规则同步。
+- [x] **引擎常驻与前端空闲不一致**：已定位并修复（见[历史记录](work-history.md)「ARW 批次引擎常驻与 Code Spec 简写路径修复门」）。v4 Q3 批 A（2026-10-13 12:29）真实加载验证通过：批前租约空闲、无 strata.exe；`cold-start.json` 为 stopped / model null / lease free；引擎日志 12:29:34 有新的 `engine started`。reviewer-suite.md 的临时规则已删除。该批在 12:41 因 Windows 意外重启（Kernel-Power 41）中断，批后状态没有观测到；重启后租约空闲、无遗留持有者、无 strata.exe。
+- 调参判定标准（在读取批 C、D 分数之前写定）：10 次组内 SD ≤ 0.068，即单侧 90% 上限 < 0.1，扣罚前和扣罚后两个口径都满足，才考虑把 v2 用于调参。

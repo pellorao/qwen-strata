@@ -60,3 +60,17 @@ v3 测量（Opus ×3、IQ3_XXS ×10）中，有两个用例两个模型都是 0 
 - v3 残余 (a)、(c)、(d)、(e) 不变，见 [v3 变更说明](spec-readiness-v3.md)。
 - v3 残余 (b) 已由删去 source 用例的 vr:45 placement 消除。
 - m4、m5 见上文。
+
+## v4.1（只改答案键，修订号 44）
+
+用户 2026-10-13 决定删除 `MODULE-DESIGN-SEAMS-ADAPTERS` 问题用例 #1，并要求保持用例下限。补丁 `arw-patches/spec-readiness-v4.1.patch` 叠在 v4 之后，只改 `expected.json`（删除该问题用例，并删去同 scope 第 4 个 clean 用例末尾指向它的一句）和修订号（43 → 44，使已准备的场景缓存失效）。打补丁后 `expected.json` sha256 `3093980fc37278abd16a935cd10d143dbcbab19435671bdee7e7fd2f13c3526f`，ARW conformance 测试 70/70 通过。
+
+删除依据：
+
+- **答案不成立**：`promotion-recovery.md:57` 写明成功语义，Recovery Module 用输入的 priorTrackedState 和原始 commit failure code 形成公开成功结果；成功路径不消费 recoveryState 的任何字段，"成功时 recoveryState 无形状"不构成缺陷。失败形状（`:59`）是 Module 要消费的，已精确给出。
+- **证据**：v4 审计阶段 1（全新 Opus-high，要求穷尽查找缺陷）判"成功语义已足够，不报"；v4 的 8 份 AP 回答（Opus 3、Q3 5）无一报告该问题。
+- **夹具不改**：判定的是该处本来就不是缺陷，不存在需要同步修复的可见缺陷。
+
+用例下限：ARW 要求合并后的评分清单至少 20 个问题用例和 20 个 clean 用例（`MINIMUM_CASE_COUNT = 20`）。v4.1 为 21 / 43，满足下限，不补用例。SEAMS scope 不再有问题用例；ARW 只要求每个 scope 恰有一个 `noOtherSupportedFinding` clean 用例。
+
+v4 已有回答的候选集合在 v4.1 下逐条不变，沿用 v4 裁决。结果见 [v4 报告](../../reports/v0.1.42/spec-readiness-v4/summary.md)。

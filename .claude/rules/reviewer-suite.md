@@ -24,9 +24,7 @@ paths:
 - 测量交接末尾追加冻结的测量说明（不发送中途消息、不需要运行标识、禁止查询环境变量和平台身份），记录 SHA；只追加，不改原版交接和 Role。
 - Reviewer 的命令环境用 Codex 原生 `shell_environment_policy.exclude` 去掉 `STRATA_API_KEY`（用户 2026-10-12；provider key 由 Codex 自己经 `env_key` 读取，命令不需要）。Codex 0.162.0 默认会把它传给命令，无模型探测已确认排除生效、`set` 的变量照常可见。
 - Spec Readiness 的 runtime-migration 与 artifact-promotion 各用全新根线程，互不可见，与 ARW 准备规则一致（每个 instanceId 一个独立线程和一次审核）；两份报告分别绑定，按原版融合评分。原"合并实例"（同一线程先 RM 后 AP）已停用（用户 2026-10-13）：它偏离 ARW，且有 AP 照搬 RM finding、引用 RM 专有约定的污染证据（[审查报告](../../reports/v0.1.42/spec-rule-audit/summary.md)）；此前用合并实例得到的 Spec Readiness 结果只在合并实例之间可比。
-- Spec Readiness 使用 v2 场景（修订号 41，用户 2026-10-13 决定 ARW 采用 v2）：夹具与答案键由 `arw-patches/spec-readiness-v2.patch` 提供，冻结源 manifest 登记；与原版的差异、原因和审查依据见 [v2 变更说明](../../benchmarks/reviewer-suite-v1/spec-readiness-v2.md)。v2 的分数只与 v2 比较。v2 先用于能力验证和 benchmark；是否用于调参，待 IQ3_XXS ×5 的组内标准差明显低于 0.1 再定。
-- 冻结源现已叠加 v3（修订号 42，`arw-patches/spec-readiness-v3.patch`，自主模式按 main 计划 587fe9b 登记，待用户确认是否采用）：消除 v2 审计后发现的歧义，见 [v3 变更说明](../../benchmarks/reviewer-suite-v1/spec-readiness-v3.md)。v3 的分数只与 v3 比较；v2 结果仍只与 v2 比较。
-- 冻结源现已叠加 v4（修订号 43，`arw-patches/spec-readiness-v4.patch`，用户 2026-10-13 决定做 v4）：修 v3 两个双 0 用例的非智力成因（AP vr:45 写明 extra field 的 reason、prec:59 写明失败形状是 Seam 返回值），并入 v3.1 键，见 [v4 变更说明](../../benchmarks/reviewer-suite-v1/spec-readiness-v4.md)。v4 的分数只与 v4 比较。
+- Spec Readiness 现行版本是 v4.1（修订号 44；重构已收尾，用户 2026-10-13 决定不再迭代）：冻结源 manifest 依次叠加 `arw-patches/spec-readiness-v2.patch`、`-v3.patch`、`-v4.patch`、`-v4.1.patch`；差异、原因和审查依据见 [v2](../../benchmarks/reviewer-suite-v1/spec-readiness-v2.md)、[v3](../../benchmarks/reviewer-suite-v1/spec-readiness-v3.md)、[v4/v4.1](../../benchmarks/reviewer-suite-v1/spec-readiness-v4.md) 变更说明。分数只在同一版本内比较（v4 回答按 v4.1 键重评分后与 v4.1 可比）；v4.1 用于能力验证和 benchmark，不用于调参（10 次 SD 0.073，[报告](../../reports/v0.1.42/spec-readiness-v4/summary.md)）。
 - Code Spec 使用 v2 场景（code-spec-reviewer 修订号 12，`arw-patches/code-spec-v2.patch`，自主模式登记，待用户确认是否采用）：访问窗口结束边界改为半开、取消状态要求写明、答案键补 4 个直接证据关联点，见 [Code Spec v2 变更说明](../../benchmarks/reviewer-suite-v1/code-spec-v2.md)。v2 的分数只与 v2 比较，不与 F6 等原版结果直接比较。
 
 ## 会话检查

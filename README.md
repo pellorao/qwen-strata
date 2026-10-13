@@ -29,6 +29,7 @@ rtx3080ti 安装 Strata v0.1.41（2026-10-10，通过短调用链检查）；rtx
 
 ## 主线
 
+- [ ] **Reviewer 场景重构**：Spec Readiness 已到 v4.1 收尾；正在做 Code Spec 加难度版（目标 Q3/Opus 明显低于 1），之后 Code Standards、Commit Audit，逐个进行（[计划](docs/plan.md#reviewer-场景重构用户-2026-10-13)）。
 - [ ] **rtx4070tis 恢复后**：核对实际状态、补同步部署，再决定 ARW 安全恢复和 Spec Readiness 十二实例。
 
 ## 进展

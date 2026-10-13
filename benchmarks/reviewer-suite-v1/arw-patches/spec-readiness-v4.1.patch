@@ -1,3 +1,16 @@
+diff --git a/lib/release/reviewer-capability-conformance.mjs b/lib/release/reviewer-capability-conformance.mjs
+index 6909f9d..11ebf88 100644
+--- a/lib/release/reviewer-capability-conformance.mjs
++++ b/lib/release/reviewer-capability-conformance.mjs
+@@ -188,7 +188,7 @@ const SCENARIO_REVISIONS = new Map([
+     ['code-spec-reviewer', 12],
+     ['code-standards-reviewer', 14],
+     ['commit-audit-reviewer', 19],
+-    ['spec-readiness-reviewer', 43],
++    ['spec-readiness-reviewer', 44],
+ ]);
+ const SPEC_READINESS_SCENARIOS = [
+     {fixtureVariant: 'requirements', scenarioId: 'runtime-migration', segments: ['sr', 'runtime-migration']},
 diff --git a/tests/fixtures/reviewer-capability/spec-readiness-reviewer/expected.json b/tests/fixtures/reviewer-capability/spec-readiness-reviewer/expected.json
 index 2c715fe..52cf68d 100644
 --- a/tests/fixtures/reviewer-capability/spec-readiness-reviewer/expected.json

@@ -1231,6 +1231,15 @@
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/base/specs/validation-report.md": "98a82f513317980a15faf91cde9e010416c94f03e47a2776c899d8478fd0d5c7",
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-recovery.md": "11a4d053c1e4746e37f623746445ffeb1fc40b1817305de6984cebc95a788d18"
       }
+    },
+    {
+      "file": "../../arw-patches/spec-readiness-v4.1.patch",
+      "sha256": "4a453689ecf62babdc30504093913407d798ede4669fd5dc15414e0af66e878b",
+      "reason": "Spec Readiness capability scenario v4.1 (scenario revision 44), applied after v4, answer key only: removes MODULE-DESIGN-SEAMS-ADAPTERS problem case #1 (no defect: promotion-recovery.md:57 forms the public success result from the input priorTrackedState and the original failure code, so the success path consumes no recoveryState field; the v4 stage-1 fixture review judged the success semantics sufficient and none of 8 review answers reported it) and the clause in the Recovery Adapters clean case that pointed to it. 21 problem and 43 clean cases remain, above MINIMUM_CASE_COUNT. The revision bump invalidates prepared scenario caches. Change note: benchmarks/reviewer-suite-v1/spec-readiness-v4.md (v4.1 section). v4 answers rescored under v4.1 are comparable with v4.1 results.",
+      "result": {
+        "lib/release/reviewer-capability-conformance.mjs": "a4a70f3acd29b0701dfa4cd31cfcf7f9d1c164f3e0ec38943907886925e669bf",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/expected.json": "3093980fc37278abd16a935cd10d143dbcbab19435671bdee7e7fd2f13c3526f"
+      }
     }
   ]
 }
