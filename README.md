@@ -11,7 +11,7 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 | `rtx3080ti` | RTX 3080 Ti 12GB，i9-13900 | 可用；本工程所在机 |
 | `rtx4070tis` | RTX 4070 Ti SUPER | 离线，短期不启用；原 Spec Readiness 主线在这台 |
 
-rtx3080ti 安装 Strata v0.1.41（2026-10-10，通过短调用链检查）；rtx4070tis 离线，仍为 v0.1.40.2，待同步。模型 Q2_0 / IQ2_XS / IQ3_XXS，未做新版完整验收。
+rtx3080ti 安装 Strata v0.1.42（2026-10-11，通过短调用链检查），默认模型 IQ3_XXS；rtx4070tis 离线，仍为 v0.1.40.2，恢复后同步。模型 Q2_0 / IQ2_XS / IQ3_XXS。
 
 ## 文档
 
@@ -29,7 +29,7 @@ rtx3080ti 安装 Strata v0.1.41（2026-10-10，通过短调用链检查）；rtx
 
 ## 主线
 
-- [ ] **Reviewer 场景重构**：Spec Readiness 已到 v4.1 收尾；正在做 Code Spec 加难度版（目标 Q3/Opus 明显低于 1），之后 Code Standards、Commit Audit，逐个进行（[计划](docs/plan.md#reviewer-场景重构用户-2026-10-13)）。
+- [ ] **Reviewer 场景重构**：Spec Readiness 已到 v4.1 收尾；正在做 Code Spec 加难度版（目标 Q3/Opus 明显低于 1）；顺序为 Code Spec → Strata 升级到 v0.1.43.1 与例行检查 → Code Standards → Commit Audit（用户 2026-10-13），升级与 Code Spec 的非 GPU 阶段并行（[计划](docs/plan.md#reviewer-场景重构用户-2026-10-13)）。
 - [ ] **rtx4070tis 恢复后**：核对实际状态、补同步部署，再决定 ARW 安全恢复和 Spec Readiness 十二实例。
 
 ## 进展

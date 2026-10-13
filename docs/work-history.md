@@ -1225,3 +1225,9 @@ reviewer 在同一线程接第二个任务时，会先切到新目录而找不�
 - [ ] v4.1 键并入冻结源：`benchmarks/reviewer-suite-v1/spec-readiness-v4-iq3_xxs-2026-10-13/v4.1-key.patch` 移为 `arw-patches/spec-readiness-v4.1.patch` 并登记 manifest（是用户删除 SEAMS#1 决定的直接结果，今后准备批次不再带回该用例）；reviewer-suite 规则同步。
 - [x] **引擎常驻与前端空闲不一致**：已定位并修复（见[历史记录](work-history.md)「ARW 批次引擎常驻与 Code Spec 简写路径修复门」）。v4 Q3 批 A（2026-10-13 12:29）真实加载验证通过：批前租约空闲、无 strata.exe；`cold-start.json` 为 stopped / model null / lease free；引擎日志 12:29:34 有新的 `engine started`。reviewer-suite.md 的临时规则已删除。该批在 12:41 因 Windows 意外重启（Kernel-Power 41）中断，批后状态没有观测到；重启后租约空闲、无遗留持有者、无 strata.exe。
 - 调参判定标准（在读取批 C、D 分数之前写定）：10 次组内 SD ≤ 0.068，即单侧 90% 上限 < 0.1，扣罚前和扣罚后两个口径都满足，才考虑把 v2 用于调参。
+
+## 计划条目关闭（用户 2026-10-13）
+
+- **Spec Readiness 审阅提前收工：主因调查**（用户 2026-10-12 批准，未开跑）：关闭。Spec Readiness 已重构到 v4.1 并决定不再迭代，原调查针对的 F6 旧场景和"artifact-promotion 只审 8–9 分钟"前提已不存在。
+- **Spec Readiness 单场景评分**：关闭。调参不再使用 ARW 场景，改用专用负载（见计划「采样与窗口重新测量」）；F4 工具 `tools.reviewer.single_scenario_score` 与 2026-10-11 无模型调查结论（原版 `score-completed` 局部评分接受单子场景，只给逐实例诊断分）保留备用。
+- **Strata v0.1.41 后续**：关闭。rtx3080ti 已于 2026-10-11 升级到 v0.1.42；上游 #1622 的跟踪并入每次升级的发布说明核查；"prompt 处理约快 2 倍"不再单独验证；rtx4070tis 同步并入计划「顺序」第 6 项。

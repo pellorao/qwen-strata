@@ -1,6 +1,6 @@
 # 后续计划
 
-更新：2026-10-11。只放待办和需要重复执行的流程；已完成的经过见[历史工作](work-history.md)，测量通用约束见 `.claude/rules/`，参数任务只在[每机调参手册](host-tuning.md)维护。
+更新：2026-10-13。只放待办和需要重复执行的流程；已完成的经过见[历史工作](work-history.md)，测量通用约束见 `.claude/rules/`，参数任务只在[每机调参手册](host-tuning.md)维护。
 
 ## 待你决定
 
@@ -33,11 +33,6 @@
 
 - 调参口径重算（用户 2026-10-12，取 ARW 扣罚前分）：完成，结论全部不变。spec、spec-min-p、CPU 辅助、采样四维（Commit Audit）归一后本无残留诊断，分数不变；第 9 维窗口改为扣罚前融合分 0.420 对 0.480，差 0.060 仍为平手，维持 156584。各报告已加口径说明。之后证据定位口径变更（用户 2026-10-12，顶层 `[a,b]` 为两行）：spec-min-p 0.3 出组、胜者 0.9 不变；spec 4、6 各一实例回落（0.737／0.718）。随后用户确定不影响输出的参数按引擎输出速度选（2026-10-12），spec 维持 4（105.9 最快），各报告已加参数分类说明。
 
-## Spec Readiness 审阅提前收工：主因调查（用户 2026-10-12 批准）
-
-artifact-promotion 现在只审约 8–9 分钟、输出约 40K token，v0.1.38 + Q2_0 时期约 47 分钟、155K，检出率随之下降（F6 融合分 0.404）。之间 Strata 版本、量化、启动提示、spec、窗口档位一起变过。另一个 worker 在执行。
-- [ ] 按序：0 无模型检查 AP 审核短的原因 → 1 medium × 3 → 2 Q2_0 + IQ3 参数（high）× 3；基线为 F6 的 5 个实例。判据：AP 单段平均输出 ≥ F6 基线 1.5 倍（约 62K）且时长同步回升，某步定位即停。150K（用第 9 维 206584/150000 现成数据，AP 未回升）和 Q2 原有参数（greedy 下与第 2 步输出相同）不跑。排在 v5 题库与 v5 Qwen 试跑之间，GPU 先到先用。
-
 ## Reviewer 场景重构（用户 2026-10-13）
 
 Spec Readiness 已到 v4.1 收尾（用户 2026-10-13 决定不再迭代；经过见[历史记录](work-history.md)「Spec Readiness 重构 v2→v4.1」，[报告](../reports/v0.1.42/spec-readiness-v4/summary.md)）。其余场景逐个按同一流程进行，不并行。
@@ -47,7 +42,7 @@ Spec Readiness 已到 v4.1 收尾（用户 2026-10-13 决定不再迭代；经�
 - 调参判定标准：10 次组内 SD ≤ 0.068（单侧 90% 上限 < 0.1），扣罚前和扣罚后两个口径都满足，才考虑用于调参；判定只看 10 次，不按 5 次提前下结论。
 - Code Spec v2（2026-10-13）：冻结 6f60c8c，两轮审计；Opus 0.799、Q3 ×5 0.815、Q3 ×10 0.806（SD 0.048 / 0.040）；21 用例双方全检出，判据 1 不成立，用途见"待你决定"（[报告](../reports/v0.1.42/code-spec-v2/summary.md)）。Q3 的 evidence-invalid 全部来自反引号时刻被当作定位，登记为 ARW 上游问题 4。
 - [ ] **Code Spec 加难度版**（用户 2026-10-13 同意开始）：目标 Q3/Opus 明显低于 1。分析 v2 双方全检出原因 → 设计更难用例 → 两阶段审计 + 机械检查后冻结 → 先跑 Q3 ×5（难度不够则不跑 Opus，回到设计）→ Opus ×3 → 评估 → 空闲加测到 10 次。进度 `.tmp/code-spec-v3/progress.md`。
-- Code Standards 暂不开始（用户 2026-10-13）。
+- 顺序（用户 2026-10-13）：Code Spec → Strata 升级到 v0.1.43.1 与升级后例行检查 → Code Standards → Commit Audit。升级与 Code Spec 的审计、设计、冻结并行，Code Spec 第一批 GPU 运行等升级与插件克隆关闭完成后再开始，保证全部实例同版本、同配置。
 - **主机重启处理（用户 2026-10-13 决定）**：排查结论见 `git show 8336f2d`（非 GPU 满载时长、GPU 未超频；CPU 微码 0x120 早于 Vmin 修复，内存 XMP 6600）。主板 BIOS 已升级到 7E13v1C（1.C0），微码 0x137 已生效；不限 GPU 功耗。内存改为保持 XMP 6600、先观察（用户 2026-10-13 改决定：重启无蓝屏无 dump，更像供电或 Vmin 问题，降频只是预防）；若再次意外重启，再考虑降到 5600 G2（电压全 Auto，手动压 DRAM 电压到 1.10 V 会训练失败无法开机）。XMP 已重新开启（6600、1.40 V，15:23 开机核对），功耗档 Intel Default Settings，Spec v4 GPU 测量已恢复。观察方式（用户 2026-10-13）：平时只靠 Windows 事件日志和资源采样收集数据；每天一次或每次重启后检查一次 WHEA-Logger（看可纠正内存/机器检查错误，开机时的信息级 ID 3 记录不算）与意外重启（Kernel-Power 41），不在定时检查里频繁查，不跑内存压力测试。CPU 功耗档：观察期内保持 Intel Default Settings（用户 2026-10-13）；该档下 PL1 65 W 使全核负载约 3.3 GHz，Q3 引擎输出约 88 tok/s（BIOS 前约 99），刷 BIOS 后的速度不与此前直接比较，观察期结束再考虑提高 PL1。资源采样已加 GPU 功耗与显存频率（836a296）。
 - [ ] 另外三个场景（Spec v3 判定成立，2026-10-13 开始 Code Spec）（Commit Audit、Code Spec、Code Standards）：先检查（规则冲突、场景与答案键含义、F6 中 Qwen 5 次都漏的用例），再各出一次 Opus 盲答，之后按同一流程升级版本（用户 2026-10-13 同意先检查，版本肯定会升级）。逐个场景进行：Spec Readiness v2 完成并交审后再开始下一个，不并行（用户 2026-10-13）。
 
@@ -68,7 +63,7 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 3. [ ] **防循环弃用部署**：代码、手册和测试已改（2026-10-11），随 v0.1.42 升级一起部署到 rtx3080ti；rtx4070tis 待同步。
 4. [x] **Strata v0.1.42 + 默认改 IQ3_XXS + IQ3_XXS 调参**（rtx3080ti）：2026-10-11 完成，见[升级报告](../reports/v0.1.42/upgrade.md)，见下文[v0.1.42 与 IQ3_XXS](#v0142-与-iq3_xxs)。用户 2026-10-11 批准全部模型运行（申请二）。
 5. [x] **rtx3080ti Q2_0 spec-min-p**：取消。用户 2026-10-11：Q2_0 只作 IQ3_XXS 的基线对比，不做详细调参。
-6. [ ] **rtx4070tis 恢复后**：核对实际文件、版本、服务和持有状态；补同步离线期间的部署（v0.1.42、前端、新默认值）；再按[ARW 同步与 Spec 恢复](#arw-同步与-spec-恢复)和调参手册的本机待办安排。思考上限沿用 8192/24576，不采用方案 A（用户 2026-10-12 回滚）；guardian 用思考 512 / 总输出 1024。
+6. [ ] **rtx4070tis 恢复后**：核对实际文件、版本、服务和持有状态；补同步离线期间的部署（rtx3080ti 当前的 Strata 版本、前端、新默认值；它仍为 v0.1.40.2）；再按[ARW 同步与 Spec 恢复](#arw-同步与-spec-恢复)和调参手册的本机待办安排。思考上限沿用 8192/24576，不采用方案 A（用户 2026-10-12 回滚）；guardian 用思考 512 / 总输出 1024。
 
 ## v0.1.42 与 IQ3_XXS
 
@@ -119,21 +114,10 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 - [ ] **Codex 与 Claude Code 参数一致**（用户 2026-10-12 批准）：审批统一 512/1024；参数层面一致、机制差异写入手册。Codex guardian 与 `qwen-approve` 都是 low、思考 512、总输出 1024、不发采样；`qwen-agent` 给 Claude Code 传同一强度（`CLAUDE_CODE_EFFORT_LEVEL`）、同一总输出、100000 压缩阈值（`CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`，假服务器核对）。Claude Code 不能替换内置压缩提示，作为特例写入手册。已在分支 `agent-parity` 提交，待 Spec 调查结束后合并并部署到 rtx3080ti（rtx4070tis 恢复后同步）。
 - [x] **2b 模型验收**：2026-10-10 审核通过。`qwen-agent` 删除 `--approval`，Claude Code 固定用 `qwen-approve` 审批。
 - [x] **rtx3080ti SSD 读取**：2026-10-10 按用户决定实现模型跨租约驻留并部署；实测复用启动 0.06 秒（冷加载 18.3 秒）。同时修复停模型时 `/unload` 未带内部 key、一直没能正常卸载的问题。
-- [ ] **Strata v0.1.41**：2026-10-10 已安装到 rtx3080ti，并通过短调用链检查，见[升级报告](../reports/v0.1.41/upgrade.md)。还需要：
-  - 关注上游 [#1622](https://github.com/Niko1221/Strata/issues/1622)：有用户反映 v0.1.41 出现生成循环，未关闭。用户决定不回退，出现问题就解决。
-  - rtx4070tis 恢复后同步安装。
-  - 发布说明称 prompt 处理约快 2 倍，尚未验证；需要时另行申请版本对比。
 
 ## 防循环检测（已弃用）
 
 用户 2026-10-11 决定：提醒默认关闭、启动提示默认不加载防循环段，两者标为已弃用，经过见[历史工作](work-history.md#2026-10-1011-防循环提醒试跑基线与弃用)。没有待办；观察到没有明显重复后，由用户触发删除（提醒、检测器、防循环提示段、旧关键词守卫工具和测试一起删）。
-
-## Spec Readiness 单场景评分
-
-- [ ] 原版高层 `score-completed` 要求两个子场景配对，单独 artifact-promotion 会被拒绝。需要先无模型调查原版是否有可单独评分的入口；若需改变评分合同，先列出差异并取得同意。
-  - 无模型调查（2026-10-11，ARW 760007c，只读代码和原版测试，没有用实际 Spec 报告执行）：当前原版 `score-completed`（局部评分）**不再拒绝**未配对的输入。`selectCompletedRepetitions(allowEmpty)` 接受只含 artifact-promotion 的实例；每个实例照常评分，`instances[]` 里有该实例自己的 `score`、clean/problem 比率和候选，状态为 `diagnostic`；但 `summarizeCapabilityScores` 只对两个子场景齐全的重复算重复分和总分，单场景时 `score` 为空（"Incomplete repetition set."）。原版测试 `reviewer-capability-conformance.test.mjs` 的局部评分用例覆盖了这一行为（以 Code Spec 为例）。早先"会被拒绝"的结论来自旧版 ARW。
-  - 含义：不改评分合同就能拿到 artifact-promotion 的单实例诊断分（同一 F2 公式，只是不与 runtime-migration 融合），可以作同场景条件之间的比较；它不是原版正式分数，也不能和融合分混比。正式分数仍需两个子场景配对。
-  - F4 工具：`python3 -m tools.reviewer.single_scenario_score --arw <冻结 ARW> --prepared <prepared.json> --input <只含一个子场景的评分输入> [--adjudication <裁决>] --out <目录>`，调用原版 `score-completed`，只汇总单一子场景的逐实例分（标为 `diagnostic-single-scenario`、未融合），混入两个子场景时拒绝。已用 Code Spec 试跑报告核对，结果与原版一致（0.807）；artifact-promotion 的实际报告已用 F3 第 3 次试跑核对：上游返回 8 个待裁决候选，裁决 6 个匹配、2 个不匹配后得到诊断分 0.320（clean acceptance 0.907，problem detection 0.275），工具流程正常。用户已决定提供这项能力供调参使用（2026-10-11）。
 
 ## ARW 同步与 Spec 恢复
 
