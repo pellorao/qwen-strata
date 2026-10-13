@@ -1,8 +1,30 @@
 diff --git a/lib/release/reviewer-capability-conformance.mjs b/lib/release/reviewer-capability-conformance.mjs
-index 6f11157..a7991e2 100644
+index 6f11157..a5ef06b 100644
 --- a/lib/release/reviewer-capability-conformance.mjs
 +++ b/lib/release/reviewer-capability-conformance.mjs
-@@ -2563,16 +2563,22 @@ const validateFormatCorrectionSource = async (/** @type {{correction: FormatCorr
+@@ -2536,6 +2536,21 @@ const readCapabilityAuditInput = async (/** @type {{artifact: ArtifactInstance,
+     return {records, reportDiagnostics: []};
+ };
+ 
++// Project policy: shared by scoring and the format-correction gate, so both see the same frozen-source locator errors.
++const markdownEvidenceDiagnostics = (/** @type {any[]} */ checks, /** @type {Map<string, any>} */ evidenceSources) => {
++    /** @type {ContentDiagnostic[]} */
++    const diagnostics = [];
++    for (const finding of checks.flatMap(check => check.findings)) for (const evidence of finding.evidence) {
++        if (!isJsonObject(evidence) || typeof evidence.filePath !== 'string') continue;
++        const source = evidenceSources.get(normalizePath(evidence.filePath));
++        const end = 'lineEnd' in evidence ? evidence.lineEnd : evidence.line;
++        if (source === undefined || typeof end !== 'number' || end > evidenceSourceLineCount(source)) {
++            diagnostics.push({code: 'review-evidence-invalid', message: 'Markdown evidence is outside the frozen source.'});
++        }
++    }
++    return diagnostics;
++};
++
+ const validateFormatCorrectionSource = async (/** @type {{correction: FormatCorrection, instance: PreparedScenario, reviewerId: string, runCommand: RunCommand}} */ {correction, instance, reviewerId, runCommand}) => {
+     await Promise.all([correction.originalReportPath, correction.correctedReportPath].map(async path => {
+         const metadata = await lstat(path);
+@@ -2563,16 +2578,24 @@ const validateFormatCorrectionSource = async (/** @type {{correction: FormatCorr
          if (typeof instance.requestPath !== 'string') throw new Error('Prepared Commit Audit Request is unavailable.');
          const strict = await validateCommitAuditReview({git: scenarioGitRunner({repositoryRoot: instance.scenarioRoot, runCommand}),
              repositoryRoot: instance.scenarioRoot, requestPath: instance.requestPath, reviewPath: correction.originalReportPath});
@@ -20,13 +42,78 @@ index 6f11157..a7991e2 100644
      }
      const original = reviewerCapabilityVerificationCore.parseMarkdownArtifact({response: await readFile(correction.originalReportPath, 'utf8'),
          reviewerId, scope: instance.expected.scopes[0]?.scope});
-     const diagnostics = original.reportDiagnostics ?? [];
+-    const diagnostics = original.reportDiagnostics ?? [];
 -    if (!diagnostics.some(item => item.code === 'review-format-invalid')) throw new Error('Original report has no verified representation error.');
 +    // Project policy: an evidence locator error that the project repairs mechanically (a short path with one match)
-+    // is also a representation error; the original's diagnostics are kept, so the upstream penalty still applies.
++    // is also a representation error. The parser accepts a short path; only the frozen-source check rejects it, so the
++    // gate runs the same check. The original's diagnostics are kept, so the upstream penalty still applies.
++    const diagnostics = [...original.reportDiagnostics ?? [], ...(original.checks === undefined ? [] : markdownEvidenceDiagnostics(original.checks,
++        await loadEvidenceSources({expected: instance.expected, scenarioRoot: instance.scenarioRoot, additionalEvidence: original.checks, runCommand})))];
 +    if (!diagnostics.some(item => item.code === 'review-format-invalid' || item.code === 'review-evidence-invalid')) {
 +        throw new Error('Original report has no verified representation error.');
 +    }
      return bindReportDiagnostics(identity, diagnostics);
  };
  
+@@ -2623,15 +2646,7 @@ const validateResponse = async (/** @type {{adjudicationDecisions: Map<string, s
+         const parsed = reviewerCapabilityVerificationCore.parseMarkdownArtifact({response: await readFile(artifactPaths[0], 'utf8'), reviewerId, scope: expected.scopes[0]?.scope});
+         if (parsed.finding !== undefined) return parsed;
+         const evidenceSources = await loadEvidenceSources({expected, scenarioRoot, additionalEvidence: parsed.checks, runCommand});
+-        const reportDiagnostics = [...parsed.reportDiagnostics];
+-        for (const finding of parsed.checks.flatMap(check => check.findings)) for (const evidence of finding.evidence) {
+-            if (!isJsonObject(evidence) || typeof evidence.filePath !== 'string') continue;
+-            const source = evidenceSources.get(normalizePath(evidence.filePath));
+-            const end = 'lineEnd' in evidence ? evidence.lineEnd : evidence.line;
+-            if (source === undefined || typeof end !== 'number' || end > evidenceSourceLineCount(source)) {
+-                reportDiagnostics.push({code: 'review-evidence-invalid', message: 'Markdown evidence is outside the frozen source.'});
+-            }
+-        }
++        const reportDiagnostics = [...parsed.reportDiagnostics, ...markdownEvidenceDiagnostics(parsed.checks, evidenceSources)];
+         const scorer = createReviewerCapabilityScenarioScorer({evidenceSources, expected, instanceId, reviewerId, scenarioRoot});
+         const score = (/** @type {Map<string, string>} */ decisions) => scorer({adjudicationDecisions: decisions, checks: parsed.checks});
+         retainScorer(score);
+diff --git a/tests/release/reviewer-capability-conformance.test.mjs b/tests/release/reviewer-capability-conformance.test.mjs
+index 37246c8..8235fbb 100644
+--- a/tests/release/reviewer-capability-conformance.test.mjs
++++ b/tests/release/reviewer-capability-conformance.test.mjs
+@@ -1881,6 +1881,40 @@ test('format correction rejects a valid original, wrong binding, cross-scene cop
+     });
+ });
+ 
++test('format correction accepts a Markdown original whose only error is a short evidence path and keeps its diagnostic', async () => {
++    // Project policy: the parser accepts a file-name-only locator; only the frozen-source check rejects it.
++    const {prepared, repositoryRoot, responses} = codeSpecCapabilityFixture;
++    const response = requireValue(responses[0], 'Expected Code Spec response.');
++    await withCapabilityArtifactSnapshots(response, async snapshots => {
++        const original = requireValue(response.instances[1], 'Expected second repetition.');
++        const originalPath = requireValue(original.artifactPaths?.[0], 'Expected original report.');
++        const originalText = requireValue(snapshots[1]?.sources[0], 'Expected complete report.');
++        const shortText = originalText.replace(/`[^`\s]*\/([^`/\s]+:\d+)`/u, '`$1`');
++        assert.notEqual(shortText, originalText);
++        const correctedReportPath = join(dirname(originalPath), 'short-path-copy.md');
++        await writeFile(originalPath, shortText, 'utf8');
++        await writeFile(correctedReportPath, originalText, 'utf8');
++        try {
++            const corrected = /** @type {CapabilityArtifactBatch} */ (structuredClone(response));
++            corrected.instances[1] = {instanceId: original.instanceId, artifactPaths: null,
++                formatCorrection: {originalReportPath: originalPath, correctedReportPath}};
++            const result = await rawVerifyReviewerCapabilityConformance({
++                adjudication: codeSpecBaselineAdjudication, agentIdentity, input: {artifacts: [corrected]},
++                preparedPath: prepared.preparedPath, repositoryRoot,
++            });
++            assert.equal(result.status, 'verified', JSON.stringify(result));
++            const score = requireValue(result.results?.[0], 'Expected corrected score.');
++            assert.deepEqual(score.repetitionScores, [1, 1, 1]);
++            assert.deepEqual(score.finalRepetitionScores, [1, 0.9, 1]);
++            assert.equal(score.reportDiagnostics?.[0]?.instanceId, original.instanceId);
++            assert.equal(score.reportDiagnostics?.[0]?.code, 'review-evidence-invalid');
++            assert.equal(await readFile(originalPath, 'utf8'), shortText);
++        } finally {
++            await rm(correctedReportPath, {force: true});
++        }
++    });
++});
++
+ test('the final average fails the score gate when the uncorrected average reaches it', async () => {
+     const {prepared, repositoryRoot, responses} = codeSpecCapabilityFixture;
+     const response = requireValue(responses[0], 'Expected Code Spec response.');

@@ -16,8 +16,8 @@ paths:
 ## 执行
 - 时限按累计工作时间计：初审 55 分钟提醒、60 分钟中断；同线程后续沟通 10 分钟提醒、15 分钟中断。提醒和中断使用原版 ARW 接口。
 - 能力验证和 benchmark 中，早停接续使用 ARW 原版运行层的接续机制，本工程驱动不另发继续指示（用户 2026-10-11：最大限度还原 ARW，便于与 ARW 自己的结果直接对比）。到达原版 10 / 5 次早退暂停点时，停下交给用户决定。
-- 能力验证和 benchmark 由 ARW 自己的 Strata provider 持有独占并启动模型（打了本工程接口补丁的 ARW，`selection.model_owner = "arw"`），引擎参数用安装目录的每机每量化默认值。实例之间不停模型，只允许 Strata 精确前缀缓存的复用，不复用上一个实例的上下文；token 按派发时刻切分的引擎日志段计算（用户 2026-10-11）。
-- 临时规则（2026-10-13，自主模式；问题定位后删除）：ARW 持有模型模式下，曾出现前端报租约空闲、模型未启动，但 strata.exe 仍常驻的情况（[报告](../../reports/v0.1.42/spec-readiness-v3/summary.md)「引擎常驻与前端空闲不一致」）。每批结束后，驱动方必须领租约、显式停模型、核实 strata.exe 已退出，再归还租约；下一批开跑前同样核实一遍。
+- 能力验证和 benchmark 由 ARW 自己的 Strata provider 持有独占并启动模型（打了本工程接口补丁的 ARW，`selection.model_owner = "arw"`），引擎参数用安装目录的每机每量化默认值。每批开跑前 `arw_measure` 经租约停掉常驻模型，批从冷加载开始；实例之间不停模型，只允许 Strata 精确前缀缓存的复用，不复用上一个实例的上下文；token 按派发时刻切分的引擎日志段计算（用户 2026-10-11）。
+- 临时规则（2026-10-13，自主模式；原因已定位并修复，见[历史记录](../../docs/work-history.md)「ARW 批次引擎常驻与 Code Spec 简写路径修复门」，真实加载验证通过后删除）：ARW 持有模型模式下，曾出现前端报租约空闲、模型未启动，但 strata.exe 仍常驻的情况（[报告](../../reports/v0.1.42/spec-readiness-v3/summary.md)「引擎常驻与前端空闲不一致」）。每批结束后，驱动方必须领租约、显式停模型、核实 strata.exe 已退出，再归还租约；下一批开跑前同样核实一遍。
 - 测量交接末尾追加冻结的测量说明（不发送中途消息、不需要运行标识、禁止查询环境变量和平台身份），记录 SHA；只追加，不改原版交接和 Role。
 - Reviewer 的命令环境用 Codex 原生 `shell_environment_policy.exclude` 去掉 `STRATA_API_KEY`（用户 2026-10-12；provider key 由 Codex 自己经 `env_key` 读取，命令不需要）。Codex 0.162.0 默认会把它传给命令，无模型探测已确认排除生效、`set` 的变量照常可见。
 - Spec Readiness 的 runtime-migration 与 artifact-promotion 各用全新根线程，互不可见，与 ARW 准备规则一致（每个 instanceId 一个独立线程和一次审核）；两份报告分别绑定，按原版融合评分。原"合并实例"（同一线程先 RM 后 AP）已停用（用户 2026-10-13）：它偏离 ARW，且有 AP 照搬 RM finding、引用 RM 专有约定的污染证据（[审查报告](../../reports/v0.1.42/spec-rule-audit/summary.md)）；此前用合并实例得到的 Spec Readiness 结果只在合并实例之间可比。

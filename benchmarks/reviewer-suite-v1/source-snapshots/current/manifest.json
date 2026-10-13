@@ -1156,10 +1156,11 @@
     },
     {
       "file": "../../arw-patches/format-normalized-scoring.patch",
-      "sha256": "ae7682a4a17ca2a787cb9d82e35260c8bbede1dbbe01311a72b484723d9417d4",
-      "reason": "Project scoring policy (user 2026-10-12): mechanically repairable representation errors are fixed on an independent copy (tools/reviewer/repair_reviewer_report.py: Commit Audit evidence line forms; a Markdown preamble before the first finding; a Markdown locator naming only a file with one match and lines in range) so the report can be scored. The patch only widens which corrections are accepted: a syntactically valid Commit Audit original, and a Markdown original whose only representation errors are evidence locator errors. It keeps the original's report diagnostics, so the upstream x0.9 penalty still applies (benchmarks use score; tuning reads scoreBeforePenalty). Unreadable originals and corrected copies that still have a representation error are rejected as upstream. Project policy, not an upstream defect.",
+      "sha256": "8fefa6c524f6f6c05dd796fef58ca029b03c690f6e681f78c51b2a29fb09851e",
+      "reason": "Project scoring policy (user 2026-10-12): mechanically repairable representation errors are fixed on an independent copy (tools/reviewer/repair_reviewer_report.py: Commit Audit evidence line forms; a Markdown preamble before the first finding; a Markdown locator naming only a file with one match and lines in range) so the report can be scored. The patch only widens which corrections are accepted: a syntactically valid Commit Audit original, and a Markdown original whose only representation errors are evidence locator errors. The parser accepts a file-name-only locator and only the frozen-source evidence check rejects it, so the gate runs that same check (shared with scoring) on the original; a pure short-path repair is therefore accepted. A regression test is added. It keeps the original's report diagnostics, so the upstream x0.9 penalty still applies (benchmarks use score; tuning reads scoreBeforePenalty). Unreadable originals and corrected copies that still have a representation error are rejected as upstream. Project policy, not an upstream defect.",
       "result": {
-        "lib/release/reviewer-capability-conformance.mjs": "51e2e22bf9412fa0c6f2fef18d7d08fdb89d049205973f9502da304043aa6c2b"
+        "lib/release/reviewer-capability-conformance.mjs": "9992ccfe52bb1a6905701102611990bddd3829a8b89b4334b593c395894870b5",
+        "tests/release/reviewer-capability-conformance.test.mjs": "54337dd212b47b13b457e84ef246141ab4cb96765fc53b75a38a7106ffd40b26"
       }
     },
     {
@@ -1167,7 +1168,7 @@
       "sha256": "b93ffbca57c45976791aeafdf0fb83d37e216075a2927997d527383001520f20",
       "reason": "Spec Readiness capability scenario v2 (scenario revision 41): fixture and answer-key revision after six rounds of the ARW two-stage fixture review; merged overlapping/dependent cases, registered or removed unregistered supported defects, widened placements. Change note: benchmarks/reviewer-suite-v1/spec-readiness-v2.md. Scores are comparable only within v2.",
       "result": {
-        "lib/release/reviewer-capability-conformance.mjs": "db6ffb504421f5446907cc5b4a3cb5a2f8645179600a8573c098e65855796c4b",
+        "lib/release/reviewer-capability-conformance.mjs": "daeb1cc91eeda0bd32cea9f1b4e729ea2209527188215590f31a3ab2875baddd",
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/expected.json": "fe3131abc559db92ecec741da9b61114aae1113f9927ebef6adaaeabcd7a78a3",
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/base/.scratch/0001-reviewer-capability/issues/01-review-readiness.md": "8b9aa68ac4b72620c542851add5ccd71faab4716cc4f5988e8532b951d981f10",
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/base/architecture/04-seams.md": "adf6d587ef946604ffc0d1bc66516ea72cc951792914ec72196e38bc8224153f",
@@ -1190,7 +1191,7 @@
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/access-review.md": "41c1bad8c0c6793d0a7bb3c7ec6b93a39207054e04f7e3223437f7353ff39ebf",
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-recovery.md": "99ee4245daeb1efd52304a3f207d6e92e82d8b6ee86b82b9ea7ed55ee8dfef80",
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-runtime.md": "d4f8f7c8acbc9b99c66220eba503bc00d0a4e4b88ae650b5cbea8842aade3150",
-        "tests/release/reviewer-capability-conformance.test.mjs": "1ef6a207f107aebbb727ea8b9829f5eb0f6b5a6dacd072318fa4fc2a795170a5"
+        "tests/release/reviewer-capability-conformance.test.mjs": "fefe194cd18df981d72b3522e96ba862d1664f5aae1de0db80c50f0c5a01ed7c"
       }
     },
     {
@@ -1198,7 +1199,7 @@
       "sha256": "06b7a468ccc6b11f9126aaef0a44a97397c092df157eb246f7d587c693336d04",
       "reason": "Spec Readiness capability scenario v3 (scenario revision 42), applied after v2: removes ambiguities found by the post-v2 audits (validation-report.md:31 Parser/renderReport relationship made explicit and justified at :90; runtime-migration.md:15/:45 authorization wording; RM validation-report.md:11 path wording; promotion-runtime.md:11 precondition wording; AP-only runtime-migration override aligned with the public result contracts; validation-report.md:100 no-ADR conclusion), narrows four expectations and turns SEAMS#0 into placements. Three rounds of the ARW two-stage fixture review. Change note: benchmarks/reviewer-suite-v1/spec-readiness-v3.md. Scores are comparable only within v3.",
       "result": {
-        "lib/release/reviewer-capability-conformance.mjs": "8a4c33f6d014ac0fa98da322b57dceef0ec5aad3c9e9d174ec2d77d88a767a0f",
+        "lib/release/reviewer-capability-conformance.mjs": "bb05534064c4a6ad7e6ef0ae00fc4a834825c6e873a2ec66005d2d996d864185",
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/expected.json": "d3f56d39f60d58c9772094709d388df4f150f74d260babb89f898da3c4ebd46a",
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/base/specs/validation-report.md": "d9d10a98fb347bb2b45500e01847db9dfee838836000e9343ddcf76db7071509",
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/promotion-runtime.md": "c36abf385078ff9ed8eeb915a21f71b8941895fa6a0897647bd5baaf81bc128a",
@@ -1213,7 +1214,7 @@
       "sha256": "55c4ebb0cb7680f2e92a416be904a4035ec216f3d51b930b126d16e6d1deda14",
       "reason": "Code Spec capability scenario v2 (scenario revision 12): access-policy.mjs:10 end boundary made exclusive so the clean access-window case holds under either reading of governing-spec.md:19; governing-spec.md:42 states that any state other than held, confirmed or canceled must be rejected so the cancellation problem case has a demonstrable failure; four answer-key placements added for direct-evidence lines. Two rounds of the ARW two-stage fixture review. Change note: benchmarks/reviewer-suite-v1/code-spec-v2.md. Scores are comparable only within v2.",
       "result": {
-        "lib/release/reviewer-capability-conformance.mjs": "3f5f53dabd99e0f2d579f529197323d0d6f3cf011ac0f7654b26cb264b7bb48b",
+        "lib/release/reviewer-capability-conformance.mjs": "907db31262b9fbcc2ca3d7556ee2787c71fd7d0c3c27cf2a487b2739a5ab56f7",
         "tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json": "39bfcec7683f9bcb0379ea2b117e4257b27b6559a88d3478618bdbd64f05e9d9",
         "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md": "cc73f6f1d0d2b6dd1f35646ed7330a61de69329eda86e56304183b6a50ea5f52",
         "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/access-policy.mjs": "ce7d5009fdf9985184aca779d313b521d14dc1b674613b22a66ffbde66cc26d1"

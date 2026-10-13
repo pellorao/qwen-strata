@@ -1180,3 +1180,18 @@ reviewer 在同一线程接第二个任务时，会先切到新目录而找不�
 ## Spec Readiness 思考上限诊断（2026-10-12，rtx3080ti IQ3_XXS）
 
 当前默认（方案 A，思考上限 28672）跑 3 个 Spec Readiness 合并实例，对照 F6 旧设置（8192 / 24576）的 5 个实例。思考触顶从平均 3.5 次降到 0.67 次，artifact-promotion +0.099（d/SE 1.18）、融合分 +0.056，均不显著：8192 截断不是低分主因，方案 A 也无明显代价（[报告](../reports/v0.1.42/spec-budget-diagnostic/summary.md)）。
+
+## ARW 批次引擎常驻与 Code Spec 简写路径修复门（2026-10-13）
+
+**引擎常驻、前端报空闲**（Spec Readiness v2/v3 报告「引擎常驻与前端空闲不一致」）
+- 前端没有报错：`/health` 在租约归还后仍如实给出 `model`（各实例 `result.json` 的 `frontend_health` 都是 `qwen3.8-flash-next-iq3_xxs`）。归还不停模型，空闲 30 分钟后停止，是 2026-10-10 批准的驻留设计；没有租约的常驻模型不违反独占 key——任何调用方要用它都必须先领租约。
+- 原因一：预检回执 `tools/ops/measurement_host.py` 把 `model_started` 写死为 `False`，从不读 `/health` 的 `model`，于是每批都"报模型未启动"。
+- 原因二：设计要求测量方领租约后先停常驻模型（`Controller.__enter__` 这样做），但 ARW 持有模型的批次不经 `Controller`，ARW provider 的 `/model/start` 遇到相同参数直接复用常驻引擎，批与批之间不冷启动。
+- 修复：预检改为记录 `resident_model`（来自 `/health`）；`arw_measure` 在 ARW 持有模式开跑前领租约、停常驻模型、核实 `/model/status` 为 stopped 且 `/health` 的 `model` 为空，归还后再交给 ARW，结果存 `cold-start.json`。领租约失败（他人持有）直接报错，不抢占。批结束后模型仍按驻留设计保留，下一批开跑前会被停掉。
+- 选择"开跑前停"而不是"批结束时停"：前者覆盖上一批异常退出、其他调用方留下常驻模型等所有情况，也与驱动方模式一致；后者改变已批准的驻留设计。
+- 影响：此前 v2 批 B、C 等复用了上一批的引擎，只有精确前缀缓存跨批复用，测量结论不变。
+
+**格式修正门拒绝纯简写路径修复**（Code Spec v2 测量中发现）
+- `arw-patches/format-normalized-scoring.patch` 的修正门只看 `parseMarkdownArtifact` 的诊断。解析器接受只写文件名的证据引用，这类引用只在评分阶段的冻结源核对中才得到 `review-evidence-invalid`，所以只修了简写路径的报告被判 scoring-input-invalid，只能按原报告评分。
+- 修复：把冻结源证据核对提成 `markdownEvidenceDiagnostics`，评分和修正门共用；修正门对原报告同样执行，纯简写修复因此被接受。原报告的诊断照常保留，benchmark 仍按 ×0.9 扣罚。补丁新增回归测试（旧补丁下失败、新补丁下通过），冻结源 manifest 更新该补丁及其后各补丁的结果哈希。
+
