@@ -63,7 +63,7 @@ artifact-promotion 现在只审约 8–9 分钟、输出约 40K token，v0.1.38 
 - [x] **引擎常驻与前端空闲不一致**：已定位并修复（见[历史记录](work-history.md)「ARW 批次引擎常驻与 Code Spec 简写路径修复门」）。v4 Q3 批 A（2026-10-13 12:29）真实加载验证通过：批前租约空闲、无 strata.exe；`cold-start.json` 为 stopped / model null / lease free；引擎日志 12:29:34 有新的 `engine started`。reviewer-suite.md 的临时规则已删除。该批在 12:41 因 Windows 意外重启（Kernel-Power 41）中断，批后状态没有观测到；重启后租约空闲、无遗留持有者、无 strata.exe。
 - 调参判定标准（在读取批 C、D 分数之前写定）：10 次组内 SD ≤ 0.068，即单侧 90% 上限 < 0.1，扣罚前和扣罚后两个口径都满足，才考虑把 v2 用于调参。
 - Code Spec v2（2026-10-13）：冻结 6f60c8c，两轮审计；Opus 0.799、Q3 ×5 0.815、Q3 ×10 0.806（SD 0.048 / 0.040）；21 用例双方全检出，判据 1 不成立，用途见"待你决定"（[报告](../reports/v0.1.42/code-spec-v2/summary.md)）。Q3 的 evidence-invalid 全部来自反引号时刻被当作定位，登记为 ARW 上游问题 4。
-- **主机重启处理（用户 2026-10-13 决定）**：排查结论见 `git show 8336f2d`（非 GPU 满载时长、GPU 未超频；CPU 微码 0x120 早于 Vmin 修复，内存 XMP 6600）。升级主板 BIOS 到含 0x12B 及以后微码的版本，内存降到 5600，不限 GPU 功耗；完成并核对微码与内存频率后再恢复 Spec v4 的 GPU 测量。资源采样已加 GPU 功耗与显存频率（836a296）。
+- **主机重启处理（用户 2026-10-13 决定）**：排查结论见 `git show 8336f2d`（非 GPU 满载时长、GPU 未超频；CPU 微码 0x120 早于 Vmin 修复，内存 XMP 6600）。主板 BIOS 已升级到 7E13v1C（1.C0），微码 0x137 已生效；不限 GPU 功耗。内存改为保持 XMP 6600、先观察（用户 2026-10-13 改决定：重启无蓝屏无 dump，更像供电或 Vmin 问题，降频只是预防）；若再次意外重启，再考虑降到 5600 G2（电压全 Auto，手动压 DRAM 电压到 1.10 V 会训练失败无法开机）。用户在 BIOS 重新开启 XMP 并核对频率后恢复 Spec v4 的 GPU 测量。资源采样已加 GPU 功耗与显存频率（836a296）。
 - **用户决定（2026-10-13 白天）**：
   - 继续重构 Spec Readiness，做 v4（INTERFACES#5、SEAMS#1 的非智力成因改夹具），流程同 v3。
   - Code Spec v2 要加难度，保证 Q3 与 Opus 有明显区分度；排在 Spec 之后。
