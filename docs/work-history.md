@@ -1231,3 +1231,4 @@ reviewer 在同一线程接第二个任务时，会先切到新目录而找不�
 - **Spec Readiness 审阅提前收工：主因调查**（用户 2026-10-12 批准，未开跑）：关闭。Spec Readiness 已重构到 v4.1 并决定不再迭代，原调查针对的 F6 旧场景和"artifact-promotion 只审 8–9 分钟"前提已不存在。
 - **Spec Readiness 单场景评分**：关闭。调参不再使用 ARW 场景，改用专用负载（见计划「采样与窗口重新测量」）；F4 工具 `tools.reviewer.single_scenario_score` 与 2026-10-11 无模型调查结论（原版 `score-completed` 局部评分接受单子场景，只给逐实例诊断分）保留备用。
 - **Strata v0.1.41 后续**：关闭。rtx3080ti 已于 2026-10-11 升级到 v0.1.42；上游 #1622 的跟踪并入每次升级的发布说明核查；"prompt 处理约快 2 倍"不再单独验证；rtx4070tis 同步并入计划「顺序」第 6 项。
+- **ARW 原生运行层关闭插件克隆**：计划条目已过时，关闭。改动早在 0bb2a56（2026-10-12）提交：隔离 codex-home 写 `[features] plugins = false`，采样驱动（67a0ed1）、`wsl_client`、`native_codex_runtime`、`verify_codex_compact_prompt` 都带 `features.plugins=false`，调用手册已有说明。2026-10-13 核对 Code Spec v3 批 A 的真实 ARW codex-home：`config.toml` 为绑定内容，目录共 11 MB，没有约 105 MB 的插件克隆。
