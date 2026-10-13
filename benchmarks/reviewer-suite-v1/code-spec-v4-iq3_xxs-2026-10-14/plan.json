@@ -1,0 +1,66 @@
+{
+ "schema": "arw-dimension-v1",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "reviewer": "code-spec-reviewer",
+ "authorization": {
+  "approved": true,
+  "source": "用户 2026-10-14 批准 v4.7 进入冻结流程（保留规则交互题；main 转达）：审计阶段 2 → 冻结 → 正式 Q3 ×5 与 Opus-high ×3 并行 → 盲裁 → 报告；GPU 空闲时 Q3 加测到 10 次",
+  "scope": "Code Spec v4（v4.7 冻结版，修订号 25）能力验证：IQ3_XXS 原定 5 次、加测到 10 次，每次一个全新 ARW 准备与冷加载；Opus-high ×3（Claude agent 按与 Q3 相同的渲染交接盲答，第 1 次兼审计第 2 轮阶段 1），不占 GPU",
+  "duration_constraint": "reviewer-suite.md「场景时长」：每实例工作时间 ≤30 分钟，均值宜 ≤20 分钟；设计估算 5–9 分钟/实例（原版 Code Spec Q3 3.4–4.2 分钟，Input 1.26 倍）。Q3 ×5 若有实例 >30 分钟或均值明显 >20 分钟，先缩减场景再定版"
+ },
+ "method": "arw_dimension prepare 准备冻结 ARW（manifest 含 code-spec-v4.patch）并预检 → ARW 持有模型，arw_measure 按交接顺序运行（每次重复一个全新根线程）→ 服务日志 budget 行核对生效值（high：budget 8192 (max 24576)）→ 报告修复（repair_reviewer_report）→ score-completed 与盲化裁决 → 会话检查；每实例结束领租约、停模型、核实 strata.exe 退出、归还租约。 工作时间从 ARW measurement.startedAt 起算，不含模型加载；报告耗时以分钟一位小数显示。",
+ "fixed_conditions": {
+  "strata": "0.1.43.1",
+  "codex": "0.162.0",
+  "effort": "high",
+  "effort_reason": "与 ARW 原生 agent-cli 配置（model_reasoning_effort=\"high\"）及 F6 基线一致",
+  "context_window": 206584,
+  "auto_compact_token_limit": 150000,
+  "engine_defaults": "config/deployments/rtx3080ti.json 的安装默认值（ecdd132 起 IQ3_XXS 首档 206584/150000）：high 思考 8192、总输出 24576；guardian 512/1024；IQ3_XXS spec 4、ple-io direct、STRATA_ADAPT_LAG 2。每批绑定部署后 config/deployment.json 与模型配置的 SHA（开跑时记录实际值）",
+  "startup_instructions": "config/prompts/startup-instructions.txt（源 SHA 5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e，去掉防循环段），compact-prompt.txt（3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af）接入；开跑前核对已安装 SHA",
+  "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
+  "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
+  "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json",
+  "scenario": "Code Spec v4（v4.7，SCENARIO_REVISIONS code-spec-reviewer 25，arw-patches/code-spec-v3.patch 之后叠加 arw-patches/code-spec-v4.patch sha256 95b658c080618af01c578ae2010d6b047438816f286c88ad459961b243a8c1c5）",
+  "scoring": "能力验证口径：完全按 ARW 原版罚分",
+  "vram_reserve_warning": "0.1.43.1 每请求检查空闲显存，可能提示 --vram-reserve-mib 1280：记录次数与同期速度，不改参数",
+  "reading_volume": "不应用阅读量维度的时限规则，handoff 不变（main 2026-10-14）"
+ },
+ "codex_thread_id": "b7635f94-ad60-429b-98e7-3ee5c19ba2bb",
+ "dimensions": [
+  {
+   "order": 1,
+   "id": "code-spec-v4-baseline",
+   "default": "effort-high",
+   "reviewer": "code-spec-reviewer",
+   "schedule_design": "每次 prepare + arw_measure --limit 1（每实例全新准备、冷加载，与 v4.7 校准同流程）；原定 5 次为正式结果，GPU 空闲时加测到 10 次（目标次数事先定为 10，不按中途结果决定停不停）；报告同时给前 5 次和全部 10 次",
+   "schedule": [
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high"
+   ],
+   "conditions": {
+    "effort-high": {
+     "log_present": [
+      "budget 8192 \\(max 24576\\)"
+     ],
+     "log_absent": [
+      "budget 4096 "
+     ]
+    }
+   },
+   "note": "评估：增量盲裁（机械部分先脚本：证据行是否落在 placement、文件是否存在、重复 finding；只把需语义判断的候选交给盲裁）、混入 10–15 个已裁锚点并报一致率；会话检查；budget 生效核对；逐用例命中率（Q3 与 Opus）、双方 0 命中用例及成因；逐实例耗时（分钟）、三类 token、两种口径速度；相对口径 Q3/Opus；按类别（长链、规则交互、短而隐晦、保底）覆盖",
+   "opus": "Opus-high ×3：mkopus 方式只 prepare 不预检，Role 绑定 + 交接 + 冻结测量说明与 Q3 相同；第 1 次为审计第 2 轮阶段 1（阶段 2 无 blocker/major 且之后不改可见内容才计入）"
+  }
+ ],
+ "target_repetitions": 10,
+ "primary_repetitions": 5
+}

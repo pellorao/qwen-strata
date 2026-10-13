@@ -1258,6 +1258,24 @@
         "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/settings.mjs": "fa02f9437eff7fd68f52a080c03ab1cace4a50da48426e500f94076fc7922e81",
         "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/time.mjs": "419cbe72476edfb94fa270e1d5bcc15825b545ae90469ffdd0d4ab4599ff7296"
       }
+    },
+    {
+      "file": "../../arw-patches/code-spec-v4.patch",
+      "sha256": "95b658c080618af01c578ae2010d6b047438816f286c88ad459961b243a8c1c5",
+      "reason": "Code Spec capability scenario v4 (frozen v4.7, scenario revision 25), applied after code-spec-v3: v3 was too easy (IQ3_XXS x5 detected 21.8/22). v4 rewrites governing-spec.md and the candidate reservation module as a mixed set of 20 problem cases: 10 long-chain defects without local clues (units across definitions, parameter-carried filter, identity comparison, spread override order, field lost in a whitelist, zero-length interval, truncation, post-transition state, snapping arithmetic), 3 shallow rule-override cases, 5 short but subtle language-semantics cases and 2 floor cases, with 30 look-alike correct decoys plus noOtherSupportedFinding. Visible input 17.9K bytes. Two fresh Opus-high two-stage audit rounds: round 1 found 0 blocker and 5 major (fixed: asynchronous store write queue, placements, wording), round 2 found 0 blocker and 0 major. Change note: benchmarks/reviewer-suite-v1/code-spec-v4.md. v4 scores are comparable only with v4.",
+      "result": {
+        "lib/release/reviewer-capability-conformance.mjs": "0149cfc0bcc2e6fca5b7075fadeaf5874e884ddfc5f40e9c6e745659e844bfc0",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json": "849c62481eb081050f01e33f46fb3c85f7b1274e3e911346c90c49bed8a3fd28",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md": "6057365e663c90dbc855ed624dea224ae2d8173d262dc3ede8f13d7e2603cd4e",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/calendar.mjs": "9d63fd8f4f8b6ba35e0ff3209a375bf0503f5f54c9302f8e657104a1f33c4bcb",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/catalog.mjs": "aaca1fa21ec415adc31260dc2cc30c9a96b0ad60a245b667234b5442f7870c13",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/notifications.mjs": "01680814509e1c305bd6f8c02d54802ee4e0832f46fd2e69061a3fc2ea053538",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/policy.mjs": "aa2d6a9d4963f1a1d5e21e3d1db11c2c1323d0671225b3e991f01d3bf56d0c70",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/request-validation.mjs": "9d77484f80b71fe5a33df94410508928a630f3094890f8ffb8067344e7bdffc3",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/reservation-service.mjs": "a4b4bc43f9cd1df88bc0dd457ba39a62e47dc77dbdc2dd74ad75cb40d7a7f1e7",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/reservation-store.mjs": "00c587cdfe572449f60ef747adac50cc326a07bcca0bafda0fe77e88656b3cd4",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/transitions.mjs": "6775b1cd4673a76db5c6c9a89f94e725ba7e5724825e4803e243f10194a231a1"
+      }
     }
   ]
 }
