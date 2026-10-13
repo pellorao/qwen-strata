@@ -1240,6 +1240,24 @@
         "lib/release/reviewer-capability-conformance.mjs": "a4a70f3acd29b0701dfa4cd31cfcf7f9d1c164f3e0ec38943907886925e669bf",
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/expected.json": "3093980fc37278abd16a935cd10d143dbcbab19435671bdee7e7fd2f13c3526f"
       }
+    },
+    {
+      "file": "../../arw-patches/code-spec-v3.patch",
+      "sha256": "a5de617a6335c5d9ef0b984f46c86db531bfe4df7f896e1dbd38fdde00f7e5f9",
+      "reason": "Code Spec capability scenario v3 (scenario revision 13), applied after code-spec-v2: a harder fixture. v2 had no discriminating power (Opus medium 3/3 and IQ3_XXS 10/10 detected all 21 cases; Q3/Opus 1.02) because every defect was a one-line contrast with one spec sentence. v3 rewrites governing-spec.md and the candidate reservation module (adds request-validation.mjs, settings.mjs, time.mjs) so most of the 22 problem cases need cross-file or multi-step reasoning (unit mismatch across modules, default-clock fallback, field-name mismatch, shared-array mutation, unawaited save, normalized-versus-raw variable mix-ups, comparator contract), keeps a few direct contrasts as a floor, and adds plausible-looking correct decoys among 27 clean cases plus noOtherSupportedFinding. Visible input grows only 1.26x (17.9K bytes). One fresh Opus-high two-stage audit: stage 1 found exactly the 22 keyed defects and no others; stage 2 found 0 blocker, 1 major (P5 association set) fixed in the key with minors m1-m4 and n1; residual minors recorded. Change note: benchmarks/reviewer-suite-v1/code-spec-v3.md. v3 scores are comparable only with v3.",
+      "result": {
+        "lib/release/reviewer-capability-conformance.mjs": "3612f7426aab5494a8892b0e44475dc46298d60ff08eb5b9b36f970342144547",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json": "7697c380c33bbaf75490bfd1750ca4cc4a6ae3563b6f00c28e7a0912d768d5da",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md": "85f6436f4db7e456a157b9ebb83dd0d22158c3e3e66fc7972c6955e201f2fba1",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/access-policy.mjs": "561ba4357dbe33eafa9a50baa27d22a18f1fd6855bc0143dc463cbd11acf4734",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/availability.mjs": "cebdbe2b7dc42e614cf2d3d358a3cfc7007a649f85be19e89734af315a1d9a0a",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/hold-policy.mjs": "750a6e465e3672e82337a7ab00f901f36b2f90b33a38aa5fd39ae9952f69902f",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/request-validation.mjs": "374a904ffef78183305d1badf0494ad950158e1f17e76b8980efa02962d7df8a",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/reservation-service.mjs": "7a122dafc89c8f8b3374164bb4c52aacddfd74154325dd8dcdfb5a70e44de0ba",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/room-catalog.mjs": "4ee55b39d1905ca513e21b8f6a7ac81fa58bd5f99083912f54da40daf76cb683",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/settings.mjs": "fa02f9437eff7fd68f52a080c03ab1cace4a50da48426e500f94076fc7922e81",
+        "tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/time.mjs": "419cbe72476edfb94fa270e1d5bcc15825b545ae90469ffdd0d4ab4599ff7296"
+      }
     }
   ]
 }

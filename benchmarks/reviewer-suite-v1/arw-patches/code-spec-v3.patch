@@ -1,0 +1,3166 @@
+diff --git a/lib/release/reviewer-capability-conformance.mjs b/lib/release/reviewer-capability-conformance.mjs
+index 11ebf88..7f40e85 100644
+--- a/lib/release/reviewer-capability-conformance.mjs
++++ b/lib/release/reviewer-capability-conformance.mjs
+@@ -185,7 +185,7 @@ const SCENARIO_SEGMENTS = new Map([
+     ['spec-readiness-reviewer', 'sr'],
+ ]);
+ const SCENARIO_REVISIONS = new Map([
+-    ['code-spec-reviewer', 12],
++    ['code-spec-reviewer', 13],
+     ['code-standards-reviewer', 14],
+     ['commit-audit-reviewer', 19],
+     ['spec-readiness-reviewer', 44],
+diff --git a/tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json b/tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json
+index 6eaad77..32fd9da 100644
+--- a/tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json
++++ b/tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json
+@@ -4,22 +4,22 @@
+       "scope": "CODE-SPEC-FINDINGS",
+       "problemCases": [
+         {
+-          "expectation": "Whitespace-only member identifiers pass validation because the implementation checks the untrimmed length.",
++          "expectation": "Whitespace-only member identifiers pass validation because the check uses the untrimmed length.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 16
++              "filePath": "src/reservations/request-validation.mjs",
++              "line": 9
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 16
++              "filePath": "src/reservations/request-validation.mjs",
++              "line": 9
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 6
++              "line": 11
+             }
+           ],
+           "findingTerms": [
+@@ -30,7 +30,6 @@
+             ],
+             [
+               "trim",
+-              "normalization",
+               "untrimmed"
+             ],
+             [
+@@ -40,195 +39,97 @@
+           ]
+         },
+         {
+-          "expectation": "Room capacity validation accepts zero and negative party sizes instead of requiring a positive integer.",
++          "expectation": "Room lookup uses the raw request roomId instead of the trimmed value, so surrounding whitespace changes which room is selected.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/reservations/room-catalog.mjs",
+-              "line": 7
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 21
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/reservations/room-catalog.mjs",
+-              "line": 7
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 21
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 7
++              "line": 26
+             }
+           ],
+           "findingTerms": [
+-            "partySize",
+-            [
+-              "positive integer",
+-              "greater than zero"
+-            ],
++            "roomId",
+             [
+-              "zero",
+-              "negative",
+-              "nonpositive"
++              "trim",
++              "whitespace"
+             ],
+             [
+-              "accept",
+-              "allows",
+-              "missing"
++              "lookup",
++              "find",
++              "selected"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Amenity matching accepts a room that has only one requested amenity instead of every requested amenity.",
++          "expectation": "partySize is coerced with Number, so non-number values such as numeric strings are accepted instead of rejected.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/reservations/room-catalog.mjs",
++              "filePath": "src/reservations/request-validation.mjs",
+               "line": 10
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/reservations/room-catalog.mjs",
++              "filePath": "src/reservations/request-validation.mjs",
+               "line": 10
+             },
+-            {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 19
+-            },
+-            {
+-              "filePath": "governing-spec.md",
+-              "line": 17
+-            }
+-          ],
+-          "findingTerms": [
+-            [
+-              "amenity",
+-              "amenities"
+-            ],
+-            [
+-              "every",
+-              "all"
+-            ],
+-            [
+-              "some",
+-              "only one",
+-              "partial"
+-            ]
+-          ]
+-        },
+-        {
+-          "expectation": "Eligible rooms are sorted by hourly rate instead of ascending capacity and room identifier.",
+-          "result": "gap",
+-          "associationEvidence": [
+-            {
+-              "filePath": "src/reservations/room-catalog.mjs",
+-              "line": 13
+-            }
+-          ],
+-          "evidence": [
+-            {
+-              "filePath": "src/reservations/room-catalog.mjs",
+-              "line": 13
+-            },
+-            {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 37
+-            },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 25
++              "line": 12
+             }
+           ],
+           "findingTerms": [
++            "partySize",
+             [
+-              "rank",
+-              "sort",
+-              "order"
+-            ],
+-            [
+-              "capacity"
+-            ],
+-            [
+-              "room identifier",
+-              "room id"
++              "Number",
++              "coerce",
++              "conversion"
+             ],
+             [
+-              "hourlyRate",
+-              "hourly rate",
+-              "price"
++              "string",
++              "non-number"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Idempotency keys are stored and queried without trimming or lowercasing.",
++          "expectation": "Eligible room listing never filters out inactive rooms.",
+           "result": "gap",
+           "placements": [
+             {
+               "associationEvidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 20
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 31
++                  "line": 34
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 20
+-                },
+-                {
+-                  "filePath": "src/reservations/hold-policy.mjs",
+-                  "line": 14
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 31
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-store.mjs",
+-                  "line": 8
+-                },
+-                {
+-                  "filePath": "governing-spec.md",
+-                  "line": 12
+-                }
+-              ]
+-            },
+-            {
+-              "associationEvidence": [
+-                {
+-                  "filePath": "src/reservations/hold-policy.mjs",
+-                  "line": 14
++                  "line": 34
+                 },
+-                {
+-                  "filePath": "src/reservations/reservation-store.mjs",
+-                  "line": 8
+-                }
+-              ],
+-              "check": "CODE-SPEC-FINDINGS",
+-              "evidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 20
+-                },
+-                {
+-                  "filePath": "src/reservations/hold-policy.mjs",
+-                  "line": 14
++                  "line": 35
+                 },
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 31
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-store.mjs",
+-                  "line": 8
++                  "line": 36
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 12
++                  "line": 34
+                 }
+               ]
+             },
+@@ -236,34 +137,26 @@
+               "associationEvidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 20
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-store.mjs",
+-                  "line": 8
++                  "line": 35
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 20
+-                },
+-                {
+-                  "filePath": "src/reservations/hold-policy.mjs",
+-                  "line": 14
++                  "line": 34
+                 },
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 31
++                  "line": 35
+                 },
+                 {
+-                  "filePath": "src/reservations/reservation-store.mjs",
+-                  "line": 8
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 36
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 12
++                  "line": 34
+                 }
+               ]
+             },
+@@ -271,34 +164,26 @@
+               "associationEvidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 20
+-                },
+-                {
+-                  "filePath": "src/reservations/hold-policy.mjs",
+-                  "line": 14
++                  "line": 36
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 20
+-                },
+-                {
+-                  "filePath": "src/reservations/hold-policy.mjs",
+-                  "line": 14
++                  "line": 34
+                 },
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 31
++                  "line": 35
+                 },
+                 {
+-                  "filePath": "src/reservations/reservation-store.mjs",
+-                  "line": 8
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 36
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 12
++                  "line": 34
+                 }
+               ]
+             },
+@@ -306,125 +191,73 @@
+               "associationEvidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 20
++                  "line": 33
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 20
++                  "line": 33
+                 },
+                 {
+-                  "filePath": "src/reservations/hold-policy.mjs",
+-                  "line": 14
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 34
+                 },
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 31
++                  "line": 35
+                 },
+                 {
+-                  "filePath": "src/reservations/reservation-store.mjs",
+-                  "line": 8
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 36
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 12
++                  "line": 34
+                 }
+               ]
+             }
+           ],
+           "findingTerms": [
+             [
+-              "idempotency key",
+-              "request key"
+-            ],
+-            [
+-              "trim",
+-              "whitespace"
+-            ],
+-            [
+-              "lowercase",
+-              "case normalization"
++              "eligible",
++              "listing"
+             ],
+             [
+-              "missing",
+-              "unchanged",
+-              "raw"
++              "inactive",
++              "active"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Reservation creation checks availability, allocates, and saves a new hold before looking up the idempotency key, so a retry can fail availability or create side effects instead of returning the existing reservation.",
++          "expectation": "Room amenities are lowercased when rooms are loaded, but requested amenities are compared without lowercasing, so matching is case-sensitive.",
+           "result": "gap",
+           "placements": [
+             {
+               "associationEvidence": [
+                 {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 29
++                  "filePath": "src/reservations/room-catalog.mjs",
++                  "line": 15
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 27
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 28
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 29
++                  "filePath": "src/reservations/room-catalog.mjs",
++                  "line": 5
+                 },
+                 {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 30
++                  "filePath": "src/reservations/room-catalog.mjs",
++                  "line": 15
+                 },
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 31
++                  "line": 25
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 13
+-                }
+-              ]
+-            },
+-            {
+-              "associationEvidence": [
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 30
+-                }
+-              ],
+-              "check": "CODE-SPEC-FINDINGS",
+-              "evidence": [
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 27
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 28
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+                   "line": 29
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 30
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 31
+-                },
+-                {
+-                  "filePath": "governing-spec.md",
+-                  "line": 13
+                 }
+               ]
+             },
+@@ -432,34 +265,26 @@
+               "associationEvidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 31
++                  "line": 25
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 27
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 28
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 29
++                  "filePath": "src/reservations/room-catalog.mjs",
++                  "line": 5
+                 },
+                 {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 30
++                  "filePath": "src/reservations/room-catalog.mjs",
++                  "line": 15
+                 },
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 31
++                  "line": 25
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 13
++                  "line": 29
+                 }
+               ]
+             },
+@@ -467,157 +292,138 @@
+               "associationEvidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 28
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 31
++                  "line": 36
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 27
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 28
+-                },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 29
++                  "filePath": "src/reservations/room-catalog.mjs",
++                  "line": 5
+                 },
+                 {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 30
++                  "filePath": "src/reservations/room-catalog.mjs",
++                  "line": 15
+                 },
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 31
++                  "line": 36
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 13
++                  "line": 29
+                 }
+               ]
+             }
+           ],
+           "findingTerms": [
+             [
+-              "idempotency",
+-              "duplicate request",
+-              "retry"
++              "amenity",
++              "amenities"
+             ],
+             [
+-              "allocation",
+-              "nextId",
+-              "save",
+-              "persist",
+-              "late lookup",
+-              "lookup after",
+-              "availability",
+-              "unavailable",
+-              "before lookup",
+-              "existing reservation",
+-              "existing record"
++              "case-insensitive",
++              "lowercase",
++              "case-sensitive"
+             ]
+           ]
+         },
+         {
+-          "expectation": "The overlap predicate treats touching endpoints as an overlap, so a booking cannot start when another ends.",
++          "expectation": "The ranking comparator returns Number(left.id > right.id), which is never negative, so equal-capacity rooms are not reliably ordered by ascending identifier.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/reservations/availability.mjs",
+-              "line": 7
++              "filePath": "src/reservations/room-catalog.mjs",
++              "line": 19
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/reservations/availability.mjs",
+-              "line": 7
+-            },
+-            {
+-              "filePath": "src/reservations/availability.mjs",
+-              "line": 24
++              "filePath": "src/reservations/room-catalog.mjs",
++              "line": 19
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 19
++              "line": 35
+             }
+           ],
+           "findingTerms": [
+             [
+-              "half-open",
+-              "endpoint",
+-              "boundary"
+-            ],
+-            [
+-              "start",
+-              "end"
++              "sort",
++              "comparator",
++              "order"
+             ],
+             [
+-              "overlap"
++              "room identifier",
++              "id"
+             ],
+             [
+-              "back-to-back",
+-              "exactly when another ends"
++              "negative",
++              "tie",
++              "ascending"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Canceled reservations are still classified as occupying their rooms.",
++          "expectation": "The idempotency lookup uses the raw request key instead of the normalized key that is stored.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/reservations/availability.mjs",
+-              "line": 13
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 19
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/reservations/availability.mjs",
+-              "line": 13
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 19
++            },
++            {
++              "filePath": "src/reservations/request-validation.mjs",
++              "line": 18
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 20
++              "line": 19
+             }
+           ],
+           "findingTerms": [
+             [
+-              "canceled reservation",
+-              "canceled"
++              "idempotency key",
++              "request key"
+             ],
+             [
+-              "occupy",
+-              "availability"
++              "normalized",
++              "trim",
++              "lowercase"
+             ],
+             [
+-              "exclude",
+-              "ignored",
+-              "still counts"
++              "lookup",
++              "findByRequestKey"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Held reservations occupy rooms without checking whether their expiration has passed.",
++          "expectation": "Creation calls nextId before the idempotency lookup, so a duplicate request still allocates an identifier.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/reservations/availability.mjs",
+-              "line": 11
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 18
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/reservations/availability.mjs",
+-              "line": 11
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 18
+             },
+             {
+-              "filePath": "src/reservations/availability.mjs",
+-              "line": 23
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 19
++            },
++            {
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 20
+             },
+             {
+               "filePath": "governing-spec.md",
+@@ -625,222 +431,202 @@
+             }
+           ],
+           "findingTerms": [
++            "nextId",
+             [
+-              "held reservation",
+-              "hold"
+-            ],
+-            [
+-              "expiresAt",
+-              "expiration",
+-              "expired"
+-            ],
+-            [
+-              "now",
+-              "current time"
++              "before",
++              "allocate"
+             ],
+             [
+-              "occupy",
+-              "availability"
++              "idempotency",
++              "existing"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Rescheduling supplies an exclusion identifier, but availability ignores it and rejects the reservation against itself.",
++          "expectation": "Held-reservation occupancy calls isExpired without the injected clock, so expiration is judged by the system clock through the Date.now default.",
+           "result": "gap",
+           "placements": [
+             {
+               "associationEvidence": [
+                 {
+                   "filePath": "src/reservations/availability.mjs",
+-                  "line": 20
++                  "line": 12
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+                   "filePath": "src/reservations/availability.mjs",
+-                  "line": 20
+-                },
+-                {
+-                  "filePath": "src/reservations/availability.mjs",
+-                  "line": 21
+-                },
+-                {
+-                  "filePath": "src/reservations/availability.mjs",
+-                  "line": 22
+-                },
+-                {
+-                  "filePath": "src/reservations/availability.mjs",
+-                  "line": 23
+-                },
+-                {
+-                  "filePath": "src/reservations/availability.mjs",
+-                  "line": 24
++                  "line": 12
+                 },
+                 {
+-                  "filePath": "src/reservations/availability.mjs",
++                  "filePath": "src/reservations/hold-policy.mjs",
+                   "line": 25
+                 },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 65
+-                },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 24
++                  "line": 43
+                 }
+               ]
+             },
+             {
+               "associationEvidence": [
+                 {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 65
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 25
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+                   "filePath": "src/reservations/availability.mjs",
+-                  "line": 20
+-                },
+-                {
+-                  "filePath": "src/reservations/availability.mjs",
+-                  "line": 21
+-                },
+-                {
+-                  "filePath": "src/reservations/availability.mjs",
+-                  "line": 22
+-                },
+-                {
+-                  "filePath": "src/reservations/availability.mjs",
+-                  "line": 23
+-                },
+-                {
+-                  "filePath": "src/reservations/availability.mjs",
+-                  "line": 24
++                  "line": 12
+                 },
+                 {
+-                  "filePath": "src/reservations/availability.mjs",
++                  "filePath": "src/reservations/hold-policy.mjs",
+                   "line": 25
+                 },
+-                {
+-                  "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 65
+-                },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 24
++                  "line": 43
+                 }
+               ]
+             }
+           ],
+           "findingTerms": [
+             [
+-              "reschedule",
+-              "rescheduling"
++              "held",
++              "hold"
++            ],
++            [
++              "now",
++              "clock"
+             ],
++            [
++              "Date.now",
++              "system clock",
++              "default"
++            ]
++          ]
++        },
++        {
++          "expectation": "The reschedule exclusion compares reservation.reservationId, a field records do not have, so the moved reservation is never excluded and can conflict with itself.",
++          "result": "gap",
++          "associationEvidence": [
++            {
++              "filePath": "src/reservations/availability.mjs",
++              "line": 22
++            }
++          ],
++          "evidence": [
++            {
++              "filePath": "src/reservations/availability.mjs",
++              "line": 22
++            },
++            {
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 68
++            },
++            {
++              "filePath": "governing-spec.md",
++              "line": 44
++            }
++          ],
++          "findingTerms": [
+             [
+               "exclude",
+-              "exclusion"
++              "excluded"
+             ],
+             [
+-              "reservation id",
+-              "itself",
+-              "self-conflict"
++              "reservationId",
++              "id"
+             ],
+             [
+-              "availability"
++              "reschedule",
++              "itself"
+             ]
+           ]
+         },
+         {
+-          "expectation": "A new hold expires after five minutes instead of the required ten minutes.",
++          "expectation": "Hold expiration adds holdTtlSeconds (600) directly to a millisecond timestamp, so new and rescheduled holds expire after 600 milliseconds instead of ten minutes.",
+           "result": "gap",
+           "placements": [
+             {
+               "associationEvidence": [
+                 {
+                   "filePath": "src/reservations/hold-policy.mjs",
+-                  "line": 5
++                  "line": 20
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+                   "filePath": "src/reservations/hold-policy.mjs",
+-                  "line": 5
++                  "line": 20
+                 },
+                 {
+-                  "filePath": "src/reservations/hold-policy.mjs",
+-                  "line": 18
++                  "filePath": "src/reservations/settings.mjs",
++                  "line": 2
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 31
++                  "line": 50
+                 }
+               ]
+             },
+             {
+               "associationEvidence": [
+                 {
+-                  "filePath": "src/reservations/hold-policy.mjs",
+-                  "line": 18
++                  "filePath": "src/reservations/settings.mjs",
++                  "line": 2
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+                   "filePath": "src/reservations/hold-policy.mjs",
+-                  "line": 5
++                  "line": 20
+                 },
+                 {
+-                  "filePath": "src/reservations/hold-policy.mjs",
+-                  "line": 18
++                  "filePath": "src/reservations/settings.mjs",
++                  "line": 2
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 31
++                  "line": 50
+                 }
+               ]
+-            }
+-          ],
+-          "findingTerms": [
+-            [
+-              "hold",
+-              "reservation"
+-            ],
+-            [
+-              "five minutes",
+-              "5 minutes"
+-            ],
+-            [
+-              "ten minutes",
+-              "10 minutes"
+-            ],
+-            [
+-              "expiresAt",
+-              "expiration"
+-            ]
+-          ]
+-        },
+-        {
+-          "expectation": "A hold is treated as valid when now equals expiresAt because expiration uses a strict greater-than comparison.",
+-          "result": "gap",
+-          "associationEvidence": [
+-            {
+-              "filePath": "src/reservations/hold-policy.mjs",
+-              "line": 21
+-            }
+-          ],
+-          "evidence": [
+-            {
+-              "filePath": "src/reservations/hold-policy.mjs",
+-              "line": 21
+             },
+             {
+-              "filePath": "governing-spec.md",
+-              "line": 32
++              "associationEvidence": [
++                {
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 71
++                },
++                {
++                  "filePath": "governing-spec.md",
++                  "line": 84
++                }
++              ],
++              "check": "CODE-SPEC-FINDINGS",
++              "evidence": [
++                {
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 71
++                },
++                {
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 20
++                },
++                {
++                  "filePath": "src/reservations/settings.mjs",
++                  "line": 2
++                },
++                {
++                  "filePath": "governing-spec.md",
++                  "line": 84
++                }
++              ]
+             }
+           ],
+           "findingTerms": [
+@@ -849,133 +635,72 @@
+               "expiration"
+             ],
+             [
+-              "equal",
+-              "equality",
+-              "boundary"
+-            ],
+-            [
+-              "greater-than",
+-              "strict comparison"
+-            ],
+-            [
+-              "expired",
+-              "valid"
+-            ]
+-          ]
+-        },
+-        {
+-          "expectation": "Confirmation accepts non-canceled states other than held instead of requiring the held state.",
+-          "result": "gap",
+-          "associationEvidence": [
+-            {
+-              "filePath": "src/reservations/hold-policy.mjs",
+-              "line": 24
+-            }
+-          ],
+-          "evidence": [
+-            {
+-              "filePath": "src/reservations/hold-policy.mjs",
+-              "line": 24
+-            },
+-            {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 46
+-            },
+-            {
+-              "filePath": "governing-spec.md",
+-              "line": 33
+-            }
+-          ],
+-          "findingTerms": [
+-            [
+-              "confirm",
+-              "confirmation"
+-            ],
+-            [
+-              "held state",
+-              "held"
+-            ],
+-            [
+-              "non-canceled",
+-              "state check"
++              "seconds",
++              "milliseconds",
++              "units"
+             ],
+             [
+-              "only",
+-              "require"
++              "ten minutes",
++              "600"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Confirmation mutates the caller's reservation before persistence, so a failed save leaves the original object changed.",
++          "expectation": "Confirmation stores the now function itself as confirmedAt instead of calling it.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 47
++              "line": 42
+             }
+           ],
+           "evidence": [
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 47
+-            },
+-            {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 48
+-            },
+-            {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 50
++              "line": 42
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 36
++              "line": 58
+             }
+           ],
+           "findingTerms": [
++            "confirmedAt",
+             [
+-              "confirmation",
+-              "confirm"
+-            ],
+-            [
+-              "mutate",
+-              "mutation",
+-              "original object"
+-            ],
+-            [
+-              "save failure",
+-              "failed save",
+-              "persistence fails"
++              "now",
++              "function"
+             ],
+             [
+-              "unchanged"
++              "call",
++              "invoke",
++              "not called"
+             ]
+           ]
+         },
+         {
+-          "expectation": "The confirmation notification is sent before the confirmed reservation is saved.",
++          "expectation": "Confirmation pushes onto the history array shared with the caller's reservation before saving, so the caller's object changes even if the save fails.",
+           "result": "gap",
+           "placements": [
+             {
+               "associationEvidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 49
++                  "line": 43
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 49
++                  "line": 42
+                 },
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 50
++                  "line": 43
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 37
++                  "line": 59
+                 }
+               ]
+             },
+@@ -983,175 +708,306 @@
+               "associationEvidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 50
++                  "line": 42
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 49
++                  "line": 42
+                 },
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 50
++                  "line": 43
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 37
++                  "line": 59
+                 }
+               ]
+             }
+           ],
+           "findingTerms": [
++            "history",
+             [
+-              "confirmation notification",
+-              "notifier.confirmed"
+-            ],
+-            [
+-              "before save",
+-              "ordering",
+-              "after saved"
++              "shared",
++              "shallow",
++              "mutate",
++              "push"
+             ],
+             [
+-              "persistence",
+-              "store.save"
++              "caller",
++              "original"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Cancellation permits every non-canceled state, including states outside held and confirmed.",
++          "expectation": "Confirmation does not await the save, so the confirmation notification is sent before the save succeeds and even when it fails.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/reservations/hold-policy.mjs",
+-              "line": 27
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 44
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/reservations/hold-policy.mjs",
+-              "line": 27
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 44
+             },
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 56
++              "line": 45
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 42
++              "line": 60
+             }
+           ],
+           "findingTerms": [
+             [
+-              "cancel",
+-              "cancellation"
++              "await",
++              "not awaited"
+             ],
+             [
+-              "held",
+-              "confirmed"
++              "save"
+             ],
+             [
+-              "other state",
+-              "every non-canceled",
+-              "invalid state"
++              "notification",
++              "notify"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Building access begins only ten minutes before the reservation instead of fifteen minutes before it.",
++          "expectation": "The cancellation notification is built from the original reservation, so it does not carry the saved canceledAt value.",
++          "result": "gap",
++          "associationEvidence": [
++            {
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 60
++            }
++          ],
++          "evidence": [
++            {
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 60
++            },
++            {
++              "filePath": "governing-spec.md",
++              "line": 69
++            }
++          ],
++          "findingTerms": [
++            [
++              "cancellation notification",
++              "cancellation notice"
++            ],
++            "canceledAt",
++            [
++              "original",
++              "reservation instead of canceled"
++            ]
++          ]
++        },
++        {
++          "expectation": "The access trail is accessTrailMinutes multiplied by 1,000, which is fifteen seconds instead of fifteen minutes.",
++          "result": "gap",
++          "associationEvidence": [
++            {
++              "filePath": "src/reservations/access-policy.mjs",
++              "line": 8
++            }
++          ],
++          "evidence": [
++            {
++              "filePath": "src/reservations/access-policy.mjs",
++              "line": 8
++            },
++            {
++              "filePath": "governing-spec.md",
++              "line": 76
++            }
++          ],
++          "findingTerms": [
++            [
++              "access",
++              "trail"
++            ],
++            [
++              "fifteen minutes",
++              "15 minutes"
++            ],
++            [
++              "seconds",
++              "1_000",
++              "units"
++            ]
++          ]
++        },
++        {
++          "expectation": "Building access accepts any non-canceled reservation instead of requiring a confirmed reservation.",
++          "result": "gap",
++          "associationEvidence": [
++            {
++              "filePath": "src/reservations/access-policy.mjs",
++              "line": 12
++            }
++          ],
++          "evidence": [
++            {
++              "filePath": "src/reservations/access-policy.mjs",
++              "line": 12
++            },
++            {
++              "filePath": "governing-spec.md",
++              "line": 73
++            }
++          ],
++          "findingTerms": [
++            [
++              "access",
++              "entry"
++            ],
++            "confirmed",
++            [
++              "held",
++              "non-canceled"
++            ]
++          ]
++        },
++        {
++          "expectation": "Rescheduling validates the reservation's existing window instead of the new startAt and endAt.",
++          "result": "gap",
++          "associationEvidence": [
++            {
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 66
++            }
++          ],
++          "evidence": [
++            {
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 66
++            },
++            {
++              "filePath": "governing-spec.md",
++              "line": 82
++            }
++          ],
++          "findingTerms": [
++            [
++              "reschedule",
++              "new window"
++            ],
++            [
++              "endAt",
++              "startAt"
++            ],
++            [
++              "existing",
++              "old",
++              "current"
++            ]
++          ]
++        },
++        {
++          "expectation": "Rescheduling rebuilds the record through createHold, so requestKey becomes undefined (and history is reset and confirmedAt dropped); reporting any one of these lost fields matches.",
+           "result": "gap",
+           "placements": [
+             {
+               "associationEvidence": [
+                 {
+-                  "filePath": "src/reservations/access-policy.mjs",
+-                  "line": 4
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 71
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+-                  "filePath": "src/reservations/access-policy.mjs",
+-                  "line": 4
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 71
+                 },
+                 {
+-                  "filePath": "src/reservations/access-policy.mjs",
+-                  "line": 9
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 16
++                },
++                {
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 21
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 46
++                  "line": 85
+                 }
+               ]
+             },
+             {
+               "associationEvidence": [
+                 {
+-                  "filePath": "src/reservations/access-policy.mjs",
+-                  "line": 9
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 16
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+-                  "filePath": "src/reservations/access-policy.mjs",
+-                  "line": 4
++                  "filePath": "src/reservations/reservation-service.mjs",
++                  "line": 71
+                 },
+                 {
+-                  "filePath": "src/reservations/access-policy.mjs",
+-                  "line": 9
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 16
++                },
++                {
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 21
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 46
++                  "line": 85
+                 }
+               ]
+             }
+           ],
+           "findingTerms": [
+             [
+-              "building access",
+-              "entry"
++              "reschedule"
+             ],
+             [
+-              "ten minutes",
+-              "10 minutes"
++              "createHold"
+             ],
+             [
+-              "fifteen minutes",
+-              "15 minutes"
+-            ],
+-            [
+-              "before",
+-              "early"
++              "requestKey",
++              "confirmedAt",
++              "history"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Building access checks time and building but never requires the reservation to be confirmed.",
++          "expectation": "A new hold copies buildingId from the request instead of from the selected room.",
+           "result": "gap",
+           "placements": [
+             {
+               "associationEvidence": [
+                 {
+-                  "filePath": "src/reservations/access-policy.mjs",
+-                  "line": 7
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 11
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+-                  "filePath": "src/reservations/access-policy.mjs",
+-                  "line": 7
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 11
+                 },
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 79
++                  "line": 27
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 48
++                  "line": 49
+                 }
+               ]
+             },
+@@ -1159,741 +1015,797 @@
+               "associationEvidence": [
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 79
++                  "line": 27
+                 }
+               ],
+               "check": "CODE-SPEC-FINDINGS",
+               "evidence": [
+                 {
+-                  "filePath": "src/reservations/access-policy.mjs",
+-                  "line": 7
++                  "filePath": "src/reservations/hold-policy.mjs",
++                  "line": 11
+                 },
+                 {
+                   "filePath": "src/reservations/reservation-service.mjs",
+-                  "line": 79
++                  "line": 27
+                 },
+                 {
+                   "filePath": "governing-spec.md",
+-                  "line": 48
++                  "line": 49
+                 }
+               ]
+             }
+           ],
+           "findingTerms": [
++            "buildingId",
+             [
+-              "building access",
+-              "entry"
+-            ],
++              "request",
++              "room"
++            ]
++          ]
++        },
++        {
++          "expectation": "Capacity check uses partySize < capacity, so a party exactly equal to the room capacity is rejected.",
++          "result": "gap",
++          "associationEvidence": [
++            {
++              "filePath": "src/reservations/room-catalog.mjs",
++              "line": 12
++            }
++          ],
++          "evidence": [
++            {
++              "filePath": "src/reservations/room-catalog.mjs",
++              "line": 12
++            },
++            {
++              "filePath": "governing-spec.md",
++              "line": 28
++            }
++          ],
++          "findingTerms": [
+             [
+-              "confirmed reservation",
+-              "confirmed state"
++              "capacity"
+             ],
+             [
+-              "state check",
+-              "missing",
+-              "never requires"
++              "equal",
++              "at most",
++              "<="
+             ]
+           ]
+         },
+         {
+-          "expectation": "Rescheduling never rejects a window whose endAt is not later than startAt.",
++          "expectation": "The start-time check compares against Date.now() instead of the injected now() value.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 64
++              "filePath": "src/reservations/request-validation.mjs",
++              "line": 13
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 63
++              "filePath": "src/reservations/request-validation.mjs",
++              "line": 13
+             },
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 64
++              "filePath": "governing-spec.md",
++              "line": 14
++            }
++          ],
++          "findingTerms": [
++            "startAt",
++            [
++              "Date.now",
++              "system clock"
++            ],
++            [
++              "now",
++              "injected"
++            ]
++          ]
++        }
++      ],
++      "cleanCases": [
++        {
++          "expectation": "Blank room identifiers are rejected after trimming.",
++          "evidence": [
++            {
++              "filePath": "src/reservations/request-validation.mjs",
++              "line": 7
++            },
++            {
++              "filePath": "src/reservations/request-validation.mjs",
++              "line": 8
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 53
++              "line": 10
+             }
+           ],
+           "findingTerms": [
++            "roomId",
+             [
+-              "reschedule",
+-              "rescheduling"
++              "blank",
++              "empty"
+             ],
+             [
+-              "endAt",
+-              "end"
+-            ],
++              "trim"
++            ]
++          ]
++        },
++        {
++          "expectation": "Creation rejects a request window whose endAt is not later than startAt.",
++          "evidence": [
++            {
++              "filePath": "src/reservations/request-validation.mjs",
++              "line": 12
++            },
++            {
++              "filePath": "governing-spec.md",
++              "line": 13
++            }
++          ],
++          "findingTerms": [
+             [
+-              "startAt",
+-              "start"
++              "window"
+             ],
+             [
+-              "later",
+-              "invalid window",
+-              "validation"
++              "endAt",
++              "startAt"
+             ]
+           ]
+         },
+         {
+-          "expectation": "A successful reschedule preserves the prior state instead of returning the reservation to held.",
+-          "result": "gap",
+-          "associationEvidence": [
++          "expectation": "The request note is stored unchanged.",
++          "evidence": [
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 72
++              "filePath": "src/reservations/request-validation.mjs",
++              "line": 15
++            },
++            {
++              "filePath": "src/reservations/hold-policy.mjs",
++              "line": 14
++            },
++            {
++              "filePath": "governing-spec.md",
++              "line": 15
+             }
+           ],
++          "findingTerms": [
++            "note",
++            [
++              "unchanged",
++              "preserved"
++            ]
++          ]
++        },
++        {
++          "expectation": "The normalized idempotency key is trimmed, lowercased, and stored as requestKey.",
+           "evidence": [
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 72
++              "filePath": "src/reservations/request-validation.mjs",
++              "line": 4
+             },
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 75
++              "filePath": "src/reservations/request-validation.mjs",
++              "line": 18
+             },
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 76
++              "filePath": "src/reservations/hold-policy.mjs",
++              "line": 16
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 56
++              "line": 19
+             }
+           ],
+           "findingTerms": [
+-            "reschedule",
+             [
+-              "held state",
+-              "state"
++              "idempotency key",
++              "requestKey"
+             ],
+             [
+-              "preserve",
+-              "unchanged",
+-              "does not reset",
+-              "confirmed"
++              "trim"
++            ],
++            [
++              "lowercase"
+             ]
+           ]
+         },
+         {
+-          "expectation": "A successful reschedule preserves the prior expiration instead of assigning a fresh ten-minute expiration from the injected clock.",
+-          "result": "gap",
+-          "associationEvidence": [
++          "expectation": "The idempotency lookup happens after field validation and before room selection.",
++          "evidence": [
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 73
++              "line": 17
++            },
++            {
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 19
++            },
++            {
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 21
++            },
++            {
++              "filePath": "governing-spec.md",
++              "line": 20
+             }
+           ],
++          "findingTerms": [
++            [
++              "idempotency",
++              "lookup"
++            ],
++            [
++              "validation",
++              "room selection"
++            ]
++          ]
++        },
++        {
++          "expectation": "New reservation identifiers come from the injected nextId function.",
+           "evidence": [
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 63
++              "line": 18
+             },
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 73
++              "line": 27
+             },
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 75
++              "filePath": "governing-spec.md",
++              "line": 22
++            }
++          ],
++          "findingTerms": [
++            "nextId",
++            [
++              "identifier",
++              "id"
++            ]
++          ]
++        },
++        {
++          "expectation": "Creation rejects rooms whose active value is not true.",
++          "evidence": [
++            {
++              "filePath": "src/reservations/room-catalog.mjs",
++              "line": 10
+             },
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 76
++              "line": 23
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 56
++              "line": 27
+             }
+           ],
+           "findingTerms": [
+-            "reschedule",
+-            [
+-              "fresh",
+-              "refresh",
+-              "renew"
+-            ],
+-            [
+-              "ten-minute",
+-              "ten minute",
+-              "10-minute",
+-              "10 minute"
+-            ],
+             [
+-              "expiresAt",
+-              "expiration",
+-              "expiry"
++              "active",
++              "inactive"
+             ]
+           ]
+-        }
+-      ],
+-      "cleanCases": [
++        },
+         {
+-          "expectation": "Blank room identifiers are rejected after trimming surrounding whitespace.",
++          "expectation": "A room must contain every requested amenity.",
+           "evidence": [
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
++              "filePath": "src/reservations/room-catalog.mjs",
+               "line": 15
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 5
++              "line": 30
+             }
+           ],
+           "findingTerms": [
+-            "roomId",
+-            [
+-              "blank",
+-              "empty"
+-            ],
+             [
+-              "trim",
+-              "whitespace"
++              "amenity",
++              "amenities"
+             ],
+             [
+-              "reject",
+-              "invalid"
++              "every",
++              "all"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Party sizes above the selected room capacity are rejected.",
++          "expectation": "An overlapping occupying reservation in the same room makes the room unavailable.",
+           "evidence": [
+             {
+-              "filePath": "src/reservations/room-catalog.mjs",
+-              "line": 7
++              "filePath": "src/reservations/availability.mjs",
++              "line": 8
+             },
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 17
++              "filePath": "src/reservations/availability.mjs",
++              "line": 25
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 8
++              "line": 39
+             }
+           ],
+           "findingTerms": [
+             [
+-              "partySize",
+-              "party size"
+-            ],
+-            [
+-              "capacity"
+-            ],
+-            [
+-              "larger",
+-              "above",
+-              "exceed"
++              "overlap"
+             ],
+             [
+-              "reject",
+-              "invalid"
++              "unavailable",
++              "availability"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Inactive rooms are rejected by the reservation flow.",
++          "expectation": "The overlap predicate uses half-open intervals.",
+           "evidence": [
+             {
+-              "filePath": "src/reservations/room-catalog.mjs",
+-              "line": 5
+-            },
+-            {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 18
++              "filePath": "src/reservations/availability.mjs",
++              "line": 8
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 9
++              "line": 40
+             }
+           ],
+           "findingTerms": [
+             [
+-              "active room",
+-              "inactive room"
+-            ],
+-            [
+-              "reject",
+-              "accept"
++              "half-open",
++              "touching",
++              "ends"
+             ]
+           ]
+         },
+         {
+-          "expectation": "The request note is copied unchanged into the new hold.",
++          "expectation": "Confirmed reservations occupy their room.",
+           "evidence": [
+             {
+-              "filePath": "src/reservations/hold-policy.mjs",
+-              "line": 12
++              "filePath": "src/reservations/availability.mjs",
++              "line": 11
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 10
++              "line": 41
+             }
+           ],
+           "findingTerms": [
++            "confirmed",
+             [
+-              "request note",
+-              "note"
+-            ],
+-            [
+-              "preserve",
+-              "unchanged"
++              "occupy"
+             ]
+           ]
+         },
+         {
+-          "expectation": "New reservation identifiers come from the injected nextId function.",
++          "expectation": "Canceled reservations do not occupy their room.",
+           "evidence": [
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 29
++              "filePath": "src/reservations/availability.mjs",
++              "line": 13
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 11
++              "line": 42
+             }
+           ],
+           "findingTerms": [
++            "canceled",
+             [
+-              "reservation identifier",
+-              "id"
+-            ],
+-            [
+-              "nextId",
+-              "injected"
++              "occupy"
+             ]
+           ]
+         },
+         {
+-          "expectation": "The availability predicate rejects time ranges that have a real overlap.",
++          "expectation": "A new hold starts in the held state with the requested window.",
+           "evidence": [
+             {
+-              "filePath": "src/reservations/availability.mjs",
+-              "line": 7
++              "filePath": "src/reservations/hold-policy.mjs",
++              "line": 17
+             },
+             {
+-              "filePath": "src/reservations/availability.mjs",
+-              "line": 24
++              "filePath": "src/reservations/hold-policy.mjs",
++              "line": 18
++            },
++            {
++              "filePath": "src/reservations/hold-policy.mjs",
++              "line": 19
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 18
++              "line": 48
+             }
+           ],
+           "findingTerms": [
++            "held",
+             [
+-              "overlap",
+-              "overlapping"
+-            ],
+-            [
+-              "confirmed reservation"
+-            ],
+-            [
+-              "reject",
+-              "unavailable"
++              "startAt",
++              "endAt",
++              "window"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Confirmed reservations are classified as occupying their rooms.",
++          "expectation": "A new hold history has one held entry stamped with the creation time.",
+           "evidence": [
+             {
+-              "filePath": "src/reservations/availability.mjs",
+-              "line": 12
++              "filePath": "src/reservations/hold-policy.mjs",
++              "line": 8
++            },
++            {
++              "filePath": "src/reservations/hold-policy.mjs",
++              "line": 21
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 22
++              "line": 51
+             }
+           ],
+           "findingTerms": [
++            "history",
+             [
+-              "confirmed reservation",
+-              "confirmed"
++              "held"
+             ],
+             [
+-              "occupy",
+-              "availability"
++              "creation time",
++              "createdAt"
+             ]
+           ]
+         },
+         {
+-          "expectation": "An empty reservation list leaves a valid room request available.",
++          "expectation": "The held notification is sent after the hold is saved.",
+           "evidence": [
+             {
+-              "filePath": "src/reservations/availability.mjs",
+-              "line": 21
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 28
++            },
++            {
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 29
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 23
++              "line": 52
+             }
+           ],
+           "findingTerms": [
+             [
+-              "no reservations",
+-              "empty reservation list"
++              "held notification",
++              "notifier.held"
+             ],
+             [
+-              "available"
++              "save",
++              "saved"
+             ]
+           ]
+         },
+         {
+-          "expectation": "New reservations start in the held state.",
++          "expectation": "A hold is expired when now() is equal to or later than expiresAt.",
+           "evidence": [
+             {
+               "filePath": "src/reservations/hold-policy.mjs",
+-              "line": 17
++              "line": 25
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 29
++              "line": 56
+             }
+           ],
+           "findingTerms": [
+             [
+-              "new reservation",
+-              "new hold"
++              "expired",
++              "expiration"
+             ],
+             [
+-              "held state",
+-              "held"
++              "equal",
++              ">="
+             ]
+           ]
+         },
+         {
+-          "expectation": "The hold preserves the requested startAt and endAt values.",
++          "expectation": "Only a nonexpired held reservation can be confirmed.",
+           "evidence": [
+             {
+               "filePath": "src/reservations/hold-policy.mjs",
+-              "line": 15
++              "line": 28
+             },
+             {
+-              "filePath": "src/reservations/hold-policy.mjs",
+-              "line": 16
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 41
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 30
++              "line": 57
+             }
+           ],
+           "findingTerms": [
+             [
+-              "startAt",
+-              "start"
++              "confirm"
+             ],
+             [
+-              "endAt",
+-              "end"
++              "held"
+             ],
+             [
+-              "preserve",
+-              "requested window"
++              "expired",
++              "nonexpired"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Confirmation records its time from the injected now function.",
++          "expectation": "The confirmation notification identifies the reservation by its identifier.",
+           "evidence": [
++            {
++              "filePath": "src/reservations/notifications.mjs",
++              "line": 4
++            },
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 48
++              "line": 45
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 35
++              "line": 61
+             }
+           ],
+           "findingTerms": [
+             [
+-              "confirmedAt",
+-              "confirmation time"
++              "confirmation notification",
++              "confirmation notice"
+             ],
+             [
+-              "now",
+-              "injected"
++              "reservationId",
++              "identifier"
+             ]
+           ]
+         },
+         {
+-          "expectation": "The confirmation notification payload identifies the reservation that is being saved.",
++          "expectation": "Only held or confirmed reservations can be canceled.",
+           "evidence": [
+             {
+-              "filePath": "src/reservations/notifications.mjs",
+-              "line": 4
+-            },
+-            {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 49
++              "filePath": "src/reservations/hold-policy.mjs",
++              "line": 32
+             },
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 50
++              "line": 51
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 38
++              "line": 65
+             }
+           ],
+           "findingTerms": [
+             [
+-              "confirmation notification",
+-              "confirmation payload"
+-            ],
+-            [
+-              "reservationId",
+-              "reservation id"
++              "cancel"
+             ],
+             [
+-              "identify",
+-              "saved reservation"
++              "held",
++              "confirmed"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Canceling an already canceled reservation returns immediately without persistence or notification work.",
++          "expectation": "Canceling an already canceled reservation returns it without persistence or notification.",
+           "evidence": [
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 55
++              "line": 50
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 43
++              "line": 66
+             }
+           ],
+           "findingTerms": [
+             [
+-              "already canceled",
+-              "canceled reservation"
++              "already canceled"
+             ],
+             [
+               "return",
+               "unchanged"
+-            ],
+-            [
+-              "no persistence",
+-              "no notification",
+-              "no work"
+             ]
+           ]
+         },
+         {
+-          "expectation": "A successful cancellation records canceledAt using the injected now function.",
++          "expectation": "Cancellation records canceledAt from now() and appends a canceled history entry with the same time.",
+           "evidence": [
++            {
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 52
++            },
++            {
++              "filePath": "src/reservations/reservation-service.mjs",
++              "line": 56
++            },
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+               "line": 57
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 44
++              "line": 67
+             }
+           ],
+           "findingTerms": [
++            "canceledAt",
+             [
+-              "canceledAt",
+-              "cancellation time"
++              "history"
+             ],
+             [
+-              "now",
+-              "injected"
++              "now"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Cancellation saves the canceled record before sending its notification.",
++          "expectation": "The canceled record is saved before the cancellation notification is sent.",
+           "evidence": [
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 58
++              "line": 59
+             },
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 59
++              "line": 60
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 45
++              "line": 68
+             }
+           ],
+           "findingTerms": [
+-            [
+-              "cancellation",
+-              "canceled record"
+-            ],
+             [
+               "save",
+-              "persistence"
+-            ],
+-            [
+-              "notification"
++              "saved"
+             ],
+             [
+-              "before",
+-              "ordering"
++              "cancellation notification",
++              "notifier.canceled"
+             ]
+           ]
+         },
+         {
+-          "expectation": "The building access window ends fifteen minutes after the reservation end.",
++          "expectation": "Building access requires the requested building to match the reservation building.",
+           "evidence": [
+             {
+               "filePath": "src/reservations/access-policy.mjs",
+-              "line": 5
+-            },
+-            {
+-              "filePath": "src/reservations/access-policy.mjs",
+-              "line": 10
++              "line": 13
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 47
++              "line": 74
+             }
+           ],
+           "findingTerms": [
+             [
+-              "building access",
+-              "entry"
+-            ],
+-            [
+-              "fifteen minutes",
+-              "15 minutes"
+-            ],
+-            [
+-              "after",
+-              "late"
++              "building",
++              "buildingId"
+             ],
+             [
+-              "end time",
+-              "endAt"
++              "match"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Building access requires the requested building to match the reservation building.",
++          "expectation": "Building access begins fifteen minutes before startAt.",
+           "evidence": [
+             {
+               "filePath": "src/reservations/access-policy.mjs",
+-              "line": 8
++              "line": 7
++            },
++            {
++              "filePath": "src/reservations/access-policy.mjs",
++              "line": 14
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 49
++              "line": 75
+             }
+           ],
+           "findingTerms": [
+             [
+-              "building",
+-              "buildingId"
++              "access"
++            ],
++            [
++              "fifteen minutes",
++              "15 minutes"
+             ],
+             [
+-              "match",
+-              "same"
++              "before",
++              "startAt"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Rescheduling preserves the reservation identifier.",
++          "expectation": "Only held or confirmed reservations can be rescheduled.",
+           "evidence": [
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 69
+-            },
+-            {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 75
+-            },
+-            {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 76
++              "line": 65
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 54
++              "line": 80
+             }
+           ],
+           "findingTerms": [
+             [
+-              "reschedule",
+-              "rescheduling"
+-            ],
+-            [
+-              "reservation identifier",
+-              "reservation id"
++              "reschedule"
+             ],
+             [
+-              "preserve"
++              "held",
++              "confirmed"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Rescheduling preserves the selected room and building.",
++          "expectation": "A reschedule keeps the reservation identifier, room, and building.",
+           "evidence": [
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 69
++              "line": 71
+             },
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 75
++              "filePath": "src/reservations/hold-policy.mjs",
++              "line": 10
+             },
+             {
+-              "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 76
++              "filePath": "src/reservations/hold-policy.mjs",
++              "line": 11
++            },
++            {
++              "filePath": "src/reservations/hold-policy.mjs",
++              "line": 12
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 55
++              "line": 83
+             }
+           ],
+           "findingTerms": [
+             [
+-              "reschedule",
+-              "rescheduling"
++              "reschedule"
+             ],
+             [
+-              "room"
++              "identifier",
++              "id"
+             ],
+             [
++              "room",
+               "building"
+-            ],
+-            [
+-              "preserve"
+             ]
+           ]
+         },
+         {
+-          "expectation": "Confirming a valid hold changes its state to confirmed.",
++          "expectation": "A reschedule returns the reservation to held with an expiration computed by the new-hold rule.",
+           "evidence": [
+             {
+               "filePath": "src/reservations/reservation-service.mjs",
+-              "line": 47
++              "line": 71
++            },
++            {
++              "filePath": "src/reservations/hold-policy.mjs",
++              "line": 19
++            },
++            {
++              "filePath": "src/reservations/hold-policy.mjs",
++              "line": 20
+             },
+             {
+               "filePath": "governing-spec.md",
+-              "line": 34
++              "line": 84
+             }
+           ],
+           "findingTerms": [
+             [
+-              "confirm",
+-              "confirmation"
+-            ],
+-            [
+-              "valid hold",
+-              "held reservation"
++              "reschedule"
+             ],
+             [
+-              "state"
++              "held"
+             ],
+             [
+-              "confirmed"
++              "expiration",
++              "expiresAt"
+             ]
+           ]
+         },
+diff --git a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md
+index 4a731aa..bf43a72 100644
+--- a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md
++++ b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md
+@@ -1,56 +1,85 @@
+ # Workspace Reservation Contract
+ 
+-## Reservation requests
+-
+-- A reservation request must reject a blank `roomId` after trimming surrounding whitespace.
+-- A `memberId` that contains only whitespace is invalid after normalization.
+-- `partySize` must be a positive integer.
+-- A party larger than the selected room capacity must be rejected.
+-- Only active rooms may accept reservations.
+-- The request note must be preserved without normalization.
++## Conventions
++
++- All timestamps, including values returned by `now()`, are milliseconds since the Unix epoch.
++- Every time-dependent decision must use the injected `now()` function instead of the system clock.
++
++## Request fields
++
++- A blank `roomId` must be rejected after trimming surrounding whitespace.
++- A `memberId` that contains only whitespace is invalid.
++- `partySize` must be supplied as a number, and that number must be a positive integer.
++- A request window must have an `endAt` value later than its `startAt` value.
++- A request whose `startAt` is earlier than `now()` must be rejected.
++- The request note must be stored exactly as supplied.
++
++## Idempotency
++
++- Idempotency keys are trimmed and lowercased before lookup and storage.
++- The idempotency lookup happens after the request field rules and before any room is selected.
++- If the idempotency key already belongs to a reservation, creation returns that reservation without allocating an identifier or saving another record.
+ - New reservation identifiers must come from the injected `nextId` function.
+-- Idempotency keys must be trimmed and converted to lowercase before lookup and storage.
+-- If the normalized idempotency key already exists, creation must return that reservation without allocating an identifier or saving another record.
+-
+-## Room selection and availability
+-
+-- A room must contain every requested amenity; matching only some requested amenities is insufficient.
+-- A reservation that overlaps a confirmed reservation for the same room must be rejected.
+-- Time ranges use half-open intervals, so one reservation may start exactly when another ends.
+-- Canceled reservations do not occupy a room.
+-- A held reservation occupies a room only while `now()` is earlier than its `expiresAt` value.
+-- A confirmed reservation occupies its room regardless of any earlier hold expiration.
+-- A room with no reservations is available for a valid request.
+-- Availability checks performed while rescheduling must exclude the reservation being moved.
+-- Eligible rooms are ordered by ascending capacity and then by room identifier.
+-
+-## Holds and confirmation
+-
+-- A new reservation starts in the `held` state.
+-- Its `startAt` and `endAt` values must equal the requested window.
+-- A new hold expires exactly ten minutes after the injected `now()` value used to create it.
++
++## Room selection
++
++- Surrounding whitespace in `roomId` must not change which room is selected.
++- Only rooms whose `active` value is `true` may accept reservations.
++- A room can host a party whose size is at most the room capacity.
++- Amenity names are compared case-insensitively.
++- A room must contain every requested amenity.
++
++## Room listing
++
++- Eligible rooms are active rooms that can host the party and contain every requested amenity.
++- Eligible rooms are ordered by ascending capacity and then by ascending room identifier.
++
++## Availability
++
++- A room is unavailable when an occupying reservation for the same room overlaps the requested window.
++- Time ranges are half-open intervals, so one reservation may start exactly when another ends.
++- Confirmed reservations occupy their room.
++- Canceled reservations do not occupy their room.
++- A held reservation occupies its room only while `now()` is earlier than its `expiresAt` value.
++- While rescheduling, the reservation being moved must not conflict with itself.
++
++## Holds
++
++- A new reservation starts in the `held` state, and its `startAt` and `endAt` values equal the requested window.
++- A new reservation's `buildingId` is the building of its selected room.
++- A new hold expires ten minutes after the `now()` value used to create it.
++- A new reservation's `history` contains exactly one entry, `{state: 'held', at}`, where `at` is its creation time.
++- The held notification is sent only after the new hold has been saved.
++
++## Confirmation
++
+ - A hold is expired when `now()` is equal to or later than `expiresAt`.
+ - Only a nonexpired reservation in the `held` state may be confirmed.
+-- Confirming a valid hold changes its state to `confirmed`.
+-- The confirmation time must come from the injected `now()` function.
+-- If saving a confirmation fails, the caller's original reservation object must remain unchanged.
+-- A confirmation notification may be sent only after the confirmed reservation has been saved successfully.
+-- The confirmation notification must identify the saved reservation.
++- Confirmation sets `state` to `confirmed`, records `confirmedAt` from `now()`, and appends `{state: 'confirmed', at}` to `history`, where `at` equals `confirmedAt`.
++- If saving a confirmation fails, the caller's reservation object, including its `history`, must remain unchanged.
++- The confirmation notification may be sent only after the confirmed reservation has been saved successfully.
++- The confirmation notification identifies the confirmed reservation by its identifier.
+ 
+-## Cancellation and access
++## Cancellation
+ 
+-- Only reservations in the `held` or `confirmed` state may be canceled; any state other than `held`, `confirmed`, or `canceled` must be rejected.
++- Only `held` or `confirmed` reservations may be canceled; any other state except `canceled` is rejected.
+ - Canceling an already canceled reservation returns it unchanged and performs no persistence or notification work.
+-- A successful cancellation records `canceledAt` from the injected `now()` function.
++- A successful cancellation records `canceledAt` from `now()` and appends `{state: 'canceled', at}` to `history`, where `at` equals `canceledAt`.
+ - The canceled record must be saved before its cancellation notification is sent.
+-- Building access begins fifteen minutes before the reserved start time.
+-- Building access ends fifteen minutes after the reserved end time.
+-- Only a confirmed reservation can authorize building access.
++- The cancellation notification carries the saved record's `canceledAt` value.
++
++## Building access
++
++- Only a confirmed reservation authorizes building access.
+ - The requested building must match the reservation's building.
++- Access begins fifteen minutes before `startAt`.
++- Access ends fifteen minutes after `endAt`; that end instant is outside the access window.
+ 
+ ## Rescheduling
+ 
+-- A rescheduled window must have an `endAt` value later than its `startAt` value.
+-- Rescheduling preserves the reservation identifier.
+-- Rescheduling preserves the selected room and building.
+-- A successful reschedule returns the reservation to `held` and gives it a fresh ten-minute expiration based on the injected `now()` value.
++- Only `held` or `confirmed` reservations may be rescheduled.
++- Rescheduling applies no request validation other than the rules in this section.
++- The new window must have an `endAt` value later than its `startAt` value.
++- A successful reschedule keeps the reservation identifier, room, and building.
++- A successful reschedule returns the reservation to `held` with a fresh hold expiration computed by the same rule as a new hold.
++- Every other stored field is unchanged by a reschedule.
+diff --git a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/access-policy.mjs b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/access-policy.mjs
+index c426ae5..7f3bbea 100644
+--- a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/access-policy.mjs
++++ b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/access-policy.mjs
+@@ -1,11 +1,16 @@
+-/** @typedef {{buildingId: string, endAt: number, startAt: number}} Reservation */
++import {RESERVATION_SETTINGS} from './settings.mjs';
++import {reviewerCapabilityMinutes} from './time.mjs';
++
++/** @typedef {{buildingId: string, endAt: number, startAt: number, state: string}} Reservation */
+ /** @typedef {{buildingId: string, now: () => number, reservation: Reservation}} EntryRequest */
+ 
+-const EARLY_ACCESS_MS = 10 * 60 * 1_000;
+-const LATE_ACCESS_MS = 15 * 60 * 1_000;
++const ACCESS_LEAD_MS = reviewerCapabilityMinutes(RESERVATION_SETTINGS.accessLeadMinutes);
++const ACCESS_TRAIL_MS = RESERVATION_SETTINGS.accessTrailMinutes * 1_000;
+ 
+-export const reviewerCapabilityCanEnterBuilding = (/** @type {EntryRequest} */ {buildingId, reservation, now}) => (
+-    reservation.buildingId === buildingId
+-    && now() >= reservation.startAt - EARLY_ACCESS_MS
+-    && now() < reservation.endAt + LATE_ACCESS_MS
+-);
++export const reviewerCapabilityCanEnterBuilding = (/** @type {EntryRequest} */ {buildingId, reservation, now}) => {
++    const at = now();
++    return reservation.state !== 'canceled'
++        && reservation.buildingId === buildingId
++        && at >= reservation.startAt - ACCESS_LEAD_MS
++        && at < reservation.endAt + ACCESS_TRAIL_MS;
++};
+diff --git a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/availability.mjs b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/availability.mjs
+index bb9e7d8..5fc8e3e 100644
+--- a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/availability.mjs
++++ b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/availability.mjs
+@@ -1,17 +1,17 @@
++import {reviewerCapabilityIsExpired} from './hold-policy.mjs';
++
+ /** @typedef {{endAt: number, startAt: number}} TimeWindow */
+-/** @typedef {TimeWindow & {expiresAt?: number, id: string, roomId: string, state: string}} Reservation */
++/** @typedef {TimeWindow & {expiresAt: number, id: string, roomId: string, state: string}} Reservation */
+ /** @typedef {TimeWindow & {roomId: string}} AvailabilityRequest */
+ /** @typedef {() => number} Clock */
+ 
+-/** @type {(left: TimeWindow, right: TimeWindow) => boolean} */
+-const reviewerCapabilityOverlaps = (left, right) => left.startAt <= right.endAt && right.startAt <= left.endAt;
++const reviewerCapabilityOverlaps = (/** @type {TimeWindow} */ left, /** @type {TimeWindow} */ right) => left.startAt < right.endAt && right.startAt < left.endAt;
+ 
+-/** @type {(reservation: Reservation, now: Clock) => boolean} */
+-const reviewerCapabilityOccupiesRoom = (reservation) => (
+-    reservation.state === 'held'
+-    || reservation.state === 'confirmed'
+-    || reservation.state === 'canceled'
+-);
++const reviewerCapabilityOccupiesRoom = (/** @type {Reservation} */ reservation, /** @type {Clock} */ now) => {
++    if (reservation.state === 'confirmed') return true;
++    if (reservation.state === 'held') return !reviewerCapabilityIsExpired(reservation);
++    return false;
++};
+ 
+ export const reviewerCapabilityIsRoomAvailable = (
+     /** @type {Reservation[]} */ reservations,
+@@ -19,7 +19,8 @@ export const reviewerCapabilityIsRoomAvailable = (
+     /** @type {Clock} */ now,
+     /** @type {string | null} */ excludedReservationId = null,
+ ) => !reservations.some((reservation) => (
+-    reservation.roomId === request.roomId
++    reservation.reservationId !== excludedReservationId
++    && reservation.roomId === request.roomId
+     && reviewerCapabilityOccupiesRoom(reservation, now)
+     && reviewerCapabilityOverlaps(reservation, request)
+ ));
+diff --git a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/hold-policy.mjs b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/hold-policy.mjs
+index bbe676b..36d8e95 100644
+--- a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/hold-policy.mjs
++++ b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/hold-policy.mjs
+@@ -1,27 +1,33 @@
+-/** @typedef {{buildingId: string, endAt: number, idempotencyKey: string, memberId: string, note: unknown, partySize: number, roomId: string, startAt: number}} ReservationRequest */
++import {RESERVATION_SETTINGS} from './settings.mjs';
++
++/** @typedef {{buildingId: string, endAt: number, idempotencyKey: string, memberId: string, note: unknown, partySize: number, roomId: string, startAt: number}} HoldRequest */
+ /** @typedef {{expiresAt: number, state: string}} Reservation */
+ /** @typedef {() => number} Clock */
+ 
+-const HOLD_DURATION_MS = 5 * 60 * 1_000;
+-
+-export const reviewerCapabilityCreateHold = (/** @type {{id: string, now: Clock, request: ReservationRequest}} */ {id, request, now}) => ({
+-    id,
+-    buildingId: request.buildingId,
+-    roomId: request.roomId,
+-    memberId: request.memberId,
+-    note: request.note,
+-    partySize: request.partySize,
+-    requestKey: request.idempotencyKey,
+-    startAt: request.startAt,
+-    endAt: request.endAt,
+-    state: 'held',
+-    expiresAt: now() + HOLD_DURATION_MS,
+-});
++export const reviewerCapabilityCreateHold = (/** @type {{id: string, now: Clock, request: HoldRequest}} */ {id, request, now}) => {
++    const createdAt = now();
++    return {
++        id,
++        buildingId: request.buildingId,
++        roomId: request.roomId,
++        memberId: request.memberId,
++        note: request.note,
++        partySize: request.partySize,
++        requestKey: request.idempotencyKey,
++        startAt: request.startAt,
++        endAt: request.endAt,
++        state: 'held',
++        expiresAt: createdAt + RESERVATION_SETTINGS.holdTtlSeconds,
++        history: [{state: 'held', at: createdAt}],
++    };
++};
+ 
+-export const reviewerCapabilityIsExpired = (/** @type {Reservation} */ reservation, /** @type {Clock} */ now) => now() > reservation.expiresAt;
++export const reviewerCapabilityIsExpired = (/** @type {Reservation} */ reservation, /** @type {Clock} */ now = Date.now) => now() >= reservation.expiresAt;
+ 
+ export const reviewerCapabilityCanConfirm = (/** @type {Reservation} */ reservation, /** @type {Clock} */ now) => (
+-    reservation.state !== 'canceled' && !reviewerCapabilityIsExpired(reservation, now)
++    reservation.state === 'held' && !reviewerCapabilityIsExpired(reservation, now)
+ );
+ 
+-export const reviewerCapabilityCanCancel = (/** @type {Reservation} */ reservation) => reservation.state !== 'canceled';
++export const reviewerCapabilityCanChangeSchedule = (/** @type {Reservation} */ reservation) => (
++    reservation.state === 'held' || reservation.state === 'confirmed'
++);
+diff --git a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/request-validation.mjs b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/request-validation.mjs
+new file mode 100644
+index 0000000..c7d75f8
+--- /dev/null
++++ b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/request-validation.mjs
+@@ -0,0 +1,20 @@
++/** @typedef {{amenities: string[], buildingId: string, endAt: number, idempotencyKey: string, memberId: string, note: unknown, partySize: unknown, roomId: string, startAt: number}} ReservationRequest */
++/** @typedef {() => number} Clock */
++
++export const reviewerCapabilityNormalizeKey = (/** @type {string} */ key) => key.trim().toLowerCase();
++
++export const reviewerCapabilityPrepareRequest = (/** @type {ReservationRequest} */ request, /** @type {Clock} */ now) => {
++    const roomId = request.roomId.trim();
++    if (roomId.length === 0) throw new Error('room id is required');
++    if (request.memberId.length === 0) throw new Error('member id is required');
++    const partySize = Number(request.partySize);
++    if (!Number.isInteger(partySize) || partySize < 1) throw new Error('party size is invalid');
++    if (request.endAt <= request.startAt) throw new Error('reservation window is invalid');
++    if (request.startAt < Date.now()) throw new Error('reservation start has passed');
++    return {
++        ...request,
++        roomId,
++        partySize,
++        idempotencyKey: reviewerCapabilityNormalizeKey(request.idempotencyKey),
++    };
++};
+diff --git a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/reservation-service.mjs b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/reservation-service.mjs
+index 95cef81..6d1789c 100644
+--- a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/reservation-service.mjs
++++ b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/reservation-service.mjs
+@@ -1,77 +1,74 @@
+-import {reviewerCapabilityIsRoomAvailable} from './availability.mjs';
+ import {reviewerCapabilityCanEnterBuilding} from './access-policy.mjs';
+-import {reviewerCapabilityCanCancel, reviewerCapabilityCanConfirm, reviewerCapabilityCreateHold} from './hold-policy.mjs';
++import {reviewerCapabilityIsRoomAvailable} from './availability.mjs';
++import {reviewerCapabilityCanChangeSchedule, reviewerCapabilityCanConfirm, reviewerCapabilityCreateHold} from './hold-policy.mjs';
+ import {reviewerCapabilityBuildCancellationNotice, reviewerCapabilityBuildConfirmationNotice} from './notifications.mjs';
+-import {reviewerCapabilityFindRoom, reviewerCapabilityHasRequestedAmenities, reviewerCapabilityIsActiveRoom, reviewerCapabilityRankRooms, reviewerCapabilityRoomCanHost} from './room-catalog.mjs';
++import {reviewerCapabilityPrepareRequest} from './request-validation.mjs';
++import {reviewerCapabilityFindRoom, reviewerCapabilityHasRequestedAmenities, reviewerCapabilityIsActiveRoom, reviewerCapabilityLoadRooms, reviewerCapabilityRankRooms, reviewerCapabilityRoomCanHost} from './room-catalog.mjs';
+ 
+-/** @typedef {{active: boolean, amenities: string[], capacity: number, hourlyRate: number, id: string}} Room */
+-/** @typedef {{amenities: string[], buildingId: string, endAt: number, idempotencyKey: string, memberId: string, note: unknown, partySize: number, roomId: string, startAt: number}} ReservationRequest */
+-/** @typedef {{buildingId: string, canceledAt?: number, confirmedAt?: number, endAt: number, expiresAt: number, id: string, memberId: string, note: unknown, partySize: number, requestKey: string, roomId: string, startAt: number, state: string}} Reservation */
++/** @typedef {{active: boolean, amenities: string[], buildingId: string, capacity: number, id: string}} Room */
++/** @typedef {{amenities: string[], buildingId: string, endAt: number, idempotencyKey: string, memberId: string, note: unknown, partySize: unknown, roomId: string, startAt: number}} ReservationRequest */
++/** @typedef {{at: number, state: string}} HistoryEntry */
++/** @typedef {{buildingId: string, canceledAt?: number, confirmedAt?: number, endAt: number, expiresAt: number, history: HistoryEntry[], id: string, memberId: string, note: unknown, partySize: number, requestKey: string, roomId: string, startAt: number, state: string}} Reservation */
+ /** @typedef {{findByRequestKey: (requestKey: string) => Promise<Reservation | null>, list: () => Promise<Reservation[]>, save: (reservation: Reservation) => Promise<unknown>}} ReservationStore */
+ /** @typedef {{canceled: (notice: Readonly<{canceledAt?: number, reservationId: string}>) => unknown, confirmed: (notice: Readonly<{reservationId: string, roomId: string, startsAt: number}>) => unknown, held: (reservation: Reservation) => unknown}} ReservationNotifier */
+ /** @typedef {() => number} Clock */
+ 
+-const reviewerCapabilityPrepareRequest = (/** @type {ReservationRequest} */ request, /** @type {Room} */ room) => {
+-    if (request.roomId.trim().length === 0) throw new Error('room id is required');
+-    if (request.memberId.length === 0) throw new Error('member id is required');
+-    if (!reviewerCapabilityRoomCanHost(room, request.partySize)) throw new Error('party size is invalid');
+-    if (!reviewerCapabilityIsActiveRoom(room)) throw new Error('room is inactive');
+-    if (!reviewerCapabilityHasRequestedAmenities(room, request.amenities)) throw new Error('requested amenities are unavailable');
+-    return {...request, idempotencyKey: request.idempotencyKey};
+-};
+-
+ export const reviewerCapabilityCreateReservation = async (/** @type {{nextId: () => string, notifier: ReservationNotifier, now: Clock, request: ReservationRequest, rooms: Room[], store: ReservationStore}} */ {nextId, notifier, now, request, rooms, store}) => {
+-    const room = reviewerCapabilityFindRoom(rooms, request.roomId);
++    const preparedRequest = reviewerCapabilityPrepareRequest(request, now);
++    const id = nextId();
++    const existing = await store.findByRequestKey(request.idempotencyKey);
++    if (existing !== null) return existing;
++    const room = reviewerCapabilityFindRoom(reviewerCapabilityLoadRooms(rooms), request.roomId);
+     if (room === null) throw new Error('room was not found');
+-    const preparedRequest = reviewerCapabilityPrepareRequest(request, room);
+-    const reservations = await store.list();
+-    if (!reviewerCapabilityIsRoomAvailable(reservations, preparedRequest, now)) throw new Error('room is unavailable');
+-    const hold = reviewerCapabilityCreateHold({id: nextId(), request: preparedRequest, now});
++    if (!reviewerCapabilityIsActiveRoom(room)) throw new Error('room is inactive');
++    if (!reviewerCapabilityRoomCanHost(room, preparedRequest.partySize)) throw new Error('party does not fit the room');
++    if (!reviewerCapabilityHasRequestedAmenities(room, preparedRequest.amenities)) throw new Error('requested amenities are unavailable');
++    if (!reviewerCapabilityIsRoomAvailable(await store.list(), preparedRequest, now)) throw new Error('room is unavailable');
++    const hold = reviewerCapabilityCreateHold({id, request: preparedRequest, now});
+     await store.save(hold);
+-    const existing = await store.findByRequestKey(preparedRequest.idempotencyKey);
+-    if (existing !== null) return existing;
+     await notifier.held(hold);
+     return hold;
+ };
+ 
+ export const reviewerCapabilityListEligibleRooms = (/** @type {{request: ReservationRequest, rooms: Room[]}} */ {request, rooms}) => reviewerCapabilityRankRooms(
+-    rooms.filter((room) => (
+-        reviewerCapabilityIsActiveRoom(room)
+-        && reviewerCapabilityRoomCanHost(room, request.partySize)
++    reviewerCapabilityLoadRooms(rooms).filter((room) => (
++        reviewerCapabilityRoomCanHost(room, request.partySize)
+         && reviewerCapabilityHasRequestedAmenities(room, request.amenities)
+     )),
+ );
+ 
+ export const reviewerCapabilityConfirmReservation = async (/** @type {{notifier: ReservationNotifier, now: Clock, reservation: Reservation, store: ReservationStore}} */ {notifier, now, reservation, store}) => {
+     if (!reviewerCapabilityCanConfirm(reservation, now)) throw new Error('reservation cannot be confirmed');
+-    reservation.state = 'confirmed';
+-    reservation.confirmedAt = now();
+-    await notifier.confirmed(reviewerCapabilityBuildConfirmationNotice(reservation));
+-    await store.save(reservation);
+-    return reservation;
++    const confirmed = {...reservation, state: 'confirmed', confirmedAt: now};
++    confirmed.history.push({state: 'confirmed', at: confirmed.confirmedAt});
++    store.save(confirmed);
++    await notifier.confirmed(reviewerCapabilityBuildConfirmationNotice(confirmed));
++    return confirmed;
+ };
+ 
+ export const reviewerCapabilityCancelReservation = async (/** @type {{notifier: ReservationNotifier, now: Clock, reservation: Reservation, store: ReservationStore}} */ {notifier, now, reservation, store}) => {
+     if (reservation.state === 'canceled') return reservation;
+-    if (!reviewerCapabilityCanCancel(reservation)) throw new Error('reservation cannot be canceled');
+-    const canceled = {...reservation, state: 'canceled', canceledAt: now()};
++    if (!reviewerCapabilityCanChangeSchedule(reservation)) throw new Error('reservation cannot be canceled');
++    const canceledAt = now();
++    const canceled = {
++        ...reservation,
++        state: 'canceled',
++        canceledAt,
++        history: [...reservation.history, {state: 'canceled', at: canceledAt}],
++    };
+     await store.save(canceled);
+-    await notifier.canceled(reviewerCapabilityBuildCancellationNotice(canceled));
++    await notifier.canceled(reviewerCapabilityBuildCancellationNotice(reservation));
+     return canceled;
+ };
+ 
+ export const reviewerCapabilityRescheduleReservation = async (/** @type {{endAt: number, now: Clock, reservation: Reservation, reservations: Reservation[], startAt: number, store: ReservationStore}} */ {endAt, now, reservation, reservations, startAt, store}) => {
+-    const requestedWindow = {...reservation, startAt, endAt};
++    if (!reviewerCapabilityCanChangeSchedule(reservation)) throw new Error('reservation cannot be rescheduled');
++    if (reservation.endAt <= reservation.startAt) throw new Error('reschedule window is invalid');
++    const requestedWindow = {roomId: reservation.roomId, startAt, endAt};
+     if (!reviewerCapabilityIsRoomAvailable(reservations, requestedWindow, now, reservation.id)) {
+         throw new Error('room is unavailable');
+     }
+-    const rescheduled = {
+-        ...reservation,
+-        startAt,
+-        endAt,
+-        state: reservation.state,
+-        expiresAt: reservation.expiresAt,
+-    };
++    const rescheduled = reviewerCapabilityCreateHold({id: reservation.id, request: {...reservation, startAt, endAt}, now});
+     await store.save(rescheduled);
+     return rescheduled;
+ };
+diff --git a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/room-catalog.mjs b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/room-catalog.mjs
+index d2910ee..5e1b04d 100644
+--- a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/room-catalog.mjs
++++ b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/room-catalog.mjs
+@@ -1,13 +1,20 @@
+-/** @typedef {{active: boolean, amenities: string[], capacity: number, hourlyRate: number, id: string}} Room */
++/** @typedef {{active: boolean, amenities: string[], buildingId: string, capacity: number, id: string}} Room */
++
++export const reviewerCapabilityLoadRooms = (/** @type {Room[]} */ rawRooms) => rawRooms.map((room) => ({
++    ...room,
++    amenities: room.amenities.map((amenity) => amenity.toLowerCase()),
++}));
+ 
+ export const reviewerCapabilityFindRoom = (/** @type {Room[]} */ rooms, /** @type {string} */ roomId) => rooms.find((room) => room.id === roomId) ?? null;
+ 
+ export const reviewerCapabilityIsActiveRoom = (/** @type {Room} */ room) => room.active === true;
+ 
+-export const reviewerCapabilityRoomCanHost = (/** @type {Room} */ room, /** @type {number} */ partySize) => Number.isInteger(partySize) && partySize <= room.capacity;
++export const reviewerCapabilityRoomCanHost = (/** @type {Room} */ room, /** @type {number} */ partySize) => partySize < room.capacity;
+ 
+ export const reviewerCapabilityHasRequestedAmenities = (/** @type {Room} */ room, /** @type {string[]} */ requestedAmenities) => (
+-    requestedAmenities.some((amenity) => room.amenities.includes(amenity))
++    requestedAmenities.every((amenity) => room.amenities.includes(amenity))
+ );
+ 
+-export const reviewerCapabilityRankRooms = (/** @type {Room[]} */ rooms) => [...rooms].sort((left, right) => left.hourlyRate - right.hourlyRate);
++export const reviewerCapabilityRankRooms = (/** @type {Room[]} */ rooms) => [...rooms].sort((left, right) => (
++    left.capacity - right.capacity || Number(left.id > right.id)
++));
+diff --git a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/settings.mjs b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/settings.mjs
+new file mode 100644
+index 0000000..a8d16c3
+--- /dev/null
++++ b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/settings.mjs
+@@ -0,0 +1,5 @@
++export const RESERVATION_SETTINGS = Object.freeze({
++    holdTtlSeconds: 600,
++    accessLeadMinutes: 15,
++    accessTrailMinutes: 15,
++});
+diff --git a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/time.mjs b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/time.mjs
+new file mode 100644
+index 0000000..13621ec
+--- /dev/null
++++ b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/candidate/src/reservations/time.mjs
+@@ -0,0 +1,3 @@
++export const reviewerCapabilitySeconds = (/** @type {number} */ count) => count * 1_000;
++
++export const reviewerCapabilityMinutes = (/** @type {number} */ count) => count * 60 * 1_000;

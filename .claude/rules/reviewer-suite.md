@@ -26,7 +26,7 @@ paths:
 - Reviewer 的命令环境用 Codex 原生 `shell_environment_policy.exclude` 去掉 `STRATA_API_KEY`（用户 2026-10-12；provider key 由 Codex 自己经 `env_key` 读取，命令不需要）。Codex 0.162.0 默认会把它传给命令，无模型探测已确认排除生效、`set` 的变量照常可见。
 - Spec Readiness 的 runtime-migration 与 artifact-promotion 各用全新根线程，互不可见，与 ARW 准备规则一致（每个 instanceId 一个独立线程和一次审核）；两份报告分别绑定，按原版融合评分。原"合并实例"（同一线程先 RM 后 AP）已停用（用户 2026-10-13）：它偏离 ARW，且有 AP 照搬 RM finding、引用 RM 专有约定的污染证据（[审查报告](../../reports/v0.1.42/spec-rule-audit/summary.md)）；此前用合并实例得到的 Spec Readiness 结果只在合并实例之间可比。
 - Spec Readiness 现行版本是 v4.1（修订号 44；重构已收尾，用户 2026-10-13 决定不再迭代）：冻结源 manifest 依次叠加 `arw-patches/spec-readiness-v2.patch`、`-v3.patch`、`-v4.patch`、`-v4.1.patch`；差异、原因和审查依据见 [v2](../../benchmarks/reviewer-suite-v1/spec-readiness-v2.md)、[v3](../../benchmarks/reviewer-suite-v1/spec-readiness-v3.md)、[v4/v4.1](../../benchmarks/reviewer-suite-v1/spec-readiness-v4.md) 变更说明。分数只在同一版本内比较（v4 回答按 v4.1 键重评分后与 v4.1 可比）；v4.1 用于能力验证和 benchmark，不用于调参（10 次 SD 0.073，[报告](../../reports/v0.1.42/spec-readiness-v4/summary.md)）。
-- Code Spec 使用 v2 场景（code-spec-reviewer 修订号 12，`arw-patches/code-spec-v2.patch`，自主模式登记，待用户确认是否采用）：访问窗口结束边界改为半开、取消状态要求写明、答案键补 4 个直接证据关联点，见 [Code Spec v2 变更说明](../../benchmarks/reviewer-suite-v1/code-spec-v2.md)。v2 的分数只与 v2 比较，不与 F6 等原版结果直接比较。
+- Code Spec 现行版本是 v3 加难度版（code-spec-reviewer 修订号 13；冻结源 manifest 在 `code-spec-v2.patch` 之后叠加 `arw-patches/code-spec-v3.patch`）：v2 双方全检出、无区分度，v3 重写夹具，多数缺陷需跨文件或多步推理，见 [v2](../../benchmarks/reviewer-suite-v1/code-spec-v2.md)、[v3](../../benchmarks/reviewer-suite-v1/code-spec-v3.md) 变更说明。分数只在同一版本内比较。
 
 ## 会话检查
 - 按冻结 ARW 的 `docs/agents/reviewer-capability-session-inspection.md` 检查每个原生会话：准备项、线程身份、启动上下文、交接后的全部消息、每次工具调用及结果、读写范围、报告和终态，并排查隐藏答案、其他实例等禁止来源。
