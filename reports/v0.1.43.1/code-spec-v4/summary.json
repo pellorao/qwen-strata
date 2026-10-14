@@ -1,0 +1,488 @@
+{
+ "scenario": "Code Spec v4.7（SCENARIO_REVISIONS code-spec-reviewer 25，冻结 f9ec01e，patch sha 95b658c0…，expected.json sha 849c6248…）",
+ "plan": "benchmarks/reviewer-suite-v1/code-spec-v4-iq3_xxs-2026-10-14/plan.json",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "strata": "0.1.43.1",
+ "effort": "high",
+ "codex": "0.162.0",
+ "context_tier": "206584/150000（默认档，每实例冷加载，0 次压缩）",
+ "prompts": {
+  "startup": "1cae169a",
+  "compact": "ab0c334d",
+  "role_binding": "5f9efc02"
+ },
+ "scoring": "benchmark 口径，ARW 原版罚分（格式诊断 ×0.9）",
+ "target": "Q3/Opus < 0.8（用户 2026-10-13）",
+ "adjudication": {
+  "method": "两批增量盲裁，每批全新 Opus-high agent，候选按用例分组、组内乱序、隐去来源",
+  "batch1_candidates": 213,
+  "batch2_candidates": 119,
+  "anchors_agreed": "24/24",
+  "matched": 219,
+  "not_matched": 113
+ },
+ "opus": {
+  "n": 3,
+  "mean": 0.877,
+  "sd": 0.0356,
+  "scores": [
+   0.8478,
+   0.9167,
+   0.8665
+  ]
+ },
+ "q3_primary": {
+  "n": 5,
+  "mean": 0.6522,
+  "sd": 0.0633,
+  "scores": [
+   0.6385,
+   0.5547,
+   0.7269,
+   0.6634,
+   0.6773
+  ]
+ },
+ "q3_all": {
+  "n": 10,
+  "mean": 0.6392,
+  "sd": 0.0692,
+  "scores": [
+   0.6385,
+   0.5547,
+   0.7269,
+   0.6634,
+   0.6773,
+   0.718,
+   0.6899,
+   0.5296,
+   0.5665,
+   0.6275
+  ]
+ },
+ "q3_primary_ratio": 0.744,
+ "q3_all_ratio": 0.729,
+ "per_case": [
+  {
+   "case": "P1",
+   "q3_hits": 10,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P2",
+   "q3_hits": 2,
+   "q3_n": 10,
+   "opus_hits": 1,
+   "opus_n": 3
+  },
+  {
+   "case": "P3",
+   "q3_hits": 10,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P4",
+   "q3_hits": 6,
+   "q3_n": 10,
+   "opus_hits": 2,
+   "opus_n": 3
+  },
+  {
+   "case": "P5",
+   "q3_hits": 1,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P6",
+   "q3_hits": 10,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P7",
+   "q3_hits": 2,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P8",
+   "q3_hits": 9,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P9",
+   "q3_hits": 10,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P10",
+   "q3_hits": 9,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P11",
+   "q3_hits": 9,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P12",
+   "q3_hits": 10,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P13",
+   "q3_hits": 9,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P14",
+   "q3_hits": 1,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P15",
+   "q3_hits": 1,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P16",
+   "q3_hits": 7,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P17",
+   "q3_hits": 10,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P18",
+   "q3_hits": 10,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P19",
+   "q3_hits": 10,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  },
+  {
+   "case": "P20",
+   "q3_hits": 10,
+   "q3_n": 10,
+   "opus_hits": 3,
+   "opus_n": 3
+  }
+ ],
+ "both_zero": [],
+ "clean_fail": {
+  "q3-1": [],
+  "q3-2": [],
+  "q3-3": [],
+  "q3-4": [],
+  "q3-5": [],
+  "q3-6": [],
+  "q3-7": [],
+  "q3-8": [],
+  "q3-9": [],
+  "q3-10": [],
+  "opus-1": [],
+  "opus-2": [],
+  "opus-3": []
+ },
+ "q3_runs": [
+  {
+   "run": "q3-1",
+   "work_min": 7.9,
+   "requests": 13,
+   "uncached_input": 45201,
+   "cached_input": 513861,
+   "output": 33577,
+   "engine_in_tps": 1721.2,
+   "engine_out_tps": 81.9,
+   "task_in_tps": 95.5,
+   "task_out_tps": 71.0,
+   "api_usage": {
+    "uncached_input": 45163,
+    "cached_input": 409813,
+    "output": 33613
+   },
+   "problems": 16,
+   "score": 0.6385,
+   "before_penalty": 0.7095,
+   "diagnostics": [
+    "review-format-invalid"
+   ]
+  },
+  {
+   "run": "q3-2",
+   "work_min": 5.2,
+   "requests": 16,
+   "uncached_input": 45874,
+   "cached_input": 657559,
+   "output": 21342,
+   "engine_in_tps": 1634.7,
+   "engine_out_tps": 87.5,
+   "task_in_tps": 148.4,
+   "task_out_tps": 69.0,
+   "api_usage": {
+    "uncached_input": 37659,
+    "cached_input": 621112,
+    "output": 21357
+   },
+   "problems": 12,
+   "score": 0.5547,
+   "before_penalty": 0.5547,
+   "diagnostics": []
+  },
+  {
+   "run": "q3-3",
+   "work_min": 5.2,
+   "requests": 11,
+   "uncached_input": 38356,
+   "cached_input": 390385,
+   "output": 22311,
+   "engine_in_tps": 1724.0,
+   "engine_out_tps": 88.0,
+   "task_in_tps": 122.8,
+   "task_out_tps": 71.4,
+   "api_usage": {
+    "uncached_input": 38337,
+    "cached_input": 348946,
+    "output": 22329
+   },
+   "problems": 16,
+   "score": 0.7269,
+   "before_penalty": 0.7269,
+   "diagnostics": []
+  },
+  {
+   "run": "q3-4",
+   "work_min": 8.5,
+   "requests": 24,
+   "uncached_input": 43260,
+   "cached_input": 1223594,
+   "output": 36990,
+   "engine_in_tps": 1270.2,
+   "engine_out_tps": 85.1,
+   "task_in_tps": 85.3,
+   "task_out_tps": 72.9,
+   "api_usage": {
+    "uncached_input": 43241,
+    "cached_input": 1182699,
+    "output": 37008
+   },
+   "problems": 15,
+   "score": 0.6634,
+   "before_penalty": 0.7371,
+   "diagnostics": [
+    "review-format-invalid"
+   ]
+  },
+  {
+   "run": "q3-5",
+   "work_min": 5.7,
+   "requests": 15,
+   "uncached_input": 35301,
+   "cached_input": 543233,
+   "output": 26163,
+   "engine_in_tps": 1506.6,
+   "engine_out_tps": 93.2,
+   "task_in_tps": 103.3,
+   "task_out_tps": 76.6,
+   "api_usage": {
+    "uncached_input": 35282,
+    "cached_input": 502342,
+    "output": 26181
+   },
+   "problems": 15,
+   "score": 0.6773,
+   "before_penalty": 0.6773,
+   "diagnostics": []
+  },
+  {
+   "run": "q3-6",
+   "work_min": 9.2,
+   "requests": 18,
+   "uncached_input": 34630,
+   "cached_input": 826385,
+   "output": 43402,
+   "engine_in_tps": 1384.4,
+   "engine_out_tps": 88.6,
+   "task_in_tps": 62.7,
+   "task_out_tps": 78.6,
+   "api_usage": {
+    "uncached_input": 34612,
+    "cached_input": 758992,
+    "output": 43419
+   },
+   "problems": 16,
+   "score": 0.718,
+   "before_penalty": 0.718,
+   "diagnostics": []
+  },
+  {
+   "run": "q3-7",
+   "work_min": 8.2,
+   "requests": 14,
+   "uncached_input": 46738,
+   "cached_input": 555676,
+   "output": 38335,
+   "engine_in_tps": 1594.6,
+   "engine_out_tps": 90.6,
+   "task_in_tps": 95.5,
+   "task_out_tps": 78.3,
+   "api_usage": {
+    "uncached_input": 46719,
+    "cached_input": 514758,
+    "output": 38353
+   },
+   "problems": 15,
+   "score": 0.6899,
+   "before_penalty": 0.6899,
+   "diagnostics": []
+  },
+  {
+   "run": "q3-8",
+   "work_min": 3.6,
+   "requests": 9,
+   "uncached_input": 31230,
+   "cached_input": 241865,
+   "output": 14514,
+   "engine_in_tps": 1704.6,
+   "engine_out_tps": 91.2,
+   "task_in_tps": 146.1,
+   "task_out_tps": 67.9,
+   "api_usage": {
+    "uncached_input": 31211,
+    "cached_input": 201005,
+    "output": 14532
+   },
+   "problems": 13,
+   "score": 0.5296,
+   "before_penalty": 0.5885,
+   "diagnostics": [
+    "review-evidence-invalid",
+    "review-evidence-invalid"
+   ]
+  },
+  {
+   "run": "q3-9",
+   "work_min": 5.4,
+   "requests": 17,
+   "uncached_input": 34029,
+   "cached_input": 582444,
+   "output": 23486,
+   "engine_in_tps": 1363.5,
+   "engine_out_tps": 89.3,
+   "task_in_tps": 104.7,
+   "task_out_tps": 72.2,
+   "api_usage": {
+    "uncached_input": 34011,
+    "cached_input": 536163,
+    "output": 23503
+   },
+   "problems": 14,
+   "score": 0.5665,
+   "before_penalty": 0.6295,
+   "diagnostics": [
+    "review-format-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid",
+    "review-evidence-invalid"
+   ]
+  },
+  {
+   "run": "q3-10",
+   "work_min": 6.1,
+   "requests": 15,
+   "uncached_input": 54726,
+   "cached_input": 568569,
+   "output": 26562,
+   "engine_in_tps": 1699.5,
+   "engine_out_tps": 89.1,
+   "task_in_tps": 149.0,
+   "task_out_tps": 72.3,
+   "api_usage": {
+    "uncached_input": 46492,
+    "cached_input": 491240,
+    "output": 26596
+   },
+   "problems": 14,
+   "score": 0.6275,
+   "before_penalty": 0.6275,
+   "diagnostics": []
+  }
+ ],
+ "opus_runs": [
+  {
+   "run": "opus-1",
+   "problems": 19,
+   "score": 0.8478
+  },
+  {
+   "run": "opus-2",
+   "problems": 19,
+   "score": 0.9167
+  },
+  {
+   "run": "opus-3",
+   "problems": 19,
+   "score": 0.8665
+  }
+ ],
+ "aggregate": {
+  "q3_primary_mean": 0.6522,
+  "q3_primary_sd": 0.0633,
+  "q3_all_mean": 0.6392,
+  "q3_all_sd": 0.0692,
+  "opus_mean": 0.877,
+  "opus_sd": 0.0356,
+  "ratio_primary": 0.744,
+  "ratio_all": 0.729,
+  "clean_acceptance": 1.0,
+  "q3_work_min_mean": 6.5,
+  "target_met": true
+ },
+ "token_source": "引擎日志（token_consumption，逐实例派发区间）；API usage 只作对账，保留在 api_usage"
+}
