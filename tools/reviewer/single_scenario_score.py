@@ -1,4 +1,4 @@
-"""Single-scenario diagnostic score from the unchanged upstream score-completed.
+"""Single-scenario diagnostic score from upstream score-completed under the project's scoring rule.
 
 Upstream scores each completed instance on its own but fuses Spec Readiness only when both
 sub-scenarios of a repetition are present. Tuning comparisons may need one sub-scenario alone:
@@ -14,11 +14,14 @@ from pathlib import Path
 import statistics
 import subprocess
 
+from tools.reviewer.freeze_arw_source import upgrade_scoring
+
 THREAD_ID = 'b7635f94-ad60-429b-98e7-3ee5c19ba2bb'  # Main identity bound at upstream preparation
 
 
 def upstream_score(arw, prepared, scoring_input, adjudication=None):
     arw = Path(arw).resolve()
+    upgrade_scoring(arw)
     command = ['node', str(arw / 'scripts/reviewer-capability-conformance.mjs'), 'score-completed',
                '--prepared', str(Path(prepared).resolve()), '--input', str(Path(scoring_input).resolve())]
     if adjudication:

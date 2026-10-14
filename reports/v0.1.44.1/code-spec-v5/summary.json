@@ -34,48 +34,48 @@
  "criterion": "Q3 ×5 均分 / Opus ×3 均分 < 0.8",
  "opus": {
   "n": 3,
-  "mean": 0.8593,
-  "sd": 0.0373,
+  "mean": 0.847,
+  "sd": 0.0354,
   "scores": [
-   0.8964,
-   0.8219,
-   0.8595
+   0.8816,
+   0.8108,
+   0.8486
   ],
   "mean_problems": 18
  },
  "q3_primary": {
   "n": 5,
-  "mean": 0.6436,
-  "sd": 0.1202,
+  "mean": 0.6248,
+  "sd": 0.1116,
   "scores": [
-   0.4936,
-   0.8265,
-   0.6254,
-   0.6102,
-   0.6625
+   0.4811,
+   0.7918,
+   0.6151,
+   0.5946,
+   0.6414
   ],
   "mean_problems": 14.6
  },
  "q3_all": {
   "n": 10,
-  "mean": 0.6049,
-  "sd": 0.1043,
+  "mean": 0.587,
+  "sd": 0.0978,
   "scores": [
-   0.4936,
-   0.8265,
-   0.6254,
-   0.6102,
-   0.6625,
-   0.4959,
-   0.5756,
-   0.5996,
-   0.6762,
-   0.4834
+   0.4811,
+   0.7918,
+   0.6151,
+   0.5946,
+   0.6414,
+   0.4838,
+   0.5637,
+   0.5745,
+   0.6528,
+   0.4714
   ],
   "mean_problems": 13.7
  },
- "q3_primary_ratio": 0.749,
- "q3_all_ratio": 0.704,
+ "q3_primary_ratio": 0.738,
+ "q3_all_ratio": 0.693,
  "per_case": [
   {
    "case": "P01",
@@ -582,8 +582,8 @@
     20
    ],
    "problems": 12,
-   "score": 0.4936,
-   "before_penalty": 0.5484,
+   "score": 0.4811,
+   "before_penalty": 0.5346,
    "diagnostics": [
     "review-evidence-invalid"
    ],
@@ -624,8 +624,8 @@
     20
    ],
    "problems": 18,
-   "score": 0.8265,
-   "before_penalty": 0.8265,
+   "score": 0.7918,
+   "before_penalty": 0.7918,
    "diagnostics": [],
    "clean_failures": [],
    "source": "blind-adjudication",
@@ -660,8 +660,8 @@
     20
    ],
    "problems": 14,
-   "score": 0.6254,
-   "before_penalty": 0.6254,
+   "score": 0.6151,
+   "before_penalty": 0.6151,
    "diagnostics": [],
    "clean_failures": [],
    "source": "blind-adjudication",
@@ -696,8 +696,8 @@
     20
    ],
    "problems": 14,
-   "score": 0.6102,
-   "before_penalty": 0.678,
+   "score": 0.5946,
+   "before_penalty": 0.6607,
    "diagnostics": [
     "review-evidence-invalid"
    ],
@@ -735,8 +735,8 @@
     20
    ],
    "problems": 15,
-   "score": 0.6625,
-   "before_penalty": 0.6625,
+   "score": 0.6414,
+   "before_penalty": 0.6414,
    "diagnostics": [],
    "clean_failures": [],
    "source": "blind-adjudication",
@@ -768,8 +768,8 @@
     20
    ],
    "problems": 11,
-   "score": 0.4959,
-   "before_penalty": 0.4959,
+   "score": 0.4838,
+   "before_penalty": 0.4838,
    "diagnostics": [],
    "clean_failures": [],
    "source": "blind-adjudication",
@@ -803,8 +803,8 @@
     20
    ],
    "problems": 13,
-   "score": 0.5756,
-   "before_penalty": 0.5756,
+   "score": 0.5637,
+   "before_penalty": 0.5637,
    "diagnostics": [],
    "clean_failures": [],
    "source": "blind-adjudication",
@@ -839,8 +839,8 @@
     20
    ],
    "problems": 14,
-   "score": 0.5996,
-   "before_penalty": 0.6662,
+   "score": 0.5745,
+   "before_penalty": 0.6384,
    "diagnostics": [
     "review-evidence-invalid",
     "review-evidence-invalid",
@@ -879,8 +879,8 @@
     20
    ],
    "problems": 14,
-   "score": 0.6762,
-   "before_penalty": 0.6762,
+   "score": 0.6528,
+   "before_penalty": 0.6528,
    "diagnostics": [],
    "clean_failures": [],
    "source": "blind-adjudication",
@@ -913,8 +913,8 @@
     20
    ],
    "problems": 12,
-   "score": 0.4834,
-   "before_penalty": 0.5371,
+   "score": 0.4714,
+   "before_penalty": 0.5238,
    "diagnostics": [
     "review-evidence-invalid",
     "review-evidence-invalid",
@@ -973,8 +973,8 @@
     20
    ],
    "problems": 19,
-   "score": 0.8964,
-   "before_penalty": 0.8964,
+   "score": 0.8816,
+   "before_penalty": 0.8816,
    "diagnostics": [],
    "clean_failures": [],
    "source": "blind-adjudication",
@@ -1013,8 +1013,8 @@
     20
    ],
    "problems": 17,
-   "score": 0.8219,
-   "before_penalty": 0.8219,
+   "score": 0.8108,
+   "before_penalty": 0.8108,
    "diagnostics": [],
    "clean_failures": [],
    "source": "blind-adjudication",
@@ -1054,8 +1054,8 @@
     20
    ],
    "problems": 18,
-   "score": 0.8595,
-   "before_penalty": 0.8595,
+   "score": 0.8486,
+   "before_penalty": 0.8486,
    "diagnostics": [],
    "clean_failures": [],
    "source": "blind-adjudication",
@@ -1067,5 +1067,131 @@
    "reminded": false
   }
  ],
- "token_source": "Q3：引擎日志（token_consumption，逐实例派发区间）；Opus：claude -p result 事件 usage（未缓存 = input + cache_creation，已缓存 = cache_read，输出含思考）"
+ "token_source": "Q3：引擎日志（token_consumption，逐实例派发区间）；Opus：claude -p result 事件 usage（未缓存 = input + cache_creation，已缓存 = cache_read，输出含思考）",
+ "scoring_rule": "2026-10-14 起按升级后的评分规则（证据定位 F2）重新计分，不重跑模型：问题用例证据分和 clean 证据观察分都由 F3 改 F2（本场景没有 clean 证据观察）；有 clean 孪生的问题用例按对计分，配对 clean 被误报时该问题记 0（配对表 benchmarks/reviewer-suite-v1/pairs/code-spec-v5.json，1 对，已经独立审查）。计分补丁 benchmarks/reviewer-suite-v1/arw-patches/scoring-f2.patch。本文件的分数字段都是新规则的值；原值只保留在 scoring_upgrade_change。",
+ "scoring_upgrade_change": {
+  "note": "只用来说明这次升级的影响；结论以新规则为准。",
+  "columns": [
+   "before_upgrade_evidence_F3",
+   "evidence_F2_unpaired",
+   "evidence_F2_paired"
+  ],
+  "q3_primary_mean": [
+   0.6436,
+   0.6248,
+   0.6248
+  ],
+  "q3_all_mean": [
+   0.6049,
+   0.587,
+   0.587
+  ],
+  "opus_mean": [
+   0.8593,
+   0.847,
+   0.847
+  ],
+  "q3_primary_ratio": [
+   0.749,
+   0.738,
+   0.738
+  ],
+  "q3_all_ratio": [
+   0.704,
+   0.693,
+   0.693
+  ],
+  "q3_primary_ratio_before_penalty": [
+   0.778,
+   0.766,
+   0.766
+  ],
+  "q3_all_ratio_before_penalty": [
+   0.732,
+   0.721,
+   0.721
+  ],
+  "per_instance_final": {
+   "q3-1": [
+    0.4936,
+    0.4811,
+    0.4811
+   ],
+   "q3-2": [
+    0.8265,
+    0.7918,
+    0.7918
+   ],
+   "q3-3": [
+    0.6254,
+    0.6151,
+    0.6151
+   ],
+   "q3-4": [
+    0.6102,
+    0.5946,
+    0.5946
+   ],
+   "q3-5": [
+    0.6625,
+    0.6414,
+    0.6414
+   ],
+   "q3-6": [
+    0.4959,
+    0.4838,
+    0.4838
+   ],
+   "q3-7": [
+    0.5756,
+    0.5637,
+    0.5637
+   ],
+   "q3-8": [
+    0.5996,
+    0.5745,
+    0.5745
+   ],
+   "q3-9": [
+    0.6762,
+    0.6528,
+    0.6528
+   ],
+   "q3-10": [
+    0.4834,
+    0.4714,
+    0.4714
+   ],
+   "opus-1": [
+    0.8964,
+    0.8816,
+    0.8816
+   ],
+   "opus-2": [
+    0.8219,
+    0.8108,
+    0.8108
+   ],
+   "opus-3": [
+    0.8595,
+    0.8486,
+    0.8486
+   ]
+  },
+  "paired_problems_zeroed": 0,
+  "sensitivity_q3_before_penalty": {
+   "one_more_clean_failure": -0.0027,
+   "one_more_missed_problem": -0.0395,
+   "paired_twin_failure": -0.0418,
+   "basis": "10 个 Q3 实例罚前实际数据，clean 29、问题 20；漏题按该实例已命中题的平均得分"
+  },
+  "pairs": {
+   "count": 1,
+   "pairs": [
+    "P17 durationUnits ↔ clean #4（audit 保留期）"
+   ],
+   "removed_after_review": "P16 selfConflict ↔ clean #21 c_pay_invoiceBlocked：依据针对修订 35、已过时（独立审查 B2，2026-10-15）",
+   "twin_failure_rule": "配对 clean 二元误报判定失败才清零问题；证据观察部分得分不算失败"
+  }
+ }
 }

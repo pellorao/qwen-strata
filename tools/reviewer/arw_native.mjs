@@ -1,11 +1,17 @@
 // Orchestration only: all preparation, generation and scoring remain upstream.
+import {execFileSync} from 'node:child_process';
 import {readFileSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
-import {pathToFileURL} from 'node:url';
+import {fileURLToPath,pathToFileURL} from 'node:url';
 
 const [operation,inputPath,outputPath]=process.argv.slice(2);
 const input=JSON.parse(readFileSync(inputPath,'utf8'));
 const root=resolve(input.repositoryRoot);
+// Scoring always runs under the project's upgraded rule (evidence F2, paired cases).
+// The bound pair table names go to stderr so each scoring log shows them.
+if(['verify','verify-diagnostic','score-completed'].includes(operation))
+ process.stderr.write(execFileSync('python3',['-m','tools.reviewer.freeze_arw_source','--upgrade-scoring',root],
+  {cwd:fileURLToPath(new URL('../..',import.meta.url)),stdio:['ignore','pipe','inherit']}));
 const capability=await import(pathToFileURL(resolve(root,'lib/release/reviewer-capability-conformance.mjs')));
 let result;
 if(operation==='prepare') {

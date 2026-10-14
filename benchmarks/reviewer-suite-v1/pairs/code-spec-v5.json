@@ -1,0 +1,224 @@
+{
+ "scenario": "code-spec-v5",
+ "reviewerId": "code-spec-reviewer",
+ "expectedSha256": "32bafcb591cd3629f0456963f227ced2ff0b332a956c0efe7b72567c5e4471c6",
+ "rule": "按对计分（用户 2026-10-14）：只收设计说明里明确写为某个问题的孪生或对照的 clean；有疑问的不收。有配对的问题用例只有在全部配对 clean 都通过时才得分。",
+ "pairs": [
+  {
+   "problem": {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 16,
+    "expectation": "AUDIT_LIMITS.maxQueryWindow is minutes(10080), a number of milliseconds, but prepareQuery compares it with windowSpan(query), which counts minutes ((until - from) / MINUTE), so the 10080-minute limit never triggers and longer query windows are accepted."
+   },
+   "clean": [
+    {
+     "scope": "CODE-SPEC-FINDINGS",
+     "index": 4,
+     "expectation": "AUDIT_LIMITS.retention is minutes(43200), converted to milliseconds once, retentionCutoff subtracts it from now(), and isRetained keeps an entry whose at equals the cutoff, so a query matches an entry exactly 43200 minutes old and excludes one a millisecond older."
+    }
+   ],
+   "basis": "Code Spec v5 设计说明（修订 38 冻结时的 design.md，未入库，相关原文全文摘录于此）「新放入干草堆的 6 题」表，表头为\"| 题 | 注入 | 推理链（步数） | 与 v4.7 的对等 |\"，durationUnits_audit 一行原文：\"| durationUnits_audit | `maxQueryWindow: minutes(10_080)`，比较对象 `windowSpan(query)` 是分钟数 | 规则→audit-query 比较→retention 的 windowSpan 除以 MINUTE→设置是毫秒→上限不触发（5） | 同 durationUnits：分钟量与毫秒设置比较；同一对象里 `retention: minutes(43_200)` 按毫秒使用，是正确的 |\"。设计说明在对等说明一栏点名同一对象里的 retention 是正确写法。clean #4 主张的正是 AUDIT_LIMITS.retention 为 minutes(43200)、按毫秒使用一次换算（证据 retention.mjs:4/9/11）；问题 P17 是同一对象里 maxQueryWindow 与分钟数比较的单位错误。"
+  }
+ ],
+ "checked": {
+  "summary": "逐条检查 28 个 clean（不含 noOtherSupportedFinding）。设计说明明确写为某问题对照的只有 1 处，收为 1 对（P17 ↔ clean #4）；P16 ↔ clean #21 经独立审查认定依据过时，不收；其余或无对应问题，或只是外形相近而设计说明没有点名，按\"有疑问的不收\"处理，理由逐条列出。",
+  "cleanCases": [
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 0,
+    "expectation": "A room can host a party whose size is at most its capacity.",
+    "paired": false,
+    "reason": "v4.7 核心 clean 抽样（#6 capacity）。v4.7 design 写明的外形相近诱饵对应的是 v4.3 已删除的问题，不是现存问题。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 1,
+    "expectation": "The member limit compares the counted open reservations with maxOpenPerMember using <, so a count of two rejects creation.",
+    "paired": false,
+    "reason": "v4.7 核心 clean 抽样（#14 member limit），同上，无现存问题被写为其孪生。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 2,
+    "expectation": "holdExpiry selects largeHold exactly when partySize is greater than 8 (strictly greater; a party of 8 gets the regular hold).",
+    "paired": false,
+    "reason": "v4.7 核心 clean 抽样（#15 largeHold 阈值）。audit 模块的 rescheduleHoldLarge_audit 涉及 largeHold，但设计说明没有把这条 clean 写为它的对照；有疑问，不收。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 3,
+    "expectation": "Expiry never changes the stored state; isExpired is a check, not a transition.",
+    "paired": false,
+    "reason": "v4.7 核心 clean 抽样（#29 expiry 不改 state）。设计说明给 lateFeeState 指的对照是 reservation-service.mjs:36 的 confirmReservation 代码，不是这条 clean；不收。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 4,
+    "expectation": "AUDIT_LIMITS.retention is minutes(43200), converted to milliseconds once, retentionCutoff subtracts it from now(), and isRetained keeps an entry whose at equals the cutoff, so a query matches an entry exactly 43200 minutes old and excludes one a millisecond older.",
+    "paired": true,
+    "reason": "收入配对（P17 durationUnits）：设计说明「新放入干草堆的 6 题」表 durationUnits_audit 行的对等说明一栏明确写\"同一对象里 `retention: minutes(43_200)` 按毫秒使用，是正确的\"，即本条 clean，依据原文见 pairs[0].basis。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 5,
+    "expectation": "recordEntry stores redact(prepared.details); redact maps arrays and rebuilds plain objects, replacing the value of every key whose lowercase form is note, email or phone with '[redacted]' at any depth and keeping other keys and values, so the stored details are redacted and the supplied details are not modified.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 6,
+    "expectation": "isRepeatedSwipe uses a strict < against repeatWindow, which is minutes(3) in milliseconds, so swipes exactly 3 minutes apart are both recorded and only closer ones are repeats.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 7,
+    "expectation": "isLate compares now() - at with lateLimit, minutes(1440) in milliseconds, using >, so an event exactly 1440 minutes old is accepted and one a millisecond older is rejected.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 8,
+    "expectation": "NEEDS_QUOTES has no g flag, but it is only used with test(), where a non-global regex keeps no lastIndex state, so every field containing a comma, double quote, carriage return or line feed is quoted on every row.",
+    "paired": false,
+    "reason": "NEEDS_QUOTES（无 g 但只用 test()）与 P07 quoteField（缺 g 只替换第一个）外形相近，design 只记录它曾被 P07 的正确报告机械触到并收窄 terms，没有写成孪生；有疑问，不收（建议审查者判断）。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 9,
+    "expectation": "prepareFilter rejects a window only when until - from is greater than minutes(44640), so a window of exactly 44640 minutes is accepted and the limit is converted to milliseconds once.",
+    "paired": false,
+    "reason": "与 P17 durationUnits 同属窗口上限换算，design 把 exports 的 `until - from > minutes(LIMIT.maxX)` 记为\"写法不同的同类\"线索，没有写为对照 clean；不收。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 10,
+    "expectation": "usageMonth ends the month at Date.UTC(year, month, 1), which rolls December over to January of the next year, so a reservation starting exactly at the next month's first instant is not counted and one starting on the last day is.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 11,
+    "expectation": "suspend sets expiresAt to at + minutes(durationMinutes), one conversion, and isSuspended uses a strict at < expiresAt, so the member is suspended until one millisecond before expiresAt and reported active from expiresAt on.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 12,
+    "expectation": "escapeText uses /[&<>\"']/g with the global flag, so every occurrence of each special character in a rendered value is escaped.",
+    "paired": false,
+    "reason": "escapeText 带 g 的正确写法与 P07 外形相近，设计说明未写为对照；不收。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 13,
+    "expectation": "The queue limit check rejects a quiet-hours message when the member already has QUEUE_LIMIT (50) queued messages, using >=, so the 50th queued message is accepted and the 51st is rejected.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 14,
+    "expectation": "checkInOpens is addMinutes(expectedAt, -earlyArrivalMinutes), a count of minutes converted once, and isInCheckInWindow uses <= at the start, so a guest may check in exactly 30 minutes before expectedAt but not a millisecond earlier.",
+    "paired": false,
+    "reason": "checkInOpens 用 addMinutes(expectedAt, -earlyArrivalMinutes)（分钟数换算一次）与 P15 holdUnits 外形相近；但 design「已知偏差」第 1 条点名的对照是 visitors 的 `expectedAt + LOBBY.lateArrival`，不是这条 clean；有疑问，不收（建议审查者判断）。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 15,
+    "expectation": "normalizeGuestName replaces /\\s+/g with one space after trimming, so every inner whitespace run of a guest name, not only the first, becomes one space.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 16,
+    "expectation": "startsInPeriod includes periodStart and excludes periodEnd, as the half-open billing period requires; a reservation starting exactly at periodEnd is correctly not billed.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 17,
+    "expectation": "invoiceTotals applies Math.min(available, subtotal), so credits larger than the subtotal reduce it to 0 and the unapplied rest is reported as creditRemaining, as required.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 18,
+    "expectation": "respondBy converts the priority response minutes to milliseconds exactly once with minutes(...), so respondBy is openedAt plus 60, 240, 1440 or 4320 minutes as required.",
+    "paired": false,
+    "reason": "同上（maintenance ticket-policy 的同类写法），不收。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 19,
+    "expectation": "planWork rejects a ticket that already has a planned window, so a ticket being planned has no window of its own and conflictingTicket needs no self-exclusion; overlaps uses strict comparisons, so touching half-open windows do not conflict, as required.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 20,
+    "expectation": "isLate treats now() equal to dueAt as late with >=, and paymentStatus reads issuedAt from the received invoice, as required.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 21,
+    "expectation": "createPaymentIntent lists the intents of prepared.invoiceId, the trimmed invoice id string, so an authorized, captured or refunded intent of the same invoice blocks a new intent while intents of other invoices do not, as required.",
+    "paired": false,
+    "reason": "c_pay_invoiceBlocked，与 P16 selfConflict 同文件。设计说明「已知偏差与风险」第 3 条写的是修订 36 之后的状态：\"同文件 `createPaymentIntent`、`listPayments` 仍用字符串调用 `listByInvoice`，是形状不同的正确写法\"，说的是形状不同而不是孪生；修订 35 独立审查 R1 曾称它为\"正确孪生\"，但那是对修订 35 的意见，修订 36 已把过滤移进 policy 的 netPaid，该意见过时。有疑问，不收（独立审查 B2，2026-10-15）。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 22,
+    "expectation": "withinHours truncates the time of day to whole minutes and compares it with integer openMinute and closeMinute; for integer bounds this is the same as comparing milliseconds, so the desk opens at openMinute and closes exactly at closeMinute, as required.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 23,
+    "expectation": "prepareClosure compares the closure length in milliseconds with minutes(20160), converted once, so a closure of exactly 20160 minutes is accepted and one millisecond more is rejected, as required.",
+    "paired": false,
+    "reason": "同上（schedules closures 的同类写法），不收。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 24,
+    "expectation": "isCounted counts a held reservation only while expiresAt is strictly later than now(), as required; a hold whose expiresAt equals now() is correctly not counted.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 25,
+    "expectation": "bookedMinutes floors the total contribution length to whole minutes with toWholeMinutes, as required.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 26,
+    "expectation": "withinMemberLimit requires fewer than MAX_ACTIVE_ENTRIES active entries, so a member may hold 3 active entries and joining is rejected only when the member already has 3, as required.",
+    "paired": false,
+    "reason": "设计说明（design.md、code-spec-v5.md）没有把它写成任何现存问题用例的孪生或对照；它是按模块分配的独立 clean。"
+   },
+   {
+    "scope": "CODE-SPEC-FINDINGS",
+    "index": 27,
+    "expectation": "An offer sets expiresAt 15 minutes after now() with the minutes conversion applied once, and isExpired treats now() equal to expiresAt as expired, as required.",
+    "paired": false,
+    "reason": "waitlist offer 到期；设计说明 c_wait_offerExpiry 只记录探针改动，未写为 P20 lateFeeState 的对照；不收。"
+   }
+  ]
+ }
+}

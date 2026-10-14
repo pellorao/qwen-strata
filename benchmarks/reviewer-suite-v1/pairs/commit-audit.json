@@ -1,0 +1,558 @@
+{
+ "scenario": "commit-audit",
+ "reviewerId": "commit-audit-reviewer",
+ "expectedSha256": "bdb1752fd3590fae05fc840bc4ad36943a3d2bade39a9d9bb4d99962a52a6789",
+ "rule": "按对计分（用户 2026-10-14）：只收设计说明里明确写为某个问题的孪生或对照的 clean；有疑问的不收。有配对的问题用例只有在全部配对 clean 都通过时才得分。",
+ "pairs": [],
+ "checked": {
+  "summary": "逐条检查两个 Gate 共 78 个 clean（不含 2 个 noOtherSupportedFinding）。ARW 文档只说每个 Gate 至少 20 个 clean 是\"位置相近的对照\"，没有指明对应哪个问题，本工程也没有 Commit Audit 的设计说明；空表。若要按对计分，需要先补一份逐题指明对照关系的设计说明（待用户决定）。",
+  "cleanCases": [
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 0,
+    "expectation": "The implementation satisfies: `orderStops` orders a copied list by descending priority and then ascending sequence.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 1,
+    "expectation": "The implementation satisfies: savePlan validates a plan before the first persistent write.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 2,
+    "expectation": "The implementation satisfies: `planFailure` returns a structured non-throwing failure result.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 3,
+    "expectation": "The implementation satisfies: `totalPackageWeight` sums every package weight without changing the package list.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 4,
+    "expectation": "The implementation satisfies: `redactNestedDriverToken` removes a nested driver token from telemetry.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 5,
+    "expectation": "The implementation satisfies: `remainingVehicleCapacity` never returns a negative value.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 6,
+    "expectation": "The implementation satisfies: `previewPlan` returns a dry-run result without invoking storage.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 7,
+    "expectation": "The implementation satisfies: `redactAccessLog` removes token and secret fields while preserving other fields.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 8,
+    "expectation": "The implementation satisfies: `preserveDriverLabel` trims surrounding whitespace without changing letter case.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 9,
+    "expectation": "The implementation satisfies: The invalid-storage test asserts that validation failure performs zero writes.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 10,
+    "expectation": "The implementation satisfies: `computeBackoff` doubles from 250 milliseconds and caps the result at 2000 milliseconds.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 11,
+    "expectation": "The implementation satisfies: `retryTransient` permits retries only for errors explicitly marked transient.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 12,
+    "expectation": "The implementation satisfies: `retainScheduleOffset` preserves the supplied offset exactly.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 13,
+    "expectation": "The implementation satisfies: `runEligibleStops` skips cancelled stops while retaining the other stop order.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 14,
+    "expectation": "The implementation satisfies: `selectActiveClaims` excludes claims before their start and at or after expiry.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 15,
+    "expectation": "The implementation satisfies: `checksumPlan` hashes the bytes returned by the plan serializer.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 16,
+    "expectation": "The implementation satisfies: Connect dispatch manifest publication through the public dispatch entry.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 17,
+    "expectation": "The implementation satisfies: `safeAnnouncement` omits a top-level credential from the announcement payload.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 18,
+    "expectation": "The implementation satisfies: `encodeUtf8` encodes publication bytes as UTF-8.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 19,
+    "expectation": "The implementation satisfies: `manifestEntryIsValid` rejects blank package IDs.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 20,
+    "expectation": "The implementation satisfies: `emptyManifest` produces an eligible manifest with an empty entries list.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 21,
+    "expectation": "The implementation satisfies: `emptyManifest` marks an empty manifest as generated.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 22,
+    "expectation": "The implementation satisfies: `chunkManifest` limits every non-empty chunk to the configured maximum.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 23,
+    "expectation": "The implementation satisfies: `preserveManifestDriver` preserves driver-label letter case.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 24,
+    "expectation": "The implementation satisfies: Under the Manifest Store contract, `publishWithAnnouncement` waits for the exact manifest to be durably stored before sending its announcement.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 25,
+    "expectation": "The implementation satisfies: The public dispatch entry exports `publishManifest`.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 26,
+    "expectation": "The implementation satisfies: `auditFieldsPresent` requires action, actor, and timestamp fields.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 27,
+    "expectation": "The implementation satisfies: `publicationResult` returns structured success and failure variants.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 28,
+    "expectation": "The implementation satisfies: `normalizedPlanKey` trims and uppercases the route-key storage segment.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 29,
+    "expectation": "The implementation satisfies: `buildManifest` copies record objects instead of mutating supplied records.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 30,
+    "expectation": "The implementation satisfies: `publicationRetryBudget` is two attempts.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 31,
+    "expectation": "The implementation satisfies: `normalizePackageIds` removes duplicates within a supplied package-ID list.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 32,
+    "expectation": "The implementation satisfies: The publication integration test imports through the public dispatch entry.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 33,
+    "expectation": "The implementation satisfies: `successTelemetry` records the success event, manifest ID, and timestamp.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 34,
+    "expectation": "The implementation satisfies: `groupByDestination` groups records using normalized destination keys.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 35,
+    "expectation": "The implementation satisfies: `failureTelemetry` records the failure event, error, manifest ID, and timestamp.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 36,
+    "expectation": "The implementation satisfies: `normalizePackageIds` produces a stable lexical package-ID order.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 37,
+    "expectation": "The implementation satisfies: `preserveManifestDriver` trims driver labels without changing letter case.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-1",
+    "index": 38,
+    "expectation": "The implementation satisfies: `checksumPlan` supplies serialized plan bytes to the configured hasher.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 0,
+    "expectation": "The implementation satisfies: Stop ordering uses descending priority followed by ascending sequence.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 1,
+    "expectation": "The implementation satisfies: Publication audit records include action, actor, and timestamp.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 2,
+    "expectation": "The implementation satisfies: Schedule offsets pass through without coercion.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 3,
+    "expectation": "The implementation satisfies: Inactive authorization claims are excluded before route planning.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 4,
+    "expectation": "The implementation satisfies: Empty manifests use an empty entries array and a generated marker.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 5,
+    "expectation": "The implementation satisfies: Publication failure telemetry includes the manifest ID, error, and timestamp.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 6,
+    "expectation": "The implementation satisfies: Driver labels are trimmed without changing their letter case.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 7,
+    "expectation": "The implementation satisfies: Package IDs are trimmed, deduplicated, and sorted lexically.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 8,
+    "expectation": "The implementation satisfies: Under the Manifest Store contract, valid manifest publication returns the exact durably stored manifest object in a success result.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 9,
+    "expectation": "The implementation satisfies: Eligible-stop execution excludes cancelled stops.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 10,
+    "expectation": "The implementation satisfies: Window membership includes both the declared start and end hour.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 11,
+    "expectation": "The implementation satisfies: Publication success telemetry includes the manifest ID and timestamp.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 12,
+    "expectation": "The implementation satisfies: Plan previews return without touching persistent storage.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 13,
+    "expectation": "The implementation satisfies: Appending a stable stop returns a new list.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 14,
+    "expectation": "The implementation satisfies: Dispatch backoff is capped at 2000 milliseconds.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 15,
+    "expectation": "The implementation satisfies: Announcement payloads omit top-level credential fields.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 16,
+    "expectation": "The implementation satisfies: Frozen dispatch plans also freeze a copied stop list.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 17,
+    "expectation": "The implementation satisfies: Transient retry classification requires an explicit true marker.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 18,
+    "expectation": "The implementation satisfies: Depot ownership requires equal actor and depot identifiers.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 19,
+    "expectation": "The implementation satisfies: Destination keys are normalized with NFKC, trimmed, and uppercased.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 20,
+    "expectation": "The implementation satisfies: The next dispatch time is not earlier than either supplied bound.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 21,
+    "expectation": "The implementation satisfies: Access-log redaction removes both token and secret fields.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 22,
+    "expectation": "The implementation satisfies: Package weight totals include every supplied package.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 23,
+    "expectation": "The implementation satisfies: `toStableJson` uses two-space indentation and one terminal LF.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 24,
+    "expectation": "The implementation satisfies: An explicit vehicle capacity of zero is preserved instead of replaced by a default.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 25,
+    "expectation": "The implementation satisfies: Destination grouping uses normalized keys and copied records.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 26,
+    "expectation": "The implementation satisfies: Blackout intervals include the start and exclude the end.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 27,
+    "expectation": "The implementation satisfies: Plan persistence completes validation before any write.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 28,
+    "expectation": "The implementation satisfies: Successful publication results and failed publication results use distinct structured variants.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 29,
+    "expectation": "The implementation satisfies: Blank package IDs make a manifest entry invalid.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 30,
+    "expectation": "The implementation satisfies: Serialized plan parsing returns structured success or failure.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 31,
+    "expectation": "The implementation satisfies: Depot aliases are trimmed and lowercased.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 32,
+    "expectation": "The implementation satisfies: The ordinary stop-ordering operation sorts a copy of its input.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 33,
+    "expectation": "The implementation satisfies: Stops at the vehicle weight limit remain in the accepted partition.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 34,
+    "expectation": "The implementation satisfies: Manifest chunks never exceed their configured maximum size.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 35,
+    "expectation": "The implementation satisfies: Normalized plan storage keys trim and uppercase route keys.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 36,
+    "expectation": "The implementation satisfies: The declared departure window records UTC as its time zone.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 37,
+    "expectation": "The implementation satisfies: UTF-8 encoding uses the explicit `utf8` encoding name.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   },
+   {
+    "scope": "COMMIT-AUDIT-GATE-2",
+    "index": 38,
+    "expectation": "The implementation satisfies: Route keys are normalized with NFKC before trimming and uppercasing.",
+    "paired": false,
+    "reason": "ARW reviewer-capability-scenarios.md 只笼统规定\"每个 Gate 至少 20 个干净用例是与问题位置相近但实际正确的对照\"，没有写明每条 clean 对照的是哪一个问题；答案键和 auditRecords 也没有对应关系。按\"只收明确写为某问题对照的 clean、有疑问的不收\"，不收。"
+   }
+  ]
+ }
+}
