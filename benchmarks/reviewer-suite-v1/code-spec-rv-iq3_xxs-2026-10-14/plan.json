@@ -1,0 +1,82 @@
+{
+ "schema": "arw-dimension-v1",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "reviewer": "code-spec-reviewer",
+ "authorization": {
+  "approved": true,
+  "source": "用户 2026-10-14：rv3 按 A 进入判定流程；冻结前复核（原样 8 题选法、跨版本视为可比、混杂清单 (a)–(f) 且先修复 (d)）；误报判据口径（核心 31 个 clean 失败）。独立冻结意见与 diff 审查（Opus-high）均为有条件冻结，必须项已在修订 33、34 处理；main 综合后冻结",
+  "scope": "Code Spec 阅读量 rv3（修订 34）150K 一档：Opus-high ×1 为判据（17–18/20 补到 ×3）；IQ3_XXS 原定 3 次、GPU 空闲时加测到 5 次，每次全新 ARW 准备与冷加载",
+  "duration_constraint": "阅读量维度时限规则：T 秒 = B ×（1/P + k/G）/ β，k 2.0755 固定，β 3.6591 冻结；每批开跑前探针重测 P、G；Q3 约 16 分钟"
+ },
+ "method": "arw_dimension prepare 准备冻结 ARW（manifest-code-spec-rv.json：code-spec-v3.patch 之后叠加 code-spec-rv.patch，替代 code-spec-v4.patch）并预检 → ARW 持有模型，arw_measure 按交接顺序运行（每次重复一个全新根线程）→ 服务日志 budget 行核对生效值（high：budget 8192 (max 24576)）→ 报告修复（repair_reviewer_report）→ score-completed 与盲化裁决 → 会话检查；每实例结束领租约、停模型、核实 strata.exe 退出、归还租约。 工作时间从 ARW measurement.startedAt 起算，不含模型加载；报告耗时以分钟一位小数显示。",
+ "fixed_conditions": {
+  "strata": "0.1.44.1",
+  "codex": "0.162.0",
+  "effort": "high",
+  "effort_reason": "与 ARW 原生 agent-cli 配置（model_reasoning_effort=\"high\"）及 F6 基线一致",
+  "context_window": 206584,
+  "auto_compact_token_limit": 150000,
+  "engine_defaults": "config/deployments/rtx3080ti.json 的安装默认值（ecdd132 起 IQ3_XXS 首档 206584/150000）：high 思考 8192、总输出 24576；guardian 512/1024；IQ3_XXS spec 4、ple-io direct、STRATA_ADAPT_LAG 2。每批绑定部署后 config/deployment.json 与模型配置的 SHA（开跑时记录实际值）",
+  "startup_instructions": "config/prompts/startup-instructions.txt（源 SHA 5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e，去掉防循环段），compact-prompt.txt（3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af）接入；开跑前核对已安装 SHA",
+  "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
+  "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
+  "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest-code-spec-rv.json",
+  "scenario": "Code Spec 阅读量 rv3（SCENARIO_REVISIONS code-spec-reviewer 34；核心 v4.7 原样 8 题 + 12 题各搬一个干草堆模块，7 题依赖 src/platform/ 共用定义；20 问题 + 55 clean（核心 31）；B = 152,846 字节；code-spec-v3.patch 之后叠加 arw-patches/code-spec-rv.patch sha256 50087dd75cf064722090152597bed5478f89f26d87277bc4821c9722cb35e98e，替代 code-spec-v4.patch）",
+  "scoring": "能力验证口径：完全按 ARW 原版罚分",
+  "measurement_note_template": {
+   "path": "benchmarks/reviewer-suite-v1/measurement-note-time-limit.txt",
+   "sha256": "4c7558c84ae9dbdb446261bfd197da0acaa52e299baa26edd9478b357f884a41"
+  },
+  "time_limit": {
+   "formula": "T 秒 = B ×（1/P + k/G）/ β",
+   "B": 152846,
+   "k": 2.0755,
+   "k_source": "0.1.44.1 首批探针（13:47，.tmp/code-spec-v4/rv/v2 探针）按 rtx3080ti Q3 T = B/10K 分钟反推 k = G(0.006β − 1/P)，此后固定",
+   "beta": 3.6591,
+   "beta_source": "修订 32 材料实测（.tmp/code-spec-v4/rv/v3/probe-rv3d），冻结",
+   "q3": "每批开跑前 tools.metrics.speed_probe 在本批材料上测 P、G（β 固定），T 取整秒后经 arw_dimension prepare --time-limit-seconds 渲染进测量说明；ReviewDeadline 截止前 5 分钟提醒、到时中断，按截至时刻已写出的结果计分",
+   "opus": "1/P 取 0；开跑前新做的 Opus 探针给出 β、G，按同一 k 重算 T_Opus；T − 5 分钟提醒，到 T 停止 agent，按结果文件计分（非 ARW 原版机制）。冻结前参考值 T_Opus 2504 秒（β 2.446、G 51.8）",
+   "reference_probe": {
+    "probe": ".tmp/code-spec-v4/rv/v3/probe-rv3d",
+    "P": 2497.3,
+    "G": 91.95,
+    "T_q3_seconds": 960
+   }
+  },
+  "criterion": "见 code-spec-rv.md §8：Opus ≥19/20 达标；17–18 补到 ×3 按均值 ≥17；≤16 不达标。clean 误报只算核心 31 个 clean 失败，比 v4.7（每次 0）多 ≥2 算明显增加（用户 2026-10-14）。不达标时：被时限中断调大 k 同档重跑；未中断降到 125K",
+  "neutral_rule": "冻结后新代码（src/reservations 以外）上的发现：盲裁前先由独立裁决 agent 核实；核实为真缺陷的按中性处理（不计 noOtherSupportedFinding 失败，也不加分），修正留给下一版；不是真缺陷的按原版规则计为无依据发现",
+  "screening": "冻结前：trial-1（rv2 修订 28）Q3 15/20；trial-2（rv3 修订 31）Q3 13/20，用时 7.8 分钟。均不计入正式结果"
+ },
+ "codex_thread_id": "b7635f94-ad60-429b-98e7-3ee5c19ba2bb",
+ "dimensions": [
+  {
+   "order": 1,
+   "id": "code-spec-rv3",
+   "default": "effort-high",
+   "reviewer": "code-spec-reviewer",
+   "schedule_design": "每批：速度探针 → prepare --time-limit-seconds T + arw_measure --limit 1；原定 3 次为正式结果，GPU 空闲时加测到 5 次（目标事先定为 5），报告同时给前 3 次和全部",
+   "schedule": [
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high"
+   ],
+   "conditions": {
+    "effort-high": {
+     "log_present": [
+      "budget 8192 \\(max 24576\\)"
+     ],
+     "log_absent": [
+      "budget 4096 "
+     ]
+    }
+   },
+   "note": "评估：增量盲裁（机械部分先脚本：证据行是否落在 placement、文件是否存在、重复 finding；只把需语义判断的候选交给盲裁）、混入 10–15 个已裁锚点并报一致率；会话检查；budget 生效核对；逐用例命中率（Q3 与 Opus）、双方 0 命中用例及成因；逐实例耗时（分钟）、三类 token、两种口径速度；相对口径 Q3/Opus；按类别（长链、规则交互、短而隐晦、保底）覆盖",
+   "opus": "Opus-high ×1 为判据（17–18/20 补到 ×3）：mkopus 方式只 prepare，Role 绑定 + 交接 + 渲染后的测量说明（T_Opus），工作目录在工程外隔离，与 Q3 并行"
+  }
+ ],
+ "target_repetitions": 5,
+ "primary_repetitions": 3
+}
