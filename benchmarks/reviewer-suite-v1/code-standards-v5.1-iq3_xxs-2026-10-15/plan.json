@@ -1,0 +1,87 @@
+{
+ "schema": "arw-dimension-v1",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "reviewer": "code-standards-reviewer",
+ "authorization": {
+  "approved": true,
+  "source": "用户 2026-10-14 Code Standards 正式场景 v5 决定（方案 A、规则网络、重复类约 1/3 以上、B 计入整个仓库）；用户 2026-10-15 两类计分与 A 类正反等数。修订 22 独立冻结审查（Opus-high 盲审 25/26）后修订 23、24，复审结论为修好即可冻结；Main 综合后冻结修订 24；v5.1：Coordinator 2026-10-15 定重复题关联门槛放宽（只要求变更端），待用户复核",
+  "scope": "Code Standards 正式场景 v5.1（修订 25）：Opus-high ×3（无头 claude -p）为参照；IQ3_XXS 原定 5 次、GPU 空闲时加测到 10 次，每次全新 ARW 准备与冷加载",
+  "duration_constraint": "阅读量维度时限规则：T 秒 = B ×（1/P + k/G）/ β，k 2.0755、β 3.6591 沿用 Code Spec v5；每批开跑前在本场景材料上探针重测 P、G",
+  "v51_reuse": "v5.1 只改答案键：Q3 ×10 与 Opus-1、Opus-2 的回答是在 v5 修订 24 上产生的，夹具与交接完全相同，按 v5.1 键重新计分（不重跑模型）；Opus-3 在 v5.1 上运行"
+ },
+ "method": "arw_dimension prepare 准备冻结 ARW（manifest-code-standards-v5.1.json：current/manifest.json 栈（末位 code-spec-v4.patch）之后叠加 code-standards-v5.1.patch）并预检 → ARW 持有模型，arw_measure 按交接顺序运行（每次重复一个全新根线程）→ 服务日志 budget 行核对生效值（high：budget 8192 (max 24576)）→ 报告修复（repair_reviewer_report）→ score-completed 与盲化裁决 → 会话检查；每实例结束领租约、停模型、核实 strata.exe 退出、归还租约。 工作时间从 ARW measurement.startedAt 起算，不含模型加载；报告耗时以分钟一位小数显示。",
+ "fixed_conditions": {
+  "strata": "0.1.44.1",
+  "codex": "0.162.0",
+  "effort": "high",
+  "effort_reason": "与 ARW 原生 agent-cli 配置（model_reasoning_effort=\"high\"）及 F6 基线一致",
+  "context_window": 206584,
+  "auto_compact_token_limit": 150000,
+  "engine_defaults": "config/deployments/rtx3080ti.json 的安装默认值（ecdd132 起 IQ3_XXS 首档 206584/150000）：high 思考 8192、总输出 24576；guardian 512/1024；IQ3_XXS spec 4、ple-io direct、STRATA_ADAPT_LAG 2。每批绑定部署后 config/deployment.json 与模型配置的 SHA（开跑时记录实际值）",
+  "startup_instructions": "config/prompts/startup-instructions.txt（源 SHA 5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e，去掉防循环段），compact-prompt.txt（3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af）接入；开跑前核对已安装 SHA",
+  "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
+  "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
+  "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest-code-standards-v5.1.json",
+  "scenario": "Code Standards 正式场景 v5.1（SCENARIO_REVISIONS code-standards-reviewer 25；与 v5 修订 24 的夹具相同，只改答案键：重复类 S17–S25 关联只要求变更端行、对端由 findingTerms 必选组记录，clean #21/#28 去掉多词 term（待用户复核）；仓库 = Code Spec v5 无缺陷版 + 行为保持整理，被审变更 = 新餐饮子系统 src/catering/ 与 3 个已改文件，src/AGENTS.md 为规则网络；26 问题 + 35 clean + noOtherSupportedFinding，A 类 10:10 标在答案键；B = 142,529 字节（变更后 src 全部 + src/AGENTS.md）；current/manifest.json 栈之后叠加 arw-patches/code-standards-v5.1.patch sha256 09f02f203ea9661378b8f0cca9f436dff3818b6ddd23c1fdfeaf9d32c4663129；答案键 sha256 3950875c7c223af3beee58265c1fb9eb3ff48cf21cbd4b94ffa43a124a0d0b66，judgment/registry.json 登记 in-key）",
+  "scoring": "两类计分（.claude/rules/measurement.md，用户 2026-10-15）：A 类加减分、B 类按 ARW 计分（证据 F2），由 scoring-f2.patch（sha256 25573a2e…）在物化时叠加，按答案键 sha 登记标定",
+  "measurement_note_template": {
+   "path": "benchmarks/reviewer-suite-v1/measurement-note-time-limit.txt",
+   "sha256": "4c7558c84ae9dbdb446261bfd197da0acaa52e299baa26edd9478b357f884a41"
+  },
+  "time_limit": {
+   "formula": "T 秒 = B ×（1/P + k/G）/ β",
+   "B": 142529,
+   "k": 2.0755,
+   "k_source": "0.1.44.1 首批探针（13:47，.tmp/code-spec-v4/rv/v2 探针）按 rtx3080ti Q3 T = B/10K 分钟反推 k = G(0.006β − 1/P)，此后固定",
+   "beta": 3.6591,
+   "beta_source": "修订 32 材料实测（.tmp/code-spec-v4/rv/v3/probe-rv3d），冻结",
+   "q3": "每批开跑前 tools.metrics.speed_probe 在本批材料上测 P、G（β 固定），T 取整秒后经 arw_dimension prepare --time-limit-seconds 渲染进测量说明；ReviewDeadline 截止前 5 分钟提醒、到时中断，按截至时刻已写出的结果计分。冻结前 trial（修订 15–21）的 T_Q3 为 887–952 秒",
+   "opus": "1/P 取 0；开跑前用无头 claude -p 新做的 Opus 探针（用量取 result 事件 usage）给出 β、G，按同一 k 重算 T_Opus；T − 5 分钟提醒，到 T 停止进程，按结果文件计分（非 ARW 原版机制）",
+   "reference_probe": {
+    "note": "修订 21 材料（B 142,856）探针给出 T_Q3 952 秒；修订 24 材料开跑前重测",
+    "T_q3_seconds": 952
+   }
+  },
+  "criterion": "见 code-standards-v5.md §8 与 v5.1 节：Q3 ×5 均分 / Opus ×3 均分 < 0.8 为成立，按两类计分总分；报告同时列出 A 部分、B 部分与全部 clean 失败，以盲裁关联后的结果为准；独立 agent（不低于 Main）给意见后由 Main 判定",
+  "neutral_rule": "冻结后变更（src/catering/ 与 3 个已改文件）上答案键外的发现：盲裁前先由独立裁决 agent 核实；核实为真缺陷的按中性处理（不计 noOtherSupportedFinding 失败，也不加分），修正留给下一版；不是真缺陷的按原版规则计为无依据发现",
+  "screening": "冻结前 Q3 trial ×1（均不计入正式结果）：修订 15 20/21；修订 17 19/21；修订 19 18/24（T 887 秒）；修订 21 21/24（T 952 秒，漏 S20、S21、S23，两类计分约 0.739）。修订 22 冻结审查 Opus-high 盲审 25/26（漏 S20）",
+  "opus_runner": "无头 claude -p（Claude Code 2.1.299，--model opus --effort high），隔离选项、Bash 沙箱设置模板与场景根文件清单比对见 code-spec-v5.md §2"
+ },
+ "codex_thread_id": "b7635f94-ad60-429b-98e7-3ee5c19ba2bb",
+ "dimensions": [
+  {
+   "order": 1,
+   "id": "code-standards-v5.1",
+   "default": "effort-high",
+   "reviewer": "code-standards-reviewer",
+   "schedule_design": "每批：速度探针 → prepare --time-limit-seconds T + arw_measure --limit 1；原定 5 次为正式结果，GPU 空闲时加测到 10 次（目标事先定为 10），报告同时给前 5 次和全部",
+   "schedule": [
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high"
+   ],
+   "conditions": {
+    "effort-high": {
+     "log_present": [
+      "budget 8192 \\(max 24576\\)"
+     ],
+     "log_absent": [
+      "budget 4096 "
+     ]
+    }
+   },
+   "note": "评估：增量盲裁（机械部分先脚本：证据行是否落在 placement、文件是否存在、重复 finding；只把需语义判断的候选交给盲裁）、混入 10–15 个已裁锚点并报一致率；会话检查；budget 生效核对；逐用例命中率（Q3 与 Opus）、双方 0 命中用例及成因；逐实例耗时（分钟）、三类 token、两种口径速度；相对口径 Q3/Opus；按类别（规则网络、重复与相似、语言语义、设计、保底）与 A/B 类覆盖；全部 clean 失败与中性处理项",
+   "opus": "Opus-high ×3 为参照：只 prepare，Role 绑定 + 交接 + 渲染后的测量说明（T_Opus），以无头 claude -p 在工程外隔离的场景根运行，与 Q3 并行"
+  }
+ ],
+ "target_repetitions": 10,
+ "primary_repetitions": 5
+}

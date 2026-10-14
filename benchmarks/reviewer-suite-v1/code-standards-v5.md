@@ -60,3 +60,37 @@
 - 仓库本身仍有不在变更范围内的既有重复（`normalizeMemberId` 等）；role 规定历史问题不扩展为 finding。
 - `catering-service.mjs` 集中了 9 题；S11 与孪生 `menuFor` 相邻；T4 紧挨 S20。均已登记，审查未发现新的结构线索。
 - 变更修改了 3 个已有文件，整个文件属于审查范围。
+
+## 10. v5.1（修订 25，2026-10-15；待用户复核）
+
+v5.1 的夹具、交接和测量说明与 v5 修订 24 完全相同，只改答案键和修订号常量。冻结源 `source-snapshots/current/manifest-code-standards-v5.1.json`，在 `code-spec-v4.patch` 之后叠加 `arw-patches/code-standards-v5.1.patch`（sha256 `09f02f203ea9661378b8f0cca9f436dff3818b6ddd23c1fdfeaf9d32c4663129`）；答案键 sha256 `3950875c7c223af3beee58265c1fb9eb3ff48cf21cbd4b94ffa43a124a0d0b66`，在 `judgment/registry.json` 登记为 in-key；计划在 `code-standards-v5.1-iq3_xxs-2026-10-15/`。
+
+**改动一：重复类题关联门槛放宽（S17–S25）。**
+
+- 原因：v5 要求发现同时引用两端的具体行才会成为关联候选。Q3 和 Opus 都有写出了对应缺陷、对端只写符号名或文件名而没写行号的发现，因此没被关联，又反过来被计成无依据发现。
+  - Q3 正式 10 次里有 6 处，独立裁决后由人工补上。
+  - Opus-1 有 5 处：S18、S19、S21、S22、S23。
+- 做法：
+  - `associationEvidence` 只保留变更端的行，有的题允许多组可选位置，例如 S19 取 pricing:9 或 pricing:18。
+  - 对端写在 `findingTerms` 的一个必选组里，只放精确符号名或文件基名，例如 S18 是 `PAYMENT_TERMS`、`dueMinutes`、`invoice-terms`，S21 是 `isSuspended`。
+  - 证据定位分（F2）仍按含对端行的 `evidence` 计算。
+- 注意：ARW 计分只校验问题用例 `findingTerms` 的格式，不用它筛选候选。所以放宽之后，对端是否成立实际由盲裁判断，`findingTerms` 里的对端组只是记录判断依据。
+- 孪生 clean T1–T8 核对：
+  - 放宽后的关联行与任何 clean 的 evidence 行都不重合。
+  - 相距 3 行以内的有两处：T1（policy:24）与 S22（policy:26），T3（pricing:16）与 S19（pricing:18）。引用了这两段行号范围的发现会成为候选，由盲裁排除。
+
+**改动二：clean `lineItemsParam`（#21）与 `invoiceEntryContract`（#28）去掉多词 term。**
+
+- 去掉的是 "no caller" 和 "never passed"。原因是词袋匹配会把多词 term 拆成单词，常见词 "no"、"caller"、"never"、"passed" 会误撞没有作此主张的发现：q3-6、q3-7、q3-10 被这样误判过。
+- 其他 clean 也有多词 term（如 "in place"、"middle man"），这次没有改，待定。
+
+**检查：**
+
+- 54 个变体的 verify、lint、catering 测试全过。
+- conformance 70/70，冻结物化副本上重跑一次也是 70/70。
+
+**可比性：**
+
+- v5.1 与 v5 的分数不可比。
+- v5 上产生的 Q3 ×10 和 Opus-1、Opus-2 回答，夹具与交接都相同，按 v5.1 键重新计分，不重跑模型。
+- Opus-3 在 v5.1 上运行。
