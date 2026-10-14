@@ -1,0 +1,155 @@
+{
+ "measurement": "v0.1.43.1 降速复核（plan 待办 7）",
+ "date": "2026-10-14",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "strata": "0.1.43.1 (a0116b2)",
+ "workload": "benchmarks/resource-calibration-v1/workload.py build(2400)，100K 合成检索，3 请求",
+ "engine_overrides": {
+  "max-context": 156584,
+  "kv-resident": 20480
+ },
+ "host_state": "BIOS 1.C0（微码 0x137），Intel Default 功耗档（PL1 65 W），XMP 6600",
+ "schedule": "same-a, same-b, same-b, same-a（两个相同条件，runner 要求 ≥2 条件），每次冷加载",
+ "instances": [
+  {
+   "instance": "same-a-r1",
+   "pass": true,
+   "load_seconds": 22.493661685002735,
+   "work_seconds": 154.50410072299564,
+   "requests": 3,
+   "tokens": {
+    "uncached_input": 104707,
+    "cached_input": 196608,
+    "output": 11866
+   },
+   "engine_in_tps": 2359.3816895378445,
+   "engine_out_tps": 107.96793536118213,
+   "task_in_tps": 677.6972229864958,
+   "task_out_tps": 76.8005505645063,
+   "kv_facts": {
+    "kv_resident_cells": 20480,
+    "kv_total_cells": 156584,
+    "kv_pinned_gib": 1.85,
+    "expert_slots": 2251,
+    "free_mib_loaded": 276,
+    "commit_left_gib": 62.7
+   },
+   "max_gpu_temperature_c": 75,
+   "throttle_reasons_seen": [
+    "gpu_idle",
+    "sw_power_cap",
+    "sw_thermal"
+   ]
+  },
+  {
+   "instance": "same-b-r1",
+   "pass": true,
+   "load_seconds": 22.530090721003944,
+   "work_seconds": 160.19481338100013,
+   "requests": 3,
+   "tokens": {
+    "uncached_input": 104707,
+    "cached_input": 196608,
+    "output": 12073
+   },
+   "engine_in_tps": 2344.3265269568333,
+   "engine_out_tps": 104.71126992662492,
+   "task_in_tps": 653.6229094444499,
+   "task_out_tps": 75.36448743372308,
+   "kv_facts": {
+    "kv_resident_cells": 20480,
+    "kv_total_cells": 156584,
+    "kv_pinned_gib": 1.85,
+    "expert_slots": 2251,
+    "free_mib_loaded": 276,
+    "commit_left_gib": 62.8
+   },
+   "max_gpu_temperature_c": 77,
+   "throttle_reasons_seen": [
+    "gpu_idle",
+    "sw_power_cap"
+   ]
+  },
+  {
+   "instance": "same-b-r2",
+   "pass": true,
+   "load_seconds": 23.058066149998922,
+   "work_seconds": 146.5491249609986,
+   "requests": 3,
+   "tokens": {
+    "uncached_input": 104707,
+    "cached_input": 196608,
+    "output": 10822
+   },
+   "engine_in_tps": 2332.6798404883375,
+   "engine_out_tps": 106.68270226042723,
+   "task_in_tps": 714.4839658910681,
+   "task_out_tps": 73.84554498622957,
+   "kv_facts": {
+    "kv_resident_cells": 20480,
+    "kv_total_cells": 156584,
+    "kv_pinned_gib": 1.85,
+    "expert_slots": 2251,
+    "free_mib_loaded": 276,
+    "commit_left_gib": 63.4
+   },
+   "max_gpu_temperature_c": 78,
+   "throttle_reasons_seen": [
+    "gpu_idle",
+    "sw_power_cap"
+   ]
+  },
+  {
+   "instance": "same-a-r2",
+   "pass": true,
+   "load_seconds": 22.52256009800476,
+   "work_seconds": 142.69481979900593,
+   "requests": 3,
+   "tokens": {
+    "uncached_input": 104707,
+    "cached_input": 196608,
+    "output": 10319
+   },
+   "engine_in_tps": 2352.7548085565345,
+   "engine_out_tps": 105.3421399185357,
+   "task_in_tps": 733.782769041553,
+   "task_out_tps": 72.3151689355992,
+   "kv_facts": {
+    "kv_resident_cells": 20480,
+    "kv_total_cells": 156584,
+    "kv_pinned_gib": 1.85,
+    "expert_slots": 2251,
+    "free_mib_loaded": 276,
+    "commit_left_gib": 63.4
+   },
+   "max_gpu_temperature_c": 78,
+   "throttle_reasons_seen": [
+    "gpu_idle",
+    "sw_power_cap",
+    "sw_thermal"
+   ]
+  }
+ ],
+ "aggregate": {
+  "engine_out_mean": 106.17601186669249,
+  "engine_out_sd": 1.450119114891686,
+  "engine_out_min": 104.71126992662492,
+  "engine_out_max": 107.96793536118213,
+  "engine_in_mean": 2347.2857163848876,
+  "baseline_v0142": {
+   "engine_out_mean": 117.7,
+   "engine_out_each": [
+    116.7,
+    118.7,
+    117.7
+   ],
+   "engine_in_mean": 2384.0,
+   "date": "2026-10-12（BIOS 更新前）",
+   "report": "reports/v0.1.42/iq3_xxs-tuning/kv-resident-long/summary.md"
+  },
+  "engine_out_change_pct": -9.790983970524646,
+  "engine_in_change_pct": -1.5400286751305559
+ },
+ "attribution": "未归因：基线早于 10-13 BIOS/功耗档变更，版本与主机状态混在一起"
+}
