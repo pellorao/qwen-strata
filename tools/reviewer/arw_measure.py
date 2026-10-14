@@ -720,11 +720,20 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
                 from tools.reviewer.review_continuations import HttpArchive
                 http_archive=HttpArchive(native_install/'codex-home/logs_2.sqlite',out)
                 http_archive.thread.start()
+            last_repetition=None
             for preparation,handoff,current_profile in jobs:
                     verify_native_cli(selection.get('native_cli'))
                     if handoff['instanceId'] in completed:
                         print(json.dumps({'instanceId':handoff['instanceId'],'reuse':'exact prior report/settings/profile; no Reviewer rerun'}),flush=True)
                         continue
+                    # Yield the GPU between instances, never inside one: a file in this directory stops the batch
+                    # before the next repetition starts, and the batch closes normally.
+                    repetition=handoff['instanceId'].rsplit('-instance-',1)[-1]
+                    yield_dir=os.environ.get('ARW_MEASURE_YIELD_DIR')
+                    if yield_dir and repetition!=last_repetition and any(Path(yield_dir).glob('*')):
+                        print(json.dumps({'yield':'priority flag present','before':handoff['instanceId']}),flush=True)
+                        break
+                    last_repetition=repetition
                     if arw_owned:
                         offset=log_offset(installation,selection['model'],measurement_host)
                         if open_segment:
