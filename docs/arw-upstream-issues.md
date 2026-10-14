@@ -38,6 +38,18 @@
 - **建议**：只把路径部分能在冻结源中解析为文件的片段视为定位（或要求定位出现在 Evidence 字段、带文件扩展名）；无法解析为文件的 `a:b` 片段当作普通代码文本，不产生诊断。
 - **本工程临时措施**：无，按 ARW 原版照罚并在报告中注明。
 
+### 5. Code Standards 原版答案键漏收 `writing.md` 规定成立的发现，且一个 clean 用例与 `writing.md:49` 矛盾
+
+- 场景：ARW 760007c `tests/fixtures/reviewer-capability/code-standards-reviewer`。Role 要求审查者同时执行 `docs/agents/writing.md`，但答案键只按 `src/AGENTS.md` 与 role 的设计检查出题。
+- 漏收的成立发现（按 `writing.md` 成立，键外报告记为误报）：
+  - `src/orders/order-service.mjs:74`（`reviewerCapabilityLoadFulfillmentPolicy` 只转发 `reviewerCapabilityLoadCarrierPolicy`）、`:82`（`reviewerCapabilityResolveDispatch` 只转发）：`writing.md:49` 不写纯转发包装器。本工程 Code Standards 基线 Q3 ×3 每次都报。
+  - `src/shared/path.mjs:1` 只再导出 `node:path` 的 `basename`：同 `writing.md:49`。
+  - `src/persistence/order-store.mjs:4`、`:24` 用 class 实现 store：`writing.md:111` 非必要不用 class。
+- 矛盾的 clean 用例："The shared path helper directly re-exports reviewerCapabilityBasename from node:path."（证据 `src/shared/path.mjs:1`）。它只判定 `node:` 前缀合规，但 findingTerms 含 `path`、`prefix`，按 `writing.md:49` 报这个再导出模块的正确发现会命中它而被扣分。
+- 影响：正确遵守 role 的审查者被计误报和 clean 失败，模型越认真越吃亏。
+- 建议上游：答案键补收这些发现（或从夹具中去掉对应代码），clean 用例改成只断言 `node:` 前缀且 findingTerms 不含模块形态的词。
+- 本工程处理：用户 2026-10-14 决定 (a)，在 Code Standards v5 中把纯转发、再导出、class 作为问题用例重建（新场景 S09、S10、S08），path helper clean 用例删除；v5 与 ARW 原版不可比。
+
 ## 本工程对 ARW 的修改（建议上游同样修改）
 
 本工程按自己当前的 Strata 工作方式修改了冻结的 ARW。修改以补丁形式登记在 `benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json` 的 `patches` 里，展开冻结源码时打上，并校验打完后的 SHA。这些不是 ARW 的缺陷，而是本工程升级了 Strata 的接入方式，建议 ARW 适配。
