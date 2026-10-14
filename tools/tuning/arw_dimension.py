@@ -116,24 +116,49 @@ def extract_agent_config(manual):
     return block.group(1)
 
 
-def selection(plan, condition, context_window=None):
-    note = (ROOT / MEASUREMENT_NOTE).read_bytes()
+def time_limited_note(fixed, folder, time_limit_seconds):
+    """Render the plan's note template with this batch's review time limit into the batch folder."""
+    template = fixed['measurement_note_template']
+    raw = (ROOT / template['path']).read_bytes()
+    if sha(raw) != template['sha256']:
+        raise ValueError('Measurement note template differs from the frozen plan')
+    if type(time_limit_seconds) is not int or time_limit_seconds <= 0:
+        raise ValueError('A time-limited plan needs a positive whole number of seconds')
+    text = raw.decode().replace('{{time_limit_minutes}}', f'{time_limit_seconds / 60:.1f}'.removesuffix('.0'))
+    if '{{' in text:
+        raise ValueError('Measurement note template has an unrendered placeholder')
+    rendered = folder / 'measurement-note.txt'
+    rendered.write_text(text)
+    return ({'path': str(rendered.relative_to(ROOT)), 'sha256': sha(text.encode())},
+            {'measurement_note_template': template, 'review_time_limit_seconds': time_limit_seconds})
+
+
+def selection(plan, condition, context_window=None, folder=None, time_limit_seconds=None):
     codex = CODEX.read_bytes()
     fixed = plan['fixed_conditions']
-    if sha(note) != fixed['measurement_note_sha256'] or sha(codex) != fixed['native_cli_sha256']:
-        raise ValueError('Measurement note or native CLI differs from the frozen plan')
+    if 'measurement_note_template' in fixed:
+        note, limit = time_limited_note(fixed, folder, time_limit_seconds)
+    else:
+        if time_limit_seconds is not None:
+            raise ValueError('The plan has no time-limited measurement note')
+        raw = (ROOT / MEASUREMENT_NOTE).read_bytes()
+        if sha(raw) != fixed['measurement_note_sha256']:
+            raise ValueError('Measurement note differs from the frozen plan')
+        note, limit = {'path': MEASUREMENT_NOTE, 'sha256': sha(raw)}, {}
+    if sha(codex) != fixed['native_cli_sha256']:
+        raise ValueError('Native CLI differs from the frozen plan')
     return {'model': plan['model'], 'effort': fixed['effort'], 'model_owner': 'arw', 'engine_overrides': {},
             'startup_instructions': True, 'project_compaction_instructions': False,
             'generation_policy': 'first-delivery-only', 'loop_prevention_instructions': False,
             'archive_http': True, 'automatic_continuation': False,
             'native_cli': {'executable': str(CODEX), 'version': fixed['codex'], 'sha256': sha(codex)},
-            'loop_reminder': 'off', 'measurement_note': {'path': MEASUREMENT_NOTE, 'sha256': sha(note)},
+            'loop_reminder': 'off', 'measurement_note': note, **limit,
             'deployment_condition': condition,
             # a published context tier the caller selects; omitted, ARW starts the installation default tier
             **({} if context_window is None else {'context_window': context_window})}
 
 
-def prepare(plan, condition, folder, reviewer=None, context_window=None):
+def prepare(plan, condition, folder, reviewer=None, context_window=None, time_limit_seconds=None):
     """Fresh ARW batch for one slot; only its first handoff(s) run, the others stay deferred."""
     folder.mkdir(parents=True)
     arw = folder / 'arw'
@@ -141,7 +166,7 @@ def prepare(plan, condition, folder, reviewer=None, context_window=None):
                     plan['fixed_conditions']['arw_source_manifest'], '--out', str(arw)],
                    cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
     (arw / 'config.json').write_text(extract_agent_config((arw / 'docs/manuals/agent-cli.md').read_text()))
-    save(folder / 'selection-source.json', selection(plan, condition, context_window))
+    save(folder / 'selection-source.json', selection(plan, condition, context_window, folder, time_limit_seconds))
     subprocess.run(['git', 'init', '-q'], cwd=arw, check=True)
     env = dict(os.environ, CODEX_THREAD_ID=plan['codex_thread_id'])
     with (folder / 'prepare.json').open('w') as out, (folder / 'prepare.err').open('w') as err:
@@ -251,13 +276,15 @@ def main():
     parser.add_argument('--limit', type=int, help='Run at most N further slots of the schedule.')
     parser.add_argument('--reviewer', help='prepare: ARW reviewer of the batch (default: the plan reviewer)')
     parser.add_argument('--context-window', type=int, help='prepare: published context tier the batch selects')
+    parser.add_argument('--time-limit-seconds', type=int,
+                        help='prepare: review time limit of the batch, rendered into the plan note template')
     args = parser.parse_args()
     if args.command == 'check':
         result = check(args.plan)
     elif args.command == 'prepare':
         # a benchmark batch on the deployed default: fresh ARW preparation and preflight, no deployment
         plan, _, _ = load_plan(args.plan)
-        result = prepare(plan, None, args.out.resolve(), args.reviewer, args.context_window)
+        result = prepare(plan, None, args.out.resolve(), args.reviewer, args.context_window, args.time_limit_seconds)
         preflight(plan, args.out.resolve())
     elif args.command == 'run':
         result = run(args.plan, args.dimension, args.out.resolve(), args.limit)

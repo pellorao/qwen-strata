@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.tuning.arw_dimension import extract_agent_config, flag_values, load_plan, verify_effect
+from tools.tuning.arw_dimension import extract_agent_config, flag_values, load_plan, sha, time_limited_note, verify_effect
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / 'benchmarks/resource-calibration-v1/iq3_xxs-arw-dims5-7/plan.json'
@@ -91,5 +91,24 @@ class EffectTests(unittest.TestCase):
         manual = '如果使用 Codex\n\n```json\n{"a": 1}\n```\n\n如果使用 Claude Code\n```json\n{}\n```\n'
         self.assertEqual(json.loads(extract_agent_config(manual)), {'a': 1})
 
+
+    def test_time_limited_note_renders_the_batch_limit(self):
+        (ROOT / '.tmp').mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=ROOT / '.tmp') as directory:
+            folder = Path(directory)
+            raw = b'Stop after {{time_limit_minutes}} minutes.\n'
+            (folder / 'template.txt').write_bytes(raw)
+            template = {'path': str((folder / 'template.txt').relative_to(ROOT)), 'sha256': sha(raw)}
+            note, limit = time_limited_note({'measurement_note_template': template}, folder, 900)
+            self.assertEqual((ROOT / note['path']).read_text(), 'Stop after 15 minutes.\n')
+            self.assertEqual(note['sha256'], sha(b'Stop after 15 minutes.\n'))
+            self.assertEqual(limit, {'measurement_note_template': template, 'review_time_limit_seconds': 900})
+            time_limited_note({'measurement_note_template': template}, folder, 750)
+            self.assertEqual((ROOT / note['path']).read_text(), 'Stop after 12.5 minutes.\n')
+            for bad in (None, 0, 90.5):
+                with self.assertRaises(ValueError):
+                    time_limited_note({'measurement_note_template': template}, folder, bad)
+            with self.assertRaises(ValueError):
+                time_limited_note({'measurement_note_template': {**template, 'sha256': '0' * 64}}, folder, 900)
 
 if __name__ == '__main__':unittest.main()
