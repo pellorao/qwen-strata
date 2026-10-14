@@ -121,6 +121,18 @@ class UpgradeTests(unittest.TestCase):
         self.assertEqual(result['reviewed_changes'],{'AGENTS.md':digest})
         self.assertFalse(result['dependencies_modified'])
 
+    def test_engine_zip_may_carry_kquant_library_but_nothing_else(self):
+        with zipfile.ZipFile(self.engine,'a') as z:z.writestr('strata_kq.dll','kernels')
+        self.metadata['release']['assets'][0].update(size=self.engine.stat().st_size,
+            digest='sha256:'+hashlib.sha256(self.engine.read_bytes()).hexdigest())
+        upgrade_release.upgrade(self.root,self.metadata,self.source,self.engine)
+        self.assertEqual((self.root/'runtime/Strata/engine/strata_kq.dll').read_text(),'kernels')
+        with zipfile.ZipFile(self.engine,'a') as z:z.writestr('other.dll','x')
+        self.metadata['release']['assets'][0].update(size=self.engine.stat().st_size,
+            digest='sha256:'+hashlib.sha256(self.engine.read_bytes()).hexdigest())
+        with self.assertRaisesRegex(RuntimeError,'Unexpected engine ZIP'):
+            upgrade_release.upgrade(self.root,self.metadata,self.source,self.engine)
+
     def test_archive_path_traversal_is_rejected_before_backup(self):
         with zipfile.ZipFile(self.source,'a') as z:z.writestr('Strata-fixed/../../escape.txt','bad')
         with self.assertRaisesRegex(ValueError,'Unsafe ZIP'):

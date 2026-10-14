@@ -96,7 +96,10 @@ def upgrade(root, metadata, source, engine, cuda_arch=89):
     if not re.search(r'\bVERSION\s+' + re.escape(engine_version) + r'(?:\s|\)|$)', writes['runtime/Strata/CMakeLists.txt'].decode()):
         raise RuntimeError('Source version does not match release')
     with zipfile.ZipFile(engine) as archive:
-        if archive.testzip() or set(archive.namelist()) != {'strata.exe', 'strata-vision.exe', 'BUILD.json'}:
+        # strata_kq.dll (K-quant prompt kernels, 0.1.44+) is opened only for models in those formats.
+        names = set(archive.namelist())
+        required = {'strata.exe', 'strata-vision.exe', 'BUILD.json'}
+        if archive.testzip() or not required <= names <= required | {'strata_kq.dll'}:
             raise RuntimeError('Unexpected engine ZIP or CRC failure')
         build = json.loads(archive.read('BUILD.json'))
         if type(cuda_arch) is not int or build['version'] != engine_version or cuda_arch not in build['archs']:

@@ -107,11 +107,14 @@ def maintenance(base):
             frontend.call('/lease/release', {}, timeout=300)
             raise
         frontend.wait(False)
-    yield
-    started = subprocess.run(['schtasks.exe', '/run', '/tn', TASK], capture_output=True)  # output is in the Windows code page
-    if started.returncode:
-        raise RuntimeError(f'Scheduled task {TASK} is missing; run maintenance\\Install-Frontend.ps1 once')
-    frontend.wait(True)
+    # Restart even when the work inside fails, so a refused upgrade does not leave the service down.
+    try:
+        yield
+    finally:
+        started = subprocess.run(['schtasks.exe', '/run', '/tn', TASK], capture_output=True)  # output is in the Windows code page
+        if started.returncode:
+            raise RuntimeError(f'Scheduled task {TASK} is missing; run maintenance\\Install-Frontend.ps1 once')
+        frontend.wait(True)
 
 
 def deploy(identifier, docs_only=False, condition=None):
