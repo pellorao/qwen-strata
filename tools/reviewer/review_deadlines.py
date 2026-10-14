@@ -5,6 +5,7 @@ from pathlib import Path
 import time
 
 LIMITS = {'initial': (3300, 3600), 'revision': (600, 900)}
+REMINDER_LEAD = 300
 REMINDER = ('请立即整理已经取得的审查结果，保存完整的原版Reviewer报告并返回。'
             '必须在剩余时间内结束，最多5分钟；到硬截止时仍在运行将被强制中断。'
             '保留已有发现、结论和证据，不改变报告格式，不声称未完成的工作已完成。')
@@ -18,9 +19,19 @@ def save(path, value):
 
 class ReviewDeadline:
     def __init__(self, folder, accepted, started_at, phase='initial', clock=time.time,
-                 start_source='harness task submission', alive_elapsed=None, work_elapsed=None):
+                 start_source='harness task submission', alive_elapsed=None, work_elapsed=None,
+                 limit_seconds=None):
         if phase not in LIMITS:
             raise ValueError('Unknown review phase')
+        if limit_seconds is None:
+            warning, hard = LIMITS[phase]
+        else:
+            # A selection-supplied cutoff (reading-volume limit) keeps the 5-minute
+            # reminder lead; cutoffs under 10 minutes warn at half the limit instead.
+            if type(limit_seconds) not in (int, float) or limit_seconds <= 0:
+                raise ValueError('Review time limit must be a positive number of seconds')
+            hard = limit_seconds
+            warning = hard - REMINDER_LEAD if hard >= 2 * REMINDER_LEAD else hard / 2
         self.clock = clock
         if alive_elapsed is not None and work_elapsed is not None:
             raise ValueError('Provide only one work-time counter')
@@ -28,10 +39,11 @@ class ReviewDeadline:
         self.path = Path(folder) / ('deadline-' + str(accepted['messageId']) + '.json')
         if self.path.exists():
             self.value = json.loads(self.path.read_text())
-            if self.value['runId'] != accepted['runId'] or self.value['phase'] != phase:
+            if (self.value['runId'] != accepted['runId'] or self.value['phase'] != phase
+                    or (self.value['reminder_after_seconds'], self.value['interrupt_after_seconds'])
+                    != (warning, hard)):
                 raise ValueError('Deadline identity changed')
         else:
-            warning, hard = LIMITS[phase]
             self.value = {'runId': accepted['runId'], 'messageId': accepted['messageId'],
                 'phase': phase, 'started_at': started_at, 'start_source': start_source,
                 'reminder_at': started_at + warning, 'hard_deadline_at': started_at + hard,
@@ -53,16 +65,18 @@ class ReviewDeadline:
             return
         now = self.clock()
         elapsed = self.alive_elapsed() if self.alive_elapsed is not None else now-value['started_at']
-        warning, hard = LIMITS[value['phase']]
+        warning, hard = value['reminder_after_seconds'], value['interrupt_after_seconds']
         if elapsed >= hard:
             operation, field, payload = 'interrupt_agent', 'interrupt', {}
         elif elapsed >= warning:
             remaining=max(0, int(hard-elapsed))
+            lead = hard - warning
+            text = REMINDER if lead == REMINDER_LEAD else REMINDER.replace('最多5分钟', f'最多{int(lead)}秒')
             if self.alive_elapsed is not None:
-                message=REMINDER+f' 按审核工作时间累计，当前剩余{remaining}秒；停机和休眠期间暂停计时。'
+                message=text+f' 按审核工作时间累计，当前剩余{remaining}秒；停机和休眠期间暂停计时。'
             else:
                 until = datetime.fromtimestamp(value['hard_deadline_at'], timezone.utc).isoformat()
-                message = REMINDER + f' 硬截止为{until}，当前剩余{remaining}秒。'
+                message = text + f' 硬截止为{until}，当前剩余{remaining}秒。'
             operation, field, payload = 'send_message', 'reminder', {'message': message}
         else:
             return

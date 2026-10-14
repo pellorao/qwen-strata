@@ -117,6 +117,40 @@ class ReviewDeadlineTests(unittest.TestCase):
             self.assertEqual(len(machine.calls),1)
             alive[0]=3600;timer.advance(machine,observation())
             self.assertEqual(machine.calls[-1][0],'interrupt_agent')
+    def test_selection_limit_keeps_five_minute_lead_and_survives_restore(self):
+        with tempfile.TemporaryDirectory() as directory:
+            now = [599]
+            accepted = {'runId': 'run', 'messageId': 'limited'}
+            timer = ReviewDeadline(directory, accepted, 0, clock=lambda: now[0], limit_seconds=900)
+            machine = Machine(); timer.advance(machine, observation())
+            self.assertEqual(machine.calls, [])
+            now[0] = 600; timer.advance(machine, observation())
+            self.assertIn('最多5分钟', machine.calls[0][1]['message'])
+            restored = ReviewDeadline(directory, accepted, 0, clock=lambda: 900, limit_seconds=900)
+            restored.advance(machine, observation())
+            self.assertEqual(machine.calls[-1][0], 'interrupt_agent')
+            with self.assertRaises(ValueError):
+                ReviewDeadline(directory, accepted, 0, limit_seconds=1200)
+
+    def test_short_limit_warns_at_half_and_states_the_real_lead(self):
+        with tempfile.TemporaryDirectory() as directory:
+            now = [239]
+            timer = ReviewDeadline(directory, {'runId': 'run', 'messageId': 'short'},
+                0, clock=lambda: now[0], limit_seconds=480)
+            machine = Machine(); timer.advance(machine, observation())
+            self.assertEqual(machine.calls, [])
+            now[0] = 240; timer.advance(machine, observation())
+            message = machine.calls[0][1]['message']
+            self.assertIn('最多240秒', message); self.assertNotIn('5分钟', message)
+            now[0] = 480; timer.advance(machine, observation())
+            self.assertEqual(machine.calls[-1][0], 'interrupt_agent')
+
+    def test_invalid_limit_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for bad in (0, -5, '900', True):
+                with self.assertRaises(ValueError):
+                    ReviewDeadline(directory, {'runId': 'run', 'messageId': 'bad'}, 0, limit_seconds=bad)
+
 
 if __name__ == '__main__':
     unittest.main()

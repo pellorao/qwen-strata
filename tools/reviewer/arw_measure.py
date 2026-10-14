@@ -275,9 +275,10 @@ def observe_review(machine,record,folder,*,continuation_start_timeout=120):
         work_clock.set_working(True,phase_start)
     elif not work_clock.events[-1]['alive']:
         work_clock.set_working(True,time.time(),estimated=True)
-    deadline=ReviewDeadline(folder,record['accepted'],phase_start,
-        phase='revision' if record.get('revisions') else 'initial',
-        work_elapsed=lambda:work_clock.elapsed(phase_start,time.time()))
+    phase='revision' if record.get('revisions') else 'initial'
+    deadline=ReviewDeadline(folder,record['accepted'],phase_start,phase=phase,
+        work_elapsed=lambda:work_clock.elapsed(phase_start,time.time()),
+        limit_seconds=record.get('selection',{}).get('review_time_limit_seconds') if phase=='initial' else None)
     arw_owned=record.get('selection',{}).get('model_owner')=='arw'
     native_start=None
     while True:
