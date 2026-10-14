@@ -1,0 +1,64 @@
+{
+  "schema": "arw-dimension-v1",
+  "host": "rtx3080ti",
+  "model": "IQ3_XXS",
+  "reviewer": "spec-readiness-reviewer",
+  "authorization": {
+    "approved": true,
+    "source": "用户 2026-10-14：已完成场景的 Q3 评分以后作为基线，同意在新版 Strata 上重测 Spec Readiness 10 次（docs/plan.md「Spec Readiness 基线重测」）",
+    "scope": "Spec Readiness v4.1（冻结夹具与 v4.1 键不变）基线重测：IQ3_XXS ×10（每次 RM、AP 各一个全新根线程），effort=high；Opus 不重跑，沿用 v0.1.42 报告的 medium ×3（v4.1 键）；不部署条件，用已部署默认值",
+    "extra_runs": "目标 10 次在开跑前写定，不按中途结果决定停止；全部 10 次为正式结果（前 5 次另列，便于与 v0.1.42 原定样本对照）"
+  },
+  "method": "arw_dimension prepare 准备冻结 ARW（manifest.json 含 spec-readiness-v2/v3/v4/v4.1 补丁）并预检 → ARW 持有模型，arw_measure 按交接顺序运行（RM、AP 交替，各自全新根线程）→ 服务日志 budget 行核对生效值（high：budget 8192 (max 24576)）→ score-completed 与盲化裁决 → 会话检查。 工作时间从 ARW measurement.startedAt 起算（394539c），不含模型加载。第一批验证引擎常驻修复（cold-start.json、批前 strata.exe、引擎日志 engine started）。",
+  "fixed_conditions": {
+    "strata": "0.1.44.1",
+    "codex": "0.162.0",
+    "effort": "high",
+    "effort_reason": "与 ARW 原生 agent-cli 配置（model_reasoning_effort=\"high\"）及 F6 基线一致",
+    "context_window": 206584,
+    "auto_compact_token_limit": 150000,
+    "engine_defaults": "config/deployments/rtx3080ti.json 的安装默认值（ecdd132 起 IQ3_XXS 首档 206584/150000）：high 思考 8192、总输出 24576；guardian 512/1024；IQ3_XXS spec 4、ple-io direct、STRATA_ADAPT_LAG 2。每批绑定部署后 config/deployment.json 与模型配置的 SHA（开跑时记录实际值）",
+    "startup_instructions": "config/prompts/startup-instructions.txt（源 SHA 5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e，去掉防循环段），compact-prompt.txt（3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af）接入；开跑前核对已安装 SHA",
+    "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
+    "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
+    "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest.json",
+    "scenario": "Spec Readiness v4.1（SCENARIO_REVISIONS spec-readiness-reviewer 44；manifest.json 依次叠加 spec-readiness-v2、-v3、-v4、-v4.1 补丁，expected.json sha256 3093980fc37278abd16a935cd10d143dbcbab19435671bdee7e7fd2f13c3526f）",
+    "scoring": "能力验证口径：完全按 ARW 原版罚分",
+    "baseline_confounds": "与 v0.1.42 v4 报告对照的混杂：Strata 0.1.42→0.1.44.1；默认上下文档 156584/100000→206584/150000；主机状态（v0.1.42 时 BIOS 1.C0、功耗档 Intel Default Settings，开跑时记录当前值）；冻结源 manifest 增加的 code-spec 补丁只改 code-spec-reviewer 文件"
+  },
+  "codex_thread_id": "b7635f94-ad60-429b-98e7-3ee5c19ba2bb",
+  "dimensions": [
+    {
+      "order": 1,
+      "id": "spec-v41-baseline-0.1.44.1",
+      "default": "effort-high",
+      "reviewer": "spec-readiness-reviewer",
+      "schedule_design": "单条件重复 10 次（目标开跑前写定），按 prepare 命令分四批（A 3、B 2、C 3、D 2，与 v4 相同；每批一次 prepare，arw_measure --limit 取本批交接数 = 次数 × 2），不用 run 子命令（不部署）；报告给前 5 次与全部 10 次的均值、组内标准差与逐用例命中率",
+      "schedule": [
+        "effort-high",
+        "effort-high",
+        "effort-high",
+        "effort-high",
+        "effort-high",
+        "effort-high",
+        "effort-high",
+        "effort-high",
+        "effort-high",
+        "effort-high"
+      ],
+      "conditions": {
+        "effort-high": {
+          "log_present": [
+            "budget 8192 \\(max 24576\\)"
+          ],
+          "log_absent": [
+            "budget 4096 "
+          ]
+        }
+      },
+      "note": "评估：增量盲裁（v4/v4.1 已裁候选不复用：新回答的候选全部新裁，混入 v4 已裁锚点 12 个），会话检查（actions.md、flagged.md 全文）、budget 生效核对、逐用例命中率；逐实例耗时、token、两种口径速度；调参判据两口径 SD ≤ 0.068；相对口径 Q3/Opus（Opus 沿用 v0.1.42 medium ×3 = 0.774，注明版本不同）。"
+    }
+  ],
+  "target_repetitions": 10,
+  "primary_repetitions": 10
+}
