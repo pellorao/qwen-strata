@@ -16,3 +16,5 @@ __pycache__/
 *.log
 # Claude Code personal settings
 /.claude/settings.local.json
+# Status page (data and rendered HTML)
+/.status/
