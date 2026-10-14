@@ -56,8 +56,14 @@ const finding = (text, ...evidence) => ({evidence: lines(...evidence), finding: 
 const half = {...C, judgmentShare: 0.5};
 const first = run(scorerFor([P, Q], [half, D]), []);
 const second = run(scorerFor([R, Q], [half, D, E]), []);
-let unequal;
+let unequal, partial;
 try { core.combineScenarios([first]); } catch (error) { unequal = error.message; }
+// A result without two-part counts, such as ARW's own synthetic test data, counts as all B.
+const plain = run(scorerFor([Q], [D]), [finding('The second problem is present.', 7)]);
+const countKeys = ['bCleanCases', 'bEarnedCleanPoints', 'bEarnedProblemPoints', 'bProblemCases', 'judgmentCases',
+    'judgmentCleanCases', 'judgmentPoints', 'judgmentProblemCases', 'noOtherCases'];
+const stripped = Object.fromEntries(Object.entries(plain).filter(([key]) => !countKeys.includes(key)));
+try { core.combineScenarios([{...stripped, judgmentCases: 0}]); } catch (error) { partial = error.message; }
 const counts = {bCleanCases: 9, bEarnedCleanPoints: 9, bEarnedProblemPoints: 4, bProblemCases: 8, judgmentCases: 4,
     judgmentCleanCases: 2, judgmentPoints: 2, judgmentProblemCases: 2, noOtherCases: 1, totalCleanCases: 11, totalProblemCases: 10};
 console.log(JSON.stringify({
@@ -69,6 +75,9 @@ console.log(JSON.stringify({
     pairFirst: pick(first),
     pair: pick(core.combineScenarios([first, second])),
     unequal,
+    withoutCounts: pick(core.combineScenarios([stripped, stripped])),
+    plain: pick(core.combineScenarios([plain, plain])),
+    partial,
     belowCap: core.twoPartScore(counts),
     noJudgment: core.twoPartScore({...counts, bCleanCases: 11, bEarnedCleanPoints: 11, bEarnedProblemPoints: 5, bProblemCases: 10,
         judgmentCases: 0, judgmentCleanCases: 0, judgmentPoints: 0, judgmentProblemCases: 0}),
@@ -142,6 +151,11 @@ class ScoringUpgradeTests(unittest.TestCase):
         self.assertNotIn('judgmentWarning', pair)
         self.assertIn('unequal in one scoring unit', self.probe['unequal'])
 
+    def test_results_without_two_part_counts_count_as_all_b(self):
+        self.assertEqual(self.probe['withoutCounts'], self.probe['plain'])
+        self.assertEqual(self.probe['withoutCounts']['judgmentWeight'], 0)
+        self.assertIn('incomplete two-part counts', self.probe['partial'])
+
     def test_weight_is_capped_and_negative_totals_become_zero(self):
         self.assertEqual(self.probe['silent']['judgmentWeight'], 0.5)
         self.assertEqual(self.probe['falseClean']['rawScore'], -0.5)
@@ -187,6 +201,33 @@ class ScoringUpgradeTests(unittest.TestCase):
             self.assertEqual(bound['judgment'], 'probe.json')
             self.assertEqual(bound['overlaySha256'], digest(Path(directory) / 'probe.json'))
         upgrade_scoring(self.arw)
+
+    def test_judgment_marks_in_the_answer_key_need_in_key_registration(self):
+        expected = self.arw / 'tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json'
+        original = expected.read_bytes()
+        registry = json.loads((freeze_arw_source.JUDGMENT / 'registry.json').read_text())
+        try:
+            for marks, judgment, message in (((1, 1), 'all-B', 'registered as all-B'), ((1, 0), 'in-key', 'equal, nonzero'),
+                                              ((0, 0), 'in-key', 'equal, nonzero'), ((1, 1), 'in-key', None)):
+                with self.subTest(marks=marks, judgment=judgment), tempfile.TemporaryDirectory() as directory:
+                    marked = json.loads(original)
+                    for kind, count in zip(('problem', 'clean'), marks):
+                        for case in marked['scopes'][0][kind + 'Cases'][:count]:
+                            case['judgment'] = True
+                    expected.write_text(json.dumps(marked))
+                    table = json.loads(json.dumps(registry))
+                    table['code-spec-reviewer'][digest(expected)] = {'version': 'probe', 'judgment': judgment}
+                    (Path(directory) / 'registry.json').write_text(json.dumps(table))
+                    with mock.patch.object(freeze_arw_source, 'JUDGMENT', Path(directory)):
+                        if message:
+                            with self.assertRaisesRegex(ValueError, message):
+                                upgrade_scoring(self.arw)
+                        else:
+                            self.assertEqual(upgrade_scoring(self.arw)['judgment']['code-spec-reviewer'],
+                                             {'judgment': 'in-key', 'expectedSha256': digest(expected)})
+        finally:
+            expected.write_bytes(original)
+            upgrade_scoring(self.arw)
 
 if __name__ == '__main__':
     unittest.main()

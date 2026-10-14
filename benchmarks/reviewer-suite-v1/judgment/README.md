@@ -4,13 +4,13 @@
 
 ## 文件
 
-- `registry.json`：登记表。把每个已知答案键（reviewerId 和 `expected.json` 的 sha256）对应到一个覆盖文件，或写明 `all-B`（全部按 B 计分）。
+- `registry.json`：登记表。把每个已知答案键（reviewerId 和 `expected.json` 的 sha256）对应到一个覆盖文件，或写明 `in-key`（A 类标记直接写在答案键用例的 `judgment: true` 字段）或 `all-B`（全部按 B 计分）。
 - `<场景>.json`：覆盖文件。字段有：
   - `reviewerId`、`expectedSha256`：所标记的答案键。
   - `counts`：正例数和反例数。
   - `cases`：每个 A 类用例的 `scope`、`kind`（`problem` 或 `clean`）、`index`（0 起）、`expectation` 原文和标定理由 `reason`。
 
-计分入口（`tools.reviewer.freeze_arw_source.upgrade_scoring`）会检查副本里的每个答案键。答案键没有登记就报错。覆盖文件与答案键对不上、正反例数不等或 `counts` 不符，也报错。检查通过后，把登记表和所用覆盖文件复制到 `<arw>/reviewer-judgment/`。ARW 加载答案键时再核对一次，并在计分结果的 `judgmentBinding` 里写明所用覆盖文件的名字和 sha256，全 B 时写 `all-B`。
+计分入口（`tools.reviewer.freeze_arw_source.upgrade_scoring`）会检查副本里的每个答案键。答案键没有登记就报错。覆盖文件与答案键对不上、正反例数不等或 `counts` 不符，也报错。登记为 `in-key` 的答案键必须带有标记且正反数相等；没登记为 `in-key` 的答案键带有标记，说明登记与实际不符，同样报错。检查通过后，把登记表和所用覆盖文件复制到 `<arw>/reviewer-judgment/`。ARW 加载答案键时再核对一次，并在计分结果的 `judgmentBinding` 里写明所用覆盖文件的名字和 sha256，标记在答案键里时写 `in-key` 和答案键 sha256，全 B 时写 `all-B`。
 
 新的场景版本（包括草稿）都要先登记才能计分；还没有标定的版本登记为 `all-B`。
 
@@ -31,7 +31,7 @@
 | Code Spec v5 | 全 B | |
 | Commit Audit | 全 B | |
 | 其他已冻结的旧版本 | 全 B | 不再标定 |
-| Code Standards | 由场景 worker 登记 | |
+| Code Standards | 由场景 worker 登记 | v5 草稿修订 22 为 `in-key`（12:12） |
 
 ### Spec Readiness：留给 v4.2 的判定
 

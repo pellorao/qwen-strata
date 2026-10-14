@@ -73,7 +73,7 @@ JUDGMENT = Path(__file__).resolve().parents[2] / 'benchmarks/reviewer-suite-v1/j
 FIXTURES = 'tests/fixtures/reviewer-capability'
 SCORING_UPGRADE = {
     'file': 'scoring-f2.patch',
-    'sha256': '4e0f732b214e81686b565be2d030b4391dd41be4df819c6d87a885b305467913',
+    'sha256': '25573a2edb6b4a23cf2ea00e0d9a3541e0b655bac163ad98d825147dd1969056',
     # Members no scenario patch touches: (ARW original, upgraded).
     'members': {
         'lib/release/reviewer-capability-scoring.mjs': (
@@ -81,27 +81,35 @@ SCORING_UPGRADE = {
             '67c1a38e459c7143a92c641be11422c0e47bf22db3e3c60317c3121c6ecd160b'),
         'lib/release/reviewer-capability-verification.mjs': (
             'a5e5a5f32fe87d2b84f55e259ea39db0ba1f7e56a681b96af93710ca7b01d9a1',
-            '48e3d051c8d8c94160c2ee81e1f0c533991ba65d5771fdff6e78735da111c164'),
+            'ae591793e30144cda24a4f28321b6b84d9a24990de30ae46c56afc55eb041056'),
         'docs/agents/reviewer-capability-scoring.md': (
             '8dac785a4dc2eee70949fd02a212b65959039c256fa87f6a3e86c105ec011769',
-            '46177e26430d9b3c311eb32c078bb554d40effb37367ee4b361c6f9340d2c895'),
+            'add4597931e577a86141e6ad18fc5388827ab7120b3f9893100f24e9ee7ba14a'),
         'docs/agents/reviewer-capability-scenarios.md': (
             '5fe9b4e5511416a4af636baa67b812bf46f627710b75b1285e6c49758fdb909b',
             'd0d333cbd08adf5f3bb248a45fdf3fb3546047a5d3195326d63c69f6ab7b3c2a')},
     # Scenario patches also change this member, so its upgrade is checked by reverse application.
     'patched_member': 'lib/release/reviewer-capability-conformance.mjs',
-    # Earlier drafts, recognized by the scoring module they leave behind; a copy still carrying one is
-    # reverted before the current upgrade. r1 and r2 carried paired cases (withdrawn 2026-10-15);
-    # r3 had evidence F2 only, before the two-part score (user 2026-10-15); r4 bound overlays without a registry.
+    # Earlier drafts, recognized by the scoring and verification modules they leave behind; a copy still
+    # carrying one is reverted before the current upgrade. r1 and r2 carried paired cases (withdrawn
+    # 2026-10-15); r3 had evidence F2 only, before the two-part score (user 2026-10-15); r4 bound overlays
+    # without a registry; r5 had no in-key registration and rejected results without two-part counts.
     'superseded': {
-        '6d317e629d35bd732d0adf50427e2b9ec79f67df4370d636ba73bc8be383c230': (
+        ('6d317e629d35bd732d0adf50427e2b9ec79f67df4370d636ba73bc8be383c230',
+         'a5e5a5f32fe87d2b84f55e259ea39db0ba1f7e56a681b96af93710ca7b01d9a1'): (
             'superseded/scoring-f2-r1-pairs.patch', 'eca2b547d73091244592aa7adf2fa7efbc1f38476f4847f58fc9a2a2477fd8e7'),
-        'dfffb39933527ad30d40ea0ccd83d47be4654fe6a751bf21dc2a7c47eade775b': (
+        ('dfffb39933527ad30d40ea0ccd83d47be4654fe6a751bf21dc2a7c47eade775b',
+         'a5e5a5f32fe87d2b84f55e259ea39db0ba1f7e56a681b96af93710ca7b01d9a1'): (
             'superseded/scoring-f2-r2-pairs.patch', 'df85dcad195d5193dd71b833e5dc380b1899fb71b88d618d136c5d88f53cc3fe'),
-        '4a618270a9ae49d63b2b64714fc7c5dd42aef35c94f68ac60bf87f606740a8b1': (
+        ('4a618270a9ae49d63b2b64714fc7c5dd42aef35c94f68ac60bf87f606740a8b1',
+         'a5e5a5f32fe87d2b84f55e259ea39db0ba1f7e56a681b96af93710ca7b01d9a1'): (
             'superseded/scoring-f2-r3.patch', '0f31a0370ac1628b6230ad92c75286c524d6ff06e610780f82b3759d1b0614e0'),
-        '134b9e00bdf72a9cf7596900a54d6c0e22615c53e6a8a9c9a17d788c81a1869f': (
-            'superseded/scoring-f2-r4.patch', '855004abacbff41880bd26a93efb10620bd1e4a92b0ff4af625d6201db4985b9')}}
+        ('134b9e00bdf72a9cf7596900a54d6c0e22615c53e6a8a9c9a17d788c81a1869f',
+         'f06d74b68a803ab66589eb9e2158c7356447e39485242933e4c93f6a41b2c41f'): (
+            'superseded/scoring-f2-r4.patch', '855004abacbff41880bd26a93efb10620bd1e4a92b0ff4af625d6201db4985b9'),
+        ('67c1a38e459c7143a92c641be11422c0e47bf22db3e3c60317c3121c6ecd160b',
+         '48e3d051c8d8c94160c2ee81e1f0c533991ba65d5771fdff6e78735da111c164'): (
+            'superseded/scoring-f2-r5.patch', '4e0f732b214e81686b565be2d030b4391dd41be4df819c6d87a885b305467913')}}
 
 
 def git_apply(patch, destination, *options, check=True):
@@ -121,7 +129,8 @@ def pinned_patch(name, digest):
 
 def judgment_binding(destination):
     """Bind every answer key in this copy through judgment/registry.json, which maps each known
-    reviewer and expected.json sha256 to its judgment overlay or to all-B. An unregistered key, an
+    reviewer and expected.json sha256 to its judgment overlay, to in-key (marks written in the key) or
+    to all-B. An unregistered key, judgment marks in a key not registered as in-key, an
     overlay that does not match its key case by case, or unequal judgment problem and clean cases stops
     the upgrade. Returns the files to copy into the ARW copy and the binding of each reviewer."""
     registry_raw = (JUDGMENT / 'registry.json').read_bytes()
@@ -132,6 +141,17 @@ def judgment_binding(destination):
         entry = registry.get(reviewer, {}).get(digest)
         if entry is None:
             raise ValueError(f'Answer key {digest} of {reviewer} is not registered in judgment/registry.json')
+        scopes = {scope['scope']: scope for scope in json.loads(expected_path.read_text())['scopes']}
+        marked = {kind: sum(case.get('judgment') is True for scope in scopes.values() for case in scope.get(kind + 'Cases', []))
+                  for kind in ('problem', 'clean')}
+        if entry['judgment'] == 'in-key':
+            # The judgment marks are written in the answer key itself.
+            if marked['problem'] == 0 or marked['problem'] != marked['clean']:
+                raise ValueError(f'Answer key {digest} of {reviewer} must hold equal, nonzero judgment problem and clean cases')
+            bound[reviewer] = {'judgment': 'in-key', 'expectedSha256': digest}
+            continue
+        if marked['problem'] or marked['clean']:
+            raise ValueError(f"Answer key {digest} of {reviewer} marks judgment cases but is registered as {entry['judgment']}")
         if entry['judgment'] == 'all-B':
             bound[reviewer] = {'judgment': 'all-B', 'expectedSha256': digest}
             continue
@@ -140,7 +160,6 @@ def judgment_binding(destination):
         overlay = json.loads(raw)
         if overlay['reviewerId'] != reviewer or overlay['expectedSha256'] != digest:
             raise ValueError(f'Judgment overlay {path.name} is not bound to answer key {digest} of {reviewer}')
-        scopes = {scope['scope']: scope for scope in json.loads(expected_path.read_text())['scopes']}
         seen, counts = set(), {'problem': 0, 'clean': 0}
         for item in overlay['cases']:
             cases = scopes[item['scope']][item['kind'] + 'Cases'] if item['scope'] in scopes else []
@@ -186,7 +205,8 @@ def upgrade_scoring(destination):
     members = SCORING_UPGRADE['members']
     scoring_module = 'lib/release/reviewer-capability-scoring.mjs'
     migrated = None
-    draft = SCORING_UPGRADE['superseded'].get(sha((destination / scoring_module).read_bytes()))
+    draft = SCORING_UPGRADE['superseded'].get(tuple(sha((destination / name).read_bytes()) for name in (
+        scoring_module, 'lib/release/reviewer-capability-verification.mjs')))
     if draft:
         git_apply(pinned_patch(*draft), destination, '--reverse')
         shutil.rmtree(destination / 'reviewer-pairs', ignore_errors=True)

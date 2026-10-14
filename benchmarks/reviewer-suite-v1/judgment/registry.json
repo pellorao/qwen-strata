@@ -6,7 +6,9 @@
     "32bafcb591cd3629f0456963f227ced2ff0b332a956c0efe7b72567c5e4471c6": {"version": "Code Spec v5", "judgment": "all-B"}
   },
   "code-standards-reviewer": {
-    "b84993577e24750525c5edee29e845f9118d5b302c5421e3f2ba5756ffed852b": {"version": "ARW 原版", "judgment": "all-B"}
+    "b84993577e24750525c5edee29e845f9118d5b302c5421e3f2ba5756ffed852b": {"version": "ARW 原版", "judgment": "all-B"},
+    "4380e9ea14c16cb95754072e1029177d3d7cd02d26d88e3b941cb81961679ce6": {"version": "Code Standards v5 草稿修订 21 trial 键（不含 A 类标记，A 类人工统计）", "judgment": "all-B"},
+    "7facf4e6ce38988f3484d1ce644f4c266dab8ae9d63df80846ada4e56cdf7077": {"version": "Code Standards v5 草稿修订 22（A 类 12:12 直接写在答案键的 judgment 字段）", "judgment": "in-key"}
   },
   "commit-audit-reviewer": {
     "bdb1752fd3590fae05fc840bc4ad36943a3d2bade39a9d9bb4d99962a52a6789": {"version": "ARW 原版", "judgment": "all-B"}

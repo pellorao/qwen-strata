@@ -39,7 +39,7 @@
  对每次重复, 报告 `fullProblemCases`, `earnedProblemPoints`, `totalProblemCases`, `earnedCleanPoints`, `passedCleanCases` 和 `totalCleanCases`. 计算 `problemDetectionRate = earnedProblemPoints / totalProblemCases` 和 `cleanAcceptanceRate = earnedCleanPoints / totalCleanCases`. 使用 `score = 5 * problemDetectionRate * cleanAcceptanceRate / (4 * cleanAcceptanceRate + problemDetectionRate)` 组合两者. 任一比率为 0 时该重复分数为 0. 该 F2 分数更重视问题发现率, 同时惩罚误报. `fullProblemCases` 和 `passedCleanCases` 只计算分数精确为 `1` 的用例, 这两个计数都不驱动比率.
  
 -每个 Reviewer 的 `repetitionScores` 保存 3 个折减前 F2 分数, 其算术平均值是折减前分数 `scoreBeforePenalty`. 对每次重复, 该重复任一实例存在表示格式错误, 错误的来源或证据引用, 缺失要求, 重复或拆分要求记录, 或违反适用检查停止规则时, 把该重复的原始分数乘以 `0.9`. 同一重复内多项错误或多类错误只折减一次, 没有这些错误时保留原分数. 普通漏报, 误报及证据覆盖不足按逐用例规则失分, 不仅因判断错误而额外触发折减. Spec Readiness 同序两个场景先合并用例计算 F2, 再对该重复最多折减一次. `finalRepetitionScores` 保存 3 个已调整分数, 其算术平均值 `score` 是唯一权威分数. 能力通过只要求 `score >= 0.75`; 单次重复, 问题发现率和干净接受率没有独立门槛.
-+本工程计分升级 (两类计分): 答案键可以把问题用例或普通干净用例标为判断题 (`judgment: true`). 判断题是答错与答对对项目的影响大致相当, 且 main agent 难以验证并拦住错误答案的用例, 例如该不该合并; 每题独立成题, 不与其他用例配对. 冻结场景的标记放在覆盖文件中, 由登记表把每个已知答案键 (Reviewer 与 `expected.json` sha256) 对应到一个覆盖文件或全部按 B 计分; 加载答案键时按范围, 种类, 序号和 `expectation` 原文叠加, 答案键未登记, 覆盖文件对不上或判断题正反例数量不等时报错, 结果中的 `judgmentBinding` 写明所用覆盖文件及其 sha256. 判断题部分 A 从 0 开始, 每题答对加 1, 答错减 1, 最后除以判断题数量, 范围 `-1` 到 `1`, 不截断. 问题用例存在关联且其中最高证据分不低于 `0.5` 时算对, 漏报或定位不足算错; 干净用例在所属检查存在 (干净分不为 0) 且没有误报时算对. 其余用例组成 B 部分, 按上述规则计算 `bProblemDetectionRate`, `bCleanAcceptanceRate` 和它们的 F2 `bScore`. 令 `judgmentWeight = min(0.5, judgmentCases / (totalProblemCases + totalCleanCases - noOtherCases))`, 没有判断题时为 0. 计算 `rawScore = judgmentWeight * judgmentScore + (1 - judgmentWeight) * bScore`, 重复分数 `score = max(0, rawScore)`; 没有判断题时它等于上述 F2. Spec Readiness 同序两个场景的判断题与 B 部分计数同样先合并再计算; 同一判断题在两个场景都计分时, 每次按 `0.5` 份额计, 合并后每题仍是一份. 每个计分单位中判断题正例与反例份额必须相等, Spec Readiness 单个场景的诊断分只给出警告. 格式折减乘在截断后的分数上. 模型失误实例的 B 部分记 0, 每道判断题记为答错. 原有 `problemDetectionRate` 和 `cleanAcceptanceRate` 仍按全部用例计算, 只作明细.
++本工程计分升级 (两类计分): 答案键可以把问题用例或普通干净用例标为判断题 (`judgment: true`). 判断题是答错与答对对项目的影响大致相当, 且 main agent 难以验证并拦住错误答案的用例, 例如该不该合并; 每题独立成题, 不与其他用例配对. 冻结场景的标记放在覆盖文件中, 由登记表把每个已知答案键 (Reviewer 与 `expected.json` sha256) 对应到一个覆盖文件, `in-key` (标记直接写在答案键中) 或 `all-B` (全部按 B 计分); 加载答案键时按范围, 种类, 序号和 `expectation` 原文叠加覆盖文件, 答案键未登记, 未登记为 `in-key` 的答案键自带标记, 覆盖文件对不上或判断题正反例数量不等时报错, 结果中的 `judgmentBinding` 写明登记方式和答案键 sha256, 用覆盖文件时另写其文件名及 sha256. 判断题部分 A 从 0 开始, 每题答对加 1, 答错减 1, 最后除以判断题数量, 范围 `-1` 到 `1`, 不截断. 问题用例存在关联且其中最高证据分不低于 `0.5` 时算对, 漏报或定位不足算错; 干净用例在所属检查存在 (干净分不为 0) 且没有误报时算对. 其余用例组成 B 部分, 按上述规则计算 `bProblemDetectionRate`, `bCleanAcceptanceRate` 和它们的 F2 `bScore`. 令 `judgmentWeight = min(0.5, judgmentCases / (totalProblemCases + totalCleanCases - noOtherCases))`, 没有判断题时为 0. 计算 `rawScore = judgmentWeight * judgmentScore + (1 - judgmentWeight) * bScore`, 重复分数 `score = max(0, rawScore)`; 没有判断题时它等于上述 F2. Spec Readiness 同序两个场景的判断题与 B 部分计数同样先合并再计算; 同一判断题在两个场景都计分时, 每次按 `0.5` 份额计, 合并后每题仍是一份. 每个计分单位中判断题正例与反例份额必须相等, Spec Readiness 单个场景的诊断分只给出警告. 格式折减乘在截断后的分数上. 模型失误实例的 B 部分记 0, 每道判断题记为答错. 原有 `problemDetectionRate` 和 `cleanAcceptanceRate` 仍按全部用例计算, 只作明细.
 +
 +每个 Reviewer 的 `repetitionScores` 保存 3 个折减前重复分数, 其算术平均值是折减前分数 `scoreBeforePenalty`. 对每次重复, 该重复任一实例存在表示格式错误, 错误的来源或证据引用, 缺失要求, 重复或拆分要求记录, 或违反适用检查停止规则时, 把该重复的原始分数乘以 `0.9`. 同一重复内多项错误或多类错误只折减一次, 没有这些错误时保留原分数. 普通漏报, 误报及证据覆盖不足按逐用例规则失分, 不仅因判断错误而额外触发折减. Spec Readiness 同序两个场景先合并用例计算重复分数, 再对该重复最多折减一次. `finalRepetitionScores` 保存 3 个已调整分数, 其算术平均值 `score` 是唯一权威分数. 能力通过只要求 `score >= 0.75`; 单次重复, 问题发现率和干净接受率没有独立门槛.
  
@@ -96,7 +96,7 @@
      if (requirements.problemCount + fullReview.problemCount < MINIMUM_CASE_COUNT
          || requirements.cleanCount + fullReview.cleanCount < MINIMUM_CASE_COUNT) {
          throw new Error(`Spec Readiness capability scenarios require at least ${MINIMUM_CASE_COUNT} combined problem cases and ${MINIMUM_CASE_COUNT} combined clean cases.`);
-@@ -931,6 +946,51 @@
+@@ -931,6 +946,69 @@
      return undefined;
  };
  
@@ -119,13 +119,31 @@
 +    if (!isJsonObject(entry) || typeof entry.judgment !== 'string') {
 +        throw new Error(`Reviewer capability answer key ${expectedSha256} of ${reviewerId} is not registered for judgment cases.`);
 +    }
++    const expected = JSON.parse(expectedSource.toString('utf8'));
++    // Judgment marks written in the answer key itself; the registry must say so ('in-key'), or the key must have none.
++    const keyCounts = {clean: 0, problem: 0};
++    for (const scope of Array.isArray(expected.scopes) ? expected.scopes : []) {
++        for (const kind of /** @type {const} */ (['problem', 'clean'])) {
++            for (const fixtureCase of Array.isArray(scope?.[`${kind}Cases`]) ? scope[`${kind}Cases`] : []) {
++                if (isJsonObject(fixtureCase) && fixtureCase.judgment === true) keyCounts[kind] += 1;
++            }
++        }
++    }
++    if (entry.judgment === 'in-key') {
++        if (keyCounts.problem === 0 || keyCounts.problem !== keyCounts.clean) {
++            throw new Error(`Reviewer capability answer key ${expectedSha256} of ${reviewerId} must hold equal, nonzero judgment problem and clean cases.`);
++        }
++        return {binding: {expectedSha256, judgment: 'in-key'}, source: expectedSource};
++    }
++    if (keyCounts.problem + keyCounts.clean > 0) {
++        throw new Error(`Reviewer capability answer key ${expectedSha256} of ${reviewerId} marks judgment cases but is registered as ${entry.judgment}.`);
++    }
 +    if (entry.judgment === 'all-B') return {binding: {expectedSha256, judgment: 'all-B'}, source: expectedSource};
 +    const overlaySource = await readFile(join(directory, entry.judgment));
 +    const overlay = JSON.parse(overlaySource.toString('utf8'));
 +    if (!isJsonObject(overlay) || overlay.reviewerId !== reviewerId || overlay.expectedSha256 !== expectedSha256 || !Array.isArray(overlay.cases)) {
 +        throw new Error(`Reviewer capability judgment overlay ${entry.judgment} is not bound to its expected fixture.`);
 +    }
-+    const expected = JSON.parse(expectedSource.toString('utf8'));
 +    const counts = {clean: 0, problem: 0};
 +    for (const item of overlay.cases) {
 +        const cases = isJsonObject(item) && (item.kind === 'problem' || item.kind === 'clean')
@@ -148,7 +166,7 @@
  /** @returns {Promise<FixtureDefinition>} */
  const loadFixtureDefinition = async (/** @type {{expectedExtraKeys?: string[], label: string, repositoryRoot: string, reviewerId: string}} */ {expectedExtraKeys = [], label, repositoryRoot, reviewerId}) => {
      const capabilityFixtureRoot = join(repositoryRoot, ...FIXTURE_DIRECTORY_SEGMENTS);
-@@ -948,12 +1008,14 @@
+@@ -948,12 +1026,14 @@
      }
      const scenarioFiles = {...baseFiles, ...candidateFiles};
      const availablePaths = new Set(Object.keys(scenarioFiles));
@@ -165,7 +183,7 @@
  };
  
  const mergeFixtureOverrides = (/** @type {{files: Record<string, string>, label: string, overrides: Record<string, string>}} */ {files, label, overrides}) => {
-@@ -2599,13 +2661,26 @@
+@@ -2599,13 +2679,26 @@
      return bindReportDiagnostics(identity, diagnostics);
  };
  
@@ -382,13 +400,27 @@
  /**
   * @template CandidateType, ArtifactType
   * @param {Array<CapabilityScore<CandidateType, ArtifactType>>} results
-@@ -34,6 +54,14 @@
+@@ -34,6 +54,28 @@
      const totalProblemCases = results.reduce((total, result) => total + result.totalProblemCases, 0);
      const cleanAcceptanceRate = earnedCleanPoints / totalCleanCases;
      const problemDetectionRate = earnedProblemPoints / totalProblemCases;
 +    // Spec Readiness pairs its two scenario instances by adding their counts before scoring, as ARW does.
++    // A result without two-part counts (one not scored by the upgraded scorer) counts as all B; partial counts are an error.
++    const resultCounts = results.map(result => {
++        const fields = /** @type {Record<string, unknown>} */ (/** @type {unknown} */ (result));
++        const present = TWO_PART_COUNT_KEYS.filter(key => fields[key] !== undefined);
++        if (present.length === 0) {
++            return {bCleanCases: result.totalCleanCases, bEarnedCleanPoints: result.earnedCleanPoints,
++                bEarnedProblemPoints: result.earnedProblemPoints, bProblemCases: result.totalProblemCases,
++                judgmentCases: 0, judgmentCleanCases: 0, judgmentPoints: 0, judgmentProblemCases: 0, noOtherCases: 0};
++        }
++        if (present.length !== TWO_PART_COUNT_KEYS.length || present.some(key => !Number.isFinite(fields[key]))) {
++            throw new Error('Reviewer capability score has incomplete two-part counts.');
++        }
++        return /** @type {Record<string, number>} */ (fields);
++    });
 +    const counts = /** @type {TwoPartCounts} */ ({totalCleanCases, totalProblemCases, ...Object.fromEntries(TWO_PART_COUNT_KEYS.map(key => [
-+        key, results.reduce((total, result) => total + /** @type {Record<string, number>} */ (/** @type {unknown} */ (result))[key], 0)]))});
++        key, resultCounts.reduce((total, result) => total + /** @type {Record<string, number>} */ (result)[key], 0)]))});
 +    // A scoring unit holds as many judgment problem cases as clean cases, so reporting everything or nothing scores 0.
 +    if (counts.judgmentProblemCases !== counts.judgmentCleanCases) {
 +        throw new Error('Reviewer capability judgment problem and clean cases are unequal in one scoring unit.');
@@ -397,7 +429,7 @@
      return {
          candidates: results.flatMap(result => result.candidates),
          caseScores: {
-@@ -46,11 +74,11 @@
+@@ -46,11 +88,11 @@
          fullProblemCases,
          passedCleanCases,
          problemDetectionRate,
@@ -412,7 +444,7 @@
      };
  };
  
-@@ -419,6 +447,7 @@
+@@ -419,6 +461,7 @@
      prepareAtomically,
      releaseVerificationResult,
      selectCompletedRepetitions,
