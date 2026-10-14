@@ -4,7 +4,7 @@ This never imports Git history or copies runtime state. Materialization and
 original ARW preparation happen in a separate temporary copy. Project-owned
 compatibility patches listed in the manifest are applied after extraction and
 their results verified; a fresh freeze starts without them. The project's ARW scoring
-upgrade (evidence F2 instead of F3 and paired cases, user 2026-10-14) is applied to every
+upgrade (evidence F2 instead of F3, user 2026-10-14) is applied to every
 materialized copy after the manifest patches, and to an already materialized copy before it scores.
 """
 import argparse
@@ -69,107 +69,66 @@ def freeze(source, destination):
 
 
 PATCHES = Path(__file__).resolve().parents[2] / 'benchmarks/reviewer-suite-v1/arw-patches'
-PAIRS = Path(__file__).resolve().parents[2] / 'benchmarks/reviewer-suite-v1/pairs'
-FIXTURES = Path('tests/fixtures/reviewer-capability')
 SCORING_UPGRADE = {
     'file': 'scoring-f2.patch',
-    'sha256': 'df85dcad195d5193dd71b833e5dc380b1899fb71b88d618d136c5d88f53cc3fe',
-    # Members no scenario patch touches: (ARW original, upgraded). The conformance module differs
-    # per scenario patch, so it is checked by the patch applying, not by its bytes.
+    'sha256': '0f31a0370ac1628b6230ad92c75286c524d6ff06e610780f82b3759d1b0614e0',
+    # Members no scenario patch touches: (ARW original, upgraded).
     'members': {
         'lib/release/reviewer-capability-scoring.mjs': (
             '89a4e6bdc0a47756c28abce013ce6940ebf224e8609ebf809a499c57b85d60c4',
-            'dfffb39933527ad30d40ea0ccd83d47be4654fe6a751bf21dc2a7c47eade775b'),
+            '4a618270a9ae49d63b2b64714fc7c5dd42aef35c94f68ac60bf87f606740a8b1'),
         'docs/agents/reviewer-capability-scoring.md': (
             '8dac785a4dc2eee70949fd02a212b65959039c256fa87f6a3e86c105ec011769',
-            'bba382d823dc4984e794194aea962412c272dee618e1edf80358eb452e11e239'),
+            'ba2e738a59ac9ae17d34e46242dba39e7e7dd5b5b6ed8d612acbbd8be8a92955'),
         'docs/agents/reviewer-capability-scenarios.md': (
             '5fe9b4e5511416a4af636baa67b812bf46f627710b75b1285e6c49758fdb909b',
-            'd0d333cbd08adf5f3bb248a45fdf3fb3546047a5d3195326d63c69f6ab7b3c2a')}}
+            'd0d333cbd08adf5f3bb248a45fdf3fb3546047a5d3195326d63c69f6ab7b3c2a')},
+    # Earlier drafts that also carried paired cases (withdrawn 2026-10-15), recognized by the scoring
+    # module they leave behind; a copy still carrying one is reverted before the current upgrade.
+    'superseded': {
+        '6d317e629d35bd732d0adf50427e2b9ec79f67df4370d636ba73bc8be383c230': (
+            'superseded/scoring-f2-r1-pairs.patch', 'eca2b547d73091244592aa7adf2fa7efbc1f38476f4847f58fc9a2a2477fd8e7'),
+        'dfffb39933527ad30d40ea0ccd83d47be4654fe6a751bf21dc2a7c47eade775b': (
+            'superseded/scoring-f2-r2-pairs.patch', 'df85dcad195d5193dd71b833e5dc380b1899fb71b88d618d136c5d88f53cc3fe')}}
 
 
 def git_apply(patch, destination, *options):
     # Stop repository discovery: inside an enclosing repository git apply resolves paths
     # against that repository and silently skips patches with git headers.
-    return subprocess.run(['git', 'apply', '-p1', *options, str(patch.resolve())], cwd=destination,
-                          check=not options, capture_output=bool(options),
-                          env=dict(os.environ, GIT_CEILING_DIRECTORIES=str(Path(destination).resolve().parent)))
+    subprocess.run(['git', 'apply', '-p1', *options, str(patch.resolve())], cwd=destination, check=True,
+                   env=dict(os.environ, GIT_CEILING_DIRECTORIES=str(Path(destination).resolve().parent)))
 
 
-def check_pairs(table, expected):
-    """Check every pair against the complete answer key: scope, index and expectation on both sides,
-    clean cases in the problem's scope, and no clean case paired with more than one problem case."""
-    scopes = {scope['scope']: scope for scope in expected['scopes']}
-    twins = set()
-
-    def case(ref, kind):
-        scope = scopes.get(ref.get('scope'))
-        index = ref.get('index')
-        cases = scope[kind] if scope else []
-        if not (isinstance(index, int) and 0 <= index < len(cases)
-                and cases[index].get('expectation') == ref.get('expectation')):
-            raise ValueError(f"Pair table {table['scenario']} names a {kind} entry the answer key lacks: {ref}")
-
-    for pair in table['pairs']:
-        case(pair['problem'], 'problemCases')
-        if not pair['clean']:
-            raise ValueError(f"Pair table {table['scenario']} has a problem case without clean cases")
-        for clean in pair['clean']:
-            case(clean, 'cleanCases')
-            key = (clean['scope'], clean['index'])
-            if clean['scope'] != pair['problem']['scope'] or key in twins:
-                raise ValueError(f"Pair table {table['scenario']} pairs clean case {key} outside its scope or twice")
-            twins.add(key)
-
-
-def bind_pair_tables(destination):
-    """Copy in the pair tables bound to this copy's expected.json bytes; returns their names.
-    An unchanged set is left in place; a changed one is staged beside it and swapped in."""
-    target = Path(destination) / 'reviewer-pairs'
-    bound = {}
-    for table_path in sorted(PAIRS.glob('*.json')):
-        table = json.loads(table_path.read_text())
-        expected = Path(destination) / FIXTURES / table['reviewerId'] / 'expected.json'
-        if expected.is_file() and sha(expected.read_bytes()) == table['expectedSha256']:
-            check_pairs(table, json.loads(expected.read_text()))
-            bound[table_path.name] = table_path.read_bytes()
-    current = {path.name: path.read_bytes() for path in target.glob('*')} if target.is_dir() else None
-    if current != (bound or None):
-        staged = target.with_name('reviewer-pairs.staged')
-        retired = target.with_name('reviewer-pairs.retired')
-        for path in (staged, retired):
-            shutil.rmtree(path, ignore_errors=True)
-        if bound:
-            staged.mkdir()
-            for name, raw in bound.items():
-                (staged / name).write_bytes(raw)
-        if target.exists():
-            target.rename(retired)
-        if bound:
-            staged.rename(target)
-        shutil.rmtree(retired, ignore_errors=True)
-    return list(bound)
+def pinned_patch(name, digest):
+    patch = PATCHES / name
+    if sha(patch.read_bytes()) != digest:
+        raise ValueError('Scoring upgrade patch differs: ' + name)
+    return patch
 
 
 def upgrade_scoring(destination):
-    """Bring a materialized copy to the project's scoring rule: evidence F2 and paired cases
-    (user 2026-10-14). Applies the upgrade once and rebinds the pair tables every time."""
-    patch = PATCHES / SCORING_UPGRADE['file']
-    if sha(patch.read_bytes()) != SCORING_UPGRADE['sha256']:
-        raise ValueError('Scoring upgrade patch differs: ' + SCORING_UPGRADE['file'])
+    """Bring a materialized copy to the project's scoring rule (evidence F2, user 2026-10-14).
+    Applies the upgrade once; a copy left by a superseded draft is reverted first."""
+    destination = Path(destination)
     members = SCORING_UPGRADE['members']
-    current = {name: sha((Path(destination) / name).read_bytes()) for name in members}
+    scoring_module = 'lib/release/reviewer-capability-scoring.mjs'
+    migrated = None
+    draft = SCORING_UPGRADE['superseded'].get(sha((destination / scoring_module).read_bytes()))
+    if draft:
+        git_apply(pinned_patch(*draft), destination, '--reverse')
+        shutil.rmtree(destination / 'reviewer-pairs', ignore_errors=True)
+        migrated = draft[0]
+    patch = pinned_patch(SCORING_UPGRADE['file'], SCORING_UPGRADE['sha256'])
+    current = {name: sha((destination / name).read_bytes()) for name in members}
     applied = False
     if not all(current[name] == new for name, (_, new) in members.items()):
         if any(current[name] != old for name, (old, _) in members.items()):
             raise ValueError('ARW scoring members differ from both the original and the upgrade; re-materialize the copy')
         git_apply(patch, destination)
         applied = True
-    elif git_apply(patch, destination, '--reverse', '--check').returncode != 0:
-        raise ValueError('ARW conformance module lacks the scoring upgrade')
-    if any(sha((Path(destination) / name).read_bytes()) != new for name, (_, new) in members.items()):
+    if any(sha((destination / name).read_bytes()) != new for name, (_, new) in members.items()):
         raise ValueError('Upgraded scoring member differs')
-    return {'applied': applied, 'pair_tables': bind_pair_tables(destination)}
+    return {'applied': applied, 'migrated_from': migrated}
 
 
 def materialize(manifest, archive_path, destination, patch_directory=None):

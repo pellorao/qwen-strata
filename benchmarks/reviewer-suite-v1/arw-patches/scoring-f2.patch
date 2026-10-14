@@ -25,94 +25,18 @@
  
  同一 finding 对同一问题用例满足多个允许位置时, 先分别按各位置的完整预期证据计算上述证据分, 选择得分最高的位置; 同分选择声明顺序最早的位置. 结果分不因位置变化而改变. 该 finding 与该用例只形成一次关联, 再参与上述原子性计算, 不因同时命中多个位置受到重复惩罚. 不同 finding 仍分别计入重复问题数量. 这一步发生在单个实例内, 先于重复分数的计算.
  
-@@ -14,7 +14,11 @@
+@@ -14,7 +14,7 @@
  
  ## Clean cases
  
 -干净用例首先获得二元误报分数, 并且只评估未与任何问题用例关联的问题. 每个普通干净用例保留一个必要的主要 `evidence` 集合. 可选的 `evidenceAlternatives` 数组声明直接支持同一个用例的其他完整非空证据集合. 它不得与主要集合或该用例中的其他替代集合重复. 主要集合仍然是从预期已满足的 Commit Audit 要求到对应干净用例的唯一绑定. Commit Audit 的干净观察与误报判断同时保留 Gate 和 requirement 绑定; 同一证据集合支持不同 requirement 时, 一项误报不得影响其他 requirement. 对于普通干净用例, 只有当问题位于相同范围, 其实际证据根据 [Locator matching](reviewer-capability-scenarios.md#locator-matching) 包含任一完整已接受集合中的每个定位信息, 且后续宽松概念确认与预期语义对象匹配时, 问题才以它为目标. 独立评估每个集合, 绝不跨集合合并定位信息. 仅共享文件路径并不足够, 除非该精确的仅含文件路径定位信息是一个已经声明的完整集合. 每个范围包含一个固定的 `no other supported finding` 干净用例. 如果实际范围中仍有任何未关联的问题, 该用例失败. 部分正确, 合并或重复的问题由相应问题用例评分, 不再接受第二项干净用例惩罚. 测试夹具内容不得包含已经批准的问题清单以外的受支持缺陷. 结构化的已满足 Commit Audit 要求还会向相应干净用例提供一项 F3 证据观察. 主要绑定标识该用例后, 分别根据主要集合和每个替代集合独立计算相同的精确定位信息覆盖率和精确率公式, 使用最高分, 不对集合求和或组合, 然后取该观察分数和二元误报分数中的较小值. 缺失, 非数组, 格式错误, 超出范围或无法定位的证据不获得匹配, 但不会成为强制关卡失败. 除上述已确认的空白行外, 所提供的每个证据项仍计入每次比较的精确率分母, 有效行范围中的每个实际行计数一次.
 +干净用例首先获得二元误报分数, 并且只评估未与任何问题用例关联的问题. 每个普通干净用例保留一个必要的主要 `evidence` 集合. 可选的 `evidenceAlternatives` 数组声明直接支持同一个用例的其他完整非空证据集合. 它不得与主要集合或该用例中的其他替代集合重复. 主要集合仍然是从预期已满足的 Commit Audit 要求到对应干净用例的唯一绑定. Commit Audit 的干净观察与误报判断同时保留 Gate 和 requirement 绑定; 同一证据集合支持不同 requirement 时, 一项误报不得影响其他 requirement. 对于普通干净用例, 只有当问题位于相同范围, 其实际证据根据 [Locator matching](reviewer-capability-scenarios.md#locator-matching) 包含任一完整已接受集合中的每个定位信息, 且后续宽松概念确认与预期语义对象匹配时, 问题才以它为目标. 独立评估每个集合, 绝不跨集合合并定位信息. 仅共享文件路径并不足够, 除非该精确的仅含文件路径定位信息是一个已经声明的完整集合. 每个范围包含一个固定的 `no other supported finding` 干净用例. 如果实际范围中仍有任何未关联的问题, 该用例失败. 部分正确, 合并或重复的问题由相应问题用例评分, 不再接受第二项干净用例惩罚. 测试夹具内容不得包含已经批准的问题清单以外的受支持缺陷. 结构化的已满足 Commit Audit 要求还会向相应干净用例提供一项 F2 证据观察. 主要绑定标识该用例后, 分别根据主要集合和每个替代集合独立计算相同的精确定位信息覆盖率和精确率公式, 使用最高分, 不对集合求和或组合, 然后取该观察分数和二元误报分数中的较小值. 缺失, 非数组, 格式错误, 超出范围或无法定位的证据不获得匹配, 但不会成为强制关卡失败. 除上述已确认的空白行外, 所提供的每个证据项仍计入每次比较的精确率分母, 有效行范围中的每个实际行计数一次.
-+
-+## Paired cases
-+
-+外形相似, 实际合规的干净孪生与对应问题用例按对计分. 问题用例可用 `pairedCleanCases` 列出同一范围内干净用例的序号; 冻结场景不改答案键, 改由工程的配对表声明, 配对表按 `expected.json` 的 sha256 绑定, 只复制进对应的物化副本 `reviewer-pairs/`, 每项按范围, 序号和 expectation 原文核对; 只有问题用例所在范围不在本次计分子集内时跳过该项, 其他不一致都报错. 一个干净用例最多与一个问题用例配对. 是否失败只看二元误报分数: 任一配对干净用例被未关联的问题误报时, 该问题用例记 0 分; 干净用例只在证据观察上获得部分分数而没有误报时不算失败, 问题用例保留它的逐用例得分. 没有配对的问题用例和全部干净用例的计分不变. 结构化结果同时给出 `pairing` 明细和不按对计分的 `unpairedScore`, 以及实际绑定的配对表名 `pairTables`; `unpairedScore` 只用于说明影响.
  
  ## Final score
  
---- a/lib/release/reviewer-capability-conformance.mjs
-+++ b/lib/release/reviewer-capability-conformance.mjs
-@@ -381,6 +381,7 @@
-         return {noOtherSupportedFinding: true};
-     }
-     const usesPlacements = kind === 'problem' && Object.hasOwn(entry, 'placements');
-+    const hasPairedCleanCases = kind === 'problem' && Object.hasOwn(entry, 'pairedCleanCases');
-     const hasEvidenceAlternatives = kind === 'clean' && Object.hasOwn(entry, 'evidenceAlternatives');
-     const expectedKeys = kind === 'problem'
-         ? usesPlacements
-@@ -389,7 +390,14 @@
-         : hasEvidenceAlternatives
-             ? ['evidence', 'evidenceAlternatives', 'expectation', 'findingTerms']
-             : ['evidence', 'expectation', 'findingTerms'];
-+    if (hasPairedCleanCases) expectedKeys.push('pairedCleanCases');
-     if (Object.keys(entry).sort().join(',') !== expectedKeys.sort().join(',')
-+        || (hasPairedCleanCases && (
-+            !Array.isArray(entry.pairedCleanCases)
-+            || entry.pairedCleanCases.length === 0
-+            || entry.pairedCleanCases.some(index => !Number.isSafeInteger(index) || index < 0)
-+            || new Set(entry.pairedCleanCases).size !== entry.pairedCleanCases.length
-+        ))
-         || typeof entry.expectation !== 'string'
-         || entry.expectation.trim().length === 0
-         || (!usesPlacements && (!Array.isArray(entry.evidence) || entry.evidence.length === 0))
-@@ -470,6 +478,7 @@
-         ...(evidenceAlternatives === undefined ? {} : {evidenceAlternatives}),
-         expectation: entry.expectation,
-         findingTerms,
-+        ...(hasPairedCleanCases ? {pairedCleanCases: entry.pairedCleanCases.map(cleanCaseIndex => ({cleanCaseIndex, scope}))} : {}),
-         ...(placements === undefined ? {} : {placements}),
-         ...(kind === 'problem' && typeof entry.result === 'string' ? {result: entry.result} : {}),
-     };
-@@ -519,6 +528,15 @@
-         if (cleanCases.filter(entry => entry.noOtherSupportedFinding === true).length !== 1) {
-             throw new Error(`${scopeId} must contain exactly one no-other-supported-finding clean case.`);
-         }
-+        if (problemCases.some(problemCase => problemCase.pairedCleanCases?.some(({cleanCaseIndex}) => (
-+            cleanCases[cleanCaseIndex] === undefined || cleanCases[cleanCaseIndex].noOtherSupportedFinding === true
-+        )))) {
-+            throw new Error(`${scopeId} problem case pairs with a missing or no-other-supported-finding clean case.`);
-+        }
-+        const twins = problemCases.flatMap(problemCase => (problemCase.pairedCleanCases ?? []).map(({cleanCaseIndex}) => cleanCaseIndex));
-+        if (new Set(twins).size !== twins.length) {
-+            throw new Error(`${scopeId} clean case pairs with more than one problem case.`);
-+        }
-         return {cleanCases, problemCases, scope: scopeId};
-     });
-     const problemCount = scopes.reduce((count, scope) => count + scope.problemCases.length, 0);
-@@ -556,6 +574,7 @@
-         evidence: placement.evidence,
-         expectation: problemCase.expectation,
-         findingTerms: problemCase.findingTerms,
-+        ...(problemCase.pairedCleanCases === undefined ? {} : {pairedCleanCases: problemCase.pairedCleanCases}),
-         result: problemCase.result,
-     };
- };
 --- a/lib/release/reviewer-capability-scoring.mjs
 +++ b/lib/release/reviewer-capability-scoring.mjs
-@@ -1,3 +1,4 @@
-+import {readFileSync, readdirSync} from 'node:fs';
- import {isAbsolute} from 'node:path';
- 
- import {normalizeBodyEvidence} from '../common/evidence-locators.mjs';
-@@ -8,7 +9,8 @@
- /** @typedef {Record<string, unknown>} JsonObject */
- /** @typedef {{anchor?: string, filePath: string, line?: number}} FixtureLocator */
- /** @typedef {{associationEvidence: FixtureLocator[], check: string, evidence: FixtureLocator[]}} FixturePlacement */
--/** @typedef {{associationEvidence?: FixtureLocator[], evidence?: FixtureLocator[], evidenceAlternatives?: FixtureLocator[][], expectation?: string, findingTerms?: Array<string | string[]>, noOtherSupportedFinding?: boolean, placements?: FixturePlacement[], requirementSource?: string, result?: string}} FixtureCase */
-+/** @typedef {{cleanCaseIndex: number, scope: string}} PairedCleanCase */
-+/** @typedef {{associationEvidence?: FixtureLocator[], evidence?: FixtureLocator[], evidenceAlternatives?: FixtureLocator[][], expectation?: string, findingTerms?: Array<string | string[]>, noOtherSupportedFinding?: boolean, pairedCleanCases?: PairedCleanCase[], placements?: FixturePlacement[], requirementSource?: string, result?: string}} FixtureCase */
- /** @typedef {{cleanCases: FixtureCase[], problemCases: FixtureCase[], scope: string}} FixtureScope */
- /** @typedef {{cleanCount: number, problemCount: number, scopes: FixtureScope[]}} ExpectedFixture */
- /** @typedef {{check: string, findings?: Finding[], result: string}} ReviewCheck */
-@@ -76,11 +78,11 @@
+@@ -76,11 +76,11 @@
      return ((1 + betaSquared) * precision * recall) / (betaSquared * precision + recall);
  };
  
@@ -126,7 +50,7 @@
      evidenceMatcher.matchRates({actual, expected}),
  );
  
-@@ -99,7 +101,7 @@
+@@ -99,7 +99,7 @@
              throw new TypeError('Reviewer capability clean observation binding is invalid.');
          }
          const points = observation.satisfied
@@ -135,83 +59,7 @@
                  actual: observation.actualEvidence,
                  expected: expectedEvidence,
                  evidenceMatcher,
-@@ -110,6 +112,75 @@
-     return scores;
- };
- 
-+// Pair tables for frozen fixtures; the project copies in only the tables bound to this copy's expected.json.
-+const PAIR_TABLE_DIRECTORY = new URL('../../reviewer-pairs/', import.meta.url);
-+
-+const pairTables = (/** @type {string} */ reviewerId) => {
-+    /** @type {string[]} */
-+    let names;
-+    try {
-+        names = readdirSync(PAIR_TABLE_DIRECTORY).filter(name => name.endsWith('.json')).sort(compareText);
-+    } catch (error) {
-+        if (/** @type {{code?: string}} */ (error).code === 'ENOENT') return [];
-+        throw error;
-+    }
-+    return names.flatMap(name => {
-+        const table = JSON.parse(readFileSync(new URL(name, PAIR_TABLE_DIRECTORY), 'utf8'));
-+        return isJsonObject(table) && table.reviewerId === reviewerId ? [{name, table}] : [];
-+    });
-+};
-+
-+// A table names each case by scope, index and expectation. Only a problem case whose scope this scored
-+// subset lacks is skipped (Spec Readiness scores its sub-scenarios apart); any other mismatch is an error.
-+const withPairTables = (/** @type {{expected: ExpectedFixture, reviewerId: string}} */ {expected, reviewerId}) => {
-+    const tables = pairTables(reviewerId);
-+    const scopes = expected.scopes.map(scope => ({...scope, problemCases: [...scope.problemCases]}));
-+    const mismatch = () => new TypeError('Reviewer capability pair table names a case this fixture does not have.');
-+    for (const pair of tables.flatMap(({table}) => Array.isArray(table.pairs) ? table.pairs : [])) {
-+        const problem = isJsonObject(pair) ? pair.problem : undefined;
-+        if (!isJsonObject(problem) || typeof problem.scope !== 'string') throw mismatch();
-+        const scope = scopes.find(candidate => candidate.scope === problem.scope);
-+        if (scope === undefined) continue;
-+        const index = /** @type {number} */ (problem.index);
-+        if (!Number.isSafeInteger(index) || scope.problemCases[index]?.expectation !== problem.expectation
-+            || !Array.isArray(pair.clean) || pair.clean.length === 0) throw mismatch();
-+        const pairedCleanCases = pair.clean.map((/** @type {unknown} */ clean) => {
-+            if (!isJsonObject(clean) || clean.scope !== scope.scope || !Number.isSafeInteger(clean.index)
-+                || scope.cleanCases[/** @type {number} */ (clean.index)]?.expectation !== clean.expectation) throw mismatch();
-+            return {cleanCaseIndex: /** @type {number} */ (clean.index), scope: scope.scope};
-+        });
-+        if (scope.problemCases[index].pairedCleanCases !== undefined) {
-+            throw new TypeError('Reviewer capability problem case is paired twice.');
-+        }
-+        scope.problemCases[index] = {...scope.problemCases[index], pairedCleanCases};
-+    }
-+    const twins = scopes.flatMap(scope => scope.problemCases.flatMap(problemCase => (problemCase.pairedCleanCases ?? [])
-+        .map(({cleanCaseIndex}) => `${scope.scope}#${cleanCaseIndex}`)));
-+    if (new Set(twins).size !== twins.length) {
-+        throw new TypeError('Reviewer capability clean case is paired with more than one problem case.');
-+    }
-+    return {expected: {...expected, scopes}, pairTables: tables.map(({name}) => name)};
-+};
-+
-+// A paired problem case earns its points only when no finding falsely flags any paired clean twin.
-+// The clean twin's own evidence observation does not decide this.
-+const pairProblemScores = (/** @type {{expected: ExpectedFixture, falseFindingScores: number[][], problemCases: ProblemCaseEntry[], problemScores: number[]}} */ {expected, falseFindingScores, problemCases, problemScores}) => {
-+    const falseFindingsByScope = new Map(expected.scopes.map((scope, index) => [scope.scope, falseFindingScores[index] ?? []]));
-+    const pairing = problemCases.flatMap((entry, index) => {
-+        const pairedCleanCases = entry.problemCase.pairedCleanCases;
-+        if (pairedCleanCases === undefined) return [];
-+        if (pairedCleanCases.some(({scope}) => !falseFindingsByScope.has(scope))) {
-+            throw new TypeError('Reviewer capability paired clean case is outside the scored scopes.');
-+        }
-+        const twinsPass = pairedCleanCases.every(({cleanCaseIndex, scope}) => falseFindingsByScope.get(scope)?.[cleanCaseIndex] === 1);
-+        return [{index, pairedCleanCases, problemCaseIndex: entry.problemCaseIndex, scope: entry.scope, twinsPass,
-+            unpairedScore: problemScores[index], score: twinsPass ? problemScores[index] : 0}];
-+    });
-+    const scores = [...problemScores];
-+    for (const {index, score} of pairing) scores[index] = score;
-+    return {pairing: pairing.map(({index, ...rest}) => rest), scores};
-+};
-+
- const textCandidateId = (/** @type {{actual: ActualFinding, instanceId: string, problemCaseIndex: number, reviewerId: string, scopeIndex: number}} */ {actual, instanceId, problemCaseIndex, reviewerId, scopeIndex}) => [
-     reviewerId,
-     instanceId,
-@@ -190,7 +261,7 @@
+@@ -190,7 +190,7 @@
              if (adjudicationDecisions.get(candidateId) !== 'matched') continue;
              const bestPlacement = matchingPlacements.map(placement => ({
                  placement,
@@ -220,118 +68,3 @@
                      actual: actualEvidence,
                      expected: placement.evidence,
                      evidenceMatcher,
-@@ -253,22 +324,25 @@
- }) => {
-     /** @type {number[][]} */
-     const clean = [];
-+    /** @type {number[][]} */
-+    const falseFindings = [];
-     const scopes = expected.scopes.map(expectedScope => {
-         const unassociatedFindingIndexes = actualFindings.flatMap((actual, index) => (
-             actual.check === expectedScope.scope && (associationsByFinding[index]?.length ?? 0) === 0 ? [index] : []
-         ));
-         const observationScores = cleanObservationScores.get(expectedScope.scope) ?? new Map();
--        const cleanCaseScores = expectedScope.cleanCases.map((cleanCase, cleanCaseIndex) => {
--            const falseFindingScore = cleanCasePasses({
--                actualFindings,
--                cleanCase,
--                evidenceMatcher,
--                unassociatedFindingIndexes,
--            }) ? 1 : 0;
-+        const falseFindingScores = expectedScope.cleanCases.map(cleanCase => cleanCasePasses({
-+            actualFindings,
-+            cleanCase,
-+            evidenceMatcher,
-+            unassociatedFindingIndexes,
-+        }) ? 1 : 0);
-+        const cleanCaseScores = falseFindingScores.map((falseFindingScore, cleanCaseIndex) => {
-             const observationScore = observationScores.get(cleanCaseIndex);
-             return observationScore === undefined ? falseFindingScore : Math.min(falseFindingScore, observationScore);
-         });
-         clean.push(cleanCaseScores);
-+        falseFindings.push(falseFindingScores);
-         const ownedScores = problemCases.flatMap((entry, index) => entry.scope === expectedScope.scope
-             ? [problemScores[index] ?? 0]
-             : []);
-@@ -282,7 +356,7 @@
-             totalProblemCases: expectedScope.problemCases.length,
-         };
-     });
--    return {clean, scopes};
-+    return {clean, falseFindings, scopes};
- };
- 
- const scoreExpectedScopes = (/** @type {{adjudicationDecisions?: Map<string, string>, checks: ReviewCheck[], cleanObservationScores?: Map<string, Map<number, number>>, evidenceMatcher: EvidenceMatcher, expected: ExpectedFixture, instanceId: string, reviewerId: string}} */ {
-@@ -306,16 +380,11 @@
-     });
-     const associationsByCase = associationsByIndex({associations, count: problemCases.length, key: 'caseIndex'});
-     const associationsByFinding = associationsByIndex({associations, count: actualFindings.length, key: 'findingIndex'});
--    const problemScores = scoreProblemCases({associationsByCase, associationsByFinding});
--    const scoped = scoreScopes({
--        actualFindings,
--        associationsByFinding,
--        cleanObservationScores,
--        evidenceMatcher,
--        expected,
--        problemCases,
--        problemScores,
--    });
-+    const unpairedProblemScores = scoreProblemCases({associationsByCase, associationsByFinding});
-+    const scopeInput = {actualFindings, associationsByFinding, cleanObservationScores, evidenceMatcher, expected, problemCases};
-+    const unpaired = scoreScopes({...scopeInput, problemScores: unpairedProblemScores});
-+    const {pairing, scores: problemScores} = pairProblemScores({expected, falseFindingScores: unpaired.falseFindings, problemCases, problemScores: unpairedProblemScores});
-+    const scoped = scoreScopes({...scopeInput, problemScores});
-     const scopes = scoped.scopes;
-     const earnedProblemPoints = problemScores.reduce((total, points) => total + points, 0);
-     const fullProblemCases = problemScores.filter((/** @type {number} */ points) => Math.abs(points - 1) < Number.EPSILON * 8).length;
-@@ -323,6 +392,7 @@
-     const passedCleanCases = scopes.reduce((count, scope) => count + scope.passedCleanCases, 0);
-     const problemDetectionRate = earnedProblemPoints / expected.problemCount;
-     const cleanAcceptanceRate = earnedCleanPoints / expected.cleanCount;
-+    const unpairedProblemDetectionRate = unpairedProblemScores.reduce((total, points) => total + points, 0) / expected.problemCount;
-     return {
-         candidates,
-         caseScores: {clean: scoped.clean, problem: problemScores},
-@@ -330,6 +400,7 @@
-         earnedCleanPoints,
-         earnedProblemPoints,
-         fullProblemCases,
-+        pairing,
-         passedCleanCases,
-         problemDetectionRate,
-         score: fBetaScore({
-@@ -341,6 +412,8 @@
-         semanticProblemHits: associations.length,
-         totalCleanCases: expected.cleanCount,
-         totalProblemCases: expected.problemCount,
-+        unpairedProblemDetectionRate,
-+        unpairedScore: fBetaScore({beta: 2, precision: cleanAcceptanceRate, recall: unpairedProblemDetectionRate}),
-     };
- };
- 
-@@ -374,7 +447,7 @@
-     if ([...sources].some(([filePath, source]) => typeof filePath !== 'string' || filePath.length === 0 || typeof source !== 'string')) {
-         throw new TypeError('Reviewer capability scenario scorer evidence sources are invalid.');
-     }
--    const boundExpected = /** @type {ExpectedFixture} */ (cloneJsonValue(expected));
-+    const {expected: boundExpected, pairTables: boundPairTables} = withPairTables({expected: /** @type {ExpectedFixture} */ (cloneJsonValue(expected)), reviewerId});
-     const bodyLineEvidence = reviewerId === 'spec-readiness-reviewer';
-     const normalizeEvidence = (/** @type {unknown[]} */ evidence) => {
-         try {
-@@ -468,7 +541,7 @@
-                 return {...finding, evidence};
-             }),
-         } : {})})) : boundChecks);
--        return scoreExpectedScopes({
-+        return {...scoreExpectedScopes({
-             adjudicationDecisions,
-             checks: normalizedChecks.map(check => ({
-                 check: /** @type {string} */ (check.check),
-@@ -484,6 +557,6 @@
-             expected: normalizedExpected,
-             instanceId,
-             reviewerId,
--        });
-+        }), pairTables: boundPairTables};
-     };
- };
