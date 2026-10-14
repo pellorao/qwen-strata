@@ -34,19 +34,24 @@ def bodies(text, max_tokens=MAX_TOKENS):
 
 
 def rates(records, material_bytes):
-    """The last two engine records are the baseline and the material request, in that order."""
+    """The first engine record is the baseline; every later one is a segment of the material request.
+
+    Strata splits a long reply into segments that each log a record (the later ones reuse the cached prompt),
+    so P and G sum over all material segments."""
     if len(records) < 2:
         raise ValueError('Probe needs the baseline and the material engine records')
-    baseline, probe = records[-2], records[-1]
-    material_tokens = probe['input'] - baseline['input']
-    if material_tokens <= 0 or probe['prompt_ms'] <= 0 or probe['decode_ms'] <= 0 or probe['output'] <= 0:
+    baseline, segments = records[0], records[1:]
+    material_tokens = segments[0]['input'] - baseline['input']
+    read, prompt_ms = sum(r['uncached'] for r in segments), sum(r['prompt_ms'] for r in segments)
+    output, decode_ms = sum(r['output'] for r in segments), sum(r['decode_ms'] for r in segments)
+    if material_tokens <= 0 or prompt_ms <= 0 or decode_ms <= 0 or output <= 0:
         raise ValueError('Probe engine record cannot give rates')
     return {'material_bytes': material_bytes, 'material_tokens': material_tokens,
             'beta_bytes_per_token': material_bytes / material_tokens,
-            'P_tokens_per_second': probe['uncached'] / (probe['prompt_ms'] / 1000),
-            'G_tokens_per_second': probe['output'] / (probe['decode_ms'] / 1000),
-            'probe_record': probe, 'baseline_record': baseline,
-            'source': 'engine log records; P uses uncached read over prompt time'}
+            'P_tokens_per_second': read / (prompt_ms / 1000),
+            'G_tokens_per_second': output / (decode_ms / 1000),
+            'material_records': segments, 'baseline_record': baseline,
+            'source': 'engine log records; P uses uncached read over prompt time, both summed over the material segments'}
 
 
 def time_limit_seconds(material_bytes, beta, P, G, k):
@@ -67,9 +72,15 @@ def run(host, paths, out, max_tokens=MAX_TOKENS):
         status, load_seconds = owner.start(model=MODEL, engine_overrides={})
         startup = status['native_health']['startup_instructions']
         verify_loaded_startup(startup, STARTUP_SHA256)
+        responses = []
         for number, body in enumerate((baseline, probe), 1):
-            save(out / f'response-{number}.json', owner.call('/strata/v1/chat/completions', body, timeout=900))
+            responses.append(owner.call('/strata/v1/chat/completions', body, timeout=900))
+            save(out / f'response-{number}.json', responses[-1])
         stopped, records, _ = stop_and_capture_engine_log(owner, host.installation, MODEL, offset, out, host)
+    # API usage only reconciles which records belong to which request; the counts come from the engine log.
+    usage = [r.get('usage', {}).get('prompt_tokens') for r in responses]
+    if None not in usage and records and (records[0]['input'] != usage[0] or len(records) < 2 or records[1]['input'] != usage[1]):
+        raise RuntimeError('Engine records do not line up with the two probe requests')
     result = dict(rates(records, size), files=[str(p) for p in paths], load_seconds=load_seconds,
                   max_context=status['native_health'].get('max_context'), startup_instructions=startup,
                   stop=stopped.get('status'))

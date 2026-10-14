@@ -8,7 +8,8 @@ from tools.metrics.speed_probe import bodies, material, rates, run, time_limit_s
 from tools.metrics.strata_tokens import parse_engine_log
 
 LOG = '''strata serve: prompt 1200 tokens = 0 reused + 1200 read in 600.0 ms (2000 tok/s), 16 generated in 200.0 ms
-strata serve: prompt 41200 tokens = 1100 reused + 40100 read in 18227.3 ms (2200 tok/s), 512 generated in 5389.5 ms
+strata serve: prompt 41200 tokens = 1100 reused + 40100 read in 18227.3 ms (2200 tok/s), 256 generated in 2689.5 ms
+strata serve: prompt 41456 tokens = 41450 reused + 6 read in 100.0 ms (60 tok/s), 256 generated in 2700.0 ms
 '''
 
 
@@ -17,8 +18,9 @@ class SpeedProbeTests(unittest.TestCase):
         result = rates(parse_engine_log(LOG), 140000)
         self.assertEqual(result['material_tokens'], 40000)
         self.assertAlmostEqual(result['beta_bytes_per_token'], 3.5)
-        self.assertAlmostEqual(result['P_tokens_per_second'], 40100 / 18.2273)
+        self.assertAlmostEqual(result['P_tokens_per_second'], 40106 / 18.3273)
         self.assertAlmostEqual(result['G_tokens_per_second'], 512 / 5.3895)
+        self.assertEqual(len(result['material_records']), 2)
 
     def test_k_calibration_reproduces_b_over_10k_minutes(self):
         beta, P, G, B = 3.5, 2200.0, 88.0, 150000
