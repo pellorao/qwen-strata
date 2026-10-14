@@ -7,8 +7,8 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 const [operation,inputPath,outputPath]=process.argv.slice(2);
 const input=JSON.parse(readFileSync(inputPath,'utf8'));
 const root=resolve(input.repositoryRoot);
-// Scoring always runs under the project's upgraded rule (evidence F2).
-// The upgrade report (applied, migrated draft) goes to stderr so each scoring log shows it.
+// Scoring always runs under the project's upgraded rule (evidence F2, two-part score with bound judgment overlays).
+// The upgrade report (applied, migrated draft, bound overlays) goes to stderr so each scoring log shows it.
 if(['verify','verify-diagnostic','score-completed'].includes(operation))
  process.stderr.write(execFileSync('python3',['-m','tools.reviewer.freeze_arw_source','--upgrade-scoring',root],
   {cwd:fileURLToPath(new URL('../..',import.meta.url)),stdio:['ignore','pipe','inherit']}));

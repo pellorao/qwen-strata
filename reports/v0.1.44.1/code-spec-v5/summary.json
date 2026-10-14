@@ -1068,99 +1068,126 @@
   }
  ],
  "token_source": "Q3：引擎日志（token_consumption，逐实例派发区间）；Opus：claude -p result 事件 usage（未缓存 = input + cache_creation，已缓存 = cache_read，输出含思考）",
- "scoring_rule": "2026-10-14 起按升级后的评分规则（证据定位 F2）重新计分，不重跑模型：问题用例证据分和 clean 证据观察分都由 F3 改 F2（本场景没有 clean 证据观察）。计分补丁 benchmarks/reviewer-suite-v1/arw-patches/scoring-f2.patch。2026-10-15 试行的按对计分已撤销（试行期间未改变本场景任何分数）；clean 按对错计分口径确定后另行重算。本文件的分数字段都是证据 F2 规则的值；原值只保留在 scoring_upgrade_change。",
+ "scoring_rule": "2026-10-14 起按升级后的评分规则重新计分，不重跑模型：证据定位分由 F3 改 F2（问题用例证据分和 clean 证据观察分；本场景没有 clean 证据观察），2026-10-15 起总分按两类计分合成（A 类判断题按对错 ±1，与其余用例的 F2 按 w 加权，w 最多 0.5，总分截到 0）。本场景答案键登记为全 B（judgment/registry.json），w = 0，两类计分与证据 F2 相同。计分补丁 benchmarks/reviewer-suite-v1/arw-patches/scoring-f2.patch。2026-10-15 试行的按对计分已撤销（未改变本场景任何分数）。原值只保留在 scoring_upgrade_change。",
  "scoring_upgrade_change": {
   "note": "只用来说明这次升级的影响；结论以新规则为准。",
   "columns": [
    "before_upgrade_evidence_F3",
-   "evidence_F2"
+   "evidence_F2",
+   "two_part"
   ],
   "q3_primary_mean": [
    0.6436,
+   0.6248,
    0.6248
   ],
   "q3_all_mean": [
    0.6049,
+   0.587,
    0.587
   ],
   "opus_mean": [
    0.8593,
+   0.847,
    0.847
   ],
   "q3_primary_ratio": [
    0.749,
+   0.738,
    0.738
   ],
   "q3_all_ratio": [
    0.704,
+   0.693,
    0.693
   ],
   "q3_primary_ratio_before_penalty": [
    0.778,
+   0.766,
    0.766
   ],
   "q3_all_ratio_before_penalty": [
    0.732,
+   0.721,
    0.721
   ],
   "per_instance_final": {
    "q3-1": [
     0.4936,
+    0.4811,
     0.4811
    ],
    "q3-2": [
     0.8265,
+    0.7918,
     0.7918
    ],
    "q3-3": [
     0.6254,
+    0.6151,
     0.6151
    ],
    "q3-4": [
     0.6102,
+    0.5946,
     0.5946
    ],
    "q3-5": [
     0.6625,
+    0.6414,
     0.6414
    ],
    "q3-6": [
     0.4959,
+    0.4838,
     0.4838
    ],
    "q3-7": [
     0.5756,
+    0.5637,
     0.5637
    ],
    "q3-8": [
     0.5996,
+    0.5745,
     0.5745
    ],
    "q3-9": [
     0.6762,
+    0.6528,
     0.6528
    ],
    "q3-10": [
     0.4834,
+    0.4714,
     0.4714
    ],
    "opus-1": [
     0.8964,
+    0.8816,
     0.8816
    ],
    "opus-2": [
     0.8219,
+    0.8108,
     0.8108
    ],
    "opus-3": [
     0.8595,
+    0.8486,
     0.8486
    ]
   },
   "sensitivity_q3_before_penalty": {
-   "one_more_clean_failure": -0.0027,
-   "one_more_missed_problem": -0.0395,
+   "b_clean_false_finding": -0.0027,
+   "b_missed_problem": -0.0395,
+   "a_case_turns_wrong": "-2/N = -0.042（N=48；w 未到上限且总分未截断时成立；本场景无 A 类，仅作参照）",
    "basis": "10 个 Q3 实例罚前实际数据，clean 29、问题 20；漏题按该实例已命中题的平均得分"
+  },
+  "two_part": {
+   "judgment": "all-B",
+   "judgment_weight": 0,
+   "note": "本场景答案键登记为全 B（已独立审查），两类计分与证据 F2 相同；NEEDS_QUOTES clean 曾列待定，审查后归 B（误报能用测试证伪）"
   }
  }
 }

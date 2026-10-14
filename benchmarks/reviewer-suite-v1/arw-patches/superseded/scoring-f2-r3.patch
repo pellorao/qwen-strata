@@ -1,0 +1,70 @@
+--- a/docs/agents/reviewer-capability-scenarios.md
++++ b/docs/agents/reviewer-capability-scenarios.md
+@@ -44,11 +44,11 @@
+ 
+ ## Locator matching
+ 
+-Code Review 的定位信息匹配首先要求具有相同的归一化文件路径. 字段相同的定位信息只有在锚点或行精确时才匹配. 如果预期定位信息使用锚点, 实际定位信息改用正整数行, 则根据已暂存场景 Markdown 解析锚点, 并且只接受从该 ATX 标题开始, 到下一个相同或更高层级标题之前的行. 嵌套的较低层级标题仍属于其父章节. 实际 Markdown `lineStart-lineEnd` 范围只有在包含预期的精确行时才与它匹配, 且只有在整个范围都位于解析出的标题章节内时才与预期锚点匹配. 范围内每个实际行都计入证据精确率. 其他锚点, 行或范围替换都不匹配. 对关联证据, F3 证据评分和干净用例目标识别应用相同规则.
++Code Review 的定位信息匹配首先要求具有相同的归一化文件路径. 字段相同的定位信息只有在锚点或行精确时才匹配. 如果预期定位信息使用锚点, 实际定位信息改用正整数行, 则根据已暂存场景 Markdown 解析锚点, 并且只接受从该 ATX 标题开始, 到下一个相同或更高层级标题之前的行. 嵌套的较低层级标题仍属于其父章节. 实际 Markdown `lineStart-lineEnd` 范围只有在包含预期的精确行时才与它匹配, 且只有在整个范围都位于解析出的标题章节内时才与预期锚点匹配. 范围内每个实际行都计入证据精确率. 其他锚点, 行或范围替换都不匹配. 对关联证据, F2 证据评分和干净用例目标识别应用相同规则.
+ 
+ Code Review Markdown 定位支持同一完整路径后的逗号分隔行号与连续范围, 例如 `src/file.mjs:5,15-18,28-33`. 程序确定性解析整个定位, 每段必须是正的安全整数行号或起点不大于终点的范围; 任一段无效时整个定位不提供证据, 不截取其中有效部分. 同一对反引号内也可以用逗号分隔多个完整文件定位; 新文件必须写出完整路径, 仅含行号或范围的后续片段归属最近的文件路径. 整个反引号内容按同一有效性规则解析, 任一文件定位或行片段无效时整个内容不提供证据. 原有独立定位写法继续有效. 同一 finding 的同一文件中, 重复行或重叠范围的实际行在证据数量中只计一次, 简写与等价展开写法得分相同. 保留每个原始连续范围的章节边界检查, 不通过拆分跨章节范围获得锚点匹配. 不跨 finding 合并证据.
+ 
+-Commit Audit 的实际证据和隐藏预期都展开为仓库相对文件路径与正整数行的集合. 同一 finding 的同一文件中, 单行与闭区间先规范为合并后的准确行集合; 重复, 重叠和相邻区域不重复计数. 只比较同一文件的实际行, 不使用章节身份或整个文件替代. 对关联证据, F3 证据评分和干净用例目标识别应用相同规则.
++Commit Audit 的实际证据和隐藏预期都展开为仓库相对文件路径与正整数行的集合. 同一 finding 的同一文件中, 单行与闭区间先规范为合并后的准确行集合; 重复, 重叠和相邻区域不重复计数. 只比较同一文件的实际行, 不使用章节身份或整个文件替代. 对关联证据, F2 证据评分和干净用例目标识别应用相同规则.
+ 
+ Spec Readiness 的实际证据和隐藏预期按[正文证据合同](../specs/agent-repository-workflow/spec.md#generate-promote-and-verify)归一化为正文单行集合. 只比较同一文件的原始行号, 不使用章节锚点, 标题位置或原始范围的章节边界作为匹配条件. 同一 finding 中相同正文行集合的范围, 组合或展开写法得分相同; 无关正文仍计入实际证据数量. 标题和首尾空行不计入关联或证据分, 只有标题的文档不能提供有效证据. 每套预期的完整证据仅包含证明该问题所需的正文, 必要关联证据是其中最小的非空子集, 不把整节内容机械升级为全部必需的关联前提. 普通正式结果与完整审查 JSONL 都经过相同的正文处理, 不能通过正式结果路径绕过它.
+ 
+--- a/docs/agents/reviewer-capability-scoring.md
++++ b/docs/agents/reviewer-capability-scoring.md
+@@ -4,7 +4,7 @@
+ 
+ 四个 Reviewer 的能力评分按冻结场景的来源正文识别空白行, 从实际和预期计分集合中排除这些行, 不计入匹配数, 覆盖率或精确率分母. 空白行不能满足必要关联证据. 只有成功定位且正文为空白的行可以排除; 无法定位或无效的证据不因此得到宽免. 这一步仅用于能力验证, 不改写原始报告或正式记录, 不改变正式证据归一化及 JSONL 格式要求.
+ 
+-每个按[语义确认](reviewer-capability-scenarios.md#problem-association)已经建立关联的问题用例, 正确结果获得 `0.4`, 证据最多获得 `0.4`, 原子性最多获得 `0.2`. 证据只计算根据 [Locator matching](reviewer-capability-scenarios.md#locator-matching) 匹配的完整定位信息. 令 `coverage` 为预期定位信息中匹配项的比例, `precision` 为实际定位信息中匹配项的比例. 计算 `evidenceScore = 10 * precision * coverage / (9 * precision + coverage)`. 任一输入为 0 时结果为 0. 该 F3 分数优先完整的预期证据, 同时保留对无关额外定位信息的实质惩罚. 对于一个用例中结果和证据得分最高的关联, 令 `caseUniqueness = 1 / associatedFindingCount`, `findingPurity = 1 / associatedCaseCount`. 计算 `atomicityScore = 2 * caseUniqueness * findingPurity / (caseUniqueness + findingPurity)`, 然后给予 `0.2 * atomicityScore`. 该对称 F1 分数为合并和重复问题提供部分分数, 而不是把任一结构变成无关的第二次失败. 具有多个合理检查的缺陷仍是一个用例. 每个允许的检查都声明适合该审查角度的证据.
++每个按[语义确认](reviewer-capability-scenarios.md#problem-association)已经建立关联的问题用例, 正确结果获得 `0.4`, 证据最多获得 `0.4`, 原子性最多获得 `0.2`. 证据只计算根据 [Locator matching](reviewer-capability-scenarios.md#locator-matching) 匹配的完整定位信息. 令 `coverage` 为预期定位信息中匹配项的比例, `precision` 为实际定位信息中匹配项的比例. 计算 `evidenceScore = 5 * precision * coverage / (4 * precision + coverage)`. 任一输入为 0 时结果为 0. 该 F2 分数优先完整的预期证据, 同时保留对无关额外定位信息的实质惩罚. 对于一个用例中结果和证据得分最高的关联, 令 `caseUniqueness = 1 / associatedFindingCount`, `findingPurity = 1 / associatedCaseCount`. 计算 `atomicityScore = 2 * caseUniqueness * findingPurity / (caseUniqueness + findingPurity)`, 然后给予 `0.2 * atomicityScore`. 该对称 F1 分数为合并和重复问题提供部分分数, 而不是把任一结构变成无关的第二次失败. 具有多个合理检查的缺陷仍是一个用例. 每个允许的检查都声明适合该审查角度的证据.
+ 
+ 同一 finding 对同一问题用例满足多个允许位置时, 先分别按各位置的完整预期证据计算上述证据分, 选择得分最高的位置; 同分选择声明顺序最早的位置. 结果分不因位置变化而改变. 该 finding 与该用例只形成一次关联, 再参与上述原子性计算, 不因同时命中多个位置受到重复惩罚. 不同 finding 仍分别计入重复问题数量. 这一步发生在单个实例内, 先于重复分数的计算.
+ 
+@@ -14,7 +14,7 @@
+ 
+ ## Clean cases
+ 
+-干净用例首先获得二元误报分数, 并且只评估未与任何问题用例关联的问题. 每个普通干净用例保留一个必要的主要 `evidence` 集合. 可选的 `evidenceAlternatives` 数组声明直接支持同一个用例的其他完整非空证据集合. 它不得与主要集合或该用例中的其他替代集合重复. 主要集合仍然是从预期已满足的 Commit Audit 要求到对应干净用例的唯一绑定. Commit Audit 的干净观察与误报判断同时保留 Gate 和 requirement 绑定; 同一证据集合支持不同 requirement 时, 一项误报不得影响其他 requirement. 对于普通干净用例, 只有当问题位于相同范围, 其实际证据根据 [Locator matching](reviewer-capability-scenarios.md#locator-matching) 包含任一完整已接受集合中的每个定位信息, 且后续宽松概念确认与预期语义对象匹配时, 问题才以它为目标. 独立评估每个集合, 绝不跨集合合并定位信息. 仅共享文件路径并不足够, 除非该精确的仅含文件路径定位信息是一个已经声明的完整集合. 每个范围包含一个固定的 `no other supported finding` 干净用例. 如果实际范围中仍有任何未关联的问题, 该用例失败. 部分正确, 合并或重复的问题由相应问题用例评分, 不再接受第二项干净用例惩罚. 测试夹具内容不得包含已经批准的问题清单以外的受支持缺陷. 结构化的已满足 Commit Audit 要求还会向相应干净用例提供一项 F3 证据观察. 主要绑定标识该用例后, 分别根据主要集合和每个替代集合独立计算相同的精确定位信息覆盖率和精确率公式, 使用最高分, 不对集合求和或组合, 然后取该观察分数和二元误报分数中的较小值. 缺失, 非数组, 格式错误, 超出范围或无法定位的证据不获得匹配, 但不会成为强制关卡失败. 除上述已确认的空白行外, 所提供的每个证据项仍计入每次比较的精确率分母, 有效行范围中的每个实际行计数一次.
++干净用例首先获得二元误报分数, 并且只评估未与任何问题用例关联的问题. 每个普通干净用例保留一个必要的主要 `evidence` 集合. 可选的 `evidenceAlternatives` 数组声明直接支持同一个用例的其他完整非空证据集合. 它不得与主要集合或该用例中的其他替代集合重复. 主要集合仍然是从预期已满足的 Commit Audit 要求到对应干净用例的唯一绑定. Commit Audit 的干净观察与误报判断同时保留 Gate 和 requirement 绑定; 同一证据集合支持不同 requirement 时, 一项误报不得影响其他 requirement. 对于普通干净用例, 只有当问题位于相同范围, 其实际证据根据 [Locator matching](reviewer-capability-scenarios.md#locator-matching) 包含任一完整已接受集合中的每个定位信息, 且后续宽松概念确认与预期语义对象匹配时, 问题才以它为目标. 独立评估每个集合, 绝不跨集合合并定位信息. 仅共享文件路径并不足够, 除非该精确的仅含文件路径定位信息是一个已经声明的完整集合. 每个范围包含一个固定的 `no other supported finding` 干净用例. 如果实际范围中仍有任何未关联的问题, 该用例失败. 部分正确, 合并或重复的问题由相应问题用例评分, 不再接受第二项干净用例惩罚. 测试夹具内容不得包含已经批准的问题清单以外的受支持缺陷. 结构化的已满足 Commit Audit 要求还会向相应干净用例提供一项 F2 证据观察. 主要绑定标识该用例后, 分别根据主要集合和每个替代集合独立计算相同的精确定位信息覆盖率和精确率公式, 使用最高分, 不对集合求和或组合, 然后取该观察分数和二元误报分数中的较小值. 缺失, 非数组, 格式错误, 超出范围或无法定位的证据不获得匹配, 但不会成为强制关卡失败. 除上述已确认的空白行外, 所提供的每个证据项仍计入每次比较的精确率分母, 有效行范围中的每个实际行计数一次.
+ 
+ ## Final score
+ 
+--- a/lib/release/reviewer-capability-scoring.mjs
++++ b/lib/release/reviewer-capability-scoring.mjs
+@@ -76,11 +76,11 @@
+     return ((1 + betaSquared) * precision * recall) / (betaSquared * precision + recall);
+ };
+ 
+-const f3Score = (/** @type {{coverage: number, precision: number}} */ {coverage, precision}) => fBetaScore({beta: 3, precision, recall: coverage});
++const f2Score = (/** @type {{coverage: number, precision: number}} */ {coverage, precision}) => fBetaScore({beta: 2, precision, recall: coverage});
+ 
+ const f1Score = (/** @type {{left: number, right: number}} */ {left, right}) => fBetaScore({beta: 1, precision: right, recall: left});
+ 
+-const evidenceF3Score = (/** @type {{actual: unknown[], expected: FixtureLocator[], evidenceMatcher: EvidenceMatcher}} */ {actual, expected, evidenceMatcher}) => f3Score(
++const evidenceF2Score = (/** @type {{actual: unknown[], expected: FixtureLocator[], evidenceMatcher: EvidenceMatcher}} */ {actual, expected, evidenceMatcher}) => f2Score(
+     evidenceMatcher.matchRates({actual, expected}),
+ );
+ 
+@@ -99,7 +99,7 @@
+             throw new TypeError('Reviewer capability clean observation binding is invalid.');
+         }
+         const points = observation.satisfied
+-            ? Math.max(...cleanEvidenceSets(cleanCase).map(expectedEvidence => evidenceF3Score({
++            ? Math.max(...cleanEvidenceSets(cleanCase).map(expectedEvidence => evidenceF2Score({
+                 actual: observation.actualEvidence,
+                 expected: expectedEvidence,
+                 evidenceMatcher,
+@@ -190,7 +190,7 @@
+             if (adjudicationDecisions.get(candidateId) !== 'matched') continue;
+             const bestPlacement = matchingPlacements.map(placement => ({
+                 placement,
+-                evidenceScore: evidenceF3Score({
++                evidenceScore: evidenceF2Score({
+                     actual: actualEvidence,
+                     expected: placement.evidence,
+                     evidenceMatcher,
