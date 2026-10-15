@@ -11,7 +11,7 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 | `rtx3080ti` | RTX 3080 Ti 12GB，i9-13900 | 可用；本工程所在机 |
 | `rtx4070tis` | RTX 4070 Ti SUPER | 离线，短期不启用；原 Spec Readiness 主线在这台 |
 
-rtx3080ti 安装 Strata v0.1.43.1（2026-10-13，通过短检查），默认模型 IQ3_XXS，参数沿用 v0.1.42 调参结果；rtx4070tis 离线，仍为 v0.1.40.2，恢复后同步。模型 Q2_0 / IQ2_XS / IQ3_XXS。
+rtx3080ti 安装 Strata v0.1.44.1（2026-10-14，通过短检查），默认模型 IQ3_XXS，参数沿用 v0.1.42 调参结果（未在新版上重测）；rtx4070tis 离线，仍为 v0.1.40.2，恢复后同步。模型 Q2_0 / IQ2_XS / IQ3_XXS。
 
 ## 文档
 
@@ -29,7 +29,7 @@ rtx3080ti 安装 Strata v0.1.43.1（2026-10-13，通过短检查），默认模�
 
 ## 主线
 
-- [ ] **Reviewer 场景重构**：Spec Readiness 已到 v4.1 收尾；Code Spec v4.7 完成（Q3/Opus 0.744，[报告](reports/v0.1.43.1/code-spec-v4/summary.md)）；阅读量维度完成（150K 档成立，Opus 20/20；Q3 原样题命中 88%→73%，[报告](reports/v0.1.44.1/code-spec-rv/summary.md)）；**Code Spec 正式场景 v5 完成**（修订 38，F2 与按对计分：Q3 ×5 0.625 / Opus ×3 0.847，Q3/Opus 0.738，×10 为 0.693；罚前 0.766，[报告](reports/v0.1.44.1/code-spec-v5/summary.md)）；下一个是 Code Standards；顺序为 Code Spec → Strata 升级到 v0.1.43.1 与例行检查（2026-10-13 完成）→ Code Standards → Commit Audit（用户 2026-10-13）（[计划](docs/plan.md#reviewer-场景重构用户-2026-10-13)）。
+- [ ] **Reviewer 场景重构**：Spec Readiness 已到 v4.1 收尾；Code Spec v4.7 完成（Q3/Opus 0.744，[报告](reports/v0.1.43.1/code-spec-v4/summary.md)）；阅读量维度完成（150K 档成立，Opus 20/20；Q3 原样题命中 88%→73%，[报告](reports/v0.1.44.1/code-spec-rv/summary.md)）；**Code Spec 正式场景 v5 完成**（修订 38，F2 与按对计分：Q3 ×5 0.625 / Opus ×3 0.847，Q3/Opus 0.738，×10 为 0.693；罚前 0.766，[报告](reports/v0.1.44.1/code-spec-v5/summary.md)）；**Code Standards 收尾**：v5.1 为末版，Q3/Opus 0.90，记为区分度不足（v6 r27 全面加难未拉开差距，用户 2026-10-15 决定按停止条件结束）；下一步评分升级 r7，之后 Spec Readiness v4.2、Commit Audit；顺序为 Code Spec → Strata 升级到 v0.1.43.1 与例行检查（2026-10-13 完成）→ Code Standards → Commit Audit（用户 2026-10-13）（[计划](docs/plan.md#reviewer-场景重构用户-2026-10-13)）。
 - [ ] **rtx4070tis 恢复后**：核对实际状态、补同步部署，再决定 ARW 安全恢复和 Spec Readiness 十二实例。
 
 ## 进展
