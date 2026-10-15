@@ -18,7 +18,9 @@ CONFORMANCE = 'lib/release/reviewer-capability-conformance.mjs'
 
 # Synthetic Spec Readiness cases: P judgment problem, Q ordinary problem, C judgment clean, D ordinary clean.
 TWO_PART_PROBE = r'''
-import {resolve} from 'node:path';
+import {resolve, join} from 'node:path';
+import {mkdtempSync, writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
 const arw = process.argv[1];
 const {createReviewerCapabilityScenarioScorer} = await import(resolve(arw, 'lib/release/reviewer-capability-scoring.mjs'));
 const {reviewerCapabilityVerificationCore: core} = await import(resolve(arw, 'lib/release/reviewer-capability-verification.mjs'));
@@ -110,7 +112,28 @@ const treatment = Object.fromEntries(policyCodes.map(code => {
     const [repetition] = summary.repetitions;
     return [code, {cut: repetition.score !== repetition.scoreBeforePenalty, unrepairable: repetition.instances[0].unrepairableFormatErrors}];
 }));
+// r7: a Spec Readiness report that continues past the requirement-scope stop. The later check, its report lines and their
+// diagnostics are ignored; the stop rule itself is one failed B clean case.
+const stopReport = join(mkdtempSync(join(tmpdir(), 'stop-')), 'draft.jsonl');
+writeFileSync(stopReport, [JSON.stringify({check: scope, evidence: [], finding: 'The second problem is present.', result: 'gap'}),
+    JSON.stringify({check: 'MODULE-DESIGN-INTERFACES', evidence: ['nowhere:1'], finding: 'Something else.', result: 'gap', extra: 1}),
+    'not json', ''].join('\n'));
+const stopChecks = [{check: scope, findings: [finding('The second problem is present.', 7)], result: 'gap'},
+    {check: 'MODULE-DESIGN-INTERFACES', findings: [finding('Something else.', 3), finding('The alpha rule is violated.', 1)], result: 'gap'}];
+const stopDiagnostics = [{code: 'requirement-scope-continuation', message: 'continued'}, {code: 'review-evidence-invalid', line: 2, message: 'x'},
+    {code: 'review-format-invalid', line: 2, message: 'x'}, {code: 'review-format-invalid', line: 3, message: 'x'}];
+const kept = await policy.withoutScopeContinuation({checks: stopChecks, diagnostics: stopDiagnostics, path: stopReport});
+const stopScore = (checks, reportedFailedCleanCases) => {
+    const provisional = single({checks, reportedFailedCleanCases});
+    const decisions = new Map(provisional.candidates.filter(candidate => candidate.kind === 'association').map(candidate => [candidate.candidateId, 'matched']));
+    const result = single({adjudicationDecisions: decisions, checks, reportedFailedCleanCases});
+    return {...pick(result), candidates: result.candidates.length};
+};
+const stopped = [{check: scope, findings: [finding('The second problem is present.', 7)], result: 'gap'}];
 console.log(JSON.stringify({
+    continuation: {checks: kept.checks.map(check => check.check), diagnostics: kept.diagnostics.map(item => [item.code, item.line ?? null]),
+        unrepairable: policy.unrepairableFormatErrorCount(kept.diagnostics), ignored: stopScore(kept.checks, 1),
+        unfiltered: stopScore(stopChecks, 1), stopped: stopScore(stopped, 0)},
     overrun: strip(codeRun([range(8, 12)])),
     cut: strip(cut),
     overrunLine: strip(codeRun([{filePath: codeFile, line: 12}])),
@@ -343,12 +366,31 @@ class ScoringUpgradeTests(unittest.TestCase):
     def test_r7_report_errors_are_charged_where_they_belong(self):
         treatment = self.probe['treatment']
         format_errors = {'review-format-invalid', 'review-json-invalid', 'review-utf8-invalid', 'review-row-unattributed'}
-        # Only the stop rule awaiting the user's choice, and codes the policy does not know, keep the ARW 0.9 cut.
-        cut = {'requirement-scope-continuation', 'some-new-code'}
+        # Only codes the policy does not know keep the ARW 0.9 cut; continuing past the stop is one wrong answer.
+        cut = {'some-new-code'}
         for code, item in treatment.items():
             with self.subTest(code):
                 self.assertEqual(item['cut'], code in cut)
                 self.assertEqual(item['unrepairable'], int(code in format_errors))
+
+    def test_r7_content_past_the_requirement_scope_stop_is_ignored(self):
+        continuation = self.probe['continuation']
+        # The later check and the diagnostics of its lines are dropped; a line that cannot be read stays a format error.
+        self.assertEqual(continuation['checks'], ['SPEC-READINESS-REQUIREMENTS'])
+        self.assertEqual(continuation['diagnostics'], [['requirement-scope-continuation', None], ['review-format-invalid', 3]])
+        self.assertEqual(continuation['unrepairable'], 1)
+        ignored, unfiltered, stopped = continuation['ignored'], continuation['unfiltered'], continuation['stopped']
+        # Ignored content earns nothing and is no locator or candidate (unfiltered, its locators would count in T).
+        self.assertEqual(ignored['problem'], stopped['problem'])
+        self.assertEqual(ignored['locatorCount'], stopped['locatorCount'])
+        self.assertGreater(unfiltered['locatorCount'], stopped['locatorCount'])
+        self.assertEqual(ignored['candidates'], stopped['candidates'])
+        # ... and loses nothing: the clean cases are those of a report that stopped, plus the one failed B clean case
+        # of the stop rule; no-other and the other clean cases pass.
+        self.assertEqual(ignored['clean'], stopped['clean'])
+        self.assertEqual(ignored['extraFailedCleanCases'], stopped['extraFailedCleanCases'] + 1)
+        self.assertEqual(ignored['bCleanCases'], stopped['bCleanCases'] + 1)
+        self.assertEqual(ignored['bEarnedCleanPoints'], stopped['bEarnedCleanPoints'])
 
     def test_r7_adjudication_adds_associations_and_checks_decisions(self):
         added = self.probe['addedAssociation']

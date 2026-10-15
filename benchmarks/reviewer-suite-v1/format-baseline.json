@@ -3,7 +3,7 @@
     "3950875c7c223af3beee58265c1fb9eb3ff48cf21cbd4b94ffa43a124a0d0b66": {
       "version": "Code Standards v5.1 修订 25",
       "source": "Haiku-high ×5（claude-haiku-5-5，2026-10-15，T=1454 秒）；r 为全部格式错误（计分器口径）：修复记录的可修复处数 rRepairable，加计分升级对所计分报告（修复副本）仍判为格式错误的 rUnrepairable 与越界截断的 rOverrun；T 为计分器读到的定位数 locatorCount",
-      "scoringPatchSha256": "053870f3478170662e47b780c1c709911f14df86cb59477be62d8c4d586a13c6",
+      "scoringPatchSha256": "ebc4ad013b225cca8fc5a2d7b8542dba5bc6a459c6dec44e5e42716266b05666",
       "archive": "format-baseline/code-standards-v5.1",
       "runs": [
         {
@@ -107,7 +107,7 @@
     "32bafcb591cd3629f0456963f227ced2ff0b332a956c0efe7b72567c5e4471c6": {
       "version": "Code Spec v5",
       "source": "Haiku-high ×5（claude-haiku-5-5，2026-10-15，T=1504 秒；每次重复 1 个交接）；r 为全部格式错误（计分器口径）：修复记录的可修复处数 rRepairable，加计分升级对所计分报告（修复副本）仍判为格式错误的 rUnrepairable 与越界截断的 rOverrun；T 为计分器读到的定位数 locatorCount",
-      "scoringPatchSha256": "053870f3478170662e47b780c1c709911f14df86cb59477be62d8c4d586a13c6",
+      "scoringPatchSha256": "ebc4ad013b225cca8fc5a2d7b8542dba5bc6a459c6dec44e5e42716266b05666",
       "archive": "format-baseline/code-spec-v5",
       "runs": [
         {
@@ -210,8 +210,8 @@
   "spec-readiness-reviewer": {
     "3093980fc37278abd16a935cd10d143dbcbab19435671bdee7e7fd2f13c3526f": {
       "version": "Spec Readiness v4.1",
-      "source": "Haiku-high ×5（claude-haiku-5-5，2026-10-15，无时限说明；sr41 为每次重复的 2 个交接合计，有效运行 haiku-1,haiku-2,haiku-3,haiku-6,haiku-7）；r 为全部格式错误（计分器口径）：修复记录的可修复处数 rRepairable，加计分升级对所计分报告（修复副本）仍判为格式错误的 rUnrepairable 与越界截断的 rOverrun；T 为计分器读到的定位数 locatorCount",
-      "scoringPatchSha256": "053870f3478170662e47b780c1c709911f14df86cb59477be62d8c4d586a13c6",
+      "source": "Haiku-high ×5（claude-haiku-5-5，2026-10-15，无时限说明；sr41 为每次重复的 2 个交接合计，有效运行 haiku-1,haiku-2,haiku-3,haiku-6,haiku-7）；r 为全部格式错误（计分器口径）：修复记录的可修复处数 rRepairable，加计分升级对所计分报告（修复副本）仍判为格式错误的 rUnrepairable 与越界截断的 rOverrun；T 为计分器读到的定位数 locatorCount（越过停止点之后的内容不计）",
+      "scoringPatchSha256": "ebc4ad013b225cca8fc5a2d7b8542dba5bc6a459c6dec44e5e42716266b05666",
       "archive": "format-baseline/spec-readiness-v4.1",
       "runs": [
         {
@@ -220,7 +220,7 @@
           "rRepairable": 0,
           "rUnrepairable": 0,
           "rOverrun": 0,
-          "T": 94,
+          "T": 76,
           "reports": [
             {
               "instanceId": "runtime-migration-c495f2c6-e865-4934-8d77-e3225b293afb-instance-1",
@@ -244,7 +244,7 @@
           "rRepairable": 0,
           "rUnrepairable": 0,
           "rOverrun": 0,
-          "T": 98,
+          "T": 70,
           "reports": [
             {
               "instanceId": "runtime-migration-109f7bd7-f9b9-490c-b675-f20901c96fa3-instance-1",
@@ -292,7 +292,7 @@
           "rRepairable": 0,
           "rUnrepairable": 0,
           "rOverrun": 0,
-          "T": 106,
+          "T": 77,
           "reports": [
             {
               "instanceId": "runtime-migration-2dbe0003-da56-422a-92db-e9dc0567758b-instance-1",
@@ -336,13 +336,13 @@
         }
       ],
       "sumR": 0,
-      "sumT": 483,
+      "sumT": 408,
       "pooled": 0.0,
-      "floor": 0.0207039,
-      "pBase": 0.0207039,
+      "floor": 0.0245098,
+      "pBase": 0.0245098,
       "pBaseBootstrap90": [
-        0.0196464,
-        0.0220264
+        0.0222222,
+        0.0269542
       ]
     }
   }

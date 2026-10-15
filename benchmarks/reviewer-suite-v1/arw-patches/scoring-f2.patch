@@ -51,7 +51,7 @@
 -每个 Reviewer 的 `repetitionScores` 保存 3 个折减前 F2 分数, 其算术平均值是折减前分数 `scoreBeforePenalty`. 对每次重复, 该重复任一实例存在表示格式错误, 错误的来源或证据引用, 缺失要求, 重复或拆分要求记录, 或违反适用检查停止规则时, 把该重复的原始分数乘以 `0.9`. 同一重复内多项错误或多类错误只折减一次, 没有这些错误时保留原分数. 普通漏报, 误报及证据覆盖不足按逐用例规则失分, 不仅因判断错误而额外触发折减. Spec Readiness 同序两个场景先合并用例计算 F2, 再对该重复最多折减一次. `finalRepetitionScores` 保存 3 个已调整分数, 其算术平均值 `score` 是唯一权威分数. 能力通过只要求 `score >= 0.75`; 单次重复, 问题发现率和干净接受率没有独立门槛.
 +本工程计分升级 (两类计分): 答案键可以把问题用例或普通干净用例标为判断题 (`judgment: true`). 判断题是答错与答对对项目的影响大致相当, 且 main agent 难以验证并拦住错误答案的用例, 例如该不该合并; 每题独立成题, 不与其他用例配对. 冻结场景的标记放在覆盖文件中, 由登记表把每个已知答案键 (Reviewer 与 `expected.json` sha256) 对应到一个覆盖文件, `in-key` (标记直接写在答案键中) 或 `all-B` (全部按 B 计分); 加载答案键时按范围, 种类, 序号和 `expectation` 原文叠加覆盖文件, 答案键未登记, 未登记为 `in-key` 的答案键自带标记, 覆盖文件对不上或判断题正反例数量不等时报错, 结果中的 `judgmentBinding` 写明登记方式和答案键 sha256, 用覆盖文件时另写其文件名及 sha256. 判断题部分 A 从 0 开始, 每题答对加 1, 答错减 1, 最后除以判断题数量, 范围 `-1` 到 `1`, 不截断. 问题用例存在关联时算对 (本工程计分升级 r7, R6: 不再要求最高证据分不低于 `0.5`), 漏报算错; 干净用例在所属检查存在 (干净分不为 0) 且没有误报时算对. 其余用例组成 B 部分, 按上述规则计算 `bProblemDetectionRate`, `bCleanAcceptanceRate` 和它们的 F2 `bScore`. 令 `judgmentWeight = min(0.5, judgmentCases / (totalProblemCases + totalCleanCases - noOtherCases))`, 没有判断题时为 0. 计算 `rawScore = judgmentWeight * judgmentScore + (1 - judgmentWeight) * bScore`, 重复分数 `score = max(0, rawScore)`; 没有判断题时它等于上述 F2. Spec Readiness 同序两个场景的判断题与 B 部分计数同样先合并再计算; 同一判断题在两个场景都计分时, 每次按 `0.5` 份额计, 合并后每题仍是一份. 每个计分单位中判断题正例与反例份额必须相等, Spec Readiness 单个场景的诊断分只给出警告. 格式折减乘在截断后的分数上. 模型失误实例的 B 部分记 0, 每道判断题记为答错. 原有 `problemDetectionRate` 和 `cleanAcceptanceRate` 仍按全部用例计算, 只作明细.
 +
-+每个 Reviewer 的 `repetitionScores` 保存 3 个折减前重复分数, 其算术平均值是折减前分数 `scoreBeforePenalty`. 对每次重复, 该重复任一实例存在表示格式错误, 错误的来源或证据引用, 缺失要求, 重复或拆分要求记录, 或违反适用检查停止规则时, 把该重复的原始分数乘以 `0.9`. 同一重复内多项错误或多类错误只折减一次, 没有这些错误时保留原分数. 本工程计分升级 r7: 报告错误按归属处理, 不再触发这一折减, 只记录. 格式错误 (`review-format-invalid`, `review-json-invalid`, `review-utf8-invalid`, 无法归到 requirement 的无效行 `review-row-unattributed`) 是整份报告的问题, 由本工程在 ARW 之外按比例折减: 可机械修复的按修复记录计数, 其余由实例的 `unrepairableFormatErrors` 计数. 起点在文件内, 终点越过文件末尾的行范围截到文件末尾后计分, 计为一处可修复格式错误 (实例的 `overrunLocators`). 证据定位无效 (`review-evidence-invalid`, `evidence-locator-invalid`) 只使该定位不提供证据. 缺失, 重复, 冲突或无效的 requirement 行 (`requirement-missing`, `requirement-coverage-invalid`, `requirement-duplicate`, `requirement-conflicting`, `review-row-invalid`, `requirement-row-invalid`) 在所属用例内失分. 请求范围以外的每条 requirement 行 (`requirement-source-unexpected`, `requirement-source-invalid`) 按无依据 finding 记一个失败的 B 类干净用例. 只有越过停止点 (`requirement-scope-continuation`) 和未列出的错误仍按上述规则折减. 每个实例另报告 `locatorCount`, 即计分器读到的定位数 (含 Commit Audit 已满足 requirement 的证据). 普通漏报, 误报及证据覆盖不足按逐用例规则失分, 不仅因判断错误而额外触发折减. Spec Readiness 同序两个场景先合并用例计算重复分数, 再对该重复最多折减一次. `finalRepetitionScores` 保存 3 个已调整分数, 其算术平均值 `score` 是唯一权威分数. 能力通过只要求 `score >= 0.75`; 单次重复, 问题发现率和干净接受率没有独立门槛.
++每个 Reviewer 的 `repetitionScores` 保存 3 个折减前重复分数, 其算术平均值是折减前分数 `scoreBeforePenalty`. 对每次重复, 该重复任一实例存在表示格式错误, 错误的来源或证据引用, 缺失要求, 重复或拆分要求记录, 或违反适用检查停止规则时, 把该重复的原始分数乘以 `0.9`. 同一重复内多项错误或多类错误只折减一次, 没有这些错误时保留原分数. 本工程计分升级 r7: 报告错误按归属处理, 不再触发这一折减, 只记录. 格式错误 (`review-format-invalid`, `review-json-invalid`, `review-utf8-invalid`, 无法归到 requirement 的无效行 `review-row-unattributed`) 是整份报告的问题, 由本工程在 ARW 之外按比例折减: 可机械修复的按修复记录计数, 其余由实例的 `unrepairableFormatErrors` 计数. 起点在文件内, 终点越过文件末尾的行范围截到文件末尾后计分, 计为一处可修复格式错误 (实例的 `overrunLocators`). 证据定位无效 (`review-evidence-invalid`, `evidence-locator-invalid`) 只使该定位不提供证据. 缺失, 重复, 冲突或无效的 requirement 行 (`requirement-missing`, `requirement-coverage-invalid`, `requirement-duplicate`, `requirement-conflicting`, `review-row-invalid`, `requirement-row-invalid`) 在所属用例内失分. 请求范围以外的每条 requirement 行 (`requirement-source-unexpected`, `requirement-source-invalid`) 按无依据 finding 记一个失败的 B 类干净用例. 越过停止点 (`requirement-scope-continuation`) 算停止规则一题答错, 在该场景记一个失败的 B 类干净用例; 停止点之后的检查 (前两项需求范围检查以外) 及其报告行的诊断一律忽略, 不计分, 不扣分, 不计入定位数和格式错误. 只有未列出的错误仍按上述规则折减. 每个实例另报告 `locatorCount`, 即计分器读到的定位数 (含 Commit Audit 已满足 requirement 的证据). 普通漏报, 误报及证据覆盖不足按逐用例规则失分, 不仅因判断错误而额外触发折减. Spec Readiness 同序两个场景先合并用例计算重复分数, 再对该重复最多折减一次. `finalRepetitionScores` 保存 3 个已调整分数, 其算术平均值 `score` 是唯一权威分数. 能力通过只要求 `score >= 0.75`; 单次重复, 问题发现率和干净接受率没有独立门槛.
  
  Main Agent 核对原生会话与冻结场景后, 确认实例因模型自身行为完全没有可评分内容时, 该实例的全部用例记 0 分, 作为该次实际运行的能力结果. 例如必要文件实际存在, Reviewer 自行找错位置并放弃继续审查. Spec Readiness 的另一个配对实例仍正常评分, 两个场景的全部用例继续进入重复分母. 审查未完成但已有可评分内容时, 保留这些内容的得分, 未作出判断的用例记 0 分, 不补造缺失内容. 准备, 运行, 传输或测量错误导致无法可信评分, 或原因尚未查清时, 不产生分数; 先修复错误, 再按实际影响范围恢复.
  
@@ -213,7 +213,30 @@
  };
  
  const mergeFixtureOverrides = (/** @type {{files: Record<string, string>, label: string, overrides: Record<string, string>}} */ {files, label, overrides}) => {
-@@ -1988,7 +2068,9 @@
+@@ -1978,6 +2058,22 @@
+         : 'Spec Readiness overall result does not match its checks.';
+ };
+ 
++// Project scoring upgrade r7 (user 2026-10-15): a reviewer that continues past the requirement-scope stop answers the stop
++// rule wrong (one failed B clean case, see SCOPE_CONTINUATION_FAILS_CLEAN_CASE) and everything it wrote past the stop is
++// ignored: the checks after the requirement-scope checks, and the report diagnostics of their lines, are dropped before
++// scoring, so they neither earn nor lose points and are not counted as locators or format errors.
++const SPEC_READINESS_STOP_IGNORED_CHECKS = new Set(SPEC_READINESS_SCOPES.slice(2));
++const withoutScopeContinuation = async (/** @type {{checks: JsonObject[], diagnostics: ContentDiagnostic[], path: string}} */ {checks, diagnostics, path}) => {
++    const ignoredLines = new Set();
++    for (const [index, lineText] of (await readFile(path, 'utf8')).split(/\r?\n/).entries()) {
++        let value;
++        try { value = JSON.parse(lineText); } catch { continue; }
++        if (isJsonObject(value) && typeof value.check === 'string' && SPEC_READINESS_STOP_IGNORED_CHECKS.has(value.check)) ignoredLines.add(index + 1);
++    }
++    return {checks: checks.filter(check => !SPEC_READINESS_STOP_IGNORED_CHECKS.has(/** @type {string} */ (check.check))),
++        diagnostics: diagnostics.filter(item => !ignoredLines.has(/** @type {{line?: number}} */ (item).line))};
++};
++
+ const scoreReadinessChecks = async (/** @type {{adjudicationDecisions: Map<string, string>, checks: JsonObject[], expected: ExpectedFixture, instanceId: string, reportDiagnostics?: ContentDiagnostic[], retainScorer?: (score: (decisions: Map<string, string>) => CapabilityScore) => void, reviewerId: string, scenarioRoot: string}} */ {
+     adjudicationDecisions, checks, expected, instanceId, reportDiagnostics = [], retainScorer, reviewerId, scenarioRoot,
+ }) => {
+@@ -1988,7 +2084,9 @@
      const missingCleanScores = new Map(expected.scopes.filter(scope => !presentChecks.has(scope.scope)).map(scope => [
          scope.scope, new Map(scope.cleanCases.map((_, index) => [index, 0])),
      ]));
@@ -224,7 +247,22 @@
      retainScorer?.(score);
      return {...score(adjudicationDecisions), reportDiagnostics};
  };
-@@ -2226,7 +2308,9 @@
+@@ -2013,9 +2111,11 @@
+         if (reviewerCapabilityVerificationCore.fullReviewBindingFailure({expected, review}) === 'binding') {
+             return {finding: `${reviewerId} draft request, Inputs, Role, or subject binding is invalid.`};
+         }
+-        return scoreReadinessChecks({adjudicationDecisions, checks: review.checks, expected, instanceId,
+-            reportDiagnostics: 'reportDiagnostics' in review ? /** @type {ContentDiagnostic[]} */ (review.reportDiagnostics) : [],
+-            retainScorer, reviewerId, scenarioRoot});
++        const diagnostics = 'reportDiagnostics' in review ? /** @type {ContentDiagnostic[]} */ (review.reportDiagnostics) : [];
++        const kept = SCOPE_CONTINUATION_FAILS_CLEAN_CASE && diagnostics.some(item => item.code === 'requirement-scope-continuation')
++            ? await withoutScopeContinuation({checks: review.checks, diagnostics, path}) : {checks: review.checks, diagnostics};
++        return scoreReadinessChecks({adjudicationDecisions, checks: kept.checks, expected, instanceId,
++            reportDiagnostics: kept.diagnostics, retainScorer, reviewerId, scenarioRoot});
+     }
+     const value = JSON.parse(await readFile(path, 'utf8'));
+     if (!isJsonObject(value) || value.schemaVersion !== 6 || value.issueId !== 'issue:0001:01'
+@@ -2226,7 +2326,9 @@
                  locators.push({filePath: item.filePath, line: region});
              } else if (Array.isArray(region) && region.length === 2
                  && region.every(line => Number.isSafeInteger(line) && line > 0)
@@ -235,7 +273,7 @@
                  locators.push({filePath: item.filePath, lineEnd: region[1], lineStart: region[0]});
              } else locators.push({filePath: item.filePath, lines: [region]});
          }
-@@ -2386,7 +2470,9 @@
+@@ -2386,7 +2488,9 @@
                  !== expectedRecord.requirements.filter(expected => locatorKey(expected.source) === source).length;
          })) reportDiagnostics.push({code: 'requirement-coverage-invalid', message: 'Requirement report has missing, duplicate, or split rows.'});
      const expectedSources = new Set(expectedRecord.requirements.map(requirement => locatorKey(requirement.source)));
@@ -246,7 +284,7 @@
          reportDiagnostics.push({code: 'requirement-source-invalid', message: 'Requirement source is outside the expected set.'});
      }
      /** @type {Finding[]} */
-@@ -2409,7 +2495,8 @@
+@@ -2409,7 +2513,8 @@
              reviewerId,
          });
          if (parsed.error !== undefined) {
@@ -256,7 +294,7 @@
              if (expectedRequirement.result === 'satisfied') cleanObservations.push({actualEvidence: [],
                  requirementSource: auditRequirementIdentity(expectedRequirement), satisfied: false});
              continue;
-@@ -2424,7 +2511,7 @@
+@@ -2424,7 +2529,7 @@
      if (record.result !== derivedResult) {
          reportDiagnostics.push({code: 'review-format-invalid', message: `${reviewerId} audit result does not match its requirement results for ${expectedRecord.pathSuffix}.`});
      }
@@ -265,7 +303,7 @@
  };
  
  const parseCommitAuditRecords = (/** @type {{requirementBindings?: Map<number, Map<number, number | null>>, evidenceSources: Map<string, string>, expected: ExpectedFixture, records: unknown[], reviewerId: string}} */ {
-@@ -2448,6 +2535,7 @@
+@@ -2448,6 +2553,7 @@
      const cleanObservations = [];
      /** @type {ContentDiagnostic[]} */
      const reportDiagnostics = [];
@@ -273,7 +311,7 @@
      const expectedScopesById = new Map(expected.scopes.map(scope => [scope.scope, scope]));
      if (expected.auditRecords === undefined) return {finding: `${reviewerId} expected Commit Audit records are unavailable.`};
      for (const [index, expectedRecord] of expected.auditRecords.entries()) {
-@@ -2463,6 +2551,7 @@
+@@ -2463,6 +2569,7 @@
          });
          if (parsed.finding !== undefined) return parsed;
          reportDiagnostics.push(...parsed.reportDiagnostics);
@@ -281,7 +319,7 @@
          const ownedFindings = checksByScope.get(parsed.check.check);
          if (ownedFindings === undefined) return {finding: `${reviewerId} returned an unknown Commit Audit scope.`};
          ownedFindings.push(...parsed.check.findings);
-@@ -2482,7 +2571,7 @@
+@@ -2482,7 +2589,7 @@
          const findings = checksByScope.get(scope.scope) ?? [];
          return {check: scope.scope, findings, result: derivedReviewResult(findings)};
      });
@@ -290,7 +328,7 @@
  };
  
  const bindReportDiagnostics = (/** @type {{instanceId: string, reviewerId: string}} */ identity,
-@@ -2508,12 +2597,20 @@
+@@ -2508,12 +2615,20 @@
              return {records: [], reportDiagnostics: validated.reportDiagnostics};
          }
          if (validated.rows.length === 0) throw new Error(`${reviewerId} report has no scorable content; a confirmed modelFailure is required.`);
@@ -312,7 +350,7 @@
      }
      const expectedRecords = instance.expected.auditRecords;
      if (expectedRecords === undefined || paths.length !== expectedRecords.length
-@@ -2544,7 +2641,13 @@
+@@ -2544,7 +2659,13 @@
          if (!isJsonObject(evidence) || typeof evidence.filePath !== 'string') continue;
          const source = evidenceSources.get(normalizePath(evidence.filePath));
          const end = 'lineEnd' in evidence ? evidence.lineEnd : evidence.line;
@@ -327,7 +365,7 @@
              diagnostics.push({code: 'review-evidence-invalid', message: 'Markdown evidence is outside the frozen source.'});
          }
      }
-@@ -2583,14 +2686,16 @@
+@@ -2583,14 +2704,16 @@
              throw new Error('Original report is unreadable or failed beyond its representation.');
          }
          // Project policy: a syntactically valid original may also be normalized (tuning scores read scoreBeforePenalty).
@@ -346,7 +384,7 @@
      const diagnostics = [...original.reportDiagnostics ?? [], ...(original.checks === undefined ? [] : markdownEvidenceDiagnostics(original.checks,
          await loadEvidenceSources({expected: instance.expected, scenarioRoot: instance.scenarioRoot, additionalEvidence: original.checks, runCommand})))];
      if (!diagnostics.some(item => item.code === 'review-format-invalid' || item.code === 'review-evidence-invalid')) {
-@@ -2599,13 +2704,26 @@
+@@ -2599,13 +2722,26 @@
      return bindReportDiagnostics(identity, diagnostics);
  };
  
@@ -375,7 +413,7 @@
  };
  
  const validateResponse = async (/** @type {{adjudicationDecisions: Map<string, string>, artifact: ArtifactInstance, auditInput?: CapabilityAuditInput, commitAuditBindings?: Map<number, Map<number, number | null>>, instance: PreparedScenario, retainScorer: (score: (decisions: Map<string, string>) => CapabilityScore) => void, reviewerId: string, runCommand: RunCommand}} */ {
-@@ -2658,8 +2776,10 @@
+@@ -2658,8 +2794,10 @@
          records: auditInput.records, reviewerId});
      if ('finding' in parsed) return parsed;
      const scorer = createReviewerCapabilityScenarioScorer({evidenceSources, expected, instanceId, reviewerId, scenarioRoot});
@@ -387,7 +425,7 @@
      retainScorer(score);
      return {...score(adjudicationDecisions), reportDiagnostics: [...auditInput.reportDiagnostics, ...parsed.reportDiagnostics]};
  };
-@@ -2930,8 +3050,12 @@
+@@ -2930,8 +3068,12 @@
                  throw new Error('Corrected report still has a representation error.');
              }
              const diagnostics = [...sourceDiagnostics, ...bindReportDiagnostics({instanceId: instance.instanceId, reviewerId: item.reviewerId}, reportDiagnostics)];
@@ -401,7 +439,7 @@
          } catch (error) {
              failures.push({code: 'scoring-input-invalid', instanceId: instance.instanceId, reviewerId: item.reviewerId,
                  message: error instanceof Error ? error.message : String(error)});
-@@ -2943,7 +3067,7 @@
+@@ -2943,7 +3085,7 @@
  const capabilityInstanceDetails = (/** @type {InstanceScore} */ instance) => {
      const {candidates: unusedCandidates, semanticProblemHits: unusedSemanticProblemHits, ...details} = instance.result;
      return {instanceId: instance.instanceId, repetition: instance.repetition, scenarioId: instance.scenarioId,
@@ -410,7 +448,7 @@
          ...capabilityMeasurementDetails(instance.artifact.measurement),
          ...(instance.artifact.modelFailure === undefined ? {} : {modelFailure: instance.artifact.modelFailure}),
          ...(instance.artifact.formatCorrection === undefined ? {} : {formatCorrection: instance.artifact.formatCorrection})};
-@@ -2964,6 +3088,26 @@
+@@ -2964,6 +3106,26 @@
      }
  };
  
@@ -420,9 +458,9 @@
 +// 'case': lost inside the cases it belongs to (invalid evidence matches nothing, a missing or invalid requirement row loses
 +// its judgment, a row outside the requested requirements fails one clean case); recorded only. 'cut': the ARW 0.9 cut.
 +// A code not listed here keeps the cut.
-+// requirement-scope-continuation (continuing after a requirement-scope problem) awaits the user's choice; setting
-+// SCOPE_CONTINUATION_FAILS_CLEAN_CASE to true scores it as one failed B clean case of its scenario instead of the cut.
-+const SCOPE_CONTINUATION_FAILS_CLEAN_CASE = false;
++// requirement-scope-continuation (continuing after a requirement-scope problem) is one wrong answer (user 2026-10-15): one
++// failed B clean case of its scenario, the content past the stop ignored (withoutScopeContinuation); false restores the cut.
++const SCOPE_CONTINUATION_FAILS_CLEAN_CASE = true;
 +const REPORT_DIAGNOSTIC_TREATMENT = new Map([
 +    ['review-format-invalid', 'format'], ['review-json-invalid', 'format'], ['review-utf8-invalid', 'format'],
 +    ['review-row-unattributed', 'format'], ['review-evidence-overrun', 'record'],
@@ -437,7 +475,7 @@
  const summarizeCapabilityScores = (/** @type {{contract: CapabilityContract, instanceScores: InstanceScore[]}} */ {contract, instanceScores}) => {
      const scenarioCount = contract.reviewerId === 'spec-readiness-reviewer' ? SPEC_READINESS_SCENARIOS.length : 1;
      const repetitions = [];
-@@ -2973,12 +3117,14 @@
+@@ -2973,12 +3135,14 @@
          const result = reviewerCapabilityVerificationCore.combineScenarios(paired.map(instance => instance.result));
          const {candidates: unusedCandidates, semanticProblemHits: unusedHits, score: scoreBeforePenalty, ...details} = result;
          const reportDiagnostics = paired.flatMap(instance => instance.reportDiagnostics);
@@ -454,17 +492,18 @@
          totalRepetitions: CAPABILITY_INSTANCE_COUNT});
      const repetitionScores = aggregate.repetitionScores.map(item => item.score);
      const finalRepetitionScores = aggregate.finalRepetitionScores.map(item => item.score);
-@@ -2988,6 +3134,9 @@
+@@ -2988,6 +3152,10 @@
          scoreExplanation: `${aggregate.score === undefined ? 'Incomplete repetition set.' : `Final score: ${aggregate.score.toFixed(3)}. Score before penalty: ${aggregate.scoreBeforePenalty?.toFixed(3)}.`} Repetition scores before penalty: ${repetitionScores.map(value => value.toFixed(3)).join(', ')}. Final repetition scores: ${finalRepetitionScores.map(value => value.toFixed(3)).join(', ')}. Report errors: ${instanceScores.flatMap(instance => instance.reportDiagnostics).map(item => `${item.instanceId}: ${item.message}`).join(' ') || 'None.'}`};
  };
  
 +// Project scoring upgrade r7: the report error policy, exposed for the project's tests.
-+export const reviewerCapabilityReportPolicy = Object.freeze({diagnosticTreatment, summarizeCapabilityScores, unrepairableFormatErrorCount});
++export const reviewerCapabilityReportPolicy = Object.freeze({diagnosticTreatment, summarizeCapabilityScores, unrepairableFormatErrorCount,
++    withoutScopeContinuation});
 +
  /** @typedef {{actualIndexes: number[], actualRequirements: unknown[], expectedIndexes: number[], expectedRequirements: AuditRequirement[], instanceId: string, recordIndex: number, source: FixtureLocator}} RequirementBindingRequest */
  const prepareCommitAuditBindings = (/** @type {{contract: CapabilityContract, indexes: number[], item: ArtifactEntry, auditInputs: Map<string, CapabilityAuditInput>}} */ {
      contract, indexes, item, auditInputs,
-@@ -3169,22 +3318,28 @@
+@@ -3169,22 +3337,28 @@
          inputFailures.push(...scored.failures);
          evaluations.push({...selection, ...scored});
      }

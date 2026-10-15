@@ -73,7 +73,7 @@ JUDGMENT = Path(__file__).resolve().parents[2] / 'benchmarks/reviewer-suite-v1/j
 FIXTURES = 'tests/fixtures/reviewer-capability'
 SCORING_UPGRADE = {
     'file': 'scoring-f2.patch',
-    'sha256': '053870f3478170662e47b780c1c709911f14df86cb59477be62d8c4d586a13c6',
+    'sha256': 'ebc4ad013b225cca8fc5a2d7b8542dba5bc6a459c6dec44e5e42716266b05666',
     # Members no scenario patch touches: (ARW original, upgraded).
     'members': {
         'lib/release/reviewer-capability-scoring.mjs': (
@@ -84,7 +84,7 @@ SCORING_UPGRADE = {
             'b6afd551621a3496702cb7abafc1e6ab82c15e1ece5d13e9434db9057731f1b0'),
         'docs/agents/reviewer-capability-scoring.md': (
             '8dac785a4dc2eee70949fd02a212b65959039c256fa87f6a3e86c105ec011769',
-            'a9e35b62a8726b9d8375ea3c9bcc43db0b8b34ce047ffc4abb24c1660289b93d'),
+            '217908536a38ba83e1936392dcdb368823435adc1e1514cd0ee22592c0a5795b'),
         'docs/agents/reviewer-capability-scenarios.md': (
             '5fe9b4e5511416a4af636baa67b812bf46f627710b75b1285e6c49758fdb909b',
             '3f444bc68cb9ed8cf3f2e004da5b14a328d0fef2469cd1158c6ed04932b2b859'),
@@ -98,8 +98,14 @@ SCORING_UPGRADE = {
     # 2026-10-15); r3 had evidence F2 only, before the two-part score (user 2026-10-15); r4 bound overlays
     # without a registry; r5 had no in-key registration and rejected results without two-part counts;
     # r6 judged clean cases mechanically, matched multi-word terms as word bags, required evidence score
-    # >= 0.5 for judgment problem cases and cut every format error by 0.9 (r7, user 2026-10-15).
+    # >= 0.5 for judgment problem cases and cut every format error by 0.9 (r7, user 2026-10-15). r7 cut a
+    # continuation past the requirement-scope stop by 0.9 (one wrong answer, user 2026-10-15); it left the same
+    # modules as the current upgrade, so it is recognized by its scoring document as well.
     'superseded': {
+        ('555a20834fcea541bc785a61d9b6cd5c4e97b9d96709ef95598e1c405d5bc9c7',
+         'b6afd551621a3496702cb7abafc1e6ab82c15e1ece5d13e9434db9057731f1b0',
+         'a9e35b62a8726b9d8375ea3c9bcc43db0b8b34ce047ffc4abb24c1660289b93d'): (
+            'superseded/scoring-f2-r7.patch', '053870f3478170662e47b780c1c709911f14df86cb59477be62d8c4d586a13c6'),
         ('6d317e629d35bd732d0adf50427e2b9ec79f67df4370d636ba73bc8be383c230',
          'a5e5a5f32fe87d2b84f55e259ea39db0ba1f7e56a681b96af93710ca7b01d9a1'): (
             'superseded/scoring-f2-r1-pairs.patch', 'eca2b547d73091244592aa7adf2fa7efbc1f38476f4847f58fc9a2a2477fd8e7'),
@@ -214,8 +220,10 @@ def upgrade_scoring(destination):
     members = SCORING_UPGRADE['members']
     scoring_module = 'lib/release/reviewer-capability-scoring.mjs'
     migrated = None
-    draft = SCORING_UPGRADE['superseded'].get(tuple(sha((destination / name).read_bytes()) for name in (
-        scoring_module, 'lib/release/reviewer-capability-verification.mjs')))
+    modules = tuple(sha((destination / name).read_bytes()) for name in (
+        scoring_module, 'lib/release/reviewer-capability-verification.mjs'))
+    draft = SCORING_UPGRADE['superseded'].get(modules) or SCORING_UPGRADE['superseded'].get(
+        modules + (sha((destination / 'docs/agents/reviewer-capability-scoring.md').read_bytes()),))
     if draft:
         git_apply(pinned_patch(*draft), destination, '--reverse')
         shutil.rmtree(destination / 'reviewer-pairs', ignore_errors=True)
