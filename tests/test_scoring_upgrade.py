@@ -1,5 +1,6 @@
-"""The project's ARW scoring upgrade: evidence F2 instead of F3 (user 2026-10-14) and the
-two-part score of judgment cases and other cases (user 2026-10-15)."""
+"""The project's ARW scoring upgrade: evidence F2 instead of F3 (user 2026-10-14), the two-part
+score of judgment cases and other cases, and r7: adjudicated clean cases, phrase terms, no evidence
+threshold for judgment problem cases (user 2026-10-15)."""
 import hashlib
 import json
 from pathlib import Path
@@ -21,6 +22,7 @@ import {resolve} from 'node:path';
 const arw = process.argv[1];
 const {createReviewerCapabilityScenarioScorer} = await import(resolve(arw, 'lib/release/reviewer-capability-scoring.mjs'));
 const {reviewerCapabilityVerificationCore: core} = await import(resolve(arw, 'lib/release/reviewer-capability-verification.mjs'));
+const {reviewerCapabilityReportPolicy: policy} = await import(resolve(arw, 'lib/release/reviewer-capability-conformance.mjs'));
 const filePath = 'specs/rules.md';
 const scope = 'SPEC-READINESS-REQUIREMENTS';
 const evidenceSources = new Map([[filePath, ['Alpha.', 'Beta.', 'Gamma.', 'Delta.', 'Clean target.', 'Other clean.', 'Problem two.',
@@ -40,16 +42,25 @@ const scorerFor = (problemCases, cleanCases) => createReviewerCapabilityScenario
     expected: {cleanCount: cleanCases.length + 1, kind: 'spec-readiness-artifact', problemCount: problemCases.length,
         scopes: [{scope, problemCases, cleanCases: [...cleanCases, {noOtherSupportedFinding: true}]}]},
     reviewerId: 'spec-readiness-reviewer', scenarioRoot: resolve('/probe')});
-const run = (scorer, findings, present = true) => {
+// Association candidates are all matched; finding candidates get findingDecisions[i] for the i-th one, or stay
+// undecided (mechanical result) when it is missing.
+const run = (scorer, findings, present = true, findingDecisions = []) => {
     const checks = present ? [{check: scope, findings, result: findings.length ? 'gap' : 'pass'}] : [];
     // As ARW scores Spec Readiness: every clean case of a missing check gets observation score 0.
     const cleanObservationScores = present ? new Map() : new Map([[scope, new Map([0, 1, 2].map(index => [index, 0]))]]);
     const provisional = scorer({checks, cleanObservationScores});
-    return scorer({adjudicationDecisions: new Map(provisional.candidates.map(candidate => [candidate.candidateId, 'matched'])), checks,
-        cleanObservationScores});
+    const decisions = new Map(provisional.candidates.filter(candidate => candidate.kind === 'association')
+        .map(candidate => [candidate.candidateId, 'matched']));
+    const settled = scorer({adjudicationDecisions: decisions, checks, cleanObservationScores});
+    settled.candidates.filter(candidate => candidate.kind === 'finding').forEach((candidate, index) => {
+        if (findingDecisions[index] !== undefined) decisions.set(candidate.candidateId, findingDecisions[index]);
+    });
+    return scorer({adjudicationDecisions: decisions, checks, cleanObservationScores});
 };
 const pick = result => ({...Object.fromEntries(['judgmentCases', 'judgmentPoints', 'judgmentScore', 'judgmentWeight', 'bScore', 'rawScore',
-    'score', 'judgmentWarning'].map(key => [key, result[key]])), problem: result.caseScores.problem});
+    'score', 'judgmentWarning', 'bCleanCases', 'bEarnedCleanPoints', 'extraFailedCleanCases', 'locatorCount'].map(key => [key, result[key]])),
+    problem: result.caseScores.problem, clean: result.caseScores.clean[0],
+    findingCandidates: result.candidates.filter(candidate => candidate.kind === 'finding').map(candidate => candidate.allowedDecisions)});
 const single = scorerFor([P, Q], [C, D]);
 const finding = (text, ...evidence) => ({evidence: lines(...evidence), finding: text, result: 'gap'});
 // Spec Readiness pair: C is scored in both scenarios at half share, R and E only in the second.
@@ -60,17 +71,76 @@ let unequal, partial;
 try { core.combineScenarios([first]); } catch (error) { unequal = error.message; }
 // A result without two-part counts, such as ARW's own synthetic test data, counts as all B.
 const plain = run(scorerFor([Q], [D]), [finding('The second problem is present.', 7)]);
-const countKeys = ['bCleanCases', 'bEarnedCleanPoints', 'bEarnedProblemPoints', 'bProblemCases', 'judgmentCases',
+const countKeys = ['bCleanCases', 'bEarnedCleanPoints', 'bEarnedProblemPoints', 'bProblemCases', 'extraFailedCleanCases', 'judgmentCases',
     'judgmentCleanCases', 'judgmentPoints', 'judgmentProblemCases', 'noOtherCases'];
 const stripped = Object.fromEntries(Object.entries(plain).filter(([key]) => !countKeys.includes(key)));
 try { core.combineScenarios([{...stripped, judgmentCases: 0}]); } catch (error) { partial = error.message; }
 const counts = {bCleanCases: 9, bEarnedCleanPoints: 9, bEarnedProblemPoints: 4, bProblemCases: 8, judgmentCases: 4,
     judgmentCleanCases: 2, judgmentPoints: 2, judgmentProblemCases: 2, noOtherCases: 1, totalCleanCases: 11, totalProblemCases: 10};
+// r7: Code Standards evidence of a 10-line file. A range that starts inside the file and runs past its end is cut to the
+// last line and counted; a single line or a range starting past the end stays invalid and earns nothing.
+const codeFile = 'src/a.mjs';
+const codeScorer = createReviewerCapabilityScenarioScorer({evidenceSources: new Map([[codeFile, Array.from({length: 10}, (_, i) => `l${i + 1};`).join('\n')]]),
+    expected: {cleanCount: 2, problemCount: 1, scopes: [{scope: 'S', problemCases: [{associationEvidence: [{filePath: codeFile, line: 9}],
+        evidence: [{filePath: codeFile, line: 9}, {filePath: codeFile, line: 10}], expectation: 'The alpha rule is violated.',
+        findingTerms: [['alpha rule']], result: 'gap'}],
+        cleanCases: [{evidence: [{filePath: codeFile, line: 2}], expectation: 'Beta is fine.', findingTerms: [['beta part']]},
+            {noOtherSupportedFinding: true}]}]},
+    instanceId: 'code', reviewerId: 'code-standards-reviewer', scenarioRoot: resolve('/probe')});
+const codeRun = (evidence, reportedFailedCleanCases = 0) => {
+    const checks = [{check: 'S', findings: [{evidence, finding: 'The alpha rule is violated.', result: 'gap'}], result: 'gap'}];
+    const provisional = codeScorer({checks, reportedFailedCleanCases});
+    const adjudicationDecisions = new Map(provisional.candidates.map(candidate => [candidate.candidateId, 'matched']));
+    const result = codeScorer({adjudicationDecisions, checks, reportedFailedCleanCases});
+    return {...pick(result), overrunLocators: result.overrunLocators, result};
+};
+const range = (lineStart, lineEnd) => ({filePath: codeFile, lineStart, lineEnd});
+const strip = ({result, ...rest}) => rest;
+const cut = codeRun([range(8, 10)]);
+// Each report diagnostic code through the repetition summary: is the repetition cut by 0.9, and is it an unrepairable format error.
+const policyCodes = ['review-format-invalid', 'review-json-invalid', 'review-utf8-invalid', 'review-row-unattributed', 'review-evidence-overrun',
+    'review-evidence-invalid', 'evidence-locator-invalid', 'review-row-invalid', 'requirement-row-invalid', 'requirement-missing',
+    'requirement-coverage-invalid', 'requirement-duplicate', 'requirement-conflicting', 'requirement-source-unexpected',
+    'requirement-source-invalid', 'requirement-scope-continuation', 'some-new-code'];
+const treatment = Object.fromEntries(policyCodes.map(code => {
+    const reportDiagnostics = [{code, instanceId: 'code', message: code, reviewerId: 'code-standards-reviewer'}];
+    const summary = policy.summarizeCapabilityScores({contract: {reviewerId: 'code-standards-reviewer'}, instanceScores: [{artifact: {},
+        instanceId: 'code', repetition: 1, reportDiagnostics, result: cut.result, scenarioId: 'default',
+        unrepairableFormatErrors: policy.unrepairableFormatErrorCount(reportDiagnostics)}]});
+    const [repetition] = summary.repetitions;
+    return [code, {cut: repetition.score !== repetition.scoreBeforePenalty, unrepairable: repetition.instances[0].unrepairableFormatErrors}];
+}));
 console.log(JSON.stringify({
+    overrun: strip(codeRun([range(8, 12)])),
+    cut: strip(cut),
+    overrunLine: strip(codeRun([{filePath: codeFile, line: 12}])),
+    pastEnd: strip(codeRun([range(11, 12)])),
+    reportedFailedClean: strip(codeRun([range(8, 10)], 1)),
+    treatment,
     silent: pick(run(single, [])),
     hit: pick(run(single, [finding('The alpha rule is violated.', 1, 2, 3, 4), finding('The second problem is present.', 7)])),
     weakHit: pick(run(single, [finding('The alpha rule is violated.', 1), finding('The second problem is present.', 7)])),
     falseClean: pick(run(single, [finding('The clean target is wrong.', 5)])),
+    // r7: the nominated false clean is confirmed or rejected by adjudication.
+    falseCleanConfirmed: pick(run(single, [finding('The clean target is wrong.', 5)], true, ['false-positive:clean-1'])),
+    falseCleanRejected: pick(run(single, [finding('The clean target is wrong.', 5)], true, ['unsupported'])),
+    supported: pick(run(single, [finding('The clean target is wrong.', 5)], true, ['supported'])),
+    twoUnsupported: pick(run(single, [finding('Something else.', 3), finding('Another thing.', 4)], true, ['unsupported', 'unsupported'])),
+    twoFalseCleans: pick(run(single, [finding('The clean target is wrong.', 5), finding('Again the clean target.', 5)], true,
+        ['false-positive:clean-1', 'false-positive:clean-1'])),
+    // A finding without the association evidence is associated by adjudication.
+    addedAssociation: pick(run(single, [finding('The alpha rule is violated.', 2, 3)], true, ['problem-1'])),
+    // Multi-word terms match only as a contiguous phrase.
+    scatteredTerms: pick(run(single, [finding('The target here is not clean.', 5)])),
+    validation: (() => {
+        const candidates = [{candidateId: 'a', allowedDecisions: ['matched', 'not-matched']}, {candidateId: 'f', allowedDecisions: ['unsupported', 'supported']}];
+        const decide = (...pairs) => core.validateAdjudication({candidates, adjudication: {decisions: pairs.map(([candidateId, decision]) => ({candidateId, decision, reason: 'r'}))}});
+        const pending = decide(['a', 'matched']);
+        return {pending: pending.pending.map(candidate => candidate.candidateId), notAllowed: 'finding' in decide(['f', 'matched']),
+            unknown: 'finding' in decide(['x', 'matched']), complete: decide(['a', 'not-matched'], ['f', 'supported']).pending.length};
+    })(),
+    timestamps: core.parseMarkdownArtifact({reviewerId: 'code-standards-reviewer', scope: 'S',
+        response: '- `src/a.mjs:3,5` runs at `00:00:00.000`, `at = 10:00:30.000Z`, `13:45` and `startAt: 12:00`.'}),
     missingCheck: pick(run(single, [], false)),
     pairFirst: pick(first),
     pair: pick(core.combineScenarios([first, second])),
@@ -135,9 +205,9 @@ class ScoringUpgradeTests(unittest.TestCase):
         self.assertEqual(self.probe['silent']['judgmentScore'], 0)
         self.assertEqual(self.probe['hit']['judgmentScore'], 1)
         self.assertEqual(self.probe['hit']['score'], 1)
-        # A hit whose evidence score is below 0.5 earns partial ordinary points but counts as wrong.
+        # r7 (R6): an associated judgment problem case is right whatever its evidence score.
         self.assertGreater(self.probe['weakHit']['problem'][0], 0)
-        self.assertEqual(self.probe['weakHit']['judgmentPoints'], 0)
+        self.assertEqual(self.probe['weakHit']['judgmentPoints'], 2)
         self.assertEqual(self.probe['falseClean']['judgmentScore'], -1)
         # A clean case of a missing check is wrong, as in a model failure.
         self.assertEqual(self.probe['missingCheck']['judgmentScore'], -1)
@@ -228,6 +298,75 @@ class ScoringUpgradeTests(unittest.TestCase):
         finally:
             expected.write_bytes(original)
             upgrade_scoring(self.arw)
+
+    def test_r7_false_cleans_are_adjudicated(self):
+        probe = self.probe
+        # Undecided, the finding is charged once (R3b): only the nominated clean case fails, no-other passes.
+        self.assertEqual(probe['falseClean']['findingCandidates'], [['unsupported', 'supported', 'false-positive:clean-1', 'problem-1', 'problem-2']])
+        self.assertEqual(probe['falseClean']['clean'], [0, 1, 1])
+        # A confirmed false clean takes that clean case's slot only.
+        self.assertEqual(probe['falseCleanConfirmed']['clean'], [0, 1, 1])
+        # Rejected: the clean case passes, the unsupported finding fails no-other only.
+        self.assertEqual(probe['falseCleanRejected']['clean'], [1, 1, 0])
+        self.assertEqual(probe['falseCleanRejected']['extraFailedCleanCases'], 0)
+        self.assertEqual(probe['supported']['clean'], [1, 1, 1])
+        # Each further unsupported finding, or further false flag of one clean case, adds a failed B clean case.
+        for name in ('twoUnsupported', 'twoFalseCleans'):
+            with self.subTest(name):
+                self.assertEqual(probe[name]['extraFailedCleanCases'], 1)
+                self.assertEqual(probe[name]['bCleanCases'], 3)
+        self.assertEqual(probe['twoUnsupported']['clean'], [1, 1, 0])
+        self.assertEqual(probe['twoFalseCleans']['clean'], [0, 1, 1])
+
+    def test_r7_ranges_past_the_end_of_a_file_are_cut_and_counted(self):
+        overrun, cut = self.probe['overrun'], self.probe['cut']
+        self.assertEqual(overrun['overrunLocators'], 1)
+        self.assertEqual(cut['overrunLocators'], 0)
+        # The cut range scores as the range written to the last line.
+        self.assertEqual(overrun['problem'], cut['problem'])
+        self.assertGreater(cut['problem'][0], 0)
+        self.assertEqual(overrun['locatorCount'], cut['locatorCount'])
+        # A line past the end, or a range starting past it, is not cut: invalid evidence, lost inside its case only.
+        for name in ('overrunLine', 'pastEnd'):
+            with self.subTest(name):
+                self.assertEqual(self.probe[name]['overrunLocators'], 0)
+                self.assertLess(self.probe[name]['problem'][0], cut['problem'][0])
+                self.assertEqual(self.probe[name]['clean'], cut['clean'])
+
+    def test_r7_reported_failed_clean_cases_add_failed_b_clean_cases(self):
+        reported, cut = self.probe['reportedFailedClean'], self.probe['cut']
+        self.assertEqual(reported['extraFailedCleanCases'], cut['extraFailedCleanCases'] + 1)
+        self.assertEqual(reported['bCleanCases'], cut['bCleanCases'] + 1)
+        self.assertEqual(reported['bEarnedCleanPoints'], cut['bEarnedCleanPoints'])
+        self.assertLess(reported['score'], cut['score'])
+
+    def test_r7_report_errors_are_charged_where_they_belong(self):
+        treatment = self.probe['treatment']
+        format_errors = {'review-format-invalid', 'review-json-invalid', 'review-utf8-invalid', 'review-row-unattributed'}
+        # Only the stop rule awaiting the user's choice, and codes the policy does not know, keep the ARW 0.9 cut.
+        cut = {'requirement-scope-continuation', 'some-new-code'}
+        for code, item in treatment.items():
+            with self.subTest(code):
+                self.assertEqual(item['cut'], code in cut)
+                self.assertEqual(item['unrepairable'], int(code in format_errors))
+
+    def test_r7_adjudication_adds_associations_and_checks_decisions(self):
+        added = self.probe['addedAssociation']
+        self.assertGreater(added['problem'][0], 0)
+        self.assertEqual(added['judgmentPoints'], 2)
+        validation = self.probe['validation']
+        self.assertEqual(validation['pending'], ['f'])
+        self.assertTrue(validation['notAllowed'])
+        self.assertTrue(validation['unknown'])
+        self.assertEqual(validation['complete'], 0)
+
+    def test_r7_terms_are_phrases_and_clock_times_are_not_locators(self):
+        self.assertEqual(self.probe['scatteredTerms']['findingCandidates'], [['unsupported', 'supported', 'problem-1', 'problem-2']])
+        parsed = self.probe['timestamps']
+        self.assertEqual(parsed['checks'][0]['findings'][0]['evidence'], [{'filePath': 'src/a.mjs', 'line': 3}, {'filePath': 'src/a.mjs', 'line': 5}])
+        self.assertEqual(parsed['reportDiagnostics'], [])
+        self.assertEqual(self.probe['hit']['locatorCount'], 5)
+
 
 if __name__ == '__main__':
     unittest.main()

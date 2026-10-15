@@ -73,27 +73,32 @@ JUDGMENT = Path(__file__).resolve().parents[2] / 'benchmarks/reviewer-suite-v1/j
 FIXTURES = 'tests/fixtures/reviewer-capability'
 SCORING_UPGRADE = {
     'file': 'scoring-f2.patch',
-    'sha256': '25573a2edb6b4a23cf2ea00e0d9a3541e0b655bac163ad98d825147dd1969056',
+    'sha256': '053870f3478170662e47b780c1c709911f14df86cb59477be62d8c4d586a13c6',
     # Members no scenario patch touches: (ARW original, upgraded).
     'members': {
         'lib/release/reviewer-capability-scoring.mjs': (
             '89a4e6bdc0a47756c28abce013ce6940ebf224e8609ebf809a499c57b85d60c4',
-            '67c1a38e459c7143a92c641be11422c0e47bf22db3e3c60317c3121c6ecd160b'),
+            '555a20834fcea541bc785a61d9b6cd5c4e97b9d96709ef95598e1c405d5bc9c7'),
         'lib/release/reviewer-capability-verification.mjs': (
             'a5e5a5f32fe87d2b84f55e259ea39db0ba1f7e56a681b96af93710ca7b01d9a1',
-            'ae591793e30144cda24a4f28321b6b84d9a24990de30ae46c56afc55eb041056'),
+            'b6afd551621a3496702cb7abafc1e6ab82c15e1ece5d13e9434db9057731f1b0'),
         'docs/agents/reviewer-capability-scoring.md': (
             '8dac785a4dc2eee70949fd02a212b65959039c256fa87f6a3e86c105ec011769',
-            'add4597931e577a86141e6ad18fc5388827ab7120b3f9893100f24e9ee7ba14a'),
+            'a9e35b62a8726b9d8375ea3c9bcc43db0b8b34ce047ffc4abb24c1660289b93d'),
         'docs/agents/reviewer-capability-scenarios.md': (
             '5fe9b4e5511416a4af636baa67b812bf46f627710b75b1285e6c49758fdb909b',
-            'd0d333cbd08adf5f3bb248a45fdf3fb3546047a5d3195326d63c69f6ab7b3c2a')},
+            '3f444bc68cb9ed8cf3f2e004da5b14a328d0fef2469cd1158c6ed04932b2b859'),
+        'docs/agents/reviewer-capability-verification.md': (
+            '400cbc050ef9683074ac0483c5803819459fc2ba81f3e4c0b59eef7ab2cc9a9c',
+            '00cab0d057e25ce34ad1fe62d971072e118d8925bb23012d48c633b57b7ac1cf')},
     # Scenario patches also change this member, so its upgrade is checked by reverse application.
     'patched_member': 'lib/release/reviewer-capability-conformance.mjs',
     # Earlier drafts, recognized by the scoring and verification modules they leave behind; a copy still
     # carrying one is reverted before the current upgrade. r1 and r2 carried paired cases (withdrawn
     # 2026-10-15); r3 had evidence F2 only, before the two-part score (user 2026-10-15); r4 bound overlays
-    # without a registry; r5 had no in-key registration and rejected results without two-part counts.
+    # without a registry; r5 had no in-key registration and rejected results without two-part counts;
+    # r6 judged clean cases mechanically, matched multi-word terms as word bags, required evidence score
+    # >= 0.5 for judgment problem cases and cut every format error by 0.9 (r7, user 2026-10-15).
     'superseded': {
         ('6d317e629d35bd732d0adf50427e2b9ec79f67df4370d636ba73bc8be383c230',
          'a5e5a5f32fe87d2b84f55e259ea39db0ba1f7e56a681b96af93710ca7b01d9a1'): (
@@ -109,7 +114,10 @@ SCORING_UPGRADE = {
             'superseded/scoring-f2-r4.patch', '855004abacbff41880bd26a93efb10620bd1e4a92b0ff4af625d6201db4985b9'),
         ('67c1a38e459c7143a92c641be11422c0e47bf22db3e3c60317c3121c6ecd160b',
          '48e3d051c8d8c94160c2ee81e1f0c533991ba65d5771fdff6e78735da111c164'): (
-            'superseded/scoring-f2-r5.patch', '4e0f732b214e81686b565be2d030b4391dd41be4df819c6d87a885b305467913')}}
+            'superseded/scoring-f2-r5.patch', '4e0f732b214e81686b565be2d030b4391dd41be4df819c6d87a885b305467913'),
+        ('67c1a38e459c7143a92c641be11422c0e47bf22db3e3c60317c3121c6ecd160b',
+         'ae591793e30144cda24a4f28321b6b84d9a24990de30ae46c56afc55eb041056'): (
+            'superseded/scoring-f2-r6.patch', '25573a2edb6b4a23cf2ea00e0d9a3541e0b655bac163ad98d825147dd1969056')}}
 
 
 def git_apply(patch, destination, *options, check=True):
@@ -199,8 +207,9 @@ def bind_judgment(destination):
 
 
 def upgrade_scoring(destination):
-    """Bring a materialized copy to the project's scoring rule (evidence F2 and the two-part score,
-    user 2026-10-14/15). Applies the upgrade once; a copy left by a superseded draft is reverted first."""
+    """Bring a materialized copy to the project's scoring rule (evidence F2, the two-part score and the
+    r7 adjudicated clean cases, user 2026-10-14/15). Applies the upgrade once; a copy left by a superseded
+    draft is reverted first."""
     destination = Path(destination)
     members = SCORING_UPGRADE['members']
     scoring_module = 'lib/release/reviewer-capability-scoring.mjs'
