@@ -75,18 +75,18 @@ REPEATS = JUDGMENT / 'repeats.json'
 FIXTURES = 'tests/fixtures/reviewer-capability'
 SCORING_UPGRADE = {
     'file': 'scoring-k.patch',
-    'sha256': '8106f958de2fef888c04c0c1726c67e61290e7f1c4796583e627983bd7676fc1',
+    'sha256': '81f0eb4c5b9d084ebc97bffdbd5b5f55be3872c90562c619c99183b0351a551c',
     # Members no scenario patch touches: (ARW original, upgraded).
     'members': {
         'lib/release/reviewer-capability-scoring.mjs': (
             '89a4e6bdc0a47756c28abce013ce6940ebf224e8609ebf809a499c57b85d60c4',
-            '009ea8579c8237cd29a736fb691b843ba37105231975b26fe083a8ada3c8ea72'),
+            'cc4a6538c6a7190a25c013ba2f40a25c364c57f1ca8aaf904ea911a08a7e76fd'),
         'lib/release/reviewer-capability-verification.mjs': (
             'a5e5a5f32fe87d2b84f55e259ea39db0ba1f7e56a681b96af93710ca7b01d9a1',
             '6d990d13f03cc34618a425fa979871c9df2ce8415886c511234f8d6efe2839c9'),
         'docs/agents/reviewer-capability-scoring.md': (
             '8dac785a4dc2eee70949fd02a212b65959039c256fa87f6a3e86c105ec011769',
-            '94781e597c549b727c97c269b75f30e74eab2b9f1d2c55408190ff422530d4e6'),
+            '3a5b9ef4aeb7885ca871a9220ce4a3ea886900a88c37d2c698168cb5c869cdc6'),
         'docs/agents/reviewer-capability-scenarios.md': (
             '5fe9b4e5511416a4af636baa67b812bf46f627710b75b1285e6c49758fdb909b',
             '3f444bc68cb9ed8cf3f2e004da5b14a328d0fef2469cd1158c6ed04932b2b859'),
@@ -103,8 +103,12 @@ SCORING_UPGRADE = {
     # >= 0.5 for judgment problem cases and cut every format error by 0.9 (r7, user 2026-10-15). r7 cut a
     # continuation past the requirement-scope stop by 0.9 (one wrong answer, user 2026-10-15); it left the same
     # modules as r7.1, so both are recognized by their scoring document as well. r7.1 scored judgment cases (A) and
-    # the rest (B, F2) apart; r8 weights every case by k (user 2026-10-16).
+    # the rest (B, F2) apart; r8 weights every case by k (user 2026-10-16). r8 nominated the clean case of a satisfied
+    # Commit Audit row only by evidence and terms, so a false gap there also failed no-other (r8.1, user 2026-10-17).
     'superseded': {
+        ('009ea8579c8237cd29a736fb691b843ba37105231975b26fe083a8ada3c8ea72',
+         '6d990d13f03cc34618a425fa979871c9df2ce8415886c511234f8d6efe2839c9'): (
+            'superseded/scoring-k-r8.patch', '8106f958de2fef888c04c0c1726c67e61290e7f1c4796583e627983bd7676fc1'),
         ('555a20834fcea541bc785a61d9b6cd5c4e97b9d96709ef95598e1c405d5bc9c7',
          'b6afd551621a3496702cb7abafc1e6ab82c15e1ece5d13e9434db9057731f1b0',
          '217908536a38ba83e1936392dcdb368823435adc1e1514cd0ee22592c0a5795b'): (

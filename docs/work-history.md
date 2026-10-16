@@ -1228,6 +1228,12 @@ v4.0–v4.6 逐步加难：缺陷推理步数从约 2 步加到约 4 步，再�
 - 遗留：Spec Readiness 共享 k ≥ 1 反例按 0.5 份额计，待用户复核；k = 4 双裁流程未实现；r8 尺度下调参 SD 阈值待定；`all-B` 改名留到下次改登记格式。
 - 提交：实现 93d7117，审查修订为其后的"评分 r8 审查修订"提交（分支 `worktree-agent-a771de5f14cfa3222` 合并进 master）。
 
+## 评分 r8.1：Commit Audit 满足行误报只扣一次（2026-10-17，完成）
+
+- 起因：Commit Audit v2 第 2 轮审计 S1。satisfied 行被判成 gap 或 uncertain 时，该行反例已因干净观察失败；finding 提名不到该反例（要求证据与 `findingTerms` 同时命中），裁成无依据后再占 noOther，扣两次。用户 2026-10-17 采用 A。
+- 内容：`scoring-k.patch` 计分模块新增 `rowCleanTargets`。带 `requirementSource` 的 finding 落在 satisfied 行上时，只提名该行反例；裁为 `unsupported` 时按该反例误报计。ARW 计分说明同步补写。r8 补丁移入 `superseded/scoring-k-r8.patch`，已物化副本按 r8 模块 sha 识别后自动迁移。
+- 核对：工程测试新增 `test_r8_1_a_false_gap_on_a_satisfied_commit_audit_row_is_charged_once`，r8 下得 0.5，r8.1 下得 0.25；ARW conformance 失败集前后相同。Commit Audit v2 两次 Opus 盲答重算分数不变（0.858、0.840）。其他场景的 finding 不带 `requirementSource`，不受影响。
+
 ## 规则整理迁入：计划中已完成或已结束的条目（2026-10-15）
 
 以下原在 `docs/plan.md`，整理规则时迁入，内容按原文保留。

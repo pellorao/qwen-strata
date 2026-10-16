@@ -1,6 +1,7 @@
 """The project's ARW scoring upgrade: evidence F2 instead of F3 (user 2026-10-14); r7: adjudicated clean
 cases, phrase terms, no evidence threshold for problem cases with k >= 1 (user 2026-10-15); r8: every case
-weighted by k, score = (earned problem points - failed clean weight) / problem cases (user 2026-10-16)."""
+weighted by k, score = (earned problem points - failed clean weight) / problem cases (user 2026-10-16); r8.1: a Commit
+Audit finding on a satisfied row is charged once, to that row's clean case (user 2026-10-17)."""
 import hashlib
 import json
 from pathlib import Path
@@ -140,6 +141,28 @@ const stopScore = (checks, reportedFailedCleanCases) => {
     return {...pick(result), candidates: result.candidates.length};
 };
 const stopped = [{check: scope, findings: [finding('The second problem is present.', 7)], result: 'gap'}];
+// r8.1: Commit Audit. Clean cases and findings are bound to requirement rows; the key holds rows 5 and 6 satisfied and
+// row 7 a gap. A false gap on row 5 shares neither the clean case's evidence nor its spec-phrase terms.
+const auditScope = 'COMMIT-AUDIT-GATE-2';
+const audit = createReviewerCapabilityScenarioScorer({evidenceSources, instanceId: 'audit',
+    expected: {cleanCount: 3, problemCount: 1, scopes: [{scope: auditScope,
+        problemCases: [{...problem('The second problem is present.', ['second problem'], [7], [7]), placements: [{associationEvidence: lines(7),
+            check: auditScope, evidence: lines(7)}], requirementSource: 'specs/rules.md:7'}],
+        cleanCases: [clean('Route keys are normalized before lookup.', ['route keys are normalized'], [5], {requirementSource: 'specs/rules.md:5'}),
+            clean('The other clean part is correct.', ['other clean'], [6], {requirementSource: 'specs/rules.md:6'}),
+            {noOtherSupportedFinding: true}]}]},
+    reviewerId: 'commit-audit-reviewer', scenarioRoot: resolve('/probe')});
+const auditRun = (findingDecision, requirementSource = 'specs/rules.md:5') => {
+    const checks = [{check: auditScope, findings: [{evidence: lines(3), finding: 'The lookup skips the documented step.',
+        requirementSource, result: 'gap'}], result: 'gap'}];
+    // As ARW parses Commit Audit: the false gap leaves row 5 unsatisfied, row 6 is reported satisfied with its evidence.
+    const cleanObservations = [{actualEvidence: lines(3), cleanCaseIndex: 0, satisfied: false, scope: auditScope},
+        {actualEvidence: lines(6), cleanCaseIndex: 1, satisfied: true, scope: auditScope}];
+    const provisional = audit({checks, cleanObservations});
+    const decisions = new Map(provisional.candidates.filter(candidate => candidate.kind === 'finding' && findingDecision !== undefined)
+        .map(candidate => [candidate.candidateId, findingDecision]));
+    return pick(audit({adjudicationDecisions: decisions, checks, cleanObservations}));
+};
 console.log(JSON.stringify({
     continuation: {checks: kept.checks.map(check => check.check), diagnostics: kept.diagnostics.map(item => [item.code, item.line ?? null]),
         unrepairable: policy.unrepairableFormatErrorCount(kept.diagnostics), ignored: stopScore(kept.checks, 1),
@@ -150,6 +173,10 @@ console.log(JSON.stringify({
     pastEnd: strip(codeRun([range(11, 12)])),
     reportedFailedClean: strip(codeRun([range(8, 10)], 1)),
     treatment,
+    auditFalseGap: auditRun(undefined),
+    auditFalseGapUnsupported: auditRun('unsupported'),
+    auditFalseGapConfirmed: auditRun('false-positive:clean-1'),
+    auditFalseGapSupported: auditRun('supported'),
     silent: pick(run(single, [])),
     hit: pick(run(single, [finding('The alpha rule is violated.', 1, 2, 3, 4), finding('The second problem is present.', 7)])),
     weakHit: pick(run(single, [finding('The alpha rule is violated.', 1), finding('The second problem is present.', 7)])),
@@ -430,6 +457,22 @@ class ScoringUpgradeTests(unittest.TestCase):
         self.assertEqual(probe['twoFalseCleans']['kFailedCleanWeight'], 1.25)
         self.assertEqual(probe['twoUnsupported']['clean'], [1, 1, 0])
         self.assertEqual(probe['twoFalseCleans']['clean'], [0, 1, 1])
+
+    def test_r8_1_a_false_gap_on_a_satisfied_commit_audit_row_is_charged_once(self):
+        probe = self.probe
+        # The finding nominates its own row's clean case by requirementSource, though it shares neither the clean
+        # case's evidence nor its terms; other clean rows are not nominated.
+        self.assertEqual(probe['auditFalseGap']['findingCandidates'], [['unsupported', 'supported', 'false-positive:clean-1', 'problem-1']])
+        # Undecided, confirmed or judged unsupported, the one wrong judgment fails only its row's clean case: no-other
+        # passes and no extra failed clean case is added, so it costs k 0.25 once.
+        for name in ('auditFalseGap', 'auditFalseGapUnsupported', 'auditFalseGapConfirmed'):
+            with self.subTest(name):
+                self.assertEqual(probe[name]['clean'], [0, 1, 1])
+                self.assertEqual(probe[name]['extraFailedCleanCases'], 0)
+                self.assertEqual(probe[name]['kFailedCleanWeight'], 0.25)
+        # A supported defect outside the key fails no clean case through the finding; the row's observation still does.
+        self.assertEqual(probe['auditFalseGapSupported']['clean'], [0, 1, 1])
+        self.assertEqual(probe['auditFalseGapSupported']['kFailedCleanWeight'], 0.25)
 
     def test_r7_ranges_past_the_end_of_a_file_are_cut_and_counted(self):
         overrun, cut = self.probe['overrun'], self.probe['cut']

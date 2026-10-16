@@ -27,7 +27,7 @@ index 7a77c73..c2b9cec 100644
  同一缺陷可能由写入点, 分配点或后续查询点的证据准确证明. 为避免只接受一套证明而把真实 finding 当作误报, 同一个 `check` 可以在既有 `placements` 中声明多个等价位置. 每个位置独立声明完整的 `evidence` 和 `associationEvidence`; 不得重复声明完全相同的位置. 实际 finding 必须完整满足某一个位置的关联证据, 不能把不同位置各自缺失的证据拼接起来. 语义确认仍只判断同一缺陷, 不因位置增加而允许修改证据或直接调整分数.
  
 diff --git a/docs/agents/reviewer-capability-scoring.md b/docs/agents/reviewer-capability-scoring.md
-index 15a5e25..f05eff1 100644
+index 15a5e25..a34d21a 100644
 --- a/docs/agents/reviewer-capability-scoring.md
 +++ b/docs/agents/reviewer-capability-scoring.md
 @@ -4,7 +4,7 @@
@@ -44,7 +44,7 @@ index 15a5e25..f05eff1 100644
  ## Clean cases
  
 -干净用例首先获得二元误报分数, 并且只评估未与任何问题用例关联的问题. 每个普通干净用例保留一个必要的主要 `evidence` 集合. 可选的 `evidenceAlternatives` 数组声明直接支持同一个用例的其他完整非空证据集合. 它不得与主要集合或该用例中的其他替代集合重复. 主要集合仍然是从预期已满足的 Commit Audit 要求到对应干净用例的唯一绑定. Commit Audit 的干净观察与误报判断同时保留 Gate 和 requirement 绑定; 同一证据集合支持不同 requirement 时, 一项误报不得影响其他 requirement. 对于普通干净用例, 只有当问题位于相同范围, 其实际证据根据 [Locator matching](reviewer-capability-scenarios.md#locator-matching) 包含任一完整已接受集合中的每个定位信息, 且后续宽松概念确认与预期语义对象匹配时, 问题才以它为目标. 独立评估每个集合, 绝不跨集合合并定位信息. 仅共享文件路径并不足够, 除非该精确的仅含文件路径定位信息是一个已经声明的完整集合. 每个范围包含一个固定的 `no other supported finding` 干净用例. 如果实际范围中仍有任何未关联的问题, 该用例失败. 部分正确, 合并或重复的问题由相应问题用例评分, 不再接受第二项干净用例惩罚. 测试夹具内容不得包含已经批准的问题清单以外的受支持缺陷. 结构化的已满足 Commit Audit 要求还会向相应干净用例提供一项 F3 证据观察. 主要绑定标识该用例后, 分别根据主要集合和每个替代集合独立计算相同的精确定位信息覆盖率和精确率公式, 使用最高分, 不对集合求和或组合, 然后取该观察分数和二元误报分数中的较小值. 缺失, 非数组, 格式错误, 超出范围或无法定位的证据不获得匹配, 但不会成为强制关卡失败. 除上述已确认的空白行外, 所提供的每个证据项仍计入每次比较的精确率分母, 有效行范围中的每个实际行计数一次.
-+干净用例首先获得二元误报分数, 并且只评估未与任何问题用例关联的问题. 每个普通干净用例保留一个必要的主要 `evidence` 集合. 可选的 `evidenceAlternatives` 数组声明直接支持同一个用例的其他完整非空证据集合. 它不得与主要集合或该用例中的其他替代集合重复. 主要集合仍然是从预期已满足的 Commit Audit 要求到对应干净用例的唯一绑定. Commit Audit 的干净观察与误报判断同时保留 Gate 和 requirement 绑定; 同一证据集合支持不同 requirement 时, 一项误报不得影响其他 requirement. 对于普通干净用例, 只有当问题位于相同范围, 其实际证据根据 [Locator matching](reviewer-capability-scenarios.md#locator-matching) 包含任一完整已接受集合中的每个定位信息, 且后续宽松概念确认与预期语义对象匹配时, 问题才以它为目标. 独立评估每个集合, 绝不跨集合合并定位信息. 仅共享文件路径并不足够, 除非该精确的仅含文件路径定位信息是一个已经声明的完整集合. 每个范围包含一个固定的 `no other supported finding` 干净用例. 如果实际范围中仍有任何未关联的问题, 该用例失败. 本工程计分升级 r7 (R1, R3b): 上述证据与概念规则 (多词 `findingTerms` 须作为连续短语出现, 每个词可取其变体) 只提名 finding 可能误报的普通干净用例, 由裁决确认; 关联裁决之后仍未关联的每个 finding 都经发现候选裁决, 结果为补关联到本范围某个问题用例, 确认误报某个被提名的干净用例, 无依据 (`unsupported`), 或答案键外的成立缺陷 (`supported`). 被确认的误报使该干净用例失败; 每条无依据 finding 记一个失败干净用例: 先占本范围的 `no other supported finding` 用例, 该用例已失败后另加一个失败干净用例 (计入 `extraFailedCleanCases`, 按 `k = 0.25` 计); 同一干净用例被第二条以上 finding 确认误报时, 每多一条同样另加一个. 成立缺陷不使任何干净用例失败. 尚未裁决的 finding 暂按机械结果显示分数, 同样只扣一次: 有被提名的干净用例时只使这些用例失败, 没有时按无依据 finding 计. 部分正确, 合并或重复的问题由相应问题用例评分, 不再接受第二项干净用例惩罚. 测试夹具内容不得包含已经批准的问题清单以外的受支持缺陷. 结构化的已满足 Commit Audit 要求还会向相应干净用例提供一项 F2 证据观察. 主要绑定标识该用例后, 分别根据主要集合和每个替代集合独立计算相同的精确定位信息覆盖率和精确率公式, 使用最高分, 不对集合求和或组合, 然后取该观察分数和二元误报分数中的较小值. 缺失, 非数组, 格式错误, 超出范围或无法定位的证据不获得匹配, 但不会成为强制关卡失败. 除上述已确认的空白行外, 所提供的每个证据项仍计入每次比较的精确率分母, 有效行范围中的每个实际行计数一次.
++干净用例首先获得二元误报分数, 并且只评估未与任何问题用例关联的问题. 每个普通干净用例保留一个必要的主要 `evidence` 集合. 可选的 `evidenceAlternatives` 数组声明直接支持同一个用例的其他完整非空证据集合. 它不得与主要集合或该用例中的其他替代集合重复. 主要集合仍然是从预期已满足的 Commit Audit 要求到对应干净用例的唯一绑定. Commit Audit 的干净观察与误报判断同时保留 Gate 和 requirement 绑定; 同一证据集合支持不同 requirement 时, 一项误报不得影响其他 requirement. 对于普通干净用例, 只有当问题位于相同范围, 其实际证据根据 [Locator matching](reviewer-capability-scenarios.md#locator-matching) 包含任一完整已接受集合中的每个定位信息, 且后续宽松概念确认与预期语义对象匹配时, 问题才以它为目标. 独立评估每个集合, 绝不跨集合合并定位信息. 仅共享文件路径并不足够, 除非该精确的仅含文件路径定位信息是一个已经声明的完整集合. 每个范围包含一个固定的 `no other supported finding` 干净用例. 如果实际范围中仍有任何未关联的问题, 该用例失败. 本工程计分升级 r7 (R1, R3b): 上述证据与概念规则 (多词 `findingTerms` 须作为连续短语出现, 每个词可取其变体) 只提名 finding 可能误报的普通干净用例, 由裁决确认; 关联裁决之后仍未关联的每个 finding 都经发现候选裁决, 结果为补关联到本范围某个问题用例, 确认误报某个被提名的干净用例, 无依据 (`unsupported`), 或答案键外的成立缺陷 (`supported`). 被确认的误报使该干净用例失败; 每条无依据 finding 记一个失败干净用例: 先占本范围的 `no other supported finding` 用例, 该用例已失败后另加一个失败干净用例 (计入 `extraFailedCleanCases`, 按 `k = 0.25` 计); 同一干净用例被第二条以上 finding 确认误报时, 每多一条同样另加一个. 成立缺陷不使任何干净用例失败. 尚未裁决的 finding 暂按机械结果显示分数, 同样只扣一次: 有被提名的干净用例时只使这些用例失败, 没有时按无依据 finding 计. 本工程计分升级 r8.1: Commit Audit 的 finding 属于一个要求行 (`requirementSource`); 落在答案键判为 satisfied 的行上时, 不看证据与概念规则, 直接提名并只提名该行的干净用例, 裁决为无依据时也只使该用例失败, 不再占 `no other supported finding` 用例: 同一判断错误已经通过该行的干净观察使该用例失败, 只扣一次. 部分正确, 合并或重复的问题由相应问题用例评分, 不再接受第二项干净用例惩罚. 测试夹具内容不得包含已经批准的问题清单以外的受支持缺陷. 结构化的已满足 Commit Audit 要求还会向相应干净用例提供一项 F2 证据观察. 主要绑定标识该用例后, 分别根据主要集合和每个替代集合独立计算相同的精确定位信息覆盖率和精确率公式, 使用最高分, 不对集合求和或组合, 然后取该观察分数和二元误报分数中的较小值. 缺失, 非数组, 格式错误, 超出范围或无法定位的证据不获得匹配, 但不会成为强制关卡失败. 除上述已确认的空白行外, 所提供的每个证据项仍计入每次比较的精确率分母, 有效行范围中的每个实际行计数一次.
  
  ## Final score
  
@@ -571,7 +571,7 @@ index e13e9d9..e0d464c 100644
      const results = summaries();
      if (partial) return {results, reviewerIds: state.reviewerIds, diagnostics: reportDiagnostics, status: 'diagnostic'};
 diff --git a/lib/release/reviewer-capability-scoring.mjs b/lib/release/reviewer-capability-scoring.mjs
-index 15013ad..1f61542 100644
+index 15013ad..d544f6e 100644
 --- a/lib/release/reviewer-capability-scoring.mjs
 +++ b/lib/release/reviewer-capability-scoring.mjs
 @@ -2,20 +2,21 @@ import {isAbsolute} from 'node:path';
@@ -696,22 +696,33 @@ index 15013ad..1f61542 100644
  const associationsByIndex = (/** @type {{associations: FindingAssociation[], count: number, key: 'caseIndex' | 'findingIndex'}} */ {associations, count, key}) => Array.from({length: count}, (_, index) => (
      associations.filter(association => association[key] === index)
  ));
-@@ -223,58 +228,142 @@ const scoreProblemCases = (/** @type {{associationsByCase: FindingAssociation[][
+@@ -223,58 +228,156 @@ const scoreProblemCases = (/** @type {{associationsByCase: FindingAssociation[][
      return best.basePoints + atomicityPoints;
  });
  
 -const cleanCasePasses = (/** @type {{actualFindings: ActualFinding[], cleanCase: FixtureCase, evidenceMatcher: EvidenceMatcher, unassociatedFindingIndexes: number[]}} */ {
++// Project scoring upgrade r8.1 (user 2026-10-17): a Commit Audit finding belongs to one requirement row. On a row
++// the answer key holds satisfied, its clean case is the finding's target whatever the finding's evidence and terms:
++// the same wrong judgment already fails that clean case through its observation, so it is charged once.
++const rowCleanTargets = (/** @type {{actual: ActualFinding, cleanCases: FixtureCase[]}} */ {actual, cleanCases}) => (
++    actual.finding.requirementSource === undefined ? [] : cleanCases.flatMap((cleanCase, cleanCaseIndex) => (
++        cleanCase.noOtherSupportedFinding !== true && cleanCase.requirementSource === actual.finding.requirementSource
++            ? [cleanCaseIndex] : []))
++);
++
 +// Project scoring upgrade r7: the evidence and term rule only nominates the ordinary clean cases a finding
-+// may falsely flag; adjudication confirms it.
-+const mechanicalCleanTargets = (/** @type {{actual: ActualFinding, cleanCases: FixtureCase[], evidenceMatcher: EvidenceMatcher}} */ {actual, cleanCases, evidenceMatcher}) => (
-+    cleanCases.flatMap((cleanCase, cleanCaseIndex) => cleanCase.noOtherSupportedFinding !== true
++// may falsely flag; adjudication confirms it. r8.1: a Commit Audit finding on a satisfied row nominates that row's
++// clean case only.
++const mechanicalCleanTargets = (/** @type {{actual: ActualFinding, cleanCases: FixtureCase[], evidenceMatcher: EvidenceMatcher}} */ {actual, cleanCases, evidenceMatcher}) => {
++    const rowTargets = rowCleanTargets({actual, cleanCases});
++    return rowTargets.length > 0 ? rowTargets : cleanCases.flatMap((cleanCase, cleanCaseIndex) => cleanCase.noOtherSupportedFinding !== true
 +        && (cleanCase.requirementSource === undefined || actual.finding.requirementSource === cleanCase.requirementSource)
 +        && cleanEvidenceSets(cleanCase).some(expected => evidenceMatcher.containsAllLocators({
 +            actual: findingEvidence(actual.finding),
 +            expected,
 +        }))
-+        && findingTermsMatch(actual.finding?.finding, cleanCase.findingTerms) ? [cleanCaseIndex] : [])
-+);
++        && findingTermsMatch(actual.finding?.finding, cleanCase.findingTerms) ? [cleanCaseIndex] : []);
++};
 +
 +const findingCandidateId = (/** @type {{actual: ActualFinding, instanceId: string, reviewerId: string, scopeIndex: number}} */ {actual, instanceId, reviewerId, scopeIndex}) => [
 +    reviewerId,
@@ -797,7 +808,10 @@ index 15013ad..1f61542 100644
 +                placements: problemPlacements(problem.entry).filter(placement => placement.check === actual.check)}));
 +            continue;
 +        }
-+        outcomes.set(findingIndex, {decision, mechanicalTargets});
++        // r8.1: an unsupported finding on a satisfied Commit Audit row takes that row's clean case, not no-other.
++        const rowTargets = rowCleanTargets({actual, cleanCases: expectedScope.cleanCases});
++        outcomes.set(findingIndex, {decision: decision === 'unsupported' && rowTargets.length > 0
++            ? `false-positive:clean-${rowTargets[0] + 1}` : decision, mechanicalTargets});
 +    }
 +    return {added, candidates, outcomes};
  };
@@ -866,7 +880,7 @@ index 15013ad..1f61542 100644
              fullProblemCases: ownedScores.filter((/** @type {number} */ points) => Math.abs(points - 1) < Number.EPSILON * 8).length,
              passedCleanCases: cleanCaseScores.filter((/** @type {number} */ points) => Math.abs(points - 1) < Number.EPSILON * 8).length,
              scope: expectedScope.scope,
-@@ -282,47 +371,93 @@ const scoreScopes = (/** @type {{actualFindings: ActualFinding[], associationsBy
+@@ -282,21 +385,24 @@ const scoreScopes = (/** @type {{actualFindings: ActualFinding[], associationsBy
              totalProblemCases: expectedScope.problemCases.length,
          };
      });
@@ -891,24 +905,24 @@ index 15013ad..1f61542 100644
      const problemCases = flattenProblemCases(expected);
 -    const {associations, candidates} = findProblemAssociations({
 +    const found = findProblemAssociations({
+         actualFindings,
+         adjudicationDecisions,
+         evidenceMatcher,
+@@ -304,25 +410,68 @@ const scoreExpectedScopes = (/** @type {{adjudicationDecisions?: Map<string, str
+         problemCases,
+         reviewerId,
+     });
++    const findingDecisions = findFindingDecisions({
 +        actualFindings,
 +        adjudicationDecisions,
++        associationCandidates: found.candidates,
++        associations: found.associations,
 +        evidenceMatcher,
++        expected,
 +        instanceId,
 +        problemCases,
 +        reviewerId,
 +    });
-+    const findingDecisions = findFindingDecisions({
-         actualFindings,
-         adjudicationDecisions,
-+        associationCandidates: found.candidates,
-+        associations: found.associations,
-         evidenceMatcher,
-+        expected,
-         instanceId,
-         problemCases,
-         reviewerId,
-     });
 +    const associations = [...found.associations, ...findingDecisions.added];
 +    const candidates = [...found.candidates.map(candidate => ({...candidate, allowedDecisions: ['matched', 'not-matched'], kind: 'association'})),
 +        ...findingDecisions.candidates];
@@ -966,7 +980,7 @@ index 15013ad..1f61542 100644
      return {
          candidates,
          caseScores: {clean: scoped.clean, problem: problemScores},
-@@ -332,15 +467,19 @@ const scoreExpectedScopes = (/** @type {{adjudicationDecisions?: Map<string, str
+@@ -332,15 +481,19 @@ const scoreExpectedScopes = (/** @type {{adjudicationDecisions?: Map<string, str
          fullProblemCases,
          passedCleanCases,
          problemDetectionRate,
@@ -991,7 +1005,7 @@ index 15013ad..1f61542 100644
      };
  };
  
-@@ -411,20 +550,38 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
+@@ -411,20 +564,38 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
          }),
      }))}) : boundExpected;
      const evidenceMatcher = createReviewerCapabilityEvidenceMatcher({evidenceSources: sources, scenarioRoot});
@@ -1031,7 +1045,7 @@ index 15013ad..1f61542 100644
              || checks.some(check => !isJsonObject(check)
                  || typeof check.check !== 'string'
                  || typeof check.result !== 'string'
-@@ -447,7 +604,20 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
+@@ -447,7 +618,20 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
                  || [...scores.values()].some(value => typeof value !== 'number' || !Number.isFinite(value)))) {
              throw new TypeError('Reviewer capability scenario score values are invalid.');
          }
@@ -1053,7 +1067,7 @@ index 15013ad..1f61542 100644
          const normalizedChecks = /** @type {JsonObject[]} */ (bodyLineEvidence ? boundChecks.map(check => ({...check, ...(Array.isArray(check.findings) ? {
              findings: check.findings.map(finding => {
                  if (!isJsonObject(finding) || !Array.isArray(finding.evidence)) throw new TypeError('Invalid finding.');
-@@ -468,6 +638,8 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
+@@ -468,6 +652,8 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
                  return {...finding, evidence};
              }),
          } : {})})) : boundChecks);
@@ -1062,7 +1076,7 @@ index 15013ad..1f61542 100644
          return scoreExpectedScopes({
              adjudicationDecisions,
              checks: normalizedChecks.map(check => ({
-@@ -476,13 +648,16 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
+@@ -476,13 +662,16 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
                  result: /** @type {string} */ (check.result),
              })),
              cleanObservationScores: cleanObservations.length === 0 ? cleanObservationScores : scoreCleanObservations({

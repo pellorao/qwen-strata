@@ -132,3 +132,5 @@ ARW conformance 测试的对应断言随补丁改为上表 v2 值；改后失败
 ## 审计
 
 第 1 步（Opus high 审计 + 盲答循环）的记录见下文各轮，冻结前另需独立审查。
+
+- 第 2 轮审计 S1（评分端）：审查者把 satisfied 行判成 gap 或 uncertain 时，该行反例已经因干净观察失败；finding 又因证据或 `findingTerms` 对不上而提名不到该反例，只能裁成无依据，再占掉 noOther，同一个错误扣两次（Gate 2 的 `findingTerms` 是规格短语，尤其如此）。用户 2026-10-17 采用 A：由评分 r8.1 修复（`scoring-k.patch`，不改 v2 补丁和答案键）。落在 satisfied 行上的 finding 按 `requirementSource` 直接提名该行反例；裁为无依据时也只让该反例失败，只扣一次。两次 Opus 盲答按 r8.1 重算，分数不变（0.858、0.840），因为两份报告都没有把 satisfied 行判成 gap 或 uncertain。
