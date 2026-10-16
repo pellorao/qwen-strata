@@ -73,7 +73,7 @@ JUDGMENT = Path(__file__).resolve().parents[2] / 'benchmarks/reviewer-suite-v1/j
 FIXTURES = 'tests/fixtures/reviewer-capability'
 SCORING_UPGRADE = {
     'file': 'scoring-k.patch',
-    'sha256': 'fc0598b84a2f78f14f8ae12529e4515939bd0366bd73f880c7d1b780a9a77bb1',
+    'sha256': '8106f958de2fef888c04c0c1726c67e61290e7f1c4796583e627983bd7676fc1',
     # Members no scenario patch touches: (ARW original, upgraded).
     'members': {
         'lib/release/reviewer-capability-scoring.mjs': (
@@ -81,10 +81,10 @@ SCORING_UPGRADE = {
             '009ea8579c8237cd29a736fb691b843ba37105231975b26fe083a8ada3c8ea72'),
         'lib/release/reviewer-capability-verification.mjs': (
             'a5e5a5f32fe87d2b84f55e259ea39db0ba1f7e56a681b96af93710ca7b01d9a1',
-            'af67cbe22b94212d2c5463d4ffe09c53a45a4ef06e0bf85465a6d98dd99297fe'),
+            '6d990d13f03cc34618a425fa979871c9df2ce8415886c511234f8d6efe2839c9'),
         'docs/agents/reviewer-capability-scoring.md': (
             '8dac785a4dc2eee70949fd02a212b65959039c256fa87f6a3e86c105ec011769',
-            'c34408c1013f888a12cdabfbfd7ea7fbcdbab19994d4fdbee0de135a210fb0b6'),
+            '94781e597c549b727c97c269b75f30e74eab2b9f1d2c55408190ff422530d4e6'),
         'docs/agents/reviewer-capability-scenarios.md': (
             '5fe9b4e5511416a4af636baa67b812bf46f627710b75b1285e6c49758fdb909b',
             '3f444bc68cb9ed8cf3f2e004da5b14a328d0fef2469cd1158c6ed04932b2b859'),
@@ -146,6 +146,11 @@ def pinned_patch(name, digest):
     return patch
 
 
+# A k 4 false positive costs as much as four missed problem cases, so it must be adjudicated twice; until
+# that procedure exists, k 4 marks are refused.
+DUAL_ADJUDICATION_MISSING = '{} marks k 4 cases, which need dual adjudication that is not implemented yet'
+
+
 def k_balanced(tiers):
     """Each marked tier holds k problem cases per clean case, so reporting everything or nothing scores 0 on it."""
     return bool(tiers) and all(counts['problem'] == float(k) * counts['clean'] for k, counts in tiers.items())
@@ -157,7 +162,8 @@ def judgment_binding(destination):
     all-B (every case at the default k 0.25). A case marks k 1 or 4 with `k`; a two-part judgment mark
     (`judgment: true`, r7) and an overlay case without `k` count as k 1. An unregistered key, marks in a key
     not registered as in-key, an overlay that does not match its key case by case, or a marked tier without
-    k problem cases per clean case stops the upgrade. Returns the files to copy into the ARW copy and the
+    k problem cases per clean case stops the upgrade, and so does any k 4 mark until dual adjudication of
+    k 4 false positives exists. Returns the files to copy into the ARW copy and the
     binding of each reviewer."""
     registry_raw = (JUDGMENT / 'registry.json').read_bytes()
     registry = json.loads(registry_raw)
@@ -175,6 +181,8 @@ def judgment_binding(destination):
                     if case.get('judgment') is True or 'k' in case:
                         tier = marked.setdefault(str(1 if case.get('judgment') is True else case['k']), {'problem': 0, 'clean': 0})
                         tier[kind] += 1
+        if '4' in marked:
+            raise ValueError(DUAL_ADJUDICATION_MISSING.format(f'Answer key {digest} of {reviewer}'))
         if entry['judgment'] == 'in-key':
             if not k_balanced(marked):
                 raise ValueError(f'Answer key {digest} of {reviewer} must hold k problem cases per clean case in each marked tier')
@@ -198,6 +206,8 @@ def judgment_binding(destination):
             if (case.get('expectation') != item['expectation'] or case.get('noOtherSupportedFinding') or key in seen
                     or item.get('k', 1) not in (1, 4)):
                 raise ValueError(f"Judgment overlay {path.name} does not match its fixture: {' '.join(map(str, key))}")
+            if item.get('k', 1) == 4:
+                raise ValueError(DUAL_ADJUDICATION_MISSING.format(f'Judgment overlay {path.name}'))
             seen.add(key)
             counts[item['kind']] += 1
             tiers.setdefault(str(item.get('k', 1)), {'problem': 0, 'clean': 0})[item['kind']] += 1

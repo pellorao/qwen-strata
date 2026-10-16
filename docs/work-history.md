@@ -1220,6 +1220,14 @@ v4.0–v4.6 逐步加难：缺陷推理步数从约 2 步加到约 4 步，再�
 
 结果：Q3 ×5 0.644、Opus-high ×3 0.859，Q3/Opus 0.749（×10 为 0.704，罚前 0.778）；clean 失败 0；差距集中在 activeDefault、amenityDup、confirmedAtKept 等题。见[报告](../reports/v0.1.44.1/code-spec-v5/summary.md)。
 
+## 评分 r8：按 k 分档计分（2026-10-16，完成）
+
+- 内容：按 k 分档的统一计分取代 F2 总分与 A/B 两类计分，分数 = (Σ 正例得分 − Σ 失败反例的 k) ÷ 正例数，截到 [0, 1]。补丁 `benchmarks/reviewer-suite-v1/arw-patches/scoring-k.patch`，r7.1 补丁移入 `superseded/`。规则见[评分规则](../.claude/rules/reviewer-suite.md#评分)，k 标记见 [judgment/README](../benchmarks/reviewer-suite-v1/judgment/README.md)。
+- 核对：46 个已有实例（Code Spec v5、Code Standards v5.1、Spec Readiness v4.1）用 r8 重算，与独立公式逐例一致；Spec v4.2 的 Opus 实例在副本上完整计分一次，合并后 k = 1 档 4:4 平衡。参考重算：Code Spec v5 Q3×5 0.598 / Opus 0.816（0.733）；Code Standards v5.1 Q3×10 0.800 / Opus 0.855（0.936）。
+- 独立审查（Opus 5.5）结论"改后可合并"，合并前已落实：k = 4 在双裁实现前被冻结检查和 ARW 拒绝；结果缺 k 计数时报错；README 的 SD 阈值注明 r8 尺度待定；规则补写等价说法的前提、k ≥ 1 反例部分观察分、0.25 档在 RM/AP 各计一次；补了"先合并再截断"和部分观察分的测试。
+- 遗留：Spec Readiness 共享 k ≥ 1 反例按 0.5 份额计，待用户复核；k = 4 双裁流程未实现；r8 尺度下调参 SD 阈值待定；`all-B` 改名留到下次改登记格式。
+- 提交：实现 93d7117，审查修订为其后的"评分 r8 审查修订"提交（分支 `worktree-agent-a771de5f14cfa3222` 合并进 master）。
+
 ## 规则整理迁入：计划中已完成或已结束的条目（2026-10-15）
 
 以下原在 `docs/plan.md`，整理规则时迁入，内容按原文保留。

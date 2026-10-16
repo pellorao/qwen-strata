@@ -69,14 +69,24 @@ const finding = (text, ...evidence) => ({evidence: lines(...evidence), finding: 
 const half = {...C, kShare: 0.5};
 const first = run(scorerFor([P, Q], [half, D]), []);
 const second = run(scorerFor([R, Q], [half, D, E]), []);
-let unequal, partial;
+let unequal, partial, missing;
 try { core.combineScenarios([first]); } catch (error) { unequal = error.message; }
-// A result without k counts, such as ARW's own synthetic test data, counts every case at k 0.25.
+// A result without k counts, or with only some of them, is an error rather than scored at the default k.
 const plain = run(scorerFor([Q], [D]), [finding('The second problem is present.', 7)]);
 const countKeys = ['kEarnedProblemPoints', 'kFailedCleanWeight', 'kProblemWeight', 'kTiers'];
 const stripped = Object.fromEntries(Object.entries(plain).filter(([key]) => !countKeys.includes(key)));
 try { core.combineScenarios([{...stripped, kProblemWeight: 1}]); } catch (error) { partial = error.message; }
-// k 4: one falsely flagged clean case costs as much as four missed problem cases.
+try { core.combineScenarios([stripped, stripped]); } catch (error) { missing = error.message; }
+// A Spec Readiness pair is added up before the score is cut to [0, 1]: three unsupported findings put the first scenario
+// below 0 (no-other and two extra failed clean cases), a full hit puts the second above it.
+const below = run(scorerFor([Q], [D]), [finding('Something else.', 3), finding('Another thing.', 4), finding('A third thing.', 2)], true,
+    ['unsupported', 'unsupported', 'unsupported']);
+const above = run(scorerFor([Q], [D]), [finding('The second problem is present.', 7)]);
+// A clean case with a partial observation score (Commit Audit): k 1 passes when the score is above 0, k 0.25 loses 1 - score.
+const partialClean = single({checks: [{check: scope, findings: [], result: 'pass'}],
+    cleanObservationScores: new Map([[scope, new Map([[0, 0.5], [1, 0.5]])]])});
+// k 4 in the scorer (answer keys may not mark it before dual adjudication exists): one falsely flagged clean case costs
+// as much as four missed problem cases.
 const heavy = scorerFor([Q], [{...C, k: 4}]);
 const unmarked = ({k, ...rest}) => rest;
 // r7: Code Standards evidence of a 10-line file. A range that starts inside the file and runs past its end is cut to the
@@ -174,9 +184,13 @@ console.log(JSON.stringify({
     pairFirst: pick(first),
     pair: pick(core.combineScenarios([first, second])),
     unequal,
-    withoutCounts: pick(core.combineScenarios([stripped, stripped])),
     plain: pick(core.combineScenarios([plain, plain])),
     partial,
+    missing,
+    below: pick(below),
+    above: pick(above),
+    belowAbove: pick(core.combineScenarios([below, above])),
+    partialClean: pick(partialClean),
     formula: core.kScore({kEarnedProblemPoints: 3, kFailedCleanWeight: 0.5, kProblemWeight: 5}),
     balanced: core.unbalancedKTiers({1: {clean: 2, problem: 2}, 4: {clean: 1, problem: 4}}),
     unbalanced: core.unbalancedKTiers({1: {clean: 2, problem: 2}, 4: {clean: 1, problem: 1}}),
@@ -265,10 +279,26 @@ class ScoringUpgradeTests(unittest.TestCase):
         self.assertNotIn('kWarning', pair)
         self.assertIn('unbalanced in one scoring unit', self.probe['unequal'])
 
-    def test_results_without_k_counts_count_every_case_at_the_default_k(self):
-        self.assertEqual(self.probe['withoutCounts'], self.probe['plain'])
-        self.assertEqual(self.probe['withoutCounts']['kTiers'], {})
+    def test_results_without_k_counts_are_rejected(self):
+        self.assertEqual(self.probe['plain']['kTiers'], {})
         self.assertIn('incomplete k counts', self.probe['partial'])
+        self.assertIn('incomplete k counts', self.probe['missing'])
+
+    def test_spec_readiness_pair_is_added_up_before_the_cut(self):
+        below, above, pair = self.probe['below'], self.probe['above'], self.probe['belowAbove']
+        self.assertEqual((below['kFailedCleanWeight'], below['extraFailedCleanCases'], below['rawScore']), (0.75, 2, -0.75))
+        self.assertEqual(below['score'], 0)
+        self.assertGreater(above['rawScore'], 0.75)
+        self.assertAlmostEqual(pair['rawScore'], (above['kEarnedProblemPoints'] - 0.75) / 2)
+        self.assertAlmostEqual(pair['score'], pair['rawScore'])
+        # Cutting each scenario first would score higher.
+        self.assertLess(pair['score'], (below['score'] + above['score']) / 2)
+
+    def test_k_1_clean_case_with_a_partial_observation_score_passes(self):
+        partial = self.probe['partialClean']
+        self.assertEqual(partial['clean'], [0.5, 0.5, 1])
+        # C (k 1) passes; D (k 0.25) loses 0.25 x (1 - 0.5).
+        self.assertEqual(partial['kFailedCleanWeight'], 0.125)
 
     def test_unregistered_or_mismatched_answer_keys_are_rejected(self):
         expected = self.arw / 'tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json'
@@ -284,8 +314,8 @@ class ScoringUpgradeTests(unittest.TestCase):
             'not registered': ({**registry, 'code-spec-reviewer': {}}, overlay),
             'does not match its fixture': (registry, {**overlay, 'cases': [{**overlay['cases'][0], 'index': 1}, overlay['cases'][1]]}),
             'correctly counted': (registry, {**overlay, 'counts': {'problem': 1, 'clean': 2}}),
-            'per clean case': (registry, {**overlay, 'counts': {'problem': 1, 'clean': 1},
-                                          'cases': [{**item, 'k': 4} for item in overlay['cases']]}),
+            'dual adjudication': (registry, {**overlay, 'counts': {'problem': 1, 'clean': 1},
+                                             'cases': [{**item, 'k': 4} for item in overlay['cases']]}),
         }
         for message, (table, content) in cases.items():
             with self.subTest(message), tempfile.TemporaryDirectory() as directory:
@@ -313,13 +343,13 @@ class ScoringUpgradeTests(unittest.TestCase):
         original = expected.read_bytes()
         registry = json.loads((freeze_arw_source.JUDGMENT / 'registry.json').read_text())
         try:
-            # A two-part judgment mark counts as k 1; k 4 needs four problem cases per clean case.
+            # A two-part judgment mark counts as k 1; k 4 is refused, balanced or not, until dual adjudication exists.
             for marks, judgment, message, mark in (((1, 1), 'all-B', 'registered as all-B', {'judgment': True}),
                                                    ((1, 0), 'in-key', 'per clean case', {'judgment': True}),
                                                    ((0, 0), 'in-key', 'per clean case', {'judgment': True}),
                                                    ((1, 1), 'in-key', None, {'judgment': True}),
-                                                   ((1, 1), 'in-key', 'per clean case', {'k': 4}),
-                                                   ((4, 1), 'in-key', None, {'k': 4})):
+                                                   ((1, 1), 'in-key', 'dual adjudication', {'k': 4}),
+                                                   ((4, 1), 'in-key', 'dual adjudication', {'k': 4})):
                 with self.subTest(marks=marks, judgment=judgment, mark=mark), tempfile.TemporaryDirectory() as directory:
                     marked = json.loads(original)
                     for kind, count in zip(('problem', 'clean'), marks):
