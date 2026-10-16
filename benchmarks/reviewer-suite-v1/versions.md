@@ -1,6 +1,6 @@
 # Reviewer 场景现行版本
 
-各场景的现行版本、冻结源 manifest 与补丁。版本会变，以本表和 `source-manifest.json` 为准。分数只在同一版本内比较，与 ARW 原版、F6 不可比。规则见[ARW Reviewer 测量规则](../../.claude/rules/reviewer-suite.md)。
+各场景的现行版本、冻结源 manifest 与补丁。版本会变，以本表和 `source-manifest.json` 为准。分数只在同一版本、同一评分修订内比较，与 ARW 原版、F6 不可比；评分 r8（k 分档，2026-10-16）之前的报告分数与 r8 不可比。规则见[ARW Reviewer 测量规则](../../.claude/rules/reviewer-suite.md)。
 
 - Spec Readiness 现行版本是 v4.2（修订号 45，2026-10-16 冻结；A 类正反 4:4，覆盖文件 `judgment/spec-readiness-v4.2.json`）：冻结源 manifest `manifest-spec-readiness-v4.2.json` 依次叠加 `arw-patches/spec-readiness-v2.patch`、`-v3.patch`、`-v4.patch`、`-v4.1.patch`、`-v4.2.patch`；v4.1（修订号 44）仍可用于复评旧回答；差异、原因和审查依据见 [v2](spec-readiness-v2.md)、[v3](spec-readiness-v3.md)、[v4/v4.1](spec-readiness-v4.md) 变更说明。分数只在同一版本内比较（v4 回答按 v4.1 键重评分后与 v4.1 可比）；v4.1 用于能力验证和 benchmark，不用于调参（10 次 SD 0.073，[报告](../../reports/v0.1.42/spec-readiness-v4/summary.md)）。
 - Code Spec 现行版本是 v5（正式场景，code-spec-reviewer 修订号 38；冻结源 manifest `manifest-code-spec-v5.json`，在 `code-spec-v3.patch` 之后叠加 `arw-patches/code-spec-v5.patch`）：150K 阅读量，20 个缺陷打散到各模块，以长链无线索缺陷为主，混合规则交互、短而隐晦和保底题，见 [v4](code-spec-v4.md)、[rv](code-spec-rv.md)、[v5](code-spec-v5.md) 变更说明。分数只在同一版本内比较。
