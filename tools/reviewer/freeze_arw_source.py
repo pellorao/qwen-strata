@@ -4,7 +4,7 @@ This never imports Git history or copies runtime state. Materialization and
 original ARW preparation happen in a separate temporary copy. Project-owned
 compatibility patches listed in the manifest are applied after extraction and
 their results verified; a fresh freeze starts without them. The project's ARW scoring
-upgrade (evidence F2 instead of F3 and the two-part score, user 2026-10-14/15) is applied to every
+upgrade (evidence F2 instead of F3 and the k-weighted score, user 2026-10-14/16) is applied to every
 materialized copy after the manifest patches, and to an already materialized copy before it scores.
 """
 import argparse
@@ -72,19 +72,19 @@ PATCHES = Path(__file__).resolve().parents[2] / 'benchmarks/reviewer-suite-v1/ar
 JUDGMENT = Path(__file__).resolve().parents[2] / 'benchmarks/reviewer-suite-v1/judgment'
 FIXTURES = 'tests/fixtures/reviewer-capability'
 SCORING_UPGRADE = {
-    'file': 'scoring-f2.patch',
-    'sha256': 'ebc4ad013b225cca8fc5a2d7b8542dba5bc6a459c6dec44e5e42716266b05666',
+    'file': 'scoring-k.patch',
+    'sha256': '9eef02f6e514524f34e6d69da850dc38bb4187c53fb62aa781c5a9a917a8568e',
     # Members no scenario patch touches: (ARW original, upgraded).
     'members': {
         'lib/release/reviewer-capability-scoring.mjs': (
             '89a4e6bdc0a47756c28abce013ce6940ebf224e8609ebf809a499c57b85d60c4',
-            '555a20834fcea541bc785a61d9b6cd5c4e97b9d96709ef95598e1c405d5bc9c7'),
+            '76c85e1367b621b5ee98d084bbba03e7758193c23d01108d6cc2597b71e25944'),
         'lib/release/reviewer-capability-verification.mjs': (
             'a5e5a5f32fe87d2b84f55e259ea39db0ba1f7e56a681b96af93710ca7b01d9a1',
-            'b6afd551621a3496702cb7abafc1e6ab82c15e1ece5d13e9434db9057731f1b0'),
+            'fe493809e20ffc07b7e9c214d4ffb749e3adc33b4f5eacaf1a4fdc5a0fc0dbb9'),
         'docs/agents/reviewer-capability-scoring.md': (
             '8dac785a4dc2eee70949fd02a212b65959039c256fa87f6a3e86c105ec011769',
-            '217908536a38ba83e1936392dcdb368823435adc1e1514cd0ee22592c0a5795b'),
+            'c34408c1013f888a12cdabfbfd7ea7fbcdbab19994d4fdbee0de135a210fb0b6'),
         'docs/agents/reviewer-capability-scenarios.md': (
             '5fe9b4e5511416a4af636baa67b812bf46f627710b75b1285e6c49758fdb909b',
             '3f444bc68cb9ed8cf3f2e004da5b14a328d0fef2469cd1158c6ed04932b2b859'),
@@ -100,8 +100,13 @@ SCORING_UPGRADE = {
     # r6 judged clean cases mechanically, matched multi-word terms as word bags, required evidence score
     # >= 0.5 for judgment problem cases and cut every format error by 0.9 (r7, user 2026-10-15). r7 cut a
     # continuation past the requirement-scope stop by 0.9 (one wrong answer, user 2026-10-15); it left the same
-    # modules as the current upgrade, so it is recognized by its scoring document as well.
+    # modules as r7.1, so both are recognized by their scoring document as well. r7.1 scored judgment cases (A) and
+    # the rest (B, F2) apart; r8 weights every case by k (user 2026-10-16).
     'superseded': {
+        ('555a20834fcea541bc785a61d9b6cd5c4e97b9d96709ef95598e1c405d5bc9c7',
+         'b6afd551621a3496702cb7abafc1e6ab82c15e1ece5d13e9434db9057731f1b0',
+         '217908536a38ba83e1936392dcdb368823435adc1e1514cd0ee22592c0a5795b'): (
+            'superseded/scoring-f2-r7.1.patch', 'ebc4ad013b225cca8fc5a2d7b8542dba5bc6a459c6dec44e5e42716266b05666'),
         ('555a20834fcea541bc785a61d9b6cd5c4e97b9d96709ef95598e1c405d5bc9c7',
          'b6afd551621a3496702cb7abafc1e6ab82c15e1ece5d13e9434db9057731f1b0',
          'a9e35b62a8726b9d8375ea3c9bcc43db0b8b34ce047ffc4abb24c1660289b93d'): (
@@ -141,12 +146,19 @@ def pinned_patch(name, digest):
     return patch
 
 
+def k_balanced(tiers):
+    """Each marked tier holds k problem cases per clean case, so reporting everything or nothing scores 0 on it."""
+    return bool(tiers) and all(counts['problem'] == float(k) * counts['clean'] for k, counts in tiers.items())
+
+
 def judgment_binding(destination):
     """Bind every answer key in this copy through judgment/registry.json, which maps each known
-    reviewer and expected.json sha256 to its judgment overlay, to in-key (marks written in the key) or
-    to all-B. An unregistered key, judgment marks in a key not registered as in-key, an
-    overlay that does not match its key case by case, or unequal judgment problem and clean cases stops
-    the upgrade. Returns the files to copy into the ARW copy and the binding of each reviewer."""
+    reviewer and expected.json sha256 to its k overlay, to in-key (k marks written in the key) or to
+    all-B (every case at the default k 0.25). A case marks k 1 or 4 with `k`; a two-part judgment mark
+    (`judgment: true`, r7) and an overlay case without `k` count as k 1. An unregistered key, marks in a key
+    not registered as in-key, an overlay that does not match its key case by case, or a marked tier without
+    k problem cases per clean case stops the upgrade. Returns the files to copy into the ARW copy and the
+    binding of each reviewer."""
     registry_raw = (JUDGMENT / 'registry.json').read_bytes()
     registry = json.loads(registry_raw)
     files, bound = {'registry.json': registry_raw}, {}
@@ -156,16 +168,20 @@ def judgment_binding(destination):
         if entry is None:
             raise ValueError(f'Answer key {digest} of {reviewer} is not registered in judgment/registry.json')
         scopes = {scope['scope']: scope for scope in json.loads(expected_path.read_text())['scopes']}
-        marked = {kind: sum(case.get('judgment') is True for scope in scopes.values() for case in scope.get(kind + 'Cases', []))
-                  for kind in ('problem', 'clean')}
+        marked = {}
+        for scope in scopes.values():
+            for kind in ('problem', 'clean'):
+                for case in scope.get(kind + 'Cases', []):
+                    if case.get('judgment') is True or 'k' in case:
+                        tier = marked.setdefault(str(1 if case.get('judgment') is True else case['k']), {'problem': 0, 'clean': 0})
+                        tier[kind] += 1
         if entry['judgment'] == 'in-key':
-            # The judgment marks are written in the answer key itself.
-            if marked['problem'] == 0 or marked['problem'] != marked['clean']:
-                raise ValueError(f'Answer key {digest} of {reviewer} must hold equal, nonzero judgment problem and clean cases')
+            if not k_balanced(marked):
+                raise ValueError(f'Answer key {digest} of {reviewer} must hold k problem cases per clean case in each marked tier')
             bound[reviewer] = {'judgment': 'in-key', 'expectedSha256': digest}
             continue
-        if marked['problem'] or marked['clean']:
-            raise ValueError(f"Answer key {digest} of {reviewer} marks judgment cases but is registered as {entry['judgment']}")
+        if marked:
+            raise ValueError(f"Answer key {digest} of {reviewer} marks k cases but is registered as {entry['judgment']}")
         if entry['judgment'] == 'all-B':
             bound[reviewer] = {'judgment': 'all-B', 'expectedSha256': digest}
             continue
@@ -174,19 +190,21 @@ def judgment_binding(destination):
         overlay = json.loads(raw)
         if overlay['reviewerId'] != reviewer or overlay['expectedSha256'] != digest:
             raise ValueError(f'Judgment overlay {path.name} is not bound to answer key {digest} of {reviewer}')
-        seen, counts = set(), {'problem': 0, 'clean': 0}
+        seen, counts, tiers = set(), {'problem': 0, 'clean': 0}, {}
         for item in overlay['cases']:
             cases = scopes[item['scope']][item['kind'] + 'Cases'] if item['scope'] in scopes else []
             case = cases[item['index']] if 0 <= item['index'] < len(cases) else {}
             key = (item['scope'], item['kind'], item['index'])
-            if case.get('expectation') != item['expectation'] or case.get('noOtherSupportedFinding') or key in seen:
+            if (case.get('expectation') != item['expectation'] or case.get('noOtherSupportedFinding') or key in seen
+                    or item.get('k', 1) not in (1, 4)):
                 raise ValueError(f"Judgment overlay {path.name} does not match its fixture: {' '.join(map(str, key))}")
             seen.add(key)
             counts[item['kind']] += 1
+            tiers.setdefault(str(item.get('k', 1)), {'problem': 0, 'clean': 0})[item['kind']] += 1
         # Each case counts once per scoring unit (a Spec Readiness case scored in both scenarios counts
-        # half in each), so a balanced unit needs as many problem as clean cases.
-        if counts['problem'] != counts['clean'] or overlay.get('counts') != counts:
-            raise ValueError(f'Judgment overlay {path.name} must hold equal, correctly counted problem and clean cases')
+        # half in each), so a balanced unit needs k problem cases per clean case in each tier.
+        if not k_balanced(tiers) or overlay.get('counts') != counts:
+            raise ValueError(f'Judgment overlay {path.name} must hold k problem cases per clean case in each tier, correctly counted')
         files[path.name] = raw
         bound[reviewer] = {'judgment': path.name, 'overlaySha256': sha(raw), 'expectedSha256': digest}
     return files, bound
@@ -213,8 +231,8 @@ def bind_judgment(destination):
 
 
 def upgrade_scoring(destination):
-    """Bring a materialized copy to the project's scoring rule (evidence F2, the two-part score and the
-    r7 adjudicated clean cases, user 2026-10-14/15). Applies the upgrade once; a copy left by a superseded
+    """Bring a materialized copy to the project's scoring rule (evidence F2, the r7 adjudicated clean cases
+    and the r8 k-weighted score, user 2026-10-14/16). Applies the upgrade once; a copy left by a superseded
     draft is reverted first."""
     destination = Path(destination)
     members = SCORING_UPGRADE['members']
