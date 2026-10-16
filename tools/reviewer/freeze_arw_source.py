@@ -70,6 +70,8 @@ def freeze(source, destination):
 
 PATCHES = Path(__file__).resolve().parents[2] / 'benchmarks/reviewer-suite-v1/arw-patches'
 JUDGMENT = Path(__file__).resolve().parents[2] / 'benchmarks/reviewer-suite-v1/judgment'
+# Answer keys allowed to repeat a question (check_repeats); not copied into ARW.
+REPEATS = JUDGMENT / 'repeats.json'
 FIXTURES = 'tests/fixtures/reviewer-capability'
 SCORING_UPGRADE = {
     'file': 'scoring-k.patch',
@@ -156,6 +158,41 @@ def k_balanced(tiers):
     return bool(tiers) and all(counts['problem'] == float(k) * counts['clean'] for k, counts in tiers.items())
 
 
+def repeated_cases(fixture):
+    """Groups of cases in one answer key that ask the same question twice (user 2026-10-16/17): the same
+    expectation, or the same evidence (a clean case's evidence or one of its alternatives, a problem case's
+    placement evidence). Cases are named scope/kind/index (0-based); noOther cases are left out."""
+    by_expectation, by_evidence = {}, {}
+    for scope in fixture['scopes']:
+        for kind in ('problem', 'clean'):
+            for index, case in enumerate(scope.get(kind + 'Cases', [])):
+                if case.get('noOtherSupportedFinding'):
+                    continue
+                name = f"{scope['scope']}/{kind}/{index}"
+                by_expectation.setdefault(case.get('expectation'), []).append(name)
+                sets = [placement['evidence'] for placement in case['placements']] if 'placements' in case else [
+                    case.get('evidence', [])] + case.get('evidenceAlternatives', [])
+                for evidence in {tuple(sorted({(item['filePath'], item['line']) for item in items})) for items in sets}:
+                    if evidence:
+                        by_evidence.setdefault(evidence, []).append(name)
+    groups = [('expectation', names) for names in by_expectation.values() if len(names) > 1]
+    shared = {tuple(sorted(set(names))) for names in by_evidence.values() if len(set(names)) > 1}
+    return groups + [('evidence', list(names)) for names in sorted(shared)]
+
+
+def check_repeats(reviewer, digest, fixture):
+    """Refuse an answer key with a repeated question unless judgment/repeats.json lists the key as a legacy
+    version kept only to rescore old reports, or lists each group of cases that share evidence as reviewed
+    distinct questions. A shared expectation is never allowed outside a legacy key."""
+    allowed = json.loads(REPEATS.read_text()).get(reviewer, {}).get(digest, {})
+    if allowed.get('legacy'):
+        return
+    reviewed = {tuple(sorted(item['cases'])) for item in allowed.get('sharedEvidence', [])}
+    for kind, names in repeated_cases(fixture):
+        if kind == 'expectation' or tuple(names) not in reviewed:
+            raise ValueError(f"Answer key {digest} of {reviewer} repeats a question ({kind}): {' '.join(names)}")
+
+
 def judgment_binding(destination):
     """Bind every answer key in this copy through judgment/registry.json, which maps each known
     reviewer and expected.json sha256 to its k overlay, to in-key (k marks written in the key) or to
@@ -173,7 +210,9 @@ def judgment_binding(destination):
         entry = registry.get(reviewer, {}).get(digest)
         if entry is None:
             raise ValueError(f'Answer key {digest} of {reviewer} is not registered in judgment/registry.json')
-        scopes = {scope['scope']: scope for scope in json.loads(expected_path.read_text())['scopes']}
+        fixture = json.loads(expected_path.read_text())
+        check_repeats(reviewer, digest, fixture)
+        scopes = {scope['scope']: scope for scope in fixture['scopes']}
         marked = {}
         for scope in scopes.values():
             for kind in ('problem', 'clean'):

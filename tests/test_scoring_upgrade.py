@@ -338,6 +338,47 @@ class ScoringUpgradeTests(unittest.TestCase):
             self.assertEqual(bound['overlaySha256'], digest(Path(directory) / 'probe.json'))
         upgrade_scoring(self.arw)
 
+    def test_repeated_questions_in_an_answer_key_are_rejected(self):
+        """The same expectation, or the same evidence not reviewed as distinct questions, stops the binding
+        (user 2026-10-16/17); a legacy key or a listed shared-evidence group passes."""
+        expected = self.arw / 'tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json'
+        original = expected.read_bytes()
+        registry = json.loads((freeze_arw_source.JUDGMENT / 'registry.json').read_text())
+        repeats = json.loads(freeze_arw_source.REPEATS.read_text())
+        try:
+            fixture = json.loads(original)
+            scope = fixture['scopes'][0]
+            name = scope['scope'] + '/clean/'
+            same_expectation = json.loads(original)
+            same_expectation['scopes'][0]['cleanCases'][1]['expectation'] = scope['cleanCases'][0]['expectation']
+            same_evidence = json.loads(original)
+            same_evidence['scopes'][0]['cleanCases'][1]['evidence'] = scope['cleanCases'][0]['evidence']
+            same_evidence['scopes'][0]['cleanCases'][1].pop('evidenceAlternatives', None)
+            reviewed = {'sharedEvidence': [{'cases': [name + '0', name + '1'], 'reason': 'probe'}]}
+            for content, allowed, message in ((same_expectation, {}, r'repeats a question \(expectation\)'),
+                                              (same_expectation, reviewed, r'repeats a question \(expectation\)'),
+                                              (same_expectation, {'legacy': True}, None),
+                                              (same_evidence, {}, r'repeats a question \(evidence\)'),
+                                              (same_evidence, reviewed, None)):
+                with self.subTest(allowed=allowed, message=message), tempfile.TemporaryDirectory() as directory:
+                    expected.write_text(json.dumps(content))
+                    table = json.loads(json.dumps(registry))
+                    table['code-spec-reviewer'][digest(expected)] = {'version': 'probe', 'judgment': 'all-B'}
+                    (Path(directory) / 'registry.json').write_text(json.dumps(table))
+                    listed = json.loads(json.dumps(repeats))
+                    listed.setdefault('code-spec-reviewer', {})[digest(expected)] = allowed
+                    (Path(directory) / 'repeats.json').write_text(json.dumps(listed))
+                    with mock.patch.object(freeze_arw_source, 'JUDGMENT', Path(directory)), \
+                            mock.patch.object(freeze_arw_source, 'REPEATS', Path(directory) / 'repeats.json'):
+                        if message:
+                            with self.assertRaisesRegex(ValueError, message):
+                                upgrade_scoring(self.arw)
+                        else:
+                            upgrade_scoring(self.arw)
+        finally:
+            expected.write_bytes(original)
+            upgrade_scoring(self.arw)
+
     def test_judgment_marks_in_the_answer_key_need_in_key_registration(self):
         expected = self.arw / 'tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json'
         original = expected.read_bytes()

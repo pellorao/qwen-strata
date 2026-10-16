@@ -1,0 +1,36 @@
+{
+  "code-spec-reviewer": {
+    "6ed872a3960bd98893ec549220dbb727c9e0e4cd37b45c808182b5378497ad58": {"version": "ARW 原版（previous 快照）", "legacy": true},
+    "849c62481eb081050f01e33f46fb3c85f7b1274e3e911346c90c49bed8a3fd28": {"version": "Code Spec v4", "legacy": true},
+    "2b812cf27fa1886e10fcf7bf3359b295339f82bd626e3dba29b01c8688dc884f": {"version": "Code Spec rv", "legacy": true}
+  },
+  "code-standards-reviewer": {
+    "b84993577e24750525c5edee29e845f9118d5b302c5421e3f2ba5756ffed852b": {"version": "ARW 原版", "legacy": true},
+    "4380e9ea14c16cb95754072e1029177d3d7cd02d26d88e3b941cb81961679ce6": {"version": "Code Standards v5 草稿修订 21", "legacy": true},
+    "7facf4e6ce38988f3484d1ce644f4c266dab8ae9d63df80846ada4e56cdf7077": {"version": "Code Standards v5 草稿修订 22", "legacy": true},
+    "217798004f35e19bc24a8badc522a9a80d538be71c008dd1203ba7f32883cbd2": {"version": "Code Standards v5 修订 24", "legacy": true},
+    "3950875c7c223af3beee58265c1fb9eb3ff48cf21cbd4b94ffa43a124a0d0b66": {"version": "Code Standards v5.1 修订 25", "sharedEvidence": [
+      {"cases": ["CODE-STANDARDS-FINDINGS/clean/17", "CODE-STANDARDS-FINDINGS/clean/3"],
+       "reason": "同一行 upcomingOrders：一条问是否纯转发包装，一条问是否缺分页；规则不同"},
+      {"cases": ["CODE-STANDARDS-FINDINGS/clean/16", "CODE-STANDARDS-FINDINGS/clean/23"],
+       "reason": "servesDietary：一条问是否纯转发包装，一条问代码归属模块；规则不同"},
+      {"cases": ["CODE-STANDARDS-FINDINGS/clean/19", "CODE-STANDARDS-FINDINGS/clean/29"],
+       "reason": "CATERING 设置：一条问导出前是否冻结，一条问放置位置是否合约定；规则不同"}]}
+  },
+  "commit-audit-reviewer": {
+    "bdb1752fd3590fae05fc840bc4ad36943a3d2bade39a9d9bb4d99962a52a6789": {"version": "ARW 原版（两个 Gate 重复出题，Commit Audit v2 起改题）", "legacy": true}
+  },
+  "spec-readiness-reviewer": {
+    "e5d17bac8d81e8238516dbf509fad0216d51a2a93a8131b0a2a1079917ff0598": {"version": "ARW 原版（previous 快照）", "legacy": true},
+    "3093980fc37278abd16a935cd10d143dbcbab19435671bdee7e7fd2f13c3526f": {"version": "Spec Readiness v4.1", "legacy": true},
+    "74252e0aa4e50d231efaefdfa24a27e1b4d97936e747425787d30bace996a344": {"version": "Spec Readiness v4.2 / v4.3", "sharedEvidence": [
+      {"cases": ["SPEC-READINESS-RATIONALE/clean/1", "SPEC-READINESS-REQUIREMENTS/clean/2"],
+       "reason": "reader-index 第 9 行：一条问理由是否需要替代方案，一条问需求是否完整；检查不同"},
+      {"cases": ["MODULE-DESIGN-INTERFACES/problem/5", "SPEC-READINESS-REQUIREMENTS/clean/4"],
+       "reason": "validation-report 第 11 行：正例问 renderReport 接口缺项，反例问需求是否须规定内部实现；检查不同"},
+      {"cases": ["MODULE-DESIGN-APPLICABILITY/clean/0", "MODULE-DESIGN-EXEMPTION/clean/0"],
+       "reason": "diagnostic-wording 第 13 行：一条问 Not required 写法是否合规，一条问豁免理由是否充分；检查不同"},
+      {"cases": ["MODULE-DESIGN-INTERFACES/clean/2", "MODULE-DESIGN-INTERFACES/clean/3"],
+       "reason": "validation-report 第 104 行：一条问已定义规则是否都有测试，一条问是否须逐个组合列测试；结论不同"}]}
+  }
+}
