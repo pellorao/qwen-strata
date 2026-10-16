@@ -22,7 +22,7 @@ ARW 原版的 Gate 1（两个 issue 的验收项）和 Gate 2（`spec.md` 的长
 每组重复只保留一处要求行，删除其余行及其绑定用例。保留哪一处按以下顺序取舍：
 
 1. 一处是另一处的超集（多一个独立性质）时保留超集，如 `computeBackoff` "doubles from 250 … caps at 2000" 保留、spec "backoff is capped at 2000" 删除；
-2. 否则优先保留需要定位语义对象的 spec 写法或调用链写法（如 spec `canAssignAllPackages` 经严格比较拒绝等于上限，保留；issue `withinVehicleCapacity` 直接写出函数名，删除）；issue 的 What to build 行（01:7）保留；
+2. 正例：否则优先保留需要定位语义对象的 spec 写法或调用链写法（如 spec `canAssignAllPackages` 经严格比较拒绝等于上限，保留；issue `withinVehicleCapacity` 直接写出函数名，删除）；issue 的 What to build 行（01:7）保留。反例多为同义行，按第 3 条（正例数相等、连续同结果约束）在两侧取舍；
 3. 在此前提下让两个 Gate 的正例数相等（各 14），并让每份审计记录中连续同结果的要求行不超过 8 行（ARW 夹具设计约束，原测试断言）。
 
 不改源码，不新增缺陷；保留行的文字只改一处（spec 路由令牌行，见下文）。
@@ -88,11 +88,11 @@ ARW 原版的 Gate 1（两个 issue 的验收项）和 Gate 2（`spec.md` 的长
 | 审计记录要求行（01 / 02 / spec） | 29 / 30 / 59 | 22 / 16 / 39 |
 | `spec.md` 正文要求行 | 59 | 39 |
 
-经审查保留的共用证据只有一组，登记在 `judgment/repeats.json`：Gate 1 正例 3（01:24，`chooseDeparture` 取本地小时而非 UTC，缺陷）与 Gate 2 反例 6（spec:9，窗口含首尾小时，成立；`chooseDeparture` 第 1、4、5 行是可选证据）。两者问的是不同性质。
+经审查保留的共用证据只有一组，登记在 `judgment/repeats.json`：Gate 1 正例 `problem/2`（从 0 起；原 01:24，v2 01:23，`chooseDeparture` 取本地小时而非 UTC，缺陷）与 Gate 2 反例 `clean/5`（spec:9，窗口含首尾小时，成立；`chooseDeparture` 第 1、4、5 行是可选证据）。两者问的是不同性质。
 
 ## 第 1 轮审计后的修正
 
-第 1 轮 Opus（high）审计（78/79 行与盲审一致，无键外缺陷，未误删）提出的修正：
+第 1 轮 Opus（high）审计（78/79 行与盲审一致，无键外缺陷，未误删）提出的修正（以下 1–4 用原行号，与删除清单一致）：
 
 1. 保留 02:19（`safeAnnouncement` omits a top-level credential，单数，成立），改删 spec:33（"omit top-level credential fields"，复数宽集合）：按正例 spec:11 的口径（凭据集合文本更广时不缩小），spec:33 也应判 gap，键却判成立，两处口径冲突；
 2. 删 02:45：与 spec:52 正例问同一件事（集成测试是否经公共入口导入并调用），02:45 判成立、spec:52 判缺陷，报同一观察在一处得分、另一处算误报；
@@ -101,11 +101,12 @@ ARW 原版的 Gate 1（两个 issue 的验收项）和 Gate 2（`spec.md` 的长
 5. 期望句改写：两条 uncertain 改为 "No available contract establishes …"（原句只点名某一份合同，而缺的是任何可用合同）；重复检测一条改为 "… does not apply `normalizeRouteKey` (NFKC and uppercase)."（原句只说大写，实现同时缺 NFKC）；
 6. `chooseDeparture` 正例增加一种放置：关联证据取 `schedule.mjs` 第 1 行（函数定义），与原放置并列，任一种即可匹配。
 
-裁决口径（判定候选是否与用例匹配时使用，冻结前随答案键一起确认）：
+裁决口径（判定候选是否与用例匹配时使用，冻结前随答案键一起确认；行号均为 v2 夹具行号）：
 
 - 把令牌字段置为 `undefined` 算移除（JSON 序列化后不出现）；
 - `localeCompare` 视为字典序；
-- I1:46（stable JSON 递归排序）的候选不必写出"递归"，但只说"只排顶层"按不匹配裁决。
+- spec:10（"Stable JSON sorts keys recursively at every object depth."，Gate 2 正例 `toStableJson` 只排顶层）：finding 指出只排顶层、嵌套对象顺序不变即匹配，不必写出"递归"；
+- 01:46（"`serializePlan` sorts keys lexically, uses two-space JSON, and ends with one LF."，Gate 1 正例：格式模式导致缺末尾 LF）：finding 必须指出缺末尾 LF；只以"只排顶层"或 `localeCompare` 为理由的 finding 不匹配，裁为 `unsupported`。
 
 ## 与 ARW 合同的差异
 
@@ -124,6 +125,7 @@ ARW `docs/agents/reviewer-capability-scenarios.md`「Commit Audit scenario」段
 | 问题与干净比例 | 两 Gate 相同，`1:2` | 不再保持（14:25、14:26），两 Gate 全量评分 |
 | 「Commit Audit 使用前述固定完整审计清单」 | ARW 原清单 | 本 v2 清单 |
 | 合并清单下限（问题 ≥ 20、干净 ≥ 20） | 满足 | 满足（28、51） |
+| 缩减清单时同步修复或移除不再保留的可见真实缺陷 | — | 满足：被删 12 个正例的缺陷都由保留行覆盖，源码没有失去考点的缺陷 |
 
 ARW conformance 测试的对应断言随补丁改为上表 v2 值；改后失败集与「ARW 原版 + 本工程评分补丁」相同（26 个既有失败，均来自评分补丁，与 v2 无关）。
 
