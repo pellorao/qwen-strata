@@ -78,6 +78,7 @@ const stripped = Object.fromEntries(Object.entries(plain).filter(([key]) => !cou
 try { core.combineScenarios([{...stripped, kProblemWeight: 1}]); } catch (error) { partial = error.message; }
 // k 4: one falsely flagged clean case costs as much as four missed problem cases.
 const heavy = scorerFor([Q], [{...C, k: 4}]);
+const unmarked = ({k, ...rest}) => rest;
 // r7: Code Standards evidence of a 10-line file. A range that starts inside the file and runs past its end is cut to the
 // last line and counted; a single line or a range starting past the end stays invalid and earns nothing.
 const codeFile = 'src/a.mjs';
@@ -167,6 +168,9 @@ console.log(JSON.stringify({
     // r8: without its check, a clean case fails even when the caller gives no observation score (Code Review, Commit Audit).
     codeMissing: pick(codeScorer({checks: []})),
     heavyFalseClean: pick(run(heavy, [finding('The clean target is wrong.', 5)])),
+    // An instance prepared under the two-part score (r7) keeps judgment marks and shares in its prepared state.
+    legacy: pick(run(scorerFor([{...unmarked(P), judgment: true}, Q], [{...unmarked(C), judgment: true, judgmentShare: 0.5}, D]),
+        [finding('The clean target is wrong.', 5)])),
     pairFirst: pick(first),
     pair: pick(core.combineScenarios([first, second])),
     unequal,
@@ -239,6 +243,11 @@ class ScoringUpgradeTests(unittest.TestCase):
         self.assertAlmostEqual(probe['formula']['score'], 0.5)
         self.assertEqual(probe['balanced'], [])
         self.assertEqual(probe['unbalanced'], ['4'])
+
+    def test_r8_reads_judgment_marks_of_instances_prepared_under_r7_as_k_1(self):
+        legacy = self.probe['legacy']
+        self.assertEqual(legacy['kTiers'], {'1': {'clean': 0.5, 'problem': 1}})
+        self.assertEqual(legacy['kFailedCleanWeight'], 0.5)
 
     def test_r8_clean_cases_of_a_missing_check_fail(self):
         # C (k 1), D and no-other (k 0.25 each).

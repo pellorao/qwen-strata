@@ -73,15 +73,15 @@ JUDGMENT = Path(__file__).resolve().parents[2] / 'benchmarks/reviewer-suite-v1/j
 FIXTURES = 'tests/fixtures/reviewer-capability'
 SCORING_UPGRADE = {
     'file': 'scoring-k.patch',
-    'sha256': '9eef02f6e514524f34e6d69da850dc38bb4187c53fb62aa781c5a9a917a8568e',
+    'sha256': 'fc0598b84a2f78f14f8ae12529e4515939bd0366bd73f880c7d1b780a9a77bb1',
     # Members no scenario patch touches: (ARW original, upgraded).
     'members': {
         'lib/release/reviewer-capability-scoring.mjs': (
             '89a4e6bdc0a47756c28abce013ce6940ebf224e8609ebf809a499c57b85d60c4',
-            '76c85e1367b621b5ee98d084bbba03e7758193c23d01108d6cc2597b71e25944'),
+            '009ea8579c8237cd29a736fb691b843ba37105231975b26fe083a8ada3c8ea72'),
         'lib/release/reviewer-capability-verification.mjs': (
             'a5e5a5f32fe87d2b84f55e259ea39db0ba1f7e56a681b96af93710ca7b01d9a1',
-            'fe493809e20ffc07b7e9c214d4ffb749e3adc33b4f5eacaf1a4fdc5a0fc0dbb9'),
+            'af67cbe22b94212d2c5463d4ffe09c53a45a4ef06e0bf85465a6d98dd99297fe'),
         'docs/agents/reviewer-capability-scoring.md': (
             '8dac785a4dc2eee70949fd02a212b65959039c256fa87f6a3e86c105ec011769',
             'c34408c1013f888a12cdabfbfd7ea7fbcdbab19994d4fdbee0de135a210fb0b6'),
