@@ -181,3 +181,39 @@ Opus-high 盲答（`.tmp/spec-v42/blind/`）：融合 0.749（RM 0.979，AP 0.68
 - `manifest-spec-readiness-v4.2.json` 能物化，计分升级绑定覆盖文件成功；按分流逻辑核对 A 类：RM 1 正 0 反，AP 3 正 4 反，合计 4:4。
 - ARW conformance 测试：只打场景补丁的副本 v4.1、v4.2 都是 70/70；加上计分升级后两者都是 48/70，失败的 22 项完全相同（计分升级改变了 ARW 原测试的预期分数，不是 v4.2 引入的）。
 - 工程测试 412 项通过。
+
+## v4.3（只做去重，修订号 46，未冻结）
+
+用户 2026-10-16/17 定下出题原则：两个子场景不出同一道题，与 k 无关；每个子场景各自完整覆盖它的全部检查；发现重复就改题，不在计分端打折或去重。用户 2026-10-17 决定出一版只做去重的 v4.3。
+
+### 问题
+
+上游 `splitSpecReadinessExpected` 给 AP 的检查表照搬全部 11 项检查的 clean 用例，其中包括 RM 已有的两项需求检查（`SPEC-READINESS-INPUTS`、`SPEC-READINESS-REQUIREMENTS`）。结果这两项的 8 个 clean 用例（INPUTS 3 个、REQUIREMENTS 5 个，都是 k = 0.25）在 RM 和 AP 各计一次；noOther 两边各一个，不算重复。正例没有重复：AP 不收需求检查的正例，带需求检查 placement 的正例也不进 AP。A 类 8 个用例都不在这两项需求检查的 clean 里，所以 A 类不受影响，仍为 RM 1:0、AP 3:4，合计 4:4。
+
+### 改动
+
+补丁 `arw-patches/spec-readiness-v4.3.patch` 叠在 v4.2 之后，登记在 `source-snapshots/current/manifest-spec-readiness-v4.3.json`（即 v4.2 manifest 加上这一项）：
+
+- AP 的两项需求检查只保留 noOtherSupportedFinding；8 个需求 clean 用例只在 RM 计分。
+- 拆分完成后核对：noOther 之外，同一个期望句不得同时出现在两个子场景，否则加载答案键时报错。
+- 修订号 45 → 46，旧准备状态失效。
+- 加一个 ARW 回归测试（`Spec Readiness public preparation pairs …` 中追加断言）；工程侧 `tests/test_spec_readiness_split.py` 在只打场景补丁的 v4.3 副本上运行它。
+- 夹具、交接、答案键（`expected.json` sha256 `74252e0a…`）和覆盖文件都不变，模型看到的任务与 v4.2 完全相同；`registry.json` 与 `format-baseline.json` 沿用 v4.2 的键，p基准不必重测。
+
+规则文字同步修改：[ARW Reviewer 测量规则](../../.claude/rules/reviewer-suite.md)「评分」删去 0.5 份额规则和"0.25 档反例在 RM、AP 各计一次"，改写为出题原则；`judgment/README.md` 同步。
+
+### 偏离
+
+- **份额代码暂留**：`scoring-k.patch` 里给共享 k ≥ 1 用例打 0.5 份额的代码（`sharedK`、`kShare`）没有删。v4.3 之后不会再有共享用例（拆分时就报错），这段代码已不可达。删除它要改 `scoring-k.patch`，所有已物化副本都得迁移，还要出新的评分修订；留到下一次评分修订时一起删。工程测试 `test_spec_readiness_pair_counts_a_shared_case_once` 仍覆盖这段代码，到时一并删除。
+- **"其余检查按证据文件分边"现在没有可执行的对象**：RM 只有两项需求检查，其余 9 项检查只在 AP 出现，不存在要分边的用例，所以冻结工具没有加"证据文件在两边输入里都有就拒绝"的检查。以后 RM 若增加检查，由拆分时的重复核对兜底，届时再补冻结检查。
+- 冻结工具没有加"同一答案键内期望句不重复"的通用检查：Commit Audit 的 ARW 原版答案键里 `COMMIT-AUDIT-GATE-1` 正例 14 与 `GATE-2` 正例 2 期望句相同（同一缺陷挂在两个 gate 下），通用检查会拒绝它，这不在 v4.3 范围内，交 Main 另行处理。
+
+### 用 v4.2 已有回答重算（2026-10-17）
+
+按测量规则"只改答案键或 placement 时，用已有回答重新评分"，v4.3 只改计分侧拆分，所以用 v4.2 的全部回答（Q3 ×10、Opus ×3、Haiku ×5 的上下界）重算，不重跑模型。做法：每个来源复制一份 v4.2 运行的 ARW 目录，换入 v4.3 的 `reviewer-capability-conformance.mjs`；在复制出的准备状态里把修订号改为 46，并把 AP 两项需求检查的 clean 用例过滤到只剩 noOther（与 v4.3 拆分结果相同，场景摘要不变）。Request 中的绝对路径和摘要绑定原运行目录，所以计分在只属于该进程的挂载命名空间里，把副本绑定到原路径上运行；原目录没有改动。裁决沿用 v4.2 正式计分的决定，格式罚同 v4.2。
+
+结果：13 个来源共 23 次计分（Q3 10、Opus 3、Haiku 上下界各 5），每次正好少 8 个 clean 用例，且这 8 个在 v4.2 里全部通过；没有新候选，没有作废的裁决；分数逐位不变。Q3 原定 5 次 0.4848 ± 0.1541，全部 10 次 0.5218 ± 0.1135，Opus 0.8294 ± 0.0112，Q3/Opus 0.584 / 0.629，与 v4.2 相同。原因：r8 的分数是（正例得分 − 失败反例权重）/ 正例权重，通过的反例不加分，重复的反例只在答错时多扣一次，而 v4.2 的回答没有答错过这 8 个。v4.2 结果因此可以直接作为 v4.3 结果；v4.3 重算报告由 Main 撰写（报告目录 `reports/v0.1.44.1/spec-readiness-v4.3/`）。
+
+### 待独立审查与冻结
+
+冻结是重要决策，须由不低于 Main 的独立 agent（Opus high）审查后再冻结。审查要点：补丁是否只改拆分；去重规则是否符合用户原则（尤其 noOther 两边各留一个）；份额代码暂留是否可接受；重算方法（复制并改写准备状态、挂载命名空间）是否等价于重新准备。

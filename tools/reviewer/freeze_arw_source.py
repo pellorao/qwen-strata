@@ -211,8 +211,8 @@ def judgment_binding(destination):
             seen.add(key)
             counts[item['kind']] += 1
             tiers.setdefault(str(item.get('k', 1)), {'problem': 0, 'clean': 0})[item['kind']] += 1
-        # Each case counts once per scoring unit (a Spec Readiness case scored in both scenarios counts
-        # half in each), so a balanced unit needs k problem cases per clean case in each tier.
+        # Each case counts once per scoring unit (the two Spec Readiness scenarios never score the same case,
+        # v4.3), so a balanced unit needs k problem cases per clean case in each tier.
         if not k_balanced(tiers) or overlay.get('counts') != counts:
             raise ValueError(f'Judgment overlay {path.name} must hold k problem cases per clean case in each tier, correctly counted')
         files[path.name] = raw
