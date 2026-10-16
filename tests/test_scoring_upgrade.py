@@ -1,6 +1,6 @@
-"""The project's ARW scoring upgrade: evidence F2 instead of F3 (user 2026-10-14), the two-part
-score of judgment cases and other cases, and r7: adjudicated clean cases, phrase terms, no evidence
-threshold for judgment problem cases (user 2026-10-15)."""
+"""The project's ARW scoring upgrade: evidence F2 instead of F3 (user 2026-10-14); r7: adjudicated clean
+cases, phrase terms, no evidence threshold for problem cases with k >= 1 (user 2026-10-15); r8: every case
+weighted by k, score = (earned problem points - failed clean weight) / problem cases (user 2026-10-16)."""
 import hashlib
 import json
 from pathlib import Path
@@ -16,8 +16,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SNAPSHOTS = ROOT / 'benchmarks/reviewer-suite-v1/source-snapshots/current'
 CONFORMANCE = 'lib/release/reviewer-capability-conformance.mjs'
 
-# Synthetic Spec Readiness cases: P judgment problem, Q ordinary problem, C judgment clean, D ordinary clean.
-TWO_PART_PROBE = r'''
+# Synthetic Spec Readiness cases: P problem at k 1, Q problem at k 0.25, C clean at k 1, D clean at k 0.25.
+K_PROBE = r'''
 import {resolve, join} from 'node:path';
 import {mkdtempSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
@@ -30,16 +30,16 @@ const scope = 'SPEC-READINESS-REQUIREMENTS';
 const evidenceSources = new Map([[filePath, ['Alpha.', 'Beta.', 'Gamma.', 'Delta.', 'Clean target.', 'Other clean.', 'Problem two.',
     'Third clean.', 'Problem three.'].join('\n')]]);
 const lines = (...numbers) => numbers.map(line => ({filePath, line}));
-const problem = (expectation, terms, evidence, association, judgment) => ({associationEvidence: lines(...association),
-    evidence: lines(...evidence), expectation, findingTerms: terms, ...(judgment ? {judgment: true} : {}),
+const problem = (expectation, terms, evidence, association, k) => ({associationEvidence: lines(...association),
+    evidence: lines(...evidence), expectation, findingTerms: terms, ...(k ? {k} : {}),
     placements: [{associationEvidence: lines(...association), check: scope, evidence: lines(...evidence)}], result: 'gap'});
 const clean = (expectation, terms, evidence, extra = {}) => ({evidence: lines(...evidence), expectation, findingTerms: terms, ...extra});
-const P = problem('The alpha rule is violated.', ['alpha rule'], [1, 2, 3, 4], [1], true);
-const Q = problem('The second problem is present.', ['second problem'], [7], [7], false);
-const R = problem('The third problem is present.', ['third problem'], [9], [9], true);
-const C = clean('The clean target is correct.', ['clean target'], [5], {judgment: true});
+const P = problem('The alpha rule is violated.', ['alpha rule'], [1, 2, 3, 4], [1], 1);
+const Q = problem('The second problem is present.', ['second problem'], [7], [7]);
+const R = problem('The third problem is present.', ['third problem'], [9], [9], 1);
+const C = clean('The clean target is correct.', ['clean target'], [5], {k: 1});
 const D = clean('The other clean part is correct.', ['other clean'], [6]);
-const E = clean('The third clean part is correct.', ['third clean'], [8], {judgment: true});
+const E = clean('The third clean part is correct.', ['third clean'], [8], {k: 1});
 const scorerFor = (problemCases, cleanCases) => createReviewerCapabilityScenarioScorer({evidenceSources, instanceId: 'probe',
     expected: {cleanCount: cleanCases.length + 1, kind: 'spec-readiness-artifact', problemCount: problemCases.length,
         scopes: [{scope, problemCases, cleanCases: [...cleanCases, {noOtherSupportedFinding: true}]}]},
@@ -59,26 +59,25 @@ const run = (scorer, findings, present = true, findingDecisions = []) => {
     });
     return scorer({adjudicationDecisions: decisions, checks, cleanObservationScores});
 };
-const pick = result => ({...Object.fromEntries(['judgmentCases', 'judgmentPoints', 'judgmentScore', 'judgmentWeight', 'bScore', 'rawScore',
-    'score', 'judgmentWarning', 'bCleanCases', 'bEarnedCleanPoints', 'extraFailedCleanCases', 'locatorCount'].map(key => [key, result[key]])),
+const pick = result => ({...Object.fromEntries(['kProblemWeight', 'kEarnedProblemPoints', 'kFailedCleanWeight', 'kTiers', 'rawScore',
+    'score', 'kWarning', 'extraFailedCleanCases', 'locatorCount'].map(key => [key, result[key]])),
     problem: result.caseScores.problem, clean: result.caseScores.clean[0],
     findingCandidates: result.candidates.filter(candidate => candidate.kind === 'finding').map(candidate => candidate.allowedDecisions)});
 const single = scorerFor([P, Q], [C, D]);
 const finding = (text, ...evidence) => ({evidence: lines(...evidence), finding: text, result: 'gap'});
 // Spec Readiness pair: C is scored in both scenarios at half share, R and E only in the second.
-const half = {...C, judgmentShare: 0.5};
+const half = {...C, kShare: 0.5};
 const first = run(scorerFor([P, Q], [half, D]), []);
 const second = run(scorerFor([R, Q], [half, D, E]), []);
 let unequal, partial;
 try { core.combineScenarios([first]); } catch (error) { unequal = error.message; }
-// A result without two-part counts, such as ARW's own synthetic test data, counts as all B.
+// A result without k counts, such as ARW's own synthetic test data, counts every case at k 0.25.
 const plain = run(scorerFor([Q], [D]), [finding('The second problem is present.', 7)]);
-const countKeys = ['bCleanCases', 'bEarnedCleanPoints', 'bEarnedProblemPoints', 'bProblemCases', 'extraFailedCleanCases', 'judgmentCases',
-    'judgmentCleanCases', 'judgmentPoints', 'judgmentProblemCases', 'noOtherCases'];
+const countKeys = ['kEarnedProblemPoints', 'kFailedCleanWeight', 'kProblemWeight', 'kTiers'];
 const stripped = Object.fromEntries(Object.entries(plain).filter(([key]) => !countKeys.includes(key)));
-try { core.combineScenarios([{...stripped, judgmentCases: 0}]); } catch (error) { partial = error.message; }
-const counts = {bCleanCases: 9, bEarnedCleanPoints: 9, bEarnedProblemPoints: 4, bProblemCases: 8, judgmentCases: 4,
-    judgmentCleanCases: 2, judgmentPoints: 2, judgmentProblemCases: 2, noOtherCases: 1, totalCleanCases: 11, totalProblemCases: 10};
+try { core.combineScenarios([{...stripped, kProblemWeight: 1}]); } catch (error) { partial = error.message; }
+// k 4: one falsely flagged clean case costs as much as four missed problem cases.
+const heavy = scorerFor([Q], [{...C, k: 4}]);
 // r7: Code Standards evidence of a 10-line file. A range that starts inside the file and runs past its end is cut to the
 // last line and counted; a single line or a range starting past the end stays invalid and earns nothing.
 const codeFile = 'src/a.mjs';
@@ -113,7 +112,7 @@ const treatment = Object.fromEntries(policyCodes.map(code => {
     return [code, {cut: repetition.score !== repetition.scoreBeforePenalty, unrepairable: repetition.instances[0].unrepairableFormatErrors}];
 }));
 // r7: a Spec Readiness report that continues past the requirement-scope stop. The later check, its report lines and their
-// diagnostics are ignored; the stop rule itself is one failed B clean case.
+// diagnostics are ignored; the stop rule itself is one failed clean case at k 0.25.
 const stopReport = join(mkdtempSync(join(tmpdir(), 'stop-')), 'draft.jsonl');
 writeFileSync(stopReport, [JSON.stringify({check: scope, evidence: [], finding: 'The second problem is present.', result: 'gap'}),
     JSON.stringify({check: 'MODULE-DESIGN-INTERFACES', evidence: ['nowhere:1'], finding: 'Something else.', result: 'gap', extra: 1}),
@@ -165,25 +164,24 @@ console.log(JSON.stringify({
     timestamps: core.parseMarkdownArtifact({reviewerId: 'code-standards-reviewer', scope: 'S',
         response: '- `src/a.mjs:3,5` runs at `00:00:00.000`, `at = 10:00:30.000Z`, `13:45` and `startAt: 12:00`.'}),
     missingCheck: pick(run(single, [], false)),
+    // r8: without its check, a clean case fails even when the caller gives no observation score (Code Review, Commit Audit).
+    codeMissing: pick(codeScorer({checks: []})),
+    heavyFalseClean: pick(run(heavy, [finding('The clean target is wrong.', 5)])),
     pairFirst: pick(first),
     pair: pick(core.combineScenarios([first, second])),
     unequal,
     withoutCounts: pick(core.combineScenarios([stripped, stripped])),
     plain: pick(core.combineScenarios([plain, plain])),
     partial,
-    belowCap: core.twoPartScore(counts),
-    noJudgment: core.twoPartScore({...counts, bCleanCases: 11, bEarnedCleanPoints: 11, bEarnedProblemPoints: 5, bProblemCases: 10,
-        judgmentCases: 0, judgmentCleanCases: 0, judgmentPoints: 0, judgmentProblemCases: 0}),
+    formula: core.kScore({kEarnedProblemPoints: 3, kFailedCleanWeight: 0.5, kProblemWeight: 5}),
+    balanced: core.unbalancedKTiers({1: {clean: 2, problem: 2}, 4: {clean: 1, problem: 4}}),
+    unbalanced: core.unbalancedKTiers({1: {clean: 2, problem: 2}, 4: {clean: 1, problem: 1}}),
 }));
 '''
 
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def f2(clean, problem):
-    return 5 * problem * clean / (4 * clean + problem)
 
 
 class ScoringUpgradeTests(unittest.TestCase):
@@ -193,7 +191,7 @@ class ScoringUpgradeTests(unittest.TestCase):
         cls.arw = Path(cls.tmp.name) / 'arw'
         manifest = json.loads((SNAPSHOTS / 'manifest-code-spec-v5.json').read_text())
         materialize(manifest, SNAPSHOTS / manifest['snapshot']['file'], cls.arw)
-        cls.probe = json.loads(subprocess.run(['node', '--input-type=module', '-e', TWO_PART_PROBE, str(cls.arw)],
+        cls.probe = json.loads(subprocess.run(['node', '--input-type=module', '-e', K_PROBE, str(cls.arw)],
                                               check=True, capture_output=True, text=True).stdout)
 
     @classmethod
@@ -223,41 +221,45 @@ class ScoringUpgradeTests(unittest.TestCase):
                 for member, (_, upgraded) in SCORING_UPGRADE['members'].items():
                     self.assertEqual(digest(self.arw / member), upgraded, member)
 
-    def test_judgment_cases_score_plus_or_minus_one(self):
-        # Reporting nothing: the missed problem is wrong, the clean case right.
-        self.assertEqual(self.probe['silent']['judgmentScore'], 0)
-        self.assertEqual(self.probe['hit']['judgmentScore'], 1)
-        self.assertEqual(self.probe['hit']['score'], 1)
-        # r7 (R6): an associated judgment problem case is right whatever its evidence score.
-        self.assertGreater(self.probe['weakHit']['problem'][0], 0)
-        self.assertEqual(self.probe['weakHit']['judgmentPoints'], 2)
-        self.assertEqual(self.probe['falseClean']['judgmentScore'], -1)
-        # A clean case of a missing check is wrong, as in a model failure.
-        self.assertEqual(self.probe['missingCheck']['judgmentScore'], -1)
+    def test_r8_score_is_earned_problem_points_minus_failed_clean_weight(self):
+        probe = self.probe
+        # Reporting nothing scores 0; P (k 1) and Q (k 0.25) found with full evidence score 1.
+        self.assertEqual((probe['silent']['rawScore'], probe['silent']['kProblemWeight']), (0, 2))
+        self.assertEqual(probe['hit']['score'], 1)
+        # r7 (R6): an associated problem case at k >= 1 earns 1 whatever its evidence score.
+        self.assertGreater(probe['weakHit']['problem'][0], 0)
+        self.assertLess(probe['weakHit']['problem'][0], 1)
+        self.assertEqual(probe['weakHit']['kEarnedProblemPoints'], 2)
+        # The falsely flagged clean case C costs its k 1; a negative total becomes 0.
+        self.assertEqual(probe['falseClean']['kFailedCleanWeight'], 1)
+        self.assertEqual((probe['falseClean']['rawScore'], probe['falseClean']['score']), (-0.5, 0))
+        self.assertEqual(probe['heavyFalseClean']['kFailedCleanWeight'], 4)
+        self.assertEqual(probe['heavyFalseClean']['kTiers'], {'4': {'clean': 1, 'problem': 0}})
+        self.assertIn('unbalanced', probe['heavyFalseClean']['kWarning'])
+        self.assertAlmostEqual(probe['formula']['score'], 0.5)
+        self.assertEqual(probe['balanced'], [])
+        self.assertEqual(probe['unbalanced'], ['4'])
+
+    def test_r8_clean_cases_of_a_missing_check_fail(self):
+        # C (k 1), D and no-other (k 0.25 each).
+        self.assertEqual(self.probe['missingCheck']['kFailedCleanWeight'], 1.5)
+        self.assertEqual(self.probe['codeMissing']['clean'], [0, 0])
+        self.assertEqual(self.probe['codeMissing']['kFailedCleanWeight'], 0.5)
 
     def test_spec_readiness_pair_counts_a_shared_case_once(self):
         first, pair = self.probe['pairFirst'], self.probe['pair']
-        self.assertEqual((first['judgmentCases'], first['judgmentPoints']), (1.5, -0.5))
-        self.assertIn('unequal', first['judgmentWarning'])
-        # P, R missed (-2); the shared clean case (+0.5 twice) and E (+1) right.
-        self.assertEqual((pair['judgmentCases'], pair['judgmentPoints'], pair['judgmentScore']), (4, 0, 0))
-        self.assertNotIn('judgmentWarning', pair)
-        self.assertIn('unequal in one scoring unit', self.probe['unequal'])
+        self.assertEqual(first['kTiers'], {'1': {'clean': 0.5, 'problem': 1}})
+        self.assertIn('unbalanced', first['kWarning'])
+        # P, R, the shared clean case (0.5 twice) and E: balanced at k 1 once paired.
+        self.assertEqual(pair['kTiers'], {'1': {'clean': 2, 'problem': 2}})
+        self.assertEqual((pair['kProblemWeight'], pair['kFailedCleanWeight'], pair['score']), (4, 0, 0))
+        self.assertNotIn('kWarning', pair)
+        self.assertIn('unbalanced in one scoring unit', self.probe['unequal'])
 
-    def test_results_without_two_part_counts_count_as_all_b(self):
+    def test_results_without_k_counts_count_every_case_at_the_default_k(self):
         self.assertEqual(self.probe['withoutCounts'], self.probe['plain'])
-        self.assertEqual(self.probe['withoutCounts']['judgmentWeight'], 0)
-        self.assertIn('incomplete two-part counts', self.probe['partial'])
-
-    def test_weight_is_capped_and_negative_totals_become_zero(self):
-        self.assertEqual(self.probe['silent']['judgmentWeight'], 0.5)
-        self.assertEqual(self.probe['falseClean']['rawScore'], -0.5)
-        self.assertEqual(self.probe['falseClean']['score'], 0)
-        below = self.probe['belowCap']
-        self.assertAlmostEqual(below['judgmentWeight'], 4 / 20)
-        self.assertAlmostEqual(below['score'], 0.2 * 0.5 + 0.8 * f2(1, 0.5))
-        self.assertEqual(self.probe['noJudgment']['judgmentWeight'], 0)
-        self.assertAlmostEqual(self.probe['noJudgment']['score'], f2(1, 0.5))
+        self.assertEqual(self.probe['withoutCounts']['kTiers'], {})
+        self.assertIn('incomplete k counts', self.probe['partial'])
 
     def test_unregistered_or_mismatched_answer_keys_are_rejected(self):
         expected = self.arw / 'tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json'
@@ -272,7 +274,9 @@ class ScoringUpgradeTests(unittest.TestCase):
         cases = {
             'not registered': ({**registry, 'code-spec-reviewer': {}}, overlay),
             'does not match its fixture': (registry, {**overlay, 'cases': [{**overlay['cases'][0], 'index': 1}, overlay['cases'][1]]}),
-            'equal, correctly counted': (registry, {**overlay, 'counts': {'problem': 1, 'clean': 2}}),
+            'correctly counted': (registry, {**overlay, 'counts': {'problem': 1, 'clean': 2}}),
+            'per clean case': (registry, {**overlay, 'counts': {'problem': 1, 'clean': 1},
+                                          'cases': [{**item, 'k': 4} for item in overlay['cases']]}),
         }
         for message, (table, content) in cases.items():
             with self.subTest(message), tempfile.TemporaryDirectory() as directory:
@@ -300,13 +304,18 @@ class ScoringUpgradeTests(unittest.TestCase):
         original = expected.read_bytes()
         registry = json.loads((freeze_arw_source.JUDGMENT / 'registry.json').read_text())
         try:
-            for marks, judgment, message in (((1, 1), 'all-B', 'registered as all-B'), ((1, 0), 'in-key', 'equal, nonzero'),
-                                              ((0, 0), 'in-key', 'equal, nonzero'), ((1, 1), 'in-key', None)):
-                with self.subTest(marks=marks, judgment=judgment), tempfile.TemporaryDirectory() as directory:
+            # A two-part judgment mark counts as k 1; k 4 needs four problem cases per clean case.
+            for marks, judgment, message, mark in (((1, 1), 'all-B', 'registered as all-B', {'judgment': True}),
+                                                   ((1, 0), 'in-key', 'per clean case', {'judgment': True}),
+                                                   ((0, 0), 'in-key', 'per clean case', {'judgment': True}),
+                                                   ((1, 1), 'in-key', None, {'judgment': True}),
+                                                   ((1, 1), 'in-key', 'per clean case', {'k': 4}),
+                                                   ((4, 1), 'in-key', None, {'k': 4})):
+                with self.subTest(marks=marks, judgment=judgment, mark=mark), tempfile.TemporaryDirectory() as directory:
                     marked = json.loads(original)
                     for kind, count in zip(('problem', 'clean'), marks):
                         for case in marked['scopes'][0][kind + 'Cases'][:count]:
-                            case['judgment'] = True
+                            case.update(mark)
                     expected.write_text(json.dumps(marked))
                     table = json.loads(json.dumps(registry))
                     table['code-spec-reviewer'][digest(expected)] = {'version': 'probe', 'judgment': judgment}
@@ -333,11 +342,12 @@ class ScoringUpgradeTests(unittest.TestCase):
         self.assertEqual(probe['falseCleanRejected']['clean'], [1, 1, 0])
         self.assertEqual(probe['falseCleanRejected']['extraFailedCleanCases'], 0)
         self.assertEqual(probe['supported']['clean'], [1, 1, 1])
-        # Each further unsupported finding, or further false flag of one clean case, adds a failed B clean case.
+        # Each further unsupported finding, or further false flag of one clean case, adds a failed clean case at k 0.25.
         for name in ('twoUnsupported', 'twoFalseCleans'):
             with self.subTest(name):
                 self.assertEqual(probe[name]['extraFailedCleanCases'], 1)
-                self.assertEqual(probe[name]['bCleanCases'], 3)
+        self.assertEqual(probe['twoUnsupported']['kFailedCleanWeight'], 0.5)
+        self.assertEqual(probe['twoFalseCleans']['kFailedCleanWeight'], 1.25)
         self.assertEqual(probe['twoUnsupported']['clean'], [1, 1, 0])
         self.assertEqual(probe['twoFalseCleans']['clean'], [0, 1, 1])
 
@@ -356,11 +366,10 @@ class ScoringUpgradeTests(unittest.TestCase):
                 self.assertLess(self.probe[name]['problem'][0], cut['problem'][0])
                 self.assertEqual(self.probe[name]['clean'], cut['clean'])
 
-    def test_r7_reported_failed_clean_cases_add_failed_b_clean_cases(self):
+    def test_r7_reported_failed_clean_cases_add_failed_clean_cases(self):
         reported, cut = self.probe['reportedFailedClean'], self.probe['cut']
         self.assertEqual(reported['extraFailedCleanCases'], cut['extraFailedCleanCases'] + 1)
-        self.assertEqual(reported['bCleanCases'], cut['bCleanCases'] + 1)
-        self.assertEqual(reported['bEarnedCleanPoints'], cut['bEarnedCleanPoints'])
+        self.assertEqual(reported['kFailedCleanWeight'], cut['kFailedCleanWeight'] + 0.25)
         self.assertLess(reported['score'], cut['score'])
 
     def test_r7_report_errors_are_charged_where_they_belong(self):
@@ -385,17 +394,16 @@ class ScoringUpgradeTests(unittest.TestCase):
         self.assertEqual(ignored['locatorCount'], stopped['locatorCount'])
         self.assertGreater(unfiltered['locatorCount'], stopped['locatorCount'])
         self.assertEqual(ignored['candidates'], stopped['candidates'])
-        # ... and loses nothing: the clean cases are those of a report that stopped, plus the one failed B clean case
-        # of the stop rule; no-other and the other clean cases pass.
+        # ... and loses nothing: the clean cases are those of a report that stopped, plus the one failed clean case
+        # (k 0.25) of the stop rule; no-other and the other clean cases pass.
         self.assertEqual(ignored['clean'], stopped['clean'])
         self.assertEqual(ignored['extraFailedCleanCases'], stopped['extraFailedCleanCases'] + 1)
-        self.assertEqual(ignored['bCleanCases'], stopped['bCleanCases'] + 1)
-        self.assertEqual(ignored['bEarnedCleanPoints'], stopped['bEarnedCleanPoints'])
+        self.assertEqual(ignored['kFailedCleanWeight'], stopped['kFailedCleanWeight'] + 0.25)
 
     def test_r7_adjudication_adds_associations_and_checks_decisions(self):
         added = self.probe['addedAssociation']
         self.assertGreater(added['problem'][0], 0)
-        self.assertEqual(added['judgmentPoints'], 2)
+        self.assertEqual(added['kEarnedProblemPoints'], 1 + added['problem'][1])
         validation = self.probe['validation']
         self.assertEqual(validation['pending'], ['f'])
         self.assertTrue(validation['notAllowed'])
