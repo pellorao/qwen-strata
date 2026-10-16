@@ -14,13 +14,13 @@
 | 上下文档 / 自动压缩 | 206584 / 150000（现行决定，2026-10-14）；备用档 156584 / 100000 | 156584 / 100000 |
 | 推理强度及思考上限 | 三档 low 2048／8192、medium 4096／16384、high 8192／24576（思考／总输出），guardian 512／1024（现行决定，2026-10-12） | 用户选定 high：8192 / 24576 |
 | KV / resident | int8（模板）/ 20480 | int8 / 20480 |
-| prefill | 8192（部署配置覆盖；模板为 16384） | 16384 |
-| expert cache / CPU workers / pcie-frac | auto / 23（pool-affinity all）/ 部署配置置空（模板 0） | auto / 23 / 0 |
-| MTP | spec 4；spec-min-p 0.9（部署配置；模板 0.50）；CJK draft vocab | spec 4；spec-min-p 0.7 |
+| prefill | 8192（IQ3 调参结果：16384 在 12 GB 卡上会被引擎降为 8192，不可行，[调参手册](host-tuning.md#iq3_xxs)；部署配置覆盖模板的 16384） | 16384 |
+| expert cache / CPU workers / pcie-frac | auto / 23（pool-affinity all）/ pcie-frac 置空即引擎实测（IQ3 调参采用，比固定 0 引擎输出快 11.1%，[调参手册](host-tuning.md#iq3_xxs)；模板为 0） | auto / 23 / 0 |
+| MTP | spec 4；spec-min-p 0.9（IQ3 调参采用，四值中最快，[调参手册](host-tuning.md#iq3_xxs)；模板为 0.50）；CJK draft vocab | spec 4；spec-min-p 0.7 |
 | 显存预留 | `vram-reserve-mib=512`（现行决定，2026-10-11） | 700（基线文件；部署配置中 Q2_0 为 512） |
 | 专家 profile | 默认 | 默认 |
 
-"IQ3_XXS 8 维调参结果为默认值"见[调参手册](host-tuning.md#iq3_xxs)；本表数值取自上述配置文件，调参手册若与之不一致以配置文件为准。IQ2 特有设置 `STRATA_PF_FUSED=1`（实际日志确认）为 v0.1.40 时期记录，未重新核对。IQ3_XXS 另有环境变量 `STRATA_ADAPT_LAG=2`（部署配置）。
+"IQ3_XXS 8 维调参结果为默认值"见[调参手册](host-tuning.md#iq3_xxs)；本表数值取自上述配置文件，已和调参手册的 IQ3_XXS 结果核对一致；模板保留的是调参前的预置值，实际服务以部署配置为准。IQ2 特有设置 `STRATA_PF_FUSED=1`（实际日志确认）为 v0.1.40 时期记录，未重新核对。IQ3_XXS 另有环境变量 `STRATA_ADAPT_LAG=2`（部署配置）。
 
 `pcie-frac` 控制缺失专家分配给CPU/GPU的比例，0不关闭其他GPU计算。当前为native GGUF pack，日志含默认Q5_K head；不能称为禁用了所有native projection。CPU无AVX-512，canonical Q2融合性能声明不能直接套用rtx4070tis。
 
