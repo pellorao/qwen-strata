@@ -39,7 +39,7 @@ k = 4 暂不可用：它的误报须双裁，双裁流程实现之前，答案�
 | Spec Readiness v4.1 | 全 B（过渡期） | A 类随 v4.2 的覆盖文件提交 |
 | Spec Readiness v4.2（2026-10-16 冻结） | `spec-readiness-v4.2.json` | 4:4（RM 1:0，AP 3:4）：新增 2 个正例、2 个反例，REQUIREMENTS 反例 3、4 改 B（待用户复核）；经 4 轮审计，见 [v4.2 说明](../spec-readiness-v4.md#v42a-类平衡到-44修订号-452026-10-16-冻结) |
 | Code Spec v5 | 全 B | |
-| Commit Audit | 全 B | |
+| Commit Audit | 全 B | ARW 原版与 v2 草稿（只做去重）都全 B |
 | 其他已冻结的旧版本 | 全 B | 不再标定 |
 | Code Standards | 由场景 worker 登记 | v5 草稿修订 22 为 `in-key`（12:12） |
 
