@@ -18,6 +18,6 @@
   "spec-readiness-reviewer": {
     "e5d17bac8d81e8238516dbf509fad0216d51a2a93a8131b0a2a1079917ff0598": {"version": "ARW 原版（previous 快照）", "judgment": "all-B"},
     "3093980fc37278abd16a935cd10d143dbcbab19435671bdee7e7fd2f13c3526f": {"version": "Spec Readiness v4.1（过渡期全按 B，A 类随 v4.2 提交）", "judgment": "all-B"},
-    "74252e0aa4e50d231efaefdfa24a27e1b4d97936e747425787d30bace996a344": {"version": "Spec Readiness v4.2（2026-10-16 冻结，修订号 45，A 类 4:4 见覆盖文件）与 v4.3（修订号 46，只改子场景拆分，答案键相同）", "judgment": "spec-readiness-v4.2.json"}
+    "74252e0aa4e50d231efaefdfa24a27e1b4d97936e747425787d30bace996a344": {"version": "Spec Readiness v4.2（2026-10-16 冻结，修订号 45，A 类 4:4 见覆盖文件）与 v4.3（2026-10-17 冻结，修订号 46，只改子场景拆分，答案键相同）", "judgment": "spec-readiness-v4.2.json"}
   }
 }
