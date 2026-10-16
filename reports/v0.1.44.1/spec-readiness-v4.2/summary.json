@@ -235,140 +235,163 @@
  "cases": [
   {
    "case": "SPEC-READINESS-INPUTS#0",
-   "q3Hits": 0,
-   "opusHits": 0,
+   "q3Hits": 10,
+   "q3Mean": 0.86,
+   "opusHits": 3,
    "expectation": "The subject selects specs/request-consistency.md, but no matching governing Input was supp"
   },
   {
    "case": "SPEC-READINESS-REQUIREMENTS#0",
-   "q3Hits": 0,
-   "opusHits": 0,
+   "q3Hits": 10,
+   "q3Mean": 0.97,
+   "opusHits": 3,
    "expectation": "Runtime Migration successful result omits the summary required by Result Summary."
   },
   {
    "case": "SPEC-READINESS-REQUIREMENTS#1",
    "q3Hits": 10,
+   "q3Mean": 0.99,
    "opusHits": 3,
    "expectation": "Runtime Migration expected filesystem failure omits the operation field required by Promot"
   },
   {
    "case": "SPEC-READINESS-REQUIREMENTS#2",
    "q3Hits": 10,
+   "q3Mean": 0.99,
    "opusHits": 3,
    "expectation": "The subject adds image-preview cleanup that is not needed to implement this issue."
   },
   {
    "case": "SPEC-READINESS-REQUIREMENTS#3",
-   "q3Hits": 10,
+   "q3Hits": 3,
+   "q3Mean": 0.28,
    "opusHits": 3,
    "expectation": "The conditional export-retention section applies only if the new reader-index target is a "
   },
   {
    "case": "SPEC-READINESS-RATIONALE#0",
-   "q3Hits": 0,
-   "opusHits": 0,
+   "q3Hits": 7,
+   "q3Mean": 0.69,
+   "opusHits": 3,
    "expectation": "The access-review common rationale selects re-evaluating policy on every protected read an"
   },
   {
    "case": "SPEC-READINESS-ADR-EVALUATION#0",
-   "q3Hits": 0,
-   "opusHits": 0,
+   "q3Hits": 9,
+   "q3Mean": 0.86,
+   "opusHits": 3,
    "expectation": "The recovery ADR evaluation treats the new public recovery-result contract and failure lif"
   },
   {
    "case": "MODULE-DESIGN-APPLICABILITY#0",
-   "q3Hits": 0,
-   "opusHits": 0,
+   "q3Hits": 7,
+   "q3Mean": 0.67,
+   "opusHits": 3,
    "expectation": "The result-summary change alters a caller-visible Interface and therefore cannot use the M"
   },
   {
    "case": "MODULE-DESIGN-EXEMPTION#0",
-   "q3Hits": 0,
-   "opusHits": 0,
+   "q3Hits": 9,
+   "q3Mean": 0.84,
+   "opusHits": 3,
    "expectation": "The parser exemption is applicable but only generically claims unchanged architecture with"
   },
   {
    "case": "MODULE-DESIGN-MODULES#0",
-   "q3Hits": 0,
-   "opusHits": 0,
+   "q3Hits": 3,
+   "q3Mean": 0.29,
+   "opusHits": 3,
    "expectation": "Readiness Module and Promotion Module duplicate validation ownership."
   },
   {
    "case": "MODULE-DESIGN-MODULES#1",
-   "q3Hits": 3,
+   "q3Hits": 6,
+   "q3Mean": 0.57,
    "opusHits": 3,
    "expectation": "Promotion Module and Recovery Module duplicate validation ownership of the recovery input."
   },
   {
    "case": "MODULE-DESIGN-INTERFACES#0",
-   "q3Hits": 0,
-   "opusHits": 0,
+   "q3Hits": 5,
+   "q3Mean": 0.45,
+   "opusHits": 1,
    "expectation": "Access Review Interface does not provide the verified-principal input required by its auth"
   },
   {
    "case": "MODULE-DESIGN-INTERFACES#1",
-   "q3Hits": 5,
-   "opusHits": 1,
+   "q3Hits": 6,
+   "q3Mean": 0.59,
+   "opusHits": 3,
    "expectation": "Access Review and its Policy Evaluation Seam define allowed, denied and input-error result"
   },
   {
    "case": "MODULE-DESIGN-INTERFACES#2",
-   "q3Hits": 6,
+   "q3Hits": 4,
+   "q3Mean": 0.37,
    "opusHits": 3,
    "expectation": "Rollback-failure result does not define whether failureCode identifies the commit or rollb"
   },
   {
    "case": "MODULE-DESIGN-INTERFACES#3",
-   "q3Hits": 4,
+   "q3Hits": 1,
+   "q3Mean": 0.09,
    "opusHits": 3,
    "expectation": "Recovery Testing Decisions omit the public lifecycle for rollback-failure results; Promoti"
   },
   {
    "case": "MODULE-DESIGN-INTERFACES#4",
-   "q3Hits": 1,
-   "opusHits": 3,
+   "q3Hits": 0,
+   "q3Mean": 0,
+   "opusHits": 2,
    "expectation": "The Malformed Artifact Interface returns unexpected-field for an extra field not allowed b"
   },
   {
    "case": "MODULE-DESIGN-INTERFACES#5",
-   "q3Hits": 0,
-   "opusHits": 2,
+   "q3Hits": 6,
+   "q3Mean": 0.52,
+   "opusHits": 0,
    "expectation": "renderReport requires source but defines neither its input type (the result for a non-stri"
   },
   {
    "case": "MODULE-DESIGN-SEAMS-ADAPTERS#0",
-   "q3Hits": 0,
-   "opusHits": 0,
+   "q3Hits": 9,
+   "q3Mean": 0.87,
+   "opusHits": 3,
    "expectation": "After the Policy Evaluation Seam returns allowed, Access Review Module itself checks facts"
   },
   {
    "case": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW#0",
-   "q3Hits": 0,
-   "opusHits": 0,
+   "q3Hits": 8,
+   "q3Mean": 0.79,
+   "opusHits": 3,
    "expectation": "Recovery Dependencies and Data Flow omits the required authoritative-source table even tho"
   },
   {
    "case": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW#1",
-   "q3Hits": 8,
+   "q3Hits": 2,
+   "q3Mean": 0.18,
    "opusHits": 3,
    "expectation": "Promotion Flow does not include the call to the declared Artifact Storage read operation, "
   },
   {
    "case": "MODULE-DESIGN-RATIONALE#0",
-   "q3Hits": 0,
-   "opusHits": 0,
+   "q3Hits": 6,
+   "q3Mean": 0.59,
+   "opusHits": 3,
    "expectation": "The rationale selects a separate Access Review Module but does not compare it with an auth"
   },
   {
    "case": "MODULE-DESIGN-RATIONALE#1",
-   "q3Hits": 6,
+   "q3Hits": 0,
+   "q3Mean": 0,
    "opusHits": 3,
    "expectation": "The access-review Module Design Rationale justifies the identity and facts authorities but"
   },
   {
    "case": "MODULE-DESIGN-RATIONALE#2",
    "q3Hits": 0,
-   "opusHits": 3,
+   "q3Mean": 0,
+   "opusHits": 0,
    "expectation": "The access-review rationale does not justify the dependency direction from Access Review M"
   }
  ]
