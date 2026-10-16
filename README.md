@@ -61,3 +61,4 @@ rtx3080ti 安装 Strata v0.1.44.1（2026-10-14，通过短检查），默认模�
 - 2026-10-13 Spec Readiness v4（v4.1 键，删除答案不成立的 SEAMS#1）：Opus 0.774、Q3 ×5 0.593，Q3/Opus 0.766，判据四条成立；Q3 ×10 扣罚后 SD 0.073 超 0.068，不用于调参（[报告](reports/v0.1.42/spec-readiness-v4/summary.md)）。
 - 2026-10-13 rtx3080ti 升级到 Strata v0.1.43.1，短检查通过（IQ3_XXS 引擎输出 95.9 tok/s，短负载、只跑一次，不作版本对比）；计量解析器适配新的 #2090 分块日志行；新版显存检查在 2/13 个请求上告警（剩余 128–276 MiB），待观察（[升级报告](reports/v0.1.43.1/upgrade.md)）。
 - 2026-10-14 rtx3080ti 升级到 Strata v0.1.44.1，短检查通过（[升级报告](reports/v0.1.44.1/upgrade.md)）；调参结论来自旧版本，没有在本版上重新测量。
+- 2026-10-17 Spec Readiness v4.2 正式测量完成（评分 r8）：Q3/Opus 0.584（原定 5 次）/ 0.629（10 次），不能用于调参；c003 口径待复核，冻结与否待独立 agent 意见（[报告](reports/v0.1.44.1/spec-readiness-v4.2/summary.md)）。

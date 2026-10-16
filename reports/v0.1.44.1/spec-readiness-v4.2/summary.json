@@ -1,0 +1,375 @@
+{
+ "meta": {
+  "scenario": "Spec Readiness v4.2",
+  "revision": 45,
+  "scoring": "r8",
+  "strata": "0.1.44.1",
+  "codex": "0.162.0",
+  "model": "IQ3_XXS",
+  "effort": "high",
+  "expectedSha256": "74252e0aa4e50d231efaefdfa24a27e1b4d97936e747425787d30bace996a344"
+ },
+ "rows": [
+  {
+   "batch": "A",
+   "rep": "1",
+   "work_min": 16.1,
+   "read": 149055,
+   "reused": 3079072,
+   "generated": 72052,
+   "engine_in_tps": 1517.0,
+   "engine_out_tps": 88.0,
+   "task_in_tps": 154.0,
+   "task_out_tps": 74.5,
+   "score": 0.5875,
+   "T": 80,
+   "r": 0
+  },
+  {
+   "batch": "A",
+   "rep": "2",
+   "work_min": 16.0,
+   "read": 154568,
+   "reused": 3110496,
+   "generated": 72551,
+   "engine_in_tps": 1505.0,
+   "engine_out_tps": 86.9,
+   "task_in_tps": 161.5,
+   "task_out_tps": 75.8,
+   "score": 0.448,
+   "T": 36,
+   "r": 0
+  },
+  {
+   "batch": "Ar",
+   "rep": "1",
+   "work_min": 19.7,
+   "read": 151017,
+   "reused": 4326440,
+   "generated": 88841,
+   "engine_in_tps": 1422.0,
+   "engine_out_tps": 86.4,
+   "task_in_tps": 127.5,
+   "task_out_tps": 75.0,
+   "score": 0.6959,
+   "T": 74,
+   "r": 0
+  },
+  {
+   "batch": "B",
+   "rep": "1",
+   "work_min": 15.1,
+   "read": 141426,
+   "reused": 2881647,
+   "generated": 68026,
+   "engine_in_tps": 1492.0,
+   "engine_out_tps": 88.9,
+   "task_in_tps": 155.7,
+   "task_out_tps": 74.9,
+   "score": 0.3442,
+   "T": 41,
+   "r": 0
+  },
+  {
+   "batch": "B",
+   "rep": "2",
+   "work_min": 14.8,
+   "read": 133723,
+   "reused": 2875372,
+   "generated": 70884,
+   "engine_in_tps": 1571.0,
+   "engine_out_tps": 90.6,
+   "task_in_tps": 150.8,
+   "task_out_tps": 79.9,
+   "score": 0.3481,
+   "T": 60,
+   "r": 0
+  },
+  {
+   "batch": "C",
+   "rep": "1",
+   "work_min": 15.9,
+   "read": 151592,
+   "reused": 2954040,
+   "generated": 70452,
+   "engine_in_tps": 1558.0,
+   "engine_out_tps": 87.3,
+   "task_in_tps": 159.1,
+   "task_out_tps": 74.0,
+   "score": 0.6095,
+   "T": 61,
+   "r": 0
+  },
+  {
+   "batch": "C",
+   "rep": "2",
+   "work_min": 12.7,
+   "read": 129096,
+   "reused": 2587437,
+   "generated": 57592,
+   "engine_in_tps": 1511.0,
+   "engine_out_tps": 87.4,
+   "task_in_tps": 169.2,
+   "task_out_tps": 75.5,
+   "score": 0.5042,
+   "T": 79,
+   "r": 0
+  },
+  {
+   "batch": "C",
+   "rep": "3",
+   "work_min": 15.0,
+   "read": 169300,
+   "reused": 2732398,
+   "generated": 68674,
+   "engine_in_tps": 1629.0,
+   "engine_out_tps": 88.4,
+   "task_in_tps": 188.2,
+   "task_out_tps": 76.3,
+   "score": 0.5626,
+   "T": 65,
+   "r": 0
+  },
+  {
+   "batch": "D",
+   "rep": "1",
+   "work_min": 16.5,
+   "read": 133292,
+   "reused": 3322970,
+   "generated": 73803,
+   "engine_in_tps": 1423.0,
+   "engine_out_tps": 87.4,
+   "task_in_tps": 135.0,
+   "task_out_tps": 74.7,
+   "score": 0.5298,
+   "T": 60,
+   "r": 0
+  },
+  {
+   "batch": "D",
+   "rep": "2",
+   "work_min": 16.9,
+   "read": 174710,
+   "reused": 3693802,
+   "generated": 77963,
+   "engine_in_tps": 1565.0,
+   "engine_out_tps": 88.7,
+   "task_in_tps": 172.8,
+   "task_out_tps": 77.1,
+   "score": 0.5882,
+   "T": 67,
+   "r": 0
+  }
+ ],
+ "opus": [
+  {
+   "src": "opus:opus-1",
+   "score": 0.8419,
+   "T": 68,
+   "r": 0
+  },
+  {
+   "src": "opus:opus-2",
+   "score": 0.8264,
+   "T": 77,
+   "r": 0
+  },
+  {
+   "src": "opus:opus-3",
+   "score": 0.82,
+   "T": 79,
+   "r": 0
+  }
+ ],
+ "agg": {
+  "q3_planned5": {
+   "n": 5,
+   "mean": 0.4847,
+   "sd": 0.154
+  },
+  "q3_all10": {
+   "n": 10,
+   "mean": 0.5218,
+   "sd": 0.1135
+  },
+  "opus": {
+   "n": 3,
+   "mean": 0.8294,
+   "sd": 0.0112
+  },
+  "ratio_planned5": 0.584,
+  "ratio_all10": 0.629
+ },
+ "haiku": [
+  {
+   "src": "haiku:haiku-1",
+   "upper": 0.787,
+   "lower": 0.0,
+   "T": 121
+  },
+  {
+   "src": "haiku:haiku-2",
+   "upper": 0.2029,
+   "lower": 0.0,
+   "T": 51
+  },
+  {
+   "src": "haiku:haiku-3",
+   "upper": 0.6998,
+   "lower": 0.0,
+   "T": 91
+  },
+  {
+   "src": "haiku:haiku-4",
+   "upper": 0.7281,
+   "lower": 0.0,
+   "T": 74
+  },
+  {
+   "src": "haiku:haiku-5",
+   "upper": 0.8365,
+   "lower": 0.0,
+   "T": 77
+  }
+ ],
+ "cases": [
+  {
+   "case": "SPEC-READINESS-INPUTS#0",
+   "q3Hits": 0,
+   "opusHits": 0,
+   "expectation": "The subject selects specs/request-consistency.md, but no matching governing Input was supp"
+  },
+  {
+   "case": "SPEC-READINESS-REQUIREMENTS#0",
+   "q3Hits": 0,
+   "opusHits": 0,
+   "expectation": "Runtime Migration successful result omits the summary required by Result Summary."
+  },
+  {
+   "case": "SPEC-READINESS-REQUIREMENTS#1",
+   "q3Hits": 10,
+   "opusHits": 3,
+   "expectation": "Runtime Migration expected filesystem failure omits the operation field required by Promot"
+  },
+  {
+   "case": "SPEC-READINESS-REQUIREMENTS#2",
+   "q3Hits": 10,
+   "opusHits": 3,
+   "expectation": "The subject adds image-preview cleanup that is not needed to implement this issue."
+  },
+  {
+   "case": "SPEC-READINESS-REQUIREMENTS#3",
+   "q3Hits": 10,
+   "opusHits": 3,
+   "expectation": "The conditional export-retention section applies only if the new reader-index target is a "
+  },
+  {
+   "case": "SPEC-READINESS-RATIONALE#0",
+   "q3Hits": 0,
+   "opusHits": 0,
+   "expectation": "The access-review common rationale selects re-evaluating policy on every protected read an"
+  },
+  {
+   "case": "SPEC-READINESS-ADR-EVALUATION#0",
+   "q3Hits": 0,
+   "opusHits": 0,
+   "expectation": "The recovery ADR evaluation treats the new public recovery-result contract and failure lif"
+  },
+  {
+   "case": "MODULE-DESIGN-APPLICABILITY#0",
+   "q3Hits": 0,
+   "opusHits": 0,
+   "expectation": "The result-summary change alters a caller-visible Interface and therefore cannot use the M"
+  },
+  {
+   "case": "MODULE-DESIGN-EXEMPTION#0",
+   "q3Hits": 0,
+   "opusHits": 0,
+   "expectation": "The parser exemption is applicable but only generically claims unchanged architecture with"
+  },
+  {
+   "case": "MODULE-DESIGN-MODULES#0",
+   "q3Hits": 0,
+   "opusHits": 0,
+   "expectation": "Readiness Module and Promotion Module duplicate validation ownership."
+  },
+  {
+   "case": "MODULE-DESIGN-MODULES#1",
+   "q3Hits": 3,
+   "opusHits": 3,
+   "expectation": "Promotion Module and Recovery Module duplicate validation ownership of the recovery input."
+  },
+  {
+   "case": "MODULE-DESIGN-INTERFACES#0",
+   "q3Hits": 0,
+   "opusHits": 0,
+   "expectation": "Access Review Interface does not provide the verified-principal input required by its auth"
+  },
+  {
+   "case": "MODULE-DESIGN-INTERFACES#1",
+   "q3Hits": 5,
+   "opusHits": 1,
+   "expectation": "Access Review and its Policy Evaluation Seam define allowed, denied and input-error result"
+  },
+  {
+   "case": "MODULE-DESIGN-INTERFACES#2",
+   "q3Hits": 6,
+   "opusHits": 3,
+   "expectation": "Rollback-failure result does not define whether failureCode identifies the commit or rollb"
+  },
+  {
+   "case": "MODULE-DESIGN-INTERFACES#3",
+   "q3Hits": 4,
+   "opusHits": 3,
+   "expectation": "Recovery Testing Decisions omit the public lifecycle for rollback-failure results; Promoti"
+  },
+  {
+   "case": "MODULE-DESIGN-INTERFACES#4",
+   "q3Hits": 1,
+   "opusHits": 3,
+   "expectation": "The Malformed Artifact Interface returns unexpected-field for an extra field not allowed b"
+  },
+  {
+   "case": "MODULE-DESIGN-INTERFACES#5",
+   "q3Hits": 0,
+   "opusHits": 2,
+   "expectation": "renderReport requires source but defines neither its input type (the result for a non-stri"
+  },
+  {
+   "case": "MODULE-DESIGN-SEAMS-ADAPTERS#0",
+   "q3Hits": 0,
+   "opusHits": 0,
+   "expectation": "After the Policy Evaluation Seam returns allowed, Access Review Module itself checks facts"
+  },
+  {
+   "case": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW#0",
+   "q3Hits": 0,
+   "opusHits": 0,
+   "expectation": "Recovery Dependencies and Data Flow omits the required authoritative-source table even tho"
+  },
+  {
+   "case": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW#1",
+   "q3Hits": 8,
+   "opusHits": 3,
+   "expectation": "Promotion Flow does not include the call to the declared Artifact Storage read operation, "
+  },
+  {
+   "case": "MODULE-DESIGN-RATIONALE#0",
+   "q3Hits": 0,
+   "opusHits": 0,
+   "expectation": "The rationale selects a separate Access Review Module but does not compare it with an auth"
+  },
+  {
+   "case": "MODULE-DESIGN-RATIONALE#1",
+   "q3Hits": 6,
+   "opusHits": 3,
+   "expectation": "The access-review Module Design Rationale justifies the identity and facts authorities but"
+  },
+  {
+   "case": "MODULE-DESIGN-RATIONALE#2",
+   "q3Hits": 0,
+   "opusHits": 3,
+   "expectation": "The access-review rationale does not justify the dependency direction from Access Review M"
+  }
+ ]
+}
