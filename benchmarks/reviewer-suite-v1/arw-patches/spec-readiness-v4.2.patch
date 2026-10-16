@@ -1,0 +1,81 @@
+diff --git a/lib/release/reviewer-capability-conformance.mjs b/lib/release/reviewer-capability-conformance.mjs
+index 168fec9..9ee412a 100644
+--- a/lib/release/reviewer-capability-conformance.mjs
++++ b/lib/release/reviewer-capability-conformance.mjs
+@@ -190,3 +190,3 @@ const SCENARIO_REVISIONS = new Map([
+     ['commit-audit-reviewer', 19],
+-    ['spec-readiness-reviewer', 44],
++    ['spec-readiness-reviewer', 45],
+ ]);
+diff --git a/tests/fixtures/reviewer-capability/spec-readiness-reviewer/expected.json b/tests/fixtures/reviewer-capability/spec-readiness-reviewer/expected.json
+index 52cf68d..51e869e 100644
+--- a/tests/fixtures/reviewer-capability/spec-readiness-reviewer/expected.json
++++ b/tests/fixtures/reviewer-capability/spec-readiness-reviewer/expected.json
+@@ -79,11 +79,13 @@
+     {
+       "scope": "MODULE-DESIGN-MODULES",
+       "problemCases": [
+-        {"placements": [{"check": "MODULE-DESIGN-MODULES", "associationEvidence": [{"filePath": "specs/promotion-runtime.md", "line": 27}], "evidence": [{"filePath": "specs/promotion-runtime.md", "line": 27}]}, {"check": "MODULE-DESIGN-MODULES", "associationEvidence": [{"filePath": "specs/promotion-runtime.md", "line": 27}], "evidence": [{"filePath": "specs/promotion-runtime.md", "line": 27}, {"filePath": "specs/promotion-runtime.md", "line": 11}]}], "expectation": "Readiness Module and Promotion Module duplicate validation ownership.", "result": "gap", "findingTerms": ["Readiness Module", "Promotion Module", "validation", ["duplicate", "both", "overlap"]]}
++        {"placements": [{"check": "MODULE-DESIGN-MODULES", "associationEvidence": [{"filePath": "specs/promotion-runtime.md", "line": 27}], "evidence": [{"filePath": "specs/promotion-runtime.md", "line": 27}]}, {"check": "MODULE-DESIGN-MODULES", "associationEvidence": [{"filePath": "specs/promotion-runtime.md", "line": 27}], "evidence": [{"filePath": "specs/promotion-runtime.md", "line": 27}, {"filePath": "specs/promotion-runtime.md", "line": 11}]}], "expectation": "Readiness Module and Promotion Module duplicate validation ownership.", "result": "gap", "findingTerms": ["Readiness Module", "Promotion Module", "validation", ["duplicate", "both", "overlap"]]},
++        {"expectation": "Promotion Module and Recovery Module duplicate validation ownership of the recovery input. This includes the consequence that Promotion returns the diagnostic itself and bypasses the Recovery handoff, which no longer matches the unconditional handoff and propagation described in promotion-runtime.md (Promotion Persistence Interface, Failure Results, Promotion Flow), promotion-recovery.md (Commit Failure Input, Recovery Propagation) and architecture/02-commit.md.", "result": "gap", "findingTerms": ["Promotion Module", "Recovery Module", ["validation", "validate", "validates", "Invalid Input Diagnostic"], ["duplicate", "both", "overlap", "twice"]], "placements": [{"check": "MODULE-DESIGN-MODULES", "associationEvidence": [{"filePath": "specs/promotion-recovery.md", "line": 31}], "evidence": [{"filePath": "specs/promotion-recovery.md", "line": 31}, {"filePath": "specs/promotion-recovery.md", "line": 65}]}, {"check": "MODULE-DESIGN-MODULES", "associationEvidence": [{"filePath": "specs/promotion-recovery.md", "line": 31}], "evidence": [{"filePath": "specs/promotion-recovery.md", "line": 31}, {"filePath": "specs/promotion-recovery.md", "line": 41}]}, {"check": "MODULE-DESIGN-MODULES", "associationEvidence": [{"filePath": "specs/promotion-recovery.md", "line": 31}], "evidence": [{"filePath": "specs/promotion-recovery.md", "line": 31}, {"filePath": "specs/promotion-recovery.md", "line": 19}]}, {"check": "MODULE-DESIGN-MODULES", "associationEvidence": [{"filePath": "specs/promotion-recovery.md", "line": 65}], "evidence": [{"filePath": "specs/promotion-recovery.md", "line": 65}, {"filePath": "specs/promotion-recovery.md", "line": 31}]}, {"check": "MODULE-DESIGN-MODULES", "associationEvidence": [{"filePath": "specs/promotion-recovery.md", "line": 31}], "evidence": [{"filePath": "specs/promotion-recovery.md", "line": 31}, {"filePath": "specs/promotion-runtime.md", "line": 31}]}, {"check": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW", "associationEvidence": [{"filePath": "specs/promotion-recovery.md", "line": 31}], "evidence": [{"filePath": "specs/promotion-recovery.md", "line": 31}, {"filePath": "specs/promotion-recovery.md", "line": 65}]}]}
+       ],
+       "cleanCases": [
+         {"expectation": "Validation Report Module solely owns renderReport report validation and rendering; renderReport and parseArtifact are separate operations that each validate against the architecture Invalid Artifact Contract, so this is neither duplicate validation ownership nor an undeclared dependency on parseArtifact.", "evidence": [{"filePath": "specs/validation-report.md", "line": 31}], "findingTerms": ["Validation Report Module", ["validation", "rendering"]]},
+         {"expectation": "Readiness Module retains its existing non-report responsibilities without overlap.", "evidence": [{"filePath": "specs/validation-report.md", "line": 35}], "findingTerms": ["Readiness Module", ["promotion ordering", "artifact generation"]]},
++        {"expectation": "Promotion Module owns the persistence precondition checks and Recovery Module validates the recovery input; these are different obligations on different inputs, not duplicate validation ownership.", "evidence": [{"filePath": "specs/promotion-runtime.md", "line": 31}, {"filePath": "specs/promotion-recovery.md", "line": 41}], "findingTerms": ["precondition", ["duplicate", "overlap", "both"]]},
+         {"noOtherSupportedFinding": true}
+       ]
+     },
+@@ -107,12 +109,15 @@
+     },
+     {
+       "scope": "MODULE-DESIGN-SEAMS-ADAPTERS",
+-      "problemCases": [],
++      "problemCases": [
++        {"expectation": "After the Policy Evaluation Seam returns allowed, Access Review Module itself checks facts.operation against policy.allowedOperations, so the same runtime authorization policy is owned by both the Module and the Policy Adapters.", "result": "gap", "findingTerms": [["Access Review Module", "Access Review"], ["allowedOperations", "operation"], ["Policy Evaluation Seam", "Policy Adapter", "Seam", "Adapter"], ["duplicate", "duplicates", "both", "twice", "overlap", "re-check", "re-evaluate"]], "placements": [{"check": "MODULE-DESIGN-SEAMS-ADAPTERS", "associationEvidence": [{"filePath": "specs/access-review.md", "line": 27}], "evidence": [{"filePath": "specs/access-review.md", "line": 27}, {"filePath": "specs/access-review.md", "line": 51}]}, {"check": "MODULE-DESIGN-SEAMS-ADAPTERS", "associationEvidence": [{"filePath": "specs/access-review.md", "line": 27}], "evidence": [{"filePath": "specs/access-review.md", "line": 27}, {"filePath": "specs/access-review.md", "line": 15}]}, {"check": "MODULE-DESIGN-SEAMS-ADAPTERS", "associationEvidence": [{"filePath": "specs/access-review.md", "line": 27}], "evidence": [{"filePath": "specs/access-review.md", "line": 27}, {"filePath": "specs/access-review.md", "line": 51}, {"filePath": "specs/access-review.md", "line": 15}]}, {"check": "MODULE-DESIGN-MODULES", "associationEvidence": [{"filePath": "specs/access-review.md", "line": 27}], "evidence": [{"filePath": "specs/access-review.md", "line": 27}, {"filePath": "specs/access-review.md", "line": 51}]}, {"check": "MODULE-DESIGN-MODULES", "associationEvidence": [{"filePath": "specs/access-review.md", "line": 27}], "evidence": [{"filePath": "specs/access-review.md", "line": 27}, {"filePath": "specs/access-review.md", "line": 15}]}, {"check": "MODULE-DESIGN-MODULES", "associationEvidence": [{"filePath": "specs/access-review.md", "line": 27}], "evidence": [{"filePath": "specs/access-review.md", "line": 27}, {"filePath": "specs/access-review.md", "line": 51}, {"filePath": "specs/access-review.md", "line": 15}]}, {"check": "MODULE-DESIGN-SEAMS-ADAPTERS", "associationEvidence": [{"filePath": "specs/access-review.md", "line": 27}], "evidence": [{"filePath": "specs/access-review.md", "line": 27}, {"filePath": "architecture/04-seams.md", "line": 5}]}, {"check": "MODULE-DESIGN-DEPENDENCIES-DATA-FLOW", "associationEvidence": [{"filePath": "specs/access-review.md", "line": 27}], "evidence": [{"filePath": "specs/access-review.md", "line": 27}, {"filePath": "specs/access-review.md", "line": 55}]}]}
++      ],
+       "cleanCases": [
+         {"expectation": "The production Artifact reader Adapter implements the stated Interface and returns immutable bytes.", "evidence": [{"filePath": "specs/validation-report.md", "line": 63}, {"filePath": "architecture/05-validation-report.md", "line": 57}], "findingTerms": ["Production Adapter", "bytes"]},
+         {"expectation": "The deterministic Artifact reader Adapter implements the same Interface with proven observable equivalence.", "evidence": [{"filePath": "specs/validation-report.md", "line": 67}, {"filePath": "architecture/05-validation-report.md", "line": 65}], "findingTerms": ["Deterministic Adapter", ["equivalent", "same Interface", "same bytes"]]},
+         {"expectation": "The external Main Agent presentation and Human decision remain outside non-test runtime code and do not require a Module Interface or Adapter.", "evidence": [{"filePath": "specs/validation-report.md", "line": 71}], "findingTerms": ["Main Agent", ["Module Interface", "runtime Interface", "Adapter"], ["missing", "requires", "must define", "must provide"]]},
+-        {"expectation": "The Recovery Adapters share the exact restore-failure recoveryState; different configurations may produce different outcomes, which is not a defect, and no proof of existing runtime equivalence is claimed or needed.", "evidence": [{"filePath": "specs/promotion-recovery.md", "line": 57}, {"filePath": "specs/promotion-recovery.md", "line": 59}], "findingTerms": [["Recovery Storage Seam", "Recovery Storage"], ["same result", "equivalence", "equal outcomes"], ["architecture evidence", "proof", "not proven", "unsupported"]]},
++        {"expectation": "The Recovery Adapters share the exact recoveryState for both restore outcomes; different configurations may produce different outcomes, which is not a defect, and no proof of existing runtime equivalence is claimed or needed.", "evidence": [{"filePath": "specs/promotion-recovery.md", "line": 57}, {"filePath": "specs/promotion-recovery.md", "line": 59}], "findingTerms": [["Recovery Storage Seam", "Recovery Storage"], ["same result", "equivalence", "equal outcomes"], ["architecture evidence", "proof", "not proven", "unsupported"]]},
++        {"expectation": "The Artifact Reader Adapters only supply bytes; report validation and result policy stay in Validation Report Module, so no runtime domain policy is duplicated across the Adapters.", "evidence": [{"filePath": "specs/validation-report.md", "line": 59}, {"filePath": "specs/validation-report.md", "line": 92}], "findingTerms": [["Artifact Reader", "Adapter"], ["policy", "validation"], ["duplicate", "duplicated", "both", "overlap"]]},
+         {"noOtherSupportedFinding": true}
+       ]
+     },
+diff --git a/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/access-review.md b/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/access-review.md
+index 0621a4d..c598b68 100644
+--- a/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/access-review.md
++++ b/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/access-review.md
+@@ -24,7 +24,7 @@ Authorization policy 由 Input author 提供, Reviewer 不选择 policy. Policy
+ 
+ #### Access Review Module
+ 
+-`Access Review Module` 独占 authorization decision, 并通过 Policy Evaluation Seam 执行 policy evaluation, 不拥有 caller authentication, policy authoring, artifact reading 或 persistence.
++`Access Review Module` 独占 authorization decision, 并通过 Policy Evaluation Seam 执行 policy evaluation. Seam 返回 allowed 后, Access Review 检查 facts.operation 是否在 policy.allowedOperations 中; operation 不在其中时返回 Interfaces 的 denied decision, 不读取 artifact. 它不拥有 caller authentication, policy authoring, artifact reading 或 persistence.
+ 
+ #### Artifact Reading
+ 
+diff --git a/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-recovery.md b/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-recovery.md
+index 89f00f4..45573ad 100644
+--- a/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-recovery.md
++++ b/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-recovery.md
+@@ -28,7 +28,7 @@ Rollback failure 必须向 caller 返回 `{recovered: false, failureCode, priorT
+ 
+ #### Recovery Ownership
+ 
+-`Recovery Module` 拥有 tracked commit failure 后的 rollback operation 和 ordinary recovery result. `Promotion Module` 拥有 commit attempt, 不执行 rollback.
++`Recovery Module` 拥有 tracked commit failure 后的 rollback operation 和 ordinary recovery result. `Promotion Module` 拥有 commit attempt, 不执行 rollback; 交出失败尝试前, 它按 Interfaces 的 Invalid Input Diagnostic 顺序检查 `{artifact, priorTrackedState, failedCommitId, commitFailureCode}`, 有误时直接返回该 diagnostic, 不调用 Recovery.
+ 
+ #### Rollback Failure Ownership
+ 
+@@ -54,7 +54,7 @@ Successful rollback 返回 `{recovered: true, failureCode, priorTrackedState, ba
+ 
+ #### Recovery Storage Seam
+ 
+-Recovery Storage Seam 的 operation 是 `restore(priorTrackedState) -> recoveryState`. 成功语义是恢复到输入指定的 priorTrackedState 并移除 baseline. Recovery Module 由这些事实形成 Successful Result 的公开结果, 使用输入的 priorTrackedState 和原始 commit failure code. Filesystem Adapter 执行实际 restore, deterministic Adapter 使用调用方配置表达同一成功语义.
++Recovery Storage Seam 的 operation 是 `restore(priorTrackedState) -> recoveryState`. 成功时 Seam 返回的 `recoveryState` 精确为 `{status: "restored"}`, 表示已恢复到输入指定的 priorTrackedState 并移除 baseline. Recovery Module 由这些事实形成 Successful Result 的公开结果, 使用输入的 priorTrackedState 和原始 commit failure code. Filesystem Adapter 执行实际 restore, deterministic Adapter 使用调用方配置表达同一成功语义.
+ 
+ Restore 失败时 Seam 返回的 `recoveryState` 精确为 `{status: "failed", restoreFailureCode: "restore-failed", baselineStatus}`, baselineStatus 是 restore 失败后 baseline 的实际存在状态. Recovery 同时保留原始 commit failure 与 restore failure, 保持 priorTrackedState, 使用该 baselineStatus, 并形成 Recovery Result Interface 的公开 rollback failure shape. 两个 Adapter 的配置可以产生不同结果; 共同合同不要求不同配置下结果值相同.
+ 

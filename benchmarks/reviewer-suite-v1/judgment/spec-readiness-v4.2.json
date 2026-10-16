@@ -1,0 +1,66 @@
+{
+  "reviewerId": "spec-readiness-reviewer",
+  "expectedSha256": "74252e0aa4e50d231efaefdfa24a27e1b4d97936e747425787d30bace996a344",
+  "counts": {
+    "problem": 4,
+    "clean": 4
+  },
+  "cases": [
+    {
+      "scope": "SPEC-READINESS-REQUIREMENTS",
+      "kind": "problem",
+      "index": 2,
+      "expectation": "The subject adds image-preview cleanup that is not needed to implement this issue.",
+      "reason": "范围是否必要：漏报会把本 issue 不需要的 image-preview 清理带进实施；误报会删掉确属交付的要求。是否属于交付只能对照 What to build 判断，没有复现或测试可以核对。"
+    },
+    {
+      "scope": "MODULE-DESIGN-MODULES",
+      "kind": "problem",
+      "index": 0,
+      "expectation": "Readiness Module and Promotion Module duplicate validation ownership.",
+      "reason": "该不该合并：漏报留下 Readiness 与 Promotion 两处校验所有权，日后各自演化会分叉；误报会推动删去或合并其实独立的校验。现行行为相同，测试分不出对错。"
+    },
+    {
+      "scope": "MODULE-DESIGN-MODULES",
+      "kind": "problem",
+      "index": 1,
+      "expectation": "Promotion Module and Recovery Module duplicate validation ownership of the recovery input. This includes the consequence that Promotion returns the diagnostic itself and bypasses the Recovery handoff, which no longer matches the unconditional handoff and propagation described in promotion-runtime.md (Promotion Persistence Interface, Failure Results, Promotion Flow), promotion-recovery.md (Commit Failure Input, Recovery Propagation) and architecture/02-commit.md.",
+      "reason": "该不该合并（v4.2 新增）：Promotion 与 Recovery 对同一 recovery input 按同一合同各校验一次。漏报留下两个校验所有者，日后各自演化会分叉；误报会推动删去或合并其实独立的校验（对照 MODULES 反例 0）。两处结果现在相同，测试分不出对错，main agent 只能靠设计判断拦。"
+    },
+    {
+      "scope": "MODULE-DESIGN-SEAMS-ADAPTERS",
+      "kind": "problem",
+      "index": 0,
+      "expectation": "After the Policy Evaluation Seam returns allowed, Access Review Module itself checks facts.operation against policy.allowedOperations, so the same runtime authorization policy is owned by both the Module and the Policy Adapters.",
+      "reason": "该不该合并（v4.2 新增）：Access Review Module 在 Seam 求值后又自行按 allowedOperations 判定，同一授权策略由 Module 和 Policy Adapters 两处持有。漏报留下两个策略来源，policy engine 演化后授权判定会悄悄分叉；误报会推动删去一处其实必要的授权检查。现行 policy 下两处结论相同，测试分不出对错。"
+    },
+    {
+      "scope": "MODULE-DESIGN-MODULES",
+      "kind": "clean",
+      "index": 0,
+      "expectation": "Validation Report Module solely owns renderReport report validation and rendering; renderReport and parseArtifact are separate operations that each validate against the architecture Invalid Artifact Contract, so this is neither duplicate validation ownership nor an undeclared dependency on parseArtifact.",
+      "reason": "不该合并：两个独立 operation 各自按同一契约校验并写明了理由；误报会推动错误合并，引入大小限制等行为变化，main agent 未必拦得住。"
+    },
+    {
+      "scope": "MODULE-DESIGN-MODULES",
+      "kind": "clean",
+      "index": 1,
+      "expectation": "Readiness Module retains its existing non-report responsibilities without overlap.",
+      "reason": "职责搬移：误报会推动把 Readiness Module 的既有职责搬走，没有可执行的核对方法。"
+    },
+    {
+      "scope": "MODULE-DESIGN-MODULES",
+      "kind": "clean",
+      "index": 2,
+      "expectation": "Promotion Module owns the persistence precondition checks and Recovery Module validates the recovery input; these are different obligations on different inputs, not duplicate validation ownership.",
+      "reason": "不该合并（v4.2 新增，MODULES 正例 1 的孪生）：Promotion 的 persistence precondition checks 与 Recovery 的 recovery input 校验是不同对象上的不同义务。误报会推动把两者合并，让 persistence 或 recovery 丢掉自己的前置检查，测试分不出对错。"
+    },
+    {
+      "scope": "MODULE-DESIGN-SEAMS-ADAPTERS",
+      "kind": "clean",
+      "index": 4,
+      "expectation": "The Artifact Reader Adapters only supply bytes; report validation and result policy stay in Validation Report Module, so no runtime domain policy is duplicated across the Adapters.",
+      "reason": "不该合并（v4.2 新增，SEAMS 正例 0 的孪生）：Artifact Reader Adapter 只提供 bytes，validation 与 result policy 只在 Module。误报会推动把 policy 搬进 Adapter 或删去 Module 的校验，测试分不出对错。"
+    }
+  ]
+}

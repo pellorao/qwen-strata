@@ -28,6 +28,7 @@
 | 场景 | 登记 | 说明 |
 |---|---|---|
 | Spec Readiness v4.1 | 全 B（过渡期） | A 类随 v4.2 的覆盖文件提交 |
+| Spec Readiness v4.2（2026-10-16 冻结） | `spec-readiness-v4.2.json` | 4:4（RM 1:0，AP 3:4）：新增 2 个正例、2 个反例，REQUIREMENTS 反例 3、4 改 B（待用户复核）；经 4 轮审计，见 [v4.2 说明](../spec-readiness-v4.md#v42a-类平衡到-44修订号-452026-10-16-冻结) |
 | Code Spec v5 | 全 B | |
 | Commit Audit | 全 B | |
 | 其他已冻结的旧版本 | 全 B | 不再标定 |
@@ -35,7 +36,7 @@
 
 ### Spec Readiness：留给 v4.2 的判定
 
-审查确定的 v4.1 A 类有 2 个正例、4 个反例。v4.2 要再补 2 个正例，凑成 4:4。
+审查确定的 v4.1 A 类有 2 个正例、4 个反例（下列为 v4.1 的判定）。v4.2 补 2 个正例，另把 REQUIREMENTS 反例 3、4 改 B 并补 2 个反例，最终 4:4，详见 v4.2 说明。
 
 - 正例：
   - REQUIREMENTS 正例 2「加入了本 issue 不需要的 image-preview 清理」：范围是否必要，没有复现可以核对。
