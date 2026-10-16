@@ -14,7 +14,7 @@
   },
   "commit-audit-reviewer": {
     "bdb1752fd3590fae05fc840bc4ad36943a3d2bade39a9d9bb4d99962a52a6789": {"version": "ARW 原版", "judgment": "all-B"},
-    "f583cc7cc4817f311f56279caa2beb20bd5801971ade7a41c8e9045be2c40860": {"version": "Commit Audit v2 草稿（修订号 20，只做去重）", "judgment": "all-B"}
+    "159a586e276e62b9afcaf03385dd0a60217a85aabac2d3248223201b2c4ae774": {"version": "Commit Audit v2 草稿（修订号 20，只做去重）", "judgment": "all-B"}
   },
   "spec-readiness-reviewer": {
     "e5d17bac8d81e8238516dbf509fad0216d51a2a93a8131b0a2a1079917ff0598": {"version": "ARW 原版（previous 快照）", "judgment": "all-B"},

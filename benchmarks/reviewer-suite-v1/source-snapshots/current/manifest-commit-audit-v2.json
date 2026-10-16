@@ -1279,17 +1279,17 @@
     },
     {
       "file": "../../arw-patches/commit-audit-v2.patch",
-      "sha256": "4cb0684ae52b13beefde1b4776ab1c9cf355af93b057f88d9eff549929f7146a",
-      "reason": "Commit Audit capability scenario v2 (scenario revision 20): every repeated question is asked once (user 2026-10-16/17). The ARW original asked 12 defects and about 23 satisfied facts twice, once as an issue acceptance criterion (Gate 1) and once as a governing-spec rule (Gate 2), plus a few synonymous rows inside the issues; v2 deletes one requirement row of each repeated pair from the issues (base and candidate) or spec.md, renumbers the audit records and drops the bound cases (problems 40 -> 28, clean 78 -> 51). Source code and the other files are unchanged. The ARW conformance test inventory follows the new rows. Change note: benchmarks/reviewer-suite-v1/commit-audit-v2.md.",
+      "sha256": "039141e9dd9623ad3c9cf2cd36e53fa6fee6f1951e4c41d3fe7a11fd7560e7bd",
+      "reason": "Commit Audit capability scenario v2 (scenario revision 20): every repeated question is asked once (user 2026-10-16/17). The ARW original asked 12 defects and about 23 satisfied facts twice, once as an issue acceptance criterion (Gate 1) and once as a governing-spec rule (Gate 2), plus a few synonymous rows inside the issues; v2 deletes one requirement row of each repeated pair from the issues (base and candidate) or spec.md, renumbers the audit records and drops the bound cases (problems 40 -> 28, clean 80 -> 51). After the first Opus audit one spec row is reworded (route tokens) to remove an ambiguity, three expected statements are reworded and one problem case gains a second placement. Source code and the other files are unchanged. The ARW conformance test inventory follows the new rows. Change note: benchmarks/reviewer-suite-v1/commit-audit-v2.md. docs/agents/reviewer-capability-scenarios.md is a scoring-upgrade member and stays unchanged; its Commit Audit inventory paragraph is superseded by the change note.",
       "result": {
         "lib/release/reviewer-capability-conformance.mjs": "cc2a7183dc723e487ad8944370892c4becb864a0e40bd6f0955e19169bea0c97",
-        "tests/release/reviewer-capability-conformance.test.mjs": "8f6f4f4ee68e9f5650df879a047cef8807cca85825cb308a331671d200b25751",
-        "tests/fixtures/reviewer-capability/commit-audit-reviewer/expected.json": "f583cc7cc4817f311f56279caa2beb20bd5801971ade7a41c8e9045be2c40860",
+        "tests/fixtures/reviewer-capability/commit-audit-reviewer/expected.json": "159a586e276e62b9afcaf03385dd0a60217a85aabac2d3248223201b2c4ae774",
         "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md": "ee15681fb9e25348a74d1aa9baa2c33adb96f300f23a12b362adac18eda6b574",
-        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md": "692b3514afcd1c39fa202b658f7bf016e7dc9ecebe3e0cc5593237342adb6dcf",
-        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/spec.md": "f5fcf0d7538281edea725bc18222da8a2fee8e8fa6eddad208492d805203566f",
+        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md": "0ba0c32d711ca040488761b1a45cca6d01ee6cc00b012a56236701720dcb2d58",
+        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/spec.md": "155c0ea8442e60bd6d39747df50f078446e0df9a78f384a5f5d9d2a867d210cb",
         "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md": "5c89d603601965c6ad75bf3eea995ffd8276d86cc98fa568f2fda3778327a7cf",
-        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md": "35fedd84641fddbc31d96c51133a92e8e6a7a5aa89aaf5050885f0f696d6c543"
+        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md": "b8e3ede10c793d6bada65b9b4d83a14fb74b600befe757c32ae78cc71d945d57",
+        "tests/release/reviewer-capability-conformance.test.mjs": "ff14757b56b8ef4934ef62ab660a2139e58a59ce1b293cee9b84522376199943"
       }
     }
   ]
