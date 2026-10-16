@@ -75,18 +75,18 @@ REPEATS = JUDGMENT / 'repeats.json'
 FIXTURES = 'tests/fixtures/reviewer-capability'
 SCORING_UPGRADE = {
     'file': 'scoring-k.patch',
-    'sha256': '81f0eb4c5b9d084ebc97bffdbd5b5f55be3872c90562c619c99183b0351a551c',
+    'sha256': 'cda3153729fb808199ad7b5ceaa71355e07926d65231d06d68e8924af43fb93b',
     # Members no scenario patch touches: (ARW original, upgraded).
     'members': {
         'lib/release/reviewer-capability-scoring.mjs': (
             '89a4e6bdc0a47756c28abce013ce6940ebf224e8609ebf809a499c57b85d60c4',
-            'cc4a6538c6a7190a25c013ba2f40a25c364c57f1ca8aaf904ea911a08a7e76fd'),
+            'bd274533d5c134c53ed80d6d015bf13402b52ddc5dcde85d658e0463cc9dc69d'),
         'lib/release/reviewer-capability-verification.mjs': (
             'a5e5a5f32fe87d2b84f55e259ea39db0ba1f7e56a681b96af93710ca7b01d9a1',
-            '6d990d13f03cc34618a425fa979871c9df2ce8415886c511234f8d6efe2839c9'),
+            '5abdae4334e65a6093abad9882e9bec8a0924e0db3b09f4b22e2860e183d4074'),
         'docs/agents/reviewer-capability-scoring.md': (
             '8dac785a4dc2eee70949fd02a212b65959039c256fa87f6a3e86c105ec011769',
-            '3a5b9ef4aeb7885ca871a9220ce4a3ea886900a88c37d2c698168cb5c869cdc6'),
+            'd1115c2ee2039612d0f18a0c7f20684691093cec12258bc5169757a0e1e3cb62'),
         'docs/agents/reviewer-capability-scenarios.md': (
             '5fe9b4e5511416a4af636baa67b812bf46f627710b75b1285e6c49758fdb909b',
             '3f444bc68cb9ed8cf3f2e004da5b14a328d0fef2469cd1158c6ed04932b2b859'),
@@ -104,8 +104,12 @@ SCORING_UPGRADE = {
     # continuation past the requirement-scope stop by 0.9 (one wrong answer, user 2026-10-15); it left the same
     # modules as r7.1, so both are recognized by their scoring document as well. r7.1 scored judgment cases (A) and
     # the rest (B, F2) apart; r8 weights every case by k (user 2026-10-16). r8 nominated the clean case of a satisfied
-    # Commit Audit row only by evidence and terms, so a false gap there also failed no-other (r8.1, user 2026-10-17).
+    # Commit Audit row only by evidence and terms, so a false gap there also failed no-other (r8.1, user 2026-10-17). r8.1
+    # had no merged cases and still gave a Spec Readiness case scored in both scenarios a 0.5 share (r8.2, user 2026-10-17).
     'superseded': {
+        ('cc4a6538c6a7190a25c013ba2f40a25c364c57f1ca8aaf904ea911a08a7e76fd',
+         '6d990d13f03cc34618a425fa979871c9df2ce8415886c511234f8d6efe2839c9'): (
+            'superseded/scoring-k-r8.1.patch', '81f0eb4c5b9d084ebc97bffdbd5b5f55be3872c90562c619c99183b0351a551c'),
         ('009ea8579c8237cd29a736fb691b843ba37105231975b26fe083a8ada3c8ea72',
          '6d990d13f03cc34618a425fa979871c9df2ce8415886c511234f8d6efe2839c9'): (
             'superseded/scoring-k-r8.patch', '8106f958de2fef888c04c0c1726c67e61290e7f1c4796583e627983bd7676fc1'),
@@ -162,10 +166,42 @@ def k_balanced(tiers):
     return bool(tiers) and all(counts['problem'] == float(k) * counts['clean'] for k, counts in tiers.items())
 
 
+def evidence_sets(case):
+    """The evidence sets a case accepts: a problem case's placement evidence, or a clean case's evidence and
+    its alternatives, each as a sorted tuple of (file, line)."""
+    sets = [placement['evidence'] for placement in case['placements']] if 'placements' in case else [
+        case.get('evidence', [])] + case.get('evidenceAlternatives', [])
+    return frozenset(tuple(sorted({(item['filePath'], item['line']) for item in items})) for items in sets)
+
+
+def merged_cases(fixture):
+    """Merged cases the answer key declares (`merge`, r8.2, user 2026-10-17): a question kept on purpose in two places
+    (e.g. a Commit Audit requirement repeated by an issue and the spec) and scored once. Each name must hold exactly two
+    cases of one kind, k and result in two different scopes, and both cases expect the same evidence: the measurement
+    note lets the reviewer copy the reviewed row's conclusion and evidence, which must not cost points. Returns
+    {name: [case names]}."""
+    members = {}
+    for scope in fixture['scopes']:
+        for kind in ('problem', 'clean'):
+            for index, case in enumerate(scope.get(kind + 'Cases', [])):
+                if 'merge' in case:
+                    members.setdefault(case['merge'], []).append((scope['scope'], kind, index, case))
+    for name, items in members.items():
+        if (len(items) != 2 or items[0][0] == items[1][0] or items[0][1] != items[1][1]
+                or not isinstance(name, str) or not name
+                or any(case.get('noOtherSupportedFinding') for *_, case in items)
+                or len({(case.get('k'), case.get('judgment'), case.get('result')) for *_, case in items}) != 1):
+            raise ValueError(f'Merged case {name!r} must hold two cases of one kind, k and result in two scopes')
+        if len({evidence_sets(case) for *_, case in items}) != 1:
+            raise ValueError(f'Merged case {name!r} must expect the same evidence in both cases')
+    return {name: [f'{scope}/{kind}/{index}' for scope, kind, index, _ in items] for name, items in members.items()}
+
+
 def repeated_cases(fixture):
     """Groups of cases in one answer key that ask the same question twice (user 2026-10-16/17): the same
     expectation, or the same evidence (a clean case's evidence or one of its alternatives, a problem case's
-    placement evidence). Cases are named scope/kind/index (0-based); noOther cases are left out."""
+    placement evidence). Cases are named scope/kind/index (0-based); noOther cases are left out. The two cases of
+    a declared merged case are one question: a group made only of them is no repeat."""
     by_expectation, by_evidence = {}, {}
     for scope in fixture['scopes']:
         for kind in ('problem', 'clean'):
@@ -174,20 +210,21 @@ def repeated_cases(fixture):
                     continue
                 name = f"{scope['scope']}/{kind}/{index}"
                 by_expectation.setdefault(case.get('expectation'), []).append(name)
-                sets = [placement['evidence'] for placement in case['placements']] if 'placements' in case else [
-                    case.get('evidence', [])] + case.get('evidenceAlternatives', [])
-                for evidence in {tuple(sorted({(item['filePath'], item['line']) for item in items})) for items in sets}:
+                for evidence in evidence_sets(case):
                     if evidence:
                         by_evidence.setdefault(evidence, []).append(name)
-    groups = [('expectation', names) for names in by_expectation.values() if len(names) > 1]
-    shared = {tuple(sorted(set(names))) for names in by_evidence.values() if len(set(names)) > 1}
+    question = {case: name for name, cases in merged_cases(fixture).items() for case in cases}
+    repeats = lambda names: len({question.get(name, name) for name in names}) > 1
+    groups = [('expectation', names) for names in by_expectation.values() if repeats(names)]
+    shared = {tuple(sorted(set(names))) for names in by_evidence.values() if repeats(names)}
     return groups + [('evidence', list(names)) for names in sorted(shared)]
 
 
 def check_repeats(reviewer, digest, fixture):
     """Refuse an answer key with a repeated question unless judgment/repeats.json lists the key as a legacy
     version kept only to rescore old reports, or lists each group of cases that share evidence as reviewed
-    distinct questions. A shared expectation is never allowed outside a legacy key."""
+    distinct questions. A shared expectation is never allowed outside a legacy key or a declared merged case
+    (user 2026-10-17: accidental repeats are rewritten, repeats kept on purpose are declared in the key)."""
     allowed = json.loads(REPEATS.read_text()).get(reviewer, {}).get(digest, {})
     if allowed.get('legacy'):
         return

@@ -1,0 +1,5 @@
+Measurement note: this is a capability measurement. Do not send any mid-task message; no run identifier is needed. Do not query environment variables or platform identity (for example env, printenv, set, or reading runtime or configuration files outside the scenario root).
+
+Time limit: this review has a working time limit of {{time_limit_minutes}} minutes from the start of the task. At the limit the review is interrupted, and only the content of the result file at that moment is scored. Create the result file early and append each problem to it as soon as you have confirmed it; do not keep confirmed findings only in memory to write at the end. A reminder arrives shortly before the limit.
+
+Repeated requirements: a requirement that the spec and an issue both state is scored once. When you reach the second row, you may cite the row you already reviewed and copy its conclusion and evidence.

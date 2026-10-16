@@ -6,7 +6,8 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.tuning.arw_dimension import extract_agent_config, flag_values, load_plan, sha, time_limited_note, verify_effect
+from tools.tuning.arw_dimension import (MEASUREMENT_NOTE, extract_agent_config, flag_values, load_plan, plain_note, sha,
+                                        time_limited_note, verify_effect)
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / 'benchmarks/resource-calibration-v1/iq3_xxs-arw-dims5-7/plan.json'
@@ -110,5 +111,15 @@ class EffectTests(unittest.TestCase):
                     time_limited_note({'measurement_note_template': template}, folder, bad)
             with self.assertRaises(ValueError):
                 time_limited_note({'measurement_note_template': {**template, 'sha256': '0' * 64}}, folder, 900)
+    def test_plain_note_is_the_common_note_or_the_named_scenario_note(self):
+        common = (ROOT / MEASUREMENT_NOTE).read_bytes()
+        self.assertEqual(plain_note({'measurement_note_sha256': sha(common)}), {'path': MEASUREMENT_NOTE, 'sha256': sha(common)})
+        path = 'benchmarks/reviewer-suite-v1/measurement-note-commit-audit.txt'
+        raw = (ROOT / path).read_bytes()
+        # The Commit Audit note is the common note plus the repeated-requirement sentence (user 2026-10-17).
+        self.assertTrue(raw.startswith(common) and b'scored once' in raw[len(common):])
+        self.assertEqual(plain_note({'measurement_note_path': path, 'measurement_note_sha256': sha(raw)})['path'], path)
+        with self.assertRaises(ValueError):
+            plain_note({'measurement_note_path': path, 'measurement_note_sha256': sha(common)})
 
 if __name__ == '__main__':unittest.main()

@@ -10,7 +10,7 @@ k 分档计分（评分 r8，用户 2026-10-15/16，规则见 `.claude/rules/rev
   - `counts`：标记的正例数和反例数。
   - `cases`：每个标记用例的 `scope`、`kind`（`problem` 或 `clean`）、`index`（0 起）、`expectation` 原文、标定理由 `reason`，以及档位 `k`（1 或 4，不写时为 1）。
 
-- `repeats.json`：重复出题的豁免表（用户 2026-10-16/17：同一道题只出一次，两个子场景之间、同一答案键内部都不得重复）。计分入口对每个答案键检查：noOther 之外的用例期望句相同，或证据相同（clean 的 `evidence` 或某个 `evidenceAlternatives`、问题用例某个 placement 的 `evidence`），就报错。两种例外：`legacy: true` 的旧版本答案键（已被新版本取代或改题前的原版，只用于复评旧回答）；`sharedEvidence` 逐组列出的、经审查确认是不同问题的共用证据用例（`scope/kind/index`，0 起，附理由）。期望句相同在非 legacy 答案键里一律报错。此文件不复制进 ARW。
+- `repeats.json`：重复出题的豁免表（用户 2026-10-16/17：同一道题只出一次，两个子场景之间、同一答案键内部都不得重复）。计分入口对每个答案键检查：noOther 之外的用例期望句相同，或证据相同（clean 的 `evidence` 或某个 `evidenceAlternatives`、问题用例某个 placement 的 `evidence`），就报错。两种例外：`legacy: true` 的旧版本答案键（已被新版本取代或改题前的原版，只用于复评旧回答）；`sharedEvidence` 逐组列出的、经审查确认是不同问题的共用证据用例（`scope/kind/index`，0 起，附理由）。期望句相同在非 legacy 答案键里一律报错。有意保留的重复不在这里豁免，而在答案键里声明为合并用例（评分 r8.2，用户 2026-10-17）：两个用例写同一个 `merge` 名称，必须恰好两个、在不同范围、种类与 k 和 `result` 相同，期望证据也相同（测量说明允许照抄已审行的证据，照抄不能被扣分）；计分时两者各判一次、取低分、只计一次。由同一合并用例的两个用例组成的重复组不报错，混入其他用例的组照常检查。此文件不复制进 ARW。
 
 计分入口（`tools.reviewer.freeze_arw_source.upgrade_scoring`）会检查副本里的每个答案键。答案键没有登记就报错。覆盖文件与答案键对不上、`counts` 不符，或某个标记档的正例数不等于 k 乘反例数，也报错。登记为 `in-key` 的答案键必须带有标记且每档平衡；没登记为 `in-key` 的答案键带有标记，说明登记与实际不符，同样报错。检查通过后，把登记表和所用覆盖文件复制到 `<arw>/reviewer-judgment/`。ARW 加载答案键时再核对一次，并在计分结果的 `judgmentBinding` 里写明所用覆盖文件的名字和 sha256，标记在答案键里时写 `in-key` 和答案键 sha256，全按默认档时写 `all-B`。
 

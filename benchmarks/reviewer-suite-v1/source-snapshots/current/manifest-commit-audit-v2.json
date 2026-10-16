@@ -1279,17 +1279,17 @@
     },
     {
       "file": "../../arw-patches/commit-audit-v2.patch",
-      "sha256": "039141e9dd9623ad3c9cf2cd36e53fa6fee6f1951e4c41d3fe7a11fd7560e7bd",
-      "reason": "Commit Audit capability scenario v2 (scenario revision 20): every repeated question is asked once (user 2026-10-16/17). The ARW original asked 12 defects and about 23 satisfied facts twice, once as an issue acceptance criterion (Gate 1) and once as a governing-spec rule (Gate 2), plus a few synonymous rows inside the issues; v2 deletes one requirement row of each repeated pair from the issues (base and candidate) or spec.md, renumbers the audit records and drops the bound cases (problems 40 -> 28, clean 80 -> 51). After the first Opus audit one spec row is reworded (route tokens) to remove an ambiguity, three expected statements are reworded and one problem case gains a second placement. Source code and the other files are unchanged. The ARW conformance test inventory follows the new rows. Change note: benchmarks/reviewer-suite-v1/commit-audit-v2.md. docs/agents/reviewer-capability-scenarios.md is a scoring-upgrade member and stays unchanged; its Commit Audit inventory paragraph is superseded by the change note.",
+      "sha256": "ee9d754ed45d2278b2598d5b8127e5222aae52994bcdd2cf7522858f66ed753d",
+      "reason": "Commit Audit capability scenario v2 (scenario revision 21, user 2026-10-17): the requirements that an issue (Gate 1) and the governing spec (Gate 2) both state, as in the ARW original, are kept and declared in expected.json as merged cases (`merge`: both rows are judged, the lower result counts once; 11 problem and 16 clean pairs, each pair expecting the same evidence). Repeats inside the issue gate and accidental repeats (one row repeating two rows, or contradicting its pair) are deleted: 01:19,40, 02:23,25,30,32,43,45,53,55 and spec:33 of the ARW original; the audit records are renumbered and the bound cases dropped (problems 40 -> 40, clean 80 -> 69; each gate 20 problems, clean 30 and 39). After the first Opus audit one spec row is reworded (route tokens) to remove an ambiguity, three expected statements are reworded and one problem case gains a second placement. Source code and the other files are unchanged. The ARW conformance test inventory follows the new rows and accepts `merge`. Change note: benchmarks/reviewer-suite-v1/commit-audit-v2.md. docs/agents/reviewer-capability-scenarios.md is a scoring-upgrade member and stays unchanged; its Commit Audit inventory paragraph is superseded by the change note.",
       "result": {
-        "lib/release/reviewer-capability-conformance.mjs": "cc2a7183dc723e487ad8944370892c4becb864a0e40bd6f0955e19169bea0c97",
-        "tests/fixtures/reviewer-capability/commit-audit-reviewer/expected.json": "159a586e276e62b9afcaf03385dd0a60217a85aabac2d3248223201b2c4ae774",
-        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md": "ee15681fb9e25348a74d1aa9baa2c33adb96f300f23a12b362adac18eda6b574",
-        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md": "0ba0c32d711ca040488761b1a45cca6d01ee6cc00b012a56236701720dcb2d58",
-        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/spec.md": "155c0ea8442e60bd6d39747df50f078446e0df9a78f384a5f5d9d2a867d210cb",
-        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md": "5c89d603601965c6ad75bf3eea995ffd8276d86cc98fa568f2fda3778327a7cf",
-        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md": "b8e3ede10c793d6bada65b9b4d83a14fb74b600befe757c32ae78cc71d945d57",
-        "tests/release/reviewer-capability-conformance.test.mjs": "ff14757b56b8ef4934ef62ab660a2139e58a59ce1b293cee9b84522376199943"
+        "lib/release/reviewer-capability-conformance.mjs": "b97c916add0f6f9d249cd46a9e0e7cfcf56294b5ec5ec6b656f027bb0e45ee72",
+        "tests/fixtures/reviewer-capability/commit-audit-reviewer/expected.json": "6640ddbc88c6b02fbc27127a32911980338e138d550dc7d7e3e4b4173eab7c6f",
+        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md": "f6fd93f58d3ccb8c45bdcfb0ebf64e88d66f18e4212e2d7cb8235d529ff25d86",
+        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md": "59a769267408180f14ee7903f86b11a8b80b4517ed6e99417fbf1cc1d796fc43",
+        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/spec.md": "b6119b1b5270398d2e3cc3970909a1ecbcee6e632a0c65955b3993054b4456b7",
+        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md": "7d1cba70c8a6f204cc7ee5e96379b2181f15ab69c41910c062fee7c663ddea1d",
+        "tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md": "52e932648a40c9e43fcfbd73e810cfaa9b0bbd22c147a2372217260aa7fabf6e",
+        "tests/release/reviewer-capability-conformance.test.mjs": "f0e0d911cd6b8cd1d8a486a16234dd4f1c4ffb2aa91ec4bc3419640b86baa1b7"
       }
     }
   ]

@@ -66,11 +66,10 @@ const pick = result => ({...Object.fromEntries(['kProblemWeight', 'kEarnedProble
     findingCandidates: result.candidates.filter(candidate => candidate.kind === 'finding').map(candidate => candidate.allowedDecisions)});
 const single = scorerFor([P, Q], [C, D]);
 const finding = (text, ...evidence) => ({evidence: lines(...evidence), finding: text, result: 'gap'});
-// Spec Readiness pair: C is scored in both scenarios at half share, R and E only in the second.
-const half = {...C, kShare: 0.5};
-const first = run(scorerFor([P, Q], [half, D]), []);
-const second = run(scorerFor([R, Q], [half, D, E]), []);
-let unequal, partial, missing;
+// Spec Readiness pair: P and C in the first scenario, R and E in the second; each alone is unbalanced at k 1.
+const first = run(scorerFor([P, Q], [D]), []);
+const second = run(scorerFor([R, Q], [C, D, E]), []);
+let unequal, partial, missing, mergeErrors = [];
 try { core.combineScenarios([first]); } catch (error) { unequal = error.message; }
 // A result without k counts, or with only some of them, is an error rather than scored at the default k.
 const plain = run(scorerFor([Q], [D]), [finding('The second problem is present.', 7)]);
@@ -163,7 +162,56 @@ const auditRun = (findingDecision, requirementSource = 'specs/rules.md:5') => {
         .map(candidate => [candidate.candidateId, findingDecision]));
     return pick(audit({adjudicationDecisions: decisions, checks, cleanObservations}));
 };
+// r8.2: merged cases. Gate 1 and Gate 2 both ask M (problem, merge 'm') and N (clean on row 5 / row 6, merge 'n');
+// Gate 1 also asks the unmerged problem Q. A finding of Gate 2 may cite the Gate 1 row and copy its evidence.
+const gates = ['COMMIT-AUDIT-GATE-1', 'COMMIT-AUDIT-GATE-2'];
+const mergedExpected = (mutate = scopes => scopes) => ({cleanCount: 4, problemCount: 3, scopes: mutate(gates.map((gate, index) => ({scope: gate,
+    problemCases: [{...problem('The alpha rule is violated.', ['alpha rule'], [1, 2, 3, 4], [1]), placements: [{associationEvidence: lines(1),
+        check: gate, evidence: lines(1, 2, 3, 4)}], merge: 'm'}, ...(index === 0 ? [{...Q, placements: [{associationEvidence: lines(7),
+        check: gate, evidence: lines(7)}]}] : [])],
+    cleanCases: [clean('The clean target is correct.', ['clean target'], [5], {merge: 'n', requirementSource: `specs/rules.md:${5 + index}`}),
+        {noOtherSupportedFinding: true}]})))});
+const mergedScorer = createReviewerCapabilityScenarioScorer({evidenceSources, instanceId: 'merge', expected: mergedExpected(),
+    reviewerId: 'commit-audit-reviewer', scenarioRoot: resolve('/probe')});
+// findings: [gate index, finding]; falseRows: gate indexes whose row of N is reported as a gap (false, unsupported).
+const mergedRun = (findings, falseRows = []) => {
+    const checks = gates.map((gate, index) => ({check: gate, result: 'gap', findings: [...findings.filter(([at]) => at === index)
+        .map(([, item]) => item), ...falseRows.filter(at => at === index).map(at => ({evidence: lines(3),
+        finding: 'The clean target skips a step.', requirementSource: `specs/rules.md:${5 + at}`, result: 'gap'}))]}));
+    const cleanObservations = gates.map((gate, index) => (falseRows.includes(index)
+        ? {actualEvidence: lines(3), cleanCaseIndex: 0, satisfied: false, scope: gate}
+        : {actualEvidence: lines(5), cleanCaseIndex: 0, satisfied: true, scope: gate}));
+    const provisional = mergedScorer({checks, cleanObservations});
+    const decisions = new Map(provisional.candidates.filter(candidate => candidate.kind === 'association')
+        .map(candidate => [candidate.candidateId, 'matched']));
+    const settled = mergedScorer({adjudicationDecisions: decisions, checks, cleanObservations});
+    settled.candidates.filter(candidate => candidate.kind === 'finding').forEach(candidate => decisions.set(candidate.candidateId, 'unsupported'));
+    const result = mergedScorer({adjudicationDecisions: decisions, checks, cleanObservations});
+    return {...pick(result), kMergedCases: result.kMergedCases, problemByCase: result.caseScores.problem};
+};
+const alphaFull = finding('The alpha rule is violated.', 1, 2, 3, 4);
+const alphaWeak = finding('The alpha rule is violated.', 1);
+const alphaCited = finding('Same as the Gate 1 row: the alpha rule is violated.', 1, 2, 3, 4);
+const secondHit = finding('The second problem is present.', 7);
+for (const [label, mutate] of [['three', scopes => [...scopes, {...scopes[1], scope: 'COMMIT-AUDIT-GATE-3'}]],
+    ['one scope', scopes => [{...scopes[0], cleanCases: [...scopes[0].cleanCases.slice(0, 1), {...scopes[1].cleanCases[0]}, {noOtherSupportedFinding: true}]},
+        {...scopes[1], cleanCases: [{noOtherSupportedFinding: true}]}]],
+    ['result', scopes => [scopes[0], {...scopes[1], problemCases: [{...scopes[1].problemCases[0], result: 'uncertain'}]}]],
+    ['k', scopes => [scopes[0], {...scopes[1], problemCases: [{...scopes[1].problemCases[0], k: 1}]}]]]) {
+    try {
+        createReviewerCapabilityScenarioScorer({evidenceSources, instanceId: 'merge', expected: mergedExpected(mutate),
+            reviewerId: 'commit-audit-reviewer', scenarioRoot: resolve('/probe')});
+        mergeErrors.push(label + ': accepted');
+    } catch (error) { mergeErrors.push(label + ': ' + error.message); }
+}
 console.log(JSON.stringify({
+    mergedBoth: mergedRun([[0, alphaFull], [1, alphaFull], [0, secondHit]]),
+    mergedOne: mergedRun([[0, alphaFull], [0, secondHit]]),
+    mergedWeak: mergedRun([[0, alphaFull], [1, alphaWeak], [0, secondHit]]),
+    mergedCited: mergedRun([[0, alphaFull], [1, alphaCited], [0, secondHit]]),
+    mergedFalseOne: mergedRun([[0, alphaFull], [1, alphaFull], [0, secondHit]], [1]),
+    mergedFalseBoth: mergedRun([[0, alphaFull], [1, alphaFull], [0, secondHit]], [0, 1]),
+    mergeErrors,
     continuation: {checks: kept.checks.map(check => check.check), diagnostics: kept.diagnostics.map(item => [item.code, item.line ?? null]),
         unrepairable: policy.unrepairableFormatErrorCount(kept.diagnostics), ignored: stopScore(kept.checks, 1),
         unfiltered: stopScore(stopChecks, 1), stopped: stopScore(stopped, 0)},
@@ -296,15 +344,41 @@ class ScoringUpgradeTests(unittest.TestCase):
         self.assertEqual(self.probe['codeMissing']['clean'], [0, 0])
         self.assertEqual(self.probe['codeMissing']['kFailedCleanWeight'], 0.5)
 
-    def test_spec_readiness_pair_counts_a_shared_case_once(self):
+    def test_spec_readiness_pair_is_balanced_as_one_scoring_unit(self):
         first, pair = self.probe['pairFirst'], self.probe['pair']
-        self.assertEqual(first['kTiers'], {'1': {'clean': 0.5, 'problem': 1}})
+        self.assertEqual(first['kTiers'], {'1': {'clean': 0, 'problem': 1}})
         self.assertIn('unbalanced', first['kWarning'])
-        # P, R, the shared clean case (0.5 twice) and E: balanced at k 1 once paired.
+        # P and R, C and E: balanced at k 1 once paired (no shares since v4.3 / r8.2).
         self.assertEqual(pair['kTiers'], {'1': {'clean': 2, 'problem': 2}})
         self.assertEqual((pair['kProblemWeight'], pair['kFailedCleanWeight'], pair['score']), (4, 0, 0))
         self.assertNotIn('kWarning', pair)
         self.assertIn('unbalanced in one scoring unit', self.probe['unequal'])
+
+    def test_r8_2_merged_case_counts_once_at_the_lower_score(self):
+        """Two cases declared as one merged case (`merge`, user 2026-10-17) are both judged and count once, at the lower
+        score; Q is an ordinary problem case of Gate 1."""
+        probe = self.probe
+        both = probe['mergedBoth']
+        self.assertEqual((both['kProblemWeight'], both['kEarnedProblemPoints'], both['score'], both['kMergedCases']), (2, 2, 1, 2))
+        # Found in one gate only: the merged case earns the lower score 0, not 1 of 2.
+        one = probe['mergedOne']
+        self.assertEqual(one['problemByCase'], [1, 1, 0])
+        self.assertEqual((one['kEarnedProblemPoints'], one['score']), (1, 0.5))
+        # Weaker evidence in one gate: the lower partial score counts.
+        weak = probe['mergedWeak']
+        self.assertLess(weak['problemByCase'][2], 1)
+        self.assertAlmostEqual(weak['kEarnedProblemPoints'], 1 + weak['problemByCase'][2])
+        # A Gate 2 finding that cites the Gate 1 row and copies its conclusion and evidence scores like a full answer.
+        self.assertEqual(probe['mergedCited']['score'], 1)
+        # A false gap on one or on both rows of the merged clean case costs 0.25 once (r8.1: the row's clean case, not no-other).
+        for key in ('mergedFalseOne', 'mergedFalseBoth'):
+            self.assertEqual((probe[key]['kFailedCleanWeight'], probe[key]['score'], probe[key]['extraFailedCleanCases']), (0.25, 0.875, 0), key)
+        self.assertEqual(probe['mergedFalseBoth']['clean'], [0, 1])
+        self.assertEqual(probe['mergedFalseBoth']['kTiers'], {})
+        # A merged case is exactly two cases of one kind, k and result in two scopes.
+        self.assertEqual([item.split(': ')[0] for item in probe['mergeErrors']], ['three', 'one scope', 'result', 'k'])
+        for item in probe['mergeErrors']:
+            self.assertIn('must hold two cases of one kind, k and result in two scopes', item)
 
     def test_results_without_k_counts_are_rejected(self):
         self.assertEqual(self.probe['plain']['kTiers'], {})
@@ -405,6 +479,28 @@ class ScoringUpgradeTests(unittest.TestCase):
         finally:
             expected.write_bytes(original)
             upgrade_scoring(self.arw)
+
+    def test_declared_merged_cases_are_not_repeats(self):
+        """A question kept on purpose in two scopes is declared as a merged case (`merge`, user 2026-10-17); the same
+        repeat without the declaration, or a malformed declaration (including two cases expecting different evidence,
+        which would penalize a reviewer who copies the reviewed row), stops the binding."""
+        evidence = [{'filePath': 'a.mjs', 'line': 1}]
+        case = lambda merge=None, **extra: {'expectation': 'Same.', 'evidence': evidence, 'findingTerms': ['same'],
+                                            **({'merge': merge} if merge else {}), **extra}
+        fixture = lambda first, second: {'scopes': [{'scope': 'A', 'problemCases': [], 'cleanCases': [first]},
+                                                    {'scope': 'B', 'problemCases': [], 'cleanCases': [second]}]}
+        self.assertEqual(freeze_arw_source.repeated_cases(fixture(case('m'), case('m'))), [])
+        self.assertEqual(freeze_arw_source.merged_cases(fixture(case('m'), case('m'))), {'m': ['A/clean/0', 'B/clean/0']})
+        self.assertEqual([kind for kind, _ in freeze_arw_source.repeated_cases(fixture(case(), case()))], ['expectation', 'evidence'])
+        with mock.patch.object(freeze_arw_source.json, 'loads', return_value={}):
+            with self.assertRaisesRegex(ValueError, r'repeats a question \(expectation\)'):
+                freeze_arw_source.check_repeats('r', 'd', fixture(case(), case()))
+        other = [{'filePath': 'b.mjs', 'line': 2}]
+        for broken in (fixture(case('m'), case()), fixture(case('m'), case('m', k=1)),
+                       fixture(case('m'), case('m', expectation='Other.', evidence=other)),
+                       {'scopes': [{'scope': 'A', 'problemCases': [], 'cleanCases': [case('m'), case('m')]}]}):
+            with self.assertRaisesRegex(ValueError, 'Merged case'):
+                freeze_arw_source.repeated_cases(broken)
 
     def test_judgment_marks_in_the_answer_key_need_in_key_registration(self):
         expected = self.arw / 'tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json'

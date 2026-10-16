@@ -133,6 +133,16 @@ def time_limited_note(fixed, folder, time_limit_seconds):
             {'measurement_note_template': template, 'review_time_limit_seconds': time_limit_seconds})
 
 
+def plain_note(fixed):
+    """The plan's frozen measurement note: the common note, or the scenario note the plan names (e.g. Commit Audit
+    adds how repeated issue and spec requirements are scored, user 2026-10-17)."""
+    path = fixed.get('measurement_note_path', MEASUREMENT_NOTE)
+    raw = (ROOT / path).read_bytes()
+    if sha(raw) != fixed['measurement_note_sha256']:
+        raise ValueError('Measurement note differs from the frozen plan')
+    return {'path': path, 'sha256': sha(raw)}
+
+
 def selection(plan, condition, context_window=None, folder=None, time_limit_seconds=None):
     codex = CODEX.read_bytes()
     fixed = plan['fixed_conditions']
@@ -141,10 +151,7 @@ def selection(plan, condition, context_window=None, folder=None, time_limit_seco
     else:
         if time_limit_seconds is not None:
             raise ValueError('The plan has no time-limited measurement note')
-        raw = (ROOT / MEASUREMENT_NOTE).read_bytes()
-        if sha(raw) != fixed['measurement_note_sha256']:
-            raise ValueError('Measurement note differs from the frozen plan')
-        note, limit = {'path': MEASUREMENT_NOTE, 'sha256': sha(raw)}, {}
+        note, limit = plain_note(fixed), {}
     if sha(codex) != fixed['native_cli_sha256']:
         raise ValueError('Native CLI differs from the frozen plan')
     return {'model': plan['model'], 'effort': fixed['effort'], 'model_owner': 'arw', 'engine_overrides': {},

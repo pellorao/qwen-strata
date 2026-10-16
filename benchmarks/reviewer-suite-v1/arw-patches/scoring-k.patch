@@ -27,7 +27,7 @@ index 7a77c73..c2b9cec 100644
  同一缺陷可能由写入点, 分配点或后续查询点的证据准确证明. 为避免只接受一套证明而把真实 finding 当作误报, 同一个 `check` 可以在既有 `placements` 中声明多个等价位置. 每个位置独立声明完整的 `evidence` 和 `associationEvidence`; 不得重复声明完全相同的位置. 实际 finding 必须完整满足某一个位置的关联证据, 不能把不同位置各自缺失的证据拼接起来. 语义确认仍只判断同一缺陷, 不因位置增加而允许修改证据或直接调整分数.
  
 diff --git a/docs/agents/reviewer-capability-scoring.md b/docs/agents/reviewer-capability-scoring.md
-index 15a5e25..a34d21a 100644
+index 15a5e25..3b053ac 100644
 --- a/docs/agents/reviewer-capability-scoring.md
 +++ b/docs/agents/reviewer-capability-scoring.md
 @@ -4,7 +4,7 @@
@@ -53,7 +53,7 @@ index 15a5e25..a34d21a 100644
  对每次重复, 报告 `fullProblemCases`, `earnedProblemPoints`, `totalProblemCases`, `earnedCleanPoints`, `passedCleanCases` 和 `totalCleanCases`. 计算 `problemDetectionRate = earnedProblemPoints / totalProblemCases` 和 `cleanAcceptanceRate = earnedCleanPoints / totalCleanCases`. 使用 `score = 5 * problemDetectionRate * cleanAcceptanceRate / (4 * cleanAcceptanceRate + problemDetectionRate)` 组合两者. 任一比率为 0 时该重复分数为 0. 该 F2 分数更重视问题发现率, 同时惩罚误报. `fullProblemCases` 和 `passedCleanCases` 只计算分数精确为 `1` 的用例, 这两个计数都不驱动比率.
  
 -每个 Reviewer 的 `repetitionScores` 保存 3 个折减前 F2 分数, 其算术平均值是折减前分数 `scoreBeforePenalty`. 对每次重复, 该重复任一实例存在表示格式错误, 错误的来源或证据引用, 缺失要求, 重复或拆分要求记录, 或违反适用检查停止规则时, 把该重复的原始分数乘以 `0.9`. 同一重复内多项错误或多类错误只折减一次, 没有这些错误时保留原分数. 普通漏报, 误报及证据覆盖不足按逐用例规则失分, 不仅因判断错误而额外触发折减. Spec Readiness 同序两个场景先合并用例计算 F2, 再对该重复最多折减一次. `finalRepetitionScores` 保存 3 个已调整分数, 其算术平均值 `score` 是唯一权威分数. 能力通过只要求 `score >= 0.75`; 单次重复, 问题发现率和干净接受率没有独立门槛.
-+本工程计分升级 r8 (按 k 分档的统一计分, 取代两类计分): 每个用例有权重 `k`, 表示答错一个干净用例相对漏报一个问题的代价. 默认 `k = 0.25`: 结论能对照 Input 原文简单核实的用例, 漏报的代价是误报的 4 倍, 误报会被 main agent 核实排除. 难以核实且答错与答对影响相当的用例 `k = 1`, 难以核实且误报影响更大的用例 `k = 4`; 同一题型的问题用例与干净用例同档. `k` 写在答案键用例的 `k` 字段, 或由登记表把每个已知答案键 (Reviewer 与 `expected.json` sha256) 对应到一个覆盖文件, `in-key` (标记直接写在答案键中) 或 `all-B` (全部按默认档); 加载答案键时按范围, 种类, 序号和 `expectation` 原文叠加覆盖文件 (覆盖文件用例未写 `k` 时按 1). 两类计分的判断题标记 `judgment: true` 按 `k = 1` 读取. 答案键未登记, 未登记为 `in-key` 的答案键自带标记, 覆盖文件对不上, 或某个 `k >= 1` 档的问题用例数不等于 `k` 乘干净用例数时报错; `k = 4` 档干净用例的误报须两名裁决者一致确认, 在双裁实现之前, 标记 `k = 4` 的答案键或覆盖文件一律报错; 结果中的 `judgmentBinding` 写明登记方式和答案键 sha256, 用覆盖文件时另写其文件名及 sha256. 问题用例在 `k = 0.25` 档得上述部分分数 `c`, 在 `k >= 1` 档存在关联即得 1 (r7, R6: 不要求证据分), 否则 0. 干净用例 (含 `no other supported finding` 用例) 只有所属检查存在时才可能通过; `k = 0.25` 档失败部分 `1 - 干净分` 乘 `k` 计入失败权重, `k >= 1` 档干净分为 0 时计入 `k`, 干净分大于 0 (如 Commit Audit 的部分证据观察分) 即算通过. `no other supported finding` 用例与 `extraFailedCleanCases` 一律按 `k = 0.25`. 令 `kProblemWeight` 为问题用例数, `kEarnedProblemPoints` 为问题得分之和, `kFailedCleanWeight` 为失败权重之和, 计算 `rawScore = (kEarnedProblemPoints - kFailedCleanWeight) / kProblemWeight`, 重复分数 `score` 为 `rawScore` 截到 `[0, 1]`: 什么都不报得 0, 全对得 1. `kTiers` 按档给出 `k >= 1` 档的问题与干净用例份额. Spec Readiness 同序两个场景的计数先合并再计算; 同一 `k >= 1` 用例在两个场景都计分时, 每次按 `0.5` 份额计 (`kShare`), 合并后每题仍是一份; `k = 0.25` 档的干净用例和 `no other supported finding` 用例在两个场景各计一次, 不分份额. 每个计分单位中每个 `k >= 1` 档的问题份额必须等于 `k` 乘干净份额, Spec Readiness 单个场景的诊断分只给出警告 `kWarning`. 合并时任一结果缺少或只有部分 `k` 计数即报错, 不按默认档回退. 格式折减乘在截断后的分数上. 模型失误实例的问题用例全部漏报, 干净用例全部失败, 分数为 0. 原有 `problemDetectionRate` 和 `cleanAcceptanceRate` 仍按全部用例计算, 只作明细.
++本工程计分升级 r8 (按 k 分档的统一计分, 取代两类计分): 每个用例有权重 `k`, 表示答错一个干净用例相对漏报一个问题的代价. 默认 `k = 0.25`: 结论能对照 Input 原文简单核实的用例, 漏报的代价是误报的 4 倍, 误报会被 main agent 核实排除. 难以核实且答错与答对影响相当的用例 `k = 1`, 难以核实且误报影响更大的用例 `k = 4`; 同一题型的问题用例与干净用例同档. `k` 写在答案键用例的 `k` 字段, 或由登记表把每个已知答案键 (Reviewer 与 `expected.json` sha256) 对应到一个覆盖文件, `in-key` (标记直接写在答案键中) 或 `all-B` (全部按默认档); 加载答案键时按范围, 种类, 序号和 `expectation` 原文叠加覆盖文件 (覆盖文件用例未写 `k` 时按 1). 两类计分的判断题标记 `judgment: true` 按 `k = 1` 读取. 答案键未登记, 未登记为 `in-key` 的答案键自带标记, 覆盖文件对不上, 或某个 `k >= 1` 档的问题用例数不等于 `k` 乘干净用例数时报错; `k = 4` 档干净用例的误报须两名裁决者一致确认, 在双裁实现之前, 标记 `k = 4` 的答案键或覆盖文件一律报错; 结果中的 `judgmentBinding` 写明登记方式和答案键 sha256, 用覆盖文件时另写其文件名及 sha256. 问题用例在 `k = 0.25` 档得上述部分分数 `c`, 在 `k >= 1` 档存在关联即得 1 (r7, R6: 不要求证据分), 否则 0. 干净用例 (含 `no other supported finding` 用例) 只有所属检查存在时才可能通过; `k = 0.25` 档失败部分 `1 - 干净分` 乘 `k` 计入失败权重, `k >= 1` 档干净分为 0 时计入 `k`, 干净分大于 0 (如 Commit Audit 的部分证据观察分) 即算通过. `no other supported finding` 用例与 `extraFailedCleanCases` 一律按 `k = 0.25`. 令 `kProblemWeight` 为问题用例数, `kEarnedProblemPoints` 为问题得分之和, `kFailedCleanWeight` 为失败权重之和, 计算 `rawScore = (kEarnedProblemPoints - kFailedCleanWeight) / kProblemWeight`, 重复分数 `score` 为 `rawScore` 截到 `[0, 1]`: 什么都不报得 0, 全对得 1. `kTiers` 按档给出 `k >= 1` 档的问题与干净用例份额. Spec Readiness 同序两个场景的计数先合并再计算; 两个场景不出同一道题 (`no other supported finding` 用例除外, 各计一次). 每个计分单位中每个 `k >= 1` 档的问题份额必须等于 `k` 乘干净份额, Spec Readiness 单个场景的诊断分只给出警告 `kWarning`. 合并时任一结果缺少或只有部分 `k` 计数即报错, 不按默认档回退. 本工程计分升级 r8.2 (合并用例): 答案键可以把有意保留的同一道题的两问 (例如 Commit Audit 中 issue 与 spec 重复的同一要求) 显式声明为合并用例, 两个用例写同一个 `merge` 名称; 一个合并用例恰好是两个不同范围中种类, `k` 和 (问题用例的) `result` 都相同的用例, 否则报错. 两个用例各自照常评分 (`caseScores` 仍逐个列出), 但在计数中只算一次, 取较低分: 问题用例取两者得分的较小者, 只计一份 `kProblemWeight`; 干净用例取两者失败权重的较大者, 只计一次. `kTiers` 同样每个合并用例只计一次, `kMergedCases` 给出被合并掉的用例数. 未声明的重复不合并. 格式折减乘在截断后的分数上. 模型失误实例的问题用例全部漏报, 干净用例全部失败, 分数为 0. 原有 `problemDetectionRate` 和 `cleanAcceptanceRate` 仍按全部用例计算, 只作明细.
 +
 +每个 Reviewer 的 `repetitionScores` 保存 3 个折减前重复分数, 其算术平均值是折减前分数 `scoreBeforePenalty`. 对每次重复, 该重复任一实例存在表示格式错误, 错误的来源或证据引用, 缺失要求, 重复或拆分要求记录, 或违反适用检查停止规则时, 把该重复的原始分数乘以 `0.9`. 同一重复内多项错误或多类错误只折减一次, 没有这些错误时保留原分数. 本工程计分升级 r7: 报告错误按归属处理, 不再触发这一折减, 只记录. 格式错误 (`review-format-invalid`, `review-json-invalid`, `review-utf8-invalid`, 无法归到 requirement 的无效行 `review-row-unattributed`) 是整份报告的问题, 由本工程在 ARW 之外按比例折减: 可机械修复的按修复记录计数, 其余由实例的 `unrepairableFormatErrors` 计数. 起点在文件内, 终点越过文件末尾的行范围截到文件末尾后计分, 计为一处可修复格式错误 (实例的 `overrunLocators`). 证据定位无效 (`review-evidence-invalid`, `evidence-locator-invalid`) 只使该定位不提供证据. 缺失, 重复, 冲突或无效的 requirement 行 (`requirement-missing`, `requirement-coverage-invalid`, `requirement-duplicate`, `requirement-conflicting`, `review-row-invalid`, `requirement-row-invalid`) 在所属用例内失分. 请求范围以外的每条 requirement 行 (`requirement-source-unexpected`, `requirement-source-invalid`) 按无依据 finding 记一个失败干净用例. 越过停止点 (`requirement-scope-continuation`) 算停止规则一题答错, 在该场景记一个失败干净用例 (`k = 0.25`); 停止点之后的检查 (前两项需求范围检查以外) 及其报告行的诊断一律忽略, 不计分, 不扣分, 不计入定位数和格式错误. 只有未列出的错误仍按上述规则折减. 每个实例另报告 `locatorCount`, 即计分器读到的定位数 (含 Commit Audit 已满足 requirement 的证据). 普通漏报, 误报及证据覆盖不足按逐用例规则失分, 不仅因判断错误而额外触发折减. Spec Readiness 同序两个场景先合并用例计算重复分数, 再对该重复最多折减一次. `finalRepetitionScores` 保存 3 个已调整分数, 其算术平均值 `score` 是唯一权威分数. 能力通过只要求 `score >= 0.75`; 单次重复, 问题发现率和干净接受率没有独立门槛.
  
@@ -73,7 +73,7 @@ index 4bb8bb7..88969ca 100644
  
  报告中的格式, 来源, 证据, 要求覆盖和检查停止错误使用同一能力评分路径, 逐用例失分与逐重复折减遵循[评分规则](reviewer-capability-scoring.md). Main Agent 保留原件, 只在必要的独立副本中修正表示; 不补写判断或替换错误引用. 普通 Spec Readiness 与 Commit Audit 的正式生成仍遵循各自严格合同, 能力评分不提供普通审核或提交授权.
 diff --git a/lib/release/reviewer-capability-conformance.mjs b/lib/release/reviewer-capability-conformance.mjs
-index e13e9d9..e0d464c 100644
+index 394dc9e..20ce189 100644
 --- a/lib/release/reviewer-capability-conformance.mjs
 +++ b/lib/release/reviewer-capability-conformance.mjs
 @@ -33,7 +33,7 @@ import {parseCommitAuditRecord as parseFormalCommitAuditRecord, prepareCommitAud
@@ -81,7 +81,7 @@ index e13e9d9..e0d464c 100644
  /** @typedef {{anchor?: string, filePath: string, line?: number}} FixtureLocator */
  /** @typedef {{associationEvidence: FixtureLocator[], check: string, evidence: FixtureLocator[]}} FixturePlacement */
 -/** @typedef {{associationEvidence?: FixtureLocator[], evidence?: FixtureLocator[], evidenceAlternatives?: FixtureLocator[][], expectation?: string, findingTerms?: Array<string | string[]>, noOtherSupportedFinding?: boolean, placements?: FixturePlacement[], requirementSource?: string, result?: string}} FixtureCase */
-+/** @typedef {{associationEvidence?: FixtureLocator[], evidence?: FixtureLocator[], evidenceAlternatives?: FixtureLocator[][], expectation?: string, findingTerms?: Array<string | string[]>, judgment?: boolean, judgmentShare?: number, k?: number, kShare?: number, noOtherSupportedFinding?: boolean, placements?: FixturePlacement[], requirementSource?: string, result?: string}} FixtureCase */
++/** @typedef {{associationEvidence?: FixtureLocator[], evidence?: FixtureLocator[], evidenceAlternatives?: FixtureLocator[][], expectation?: string, findingTerms?: Array<string | string[]>, judgment?: boolean, judgmentShare?: number, k?: number, merge?: string, noOtherSupportedFinding?: boolean, placements?: FixturePlacement[], requirementSource?: string, result?: string}} FixtureCase */
  /** @typedef {{cleanCases: FixtureCase[], problemCases: FixtureCase[], scope: string}} FixtureScope */
  /** @typedef {{auditRecords?: AuditRecord[], authorizingIssueIds?: string[], cleanCount: number, inputs?: Array<JsonObject & {filePath: string}>, kind?: string, problemCount: number, request?: unknown, requestSha256?: string, reviewerRole?: unknown, scopes: FixtureScope[], subject?: {filePath: string, sha256?: string}, [key: string]: unknown}} ExpectedFixture */
  /** @typedef {{exitCode: number, stderr: string | Buffer, stdout: string | Buffer}} CommandResult */
@@ -94,10 +94,19 @@ index e13e9d9..e0d464c 100644
  /** @typedef {{finalRepetitionScores: number[], instances: JsonObject[], repetitions: JsonObject[], repetitionScores: number[], reportDiagnostics: ReportDiagnostic[], reviewerId: string, score?: number, scoreBeforePenalty?: number, scoreExplanation: string, scoreGate?: string}} ReviewerScore */
  /** @typedef {{code: string, line?: number, field?: string, message: string}} ContentDiagnostic */
  /** @typedef {{evidenceSources?: Map<string, string>, records: unknown[], reportDiagnostics: ContentDiagnostic[]}} CapabilityAuditInput */
-@@ -374,6 +374,16 @@ const canonicalFixtureCase = (/** @type {{availablePaths: Set<string>, caseIndex
+@@ -374,6 +374,25 @@ const canonicalFixtureCase = (/** @type {{availablePaths: Set<string>, caseIndex
      if (!isJsonObject(entry)) {
          throw new Error(`${label} is malformed.`);
      }
++    // Project scoring upgrade r8.2: a problem or clean case may name the merged case it belongs to (`merge`): two
++    // cases the answer key keeps as one question asked twice, scored once at the lower of their two scores.
++    if (Object.hasOwn(entry, 'merge')) {
++        const {merge, ...unmerged} = entry;
++        if (typeof merge !== 'string' || merge.length === 0 || entry.noOtherSupportedFinding === true) {
++            throw new Error(`${label} merge marker is malformed.`);
++        }
++        return {...canonicalFixtureCase({availablePaths, caseIndex, entry: unmerged, kind, scope}), merge};
++    }
 +    // Project scoring upgrade r8: a problem or clean case may carry its k (1 or 4; 0.25 when absent). A judgment mark
 +    // of the two-part score (r7) is k 1.
 +    if (Object.hasOwn(entry, 'judgment') || Object.hasOwn(entry, 'k')) {
@@ -111,32 +120,28 @@ index e13e9d9..e0d464c 100644
      if (kind === 'clean' && entry.noOtherSupportedFinding === true) {
          if (Object.keys(entry).join(',') !== 'noOtherSupportedFinding') {
              throw new Error(`${label} no-other-supported-finding case is malformed.`);
-@@ -556,6 +566,7 @@ const scopedProblemCase = (/** @type {{allowedScopes: Set<string>, problemCase:
+@@ -556,6 +575,8 @@ const scopedProblemCase = (/** @type {{allowedScopes: Set<string>, problemCase:
          evidence: placement.evidence,
          expectation: problemCase.expectation,
          findingTerms: problemCase.findingTerms,
 +        ...(problemCase.k === undefined ? {} : {k: problemCase.k}),
++        ...(problemCase.merge === undefined ? {} : {merge: problemCase.merge}),
          result: problemCase.result,
      };
  };
-@@ -601,8 +612,14 @@ const splitSpecReadinessExpected = (/** @type {ExpectedFixture} */ expected) =>
+@@ -601,8 +622,9 @@ const splitSpecReadinessExpected = (/** @type {ExpectedFixture} */ expected) =>
              )),
          scope: scope.scope,
      }));
 -    const requirements = expectedWithScopes(requirementScopes);
 -    const fullReview = expectedWithScopes(fullReviewScopes);
-+    // Project scoring upgrade: a case with k >= 1 scored in both scenarios counts half in each.
-+    const sharedK = new Set(requirementScopes.flatMap(scope => scope.cleanCases).filter(cleanCase => (
-+        cleanCase.k !== undefined && fullReviewScopes.some(scope => scope.cleanCases.includes(cleanCase)))));
-+    const withShares = (/** @type {FixtureScope[]} */ scopes) => expectedWithScopes(scopes.map(scope => ({...scope,
-+        cleanCases: scope.cleanCases.map(cleanCase => sharedK.has(cleanCase) ? {...cleanCase, kShare: 0.5} : cleanCase)})));
 +    const binding = expected.judgmentBinding === undefined ? {} : {judgmentBinding: expected.judgmentBinding};
-+    const requirements = {...withShares(requirementScopes), ...binding};
-+    const fullReview = {...withShares(fullReviewScopes), ...binding};
++    const requirements = {...expectedWithScopes(requirementScopes), ...binding};
++    const fullReview = {...expectedWithScopes(fullReviewScopes), ...binding};
      if (requirements.problemCount + fullReview.problemCount < MINIMUM_CASE_COUNT
          || requirements.cleanCount + fullReview.cleanCount < MINIMUM_CASE_COUNT) {
          throw new Error(`Spec Readiness capability scenarios require at least ${MINIMUM_CASE_COUNT} combined problem cases and ${MINIMUM_CASE_COUNT} combined clean cases.`);
-@@ -931,6 +948,88 @@ const specReadinessInputRole = (/** @type {string} */ filePath) => {
+@@ -931,6 +953,88 @@ const specReadinessInputRole = (/** @type {string} */ filePath) => {
      return undefined;
  };
  
@@ -225,7 +230,7 @@ index e13e9d9..e0d464c 100644
  /** @returns {Promise<FixtureDefinition>} */
  const loadFixtureDefinition = async (/** @type {{expectedExtraKeys?: string[], label: string, repositoryRoot: string, reviewerId: string}} */ {expectedExtraKeys = [], label, repositoryRoot, reviewerId}) => {
      const capabilityFixtureRoot = join(repositoryRoot, ...FIXTURE_DIRECTORY_SEGMENTS);
-@@ -948,12 +1047,14 @@ const loadFixtureDefinition = async (/** @type {{expectedExtraKeys?: string[], l
+@@ -948,12 +1052,14 @@ const loadFixtureDefinition = async (/** @type {{expectedExtraKeys?: string[], l
      }
      const scenarioFiles = {...baseFiles, ...candidateFiles};
      const availablePaths = new Set(Object.keys(scenarioFiles));
@@ -242,7 +247,7 @@ index e13e9d9..e0d464c 100644
  };
  
  const mergeFixtureOverrides = (/** @type {{files: Record<string, string>, label: string, overrides: Record<string, string>}} */ {files, label, overrides}) => {
-@@ -1978,6 +2079,22 @@ const validateReadinessCheckGrammar = (/** @type {{expected: ExpectedFixture, va
+@@ -1978,6 +2084,22 @@ const validateReadinessCheckGrammar = (/** @type {{expected: ExpectedFixture, va
          : 'Spec Readiness overall result does not match its checks.';
  };
  
@@ -265,7 +270,7 @@ index e13e9d9..e0d464c 100644
  const scoreReadinessChecks = async (/** @type {{adjudicationDecisions: Map<string, string>, checks: JsonObject[], expected: ExpectedFixture, instanceId: string, reportDiagnostics?: ContentDiagnostic[], retainScorer?: (score: (decisions: Map<string, string>) => CapabilityScore) => void, reviewerId: string, scenarioRoot: string}} */ {
      adjudicationDecisions, checks, expected, instanceId, reportDiagnostics = [], retainScorer, reviewerId, scenarioRoot,
  }) => {
-@@ -1988,7 +2105,9 @@ const scoreReadinessChecks = async (/** @type {{adjudicationDecisions: Map<strin
+@@ -1988,7 +2110,9 @@ const scoreReadinessChecks = async (/** @type {{adjudicationDecisions: Map<strin
      const missingCleanScores = new Map(expected.scopes.filter(scope => !presentChecks.has(scope.scope)).map(scope => [
          scope.scope, new Map(scope.cleanCases.map((_, index) => [index, 0])),
      ]));
@@ -276,7 +281,7 @@ index e13e9d9..e0d464c 100644
      retainScorer?.(score);
      return {...score(adjudicationDecisions), reportDiagnostics};
  };
-@@ -2013,9 +2132,11 @@ const validateSpecReadiness = async (/** @type {{adjudicationDecisions: Map<stri
+@@ -2013,9 +2137,11 @@ const validateSpecReadiness = async (/** @type {{adjudicationDecisions: Map<stri
          if (reviewerCapabilityVerificationCore.fullReviewBindingFailure({expected, review}) === 'binding') {
              return {finding: `${reviewerId} draft request, Inputs, Role, or subject binding is invalid.`};
          }
@@ -291,7 +296,7 @@ index e13e9d9..e0d464c 100644
      }
      const value = JSON.parse(await readFile(path, 'utf8'));
      if (!isJsonObject(value) || value.schemaVersion !== 6 || value.issueId !== 'issue:0001:01'
-@@ -2226,7 +2347,9 @@ const commitAuditEvidenceLocators = (/** @type {{evidence: unknown, evidenceSour
+@@ -2226,7 +2352,9 @@ const commitAuditEvidenceLocators = (/** @type {{evidence: unknown, evidenceSour
                  locators.push({filePath: item.filePath, line: region});
              } else if (Array.isArray(region) && region.length === 2
                  && region.every(line => Number.isSafeInteger(line) && line > 0)
@@ -302,7 +307,7 @@ index e13e9d9..e0d464c 100644
                  locators.push({filePath: item.filePath, lineEnd: region[1], lineStart: region[0]});
              } else locators.push({filePath: item.filePath, lines: [region]});
          }
-@@ -2386,7 +2509,9 @@ const parseCommitAuditRecord = (/** @type {{requirementBindings?: Map<number, nu
+@@ -2386,7 +2514,9 @@ const parseCommitAuditRecord = (/** @type {{requirementBindings?: Map<number, nu
                  !== expectedRecord.requirements.filter(expected => locatorKey(expected.source) === source).length;
          })) reportDiagnostics.push({code: 'requirement-coverage-invalid', message: 'Requirement report has missing, duplicate, or split rows.'});
      const expectedSources = new Set(expectedRecord.requirements.map(requirement => locatorKey(requirement.source)));
@@ -313,7 +318,7 @@ index e13e9d9..e0d464c 100644
          reportDiagnostics.push({code: 'requirement-source-invalid', message: 'Requirement source is outside the expected set.'});
      }
      /** @type {Finding[]} */
-@@ -2409,7 +2534,8 @@ const parseCommitAuditRecord = (/** @type {{requirementBindings?: Map<number, nu
+@@ -2409,7 +2539,8 @@ const parseCommitAuditRecord = (/** @type {{requirementBindings?: Map<number, nu
              reviewerId,
          });
          if (parsed.error !== undefined) {
@@ -323,7 +328,7 @@ index e13e9d9..e0d464c 100644
              if (expectedRequirement.result === 'satisfied') cleanObservations.push({actualEvidence: [],
                  requirementSource: auditRequirementIdentity(expectedRequirement), satisfied: false});
              continue;
-@@ -2424,7 +2550,7 @@ const parseCommitAuditRecord = (/** @type {{requirementBindings?: Map<number, nu
+@@ -2424,7 +2555,7 @@ const parseCommitAuditRecord = (/** @type {{requirementBindings?: Map<number, nu
      if (record.result !== derivedResult) {
          reportDiagnostics.push({code: 'review-format-invalid', message: `${reviewerId} audit result does not match its requirement results for ${expectedRecord.pathSuffix}.`});
      }
@@ -332,7 +337,7 @@ index e13e9d9..e0d464c 100644
  };
  
  const parseCommitAuditRecords = (/** @type {{requirementBindings?: Map<number, Map<number, number | null>>, evidenceSources: Map<string, string>, expected: ExpectedFixture, records: unknown[], reviewerId: string}} */ {
-@@ -2448,6 +2574,7 @@ const parseCommitAuditRecords = (/** @type {{requirementBindings?: Map<number, M
+@@ -2448,6 +2579,7 @@ const parseCommitAuditRecords = (/** @type {{requirementBindings?: Map<number, M
      const cleanObservations = [];
      /** @type {ContentDiagnostic[]} */
      const reportDiagnostics = [];
@@ -340,7 +345,7 @@ index e13e9d9..e0d464c 100644
      const expectedScopesById = new Map(expected.scopes.map(scope => [scope.scope, scope]));
      if (expected.auditRecords === undefined) return {finding: `${reviewerId} expected Commit Audit records are unavailable.`};
      for (const [index, expectedRecord] of expected.auditRecords.entries()) {
-@@ -2463,6 +2590,7 @@ const parseCommitAuditRecords = (/** @type {{requirementBindings?: Map<number, M
+@@ -2463,6 +2595,7 @@ const parseCommitAuditRecords = (/** @type {{requirementBindings?: Map<number, M
          });
          if (parsed.finding !== undefined) return parsed;
          reportDiagnostics.push(...parsed.reportDiagnostics);
@@ -348,7 +353,7 @@ index e13e9d9..e0d464c 100644
          const ownedFindings = checksByScope.get(parsed.check.check);
          if (ownedFindings === undefined) return {finding: `${reviewerId} returned an unknown Commit Audit scope.`};
          ownedFindings.push(...parsed.check.findings);
-@@ -2482,7 +2610,7 @@ const parseCommitAuditRecords = (/** @type {{requirementBindings?: Map<number, M
+@@ -2482,7 +2615,7 @@ const parseCommitAuditRecords = (/** @type {{requirementBindings?: Map<number, M
          const findings = checksByScope.get(scope.scope) ?? [];
          return {check: scope.scope, findings, result: derivedReviewResult(findings)};
      });
@@ -357,7 +362,7 @@ index e13e9d9..e0d464c 100644
  };
  
  const bindReportDiagnostics = (/** @type {{instanceId: string, reviewerId: string}} */ identity,
-@@ -2508,12 +2636,20 @@ const readCapabilityAuditInput = async (/** @type {{artifact: ArtifactInstance,
+@@ -2508,12 +2641,20 @@ const readCapabilityAuditInput = async (/** @type {{artifact: ArtifactInstance,
              return {records: [], reportDiagnostics: validated.reportDiagnostics};
          }
          if (validated.rows.length === 0) throw new Error(`${reviewerId} report has no scorable content; a confirmed modelFailure is required.`);
@@ -379,7 +384,7 @@ index e13e9d9..e0d464c 100644
      }
      const expectedRecords = instance.expected.auditRecords;
      if (expectedRecords === undefined || paths.length !== expectedRecords.length
-@@ -2544,7 +2680,13 @@ const markdownEvidenceDiagnostics = (/** @type {any[]} */ checks, /** @type {Map
+@@ -2544,7 +2685,13 @@ const markdownEvidenceDiagnostics = (/** @type {any[]} */ checks, /** @type {Map
          if (!isJsonObject(evidence) || typeof evidence.filePath !== 'string') continue;
          const source = evidenceSources.get(normalizePath(evidence.filePath));
          const end = 'lineEnd' in evidence ? evidence.lineEnd : evidence.line;
@@ -394,7 +399,7 @@ index e13e9d9..e0d464c 100644
              diagnostics.push({code: 'review-evidence-invalid', message: 'Markdown evidence is outside the frozen source.'});
          }
      }
-@@ -2583,14 +2725,16 @@ const validateFormatCorrectionSource = async (/** @type {{correction: FormatCorr
+@@ -2583,14 +2730,16 @@ const validateFormatCorrectionSource = async (/** @type {{correction: FormatCorr
              throw new Error('Original report is unreadable or failed beyond its representation.');
          }
          // Project policy: a syntactically valid original may also be normalized (tuning scores read scoreBeforePenalty).
@@ -413,7 +418,7 @@ index e13e9d9..e0d464c 100644
      const diagnostics = [...original.reportDiagnostics ?? [], ...(original.checks === undefined ? [] : markdownEvidenceDiagnostics(original.checks,
          await loadEvidenceSources({expected: instance.expected, scenarioRoot: instance.scenarioRoot, additionalEvidence: original.checks, runCommand})))];
      if (!diagnostics.some(item => item.code === 'review-format-invalid' || item.code === 'review-evidence-invalid')) {
-@@ -2599,13 +2743,29 @@ const validateFormatCorrectionSource = async (/** @type {{correction: FormatCorr
+@@ -2599,13 +2748,29 @@ const validateFormatCorrectionSource = async (/** @type {{correction: FormatCorr
      return bindReportDiagnostics(identity, diagnostics);
  };
  
@@ -445,7 +450,7 @@ index e13e9d9..e0d464c 100644
  };
  
  const validateResponse = async (/** @type {{adjudicationDecisions: Map<string, string>, artifact: ArtifactInstance, auditInput?: CapabilityAuditInput, commitAuditBindings?: Map<number, Map<number, number | null>>, instance: PreparedScenario, retainScorer: (score: (decisions: Map<string, string>) => CapabilityScore) => void, reviewerId: string, runCommand: RunCommand}} */ {
-@@ -2658,8 +2818,10 @@ const validateResponse = async (/** @type {{adjudicationDecisions: Map<string, s
+@@ -2658,8 +2823,10 @@ const validateResponse = async (/** @type {{adjudicationDecisions: Map<string, s
          records: auditInput.records, reviewerId});
      if ('finding' in parsed) return parsed;
      const scorer = createReviewerCapabilityScenarioScorer({evidenceSources, expected, instanceId, reviewerId, scenarioRoot});
@@ -457,7 +462,7 @@ index e13e9d9..e0d464c 100644
      retainScorer(score);
      return {...score(adjudicationDecisions), reportDiagnostics: [...auditInput.reportDiagnostics, ...parsed.reportDiagnostics]};
  };
-@@ -2930,8 +3092,12 @@ const scoreCapabilityInstances = async (/** @type {{adjudicationDecisions: Map<s
+@@ -2930,8 +3097,12 @@ const scoreCapabilityInstances = async (/** @type {{adjudicationDecisions: Map<s
                  throw new Error('Corrected report still has a representation error.');
              }
              const diagnostics = [...sourceDiagnostics, ...bindReportDiagnostics({instanceId: instance.instanceId, reviewerId: item.reviewerId}, reportDiagnostics)];
@@ -471,7 +476,7 @@ index e13e9d9..e0d464c 100644
          } catch (error) {
              failures.push({code: 'scoring-input-invalid', instanceId: instance.instanceId, reviewerId: item.reviewerId,
                  message: error instanceof Error ? error.message : String(error)});
-@@ -2943,7 +3109,7 @@ const scoreCapabilityInstances = async (/** @type {{adjudicationDecisions: Map<s
+@@ -2943,7 +3114,7 @@ const scoreCapabilityInstances = async (/** @type {{adjudicationDecisions: Map<s
  const capabilityInstanceDetails = (/** @type {InstanceScore} */ instance) => {
      const {candidates: unusedCandidates, semanticProblemHits: unusedSemanticProblemHits, ...details} = instance.result;
      return {instanceId: instance.instanceId, repetition: instance.repetition, scenarioId: instance.scenarioId,
@@ -480,7 +485,7 @@ index e13e9d9..e0d464c 100644
          ...capabilityMeasurementDetails(instance.artifact.measurement),
          ...(instance.artifact.modelFailure === undefined ? {} : {modelFailure: instance.artifact.modelFailure}),
          ...(instance.artifact.formatCorrection === undefined ? {} : {formatCorrection: instance.artifact.formatCorrection})};
-@@ -2964,6 +3130,26 @@ const capabilityMeasurementDetails = source => {
+@@ -2964,6 +3135,26 @@ const capabilityMeasurementDetails = source => {
      }
  };
  
@@ -507,7 +512,7 @@ index e13e9d9..e0d464c 100644
  const summarizeCapabilityScores = (/** @type {{contract: CapabilityContract, instanceScores: InstanceScore[]}} */ {contract, instanceScores}) => {
      const scenarioCount = contract.reviewerId === 'spec-readiness-reviewer' ? SPEC_READINESS_SCENARIOS.length : 1;
      const repetitions = [];
-@@ -2973,12 +3159,14 @@ const summarizeCapabilityScores = (/** @type {{contract: CapabilityContract, ins
+@@ -2973,12 +3164,14 @@ const summarizeCapabilityScores = (/** @type {{contract: CapabilityContract, ins
          const result = reviewerCapabilityVerificationCore.combineScenarios(paired.map(instance => instance.result));
          const {candidates: unusedCandidates, semanticProblemHits: unusedHits, score: scoreBeforePenalty, ...details} = result;
          const reportDiagnostics = paired.flatMap(instance => instance.reportDiagnostics);
@@ -524,7 +529,7 @@ index e13e9d9..e0d464c 100644
          totalRepetitions: CAPABILITY_INSTANCE_COUNT});
      const repetitionScores = aggregate.repetitionScores.map(item => item.score);
      const finalRepetitionScores = aggregate.finalRepetitionScores.map(item => item.score);
-@@ -2988,6 +3176,10 @@ const summarizeCapabilityScores = (/** @type {{contract: CapabilityContract, ins
+@@ -2988,6 +3181,10 @@ const summarizeCapabilityScores = (/** @type {{contract: CapabilityContract, ins
          scoreExplanation: `${aggregate.score === undefined ? 'Incomplete repetition set.' : `Final score: ${aggregate.score.toFixed(3)}. Score before penalty: ${aggregate.scoreBeforePenalty?.toFixed(3)}.`} Repetition scores before penalty: ${repetitionScores.map(value => value.toFixed(3)).join(', ')}. Final repetition scores: ${finalRepetitionScores.map(value => value.toFixed(3)).join(', ')}. Report errors: ${instanceScores.flatMap(instance => instance.reportDiagnostics).map(item => `${item.instanceId}: ${item.message}`).join(' ') || 'None.'}`};
  };
  
@@ -535,7 +540,7 @@ index e13e9d9..e0d464c 100644
  /** @typedef {{actualIndexes: number[], actualRequirements: unknown[], expectedIndexes: number[], expectedRequirements: AuditRequirement[], instanceId: string, recordIndex: number, source: FixtureLocator}} RequirementBindingRequest */
  const prepareCommitAuditBindings = (/** @type {{contract: CapabilityContract, indexes: number[], item: ArtifactEntry, auditInputs: Map<string, CapabilityAuditInput>}} */ {
      contract, indexes, item, auditInputs,
-@@ -3169,22 +3361,28 @@ const verifyReviewerCapabilityConformanceCore = async (/** @type {VerifyInput &
+@@ -3169,22 +3366,28 @@ const verifyReviewerCapabilityConformanceCore = async (/** @type {VerifyInput &
          inputFailures.push(...scored.failures);
          evaluations.push({...selection, ...scored});
      }
@@ -571,7 +576,7 @@ index e13e9d9..e0d464c 100644
      const results = summaries();
      if (partial) return {results, reviewerIds: state.reviewerIds, diagnostics: reportDiagnostics, status: 'diagnostic'};
 diff --git a/lib/release/reviewer-capability-scoring.mjs b/lib/release/reviewer-capability-scoring.mjs
-index 15013ad..d544f6e 100644
+index 15013ad..e6978e8 100644
 --- a/lib/release/reviewer-capability-scoring.mjs
 +++ b/lib/release/reviewer-capability-scoring.mjs
 @@ -2,20 +2,21 @@ import {isAbsolute} from 'node:path';
@@ -587,7 +592,7 @@ index 15013ad..d544f6e 100644
  /** @typedef {{anchor?: string, filePath: string, line?: number}} FixtureLocator */
  /** @typedef {{associationEvidence: FixtureLocator[], check: string, evidence: FixtureLocator[]}} FixturePlacement */
 -/** @typedef {{associationEvidence?: FixtureLocator[], evidence?: FixtureLocator[], evidenceAlternatives?: FixtureLocator[][], expectation?: string, findingTerms?: Array<string | string[]>, noOtherSupportedFinding?: boolean, placements?: FixturePlacement[], requirementSource?: string, result?: string}} FixtureCase */
-+/** @typedef {{associationEvidence?: FixtureLocator[], evidence?: FixtureLocator[], evidenceAlternatives?: FixtureLocator[][], expectation?: string, findingTerms?: Array<string | string[]>, judgment?: boolean, judgmentShare?: number, k?: number, kShare?: number, noOtherSupportedFinding?: boolean, placements?: FixturePlacement[], requirementSource?: string, result?: string}} FixtureCase */
++/** @typedef {{associationEvidence?: FixtureLocator[], evidence?: FixtureLocator[], evidenceAlternatives?: FixtureLocator[][], expectation?: string, findingTerms?: Array<string | string[]>, judgment?: boolean, judgmentShare?: number, k?: number, merge?: string, noOtherSupportedFinding?: boolean, placements?: FixturePlacement[], requirementSource?: string, result?: string}} FixtureCase */
  /** @typedef {{cleanCases: FixtureCase[], problemCases: FixtureCase[], scope: string}} FixtureScope */
  /** @typedef {{cleanCount: number, problemCount: number, scopes: FixtureScope[]}} ExpectedFixture */
  /** @typedef {{check: string, findings?: Finding[], result: string}} ReviewCheck */
@@ -880,7 +885,7 @@ index 15013ad..d544f6e 100644
              fullProblemCases: ownedScores.filter((/** @type {number} */ points) => Math.abs(points - 1) < Number.EPSILON * 8).length,
              passedCleanCases: cleanCaseScores.filter((/** @type {number} */ points) => Math.abs(points - 1) < Number.EPSILON * 8).length,
              scope: expectedScope.scope,
-@@ -282,21 +385,24 @@ const scoreScopes = (/** @type {{actualFindings: ActualFinding[], associationsBy
+@@ -282,47 +385,102 @@ const scoreScopes = (/** @type {{actualFindings: ActualFinding[], associationsBy
              totalProblemCases: expectedScope.problemCases.length,
          };
      });
@@ -905,24 +910,24 @@ index 15013ad..d544f6e 100644
      const problemCases = flattenProblemCases(expected);
 -    const {associations, candidates} = findProblemAssociations({
 +    const found = findProblemAssociations({
-         actualFindings,
-         adjudicationDecisions,
-         evidenceMatcher,
-@@ -304,25 +410,68 @@ const scoreExpectedScopes = (/** @type {{adjudicationDecisions?: Map<string, str
-         problemCases,
-         reviewerId,
-     });
-+    const findingDecisions = findFindingDecisions({
 +        actualFindings,
 +        adjudicationDecisions,
-+        associationCandidates: found.candidates,
-+        associations: found.associations,
 +        evidenceMatcher,
-+        expected,
 +        instanceId,
 +        problemCases,
 +        reviewerId,
 +    });
++    const findingDecisions = findFindingDecisions({
+         actualFindings,
+         adjudicationDecisions,
++        associationCandidates: found.candidates,
++        associations: found.associations,
+         evidenceMatcher,
++        expected,
+         instanceId,
+         problemCases,
+         reviewerId,
+     });
 +    const associations = [...found.associations, ...findingDecisions.added];
 +    const candidates = [...found.candidates.map(candidate => ({...candidate, allowedDecisions: ['matched', 'not-matched'], kind: 'association'})),
 +        ...findingDecisions.candidates];
@@ -951,7 +956,7 @@ index 15013ad..d544f6e 100644
 -    const cleanAcceptanceRate = earnedCleanPoints / expected.cleanCount;
 +    const cleanAcceptanceRate = earnedCleanPoints / (expected.cleanCount + scoped.extraFailedCleanCases);
 +    // Project scoring upgrade r8: every case counts at its k (0.25 unless the answer key marks 1 or 4) times its share
-+    // (0.5 for a Spec Readiness case with k >= 1 scored in both scenarios). A problem case earns its partial score at
++    // (1, or the judgmentShare an instance prepared under r7 keeps). A problem case earns its partial score at
 +    // k 0.25, or 1 when a finding is associated with it at k >= 1 (r7: no evidence threshold). A clean case costs
 +    // k x (1 - its score) at k 0.25 and k when its score is 0 at k >= 1; a clean case of a missing check scores 0.
 +    const {caseK: kOf, caseShare: shareOf} = reviewerCapabilityVerificationCore;
@@ -965,22 +970,31 @@ index 15013ad..d544f6e 100644
 +        kTiers[key] = {clean: kTiers[key]?.clean ?? 0, problem: kTiers[key]?.problem ?? 0};
 +        kTiers[key][kind] += shareOf(fixtureCase);
 +    };
-+    problemCases.forEach(entry => tier(entry.problemCase, 'problem'));
-+    cleanByCase.forEach(({cleanCase}) => tier(cleanCase, 'clean'));
++    // r8.2: the two cases of a merged case (`merge`) count once, at the lower of their two scores: the smaller earned
++    // points of the two problem cases, the larger failed weight of the two clean cases.
++    const once = (/** @type {Array<{fixtureCase: FixtureCase, value: number}>} */ entries, /** @type {(values: number[]) => number} */ pick) => (
++        [...Map.groupBy(entries, (entry, index) => entry.fixtureCase.merge ?? index).values()]
++            .map(group => ({fixtureCase: group[0].fixtureCase, value: pick(group.map(entry => entry.value))})));
++    const problemUnits = once(problemCases.map((entry, index) => ({fixtureCase: entry.problemCase,
++        value: kOf(entry.problemCase) < 1 ? problemScores[index] : associationsByCase[index].length > 0 ? 1 : 0})), values => Math.min(...values));
++    const cleanUnits = once(cleanByCase.map(({cleanCase, points}) => ({fixtureCase: cleanCase,
++        value: kOf(cleanCase) < 1 ? 1 - points : points > 0 ? 0 : 1})), values => Math.max(...values));
++    problemUnits.forEach(unit => tier(unit.fixtureCase, 'problem'));
++    cleanUnits.forEach(unit => tier(unit.fixtureCase, 'clean'));
 +    const counts = {
 +        extraFailedCleanCases: scoped.extraFailedCleanCases,
-+        kEarnedProblemPoints: problemCases.reduce((total, entry, index) => total + shareOf(entry.problemCase)
-+            * (kOf(entry.problemCase) < 1 ? problemScores[index] : associationsByCase[index].length > 0 ? 1 : 0), 0),
-+        kFailedCleanWeight: cleanByCase.reduce((total, {cleanCase, points}) => total + shareOf(cleanCase) * kOf(cleanCase)
-+            * (kOf(cleanCase) < 1 ? 1 - points : points > 0 ? 0 : 1), 0) + 0.25 * scoped.extraFailedCleanCases,
-+        kProblemWeight: problemCases.reduce((total, entry) => total + shareOf(entry.problemCase), 0),
++        kEarnedProblemPoints: problemUnits.reduce((total, unit) => total + shareOf(unit.fixtureCase) * unit.value, 0),
++        kFailedCleanWeight: cleanUnits.reduce((total, unit) => total + shareOf(unit.fixtureCase) * kOf(unit.fixtureCase) * unit.value, 0)
++            + 0.25 * scoped.extraFailedCleanCases,
++        kMergedCases: problemCases.length - problemUnits.length + cleanByCase.length - cleanUnits.length,
++        kProblemWeight: problemUnits.reduce((total, unit) => total + shareOf(unit.fixtureCase), 0),
 +        kTiers,
 +    };
 +    const unbalanced = reviewerCapabilityVerificationCore.unbalancedKTiers(kTiers);
      return {
          candidates,
          caseScores: {clean: scoped.clean, problem: problemScores},
-@@ -332,15 +481,19 @@ const scoreExpectedScopes = (/** @type {{adjudicationDecisions?: Map<string, str
+@@ -332,15 +490,19 @@ const scoreExpectedScopes = (/** @type {{adjudicationDecisions?: Map<string, str
          fullProblemCases,
          passedCleanCases,
          problemDetectionRate,
@@ -1005,7 +1019,26 @@ index 15013ad..d544f6e 100644
      };
  };
  
-@@ -411,20 +564,38 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
+@@ -375,6 +537,18 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
+         throw new TypeError('Reviewer capability scenario scorer evidence sources are invalid.');
+     }
+     const boundExpected = /** @type {ExpectedFixture} */ (cloneJsonValue(expected));
++    // Project scoring upgrade r8.2: a merged case is two cases of one kind, k and result, in two different scopes.
++    const merged = Map.groupBy(boundExpected.scopes.flatMap(scope => /** @type {const} */ (['problem', 'clean']).flatMap(kind => (
++        scope[`${kind}Cases`].filter(fixtureCase => fixtureCase.merge !== undefined).map(fixtureCase => ({fixtureCase, kind, scope: scope.scope}))))),
++    entry => entry.fixtureCase.merge);
++    for (const [name, members] of merged) {
++        const [first, second] = members;
++        if (members.length !== 2 || first.kind !== second.kind || first.scope === second.scope
++            || reviewerCapabilityVerificationCore.caseK(first.fixtureCase) !== reviewerCapabilityVerificationCore.caseK(second.fixtureCase)
++            || first.fixtureCase.result !== second.fixtureCase.result) {
++            throw new TypeError(`Reviewer capability merged case ${name} must hold two cases of one kind, k and result in two scopes.`);
++        }
++    }
+     const bodyLineEvidence = reviewerId === 'spec-readiness-reviewer';
+     const normalizeEvidence = (/** @type {unknown[]} */ evidence) => {
+         try {
+@@ -411,20 +585,38 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
          }),
      }))}) : boundExpected;
      const evidenceMatcher = createReviewerCapabilityEvidenceMatcher({evidenceSources: sources, scenarioRoot});
@@ -1045,7 +1078,7 @@ index 15013ad..d544f6e 100644
              || checks.some(check => !isJsonObject(check)
                  || typeof check.check !== 'string'
                  || typeof check.result !== 'string'
-@@ -447,7 +618,20 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
+@@ -447,7 +639,20 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
                  || [...scores.values()].some(value => typeof value !== 'number' || !Number.isFinite(value)))) {
              throw new TypeError('Reviewer capability scenario score values are invalid.');
          }
@@ -1067,7 +1100,7 @@ index 15013ad..d544f6e 100644
          const normalizedChecks = /** @type {JsonObject[]} */ (bodyLineEvidence ? boundChecks.map(check => ({...check, ...(Array.isArray(check.findings) ? {
              findings: check.findings.map(finding => {
                  if (!isJsonObject(finding) || !Array.isArray(finding.evidence)) throw new TypeError('Invalid finding.');
-@@ -468,6 +652,8 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
+@@ -468,6 +673,8 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
                  return {...finding, evidence};
              }),
          } : {})})) : boundChecks);
@@ -1076,7 +1109,7 @@ index 15013ad..d544f6e 100644
          return scoreExpectedScopes({
              adjudicationDecisions,
              checks: normalizedChecks.map(check => ({
-@@ -476,13 +662,16 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
+@@ -476,13 +683,16 @@ export const createReviewerCapabilityScenarioScorer = (/** @type {{evidenceSourc
                  result: /** @type {string} */ (check.result),
              })),
              cleanObservationScores: cleanObservations.length === 0 ? cleanObservationScores : scoreCleanObservations({
@@ -1095,7 +1128,7 @@ index 15013ad..d544f6e 100644
          });
      };
 diff --git a/lib/release/reviewer-capability-verification.mjs b/lib/release/reviewer-capability-verification.mjs
-index ee9300f..1035966 100644
+index ee9300f..cf1d9da 100644
 --- a/lib/release/reviewer-capability-verification.mjs
 +++ b/lib/release/reviewer-capability-verification.mjs
 @@ -15,11 +15,30 @@ import {
@@ -1123,7 +1156,7 @@ index ee9300f..1035966 100644
 +// A case's k and share. An instance prepared under the two-part score (r7) keeps its marks in the prepared state:
 +// a judgment case there is k 1 and its judgmentShare is its share.
 +const caseK = (/** @type {{judgment?: boolean, k?: number}} */ fixtureCase) => fixtureCase.k ?? (fixtureCase.judgment === true ? 1 : 0.25);
-+const caseShare = (/** @type {{judgmentShare?: number, kShare?: number}} */ fixtureCase) => fixtureCase.kShare ?? fixtureCase.judgmentShare ?? 1;
++const caseShare = (/** @type {{judgmentShare?: number}} */ fixtureCase) => fixtureCase.judgmentShare ?? 1;
 +
 +// Each tier with k >= 1 holds k problem cases per clean case in one scoring unit, so reporting everything or nothing scores 0 on it.
 +const unbalancedKTiers = (/** @type {Record<string, {clean: number, problem: number}>} */ tiers) => Object.entries(tiers)
@@ -1132,7 +1165,7 @@ index ee9300f..1035966 100644
  /**
   * @template CandidateType, ArtifactType
   * @param {Array<CapabilityScore<CandidateType, ArtifactType>>} results
-@@ -32,8 +51,35 @@ const combineScenarios = results => {
+@@ -32,8 +51,38 @@ const combineScenarios = results => {
      const passedCleanCases = results.reduce((total, result) => total + result.passedCleanCases, 0);
      const totalCleanCases = results.reduce((total, result) => total + result.totalCleanCases, 0);
      const totalProblemCases = results.reduce((total, result) => total + result.totalProblemCases, 0);
@@ -1161,6 +1194,9 @@ index ee9300f..1035966 100644
 +    }
 +    const counts = /** @type {KCounts} */ ({...Object.fromEntries(K_COUNT_KEYS.map(key => [
 +        key, resultCounts.reduce((total, result) => total + /** @type {Record<string, number>} */ (/** @type {unknown} */ (result))[key], 0)])), kTiers});
++    // r8.2: cases counted once as part of a merged case (absent from results scored before r8.2).
++    const kMergedCases = results.reduce((total, result) => total
++        + Number(/** @type {{kMergedCases?: number}} */ (/** @type {unknown} */ (result)).kMergedCases ?? 0), 0);
 +    const unbalanced = unbalancedKTiers(kTiers);
 +    if (unbalanced.length > 0) {
 +        throw new Error(`Reviewer capability k ${unbalanced.join(', ')} problem and clean cases are unbalanced in one scoring unit.`);
@@ -1169,7 +1205,7 @@ index ee9300f..1035966 100644
      return {
          candidates: results.flatMap(result => result.candidates),
          caseScores: {
-@@ -46,11 +92,13 @@ const combineScenarios = results => {
+@@ -46,11 +95,14 @@ const combineScenarios = results => {
          fullProblemCases,
          passedCleanCases,
          problemDetectionRate,
@@ -1179,12 +1215,13 @@ index ee9300f..1035966 100644
          totalCleanCases,
          totalProblemCases,
 +        ...counts,
++        kMergedCases,
 +        ...kScore(counts),
 +        ...(bindings.length === 1 && bindings[0] !== 'null' ? {judgmentBinding: JSON.parse(bindings[0])} : {}),
      };
  };
  
-@@ -108,32 +156,42 @@ const bindingDrift = (/** @type {{actual: {reviewerInstructionsSha256?: string,
+@@ -108,32 +160,42 @@ const bindingDrift = (/** @type {{actual: {reviewerInstructionsSha256?: string,
      return undefined;
  };
  
@@ -1233,7 +1270,7 @@ index ee9300f..1035966 100644
  /**
   * Build every Reviewer contract before exposing a prepared record. The injected
   * writer is called only after all contract builders have succeeded.
-@@ -220,7 +278,9 @@ const markdownEvidence = (/** @type {string} */ block) => {
+@@ -220,7 +282,9 @@ const markdownEvidence = (/** @type {string} */ block) => {
      const reportDiagnostics = [];
      for (const source of locatorSources) {
          if (/^[[(]\d{1,2}:\d{2}\s*,\s*\d{1,2}:\d{2}[)\]]$/u.test(source)) continue;
@@ -1244,7 +1281,7 @@ index ee9300f..1035966 100644
          try {
              for (const {filePath: rawPath, lineStart, lineEnd} of parseCompactEvidence(source)) {
                  const filePath = normalizePath(rawPath);
-@@ -419,6 +479,11 @@ export const reviewerCapabilityVerificationCore = Object.freeze({
+@@ -419,6 +483,11 @@ export const reviewerCapabilityVerificationCore = Object.freeze({
      prepareAtomically,
      releaseVerificationResult,
      selectCompletedRepetitions,
