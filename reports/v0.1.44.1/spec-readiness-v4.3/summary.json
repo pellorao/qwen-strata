@@ -1,0 +1,266 @@
+{
+ "scenario": "spec-readiness v4.3 (revision 46)",
+ "scoring": "r8",
+ "method": "v4.2 answers rescored with the v4.3 split; no model run",
+ "expectedSha256": "74252e0aa4e50d231efaefdfa24a27e1b4d97936e747425787d30bace996a344",
+ "removedFromArtifactPromotion": [
+  {
+   "scope": "SPEC-READINESS-INPUTS",
+   "expectation": "The clean Artifact reader design is supported by explicit architecture evidence."
+  },
+  {
+   "scope": "SPEC-READINESS-INPUTS",
+   "expectation": "The immutable request isolation boundary is complete and usable as supplied."
+  },
+  {
+   "scope": "SPEC-READINESS-INPUTS",
+   "expectation": "The subject accurately selects the supplied validation-report requirement and should not be reported as absent."
+  },
+  {
+   "scope": "SPEC-READINESS-REQUIREMENTS",
+   "expectation": "The Requirements do not need to prescribe internal parser, helper, or storage implementation details."
+  },
+  {
+   "scope": "SPEC-READINESS-REQUIREMENTS",
+   "expectation": "The clean documentation-only reader-index requirement is a complete stable-path documentation change."
+  },
+  {
+   "scope": "SPEC-READINESS-REQUIREMENTS",
+   "expectation": "The clean report read-failure requirement lists a complete set of result fields."
+  },
+  {
+   "scope": "SPEC-READINESS-REQUIREMENTS",
+   "expectation": "The clean wording requirement preserves the structured diagnostic code and payload contract."
+  },
+  {
+   "scope": "SPEC-READINESS-REQUIREMENTS",
+   "expectation": "The stable boundary correctly separates Engine, Reviewer, and Input-author responsibilities."
+  }
+ ],
+ "rows": [
+  {
+   "src": "q3:A",
+   "repetition": 1,
+   "v42": 0.5875149005583787,
+   "v43": 0.5875149005583787,
+   "raw": 0.5875149005583787,
+   "T": 80,
+   "r": 0,
+   "kTiers": {
+    "1": {
+     "clean": 4,
+     "problem": 4
+    }
+   }
+  },
+  {
+   "src": "q3:A",
+   "repetition": 2,
+   "v42": 0.4480292512261822,
+   "v43": 0.4480292512261822,
+   "raw": 0.4480292512261822,
+   "T": 36,
+   "r": 0,
+   "kTiers": {
+    "1": {
+     "clean": 4,
+     "problem": 4
+    }
+   }
+  },
+  {
+   "src": "q3:Ar",
+   "repetition": 1,
+   "v42": 0.69593134912828,
+   "v43": 0.69593134912828,
+   "raw": 0.69593134912828,
+   "T": 74,
+   "r": 0,
+   "kTiers": {
+    "1": {
+     "clean": 4,
+     "problem": 4
+    }
+   }
+  },
+  {
+   "src": "q3:B",
+   "repetition": 1,
+   "v42": 0.3441746659137964,
+   "v43": 0.3441746659137964,
+   "raw": 0.3441746659137964,
+   "T": 41,
+   "r": 0,
+   "kTiers": {
+    "1": {
+     "clean": 4,
+     "problem": 4
+    }
+   }
+  },
+  {
+   "src": "q3:B",
+   "repetition": 2,
+   "v42": 0.3481280193236715,
+   "v43": 0.3481280193236715,
+   "raw": 0.3481280193236715,
+   "T": 60,
+   "r": 0,
+   "kTiers": {
+    "1": {
+     "clean": 4,
+     "problem": 4
+    }
+   }
+  },
+  {
+   "src": "q3:C",
+   "repetition": 1,
+   "v42": 0.6095238095238096,
+   "v43": 0.6095238095238096,
+   "raw": 0.6095238095238096,
+   "T": 61,
+   "r": 0,
+   "kTiers": {
+    "1": {
+     "clean": 4,
+     "problem": 4
+    }
+   }
+  },
+  {
+   "src": "q3:C",
+   "repetition": 2,
+   "v42": 0.5042497088768458,
+   "v43": 0.5042497088768458,
+   "raw": 0.5042497088768458,
+   "T": 79,
+   "r": 0,
+   "kTiers": {
+    "1": {
+     "clean": 4,
+     "problem": 4
+    }
+   }
+  },
+  {
+   "src": "q3:C",
+   "repetition": 3,
+   "v42": 0.5625502374862988,
+   "v43": 0.5625502374862988,
+   "raw": 0.5625502374862988,
+   "T": 65,
+   "r": 0,
+   "kTiers": {
+    "1": {
+     "clean": 4,
+     "problem": 4
+    }
+   }
+  },
+  {
+   "src": "q3:D",
+   "repetition": 1,
+   "v42": 0.5297917058786624,
+   "v43": 0.5297917058786624,
+   "raw": 0.5297917058786624,
+   "T": 60,
+   "r": 0,
+   "kTiers": {
+    "1": {
+     "clean": 4,
+     "problem": 4
+    }
+   }
+  },
+  {
+   "src": "q3:D",
+   "repetition": 2,
+   "v42": 0.5882431294196,
+   "v43": 0.5882431294196,
+   "raw": 0.5882431294196,
+   "T": 67,
+   "r": 0,
+   "kTiers": {
+    "1": {
+     "clean": 4,
+     "problem": 4
+    }
+   }
+  },
+  {
+   "src": "opus:opus-1",
+   "repetition": 1,
+   "v42": 0.8418690005646527,
+   "v43": 0.8418690005646527,
+   "raw": 0.8418690005646527,
+   "T": 68,
+   "r": 0,
+   "kTiers": {
+    "1": {
+     "clean": 4,
+     "problem": 4
+    }
+   }
+  },
+  {
+   "src": "opus:opus-2",
+   "repetition": 1,
+   "v42": 0.8263884666058579,
+   "v43": 0.8263884666058579,
+   "raw": 0.8263884666058579,
+   "T": 77,
+   "r": 0,
+   "kTiers": {
+    "1": {
+     "clean": 4,
+     "problem": 4
+    }
+   }
+  },
+  {
+   "src": "opus:opus-3",
+   "repetition": 1,
+   "v42": 0.8199984797810885,
+   "v43": 0.8199984797810885,
+   "raw": 0.8199984797810885,
+   "T": 79,
+   "r": 0,
+   "kTiers": {
+    "1": {
+     "clean": 4,
+     "problem": 4
+    }
+   }
+  }
+ ],
+ "haiku": [
+  {
+   "src": "haiku:haiku-1",
+   "high": 0.7870199365851541,
+   "low": 0.0
+  },
+  {
+   "src": "haiku:haiku-2",
+   "high": 0.2028985507246377,
+   "low": 0.0
+  },
+  {
+   "src": "haiku:haiku-3",
+   "high": 0.6998268398268399,
+   "low": 0.0
+  },
+  {
+   "src": "haiku:haiku-4",
+   "high": 0.7281385281385282,
+   "low": 0.0
+  },
+  {
+   "src": "haiku:haiku-5",
+   "high": 0.8365000941087899,
+   "low": 0.0
+  }
+ ],
+ "newCandidates": 0,
+ "droppedDecisions": 0
+}
