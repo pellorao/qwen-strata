@@ -1234,6 +1234,18 @@ v4.0–v4.6 逐步加难：缺陷推理步数从约 2 步加到约 4 步，再�
 - 内容：`scoring-k.patch` 计分模块新增 `rowCleanTargets`。带 `requirementSource` 的 finding 落在 satisfied 行上时，只提名该行反例；裁为 `unsupported` 时按该反例误报计。ARW 计分说明同步补写。r8 补丁移入 `superseded/scoring-k-r8.patch`，已物化副本按 r8 模块 sha 识别后自动迁移。
 - 核对：工程测试新增 `test_r8_1_a_false_gap_on_a_satisfied_commit_audit_row_is_charged_once`，r8 下得 0.5，r8.1 下得 0.25；ARW conformance 失败集前后相同。Commit Audit v2 两次 Opus 盲答重算分数不变（0.858、0.840）。其他场景的 finding 不带 `requirementSource`，不受影响。
 
+## 评分 r8.2：答案键声明的合并用例只计一次，删除 0.5 份额代码（2026-10-17，完成）
+
+- 起因：用户 2026-10-17 定 Commit Audit v2 修订号 21 保留 issue 与 spec 之间有意的重复要求，在答案键里用 `merge` 显式声明，两份各判一次、取低分、只计一次。
+- 内容：`scoring-k.patch` 的 conformance 接受 `merge`（同名恰两例、不同范围、同种类与 k 和结果），计分模块按合并用例取低分（正例取较低得分、反例取较高失败权重），k 档计数和分母各计一次，结果给 `kMergedCases`；冻结工具 `merged_cases` 另要求两侧期望证据相同。同时完成计划中的「评分代码清理」：删除已不可达的共享 k ≥ 1 用例 0.5 份额代码（`sharedK`、`kShare`）、过时的 ARW 计分说明和工程测试 `test_spec_readiness_pair_counts_a_shared_case_once`。r8.1 补丁移入 `superseded/scoring-k-r8.1.patch`，已物化副本自动迁移。
+- 核对：工程测试新增 `test_r8_2_merged_case_counts_once_at_the_lower_score`、`test_declared_merged_cases_are_not_repeats`；ARW conformance 失败集前后相同。0.5 份额从未生效：覆盖文件里没有需求范围的 k ≥ 1 反例，旧 Spec Readiness 分数在 r8.2 下逐位相同。提交 `497f438`。
+
+## 评分 r8.3：发现候选只能补关联到本行的问题用例（2026-10-17，完成）
+
+- 起因：r8.2 独立审查。发现候选裁决（R3b）的 `problemOptions` 列出本范围全部问题用例，Commit Audit 的 finding 可被裁到另一要求行的问题用例上，跨行给分。
+- 内容：finding 与问题用例都带 `requirementSource` 时只提供同一行的问题用例；ARW 计分说明同步。r8.2 补丁移入 `superseded/scoring-k-r8.2.patch`。冻结工具同时拒绝 k ≥ 1 的合并用例（k 档平衡按用例计，计分按合并计一次，二者对齐之前不支持）。
+- 核对：只有 Commit Audit 的 finding 与用例带 `requirementSource`，其他场景分数逐位相同；现有 Commit Audit 裁决（v2 两次 Opus 盲答及其换算重算）没有把发现候选裁到问题用例的决定，分数不变。
+
 ## 规则整理迁入：计划中已完成或已结束的条目（2026-10-15）
 
 以下原在 `docs/plan.md`，整理规则时迁入，内容按原文保留。

@@ -6,8 +6,8 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.tuning.arw_dimension import (MEASUREMENT_NOTE, extract_agent_config, flag_values, load_plan, plain_note, sha,
-                                        time_limited_note, verify_effect)
+from tools.tuning.arw_dimension import (MEASUREMENT_NOTE, extract_agent_config, flag_values, load_plan, plain_note,
+                                        required_scenario_note, sha, time_limited_note, verify_effect)
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / 'benchmarks/resource-calibration-v1/iq3_xxs-arw-dims5-7/plan.json'
@@ -121,5 +121,20 @@ class EffectTests(unittest.TestCase):
         self.assertEqual(plain_note({'measurement_note_path': path, 'measurement_note_sha256': sha(raw)})['path'], path)
         with self.assertRaises(ValueError):
             plain_note({'measurement_note_path': path, 'measurement_note_sha256': sha(common)})
+
+    def test_commit_audit_v2_requires_its_own_note(self):
+        manifest = 'benchmarks/reviewer-suite-v1/source-snapshots/current/manifest-commit-audit-v2.json'
+        plain = 'benchmarks/reviewer-suite-v1/measurement-note-commit-audit.txt'
+        template = 'benchmarks/reviewer-suite-v1/measurement-note-time-limit-commit-audit.txt'
+        required_scenario_note({'arw_source_manifest': manifest, 'measurement_note_path': plain}, 'commit-audit-reviewer')
+        required_scenario_note({'arw_source_manifest': manifest, 'measurement_note_template': {'path': template}}, 'commit-audit-reviewer')
+        # Other reviewers or manifests keep the common note.
+        required_scenario_note({'arw_source_manifest': manifest}, 'code-spec-reviewer')
+        required_scenario_note({'arw_source_manifest': manifest.replace('-commit-audit-v2', '')}, 'commit-audit-reviewer')
+        for fixed in ({}, {'measurement_note_path': MEASUREMENT_NOTE}, {'measurement_note_path': template},
+                      {'measurement_note_template': {'path': 'benchmarks/reviewer-suite-v1/measurement-note-time-limit.txt'}},
+                      {'measurement_note_template': {'path': plain}}):
+            with self.subTest(fixed=fixed), self.assertRaisesRegex(ValueError, 'needs the measurement note'):
+                required_scenario_note({'arw_source_manifest': manifest, **fixed}, 'commit-audit-reviewer')
 
 if __name__ == '__main__':unittest.main()

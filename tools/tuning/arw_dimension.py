@@ -21,6 +21,13 @@ CATALOG = ROOT / 'config/model-catalog.json'
 CODEX = Path.home() / ('.local/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/'
                        'vendor/x86_64-unknown-linux-musl/bin/codex')
 MEASUREMENT_NOTE = 'benchmarks/reviewer-suite-v1/measurement-note.txt'
+# Scenario versions whose handoff needs its own measurement note: (reviewer, source manifest file) -> (plain note,
+# time-limit template). Commit Audit v2 declares merged issue/spec requirements, which its note explains (user 2026-10-17).
+SCENARIO_NOTES = {
+    ('commit-audit-reviewer', 'manifest-commit-audit-v2.json'): (
+        'benchmarks/reviewer-suite-v1/measurement-note-commit-audit.txt',
+        'benchmarks/reviewer-suite-v1/measurement-note-time-limit-commit-audit.txt'),
+}
 
 
 def sha(raw):
@@ -143,9 +150,23 @@ def plain_note(fixed):
     return {'path': path, 'sha256': sha(raw)}
 
 
-def selection(plan, condition, context_window=None, folder=None, time_limit_seconds=None):
+def required_scenario_note(fixed, reviewer):
+    """Refuse a plan that would hand a scenario needing its own note (SCENARIO_NOTES) the common note or another one,
+    instead of falling back silently."""
+    wanted = SCENARIO_NOTES.get((reviewer, Path(fixed['arw_source_manifest']).name))
+    if wanted is None:
+        return
+    limited = 'measurement_note_template' in fixed
+    named = fixed['measurement_note_template']['path'] if limited else fixed.get('measurement_note_path')
+    if named is None or Path(named) != Path(wanted[limited]):
+        raise ValueError(f"{reviewer} on {Path(fixed['arw_source_manifest']).name} needs the measurement note "
+                         f"{'template ' if limited else ''}{wanted[limited]}, not {named or 'the common note'}")
+
+
+def selection(plan, condition, context_window=None, folder=None, time_limit_seconds=None, reviewer=None):
     codex = CODEX.read_bytes()
     fixed = plan['fixed_conditions']
+    required_scenario_note(fixed, reviewer or plan.get('reviewer'))
     if 'measurement_note_template' in fixed:
         note, limit = time_limited_note(fixed, folder, time_limit_seconds)
     else:
@@ -173,7 +194,7 @@ def prepare(plan, condition, folder, reviewer=None, context_window=None, time_li
                     plan['fixed_conditions']['arw_source_manifest'], '--out', str(arw)],
                    cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
     (arw / 'config.json').write_text(extract_agent_config((arw / 'docs/manuals/agent-cli.md').read_text()))
-    save(folder / 'selection-source.json', selection(plan, condition, context_window, folder, time_limit_seconds))
+    save(folder / 'selection-source.json', selection(plan, condition, context_window, folder, time_limit_seconds, reviewer))
     subprocess.run(['git', 'init', '-q'], cwd=arw, check=True)
     env = dict(os.environ, CODEX_THREAD_ID=plan['codex_thread_id'])
     with (folder / 'prepare.json').open('w') as out, (folder / 'prepare.err').open('w') as err:

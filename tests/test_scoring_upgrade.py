@@ -197,7 +197,10 @@ for (const [label, mutate] of [['three', scopes => [...scopes, {...scopes[1], sc
     ['one scope', scopes => [{...scopes[0], cleanCases: [...scopes[0].cleanCases.slice(0, 1), {...scopes[1].cleanCases[0]}, {noOtherSupportedFinding: true}]},
         {...scopes[1], cleanCases: [{noOtherSupportedFinding: true}]}]],
     ['result', scopes => [scopes[0], {...scopes[1], problemCases: [{...scopes[1].problemCases[0], result: 'uncertain'}]}]],
-    ['k', scopes => [scopes[0], {...scopes[1], problemCases: [{...scopes[1].problemCases[0], k: 1}]}]]]) {
+    ['k', scopes => [scopes[0], {...scopes[1], problemCases: [{...scopes[1].problemCases[0], k: 1}]}]],
+    // One problem and one clean case under one name.
+    ['kind', scopes => [scopes[0], {...scopes[1], problemCases: [], cleanCases: [scopes[1].cleanCases[0],
+        clean('The alpha rule holds.', ['alpha rule'], [1, 2, 3, 4], {merge: 'm'}), {noOtherSupportedFinding: true}]}]]]) {
     try {
         createReviewerCapabilityScenarioScorer({evidenceSources, instanceId: 'merge', expected: mergedExpected(mutate),
             reviewerId: 'commit-audit-reviewer', scenarioRoot: resolve('/probe')});
@@ -225,6 +228,8 @@ console.log(JSON.stringify({
     auditFalseGapUnsupported: auditRun('unsupported'),
     auditFalseGapConfirmed: auditRun('false-positive:clean-1'),
     auditFalseGapSupported: auditRun('supported'),
+    // r8.3: the same finding on the problem case's own row is offered that problem case.
+    auditOnProblemRow: auditRun(undefined, 'specs/rules.md:7'),
     silent: pick(run(single, [])),
     hit: pick(run(single, [finding('The alpha rule is violated.', 1, 2, 3, 4), finding('The second problem is present.', 7)])),
     weakHit: pick(run(single, [finding('The alpha rule is violated.', 1), finding('The second problem is present.', 7)])),
@@ -376,7 +381,7 @@ class ScoringUpgradeTests(unittest.TestCase):
         self.assertEqual(probe['mergedFalseBoth']['clean'], [0, 1])
         self.assertEqual(probe['mergedFalseBoth']['kTiers'], {})
         # A merged case is exactly two cases of one kind, k and result in two scopes.
-        self.assertEqual([item.split(': ')[0] for item in probe['mergeErrors']], ['three', 'one scope', 'result', 'k'])
+        self.assertEqual([item.split(': ')[0] for item in probe['mergeErrors']], ['three', 'one scope', 'result', 'k', 'kind'])
         for item in probe['mergeErrors']:
             self.assertIn('must hold two cases of one kind, k and result in two scopes', item)
 
@@ -502,6 +507,29 @@ class ScoringUpgradeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Merged case'):
                 freeze_arw_source.repeated_cases(broken)
 
+    def test_merged_cases_at_k_1_or_above_are_refused(self):
+        """The k tier balance counts every case while the score counts a merged case once, so a merged case marked
+        k >= 1 in the key or by an overlay stops the binding."""
+        case = lambda **extra: {'expectation': 'Same.', 'evidence': [{'filePath': 'a.mjs', 'line': 1}], 'findingTerms': ['same'],
+                                'merge': 'm', **extra}
+        for marks, judgment in (({'k': 1}, 'in-key'), ({'judgment': True}, 'in-key'), ({}, 'overlay.json')):
+            with self.subTest(marks=marks), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                fixture = {'scopes': [{'scope': scope, 'problemCases': [], 'cleanCases': [case(**marks)]} for scope in ('A', 'B')]}
+                expected = root / 'arw' / freeze_arw_source.FIXTURES / 'probe-reviewer/expected.json'
+                expected.parent.mkdir(parents=True)
+                expected.write_text(json.dumps(fixture))
+                judgment_dir = root / 'judgment'
+                judgment_dir.mkdir()
+                (judgment_dir / 'registry.json').write_text(json.dumps(
+                    {'probe-reviewer': {digest(expected): {'version': 'probe', 'judgment': judgment}}}))
+                (judgment_dir / 'overlay.json').write_text(json.dumps(
+                    {'reviewerId': 'probe-reviewer', 'expectedSha256': digest(expected), 'counts': {'problem': 0, 'clean': 1},
+                     'cases': [{'scope': 'A', 'kind': 'clean', 'index': 0, 'expectation': 'Same.'}]}))
+                with mock.patch.object(freeze_arw_source, 'JUDGMENT', judgment_dir), \
+                        self.assertRaisesRegex(ValueError, 'merged case m at k >= 1'):
+                    freeze_arw_source.judgment_binding(root / 'arw')
+
     def test_judgment_marks_in_the_answer_key_need_in_key_registration(self):
         expected = self.arw / 'tests/fixtures/reviewer-capability/code-spec-reviewer/expected.json'
         original = expected.read_bytes()
@@ -558,7 +586,9 @@ class ScoringUpgradeTests(unittest.TestCase):
         probe = self.probe
         # The finding nominates its own row's clean case by requirementSource, though it shares neither the clean
         # case's evidence nor its terms; other clean rows are not nominated.
-        self.assertEqual(probe['auditFalseGap']['findingCandidates'], [['unsupported', 'supported', 'false-positive:clean-1', 'problem-1']])
+        # r8.3: nor is the problem case of another row (row 7) offered; on row 7 itself it is.
+        self.assertEqual(probe['auditFalseGap']['findingCandidates'], [['unsupported', 'supported', 'false-positive:clean-1']])
+        self.assertEqual(probe['auditOnProblemRow']['findingCandidates'], [['unsupported', 'supported', 'problem-1']])
         # Undecided, confirmed or judged unsupported, the one wrong judgment fails only its row's clean case: no-other
         # passes and no extra failed clean case is added, so it costs k 0.25 once.
         for name in ('auditFalseGap', 'auditFalseGapUnsupported', 'auditFalseGapConfirmed'):

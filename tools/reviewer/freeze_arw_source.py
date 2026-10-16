@@ -75,18 +75,18 @@ REPEATS = JUDGMENT / 'repeats.json'
 FIXTURES = 'tests/fixtures/reviewer-capability'
 SCORING_UPGRADE = {
     'file': 'scoring-k.patch',
-    'sha256': 'cda3153729fb808199ad7b5ceaa71355e07926d65231d06d68e8924af43fb93b',
+    'sha256': '21574f23f9e8174414d9edf39b0c4725d5b1f0fce8b7010d8e0a9b0c70bed6ce',
     # Members no scenario patch touches: (ARW original, upgraded).
     'members': {
         'lib/release/reviewer-capability-scoring.mjs': (
             '89a4e6bdc0a47756c28abce013ce6940ebf224e8609ebf809a499c57b85d60c4',
-            'bd274533d5c134c53ed80d6d015bf13402b52ddc5dcde85d658e0463cc9dc69d'),
+            'd61b20928c628e771f1c272b4f4446d7c1f65ea9d6a3fd851af43f0a68e61a50'),
         'lib/release/reviewer-capability-verification.mjs': (
             'a5e5a5f32fe87d2b84f55e259ea39db0ba1f7e56a681b96af93710ca7b01d9a1',
             '5abdae4334e65a6093abad9882e9bec8a0924e0db3b09f4b22e2860e183d4074'),
         'docs/agents/reviewer-capability-scoring.md': (
             '8dac785a4dc2eee70949fd02a212b65959039c256fa87f6a3e86c105ec011769',
-            'd1115c2ee2039612d0f18a0c7f20684691093cec12258bc5169757a0e1e3cb62'),
+            '7517f410b3f27bf526b68a4400730dd040158a301ce0deadb3e4e73846e66113'),
         'docs/agents/reviewer-capability-scenarios.md': (
             '5fe9b4e5511416a4af636baa67b812bf46f627710b75b1285e6c49758fdb909b',
             '3f444bc68cb9ed8cf3f2e004da5b14a328d0fef2469cd1158c6ed04932b2b859'),
@@ -106,7 +106,11 @@ SCORING_UPGRADE = {
     # the rest (B, F2) apart; r8 weights every case by k (user 2026-10-16). r8 nominated the clean case of a satisfied
     # Commit Audit row only by evidence and terms, so a false gap there also failed no-other (r8.1, user 2026-10-17). r8.1
     # had no merged cases and still gave a Spec Readiness case scored in both scenarios a 0.5 share (r8.2, user 2026-10-17).
+    # r8.2 offered a Commit Audit finding the problem cases of other requirement rows in its finding decision (r8.3).
     'superseded': {
+        ('bd274533d5c134c53ed80d6d015bf13402b52ddc5dcde85d658e0463cc9dc69d',
+         '5abdae4334e65a6093abad9882e9bec8a0924e0db3b09f4b22e2860e183d4074'): (
+            'superseded/scoring-k-r8.2.patch', 'cda3153729fb808199ad7b5ceaa71355e07926d65231d06d68e8924af43fb93b'),
         ('cc4a6538c6a7190a25c013ba2f40a25c364c57f1ca8aaf904ea911a08a7e76fd',
          '6d990d13f03cc34618a425fa979871c9df2ce8415886c511234f8d6efe2839c9'): (
             'superseded/scoring-k-r8.1.patch', '81f0eb4c5b9d084ebc97bffdbd5b5f55be3872c90562c619c99183b0351a551c'),
@@ -159,6 +163,10 @@ def pinned_patch(name, digest):
 # A k 4 false positive costs as much as four missed problem cases, so it must be adjudicated twice; until
 # that procedure exists, k 4 marks are refused.
 DUAL_ADJUDICATION_MISSING = '{} marks k 4 cases, which need dual adjudication that is not implemented yet'
+# A merged case counts once in its k tier, but the tier balance below counts every case; until the balance counts
+# merged cases once, a merged case marked k >= 1 (in the key or by an overlay) is refused.
+MERGED_K_MISSING = ('{} marks merged case {} at k >= 1; the k tier balance does not count merged cases once yet, so merged '
+                    'cases must stay at the default k 0.25')
 
 
 def k_balanced(tiers):
@@ -241,7 +249,8 @@ def judgment_binding(destination):
     (`judgment: true`, r7) and an overlay case without `k` count as k 1. An unregistered key, marks in a key
     not registered as in-key, an overlay that does not match its key case by case, or a marked tier without
     k problem cases per clean case stops the upgrade, and so does any k 4 mark until dual adjudication of
-    k 4 false positives exists. Returns the files to copy into the ARW copy and the
+    k 4 false positives exists, and any k >= 1 mark on a merged case (`merge`) until the tier balance counts merged
+    cases once. Returns the files to copy into the ARW copy and the
     binding of each reviewer."""
     registry_raw = (JUDGMENT / 'registry.json').read_bytes()
     registry = json.loads(registry_raw)
@@ -253,12 +262,16 @@ def judgment_binding(destination):
             raise ValueError(f'Answer key {digest} of {reviewer} is not registered in judgment/registry.json')
         fixture = json.loads(expected_path.read_text())
         check_repeats(reviewer, digest, fixture)
+        merged = {(scope['scope'], kind, index): case['merge'] for scope in fixture['scopes'] for kind in ('problem', 'clean')
+                  for index, case in enumerate(scope.get(kind + 'Cases', [])) if 'merge' in case}
         scopes = {scope['scope']: scope for scope in fixture['scopes']}
         marked = {}
         for scope in scopes.values():
             for kind in ('problem', 'clean'):
                 for case in scope.get(kind + 'Cases', []):
                     if case.get('judgment') is True or 'k' in case:
+                        if 'merge' in case and (case.get('judgment') is True or float(case['k']) >= 1):
+                            raise ValueError(MERGED_K_MISSING.format(f'Answer key {digest} of {reviewer}', case['merge']))
                         tier = marked.setdefault(str(1 if case.get('judgment') is True else case['k']), {'problem': 0, 'clean': 0})
                         tier[kind] += 1
         if '4' in marked:
@@ -288,6 +301,8 @@ def judgment_binding(destination):
                 raise ValueError(f"Judgment overlay {path.name} does not match its fixture: {' '.join(map(str, key))}")
             if item.get('k', 1) == 4:
                 raise ValueError(DUAL_ADJUDICATION_MISSING.format(f'Judgment overlay {path.name}'))
+            if key in merged:
+                raise ValueError(MERGED_K_MISSING.format(f'Judgment overlay {path.name}', merged[key]))
             seen.add(key)
             counts[item['kind']] += 1
             tiers.setdefault(str(item.get('k', 1)), {'problem': 0, 'clean': 0})[item['kind']] += 1
