@@ -17,7 +17,7 @@
     "159a586e276e62b9afcaf03385dd0a60217a85aabac2d3248223201b2c4ae774": {"version": "Commit Audit v2 草稿（修订号 20，只做去重；已由修订号 21 取代）", "judgment": "all-B"},
     "6640ddbc88c6b02fbc27127a32911980338e138d550dc7d7e3e4b4173eab7c6f": {"version": "Commit Audit v2 草稿（修订号 21，issue 与 spec 的重复要求保留并声明为 27 个合并用例；已由修订号 22 取代）", "judgment": "all-B"},
     "5cf739283f1d4525882548100e14865b832656653ad94a63bb4bfbd03e608b12": {"version": "Commit Audit v2 草稿（修订号 22，29 个合并用例：修订号 21 的 27 对加 01:49+spec:27、02:47+spec:16）", "judgment": "all-B"},
-    "0f02cf4372f74d2c9a37ca95834cad7a94456b9355884ebe6efb536d51bfd7bb": {"version": "Commit Audit v2 草稿（修订号 23：删 spec:13，29 个合并用例）", "judgment": "all-B"}
+    "0f02cf4372f74d2c9a37ca95834cad7a94456b9355884ebe6efb536d51bfd7bb": {"version": "Commit Audit v2（修订号 23，2026-10-17 冻结：删 spec:13，29 个合并用例）", "judgment": "all-B"}
   },
   "spec-readiness-reviewer": {
     "e5d17bac8d81e8238516dbf509fad0216d51a2a93a8131b0a2a1079917ff0598": {"version": "ARW 原版（previous 快照）", "judgment": "all-B"},

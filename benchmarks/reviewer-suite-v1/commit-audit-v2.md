@@ -1,4 +1,4 @@
-# Commit Audit 能力场景 v2：相对 ARW 原版的变更说明（草稿，未冻结）
+# Commit Audit 能力场景 v2：相对 ARW 原版的变更说明（修订号 23，2026-10-17 冻结）
 
 v2 以补丁 [`arw-patches/commit-audit-v2.patch`](arw-patches/commit-audit-v2.patch) 提供，登记在 `source-snapshots/current/manifest-commit-audit-v2.json`（即 `manifest.json` 加上这一项）。补丁 sha256 以 manifest 为准（改版时会变）。现行为修订号 23（用户 2026-10-17；修订号 21 的修正见「修订号 22」，再删 spec:13 见「修订号 23」），改动范围：
 
@@ -158,7 +158,7 @@ Commit Audit 的测量说明是通用说明加一段（`measurement-note-commit-
 5. 期望句改写：两条 uncertain 改为 "No available contract establishes …"（原句只点名某一份合同，而缺的是任何可用合同）；重复检测一条改为 "… does not apply `normalizeRouteKey` (NFKC and uppercase)."（原句只说大写，实现同时缺 NFKC）；
 6. `chooseDeparture` 正例增加一种放置：关联证据取 `schedule.mjs` 第 1 行（函数定义），与原放置并列，任一种即可匹配。
 
-裁决口径（判定候选是否与用例匹配时使用，冻结前随答案键一起确认；行号为修订号 23 夹具行号；issue 行号与修订号 21、22 相同，spec 第 14 行起比修订号 21、22 小 1）：
+裁决口径（判定候选是否与用例匹配时使用，随答案键一起冻结，正式盲裁的 brief 原样带上本段并记录其 sha256；行号为修订号 23 夹具行号；issue 行号与修订号 21、22 相同，spec 第 14 行起比修订号 21、22 小 1）：
 
 - 把令牌字段置为 `undefined` 算移除（JSON 序列化后不出现）；
 - `localeCompare` 视为字典序；
@@ -205,3 +205,13 @@ ARW conformance 测试的对应断言随补丁改为上表的值；改后失败�
 - 修订号 22 与评分 r8.3（2026-10-17）：上表未按修订号 22 重算。修订号 22 只把 01:49/spec:27、02:47/spec:16 两组改为合并用例（统一证据），预期分数落在上表两列之间、接近"相近行照抄"列；r8.3 只限制发现候选的补关联范围，两次盲答的裁决里没有发现候选裁到问题用例的决定，不受影响。下一轮盲答直接在修订号 22 夹具上作答。
 - 第 3 轮（修订号 22，2026-10-17）：Opus（high）审计确认 29 对合并两侧证据一致、11 行删除合理、行号一致；补了两条裁决口径（引用已审行、合并用例按任一侧期望句裁）并改正删除清单一处行号。待定：测量说明是否限定"重复"的范围（01:52/spec:13、02:31/spec:8 两对与 01:23 对 spec:9、spec:71 的超集照抄会失分）、spec:13 措辞是否点名 `createDispatchPlan` 的 `activeClaims`。Opus（high）盲答 0.848（r8.3），172 秒、8 次工具调用、输出 20,525 token；29 对合并中 26 对两侧逐字照抄，未写引用句；01:52/spec:13 两侧分别作答。
 - 第 4 轮（修订号 23，2026-10-17）：两处改动按第 3 轮待定项执行（删 spec:13；测量说明加 "Treat two rows as repeated only when…"，用户同意）。Opus（high）审计机械核对全部通过（键变换与修订号 23 键完全相等、合并 29 对证据一致、conformance 清单与失败集不变、连续同结果最长 8 行），0 项必须改；3 项建议改（本说明的句数、超集对标注、修订号 22 一节的行号口径）已改。Opus（high）盲答 0.917（r8.3，修订号 23 夹具，与第 3 轮修订号 22 夹具上的 0.848 不直接可比），检出率 0.952，40 个正例全部命中、反例无失败；4.7 分钟、10 次工具调用、输出 19,961 token；29 对合并两侧结论全部一致、27 对证据相同，16 对 finding 逐字照抄、13 对改写措辞，没有引用句；02:31/spec:8、01:23 对 spec:9/spec:70 都独立作答且结论正确。
+
+### 独立审查与冻结（2026-10-17）
+
+独立 agent（不低于 Main 的模型与强度）冻结前审查结论**补齐后可冻结**；Main 同意，按修订号 23 冻结。审查要求补齐的事项随冻结落实：
+
+- 冻结提交同步文字：本说明标题、`versions.md`、`judgment/registry.json` 的版本字符串、`judgment/README.md` 的现状表、README「现行决定」、`docs/plan.md`。
+- 格式罚 p基准：冻结后在答案键 `0f02cf43…` 上跑 Haiku-high ×5，按 Spec Readiness v4.2 的先例登记 `format-baseline.json` 与 `format-baseline/commit-audit-v2/`；只挡计分，不挡 Q3 运行。
+- 正式运行：Opus 基准用 medium（第 1 步审计与盲答用的是 high），Opus、Haiku、Q3 都用不限时的 `measurement-note-commit-audit.txt`；Q3/Opus ≥ 0.8 时先按"一切正常"判据评估，再决定是否加难，不当成场景缺陷。
+- 裁决：正式盲裁的 brief 原样带上上文「裁决口径」一段并记录其 sha256；第 1–4 轮由 worker 做的候选核对不作正式裁决复用。
+- 报告每个得分处同时给耗时、token（注明来源）、工具调用数，并列出合并用例两侧判断不一致的对数。
