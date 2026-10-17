@@ -1,0 +1,60 @@
+{
+ "schema": "arw-dimension-v1",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "reviewer": "commit-audit-reviewer",
+ "authorization": {
+  "approved": true,
+  "source": "AGENTS.md 硬约束 1（按计划自主推进，用户 2026-10-14）；场景流程第 2–3 步（reviewer-suite.md）；Commit Audit v2 修订号 23 于 2026-10-17 冻结（a1ed615），独立审查与 Main 一致",
+  "scope": "Commit Audit v2 修订号 23 正式测量：IQ3_XXS ×5（每次一个交接、一个全新根线程），effort=high；Opus medium ×3 与 Haiku-high ×5 另由 Claude Code 无头 claude -p 跑，不占 GPU；不部署条件，用已部署默认值",
+  "extra_runs": "原定 5 次（批 A 3、B 2）；本计划不预定空闲加测（今日 Anthropic 额度紧，worker 时间有限），加测另行写定"
+ },
+ "method": "arw_dimension prepare 用 manifest-commit-audit-v2.json 物化冻结 ARW 并预检 → arw_measure 经租约停常驻模型，ARW 自己的 Strata provider 持有独占并冷加载（selection.model_owner=arw）→ 按交接顺序运行，每个实例一个全新根线程，实例之间不停模型、只复用 Strata 精确前缀缓存 → 服务日志 budget 行核对生效值（high：budget 8192 (max 24576)）→ ARW 原版计分入口经 single_scenario_score（评分 r8.3、合并 29 对）→ 盲裁（brief 原样带 commit-audit-v2.md「裁决口径」并记 sha）→ 会话检查（inspect_session，actions.md、flagged.md 全文）。工作时间从 ARW measurement.startedAt 起算，不含模型加载；token 按派发时刻切分的引擎日志段。",
+ "fixed_conditions": {
+  "strata": "0.1.44.1",
+  "codex": "0.162.0",
+  "effort": "high",
+  "effort_reason": "与 ARW 原生 agent-cli 配置（model_reasoning_effort=\"high\"）及 F6、Spec Readiness v4.2 一致",
+  "context_window": 206584,
+  "auto_compact_token_limit": 150000,
+  "engine_defaults": "config/deployments/rtx3080ti.json 的安装默认值（IQ3_XXS 首档 206584/150000）：high 思考 8192、总输出 24576；guardian 512/1024；IQ3_XXS spec 4、ple-io direct、STRATA_ADAPT_LAG 2。每批绑定部署后 config/deployment.json 与模型配置的 SHA（开跑时记录实际值）",
+  "startup_instructions": "config/prompts/startup-instructions.txt（源 SHA 5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e，去掉防循环段），compact-prompt.txt（3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af）接入；开跑前核对已安装 SHA",
+  "measurement_note_sha256": "35e135fdd18ea07aba99b55ff662e1776cdded1b141f44a47bf77a5132d3d90d",
+  "measurement_note_path": "benchmarks/reviewer-suite-v1/measurement-note-commit-audit.txt",
+  "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
+  "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest-commit-audit-v2.json",
+  "scenario": "Commit Audit v2 修订号 23（2026-10-17 冻结；SCENARIO_REVISIONS commit-audit-reviewer 23；补丁 commit-audit-v2.patch sha256 13936171eeb647672fad68a5619878bd50c3bc35ac0ad299a23b3fcb389b8f87；expected.json sha256 0f02cf4372f74d2c9a37ca95834cad7a94456b9355884ebe6efb536d51bfd7bb，registry all-B；合并 29 对，计分单位正例 28、反例 51）",
+  "scoring": "评分 r8.3（benchmark 口径：k 分档、合并用例取低分只计一次、格式罚 p基准待 Haiku-high ×5 登记后计分）",
+  "baseline_confounds": "与 ARW 原版 Commit Audit（修订号 19，F6 v0.1.42）不可比：夹具与答案键已改；Opus 参考在同一 v2 键上新跑"
+ },
+ "codex_thread_id": "59773751-09d2-4c7d-8189-46ed8c9e2164",
+ "dimensions": [
+  {
+   "order": 1,
+   "id": "commit-audit-v2-formal-0.1.44.1",
+   "default": "effort-high",
+   "reviewer": "commit-audit-reviewer",
+   "schedule_design": "单条件重复 5 次，按 prepare 分两批（A 3、B 2；每批一次 prepare，arw_measure --limit = 次数），不部署；报告给均值、组内标准差与逐用例命中",
+   "schedule": [
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high",
+    "effort-high"
+   ],
+   "conditions": {
+    "effort-high": {
+     "log_present": [
+      "budget 8192 \\(max 24576\\)"
+     ],
+     "log_absent": [
+      "budget 4096 "
+     ]
+    }
+   },
+   "note": "评估：盲裁（R1–R4 worker 核对不复用），会话检查、budget 生效核对、逐用例命中、合并用例两侧不一致对数；逐实例耗时、token、工具调用数、两种口径速度；相对口径 Q3/Opus（Opus medium ×3，同一 v2 键）；比值 ≥ 0.8 时先按「一切正常」判据评估再决定是否加难。"
+  }
+ ],
+ "target_repetitions": 5,
+ "primary_repetitions": 5
+}

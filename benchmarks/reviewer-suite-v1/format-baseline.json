@@ -482,5 +482,109 @@
         0.030303
       ]
     }
+  },
+  "commit-audit-reviewer": {
+    "0f02cf4372f74d2c9a37ca95834cad7a94456b9355884ebe6efb536d51bfd7bb": {
+      "version": "Commit Audit v2 修订号 23（2026-10-17 冻结）",
+      "source": "Haiku-high ×5（claude -p --model haiku --effort high，2026-10-17，不限时测量说明 measurement-note-commit-audit.txt；每次重复一个交接，有效运行 haiku-1..5）；r 为全部格式错误（计分器口径）：修复记录的可修复处数 rRepairable，加计分升级对所计分报告仍判为格式错误的 rUnrepairable 与越界截断的 rOverrun；T 为计分器读到的定位数 locatorCount；计分升级 r8.3",
+      "scoringPatchSha256": "21574f23f9e8174414d9edf39b0c4725d5b1f0fce8b7010d8e0a9b0c70bed6ce",
+      "archive": "format-baseline/commit-audit-v2",
+      "runs": [
+        {
+          "run": "haiku-1",
+          "r": 0,
+          "rRepairable": 0,
+          "rUnrepairable": 0,
+          "rOverrun": 0,
+          "T": 152,
+          "reports": [
+            {
+              "instanceId": "default-290a32d8-af26-46bd-90b8-0c38e7660539-instance-1",
+              "report": "commit-audit-v2/haiku-1/review.jsonl",
+              "reportSha256": "0776df46a63ef758ab3cbffc0ff025fa65b3ba486f2b46a06343b0ac8c778ecb",
+              "changes": "commit-audit-v2/haiku-1/review.jsonl.changes.json",
+              "changesSha256": "a9dba14b89fd7c9312dfcf3f7308939fb53f28e2eb3a744187ba5d0bc4c6488c"
+            }
+          ]
+        },
+        {
+          "run": "haiku-2",
+          "r": 0,
+          "rRepairable": 0,
+          "rUnrepairable": 0,
+          "rOverrun": 0,
+          "T": 156,
+          "reports": [
+            {
+              "instanceId": "default-dbf443ac-810e-4185-b311-6436e631445d-instance-1",
+              "report": "commit-audit-v2/haiku-2/review.jsonl",
+              "reportSha256": "0e0f8c977a069cd1422a945ecfd313ba783336467ae2a4910678da5c03b03e8a",
+              "changes": "commit-audit-v2/haiku-2/review.jsonl.changes.json",
+              "changesSha256": "aeb2bce021e4f877058711230984fd4b3c72478898ff23d51a072a39cde6348c"
+            }
+          ]
+        },
+        {
+          "run": "haiku-3",
+          "r": 0,
+          "rRepairable": 0,
+          "rUnrepairable": 0,
+          "rOverrun": 0,
+          "T": 144,
+          "reports": [
+            {
+              "instanceId": "default-8ddd6c01-c776-4a27-9dfd-9867737844fa-instance-1",
+              "report": "commit-audit-v2/haiku-3/review.jsonl",
+              "reportSha256": "0ce0146f3e3798a8b6e82ae59a481d87d3e2aaf079c3e09f9157e2dbb47bcfb3",
+              "changes": "commit-audit-v2/haiku-3/review.jsonl.changes.json",
+              "changesSha256": "0e3ceab9e2ab2f7f9cd358cfc39d517d8368b837c05a21ce54f284e6891ff32d"
+            }
+          ]
+        },
+        {
+          "run": "haiku-4",
+          "r": 0,
+          "rRepairable": 0,
+          "rUnrepairable": 0,
+          "rOverrun": 0,
+          "T": 151,
+          "reports": [
+            {
+              "instanceId": "default-7f744be2-e6f7-405e-a387-2405c08d2a7a-instance-1",
+              "report": "commit-audit-v2/haiku-4/review.jsonl",
+              "reportSha256": "ea6f8b69c864ebbc502bee14bac3409118fbccc22a96668c5945acf136fa757a",
+              "changes": "commit-audit-v2/haiku-4/review.jsonl.changes.json",
+              "changesSha256": "14b8a09d6985c4bf6a3dc0915c2e9b66b74ff9a1695312793562b2bbea59ec30"
+            }
+          ]
+        },
+        {
+          "run": "haiku-5",
+          "r": 0,
+          "rRepairable": 0,
+          "rUnrepairable": 0,
+          "rOverrun": 0,
+          "T": 160,
+          "reports": [
+            {
+              "instanceId": "default-43b1b8f4-ed7f-42a0-bfa1-08dfc74c9c89-instance-1",
+              "report": "commit-audit-v2/haiku-5/review.jsonl",
+              "reportSha256": "f72ca01d1e7e0e5577ce552ac194f1b5e651c8b53afb2c8a3ec1ec78e635c2e7",
+              "changes": "commit-audit-v2/haiku-5/review.jsonl.changes.json",
+              "changesSha256": "b1af8a2c100f9adcc959a48a1cc9f838bee8784d7a1ad7e5a997a3bbfc8ce235"
+            }
+          ]
+        }
+      ],
+      "sumR": 0,
+      "sumT": 763,
+      "pooled": 0.0,
+      "floor": 0.0131062,
+      "pBase": 0.0131062,
+      "pBaseBootstrap90": [
+        0.0127714,
+        0.013459
+      ]
+    }
   }
 }
