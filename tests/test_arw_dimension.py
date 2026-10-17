@@ -118,6 +118,10 @@ class EffectTests(unittest.TestCase):
         raw = (ROOT / path).read_bytes()
         # The Commit Audit note is the common note plus the repeated-requirement sentence (user 2026-10-17).
         self.assertTrue(raw.startswith(common) and b'scored once' in raw[len(common):])
+        # Both notes limit what counts as a repeat (third audit S1, user 2026-10-17).
+        limit = b'Treat two rows as repeated only when they state the same complete requirement about the same operation.\n'
+        template = 'benchmarks/reviewer-suite-v1/measurement-note-time-limit-commit-audit.txt'
+        self.assertTrue(raw.endswith(limit) and (ROOT / template).read_bytes().endswith(limit))
         self.assertEqual(plain_note({'measurement_note_path': path, 'measurement_note_sha256': sha(raw)})['path'], path)
         with self.assertRaises(ValueError):
             plain_note({'measurement_note_path': path, 'measurement_note_sha256': sha(common)})

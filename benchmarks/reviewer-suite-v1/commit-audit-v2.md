@@ -1,13 +1,13 @@
 # Commit Audit 能力场景 v2：相对 ARW 原版的变更说明（草稿，未冻结）
 
-v2 以补丁 [`arw-patches/commit-audit-v2.patch`](arw-patches/commit-audit-v2.patch) 提供，登记在 `source-snapshots/current/manifest-commit-audit-v2.json`（即 `manifest.json` 加上这一项）。补丁 sha256 以 manifest 为准（改版时会变）。现行为修订号 22（用户 2026-10-17；修订号 21 的修正见「修订号 22」），改动范围：
+v2 以补丁 [`arw-patches/commit-audit-v2.patch`](arw-patches/commit-audit-v2.patch) 提供，登记在 `source-snapshots/current/manifest-commit-audit-v2.json`（即 `manifest.json` 加上这一项）。补丁 sha256 以 manifest 为准（改版时会变）。现行为修订号 23（用户 2026-10-17；修订号 21 的修正见「修订号 22」，再删 spec:13 见「修订号 23」），改动范围：
 
-- 夹具：两个 issue（base 与 candidate 同步）和 `spec.md` 删除 11 行意外重复的要求行；`spec.md` 改写一行消除歧义（见「第 1 轮审计后的修正」）；源码、测试代码、存储合同、配置不改；
+- 夹具：两个 issue（base 与 candidate 同步）和 `spec.md` 删除 11 行意外重复的要求行，修订号 23 再删 spec:13（判 satisfied 有歧义）；`spec.md` 改写一行消除歧义（见「第 1 轮审计后的修正」）；源码、测试代码、存储合同、配置不改；
 - 答案键：删除与被删要求行绑定的用例，`auditRecords` 重编行号；issue 与 spec 之间有意保留的重复成对声明为合并用例（`merge` 字段，29 对；其中两对先统一两侧的期望证据）；改写三条期望句、一个正例加一种放置；
-- `SCENARIO_REVISIONS` 中 commit-audit-reviewer 由 19 改为 22；
+- `SCENARIO_REVISIONS` 中 commit-audit-reviewer 由 19 改为 23；
 - ARW 自带的 conformance 测试按新行号和新用例数更新清单，复制问题用例的测试去掉复制出的 `merge`；conformance 接受 `merge` 字段（评分 r8.2，`scoring-k.patch`）。
 
-角色规则和交接不改，测量说明追加一句（见「测量说明」）。答案键 `5cf73928…` 在 `judgment/registry.json` 登记为 `all-B`，需评分 r8.3；分数只与修订号 22 比较，与修订号 20、21、ARW 原版、F6 不可比。
+角色规则和交接不改，测量说明追加两句（见「测量说明」）。答案键 `0f02cf43…` 在 `judgment/registry.json` 登记为 `all-B`，需评分 r8.3；分数只与修订号 23 比较，与修订号 20–22、ARW 原版、F6 不可比。
 
 ## 起因
 
@@ -48,58 +48,59 @@ ARW 原版的 Gate 1（两个 issue 的验收项）和 Gate 2（`spec.md` 的长
 | 02:55 | issue 内部 | `checksumPlan` 对序列化字节求哈希，与 01:55 同义 |
 | spec:33 | 口径冲突 | "omit top-level credential fields"（复数宽集合），按正例 spec:12（原行号，`redactManifestEvent`）的口径应判 gap，键判成立；保留 02:19（单数，成立） |
 
-修订号 20 删除的 spec:13 恢复：它与 01:54（`selectActiveClaims`）不是同一道题，见「未合并的恢复行」。
+修订号 20 删除的 spec:13 曾在修订号 21 恢复（与 01:54 即修订号 21 起的 01:52 不是同一道题），修订号 23 因判 satisfied 有歧义再删，见「修订号 23」。该行不是重复删除，不计入上表的 11 行。
 
-## 合并用例（新行号，29 对）
+## 合并用例（修订号 23 行号，29 对）
 
 合并用例名就是 `merge` 字段的值。正例 12 对：
 
 | 合并用例 | 缺陷 |
 |---|---|
-| 01:7+spec:28 | 公共入口未导出 executor |
-| 01:20+spec:56 | `executeAuthorizedPlan` 先派发后鉴权 |
-| 01:28+spec:42 | `emitPlanCreated` 先于存储完成发出 |
-| 01:30+spec:60 | `parseRetryCount` 拒绝上界 3 |
-| 01:43+spec:54 | `restore` 部分写入后的返回值无合同（uncertain） |
-| 01:49+spec:27 | `withinVehicleCapacity` 严格小于，拒绝等于上限（修订号 22） |
-| 02:22+spec:18 | 通告失败不回滚已存 manifest |
+| 01:7+spec:27 | 公共入口未导出 executor |
+| 01:20+spec:55 | `executeAuthorizedPlan` 先派发后鉴权 |
+| 01:28+spec:41 | `emitPlanCreated` 先于存储完成发出 |
+| 01:30+spec:59 | `parseRetryCount` 拒绝上界 3 |
+| 01:43+spec:53 | `restore` 部分写入后的返回值无合同（uncertain） |
+| 01:49+spec:26 | `withinVehicleCapacity` 严格小于，拒绝等于上限（修订号 22） |
+| 02:22+spec:17 | 通告失败不回滚已存 manifest |
 | 02:23+spec:12 | `redactManifestEvent` 漏删嵌套凭据 |
-| 02:29+spec:47 | NDJSON 缺末尾 LF |
-| 02:30+spec:46 | `orderManifestGroups` 降序 |
-| 02:46+spec:72 | `retryPublication` 不看 transient 标记 |
-| 02:48+spec:23 | `coalescePackages` 只在组内去重 |
+| 02:29+spec:46 | NDJSON 缺末尾 LF |
+| 02:30+spec:45 | `orderManifestGroups` 降序 |
+| 02:46+spec:71 | `retryPublication` 不看 transient 标记 |
+| 02:48+spec:22 | `coalescePackages` 只在组内去重 |
 
 反例 17 对：
 
 | 合并用例 | 事实 |
 |---|---|
-| 01:22+spec:44 | 包裹重量合计 |
-| 01:33+spec:30 | `previewPlan` 不碰存储 |
-| 01:34+spec:43 | 访问日志脱敏 |
-| 01:40+spec:17 | `savePlan` 写入前完成校验 |
-| 01:41+spec:32 | 退避倍增与上限（spec 只写上限，两侧证据相同） |
-| 01:42+spec:37 | transient 分类要求显式标记 |
+| 01:22+spec:43 | 包裹重量合计 |
+| 01:33+spec:29 | `previewPlan` 不碰存储 |
+| 01:34+spec:42 | 访问日志脱敏 |
+| 01:40+spec:16 | `savePlan` 写入前完成校验 |
+| 01:41+spec:31 | 退避倍增与上限（spec 只写上限，两侧证据相同） |
+| 01:42+spec:36 | transient 分类要求显式标记 |
 | 01:47+spec:10 | 排程偏移原样保留 |
-| 01:48+spec:26 | 跳过已取消停靠点 |
-| 02:20+spec:73 | UTF-8 编码 |
-| 02:21+spec:58 | 空包裹 ID 使条目无效 |
-| 02:27+spec:68 | manifest 分块不超上限 |
-| 02:35+spec:57 | 发布结果的成功 / 失败结构 |
-| 02:36+spec:70 | 计划存储键去空白并大写 |
-| 02:43+spec:29 | 成功遥测字段 |
-| 02:44+spec:52 | 按规范化目的地键分组 |
-| 02:45+spec:15 | 失败遥测字段 |
-| 02:47+spec:16 | 司机标签去空白不改大小写（修订号 22） |
+| 01:48+spec:25 | 跳过已取消停靠点 |
+| 02:20+spec:72 | UTF-8 编码 |
+| 02:21+spec:57 | 空包裹 ID 使条目无效 |
+| 02:27+spec:67 | manifest 分块不超上限 |
+| 02:35+spec:56 | 发布结果的成功 / 失败结构 |
+| 02:36+spec:69 | 计划存储键去空白并大写 |
+| 02:43+spec:28 | 成功遥测字段 |
+| 02:44+spec:51 | 按规范化目的地键分组 |
+| 02:45+spec:14 | 失败遥测字段 |
+| 02:47+spec:15 | 司机标签去空白不改大小写（修订号 22） |
 
 ## 未合并的恢复行
 
-以下一组在 ARW 原版里是 issue 与 spec 的相近要求，修订号 20 当作重复删了一侧。它们问的不是同一个要求，按两道题分别计分：
+以下几组是 issue 与 spec 的相近要求，但问的不是同一个完整要求，按两道题分别计分（修订号 23 行号）。测量说明第二句（"Treat two rows as repeated only when they state the same complete requirement about the same operation."，第 3 轮审计 S1）告诉 reviewer 这类行不算重复：
 
 | issue 行 | spec 行 | 区别 |
 |---|---|---|
-| 01:52 `selectActiveClaims` 排除未开始和已过期的声明（反例） | spec:13 未生效的授权声明在规划前排除（反例） | 函数自身的时间边界（`access.mjs:1`、`:16`）与规划流程里的过滤（`queue.mjs:7–8`）；`createDispatchPlan` 内联过滤、不调用 `selectActiveClaims`，一侧成立推不出另一侧成立 |
+| 02:31 `auditFieldsPresent` 要求 action、actor、timestamp 字段（反例） | spec:8 发布审计记录包含 action、actor、timestamp（反例） | 校验器（`telemetry.mjs:11`）与写入方（`publisher.mjs:22–23`），对象不同 |
+| 01:23 `chooseDeparture` 按 UTC 求含首尾的派发窗口（正例，gap） | spec:9 窗口含首尾小时（反例）、spec:70 派发窗口记录 UTC 时区（反例） | issue 行是两个 spec 行的超集且多了"求值用 UTC"，结论不同 |
 
-两行文字已足够不同（一行点名函数和时间边界，一行讲规划流程），照抄另一行的证据本身就是审查错误，测量说明的"重复要求只计一次"不覆盖它。
+修订号 21、22 的 01:52（`selectActiveClaims`）/ spec:13（未生效的授权声明在规划前排除）一组已随 spec:13 删除（修订号 23），01:52 保留。
 
 ## 修订号 22（用户 2026-10-17）
 
@@ -113,24 +114,32 @@ ARW 原版的 Gate 1（两个 issue 的验收项）和 Gate 2（`spec.md` 的长
 
 两侧的期望句和 `findingTerms` 保持原样（`findingTerms` 对问题用例只作裁决参考，反例按要求行提名）。夹具文字、行号、正反例数不变，只改答案键；单行字面量问题与多处证据问题的清单不变（01:49 仍有单行放置，spec:27 仍有多行放置）。
 
+## 修订号 23（用户 2026-10-17）
+
+1. **删 spec:13**（Main 按场景流程决定，依据第 1、3 轮审计：`.tmp/commit-audit/audit/r1`、`audit/r3/stage2.md` S2）：spec:13 "Inactive authorization claims are excluded before route planning." 键判 satisfied（证据 `queue.mjs:7,8`），但 `createDispatchPlan` 返回 `{...input, activeClaims}`，失效 claims 原样留在计划的 `claims` 字段里，仓库里也没有任何规划环节读取 `activeClaims`，判 gap 或 uncertain 同样站得住。审计两次确认"从 Input 推不出唯一结论"，按场景流程删行。删除该要求行及其绑定反例（Gate 2 `clean/3`），spec 第 14 行起行号减 1，合并用例名随之改（如 `01:41+spec:32` → `01:41+spec:31`）；`repeats.json` 登记的共用证据组变为 Gate 2 `clean/9`。
+   - 平衡：Gate 2 正例仍 20，反例 39 → 38（含 noOther），审计记录 spec 行 58 → 57；只有 k = 0.25 档，不要求正反平衡。spec 行 7–10 satisfied、11–12 gap、13–16（原 14–17）satisfied，删行只缩短一段连续 satisfied，没有连续同结果超过 8 行的新段。
+2. **测量说明加一句**（用户 2026-10-17 同意第 3 轮审计 S1 的 A 方案）：见「测量说明」，限定"重复"为同一操作的同一完整要求，避免 reviewer 把 02:31/spec:8、01:23 对 spec:9、spec:70 当作重复照抄。
+
 ## 结果
 
-| | ARW 原版 | 修订号 20 | 修订号 21、22 |
-|---|---|---|---|
-| Gate 1 正例（gap / uncertain） | 20（18 / 2） | 14（12 / 2） | 20（18 / 2） |
-| Gate 2 正例（gap / uncertain） | 20（18 / 2） | 14（13 / 1） | 20（18 / 2） |
-| Gate 1 / Gate 2 反例（含 noOther） | 40 / 40 | 25 / 26 | 30 / 39 |
-| 合并用例（正例 / 反例） | — | — | 12 / 17（修订号 21 为 11 / 16） |
-| 计分单位（正例 / 反例，合并后） | 40 / 80 | 28 / 51 | 28 / 52（修订号 21 为 29 / 53） |
-| 审计记录要求行（01 / 02 / spec） | 29 / 30 / 59 | 22 / 16 / 39 | 27 / 22 / 58 |
+| | ARW 原版 | 修订号 20 | 修订号 21、22 | 修订号 23 |
+|---|---|---|---|---|
+| Gate 1 正例（gap / uncertain） | 20（18 / 2） | 14（12 / 2） | 20（18 / 2） | 20（18 / 2） |
+| Gate 2 正例（gap / uncertain） | 20（18 / 2） | 14（13 / 1） | 20（18 / 2） | 20（18 / 2） |
+| Gate 1 / Gate 2 反例（含 noOther） | 40 / 40 | 25 / 26 | 30 / 39 | 30 / 38 |
+| 合并用例（正例 / 反例） | — | — | 12 / 17（修订号 21 为 11 / 16） | 12 / 17 |
+| 计分单位（正例 / 反例，合并后） | 40 / 80 | 28 / 51 | 28 / 52（修订号 21 为 29 / 53） | 28 / 51 |
+| 审计记录要求行（01 / 02 / spec） | 29 / 30 / 59 | 22 / 16 / 39 | 27 / 22 / 58 | 27 / 22 / 57 |
 
-经审查保留的共用证据只有一组，登记在 `judgment/repeats.json`：Gate 1 正例 `problem/2`（从 0 起；`chooseDeparture` 取本地小时而非 UTC，缺陷）与 Gate 2 反例 `clean/10`（窗口含首尾小时，成立；`chooseDeparture` 第 1、4、5 行是可选证据）。两者问的是不同性质。
+经审查保留的共用证据只有一组，登记在 `judgment/repeats.json`：Gate 1 正例 `problem/2`（从 0 起；`chooseDeparture` 取本地小时而非 UTC，缺陷）与 Gate 2 反例 `clean/9`（修订号 21、22 为 `clean/10`；窗口含首尾小时，成立；`chooseDeparture` 第 1、4、5 行是可选证据）。两者问的是不同性质。
 
 ## 测量说明
 
-Commit Audit 的测量说明是通用说明加一句（`measurement-note-commit-audit.txt`；限时版 `measurement-note-time-limit-commit-audit.txt`），由 plan 的 `fixed_conditions.measurement_note_path` 指定，sha 照常绑定在 `measurement_note_sha256`（或限时版的 `measurement_note_template`）：
+Commit Audit 的测量说明是通用说明加一段（`measurement-note-commit-audit.txt`；限时版 `measurement-note-time-limit-commit-audit.txt`），由 plan 的 `fixed_conditions.measurement_note_path` 指定，sha 照常绑定在 `measurement_note_sha256`（或限时版的 `measurement_note_template`）：
 
-> Repeated requirements: a requirement that the spec and an issue both state is scored once. When you reach the second row, you may cite the row you already reviewed and copy its conclusion and evidence.
+> Repeated requirements: a requirement that the spec and an issue both state is scored once. When you reach the second row, you may cite the row you already reviewed and copy its conclusion and evidence. Treat two rows as repeated only when they state the same complete requirement about the same operation.
+
+最后一句由修订号 23 追加（第 3 轮审计 S1，用户 2026-10-17 同意）：一行多了条件（如 01:23 多了 UTC 求值）或针对另一操作（如 02:31 的校验器与 spec:8 的写入方）时，单独审查。29 对合并用例都是同一操作的同一完整要求，或一侧是另一侧的超集且两侧结论、证据相同（见合并表的超集对），这句不改变它们。
 
 通用说明 `measurement-note.txt` 被所有场景共用，不改。说明只追加在交接之后，原版交接和 Role 不改；报告格式不变，两行仍各写一行判断。
 
@@ -140,37 +149,37 @@ Commit Audit 的测量说明是通用说明加一句（`measurement-note-commit-
 
 1. 删 spec:33、保留 02:19：仍然有效（口径冲突，见删除清单）；
 2. 删 02:45：仍然有效（口径冲突）；
-3. 删 spec:13：撤销，spec:13 恢复，与 01:54 按不同的题计分（见「未合并的恢复行」）；
-4. spec 原 76 行 "Route tokens combine the normalized destination and route key." 改为 "… and the normalized route key."（新行号 spec:75），消除 "normalized" 是否修饰 route key 的歧义；
+3. 删 spec:13：撤销，spec:13 恢复，与 01:54 按不同的题计分；修订号 23 因判 satisfied 有歧义再删（见「修订号 23」）；
+4. spec 原 76 行 "Route tokens combine the normalized destination and route key." 改为 "… and the normalized route key."（修订号 21、22 为 spec:75，修订号 23 为 spec:74），消除 "normalized" 是否修饰 route key 的歧义；
 5. 期望句改写：两条 uncertain 改为 "No available contract establishes …"（原句只点名某一份合同，而缺的是任何可用合同）；重复检测一条改为 "… does not apply `normalizeRouteKey` (NFKC and uppercase)."（原句只说大写，实现同时缺 NFKC）；
 6. `chooseDeparture` 正例增加一种放置：关联证据取 `schedule.mjs` 第 1 行（函数定义），与原放置并列，任一种即可匹配。
 
-裁决口径（判定候选是否与用例匹配时使用，冻结前随答案键一起确认；行号为修订号 21、22 夹具行号，两者夹具相同）：
+裁决口径（判定候选是否与用例匹配时使用，冻结前随答案键一起确认；行号为修订号 23 夹具行号；issue 行号与修订号 21、22 相同，spec 第 14 行起比修订号 21、22 小 1）：
 
 - 把令牌字段置为 `undefined` 算移除（JSON 序列化后不出现）；
 - `localeCompare` 视为字典序；
 - spec:11（"Stable JSON sorts keys recursively at every object depth."，Gate 2 正例 `toStableJson` 只排顶层）：finding 指出只排顶层、嵌套对象顺序不变即匹配，不必写出"递归"；
 - 01:51（"`serializePlan` sorts keys lexically, uses two-space JSON, and ends with one LF."，Gate 1 正例：格式模式导致缺末尾 LF）：finding 必须指出缺末尾 LF；只以"只排顶层"或 `localeCompare` 为理由的 finding 不匹配，裁为 `unsupported`。
-- 引用已审行（第 3 轮审计）：finding 只引用已审行（如 "Same as spec:28"）并照抄结论与证据时，按被引行的 finding 文本裁决。被引行与本用例同属一个合并用例时，本行裁决与被引行相同；不在同一合并用例时（例如 spec:13 引 01:52），引用本身不构成理由，按本行自身的期望句裁决。
-- 合并用例的候选与两侧任一期望句描述的是同一缺陷即算匹配（例如 01:49+spec:27 一侧只谈 `withinVehicleCapacity` 的严格小于，另一侧期望句点名 `canAssignAllPackages`，仍算匹配）。
+- 引用已审行（第 3 轮审计）：finding 只引用已审行（如 "Same as spec:27"）并照抄结论与证据时，按被引行的 finding 文本裁决。被引行与本用例同属一个合并用例时，本行裁决与被引行相同；不在同一合并用例时（例如 spec:8 引 02:31），引用本身不构成理由，按本行自身的期望句裁决。
+- 合并用例的候选与两侧任一期望句描述的是同一缺陷即算匹配（例如 01:49+spec:26 一侧只谈 `withinVehicleCapacity` 的严格小于，另一侧期望句点名 `canAssignAllPackages`，仍算匹配）。
 
 ## 与 ARW 合同的差异
 
 规则「不裁剪用例」指使用冻结 ARW 的原场景。修订号 21、22 删除了 ARW 原版的 11 个反例（正例不删），属于改变合同，依据是用户 2026-10-16/17 的出题原则；另把 29 对重复声明为合并用例，计分单位少于用例数。
 
-ARW `docs/agents/reviewer-capability-scenarios.md`「Commit Audit scenario」段和「Case inventory」段的约定与修订号 22 的对照如下。该文档是评分升级补丁（`scoring-k.patch`）的成员，冻结工具要求它与原版或升级版逐字节一致，所以 v2 补丁不改它；对 Commit Audit 而言以本节为准。该文档不进入 Reviewer 的交接，不影响被测模型。
+ARW `docs/agents/reviewer-capability-scenarios.md`「Commit Audit scenario」段和「Case inventory」段的约定与修订号 23 的对照如下。该文档是评分升级补丁（`scoring-k.patch`）的成员，冻结工具要求它与原版或升级版逐字节一致，所以 v2 补丁不改它；对 Commit Audit 而言以本节为准。该文档不进入 Reviewer 的交接，不影响被测模型。
 
-| 约定 | ARW 原值 | 修订号 22 |
+| 约定 | ARW 原值 | 修订号 23 |
 |---|---|---|
-| 每 Gate 正式要求 | 59 | Gate 1 49（issue 01 27、issue 02 22），Gate 2 58 |
+| 每 Gate 正式要求 | 59 | Gate 1 49（issue 01 27、issue 02 22），Gate 2 57 |
 | 每 Gate 问题用例 | 20（18 gap + 2 uncertain） | 20（18 + 2） |
-| 每 Gate 干净用例（含 1 个 noOther） | 40 | Gate 1 30，Gate 2 39 |
+| 每 Gate 干净用例（含 1 个 noOther） | 40 | Gate 1 30，Gate 2 38 |
 | 单行字面量问题 | 最多 4 | 各 4 |
 | 需多处证据的问题 | 至少 12 | Gate 1 13，Gate 2 12 |
-| 近邻对照干净用例 | 至少 20 | 至少 15（Gate 1 列 15 个，Gate 2 列 19 个） |
-| 问题与干净比例 | 两 Gate 相同，`1:2` | 不再保持（20:30、20:39），两 Gate 全量评分 |
-| 「Commit Audit 使用前述固定完整审计清单」 | ARW 原清单 | 本修订号 22 清单 |
-| 合并清单下限（问题 ≥ 20、干净 ≥ 20） | 满足 | 满足（用例 40、69；合并后计分单位 28、52） |
+| 近邻对照干净用例 | 至少 20 | 至少 15（Gate 1 列 15 个，Gate 2 列 18 个） |
+| 问题与干净比例 | 两 Gate 相同，`1:2` | 不再保持（20:30、20:38），两 Gate 全量评分 |
+| 「Commit Audit 使用前述固定完整审计清单」 | ARW 原清单 | 本修订号 23 清单 |
+| 合并清单下限（问题 ≥ 20、干净 ≥ 20） | 满足 | 满足（用例 40、68；合并后计分单位 28、51） |
 | 缩减清单时同步修复或移除不再保留的可见真实缺陷 | — | 满足：没有删除正例 |
 
 ARW conformance 测试的对应断言随补丁改为上表的值；改后失败集与「ARW 原版 + 本工程评分补丁」相同（26 个既有失败，均来自评分补丁，与 v2 无关）。

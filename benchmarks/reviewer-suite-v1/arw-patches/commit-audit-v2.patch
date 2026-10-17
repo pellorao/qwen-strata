@@ -1,5 +1,5 @@
 diff --git a/lib/release/reviewer-capability-conformance.mjs b/lib/release/reviewer-capability-conformance.mjs
-index 168fec9..e412477 100644
+index 168fec9..60af5c2 100644
 --- a/lib/release/reviewer-capability-conformance.mjs
 +++ b/lib/release/reviewer-capability-conformance.mjs
 @@ -187,7 +187,7 @@ const SCENARIO_SEGMENTS = new Map([
@@ -7,12 +7,12 @@ index 168fec9..e412477 100644
      ['code-spec-reviewer', 25],
      ['code-standards-reviewer', 14],
 -    ['commit-audit-reviewer', 19],
-+    ['commit-audit-reviewer', 22],
++    ['commit-audit-reviewer', 23],
      ['spec-readiness-reviewer', 44],
  ]);
  const SPEC_READINESS_SCENARIOS = [
 diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/expected.json b/tests/fixtures/reviewer-capability/commit-audit-reviewer/expected.json
-index ccc9810..3c27ee8 100644
+index ccc9810..5bf2a9e 100644
 --- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/expected.json
 +++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/expected.json
 @@ -128,7 +128,8 @@
@@ -21,7 +21,7 @@ index ccc9810..3c27ee8 100644
              "Connect dispatch planning and"
 -          ]
 +          ],
-+          "merge": "01:7+spec:28"
++          "merge": "01:7+spec:27"
          },
          {
            "expectation": "The capacity test covers only a value below the limit and omits the equality boundary.",
@@ -99,7 +99,7 @@ index ccc9810..3c27ee8 100644
              "emitPlanCreated"
 -          ]
 +          ],
-+          "merge": "01:28+spec:42"
++          "merge": "01:28+spec:41"
          },
          {
 -          "expectation": "Duplicate detection trims raw keys but does not apply the declared uppercase normalization.",
@@ -113,7 +113,7 @@ index ccc9810..3c27ee8 100644
              "parseRetryCount"
 -          ]
 +          ],
-+          "merge": "01:30+spec:60"
++          "merge": "01:30+spec:59"
          },
          {
            "expectation": "`createDispatchPlan` sorts the caller-owned stop list in place.",
@@ -123,7 +123,7 @@ index ccc9810..3c27ee8 100644
              "executeAuthorizedPlan"
 -          ]
 +          ],
-+          "merge": "01:20+spec:56"
++          "merge": "01:20+spec:55"
          },
          {
 -          "expectation": "The available adapter contract does not establish what `restore` returns after a partial write.",
@@ -137,7 +137,7 @@ index ccc9810..3c27ee8 100644
              "restorePlan"
 -          ]
 +          ],
-+          "merge": "01:43+spec:54"
++          "merge": "01:43+spec:53"
          },
          {
            "expectation": "`withinVehicleCapacity` uses a strict less-than comparison and rejects the inclusive limit.",
@@ -194,7 +194,7 @@ index ccc9810..3c27ee8 100644
              "withinVehicleCapacity"
 -          ]
 +          ],
-+          "merge": "01:49+spec:27"
++          "merge": "01:49+spec:26"
          },
          {
            "expectation": "`canPlanRoute` accepts either scope or ownership instead of requiring both.",
@@ -204,7 +204,7 @@ index ccc9810..3c27ee8 100644
              "publishWithAnnouncement"
 -          ]
 +          ],
-+          "merge": "02:22+spec:18"
++          "merge": "02:22+spec:17"
          },
          {
            "expectation": "`redactManifestEvent` reuses token redaction and leaves other nested authentication credentials unchanged.",
@@ -224,7 +224,7 @@ index ccc9810..3c27ee8 100644
              "serializeManifestRecords"
 -          ]
 +          ],
-+          "merge": "02:29+spec:47"
++          "merge": "02:29+spec:46"
          },
          {
            "expectation": "`orderManifestGroups` sorts destinations in descending order.",
@@ -234,7 +234,7 @@ index ccc9810..3c27ee8 100644
              "orderManifestGroups"
 -          ]
 +          ],
-+          "merge": "02:30+spec:46"
++          "merge": "02:30+spec:45"
          },
          {
            "expectation": "`publishManifest` stores the manifest before validating its entries.",
@@ -244,7 +244,7 @@ index ccc9810..3c27ee8 100644
              "publishWithRetry"
 -          ]
 +          ],
-+          "merge": "02:46+spec:72"
++          "merge": "02:46+spec:71"
          },
          {
            "expectation": "`coalescePackages` deduplicates each group independently and retains duplicates across groups.",
@@ -254,7 +254,7 @@ index ccc9810..3c27ee8 100644
              "coalescePackages"
 -          ]
 +          ],
-+          "merge": "02:48+spec:23"
++          "merge": "02:48+spec:22"
          }
        ],
        "cleanCases": [
@@ -283,7 +283,7 @@ index ccc9810..3c27ee8 100644
              "savePlan"
 -          ]
 +          ],
-+          "merge": "01:40+spec:17"
++          "merge": "01:40+spec:16"
          },
          {
            "expectation": "The implementation satisfies: `planFailure` returns a structured non-throwing failure result.",
@@ -293,7 +293,7 @@ index ccc9810..3c27ee8 100644
              "totalPackageWeight"
 -          ]
 +          ],
-+          "merge": "01:22+spec:44"
++          "merge": "01:22+spec:43"
          },
          {
            "expectation": "The implementation satisfies: `redactNestedDriverToken` removes a nested driver token from telemetry.",
@@ -303,7 +303,7 @@ index ccc9810..3c27ee8 100644
              "previewPlan"
 -          ]
 +          ],
-+          "merge": "01:33+spec:30"
++          "merge": "01:33+spec:29"
          },
          {
            "expectation": "The implementation satisfies: `redactAccessLog` removes token and secret fields while preserving other fields.",
@@ -324,7 +324,7 @@ index ccc9810..3c27ee8 100644
 -          "findingTerms": [
 -            "preserveDriverLabel"
 -          ]
-+          "merge": "01:34+spec:43"
++          "merge": "01:34+spec:42"
          },
          {
            "expectation": "The implementation satisfies: The invalid-storage test asserts that validation failure performs zero writes.",
@@ -334,7 +334,7 @@ index ccc9810..3c27ee8 100644
              "computeBackoff"
 -          ]
 +          ],
-+          "merge": "01:41+spec:32"
++          "merge": "01:41+spec:31"
          },
          {
            "expectation": "The implementation satisfies: `retryTransient` permits retries only for errors explicitly marked transient.",
@@ -344,7 +344,7 @@ index ccc9810..3c27ee8 100644
              "retryTransient"
 -          ]
 +          ],
-+          "merge": "01:42+spec:37"
++          "merge": "01:42+spec:36"
          },
          {
            "expectation": "The implementation satisfies: `retainScheduleOffset` preserves the supplied offset exactly.",
@@ -364,7 +364,7 @@ index ccc9810..3c27ee8 100644
              "runEligibleStops"
 -          ]
 +          ],
-+          "merge": "01:48+spec:26"
++          "merge": "01:48+spec:25"
          },
          {
            "expectation": "The implementation satisfies: `selectActiveClaims` excludes claims before their start and at or after expiry.",
@@ -374,7 +374,7 @@ index ccc9810..3c27ee8 100644
              "encodeUtf8"
 -          ]
 +          ],
-+          "merge": "02:20+spec:73"
++          "merge": "02:20+spec:72"
          },
          {
            "expectation": "The implementation satisfies: `manifestEntryIsValid` rejects blank package IDs.",
@@ -415,7 +415,7 @@ index ccc9810..3c27ee8 100644
 -          "findingTerms": [
 -            "emptyManifest"
 -          ]
-+          "merge": "02:21+spec:58"
++          "merge": "02:21+spec:57"
          },
          {
            "expectation": "The implementation satisfies: `chunkManifest` limits every non-empty chunk to the configured maximum.",
@@ -440,7 +440,7 @@ index ccc9810..3c27ee8 100644
 -          "findingTerms": [
 -            "preserveManifestDriver"
 -          ]
-+          "merge": "02:27+spec:68"
++          "merge": "02:27+spec:67"
          },
          {
            "expectation": "The implementation satisfies: Under the Manifest Store contract, `publishWithAnnouncement` waits for the exact manifest to be durably stored before sending its announcement.",
@@ -473,7 +473,7 @@ index ccc9810..3c27ee8 100644
              "publicationResult"
 -          ]
 +          ],
-+          "merge": "02:35+spec:57"
++          "merge": "02:35+spec:56"
          },
          {
            "expectation": "The implementation satisfies: `normalizedPlanKey` trims and uppercases the route-key storage segment.",
@@ -483,7 +483,7 @@ index ccc9810..3c27ee8 100644
              "normalizedPlanKey"
 -          ]
 +          ],
-+          "merge": "02:36+spec:70"
++          "merge": "02:36+spec:69"
          },
          {
            "expectation": "The implementation satisfies: `buildManifest` copies record objects instead of mutating supplied records.",
@@ -524,7 +524,7 @@ index ccc9810..3c27ee8 100644
              "successTelemetry"
 -          ]
 +          ],
-+          "merge": "02:43+spec:29"
++          "merge": "02:43+spec:28"
          },
          {
            "expectation": "The implementation satisfies: `groupByDestination` groups records using normalized destination keys.",
@@ -534,7 +534,7 @@ index ccc9810..3c27ee8 100644
              "groupByDestination"
 -          ]
 +          ],
-+          "merge": "02:44+spec:52"
++          "merge": "02:44+spec:51"
          },
          {
            "expectation": "The implementation satisfies: `failureTelemetry` records the failure event, error, manifest ID, and timestamp.",
@@ -555,7 +555,7 @@ index ccc9810..3c27ee8 100644
 -          "findingTerms": [
 -            "normalizePackageIds"
 -          ]
-+          "merge": "02:45+spec:15"
++          "merge": "02:45+spec:14"
          },
          {
            "expectation": "The implementation satisfies: `preserveManifestDriver` trims driver labels without changing letter case.",
@@ -590,7 +590,7 @@ index ccc9810..3c27ee8 100644
 -          "findingTerms": [
 -            "checksumPlan"
 -          ]
-+          "merge": "02:47+spec:16"
++          "merge": "02:47+spec:15"
          },
          {
            "noOtherSupportedFinding": true
@@ -657,7 +657,7 @@ index ccc9810..3c27ee8 100644
              "Assigning all packages accepts"
 -          ]
 +          ],
-+          "merge": "01:49+spec:27"
++          "merge": "01:49+spec:26"
          },
          {
            "expectation": "`toStableJson` sorts only top-level keys and leaves nested object order unchanged.",
@@ -677,7 +677,7 @@ index ccc9810..3c27ee8 100644
              "Authorized execution rejects"
 -          ]
 +          ],
-+          "merge": "01:20+spec:56"
++          "merge": "01:20+spec:55"
          },
          {
            "expectation": "The failure branch does not remove the stored manifest.",
@@ -687,7 +687,7 @@ index ccc9810..3c27ee8 100644
              "Announcement failure rolls back"
 -          ]
 +          ],
-+          "merge": "02:22+spec:18"
++          "merge": "02:22+spec:17"
          },
          {
            "expectation": "`coalescePackages` deduplicates only within each group.",
@@ -697,7 +697,7 @@ index ccc9810..3c27ee8 100644
              "Package coalescing removes duplicate"
 -          ]
 +          ],
-+          "merge": "02:48+spec:23"
++          "merge": "02:48+spec:22"
          },
          {
 -          "expectation": "The available storage contract does not establish cleanup behavior when `renameTemporary` fails.",
@@ -711,7 +711,7 @@ index ccc9810..3c27ee8 100644
              "The public dispatch entry"
 -          ]
 +          ],
-+          "merge": "01:7+spec:28"
++          "merge": "01:7+spec:27"
          },
          {
            "expectation": "`partitionUrgentStops` removes elements from the supplied list with `splice`.",
@@ -721,7 +721,7 @@ index ccc9810..3c27ee8 100644
              "Plan-created telemetry is emitted"
 -          ]
 +          ],
-+          "merge": "01:28+spec:42"
++          "merge": "01:28+spec:41"
          },
          {
            "expectation": "`orderManifestGroups` orders destinations descending.",
@@ -731,7 +731,7 @@ index ccc9810..3c27ee8 100644
              "Manifest destination groups are"
 -          ]
 +          ],
-+          "merge": "02:30+spec:46"
++          "merge": "02:30+spec:45"
          },
          {
            "expectation": "`serializeManifestRecords` omits the final LF.",
@@ -741,7 +741,7 @@ index ccc9810..3c27ee8 100644
              "Manifest NDJSON ends every"
 -          ]
 +          ],
-+          "merge": "02:29+spec:47"
++          "merge": "02:29+spec:46"
          },
          {
            "expectation": "`authorizeRouteBatch` computes every route ownership result but returns only the first result.",
@@ -751,7 +751,7 @@ index ccc9810..3c27ee8 100644
              "Plan restoration reports whether"
 -          ]
 +          ],
-+          "merge": "01:43+spec:54"
++          "merge": "01:43+spec:53"
          },
          {
            "expectation": "The publication test imports the public operation but executes the internal publisher directly.",
@@ -761,7 +761,7 @@ index ccc9810..3c27ee8 100644
              "Retry-count parsing rejects fractions"
 -          ]
 +          ],
-+          "merge": "01:30+spec:60"
++          "merge": "01:30+spec:59"
          },
          {
            "expectation": "formatRouteToken bypasses the route-key normalizer while using the destination normalizer.",
@@ -771,31 +771,46 @@ index ccc9810..3c27ee8 100644
              "Publication retries stop immediately"
 -          ]
 +          ],
-+          "merge": "02:46+spec:72"
++          "merge": "02:46+spec:71"
          },
          {
            "expectation": "`scopeAllowsPlan` uses prefix matching and accepts scopes such as `routes:plan-admin`.",
-@@ -1915,7 +1904,8 @@
+@@ -1915,23 +1904,8 @@
            ],
            "findingTerms": [
              "Schedule offsets pass through"
 -          ]
-+          ],
+-        },
+-        {
+-          "expectation": "The implementation satisfies: Inactive authorization claims are excluded before route planning.",
+-          "evidence": [
+-            {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 7
+-            },
+-            {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 8
+-            }
+           ],
+-          "findingTerms": [
+-            "Inactive authorization claims are"
+-          ]
 +          "merge": "01:47+spec:10"
          },
          {
-           "expectation": "The implementation satisfies: Inactive authorization claims are excluded before route planning.",
-@@ -1955,7 +1945,8 @@
+           "expectation": "The implementation satisfies: Empty manifests use an empty entries array and a generated marker.",
+@@ -1955,7 +1929,8 @@
            ],
            "findingTerms": [
              "Publication failure telemetry includes"
 -          ]
 +          ],
-+          "merge": "02:45+spec:15"
++          "merge": "02:45+spec:14"
          },
          {
            "expectation": "The implementation satisfies: Driver labels are trimmed without changing their letter case.",
-@@ -1969,9 +1960,22 @@
+@@ -1969,9 +1944,22 @@
                "line": 5
              }
            ],
@@ -815,41 +830,41 @@ index ccc9810..3c27ee8 100644
              "Driver labels are trimmed"
 -          ]
 +          ],
-+          "merge": "02:47+spec:16"
++          "merge": "02:47+spec:15"
          },
          {
            "expectation": "The implementation satisfies: Package IDs are trimmed, deduplicated, and sorted lexically.",
-@@ -2023,7 +2027,8 @@
+@@ -2023,7 +2011,8 @@
            ],
            "findingTerms": [
              "Eligible-stop execution excludes cancelled"
 -          ]
 +          ],
-+          "merge": "01:48+spec:26"
++          "merge": "01:48+spec:25"
          },
          {
            "expectation": "The implementation satisfies: Window membership includes both the declared start and end hour.",
-@@ -2063,7 +2068,8 @@
+@@ -2063,7 +2052,8 @@
            ],
            "findingTerms": [
              "Publication success telemetry includes"
 -          ]
 +          ],
-+          "merge": "02:43+spec:29"
++          "merge": "02:43+spec:28"
          },
          {
            "expectation": "The implementation satisfies: Plan previews return without touching persistent storage.",
-@@ -2075,7 +2081,8 @@
+@@ -2075,7 +2065,8 @@
            ],
            "findingTerms": [
              "Plan previews return without"
 -          ]
 +          ],
-+          "merge": "01:33+spec:30"
++          "merge": "01:33+spec:29"
          },
          {
            "expectation": "The implementation satisfies: Appending a stable stop returns a new list.",
-@@ -2099,19 +2106,8 @@
+@@ -2099,19 +2090,8 @@
            ],
            "findingTerms": [
              "Dispatch backoff is capped"
@@ -866,111 +881,111 @@ index ccc9810..3c27ee8 100644
 -          "findingTerms": [
 -            "Announcement payloads omit top-level"
 -          ]
-+          "merge": "01:41+spec:32"
++          "merge": "01:41+spec:31"
          },
          {
            "expectation": "The implementation satisfies: Frozen dispatch plans also freeze a copied stop list.",
-@@ -2135,7 +2131,8 @@
+@@ -2135,7 +2115,8 @@
            ],
            "findingTerms": [
              "Transient retry classification requires"
 -          ]
 +          ],
-+          "merge": "01:42+spec:37"
++          "merge": "01:42+spec:36"
          },
          {
            "expectation": "The implementation satisfies: Depot ownership requires equal actor and depot identifiers.",
-@@ -2183,7 +2180,8 @@
+@@ -2183,7 +2164,8 @@
            ],
            "findingTerms": [
              "Access-log redaction removes both"
 -          ]
 +          ],
-+          "merge": "01:34+spec:43"
++          "merge": "01:34+spec:42"
          },
          {
            "expectation": "The implementation satisfies: Package weight totals include every supplied package.",
-@@ -2195,7 +2193,8 @@
+@@ -2195,7 +2177,8 @@
            ],
            "findingTerms": [
              "Package weight totals include"
 -          ]
 +          ],
-+          "merge": "01:22+spec:44"
++          "merge": "01:22+spec:43"
          },
          {
            "expectation": "The implementation satisfies: `toStableJson` uses two-space indentation and one terminal LF.",
-@@ -2251,7 +2250,8 @@
+@@ -2251,7 +2234,8 @@
            ],
            "findingTerms": [
              "Destination grouping uses normalized"
 -          ]
 +          ],
-+          "merge": "02:44+spec:52"
++          "merge": "02:44+spec:51"
          },
          {
            "expectation": "The implementation satisfies: Blackout intervals include the start and exclude the end.",
-@@ -2283,7 +2283,8 @@
+@@ -2283,7 +2267,8 @@
            ],
            "findingTerms": [
              "Plan persistence completes"
 -          ]
 +          ],
-+          "merge": "01:40+spec:17"
++          "merge": "01:40+spec:16"
          },
          {
            "expectation": "The implementation satisfies: Successful publication results and failed publication results use distinct structured variants.",
-@@ -2295,7 +2296,8 @@
+@@ -2295,7 +2280,8 @@
            ],
            "findingTerms": [
              "Successful publication results and"
 -          ]
 +          ],
-+          "merge": "02:35+spec:57"
++          "merge": "02:35+spec:56"
          },
          {
            "expectation": "The implementation satisfies: Blank package IDs make a manifest entry invalid.",
-@@ -2307,7 +2309,8 @@
+@@ -2307,7 +2293,8 @@
            ],
            "findingTerms": [
              "Blank package IDs make"
 -          ]
 +          ],
-+          "merge": "02:21+spec:58"
++          "merge": "02:21+spec:57"
          },
          {
            "expectation": "The implementation satisfies: Serialized plan parsing returns structured success or failure.",
-@@ -2383,7 +2386,8 @@
+@@ -2383,7 +2370,8 @@
            ],
            "findingTerms": [
              "Manifest chunks never exceed"
 -          ]
 +          ],
-+          "merge": "02:27+spec:68"
++          "merge": "02:27+spec:67"
          },
          {
            "expectation": "The implementation satisfies: Normalized plan storage keys trim and uppercase route keys.",
-@@ -2395,7 +2399,8 @@
+@@ -2395,7 +2383,8 @@
            ],
            "findingTerms": [
              "Normalized plan storage keys"
 -          ]
 +          ],
-+          "merge": "02:36+spec:70"
++          "merge": "02:36+spec:69"
          },
          {
            "expectation": "The implementation satisfies: The declared departure window records UTC as its time zone.",
-@@ -2419,7 +2424,8 @@
+@@ -2419,7 +2408,8 @@
            ],
            "findingTerms": [
              "utf8"
 -          ]
 +          ],
-+          "merge": "02:20+spec:73"
++          "merge": "02:20+spec:72"
          },
          {
            "expectation": "The implementation satisfies: Route keys are normalized with NFKC before trimming and uppercasing.",
-@@ -2504,23 +2510,6 @@
+@@ -2504,23 +2494,6 @@
              "line": 7
            }
          },
@@ -994,7 +1009,7 @@ index ccc9810..3c27ee8 100644
          {
            "evidence": [
              {
-@@ -2551,7 +2540,7 @@
+@@ -2551,7 +2524,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1003,7 +1018,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2576,7 +2565,7 @@
+@@ -2576,7 +2549,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1012,7 +1027,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2589,7 +2578,7 @@
+@@ -2589,7 +2562,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1021,7 +1036,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2602,7 +2591,7 @@
+@@ -2602,7 +2575,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1030,7 +1045,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2623,7 +2612,7 @@
+@@ -2623,7 +2596,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1039,7 +1054,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2636,7 +2625,7 @@
+@@ -2636,7 +2609,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1048,7 +1063,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2669,7 +2658,7 @@
+@@ -2669,7 +2642,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1057,7 +1072,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2686,7 +2675,7 @@
+@@ -2686,7 +2659,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1066,7 +1081,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2703,7 +2692,7 @@
+@@ -2703,7 +2676,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1075,7 +1090,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2716,7 +2705,7 @@
+@@ -2716,7 +2689,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1084,7 +1099,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2733,7 +2722,7 @@
+@@ -2733,7 +2706,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1093,7 +1108,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2746,7 +2735,7 @@
+@@ -2746,7 +2719,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1102,7 +1117,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2759,7 +2748,7 @@
+@@ -2759,7 +2732,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1111,7 +1126,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2776,20 +2765,7 @@
+@@ -2776,20 +2749,7 @@
            "result": "uncertain",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1133,7 +1148,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2814,7 +2790,7 @@
+@@ -2814,7 +2774,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1142,7 +1157,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2835,7 +2811,7 @@
+@@ -2835,7 +2795,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1151,7 +1166,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2848,7 +2824,7 @@
+@@ -2848,7 +2808,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1160,7 +1175,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2861,7 +2837,7 @@
+@@ -2861,7 +2821,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1169,7 +1184,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2874,7 +2850,7 @@
+@@ -2874,7 +2834,7 @@
            "result": "uncertain",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1178,7 +1193,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2887,7 +2863,7 @@
+@@ -2887,7 +2847,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1187,7 +1202,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2900,7 +2876,7 @@
+@@ -2900,7 +2860,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1196,7 +1211,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2913,7 +2889,7 @@
+@@ -2913,7 +2873,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1205,7 +1220,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2926,7 +2902,7 @@
+@@ -2926,7 +2886,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1214,7 +1229,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2943,7 +2919,7 @@
+@@ -2943,7 +2903,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1223,7 +1238,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2960,7 +2936,7 @@
+@@ -2960,7 +2920,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1232,7 +1247,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -2973,7 +2949,7 @@
+@@ -2973,7 +2933,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
@@ -1241,7 +1256,7 @@ index ccc9810..3c27ee8 100644
            }
          }
        ],
-@@ -3075,27 +3051,6 @@
+@@ -3075,27 +3035,6 @@
              "line": 22
            }
          },
@@ -1269,7 +1284,7 @@ index ccc9810..3c27ee8 100644
          {
            "evidence": [
              {
-@@ -3110,20 +3065,7 @@
+@@ -3110,20 +3049,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1291,7 +1306,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3152,24 +3094,7 @@
+@@ -3152,24 +3078,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1317,7 +1332,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3194,24 +3119,7 @@
+@@ -3194,24 +3103,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1343,7 +1358,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3224,7 +3132,7 @@
+@@ -3224,7 +3116,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1352,7 +1367,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3237,7 +3145,7 @@
+@@ -3237,7 +3129,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1361,7 +1376,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3250,7 +3158,7 @@
+@@ -3250,7 +3142,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1370,7 +1385,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3263,7 +3171,7 @@
+@@ -3263,7 +3155,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1379,7 +1394,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3276,7 +3184,7 @@
+@@ -3276,7 +3168,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1388,7 +1403,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3289,7 +3197,7 @@
+@@ -3289,7 +3181,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1397,7 +1412,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3302,20 +3210,7 @@
+@@ -3302,20 +3194,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1419,7 +1434,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3336,20 +3231,7 @@
+@@ -3336,20 +3215,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1441,7 +1456,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3362,7 +3244,7 @@
+@@ -3362,7 +3228,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1450,7 +1465,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3391,7 +3273,7 @@
+@@ -3391,7 +3257,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1459,7 +1474,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3404,7 +3286,7 @@
+@@ -3404,7 +3270,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1468,7 +1483,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3429,20 +3311,7 @@
+@@ -3429,20 +3295,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1490,7 +1505,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3459,20 +3328,7 @@
+@@ -3459,20 +3312,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1512,7 +1527,7 @@ index ccc9810..3c27ee8 100644
            }
          },
          {
-@@ -3489,7 +3345,7 @@
+@@ -3489,7 +3329,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
@@ -1521,10 +1536,172 @@ index ccc9810..3c27ee8 100644
            }
          }
        ],
-@@ -3920,19 +3776,6 @@
-             "line": 32
+@@ -3595,23 +3435,6 @@
+             "line": 12
            }
          },
+-        {
+-          "evidence": [
+-            {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 7
+-            },
+-            {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 8
+-            }
+-          ],
+-          "result": "satisfied",
+-          "source": {
+-            "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 13
+-          }
+-        },
+         {
+           "evidence": [
+             {
+@@ -3622,7 +3445,7 @@
+           "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 14
++            "line": 13
+           }
+         },
+         {
+@@ -3635,7 +3458,7 @@
+           "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 15
++            "line": 14
+           }
+         },
+         {
+@@ -3652,7 +3475,7 @@
+           "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 16
++            "line": 15
+           }
+         },
+         {
+@@ -3673,7 +3496,7 @@
+           "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 17
++            "line": 16
+           }
+         },
+         {
+@@ -3698,7 +3521,7 @@
+           "result": "gap",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 18
++            "line": 17
+           }
+         },
+         {
+@@ -3711,7 +3534,7 @@
+           "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 22
++            "line": 21
+           }
+         },
+         {
+@@ -3728,7 +3551,7 @@
+           "result": "gap",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 23
++            "line": 22
+           }
+         },
+         {
+@@ -3745,7 +3568,7 @@
+           "result": "uncertain",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 24
++            "line": 23
+           }
+         },
+         {
+@@ -3774,7 +3597,7 @@
+           "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 25
++            "line": 24
+           }
+         },
+         {
+@@ -3787,7 +3610,7 @@
+           "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 26
++            "line": 25
+           }
+         },
+         {
+@@ -3808,7 +3631,7 @@
+           "result": "gap",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 27
++            "line": 26
+           }
+         },
+         {
+@@ -3865,7 +3688,7 @@
+           "result": "gap",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 28
++            "line": 27
+           }
+         },
+         {
+@@ -3878,7 +3701,7 @@
+           "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 29
++            "line": 28
+           }
+         },
+         {
+@@ -3891,7 +3714,7 @@
+           "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 30
++            "line": 29
+           }
+         },
+         {
+@@ -3904,7 +3727,7 @@
+           "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 31
++            "line": 30
+           }
+         },
+         {
+@@ -3917,20 +3740,7 @@
+           "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+-            "line": 32
+-          }
+-        },
 -        {
 -          "evidence": [
 -            {
@@ -1536,323 +1713,322 @@ index ccc9810..3c27ee8 100644
 -          "source": {
 -            "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 33
--          }
--        },
++            "line": 31
+           }
+         },
          {
-           "evidence": [
-             {
-@@ -3943,7 +3786,7 @@
+@@ -3943,7 +3753,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 37
-+            "line": 36
++            "line": 35
            }
          },
          {
-@@ -3956,7 +3799,7 @@
+@@ -3956,7 +3766,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 38
-+            "line": 37
++            "line": 36
            }
          },
          {
-@@ -3969,7 +3812,7 @@
+@@ -3969,7 +3779,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 39
-+            "line": 38
++            "line": 37
            }
          },
          {
-@@ -3994,7 +3837,7 @@
+@@ -3994,7 +3804,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 40
-+            "line": 39
++            "line": 38
            }
          },
          {
-@@ -4007,7 +3850,7 @@
+@@ -4007,7 +3817,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 41
-+            "line": 40
++            "line": 39
            }
          },
          {
-@@ -4020,7 +3863,7 @@
+@@ -4020,7 +3830,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 42
-+            "line": 41
++            "line": 40
            }
          },
          {
-@@ -4053,7 +3896,7 @@
+@@ -4053,7 +3863,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 43
-+            "line": 42
++            "line": 41
            }
          },
          {
-@@ -4066,7 +3909,7 @@
+@@ -4066,7 +3876,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 44
-+            "line": 43
++            "line": 42
            }
          },
          {
-@@ -4079,7 +3922,7 @@
+@@ -4079,7 +3889,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 45
-+            "line": 44
++            "line": 43
            }
          },
          {
-@@ -4096,7 +3939,7 @@
+@@ -4096,7 +3906,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 46
-+            "line": 45
++            "line": 44
            }
          },
          {
-@@ -4109,7 +3952,7 @@
+@@ -4109,7 +3919,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 47
-+            "line": 46
++            "line": 45
            }
          },
          {
-@@ -4122,7 +3965,7 @@
+@@ -4122,7 +3932,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 48
-+            "line": 47
++            "line": 46
            }
          },
          {
-@@ -4147,7 +3990,7 @@
+@@ -4147,7 +3957,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 52
-+            "line": 51
++            "line": 50
            }
          },
          {
-@@ -4176,7 +4019,7 @@
+@@ -4176,7 +3986,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 53
-+            "line": 52
++            "line": 51
            }
          },
          {
-@@ -4197,7 +4040,7 @@
+@@ -4197,7 +4007,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 54
-+            "line": 53
++            "line": 52
            }
          },
          {
-@@ -4210,7 +4053,7 @@
+@@ -4210,7 +4020,7 @@
            "result": "uncertain",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 55
-+            "line": 54
++            "line": 53
            }
          },
          {
-@@ -4223,7 +4066,7 @@
+@@ -4223,7 +4033,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 56
-+            "line": 55
++            "line": 54
            }
          },
          {
-@@ -4248,7 +4091,7 @@
+@@ -4248,7 +4058,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 57
-+            "line": 56
++            "line": 55
            }
          },
          {
-@@ -4261,7 +4104,7 @@
+@@ -4261,7 +4071,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 58
-+            "line": 57
++            "line": 56
            }
          },
          {
-@@ -4274,7 +4117,7 @@
+@@ -4274,7 +4084,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 59
-+            "line": 58
++            "line": 57
            }
          },
          {
-@@ -4287,7 +4130,7 @@
+@@ -4287,7 +4097,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 60
-+            "line": 59
++            "line": 58
            }
          },
          {
-@@ -4304,7 +4147,7 @@
+@@ -4304,7 +4114,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 61
-+            "line": 60
++            "line": 59
            }
          },
          {
-@@ -4317,7 +4160,7 @@
+@@ -4317,7 +4127,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 62
-+            "line": 61
++            "line": 60
            }
          },
          {
-@@ -4330,7 +4173,7 @@
+@@ -4330,7 +4140,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 63
-+            "line": 62
++            "line": 61
            }
          },
          {
-@@ -4343,7 +4186,7 @@
+@@ -4343,7 +4153,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 67
-+            "line": 66
++            "line": 65
            }
          },
          {
-@@ -4356,7 +4199,7 @@
+@@ -4356,7 +4166,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 68
-+            "line": 67
++            "line": 66
            }
          },
          {
-@@ -4385,7 +4228,7 @@
+@@ -4385,7 +4195,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 69
-+            "line": 68
++            "line": 67
            }
          },
          {
-@@ -4402,7 +4245,7 @@
+@@ -4402,7 +4212,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 70
-+            "line": 69
++            "line": 68
            }
          },
          {
-@@ -4415,7 +4258,7 @@
+@@ -4415,7 +4225,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 71
-+            "line": 70
++            "line": 69
            }
          },
          {
-@@ -4428,7 +4271,7 @@
+@@ -4428,7 +4238,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 72
-+            "line": 71
++            "line": 70
            }
          },
          {
-@@ -4453,7 +4296,7 @@
+@@ -4453,7 +4263,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 73
-+            "line": 72
++            "line": 71
            }
          },
          {
-@@ -4466,7 +4309,7 @@
+@@ -4466,7 +4276,7 @@
            "result": "satisfied",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 74
-+            "line": 73
++            "line": 72
            }
          },
          {
-@@ -4479,7 +4322,7 @@
+@@ -4479,7 +4289,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 75
-+            "line": 74
++            "line": 73
            }
          },
          {
-@@ -4500,7 +4343,7 @@
+@@ -4500,7 +4310,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 76
-+            "line": 75
++            "line": 74
            }
          },
          {
-@@ -4513,7 +4356,7 @@
+@@ -4513,7 +4323,7 @@
            "result": "gap",
            "source": {
              "filePath": ".scratch/0001-dispatch-control/spec.md",
 -            "line": 77
-+            "line": 76
++            "line": 75
            }
          }
        ],
@@ -1918,10 +2094,18 @@ index 5f59596..5aa328a 100644
  
  ## Blocked by
 diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/spec.md b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/spec.md
-index 5871196..3d73384 100644
+index 5871196..5d5e431 100644
 --- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/spec.md
 +++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/spec.md
-@@ -30,7 +30,6 @@
+@@ -10,7 +10,6 @@
+ - Schedule offsets pass through without coercion.
+ - Stable JSON sorts keys recursively at every object depth.
+ - Manifest-event redaction removes credentials nested inside authentication data.
+-- Inactive authorization claims are excluded before route planning.
+ - Empty manifests use an empty entries array and a generated marker.
+ - Publication failure telemetry includes the manifest ID, error, and timestamp.
+ - Driver labels are trimmed without changing their letter case.
+@@ -30,7 +29,6 @@
  - Plan previews return without touching persistent storage.
  - Appending a stable stop returns a new list.
  - Dispatch backoff is capped at 2000 milliseconds.
@@ -1929,7 +2113,7 @@ index 5871196..3d73384 100644
  
  ### Time and retry
  
-@@ -73,5 +72,5 @@
+@@ -73,5 +71,5 @@
  - Publication retries stop immediately for errors not marked transient.
  - UTF-8 encoding uses the explicit `utf8` encoding name.
  - Planning scope matching accepts only the exact `routes:plan` scope.
@@ -1998,7 +2182,7 @@ index 5179ab1..d5a08fa 100644
  
  ## Blocked by
 diff --git a/tests/release/reviewer-capability-conformance.test.mjs b/tests/release/reviewer-capability-conformance.test.mjs
-index 94168a4..9c5aa69 100644
+index 94168a4..1e6e890 100644
 --- a/tests/release/reviewer-capability-conformance.test.mjs
 +++ b/tests/release/reviewer-capability-conformance.test.mjs
 @@ -419,7 +419,9 @@ const prepareRepeatedSourceCommitAuditCapabilityFixture = async () => {
@@ -2026,7 +2210,7 @@ index 94168a4..9c5aa69 100644
 +            sourceKey('.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md', 30),
          ])],
 -        ['COMMIT-AUDIT-GATE-2', new Set([47, 48, 75, 77].map(line => sourceKey('.scratch/0001-dispatch-control/spec.md', line)))],
-+        ['COMMIT-AUDIT-GATE-2', new Set([46, 47, 74, 76].map(line => sourceKey('.scratch/0001-dispatch-control/spec.md', line)))],
++        ['COMMIT-AUDIT-GATE-2', new Set([45, 46, 73, 75].map(line => sourceKey('.scratch/0001-dispatch-control/spec.md', line)))],
      ]);
      const expectedMultiEvidenceProblems = new Map([
          ['COMMIT-AUDIT-GATE-1', new Set([
@@ -2036,7 +2220,7 @@ index 94168a4..9c5aa69 100644
 +            ...[22, 23, 39, 46, 48].map(line => sourceKey('.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md', line)),
          ])],
 -        ['COMMIT-AUDIT-GATE-2', new Set([11, 12, 18, 23, 27, 28, 40, 43, 54, 57, 73, 76].map(
-+        ['COMMIT-AUDIT-GATE-2', new Set([11, 12, 18, 23, 27, 28, 39, 42, 53, 56, 72, 75].map(
++        ['COMMIT-AUDIT-GATE-2', new Set([11, 12, 17, 22, 26, 27, 38, 41, 52, 55, 71, 74].map(
              line => sourceKey('.scratch/0001-dispatch-control/spec.md', line),
          ))],
      ]);
@@ -2048,7 +2232,7 @@ index 94168a4..9c5aa69 100644
 +            ...[7, 19, 35, 36, 38, 44].map(line => sourceKey('.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md', line)),
          ])],
 -        ['COMMIT-AUDIT-GATE-2', new Set([7, 8, 9, 10, 13, 14, 15, 16, 17, 22, 26, 29, 30, 31, 32, 33, 37, 38, 39, 41].map(
-+        ['COMMIT-AUDIT-GATE-2', new Set([7, 8, 9, 10, 13, 14, 15, 16, 17, 22, 26, 29, 30, 31, 32, 36, 37, 38, 40].map(
++        ['COMMIT-AUDIT-GATE-2', new Set([7, 8, 9, 10, 13, 14, 15, 16, 21, 25, 28, 29, 30, 31, 35, 36, 37, 39].map(
              line => sourceKey('.scratch/0001-dispatch-control/spec.md', line),
          ))],
      ]);
@@ -2057,7 +2241,7 @@ index 94168a4..9c5aa69 100644
          .map(requirement => [JSON.stringify(requirement.source), requirement]));
      assert.deepEqual(
 -        auditRequirementsBySource.get(sourceKey('.scratch/0001-dispatch-control/spec.md', 46))?.evidence,
-+        auditRequirementsBySource.get(sourceKey('.scratch/0001-dispatch-control/spec.md', 45))?.evidence,
++        auditRequirementsBySource.get(sourceKey('.scratch/0001-dispatch-control/spec.md', 44))?.evidence,
          [
              {filePath: 'src/dispatch/serialize.mjs', line: 2},
              {filePath: 'src/dispatch/serialize.mjs', line: 5},
@@ -2075,7 +2259,7 @@ index 94168a4..9c5aa69 100644
      );
 +    // Commit Audit v2 revision 21 (project patch): issue and spec still repeat requirements (declared merged cases), but
 +    // repeats inside the issue gate and accidental repeats are removed, so the issue gate has fewer clean cases.
-+    const cleanInventory = new Map([['COMMIT-AUDIT-GATE-1', 30], ['COMMIT-AUDIT-GATE-2', 39]]);
++    const cleanInventory = new Map([['COMMIT-AUDIT-GATE-1', 30], ['COMMIT-AUDIT-GATE-2', 38]]);
      for (const scope of fixtureExpected.scopes) {
          assert.equal(scope.problemCases.length, 20);
 -        assert.equal(scope.cleanCases.length, 40);
@@ -2094,7 +2278,7 @@ index 94168a4..9c5aa69 100644
      const auditRecords = requireValue(fixtureExpected.auditRecords, 'Expected Commit Audit fixture records.');
 -    assert.deepEqual(auditRecords.map(record => record.requirements.length), [29, 30, 59]);
 -    assert.equal(auditRecords.slice(0, 2).reduce((total, record) => total + record.requirements.length, 0), 59);
-+    assert.deepEqual(auditRecords.map(record => record.requirements.length), [27, 22, 58]);
++    assert.deepEqual(auditRecords.map(record => record.requirements.length), [27, 22, 57]);
 +    assert.equal(auditRecords.slice(0, 2).reduce((total, record) => total + record.requirements.length, 0), 49);
      const effortDirectories = new Set(auditRecords.flatMap(record => record.requirements.map(requirement => (
          /^\.scratch\/([^/]+)\//.exec(requirement.source.filePath)?.[1]
