@@ -46,7 +46,7 @@ ARW 原版的 Gate 1（两个 issue 的验收项）和 Gate 2（`spec.md` 的长
 | 02:43、02:53 | 非一对一 | 包裹 ID 去空白、去重、排序，两行合起来对应 spec:22 |
 | 02:45 | 口径冲突 | 集成测试经公共入口导入：02:45 判成立、spec:52 判缺陷，同一观察一处得分一处算误报 |
 | 02:55 | issue 内部 | `checksumPlan` 对序列化字节求哈希，与 01:55 同义 |
-| spec:33 | 口径冲突 | "omit top-level credential fields"（复数宽集合），按正例 spec:11 的口径应判 gap，键判成立；保留 02:19（单数，成立） |
+| spec:33 | 口径冲突 | "omit top-level credential fields"（复数宽集合），按正例 spec:12（原行号，`redactManifestEvent`）的口径应判 gap，键判成立；保留 02:19（单数，成立） |
 
 修订号 20 删除的 spec:13 恢复：它与 01:54（`selectActiveClaims`）不是同一道题，见「未合并的恢复行」。
 
@@ -151,6 +151,8 @@ Commit Audit 的测量说明是通用说明加一句（`measurement-note-commit-
 - `localeCompare` 视为字典序；
 - spec:11（"Stable JSON sorts keys recursively at every object depth."，Gate 2 正例 `toStableJson` 只排顶层）：finding 指出只排顶层、嵌套对象顺序不变即匹配，不必写出"递归"；
 - 01:51（"`serializePlan` sorts keys lexically, uses two-space JSON, and ends with one LF."，Gate 1 正例：格式模式导致缺末尾 LF）：finding 必须指出缺末尾 LF；只以"只排顶层"或 `localeCompare` 为理由的 finding 不匹配，裁为 `unsupported`。
+- 引用已审行（第 3 轮审计）：finding 只引用已审行（如 "Same as spec:28"）并照抄结论与证据时，按被引行的 finding 文本裁决。被引行与本用例同属一个合并用例时，本行裁决与被引行相同；不在同一合并用例时（例如 spec:13 引 01:52），引用本身不构成理由，按本行自身的期望句裁决。
+- 合并用例的候选与两侧任一期望句描述的是同一缺陷即算匹配（例如 01:49+spec:27 一侧只谈 `withinVehicleCapacity` 的严格小于，另一侧期望句点名 `canAssignAllPackages`，仍算匹配）。
 
 ## 与 ARW 合同的差异
 
@@ -188,3 +190,4 @@ ARW conformance 测试的对应断言随补丁改为上表的值；改后失败�
 换算做法：按要求行文字把旧报告映射到新行号；新夹具恢复、旧报告没有的行，若是合并用例的一侧，照抄另一侧的结论与证据（即测量说明允许的做法）；三条未合并的恢复行（01:49、spec:13、spec:16）在"缺行留空"列留空（记缺行），在"相近行照抄"列从相近行照抄，作为上界估计；opus-1 的夹具没有 02:19，两列都留空。裁决沿用旧裁决（同一 finding 与期望句，或合并对的另一侧），新出现的两个候选按 finding 文字裁为匹配。耗时和 token 是修订号 20 夹具上的实际运行（78–79 行要求），修订号 21 有 107 行，不能外推。旧报告本身的格式诊断（opus-2 一行重复）照旧保留。
 
 - 修订号 22 与评分 r8.3（2026-10-17）：上表未按修订号 22 重算。修订号 22 只把 01:49/spec:27、02:47/spec:16 两组改为合并用例（统一证据），预期分数落在上表两列之间、接近"相近行照抄"列；r8.3 只限制发现候选的补关联范围，两次盲答的裁决里没有发现候选裁到问题用例的决定，不受影响。下一轮盲答直接在修订号 22 夹具上作答。
+- 第 3 轮（修订号 22，2026-10-17）：Opus（high）审计确认 29 对合并两侧证据一致、11 行删除合理、行号一致；补了两条裁决口径（引用已审行、合并用例按任一侧期望句裁）并改正删除清单一处行号。待定：测量说明是否限定"重复"的范围（01:52/spec:13、02:31/spec:8 两对与 01:23 对 spec:9、spec:71 的超集照抄会失分）、spec:13 措辞是否点名 `createDispatchPlan` 的 `activeClaims`。Opus（high）盲答 0.848（r8.3），172 秒、8 次工具调用、输出 20,525 token；29 对合并中 26 对两侧逐字照抄，未写引用句；01:52/spec:13 两侧分别作答。
