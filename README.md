@@ -42,7 +42,6 @@ rtx3080ti 安装 Strata v0.1.44.1（2026-10-14，通过短检查），默认模�
 - Spec Readiness 停用合并实例，改用独立根线程（2026-10-13）：[审查报告](reports/v0.1.42/spec-rule-audit/summary.md)。
 - Reviewer 评分：证据 F2、按 k 分档计分（默认 0.25，难以核实的 1 或 4；分数以什么都不报为 0、满分为 1，取代 F2 总分与 A／B 两类计分，2026-10-16 评分 r8）、格式罚按比例、罚分归属原则、越过停止点算一个失败反例（2026-10-14／15，评分 r7）、Commit Audit 满足行上的误报只扣一次（2026-10-17，评分 r8.1）、答案键声明的合并用例只计一次（取低分，2026-10-17，评分 r8.2；Commit Audit 发现候选不跨行补关联，评分 r8.3）：经过见[历史工作](docs/work-history.md)，现行规则见[评分规则](.claude/rules/reviewer-suite.md#评分)。
 - 出题原则：一道题只出一次；意外的重复改题，有意保留的重复在答案键里显式声明为合并用例、评分按声明合并，不靠计分端去重；报告凡给得分处同时给耗时，附 token 数和工具调用数，耗时不进分数（2026-10-16／17，用户决定）：[Reviewer 规则](.claude/rules/reviewer-suite.md)、[Commit Audit v2 变更说明](benchmarks/reviewer-suite-v1/commit-audit-v2.md)。
-- Commit Audit 现行版本改为 v2 修订号 23（2026-10-17 冻结；恢复 issue 与 spec 的重复并声明 29 对合并用例，删意外重复；独立审查结论补齐后可冻结，与 Main 意见一致）：[v2 变更说明](benchmarks/reviewer-suite-v1/commit-audit-v2.md#独立审查与冻结2026-10-17)、[versions](benchmarks/reviewer-suite-v1/versions.md)。
 - 场景能力判定用相对口径 Q3／Opus，目标 < 0.8（2026-10-13；2026-10-15 用户确认维持 Opus 参考）：[Reviewer 规则](.claude/rules/reviewer-suite.md)。
 
 ## 主线
