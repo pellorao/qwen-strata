@@ -7,7 +7,7 @@ v2 以补丁 [`arw-patches/commit-audit-v2.patch`](arw-patches/commit-audit-v2.p
 - `SCENARIO_REVISIONS` 中 commit-audit-reviewer 由 19 改为 23；
 - ARW 自带的 conformance 测试按新行号和新用例数更新清单，复制问题用例的测试去掉复制出的 `merge`；conformance 接受 `merge` 字段（评分 r8.2，`scoring-k.patch`）。
 
-角色规则和交接不改，测量说明追加两句（见「测量说明」）。答案键 `0f02cf43…` 在 `judgment/registry.json` 登记为 `all-B`，需评分 r8.3；分数只与修订号 23 比较，与修订号 20–22、ARW 原版、F6 不可比。
+角色规则和交接不改，测量说明追加一段（三句，修订号 23 加了最后一句；见「测量说明」）。答案键 `0f02cf43…` 在 `judgment/registry.json` 登记为 `all-B`，需评分 r8.3；分数只与修订号 23 比较，与修订号 20–22、ARW 原版、F6 不可比。
 
 ## 起因
 
@@ -36,6 +36,8 @@ ARW 原版的 Gate 1（两个 issue 的验收项）和 Gate 2（`spec.md` 的长
 
 ## 删除清单（原行号）
 
+"原行号"指 ARW 原版夹具的行号。
+
 | 删除 | 类别 | 说明 |
 |---|---|---|
 | 01:19 | 非一对一 | 停靠点排序，等于 spec:7 + spec:67 两行 |
@@ -52,14 +54,14 @@ ARW 原版的 Gate 1（两个 issue 的验收项）和 Gate 2（`spec.md` 的长
 
 ## 合并用例（修订号 23 行号，29 对）
 
-合并用例名就是 `merge` 字段的值。正例 12 对：
+合并用例名就是 `merge` 字段的值。标"超集对"的是一侧比另一侧多一个子句（或各多一个子句）、但两侧结论与期望证据相同的对（第 3 轮审计列出）；以后改夹具使附加子句不成立时，这些对必须拆开。正例 12 对：
 
 | 合并用例 | 缺陷 |
 |---|---|
-| 01:7+spec:27 | 公共入口未导出 executor |
+| 01:7+spec:27 | 公共入口未导出 executor（超集对） |
 | 01:20+spec:55 | `executeAuthorizedPlan` 先派发后鉴权 |
 | 01:28+spec:41 | `emitPlanCreated` 先于存储完成发出 |
-| 01:30+spec:59 | `parseRetryCount` 拒绝上界 3 |
+| 01:30+spec:59 | `parseRetryCount` 拒绝上界 3（超集对） |
 | 01:43+spec:53 | `restore` 部分写入后的返回值无合同（uncertain） |
 | 01:49+spec:26 | `withinVehicleCapacity` 严格小于，拒绝等于上限（修订号 22） |
 | 02:22+spec:17 | 通告失败不回滚已存 manifest |
@@ -73,27 +75,27 @@ ARW 原版的 Gate 1（两个 issue 的验收项）和 Gate 2（`spec.md` 的长
 
 | 合并用例 | 事实 |
 |---|---|
-| 01:22+spec:43 | 包裹重量合计 |
-| 01:33+spec:29 | `previewPlan` 不碰存储 |
-| 01:34+spec:42 | 访问日志脱敏 |
+| 01:22+spec:43 | 包裹重量合计（超集对） |
+| 01:33+spec:29 | `previewPlan` 不碰存储（超集对） |
+| 01:34+spec:42 | 访问日志脱敏（超集对） |
 | 01:40+spec:16 | `savePlan` 写入前完成校验 |
-| 01:41+spec:31 | 退避倍增与上限（spec 只写上限，两侧证据相同） |
+| 01:41+spec:31 | 退避倍增与上限（超集对：spec 只写上限，两侧证据相同） |
 | 01:42+spec:36 | transient 分类要求显式标记 |
 | 01:47+spec:10 | 排程偏移原样保留 |
-| 01:48+spec:25 | 跳过已取消停靠点 |
+| 01:48+spec:25 | 跳过已取消停靠点（超集对） |
 | 02:20+spec:72 | UTF-8 编码 |
 | 02:21+spec:57 | 空包裹 ID 使条目无效 |
 | 02:27+spec:67 | manifest 分块不超上限 |
 | 02:35+spec:56 | 发布结果的成功 / 失败结构 |
 | 02:36+spec:69 | 计划存储键去空白并大写 |
-| 02:43+spec:28 | 成功遥测字段 |
-| 02:44+spec:51 | 按规范化目的地键分组 |
-| 02:45+spec:14 | 失败遥测字段 |
+| 02:43+spec:28 | 成功遥测字段（超集对） |
+| 02:44+spec:51 | 按规范化目的地键分组（超集对） |
+| 02:45+spec:14 | 失败遥测字段（超集对） |
 | 02:47+spec:15 | 司机标签去空白不改大小写（修订号 22） |
 
 ## 未合并的恢复行
 
-以下几组是 issue 与 spec 的相近要求，但问的不是同一个完整要求，按两道题分别计分（修订号 23 行号）。测量说明第二句（"Treat two rows as repeated only when they state the same complete requirement about the same operation."，第 3 轮审计 S1）告诉 reviewer 这类行不算重复：
+以下几组是 issue 与 spec 的相近要求，但问的不是同一个完整要求，按两道题分别计分（修订号 23 行号）。测量说明 Repeated requirements 段的最后一句（"Treat two rows as repeated only when they state the same complete requirement about the same operation."，第 3 轮审计 S1）告诉 reviewer 这类行不算重复：
 
 | issue 行 | spec 行 | 区别 |
 |---|---|---|
@@ -104,20 +106,22 @@ ARW 原版的 Gate 1（两个 issue 的验收项）和 Gate 2（`spec.md` 的长
 
 ## 修订号 22（用户 2026-10-17）
 
+本节行号为修订号 22 的行号（spec 第 14 行起比修订号 23 大 1）：`01:49+spec:27`、`02:47+spec:16` 在修订号 23 中为 `01:49+spec:26`、`02:47+spec:15`；01:52/spec:13 一组的区别见第 3 轮审计 S2，spec:13 已在修订号 23 删除。
+
 修订号 21 留下三组恢复行不合并，理由是两侧期望证据不同；但测量说明承诺重复要求只计一次、可照抄，reviewer 分不出哪些相近行不算重复，照抄会失分。Main 决定逐组判断两侧是否同一个要求：是就统一期望证据后合并；不是且文字几乎相同就删一行。结果：
 
 | 组 | 判断 | 处理 |
 |---|---|---|
 | 01:49 / spec:27 | 同一要求：容量等于上限时应接受，缺陷只有一处（`capacity.mjs:3` 的严格小于），`canAssignAllPackages`（第 14 行）只是委托 | 两侧问题用例都接受两种放置：关联第 3 行、证据第 3 行；或关联第 14 行、证据第 1、3、14 行（原 spec:27 放置）。声明合并 `01:49+spec:27` |
 | 02:47 / spec:16 | 同一要求：issue 行就是 spec 规则带上函数名（ARW 的写法），`preserveManifestDriver` 直接委托 `preserveDriverLabel` | 两侧反例都接受两组证据：`manifest.mjs:24` + `normalize.mjs:5`，或 `normalize.mjs:1`、`:5`（`evidenceAlternatives`）。声明合并 `02:47+spec:16` |
-| 01:52 / spec:13 | 不是同一要求（见上节） | 保留分开计分，文字已足够不同，不删行 |
+| 01:52 / spec:13 | 不是同一要求（函数自身的时间边界与规划流程里的过滤） | 保留分开计分，文字已足够不同，不删行 |
 
 两侧的期望句和 `findingTerms` 保持原样（`findingTerms` 对问题用例只作裁决参考，反例按要求行提名）。夹具文字、行号、正反例数不变，只改答案键；单行字面量问题与多处证据问题的清单不变（01:49 仍有单行放置，spec:27 仍有多行放置）。
 
 ## 修订号 23（用户 2026-10-17）
 
 1. **删 spec:13**（Main 按场景流程决定，依据第 1、3 轮审计：`.tmp/commit-audit/audit/r1`、`audit/r3/stage2.md` S2）：spec:13 "Inactive authorization claims are excluded before route planning." 键判 satisfied（证据 `queue.mjs:7,8`），但 `createDispatchPlan` 返回 `{...input, activeClaims}`，失效 claims 原样留在计划的 `claims` 字段里，仓库里也没有任何规划环节读取 `activeClaims`，判 gap 或 uncertain 同样站得住。审计两次确认"从 Input 推不出唯一结论"，按场景流程删行。删除该要求行及其绑定反例（Gate 2 `clean/3`），spec 第 14 行起行号减 1，合并用例名随之改（如 `01:41+spec:32` → `01:41+spec:31`）；`repeats.json` 登记的共用证据组变为 Gate 2 `clean/9`。
-   - 平衡：Gate 2 正例仍 20，反例 39 → 38（含 noOther），审计记录 spec 行 58 → 57；只有 k = 0.25 档，不要求正反平衡。spec 行 7–10 satisfied、11–12 gap、13–16（原 14–17）satisfied，删行只缩短一段连续 satisfied，没有连续同结果超过 8 行的新段。
+   - 平衡：Gate 2 正例仍 20，反例 39 → 38（含 noOther），审计记录 spec 行 58 → 57；只有 k = 0.25 档，不要求正反平衡。spec 行 7–10 satisfied、11–12 gap、13–16（修订号 22 为 14–17）satisfied，删行只缩短一段连续 satisfied，没有连续同结果超过 8 行的新段。
 2. **测量说明加一句**（用户 2026-10-17 同意第 3 轮审计 S1 的 A 方案）：见「测量说明」，限定"重复"为同一操作的同一完整要求，避免 reviewer 把 02:31/spec:8、01:23 对 spec:9、spec:70 当作重复照抄。
 
 ## 结果
@@ -139,7 +143,7 @@ Commit Audit 的测量说明是通用说明加一段（`measurement-note-commit-
 
 > Repeated requirements: a requirement that the spec and an issue both state is scored once. When you reach the second row, you may cite the row you already reviewed and copy its conclusion and evidence. Treat two rows as repeated only when they state the same complete requirement about the same operation.
 
-最后一句由修订号 23 追加（第 3 轮审计 S1，用户 2026-10-17 同意）：一行多了条件（如 01:23 多了 UTC 求值）或针对另一操作（如 02:31 的校验器与 spec:8 的写入方）时，单独审查。29 对合并用例都是同一操作的同一完整要求，或一侧是另一侧的超集且两侧结论、证据相同（见合并表的超集对），这句不改变它们。
+最后一句由修订号 23 追加（第 3 轮审计 S1，用户 2026-10-17 同意）：一行多了条件（如 01:23 多了 UTC 求值）或针对另一操作（如 02:31 的校验器与 spec:8 的写入方）时，单独审查。按字面，这句也会让 reviewer 把合并表里的超集对和措辞不同的对分开审，不再照抄；这不影响计分口径：每对两侧的结论与期望证据相同，分开审与照抄得分一样，只有两侧独立判断不一致时按合并规则取低分（第 4 轮审计估计每个措辞不同的正例对最多损失约 0.014–0.036 分，属判断一致性，不算效度缺陷）。不为保住照抄而放宽这句：放宽会重新放开 01:23 → spec:9 的照抄。
 
 通用说明 `measurement-note.txt` 被所有场景共用，不改。说明只追加在交接之后，原版交接和 Role 不改；报告格式不变，两行仍各写一行判断。
 
@@ -200,3 +204,4 @@ ARW conformance 测试的对应断言随补丁改为上表的值；改后失败�
 
 - 修订号 22 与评分 r8.3（2026-10-17）：上表未按修订号 22 重算。修订号 22 只把 01:49/spec:27、02:47/spec:16 两组改为合并用例（统一证据），预期分数落在上表两列之间、接近"相近行照抄"列；r8.3 只限制发现候选的补关联范围，两次盲答的裁决里没有发现候选裁到问题用例的决定，不受影响。下一轮盲答直接在修订号 22 夹具上作答。
 - 第 3 轮（修订号 22，2026-10-17）：Opus（high）审计确认 29 对合并两侧证据一致、11 行删除合理、行号一致；补了两条裁决口径（引用已审行、合并用例按任一侧期望句裁）并改正删除清单一处行号。待定：测量说明是否限定"重复"的范围（01:52/spec:13、02:31/spec:8 两对与 01:23 对 spec:9、spec:71 的超集照抄会失分）、spec:13 措辞是否点名 `createDispatchPlan` 的 `activeClaims`。Opus（high）盲答 0.848（r8.3），172 秒、8 次工具调用、输出 20,525 token；29 对合并中 26 对两侧逐字照抄，未写引用句；01:52/spec:13 两侧分别作答。
+- 第 4 轮（修订号 23，2026-10-17）：两处改动按第 3 轮待定项执行（删 spec:13；测量说明加 "Treat two rows as repeated only when…"，用户同意）。Opus（high）审计机械核对全部通过（键变换与修订号 23 键完全相等、合并 29 对证据一致、conformance 清单与失败集不变、连续同结果最长 8 行），0 项必须改；3 项建议改（本说明的句数、超集对标注、修订号 22 一节的行号口径）已改。Opus（high）盲答 0.917（r8.3，修订号 23 夹具，与第 3 轮修订号 22 夹具上的 0.848 不直接可比），检出率 0.952，40 个正例全部命中、反例无失败；4.7 分钟、10 次工具调用、输出 19,961 token；29 对合并两侧结论全部一致、27 对证据相同，16 对 finding 逐字照抄、13 对改写措辞，没有引用句；02:31/spec:8、01:23 对 spec:9/spec:70 都独立作答且结论正确。
