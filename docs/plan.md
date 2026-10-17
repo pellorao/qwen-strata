@@ -17,6 +17,19 @@
 - [ ] **Commit Audit 场景**：先检查（规则冲突、场景与答案键含义、F6 中 Qwen 5 次都漏的用例），再出一次 Opus 盲答，之后按场景流程升级版本（用户 2026-10-13）。逐个场景进行，见 `.claude/rules/reviewer-suite.md`「场景流程」。按出题原则（一道题只出一次，用户 2026-10-16/17）：原版答案键 `COMMIT-AUDIT-GATE-1` 第 15 个正例与 `GATE-2` 第 3 个正例（从 1 起计）期望句和证据完全相同，只有 `findingTerms` 不同，同一缺陷出了两遍；同时在冻结工具加"同一答案键内期望句或证据相同就报错"的通用检查（2026-10-17 v4.3 独立审查发现）。
   - [ ] v2 草稿修订号 22（用户 2026-10-17：恢复 issue 与 spec 的重复、声明为合并用例，评分 r8.2，测量说明加一句；修订号 22 把 01:49/spec:27、02:47/spec:16 统一证据后合并，评分 r8.3）：实现已完成（[变更说明](../benchmarks/reviewer-suite-v1/commit-audit-v2.md)）；待下一轮 Opus 审计（29 对合并是否同一道题、未合并的 01:52/spec:13、删除的 11 行、连续同结果约束、期望句与裁决口径行号）、新夹具上的 Opus 盲答（用 `measurement_note_path` 指向 Commit Audit 说明，`arw_dimension` 已强制）和独立审查，之后冻结。
 
+## 多模型 benchmark（用户 2026-10-17）
+
+四个 reviewer 场景（Code Spec、Code Standards、Spec Readiness、Commit Audit）全部定稿后开始。参与者：OpenAI 的几个模型、Anthropic 的几个模型、Strata（IQ3_XXS）、DeepSeek 等；每个场景每个模型跑 5 次取平均；得分处同时给耗时、token、工具调用数。
+
+- [ ] **方案设计**（开跑前，按 AGENTS.md 硬约束 1 处理测量设计部分）：
+  - 模型清单与推理强度，由用户定。
+  - 统一 harness：现有 Q3 测量走 Codex + ARW，Opus 盲答走 Claude Code 无头运行。跨模型比较应使用同一 harness，或者把 harness 列为一个维度；还要核实 Codex 接入 Anthropic、DeepSeek 的可行路径。
+  - 凭据：OpenAI、DeepSeek 的 key 由用户配置，agent 不经手。
+  - 费用：OpenAI、DeepSeek 按各自账户计费，需用户给出预算；Anthropic 运行和每次的语义裁决占周额度，开跑前按 `estimate.sh` 分批。
+  - 规模：模型数 × 4 × 5 次。裁决成本随运行次数线性增长，先评估能否用机械关联加抽样复核来减少 Opus 裁决。
+  - 安全验收：每个新 provider 先通过测量规则「正式测量前的安全验收」。
+- [ ] **执行与报告**：按场景分批运行。报告给出每个模型的均值 ± 标准差、耗时、token、工具调用数，以及每次的费用。
+
 ## 采样与窗口重新测量（用户 2026-10-12）
 
 采样和窗口两个影响输出的维度，原结论（greedy、156584）在 ARW 上分不出高下，暂时维持现值；需另行设计答案可机械判定、低波动的专用负载，按「评分口径」的分阶段判定重新测量（负载设计属测量设计，按 AGENTS.md 硬约束 1 处理）。
