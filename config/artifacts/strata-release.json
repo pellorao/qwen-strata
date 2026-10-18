@@ -1,18 +1,18 @@
 {
   "schema_version": 1,
-  "version": "0.1.44.1",
-  "commit": "296b59d2f73c8f04a805df29c2fa97655adace78",
-  "engine_version": "0.1.44.1",
+  "version": "0.1.45",
+  "commit": "477ac13cbe8e582c20484871ce459d20d82df09d",
+  "engine_version": "0.1.45",
   "source": {
-    "project_file": "artifacts/strata/0.1.44.1/source.zip",
-    "bytes": 22629639,
-    "sha256": "22be94124b4d37dc2ff76e742c49498a3e5f31873ed916a636b2a31707d09b31",
-    "url": "https://github.com/Niko1221/Strata/archive/refs/tags/v0.1.44.1.zip"
+    "project_file": "artifacts/strata/0.1.45/source.zip",
+    "bytes": 23208999,
+    "sha256": "8d90ac92dae659390783a6c9da20bd4204cbfa0349f45fcbedb690c41495c17f",
+    "url": "https://github.com/Niko1221/Strata/archive/refs/tags/v0.1.45.zip"
   },
   "engine": {
-    "project_file": "artifacts/strata/0.1.44.1/engine.zip",
-    "bytes": 155480443,
-    "sha256": "a29bda047f440e6d2ce1649306c3a7047ba35df5a032097c7509d4494fa2b448",
-    "url": "https://github.com/Niko1221/Strata/releases/download/v0.1.44.1/strata-windows-x64.zip"
+    "project_file": "artifacts/strata/0.1.45/engine.zip",
+    "bytes": 165243142,
+    "sha256": "a1d4cafb8319c253f3010ff118dbd5ed07c232056b939ac7735819559f3b859e",
+    "url": "https://github.com/Niko1221/Strata/releases/download/v0.1.45/strata-windows-x64.zip"
   }
 }

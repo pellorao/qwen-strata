@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "status": "installed-rtx3080ti-sha-verified",
+ "status": "superseded-rtx3080ti-2026-10-18",
  "version": "0.1.44.1",
  "commit": "296b59d2f73c8f04a805df29c2fa97655adace78",
  "engine_version": "0.1.44.1",
@@ -46,7 +46,7 @@
   }
  },
  "currently_installed": {
-  "rtx3080ti": true,
+  "rtx3080ti": false,
   "rtx4070tis": "pending-sync (offline)"
  },
  "upstream_files_written": 3182,
