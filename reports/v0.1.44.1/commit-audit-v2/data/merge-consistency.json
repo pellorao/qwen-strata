@@ -29,6 +29,54 @@
   "detail": [],
   "missing": []
  },
+ "q3:C#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:C#2": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:C#3": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:D#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:D#2": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "opus:opus-1#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "opus:opus-2#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "opus:opus-3#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
  "haiku:haiku-1#1": {
   "pairs": 29,
   "inconsistent": 1,
@@ -60,24 +108,6 @@
   "missing": []
  },
  "haiku:haiku-5#1": {
-  "pairs": 29,
-  "inconsistent": 0,
-  "detail": [],
-  "missing": []
- },
- "opus:opus-1#1": {
-  "pairs": 29,
-  "inconsistent": 0,
-  "detail": [],
-  "missing": []
- },
- "opus:opus-2#1": {
-  "pairs": 29,
-  "inconsistent": 0,
-  "detail": [],
-  "missing": []
- },
- "opus:opus-3#1": {
   "pairs": 29,
   "inconsistent": 0,
   "detail": [],

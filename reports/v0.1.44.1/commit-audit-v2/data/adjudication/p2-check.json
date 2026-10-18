@@ -1,0 +1,22 @@
+{
+ "anchors": 58,
+ "anchorAgree": 58,
+ "anchorDisagree": [],
+ "anchorBySrc": {
+  "opus": 18,
+  "q3": 40
+ },
+ "synthetic": 10,
+ "syntheticRecognized": 10,
+ "syntheticMissed": [],
+ "newCounts": {
+  "matched": 177,
+  "problem": 8,
+  "false-positive:clean-8": 1,
+  "supported": 1
+ },
+ "newBySrc": {
+  "q3:C": 110,
+  "q3:D": 77
+ }
+}

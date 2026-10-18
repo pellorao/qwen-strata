@@ -1,0 +1,43 @@
+{
+  "session": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/C/run/arw-installation/codex-home/sessions/2026/10/18/rollout-2026-10-18T09-43-31-01a14c76-bb08-7ad3-8a7e-b27d732666dd.jsonl",
+  "threadId": "01a14c76-bb08-7ad3-8a7e-b27d732666dd",
+  "source": "vscode",
+  "thread_source": null,
+  "root": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/C/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/8dbda33a-8057-45a2-92be-0111fad3990d/ca/2",
+  "startup": {
+    "base_instructions": "5d36e1d1a96f0515",
+    "developer@2": "b0808ba12bbba68f",
+    "user@3": "b35059a2d4a3842c",
+    "user@6": "e7f65bedee55a5af",
+    "messageId": "53fa6fa9-8e54-41f0-83ef-1376b6fca09b"
+  },
+  "handoff_found": true,
+  "compactions": 0,
+  "final": "{\"status\":\"ready\"}",
+  "flagged_actions": [
+    4,
+    11,
+    23,
+    25,
+    26,
+    27,
+    29
+  ],
+  "flagged_messages": [],
+  "other_sessions_same_day": [
+    {
+      "path": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/C/run/arw-installation/codex-home/sessions/2026/10/18/rollout-2026-10-18T09-32-47-01a14c6c-e777-7b60-b73b-9980645e42e6.jsonl",
+      "id": "01a14c6c-e777-7b60-b73b-9980645e42e6",
+      "source": "vscode",
+      "thread_source": null,
+      "cwd": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/C/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/8dbda33a-8057-45a2-92be-0111fad3990d/ca/1"
+    },
+    {
+      "path": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/C/run/arw-installation/codex-home/sessions/2026/10/18/rollout-2026-10-18T09-55-51-01a14c82-04fc-76d3-995c-5b0b519daf1f.jsonl",
+      "id": "01a14c82-04fc-76d3-995c-5b0b519daf1f",
+      "source": "vscode",
+      "thread_source": null,
+      "cwd": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/C/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/8dbda33a-8057-45a2-92be-0111fad3990d/ca/3"
+    }
+  ]
+}

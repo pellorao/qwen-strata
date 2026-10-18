@@ -1,0 +1,92 @@
+{
+ "instances": [
+  {
+   "batch": "D",
+   "rep": "1",
+   "instanceId": "default-59851759-17ec-464b-bbd9-a68550c80f5d-instance-1",
+   "complete": true,
+   "state": "idle",
+   "generation_exit": 0,
+   "deadlines": [
+    null
+   ],
+   "work_s": 635.7014672851562,
+   "work_min": 10.6,
+   "read": 64827,
+   "reused": 1632646,
+   "generated": 52626,
+   "token_source": "engine log segment between this and the next dispatch; API usage is diagnostic only",
+   "tool_calls": 28,
+   "engine_in_tps": 1342.0,
+   "engine_out_tps": 96.0,
+   "task_in_tps": 102.0,
+   "task_out_tps": 82.8
+  },
+  {
+   "batch": "D",
+   "rep": "2",
+   "instanceId": "default-59851759-17ec-464b-bbd9-a68550c80f5d-instance-2",
+   "complete": true,
+   "state": "idle",
+   "generation_exit": 0,
+   "deadlines": [
+    null
+   ],
+   "work_s": 755.9167009277344,
+   "work_min": 12.6,
+   "read": 50416,
+   "reused": 2164445,
+   "generated": 66793,
+   "token_source": "engine log segment between this and the next dispatch; API usage is diagnostic only",
+   "tool_calls": 39,
+   "engine_in_tps": 1236.0,
+   "engine_out_tps": 94.8,
+   "task_in_tps": 66.7,
+   "task_out_tps": 88.4
+  }
+ ],
+ "inspect": {
+  "1": {
+   "session": "rollout-2026-10-18T10-08-23-01a14c8d-7ea5-7b92-bd00-f640cee2eac0.jsonl",
+   "root": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/D/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/59851759-17ec-464b-bbd9-a68550c80f5d/ca/1",
+   "compactions": 0,
+   "handoff_found": true,
+   "flagged_actions": 1,
+   "flagged_messages": 0,
+   "startup": {
+    "base_instructions": "5d36e1d1a96f0515",
+    "developer@2": "b0808ba12bbba68f",
+    "user@3": "b35059a2d4a3842c",
+    "user@6": "e7f65bedee55a5af",
+    "messageId": "f394ad96-3601-491d-b1b9-519a975f9b11"
+   },
+   "final": "{\"status\":\"ready\"}",
+   "tool_calls": 28,
+   "tool_call_types": {
+    "function_call": 28
+   }
+  },
+  "2": {
+   "session": "rollout-2026-10-18T10-18-35-01a14c96-d208-7f11-ac82-563e3f10275a.jsonl",
+   "root": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/D/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/59851759-17ec-464b-bbd9-a68550c80f5d/ca/2",
+   "compactions": 0,
+   "handoff_found": true,
+   "flagged_actions": 1,
+   "flagged_messages": 0,
+   "startup": {
+    "base_instructions": "5d36e1d1a96f0515",
+    "developer@2": "b0808ba12bbba68f",
+    "user@3": "b35059a2d4a3842c",
+    "user@6": "e7f65bedee55a5af",
+    "messageId": "26714aa4-75dd-4e20-a7cb-3724bbdf4850"
+   },
+   "final": "{\"status\":\"ready\"}",
+   "tool_calls": 39,
+   "tool_call_types": {
+    "function_call": 39
+   }
+  }
+ },
+ "candidates": 77,
+ "score_rc": 1
+}

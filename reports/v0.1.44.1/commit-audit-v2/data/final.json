@@ -143,6 +143,96 @@
    "p": 0.0,
    "f": 0.0,
    "score": 0.8627761732932376
+  },
+  {
+   "src": "q3:C",
+   "repetition": 1,
+   "instances": [
+    "default-8dbda33a-8057-45a2-92be-0111fad3990d-instance-1"
+   ],
+   "raw": 0.7586399701812276,
+   "rawScore": 0.7586399701812276,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 187,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.7586399701812276
+  },
+  {
+   "src": "q3:C",
+   "repetition": 2,
+   "instances": [
+    "default-8dbda33a-8057-45a2-92be-0111fad3990d-instance-2"
+   ],
+   "raw": 0.8194796446750452,
+   "rawScore": 0.8194796446750452,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 146,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.8194796446750452
+  },
+  {
+   "src": "q3:C",
+   "repetition": 3,
+   "instances": [
+    "default-8dbda33a-8057-45a2-92be-0111fad3990d-instance-3"
+   ],
+   "raw": 0.791876115860794,
+   "rawScore": 0.791876115860794,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 136,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.791876115860794
+  },
+  {
+   "src": "q3:D",
+   "repetition": 1,
+   "instances": [
+    "default-59851759-17ec-464b-bbd9-a68550c80f5d-instance-1"
+   ],
+   "raw": 0.8338364761053522,
+   "rawScore": 0.8338364761053522,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 128,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.8338364761053522
+  },
+  {
+   "src": "q3:D",
+   "repetition": 2,
+   "instances": [
+    "default-59851759-17ec-464b-bbd9-a68550c80f5d-instance-2"
+   ],
+   "raw": 0.8500988205840868,
+   "rawScore": 0.8500988205840868,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 134,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.8500988205840868
   }
  ],
  "haiku": [

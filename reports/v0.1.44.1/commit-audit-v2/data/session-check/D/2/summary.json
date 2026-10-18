@@ -1,0 +1,41 @@
+{
+  "session": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/D/run/arw-installation/codex-home/sessions/2026/10/18/rollout-2026-10-18T10-18-35-01a14c96-d208-7f11-ac82-563e3f10275a.jsonl",
+  "threadId": "01a14c96-d208-7f11-ac82-563e3f10275a",
+  "source": "vscode",
+  "thread_source": null,
+  "root": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/D/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/59851759-17ec-464b-bbd9-a68550c80f5d/ca/2",
+  "startup": {
+    "base_instructions": "5d36e1d1a96f0515",
+    "developer@2": "b0808ba12bbba68f",
+    "user@3": "b35059a2d4a3842c",
+    "user@6": "e7f65bedee55a5af",
+    "messageId": "26714aa4-75dd-4e20-a7cb-3724bbdf4850"
+  },
+  "handoff_found": true,
+  "compactions": 0,
+  "final": "{\"status\":\"ready\"}",
+  "flagged_actions": [
+    30
+  ],
+  "flagged_messages": [],
+  "other_sessions_same_day": [
+    {
+      "path": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/D/run/arw-installation/codex-home/sessions/2026/10/18/rollout-2026-10-18T10-08-23-01a14c8d-7ea5-7b92-bd00-f640cee2eac0.jsonl",
+      "id": "01a14c8d-7ea5-7b92-bd00-f640cee2eac0",
+      "source": "vscode",
+      "thread_source": null,
+      "cwd": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/D/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/59851759-17ec-464b-bbd9-a68550c80f5d/ca/1"
+    },
+    {
+      "path": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/D/run/arw-installation/codex-home/sessions/2026/10/18/rollout-2026-10-18T10-08-23-01a14c8d-7eb1-7360-a383-abba776b7b9c.jsonl",
+      "id": "01a14c8d-7eb1-7360-a383-abba776b7b9c",
+      "source": {
+        "subagent": {
+          "other": "guardian"
+        }
+      },
+      "thread_source": "guardian_review",
+      "cwd": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/D/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/59851759-17ec-464b-bbd9-a68550c80f5d/ca/1"
+    }
+  ]
+}

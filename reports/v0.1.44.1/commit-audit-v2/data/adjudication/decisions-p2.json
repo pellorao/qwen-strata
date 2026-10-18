@@ -1,0 +1,1280 @@
+{
+ "adjudicator": "blind Opus high",
+ "decisions": [
+  {
+   "id": "p2-001",
+   "decision": "matched",
+   "reason": "指出 Array.from 长度 3 只生成 0–2、拒绝上界 3，与期望同一缺陷。"
+  },
+  {
+   "id": "p2-002",
+   "decision": "matched",
+   "reason": "指出 Array.from 长度 3 只生成 0–2、拒绝上界 3，与期望同一缺陷。"
+  },
+  {
+   "id": "p2-003",
+   "decision": "matched",
+   "reason": "指出 Array.from 长度 3 只生成 0–2、拒绝上界 3，与期望同一缺陷。"
+  },
+  {
+   "id": "p2-004",
+   "decision": "matched",
+   "reason": "指出 Array.from 长度 3 只生成 0–2、拒绝上界 3，与期望同一缺陷。"
+  },
+  {
+   "id": "p2-005",
+   "decision": "matched",
+   "reason": "指出 Array.from 长度 3 只生成 0–2、拒绝上界 3，与期望同一缺陷。"
+  },
+  {
+   "id": "p2-006",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未再导出 executor.mjs、执行操作无法从公共入口获得，与期望一致。"
+  },
+  {
+   "id": "p2-007",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未再导出 executor.mjs、执行操作无法从公共入口获得，与期望一致。"
+  },
+  {
+   "id": "p2-008",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未再导出 executor.mjs、执行操作无法从公共入口获得，与期望一致。"
+  },
+  {
+   "id": "p2-009",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未再导出 executor.mjs、执行操作无法从公共入口获得，与期望一致。"
+  },
+  {
+   "id": "p2-010",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未再导出 executor.mjs、执行操作无法从公共入口获得，与期望一致。"
+  },
+  {
+   "id": "p2-011",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未再导出 executor.mjs、执行操作无法从公共入口获得，与期望一致。"
+  },
+  {
+   "id": "p2-012",
+   "decision": "matched",
+   "reason": "指出 dispatchRoute 在 canPlanRoute 检查之前调用，与期望一致。"
+  },
+  {
+   "id": "p2-013",
+   "decision": "matched",
+   "reason": "指出 dispatchRoute 在 canPlanRoute 检查之前调用，与期望一致。"
+  },
+  {
+   "id": "p2-014",
+   "decision": "not-matched",
+   "reason": "谈的是 createDispatchPlan 原地排序，与授权前调用 dispatch 无关。"
+  },
+  {
+   "id": "p2-015",
+   "decision": "matched",
+   "reason": "指出 dispatchRoute 在 canPlanRoute 检查之前调用，与期望一致。"
+  },
+  {
+   "id": "p2-016",
+   "decision": "matched",
+   "reason": "指出 dispatchRoute 在 canPlanRoute 检查之前调用，与期望一致。"
+  },
+  {
+   "id": "p2-017",
+   "decision": "not-matched",
+   "reason": "谈的是 parseRetryCount 上界，与 retryPublication 不检查 transient 无关。"
+  },
+  {
+   "id": "p2-018",
+   "decision": "matched",
+   "reason": "指出 retryPublication 不调用 retryTransient、对非 transient 错误也重试，与期望一致。"
+  },
+  {
+   "id": "p2-019",
+   "decision": "matched",
+   "reason": "指出 retryPublication 不调用 retryTransient、对非 transient 错误也重试，与期望一致。"
+  },
+  {
+   "id": "p2-020",
+   "decision": "matched",
+   "reason": "指出 retryPublication 不调用 retryTransient、对非 transient 错误也重试，与期望一致。"
+  },
+  {
+   "id": "p2-021",
+   "decision": "matched",
+   "reason": "指出 retryPublication 不调用 retryTransient、对非 transient 错误也重试，与期望一致。"
+  },
+  {
+   "id": "p2-022",
+   "decision": "matched",
+   "reason": "指出 retryPublication 不调用 retryTransient、对非 transient 错误也重试，与期望一致。"
+  },
+  {
+   "id": "p2-023",
+   "decision": "matched",
+   "reason": "指出 retryPublication 不调用 retryTransient、对非 transient 错误也重试，与期望一致。"
+  },
+  {
+   "id": "p2-024",
+   "decision": "matched",
+   "reason": "指出 retryPublication 不调用 retryTransient、对非 transient 错误也重试，与期望一致。"
+  },
+  {
+   "id": "p2-025",
+   "decision": "matched",
+   "reason": "指出 dispatch 先于授权检查被调用，被拒调用者的 dispatch 已执行，与期望一致。"
+  },
+  {
+   "id": "p2-026",
+   "decision": "matched",
+   "reason": "指出 dispatch 先于授权检查被调用，被拒调用者的 dispatch 已执行，与期望一致。"
+  },
+  {
+   "id": "p2-027",
+   "decision": "matched",
+   "reason": "指出 dispatch 先于授权检查被调用，被拒调用者的 dispatch 已执行，与期望一致。"
+  },
+  {
+   "id": "p2-028",
+   "decision": "matched",
+   "reason": "指出公告失败分支 handleAnnouncementFailure 不删除已存储的 manifest，与期望一致。"
+  },
+  {
+   "id": "p2-029",
+   "decision": "matched",
+   "reason": "指出公告失败分支 handleAnnouncementFailure 不删除已存储的 manifest，与期望一致。"
+  },
+  {
+   "id": "p2-030",
+   "decision": "matched",
+   "reason": "指出公告失败分支 handleAnnouncementFailure 不删除已存储的 manifest，与期望一致。"
+  },
+  {
+   "id": "p2-031",
+   "decision": "matched",
+   "reason": "指出公告失败分支 handleAnnouncementFailure 不删除已存储的 manifest，与期望一致。"
+  },
+  {
+   "id": "p2-032",
+   "decision": "matched",
+   "reason": "指出 onValidated 在 await store.write 之前触发 plan.created，与期望一致。"
+  },
+  {
+   "id": "p2-033",
+   "decision": "matched",
+   "reason": "指出 onValidated 在 await store.write 之前触发 plan.created，与期望一致。"
+  },
+  {
+   "id": "p2-034",
+   "decision": "matched",
+   "reason": "指出 onValidated 在 await store.write 之前触发 plan.created，与期望一致。"
+  },
+  {
+   "id": "p2-035",
+   "decision": "matched",
+   "reason": "指出 onValidated 在 await store.write 之前触发 plan.created，与期望一致。"
+  },
+  {
+   "id": "p2-036",
+   "decision": "matched",
+   "reason": "指出 onValidated 在 await store.write 之前触发 plan.created，与期望一致。"
+  },
+  {
+   "id": "p2-037",
+   "decision": "matched",
+   "reason": "指出 onValidated 在 await store.write 之前触发 plan.created，与期望一致。"
+  },
+  {
+   "id": "p2-038",
+   "decision": "matched",
+   "reason": "指出 canPlanRoute 用 || 连接 scope 与归属，任一条件即放行，与期望一致。"
+  },
+  {
+   "id": "p2-039",
+   "decision": "matched",
+   "reason": "指出 canPlanRoute 用 || 连接 scope 与归属，任一条件即放行，与期望一致。"
+  },
+  {
+   "id": "p2-040",
+   "decision": "matched",
+   "reason": "指出 canPlanRoute 用 || 连接 scope 与归属，任一条件即放行，与期望一致。"
+  },
+  {
+   "id": "p2-041",
+   "decision": "matched",
+   "reason": "指出 canPlanRoute 用 || 连接 scope 与归属，任一条件即放行，与期望一致。"
+  },
+  {
+   "id": "p2-042",
+   "decision": "matched",
+   "reason": "指出 canPlanRoute 用 || 连接 scope 与归属，任一条件即放行，与期望一致。"
+  },
+  {
+   "id": "p2-043",
+   "decision": "matched",
+   "reason": "指出 canPlanRoute 用 || 连接 scope 与归属，任一条件即放行，与期望一致。"
+  },
+  {
+   "id": "p2-044",
+   "decision": "matched",
+   "reason": "指出 Proxy 只排顶层键、嵌套对象顺序不变，与期望一致。"
+  },
+  {
+   "id": "p2-045",
+   "decision": "matched",
+   "reason": "指出 Proxy 只排顶层键、嵌套对象顺序不变，与期望一致。"
+  },
+  {
+   "id": "p2-046",
+   "decision": "matched",
+   "reason": "指出 Proxy 只排顶层键、嵌套对象顺序不变，与期望一致。"
+  },
+  {
+   "id": "p2-047",
+   "decision": "matched",
+   "reason": "指出 Proxy 只排顶层键、嵌套对象顺序不变，与期望一致。"
+  },
+  {
+   "id": "p2-048",
+   "decision": "matched",
+   "reason": "指出 Proxy 只排顶层键、嵌套对象顺序不变，与期望一致。"
+  },
+  {
+   "id": "p2-049",
+   "decision": "matched",
+   "reason": "指出比较器 right.localeCompare(left) 为降序，与期望一致。"
+  },
+  {
+   "id": "p2-050",
+   "decision": "matched",
+   "reason": "指出比较器 right.localeCompare(left) 为降序，与期望一致。"
+  },
+  {
+   "id": "p2-051",
+   "decision": "matched",
+   "reason": "指出比较器 right.localeCompare(left) 为降序，与期望一致。"
+  },
+  {
+   "id": "p2-052",
+   "decision": "matched",
+   "reason": "指出比较器 right.localeCompare(left) 为降序，与期望一致。"
+  },
+  {
+   "id": "p2-053",
+   "decision": "matched",
+   "reason": "指出比较器 right.localeCompare(left) 为降序，与期望一致。"
+  },
+  {
+   "id": "p2-054",
+   "decision": "matched",
+   "reason": "指出比较器 right.localeCompare(left) 为降序，与期望一致。"
+  },
+  {
+   "id": "p2-055",
+   "decision": "problem-4",
+   "reason": "指出 dispatchRoute 先于 canPlanRoute 调用，正是 problem-4 描述的授权前调用 dispatch。"
+  },
+  {
+   "id": "p2-056",
+   "decision": "problem-4",
+   "reason": "指出 dispatchRoute 先于 canPlanRoute 调用，正是 problem-4 描述的授权前调用 dispatch。"
+  },
+  {
+   "id": "p2-057",
+   "decision": "problem-4",
+   "reason": "指出 dispatchRoute 先于 canPlanRoute 调用，正是 problem-4 描述的授权前调用 dispatch。"
+  },
+  {
+   "id": "p2-058",
+   "decision": "false-positive:clean-8",
+   "reason": "按存储合同 store.put 返回同一存储对象，返回 manifest 即合同所述的确切对象；探针用了违反合同的 store，结论对干净用例构成误报。"
+  },
+  {
+   "id": "p2-059",
+   "decision": "problem-4",
+   "reason": "指出 dispatchRoute 先于 canPlanRoute 调用，正是 problem-4 描述的授权前调用 dispatch。"
+  },
+  {
+   "id": "p2-060",
+   "decision": "problem-4",
+   "reason": "指出 dispatchRoute 先于 canPlanRoute 调用，正是 problem-4 描述的授权前调用 dispatch。"
+  },
+  {
+   "id": "p2-061",
+   "decision": "problem-7",
+   "reason": "指出 renameTemporary 失败时无清理步骤，与 problem-7 同一要求同一代码缺口（结果类别由计分处理）。"
+  },
+  {
+   "id": "p2-062",
+   "decision": "problem-5",
+   "reason": "指出公告失败分支不删除已存储的 manifest，对应 problem-5。"
+  },
+  {
+   "id": "p2-063",
+   "decision": "problem-4",
+   "reason": "指出 dispatchRoute 先于 canPlanRoute 调用，正是 problem-4 描述的授权前调用 dispatch。"
+  },
+  {
+   "id": "p2-064",
+   "decision": "supported",
+   "reason": "canPlanRoute 用 || 确有缺陷，但它不是 requireDepotOwner 的问题，干净用例本身无误，故有依据但不对应本行问题用例。"
+  },
+  {
+   "id": "p2-065",
+   "decision": "problem-10",
+   "reason": "指出 onValidated 在 await store.write 之前发出 plan.created，对应 problem-10。"
+  },
+  {
+   "id": "p2-066",
+   "decision": "problem-13",
+   "reason": "指出 authorizeRouteBatch 只返回第一个归属结果，对应 problem-13。"
+  },
+  {
+   "id": "p2-067",
+   "decision": "problem-5",
+   "reason": "指出公告失败分支不删除已存储的 manifest，对应 problem-5。"
+  },
+  {
+   "id": "p2-068",
+   "decision": "problem-15",
+   "reason": "指出测试导入公共绑定却调用内部 publisher，对应 problem-15。"
+  },
+  {
+   "id": "p2-069",
+   "decision": "problem-5",
+   "reason": "指出公告失败分支不删除已存储的 manifest，对应 problem-5。"
+  },
+  {
+   "id": "p2-070",
+   "decision": "matched",
+   "reason": "指出 formatRouteToken 路由键段未经 normalizeRouteKey（缺 NFKC），而目的地用了 normalizeDestination，与期望一致。"
+  },
+  {
+   "id": "p2-071",
+   "decision": "matched",
+   "reason": "指出 formatRouteToken 路由键段未经 normalizeRouteKey（缺 NFKC），而目的地用了 normalizeDestination，与期望一致。"
+  },
+  {
+   "id": "p2-072",
+   "decision": "matched",
+   "reason": "指出 formatRouteToken 路由键段未经 normalizeRouteKey（缺 NFKC），而目的地用了 normalizeDestination，与期望一致。"
+  },
+  {
+   "id": "p2-073",
+   "decision": "matched",
+   "reason": "指出 coalescePackages 只在单组内去重、跨组重复保留，与期望一致。"
+  },
+  {
+   "id": "p2-074",
+   "decision": "matched",
+   "reason": "指出 coalescePackages 只在单组内去重、跨组重复保留，与期望一致。"
+  },
+  {
+   "id": "p2-075",
+   "decision": "matched",
+   "reason": "指出 coalescePackages 只在单组内去重、跨组重复保留，与期望一致。"
+  },
+  {
+   "id": "p2-076",
+   "decision": "matched",
+   "reason": "指出 coalescePackages 只在单组内去重、跨组重复保留，与期望一致。"
+  },
+  {
+   "id": "p2-077",
+   "decision": "matched",
+   "reason": "指出 coalescePackages 只在单组内去重、跨组重复保留，与期望一致。"
+  },
+  {
+   "id": "p2-078",
+   "decision": "matched",
+   "reason": "指出 coalescePackages 只在单组内去重、跨组重复保留，与期望一致。"
+  },
+  {
+   "id": "p2-079",
+   "decision": "matched",
+   "reason": "指出 withinVehicleCapacity 用严格小于、拒绝等于上限的总量，与期望一致。"
+  },
+  {
+   "id": "p2-080",
+   "decision": "matched",
+   "reason": "指出 withinVehicleCapacity 用严格小于、拒绝等于上限的总量，与期望一致。"
+  },
+  {
+   "id": "p2-081",
+   "decision": "matched",
+   "reason": "指出 withinVehicleCapacity 用严格小于、拒绝等于上限的总量，与期望一致。"
+  },
+  {
+   "id": "p2-082",
+   "decision": "matched",
+   "reason": "指出 withinVehicleCapacity 用严格小于、拒绝等于上限的总量，与期望一致。"
+  },
+  {
+   "id": "p2-083",
+   "decision": "matched",
+   "reason": "指出 withinVehicleCapacity 用严格小于、拒绝等于上限的总量，与期望一致。"
+  },
+  {
+   "id": "p2-084",
+   "decision": "matched",
+   "reason": "指出 withinVehicleCapacity 用严格小于、拒绝等于上限的总量，与期望一致。"
+  },
+  {
+   "id": "p2-085",
+   "decision": "matched",
+   "reason": "指出 scopeAllowsPlan 用 startsWith 前缀匹配、接受更长的 scope，与期望一致。"
+  },
+  {
+   "id": "p2-086",
+   "decision": "matched",
+   "reason": "指出 scopeAllowsPlan 用 startsWith 前缀匹配、接受更长的 scope，与期望一致。"
+  },
+  {
+   "id": "p2-087",
+   "decision": "matched",
+   "reason": "指出 scopeAllowsPlan 用 startsWith 前缀匹配、接受更长的 scope，与期望一致。"
+  },
+  {
+   "id": "p2-088",
+   "decision": "matched",
+   "reason": "指出 scopeAllowsPlan 用 startsWith 前缀匹配、接受更长的 scope，与期望一致。"
+  },
+  {
+   "id": "p2-089",
+   "decision": "matched",
+   "reason": "指出 scopeAllowsPlan 用 startsWith 前缀匹配、接受更长的 scope，与期望一致。"
+  },
+  {
+   "id": "p2-090",
+   "decision": "matched",
+   "reason": "指出 retryPublication 对任何错误都重试、不检查 transient，与期望一致。"
+  },
+  {
+   "id": "p2-091",
+   "decision": "matched",
+   "reason": "指出 retryPublication 对任何错误都重试、不检查 transient，与期望一致。"
+  },
+  {
+   "id": "p2-092",
+   "decision": "matched",
+   "reason": "指出 retryPublication 对任何错误都重试、不检查 transient，与期望一致。"
+  },
+  {
+   "id": "p2-093",
+   "decision": "matched",
+   "reason": "指出 retryPublication 对任何错误都重试、不检查 transient，与期望一致。"
+  },
+  {
+   "id": "p2-094",
+   "decision": "matched",
+   "reason": "指出 retryPublication 对任何错误都重试、不检查 transient，与期望一致。"
+  },
+  {
+   "id": "p2-095",
+   "decision": "matched",
+   "reason": "指出测试导入公共入口的 publishManifest 却调用内部绑定，与期望一致。"
+  },
+  {
+   "id": "p2-096",
+   "decision": "matched",
+   "reason": "指出测试导入公共入口的 publishManifest 却调用内部绑定，与期望一致。"
+  },
+  {
+   "id": "p2-097",
+   "decision": "matched",
+   "reason": "指出测试导入公共入口的 publishManifest 却调用内部绑定，与期望一致。"
+  },
+  {
+   "id": "p2-098",
+   "decision": "matched",
+   "reason": "指出测试导入公共入口的 publishManifest 却调用内部绑定，与期望一致。"
+  },
+  {
+   "id": "p2-099",
+   "decision": "matched",
+   "reason": "指出测试导入公共入口的 publishManifest 却调用内部绑定，与期望一致。"
+  },
+  {
+   "id": "p2-100",
+   "decision": "matched",
+   "reason": "指出失败分支不删除已存储的 manifest，与期望一致。"
+  },
+  {
+   "id": "p2-101",
+   "decision": "matched",
+   "reason": "指出失败分支不删除已存储的 manifest，与期望一致。"
+  },
+  {
+   "id": "p2-102",
+   "decision": "matched",
+   "reason": "指出失败分支不删除已存储的 manifest，与期望一致。"
+  },
+  {
+   "id": "p2-103",
+   "decision": "matched",
+   "reason": "指出失败分支不删除已存储的 manifest，与期望一致。"
+  },
+  {
+   "id": "p2-104",
+   "decision": "matched",
+   "reason": "指出失败分支不删除已存储的 manifest，与期望一致。"
+  },
+  {
+   "id": "p2-105",
+   "decision": "matched",
+   "reason": "指出 createDispatchPlan 引用 input.stops 并原地 sort，修改调用者列表，与期望一致。"
+  },
+  {
+   "id": "p2-106",
+   "decision": "matched",
+   "reason": "指出 createDispatchPlan 引用 input.stops 并原地 sort，修改调用者列表，与期望一致。"
+  },
+  {
+   "id": "p2-107",
+   "decision": "matched",
+   "reason": "指出 createDispatchPlan 引用 input.stops 并原地 sort，修改调用者列表，与期望一致。"
+  },
+  {
+   "id": "p2-108",
+   "decision": "matched",
+   "reason": "指出 createDispatchPlan 引用 input.stops 并原地 sort，修改调用者列表，与期望一致。"
+  },
+  {
+   "id": "p2-109",
+   "decision": "matched",
+   "reason": "指出 createDispatchPlan 引用 input.stops 并原地 sort，修改调用者列表，与期望一致。"
+  },
+  {
+   "id": "p2-110",
+   "decision": "matched",
+   "reason": "指出 updateStopBuffer 用 splice 原地改写传入列表，与期望一致。"
+  },
+  {
+   "id": "p2-111",
+   "decision": "matched",
+   "reason": "指出 updateStopBuffer 用 splice 原地改写传入列表，与期望一致。"
+  },
+  {
+   "id": "p2-112",
+   "decision": "matched",
+   "reason": "指出 updateStopBuffer 用 splice 原地改写传入列表，与期望一致。"
+  },
+  {
+   "id": "p2-113",
+   "decision": "matched",
+   "reason": "指出 updateStopBuffer 用 splice 原地改写传入列表，与期望一致。"
+  },
+  {
+   "id": "p2-114",
+   "decision": "matched",
+   "reason": "指出 updateStopBuffer 用 splice 原地改写传入列表，与期望一致。"
+  },
+  {
+   "id": "p2-115",
+   "decision": "not-matched",
+   "reason": "谈的是 coalescePackages 跨组去重，与 partitionUrgentStops 的 splice 无关。"
+  },
+  {
+   "id": "p2-116",
+   "decision": "matched",
+   "reason": "指出 join('\\n') 使最后一条记录无末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-117",
+   "decision": "matched",
+   "reason": "指出 join('\\n') 使最后一条记录无末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-118",
+   "decision": "matched",
+   "reason": "指出 join('\\n') 使最后一条记录无末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-119",
+   "decision": "matched",
+   "reason": "指出 join('\\n') 使最后一条记录无末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-120",
+   "decision": "matched",
+   "reason": "指出 join('\\n') 使最后一条记录无末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-121",
+   "decision": "matched",
+   "reason": "指出容量测试总量 9 低于上限 10、未覆盖等于边界，与期望一致。"
+  },
+  {
+   "id": "p2-122",
+   "decision": "matched",
+   "reason": "指出容量测试总量 9 低于上限 10、未覆盖等于边界，与期望一致。"
+  },
+  {
+   "id": "p2-123",
+   "decision": "matched",
+   "reason": "指出容量测试总量 9 低于上限 10、未覆盖等于边界，与期望一致。"
+  },
+  {
+   "id": "p2-124",
+   "decision": "matched",
+   "reason": "指出容量测试总量 9 低于上限 10、未覆盖等于边界，与期望一致。"
+  },
+  {
+   "id": "p2-125",
+   "decision": "matched",
+   "reason": "指出容量测试总量 9 低于上限 10、未覆盖等于边界，与期望一致。"
+  },
+  {
+   "id": "p2-126",
+   "decision": "matched",
+   "reason": "指出 retryAfterDelay 用 Math.max 只设下限不设上限，与期望一致。"
+  },
+  {
+   "id": "p2-127",
+   "decision": "matched",
+   "reason": "指出 retryAfterDelay 用 Math.max 只设下限不设上限，与期望一致。"
+  },
+  {
+   "id": "p2-128",
+   "decision": "matched",
+   "reason": "指出 retryAfterDelay 用 Math.max 只设下限不设上限，与期望一致。"
+  },
+  {
+   "id": "p2-129",
+   "decision": "matched",
+   "reason": "指出 retryAfterDelay 用 Math.max 只设下限不设上限，与期望一致。"
+  },
+  {
+   "id": "p2-130",
+   "decision": "matched",
+   "reason": "指出 retryAfterDelay 用 Math.max 只设下限不设上限，与期望一致。"
+  },
+  {
+   "id": "p2-131",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs，与期望一致。"
+  },
+  {
+   "id": "p2-132",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs，与期望一致。"
+  },
+  {
+   "id": "p2-133",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs，与期望一致。"
+  },
+  {
+   "id": "p2-134",
+   "decision": "not-matched",
+   "reason": "谈的是 stableTopLevel 只排顶层键，与公共入口未导出 executor 无关。"
+  },
+  {
+   "id": "p2-135",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs，与期望一致。"
+  },
+  {
+   "id": "p2-136",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs，与期望一致。"
+  },
+  {
+   "id": "p2-137",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs，与期望一致。"
+  },
+  {
+   "id": "p2-138",
+   "decision": "matched",
+   "reason": "指出 hasDuplicateRouteKeys 只 trim、未用 normalizeRouteKey（NFKC 与大写），与期望一致。"
+  },
+  {
+   "id": "p2-139",
+   "decision": "matched",
+   "reason": "指出 hasDuplicateRouteKeys 只 trim、未用 normalizeRouteKey（NFKC 与大写），与期望一致。"
+  },
+  {
+   "id": "p2-140",
+   "decision": "matched",
+   "reason": "指出 hasDuplicateRouteKeys 只 trim、未用 normalizeRouteKey（NFKC 与大写），与期望一致。"
+  },
+  {
+   "id": "p2-141",
+   "decision": "matched",
+   "reason": "指出 hasDuplicateRouteKeys 只 trim、未用 normalizeRouteKey（NFKC 与大写），与期望一致。"
+  },
+  {
+   "id": "p2-142",
+   "decision": "matched",
+   "reason": "指出 hasDuplicateRouteKeys 只 trim、未用 normalizeRouteKey（NFKC 与大写），与期望一致。"
+  },
+  {
+   "id": "p2-143",
+   "decision": "matched",
+   "reason": "指出 join('\\n') 只在记录之间放 LF、缺末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-144",
+   "decision": "matched",
+   "reason": "指出 join('\\n') 只在记录之间放 LF、缺末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-145",
+   "decision": "matched",
+   "reason": "指出 join('\\n') 只在记录之间放 LF、缺末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-146",
+   "decision": "matched",
+   "reason": "指出 join('\\n') 只在记录之间放 LF、缺末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-147",
+   "decision": "matched",
+   "reason": "指出 join('\\n') 只在记录之间放 LF、缺末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-148",
+   "decision": "matched",
+   "reason": "指出 restorePlan 只转发 adapter.restore 且无 restore 合同可判定其返回值，与期望一致。"
+  },
+  {
+   "id": "p2-149",
+   "decision": "matched",
+   "reason": "指出 restorePlan 只转发 adapter.restore 且无 restore 合同可判定其返回值，与期望一致。"
+  },
+  {
+   "id": "p2-150",
+   "decision": "matched",
+   "reason": "指出 restorePlan 只转发 adapter.restore 且无 restore 合同可判定其返回值，与期望一致。"
+  },
+  {
+   "id": "p2-151",
+   "decision": "matched",
+   "reason": "指出 restorePlan 只转发 adapter.restore 且无 restore 合同可判定其返回值，与期望一致。"
+  },
+  {
+   "id": "p2-152",
+   "decision": "not-matched",
+   "reason": "谈的是 parseRetryCount 上界，与 restore 合同缺失无关。"
+  },
+  {
+   "id": "p2-153",
+   "decision": "matched",
+   "reason": "指出 restorePlan 只转发 adapter.restore 且无 restore 合同可判定其返回值，与期望一致。"
+  },
+  {
+   "id": "p2-154",
+   "decision": "matched",
+   "reason": "指出 onValidated 在 await store.write 之前发出事件，与期望一致。"
+  },
+  {
+   "id": "p2-155",
+   "decision": "matched",
+   "reason": "指出 onValidated 在 await store.write 之前发出事件，与期望一致。"
+  },
+  {
+   "id": "p2-156",
+   "decision": "matched",
+   "reason": "指出 onValidated 在 await store.write 之前发出事件，与期望一致。"
+  },
+  {
+   "id": "p2-157",
+   "decision": "matched",
+   "reason": "指出 onValidated 在 await store.write 之前发出事件，与期望一致。"
+  },
+  {
+   "id": "p2-158",
+   "decision": "matched",
+   "reason": "指出 onValidated 在 await store.write 之前发出事件，与期望一致。"
+  },
+  {
+   "id": "p2-159",
+   "decision": "matched",
+   "reason": "指出 onValidated 在 await store.write 之前发出事件，与期望一致。"
+  },
+  {
+   "id": "p2-160",
+   "decision": "matched",
+   "reason": "指出接受集只有 0–2、拒绝上界 3，与期望一致。"
+  },
+  {
+   "id": "p2-161",
+   "decision": "matched",
+   "reason": "指出接受集只有 0–2、拒绝上界 3，与期望一致。"
+  },
+  {
+   "id": "p2-162",
+   "decision": "matched",
+   "reason": "指出接受集只有 0–2、拒绝上界 3，与期望一致。"
+  },
+  {
+   "id": "p2-163",
+   "decision": "matched",
+   "reason": "指出接受集只有 0–2、拒绝上界 3，与期望一致。"
+  },
+  {
+   "id": "p2-164",
+   "decision": "matched",
+   "reason": "指出接受集只有 0–2、拒绝上界 3，与期望一致。"
+  },
+  {
+   "id": "p2-165",
+   "decision": "matched",
+   "reason": "指出接受集只有 0–2、拒绝上界 3，与期望一致。"
+  },
+  {
+   "id": "p2-166",
+   "decision": "not-matched",
+   "reason": "谈的是 canPlanRoute 的 ||，与 publishManifest 先存后验无关。"
+  },
+  {
+   "id": "p2-167",
+   "decision": "matched",
+   "reason": "指出 publishManifest 先 stageManifest 写入再校验条目，与期望一致。"
+  },
+  {
+   "id": "p2-168",
+   "decision": "matched",
+   "reason": "指出 publishManifest 先 stageManifest 写入再校验条目，与期望一致。"
+  },
+  {
+   "id": "p2-169",
+   "decision": "matched",
+   "reason": "指出 publishManifest 先 stageManifest 写入再校验条目，与期望一致。"
+  },
+  {
+   "id": "p2-170",
+   "decision": "problem-9",
+   "reason": "指出 dispatchRoute 先于 canPlanRoute 调用，对应 problem-9。"
+  },
+  {
+   "id": "p2-171",
+   "decision": "problem-14",
+   "reason": "指出公告失败分支不删除已存储的 manifest，对应 problem-14。"
+  },
+  {
+   "id": "p2-172",
+   "decision": "unsupported",
+   "reason": "只以\"只排顶层\"为理由、未指出 serializePlan 缺末尾 LF，按裁决口径 01:51 裁为 unsupported。"
+  },
+  {
+   "id": "p2-173",
+   "decision": "problem-14",
+   "reason": "指出公告失败分支不删除已存储的 manifest，对应 problem-14。"
+  },
+  {
+   "id": "p2-174",
+   "decision": "problem-9",
+   "reason": "指出 dispatchRoute 先于 canPlanRoute 调用，对应 problem-9。"
+  },
+  {
+   "id": "p2-175",
+   "decision": "problem-14",
+   "reason": "指出公告失败分支不删除已存储的 manifest，对应 problem-14。"
+  },
+  {
+   "id": "p2-176",
+   "decision": "problem-9",
+   "reason": "指出 dispatchRoute 先于 canPlanRoute 调用，对应 problem-9。"
+  },
+  {
+   "id": "p2-177",
+   "decision": "problem-18",
+   "reason": "指出 publishManifest 先 store.put 再校验条目，对应 problem-18。"
+  },
+  {
+   "id": "p2-178",
+   "decision": "problem-7",
+   "reason": "指出 createDispatchPlan 原地排序调用者的 stops，对应 problem-7。"
+  },
+  {
+   "id": "p2-179",
+   "decision": "problem-9",
+   "reason": "指出 dispatchRoute 先于 canPlanRoute 调用，对应 problem-9。"
+  },
+  {
+   "id": "p2-180",
+   "decision": "problem-18",
+   "reason": "指出 publishManifest 先 store.put 再校验条目，对应 problem-18。"
+  },
+  {
+   "id": "p2-181",
+   "decision": "problem-18",
+   "reason": "指出 publishManifest 先 store.put 再校验条目，对应 problem-18。"
+  },
+  {
+   "id": "p2-182",
+   "decision": "problem-9",
+   "reason": "指出 dispatchRoute 先于 canPlanRoute 调用，对应 problem-9。"
+  },
+  {
+   "id": "p2-183",
+   "decision": "problem-4",
+   "reason": "指出 plan.created 在 store.write 之前发出，对应 problem-4。"
+  },
+  {
+   "id": "p2-184",
+   "decision": "problem-18",
+   "reason": "指出 publishManifest 先 store.put 再校验条目，对应 problem-18。"
+  },
+  {
+   "id": "p2-185",
+   "decision": "problem-18",
+   "reason": "指出 publishManifest 先 store.put 再校验条目，对应 problem-18。"
+  },
+  {
+   "id": "p2-186",
+   "decision": "problem-18",
+   "reason": "指出 publishManifest 先 store.put 再校验条目，对应 problem-18。"
+  },
+  {
+   "id": "p2-187",
+   "decision": "problem-9",
+   "reason": "指出 dispatchRoute 先于 canPlanRoute 调用，对应 problem-9。"
+  },
+  {
+   "id": "p2-188",
+   "decision": "problem-18",
+   "reason": "指出 publishManifest 先 store.put 再校验条目，对应 problem-18。"
+  },
+  {
+   "id": "p2-189",
+   "decision": "problem-14",
+   "reason": "指出公告失败分支不删除已存储的 manifest，对应 problem-14。"
+  },
+  {
+   "id": "p2-190",
+   "decision": "matched",
+   "reason": "指出 serializePlan 传 'plan' 格式使 finishJsonDocument 不追加末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-191",
+   "decision": "matched",
+   "reason": "指出 serializePlan 传 'plan' 格式使 finishJsonDocument 不追加末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-192",
+   "decision": "matched",
+   "reason": "指出 serializePlan 传 'plan' 格式使 finishJsonDocument 不追加末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-193",
+   "decision": "matched",
+   "reason": "指出 serializePlan 传 'plan' 格式使 finishJsonDocument 不追加末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-194",
+   "decision": "matched",
+   "reason": "指出 serializePlan 传 'plan' 格式使 finishJsonDocument 不追加末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-195",
+   "decision": "matched",
+   "reason": "指出 serializePlan 传 'plan' 格式使 finishJsonDocument 不追加末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-196",
+   "decision": "matched",
+   "reason": "指出 serializePlan 传 'plan' 格式使 finishJsonDocument 不追加末尾 LF，与期望一致。"
+  },
+  {
+   "id": "p2-197",
+   "decision": "not-matched",
+   "reason": "只以 localeCompare 为理由、未指出缺末尾 LF，按裁决口径 01:51 不匹配。"
+  },
+  {
+   "id": "p2-198",
+   "decision": "not-matched",
+   "reason": "只以只排顶层为理由、未指出缺末尾 LF，按裁决口径 01:51 不匹配。"
+  },
+  {
+   "id": "p2-199",
+   "decision": "matched",
+   "reason": "指出 canAssignAllPackages 经严格小于的 withinVehicleCapacity 拒绝等于上限的总量，与期望一致。"
+  },
+  {
+   "id": "p2-200",
+   "decision": "matched",
+   "reason": "指出 canAssignAllPackages 经严格小于的 withinVehicleCapacity 拒绝等于上限的总量，与期望一致。"
+  },
+  {
+   "id": "p2-201",
+   "decision": "matched",
+   "reason": "指出 canAssignAllPackages 经严格小于的 withinVehicleCapacity 拒绝等于上限的总量，与期望一致。"
+  },
+  {
+   "id": "p2-202",
+   "decision": "matched",
+   "reason": "指出 canAssignAllPackages 经严格小于的 withinVehicleCapacity 拒绝等于上限的总量，与期望一致。"
+  },
+  {
+   "id": "p2-203",
+   "decision": "matched",
+   "reason": "指出 canAssignAllPackages 经严格小于的 withinVehicleCapacity 拒绝等于上限的总量，与期望一致。"
+  },
+  {
+   "id": "p2-204",
+   "decision": "matched",
+   "reason": "指出 canAssignAllPackages 经严格小于的 withinVehicleCapacity 拒绝等于上限的总量，与期望一致。"
+  },
+  {
+   "id": "p2-205",
+   "decision": "matched",
+   "reason": "指出 renameTemporary 失败时没有清理临时字节的步骤，与期望同一要求同一代码缺口（结果类别由计分处理）。"
+  },
+  {
+   "id": "p2-206",
+   "decision": "matched",
+   "reason": "指出 renameTemporary 失败时没有清理临时字节的步骤，与期望同一要求同一代码缺口（结果类别由计分处理）。"
+  },
+  {
+   "id": "p2-207",
+   "decision": "matched",
+   "reason": "指出 renameTemporary 失败时没有清理临时字节的步骤，与期望同一要求同一代码缺口（结果类别由计分处理）。"
+  },
+  {
+   "id": "p2-208",
+   "decision": "matched",
+   "reason": "指出 renameTemporary 失败时没有清理临时字节的步骤，与期望同一要求同一代码缺口（结果类别由计分处理）。"
+  },
+  {
+   "id": "p2-209",
+   "decision": "matched",
+   "reason": "指出 renameTemporary 失败时没有清理临时字节的步骤，与期望同一要求同一代码缺口（结果类别由计分处理）。"
+  },
+  {
+   "id": "p2-210",
+   "decision": "not-matched",
+   "reason": "谈的是 authorizeRouteBatch 只看第一条，与 rename 失败清理无关。"
+  },
+  {
+   "id": "p2-211",
+   "decision": "matched",
+   "reason": "指出 renameTemporary 失败时没有清理临时字节的步骤，与期望同一要求同一代码缺口（结果类别由计分处理）。"
+  },
+  {
+   "id": "p2-212",
+   "decision": "matched",
+   "reason": "指出 renameTemporary 失败时没有清理临时字节的步骤，与期望同一要求同一代码缺口（结果类别由计分处理）。"
+  },
+  {
+   "id": "p2-213",
+   "decision": "matched",
+   "reason": "指出 renameTemporary 失败时没有清理临时字节的步骤，与期望同一要求同一代码缺口（结果类别由计分处理）。"
+  },
+  {
+   "id": "p2-214",
+   "decision": "matched",
+   "reason": "指出 renameTemporary 失败时没有清理临时字节的步骤，与期望同一要求同一代码缺口（结果类别由计分处理）。"
+  },
+  {
+   "id": "p2-215",
+   "decision": "matched",
+   "reason": "指出 renameTemporary 失败时没有清理临时字节的步骤，与期望同一要求同一代码缺口（结果类别由计分处理）。"
+  },
+  {
+   "id": "p2-216",
+   "decision": "matched",
+   "reason": "指出 renameTemporary 失败时没有清理临时字节的步骤，与期望同一要求同一代码缺口（结果类别由计分处理）。"
+  },
+  {
+   "id": "p2-217",
+   "decision": "matched",
+   "reason": "指出 renameTemporary 失败时没有清理临时字节的步骤，与期望同一要求同一代码缺口（结果类别由计分处理）。"
+  },
+  {
+   "id": "p2-218",
+   "decision": "matched",
+   "reason": "指出 coalescePackages 逐组去重、跨组重复保留，与期望一致。"
+  },
+  {
+   "id": "p2-219",
+   "decision": "matched",
+   "reason": "指出 coalescePackages 逐组去重、跨组重复保留，与期望一致。"
+  },
+  {
+   "id": "p2-220",
+   "decision": "matched",
+   "reason": "指出 coalescePackages 逐组去重、跨组重复保留，与期望一致。"
+  },
+  {
+   "id": "p2-221",
+   "decision": "matched",
+   "reason": "指出 coalescePackages 逐组去重、跨组重复保留，与期望一致。"
+  },
+  {
+   "id": "p2-222",
+   "decision": "matched",
+   "reason": "指出 coalescePackages 逐组去重、跨组重复保留，与期望一致。"
+  },
+  {
+   "id": "p2-223",
+   "decision": "matched",
+   "reason": "指出 redactManifestEvent 复用 token 清除、只清 auth.token，auth 下其他凭据（如 auth.driver.token）保留，与期望同一缺陷。"
+  },
+  {
+   "id": "p2-224",
+   "decision": "matched",
+   "reason": "指出只清除 auth 下的 token 键、其他凭据保留，与期望一致。"
+  },
+  {
+   "id": "p2-225",
+   "decision": "matched",
+   "reason": "指出 redactManifestEvent 复用 token 清除、只清 auth.token，auth 下其他凭据（如 auth.driver.token）保留，与期望同一缺陷。"
+  },
+  {
+   "id": "p2-226",
+   "decision": "matched",
+   "reason": "指出只清 auth.token、其他 auth 凭据字段未被移除（以 uncertain 表述），与期望同一问题。"
+  },
+  {
+   "id": "p2-227",
+   "decision": "matched",
+   "reason": "指出只清 auth.token、其他 auth 凭据字段未被移除（以 uncertain 表述），与期望同一问题。"
+  },
+  {
+   "id": "p2-228",
+   "decision": "matched",
+   "reason": "指出 redactManifestEvent 复用 token 清除、只清 auth.token，auth 下其他凭据（如 auth.driver.token）保留，与期望同一缺陷。"
+  },
+  {
+   "id": "p2-229",
+   "decision": "matched",
+   "reason": "指出只清 auth.token、其他 auth 凭据字段未被移除（以 uncertain 表述），与期望同一问题。"
+  },
+  {
+   "id": "p2-230",
+   "decision": "matched",
+   "reason": "指出 redactManifestEvent 复用 token 清除、只清 auth.token，auth 下其他凭据（如 auth.driver.token）保留，与期望同一缺陷。"
+  },
+  {
+   "id": "p2-231",
+   "decision": "matched",
+   "reason": "指出 redactManifestEvent 复用 token 清除、只清 auth.token，auth 下其他凭据（如 auth.driver.token）保留，与期望同一缺陷。"
+  },
+  {
+   "id": "p2-232",
+   "decision": "matched",
+   "reason": "指出 redactManifestEvent 复用 token 清除、只清 auth.token，auth 下其他凭据（如 auth.driver.token）保留，与期望同一缺陷。"
+  },
+  {
+   "id": "p2-233",
+   "decision": "matched",
+   "reason": "指出只清除 auth 下的 token 键、其他凭据保留，与期望一致。"
+  },
+  {
+   "id": "p2-234",
+   "decision": "matched",
+   "reason": "指出只清 auth.token、其他 auth 凭据字段未被移除（以 uncertain 表述），与期望同一问题。"
+  },
+  {
+   "id": "p2-235",
+   "decision": "matched",
+   "reason": "指出 restorePlan 只转发且无 restore 适配器合同定义返回值，与期望一致。"
+  },
+  {
+   "id": "p2-236",
+   "decision": "matched",
+   "reason": "指出 restorePlan 只转发且无 restore 适配器合同定义返回值，与期望一致。"
+  },
+  {
+   "id": "p2-237",
+   "decision": "matched",
+   "reason": "指出 restorePlan 只转发且无 restore 适配器合同定义返回值，与期望一致。"
+  },
+  {
+   "id": "p2-238",
+   "decision": "matched",
+   "reason": "指出 restorePlan 只转发且无 restore 适配器合同定义返回值，与期望一致。"
+  },
+  {
+   "id": "p2-239",
+   "decision": "matched",
+   "reason": "指出 restorePlan 只转发且无 restore 适配器合同定义返回值，与期望一致。"
+  },
+  {
+   "id": "p2-240",
+   "decision": "matched",
+   "reason": "指出 orderManifestGroups 比较器为降序，与期望一致。"
+  },
+  {
+   "id": "p2-241",
+   "decision": "matched",
+   "reason": "指出 orderManifestGroups 比较器为降序，与期望一致。"
+  },
+  {
+   "id": "p2-242",
+   "decision": "matched",
+   "reason": "指出 orderManifestGroups 比较器为降序，与期望一致。"
+  },
+  {
+   "id": "p2-243",
+   "decision": "matched",
+   "reason": "指出 orderManifestGroups 比较器为降序，与期望一致。"
+  },
+  {
+   "id": "p2-244",
+   "decision": "matched",
+   "reason": "指出 orderManifestGroups 比较器为降序，与期望一致。"
+  },
+  {
+   "id": "p2-245",
+   "decision": "matched",
+   "reason": "指出 authorizeRouteBatch 只返回 ownership[0]，与期望一致。"
+  },
+  {
+   "id": "p2-246",
+   "decision": "matched",
+   "reason": "指出 authorizeRouteBatch 只返回 ownership[0]，与期望一致。"
+  },
+  {
+   "id": "p2-247",
+   "decision": "matched",
+   "reason": "指出 authorizeRouteBatch 只返回 ownership[0]，与期望一致。"
+  },
+  {
+   "id": "p2-248",
+   "decision": "matched",
+   "reason": "指出 authorizeRouteBatch 只返回 ownership[0]，与期望一致。"
+  },
+  {
+   "id": "p2-249",
+   "decision": "matched",
+   "reason": "指出 authorizeRouteBatch 只返回 ownership[0]，与期望一致。"
+  },
+  {
+   "id": "p2-250",
+   "decision": "matched",
+   "reason": "指出 authorizeRouteBatch 只返回 ownership[0]，与期望一致。"
+  },
+  {
+   "id": "p2-251",
+   "decision": "matched",
+   "reason": "指出 hourOf 用 getHours 读本地小时而非 UTC，与期望一致。"
+  },
+  {
+   "id": "p2-252",
+   "decision": "matched",
+   "reason": "指出 hourOf 用 getHours 读本地小时而非 UTC，与期望一致。"
+  },
+  {
+   "id": "p2-253",
+   "decision": "matched",
+   "reason": "指出 hourOf 用 getHours 读本地小时而非 UTC，与期望一致。"
+  },
+  {
+   "id": "p2-254",
+   "decision": "matched",
+   "reason": "指出 hourOf 用 getHours 读本地小时而非 UTC，与期望一致。"
+  },
+  {
+   "id": "p2-255",
+   "decision": "matched",
+   "reason": "指出 hourOf 用 getHours 读本地小时而非 UTC，与期望一致。"
+  }
+ ]
+}

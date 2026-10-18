@@ -38,5 +38,30 @@
   "src": "opus:opus-3",
   "report": "runs/opus-3/review-1.jsonl",
   "repaired": false
+ },
+ "default-8dbda33a-8057-45a2-92be-0111fad3990d-instance-1": {
+  "src": "q3:C",
+  "report": "runs/C/review-1.jsonl",
+  "repaired": false
+ },
+ "default-8dbda33a-8057-45a2-92be-0111fad3990d-instance-2": {
+  "src": "q3:C",
+  "report": "runs/C/review-2.jsonl",
+  "repaired": false
+ },
+ "default-8dbda33a-8057-45a2-92be-0111fad3990d-instance-3": {
+  "src": "q3:C",
+  "report": "runs/C/review-3.jsonl",
+  "repaired": false
+ },
+ "default-59851759-17ec-464b-bbd9-a68550c80f5d-instance-1": {
+  "src": "q3:D",
+  "report": "runs/D/review-1.jsonl",
+  "repaired": false
+ },
+ "default-59851759-17ec-464b-bbd9-a68550c80f5d-instance-2": {
+  "src": "q3:D",
+  "report": "runs/D/review-2.jsonl",
+  "repaired": false
  }
 }
