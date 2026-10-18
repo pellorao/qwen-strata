@@ -1,0 +1,20 @@
+{
+  "session": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/Bf/run/arw-installation/codex-home/sessions/2026/10/18/rollout-2026-10-18T17-54-45-01a14e38-7612-7083-8016-ba54519935c3.jsonl",
+  "threadId": "01a14e38-7612-7083-8016-ba54519935c3",
+  "source": "vscode",
+  "thread_source": null,
+  "root": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/Bf/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/7ac679c8-14ee-4ee3-b441-f6e14fba3cf2/ca/1",
+  "startup": {
+    "base_instructions": "5d36e1d1a96f0515",
+    "developer@2": "b0808ba12bbba68f",
+    "user@3": "b35059a2d4a3842c",
+    "user@6": "e7f65bedee55a5af",
+    "messageId": "8cde6349-28fd-4b28-a052-f2cec7b0aa3a"
+  },
+  "handoff_found": true,
+  "compactions": 0,
+  "final": "{\"status\":\"ready\"}",
+  "flagged_actions": [],
+  "flagged_messages": [],
+  "other_sessions_same_day": []
+}

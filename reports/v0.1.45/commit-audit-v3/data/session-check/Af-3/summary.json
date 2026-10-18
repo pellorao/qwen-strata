@@ -1,0 +1,49 @@
+{
+  "session": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/Af/run/arw-installation/codex-home/sessions/2026/10/18/rollout-2026-10-18T17-09-48-01a14e0f-4e9d-7cd1-9401-57ddc854ec32.jsonl",
+  "threadId": "01a14e0f-4e9d-7cd1-9401-57ddc854ec32",
+  "source": "vscode",
+  "thread_source": null,
+  "root": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/Af/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc/ca/3",
+  "startup": {
+    "base_instructions": "5d36e1d1a96f0515",
+    "developer@2": "b0808ba12bbba68f",
+    "user@3": "b35059a2d4a3842c",
+    "user@6": "e7f65bedee55a5af",
+    "messageId": "8dfd39e9-5330-4fa6-b562-e96b5d9dd770"
+  },
+  "handoff_found": true,
+  "compactions": 0,
+  "final": "{\"status\":\"ready\"}",
+  "flagged_actions": [
+    28,
+    42
+  ],
+  "flagged_messages": [],
+  "other_sessions_same_day": [
+    {
+      "path": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/Af/run/arw-installation/codex-home/sessions/2026/10/18/rollout-2026-10-18T16-40-53-01a14df4-d4b8-7f43-8d90-0149fb6e728b.jsonl",
+      "id": "01a14df4-d4b8-7f43-8d90-0149fb6e728b",
+      "source": "vscode",
+      "thread_source": null,
+      "cwd": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/Af/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc/ca/1"
+    },
+    {
+      "path": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/Af/run/arw-installation/codex-home/sessions/2026/10/18/rollout-2026-10-18T16-54-51-01a14e01-9e95-7d92-9e18-517afef5ce33.jsonl",
+      "id": "01a14e01-9e95-7d92-9e18-517afef5ce33",
+      "source": "vscode",
+      "thread_source": null,
+      "cwd": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/Af/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc/ca/2"
+    },
+    {
+      "path": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/Af/run/arw-installation/codex-home/sessions/2026/10/18/rollout-2026-10-18T16-54-51-01a14e01-9ede-73e2-830e-282c6bf217bc.jsonl",
+      "id": "01a14e01-9ede-73e2-830e-282c6bf217bc",
+      "source": {
+        "subagent": {
+          "other": "guardian"
+        }
+      },
+      "thread_source": "guardian_review",
+      "cwd": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/Af/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc/ca/2"
+    }
+  ]
+}

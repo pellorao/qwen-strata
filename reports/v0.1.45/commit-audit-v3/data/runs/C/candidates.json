@@ -1,0 +1,3420 @@
+[
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-1:COMMIT-AUDIT-GATE-1:finding-1",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/index.mjs\").then(m=>console.log([\"executeAuthorizedPlan\",\"runEligibleStops\",\"emitPlanCreated\",\"pendingStops\",\"executeDryRun\",\"dispatchRoute\"].filter(k=>!(k in m)).join(\",\")))'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 4
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 12
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 19,
+    "lineStart": 14
+   },
+   {
+    "filePath": "src/dispatch/index.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/index.mjs",
+    "line": 11
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 5
+   }
+  ],
+  "expectation": "The public dispatch entry omits the executor surface.",
+  "finding": "src/dispatch/index.mjs re-exports eleven dispatch modules but never re-exports src/dispatch/executor.mjs or src/dispatch/runtime.mjs, so the execution operations this issue names (executeAuthorizedPlan, executeDryRun, planFailure, runEligibleStops, emitPlanCreated, pendingStops) and the runtime dispatch adapter entry are unreachable from the public dispatch entry. Importing src/dispatch/index.mjs yields none of those six names, so planning and execution are not connected through the public entry.",
+  "findingIndex": 0,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 1,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "Connect dispatch planning and"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-2:COMMIT-AUDIT-GATE-1:finding-2",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/retry.mjs\").then(m=>console.log(m.nextRetryDelay(1,0),m.nextRetryDelay(1,5)))'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 17,
+    "lineStart": 15
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 22
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 24
+   }
+  ],
+  "expectation": "`nextRetryDelay` tests `retryAfter` by truthiness, so a server-provided `retryAfter` of 0 falls back to the computed backoff instead of a 0 ms delay.",
+  "finding": "Retry timing rule 7 replaces the computed backoff whenever the server provides a finite numeric `retryAfter`, but `nextRetryDelay` gates on plain truthiness (`retryAfter ? ... : computeBackoff(attempt)`). A server-provided `retryAfter` of 0 seconds is finite numeric yet falsy, so the delay becomes the computed backoff 500 ms instead of the supplied 0 ms delay. The same truthiness gate also lets a non-finite `retryAfter` such as NaN reach `retryAfterDelay`.",
+  "findingIndex": 1,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 2,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "nextRetryDelay"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-3:COMMIT-AUDIT-GATE-1:finding-3",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/executor.mjs\").then(async m=>{let n=0;const r=await m.executeAuthorizedPlan({actor:{depotId:\"D1\",scopes:[],claims:[]},dispatch:()=>{n+=1;return \"ran\"},now:1,route:{depotId:\"D2\"}});console.log(JSON.stringify(r),n)})'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 2,
+    "lineStart": 1
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 4
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 6
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 5
+   }
+  ],
+  "expectation": "`executeAuthorizedPlan` awaits dispatch as an argument of `unlessForbidden`, so dispatch runs before the authorization result is applied.",
+  "finding": "`executeAuthorizedPlan` passes `await dispatchRoute(dispatch, route)` as the second argument to `unlessForbidden`, so the dispatch call is evaluated before the authorization result is examined. For a caller that `canPlanRoute` rejects, dispatch still runs and its outcome is discarded afterwards; the probe records one dispatch invocation together with the `{\"ok\":false,\"error\":\"forbidden\"}` result. The rejection therefore happens after dispatch, not before it.",
+  "findingIndex": 2,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 3,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "executeAuthorizedPlan"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-4:COMMIT-AUDIT-GATE-1:finding-4",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 63
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "line": 30
+   }
+  ],
+  "expectation": "`stopsForDriver` compares each stop's own `driver`, so a stop with a `reassignment` is returned for its original driver and not for the driver of its `reassignment`, which rule 30 makes its assigned driver.",
+  "finding": "Policy term 30 defines a stop's assigned driver as the `driver` of its `reassignment` when it has one, and otherwise its own `driver`. `stopsForDriver` compares only `stop.driver`, so a reassigned stop is reported for its original driver and omitted for the driver it was reassigned to. The sibling operation `driverWorkload` in src/dispatch/capacity.mjs applies the `(stop.reassignment || stop).driver` rule, so the two operations disagree about the same stop set.",
+  "findingIndex": 3,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 4,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "stopsForDriver"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-5:COMMIT-AUDIT-GATE-1:finding-5",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/schedule.mjs\").then(m=>console.log(m.chooseDeparture(new Date(Date.UTC(2026,0,5,3,30))).toISOString(),m.chooseDeparture(new Date(Date.UTC(2026,0,5,4,0))).toISOString(),String(m.chooseDeparture(new Date(Date.UTC(2026,0,5,5,0))))))'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 26,
+    "lineStart": 20
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "lineEnd": 7,
+    "lineStart": 3
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 9
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 20
+   }
+  ],
+  "expectation": "`chooseDeparture` moves a blackout departure to the blackout end hour without refusing it when that hour is outside the departure window.",
+  "finding": "Rules 11 to 14 are applied inconsistently. The declared window is hours 2 to 4 and the blackout is hours 3 to 5, so a departure chosen at hour 3 or 4 is inside the window and inside the blackout; rule 13 moves it to the blackout end hour 5, and rule 14, which overrides rule 13 as the later rule in the same section, requires that a departure moved outside the window is refused. `chooseDeparture` returns 2026-01-05T05:00:00.000Z for both inputs instead of refusing, so it hands back a departure outside the departure window.",
+  "findingIndex": 4,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 5,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "chooseDeparture"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-6:COMMIT-AUDIT-GATE-1:finding-6",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/storage-contract.md",
+    "lineEnd": 15,
+    "lineStart": 11
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 17,
+    "lineStart": 14
+   },
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "lineEnd": 5,
+    "lineStart": 1
+   }
+  ],
+  "expectation": "No available contract establishes when `store.write` invokes `onCommit`, so it cannot be established that `plan.created` is emitted only after storage succeeds.",
+  "finding": "`emitPlanCreated` defers the emit into an `onStored` callback that `savePlan` forwards to `store.write` as `onCommit`, so the ordering depends entirely on when the plan store adapter invokes that callback. The Plan Store Contract in docs/dispatch/storage-contract.md defines only `renameTemporary`, `discardTemporary`, `removeTemporary` and `writeTemporary`; it never defines `store.write` or `onCommit`, so no available contract establishes that the callback runs only after the plan is durably stored and the write has succeeded.",
+  "findingIndex": 5,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 6,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "emitPlanCreated"
+  ],
+  "result": "uncertain",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-8:COMMIT-AUDIT-GATE-1:finding-7",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/retry.mjs\").then(m=>console.log(JSON.stringify([\"\",\" 2 \",\"2.0\",true,\"1e1\"].map(v=>m.parseRetryCount(v)))))'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 43,
+    "lineStart": 42
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "lineEnd": 6,
+    "lineStart": 3
+   }
+  ],
+  "expectation": "`parseRetryCount` converts text with `Number`, so text that is not base-10 digits, such as `'0x2'`, `'2e0'`, `' 2'` or `''`, is accepted as a retry count.",
+  "finding": "Rule 22 admits text only when it is one or more base-10 digits, but the parser tests `Number.isInteger(Number(value))` on the coerced value, so text that is not a digit string is accepted: `\"\"` yields `{\"ok\":true,\"value\":0}`, `\" 2 \"` and `\"2.0\"` yield `{\"ok\":true,\"value\":2}`, and the boolean `true` yields `{\"ok\":true,\"value\":1}`. The failure branch also returns `{ok:false}` with no error field, so a rejected value is not reported as an error result.",
+  "findingIndex": 6,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 8,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "parseRetryCount"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-9:COMMIT-AUDIT-GATE-1:finding-8",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/executor.mjs\").then(m=>console.log(m.pendingStops([{id:1,state:\"delivered\"},{id:2,state:\"handedOver\"},{id:3,state:\"planned\"}]).map(s=>s.id).join(\",\")))'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 64
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 19
+   }
+  ],
+  "expectation": "`pendingStops` drops only stops whose `state` is `delivered`, so a stop whose `state` is `handedOver`, which rule 31 makes a delivered stop, is still returned.",
+  "finding": "Policy term 31 makes a delivered stop one whose `state` is `delivered` or `handedOver`. `pendingStops` filters only `state !== 'delivered'`, so handed-over stops stay in the pending list; the probe returns ids 2 and 3 for a delivered, handed-over and planned input.",
+  "findingIndex": 7,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 9,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "pendingStops"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-10:COMMIT-AUDIT-GATE-1:finding-9",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/manifest.mjs\").then(m=>console.log(m.orderedDestinationGroups([{destination:\"B\"},{destination:\"A\"}]).map(e=>Array.isArray(e)?e[0]:e.destination).join(\",\")))'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "lineEnd": 9,
+    "lineStart": 3
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 11
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 42
+   }
+  ],
+  "expectation": "`orderedDestinationGroups` passes the `Map` returned by `groupByDestination` to `orderManifestGroups`, whose comparator reads a `destination` field that the `[key, group]` entries lack, so the groups keep insertion order instead of ascending lexical order.",
+  "finding": "`groupByDestination` returns a `Map`, and `orderedDestinationGroups` passes that Map straight into `orderManifestGroups`, which spreads it into `[key, group]` arrays and then compares `left.destination` and `right.destination`. Those properties are undefined on an array entry, so the comparator always returns 0 and the sort is a no-op: the probe returns B,A for input records B then A, that is first-appearance order rather than ascending lexical order.",
+  "findingIndex": 8,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 10,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "orderedDestinationGroups"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-12:COMMIT-AUDIT-GATE-1:finding-10",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/capacity.mjs\").then(m=>console.log(m.withinVehicleCapacity(10000,10),m.withinVehicleCapacity(9999,10),m.remainingVehicleCapacity(10000,10000)))'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 59,
+    "lineStart": 58
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 12
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 14
+   }
+  ],
+  "expectation": "`withinVehicleCapacity` converts the limit to grams and requires the clamped remainder to be above zero, so a total equal to the limit (remainder 0) is rejected.",
+  "finding": "Vehicle limits are in kilograms and package weights in grams, so `withinVehicleCapacity` converts the limit with `limit * 1000` and then requires `remainingVehicleCapacity(limit * 1000, weight) > 0`. A total exactly equal to the configured limit leaves 0 remaining and is rejected: a 10 kg limit with 10000 g of packages returns false while 9999 g returns true. The boundary must accept equality, and `canAssignAllPackages` inherits the same rejection.",
+  "findingIndex": 9,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 12,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "withinVehicleCapacity"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-13:COMMIT-AUDIT-GATE-1:finding-11",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/access.mjs\").then(m=>console.log(m.canPlanRoute({depotId:\"D1\",scopes:[],claims:[{scope:\"routes:admin\",startsAt:0,expiresAt:9999}]},{depotId:\"D2\"},100)))'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 10,
+    "lineStart": 7
+   },
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "line": 5
+   }
+  ],
+  "expectation": "`canPlanRoute` checks `routes:admin` in the actor's own scopes instead of its held scopes, so an admin scope held through an active claim does not meet the ownership requirement.",
+  "finding": "Rules 3 and 4 define the admin grant in terms of the actor's held scopes, which are the actor's own scopes plus the scope of every active claim. `canPlanRoute` tests `routes:plan` against `effectiveScopes(actor, now)` but tests the admin grant against `actor.scopes` only, so an actor who holds `routes:admin` through an active claim is not treated as owning any depot; the probe returns false for such an actor against a foreign depot.",
+  "findingIndex": 10,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 13,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "routes:admin"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-14:COMMIT-AUDIT-GATE-1:finding-12",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/access.mjs\").then(m=>console.log(m.canPlanRoute({depotId:\"D1\",suspended:true,scopes:[],claims:[{scope:\"routes:plan\",startsAt:0,expiresAt:9999}]},{depotId:\"D1\"},100)))'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 11
+   },
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "line": 5
+   },
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "line": 16
+   }
+  ],
+  "expectation": "`effectiveScopes` drops only the actor's own scopes when it is suspended and still adds active-claim scopes, so a suspended actor with an active `routes:plan` claim can plan.",
+  "finding": "Rule 5 gives a suspended actor no held scopes, but `effectiveScopes` suppresses only `actor.scopes` when `suspended === true` and still appends the scope of every active claim. A suspended actor with an active `routes:plan` claim and a matching depot is authorized; the probe returns true for `canPlanRoute`.",
+  "findingIndex": 11,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 14,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "suspended"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-15:COMMIT-AUDIT-GATE-1:finding-13",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/publisher.mjs\").then(async m=>{let removed=null;const store={put:async()=>undefined,get:async()=>({id:\"M1\",copy:true}),remove:async(x)=>{removed=x.copy===true}};const r=await m.publishWithAnnouncement({announcer:{send:async()=>{throw new Error(\"down\")}},manifest:{id:\"M1\"},store});console.log(JSON.stringify(r),removed)})'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/storage-contract.md",
+    "lineEnd": 7,
+    "lineStart": 3
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 32
+   },
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "lineEnd": 15,
+    "lineStart": 10
+   }
+  ],
+  "expectation": "`handleAnnouncementFailure` removes the copy returned by `store.get`, and `store.remove` removes only the exact stored object, so the stored manifest is not removed.",
+  "finding": "`handleAnnouncementFailure` calls `store.get(manifest.id)` and passes the returned value to `store.remove`, but the Manifest Store Contract states that `store.get(id)` resolves to a new copy and that `store.remove(manifest)` removes a stored manifest only when given that exact stored object, any other value removing nothing. The probe shows the removed argument is the copy rather than the object written by `store.put`, so the rollback removes nothing and the manifest stays stored while the operation reports `{\"ok\":false,\"error\":\"Error: down\",\"manifestId\":\"M1\"}`.",
+  "findingIndex": 12,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 15,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "publishWithAnnouncement"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-17:COMMIT-AUDIT-GATE-1:finding-14",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/manifest.mjs\").then(m=>{const records=[{packageId:\"P1\",driver:{label:\"  Ann  \"}}];const manifest=m.buildManifest(records);console.log(JSON.stringify([records[0].driver.label,manifest.entries[0].driver===records[0].driver]))})'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 26
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 34
+   }
+  ],
+  "expectation": "`buildManifest` copies each record shallowly and `labelDriver` assigns the label onto the supplied driver object, so supplied records are mutated.",
+  "finding": "`buildManifest` copies each record itself, but `labelDriver` applies `Object.assign(driver, {label: ...})` to the driver object that the supplied record still references, so the trim is written into the caller's record. The probe shows the supplied record's driver label changed from `\"  Ann  \"` to `\"Ann\"` and that the manifest entry shares the same driver object, so the manifest is built by mutating supplied records.",
+  "findingIndex": 13,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 17,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "buildManifest"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-18:COMMIT-AUDIT-GATE-1:finding-15",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/publisher.mjs\").then(async m=>{const writes=[];const r=await m.publishManifest({manifest:{id:\"M2\",entries:[{packageId:\"   \"},{packageId:\"P1\"}]},store:{put:async(x)=>{writes.push(x.id)}}});console.log(r.ok,writes.length)})'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 22
+   },
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "lineEnd": 8,
+    "lineStart": 4
+   }
+  ],
+  "expectation": "`publishManifest` maps entries through an async callback, and every resulting promise is truthy, so a manifest with invalid entries is stored.",
+  "finding": "`checks` is built with `manifest.entries.map(async entry => manifestEntryIsValid(entry))`, so it holds Promises rather than booleans, and `checks.every(Boolean)` is true for any non-empty array of Promises. The validity result is never inspected: the probe stores a manifest containing the blank package id `\"   \"` and returns `ok: true` with one write, even though `manifestEntryIsValid` correctly rejects that entry.",
+  "findingIndex": 14,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 18,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "publishManifest"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-19:COMMIT-AUDIT-GATE-1:finding-16",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/publisher.mjs\").then(async m=>{let n=0;const store={put:async()=>{n+=1;const e=new Error(\"server\");e.transient=false;e.retryAfter=5;throw e}};try{await m.publishWithRetry({manifest:{entries:[{packageId:\"P1\"}]},store})}catch(err){}console.log(n)})'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 54,
+    "lineStart": 52
+   },
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "lineEnd": 19,
+    "lineStart": 17
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 10
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "lineEnd": 16,
+    "lineStart": 12
+   }
+  ],
+  "expectation": "`asPublicationError` marks a failure transient when it has a finite `retryAfter` even if it is marked `transient: false`, so `publishWithRetry` retries a failure rule 27 makes non-transient.",
+  "finding": "`asPublicationError` sets `transient: error?.transient === true || Number.isFinite(error?.retryAfter)`, so a failure explicitly marked `transient: false` that also carries a finite numeric `retryAfter` is reclassified as transient and retried. Rule 27 is the later rule in the Failure classification section and states that a failure marked `transient: false` is never transient, so such a failure must stop the retry loop immediately; the probe records two publication attempts for that input.",
+  "findingIndex": 15,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 19,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "publishWithRetry"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-20:COMMIT-AUDIT-GATE-1:finding-17",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/manifest.mjs\").then(m=>console.log(JSON.stringify(m.coalescePackages([{packageIds:[\" P1 \"]},{packageIds:[\"P1\"]}]))))'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 13
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "lineEnd": 40,
+    "lineStart": 36
+   },
+   {
+    "filePath": "src/dispatch/normalize.mjs",
+    "line": 11
+   }
+  ],
+  "expectation": "`coalesceAcrossGroups` records raw package IDs but filters normalized IDs, so a duplicate that differs only in surrounding whitespace survives in a later group.",
+  "finding": "`coalesceAcrossGroups` filters the normalized ids of each group against the `seen` set, but then seeds that set from the group's raw `group.packageIds` values instead of the normalized ones. An id first seen with surrounding whitespace is recorded untrimmed, so the same id written cleanly in a later group is not recognized as a duplicate; the probe keeps `\"P1\"` in both groups of the result.",
+  "findingIndex": 16,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 20,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "coalescePackages"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-1:COMMIT-AUDIT-GATE-2:finding-1",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/queue.mjs\").then(m=>console.log(m.routeDuration([{travelMinutes:10,serviceMinutes:5}])))'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 65
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "line": 32
+   }
+  ],
+  "expectation": "Route duration adds the raw `serviceMinutes`, so every stop misses the 5 minutes of parking that rule 32 includes in its service time.",
+  "finding": "Policy term 32 defines a stop's service time as its `serviceMinutes` plus 5 minutes of parking, but `routeDuration` adds `stop.travelMinutes + stop.serviceMinutes` and never applies the parking minutes. A single stop with 10 travel minutes and 5 service minutes yields 15 instead of 20, so every route duration is short by 5 minutes per stop.",
+  "findingIndex": 0,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 1,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "route duration adds"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-3:COMMIT-AUDIT-GATE-2:finding-2",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/storage-contract.md",
+    "lineEnd": 7,
+    "lineStart": 3
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 32
+   },
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "lineEnd": 15,
+    "lineStart": 10
+   }
+  ],
+  "expectation": "The announcement failure branch passes the new copy from `store.get` to `store.remove`, which removes nothing for any object other than the stored one.",
+  "finding": "Same defect as the acceptance criterion at .scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md:22. `handleAnnouncementFailure` removes the value returned by `store.get(manifest.id)`, which the Manifest Store Contract defines as a new copy, and `store.remove` removes nothing for any value other than the exact stored object, so the manifest written earlier in the same operation remains stored after the announcement fails.",
+  "findingIndex": 1,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 3,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Announcement failure rolls back"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-4:COMMIT-AUDIT-GATE-2:finding-3",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 13
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "lineEnd": 40,
+    "lineStart": 36
+   },
+   {
+    "filePath": "src/dispatch/normalize.mjs",
+    "line": 11
+   }
+  ],
+  "expectation": "Package coalescing compares normalized IDs against raw IDs seen in earlier groups, so whitespace variants of one ID are kept across groups.",
+  "finding": "Same defect as the acceptance criterion at .scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md:48. `coalesceAcrossGroups` filters each group's normalized ids against `seen` but seeds `seen` from the raw `group.packageIds` values, so an id first recorded with whitespace is stored untrimmed and its clean spelling in a later group is kept as a second copy instead of being removed.",
+  "findingIndex": 2,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 4,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Package coalescing removes duplicate"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-5:COMMIT-AUDIT-GATE-2:finding-4",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/storage-contract.md",
+    "lineEnd": 14,
+    "lineStart": 11
+   },
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "lineEnd": 11,
+    "lineStart": 7
+   }
+  ],
+  "expectation": "After `renameTemporary` rejects, the temporary bytes are locked, so the `discardTemporary` call in `writePlanAtomically` only closes the write and keeps them; `removeTemporary` is never called.",
+  "finding": "`writePlanAtomically` handles a `renameTemporary` rejection by calling `store.discardTemporary()`. The Plan Store Contract states that after `renameTemporary()` rejects the temporary bytes stay in place and are locked, and that while the temporary bytes are locked `discardTemporary()` only closes the temporary write and keeps the bytes. Removing locked bytes requires `store.removeTemporary()`, which the candidate never calls, so the temporary bytes remain after the failure.",
+  "findingIndex": 3,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 5,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "atomic plan writes remove"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-6:COMMIT-AUDIT-GATE-2:finding-5",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 59,
+    "lineStart": 58
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 12
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 14
+   }
+  ],
+  "expectation": "`canAssignAllPackages` delegates to `withinVehicleCapacity`, whose remaining-capacity test is false at zero remainder, so a total equal to the limit is rejected.",
+  "finding": "Same defect as the acceptance criterion at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md:49. `canAssignAllPackages` sums package weights and delegates to `withinVehicleCapacity`, which requires `remainingVehicleCapacity(limit * 1000, weight) > 0`. With package weights in grams and limits in kilograms, a total exactly equal to the limit leaves 0 remaining grams and is rejected, so the boundary case that must be accepted is refused.",
+  "findingIndex": 4,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 6,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "assigning all packages accepts"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-7:COMMIT-AUDIT-GATE-2:finding-6",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 4
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 12
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 19,
+    "lineStart": 14
+   },
+   {
+    "filePath": "src/dispatch/index.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/index.mjs",
+    "line": 11
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 5
+   }
+  ],
+  "expectation": "The public entry does not export `executor.mjs`.",
+  "finding": "Same defect as the acceptance criterion at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md:7. src/dispatch/index.mjs re-exports eleven modules but not src/dispatch/executor.mjs or src/dispatch/runtime.mjs, so executeAuthorizedPlan, executeDryRun, planFailure, runEligibleStops, emitPlanCreated and pendingStops are absent from the public dispatch entry that callers import.",
+  "findingIndex": 5,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 7,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "The public dispatch entry"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-8:COMMIT-AUDIT-GATE-2:finding-7",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/serialize.mjs\").then(m=>console.log(JSON.stringify([m.serializePlan({id:\"p1\",meta:{zeta:1,alpha:2}}),m.serializePlan({id:\"p1\",meta:{alpha:2,zeta:1}})])))'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/serialize.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/serialize.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/serialize.mjs",
+    "line": 7
+   }
+  ],
+  "expectation": "Plan serialization sorts only the top-level keys (`withSortedKeys` proxies only the plan object), so nested objects keep their insertion order and plans that differ only in nested field order hash to different values.",
+  "finding": "`withSortedKeys` wraps only the top-level plan object, and its proxy defines just the `ownKeys` trap, so `JSON.stringify` reads each nested value through the default get and serializes the raw nested object. Nested field order is therefore preserved, and the probe shows the two plans serialize as `{\"id\":\"p1\",\"meta\":{\"zeta\":1,\"alpha\":2}}` and `{\"id\":\"p1\",\"meta\":{\"alpha\":2,\"zeta\":1}}`. `checksumPlan` hashes those differing bytes, so plans that differ only in nested field order produce different plan hashes.",
+  "findingIndex": 6,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 8,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "same plan hash"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-10:COMMIT-AUDIT-GATE-2:finding-8",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/schedule.mjs\").then(m=>{const requested=new Date(2026,0,5,3,30);console.log(m.nextDispatchTime(requested,new Date(2026,0,5,0,0)).toISOString(),requested.toISOString())})'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 25,
+    "lineStart": 22
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "lineEnd": 16,
+    "lineStart": 13
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 20
+   }
+  ],
+  "expectation": "`nextDispatchTime` checks the blackout with the host-local hour instead of the UTC hour, so on a non-UTC host a time inside the blackout is not moved.",
+  "finding": "`nextDispatchTime` selects the later bound correctly but then tests `candidate.getHours()`, the local-zone hour, against the blackout while `atUtcHour` rebuilds the result from UTC components. Rule 10 makes all departure hours UTC hours, so the decision and the produced time use different calendars. In the Asia/Tokyo probe the later bound is 2026-01-04T18:30:00.000Z, whose local hour 3 is inside the blackout, and the result is 2026-01-04T05:00:00.000Z, a time 13.5 hours earlier than the later supplied bound rather than that bound adjusted by rules 12 and 13.",
+  "findingIndex": 7,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 10,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "the next dispatch time"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-11:COMMIT-AUDIT-GATE-2:finding-9",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/storage-contract.md",
+    "lineEnd": 15,
+    "lineStart": 11
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 17,
+    "lineStart": 14
+   },
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "lineEnd": 5,
+    "lineStart": 1
+   }
+  ],
+  "expectation": "Plan-created telemetry depends on when the store invokes `onCommit`, which no available contract defines.",
+  "finding": "Same gap as the acceptance criterion at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md:28. The emit is deferred into the `onStored` callback that `savePlan` forwards to `store.write` as `onCommit`, and the Plan Store Contract defines only `renameTemporary`, `discardTemporary`, `removeTemporary` and `writeTemporary`. No available contract or adapter states when `onCommit` runs relative to durability and success, so the ordering cannot be established from the candidate.",
+  "findingIndex": 8,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 11,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Plan-created telemetry is emitted"
+  ],
+  "result": "uncertain",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-13:COMMIT-AUDIT-GATE-2:finding-10",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import(\"./src/dispatch/access.mjs\").then(m=>{const actor={depotId:\"D1\"};console.log(m.authorizeRouteBatch(actor,[{depotId:\"D2\"},{depotId:\"D1\"}]),m.authorizeRouteBatch(actor,[{depotId:\"D1\"},{depotId:\"D2\"}]))})'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "lineEnd": 10,
+    "lineStart": 7
+   }
+  ],
+  "expectation": "`authorizeRouteBatch` accepts the batch when `findIndex` returns 0, so a batch whose first route fails depot ownership is authorized.",
+  "finding": "`authorizeRouteBatch` computes `routes.findIndex(route => !requireDepotOwner(actor, route))` and returns `firstRejected <= 0`. When the first route is the one that fails depot ownership the index is 0 and the function returns true, authorizing a batch that contains an unauthorized route; only a failure at index 1 or later rejects it. The probe returns true for `[D2, D1]` and false for `[D1, D2]` with the same actor and the same single unauthorized route.",
+  "findingIndex": 9,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 13,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Batch authorization rejects"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-15:COMMIT-AUDIT-GATE-2:finding-11",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 2,
+    "lineStart": 1
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 4
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 6
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 5
+   }
+  ],
+  "expectation": "Arguments are evaluated before `unlessForbidden` runs, so authorized execution invokes dispatch before it can reject the caller.",
+  "finding": "Same defect as the acceptance criterion at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md:20. `await dispatchRoute(dispatch, route)` is evaluated while building the arguments for `unlessForbidden`, so dispatch runs for every caller and the authorization result only discards the outcome afterwards.",
+  "findingIndex": 10,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 15,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Authorized execution rejects"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-16:COMMIT-AUDIT-GATE-2:finding-12",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 43,
+    "lineStart": 42
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "lineEnd": 6,
+    "lineStart": 3
+   }
+  ],
+  "expectation": "Retry-count parsing accepts any text that `Number` converts to an integer from 0 through 3, including text that is not base-10 digits such as `'0x2'`.",
+  "finding": "Same defect as the acceptance criterion at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md:30. The parser coerces with `Number(value)` and accepts any integer result in range, so text that is not one or more base-10 digits is accepted, including `\"\"` as 0, `\" 2 \"` and `\"2.0\"` as 2, and the boolean `true` as 1, and the rejected branch returns `{ok:false}` with no error value.",
+  "findingIndex": 11,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 16,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Retry-count parsing accepts"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-17:COMMIT-AUDIT-GATE-2:finding-13",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 54,
+    "lineStart": 52
+   },
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "lineEnd": 19,
+    "lineStart": 17
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 10
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "lineEnd": 16,
+    "lineStart": 12
+   }
+  ],
+  "expectation": "A failure marked `transient: false` that carries a finite `retryAfter` is rewrapped as transient, so publication retries do not stop for it.",
+  "finding": "Same defect as the acceptance criterion at .scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md:46. `asPublicationError` marks a failure transient when `error?.transient === true || Number.isFinite(error?.retryAfter)`, so a failure the rules do not make transient, namely one explicitly marked `transient: false` that also carries a finite numeric `retryAfter`, is reclassified as transient and `retryPublication` runs another attempt instead of stopping immediately.",
+  "findingIndex": 12,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 17,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Publication retries stop immediately"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-18:COMMIT-AUDIT-GATE-2:finding-14",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 11
+   },
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "line": 5
+   },
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "line": 16
+   }
+  ],
+  "expectation": "A suspended actor keeps the scopes of its active claims in `effectiveScopes`, so `canPlanRoute` can still allow it.",
+  "finding": "Same defect as the acceptance criterion at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md:51. Rule 5 gives a suspended actor no held scopes, but `effectiveScopes` empties only `actor.scopes` and still appends the scope of every active claim returned by `selectActiveClaims`, so a suspended actor holding an active `routes:plan` claim passes `canPlanRoute` for a route whose depot matches.",
+  "findingIndex": 13,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 18,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "suspended actor"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-19:COMMIT-AUDIT-GATE-2:finding-15",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 66
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 44
+   },
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "line": 31
+   }
+  ],
+  "expectation": "Delivery notices are sent to the raw `phone`, so an entry whose `phone` contains spaces or hyphens is not notified at its contact phone (rule 33).",
+  "finding": "Policy term 33 defines an entry's contact phone as its `phone` with every space and hyphen removed, and `manifestRecipients` applies that removal with `entry.phone.replace(/[ -]/g, '')`. `sendDeliveryNotices` is the operation that actually sends the notices and passes the raw `entry.phone` to `sms.send`, so an entry stored as `\"03 -1234-5678\"` is messaged at the unnormalized value instead of at its contact phone.",
+  "findingIndex": 14,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 19,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "delivery notices go"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-20:COMMIT-AUDIT-GATE-2:finding-16",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 17,
+    "lineStart": 15
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 22
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 24
+   }
+  ],
+  "expectation": "A server-provided `retryAfter` of 0 is falsy, so `nextRetryDelay` uses the computed backoff instead of the server delay.",
+  "finding": "Same defect as the acceptance criterion at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md:19. `nextRetryDelay` selects the supplied-delay branch with plain truthiness, so a finite numeric `retryAfter` of 0 seconds falls through to `computeBackoff` and yields 500 ms instead of the delay the server gave, contrary to rule 7.",
+  "findingIndex": 15,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 20,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "retryAfter"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:problem-1:COMMIT-AUDIT-GATE-1:finding-1",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 4
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 8
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 10
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 12
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 14
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 19
+   },
+   {
+    "filePath": "src/dispatch/index.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/index.mjs",
+    "line": 11
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 5
+   }
+  ],
+  "expectation": "The public dispatch entry omits the executor surface.",
+  "finding": "src/dispatch/index.mjs re-exports eleven dispatch modules but never re-exports src/dispatch/executor.mjs (executeAuthorizedPlan, executeDryRun, planFailure, runEligibleStops, emitPlanCreated, pendingStops) or src/dispatch/runtime.mjs (dispatchRoute, canPlanRoute), so the execution operations are not reachable from the public dispatch entry that planning operations are reached through. Callers importing src/dispatch/index.mjs get planning, storage and capacity operations but no execution operations.",
+  "findingIndex": 0,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 1,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "Connect dispatch planning and"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:problem-2:COMMIT-AUDIT-GATE-1:finding-2",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {nextRetryDelay} from \"./src/dispatch/retry.mjs\"; console.log(nextRetryDelay(1, 0));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 15
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 17
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 8
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 22
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 24
+   }
+  ],
+  "expectation": "`nextRetryDelay` tests `retryAfter` by truthiness, so a server-provided `retryAfter` of 0 falls back to the computed backoff instead of a 0 ms delay.",
+  "finding": "nextRetryDelay selects the retryAfter branch with a truthiness test, so a server-provided finite numeric retryAfter of 0 falls through to computeBackoff instead of replacing the computed backoff as Retry timing rule 7 requires. Verified: nextRetryDelay(1, 0) returns 500 rather than the 0 millisecond delay the server provided.",
+  "findingIndex": 1,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 2,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "nextRetryDelay"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:problem-3:COMMIT-AUDIT-GATE-1:finding-3",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {executeAuthorizedPlan} from \"./src/dispatch/executor.mjs\"; let calls = 0; const out = await executeAuthorizedPlan({actor: {depotId: \"D1\", scopes: [\"routes:plan\"], suspended: false}, dispatch: () => { calls += 1; return {ok: true}; }, now: 100, route: {depotId: \"D2\"}}); console.log(JSON.stringify(out), calls);'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 4
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 6
+   }
+  ],
+  "expectation": "`executeAuthorizedPlan` awaits dispatch as an argument of `unlessForbidden`, so dispatch runs before the authorization result is applied.",
+  "finding": "executeAuthorizedPlan awaits dispatchRoute(dispatch, route) while building the argument list for unlessForbidden, so dispatch runs before the authorization decision is examined. Verified with an unauthorized caller (actor depotId 'D1', route depotId 'D2'): the call returns {ok:false,error:'forbidden'} after the dispatch function has already been invoked once.",
+  "findingIndex": 2,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 3,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "executeAuthorizedPlan"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:problem-4:COMMIT-AUDIT-GATE-1:finding-4",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {stopsForDriver} from \"./src/dispatch/queue.mjs\"; console.log(JSON.stringify(stopsForDriver([{driver: \"A\", reassignment: {driver: \"B\"}}], \"B\")));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 63
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "line": 30
+   }
+  ],
+  "expectation": "`stopsForDriver` compares each stop's own `driver`, so a stop with a `reassignment` is returned for its original driver and not for the driver of its `reassignment`, which rule 30 makes its assigned driver.",
+  "finding": "stopsForDriver compares only stop.driver and ignores the reassignment that dispatch-policy rule 30 makes decisive for a stop's assigned driver, so reassigned stops are matched against their superseded driver. Verified: stopsForDriver([{driver:'A',reassignment:{driver:'B'}}], 'B') returns [] although the stop's assigned driver is 'B'.",
+  "findingIndex": 3,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 4,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "stopsForDriver"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:problem-5:COMMIT-AUDIT-GATE-1:finding-5",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {chooseDeparture} from \"./src/dispatch/schedule.mjs\"; console.log(chooseDeparture(new Date(Date.UTC(2026, 9, 1, 4, 30))).toISOString());'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 22
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 26
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "lineEnd": 7,
+    "lineStart": 3
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 9
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 20
+   }
+  ],
+  "expectation": "`chooseDeparture` moves a blackout departure to the blackout end hour without refusing it when that hour is outside the departure window.",
+  "finding": "chooseDeparture applies rules 10 to 13 but not rule 14. With the configured window 2 to 4 and blackout 3 to 5, a departure at 04:30 UTC is inside the window and inside the blackout, so it moves to the blackout end hour 05:00, which lies outside the window; rule 14 requires that moved departure to be refused, but the function returns 2026-10-01T05:00:00.000Z instead of null. The same happens for 03:00 UTC.",
+  "findingIndex": 4,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 5,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "chooseDeparture"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:problem-8:COMMIT-AUDIT-GATE-1:finding-8",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {parseRetryCount} from \"./src/dispatch/retry.mjs\"; for (const v of [\" 2 \", \"+2\", \"0x2\", \"2.0\", \"1e0\", \"-0\"]) console.log(JSON.stringify(v), JSON.stringify(parseRetryCount(v)));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 43,
+    "lineStart": 42
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "lineEnd": 6,
+    "lineStart": 3
+   }
+  ],
+  "expectation": "`parseRetryCount` converts text with `Number`, so text that is not base-10 digits, such as `'0x2'`, `'2e0'`, `' 2'` or `''`, is accepted as a retry count.",
+  "finding": "parseRetryCount converts the value with Number() and never checks the text form that dispatch-policy rule 22 requires, so text that is not one or more base-10 digits is accepted whenever Number() yields an integer from 0 to 3. Verified accepted: ' 2 ', '+2', '0x2', '2.0', '1e0' and '-0'. The failure shape is also not an error result: an invalid value returns {ok:false,value:NaN}.",
+  "findingIndex": 7,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 8,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "parseRetryCount"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:problem-12:COMMIT-AUDIT-GATE-1:finding-9",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {withinVehicleCapacity, remainingVehicleCapacity} from \"./src/dispatch/capacity.mjs\"; console.log(withinVehicleCapacity(10000, 10), remainingVehicleCapacity(10000, 10000));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 59,
+    "lineStart": 58
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 12
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 14
+   }
+  ],
+  "expectation": "`withinVehicleCapacity` converts the limit to grams and requires the clamped remainder to be above zero, so a total equal to the limit (remainder 0) is rejected.",
+  "finding": "withinVehicleCapacity decides with remainingVehicleCapacity(limit * 1000, weight) > 0, so a total exactly equal to the configured limit leaves 0 remaining and is rejected. Verified: withinVehicleCapacity(10000, 10) returns false, which is a package total in grams equal to the 10 kilogram limit converted by dispatch-policy rules 28 and 29.",
+  "findingIndex": 8,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 12,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "withinVehicleCapacity"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:problem-16:COMMIT-AUDIT-GATE-1:finding-10",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {redactManifestEvent} from \"./src/dispatch/telemetry.mjs\"; console.log(JSON.stringify(redactManifestEvent({auth: [{token: \"t1\", keep: 1}]})));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 48,
+    "lineStart": 47
+   },
+   {
+    "filePath": "src/dispatch/telemetry.mjs",
+    "line": 7
+   },
+   {
+    "filePath": "src/dispatch/telemetry.mjs",
+    "lineEnd": 14,
+    "lineStart": 13
+   }
+  ],
+  "expectation": "`stripCredentials` recurses only into values whose constructor is `Object`, so credentials inside arrays below `auth` are kept.",
+  "finding": "stripCredentials only descends into values whose constructor is exactly Object, so credentials held inside an array below the auth field survive redaction. Verified: redactManifestEvent({auth:[{token:'t1',keep:1}]}) returns {auth:[{token:'t1',keep:1}]}, leaving the credential field named by dispatch-policy rule 23 in place at a depth below auth that rule 24 requires to be cleared.",
+  "findingIndex": 9,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 16,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "redactManifestEvent"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:problem-17:COMMIT-AUDIT-GATE-1:finding-11",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {buildManifest} from \"./src/dispatch/manifest.mjs\"; const records = [{packageId: \"P1\", driver: {label: \"  Ann  \"}}]; buildManifest(records); console.log(JSON.stringify(records));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 26
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 34
+   }
+  ],
+  "expectation": "`buildManifest` copies each record shallowly and `labelDriver` assigns the label onto the supplied driver object, so supplied records are mutated.",
+  "finding": "buildManifest spreads each record, but labelDriver mutates the driver object that the copied entry still shares with the supplied record through Object.assign(driver, {label: ...}), so the supplied record is changed. Verified: after buildManifest([{packageId:'P1',driver:{label:'  Ann  '}}]) the supplied record itself reads {packageId:'P1',driver:{label:'Ann'}.",
+  "findingIndex": 10,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 17,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "buildManifest"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:problem-18:COMMIT-AUDIT-GATE-1:finding-12",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {publishManifest} from \"./src/dispatch/publisher.mjs\"; const puts = []; const out = await publishManifest({manifest: {entries: [{packageId: \"  \"}]}, store: {put: (v) => { puts.push(v); }} }); console.log(JSON.stringify(out), puts.length);'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 22
+   },
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "lineEnd": 8,
+    "lineStart": 4
+   }
+  ],
+  "expectation": "`publishManifest` maps entries through an async callback, and every resulting promise is truthy, so a manifest with invalid entries is stored.",
+  "finding": "publishManifest maps entries with an async predicate, so every element of checks is a fulfilled Promise object and checks.every(Boolean) is always true whatever the entry validity is; the validity result is never read. Verified: publishManifest({manifest:{entries:[{packageId:'  '}]}, store}) returns {ok:true,...} after store.put was called once, storing a manifest whose entry has a blank package ID.",
+  "findingIndex": 11,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 18,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "publishManifest"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:problem-20:COMMIT-AUDIT-GATE-1:finding-13",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {coalescePackages} from \"./src/dispatch/manifest.mjs\"; console.log(JSON.stringify(coalescePackages([{destination: \"A\", packageIds: [\"P1\", \"P1\"]}, {destination: \"B\", packageIds: [\"P1\"]}])));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 13
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "lineEnd": 40,
+    "lineStart": 36
+   }
+  ],
+  "expectation": "`coalesceAcrossGroups` records raw package IDs but filters normalized IDs, so a duplicate that differs only in surrounding whitespace survives in a later group.",
+  "finding": "coalesceAcrossGroups filters each group against the ids already seen in earlier groups and then adds that group's original ids to the seen set, so an id that is already a duplicate inside one group is still recorded as seen for every later group. Verified: coalescePackages([{destination:'A',packageIds:['P1','P1']},{destination:'B',packageIds:['P1']}]) returns group A with ['P1'] and group B with [], so P1 remains in the manifest while group B no longer lists it.",
+  "findingIndex": 12,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 20,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "coalescePackages"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:problem-2:COMMIT-AUDIT-GATE-2:finding-1",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {redactManifestEvent} from \"./src/dispatch/telemetry.mjs\"; console.log(JSON.stringify(redactManifestEvent({auth: [{token: \"t1\", keep: 1}]})));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 48,
+    "lineStart": 47
+   },
+   {
+    "filePath": "src/dispatch/telemetry.mjs",
+    "line": 7
+   },
+   {
+    "filePath": "src/dispatch/telemetry.mjs",
+    "lineEnd": 14,
+    "lineStart": 13
+   }
+  ],
+  "expectation": "Manifest-event redaction leaves arrays unvisited, so a credential in an object inside an array of the authentication data is not removed.",
+  "finding": "Repeated requirement already reviewed at .scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md line 23; same conclusion and evidence. stripCredentials only descends into values whose constructor is exactly Object, so credentials held inside an array below the auth field survive redaction. Verified: redactManifestEvent({auth:[{token:'t1',keep:1}]}) returns {auth:[{token:'t1',keep:1}]}, leaving the credential field named by dispatch-policy rule 23 in place at a depth below auth that rule 24 requires to be cleared.",
+  "findingIndex": 0,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 2,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Manifest-event redaction removes"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:problem-9:COMMIT-AUDIT-GATE-2:finding-7",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {partitionUrgentStops} from \"./src/dispatch/queue.mjs\"; const p = partitionUrgentStops([{priority: \"9\"}, {priority: 5}, {priority: 9}, {priority: NaN}]); console.log(p.urgent.length, p.remaining.length);'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 31,
+    "lineStart": 30
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "line": 4
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "lineEnd": 24,
+    "lineStart": 21
+   }
+  ],
+  "expectation": "Urgent-stop partitioning tests the raw `priority` for the remaining partition, so a text priority such as `'7'` (priority 5 under rule 15) is placed in no partition.",
+  "finding": "partitionUrgentStops classifies the urgent partition with priorityOf(stop) > 5 but the remaining partition with !(stop.priority > 5), so a stop whose priority is not a finite number can fall into neither partition. Verified: partitionUrgentStops([{priority:'9'},{priority:5},{priority:9},{priority:NaN}]) returns 1 urgent and 2 remaining, dropping the stop with priority '9' that dispatch-policy rule 15 gives priority 5 and rule 16 therefore classifies as not urgent.",
+  "findingIndex": 6,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 9,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "urgent-stop partitioning places"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:problem-10:COMMIT-AUDIT-GATE-2:finding-8",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {nextDispatchTime} from \"./src/dispatch/schedule.mjs\"; console.log(nextDispatchTime(new Date(Date.UTC(2026, 9, 1, 18, 0)), new Date(Date.UTC(2026, 9, 1, 0, 0))).toISOString());'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 22
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 25,
+    "lineStart": 24
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "lineEnd": 16,
+    "lineStart": 13
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 20
+   }
+  ],
+  "expectation": "`nextDispatchTime` checks the blackout with the host-local hour instead of the UTC hour, so on a non-UTC host a time inside the blackout is not moved.",
+  "finding": "nextDispatchTime selects the later supplied bound but then tests candidate.getHours(), the local-time hour, against the blackout instead of the UTC hour that dispatch-policy rule 10 requires, and atUtcHour rebuilds the value from UTC calendar fields. In this runtime (Asia/Tokyo, UTC+9) nextDispatchTime(2026-10-01T18:00:00Z, 2026-10-01T00:00:00Z) returns 2026-10-01T05:00:00.000Z: the bound's UTC hour 18 is outside the 3 to 5 blackout, so rules 12 and 13 require no adjustment, yet the local hour 3 triggers a move to the blackout end hour.",
+  "findingIndex": 7,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 10,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "the next dispatch time"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:problem-13:COMMIT-AUDIT-GATE-2:finding-10",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {authorizeRouteBatch} from \"./src/dispatch/access.mjs\"; console.log(authorizeRouteBatch({depotId: \"D1\"}, [{depotId: \"D2\"}, {depotId: \"D1\"}]));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 8
+   },
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "lineEnd": 10,
+    "lineStart": 7
+   }
+  ],
+  "expectation": "`authorizeRouteBatch` accepts the batch when `findIndex` returns 0, so a batch whose first route fails depot ownership is authorized.",
+  "finding": "authorizeRouteBatch returns firstRejected <= 0, which is true when the very first route in the batch fails depot ownership because findIndex returns 0, so a batch whose first route is not owned is reported as authorized instead of rejected. Verified: authorizeRouteBatch({depotId:'D1'},[{depotId:'D2'},{depotId:'D1'}]) returns true although the first route fails the ownership test of dispatch-policy rule 2.",
+  "findingIndex": 9,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 13,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Batch authorization rejects"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:problem-14:COMMIT-AUDIT-GATE-2:finding-11",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/adapter-contracts.md",
+    "lineEnd": 9,
+    "lineStart": 6
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 58
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 20
+   }
+  ],
+  "expectation": "The weighing contract does not state the unit of the weight that `scale.read` resolves to, so it cannot be established that weighed package weights are in grams.",
+  "finding": "weighPackages records whatever value scale.read resolves to as the package weight, and the Weighing Contract states no unit for scale.read, unlike the same contract's entry for weighbridge.read, which states kilograms. It therefore cannot be established whether the recorded weight is in the grams unit that dispatch-policy rule 28 requires, and no conversion is applied in the candidate.",
+  "findingIndex": 10,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 14,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "package weighing records"
+  ],
+  "result": "uncertain",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:problem-15:COMMIT-AUDIT-GATE-2:finding-12",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {executeAuthorizedPlan} from \"./src/dispatch/executor.mjs\"; let calls = 0; const out = await executeAuthorizedPlan({actor: {depotId: \"D1\", scopes: [\"routes:plan\"], suspended: false}, dispatch: () => { calls += 1; return {ok: true}; }, now: 100, route: {depotId: \"D2\"}}); console.log(JSON.stringify(out), calls);'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 4
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 6
+   }
+  ],
+  "expectation": "Arguments are evaluated before `unlessForbidden` runs, so authorized execution invokes dispatch before it can reject the caller.",
+  "finding": "Repeated requirement already reviewed at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 20; same conclusion and evidence. executeAuthorizedPlan awaits dispatchRoute(dispatch, route) while building the argument list for unlessForbidden, so dispatch runs before the authorization decision is examined. Verified with an unauthorized caller (actor depotId 'D1', route depotId 'D2'): the call returns {ok:false,error:'forbidden'} after the dispatch function has already been invoked once.",
+  "findingIndex": 11,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 15,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Authorized execution rejects"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:problem-16:COMMIT-AUDIT-GATE-2:finding-13",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {parseRetryCount} from \"./src/dispatch/retry.mjs\"; for (const v of [\" 2 \", \"+2\", \"0x2\", \"2.0\", \"1e0\", \"-0\"]) console.log(JSON.stringify(v), JSON.stringify(parseRetryCount(v)));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 43,
+    "lineStart": 42
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "lineEnd": 6,
+    "lineStart": 3
+   }
+  ],
+  "expectation": "Retry-count parsing accepts any text that `Number` converts to an integer from 0 through 3, including text that is not base-10 digits such as `'0x2'`.",
+  "finding": "Repeated requirement already reviewed at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 30; same conclusion and evidence. parseRetryCount converts the value with Number() and never checks the text form that dispatch-policy rule 22 requires, so text that is not one or more base-10 digits is accepted whenever Number() yields an integer from 0 to 3. Verified accepted: ' 2 ', '+2', '0x2', '2.0', '1e0' and '-0'.",
+  "findingIndex": 12,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 16,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Retry-count parsing accepts"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:problem-19:COMMIT-AUDIT-GATE-2:finding-14",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {sendDeliveryNotices} from \"./src/dispatch/publisher.mjs\"; const sent = []; await sendDeliveryNotices({manifest: {entries: [{phone: \"07 -700\", packageId: \"P1\"}]}, sms: {send: (phone) => { sent.push(phone); }} }); console.log(JSON.stringify(sent));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 66
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 44
+   },
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "line": 31
+   }
+  ],
+  "expectation": "Delivery notices are sent to the raw `phone`, so an entry whose `phone` contains spaces or hyphens is not notified at its contact phone (rule 33).",
+  "finding": "sendDeliveryNotices passes entry.phone unchanged to sms.send, so an entry whose phone contains spaces or hyphens receives the raw value instead of the contact phone that dispatch-policy rule 33 defines by removing every space and hyphen. Verified: for the entry {phone:'07 -700'} the function passes '07 -700', while manifestRecipients in the same candidate derives '07700' for the same entry.",
+  "findingIndex": 13,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "association",
+  "problemCaseIndex": 19,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "delivery notices go"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-6"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-6",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "cleanTargets": [],
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/storage-contract.md",
+    "line": 9
+   },
+   {
+    "filePath": "docs/dispatch/storage-contract.md",
+    "line": 15
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 14
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 17
+   },
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "line": 5
+   }
+  ],
+  "finding": "emitPlanCreated defers the plan.created emission into the onCommit callback that savePlan passes to store.write, and the Plan Store Contract in docs/dispatch/storage-contract.md defines only renameTemporary, discardTemporary, removeTemporary and writeTemporary. Neither store.write nor when its onCommit callback runs is specified anywhere in the candidate, so the ordering guarantee that emission happens only after plan storage succeeds cannot be established from the available adapter contract.",
+  "findingIndex": 5,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "finding",
+  "problemOptions": [
+   {
+    "decision": "problem-6",
+    "expectation": "No available contract establishes when `store.write` invokes `onCommit`, so it cannot be established that `plan.created` is emitted only after storage succeeds."
+   }
+  ],
+  "result": "uncertain",
+  "reviewerId": "commit-audit-reviewer",
+  "scope": "COMMIT-AUDIT-GATE-1"
+ },
+ {
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-7"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-7",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "cleanTargets": [],
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {hasDuplicateRouteKeys} from \"./src/dispatch/queue.mjs\"; console.log(hasDuplicateRouteKeys([{depotId: \"A\", routeKey: \"BC\", state: \"open\"}, {depotId: \"AB\", routeKey: \"C\", state: \"open\"}]));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 38,
+    "lineStart": 37
+   },
+   {
+    "filePath": "src/dispatch/normalize.mjs",
+    "line": 13
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "line": 16
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "line": 19
+   }
+  ],
+  "finding": "hasDuplicateRouteKeys forms each route identity by concatenating depotId and normalizeRouteKey(routeKey) with no separator, so two different route identities under dispatch-policy rule 19 can produce the same key and the function reports duplicates when no two stops are duplicates. Verified: stops with depotId 'A' and routeKey 'BC' together with depotId 'AB' and routeKey 'C' return true although their route identities differ.",
+  "findingIndex": 6,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "finding",
+  "problemOptions": [
+   {
+    "decision": "problem-7",
+    "expectation": "`hasDuplicateRouteKeys` concatenates the depot ID and normalized route key without a separator, so different route identities can produce the same key."
+   }
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer",
+  "scope": "COMMIT-AUDIT-GATE-1"
+ },
+ {
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "false-positive:clean-9"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-2",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "cleanTargets": [
+   {
+    "cleanCaseIndex": 9,
+    "decision": "false-positive:clean-9",
+    "expectation": "The implementation satisfies: Package IDs are trimmed, deduplicated, and sorted lexically."
+   }
+  ],
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {coalescePackages} from \"./src/dispatch/manifest.mjs\"; console.log(JSON.stringify(coalescePackages([{destination: \"A\", packageIds: [\"P1\", \"P1\"]}, {destination: \"B\", packageIds: [\"P1\"]}])));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 13
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "lineEnd": 40,
+    "lineStart": 36
+   }
+  ],
+  "finding": "Repeated requirement already reviewed at .scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md line 48; same conclusion and evidence. coalesceAcrossGroups filters each group against the ids already seen in earlier groups and then adds that group's original ids to the seen set, so an id that is already a duplicate inside one group is still recorded as seen for every later group. Verified: coalescePackages([{destination:'A',packageIds:['P1','P1']},{destination:'B',packageIds:['P1']}]) returns group A with ['P1'] and group B with [], so P1 remains in the manifest while group B no longer lists it.",
+  "findingIndex": 1,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "finding",
+  "problemOptions": [],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer",
+  "scope": "COMMIT-AUDIT-GATE-2"
+ },
+ {
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-4"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-3",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "cleanTargets": [],
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {writePlanAtomically} from \"./src/dispatch/storage.mjs\"; const calls = []; const out = await writePlanAtomically({bytes: \"b\", store: {writeTemporary: async () => { calls.push(\"write\"); }, renameTemporary: async () => { calls.push(\"rename\"); throw new Error(\"rename-failed\"); }, discardTemporary: async () => { calls.push(\"discard\"); }, removeTemporary: async () => { calls.push(\"remove\"); }}}).catch(() => \"rejected\"); console.log(out, JSON.stringify(calls));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/storage-contract.md",
+    "lineEnd": 15,
+    "lineStart": 11
+   },
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "lineEnd": 11,
+    "lineStart": 7
+   }
+  ],
+  "finding": "writePlanAtomically calls store.discardTemporary() when store.renameTemporary() rejects, but the Plan Store Contract states that after renameTemporary rejects the temporary bytes stay in place and are locked, and that while they are locked discardTemporary only closes the temporary write and keeps the bytes; the contract names store.removeTemporary() as the operation that deletes locked bytes. Verified with a stub store: the rename failure path calls discardTemporary once and never removeTemporary, and the temporary bytes are not removed.",
+  "findingIndex": 2,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "finding",
+  "problemOptions": [
+   {
+    "decision": "problem-4",
+    "expectation": "Package coalescing compares normalized IDs against raw IDs seen in earlier groups, so whitespace variants of one ID are kept across groups."
+   }
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer",
+  "scope": "COMMIT-AUDIT-GATE-2"
+ },
+ {
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "false-positive:clean-11"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-4",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "cleanTargets": [
+   {
+    "cleanCaseIndex": 11,
+    "decision": "false-positive:clean-11",
+    "expectation": "The implementation satisfies: Eligible-stop execution excludes cancelled stops."
+   }
+  ],
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {canAssignAllPackages} from \"./src/dispatch/capacity.mjs\"; console.log(canAssignAllPackages([{weight: 10000}], 10));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 59,
+    "lineStart": 58
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 12
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 14
+   }
+  ],
+  "finding": "Repeated requirement already reviewed at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 49; same conclusion and evidence. canAssignAllPackages delegates to withinVehicleCapacity, which decides with remainingVehicleCapacity(limit * 1000, weight) > 0, so a total exactly equal to the limit leaves 0 remaining and is rejected. Verified: canAssignAllPackages([{weight:10000}], 10) returns false, which is a package total in grams equal to the 10 kilogram limit converted by dispatch-policy rules 28 and 29.",
+  "findingIndex": 3,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "finding",
+  "problemOptions": [],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer",
+  "scope": "COMMIT-AUDIT-GATE-2"
+ },
+ {
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-6"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-5",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "cleanTargets": [],
+  "evidence": [
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 4
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 8
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 10
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 12
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 14
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 19
+   },
+   {
+    "filePath": "src/dispatch/index.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/index.mjs",
+    "line": 11
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 5
+   }
+  ],
+  "finding": "Repeated requirement already reviewed at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 7; same conclusion and evidence. src/dispatch/index.mjs re-exports eleven dispatch modules but never re-exports src/dispatch/executor.mjs (executeAuthorizedPlan, executeDryRun, planFailure, runEligibleStops, emitPlanCreated, pendingStops) or src/dispatch/runtime.mjs (dispatchRoute, canPlanRoute), so no execution operation is reachable from the public dispatch entry.",
+  "findingIndex": 4,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "finding",
+  "problemOptions": [
+   {
+    "decision": "problem-6",
+    "expectation": "`canAssignAllPackages` delegates to `withinVehicleCapacity`, whose remaining-capacity test is false at zero remainder, so a total equal to the limit is rejected."
+   }
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer",
+  "scope": "COMMIT-AUDIT-GATE-2"
+ },
+ {
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-8"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-6",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "cleanTargets": [],
+  "evidence": [
+   {
+    "command": "node --input-type=module -e 'import {serializePlan} from \"./src/dispatch/serialize.mjs\"; const a = {b: {z: 1, a: 2}, c: [{y: 1, x: 2}]}; const b = {c: [{x: 2, y: 1}], b: {a: 2, z: 1}}; console.log(serializePlan(a) === serializePlan(b));'",
+    "exitCode": 0
+   },
+   {
+    "filePath": "src/dispatch/serialize.mjs",
+    "lineEnd": 3,
+    "lineStart": 1
+   },
+   {
+    "filePath": "src/dispatch/serialize.mjs",
+    "line": 5
+   }
+  ],
+  "finding": "withSortedKeys sorts only the own keys of the object that JSON.stringify visits at the top level, because JSON.stringify re-enters the plain nested objects rather than the proxy, so nested fields keep their insertion order and plans that differ only in nested field order serialize to different bytes and therefore hash differently. Verified: serializePlan({b:{z:1,a:2},c:[{y:1,x:2}]}) and serializePlan({c:[{x:2,y:1}],b:{a:2,z:1}}) produce different text, the first with \"b\": { \"z\": 1, \"a\": 2 } and the second with \"b\": { \"a\": 2, \"z\": 1 }.",
+  "findingIndex": 5,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "finding",
+  "problemOptions": [
+   {
+    "decision": "problem-8",
+    "expectation": "Plan serialization sorts only the top-level keys (`withSortedKeys` proxies only the plan object), so nested objects keep their insertion order and plans that differ only in nested field order hash to different values."
+   }
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer",
+  "scope": "COMMIT-AUDIT-GATE-2"
+ },
+ {
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-11"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-9",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "cleanTargets": [],
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/storage-contract.md",
+    "line": 9
+   },
+   {
+    "filePath": "docs/dispatch/storage-contract.md",
+    "line": 15
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 14
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 17
+   },
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "line": 5
+   }
+  ],
+  "finding": "Repeated requirement already reviewed at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 28; same conclusion and evidence. emitPlanCreated defers the plan.created emission into the onCommit callback that savePlan passes to store.write, and the Plan Store Contract in docs/dispatch/storage-contract.md defines only renameTemporary, discardTemporary, removeTemporary and writeTemporary. Neither store.write nor when its onCommit callback runs is specified in the candidate, so the ordering guarantee cannot be established from the available adapter contract.",
+  "findingIndex": 8,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+  "kind": "finding",
+  "problemOptions": [
+   {
+    "decision": "problem-11",
+    "expectation": "Plan-created telemetry depends on when the store invokes `onCommit`, which no available contract defines."
+   }
+  ],
+  "result": "uncertain",
+  "reviewerId": "commit-audit-reviewer",
+  "scope": "COMMIT-AUDIT-GATE-2"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-1:problem-1:COMMIT-AUDIT-GATE-1:finding-1",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 19,
+    "lineStart": 4
+   },
+   {
+    "filePath": "src/dispatch/index.mjs",
+    "lineEnd": 11,
+    "lineStart": 1
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 5
+   }
+  ],
+  "expectation": "The public dispatch entry omits the executor surface.",
+  "finding": "src/dispatch/index.mjs re-exports normalize, queue, capacity, access, schedule, retry, serialize, storage, manifest, publisher and telemetry, but never re-exports src/dispatch/executor.mjs or src/dispatch/runtime.mjs. The execution operations added for this issue (executeAuthorizedPlan, executeDryRun, runEligibleStops, emitPlanCreated, pendingStops and planFailure in src/dispatch/executor.mjs:4-19, and dispatchRoute in src/dispatch/runtime.mjs:5) are unreachable from the public dispatch entry, so dispatch execution is not connected through it.",
+  "findingIndex": 0,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 1,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "Connect dispatch planning and"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-1:problem-2:COMMIT-AUDIT-GATE-1:finding-2",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 17,
+    "lineStart": 15
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 8
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 24
+   }
+  ],
+  "expectation": "`nextRetryDelay` tests `retryAfter` by truthiness, so a server-provided `retryAfter` of 0 falls back to the computed backoff instead of a 0 ms delay.",
+  "finding": "nextRetryDelay selects the retryAfter branch with a truthiness test, so a server-provided `retryAfter` of 0 falls through to computeBackoff and retryAfterDelay is never reached. Retry timing rule 7 requires the delay given by any finite numeric `retryAfter` to replace the computed backoff, and rule 6 fixes the seconds to milliseconds conversion that retryAfterDelay performs, so the 0 case does not follow the Retry timing rules.",
+  "findingIndex": 1,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 2,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "nextRetryDelay"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-1:problem-3:COMMIT-AUDIT-GATE-1:finding-3",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 6,
+    "lineStart": 4
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 5
+   }
+  ],
+  "expectation": "`executeAuthorizedPlan` awaits dispatch as an argument of `unlessForbidden`, so dispatch runs before the authorization result is applied.",
+  "finding": "executeAuthorizedPlan passes `await dispatchRoute(dispatch, route)` as an argument to unlessForbidden, so the dispatch callback runs while the authorization result is still only an argument. For an actor that fails canPlanRoute the dispatch callback is still invoked once and the forbidden result is produced afterwards, so the caller is not rejected before dispatch is invoked.",
+  "findingIndex": 2,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 3,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "executeAuthorizedPlan"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-1:problem-4:COMMIT-AUDIT-GATE-1:finding-4",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 63
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "line": 30
+   }
+  ],
+  "expectation": "`stopsForDriver` compares each stop's own `driver`, so a stop with a `reassignment` is returned for its original driver and not for the driver of its `reassignment`, which rule 30 makes its assigned driver.",
+  "finding": "stopsForDriver compares only `stop.driver`. Terms rule 30 defines a stop's assigned driver as the `driver` of the stop's `reassignment` when the stop has one, and otherwise the stop's own `driver`. A stop whose reassignment names the given driver is left out, and a stop whose own driver matches while its reassignment names another driver is wrongly included. driverWorkload in src/dispatch/capacity.mjs:18 applies rule 30, so the two operations disagree for the same stop set.",
+  "findingIndex": 3,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 4,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "stopsForDriver"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-1:problem-5:COMMIT-AUDIT-GATE-1:finding-5",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 26,
+    "lineStart": 22
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "lineEnd": 7,
+    "lineStart": 3
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 9
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 20
+   }
+  ],
+  "expectation": "`chooseDeparture` moves a blackout departure to the blackout end hour without refusing it when that hour is outside the departure window.",
+  "finding": "chooseDeparture applies the UTC hour, the inclusive window and the blackout shift, but never re-checks the window after the shift. Departure timing rule 14 refuses a departure chosen inside the departure window that is then moved outside it. With the staged window 2 to 4 and blackout 3 to 5, a departure at UTC hour 3 or 4 is moved to hour 5, which is outside the window, and the moved date is returned instead of being refused.",
+  "findingIndex": 4,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 5,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "chooseDeparture"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-1:problem-6:COMMIT-AUDIT-GATE-1:finding-6",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/storage-contract.md",
+    "lineEnd": 15,
+    "lineStart": 11
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 17,
+    "lineStart": 14
+   },
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "lineEnd": 5,
+    "lineStart": 1
+   }
+  ],
+  "expectation": "No available contract establishes when `store.write` invokes `onCommit`, so it cannot be established that `plan.created` is emitted only after storage succeeds.",
+  "finding": "emitPlanCreated defers the `plan.created` emission to an `onCommit` callback that savePlan passes to `store.write`. The Plan Store Contract defines only writeTemporary, renameTemporary, discardTemporary and removeTemporary, and no contract exists for `store.write` or for when `onCommit` runs relative to a durable or failed write. Whether the emission happens only after storage succeeds cannot be established from the staged candidate and the available adapter contract.",
+  "findingIndex": 5,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 6,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "emitPlanCreated"
+  ],
+  "result": "uncertain",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-1:problem-8:COMMIT-AUDIT-GATE-1:finding-7",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 43,
+    "lineStart": 42
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "lineEnd": 6,
+    "lineStart": 3
+   }
+  ],
+  "expectation": "`parseRetryCount` converts text with `Number`, so text that is not base-10 digits, such as `'0x2'`, `'2e0'`, `' 2'` or `''`, is accepted as a retry count.",
+  "finding": "parseRetryCount validates with `Number(value)`, so text that is not one or more base-10 digits is accepted: the text `3.0` coerces to 3 and returns ok true, and `1e1` coerces to 10 and is rejected only because it exceeds the range. Retry counts rule 22 makes such text invalid, so the operation does not accept exactly the valid retry counts. The failure branch returns only `{ok: false, value: ...}` with no error field, which is not an error result.",
+  "findingIndex": 6,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 8,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "parseRetryCount"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-1:problem-9:COMMIT-AUDIT-GATE-1:finding-8",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 64
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "line": 19
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "line": 36
+   }
+  ],
+  "expectation": "`pendingStops` drops only stops whose `state` is `delivered`, so a stop whose `state` is `handedOver`, which rule 31 makes a delivered stop, is still returned.",
+  "finding": "pendingStops filters only `stop.state !== 'delivered'`. Terms rule 31 makes a stop delivered when its state is `delivered` or `handedOver`, so handedOver stops stay in the returned list. deliveredCount in src/dispatch/queue.mjs:36 counts both states as delivered, so the two operations read the same term differently.",
+  "findingIndex": 7,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 9,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "pendingStops"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-1:problem-10:COMMIT-AUDIT-GATE-1:finding-9",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "lineEnd": 9,
+    "lineStart": 3
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 11
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 42
+   }
+  ],
+  "expectation": "`orderedDestinationGroups` passes the `Map` returned by `groupByDestination` to `orderManifestGroups`, whose comparator reads a `destination` field that the `[key, group]` entries lack, so the groups keep insertion order instead of ascending lexical order.",
+  "finding": "orderedDestinationGroups passes the Map returned by groupByDestination into orderManifestGroups, which spreads its argument as `[...groups]`. Spreading a Map yields `[key, value]` entry arrays whose `destination` property is undefined, so the comparator always returns 0 and the result is Map entries in insertion order rather than destination groups in ascending lexical order. Records with destinations ZETA, alpha and Beta return entries ordered ZETA, ALPHA, BETA.",
+  "findingIndex": 8,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 10,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "orderedDestinationGroups"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-1:problem-12:COMMIT-AUDIT-GATE-1:finding-10",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 59,
+    "lineStart": 58
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 8
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 12
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 14
+   }
+  ],
+  "expectation": "`withinVehicleCapacity` converts the limit to grams and requires the clamped remainder to be above zero, so a total equal to the limit (remainder 0) is rejected.",
+  "finding": "withinVehicleCapacity accepts only when `remainingVehicleCapacity(limit * 1000, weight) > 0`, so a total that exactly equals the configured limit leaves 0 remaining and is rejected. Vehicle capacity rules 28 and 29 put package weights in grams and vehicle limits in kilograms, which is why the limit is scaled by 1000; with a 10 kilogram limit and a 10000 gram total, canAssignAllPackages returns false. The accepted partition boundary in src/dispatch/capacity.mjs:8 uses `<=`, so the two capacity decisions disagree at the limit.",
+  "findingIndex": 9,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 12,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "withinVehicleCapacity"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-1:problem-13:COMMIT-AUDIT-GATE-1:finding-11",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 11,
+    "lineStart": 7
+   },
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "line": 5
+   }
+  ],
+  "expectation": "`canPlanRoute` checks `routes:admin` in the actor's own scopes instead of its held scopes, so an admin scope held through an active claim does not meet the ownership requirement.",
+  "finding": "canPlanRoute tests the `routes:admin` fallback against `actor.scopes`, while rule 3 defines the fallback over the actor's held scopes and rule 4 makes held scopes the actor's own scopes plus the scope of every active claim. An actor that holds `routes:plan` directly and receives `routes:admin` through an active claim is refused for a route whose depot differs from `actor.depotId`, even though effectiveScopes already computes the held scopes used for the scope test on the same line.",
+  "findingIndex": 10,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 13,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "routes:admin"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-1:problem-18:COMMIT-AUDIT-GATE-1:finding-12",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 22
+   },
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "lineEnd": 8,
+    "lineStart": 4
+   }
+  ],
+  "expectation": "`publishManifest` maps entries through an async callback, and every resulting promise is truthy, so a manifest with invalid entries is stored.",
+  "finding": "publishManifest maps entries with an async callback, so `checks` is an array of pending promises, and `checks.every(Boolean)` only tests truthiness. Every promise object is truthy whatever it resolves to, so the guard never rejects and the manifest is stored even when an entry is invalid. A manifest whose second entry has the blank packageId `   ` was stored with one `store.put` call and returned as `{ok: true, manifest: ...}`.",
+  "findingIndex": 11,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 18,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "publishManifest"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-1:COMMIT-AUDIT-GATE-2:finding-1",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 65
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "line": 32
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 28
+   }
+  ],
+  "expectation": "Route duration adds the raw `serviceMinutes`, so every stop misses the 5 minutes of parking that rule 32 includes in its service time.",
+  "finding": "routeDuration adds `stop.travelMinutes + stop.serviceMinutes` for every stop and never adds the parking minutes. Terms rule 32 defines a stop's service time as its `serviceMinutes` plus 5 minutes of parking, so every stop contributes 5 minutes less than its service time. departureMinute in src/dispatch/schedule.mjs:28 applies the same term as `arrivalMinute + serviceMinutes + 5`, so the two operations read the defined term differently.",
+  "findingIndex": 0,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 1,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "route duration adds"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-5:COMMIT-AUDIT-GATE-2:finding-2",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/storage-contract.md",
+    "lineEnd": 14,
+    "lineStart": 11
+   },
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "lineEnd": 11,
+    "lineStart": 7
+   }
+  ],
+  "expectation": "After `renameTemporary` rejects, the temporary bytes are locked, so the `discardTemporary` call in `writePlanAtomically` only closes the write and keeps them; `removeTemporary` is never called.",
+  "finding": "writePlanAtomically handles a rejected `store.renameTemporary()` by calling `store.discardTemporary()`. The Plan Store Contract states that after renameTemporary rejects the temporary bytes stay in place and are locked, and that while the temporary bytes are locked discardTemporary only closes the temporary write and keeps the bytes; only removeTemporary deletes locked bytes. The staged failure path therefore leaves the temporary bytes in place instead of removing them.",
+  "findingIndex": 1,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 5,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "atomic plan writes remove"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-6:COMMIT-AUDIT-GATE-2:finding-3",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 59,
+    "lineStart": 58
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 12
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 14
+   }
+  ],
+  "expectation": "`canAssignAllPackages` delegates to `withinVehicleCapacity`, whose remaining-capacity test is false at zero remainder, so a total equal to the limit is rejected.",
+  "finding": "Repeated requirement: same requirement and conclusion as the row for .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 49, with the same evidence. canAssignAllPackages delegates to withinVehicleCapacity, whose `> 0` test rejects a total that exactly equals the limit converted from kilograms to grams.",
+  "findingIndex": 2,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 6,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "assigning all packages accepts"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-7:COMMIT-AUDIT-GATE-2:finding-4",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 19,
+    "lineStart": 4
+   },
+   {
+    "filePath": "src/dispatch/index.mjs",
+    "lineEnd": 11,
+    "lineStart": 1
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 5
+   }
+  ],
+  "expectation": "The public entry does not export `executor.mjs`.",
+  "finding": "Repeated requirement: same requirement and conclusion as the row for .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 7, with the same evidence. src/dispatch/index.mjs re-exports no execution module, so executeAuthorizedPlan, executeDryRun, runEligibleStops, emitPlanCreated, pendingStops, planFailure and dispatchRoute are not reachable from the public dispatch entry.",
+  "findingIndex": 3,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 7,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "The public dispatch entry"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-8:COMMIT-AUDIT-GATE-2:finding-5",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/serialize.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/serialize.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/serialize.mjs",
+    "line": 5
+   },
+   {
+    "filePath": "src/dispatch/serialize.mjs",
+    "line": 7
+   }
+  ],
+  "expectation": "Plan serialization sorts only the top-level keys (`withSortedKeys` proxies only the plan object), so nested objects keep their insertion order and plans that differ only in nested field order hash to different values.",
+  "finding": "withSortedKeys wraps only the value handed to JSON.stringify in a Proxy that sorts its own keys. JSON.stringify reads nested property values through the get trap and serializes them as plain objects, so nested objects keep their own insertion order. Two plans that differ only in nested field order serialize differently, so checksumPlan produces different hashes for them.",
+  "findingIndex": 4,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 8,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "same plan hash"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-9:COMMIT-AUDIT-GATE-2:finding-6",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "line": 4
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "lineEnd": 24,
+    "lineStart": 21
+   }
+  ],
+  "expectation": "Urgent-stop partitioning tests the raw `priority` for the remaining partition, so a text priority such as `'7'` (priority 5 under rule 15) is placed in no partition.",
+  "finding": "partitionUrgentStops builds the urgent partition from priorityOf, which applies rule 15 and defaults a non-finite numeric priority to 5, but builds the remaining partition from the raw comparison `!(stop.priority > 5)`. A stop whose priority is not a finite number yet compares greater than 5, such as Infinity or the text 7, is placed in neither partition, so it is dropped from the result instead of being placed in exactly one partition.",
+  "findingIndex": 5,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 9,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "urgent-stop partitioning places"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-10:COMMIT-AUDIT-GATE-2:finding-7",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 22
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 25
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "lineEnd": 16,
+    "lineStart": 13
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "line": 20
+   }
+  ],
+  "expectation": "`nextDispatchTime` checks the blackout with the host-local hour instead of the UTC hour, so on a non-UTC host a time inside the blackout is not moved.",
+  "finding": "nextDispatchTime tests the blackout with `candidate.getHours()`, which is the local hour, while departureWindow.hourOf and atUtcHour in the same module use UTC hours. Departure timing rule 10 makes all departure hours UTC hours, so the rule 12 test reads the wrong hour and the rule 13 shift is skipped for a candidate whose UTC hour falls inside the blackout 3 to 5 while its local hour does not.",
+  "findingIndex": 6,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 10,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "the next dispatch time"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-11:COMMIT-AUDIT-GATE-2:finding-8",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/storage-contract.md",
+    "lineEnd": 15,
+    "lineStart": 11
+   },
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 17,
+    "lineStart": 14
+   },
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "lineEnd": 5,
+    "lineStart": 1
+   }
+  ],
+  "expectation": "Plan-created telemetry depends on when the store invokes `onCommit`, which no available contract defines.",
+  "finding": "Repeated requirement: same requirement and conclusion as the row for .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 28, with the same evidence. The emission is deferred to an `onCommit` callback passed to `store.write`, and the Plan Store Contract gives no contract for `store.write` or for when `onCommit` runs relative to a durable or failed write.",
+  "findingIndex": 7,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 11,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Plan-created telemetry is emitted"
+  ],
+  "result": "uncertain",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-12:COMMIT-AUDIT-GATE-2:finding-9",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 30
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 33
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "line": 4
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "line": 6
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "line": 8
+   }
+  ],
+  "expectation": "The stop comparator coerces a text `sequence` such as `'2'` to a number, so a stop without a finite numeric sequence does not follow the equal-priority stops that have one.",
+  "finding": "compareStops applies rule 15 for priority through priorityOf, which tests Number.isFinite, but applies the sequence tie-break with `(left.sequence ?? Number.MAX_SAFE_INTEGER) - (right.sequence ?? Number.MAX_SAFE_INTEGER)`, which only substitutes for null and undefined. A stop whose sequence is not a finite number, such as NaN, makes the subtraction NaN, so the comparator reports equality and the stop keeps its input position. A stop with sequence NaN ordered before a stop with sequence 1 and the same priority stays first, contradicting rule 18, which makes a stop without a finite numeric sequence follow every stop of equal priority that has one.",
+  "findingIndex": 8,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 12,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "stop-ordering operation follows"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-13:COMMIT-AUDIT-GATE-2:finding-10",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 8
+   },
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "lineEnd": 10,
+    "lineStart": 7
+   }
+  ],
+  "expectation": "`authorizeRouteBatch` accepts the batch when `findIndex` returns 0, so a batch whose first route fails depot ownership is authorized.",
+  "finding": "authorizeRouteBatch returns `firstRejected <= 0`. When the first route in the list fails requireDepotOwner, findIndex returns 0 and the comparison is true, so the batch is reported as authorized although a route failed depot ownership. Only a rejection at index 1 or later, or no rejection at all where findIndex returns -1, produces the intended decision.",
+  "findingIndex": 9,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 13,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Batch authorization rejects"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-14:COMMIT-AUDIT-GATE-2:finding-11",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/adapter-contracts.md",
+    "line": 8
+   },
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 58
+   },
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 20
+   }
+  ],
+  "expectation": "The weighing contract does not state the unit of the weight that `scale.read` resolves to, so it cannot be established that weighed package weights are in grams.",
+  "finding": "weighPackages records whatever `scale.read(packageId)` resolves to and applies no unit conversion. The Weighing Contract states only that scale.read resolves to the measured weight of the package and gives no unit for that measurement, while rule 28 requires recorded package weights in grams. Whether the recorded weight is in the unit the Vehicle capacity rules give cannot be established from the staged candidate and the available adapter contract.",
+  "findingIndex": 10,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 14,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "package weighing records"
+  ],
+  "result": "uncertain",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-15:COMMIT-AUDIT-GATE-2:finding-12",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 6,
+    "lineStart": 4
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 5
+   }
+  ],
+  "expectation": "Arguments are evaluated before `unlessForbidden` runs, so authorized execution invokes dispatch before it can reject the caller.",
+  "finding": "Repeated requirement: same requirement and conclusion as the row for .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 20, with the same evidence. executeAuthorizedPlan awaits dispatchRoute while building the argument list for unlessForbidden, so dispatch runs for an unauthorized caller before the forbidden result is produced.",
+  "findingIndex": 11,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 15,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Authorized execution rejects"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-16:COMMIT-AUDIT-GATE-2:finding-13",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 43,
+    "lineStart": 42
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 1
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "lineEnd": 6,
+    "lineStart": 3
+   }
+  ],
+  "expectation": "Retry-count parsing accepts any text that `Number` converts to an integer from 0 through 3, including text that is not base-10 digits such as `'0x2'`.",
+  "finding": "Repeated requirement: same requirement and conclusion as the row for .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 30, with the same evidence. parseRetryCount coerces with Number(value), so text that is not one or more base-10 digits, such as 3.0, is accepted as a valid retry count.",
+  "findingIndex": 12,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 16,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Retry-count parsing accepts"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-19:COMMIT-AUDIT-GATE-2:finding-14",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 66
+   },
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 44
+   },
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "line": 31
+   }
+  ],
+  "expectation": "Delivery notices are sent to the raw `phone`, so an entry whose `phone` contains spaces or hyphens is not notified at its contact phone (rule 33).",
+  "finding": "sendDeliveryNotices passes `entry.phone` unchanged to `sms.send` for every entry. Terms rule 33 defines an entry's contact phone as its `phone` with every space and hyphen removed, so an entry whose phone contains spaces or hyphens receives the unnormalized value rather than its contact phone, and an entry with no `phone` is sent a notice with an undefined number. manifestRecipients in src/dispatch/manifest.mjs:44 applies the rule with `replace(/[ -]/g, '')`, so the two operations read the same term differently.",
+  "findingIndex": 13,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 19,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "delivery notices go"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-20:COMMIT-AUDIT-GATE-2:finding-15",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 17,
+    "lineStart": 15
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 8
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 24
+   }
+  ],
+  "expectation": "A server-provided `retryAfter` of 0 is falsy, so `nextRetryDelay` uses the computed backoff instead of the server delay.",
+  "finding": "Repeated requirement: same requirement and conclusion as the row for .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 19, with the same evidence. nextRetryDelay selects the retryAfter branch with a truthiness test, so a finite numeric `retryAfter` of 0 falls through to computeBackoff instead of replacing the computed backoff as rule 7 requires.",
+  "findingIndex": 14,
+  "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+  "kind": "association",
+  "problemCaseIndex": 20,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "retryAfter"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ }
+]

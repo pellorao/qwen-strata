@@ -1,0 +1,134 @@
+{
+ "instances": [
+  {
+   "batch": "C",
+   "rep": "1",
+   "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1",
+   "complete": true,
+   "state": "idle",
+   "generation_exit": 0,
+   "deadlines": [
+    null
+   ],
+   "work_s": 850.9886520996093,
+   "work_min": 14.2,
+   "read": 71596,
+   "reused": 2615092,
+   "generated": 71071,
+   "token_source": "engine log segment between this and the next dispatch; API usage is diagnostic only",
+   "tool_calls": 41,
+   "engine_in_tps": 1470.0,
+   "engine_out_tps": 93.3,
+   "task_in_tps": 84.1,
+   "task_out_tps": 83.5
+  },
+  {
+   "batch": "C",
+   "rep": "2",
+   "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2",
+   "complete": true,
+   "state": "idle",
+   "generation_exit": 0,
+   "deadlines": [
+    null
+   ],
+   "work_s": 739.7052375488281,
+   "work_min": 12.3,
+   "read": 48588,
+   "reused": 2412706,
+   "generated": 64153,
+   "token_source": "engine log segment between this and the next dispatch; API usage is diagnostic only",
+   "tool_calls": 44,
+   "engine_in_tps": 1152.0,
+   "engine_out_tps": 93.4,
+   "task_in_tps": 65.7,
+   "task_out_tps": 86.7
+  },
+  {
+   "batch": "C",
+   "rep": "3",
+   "instanceId": "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3",
+   "complete": true,
+   "state": "idle",
+   "generation_exit": 0,
+   "deadlines": [
+    null
+   ],
+   "work_s": 818.0474243164062,
+   "work_min": 13.6,
+   "read": 64528,
+   "reused": 2201482,
+   "generated": 71669,
+   "token_source": "engine log segment between this and the next dispatch; API usage is diagnostic only",
+   "tool_calls": 34,
+   "engine_in_tps": 1417.0,
+   "engine_out_tps": 94.0,
+   "task_in_tps": 78.9,
+   "task_out_tps": 87.6
+  }
+ ],
+ "inspect": {
+  "1": {
+   "session": "rollout-2026-10-18T18-05-54-01a14e42-aaf0-7fd2-81d8-0799e09e4cdf.jsonl",
+   "root": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/C/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/a1ac9352-26a3-4f5e-831b-b2341c763358/ca/1",
+   "compactions": 0,
+   "handoff_found": true,
+   "flagged_actions": 2,
+   "flagged_messages": 0,
+   "startup": {
+    "base_instructions": "5d36e1d1a96f0515",
+    "developer@2": "b0808ba12bbba68f",
+    "user@3": "b35059a2d4a3842c",
+    "user@6": "e7f65bedee55a5af",
+    "messageId": "ed3923dd-a001-42ba-b592-bf101f15f526"
+   },
+   "final": "{\"status\":\"ready\"}",
+   "tool_calls": 41,
+   "tool_call_types": {
+    "function_call": 41
+   }
+  },
+  "2": {
+   "session": "rollout-2026-10-18T18-19-40-01a14e4f-4772-7f62-a38d-72ab8a6d7f92.jsonl",
+   "root": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/C/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/a1ac9352-26a3-4f5e-831b-b2341c763358/ca/2",
+   "compactions": 0,
+   "handoff_found": true,
+   "flagged_actions": 1,
+   "flagged_messages": 0,
+   "startup": {
+    "base_instructions": "5d36e1d1a96f0515",
+    "developer@2": "b0808ba12bbba68f",
+    "user@3": "b35059a2d4a3842c",
+    "user@6": "e7f65bedee55a5af",
+    "messageId": "e570ec2f-cad0-41c9-8f74-78be3badbb14"
+   },
+   "final": "{\"status\":\"ready\"}",
+   "tool_calls": 44,
+   "tool_call_types": {
+    "function_call": 44
+   }
+  },
+  "3": {
+   "session": "rollout-2026-10-18T18-32-04-01a14e5a-9fdd-7563-aff8-d878344eb5ba.jsonl",
+   "root": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/C/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/a1ac9352-26a3-4f5e-831b-b2341c763358/ca/3",
+   "compactions": 0,
+   "handoff_found": true,
+   "flagged_actions": 2,
+   "flagged_messages": 0,
+   "startup": {
+    "base_instructions": "5d36e1d1a96f0515",
+    "developer@2": "b0808ba12bbba68f",
+    "user@3": "b35059a2d4a3842c",
+    "user@6": "e7f65bedee55a5af",
+    "messageId": "a39f572a-c320-4224-80d9-4a789cd7ed44"
+   },
+   "final": "{\"status\":\"ready\"}",
+   "tool_calls": 34,
+   "tool_call_types": {
+    "function_call": 34
+   }
+  }
+ },
+ "candidates": 87,
+ "score_rc": 1
+}

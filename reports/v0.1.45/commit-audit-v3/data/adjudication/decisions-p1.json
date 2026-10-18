@@ -1,0 +1,1545 @@
+{
+ "adjudicator": "blind Opus high",
+ "decisions": [
+  {
+   "id": "p1-001",
+   "decision": "false-positive:clean-9",
+   "reason": "retryTransient 本身只认显式 transient:true；rule 26 不适用于本条（本条不引用政策），asPublicationError 显式设置标记，finding 为误报。"
+  },
+  {
+   "id": "p1-002",
+   "decision": "false-positive:clean-22",
+   "reason": "过滤只剔除非字符串 phone，联系电话按 rule 33 是去字符的文本，非字符串 phone 的推断无依据，本行实现满足。"
+  },
+  {
+   "id": "p1-003",
+   "decision": "false-positive:clean-2",
+   "reason": "按裁决口径，令牌字段置为 undefined 算移除（JSON 序列化后不出现），finding 为误报。"
+  },
+  {
+   "id": "p1-004",
+   "decision": "problem-1",
+   "reason": "index.mjs 确实未导出 executor.mjs，与“公共入口缺少执行接口”的问题用例一致。"
+  },
+  {
+   "id": "p1-005",
+   "decision": "matched",
+   "reason": "指出文本 priority '7' 不在任何分区，与期望句一致。"
+  },
+  {
+   "id": "p1-006",
+   "decision": "matched",
+   "reason": "指出 '7' 或 Infinity 的停靠点不在任何分区，与期望句一致。"
+  },
+  {
+   "id": "p1-007",
+   "decision": "matched",
+   "reason": "指出 Infinity priority 不在任何分区，口径 spec:38 认可 Infinity 一例。"
+  },
+  {
+   "id": "p1-008",
+   "decision": "matched",
+   "reason": "指出文本 priority '9' 两个分区都不在，与期望句一致。"
+  },
+  {
+   "id": "p1-009",
+   "decision": "matched",
+   "reason": "指出 Infinity priority 两个分区都不在，口径认可。"
+  },
+  {
+   "id": "p1-010",
+   "decision": "not-matched",
+   "reason": "finding 称非有限 priority 同时落入两个分区，与实际（不在任何分区）相反，不是同一缺陷。"
+  },
+  {
+   "id": "p1-011",
+   "decision": "matched",
+   "reason": "指出 Infinity 不在任何分区，与期望句一致。"
+  },
+  {
+   "id": "p1-012",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 时回退到退避。"
+  },
+  {
+   "id": "p1-013",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 时被当作缺失而用计算退避。"
+  },
+  {
+   "id": "p1-014",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 被忽略，另指出 Infinity 替代退避。"
+  },
+  {
+   "id": "p1-015",
+   "decision": "matched",
+   "reason": "指出 nextRetryDelay(1,0) 返回 500 而不是 0。"
+  },
+  {
+   "id": "p1-016",
+   "decision": "not-matched",
+   "reason": "只谈上限截断，按口径只谈单位或上限不匹配。"
+  },
+  {
+   "id": "p1-017",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 是假值而改用计算退避。"
+  },
+  {
+   "id": "p1-018",
+   "decision": "matched",
+   "reason": "指出 0 回退到退避，并指出非有限值替代退避。"
+  },
+  {
+   "id": "p1-019",
+   "decision": "matched",
+   "reason": "指出 0 回退到退避，并指出 Infinity 替代退避。"
+  },
+  {
+   "id": "p1-020",
+   "decision": "matched",
+   "reason": "指出 dispatch 在作为 unlessForbidden 参数求值时已被调用，授权拒绝之前就执行。"
+  },
+  {
+   "id": "p1-021",
+   "decision": "matched",
+   "reason": "指出 dispatch 在作为 unlessForbidden 参数求值时已被调用，授权拒绝之前就执行。"
+  },
+  {
+   "id": "p1-022",
+   "decision": "matched",
+   "reason": "指出 dispatch 在作为 unlessForbidden 参数求值时已被调用，授权拒绝之前就执行。"
+  },
+  {
+   "id": "p1-023",
+   "decision": "matched",
+   "reason": "指出 dispatch 在作为 unlessForbidden 参数求值时已被调用，授权拒绝之前就执行。"
+  },
+  {
+   "id": "p1-024",
+   "decision": "matched",
+   "reason": "指出 dispatch 在作为 unlessForbidden 参数求值时已被调用，授权拒绝之前就执行。"
+  },
+  {
+   "id": "p1-025",
+   "decision": "matched",
+   "reason": "指出 dispatch 在作为 unlessForbidden 参数求值时已被调用，授权拒绝之前就执行。"
+  },
+  {
+   "id": "p1-026",
+   "decision": "matched",
+   "reason": "指出 dispatch 在作为 unlessForbidden 参数求值时已被调用，授权拒绝之前就执行。"
+  },
+  {
+   "id": "p1-027",
+   "decision": "matched",
+   "reason": "指出 dispatch 在作为 unlessForbidden 参数求值时已被调用，授权拒绝之前就执行。"
+  },
+  {
+   "id": "p1-028",
+   "decision": "matched",
+   "reason": "指出 dispatch 在作为 unlessForbidden 参数求值时已被调用，授权拒绝之前就执行。"
+  },
+  {
+   "id": "p1-029",
+   "decision": "matched",
+   "reason": "指出 >0 的余量判断在总量等于上限时为假，等于上限被拒。"
+  },
+  {
+   "id": "p1-030",
+   "decision": "matched",
+   "reason": "指出 >0 的余量判断在总量等于上限时为假，等于上限被拒。"
+  },
+  {
+   "id": "p1-031",
+   "decision": "matched",
+   "reason": "指出 >0 的余量判断在总量等于上限时为假，等于上限被拒。"
+  },
+  {
+   "id": "p1-032",
+   "decision": "matched",
+   "reason": "指出 >0 的余量判断在总量等于上限时为假，等于上限被拒。"
+  },
+  {
+   "id": "p1-033",
+   "decision": "matched",
+   "reason": "指出 >0 的余量判断在总量等于上限时为假，等于上限被拒。"
+  },
+  {
+   "id": "p1-034",
+   "decision": "matched",
+   "reason": "指出 >0 的余量判断在总量等于上限时为假，等于上限被拒。"
+  },
+  {
+   "id": "p1-035",
+   "decision": "matched",
+   "reason": "指出 >0 的余量判断在总量等于上限时为假，等于上限被拒。"
+  },
+  {
+   "id": "p1-036",
+   "decision": "matched",
+   "reason": "指出 >0 的余量判断在总量等于上限时为假，等于上限被拒。"
+  },
+  {
+   "id": "p1-037",
+   "decision": "matched",
+   "reason": "指出 >0 的余量判断在总量等于上限时为假，等于上限被拒。"
+  },
+  {
+   "id": "p1-038",
+   "decision": "matched",
+   "reason": "指出 stripCredentials 只递归普通对象，数组内凭据未删除。"
+  },
+  {
+   "id": "p1-039",
+   "decision": "matched",
+   "reason": "指出 stripCredentials 只递归普通对象，数组内凭据未删除。"
+  },
+  {
+   "id": "p1-040",
+   "decision": "matched",
+   "reason": "指出 stripCredentials 只递归普通对象，数组内凭据未删除。"
+  },
+  {
+   "id": "p1-041",
+   "decision": "matched",
+   "reason": "指出 stripCredentials 只递归普通对象，数组内凭据未删除。"
+  },
+  {
+   "id": "p1-042",
+   "decision": "matched",
+   "reason": "指出 stripCredentials 只递归普通对象，数组内凭据未删除。"
+  },
+  {
+   "id": "p1-043",
+   "decision": "matched",
+   "reason": "指出 stripCredentials 只递归普通对象，数组内凭据未删除。"
+  },
+  {
+   "id": "p1-044",
+   "decision": "matched",
+   "reason": "指出 stripCredentials 只递归普通对象，数组内凭据未删除。"
+  },
+  {
+   "id": "p1-045",
+   "decision": "matched",
+   "reason": "指出只递归 constructor 为 Object 的值，auth 下数组内凭据保留。"
+  },
+  {
+   "id": "p1-046",
+   "decision": "matched",
+   "reason": "指出只递归 constructor 为 Object 的值，auth 下数组内凭据保留。"
+  },
+  {
+   "id": "p1-047",
+   "decision": "matched",
+   "reason": "指出只递归 constructor 为 Object 的值，auth 下数组内凭据保留。"
+  },
+  {
+   "id": "p1-048",
+   "decision": "matched",
+   "reason": "指出只递归 constructor 为 Object 的值，auth 下数组内凭据保留。"
+  },
+  {
+   "id": "p1-049",
+   "decision": "matched",
+   "reason": "指出只递归 constructor 为 Object 的值，auth 下数组内凭据保留。"
+  },
+  {
+   "id": "p1-050",
+   "decision": "matched",
+   "reason": "指出只递归 constructor 为 Object 的值，auth 下数组内凭据保留。"
+  },
+  {
+   "id": "p1-051",
+   "decision": "matched",
+   "reason": "指出只递归 constructor 为 Object 的值，auth 下数组内凭据保留。"
+  },
+  {
+   "id": "p1-052",
+   "decision": "false-positive:clean-16",
+   "reason": "retryTransient 只认显式 transient===true；asPublicationError 是显式设置标记，本行不引用政策，实现满足要求，finding 为误报。"
+  },
+  {
+   "id": "p1-053",
+   "decision": "problem-7",
+   "reason": "index.mjs 确实未导出 executor.mjs，与问题用例一致。"
+  },
+  {
+   "id": "p1-054",
+   "decision": "false-positive:clean-16",
+   "reason": "同 p1-052：分类函数只认显式 true 标记，retryAfter 转换是显式置标记，finding 为误报。"
+  },
+  {
+   "id": "p1-055",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等），符合口径。"
+  },
+  {
+   "id": "p1-056",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等），符合口径。"
+  },
+  {
+   "id": "p1-057",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等），符合口径。"
+  },
+  {
+   "id": "p1-058",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等），符合口径。"
+  },
+  {
+   "id": "p1-059",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等），符合口径。"
+  },
+  {
+   "id": "p1-060",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等），符合口径。"
+  },
+  {
+   "id": "p1-061",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等），符合口径。"
+  },
+  {
+   "id": "p1-062",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等），符合口径。"
+  },
+  {
+   "id": "p1-063",
+   "decision": "matched",
+   "reason": "指出每个停靠点少算 5 分钟停车时间。"
+  },
+  {
+   "id": "p1-064",
+   "decision": "matched",
+   "reason": "指出每个停靠点少算 5 分钟停车时间。"
+  },
+  {
+   "id": "p1-065",
+   "decision": "matched",
+   "reason": "指出每个停靠点少算 5 分钟停车时间。"
+  },
+  {
+   "id": "p1-066",
+   "decision": "matched",
+   "reason": "指出每个停靠点少算 5 分钟停车时间。"
+  },
+  {
+   "id": "p1-067",
+   "decision": "matched",
+   "reason": "指出每个停靠点少算 5 分钟停车时间。"
+  },
+  {
+   "id": "p1-068",
+   "decision": "matched",
+   "reason": "指出每个停靠点少算 5 分钟停车时间。"
+  },
+  {
+   "id": "p1-069",
+   "decision": "matched",
+   "reason": "指出每个停靠点少算 5 分钟停车时间。"
+  },
+  {
+   "id": "p1-070",
+   "decision": "matched",
+   "reason": "指出每个停靠点少算 5 分钟停车时间。"
+  },
+  {
+   "id": "p1-071",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被返回。"
+  },
+  {
+   "id": "p1-072",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被返回。"
+  },
+  {
+   "id": "p1-073",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被返回。"
+  },
+  {
+   "id": "p1-074",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被返回。"
+  },
+  {
+   "id": "p1-075",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被返回。"
+  },
+  {
+   "id": "p1-076",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被返回。"
+  },
+  {
+   "id": "p1-077",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被返回。"
+  },
+  {
+   "id": "p1-078",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被返回。"
+  },
+  {
+   "id": "p1-079",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p1-080",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p1-081",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p1-082",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p1-083",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p1-084",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p1-085",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p1-086",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs。"
+  },
+  {
+   "id": "p1-087",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs。"
+  },
+  {
+   "id": "p1-088",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs。"
+  },
+  {
+   "id": "p1-089",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs。"
+  },
+  {
+   "id": "p1-090",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs。"
+  },
+  {
+   "id": "p1-091",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs。"
+  },
+  {
+   "id": "p1-092",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs。"
+  },
+  {
+   "id": "p1-093",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs。"
+  },
+  {
+   "id": "p1-094",
+   "decision": "matched",
+   "reason": "指出 groupByDestination 返回的 Map 条目不是带 destination 的分组对象，因此未排序。"
+  },
+  {
+   "id": "p1-095",
+   "decision": "matched",
+   "reason": "指出 groupByDestination 返回的 Map 条目不是带 destination 的分组对象，因此未排序。"
+  },
+  {
+   "id": "p1-096",
+   "decision": "matched",
+   "reason": "指出 groupByDestination 返回的 Map 条目不是带 destination 的分组对象，因此未排序。"
+  },
+  {
+   "id": "p1-097",
+   "decision": "matched",
+   "reason": "指出 groupByDestination 返回的 Map 条目不是带 destination 的分组对象，因此未排序。"
+  },
+  {
+   "id": "p1-098",
+   "decision": "matched",
+   "reason": "指出 groupByDestination 返回的 Map 条目不是带 destination 的分组对象，因此未排序。"
+  },
+  {
+   "id": "p1-099",
+   "decision": "matched",
+   "reason": "指出 groupByDestination 返回的 Map 条目不是带 destination 的分组对象，因此未排序。"
+  },
+  {
+   "id": "p1-100",
+   "decision": "matched",
+   "reason": "指出 groupByDestination 返回的 Map 条目不是带 destination 的分组对象，因此未排序。"
+  },
+  {
+   "id": "p1-101",
+   "decision": "matched",
+   "reason": "指出暂停只清空自身范围，active claim 的范围仍保留，可通过 canPlanRoute。"
+  },
+  {
+   "id": "p1-102",
+   "decision": "matched",
+   "reason": "指出暂停只清空自身范围，active claim 的范围仍保留，可通过 canPlanRoute。"
+  },
+  {
+   "id": "p1-103",
+   "decision": "matched",
+   "reason": "指出暂停只清空自身范围，active claim 的范围仍保留，可通过 canPlanRoute。"
+  },
+  {
+   "id": "p1-104",
+   "decision": "matched",
+   "reason": "指出暂停只清空自身范围，active claim 的范围仍保留，可通过 canPlanRoute。"
+  },
+  {
+   "id": "p1-105",
+   "decision": "matched",
+   "reason": "指出暂停只清空自身范围，active claim 的范围仍保留，可通过 canPlanRoute。"
+  },
+  {
+   "id": "p1-106",
+   "decision": "matched",
+   "reason": "指出暂停只清空自身范围，active claim 的范围仍保留，可通过 canPlanRoute。"
+  },
+  {
+   "id": "p1-107",
+   "decision": "matched",
+   "reason": "指出暂停只清空自身范围，active claim 的范围仍保留，可通过 canPlanRoute。"
+  },
+  {
+   "id": "p1-108",
+   "decision": "matched",
+   "reason": "指出 seen 存原始 ID 而过滤用去空格 ID，空白变体跨组保留。"
+  },
+  {
+   "id": "p1-109",
+   "decision": "matched",
+   "reason": "指出 seen 存原始 ID 而过滤用去空格 ID，空白变体跨组保留。"
+  },
+  {
+   "id": "p1-110",
+   "decision": "matched",
+   "reason": "指出 seen 存原始 ID 而过滤用去空格 ID，空白变体跨组保留。"
+  },
+  {
+   "id": "p1-111",
+   "decision": "matched",
+   "reason": "指出 seen 存原始 ID 而过滤用去空格 ID，空白变体跨组保留。"
+  },
+  {
+   "id": "p1-112",
+   "decision": "matched",
+   "reason": "指出 seen 存原始 ID 而过滤用去空格 ID，空白变体跨组保留。"
+  },
+  {
+   "id": "p1-113",
+   "decision": "matched",
+   "reason": "指出 seen 存原始 ID 而过滤用去空格 ID，空白变体跨组保留。"
+  },
+  {
+   "id": "p1-114",
+   "decision": "matched",
+   "reason": "指出 seen 存原始 ID 而过滤用去空格 ID，空白变体跨组保留。"
+  },
+  {
+   "id": "p1-115",
+   "decision": "matched",
+   "reason": "指出通知发往未去空格和连字符的原始 phone。"
+  },
+  {
+   "id": "p1-116",
+   "decision": "matched",
+   "reason": "指出通知发往未去空格和连字符的原始 phone。"
+  },
+  {
+   "id": "p1-117",
+   "decision": "matched",
+   "reason": "指出通知发往未去空格和连字符的原始 phone。"
+  },
+  {
+   "id": "p1-118",
+   "decision": "matched",
+   "reason": "指出通知发往未去空格和连字符的原始 phone。"
+  },
+  {
+   "id": "p1-119",
+   "decision": "matched",
+   "reason": "指出通知发往未去空格和连字符的原始 phone。"
+  },
+  {
+   "id": "p1-120",
+   "decision": "matched",
+   "reason": "指出通知发往未去空格和连字符的原始 phone。"
+  },
+  {
+   "id": "p1-121",
+   "decision": "matched",
+   "reason": "指出通知发往未去空格和连字符的原始 phone。"
+  },
+  {
+   "id": "p1-122",
+   "decision": "matched",
+   "reason": "指出通知发往未去空格和连字符的原始 phone。"
+  },
+  {
+   "id": "p1-123",
+   "decision": "matched",
+   "reason": "指出通知发往未去空格和连字符的原始 phone。"
+  },
+  {
+   "id": "p1-124",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "p1-125",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "p1-126",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "p1-127",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "p1-128",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "p1-129",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "p1-130",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "p1-131",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 是假值而回退到计算退避。"
+  },
+  {
+   "id": "p1-132",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 是假值而回退到计算退避。"
+  },
+  {
+   "id": "p1-133",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 是假值而回退到计算退避。"
+  },
+  {
+   "id": "p1-134",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 是假值而回退到计算退避。"
+  },
+  {
+   "id": "p1-135",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 是假值而回退到计算退避。"
+  },
+  {
+   "id": "p1-136",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 是假值而回退到计算退避。"
+  },
+  {
+   "id": "p1-137",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 是假值而回退到计算退避。"
+  },
+  {
+   "id": "p1-138",
+   "decision": "not-matched",
+   "reason": "照抄的结论只谈 2000 ms 上限截断，按口径只谈上限不匹配。"
+  },
+  {
+   "id": "p1-139",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出合同未规定未知地址时 lookup 的行为。"
+  },
+  {
+   "id": "p1-140",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出合同未规定未知地址时 lookup 的行为。"
+  },
+  {
+   "id": "p1-141",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出合同未规定未知地址时 lookup 的行为。"
+  },
+  {
+   "id": "p1-142",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出合同未规定未知地址时 lookup 的行为。"
+  },
+  {
+   "id": "p1-143",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出合同未规定未知地址时 lookup 的行为。"
+  },
+  {
+   "id": "p1-144",
+   "decision": "matched",
+   "reason": "判 gap 但理由是合同只描述已知地址、未知地址可能拒绝，按口径 01:43 仍算匹配。"
+  },
+  {
+   "id": "p1-145",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出合同未规定未知地址时 lookup 的行为。"
+  },
+  {
+   "id": "p1-146",
+   "decision": "matched",
+   "reason": "指出暂停只清空自身范围，active claim 范围仍保留，可规划路线。"
+  },
+  {
+   "id": "p1-147",
+   "decision": "matched",
+   "reason": "指出暂停只清空自身范围，active claim 范围仍保留，可规划路线。"
+  },
+  {
+   "id": "p1-148",
+   "decision": "matched",
+   "reason": "指出暂停只清空自身范围，active claim 范围仍保留，可规划路线。"
+  },
+  {
+   "id": "p1-149",
+   "decision": "matched",
+   "reason": "指出暂停只清空自身范围，active claim 范围仍保留，可规划路线。"
+  },
+  {
+   "id": "p1-150",
+   "decision": "matched",
+   "reason": "指出暂停只清空自身范围，active claim 范围仍保留，可规划路线。"
+  },
+  {
+   "id": "p1-151",
+   "decision": "matched",
+   "reason": "指出暂停只清空自身范围，active claim 范围仍保留，可规划路线。"
+  },
+  {
+   "id": "p1-152",
+   "decision": "matched",
+   "reason": "指出暂停只清空自身范围，active claim 范围仍保留，可规划路线。"
+  },
+  {
+   "id": "p1-153",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、>0 为假而被拒。"
+  },
+  {
+   "id": "p1-154",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、>0 为假而被拒。"
+  },
+  {
+   "id": "p1-155",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、>0 为假而被拒。"
+  },
+  {
+   "id": "p1-156",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、>0 为假而被拒。"
+  },
+  {
+   "id": "p1-157",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、>0 为假而被拒。"
+  },
+  {
+   "id": "p1-158",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、>0 为假而被拒。"
+  },
+  {
+   "id": "p1-159",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、>0 为假而被拒。"
+  },
+  {
+   "id": "p1-160",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、>0 为假而被拒。"
+  },
+  {
+   "id": "p1-161",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、>0 为假而被拒。"
+  },
+  {
+   "id": "p1-162",
+   "decision": "matched",
+   "reason": "指出 store.remove 收到的是 store.get 的副本而非已存对象，未删除。"
+  },
+  {
+   "id": "p1-163",
+   "decision": "matched",
+   "reason": "指出 store.remove 收到的是 store.get 的副本而非已存对象，未删除。"
+  },
+  {
+   "id": "p1-164",
+   "decision": "matched",
+   "reason": "指出 store.remove 收到的是 store.get 的副本而非已存对象，未删除。"
+  },
+  {
+   "id": "p1-165",
+   "decision": "matched",
+   "reason": "指出 store.remove 收到的是 store.get 的副本而非已存对象，未删除。"
+  },
+  {
+   "id": "p1-166",
+   "decision": "matched",
+   "reason": "指出 store.remove 收到的是 store.get 的副本而非已存对象，未删除。"
+  },
+  {
+   "id": "p1-167",
+   "decision": "matched",
+   "reason": "指出 seen 记原始 ID 而过滤用去空格 ID，空白变体在后续组保留。"
+  },
+  {
+   "id": "p1-168",
+   "decision": "matched",
+   "reason": "指出 seen 记原始 ID 而过滤用去空格 ID，空白变体在后续组保留。"
+  },
+  {
+   "id": "p1-169",
+   "decision": "matched",
+   "reason": "指出 seen 记原始 ID 而过滤用去空格 ID，空白变体在后续组保留。"
+  },
+  {
+   "id": "p1-170",
+   "decision": "matched",
+   "reason": "指出 seen 记原始 ID 而过滤用去空格 ID，空白变体在后续组保留。"
+  },
+  {
+   "id": "p1-171",
+   "decision": "matched",
+   "reason": "指出 seen 记原始 ID 而过滤用去空格 ID，空白变体在后续组保留。"
+  },
+  {
+   "id": "p1-172",
+   "decision": "matched",
+   "reason": "指出 seen 记原始 ID 而过滤用去空格 ID，空白变体在后续组保留。"
+  },
+  {
+   "id": "p1-173",
+   "decision": "matched",
+   "reason": "指出 seen 记原始 ID 而过滤用去空格 ID，空白变体在后续组保留。"
+  },
+  {
+   "id": "p1-174",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后落在窗口 2-4 外而未拒绝。"
+  },
+  {
+   "id": "p1-175",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后落在窗口 2-4 外而未拒绝。"
+  },
+  {
+   "id": "p1-176",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后落在窗口 2-4 外而未拒绝。"
+  },
+  {
+   "id": "p1-177",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后落在窗口 2-4 外而未拒绝。"
+  },
+  {
+   "id": "p1-178",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后落在窗口 2-4 外而未拒绝。"
+  },
+  {
+   "id": "p1-179",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后落在窗口 2-4 外而未拒绝。"
+  },
+  {
+   "id": "p1-180",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后落在窗口 2-4 外而未拒绝。"
+  },
+  {
+   "id": "p1-181",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后落在窗口 2-4 外而未拒绝。"
+  },
+  {
+   "id": "p1-182",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后落在窗口 2-4 外而未拒绝。"
+  },
+  {
+   "id": "p1-183",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "p1-184",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "p1-185",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "p1-186",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "p1-187",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "p1-188",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "p1-189",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "p1-190",
+   "decision": "matched",
+   "reason": "指出带 reassignment 的停靠点按自身 driver 而非 reassignment.driver 归属。"
+  },
+  {
+   "id": "p1-191",
+   "decision": "matched",
+   "reason": "指出带 reassignment 的停靠点按自身 driver 而非 reassignment.driver 归属。"
+  },
+  {
+   "id": "p1-192",
+   "decision": "matched",
+   "reason": "指出带 reassignment 的停靠点按自身 driver 而非 reassignment.driver 归属。"
+  },
+  {
+   "id": "p1-193",
+   "decision": "matched",
+   "reason": "指出带 reassignment 的停靠点按自身 driver 而非 reassignment.driver 归属。"
+  },
+  {
+   "id": "p1-194",
+   "decision": "matched",
+   "reason": "指出带 reassignment 的停靠点按自身 driver 而非 reassignment.driver 归属。"
+  },
+  {
+   "id": "p1-195",
+   "decision": "matched",
+   "reason": "指出带 reassignment 的停靠点按自身 driver 而非 reassignment.driver 归属。"
+  },
+  {
+   "id": "p1-196",
+   "decision": "matched",
+   "reason": "指出带 reassignment 的停靠点按自身 driver 而非 reassignment.driver 归属。"
+  },
+  {
+   "id": "p1-197",
+   "decision": "matched",
+   "reason": "指出带 reassignment 的停靠点按自身 driver 而非 reassignment.driver 归属。"
+  },
+  {
+   "id": "p1-198",
+   "decision": "matched",
+   "reason": "指出带 reassignment 的停靠点按自身 driver 而非 reassignment.driver 归属。"
+  },
+  {
+   "id": "p1-199",
+   "decision": "matched",
+   "reason": "指出 rename 被拒后字节被锁定，discardTemporary 不删除，未调用 removeTemporary。"
+  },
+  {
+   "id": "p1-200",
+   "decision": "matched",
+   "reason": "指出 rename 被拒后字节被锁定，discardTemporary 不删除，未调用 removeTemporary。"
+  },
+  {
+   "id": "p1-201",
+   "decision": "matched",
+   "reason": "指出 rename 被拒后字节被锁定，discardTemporary 不删除，未调用 removeTemporary。"
+  },
+  {
+   "id": "p1-202",
+   "decision": "matched",
+   "reason": "指出 rename 被拒后字节被锁定，discardTemporary 不删除，未调用 removeTemporary。"
+  },
+  {
+   "id": "p1-203",
+   "decision": "matched",
+   "reason": "指出 rename 被拒后字节被锁定，discardTemporary 不删除，未调用 removeTemporary。"
+  },
+  {
+   "id": "p1-204",
+   "decision": "matched",
+   "reason": "指出 rename 被拒后字节被锁定，discardTemporary 不删除，未调用 removeTemporary。"
+  },
+  {
+   "id": "p1-205",
+   "decision": "matched",
+   "reason": "指出 rename 被拒后字节被锁定，discardTemporary 不删除，未调用 removeTemporary。"
+  },
+  {
+   "id": "p1-206",
+   "decision": "matched",
+   "reason": "指出 nextDispatchTime 用主机本地小时 getHours 而非 UTC 判断禁发。"
+  },
+  {
+   "id": "p1-207",
+   "decision": "matched",
+   "reason": "指出 nextDispatchTime 用主机本地小时 getHours 而非 UTC 判断禁发。"
+  },
+  {
+   "id": "p1-208",
+   "decision": "matched",
+   "reason": "指出 nextDispatchTime 用主机本地小时 getHours 而非 UTC 判断禁发。"
+  },
+  {
+   "id": "p1-209",
+   "decision": "matched",
+   "reason": "指出 nextDispatchTime 用主机本地小时 getHours 而非 UTC 判断禁发。"
+  },
+  {
+   "id": "p1-210",
+   "decision": "matched",
+   "reason": "指出 nextDispatchTime 用主机本地小时 getHours 而非 UTC 判断禁发。"
+  },
+  {
+   "id": "p1-211",
+   "decision": "matched",
+   "reason": "指出 nextDispatchTime 用主机本地小时 getHours 而非 UTC 判断禁发。"
+  },
+  {
+   "id": "p1-212",
+   "decision": "matched",
+   "reason": "指出 nextDispatchTime 用主机本地小时 getHours 而非 UTC 判断禁发。"
+  },
+  {
+   "id": "p1-213",
+   "decision": "matched",
+   "reason": "指出 nextDispatchTime 用主机本地小时 getHours 而非 UTC 判断禁发。"
+  },
+  {
+   "id": "p1-214",
+   "decision": "matched",
+   "reason": "指出 nextDispatchTime 用主机本地小时 getHours 而非 UTC 判断禁发。"
+  },
+  {
+   "id": "p1-215",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出合同未规定 scale.read 的单位。"
+  },
+  {
+   "id": "p1-216",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出合同未规定 scale.read 的单位。"
+  },
+  {
+   "id": "p1-217",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出合同未规定 scale.read 的单位。"
+  },
+  {
+   "id": "p1-218",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出合同未规定 scale.read 的单位。"
+  },
+  {
+   "id": "p1-219",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出合同未规定 scale.read 的单位。"
+  },
+  {
+   "id": "p1-220",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出合同未规定 scale.read 的单位。"
+  },
+  {
+   "id": "p1-221",
+   "decision": "matched",
+   "reason": "指出 routes:admin 只查自身 scopes 而非 held scopes，claim 授予的 admin 不生效。"
+  },
+  {
+   "id": "p1-222",
+   "decision": "matched",
+   "reason": "指出 routes:admin 只查自身 scopes 而非 held scopes，claim 授予的 admin 不生效。"
+  },
+  {
+   "id": "p1-223",
+   "decision": "matched",
+   "reason": "指出 routes:admin 只查自身 scopes 而非 held scopes，claim 授予的 admin 不生效。"
+  },
+  {
+   "id": "p1-224",
+   "decision": "matched",
+   "reason": "指出 routes:admin 只查自身 scopes 而非 held scopes，claim 授予的 admin 不生效。"
+  },
+  {
+   "id": "p1-225",
+   "decision": "matched",
+   "reason": "指出 routes:admin 只查自身 scopes 而非 held scopes，claim 授予的 admin 不生效。"
+  },
+  {
+   "id": "p1-226",
+   "decision": "matched",
+   "reason": "指出 routes:admin 只查自身 scopes 而非 held scopes，claim 授予的 admin 不生效。"
+  },
+  {
+   "id": "p1-227",
+   "decision": "matched",
+   "reason": "指出 routes:admin 只查自身 scopes 而非 held scopes，claim 授予的 admin 不生效。"
+  },
+  {
+   "id": "p1-228",
+   "decision": "matched",
+   "reason": "指出 routes:admin 只查自身 scopes 而非 held scopes，claim 授予的 admin 不生效。"
+  },
+  {
+   "id": "p1-229",
+   "decision": "matched",
+   "reason": "指出传给 store.remove 的是 store.get 的新副本，什么也不删。"
+  },
+  {
+   "id": "p1-230",
+   "decision": "matched",
+   "reason": "指出传给 store.remove 的是 store.get 的新副本，什么也不删。"
+  },
+  {
+   "id": "p1-231",
+   "decision": "matched",
+   "reason": "指出传给 store.remove 的是 store.get 的新副本，什么也不删。"
+  },
+  {
+   "id": "p1-232",
+   "decision": "matched",
+   "reason": "指出传给 store.remove 的是 store.get 的新副本，什么也不删。"
+  },
+  {
+   "id": "p1-233",
+   "decision": "matched",
+   "reason": "指出传给 store.remove 的是 store.get 的新副本，什么也不删。"
+  },
+  {
+   "id": "p1-234",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p1-235",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p1-236",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p1-237",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p1-238",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p1-239",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p1-240",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p1-241",
+   "decision": "matched",
+   "reason": "指出 async 回调产生的 Promise 恒为真值，无效 manifest 被存储。"
+  },
+  {
+   "id": "p1-242",
+   "decision": "matched",
+   "reason": "指出 async 回调产生的 Promise 恒为真值，无效 manifest 被存储。"
+  },
+  {
+   "id": "p1-243",
+   "decision": "matched",
+   "reason": "指出 async 回调产生的 Promise 恒为真值，无效 manifest 被存储。"
+  },
+  {
+   "id": "p1-244",
+   "decision": "matched",
+   "reason": "指出 async 回调产生的 Promise 恒为真值，无效 manifest 被存储。"
+  },
+  {
+   "id": "p1-245",
+   "decision": "matched",
+   "reason": "指出 async 回调产生的 Promise 恒为真值，无效 manifest 被存储。"
+  },
+  {
+   "id": "p1-246",
+   "decision": "matched",
+   "reason": "指出 async 回调产生的 Promise 恒为真值，无效 manifest 被存储。"
+  },
+  {
+   "id": "p1-247",
+   "decision": "matched",
+   "reason": "指出 async 回调产生的 Promise 恒为真值，无效 manifest 被存储。"
+  },
+  {
+   "id": "p1-248",
+   "decision": "matched",
+   "reason": "指出 async 回调产生的 Promise 恒为真值，无效 manifest 被存储。"
+  },
+  {
+   "id": "p1-249",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为 unlessForbidden 参数被先求值，授权结果之前已执行。"
+  },
+  {
+   "id": "p1-250",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为 unlessForbidden 参数被先求值，授权结果之前已执行。"
+  },
+  {
+   "id": "p1-251",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为 unlessForbidden 参数被先求值，授权结果之前已执行。"
+  },
+  {
+   "id": "p1-252",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为 unlessForbidden 参数被先求值，授权结果之前已执行。"
+  },
+  {
+   "id": "p1-253",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为 unlessForbidden 参数被先求值，授权结果之前已执行。"
+  },
+  {
+   "id": "p1-254",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为 unlessForbidden 参数被先求值，授权结果之前已执行。"
+  },
+  {
+   "id": "p1-255",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为 unlessForbidden 参数被先求值，授权结果之前已执行。"
+  },
+  {
+   "id": "p1-256",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为 unlessForbidden 参数被先求值，授权结果之前已执行。"
+  },
+  {
+   "id": "p1-257",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为 unlessForbidden 参数被先求值，授权结果之前已执行。"
+  },
+  {
+   "id": "p1-258",
+   "decision": "matched",
+   "reason": "指出 firstRejected<=0 使首个路线不满足所有权时批次被接受。"
+  },
+  {
+   "id": "p1-259",
+   "decision": "matched",
+   "reason": "指出 firstRejected<=0 使首个路线不满足所有权时批次被接受。"
+  },
+  {
+   "id": "p1-260",
+   "decision": "matched",
+   "reason": "指出 firstRejected<=0 使首个路线不满足所有权时批次被接受。"
+  },
+  {
+   "id": "p1-261",
+   "decision": "matched",
+   "reason": "指出 firstRejected<=0 使首个路线不满足所有权时批次被接受。"
+  },
+  {
+   "id": "p1-262",
+   "decision": "matched",
+   "reason": "指出 firstRejected<=0 使首个路线不满足所有权时批次被接受。"
+  },
+  {
+   "id": "p1-263",
+   "decision": "not-matched",
+   "reason": "finding 把行为说反：称只有首条失败才拒绝、后续失败被接受，并把返回 false 当作已授权，与期望句缺陷不同。"
+  },
+  {
+   "id": "p1-264",
+   "decision": "matched",
+   "reason": "前半句描述有误，但给出首条路线失败时返回 true 的实例并建议改为 === -1，指出了同一缺陷。"
+  },
+  {
+   "id": "p1-265",
+   "decision": "matched",
+   "reason": "指出首条路线（index 0）不满足所有权时批次被接受。"
+  },
+  {
+   "id": "p1-266",
+   "decision": "matched",
+   "reason": "指出首条路线（index 0）不满足所有权时批次被接受。"
+  },
+  {
+   "id": "p1-267",
+   "decision": "matched",
+   "reason": "指出文本或 NaN 的 sequence 没有排在有数值 sequence 的同优先级停靠点之后。"
+  },
+  {
+   "id": "p1-268",
+   "decision": "matched",
+   "reason": "指出文本或 NaN 的 sequence 没有排在有数值 sequence 的同优先级停靠点之后。"
+  },
+  {
+   "id": "p1-269",
+   "decision": "matched",
+   "reason": "指出文本或 NaN 的 sequence 没有排在有数值 sequence 的同优先级停靠点之后。"
+  },
+  {
+   "id": "p1-270",
+   "decision": "matched",
+   "reason": "指出文本或 NaN 的 sequence 没有排在有数值 sequence 的同优先级停靠点之后。"
+  },
+  {
+   "id": "p1-271",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等）。"
+  },
+  {
+   "id": "p1-272",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等）。"
+  },
+  {
+   "id": "p1-273",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等）。"
+  },
+  {
+   "id": "p1-274",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等）。"
+  },
+  {
+   "id": "p1-275",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等）。"
+  },
+  {
+   "id": "p1-276",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等）。"
+  },
+  {
+   "id": "p1-277",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等）。"
+  },
+  {
+   "id": "p1-278",
+   "decision": "matched",
+   "reason": "指出 Number() 接受非十进制数字文本（空串、带空格、'0x2' 等）。"
+  },
+  {
+   "id": "p1-279",
+   "decision": "matched",
+   "reason": "指出 withSortedKeys 只代理顶层，嵌套对象字段顺序进入序列化字节和哈希。"
+  },
+  {
+   "id": "p1-280",
+   "decision": "matched",
+   "reason": "指出 withSortedKeys 只代理顶层，嵌套对象字段顺序进入序列化字节和哈希。"
+  },
+  {
+   "id": "p1-281",
+   "decision": "matched",
+   "reason": "指出 withSortedKeys 只代理顶层，嵌套对象字段顺序进入序列化字节和哈希。"
+  },
+  {
+   "id": "p1-282",
+   "decision": "matched",
+   "reason": "指出 withSortedKeys 只代理顶层，嵌套对象字段顺序进入序列化字节和哈希。"
+  },
+  {
+   "id": "p1-283",
+   "decision": "matched",
+   "reason": "指出 withSortedKeys 只代理顶层，嵌套对象字段顺序进入序列化字节和哈希。"
+  },
+  {
+   "id": "p1-284",
+   "decision": "matched",
+   "reason": "指出 withSortedKeys 只代理顶层，嵌套对象字段顺序进入序列化字节和哈希。"
+  },
+  {
+   "id": "p1-285",
+   "decision": "matched",
+   "reason": "指出 withSortedKeys 只代理顶层，嵌套对象字段顺序进入序列化字节和哈希。"
+  },
+  {
+   "id": "p1-286",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的嵌套 driver 对象。"
+  },
+  {
+   "id": "p1-287",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的嵌套 driver 对象。"
+  },
+  {
+   "id": "p1-288",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的嵌套 driver 对象。"
+  },
+  {
+   "id": "p1-289",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的嵌套 driver 对象。"
+  },
+  {
+   "id": "p1-290",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的嵌套 driver 对象。"
+  },
+  {
+   "id": "p1-291",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的嵌套 driver 对象。"
+  },
+  {
+   "id": "p1-292",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的嵌套 driver 对象。"
+  },
+  {
+   "id": "p1-293",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的嵌套 driver 对象。"
+  },
+  {
+   "id": "p1-294",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的嵌套 driver 对象。"
+  },
+  {
+   "id": "p1-295",
+   "decision": "matched",
+   "reason": "指出公共入口 index.mjs 未导出 executor.mjs 的执行接口。"
+  },
+  {
+   "id": "p1-296",
+   "decision": "matched",
+   "reason": "指出公共入口 index.mjs 未导出 executor.mjs 的执行接口。"
+  },
+  {
+   "id": "p1-297",
+   "decision": "matched",
+   "reason": "指出公共入口 index.mjs 未导出 executor.mjs 的执行接口。"
+  },
+  {
+   "id": "p1-298",
+   "decision": "matched",
+   "reason": "指出公共入口 index.mjs 未导出 executor.mjs 的执行接口。"
+  },
+  {
+   "id": "p1-299",
+   "decision": "matched",
+   "reason": "指出公共入口 index.mjs 未导出 executor.mjs 的执行接口。"
+  },
+  {
+   "id": "p1-300",
+   "decision": "matched",
+   "reason": "指出公共入口 index.mjs 未导出 executor.mjs 的执行接口。"
+  },
+  {
+   "id": "p1-301",
+   "decision": "matched",
+   "reason": "指出公共入口 index.mjs 未导出 executor.mjs 的执行接口。"
+  },
+  {
+   "id": "p1-302",
+   "decision": "matched",
+   "reason": "指出公共入口 index.mjs 未导出 executor.mjs 的执行接口。"
+  },
+  {
+   "id": "p1-303",
+   "decision": "matched",
+   "reason": "指出 depotId 与路线键无分隔拼接，不同路线身份产生相同键。"
+  },
+  {
+   "id": "p1-304",
+   "decision": "matched",
+   "reason": "指出 depotId 与路线键无分隔拼接，不同路线身份产生相同键。"
+  },
+  {
+   "id": "p1-305",
+   "decision": "matched",
+   "reason": "指出 depotId 与路线键无分隔拼接，不同路线身份产生相同键。"
+  },
+  {
+   "id": "p1-306",
+   "decision": "matched",
+   "reason": "指出 depotId 与路线键无分隔拼接，不同路线身份产生相同键。"
+  },
+  {
+   "id": "p1-307",
+   "decision": "matched",
+   "reason": "指出 depotId 与路线键无分隔拼接，不同路线身份产生相同键。"
+  },
+  {
+   "id": "p1-308",
+   "decision": "matched",
+   "reason": "指出 depotId 与路线键无分隔拼接，不同路线身份产生相同键。"
+  }
+ ]
+}

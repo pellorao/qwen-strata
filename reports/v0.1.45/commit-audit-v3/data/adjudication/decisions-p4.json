@@ -1,0 +1,10 @@
+{
+ "adjudicator": "blind Opus high",
+ "decisions": [
+  {
+   "id": "p4-001",
+   "decision": "unsupported",
+   "reason": "所述行为（组内重复去掉、后续组不再列 P1、P1 仍在 manifest 中）正是跨组去重的正确结果，finding 无缺陷依据，也未涉及原始 ID 与去空格 ID 不一致，不对应 problem-20。"
+  }
+ ]
+}

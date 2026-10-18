@@ -1,0 +1,721 @@
+[
+ {
+  "id": "p2-001",
+  "group": "G01",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "`stopsForDriver` compares each stop's own `driver`, so a stop with a `reassignment` is returned for its original driver and not for the driver of its `reassignment`, which rule 30 makes its assigned driver.",
+  "finding": "stopsForDriver compares only `stop.driver`. Terms rule 30 defines a stop's assigned driver as the `driver` of the stop's `reassignment` when the stop has one, and otherwise the stop's own `driver`, so reassigned stops are matched against the original driver instead of the assigned one. The same repository already encodes that definition in driverWorkload.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:63",
+   "src/dispatch/capacity.mjs:18",
+   "src/dispatch/queue.mjs:30"
+  ]
+ },
+ {
+  "id": "p2-002",
+  "group": "G02",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "Route duration adds the raw `serviceMinutes`, so every stop misses the 5 minutes of parking that rule 32 includes in its service time.",
+  "finding": "routeDuration adds `stop.travelMinutes + stop.serviceMinutes` for each stop. Service-time rule 32 defines a stop's service time as its `serviceMinutes` plus 5 minutes of parking, so every stop contributes 5 minutes less than its service time.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:65",
+   "src/dispatch/queue.mjs:32"
+  ]
+ },
+ {
+  "id": "p2-003",
+  "group": "G03",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "The public dispatch entry omits the executor surface.",
+  "finding": "src/dispatch/index.mjs re-exports normalize, queue, capacity, access, schedule, retry, serialize, storage, manifest, publisher and telemetry, but never re-exports src/dispatch/executor.mjs or src/dispatch/runtime.mjs. The execution operations defined there (executeAuthorizedPlan, executeDryRun, planFailure, runEligibleStops, emitPlanCreated, pendingStops, dispatchRoute) are therefore not reachable through the public dispatch entry.",
+  "result": "gap",
+  "evidence": [
+   "src/dispatch/executor.mjs:4",
+   "src/dispatch/executor.mjs:19",
+   "src/dispatch/index.mjs:1",
+   "src/dispatch/index.mjs:11",
+   "src/dispatch/runtime.mjs:3",
+   "src/dispatch/runtime.mjs:5"
+  ]
+ },
+ {
+  "id": "p2-004",
+  "group": "G04",
+  "kind": "finding",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-8"
+  ],
+  "expectation": null,
+  "finding": "parseRetryCount coerces with Number(value) and only checks integrality plus the 0 to 3 range, so null, the empty string, true, a value padded with spaces such as ' 3 ' and a decimal text such as '3.0' all return ok true. Retry counts rule 21 limits a retry count to a whole number from 0 through 3 and rule 22 accepts supplied text only when it is one or more base-10 digits, so these inputs must be rejected.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:40",
+   "docs/dispatch/dispatch-policy.md:43",
+   "src/dispatch/retry.mjs:1",
+   "src/dispatch/retry.mjs:6"
+  ],
+  "problemOptions": [
+   {
+    "decision": "problem-8",
+    "expectation": "`parseRetryCount` converts text with `Number`, so text that is not base-10 digits, such as `'0x2'`, `'2e0'`, `' 2'` or `''`, is accepted as a retry count."
+   }
+  ],
+  "cleanTargets": []
+ },
+ {
+  "id": "p2-005",
+  "group": "G04",
+  "kind": "finding",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-6"
+  ],
+  "expectation": null,
+  "finding": "emitPlanCreated passes the emit call as the onStored callback, which savePlan forwards to `store.write(plan, {onCommit: onStored})`. The Plan Store Contract in docs/dispatch/storage-contract.md defines only renameTemporary, discardTemporary, removeTemporary and writeTemporary; it gives no store.write operation and no onCommit timing, so the staged candidate cannot show whether the callback runs only after the plan is durably stored.",
+  "result": "uncertain",
+  "evidence": [
+   "docs/dispatch/storage-contract.md:9",
+   "docs/dispatch/storage-contract.md:15",
+   "src/dispatch/executor.mjs:14",
+   "src/dispatch/executor.mjs:17",
+   "src/dispatch/storage.mjs:1",
+   "src/dispatch/storage.mjs:5"
+  ],
+  "problemOptions": [
+   {
+    "decision": "problem-6",
+    "expectation": "No available contract establishes when `store.write` invokes `onCommit`, so it cannot be established that `plan.created` is emitted only after storage succeeds."
+   }
+  ],
+  "cleanTargets": []
+ },
+ {
+  "id": "p2-006",
+  "group": "G04",
+  "kind": "finding",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-5"
+  ],
+  "expectation": null,
+  "finding": "chooseDeparture returns the blackout-shifted date without re-checking the window. With the configured window 2 to 4 and blackout 3 to 5, a departure at hour 3 or 4 is moved to the blackout end hour 5, which lies outside the departure window. Departure timing rule 14 requires a departure chosen inside the window and then moved outside it to be refused, but the candidate returns the moved date.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:20",
+   "docs/dispatch/dispatch-policy.md:26",
+   "src/dispatch/schedule.mjs:3",
+   "src/dispatch/schedule.mjs:7"
+  ],
+  "problemOptions": [
+   {
+    "decision": "problem-5",
+    "expectation": "`chooseDeparture` moves a blackout departure to the blackout end hour without refusing it when that hour is outside the departure window."
+   }
+  ],
+  "cleanTargets": []
+ },
+ {
+  "id": "p2-007",
+  "group": "G04",
+  "kind": "finding",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-2"
+  ],
+  "expectation": null,
+  "finding": "retryAfterDelay returns Math.min(retryAfter * 1000, maximumRetryDelay), so a server-provided retryAfter above 2000 ms is truncated to 2000 instead of replacing the computed backoff as Retry timing rule 7 requires; rule 8 caps only the computed backoff.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:16",
+   "src/dispatch/retry.mjs:18",
+   "src/dispatch/retry.mjs:24"
+  ],
+  "problemOptions": [
+   {
+    "decision": "problem-2",
+    "expectation": "`nextRetryDelay` tests `retryAfter` by truthiness, so a server-provided `retryAfter` of 0 falls back to the computed backoff instead of a 0 ms delay."
+   }
+  ],
+  "cleanTargets": []
+ },
+ {
+  "id": "p2-008",
+  "group": "G05",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "`canAssignAllPackages` delegates to `withinVehicleCapacity`, whose remaining-capacity test is false at zero remainder, so a total equal to the limit is rejected.",
+  "finding": "Repeated requirement, same conclusion and evidence as the row for .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 49: withinVehicleCapacity accepts only when the remaining capacity is greater than 0, so a total exactly equal to the limit converts to 0 remaining and is rejected.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:56",
+   "docs/dispatch/dispatch-policy.md:59",
+   "src/dispatch/capacity.mjs:3",
+   "src/dispatch/capacity.mjs:12",
+   "tests/dispatch/scenarios.mjs:3",
+   "tests/dispatch/scenarios.mjs:8"
+  ]
+ },
+ {
+  "id": "p2-009",
+  "group": "G06",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "`executeAuthorizedPlan` awaits dispatch as an argument of `unlessForbidden`, so dispatch runs before the authorization result is applied.",
+  "finding": "In executeAuthorizedPlan the authorization test and the dispatch call are both arguments to unlessForbidden, and the argument `await dispatchRoute(dispatch, route)` is evaluated before unlessForbidden runs. dispatch is therefore invoked for every caller, and an unauthorized caller only receives a forbidden result afterwards.",
+  "result": "gap",
+  "evidence": [
+   "src/dispatch/executor.mjs:4",
+   "src/dispatch/executor.mjs:6"
+  ]
+ },
+ {
+  "id": "p2-010",
+  "group": "G07",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "`nextRetryDelay` tests `retryAfter` by truthiness, so a server-provided `retryAfter` of 0 falls back to the computed backoff instead of a 0 ms delay.",
+  "finding": "nextRetryDelay chooses the server-provided branch with the truthiness test `retryAfter ? retryAfterDelay(retryAfter) : computeBackoff(attempt)`. Retry timing rule 7 replaces the computed backoff whenever the server provides a finite numeric retryAfter, and 0 is a finite numeric retryAfter, so a server-provided retryAfter of 0 is ignored and the computed backoff is used instead.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:15",
+   "docs/dispatch/dispatch-policy.md:17",
+   "src/dispatch/retry.mjs:18",
+   "src/dispatch/retry.mjs:24"
+  ]
+ },
+ {
+  "id": "p2-011",
+  "group": "G08",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "After `renameTemporary` rejects, the temporary bytes are locked, so the `discardTemporary` call in `writePlanAtomically` only closes the write and keeps them; `removeTemporary` is never called.",
+  "finding": "writePlanAtomically calls `store.discardTemporary()` after `store.renameTemporary()` rejects. The Plan Store Contract states that a rejected rename leaves the temporary bytes in place and locked, and that while the bytes are locked discardTemporary only closes the temporary write and keeps the bytes; only removeTemporary deletes locked bytes, so the failure path leaves the temporary bytes behind.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/storage-contract.md:11",
+   "docs/dispatch/storage-contract.md:14",
+   "src/dispatch/storage.mjs:9"
+  ]
+ },
+ {
+  "id": "p2-012",
+  "group": "G09",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "`canPlanRoute` checks `routes:admin` in the actor's own scopes instead of its held scopes, so an admin scope held through an active claim does not meet the ownership requirement.",
+  "finding": "The admin exemption in canPlanRoute tests `actor.scopes.includes('routes:admin')`, which reads only the actor's own scopes. Route planning rules 3 and 4 define held scopes as the actor's own scopes plus the scope of every active claim, and rule 3 grants the ownership requirement for every depot to an actor whose held scopes include routes:admin, so an actor that holds routes:admin through an active claim is refused for every depot whose identifier differs from its own.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:7",
+   "docs/dispatch/dispatch-policy.md:10",
+   "src/dispatch/access.mjs:3",
+   "src/dispatch/access.mjs:5"
+  ]
+ },
+ {
+  "id": "p2-013",
+  "group": "G10",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "Arguments are evaluated before `unlessForbidden` runs, so authorized execution invokes dispatch before it can reject the caller.",
+  "finding": "Repeated requirement, same conclusion and evidence as the row for .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 20: executeAuthorizedPlan evaluates `await dispatchRoute(dispatch, route)` as an argument before unlessForbidden inspects the authorization result, so dispatch is invoked for unauthorized callers.",
+  "result": "gap",
+  "evidence": [
+   "src/dispatch/executor.mjs:4",
+   "src/dispatch/executor.mjs:6"
+  ]
+ },
+ {
+  "id": "p2-014",
+  "group": "G11",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "The public entry does not export `executor.mjs`.",
+  "finding": "src/dispatch/index.mjs re-exports eleven dispatch modules but never re-exports src/dispatch/executor.mjs or src/dispatch/runtime.mjs, so the execution operations defined in them are not reachable through the public dispatch entry.",
+  "result": "gap",
+  "evidence": [
+   "src/dispatch/executor.mjs:4",
+   "src/dispatch/executor.mjs:19",
+   "src/dispatch/index.mjs:1",
+   "src/dispatch/index.mjs:11",
+   "src/dispatch/runtime.mjs:3",
+   "src/dispatch/runtime.mjs:5"
+  ]
+ },
+ {
+  "id": "p2-015",
+  "group": "G12",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "`asPublicationError` marks a failure transient when it has a finite `retryAfter` even if it is marked `transient: false`, so `publishWithRetry` retries a failure rule 27 makes non-transient.",
+  "finding": "asPublicationError sets the transient marker as `error?.transient === true || Number.isFinite(error?.retryAfter)`, so a failure that carries a finite numeric retryAfter while being marked `transient: false` is classified as transient and is retried. Failure classification rule 27 states that a failure marked `transient: false` is never transient, and the policy's section rule makes that later rule override rule 26, so such a failure must not be retried.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:3",
+   "docs/dispatch/dispatch-policy.md:50",
+   "docs/dispatch/dispatch-policy.md:54",
+   "src/dispatch/publisher.mjs:17",
+   "src/dispatch/publisher.mjs:19",
+   "src/dispatch/retry.mjs:10",
+   "src/dispatch/retry.mjs:16"
+  ]
+ },
+ {
+  "id": "p2-016",
+  "group": "G13",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "Manifest-event redaction leaves arrays unvisited, so a credential in an object inside an array of the authentication data is not removed.",
+  "finding": "Repeated requirement, same conclusion and evidence as the row for .scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md line 23: stripCredentials recurses only when `value?.constructor === Object` and returns any other value unchanged, so credentials held inside an array below the auth field survive redaction, while Credentials rule 24 requires removal at every depth.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:45",
+   "docs/dispatch/dispatch-policy.md:48",
+   "src/dispatch/telemetry.mjs:7",
+   "src/dispatch/telemetry.mjs:13-14"
+  ]
+ },
+ {
+  "id": "p2-017",
+  "group": "G14",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "A server-provided `retryAfter` of 0 is falsy, so `nextRetryDelay` uses the computed backoff instead of the server delay.",
+  "finding": "Repeated requirement, same conclusion and evidence as the row for .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 19: nextRetryDelay selects the server-provided branch with a truthiness test, so a finite numeric retryAfter of 0 falls through to computeBackoff instead of replacing it as Retry timing rule 7 requires.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:15",
+   "docs/dispatch/dispatch-policy.md:17",
+   "src/dispatch/retry.mjs:18",
+   "src/dispatch/retry.mjs:24"
+  ]
+ },
+ {
+  "id": "p2-018",
+  "group": "G15",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "`withinVehicleCapacity` converts the limit to grams and requires the clamped remainder to be above zero, so a total equal to the limit (remainder 0) is rejected.",
+  "finding": "withinVehicleCapacity accepts only when `remainingVehicleCapacity(limit * 1000, weight) > 0`. Vehicle capacity rules 28 and 29 put package weights in grams and vehicle limits in kilograms, so a total exactly equal to the limit converts to 0 remaining capacity and is rejected instead of accepted. The staged scenario only exercises a total of 9 against a limit of 10, so it does not cover the equal case.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:56",
+   "docs/dispatch/dispatch-policy.md:59",
+   "src/dispatch/capacity.mjs:3",
+   "src/dispatch/capacity.mjs:12",
+   "tests/dispatch/scenarios.mjs:3",
+   "tests/dispatch/scenarios.mjs:8"
+  ]
+ },
+ {
+  "id": "p2-019",
+  "group": "G16",
+  "kind": "finding",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-11"
+  ],
+  "expectation": null,
+  "finding": "Repeated requirement, same conclusion and evidence as the row for .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 28: the emit runs inside the onCommit callback that savePlan passes to store.write, and the Plan Store Contract defines no store.write operation and no onCommit timing, so the staged candidate cannot show that the callback runs only after durable storage.",
+  "result": "uncertain",
+  "evidence": [
+   "docs/dispatch/storage-contract.md:9",
+   "docs/dispatch/storage-contract.md:15",
+   "src/dispatch/executor.mjs:14",
+   "src/dispatch/executor.mjs:17",
+   "src/dispatch/storage.mjs:1",
+   "src/dispatch/storage.mjs:5"
+  ],
+  "problemOptions": [
+   {
+    "decision": "problem-11",
+    "expectation": "Plan-created telemetry depends on when the store invokes `onCommit`, which no available contract defines."
+   }
+  ],
+  "cleanTargets": []
+ },
+ {
+  "id": "p2-020",
+  "group": "G16",
+  "kind": "finding",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-13"
+  ],
+  "expectation": null,
+  "finding": "authorizeRouteBatch computes `routes.findIndex(route => !requireDepotOwner(actor, route))` and returns `firstRejected <= 0`. A batch whose first route fails depot ownership yields index 0, which satisfies that test and is reported as authorized, so the batch is not rejected even though a route failed depot ownership.",
+  "result": "gap",
+  "evidence": [
+   "src/dispatch/access.mjs:7",
+   "src/dispatch/access.mjs:10",
+   "src/dispatch/access.mjs:14"
+  ],
+  "problemOptions": [
+   {
+    "decision": "problem-13",
+    "expectation": "`authorizeRouteBatch` accepts the batch when `findIndex` returns 0, so a batch whose first route fails depot ownership is authorized."
+   }
+  ],
+  "cleanTargets": []
+ },
+ {
+  "id": "p2-021",
+  "group": "G16",
+  "kind": "finding",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-9"
+  ],
+  "expectation": null,
+  "finding": "The urgent filter uses priorityOf, which applies Stop priority rule 15, while the remaining filter uses the raw comparison `stop.priority > 5`. A stop whose priority is not a finite number but still compares above 5, such as the text '9' or Infinity, is placed in neither partition, so it is not in exactly one partition.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:30-31",
+   "src/dispatch/queue.mjs:4",
+   "src/dispatch/queue.mjs:21",
+   "src/dispatch/queue.mjs:24"
+  ],
+  "problemOptions": [
+   {
+    "decision": "problem-9",
+    "expectation": "Urgent-stop partitioning tests the raw `priority` for the remaining partition, so a text priority such as `'7'` (priority 5 under rule 15) is placed in no partition."
+   }
+  ],
+  "cleanTargets": []
+ },
+ {
+  "id": "p2-022",
+  "group": "G16",
+  "kind": "finding",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-16"
+  ],
+  "expectation": null,
+  "finding": "Repeated requirement, same conclusion and evidence as the row for .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 30: parseRetryCount coerces with Number(value) and only checks integrality and the 0 to 3 range, so null, the empty string, true, space-padded text and decimal text such as '3.0' are accepted although rules 21 and 22 require rejection.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:40",
+   "docs/dispatch/dispatch-policy.md:43",
+   "src/dispatch/retry.mjs:1",
+   "src/dispatch/retry.mjs:6"
+  ],
+  "problemOptions": [
+   {
+    "decision": "problem-16",
+    "expectation": "Retry-count parsing accepts any text that `Number` converts to an integer from 0 through 3, including text that is not base-10 digits such as `'0x2'`."
+   }
+  ],
+  "cleanTargets": []
+ },
+ {
+  "id": "p2-023",
+  "group": "G16",
+  "kind": "finding",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-20"
+  ],
+  "expectation": null,
+  "finding": "Repeated requirement, already reviewed as the Gate 1 row at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md:19. Same defect: retryAfterDelay clamps the converted retryAfter to 2000 ms instead of letting the server-provided delay replace the computed backoff as Retry timing rule 7 requires.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:16",
+   "src/dispatch/retry.mjs:18",
+   "src/dispatch/retry.mjs:24"
+  ],
+  "problemOptions": [
+   {
+    "decision": "problem-20",
+    "expectation": "A server-provided `retryAfter` of 0 is falsy, so `nextRetryDelay` uses the computed backoff instead of the server delay."
+   }
+  ],
+  "cleanTargets": []
+ },
+ {
+  "id": "p2-024",
+  "group": "G16",
+  "kind": "finding",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-10"
+  ],
+  "expectation": null,
+  "finding": "nextDispatchTime tests `candidate.getHours()`, the local hour of the candidate date, against the UTC blackout hours, while Departure timing rule 10 defines all departure hours as UTC hours, and atUtcHour rebuilds the result from UTC date components. For any date whose local hour differs from its UTC hour the blackout test uses the wrong hour, so the adjustment required by rules 12 and 13 is applied incorrectly.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:22",
+   "docs/dispatch/dispatch-policy.md:25",
+   "src/dispatch/schedule.mjs:13",
+   "src/dispatch/schedule.mjs:16",
+   "src/dispatch/schedule.mjs:20"
+  ],
+  "problemOptions": [
+   {
+    "decision": "problem-10",
+    "expectation": "`nextDispatchTime` checks the blackout with the host-local hour instead of the UTC hour, so on a non-UTC host a time inside the blackout is not moved."
+   }
+  ],
+  "cleanTargets": []
+ },
+ {
+  "id": "p2-025",
+  "group": "G16",
+  "kind": "finding",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-9"
+  ],
+  "expectation": null,
+  "finding": "urgent uses priorityOf(stop) > 5 while remaining uses !(stop.priority > 5), so a stop whose priority is not a finite number is urgent under Stop priority rule 15 and also lands in remaining, appearing in both partitions instead of exactly one.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:30-31",
+   "src/dispatch/queue.mjs:21-24"
+  ],
+  "problemOptions": [
+   {
+    "decision": "problem-9",
+    "expectation": "Urgent-stop partitioning tests the raw `priority` for the remaining partition, so a text priority such as `'7'` (priority 5 under rule 15) is placed in no partition."
+   }
+  ],
+  "cleanTargets": []
+ },
+ {
+  "id": "p2-026",
+  "group": "G16",
+  "kind": "finding",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-13"
+  ],
+  "expectation": null,
+  "finding": "`authorizeRouteBatch` computes `firstRejected = routes.findIndex(route => !requireDepotOwner(actor, route))` and returns `firstRejected <= 0`, so a batch is only rejected when the very first route fails ownership; a rejection found at any later index produces a positive number and the batch is accepted. `authorizeRouteBatch({depotId: 'A'}, [{depotId: 'A'}, {depotId: 'B'}])` returns `false`, meaning the batch is authorized although its second route fails depot ownership. Recommendation: return `!routes.some(route => !requireDepotOwner(actor, route))`.",
+  "result": "gap",
+  "evidence": [
+   "src/dispatch/access.mjs:7-9",
+   "src/dispatch/access.mjs:14"
+  ],
+  "problemOptions": [
+   {
+    "decision": "problem-13",
+    "expectation": "`authorizeRouteBatch` accepts the batch when `findIndex` returns 0, so a batch whose first route fails depot ownership is authorized."
+   }
+  ],
+  "cleanTargets": []
+ },
+ {
+  "id": "p2-027",
+  "group": "G17",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "`pendingStops` drops only stops whose `state` is `delivered`, so a stop whose `state` is `handedOver`, which rule 31 makes a delivered stop, is still returned.",
+  "finding": "pendingStops filters only `stop.state !== 'delivered'`. Terms rule 31 defines a delivered stop as one whose state is `delivered` or `handedOver`, so handed-over stops are delivered stops that the candidate leaves in the pending list.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:64",
+   "src/dispatch/executor.mjs:19"
+  ]
+ },
+ {
+  "id": "p2-028",
+  "group": "G18",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "`stripCredentials` recurses only into values whose constructor is `Object`, so credentials inside arrays below `auth` are kept.",
+  "finding": "stripCredentials recurses only when `value?.constructor === Object`, and returns any other value unchanged. An array below the auth field is therefore returned as is, so a credential inside an object held in an array, for example auth.tokens[0].token, survives redaction. Credentials rule 24 requires removal at every depth of the redacted value.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:45",
+   "docs/dispatch/dispatch-policy.md:48",
+   "src/dispatch/telemetry.mjs:7",
+   "src/dispatch/telemetry.mjs:13-14"
+  ]
+ },
+ {
+  "id": "p2-029",
+  "group": "G19",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "The geocoder contract defines `geocoder.lookup` only for known addresses, so it cannot be established whether an unknown address resolves to `undefined` (left out), resolves to another value (kept) or rejects (the whole call rejects).",
+  "finding": "locateStops drops stops whose lookup result is undefined, but the Geocoder Contract states only what geocoder.lookup resolves to for a known address and never defines the outcome for an unknown address. If lookup rejects for an unknown address, the awaited Promise.all rejects the whole call instead of leaving that stop out, so the requirement cannot be settled from the available contract.",
+  "result": "uncertain",
+  "evidence": [
+   "docs/dispatch/adapter-contracts.md:3-4",
+   "src/dispatch/queue.mjs:34"
+  ]
+ },
+ {
+  "id": "p2-030",
+  "group": "G20",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "A failure marked `transient: false` that carries a finite `retryAfter` is rewrapped as transient, so publication retries do not stop for it.",
+  "finding": "Repeated requirement, same conclusion and evidence as the row for .scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md line 46: asPublicationError marks a failure transient whenever it carries a finite numeric retryAfter, so a failure marked `transient: false` that also carries retryAfter is retried instead of stopping immediately, contrary to Failure classification rule 27, which the policy's section rule makes override rule 26.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:3",
+   "docs/dispatch/dispatch-policy.md:50",
+   "docs/dispatch/dispatch-policy.md:54",
+   "src/dispatch/publisher.mjs:17",
+   "src/dispatch/publisher.mjs:19",
+   "src/dispatch/retry.mjs:10",
+   "src/dispatch/retry.mjs:16"
+  ]
+ },
+ {
+  "id": "p2-031",
+  "group": "G21",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "`buildManifest` copies each record shallowly and `labelDriver` assigns the label onto the supplied driver object, so supplied records are mutated.",
+  "finding": "buildManifest spreads each record, but the driver label is produced by labelDriver, which calls `Object.assign(driver, {label: ...})` on the record's own driver object. The supplied record's driver object is mutated in place, so the caller's records change even though the record wrapper was copied.",
+  "result": "gap",
+  "evidence": [
+   "src/dispatch/manifest.mjs:26",
+   "src/dispatch/manifest.mjs:34"
+  ]
+ },
+ {
+  "id": "p2-032",
+  "group": "G22",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "Delivery notices are sent to the raw `phone`, so an entry whose `phone` contains spaces or hyphens is not notified at its contact phone (rule 33).",
+  "finding": "sendDeliveryNotices passes `entry.phone` unchanged to sms.send. Terms rule 33 defines an entry's contact phone as its `phone` with every space and hyphen character removed, and the candidate applies that normalization only in manifestRecipients, so notices for a phone such as '+1 555-0100' are sent to a value that is not the contact phone.",
+  "result": "gap",
+  "evidence": [
+   "docs/dispatch/dispatch-policy.md:66",
+   "src/dispatch/manifest.mjs:44",
+   "src/dispatch/publisher.mjs:31"
+  ]
+ },
+ {
+  "id": "p2-033",
+  "group": "G23",
+  "kind": "association",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "Plan serialization sorts only the top-level keys (`withSortedKeys` proxies only the plan object), so nested objects keep their insertion order and plans that differ only in nested field order hash to different values.",
+  "finding": "withSortedKeys sorts only the own keys of the object that JSON.stringify visits directly, and JSON.stringify's built-in replacer never passes nested values back through the proxy, so nested objects keep their insertion order. serializePlan and checksumPlan therefore produce different bytes and different hashes for plans that differ only in nested field order.",
+  "result": "gap",
+  "evidence": [
+   "src/dispatch/serialize.mjs:1",
+   "src/dispatch/serialize.mjs:3",
+   "src/dispatch/serialize.mjs:7"
+  ]
+ }
+]

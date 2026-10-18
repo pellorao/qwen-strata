@@ -1,0 +1,131 @@
+{
+ "q3:Af#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:Af#2": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:Af#3": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:B#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:Bf#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:C#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:C#2": {
+  "pairs": 29,
+  "inconsistent": 2,
+  "detail": [
+   "01:19+spec:75 gap/satisfied",
+   "01:48+spec:25 satisfied/gap"
+  ],
+  "missing": [
+   "01:7+spec:27"
+  ]
+ },
+ "q3:C#3": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:D#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:D#2": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:A-x1#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:B-x2#2": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "opus:opus-1#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "opus:opus-2#1": {
+  "pairs": 29,
+  "inconsistent": 1,
+  "detail": [
+   "01:42+spec:36 satisfied/gap"
+  ],
+  "missing": []
+ },
+ "opus:opus-3#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "haiku:haiku-1#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "haiku:haiku-2#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "haiku:haiku-3#1": {
+  "pairs": 29,
+  "inconsistent": 1,
+  "detail": [
+   "01:42+spec:36 satisfied/gap"
+  ],
+  "missing": []
+ },
+ "haiku:haiku-4#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "haiku:haiku-5#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ }
+}

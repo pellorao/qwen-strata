@@ -1,0 +1,492 @@
+{
+ "rows": [
+  {
+   "src": "opus:opus-1",
+   "repetition": 1,
+   "instances": [
+    "default-1fb3d470-8ee5-499c-8d20-5f7efe3c9f5f-instance-1"
+   ],
+   "raw": 0.8408534689207532,
+   "rawScore": 0.8408534689207532,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 228,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.8408534689207532
+  },
+  {
+   "src": "opus:opus-2",
+   "repetition": 1,
+   "instances": [
+    "default-51f3e26c-9ff0-41cb-bedc-78f1f3aa1e80-instance-1"
+   ],
+   "raw": 0.8361847314419961,
+   "rawScore": 0.8361847314419961,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 229,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.8361847314419961
+  },
+  {
+   "src": "opus:opus-3",
+   "repetition": 1,
+   "instances": [
+    "default-72a07af6-acc3-4e42-a1a1-fab8e40195a7-instance-1"
+   ],
+   "raw": 0.8526898749695324,
+   "rawScore": 0.8526898749695324,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 215,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.8526898749695324
+  },
+  {
+   "src": "q3:B",
+   "repetition": 1,
+   "instances": [
+    "default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-1"
+   ],
+   "raw": 0.8196830677776801,
+   "rawScore": 0.8196830677776801,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 208,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.8196830677776801
+  },
+  {
+   "src": "q3:A-x1",
+   "repetition": 1,
+   "instances": [
+    "default-ae93ac75-f7ea-46b6-9901-a267f06059a2-instance-1"
+   ],
+   "raw": 0.6557715200773944,
+   "rawScore": 0.6557715200773944,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 203,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.6557715200773944
+  },
+  {
+   "src": "q3:Af",
+   "repetition": 1,
+   "instances": [
+    "default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-1"
+   ],
+   "raw": 0.609822087180958,
+   "rawScore": 0.609822087180958,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 243,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.609822087180958
+  },
+  {
+   "src": "q3:Af",
+   "repetition": 2,
+   "instances": [
+    "default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-2"
+   ],
+   "raw": 0.6009508495386444,
+   "rawScore": 0.6009508495386444,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 212,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.6009508495386444
+  },
+  {
+   "src": "q3:Af",
+   "repetition": 3,
+   "instances": [
+    "default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-3"
+   ],
+   "raw": 0.5324863220734365,
+   "rawScore": 0.5324863220734365,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 186,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.5324863220734365
+  },
+  {
+   "src": "q3:Bf",
+   "repetition": 1,
+   "instances": [
+    "default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1"
+   ],
+   "raw": 0.5152607500110559,
+   "rawScore": 0.5152607500110559,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 237,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.5152607500110559
+  },
+  {
+   "src": "q3:B-x2",
+   "repetition": 2,
+   "instances": [
+    "default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2"
+   ],
+   "raw": 0.4868325479299597,
+   "rawScore": 0.4868325479299597,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 192,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.4868325479299597
+  },
+  {
+   "src": "q3:D",
+   "repetition": 1,
+   "instances": [
+    "default-27bd2e24-eea0-4030-a7d5-e7dd808004f4-instance-1"
+   ],
+   "raw": 0.5695078059752147,
+   "rawScore": 0.5695078059752147,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 189,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.5695078059752147
+  },
+  {
+   "src": "q3:D",
+   "repetition": 2,
+   "instances": [
+    "default-27bd2e24-eea0-4030-a7d5-e7dd808004f4-instance-2"
+   ],
+   "raw": 0.7094667027591997,
+   "rawScore": 0.7094667027591997,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 185,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.7094667027591997
+  },
+  {
+   "src": "q3:C",
+   "repetition": 1,
+   "instances": [
+    "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1"
+   ],
+   "raw": 0.6544941206137748,
+   "rawScore": 0.6544941206137748,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 236,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.6544941206137748
+  },
+  {
+   "src": "q3:C",
+   "repetition": 2,
+   "instances": [
+    "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2"
+   ],
+   "raw": 0.33476411000492423,
+   "rawScore": 0.33476411000492423,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 242,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.33476411000492423
+  },
+  {
+   "src": "q3:C",
+   "repetition": 3,
+   "instances": [
+    "default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3"
+   ],
+   "raw": 0.6106326408430292,
+   "rawScore": 0.6106326408430292,
+   "r": 0,
+   "rRepairable": 0,
+   "rUnrepairable": 0,
+   "rOverrun": 0,
+   "T": 195,
+   "kTiers": {},
+   "p": 0.0,
+   "f": 0.0,
+   "score": 0.6106326408430292
+  }
+ ],
+ "haiku": [
+  {
+   "src": "haiku:haiku-1",
+   "high": [
+    {
+     "src": "haiku:haiku-1",
+     "repetition": 1,
+     "instances": [
+      "default-e1a38a76-c18d-48f3-b102-160180b02ba3-instance-1"
+     ],
+     "raw": 0.7976832978555065,
+     "rawScore": 0.7976832978555065,
+     "r": 0,
+     "rRepairable": 0,
+     "rUnrepairable": 0,
+     "rOverrun": 0,
+     "T": 198,
+     "kTiers": {},
+     "p": 0.0,
+     "f": 0.0,
+     "score": 0.7976832978555065
+    }
+   ],
+   "low": [
+    {
+     "src": "haiku:haiku-1",
+     "repetition": 1,
+     "instances": [
+      "default-e1a38a76-c18d-48f3-b102-160180b02ba3-instance-1"
+     ],
+     "raw": 0,
+     "rawScore": -0.4330560787961683,
+     "r": 0,
+     "rRepairable": 0,
+     "rUnrepairable": 0,
+     "rOverrun": 0,
+     "T": 198,
+     "kTiers": {},
+     "p": 0.0,
+     "f": 0.0,
+     "score": 0.0
+    }
+   ]
+  },
+  {
+   "src": "haiku:haiku-2",
+   "high": [
+    {
+     "src": "haiku:haiku-2",
+     "repetition": 1,
+     "instances": [
+      "default-2fb593f8-8a73-4089-81b4-9a37ece5ed51-instance-1"
+     ],
+     "raw": 0.8751606655734157,
+     "rawScore": 0.8751606655734157,
+     "r": 0,
+     "rRepairable": 0,
+     "rUnrepairable": 0,
+     "rOverrun": 0,
+     "T": 199,
+     "kTiers": {},
+     "p": 0.0,
+     "f": 0.0,
+     "score": 0.8751606655734157
+    }
+   ],
+   "low": [
+    {
+     "src": "haiku:haiku-2",
+     "repetition": 1,
+     "instances": [
+      "default-2fb593f8-8a73-4089-81b4-9a37ece5ed51-instance-1"
+     ],
+     "raw": 0,
+     "rawScore": -0.378712354193823,
+     "r": 0,
+     "rRepairable": 0,
+     "rUnrepairable": 0,
+     "rOverrun": 0,
+     "T": 199,
+     "kTiers": {},
+     "p": 0.0,
+     "f": 0.0,
+     "score": 0.0
+    }
+   ]
+  },
+  {
+   "src": "haiku:haiku-3",
+   "high": [
+    {
+     "src": "haiku:haiku-3",
+     "repetition": 1,
+     "instances": [
+      "default-8658b1a5-95f5-444b-ac32-26ef5c3a72d4-instance-1"
+     ],
+     "raw": 0.8320383740103703,
+     "rawScore": 0.8320383740103703,
+     "r": 0,
+     "rRepairable": 0,
+     "rUnrepairable": 0,
+     "rOverrun": 0,
+     "T": 241,
+     "kTiers": {},
+     "p": 0.0,
+     "f": 0.0,
+     "score": 0.8320383740103703
+    }
+   ],
+   "low": [
+    {
+     "src": "haiku:haiku-3",
+     "repetition": 1,
+     "instances": [
+      "default-8658b1a5-95f5-444b-ac32-26ef5c3a72d4-instance-1"
+     ],
+     "raw": 0,
+     "rawScore": -0.38500371608863315,
+     "r": 0,
+     "rRepairable": 0,
+     "rUnrepairable": 0,
+     "rOverrun": 0,
+     "T": 241,
+     "kTiers": {},
+     "p": 0.0,
+     "f": 0.0,
+     "score": 0.0
+    }
+   ]
+  },
+  {
+   "src": "haiku:haiku-4",
+   "high": [
+    {
+     "src": "haiku:haiku-4",
+     "repetition": 1,
+     "instances": [
+      "default-3bd4f453-8a1e-48fc-9a16-e1f005a36039-instance-1"
+     ],
+     "raw": 0.8429770035763094,
+     "rawScore": 0.8429770035763094,
+     "r": 0,
+     "rRepairable": 0,
+     "rUnrepairable": 0,
+     "rOverrun": 0,
+     "T": 204,
+     "kTiers": {},
+     "p": 0.0,
+     "f": 0.0,
+     "score": 0.8429770035763094
+    }
+   ],
+   "low": [
+    {
+     "src": "haiku:haiku-4",
+     "repetition": 1,
+     "instances": [
+      "default-3bd4f453-8a1e-48fc-9a16-e1f005a36039-instance-1"
+     ],
+     "raw": 0,
+     "rawScore": -0.37485430304810086,
+     "r": 0,
+     "rRepairable": 0,
+     "rUnrepairable": 0,
+     "rOverrun": 0,
+     "T": 204,
+     "kTiers": {},
+     "p": 0.0,
+     "f": 0.0,
+     "score": 0.0
+    }
+   ]
+  },
+  {
+   "src": "haiku:haiku-5",
+   "high": [
+    {
+     "src": "haiku:haiku-5",
+     "repetition": 1,
+     "instances": [
+      "default-ec45534f-acd8-4996-b95e-159fb63485d5-instance-1"
+     ],
+     "raw": 0.876204189408308,
+     "rawScore": 0.876204189408308,
+     "r": 0,
+     "rRepairable": 0,
+     "rUnrepairable": 0,
+     "rOverrun": 0,
+     "T": 216,
+     "kTiers": {},
+     "p": 0.0,
+     "f": 0.0,
+     "score": 0.876204189408308
+    }
+   ],
+   "low": [
+    {
+     "src": "haiku:haiku-5",
+     "repetition": 1,
+     "instances": [
+      "default-ec45534f-acd8-4996-b95e-159fb63485d5-instance-1"
+     ],
+     "raw": 0,
+     "rawScore": -0.37996046751090184,
+     "r": 0,
+     "rRepairable": 0,
+     "rUnrepairable": 0,
+     "rOverrun": 0,
+     "T": 216,
+     "kTiers": {},
+     "p": 0.0,
+     "f": 0.0,
+     "score": 0.0
+    }
+   ]
+  }
+ ],
+ "pending": []
+}

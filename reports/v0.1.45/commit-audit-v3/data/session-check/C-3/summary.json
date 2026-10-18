@@ -1,0 +1,38 @@
+{
+  "session": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/C/run/arw-installation/codex-home/sessions/2026/10/18/rollout-2026-10-18T18-32-04-01a14e5a-9fdd-7563-aff8-d878344eb5ba.jsonl",
+  "threadId": "01a14e5a-9fdd-7563-aff8-d878344eb5ba",
+  "source": "vscode",
+  "thread_source": null,
+  "root": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/C/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/a1ac9352-26a3-4f5e-831b-b2341c763358/ca/3",
+  "startup": {
+    "base_instructions": "5d36e1d1a96f0515",
+    "developer@2": "b0808ba12bbba68f",
+    "user@3": "b35059a2d4a3842c",
+    "user@6": "e7f65bedee55a5af",
+    "messageId": "a39f572a-c320-4224-80d9-4a789cd7ed44"
+  },
+  "handoff_found": true,
+  "compactions": 0,
+  "final": "{\"status\":\"ready\"}",
+  "flagged_actions": [
+    7,
+    26
+  ],
+  "flagged_messages": [],
+  "other_sessions_same_day": [
+    {
+      "path": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/C/run/arw-installation/codex-home/sessions/2026/10/18/rollout-2026-10-18T18-05-54-01a14e42-aaf0-7fd2-81d8-0799e09e4cdf.jsonl",
+      "id": "01a14e42-aaf0-7fd2-81d8-0799e09e4cdf",
+      "source": "vscode",
+      "thread_source": null,
+      "cwd": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/C/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/a1ac9352-26a3-4f5e-831b-b2341c763358/ca/1"
+    },
+    {
+      "path": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/C/run/arw-installation/codex-home/sessions/2026/10/18/rollout-2026-10-18T18-19-40-01a14e4f-4772-7f62-a38d-72ab8a6d7f92.jsonl",
+      "id": "01a14e4f-4772-7f62-a38d-72ab8a6d7f92",
+      "source": "vscode",
+      "thread_source": null,
+      "cwd": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/C/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/a1ac9352-26a3-4f5e-831b-b2341c763358/ca/2"
+    }
+  ]
+}

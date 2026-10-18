@@ -1,0 +1,111 @@
+[
+ {
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-2"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-2",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "cleanTargets": [],
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 16
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 24
+   }
+  ],
+  "finding": "retryAfterDelay returns Math.min(retryAfter * 1000, maximumRetryDelay), so a server-provided retryAfter above 2000 ms is truncated to 2000 instead of replacing the computed backoff as Retry timing rule 7 requires; rule 8 caps only the computed backoff.",
+  "findingIndex": 1,
+  "instanceId": "default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2",
+  "kind": "finding",
+  "problemOptions": [
+   {
+    "decision": "problem-2",
+    "expectation": "`nextRetryDelay` tests `retryAfter` by truthiness, so a server-provided `retryAfter` of 0 falls back to the computed backoff instead of a 0 ms delay."
+   }
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer",
+  "scope": "COMMIT-AUDIT-GATE-1"
+ },
+ {
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-9"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-7",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "cleanTargets": [],
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "lineEnd": 31,
+    "lineStart": 30
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "lineEnd": 24,
+    "lineStart": 21
+   }
+  ],
+  "finding": "urgent uses priorityOf(stop) > 5 while remaining uses !(stop.priority > 5), so a stop whose priority is not a finite number is urgent under Stop priority rule 15 and also lands in remaining, appearing in both partitions instead of exactly one.",
+  "findingIndex": 6,
+  "instanceId": "default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2",
+  "kind": "finding",
+  "problemOptions": [
+   {
+    "decision": "problem-9",
+    "expectation": "Urgent-stop partitioning tests the raw `priority` for the remaining partition, so a text priority such as `'7'` (priority 5 under rule 15) is placed in no partition."
+   }
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer",
+  "scope": "COMMIT-AUDIT-GATE-2"
+ },
+ {
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-20"
+  ],
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-16",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "cleanTargets": [],
+  "evidence": [
+   {
+    "filePath": "docs/dispatch/dispatch-policy.md",
+    "line": 16
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 18
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 24
+   }
+  ],
+  "finding": "Repeated requirement, already reviewed as the Gate 1 row at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md:19. Same defect: retryAfterDelay clamps the converted retryAfter to 2000 ms instead of letting the server-provided delay replace the computed backoff as Retry timing rule 7 requires.",
+  "findingIndex": 15,
+  "instanceId": "default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2",
+  "kind": "finding",
+  "problemOptions": [
+   {
+    "decision": "problem-20",
+    "expectation": "A server-provided `retryAfter` of 0 is falsy, so `nextRetryDelay` uses the computed backoff instead of the server delay."
+   }
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer",
+  "scope": "COMMIT-AUDIT-GATE-2"
+ }
+]

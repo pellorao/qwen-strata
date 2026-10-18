@@ -1,0 +1,134 @@
+{
+ "p2-001": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:problem-4:COMMIT-AUDIT-GATE-1:finding-4"
+ },
+ "p2-002": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:problem-1:COMMIT-AUDIT-GATE-2:finding-1"
+ },
+ "p2-003": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:problem-1:COMMIT-AUDIT-GATE-1:finding-1"
+ },
+ "p2-004": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-7"
+ },
+ "p2-005": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-6"
+ },
+ "p2-006": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-5"
+ },
+ "p2-007": {
+  "src": "q3:B-x2",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-2"
+ },
+ "p2-008": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:problem-6:COMMIT-AUDIT-GATE-2:finding-4"
+ },
+ "p2-009": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:problem-3:COMMIT-AUDIT-GATE-1:finding-3"
+ },
+ "p2-010": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:problem-2:COMMIT-AUDIT-GATE-1:finding-2"
+ },
+ "p2-011": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:problem-5:COMMIT-AUDIT-GATE-2:finding-3"
+ },
+ "p2-012": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:problem-13:COMMIT-AUDIT-GATE-1:finding-11"
+ },
+ "p2-013": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:problem-15:COMMIT-AUDIT-GATE-2:finding-11"
+ },
+ "p2-014": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:problem-7:COMMIT-AUDIT-GATE-2:finding-5"
+ },
+ "p2-015": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:problem-19:COMMIT-AUDIT-GATE-1:finding-14"
+ },
+ "p2-016": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:problem-2:COMMIT-AUDIT-GATE-2:finding-2"
+ },
+ "p2-017": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:problem-20:COMMIT-AUDIT-GATE-2:finding-15"
+ },
+ "p2-018": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:problem-12:COMMIT-AUDIT-GATE-1:finding-10"
+ },
+ "p2-019": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-9"
+ },
+ "p2-020": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-10"
+ },
+ "p2-021": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-7"
+ },
+ "p2-022": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-12"
+ },
+ "p2-023": {
+  "src": "q3:B-x2",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-16"
+ },
+ "p2-024": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-8"
+ },
+ "p2-025": {
+  "src": "q3:B-x2",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-7"
+ },
+ "p2-026": {
+  "src": "q3:Af",
+  "candidateId": "commit-audit-reviewer:default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-9"
+ },
+ "p2-027": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:problem-9:COMMIT-AUDIT-GATE-1:finding-8"
+ },
+ "p2-028": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:problem-16:COMMIT-AUDIT-GATE-1:finding-12"
+ },
+ "p2-029": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:problem-11:COMMIT-AUDIT-GATE-1:finding-9"
+ },
+ "p2-030": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:problem-17:COMMIT-AUDIT-GATE-2:finding-13"
+ },
+ "p2-031": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:problem-17:COMMIT-AUDIT-GATE-1:finding-13"
+ },
+ "p2-032": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:problem-19:COMMIT-AUDIT-GATE-2:finding-14"
+ },
+ "p2-033": {
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:problem-8:COMMIT-AUDIT-GATE-2:finding-6"
+ }
+}

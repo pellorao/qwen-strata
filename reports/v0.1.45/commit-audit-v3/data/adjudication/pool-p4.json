@@ -1,0 +1,28 @@
+[
+ {
+  "id": "p4-001",
+  "group": "G01",
+  "kind": "finding",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-20"
+  ],
+  "expectation": null,
+  "finding": "coalesceAcrossGroups filters each group against the ids already seen in earlier groups and then adds that group's original ids to the seen set, so an id that is already a duplicate inside one group is still recorded as seen for every later group. Verified: coalescePackages([{destination:'A',packageIds:['P1','P1']},{destination:'B',packageIds:['P1']}]) returns group A with ['P1'] and group B with [], so P1 remains in the manifest while group B no longer lists it.",
+  "result": "gap",
+  "evidence": [
+   "command (exit 0): node --input-type=module -e 'import {coalescePackages} from \"./src/dispatch/manifest.mjs\"; console.log(JSON.stringify(coalescePackages([{destination: \"A\", packageIds: [\"P1\", \"P1\"]}, {destination: \"B\", packageIds: [\"P1\"]}])));'",
+   "src/dispatch/manifest.mjs:13",
+   "src/dispatch/manifest.mjs:36-40"
+  ],
+  "problemOptions": [
+   {
+    "decision": "problem-20",
+    "expectation": "`coalesceAcrossGroups` records raw package IDs but filters normalized IDs, so a duplicate that differs only in surrounding whitespace survives in a later group."
+   }
+  ],
+  "cleanTargets": []
+ }
+]

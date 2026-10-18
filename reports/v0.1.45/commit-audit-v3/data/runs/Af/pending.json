@@ -1,0 +1,36 @@
+[
+ {
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-13"
+  ],
+  "candidateId": "commit-audit-reviewer:default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-9",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "cleanTargets": [],
+  "evidence": [
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "lineEnd": 9,
+    "lineStart": 7
+   },
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "line": 14
+   }
+  ],
+  "finding": "`authorizeRouteBatch` computes `firstRejected = routes.findIndex(route => !requireDepotOwner(actor, route))` and returns `firstRejected <= 0`, so a batch is only rejected when the very first route fails ownership; a rejection found at any later index produces a positive number and the batch is accepted. `authorizeRouteBatch({depotId: 'A'}, [{depotId: 'A'}, {depotId: 'B'}])` returns `false`, meaning the batch is authorized although its second route fails depot ownership. Recommendation: return `!routes.some(route => !requireDepotOwner(actor, route))`.",
+  "findingIndex": 8,
+  "instanceId": "default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-1",
+  "kind": "finding",
+  "problemOptions": [
+   {
+    "decision": "problem-13",
+    "expectation": "`authorizeRouteBatch` accepts the batch when `findIndex` returns 0, so a batch whose first route fails depot ownership is authorized."
+   }
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer",
+  "scope": "COMMIT-AUDIT-GATE-2"
+ }
+]

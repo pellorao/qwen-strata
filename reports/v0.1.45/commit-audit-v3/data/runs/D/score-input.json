@@ -1,0 +1,21 @@
+{
+ "artifacts": [
+  {
+   "reviewerId": "commit-audit-reviewer",
+   "instances": [
+    {
+     "instanceId": "default-27bd2e24-eea0-4030-a7d5-e7dd808004f4-instance-1",
+     "artifactPaths": [
+      "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/D/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/27bd2e24-eea0-4030-a7d5-e7dd808004f4/ca/1/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+     ]
+    },
+    {
+     "instanceId": "default-27bd2e24-eea0-4030-a7d5-e7dd808004f4-instance-2",
+     "artifactPaths": [
+      "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/D/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/27bd2e24-eea0-4030-a7d5-e7dd808004f4/ca/2/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+     ]
+    }
+   ]
+  }
+ ]
+}

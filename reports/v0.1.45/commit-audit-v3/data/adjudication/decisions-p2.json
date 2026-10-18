@@ -1,0 +1,170 @@
+{
+ "adjudicator": "blind Opus high",
+ "decisions": [
+  {
+   "id": "p2-001",
+   "decision": "matched",
+   "reason": "指出带 reassignment 的停靠点按自身 driver 而非 reassignment.driver 归属。"
+  },
+  {
+   "id": "p2-002",
+   "decision": "matched",
+   "reason": "指出每个停靠点少算 5 分钟停车时间。"
+  },
+  {
+   "id": "p2-003",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs 的执行接口。"
+  },
+  {
+   "id": "p2-004",
+   "decision": "problem-8",
+   "reason": "指出 Number() 接受空串、带空格文本和 true 等，符合 01:30/spec:59 口径。"
+  },
+  {
+   "id": "p2-005",
+   "decision": "problem-6",
+   "reason": "判 uncertain 并指出没有合同规定 store.write 何时调用 onCommit，与问题用例一致。"
+  },
+  {
+   "id": "p2-006",
+   "decision": "problem-5",
+   "reason": "指出移到禁发结束小时 5 后落在窗口外而未拒绝，与问题用例一致。"
+  },
+  {
+   "id": "p2-007",
+   "decision": "unsupported",
+   "reason": "只谈上限截断；rule 8 规定任何重试延迟不超过 2000 ms，截断符合政策，finding 无依据。"
+  },
+  {
+   "id": "p2-008",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、>0 为假而被拒。"
+  },
+  {
+   "id": "p2-009",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为参数先求值，授权结果之前已执行。"
+  },
+  {
+   "id": "p2-010",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 被忽略而改用计算退避。"
+  },
+  {
+   "id": "p2-011",
+   "decision": "matched",
+   "reason": "指出 rename 被拒后字节锁定，discardTemporary 不删除，只有 removeTemporary 能删。"
+  },
+  {
+   "id": "p2-012",
+   "decision": "matched",
+   "reason": "指出 routes:admin 只查自身 scopes，claim 授予的 admin 不生效。"
+  },
+  {
+   "id": "p2-013",
+   "decision": "matched",
+   "reason": "指出 dispatch 在 unlessForbidden 检查授权前已被调用。"
+  },
+  {
+   "id": "p2-014",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs。"
+  },
+  {
+   "id": "p2-015",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被标为暂时并重试。"
+  },
+  {
+   "id": "p2-016",
+   "decision": "matched",
+   "reason": "指出只递归普通对象，auth 下数组内凭据未删除。"
+  },
+  {
+   "id": "p2-017",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 回退到计算退避。"
+  },
+  {
+   "id": "p2-018",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0 而被拒。"
+  },
+  {
+   "id": "p2-019",
+   "decision": "problem-11",
+   "reason": "判 uncertain 并指出没有合同规定 onCommit 时机，与问题用例一致。"
+  },
+  {
+   "id": "p2-020",
+   "decision": "problem-13",
+   "reason": "指出首条路线失败时 findIndex 为 0 而批次被授权，与问题用例一致。"
+  },
+  {
+   "id": "p2-021",
+   "decision": "problem-9",
+   "reason": "指出文本 '9' 或 Infinity 的 priority 不在任何分区，与问题用例一致。"
+  },
+  {
+   "id": "p2-022",
+   "decision": "problem-16",
+   "reason": "指出 Number() 接受空串、带空格文本和 true 等非十进制数字文本，符合口径。"
+  },
+  {
+   "id": "p2-023",
+   "decision": "unsupported",
+   "reason": "照抄结论只谈 2000 ms 截断；rule 8 限定所有重试延迟，截断符合政策，finding 无依据。"
+  },
+  {
+   "id": "p2-024",
+   "decision": "problem-10",
+   "reason": "指出 nextDispatchTime 用本地小时 getHours 而非 UTC 判断禁发，符合 spec:40 口径。"
+  },
+  {
+   "id": "p2-025",
+   "decision": "unsupported",
+   "reason": "称非有限 priority 同时落入两个分区；实际 priorityOf 给 5 不进 urgent，任何值都不会两区都在，finding 无依据。"
+  },
+  {
+   "id": "p2-026",
+   "decision": "unsupported",
+   "reason": "把行为说反：后续路线失败时返回 false 即拒绝，finding 所述缺陷不存在，也未指出首条失败被接受。"
+  },
+  {
+   "id": "p2-027",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍留在待处理列表。"
+  },
+  {
+   "id": "p2-028",
+   "decision": "matched",
+   "reason": "指出只递归 constructor 为 Object 的值，数组内凭据保留。"
+  },
+  {
+   "id": "p2-029",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出合同未规定未知地址时 lookup 的行为。"
+  },
+  {
+   "id": "p2-030",
+   "decision": "matched",
+   "reason": "指出 transient:false 但带 retryAfter 的失败被重试。"
+  },
+  {
+   "id": "p2-031",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的 driver 对象。"
+  },
+  {
+   "id": "p2-032",
+   "decision": "matched",
+   "reason": "指出通知发往未去空格和连字符的原始 phone。"
+  },
+  {
+   "id": "p2-033",
+   "decision": "matched",
+   "reason": "指出只排顶层键，嵌套对象字段顺序进入序列化字节和哈希。"
+  }
+ ]
+}

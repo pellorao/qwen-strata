@@ -1,0 +1,204 @@
+{
+ "opus-1": {
+  "tool_calls": 8,
+  "by_tool": {
+   "Bash": 8
+  },
+  "flagged": [
+   "Bash: {\"command\": \"cat > \\\"$TMPDIR/gen.py\\\" <<'EOF'\\nimport json,sys\\nI1=\\\".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md\\\"\\nI2=\\\".scratch/0001-dispatch-control/issues/02-publish-dispatc"
+  ],
+  "tool_errors": [],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> fb0f0424a16402deeb055cad537213791b5227ea490aa21dec8aa71cf268c699  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 9,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ },
+ "opus-2": {
+  "tool_calls": 6,
+  "by_tool": {
+   "Bash": 6
+  },
+  "flagged": [],
+  "tool_errors": [],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> dad19f5b10f0cae1b0b93981ec5439d14ea6cd7692f42f9e038520763cfb54a8  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 7,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ },
+ "opus-3": {
+  "tool_calls": 8,
+  "by_tool": {
+   "Bash": 8
+  },
+  "flagged": [
+   "Bash: {\"command\": \"mkdir -p \\\"$TMPDIR/rv\\\" && cat > \\\"$TMPDIR/rv/gen.py\\\" <<'EOF'\\nimport json,sys\\nI1='.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md'\\nI2='.scratch/0001-dispatch-contro"
+  ],
+  "tool_errors": [
+   "Exit code 1\nTraceback (most recent call last):\n  File \"/tmp/claude-1000/rv/gen.py\", line 172, in <module>\n    for e in o[\"evidence\"]: e[\"lines\"]=norm(e[\"lines\"])\n                                      "
+  ],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> 758ffd84f0e19575702e51e15aef7a1a04a65da05482bb51ee709cc7321d19ae  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 9,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ },
+ "haiku-1": {
+  "tool_calls": 17,
+  "by_tool": {
+   "Bash": 14,
+   "Read": 2,
+   "Write": 1
+  },
+  "flagged": [],
+  "tool_errors": [
+   "Exit code 1\ndocs/agents/agent-writes.md\ndocs/agents/arw-operations.md\ndocs/agents/domain.md\ndocs/agents/environment.md\ndocs/agents/issue-tracker.md\ndocs/agents/reviewer.md\ndocs/agents/roles/commit-aud",
+   "Exit code 1\nindex has executeAuthorizedPlan: false\nretry 0 -> 500\nparseRetryCount(\"\") -> {\"ok\":true,\"value\":0}  (\"2.0\") -> {\"ok\":true,\"value\":2}\nchooseDeparture 03:00Z -> 2026-01-01T05:00:00.000Z\norde"
+  ],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> 0e5b9f0165f507a2483760336247fc0ca8806ca263b78b1e4a73165fb115aebd  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 18,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ },
+ "haiku-2": {
+  "tool_calls": 21,
+  "by_tool": {
+   "Bash": 19,
+   "Read": 1,
+   "Write": 1
+  },
+  "flagged": [],
+  "tool_errors": [
+   "<tool_use_error>InputValidationError: Bash failed due to the following issue:\nAn unexpected parameter `workdir` was provided</tool_use_error>",
+   "Exit code 9\nnode: bad option: -I"
+  ],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> faf08377cd4533c0b5e9080bc4e7915c249f22aa6d0667fc9e76721c276052a1  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 22,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ },
+ "haiku-3": {
+  "tool_calls": 22,
+  "by_tool": {
+   "Bash": 15,
+   "Edit": 1,
+   "Read": 5,
+   "Write": 1
+  },
+  "flagged": [],
+  "tool_errors": [
+   "File does not exist. Note: your current working directory is /home/pello/arw-opus/ca3f-haiku-3-h0/repo."
+  ],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> ecad32480b709d6466184f6c829d6926a5d6f9553d7c425f380a9c99b96e0251  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 23,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ },
+ "haiku-4": {
+  "tool_calls": 17,
+  "by_tool": {
+   "Bash": 10,
+   "Grep": 1,
+   "Read": 5,
+   "Write": 1
+  },
+  "flagged": [],
+  "tool_errors": [],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> ad3a87a613fa98448a6a9762407390abc29eb8df927b763332a4b6aebd62ebc7  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 18,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ },
+ "haiku-5": {
+  "tool_calls": 19,
+  "by_tool": {
+   "Bash": 7,
+   "Read": 11,
+   "Write": 1
+  },
+  "flagged": [],
+  "tool_errors": [],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> 605f73f5778548240c7c74bfc8c2086e13a8fb49c612d2bffdb6071418dffa7e  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 20,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ }
+}

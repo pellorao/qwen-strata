@@ -1,0 +1,571 @@
+{
+ "explanation": "Opus 3 次都把 dispatch-policy.md 的规则编号（30–33）当作文件行号引用；规则 30–33 实际在第 63–66 行，第 30–33 行是规则 15–18。答案键期望的政策证据是第 63–66 行，所以这些行的证据定位只得部分分：(b) 问题单位 0.8，孪生干净单位失败权重 0.5。这是 Opus 自身的定位错误，不是答案键过窄。Q3 在同样的行上引用了 63–66 行。若这些定位都正确，Opus 估计约 0.888（4×0.2/29 + 4×0.5×0.25/29），比值会更低，所以这一扣分不改变 < 0.8 的方向。",
+ "ruleToFileLine": {
+  "30": 63,
+  "31": 64,
+  "32": 65,
+  "33": 66
+ },
+ "rows": [
+  {
+   "instance": "opus:opus-1#1",
+   "row": "01:21",
+   "type": "(b)",
+   "rule": 30,
+   "expectedPolicyLine": 63,
+   "citedPolicyLines": [
+    [
+     30
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.8
+  },
+  {
+   "instance": "opus:opus-1#1",
+   "row": "01:32",
+   "type": "(b)",
+   "rule": 31,
+   "expectedPolicyLine": 64,
+   "citedPolicyLines": [
+    [
+     31
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.8
+  },
+  {
+   "instance": "opus:opus-1#1",
+   "row": "spec:11",
+   "type": "(b)",
+   "rule": 32,
+   "expectedPolicyLine": 65,
+   "citedPolicyLines": [
+    [
+     32
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.8
+  },
+  {
+   "instance": "opus:opus-1#1",
+   "row": "spec:74",
+   "type": "(b)",
+   "rule": 33,
+   "expectedPolicyLine": 66,
+   "citedPolicyLines": [
+    [
+     33
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.8
+  },
+  {
+   "instance": "opus:opus-1#1",
+   "row": "02:31",
+   "type": "twin",
+   "rule": 33,
+   "expectedPolicyLine": 66,
+   "citedPolicyLines": [
+    [
+     33
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "opus:opus-1#1",
+   "row": "02:45",
+   "type": "twin",
+   "rule": 32,
+   "expectedPolicyLine": 65,
+   "citedPolicyLines": [
+    [
+     32
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "opus:opus-1#1",
+   "row": "spec:58",
+   "type": "twin",
+   "rule": 30,
+   "expectedPolicyLine": 63,
+   "citedPolicyLines": [
+    [
+     30
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "opus:opus-1#1",
+   "row": "spec:61",
+   "type": "twin",
+   "rule": 31,
+   "expectedPolicyLine": 64,
+   "citedPolicyLines": [
+    [
+     31
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "opus:opus-2#1",
+   "row": "01:21",
+   "type": "(b)",
+   "rule": 30,
+   "expectedPolicyLine": 63,
+   "citedPolicyLines": [
+    [
+     30
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.8
+  },
+  {
+   "instance": "opus:opus-2#1",
+   "row": "01:32",
+   "type": "(b)",
+   "rule": 31,
+   "expectedPolicyLine": 64,
+   "citedPolicyLines": [
+    [
+     31
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.8
+  },
+  {
+   "instance": "opus:opus-2#1",
+   "row": "spec:11",
+   "type": "(b)",
+   "rule": 32,
+   "expectedPolicyLine": 65,
+   "citedPolicyLines": [
+    [
+     32
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.8
+  },
+  {
+   "instance": "opus:opus-2#1",
+   "row": "spec:74",
+   "type": "(b)",
+   "rule": 33,
+   "expectedPolicyLine": 66,
+   "citedPolicyLines": [
+    [
+     33
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.8
+  },
+  {
+   "instance": "opus:opus-2#1",
+   "row": "02:31",
+   "type": "twin",
+   "rule": 33,
+   "expectedPolicyLine": 66,
+   "citedPolicyLines": [
+    [
+     33
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "opus:opus-2#1",
+   "row": "02:45",
+   "type": "twin",
+   "rule": 32,
+   "expectedPolicyLine": 65,
+   "citedPolicyLines": [
+    [
+     32
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "opus:opus-2#1",
+   "row": "spec:58",
+   "type": "twin",
+   "rule": 30,
+   "expectedPolicyLine": 63,
+   "citedPolicyLines": [
+    [
+     30
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "opus:opus-2#1",
+   "row": "spec:61",
+   "type": "twin",
+   "rule": 31,
+   "expectedPolicyLine": 64,
+   "citedPolicyLines": [
+    [
+     31
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "opus:opus-3#1",
+   "row": "01:21",
+   "type": "(b)",
+   "rule": 30,
+   "expectedPolicyLine": 63,
+   "citedPolicyLines": [
+    [
+     30
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.8
+  },
+  {
+   "instance": "opus:opus-3#1",
+   "row": "01:32",
+   "type": "(b)",
+   "rule": 31,
+   "expectedPolicyLine": 64,
+   "citedPolicyLines": [
+    [
+     31
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.8
+  },
+  {
+   "instance": "opus:opus-3#1",
+   "row": "spec:11",
+   "type": "(b)",
+   "rule": 32,
+   "expectedPolicyLine": 65,
+   "citedPolicyLines": [
+    [
+     32
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.8
+  },
+  {
+   "instance": "opus:opus-3#1",
+   "row": "spec:74",
+   "type": "(b)",
+   "rule": 33,
+   "expectedPolicyLine": 66,
+   "citedPolicyLines": [
+    [
+     33
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.8
+  },
+  {
+   "instance": "opus:opus-3#1",
+   "row": "02:31",
+   "type": "twin",
+   "rule": 33,
+   "expectedPolicyLine": 66,
+   "citedPolicyLines": [
+    [
+     33
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "opus:opus-3#1",
+   "row": "02:45",
+   "type": "twin",
+   "rule": 32,
+   "expectedPolicyLine": 65,
+   "citedPolicyLines": [
+    [
+     32
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "opus:opus-3#1",
+   "row": "spec:58",
+   "type": "twin",
+   "rule": 30,
+   "expectedPolicyLine": 63,
+   "citedPolicyLines": [
+    [
+     30
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "opus:opus-3#1",
+   "row": "spec:61",
+   "type": "twin",
+   "rule": 31,
+   "expectedPolicyLine": 64,
+   "citedPolicyLines": [
+    [
+     31
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "q3:Af#1",
+   "row": "01:21",
+   "type": "(b)",
+   "rule": 30,
+   "expectedPolicyLine": 63,
+   "citedPolicyLines": [
+    [
+     63
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 1
+  },
+  {
+   "instance": "q3:Af#1",
+   "row": "01:32",
+   "type": "(b)",
+   "rule": 31,
+   "expectedPolicyLine": 64,
+   "citedPolicyLines": [
+    [
+     64
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 1
+  },
+  {
+   "instance": "q3:Af#1",
+   "row": "spec:11",
+   "type": "(b)",
+   "rule": 32,
+   "expectedPolicyLine": 65,
+   "citedPolicyLines": [
+    [
+     65
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.9636363636363636
+  },
+  {
+   "instance": "q3:Af#1",
+   "row": "spec:74",
+   "type": "(b)",
+   "rule": 33,
+   "expectedPolicyLine": 66,
+   "citedPolicyLines": [
+    [
+     63
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.7818181818181817
+  },
+  {
+   "instance": "q3:Af#1",
+   "row": "02:31",
+   "type": "twin",
+   "rule": 33,
+   "expectedPolicyLine": 66,
+   "citedPolicyLines": [
+    [
+     63
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "q3:Af#1",
+   "row": "02:45",
+   "type": "twin",
+   "rule": 32,
+   "expectedPolicyLine": 65,
+   "citedPolicyLines": [
+    [
+     65
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "q3:Af#1",
+   "row": "spec:58",
+   "type": "twin",
+   "rule": 30,
+   "expectedPolicyLine": 63,
+   "citedPolicyLines": [
+    [
+     63
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "q3:Af#1",
+   "row": "spec:61",
+   "type": "twin",
+   "rule": 31,
+   "expectedPolicyLine": 64,
+   "citedPolicyLines": [
+    [
+     64
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "q3:B#1",
+   "row": "01:21",
+   "type": "(b)",
+   "rule": 30,
+   "expectedPolicyLine": 63,
+   "citedPolicyLines": [
+    [
+     63
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 1
+  },
+  {
+   "instance": "q3:B#1",
+   "row": "01:32",
+   "type": "(b)",
+   "rule": 31,
+   "expectedPolicyLine": 64,
+   "citedPolicyLines": [
+    [
+     64
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.9636363636363636
+  },
+  {
+   "instance": "q3:B#1",
+   "row": "spec:11",
+   "type": "(b)",
+   "rule": 32,
+   "expectedPolicyLine": 65,
+   "citedPolicyLines": [
+    [
+     65
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 1
+  },
+  {
+   "instance": "q3:B#1",
+   "row": "spec:74",
+   "type": "(b)",
+   "rule": 33,
+   "expectedPolicyLine": 66,
+   "citedPolicyLines": [
+    [
+     66
+    ]
+   ],
+   "result": "gap",
+   "unitScore": 0.9636363636363636
+  },
+  {
+   "instance": "q3:B#1",
+   "row": "02:31",
+   "type": "twin",
+   "rule": 33,
+   "expectedPolicyLine": 66,
+   "citedPolicyLines": [
+    [
+     66
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "q3:B#1",
+   "row": "02:45",
+   "type": "twin",
+   "rule": 32,
+   "expectedPolicyLine": 65,
+   "citedPolicyLines": [
+    [
+     65
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "q3:B#1",
+   "row": "spec:58",
+   "type": "twin",
+   "rule": 30,
+   "expectedPolicyLine": 63,
+   "citedPolicyLines": [
+    [
+     63
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  },
+  {
+   "instance": "q3:B#1",
+   "row": "spec:61",
+   "type": "twin",
+   "rule": 31,
+   "expectedPolicyLine": 64,
+   "citedPolicyLines": [
+    [
+     64
+    ]
+   ],
+   "result": "satisfied",
+   "unitScore": null
+  }
+ ]
+}

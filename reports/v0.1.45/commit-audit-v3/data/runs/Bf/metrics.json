@@ -1,0 +1,50 @@
+{
+ "instances": [
+  {
+   "batch": "Bf",
+   "rep": "1",
+   "instanceId": "default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1",
+   "complete": true,
+   "state": "idle",
+   "generation_exit": 0,
+   "deadlines": [
+    null
+   ],
+   "work_s": 595.2497380371094,
+   "work_min": 9.9,
+   "read": 67025,
+   "reused": 1991483,
+   "generated": 46110,
+   "token_source": "engine log segment between this and the next dispatch; API usage is diagnostic only",
+   "tool_calls": 35,
+   "engine_in_tps": 1482.0,
+   "engine_out_tps": 90.2,
+   "task_in_tps": 112.6,
+   "task_out_tps": 77.5
+  }
+ ],
+ "inspect": {
+  "1": {
+   "session": "rollout-2026-10-18T17-54-45-01a14e38-7612-7083-8016-ba54519935c3.jsonl",
+   "root": "/home/pello/projects/qwen_strata/.tmp/commit-audit/v3formal/q3/runs/Bf/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/7ac679c8-14ee-4ee3-b441-f6e14fba3cf2/ca/1",
+   "compactions": 0,
+   "handoff_found": true,
+   "flagged_actions": 0,
+   "flagged_messages": 0,
+   "startup": {
+    "base_instructions": "5d36e1d1a96f0515",
+    "developer@2": "b0808ba12bbba68f",
+    "user@3": "b35059a2d4a3842c",
+    "user@6": "e7f65bedee55a5af",
+    "messageId": "8cde6349-28fd-4b28-a052-f2cec7b0aa3a"
+   },
+   "final": "{\"status\":\"ready\"}",
+   "tool_calls": 35,
+   "tool_call_types": {
+    "function_call": 35
+   }
+  }
+ },
+ "candidates": 29,
+ "score_rc": 1
+}

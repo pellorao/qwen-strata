@@ -1384,3 +1384,4 @@ v4.0–v4.6 逐步加难：缺陷推理步数从约 2 步加到约 4 步，再�
 - Commit Audit v2：修订号 23，正式测量与 Q3 ×10 加测完成，[报告](../reports/v0.1.44.1/commit-audit-v2/summary.md)；
 - Codex 与 Claude Code 参数一致：分支 agent-parity 已合并（8056e86）；
 - ARW 运行环境两项：测量说明已加上"不发中途消息、不查询环境变量或平台身份"（`benchmarks/reviewer-suite-v1/measurement-note*.txt`）。
+- Commit Audit v3：修订号 24 定版（2026-10-18；Strata 0.1.45，Q3 ×5 0.616 / Opus medium ×3 0.843，Q3/Opus 0.730，×10 为 0.706；第二裁决者复评 38/38 一致），[报告](../reports/v0.1.45/commit-audit-v3/summary.md)。
