@@ -585,6 +585,108 @@
         0.0127714,
         0.013459
       ]
+    },
+    "81796f467cc54bde5c1c1f1dbe9a9e1819eca11fbeae59bb650c95b5aff00108": {
+      "version": "Commit Audit v3 修订号 24（2026-10-18 冻结）",
+      "source": "Haiku-high ×5（claude -p --model haiku --effort high，2026-10-18，不限时测量说明 measurement-note-commit-audit.txt；每次重复一个交接，有效运行 haiku-1..5）；r 为全部格式错误（计分器口径）：修复记录的可修复处数 rRepairable，加计分升级对所计分报告仍判为格式错误的 rUnrepairable 与越界截断的 rOverrun；T 为计分器读到的定位数 locatorCount；计分升级 r8.3",
+      "scoringPatchSha256": "21574f23f9e8174414d9edf39b0c4725d5b1f0fce8b7010d8e0a9b0c70bed6ce",
+      "archive": "format-baseline/commit-audit-v3",
+      "sumR": 0,
+      "sumT": 1058,
+      "pooled": 0.0,
+      "floor": 0.0094518,
+      "pBase": 0.0094518,
+      "pBaseBootstrap90": [
+        0.0088889,
+        0.0099602
+      ],
+      "runs": [
+        {
+          "run": "haiku-1",
+          "r": 0,
+          "rRepairable": 0,
+          "rUnrepairable": 0,
+          "rOverrun": 0,
+          "T": 198,
+          "reports": [
+            {
+              "instanceId": "default-e1a38a76-c18d-48f3-b102-160180b02ba3-instance-1",
+              "report": "commit-audit-v3/haiku-1/review.jsonl",
+              "reportSha256": "0e5b9f0165f507a2483760336247fc0ca8806ca263b78b1e4a73165fb115aebd",
+              "changes": "commit-audit-v3/haiku-1/review.jsonl.changes.json",
+              "changesSha256": "bf7aca3d85b49787de6b4cf7d3f14b019e93955f301d519f3080c922f57ef7b4"
+            }
+          ]
+        },
+        {
+          "run": "haiku-2",
+          "r": 0,
+          "rRepairable": 0,
+          "rUnrepairable": 0,
+          "rOverrun": 0,
+          "T": 199,
+          "reports": [
+            {
+              "instanceId": "default-2fb593f8-8a73-4089-81b4-9a37ece5ed51-instance-1",
+              "report": "commit-audit-v3/haiku-2/review.jsonl",
+              "reportSha256": "faf08377cd4533c0b5e9080bc4e7915c249f22aa6d0667fc9e76721c276052a1",
+              "changes": "commit-audit-v3/haiku-2/review.jsonl.changes.json",
+              "changesSha256": "8474fd0a077c13bee8a847155486888d6201345555bf2322990f0849191c75f6"
+            }
+          ]
+        },
+        {
+          "run": "haiku-3",
+          "r": 0,
+          "rRepairable": 0,
+          "rUnrepairable": 0,
+          "rOverrun": 0,
+          "T": 241,
+          "reports": [
+            {
+              "instanceId": "default-8658b1a5-95f5-444b-ac32-26ef5c3a72d4-instance-1",
+              "report": "commit-audit-v3/haiku-3/review.jsonl",
+              "reportSha256": "ecad32480b709d6466184f6c829d6926a5d6f9553d7c425f380a9c99b96e0251",
+              "changes": "commit-audit-v3/haiku-3/review.jsonl.changes.json",
+              "changesSha256": "a9531b290e85a54cb7883da16d24d6beaba368f62615be49190cb5505892fba5"
+            }
+          ]
+        },
+        {
+          "run": "haiku-4",
+          "r": 0,
+          "rRepairable": 0,
+          "rUnrepairable": 0,
+          "rOverrun": 0,
+          "T": 204,
+          "reports": [
+            {
+              "instanceId": "default-3bd4f453-8a1e-48fc-9a16-e1f005a36039-instance-1",
+              "report": "commit-audit-v3/haiku-4/review.jsonl",
+              "reportSha256": "ad3a87a613fa98448a6a9762407390abc29eb8df927b763332a4b6aebd62ebc7",
+              "changes": "commit-audit-v3/haiku-4/review.jsonl.changes.json",
+              "changesSha256": "b77dc68fc81c2f4d5797c164c0b80a3d9ff09f9cb8be18ff9161cbd982f486aa"
+            }
+          ]
+        },
+        {
+          "run": "haiku-5",
+          "r": 0,
+          "rRepairable": 0,
+          "rUnrepairable": 0,
+          "rOverrun": 0,
+          "T": 216,
+          "reports": [
+            {
+              "instanceId": "default-ec45534f-acd8-4996-b95e-159fb63485d5-instance-1",
+              "report": "commit-audit-v3/haiku-5/review.jsonl",
+              "reportSha256": "605f73f5778548240c7c74bfc8c2086e13a8fb49c612d2bffdb6071418dffa7e",
+              "changes": "commit-audit-v3/haiku-5/review.jsonl.changes.json",
+              "changesSha256": "8ae5f9fc02ff4a6ea25a97b263b6fb377d95c11ca978b1c32ccda4af12d2f806"
+            }
+          ]
+        }
+      ]
     }
   }
 }
