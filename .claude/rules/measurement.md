@@ -12,7 +12,7 @@ paths:
 - 不同主机、不同量化的结果分开计算，不混合均值。基础条件和候选必须在同一主机内对照。
 - 记录版本、全部参数、执行顺序、缓存冷暖、加载耗时；复用旧结果必须满足冻结输入、评分和固定条件完全相同。
 - **空闲时加测**（用户 2026-10-13）：GPU 空闲（租约空闲、无其他排队测量）时，可以给测量提前加测，把有效实例数提高到 10 次或更多，以降低评分随机性。加测不得拖慢其他工作：后续步骤（评估、判定、下一项工作）按原定次数照常进行，加测与之并行，结果出来后再补进报告。目标次数在看到加测结果之前定好并写进计划，不按中途结果决定停不停；报告同时给出原定次数和全部次数的结果。
-- Claude Code 测试隔离（用户 2026-10-14）：在测试里用 `qwen-agent` 启动 Claude Code（升级短检查、冒烟检查、测量）时，必须在隔离环境运行，不让它接触额外的规则或配置。具体做法：`CLAUDE_CONFIG_DIR` 指向全新的临时目录，只放测试需要的设置；工作目录放在工程目录外；不加载用户 `~/.claude` 下的 CLAUDE.md、settings、hooks、skills 和 memory。`qwen-agent` 自己带的设置（审批、压缩提示 hook）照常传入。日常使用不隔离。
+- Claude Code 测试隔离（用户 2026-10-14）：在测试里用 `qwen-agent` 启动 Claude Code（升级短检查、冒烟检查、测量）时，必须在隔离环境运行，不让它接触额外的规则或配置。具体做法：`CLAUDE_CONFIG_DIR` 指向全新的临时目录，只放测试需要的设置；工作目录放在工程目录外；不加载用户 `~/.claude` 下的 CLAUDE.md、settings、hooks、skills 和 memory。只换 `CLAUDE_CONFIG_DIR` 不够：工作目录在 `/home/pello` 之下时，Claude Code 会把祖先目录的 `/home/pello/.claude/CLAUDE.md` 当项目说明加载，所以要同时加 `--setting-sources user`（user 即全新的 `CLAUDE_CONFIG_DIR`），或把工作目录放在 `/home/pello` 之外（v0.1.45 升级时用假服务器证实，2026-10-18）。`qwen-agent` 自己带的设置（审批、压缩提示 hook）照常传入。日常使用不隔离。
 - 主板 BIOS 升级（7E13v1C）和 CPU 功耗档 Intel Default Settings 前后的速度不直接比较。
 
 ## 原则
