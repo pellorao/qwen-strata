@@ -1,6 +1,6 @@
 # 后续计划
 
-更新：2026-10-15。只放待办和需要重复执行的流程；已完成的经过见[历史工作](work-history.md)，测量通用约束见 `.claude/rules/`，参数任务只在[每机调参手册](host-tuning.md)维护。整个工程的现行决定见 [README](../README.md#现行决定)。
+更新：2026-10-18。只放待办和需要重复执行的流程；已完成的经过见[历史工作](work-history.md)，测量通用约束见 `.claude/rules/`，参数任务只在[每机调参手册](host-tuning.md)维护。整个工程的现行决定见 [README](../README.md#现行决定)。
 
 ## 调参负载与诊断（用户 2026-10-12 已定）
 
@@ -11,15 +11,34 @@
 
 场景流程、判据与停止条件见 `.claude/rules/reviewer-suite.md`「场景流程」。Spec Readiness 已到 v4.1 收尾（经过见[历史记录](work-history.md)「Spec Readiness 重构 v2→v4.1」，[报告](../reports/v0.1.42/spec-readiness-v4/summary.md)）。
 
-- [ ] **Spec Readiness v4.2**（用户 2026-10-15）：在 v4.1 基础上补 A 类正例使正反等数（独立审查 2026-10-15 判定 v4.1 的 A 类为 2 正 4 反，两个 SEAMS 反例有明文规则可核对、归 B，故补 2 个正例成 4:4，最好放在 AP 独有的检查项）；其余用例不变。按场景流程走（设计 → 独立审计与盲答 → 冻结 → Opus 基准与 Q3 测量）。与 v4.1 已有结果不可比（输入变了，B 部分也只能近似对照）；v4.1 的 ×20 加测仍作为旧版基线与噪声估计保留。冻结后必做 Opus ×3（v4.1 不补 Opus，用户 2026-10-15 确认）；Q3 至少 ×10，报告给出比值 SE。额度重置（06:00）后开始。
-- [ ] **Spec Readiness 基线重测**（用户 2026-10-14）：已完成场景的 Q3 评分以后作为基线，所以在当前版本 Strata v0.1.44.1 上重测 Spec Readiness v4.1 Q3 ×10（冻结夹具与 v4.1 键不变，Opus 沿用 medium ×3），利用 GPU 空闲与 Code Standards 设计并行；版本、默认上下文档、主机功耗档的差异列入混杂清单。Code Spec v5 已有 v0.1.44.1 上的 Q3 ×10，不需要重测。 优先级低于正式任务（用户 2026-10-14）：正式任务要用 GPU 时创建 `.tmp/gpu-priority/<任务名>`，重测发现后不中途打断，当前实例跑完再停模型、归还租约（防止重测每次都被打断、一次也跑不完），标志清空后再继续。 加测（用户 2026-10-15 01:4x，额度紧张时用 GPU 空闲）：目标定为有效 Q3 共 20 次（再加 10 次），开跑前定下、不按中途结果停；06:00 前只跑模型不做裁决，报告同时给出 10 次与 20 次结果。
 - [ ] **评分规则检查与改进**（用户 2026-10-14；审计与 r7 已完成并提交，口径已写入 `.claude/rules/measurement.md` 与 `reviewer-suite.md`「评分」）：剩余待办——多词 `findingTerms` 连续短语匹配是否完成、必选组标为仅供裁决参考是否完成；Sonnet 盲裁试点（在 v5.1 已有池上与 Opus 裁决比一致率，效果好再逐步扩大）。只读分析时不改冻结件。
-- [ ] **Commit Audit 场景**：先检查（规则冲突、场景与答案键含义、F6 中 Qwen 5 次都漏的用例），再出一次 Opus 盲答，之后按场景流程升级版本（用户 2026-10-13）。逐个场景进行，见 `.claude/rules/reviewer-suite.md`「场景流程」。按出题原则（一道题只出一次，用户 2026-10-16/17）：原版答案键 `COMMIT-AUDIT-GATE-1` 第 15 个正例与 `GATE-2` 第 3 个正例（从 1 起计）期望句和证据完全相同，只有 `findingTerms` 不同，同一缺陷出了两遍；同时在冻结工具加"同一答案键内期望句或证据相同就报错"的通用检查（2026-10-17 v4.3 独立审查发现）。
-  - [ ] v2 修订号 23，**2026-10-17 冻结**（独立审查结论补齐后可冻结，Main 同意；用户 2026-10-17：恢复 issue 与 spec 的重复、声明为合并用例，评分 r8.2，测量说明加一句；修订号 22 把 01:49/spec:27、02:47/spec:16 统一证据后合并，评分 r8.3；修订号 23 删有歧义的 spec:13、测量说明限定"重复"范围）：实现已完成（[变更说明](../benchmarks/reviewer-suite-v1/commit-audit-v2.md)）；第 1–4 轮审计与盲答已完成；冻结后正式测量：Q3 IQ3_XXS ×5、Opus medium ×3、Haiku-high ×5（p基准）、盲裁、会话检查与报告（`reports/v0.1.44.1/commit-audit-v2/`）。
+- [ ] **Commit Audit 场景**：v2 已完成（修订号 23，Q3 ×10 比值 0.880，[报告](../reports/v0.1.44.1/commit-audit-v2/summary.md)），加难版 v3 进行中，定稿步骤见「benchmark 前置工作」。按场景流程推进（`.claude/rules/reviewer-suite.md`「场景流程」）。
+
+## benchmark 前置工作（用户 2026-10-18）
+
+多模型 benchmark 开跑前必须完成。每项都已核对过会影响 benchmark 的结果、费用或可比性（2026-10-18 排查）。
+
+- [ ] **Commit Audit v3 定稿**：v3.3 第 3 轮审计 → 冻结前取独立意见 → 冻结入库 → 正式测量（Opus medium ×3，Q3 ×5，空闲时加测到 10，Haiku 计分）。四个场景要全部定稿，benchmark 才能开始。
+- [ ] **修正 catalog 上下文窗口**（2026-10-15 发现）：`tools/ops/model_catalog.py` 给三个量化都写死 `CONTEXT_WINDOW = 156584`，IQ3_XXS 默认档却是 206584／150000。改为按量化取部署配置 `context_tiers` 的首档。同时检查 `config/maintenance-baseline.json`（维护基线有意固定为 Q2_0 100K／156584，核对是否仍成立）。这属于部署，需独立审查后在维护窗口部署。影响：Codex 经日常 catalog 调用 Strata 时，窗口与部署档位不一致。
+- [ ] **核对写死在代码里的上下文和压缩阈值**：
+  - `tools/reviewer/arw_measure.py:190`：不由 ARW 持有模型时，selection 没给窗口就用 250000，超出 IQ3_XXS 档位 206584；
+  - `tools/reviewer/wsl_client.py:50`：写死 250000／200000；
+  - `config/qwen-strata.config.toml`：迁入时的旧文件，250000／200000、Q2_0，没有引用；
+  - `tools/safety/safety_gate.py:78`、`tools/reviewer/verify_codex_compact_prompt.py:65`：写死 156584／100000。
+  
+  逐个确认是否进入实际运行；没有用的删掉，用到的改为读部署档位，或改为缺值时报错。影响：任何一处进入 benchmark 运行，Strata 的窗口或压缩阈值就会和已定档位不一致。
+- [ ] **统一 Codex 与 Claude Code 的上下文档位**：`scripts/wsl/qwen-agent` 让两个 agent 都跑 100K 档（156584／100000），理由是 Claude Code 在 200K 以上窗口的压缩行为没有核对过；ARW 测量用的是 150K 档。benchmark 如果让 Strata 经 Claude Code 运行，或把 harness 列为一个维度，两条路径的档位就不同。做法：用假服务器核对 Claude Code 在 206584／150000 下的压缩点（沿用 agent-parity 的核对方法），通过后把 qwen-agent 改到 150K 档；不通过就在 benchmark 方案里写明各 harness 用哪一档。这属于部署（默认参数改值），需独立审查。
+- [ ] **评分规则遗留**：先核实两项是否已完成——多词 `findingTerms` 是否按连续短语匹配，必选组是否标为仅供裁决参考；没有完成就补上并重算受影响的场景。再做 Sonnet 盲裁试点（在已有裁决池上与 Opus 裁决比一致率）。benchmark 的裁决量是模型数 × 4 场景 × 5 次，裁决模型决定费用，所以试点结果要在方案设计前出来。
+
+以下遗留经核对不挡 benchmark，记入方案的混杂清单：
+- IQ3_XXS 参数来自 v0.1.42 调参，没有在 v0.1.45 上重测，主要影响速度和耗时，不影响得分口径；
+- 已完成场景的 Q3 基线在 v0.1.44.1 上，benchmark 会在当前版本上重跑全部场景；
+- Haiku 订阅额度扣减比例未核对：第一次跑 Haiku 时记录 `budget.sh` 前后用量，并修正 `estimate.sh`（见「其他未解决问题」）；
+- r8 尺度下的 SD 阈值只用于调参，与 benchmark 无关。
 
 ## 多模型 benchmark（用户 2026-10-17）
 
-四个 reviewer 场景（Code Spec、Code Standards、Spec Readiness、Commit Audit）全部定稿后开始。参与者：OpenAI 的几个模型、Anthropic 的几个模型、Strata（IQ3_XXS）、DeepSeek 等；每个场景每个模型跑 5 次取平均；得分处同时给耗时、token、工具调用数。
+四个 reviewer 场景（Code Spec、Code Standards、Spec Readiness、Commit Audit）全部定稿，且「benchmark 前置工作」全部完成后开始。参与者：OpenAI 的几个模型、Anthropic 的几个模型、Strata（IQ3_XXS）、DeepSeek 等；每个场景每个模型跑 5 次取平均；得分处同时给耗时、token、工具调用数。
 
 - [ ] **方案设计**（开跑前，按 AGENTS.md 硬约束 1 处理测量设计部分）：
   - 模型清单与推理强度，由用户定。
@@ -46,16 +65,9 @@ rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢�
 
 ## IQ3_XXS 遗留事项
 
-  - [ ] ARW 运行环境两项（第 8 维会话检查发现，2026-10-11）：中途消息 `send_message` 被沙箱拒绝；Reviewer 用 `env | grep` 触发"环境身份"违规。结论与用户决定（场景缺陷，测量交接末尾追加说明；上游缺陷记入 [ARW 上游缺陷记录](arw-upstream-issues.md)）见[历史工作](work-history.md)「plan 清理迁入：已完成项与决定性文字」。待做：确认交接追加说明已落实。
   - [ ] **IQ3_XXS 补测调参**（用户 2026-10-11 批准申请一）：按序 0 `STRATA_ADAPT_LAG` 不设置/2（直接完整测）→ 1 `--adapt-swaps` 96/160/48 → 2 `--adapt-every` 4/2/8 → 3 `--adapt-decay` 0.7/0.5/0.9 → 4 `--kv-resident` 20480/32768/12288（0–4 用 32K 资源负载，各 3 次）→ 5 `--spec` 3/4/5/6 → 6 CPU 辅助显式 auto/不设置 → 7 学习型专家档案（用户 2026-10-11 取消：v0.1.37/38 已训练过，没有稳定收益，直接用默认发布档案）（5–6 用 Commit Audit，等修复 F1/F2）→ 8 采样参数 → 9 窗口（用户：窗口和采样必须在 IQ3_XXS 上实测才能纳入默认值，放在最后，先采样后窗口；推理强度保持 high）。每维 Main 与独立复核一致才采用。第 5、6 维按 `tools/tuning/arw_dimension.py` 每个实例部署条件并冷启动（用户 2026-10-11 确认，授权 `deploy --condition` 可多次）。进度：第 0 维完成，2 更快（约 +3–6%），双方一致采用并部署（[报告](../reports/v0.1.42/iq3_xxs-tuning/adapt-lag/summary.md)）；第 1 维完成，160 优势在噪声内（约 +1.4%）、48 偏差，双方一致保持 96（[报告](../reports/v0.1.42/iq3_xxs-tuning/adapt-swaps/summary.md)）；第 2 维完成，三者无可分辨差异（±1.5% 内），双方一致保持 4（[报告](../reports/v0.1.42/iq3_xxs-tuning/adapt-every/summary.md)）；第 3 维完成，0.9 与 0.7 持平、0.5 劣势来自单个离群实例，双方一致保持 0.7（[报告](../reports/v0.1.42/iq3_xxs-tuning/adapt-decay/summary.md)）；第 4 维完成，32768 在短负载上无收益、12288 被引擎抬到 20480 无效，双方一致保持 20480；长上下文 20480/32768 补测待另行申请，测 64K/100K/150K 三个长度（用户 2026-10-11）；对外上下文档位定为阈值 100K/150K/200K、窗口 156584/206584/256584 三档（第一档为默认），用户 2026-10-11 决定先在 IQ3_XXS 上实测再发布 206584/256584 两档（[报告](../reports/v0.1.42/iq3_xxs-tuning/kv-resident/summary.md)）；rtx4070tis 待同步；第 5 维完成，采用 spec 4 并部署（旧口径曾选 spec 3 并部署，2026-10-11 评分口径改为低频格式失误不计分后重算：spec 5 差最高分 0.081 出局，3/4/6 在 0.08 内按引擎输出 tok/s 选 4；Main 与复核一致，用户确认；证据弱），[报告](../reports/v0.1.42/iq3_xxs-tuning/spec/summary.md)。第 6 维完成，显式 auto 与不设置实质等价，双方一致维持 auto（[报告](../reports/v0.1.42/iq3_xxs-tuning/cpu-prefill-share-unset/summary.md)）。第 8 维（采样）完成，greedy 最快、分差在 0.08 内，双方一致维持 0/1/20（[报告](../reports/v0.1.42/iq3_xxs-tuning/sampling/summary.md)）。
   - [ ] **benchmark 场景修复**（用户 2026-10-11 批准申请二）：F1 测量交接追加说明（冻结文本文件，记 SHA）；F2 能力验证和 benchmark 中关闭本工程接续机制，改用 ARW 原版接续与 10/5 次暂停（最大限度还原 ARW，便于与 ARW 自己的结果直接对比）；（进展：F1 已完成；F2 按用户决定改为给 ARW 打本工程接口补丁、由 ARW 持有独占并启动模型，实例间不停模型，补丁、驱动和单元测试已完成，待 F3 实跑验证；F3 合并实例改由 `arw_measure` 在 ARW 持有模型模式下运行：同一重复先 runtime-migration、再在同一线程接续 artifact-promotion，第一份报告接续前核对 SHA，第一阶段未完成则跳过并记录缺口，不再停等 Main 中途决定；本机准备和预检已通过（前端 `/health` 改动已部署）；F3 首次试跑失败（ARW 请求 403）：本工程运行层传入 `nativeSessions` 时 ARW 宿主不创建模型目录，管理器读不到 provider，provider 也只写进了 `native-model-catalog.json` 而非 ARW 读取的 `models.custom.json`；2026-10-11 已修复（运行层与 App Server 共用一个 ARW 目录、provider 写入 codex-home 的 `models.custom.json`，daemon 就绪时回报 ARW 实际读到的 provider，驱动核对后才派发），同时 ARW 补丁改为只传模型和安装目录发布的上下文档位（provider `contextWindow`，默认第一档），窗口和压缩阈值都取自该档位，selection 不再带 `auto_compact_token_limit`；ARW 持有模型模式下每个实例从派发到分段关闭采集主机遥测；ARW 合并后的压缩提示 = 安装目录基础提示（与工程源同 SHA）+ Codex 原生快照 0.160.1，该快照文本完整出现在 0.162.0 二进制中（静态比对，实际压缩路径待试跑确认））F3 第二次试跑（2026-10-11）：ARW 成功领 key、启动模型，runtime-migration 首回合完成（758 秒，报告 ready）；接续 artifact-promotion 时触发 ARW 缺陷（见 `docs/arw-upstream-issues.md` D：原线程卸载后 followup 用新交接的文件系统检查原报告，判"缺失"并连续接续 10 次），驱动收到 `reviewer-busy` 退出，实例无效；已用 ARW 原版中断结束任务、维护接口关闭守护进程归还 key，并停模型；修复需改 ARW 运行层，待用户决定；F3 Spec Readiness 本机无模型准备与回归，再试跑 1 个合并实例；F4 单场景评分工具；F5 已有 Code Spec/Code Standards 两个实例不并入，全部重跑；F6 四场景各 5 次（另行开跑）。
   - [ ] 有余时间时：ARW 完整四场景 benchmark，只用 IQ3_XXS / high，其他参数用调参后的默认值，每场景 5 次取平均（用户 2026-10-11 授权，排在 IQ3_XXS 调参和高优先级任务之后）。
-
-## 前端
-
-设计已获批准，实现见 `src/frontend.py`、`src/model_process.py`，结构见[前端运行与维护](frontend.md)。
-
-- [ ] **Codex 与 Claude Code 参数一致**（用户 2026-10-12 批准）：审批统一 512/1024；参数层面一致、机制差异写入手册。Codex guardian 与 `qwen-approve` 都是 low、思考 512、总输出 1024、不发采样；`qwen-agent` 给 Claude Code 传同一强度（`CLAUDE_CODE_EFFORT_LEVEL`）、同一总输出、100000 压缩阈值（`CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`，假服务器核对）。Claude Code 不能替换内置压缩提示，作为特例写入手册。已在分支 `agent-parity` 提交，待 Spec 调查结束后合并并部署到 rtx3080ti（rtx4070tis 恢复后同步）。
 
 ## ARW 同步与 Spec 恢复
 

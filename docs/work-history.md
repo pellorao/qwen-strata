@@ -1375,3 +1375,12 @@ v4.0–v4.6 逐步加难：缺陷推理步数从约 2 步加到约 4 步，再�
   - S2 首次探测（2026-10-11）：冷加载 18.4 秒，解码 77–95 tok/s，生成期间只读 0.6 GB SSD；约 40 GiB 专家锁定在物理内存，物理可用内存最低 7.4 GB，页面文件几乎未用。但提交额度（内存 + 4 GB 自动页面文件）只剩 0.5 GiB，引擎因此跳过会话暂存（Windows 上按物理可用与剩余额度取较小值），并警告可能无提示退出。用户把页面文件改为固定 16384 MB 并重启。复测：提交额度剩 15.6 GiB / 79.8 GiB，没有警告；会话暂存恢复（每次约 45 ms）；解码 80–97 tok/s；物理可用内存最低 7.8 GB。PLE 探测把 `--ple-io direct` 改为 `mmap`（11680 行/秒）。
   - 采用：Main 综合独立 agent 意见后写入 rtx3080ti 的 IQ3_XXS 默认值并部署，交用户复核（AGENTS.md 硬约束 1）。
 
+
+## plan 清理（2026-10-18）
+
+下列已完成项从 plan 移出：
+- Spec Readiness v4.2：已定版，[报告](../reports/v0.1.44.1/spec-readiness-v4.2/summary.md)；
+- Spec Readiness 基线重测：在 v0.1.44.1 上完成，[报告](../reports/v0.1.44.1/spec-readiness-v4/)；
+- Commit Audit v2：修订号 23，正式测量与 Q3 ×10 加测完成，[报告](../reports/v0.1.44.1/commit-audit-v2/summary.md)；
+- Codex 与 Claude Code 参数一致：分支 agent-parity 已合并（8056e86）；
+- ARW 运行环境两项：测量说明已加上"不发中途消息、不查询环境变量或平台身份"（`benchmarks/reviewer-suite-v1/measurement-note*.txt`）。
