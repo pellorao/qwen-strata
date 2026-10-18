@@ -1,0 +1,4020 @@
+diff --git a/lib/release/reviewer-capability-conformance.mjs b/lib/release/reviewer-capability-conformance.mjs
+index 60af5c2..6eb85e5 100644
+--- a/lib/release/reviewer-capability-conformance.mjs
++++ b/lib/release/reviewer-capability-conformance.mjs
+@@ -187,7 +187,7 @@ const SCENARIO_SEGMENTS = new Map([
+ const SCENARIO_REVISIONS = new Map([
+     ['code-spec-reviewer', 25],
+     ['code-standards-reviewer', 14],
+-    ['commit-audit-reviewer', 23],
++    ['commit-audit-reviewer', 24],
+     ['spec-readiness-reviewer', 44],
+ ]);
+ const SPEC_READINESS_SCENARIOS = [
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/expected.json b/tests/fixtures/reviewer-capability/commit-audit-reviewer/expected.json
+index 5bf2a9e..8239c2e 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/expected.json
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/expected.json
+@@ -132,97 +132,97 @@
+           "merge": "01:7+spec:27"
+         },
+         {
+-          "expectation": "The capacity test covers only a value below the limit and omits the equality boundary.",
++          "expectation": "`nextRetryDelay` tests `retryAfter` by truthiness, so a server-provided `retryAfter` of 0 falls back to the computed backoff instead of a 0 ms delay.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "tests/dispatch/scenarios.mjs",
+-              "line": 3
+-            },
++              "filePath": "src/dispatch/retry.mjs",
++              "line": 24
++            }
++          ],
++          "evidence": [
+             {
+-              "filePath": "tests/dispatch/scenarios.mjs",
+-              "line": 5
++              "filePath": "src/dispatch/retry.mjs",
++              "line": 24
++            }
++          ],
++          "findingTerms": [
++            "nextRetryDelay"
++          ],
++          "merge": "01:19+spec:75"
++        },
++        {
++          "expectation": "`executeAuthorizedPlan` awaits dispatch as an argument of `unlessForbidden`, so dispatch runs before the authorization result is applied.",
++          "result": "gap",
++          "associationEvidence": [
++            {
++              "filePath": "src/dispatch/executor.mjs",
++              "line": 4
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "tests/dispatch/plan.test.mjs",
+-              "line": 5
++              "filePath": "src/dispatch/executor.mjs",
++              "line": 4
+             },
+             {
+-              "filePath": "tests/dispatch/plan.test.mjs",
++              "filePath": "src/dispatch/executor.mjs",
+               "line": 6
+             },
+             {
+-              "filePath": "tests/dispatch/scenarios.mjs",
+-              "line": 3
+-            },
+-            {
+-              "filePath": "tests/dispatch/scenarios.mjs",
++              "filePath": "src/dispatch/runtime.mjs",
+               "line": 5
+-            },
++            }
++          ],
++          "findingTerms": [
++            "executeAuthorizedPlan"
++          ],
++          "merge": "01:20+spec:55"
++        },
++        {
++          "expectation": "`stopsForDriver` compares each stop's own `driver`, so a stop with a `reassignment` is returned for its original driver and not for the driver of its `reassignment`, which rule 30 makes its assigned driver.",
++          "result": "gap",
++          "associationEvidence": [
+             {
+-              "filePath": "tests/dispatch/scenarios.mjs",
+-              "line": 6
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 30
++            }
++          ],
++          "evidence": [
++            {
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 30
+             },
+             {
+-              "filePath": "tests/dispatch/scenarios.mjs",
+-              "line": 7
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 63
+             }
+           ],
+           "findingTerms": [
+-            "The capacity boundary test"
++            "stopsForDriver"
+           ]
+         },
+         {
+-          "expectation": "`chooseDeparture` reads the host-local hour instead of the UTC hour.",
++          "expectation": "`chooseDeparture` moves a blackout departure to the blackout end hour without refusing it when that hour is outside the departure window.",
+           "result": "gap",
+-          "placements": [
++          "associationEvidence": [
+             {
+-              "check": "COMMIT-AUDIT-GATE-1",
+-              "associationEvidence": [
+-                {
+-                  "filePath": "src/dispatch/schedule.mjs",
+-                  "line": 4
+-                }
+-              ],
+-              "evidence": [
+-                {
+-                  "filePath": "src/dispatch/schedule.mjs",
+-                  "line": 1
+-                },
+-                {
+-                  "filePath": "src/dispatch/schedule.mjs",
+-                  "line": 4
+-                },
+-                {
+-                  "filePath": "src/dispatch/schedule.mjs",
+-                  "line": 5
+-                }
+-              ]
++              "filePath": "src/dispatch/schedule.mjs",
++              "line": 6
++            }
++          ],
++          "evidence": [
++            {
++              "filePath": "src/dispatch/schedule.mjs",
++              "line": 1
+             },
+             {
+-              "check": "COMMIT-AUDIT-GATE-1",
+-              "associationEvidence": [
+-                {
+-                  "filePath": "src/dispatch/schedule.mjs",
+-                  "line": 1
+-                }
+-              ],
+-              "evidence": [
+-                {
+-                  "filePath": "src/dispatch/schedule.mjs",
+-                  "line": 1
+-                },
+-                {
+-                  "filePath": "src/dispatch/schedule.mjs",
+-                  "line": 4
+-                },
+-                {
+-                  "filePath": "src/dispatch/schedule.mjs",
+-                  "line": 5
+-                }
+-              ]
++              "filePath": "src/dispatch/schedule.mjs",
++              "line": 5
++            },
++            {
++              "filePath": "src/dispatch/schedule.mjs",
++              "line": 6
+             }
+           ],
+           "findingTerms": [
+@@ -230,16 +230,12 @@
+           ]
+         },
+         {
+-          "expectation": "`emitPlanCreated` emits before the storage operation completes.",
+-          "result": "gap",
++          "expectation": "No available contract establishes when `store.write` invokes `onCommit`, so it cannot be established that `plan.created` is emitted only after storage succeeds.",
++          "result": "uncertain",
+           "associationEvidence": [
+             {
+               "filePath": "src/dispatch/executor.mjs",
+               "line": 15
+-            },
+-            {
+-              "filePath": "src/dispatch/storage.mjs",
+-              "line": 4
+             }
+           ],
+           "evidence": [
+@@ -274,22 +270,22 @@
+           "merge": "01:28+spec:41"
+         },
+         {
+-          "expectation": "Duplicate detection trims raw keys but does not apply `normalizeRouteKey` (NFKC and uppercase).",
++          "expectation": "`hasDuplicateRouteKeys` concatenates the depot ID and normalized route key without a separator, so different route identities can produce the same key.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+               "filePath": "src/dispatch/queue.mjs",
+-              "line": 12
++              "line": 18
+             }
+           ],
+           "evidence": [
+             {
+               "filePath": "src/dispatch/queue.mjs",
+-              "line": 12
++              "line": 17
+             },
+             {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 3
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 18
+             }
+           ],
+           "findingTerms": [
+@@ -297,7 +293,7 @@
+           ]
+         },
+         {
+-          "expectation": "parseRetryCount treats the retry maximum as a count of allowed values and rejects the required upper bound of 3.",
++          "expectation": "`parseRetryCount` converts text with `Number`, so text that is not base-10 digits, such as `'0x2'`, `'2e0'`, `' 2'` or `''`, is accepted as a retry count.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+@@ -308,11 +304,11 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/retry.mjs",
+-              "line": 1
++              "line": 4
+             },
+             {
+               "filePath": "src/dispatch/retry.mjs",
+-              "line": 4
++              "line": 5
+             }
+           ],
+           "findingTerms": [
+@@ -321,109 +317,80 @@
+           "merge": "01:30+spec:59"
+         },
+         {
+-          "expectation": "`createDispatchPlan` sorts the caller-owned stop list in place.",
++          "expectation": "`pendingStops` drops only stops whose `state` is `delivered`, so a stop whose `state` is `handedOver`, which rule 31 makes a delivered stop, is still returned.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 9
+-            }
+-          ],
+-          "evidence": [
+-            {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 8
+-            },
+-            {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 9
+-            }
+-          ],
+-          "findingTerms": [
+-            "createDispatchPlan"
+-          ]
+-        },
+-        {
+-          "expectation": "No available provider contract establishes that `provider.load()` returns the configured allowed-region list.",
+-          "result": "uncertain",
+-          "associationEvidence": [
+-            {
+-              "filePath": "src/dispatch/policy.mjs",
+-              "line": 1
++              "filePath": "src/dispatch/executor.mjs",
++              "line": 19
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/policy.mjs",
+-              "line": 1
++              "filePath": "src/dispatch/executor.mjs",
++              "line": 19
+             },
+             {
+-              "filePath": "config/dispatch-policy.json",
+-              "line": 2
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 64
+             }
+           ],
+           "findingTerms": [
+-            "loadAllowedRegions"
++            "pendingStops"
+           ]
+         },
+         {
+-          "expectation": "executeAuthorizedPlan invokes dispatch before checking authorization.",
++          "expectation": "`orderedDestinationGroups` passes the `Map` returned by `groupByDestination` to `orderManifestGroups`, whose comparator reads a `destination` field that the `[key, group]` entries lack, so the groups keep insertion order instead of ascending lexical order.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/dispatch/executor.mjs",
+-              "line": 5
+-            },
+-            {
+-              "filePath": "src/dispatch/runtime.mjs",
+-              "line": 5
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 42
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/executor.mjs",
+-              "line": 5
+-            },
+-            {
+-              "filePath": "src/dispatch/executor.mjs",
+-              "line": 6
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 42
+             },
+             {
+-              "filePath": "src/dispatch/executor.mjs",
+-              "line": 7
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 3
+             },
+             {
+-              "filePath": "src/dispatch/runtime.mjs",
+-              "line": 5
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 11
+             }
+           ],
+           "findingTerms": [
+-            "executeAuthorizedPlan"
+-          ],
+-          "merge": "01:20+spec:55"
++            "orderedDestinationGroups"
++          ]
+         },
+         {
+-          "expectation": "No available contract establishes what `restore` returns after a partial write.",
++          "expectation": "The geocoder contract defines `geocoder.lookup` only for known addresses, so it cannot be established whether an unknown address resolves to `undefined` (left out), resolves to another value (kept) or rejects (the whole call rejects).",
+           "result": "uncertain",
+           "associationEvidence": [
+             {
+-              "filePath": "src/dispatch/storage.mjs",
+-              "line": 13
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 34
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/storage.mjs",
+-              "line": 13
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 34
++            },
++            {
++              "filePath": "docs/dispatch/adapter-contracts.md",
++              "line": 3
+             }
+           ],
+           "findingTerms": [
+-            "restorePlan"
+-          ],
+-          "merge": "01:43+spec:53"
++            "locateStops"
++          ]
+         },
+         {
+-          "expectation": "`withinVehicleCapacity` uses a strict less-than comparison and rejects the inclusive limit.",
++          "expectation": "`withinVehicleCapacity` converts the limit to grams and requires the clamped remainder to be above zero, so a total equal to the limit (remainder 0) is rejected.",
+           "result": "gap",
+           "placements": [
+             {
+@@ -438,6 +405,10 @@
+                 {
+                   "filePath": "src/dispatch/capacity.mjs",
+                   "line": 3
++                },
++                {
++                  "filePath": "src/dispatch/capacity.mjs",
++                  "line": 12
+                 }
+               ]
+             },
+@@ -458,6 +429,10 @@
+                   "filePath": "src/dispatch/capacity.mjs",
+                   "line": 3
+                 },
++                {
++                  "filePath": "src/dispatch/capacity.mjs",
++                  "line": 12
++                },
+                 {
+                   "filePath": "src/dispatch/capacity.mjs",
+                   "line": 14
+@@ -471,7 +446,7 @@
+           "merge": "01:49+spec:26"
+         },
+         {
+-          "expectation": "`canPlanRoute` accepts either scope or ownership instead of requiring both.",
++          "expectation": "`canPlanRoute` checks `routes:admin` in the actor's own scopes instead of its held scopes, so an admin scope held through an active claim does not meet the ownership requirement.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+@@ -486,34 +461,35 @@
+             }
+           ],
+           "findingTerms": [
+-            "canPlanRoute"
++            "routes:admin"
+           ]
+         },
+         {
+-          "expectation": "`serializePlan` selects a formatter mode that leaves the JSON document without the required terminal LF.",
++          "expectation": "`effectiveScopes` drops only the actor's own scopes when it is suspended and still adds active-claim scopes, so a suspended actor with an active `routes:plan` claim can plan.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/dispatch/serialize.mjs",
+-              "line": 3
++              "filePath": "src/dispatch/access.mjs",
++              "line": 5
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/serialize.mjs",
+-              "line": 2
++              "filePath": "src/dispatch/access.mjs",
++              "line": 3
+             },
+             {
+-              "filePath": "src/dispatch/serialize.mjs",
+-              "line": 3
++              "filePath": "src/dispatch/access.mjs",
++              "line": 5
+             }
+           ],
+           "findingTerms": [
+-            "serializePlan"
+-          ]
++            "suspended"
++          ],
++          "merge": "01:51+spec:73"
+         },
+         {
+-          "expectation": "The announcement failure branch returns without removing the already stored manifest.",
++          "expectation": "`handleAnnouncementFailure` removes the copy returned by `store.get`, and `store.remove` removes only the exact stored object, so the stored manifest is not removed.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+@@ -530,10 +506,6 @@
+               "filePath": "src/dispatch/publisher.mjs",
+               "line": 11
+             },
+-            {
+-              "filePath": "src/dispatch/publisher.mjs",
+-              "line": 12
+-            },
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+               "line": 13
+@@ -541,6 +513,18 @@
+             {
+               "filePath": "src/dispatch/manifest.mjs",
+               "line": 32
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 3
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 6
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 7
+             }
+           ],
+           "findingTerms": [
+@@ -549,12 +533,16 @@
+           "merge": "02:22+spec:17"
+         },
+         {
+-          "expectation": "`redactManifestEvent` reuses token redaction and leaves other nested authentication credentials unchanged.",
++          "expectation": "`stripCredentials` recurses only into values whose constructor is `Object`, so credentials inside arrays below `auth` are kept.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+               "filePath": "src/dispatch/telemetry.mjs",
+               "line": 7
++            },
++            {
++              "filePath": "src/dispatch/telemetry.mjs",
++              "line": 14
+             }
+           ],
+           "evidence": [
+@@ -564,7 +552,7 @@
+             },
+             {
+               "filePath": "src/dispatch/telemetry.mjs",
+-              "line": 9
++              "line": 14
+             }
+           ],
+           "findingTerms": [
+@@ -573,56 +561,35 @@
+           "merge": "02:23+spec:12"
+         },
+         {
+-          "expectation": "`serializeManifestRecords` joins records with LF but omits the terminal LF.",
++          "expectation": "`buildManifest` copies each record shallowly and `labelDriver` assigns the label onto the supplied driver object, so supplied records are mutated.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/dispatch/serialize.mjs",
+-              "line": 9
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 26
+             }
+           ],
+           "evidence": [
+-            {
+-              "filePath": "src/dispatch/serialize.mjs",
+-              "line": 9
+-            }
+-          ],
+-          "findingTerms": [
+-            "serializeManifestRecords"
+-          ],
+-          "merge": "02:29+spec:46"
+-        },
+-        {
+-          "expectation": "`orderManifestGroups` sorts destinations in descending order.",
+-          "result": "gap",
+-          "associationEvidence": [
+             {
+               "filePath": "src/dispatch/manifest.mjs",
+-              "line": 11
+-            }
+-          ],
+-          "evidence": [
++              "line": 26
++            },
+             {
+               "filePath": "src/dispatch/manifest.mjs",
+-              "line": 11
++              "line": 34
+             }
+           ],
+           "findingTerms": [
+-            "orderManifestGroups"
+-          ],
+-          "merge": "02:30+spec:45"
++            "buildManifest"
++          ]
+         },
+         {
+-          "expectation": "`publishManifest` stores the manifest before validating its entries.",
++          "expectation": "`publishManifest` maps entries through an async callback, and every resulting promise is truthy, so a manifest with invalid entries is stored.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+               "line": 5
+-            },
+-            {
+-              "filePath": "src/dispatch/manifest.mjs",
+-              "line": 30
+             }
+           ],
+           "evidence": [
+@@ -635,8 +602,8 @@
+               "line": 6
+             },
+             {
+-              "filePath": "src/dispatch/manifest.mjs",
+-              "line": 30
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 7
+             }
+           ],
+           "findingTerms": [
+@@ -644,12 +611,16 @@
+           ]
+         },
+         {
+-          "expectation": "`retryPublication` retries every thrown error without checking whether it is transient.",
++          "expectation": "`asPublicationError` marks a failure transient when it has a finite `retryAfter` even if it is marked `transient: false`, so `publishWithRetry` retries a failure rule 27 makes non-transient.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/dispatch/retry.mjs",
+-              "line": 14
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 17
++            },
++            {
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 19
+             }
+           ],
+           "evidence": [
+@@ -658,16 +629,12 @@
+               "line": 17
+             },
+             {
+-              "filePath": "src/dispatch/retry.mjs",
+-              "line": 10
+-            },
+-            {
+-              "filePath": "src/dispatch/retry.mjs",
+-              "line": 13
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 19
+             },
+             {
+               "filePath": "src/dispatch/retry.mjs",
+-              "line": 14
++              "line": 10
+             }
+           ],
+           "findingTerms": [
+@@ -676,7 +643,7 @@
+           "merge": "02:46+spec:71"
+         },
+         {
+-          "expectation": "`coalescePackages` deduplicates each group independently and retains duplicates across groups.",
++          "expectation": "`coalesceAcrossGroups` records raw package IDs but filters normalized IDs, so a duplicate that differs only in surrounding whitespace survives in a later group.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+@@ -690,8 +657,12 @@
+               "line": 13
+             },
+             {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 11
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 37
++            },
++            {
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 38
+             }
+           ],
+           "findingTerms": [
+@@ -702,48 +673,23 @@
+       ],
+       "cleanCases": [
+         {
+-          "expectation": "The implementation satisfies: savePlan validates a plan before the first persistent write.",
++          "expectation": "The implementation satisfies: Under `docs/dispatch/storage-contract.md`, `writePlanAtomically` renames the temporary bytes only after they are durable.",
+           "evidence": [
+             {
+               "filePath": "src/dispatch/storage.mjs",
+-              "line": 2
++              "line": 8
+             },
+             {
+               "filePath": "src/dispatch/storage.mjs",
+-              "line": 3
++              "line": 9
+             },
+             {
+-              "filePath": "src/dispatch/storage.mjs",
+-              "line": 4
+-            }
+-          ],
+-          "findingTerms": [
+-            "savePlan"
+-          ],
+-          "merge": "01:40+spec:16"
+-        },
+-        {
+-          "expectation": "The implementation satisfies: `planFailure` returns a structured non-throwing failure result.",
+-          "evidence": [
+-            {
+-              "filePath": "src/dispatch/executor.mjs",
+-              "line": 19
+-            }
+-          ],
+-          "findingTerms": [
+-            "planFailure"
+-          ]
+-        },
+-        {
+-          "expectation": "The implementation satisfies: `totalPackageWeight` sums every package weight without changing the package list.",
+-          "evidence": [
+-            {
+-              "filePath": "src/dispatch/capacity.mjs",
+-              "line": 1
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 15
+             }
+           ],
+           "findingTerms": [
+-            "totalPackageWeight"
++            "writePlanAtomically"
+           ],
+           "merge": "01:22+spec:43"
+         },
+@@ -798,28 +744,45 @@
+           "merge": "01:34+spec:42"
+         },
+         {
+-          "expectation": "The implementation satisfies: The invalid-storage test asserts that validation failure performs zero writes.",
++          "expectation": "The implementation satisfies: Under `docs/dispatch/adapter-contracts.md`, `routeDistance` rejects when no road connects two consecutive points.",
+           "evidence": [
+             {
+-              "filePath": "tests/dispatch/plan.test.mjs",
+-              "line": 9
++              "filePath": "src/dispatch/schedule.mjs",
++              "line": 22
+             },
+             {
+-              "filePath": "tests/dispatch/plan.test.mjs",
+-              "line": 10
++              "filePath": "src/dispatch/schedule.mjs",
++              "line": 24
+             },
+             {
+-              "filePath": "tests/dispatch/plan.test.mjs",
+-              "line": 11
++              "filePath": "docs/dispatch/adapter-contracts.md",
++              "line": 4
++            }
++          ],
++          "findingTerms": [
++            "routeDistance"
++          ]
++        },
++        {
++          "expectation": "The implementation satisfies: savePlan validates a plan before the first persistent write.",
++          "evidence": [
++            {
++              "filePath": "src/dispatch/storage.mjs",
++              "line": 2
+             },
+             {
+-              "filePath": "tests/dispatch/plan.test.mjs",
+-              "line": 13
++              "filePath": "src/dispatch/storage.mjs",
++              "line": 3
++            },
++            {
++              "filePath": "src/dispatch/storage.mjs",
++              "line": 4
+             }
+           ],
+           "findingTerms": [
+-            "The invalid-storage test asserts"
+-          ]
++            "savePlan"
++          ],
++          "merge": "01:40+spec:16"
+         },
+         {
+           "expectation": "The implementation satisfies: `computeBackoff` doubles from 250 milliseconds and caps the result at 2000 milliseconds.",
+@@ -827,6 +790,10 @@
+             {
+               "filePath": "src/dispatch/retry.mjs",
+               "line": 8
++            },
++            {
++              "filePath": "src/dispatch/retry.mjs",
++              "line": 22
+             }
+           ],
+           "findingTerms": [
+@@ -852,7 +819,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/schedule.mjs",
+-              "line": 10
++              "line": 11
+             }
+           ],
+           "findingTerms": [
+@@ -934,7 +901,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+-              "line": 27
++              "line": 29
+             }
+           ],
+           "findingTerms": [
+@@ -1021,15 +988,45 @@
+           ]
+         },
+         {
+-          "expectation": "The implementation satisfies: `auditFieldsPresent` requires action, actor, and timestamp fields.",
++          "expectation": "The implementation satisfies: `serializeManifestRecords` emits NDJSON with one LF after every record, including the last.",
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/telemetry.mjs",
++              "filePath": "src/dispatch/serialize.mjs",
++              "line": 9
++            }
++          ],
++          "findingTerms": [
++            "serializeManifestRecords"
++          ],
++          "merge": "02:29+spec:46"
++        },
++        {
++          "expectation": "The implementation satisfies: `orderManifestGroups` orders destination groups in ascending lexical order.",
++          "evidence": [
++            {
++              "filePath": "src/dispatch/manifest.mjs",
+               "line": 11
+             }
+           ],
+           "findingTerms": [
+-            "auditFieldsPresent"
++            "orderManifestGroups"
++          ],
++          "merge": "02:30+spec:45"
++        },
++        {
++          "expectation": "The implementation satisfies: Under `docs/dispatch/dispatch-policy.md`, `manifestRecipients` lists the contact phone of every manifest entry that has a `phone`.",
++          "evidence": [
++            {
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 44
++            },
++            {
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 66
++            }
++          ],
++          "findingTerms": [
++            "manifestRecipients"
+           ]
+         },
+         {
+@@ -1037,7 +1034,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+-              "line": 19
++              "line": 21
+             }
+           ],
+           "findingTerms": [
+@@ -1059,27 +1056,27 @@
+           "merge": "02:36+spec:69"
+         },
+         {
+-          "expectation": "The implementation satisfies: `buildManifest` copies record objects instead of mutating supplied records.",
++          "expectation": "The implementation satisfies: Under `docs/dispatch/dispatch-policy.md`, `publishWithRetry` stops after the allowed number of publication attempts.",
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/manifest.mjs",
+-              "line": 26
+-            }
+-          ],
+-          "findingTerms": [
+-            "buildManifest"
+-          ]
+-        },
+-        {
+-          "expectation": "The implementation satisfies: `publicationRetryBudget` is two attempts.",
+-          "evidence": [
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 17
++            },
++            {
++              "filePath": "src/dispatch/retry.mjs",
++              "line": 13
++            },
++            {
++              "filePath": "src/dispatch/retry.mjs",
++              "line": 14
++            },
+             {
+               "filePath": "src/dispatch/retry.mjs",
+               "line": 20
+             }
+           ],
+           "findingTerms": [
+-            "publicationRetryBudget"
++            "publishWithRetry"
+           ]
+         },
+         {
+@@ -1125,17 +1122,20 @@
+           "merge": "02:44+spec:51"
+         },
+         {
+-          "expectation": "The implementation satisfies: `failureTelemetry` records the failure event, error, manifest ID, and timestamp.",
++          "expectation": "The implementation satisfies: Under `docs/dispatch/dispatch-policy.md`, `departureMinute` is a stop's `arrivalMinute` plus its service time.",
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/telemetry.mjs",
+-              "line": 5
++              "filePath": "src/dispatch/schedule.mjs",
++              "line": 28
++            },
++            {
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 65
+             }
+           ],
+           "findingTerms": [
+-            "failureTelemetry"
+-          ],
+-          "merge": "02:45+spec:14"
++            "departureMinute"
++          ]
+         },
+         {
+           "expectation": "The implementation satisfies: `preserveManifestDriver` trims driver labels without changing letter case.",
+@@ -1175,162 +1175,58 @@
+       "scope": "COMMIT-AUDIT-GATE-2",
+       "problemCases": [
+         {
+-          "expectation": "canAssignAllPackages delegates the equality boundary to a strict capacity predicate and rejects a total equal to the limit.",
++          "expectation": "Route duration adds the raw `serviceMinutes`, so every stop misses the 5 minutes of parking that rule 32 includes in its service time.",
+           "result": "gap",
+-          "placements": [
+-            {
+-              "check": "COMMIT-AUDIT-GATE-2",
+-              "associationEvidence": [
+-                {
+-                  "filePath": "src/dispatch/capacity.mjs",
+-                  "line": 3
+-                }
+-              ],
+-              "evidence": [
+-                {
+-                  "filePath": "src/dispatch/capacity.mjs",
+-                  "line": 3
+-                }
+-              ]
+-            },
++          "associationEvidence": [
+             {
+-              "check": "COMMIT-AUDIT-GATE-2",
+-              "associationEvidence": [
+-                {
+-                  "filePath": "src/dispatch/capacity.mjs",
+-                  "line": 14
+-                }
+-              ],
+-              "evidence": [
+-                {
+-                  "filePath": "src/dispatch/capacity.mjs",
+-                  "line": 1
+-                },
+-                {
+-                  "filePath": "src/dispatch/capacity.mjs",
+-                  "line": 3
+-                },
+-                {
+-                  "filePath": "src/dispatch/capacity.mjs",
+-                  "line": 14
+-                }
+-              ]
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 32
+             }
+           ],
+-          "findingTerms": [
+-            "Assigning all packages accepts"
+-          ],
+-          "merge": "01:49+spec:26"
+-        },
+-        {
+-          "expectation": "`toStableJson` sorts only top-level keys and leaves nested object order unchanged.",
+-          "result": "gap",
+-          "placements": [
++          "evidence": [
+             {
+-              "check": "COMMIT-AUDIT-GATE-2",
+-              "associationEvidence": [
+-                {
+-                  "filePath": "src/dispatch/serialize.mjs",
+-                  "line": 1
+-                }
+-              ],
+-              "evidence": [
+-                {
+-                  "filePath": "src/dispatch/serialize.mjs",
+-                  "line": 1
+-                },
+-                {
+-                  "filePath": "src/dispatch/serialize.mjs",
+-                  "line": 5
+-                }
+-              ]
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 32
+             },
+             {
+-              "check": "COMMIT-AUDIT-GATE-2",
+-              "associationEvidence": [
+-                {
+-                  "filePath": "src/dispatch/serialize.mjs",
+-                  "line": 1
+-                }
+-              ],
+-              "evidence": [
+-                {
+-                  "filePath": "src/dispatch/serialize.mjs",
+-                  "line": 1
+-                },
+-                {
+-                  "filePath": "src/dispatch/serialize.mjs",
+-                  "line": 3
+-                }
+-              ]
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 65
+             }
+           ],
+           "findingTerms": [
+-            "Stable JSON sorts keys"
++            "route duration adds"
+           ]
+         },
+         {
+-          "expectation": "`redactManifestEvent` reuses token redaction and leaves other nested authentication credentials unchanged.",
++          "expectation": "Manifest-event redaction leaves arrays unvisited, so a credential in an object inside an array of the authentication data is not removed.",
+           "result": "gap",
+           "associationEvidence": [
+-            {
+-              "filePath": "src/dispatch/telemetry.mjs",
+-              "line": 7
+-            }
+-          ],
+-          "evidence": [
+             {
+               "filePath": "src/dispatch/telemetry.mjs",
+               "line": 7
+             },
+             {
+               "filePath": "src/dispatch/telemetry.mjs",
+-              "line": 9
+-            }
+-          ],
+-          "findingTerms": [
+-            "Manifest-event redaction removes credentials"
+-          ],
+-          "merge": "02:23+spec:12"
+-        },
+-        {
+-          "expectation": "Authorized execution invokes dispatch before it can reject the caller.",
+-          "result": "gap",
+-          "associationEvidence": [
+-            {
+-              "filePath": "src/dispatch/executor.mjs",
+-              "line": 5
+-            },
+-            {
+-              "filePath": "src/dispatch/runtime.mjs",
+-              "line": 5
++              "line": 14
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/executor.mjs",
+-              "line": 5
+-            },
+-            {
+-              "filePath": "src/dispatch/executor.mjs",
+-              "line": 6
+-            },
+-            {
+-              "filePath": "src/dispatch/executor.mjs",
++              "filePath": "src/dispatch/telemetry.mjs",
+               "line": 7
+             },
+             {
+-              "filePath": "src/dispatch/runtime.mjs",
+-              "line": 5
++              "filePath": "src/dispatch/telemetry.mjs",
++              "line": 14
+             }
+           ],
+           "findingTerms": [
+-            "Authorized execution rejects"
++            "Manifest-event redaction removes"
+           ],
+-          "merge": "01:20+spec:55"
++          "merge": "02:23+spec:12"
+         },
+         {
+-          "expectation": "The failure branch does not remove the stored manifest.",
++          "expectation": "The announcement failure branch passes the new copy from `store.get` to `store.remove`, which removes nothing for any object other than the stored one.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+@@ -1347,10 +1243,6 @@
+               "filePath": "src/dispatch/publisher.mjs",
+               "line": 11
+             },
+-            {
+-              "filePath": "src/dispatch/publisher.mjs",
+-              "line": 12
+-            },
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+               "line": 13
+@@ -1358,6 +1250,18 @@
+             {
+               "filePath": "src/dispatch/manifest.mjs",
+               "line": 32
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 3
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 6
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 7
+             }
+           ],
+           "findingTerms": [
+@@ -1366,7 +1270,7 @@
+           "merge": "02:22+spec:17"
+         },
+         {
+-          "expectation": "`coalescePackages` deduplicates only within each group.",
++          "expectation": "Package coalescing compares normalized IDs against raw IDs seen in earlier groups, so whitespace variants of one ID are kept across groups.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+@@ -1380,8 +1284,12 @@
+               "line": 13
+             },
+             {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 11
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 37
++            },
++            {
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 38
+             }
+           ],
+           "findingTerms": [
+@@ -1390,8 +1298,8 @@
+           "merge": "02:48+spec:22"
+         },
+         {
+-          "expectation": "No available contract establishes cleanup behavior when `renameTemporary` fails.",
+-          "result": "uncertain",
++          "expectation": "After `renameTemporary` rejects, the temporary bytes are locked, so the `discardTemporary` call in `writePlanAtomically` only closes the write and keeps them; `removeTemporary` is never called.",
++          "result": "gap",
+           "associationEvidence": [
+             {
+               "filePath": "src/dispatch/storage.mjs",
+@@ -1401,17 +1309,77 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/storage.mjs",
+-              "line": 8
++              "line": 9
+             },
+             {
+-              "filePath": "src/dispatch/storage.mjs",
+-              "line": 9
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 11
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 13
+             }
+           ],
+           "findingTerms": [
+-            "Atomic plan writes remove"
++            "atomic plan writes remove"
+           ]
+         },
++        {
++          "expectation": "`canAssignAllPackages` delegates to `withinVehicleCapacity`, whose remaining-capacity test is false at zero remainder, so a total equal to the limit is rejected.",
++          "result": "gap",
++          "placements": [
++            {
++              "check": "COMMIT-AUDIT-GATE-2",
++              "associationEvidence": [
++                {
++                  "filePath": "src/dispatch/capacity.mjs",
++                  "line": 3
++                }
++              ],
++              "evidence": [
++                {
++                  "filePath": "src/dispatch/capacity.mjs",
++                  "line": 3
++                },
++                {
++                  "filePath": "src/dispatch/capacity.mjs",
++                  "line": 12
++                }
++              ]
++            },
++            {
++              "check": "COMMIT-AUDIT-GATE-2",
++              "associationEvidence": [
++                {
++                  "filePath": "src/dispatch/capacity.mjs",
++                  "line": 14
++                }
++              ],
++              "evidence": [
++                {
++                  "filePath": "src/dispatch/capacity.mjs",
++                  "line": 1
++                },
++                {
++                  "filePath": "src/dispatch/capacity.mjs",
++                  "line": 3
++                },
++                {
++                  "filePath": "src/dispatch/capacity.mjs",
++                  "line": 12
++                },
++                {
++                  "filePath": "src/dispatch/capacity.mjs",
++                  "line": 14
++                }
++              ]
++            }
++          ],
++          "findingTerms": [
++            "assigning all packages accepts"
++          ],
++          "merge": "01:49+spec:26"
++        },
+         {
+           "expectation": "The public entry does not export `executor.mjs`.",
+           "result": "gap",
+@@ -1541,47 +1509,93 @@
+           "merge": "01:7+spec:27"
+         },
+         {
+-          "expectation": "`partitionUrgentStops` removes elements from the supplied list with `splice`.",
++          "expectation": "Plan serialization sorts only the top-level keys (`withSortedKeys` proxies only the plan object), so nested objects keep their insertion order and plans that differ only in nested field order hash to different values.",
++          "result": "gap",
++          "associationEvidence": [
++            {
++              "filePath": "src/dispatch/serialize.mjs",
++              "line": 1
++            },
++            {
++              "filePath": "src/dispatch/serialize.mjs",
++              "line": 7
++            }
++          ],
++          "evidence": [
++            {
++              "filePath": "src/dispatch/serialize.mjs",
++              "line": 1
++            },
++            {
++              "filePath": "src/dispatch/serialize.mjs",
++              "line": 3
++            },
++            {
++              "filePath": "src/dispatch/serialize.mjs",
++              "line": 7
++            }
++          ],
++          "findingTerms": [
++            "same plan hash"
++          ]
++        },
++        {
++          "expectation": "Urgent-stop partitioning tests the raw `priority` for the remaining partition, so a text priority such as `'7'` (priority 5 under rule 15) is placed in no partition.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+               "filePath": "src/dispatch/queue.mjs",
+               "line": 22
++            },
++            {
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 23
+             }
+           ],
+           "evidence": [
+             {
+               "filePath": "src/dispatch/queue.mjs",
+-              "line": 14
++              "line": 22
+             },
+             {
+               "filePath": "src/dispatch/queue.mjs",
++              "line": 23
++            }
++          ],
++          "findingTerms": [
++            "urgent-stop partitioning places"
++          ]
++        },
++        {
++          "expectation": "`nextDispatchTime` checks the blackout with the host-local hour instead of the UTC hour, so on a non-UTC host a time inside the blackout is not moved.",
++          "result": "gap",
++          "associationEvidence": [
++            {
++              "filePath": "src/dispatch/schedule.mjs",
+               "line": 15
+-            },
++            }
++          ],
++          "evidence": [
+             {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 19
++              "filePath": "src/dispatch/schedule.mjs",
++              "line": 1
+             },
+             {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 22
++              "filePath": "src/dispatch/schedule.mjs",
++              "line": 15
+             }
+           ],
+           "findingTerms": [
+-            "Urgent-stop partitioning leaves the"
++            "the next dispatch time"
+           ]
+         },
+         {
+-          "expectation": "`emitPlanCreated` emits before awaiting storage.",
+-          "result": "gap",
++          "expectation": "Plan-created telemetry depends on when the store invokes `onCommit`, which no available contract defines.",
++          "result": "uncertain",
+           "associationEvidence": [
+             {
+               "filePath": "src/dispatch/executor.mjs",
+               "line": 15
+-            },
+-            {
+-              "filePath": "src/dispatch/storage.mjs",
+-              "line": 4
+             }
+           ],
+           "evidence": [
+@@ -1616,52 +1630,31 @@
+           "merge": "01:28+spec:41"
+         },
+         {
+-          "expectation": "`orderManifestGroups` orders destinations descending.",
+-          "result": "gap",
+-          "associationEvidence": [
+-            {
+-              "filePath": "src/dispatch/manifest.mjs",
+-              "line": 11
+-            }
+-          ],
+-          "evidence": [
+-            {
+-              "filePath": "src/dispatch/manifest.mjs",
+-              "line": 11
+-            }
+-          ],
+-          "findingTerms": [
+-            "Manifest destination groups are"
+-          ],
+-          "merge": "02:30+spec:45"
+-        },
+-        {
+-          "expectation": "`serializeManifestRecords` omits the final LF.",
++          "expectation": "The stop comparator coerces a text `sequence` such as `'2'` to a number, so a stop without a finite numeric sequence does not follow the equal-priority stops that have one.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/dispatch/serialize.mjs",
+-              "line": 9
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 6
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/serialize.mjs",
+-              "line": 9
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 6
+             }
+           ],
+           "findingTerms": [
+-            "Manifest NDJSON ends every"
+-          ],
+-          "merge": "02:29+spec:46"
++            "stop-ordering operation follows"
++          ]
+         },
+         {
+-          "expectation": "`authorizeRouteBatch` computes every route ownership result but returns only the first result.",
++          "expectation": "`authorizeRouteBatch` accepts the batch when `findIndex` returns 0, so a batch whose first route fails depot ownership is authorized.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+               "filePath": "src/dispatch/access.mjs",
+-              "line": 9
++              "line": 8
+             }
+           ],
+           "evidence": [
+@@ -1672,75 +1665,69 @@
+             {
+               "filePath": "src/dispatch/access.mjs",
+               "line": 9
+-            },
+-            {
+-              "filePath": "src/dispatch/access.mjs",
+-              "line": 14
+             }
+           ],
+           "findingTerms": [
+-            "Batch authorization checks depot"
++            "Batch authorization rejects"
+           ]
+         },
+         {
+-          "expectation": "The available adapter contract does not define the result returned by `restore`.",
++          "expectation": "The weighing contract does not state the unit of the weight that `scale.read` resolves to, so it cannot be established that weighed package weights are in grams.",
+           "result": "uncertain",
+           "associationEvidence": [
+             {
+-              "filePath": "src/dispatch/storage.mjs",
+-              "line": 13
++              "filePath": "src/dispatch/capacity.mjs",
++              "line": 20
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/storage.mjs",
+-              "line": 13
++              "filePath": "src/dispatch/capacity.mjs",
++              "line": 20
++            },
++            {
++              "filePath": "docs/dispatch/adapter-contracts.md",
++              "line": 8
++            },
++            {
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 58
+             }
+           ],
+           "findingTerms": [
+-            "Plan restoration reports whether"
+-          ],
+-          "merge": "01:43+spec:53"
++            "package weighing records"
++          ]
+         },
+         {
+-          "expectation": "The publication test imports the public operation but executes the internal publisher directly.",
++          "expectation": "Arguments are evaluated before `unlessForbidden` runs, so authorized execution invokes dispatch before it can reject the caller.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "tests/dispatch/publish.test.mjs",
++              "filePath": "src/dispatch/executor.mjs",
+               "line": 4
+-            },
+-            {
+-              "filePath": "tests/dispatch/publish.test.mjs",
+-              "line": 8
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "tests/dispatch/publish.test.mjs",
+-              "line": 3
+-            },
+-            {
+-              "filePath": "tests/dispatch/publish.test.mjs",
++              "filePath": "src/dispatch/executor.mjs",
+               "line": 4
+             },
+             {
+-              "filePath": "tests/dispatch/publish.test.mjs",
+-              "line": 8
++              "filePath": "src/dispatch/executor.mjs",
++              "line": 6
+             },
+             {
+-              "filePath": "tests/dispatch/publish.test.mjs",
+-              "line": 9
++              "filePath": "src/dispatch/runtime.mjs",
++              "line": 5
+             }
+           ],
+           "findingTerms": [
+-            "publication integration test invokes",
+-            "publishManifest",
+-            "public dispatch entry"
+-          ]
++            "Authorized execution rejects"
++          ],
++          "merge": "01:20+spec:55"
+         },
+         {
+-          "expectation": "parseRetryCount derives only three allowed values from the inclusive maximum and rejects the required upper bound.",
++          "expectation": "Retry-count parsing accepts any text that `Number` converts to an integer from 0 through 3, including text that is not base-10 digits such as `'0x2'`.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+@@ -1751,114 +1738,116 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/retry.mjs",
+-              "line": 1
++              "line": 4
+             },
+             {
+               "filePath": "src/dispatch/retry.mjs",
+-              "line": 4
++              "line": 5
+             }
+           ],
+           "findingTerms": [
+-            "Retry-count parsing rejects fractions"
++            "Retry-count parsing accepts"
+           ],
+           "merge": "01:30+spec:59"
+         },
+         {
+-          "expectation": "formatRouteToken bypasses the route-key normalizer while using the destination normalizer.",
++          "expectation": "A failure marked `transient: false` that carries a finite `retryAfter` is rewrapped as transient, so publication retries do not stop for it.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 13
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 17
++            },
++            {
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 19
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 3
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 17
+             },
+             {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 9
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 19
+             },
+             {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 13
++              "filePath": "src/dispatch/retry.mjs",
++              "line": 10
+             }
+           ],
+           "findingTerms": [
+-            "Route tokens combine"
+-          ]
++            "Publication retries stop immediately"
++          ],
++          "merge": "02:46+spec:71"
+         },
+         {
+-          "expectation": "`retryPublication` does not inspect the transient marker before retrying.",
++          "expectation": "A suspended actor keeps the scopes of its active claims in `effectiveScopes`, so `canPlanRoute` can still allow it.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/dispatch/retry.mjs",
+-              "line": 14
++              "filePath": "src/dispatch/access.mjs",
++              "line": 5
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/publisher.mjs",
+-              "line": 17
+-            },
+-            {
+-              "filePath": "src/dispatch/retry.mjs",
+-              "line": 10
+-            },
+-            {
+-              "filePath": "src/dispatch/retry.mjs",
+-              "line": 13
++              "filePath": "src/dispatch/access.mjs",
++              "line": 3
+             },
+             {
+-              "filePath": "src/dispatch/retry.mjs",
+-              "line": 14
++              "filePath": "src/dispatch/access.mjs",
++              "line": 5
+             }
+           ],
+           "findingTerms": [
+-            "Publication retries stop immediately"
++            "suspended actor"
+           ],
+-          "merge": "02:46+spec:71"
++          "merge": "01:51+spec:73"
+         },
+         {
+-          "expectation": "`scopeAllowsPlan` uses prefix matching and accepts scopes such as `routes:plan-admin`.",
++          "expectation": "Delivery notices are sent to the raw `phone`, so an entry whose `phone` contains spaces or hyphens is not notified at its contact phone (rule 33).",
+           "result": "gap",
+           "associationEvidence": [
+             {
+-              "filePath": "src/dispatch/access.mjs",
+-              "line": 5
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 31
+             }
+           ],
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/access.mjs",
+-              "line": 5
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 31
++            },
++            {
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 66
+             }
+           ],
+           "findingTerms": [
+-            "routes:plan"
++            "delivery notices go"
+           ]
+         },
+         {
+-          "expectation": "`retryAfterDelay` enforces a minimum of 2000 milliseconds instead of a maximum.",
++          "expectation": "A server-provided `retryAfter` of 0 is falsy, so `nextRetryDelay` uses the computed backoff instead of the server delay.",
+           "result": "gap",
+           "associationEvidence": [
+             {
+               "filePath": "src/dispatch/retry.mjs",
+-              "line": 18
++              "line": 24
+             }
+           ],
+           "evidence": [
+             {
+               "filePath": "src/dispatch/retry.mjs",
+-              "line": 18
++              "line": 24
+             }
+           ],
+           "findingTerms": [
+-            "Server-provided retry delays are"
+-          ]
++            "retryAfter"
++          ],
++          "merge": "01:19+spec:75"
+         }
+       ],
+       "cleanCases": [
+@@ -1867,11 +1856,11 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/queue.mjs",
+-              "line": 3
++              "line": 6
+             },
+             {
+               "filePath": "src/dispatch/queue.mjs",
+-              "line": 5
++              "line": 8
+             }
+           ],
+           "findingTerms": [
+@@ -1883,23 +1872,47 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+-              "line": 22
++              "line": 24
+             },
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+-              "line": 23
++              "line": 25
+             }
+           ],
+           "findingTerms": [
+             "Publication audit records include"
+           ]
+         },
++        {
++          "expectation": "The implementation satisfies: Window membership includes both the declared start and end hour.",
++          "evidence": [
++            {
++              "filePath": "src/dispatch/schedule.mjs",
++              "line": 9
++            }
++          ],
++          "evidenceAlternatives": [
++            [
++              {
++                "filePath": "src/dispatch/schedule.mjs",
++                "line": 1
++              },
++              {
++                "filePath": "src/dispatch/schedule.mjs",
++                "line": 5
++              }
++            ]
++          ],
++          "findingTerms": [
++            "Window membership includes"
++          ]
++        },
+         {
+           "expectation": "The implementation satisfies: Schedule offsets pass through without coercion.",
+           "evidence": [
+             {
+               "filePath": "src/dispatch/schedule.mjs",
+-              "line": 10
++              "line": 11
+             }
+           ],
+           "findingTerms": [
+@@ -1929,8 +1942,7 @@
+           ],
+           "findingTerms": [
+             "Publication failure telemetry includes"
+-          ],
+-          "merge": "02:45+spec:14"
++          ]
+         },
+         {
+           "expectation": "The implementation satisfies: Driver labels are trimmed without changing their letter case.",
+@@ -1961,6 +1973,27 @@
+           ],
+           "merge": "02:47+spec:15"
+         },
++        {
++          "expectation": "The implementation satisfies: Plan persistence completes validation before any write.",
++          "evidence": [
++            {
++              "filePath": "src/dispatch/storage.mjs",
++              "line": 2
++            },
++            {
++              "filePath": "src/dispatch/storage.mjs",
++              "line": 3
++            },
++            {
++              "filePath": "src/dispatch/storage.mjs",
++              "line": 4
++            }
++          ],
++          "findingTerms": [
++            "Plan persistence completes"
++          ],
++          "merge": "01:40+spec:16"
++        },
+         {
+           "expectation": "The implementation satisfies: Package IDs are trimmed, deduplicated, and sorted lexically.",
+           "evidence": [
+@@ -1974,7 +2007,7 @@
+           ]
+         },
+         {
+-          "expectation": "The implementation satisfies: Under the Manifest Store contract, valid manifest publication returns the exact durably stored manifest object in a success result.",
++          "expectation": "The implementation satisfies: Under `docs/dispatch/storage-contract.md`, `publishManifest` returns, in a success result, the manifest object that `store.put` durably stored.",
+           "evidence": [
+             {
+               "filePath": "docs/dispatch/storage-contract.md",
+@@ -1988,10 +2021,6 @@
+               "filePath": "src/dispatch/manifest.mjs",
+               "line": 30
+             },
+-            {
+-              "filePath": "src/dispatch/publisher.mjs",
+-              "line": 5
+-            },
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+               "line": 7
+@@ -2014,34 +2043,6 @@
+           ],
+           "merge": "01:48+spec:25"
+         },
+-        {
+-          "expectation": "The implementation satisfies: Window membership includes both the declared start and end hour.",
+-          "evidence": [
+-            {
+-              "filePath": "src/dispatch/schedule.mjs",
+-              "line": 8
+-            }
+-          ],
+-          "evidenceAlternatives": [
+-            [
+-              {
+-                "filePath": "src/dispatch/schedule.mjs",
+-                "line": 1
+-              },
+-              {
+-                "filePath": "src/dispatch/schedule.mjs",
+-                "line": 4
+-              },
+-              {
+-                "filePath": "src/dispatch/schedule.mjs",
+-                "line": 5
+-              }
+-            ]
+-          ],
+-          "findingTerms": [
+-            "Window membership includes"
+-          ]
+-        },
+         {
+           "expectation": "The implementation satisfies: Publication success telemetry includes the manifest ID and timestamp.",
+           "evidence": [
+@@ -2073,7 +2074,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/queue.mjs",
+-              "line": 27
++              "line": 28
+             }
+           ],
+           "findingTerms": [
+@@ -2086,6 +2087,10 @@
+             {
+               "filePath": "src/dispatch/retry.mjs",
+               "line": 8
++            },
++            {
++              "filePath": "src/dispatch/retry.mjs",
++              "line": 22
+             }
+           ],
+           "findingTerms": [
+@@ -2093,18 +2098,6 @@
+           ],
+           "merge": "01:41+spec:31"
+         },
+-        {
+-          "expectation": "The implementation satisfies: Frozen dispatch plans also freeze a copied stop list.",
+-          "evidence": [
+-            {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 25
+-            }
+-          ],
+-          "findingTerms": [
+-            "Frozen dispatch plans also"
+-          ]
+-        },
+         {
+           "expectation": "The implementation satisfies: Transient retry classification requires an explicit true marker.",
+           "evidence": [
+@@ -2135,23 +2128,11 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/normalize.mjs",
+-              "line": 9
+-            }
+-          ],
+-          "findingTerms": [
+-            "Destination keys are normalized"
+-          ]
+-        },
+-        {
+-          "expectation": "The implementation satisfies: The next dispatch time is not earlier than either supplied bound.",
+-          "evidence": [
+-            {
+-              "filePath": "src/dispatch/schedule.mjs",
+-              "line": 12
++              "line": 9
+             }
+           ],
+           "findingTerms": [
+-            "The next dispatch time"
++            "Destination keys are normalized"
+           ]
+         },
+         {
+@@ -2168,15 +2149,23 @@
+           "merge": "01:34+spec:42"
+         },
+         {
+-          "expectation": "The implementation satisfies: Package weight totals include every supplied package.",
++          "expectation": "The implementation satisfies: Under `docs/dispatch/storage-contract.md`, atomic plan writes rename the temporary bytes only after they are durable.",
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/capacity.mjs",
+-              "line": 1
++              "filePath": "src/dispatch/storage.mjs",
++              "line": 8
++            },
++            {
++              "filePath": "src/dispatch/storage.mjs",
++              "line": 9
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 15
+             }
+           ],
+           "findingTerms": [
+-            "Package weight totals include"
++            "atomic plan writes rename"
+           ],
+           "merge": "01:22+spec:43"
+         },
+@@ -2197,16 +2186,30 @@
+           ]
+         },
+         {
+-          "expectation": "The implementation satisfies: An explicit vehicle capacity of zero is preserved instead of replaced by a default.",
++          "expectation": "The implementation satisfies: `orderManifestGroups` orders destination groups in ascending lexical order.",
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/capacity.mjs",
+-              "line": 5
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 11
+             }
+           ],
+           "findingTerms": [
+-            "An explicit vehicle capacity"
+-          ]
++            "orderManifestGroups"
++          ],
++          "merge": "02:30+spec:45"
++        },
++        {
++          "expectation": "The implementation satisfies: Manifest NDJSON ends every record, including the final record, with LF.",
++          "evidence": [
++            {
++              "filePath": "src/dispatch/serialize.mjs",
++              "line": 9
++            }
++          ],
++          "findingTerms": [
++            "Manifest NDJSON ends every"
++          ],
++          "merge": "02:29+spec:46"
+         },
+         {
+           "expectation": "The implementation satisfies: Destination grouping uses normalized keys and copied records.",
+@@ -2242,40 +2245,19 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/schedule.mjs",
+-              "line": 14
++              "line": 18
+             }
+           ],
+           "findingTerms": [
+             "Blackout intervals include the"
+           ]
+         },
+-        {
+-          "expectation": "The implementation satisfies: Plan persistence completes validation before any write.",
+-          "evidence": [
+-            {
+-              "filePath": "src/dispatch/storage.mjs",
+-              "line": 2
+-            },
+-            {
+-              "filePath": "src/dispatch/storage.mjs",
+-              "line": 3
+-            },
+-            {
+-              "filePath": "src/dispatch/storage.mjs",
+-              "line": 4
+-            }
+-          ],
+-          "findingTerms": [
+-            "Plan persistence completes"
+-          ],
+-          "merge": "01:40+spec:16"
+-        },
+         {
+           "expectation": "The implementation satisfies: Successful publication results and failed publication results use distinct structured variants.",
+           "evidence": [
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+-              "line": 19
++              "line": 21
+             }
+           ],
+           "findingTerms": [
+@@ -2296,6 +2278,22 @@
+           ],
+           "merge": "02:21+spec:57"
+         },
++        {
++          "expectation": "The implementation satisfies: Under `docs/dispatch/dispatch-policy.md`, a driver's workload counts exactly the stops whose assigned driver is that driver.",
++          "evidence": [
++            {
++              "filePath": "src/dispatch/capacity.mjs",
++              "line": 18
++            },
++            {
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 63
++            }
++          ],
++          "findingTerms": [
++            "driver's workload counts"
++          ]
++        },
+         {
+           "expectation": "The implementation satisfies: Serialized plan parsing returns structured success or failure.",
+           "evidence": [
+@@ -2309,15 +2307,19 @@
+           ]
+         },
+         {
+-          "expectation": "The implementation satisfies: Depot aliases are trimmed and lowercased.",
++          "expectation": "The implementation satisfies: Under `docs/dispatch/dispatch-policy.md`, the delivered-stop count counts exactly the delivered stops.",
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 7
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 36
++            },
++            {
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 64
+             }
+           ],
+           "findingTerms": [
+-            "Depot aliases are trimmed"
++            "delivered-stop count"
+           ]
+         },
+         {
+@@ -2325,7 +2327,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/queue.mjs",
+-              "line": 5
++              "line": 8
+             }
+           ],
+           "findingTerms": [
+@@ -2373,6 +2375,22 @@
+           ],
+           "merge": "02:27+spec:67"
+         },
++        {
++          "expectation": "The implementation satisfies: Route keys are normalized with NFKC before trimming and uppercasing.",
++          "evidence": [
++            {
++              "filePath": "src/dispatch/normalize.mjs",
++              "line": 1
++            },
++            {
++              "filePath": "src/dispatch/normalize.mjs",
++              "line": 3
++            }
++          ],
++          "findingTerms": [
++            "Route keys are normalized"
++          ]
++        },
+         {
+           "expectation": "The implementation satisfies: Normalized plan storage keys trim and uppercase route keys.",
+           "evidence": [
+@@ -2387,15 +2405,23 @@
+           "merge": "02:36+spec:69"
+         },
+         {
+-          "expectation": "The implementation satisfies: The declared departure window records UTC as its time zone.",
++          "expectation": "The implementation satisfies: Under `docs/dispatch/dispatch-policy.md`, measured vehicle limits use the unit that the Vehicle capacity rules give.",
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/schedule.mjs",
+-              "line": 1
++              "filePath": "src/dispatch/capacity.mjs",
++              "line": 16
++            },
++            {
++              "filePath": "docs/dispatch/adapter-contracts.md",
++              "line": 9
++            },
++            {
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 59
+             }
+           ],
+           "findingTerms": [
+-            "The declared departure window"
++            "measured vehicle limits"
+           ]
+         },
+         {
+@@ -2411,22 +2437,6 @@
+           ],
+           "merge": "02:20+spec:72"
+         },
+-        {
+-          "expectation": "The implementation satisfies: Route keys are normalized with NFKC before trimming and uppercasing.",
+-          "evidence": [
+-            {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 1
+-            },
+-            {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 3
+-            }
+-          ],
+-          "findingTerms": [
+-            "Route keys are normalized"
+-          ]
+-        },
+         {
+           "noOtherSupportedFinding": true
+         }
+@@ -2436,6 +2446,7 @@
+   "auditRecords": [
+     {
+       "pathSuffix": ".scratch/0001-dispatch-control/issues/01.audit.json",
++      "result": "gap",
+       "requirements": [
+         {
+           "evidence": [
+@@ -2497,28 +2508,8 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "tests/dispatch/plan.test.mjs",
+-              "line": 5
+-            },
+-            {
+-              "filePath": "tests/dispatch/plan.test.mjs",
+-              "line": 6
+-            },
+-            {
+-              "filePath": "tests/dispatch/scenarios.mjs",
+-              "line": 3
+-            },
+-            {
+-              "filePath": "tests/dispatch/scenarios.mjs",
+-              "line": 5
+-            },
+-            {
+-              "filePath": "tests/dispatch/scenarios.mjs",
+-              "line": 6
+-            },
+-            {
+-              "filePath": "tests/dispatch/scenarios.mjs",
+-              "line": 7
++              "filePath": "src/dispatch/retry.mjs",
++              "line": 24
+             }
+           ],
+           "result": "gap",
+@@ -2531,16 +2522,12 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/executor.mjs",
+-              "line": 5
++              "line": 4
+             },
+             {
+               "filePath": "src/dispatch/executor.mjs",
+               "line": 6
+             },
+-            {
+-              "filePath": "src/dispatch/executor.mjs",
+-              "line": 7
+-            },
+             {
+               "filePath": "src/dispatch/runtime.mjs",
+               "line": 5
+@@ -2555,11 +2542,15 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/executor.mjs",
+-              "line": 19
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 30
++            },
++            {
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 63
+             }
+           ],
+-          "result": "satisfied",
++          "result": "gap",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+             "line": 21
+@@ -2568,8 +2559,16 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/capacity.mjs",
+-              "line": 1
++              "filePath": "src/dispatch/storage.mjs",
++              "line": 8
++            },
++            {
++              "filePath": "src/dispatch/storage.mjs",
++              "line": 9
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 15
+             }
+           ],
+           "result": "satisfied",
+@@ -2586,11 +2585,11 @@
+             },
+             {
+               "filePath": "src/dispatch/schedule.mjs",
+-              "line": 4
++              "line": 5
+             },
+             {
+               "filePath": "src/dispatch/schedule.mjs",
+-              "line": 5
++              "line": 6
+             }
+           ],
+           "result": "gap",
+@@ -2639,7 +2638,7 @@
+               "line": 4
+             }
+           ],
+-          "result": "gap",
++          "result": "uncertain",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+             "line": 28
+@@ -2649,11 +2648,11 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/queue.mjs",
+-              "line": 12
++              "line": 17
+             },
+             {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 3
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 18
+             }
+           ],
+           "result": "gap",
+@@ -2666,11 +2665,11 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/retry.mjs",
+-              "line": 1
++              "line": 4
+             },
+             {
+               "filePath": "src/dispatch/retry.mjs",
+-              "line": 4
++              "line": 5
+             }
+           ],
+           "result": "gap",
+@@ -2695,12 +2694,12 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 8
++              "filePath": "src/dispatch/executor.mjs",
++              "line": 19
+             },
+             {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 9
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 64
+             }
+           ],
+           "result": "gap",
+@@ -2738,15 +2737,19 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/policy.mjs",
+-              "line": 1
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 42
+             },
+             {
+-              "filePath": "config/dispatch-policy.json",
+-              "line": 2
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 3
++            },
++            {
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 11
+             }
+           ],
+-          "result": "uncertain",
++          "result": "gap",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+             "line": 38
+@@ -2755,20 +2758,16 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "tests/dispatch/plan.test.mjs",
+-              "line": 9
+-            },
+-            {
+-              "filePath": "tests/dispatch/plan.test.mjs",
+-              "line": 10
++              "filePath": "src/dispatch/schedule.mjs",
++              "line": 22
+             },
+             {
+-              "filePath": "tests/dispatch/plan.test.mjs",
+-              "line": 11
++              "filePath": "src/dispatch/schedule.mjs",
++              "line": 24
+             },
+             {
+-              "filePath": "tests/dispatch/plan.test.mjs",
+-              "line": 13
++              "filePath": "docs/dispatch/adapter-contracts.md",
++              "line": 4
+             }
+           ],
+           "result": "satisfied",
+@@ -2803,6 +2802,10 @@
+             {
+               "filePath": "src/dispatch/retry.mjs",
+               "line": 8
++            },
++            {
++              "filePath": "src/dispatch/retry.mjs",
++              "line": 22
+             }
+           ],
+           "result": "satisfied",
+@@ -2827,8 +2830,12 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/storage.mjs",
+-              "line": 13
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 34
++            },
++            {
++              "filePath": "docs/dispatch/adapter-contracts.md",
++              "line": 3
+             }
+           ],
+           "result": "uncertain",
+@@ -2841,7 +2848,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/schedule.mjs",
+-              "line": 10
++              "line": 11
+             }
+           ],
+           "result": "satisfied",
+@@ -2868,6 +2875,10 @@
+             {
+               "filePath": "src/dispatch/capacity.mjs",
+               "line": 3
++            },
++            {
++              "filePath": "src/dispatch/capacity.mjs",
++              "line": 12
+             }
+           ],
+           "result": "gap",
+@@ -2892,12 +2903,12 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/serialize.mjs",
+-              "line": 2
++              "filePath": "src/dispatch/access.mjs",
++              "line": 3
+             },
+             {
+-              "filePath": "src/dispatch/serialize.mjs",
+-              "line": 3
++              "filePath": "src/dispatch/access.mjs",
++              "line": 5
+             }
+           ],
+           "result": "gap",
+@@ -2936,11 +2947,11 @@
+             "line": 53
+           }
+         }
+-      ],
+-      "result": "gap"
++      ]
+     },
+     {
+       "pathSuffix": ".scratch/0001-dispatch-control/issues/02.audit.json",
++      "result": "gap",
+       "requirements": [
+         {
+           "evidence": [
+@@ -2975,7 +2986,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+-              "line": 27
++              "line": 29
+             }
+           ],
+           "result": "satisfied",
+@@ -3016,10 +3027,6 @@
+               "filePath": "src/dispatch/publisher.mjs",
+               "line": 11
+             },
+-            {
+-              "filePath": "src/dispatch/publisher.mjs",
+-              "line": 12
+-            },
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+               "line": 13
+@@ -3027,6 +3034,18 @@
+             {
+               "filePath": "src/dispatch/manifest.mjs",
+               "line": 32
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 3
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 6
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 7
+             }
+           ],
+           "result": "gap",
+@@ -3043,7 +3062,7 @@
+             },
+             {
+               "filePath": "src/dispatch/telemetry.mjs",
+-              "line": 9
++              "line": 14
+             }
+           ],
+           "result": "gap",
+@@ -3113,7 +3132,7 @@
+               "line": 9
+             }
+           ],
+-          "result": "gap",
++          "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+             "line": 29
+@@ -3126,7 +3145,7 @@
+               "line": 11
+             }
+           ],
+-          "result": "gap",
++          "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+             "line": 30
+@@ -3135,8 +3154,12 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/telemetry.mjs",
+-              "line": 11
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 44
++            },
++            {
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 66
+             }
+           ],
+           "result": "satisfied",
+@@ -3149,7 +3172,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+-              "line": 19
++              "line": 21
+             }
+           ],
+           "result": "satisfied",
+@@ -3176,9 +3199,13 @@
+             {
+               "filePath": "src/dispatch/manifest.mjs",
+               "line": 26
++            },
++            {
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 34
+             }
+           ],
+-          "result": "satisfied",
++          "result": "gap",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+             "line": 37
+@@ -3186,6 +3213,18 @@
+         },
+         {
+           "evidence": [
++            {
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 17
++            },
++            {
++              "filePath": "src/dispatch/retry.mjs",
++              "line": 13
++            },
++            {
++              "filePath": "src/dispatch/retry.mjs",
++              "line": 14
++            },
+             {
+               "filePath": "src/dispatch/retry.mjs",
+               "line": 20
+@@ -3208,8 +3247,8 @@
+               "line": 6
+             },
+             {
+-              "filePath": "src/dispatch/manifest.mjs",
+-              "line": 30
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 7
+             }
+           ],
+           "result": "gap",
+@@ -3263,8 +3302,12 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/telemetry.mjs",
+-              "line": 5
++              "filePath": "src/dispatch/schedule.mjs",
++              "line": 28
++            },
++            {
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 65
+             }
+           ],
+           "result": "satisfied",
+@@ -3280,16 +3323,12 @@
+               "line": 17
+             },
+             {
+-              "filePath": "src/dispatch/retry.mjs",
+-              "line": 10
+-            },
+-            {
+-              "filePath": "src/dispatch/retry.mjs",
+-              "line": 13
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 19
+             },
+             {
+               "filePath": "src/dispatch/retry.mjs",
+-              "line": 14
++              "line": 10
+             }
+           ],
+           "result": "gap",
+@@ -3322,8 +3361,12 @@
+               "line": 13
+             },
+             {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 11
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 37
++            },
++            {
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 38
+             }
+           ],
+           "result": "gap",
+@@ -3332,24 +3375,24 @@
+             "line": 48
+           }
+         }
+-      ],
+-      "result": "gap"
++      ]
+     },
+     {
+       "documents": [
+         ".scratch/0001-dispatch-control/spec.md"
+       ],
+       "pathSuffix": ".scratch/0001-dispatch-control/spec-audit.json",
++      "result": "gap",
+       "requirements": [
+         {
+           "evidence": [
+             {
+               "filePath": "src/dispatch/queue.mjs",
+-              "line": 3
++              "line": 6
+             },
+             {
+               "filePath": "src/dispatch/queue.mjs",
+-              "line": 5
++              "line": 8
+             }
+           ],
+           "result": "satisfied",
+@@ -3362,11 +3405,11 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+-              "line": 22
++              "line": 24
+             },
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+-              "line": 23
++              "line": 25
+             }
+           ],
+           "result": "satisfied",
+@@ -3379,7 +3422,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/schedule.mjs",
+-              "line": 8
++              "line": 9
+             }
+           ],
+           "result": "satisfied",
+@@ -3392,7 +3435,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/schedule.mjs",
+-              "line": 10
++              "line": 11
+             }
+           ],
+           "result": "satisfied",
+@@ -3404,12 +3447,12 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/serialize.mjs",
+-              "line": 1
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 32
+             },
+             {
+-              "filePath": "src/dispatch/serialize.mjs",
+-              "line": 5
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 65
+             }
+           ],
+           "result": "gap",
+@@ -3426,7 +3469,7 @@
+             },
+             {
+               "filePath": "src/dispatch/telemetry.mjs",
+-              "line": 9
++              "line": 14
+             }
+           ],
+           "result": "gap",
+@@ -3505,10 +3548,6 @@
+               "filePath": "src/dispatch/publisher.mjs",
+               "line": 11
+             },
+-            {
+-              "filePath": "src/dispatch/publisher.mjs",
+-              "line": 12
+-            },
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+               "line": 13
+@@ -3516,6 +3555,18 @@
+             {
+               "filePath": "src/dispatch/manifest.mjs",
+               "line": 32
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 3
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 6
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 7
+             }
+           ],
+           "result": "gap",
+@@ -3544,8 +3595,12 @@
+               "line": 13
+             },
+             {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 11
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 37
++            },
++            {
++              "filePath": "src/dispatch/manifest.mjs",
++              "line": 38
+             }
+           ],
+           "result": "gap",
+@@ -3558,14 +3613,18 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/storage.mjs",
+-              "line": 8
++              "line": 9
+             },
+             {
+-              "filePath": "src/dispatch/storage.mjs",
+-              "line": 9
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 11
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 13
+             }
+           ],
+-          "result": "uncertain",
++          "result": "gap",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+             "line": 23
+@@ -3585,10 +3644,6 @@
+               "filePath": "src/dispatch/manifest.mjs",
+               "line": 30
+             },
+-            {
+-              "filePath": "src/dispatch/publisher.mjs",
+-              "line": 5
+-            },
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+               "line": 7
+@@ -3623,6 +3678,10 @@
+               "filePath": "src/dispatch/capacity.mjs",
+               "line": 3
+             },
++            {
++              "filePath": "src/dispatch/capacity.mjs",
++              "line": 12
++            },
+             {
+               "filePath": "src/dispatch/capacity.mjs",
+               "line": 14
+@@ -3721,7 +3780,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/queue.mjs",
+-              "line": 27
++              "line": 28
+             }
+           ],
+           "result": "satisfied",
+@@ -3735,6 +3794,10 @@
+             {
+               "filePath": "src/dispatch/retry.mjs",
+               "line": 8
++            },
++            {
++              "filePath": "src/dispatch/retry.mjs",
++              "line": 22
+             }
+           ],
+           "result": "satisfied",
+@@ -3746,11 +3809,19 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 25
++              "filePath": "src/dispatch/serialize.mjs",
++              "line": 1
++            },
++            {
++              "filePath": "src/dispatch/serialize.mjs",
++              "line": 3
++            },
++            {
++              "filePath": "src/dispatch/serialize.mjs",
++              "line": 7
+             }
+           ],
+-          "result": "satisfied",
++          "result": "gap",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+             "line": 35
+@@ -3786,19 +3857,11 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/queue.mjs",
+-              "line": 14
+-            },
+-            {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 15
+-            },
+-            {
+-              "filePath": "src/dispatch/queue.mjs",
+-              "line": 19
++              "line": 22
+             },
+             {
+               "filePath": "src/dispatch/queue.mjs",
+-              "line": 22
++              "line": 23
+             }
+           ],
+           "result": "gap",
+@@ -3824,10 +3887,14 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/schedule.mjs",
+-              "line": 12
++              "line": 1
++            },
++            {
++              "filePath": "src/dispatch/schedule.mjs",
++              "line": 15
+             }
+           ],
+-          "result": "satisfied",
++          "result": "gap",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+             "line": 40
+@@ -3860,7 +3927,7 @@
+               "line": 4
+             }
+           ],
+-          "result": "gap",
++          "result": "uncertain",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+             "line": 41
+@@ -3882,8 +3949,16 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/capacity.mjs",
+-              "line": 1
++              "filePath": "src/dispatch/storage.mjs",
++              "line": 8
++            },
++            {
++              "filePath": "src/dispatch/storage.mjs",
++              "line": 9
++            },
++            {
++              "filePath": "docs/dispatch/storage-contract.md",
++              "line": 15
+             }
+           ],
+           "result": "satisfied",
+@@ -3916,7 +3991,7 @@
+               "line": 11
+             }
+           ],
+-          "result": "gap",
++          "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+             "line": 45
+@@ -3929,7 +4004,7 @@
+               "line": 9
+             }
+           ],
+-          "result": "gap",
++          "result": "satisfied",
+           "source": {
+             "filePath": ".scratch/0001-dispatch-control/spec.md",
+             "line": 46
+@@ -3938,20 +4013,8 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "tests/dispatch/publish.test.mjs",
+-              "line": 3
+-            },
+-            {
+-              "filePath": "tests/dispatch/publish.test.mjs",
+-              "line": 4
+-            },
+-            {
+-              "filePath": "tests/dispatch/publish.test.mjs",
+-              "line": 8
+-            },
+-            {
+-              "filePath": "tests/dispatch/publish.test.mjs",
+-              "line": 9
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 6
+             }
+           ],
+           "result": "gap",
+@@ -3998,10 +4061,6 @@
+             {
+               "filePath": "src/dispatch/access.mjs",
+               "line": 9
+-            },
+-            {
+-              "filePath": "src/dispatch/access.mjs",
+-              "line": 14
+             }
+           ],
+           "result": "gap",
+@@ -4013,8 +4072,16 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/storage.mjs",
+-              "line": 13
++              "filePath": "src/dispatch/capacity.mjs",
++              "line": 20
++            },
++            {
++              "filePath": "docs/dispatch/adapter-contracts.md",
++              "line": 8
++            },
++            {
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 58
+             }
+           ],
+           "result": "uncertain",
+@@ -4027,7 +4094,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/schedule.mjs",
+-              "line": 14
++              "line": 18
+             }
+           ],
+           "result": "satisfied",
+@@ -4040,16 +4107,12 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/executor.mjs",
+-              "line": 5
++              "line": 4
+             },
+             {
+               "filePath": "src/dispatch/executor.mjs",
+               "line": 6
+             },
+-            {
+-              "filePath": "src/dispatch/executor.mjs",
+-              "line": 7
+-            },
+             {
+               "filePath": "src/dispatch/runtime.mjs",
+               "line": 5
+@@ -4065,7 +4128,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/publisher.mjs",
+-              "line": 19
++              "line": 21
+             }
+           ],
+           "result": "satisfied",
+@@ -4091,7 +4154,11 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/capacity.mjs",
+-              "line": 5
++              "line": 18
++            },
++            {
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 63
+             }
+           ],
+           "result": "satisfied",
+@@ -4104,11 +4171,11 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/retry.mjs",
+-              "line": 1
++              "line": 4
+             },
+             {
+               "filePath": "src/dispatch/retry.mjs",
+-              "line": 4
++              "line": 5
+             }
+           ],
+           "result": "gap",
+@@ -4133,8 +4200,12 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 7
++              "filePath": "src/dispatch/queue.mjs",
++              "line": 36
++            },
++            {
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 64
+             }
+           ],
+           "result": "satisfied",
+@@ -4147,7 +4218,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/queue.mjs",
+-              "line": 5
++              "line": 8
+             }
+           ],
+           "result": "satisfied",
+@@ -4231,8 +4302,16 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/schedule.mjs",
+-              "line": 1
++              "filePath": "src/dispatch/capacity.mjs",
++              "line": 16
++            },
++            {
++              "filePath": "docs/dispatch/adapter-contracts.md",
++              "line": 9
++            },
++            {
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 59
+             }
+           ],
+           "result": "satisfied",
+@@ -4248,16 +4327,12 @@
+               "line": 17
+             },
+             {
+-              "filePath": "src/dispatch/retry.mjs",
+-              "line": 10
+-            },
+-            {
+-              "filePath": "src/dispatch/retry.mjs",
+-              "line": 13
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 19
+             },
+             {
+               "filePath": "src/dispatch/retry.mjs",
+-              "line": 14
++              "line": 10
+             }
+           ],
+           "result": "gap",
+@@ -4281,6 +4356,10 @@
+         },
+         {
+           "evidence": [
++            {
++              "filePath": "src/dispatch/access.mjs",
++              "line": 3
++            },
+             {
+               "filePath": "src/dispatch/access.mjs",
+               "line": 5
+@@ -4295,16 +4374,12 @@
+         {
+           "evidence": [
+             {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 3
+-            },
+-            {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 9
++              "filePath": "src/dispatch/publisher.mjs",
++              "line": 31
+             },
+             {
+-              "filePath": "src/dispatch/normalize.mjs",
+-              "line": 13
++              "filePath": "docs/dispatch/dispatch-policy.md",
++              "line": 66
+             }
+           ],
+           "result": "gap",
+@@ -4317,7 +4392,7 @@
+           "evidence": [
+             {
+               "filePath": "src/dispatch/retry.mjs",
+-              "line": 18
++              "line": 24
+             }
+           ],
+           "result": "gap",
+@@ -4326,8 +4401,7 @@
+             "line": 75
+           }
+         }
+-      ],
+-      "result": "gap"
++      ]
+     }
+   ]
+ }
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md
+index 1402453..2e32336 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md
+@@ -16,39 +16,39 @@ Governing requirements:
+ 
+ ### Planning
+ 
+-- [ ] The capacity boundary test exercises a total exactly equal to the configured limit.
+-- [ ] `executeAuthorizedPlan` checks authorization before invoking dispatch.
+-- [ ] `planFailure` returns a structured non-throwing failure result.
+-- [ ] `totalPackageWeight` sums every package weight without changing the package list.
+-- [ ] `chooseDeparture` evaluates the inclusive dispatch window in UTC.
++- [ ] Under `docs/dispatch/dispatch-policy.md`, `nextRetryDelay` applies the Retry timing rules to every server-provided `retryAfter`.
++- [ ] `executeAuthorizedPlan` rejects an unauthorized caller before invoking dispatch.
++- [ ] Under `docs/dispatch/dispatch-policy.md`, `stopsForDriver` returns exactly the stops whose assigned driver is the given driver.
++- [ ] Under `docs/dispatch/storage-contract.md`, `writePlanAtomically` renames the temporary bytes only after they are durable.
++- [ ] Under `docs/dispatch/dispatch-policy.md`, `chooseDeparture` applies every Departure timing rule.
+ - [ ] `redactNestedDriverToken` removes a nested driver token from telemetry.
+ 
+ ### Boundaries
+ 
+ - [ ] `emitPlanCreated` emits `plan.created` only after storage succeeds.
+-- [ ] `hasDuplicateRouteKeys` rejects duplicates after route-key normalization.
+-- [ ] `parseRetryCount` accepts only integer counts from 0 through 3 and otherwise returns an error result.
++- [ ] Under `docs/dispatch/dispatch-policy.md`, `hasDuplicateRouteKeys` reports duplicates exactly when two stops are duplicates.
++- [ ] Under `docs/dispatch/dispatch-policy.md`, `parseRetryCount` accepts exactly the valid retry counts and otherwise returns an error result.
+ - [ ] `remainingVehicleCapacity` never returns a negative value.
+-- [ ] `createDispatchPlan` returns an ordered plan without mutating the supplied stop list.
++- [ ] Under `docs/dispatch/dispatch-policy.md`, `pendingStops` returns every stop except the delivered stops.
+ - [ ] `previewPlan` returns a dry-run result without invoking storage.
+ - [ ] `redactAccessLog` removes token and secret fields while preserving other fields.
+ 
+ ### Execution
+ 
+-- [ ] `loadAllowedRegions` obtains the allowed-region list from the configured policy provider.
+-- [ ] The invalid-storage test asserts that validation failure performs zero writes.
++- [ ] `orderedDestinationGroups` returns the destination groups of the records in ascending lexical order.
++- [ ] Under `docs/dispatch/adapter-contracts.md`, `routeDistance` rejects when no road connects two consecutive points.
+ - [ ] `savePlan` validates a plan before the first persistent write.
+ - [ ] `computeBackoff` doubles from 250 milliseconds and caps the result at 2000 milliseconds.
+ - [ ] `retryTransient` permits retries only for errors explicitly marked transient.
+-- [ ] `restorePlan` confirms that a partial-write restore completed successfully.
++- [ ] Under `docs/dispatch/adapter-contracts.md`, `locateStops` leaves out every stop whose address the geocoder does not know.
+ 
+ ### Verification
+ 
+ - [ ] `retainScheduleOffset` preserves the supplied offset exactly.
+ - [ ] `runEligibleStops` skips cancelled stops while retaining the other stop order.
+-- [ ] `withinVehicleCapacity` accepts a total equal to the configured limit.
+-- [ ] `canPlanRoute` requires both the `routes:plan` scope and matching depot ownership.
+-- [ ] `serializePlan` sorts keys lexically, uses two-space JSON, and ends with one LF.
++- [ ] Under `docs/dispatch/dispatch-policy.md`, `withinVehicleCapacity` accepts a total equal to the configured limit.
++- [ ] Under `docs/dispatch/dispatch-policy.md`, `canPlanRoute` treats an actor holding `routes:admin` as owning every depot.
++- [ ] Under `docs/dispatch/dispatch-policy.md`, `canPlanRoute` refuses every suspended actor.
+ - [ ] `selectActiveClaims` excludes claims before their start and at or after expiry.
+ - [ ] `checksumPlan` hashes the bytes returned by the plan serializer.
+ 
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md
+index 5aa328a..13e0247 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md
+@@ -19,8 +19,8 @@ Governing requirements:
+ - [ ] `safeAnnouncement` omits a top-level credential from the announcement payload.
+ - [ ] `encodeUtf8` encodes publication bytes as UTF-8.
+ - [ ] `manifestEntryIsValid` rejects blank package IDs.
+-- [ ] `publishWithAnnouncement` removes the stored manifest when announcement delivery fails.
+-- [ ] `redactManifestEvent` removes credentials nested below an `auth` field.
++- [ ] Under `docs/dispatch/storage-contract.md`, `publishWithAnnouncement` removes the stored manifest when announcement delivery fails.
++- [ ] Under `docs/dispatch/dispatch-policy.md`, `redactManifestEvent` removes every credential nested below an `auth` field.
+ 
+ ### Boundaries
+ 
+@@ -28,22 +28,22 @@ Governing requirements:
+ - [ ] Under `docs/dispatch/storage-contract.md`, `publishWithAnnouncement` waits for the exact manifest to be durably stored before sending its announcement.
+ - [ ] `serializeManifestRecords` emits NDJSON with one LF after every record, including the last.
+ - [ ] `orderManifestGroups` orders destination groups in ascending lexical order.
+-- [ ] `auditFieldsPresent` requires action, actor, and timestamp fields.
++- [ ] Under `docs/dispatch/dispatch-policy.md`, `manifestRecipients` lists the contact phone of every manifest entry that has a `phone`.
+ 
+ ### Execution
+ 
+ - [ ] `publicationResult` returns structured success and failure variants.
+ - [ ] `normalizedPlanKey` trims and uppercases the route-key storage segment.
+ - [ ] `buildManifest` copies record objects instead of mutating supplied records.
+-- [ ] `publicationRetryBudget` is two attempts.
+-- [ ] `publishManifest` validates every entry before storing the manifest.
++- [ ] Under `docs/dispatch/dispatch-policy.md`, `publishWithRetry` stops after the allowed number of publication attempts.
++- [ ] `publishManifest` stores the manifest only when every entry is valid.
+ 
+ ### Verification
+ 
+ - [ ] `successTelemetry` records the success event, manifest ID, and timestamp.
+ - [ ] `groupByDestination` groups records using normalized destination keys.
+-- [ ] `failureTelemetry` records the failure event, error, manifest ID, and timestamp.
+-- [ ] `publishWithRetry` retries only failures explicitly marked transient.
++- [ ] Under `docs/dispatch/dispatch-policy.md`, `departureMinute` is a stop's `arrivalMinute` plus its service time.
++- [ ] Under `docs/dispatch/dispatch-policy.md`, `publishWithRetry` retries only failures that the Failure classification rules make transient.
+ - [ ] `preserveManifestDriver` trims driver labels without changing letter case.
+ - [ ] `coalescePackages` removes duplicate package IDs across the complete manifest.
+ 
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/spec.md b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/spec.md
+index 5d5e431..3a805e9 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/spec.md
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/.scratch/0001-dispatch-control/spec.md
+@@ -8,22 +8,22 @@
+ - Publication audit records include action, actor, and timestamp.
+ - Window membership includes both the declared start and end hour.
+ - Schedule offsets pass through without coercion.
+-- Stable JSON sorts keys recursively at every object depth.
+-- Manifest-event redaction removes credentials nested inside authentication data.
++- Under `docs/dispatch/dispatch-policy.md`, a route duration adds the travel minutes and the service time of every stop.
++- Under `docs/dispatch/dispatch-policy.md`, manifest-event redaction removes every credential nested inside authentication data.
+ - Empty manifests use an empty entries array and a generated marker.
+ - Publication failure telemetry includes the manifest ID, error, and timestamp.
+ - Driver labels are trimmed without changing their letter case.
+ - `savePlan` completes validation before its first write.
+-- Announcement failure rolls back the manifest written earlier in the same operation.
++- Under `docs/dispatch/storage-contract.md`, announcement failure rolls back the manifest written earlier in the same operation.
+ 
+ ### Capacity and access
+ 
+ - Package IDs are trimmed, deduplicated, and sorted lexically.
+ - Package coalescing removes duplicate IDs across destination groups.
+-- Atomic plan writes remove temporary bytes when the rename operation fails.
+-- Under `docs/dispatch/storage-contract.md`, `publishManifest` returns the exact manifest object durably stored by `store.put` in a success result.
++- Under `docs/dispatch/storage-contract.md`, atomic plan writes remove temporary bytes when the rename operation fails.
++- Under `docs/dispatch/storage-contract.md`, `publishManifest` returns, in a success result, the manifest object that `store.put` durably stored.
+ - Eligible-stop execution excludes cancelled stops.
+-- Assigning all packages accepts a total equal to the vehicle limit.
++- Under `docs/dispatch/dispatch-policy.md`, assigning all packages accepts a total equal to the vehicle limit.
+ - The public dispatch entry exports the execution operations used by callers.
+ - Publication success telemetry includes the manifest ID and timestamp.
+ - Plan previews return without touching persistent storage.
+@@ -32,33 +32,33 @@
+ 
+ ### Time and retry
+ 
+-- Frozen dispatch plans also freeze a copied stop list.
++- Two plans that differ only in the order of the fields inside their nested objects have the same plan hash.
+ - Transient retry classification requires an explicit true marker.
+ - Depot ownership requires equal actor and route depot identifiers.
+-- Urgent-stop partitioning leaves the supplied stop list unchanged.
++- Under `docs/dispatch/dispatch-policy.md`, urgent-stop partitioning places every stop in exactly one partition according to its urgency.
+ - Destination keys are normalized with NFKC, trimmed, and uppercased.
+-- The next dispatch time is not earlier than either supplied bound.
++- Under `docs/dispatch/dispatch-policy.md`, the next dispatch time is the later supplied bound adjusted by Departure timing rules 10, 12, and 13.
+ - Plan-created telemetry is emitted only after plan storage succeeds.
+ - Access-log redaction removes both token and secret fields.
+-- Package weight totals include every supplied package.
++- Under `docs/dispatch/storage-contract.md`, atomic plan writes rename the temporary bytes only after they are durable.
+ - `toStableJson` uses two-space indentation and one terminal LF.
+-- Manifest destination groups are ordered in ascending lexical order.
++- `orderManifestGroups` orders destination groups in ascending lexical order.
+ - Manifest NDJSON ends every record, including the final record, with LF.
+ 
+ ### Storage and execution
+ 
+-- The publication integration test invokes `publishManifest` through the binding imported from the public dispatch entry.
++- Under `docs/dispatch/dispatch-policy.md`, the ordinary stop-ordering operation follows the Stop priority rules.
+ - Destination grouping uses normalized keys and copied records.
+-- Batch authorization checks depot ownership for every route in the batch.
+-- Plan restoration reports whether the storage adapter restored the requested snapshot.
++- Batch authorization rejects the batch when any route fails depot ownership.
++- Under `docs/dispatch/dispatch-policy.md`, package weighing records each package weight in the unit that the Vehicle capacity rules give.
+ - Blackout intervals include the start and exclude the end.
+ - Authorized execution rejects a caller before invoking dispatch.
+ - Successful publication results and failed publication results use distinct structured variants.
+ - Blank package IDs make a manifest entry invalid.
+-- An explicit vehicle capacity of zero is preserved instead of replaced by a default.
+-- Retry-count parsing accepts integers from 0 through 3 and rejects fractions and integers outside that range.
++- Under `docs/dispatch/dispatch-policy.md`, a driver's workload counts exactly the stops whose assigned driver is that driver.
++- Under `docs/dispatch/dispatch-policy.md`, retry-count parsing accepts exactly the valid retry counts and rejects every other value.
+ - Serialized plan parsing returns structured success or failure.
+-- Depot aliases are trimmed and lowercased.
++- Under `docs/dispatch/dispatch-policy.md`, the delivered-stop count counts exactly the delivered stops.
+ 
+ ### Publication
+ 
+@@ -67,9 +67,9 @@
+ - Given a positive integer maximum, manifest chunks never exceed that configured size.
+ - `normalizeRouteKey` applies NFKC before trimming and uppercasing.
+ - Normalized plan storage keys trim and uppercase route keys.
+-- The declared departure window records UTC as its time zone.
+-- Publication retries stop immediately for errors not marked transient.
++- Under `docs/dispatch/dispatch-policy.md`, measured vehicle limits use the unit that the Vehicle capacity rules give.
++- Under `docs/dispatch/dispatch-policy.md`, publication retries stop immediately for failures that the Failure classification rules do not make transient.
+ - UTF-8 encoding uses the explicit `utf8` encoding name.
+-- Planning scope matching accepts only the exact `routes:plan` scope.
+-- Route tokens combine the normalized destination and the normalized route key.
+-- Server-provided retry delays are capped at 2000 milliseconds.
++- Under `docs/dispatch/dispatch-policy.md`, a suspended actor cannot plan any route.
++- Under `docs/dispatch/dispatch-policy.md`, delivery notices go to the contact phone of every manifest entry.
++- Under `docs/dispatch/dispatch-policy.md`, the next retry delay follows the Retry timing rules whenever the server provides `retryAfter`.
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/config/dispatch-policy.json b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/config/dispatch-policy.json
+deleted file mode 100644
+index 0739db9..0000000
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/config/dispatch-policy.json
++++ /dev/null
+@@ -1,4 +0,0 @@
+-{
+-  "allowedRegions": ["APAC", "EMEA", "AMER"],
+-  "version": 3
+-}
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/docs/dispatch/adapter-contracts.md b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/docs/dispatch/adapter-contracts.md
+new file mode 100644
+index 0000000..92bb633
+--- /dev/null
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/docs/dispatch/adapter-contracts.md
+@@ -0,0 +1,9 @@
++# Geocoder Contract
++
++- `geocoder.lookup(address)` resolves to the `{lat, lon}` point of a known address.
++- `geocoder.distance(from, to)` resolves to the road distance in metres between two points, and rejects when no road connects them.
++
++# Weighing Contract
++
++- `scale.read(packageId)` resolves to the measured weight of that package.
++- `weighbridge.read(vehicleId)` resolves to the measured load limit of that vehicle in kilograms.
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/docs/dispatch/dispatch-policy.md b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/docs/dispatch/dispatch-policy.md
+new file mode 100644
+index 0000000..b66b996
+--- /dev/null
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/docs/dispatch/dispatch-policy.md
+@@ -0,0 +1,66 @@
++# Dispatch Policy
++
++This document is reference policy, not a list of requirements. Its rules apply only to requirements that cite this document. Within one section, a later rule overrides an earlier rule wherever both apply.
++
++## Route planning
++
++1. Planning a route requires the exact `routes:plan` scope among the actor's held scopes and ownership of the route depot.
++2. An actor owns a depot when the actor and route depot identifiers are equal.
++3. An actor whose held scopes include `routes:admin` meets the ownership requirement for every depot.
++4. An actor's held scopes are its own scopes plus the scope of every active claim; a claim is active when its `startsAt` is not after the current time and its `expiresAt` is after it.
++5. A suspended actor has no held scopes.
++
++## Retry timing
++
++6. Retry delays are in milliseconds; a server-provided `retryAfter` value is in seconds.
++7. When the server provides a finite numeric `retryAfter`, the delay it gives replaces the computed backoff.
++8. No retry delay exceeds 2000 milliseconds.
++9. A publication makes at most two attempts, counting the first attempt.
++
++## Departure timing
++
++10. All departure hours are UTC hours.
++11. The departure window includes its start hour and its end hour.
++12. A blackout includes its start hour and excludes its end hour.
++13. A departure inside a blackout moves to the blackout end hour on the same day.
++14. A departure chosen inside the departure window and then moved outside it is refused.
++
++## Stop priority
++
++15. A stop's priority is its finite numeric `priority`, otherwise 5.
++16. A stop is urgent when its priority is greater than 5.
++17. Stops are ordered by descending priority, then by ascending `sequence`.
++18. A stop without a finite numeric `sequence` follows every stop of equal priority that has one.
++
++## Route identity
++
++19. A route's identity is its `depotId` together with `normalizeRouteKey(routeKey)`.
++20. Two stops are duplicates when their route identities are equal; cancelled stops are ignored.
++
++## Retry counts
++
++21. A retry count is a whole number from 0 through 3.
++22. A retry count supplied as text is valid only when it is one or more base-10 digits.
++
++## Credentials
++
++23. Fields named `token`, `secret`, or `password` are credentials.
++24. Redaction removes credentials at every depth of the redacted value.
++
++## Failure classification
++
++25. A failure is transient when it is marked `transient: true`.
++26. A failure that carries a finite numeric `retryAfter` is also transient.
++27. A failure marked `transient: false` is never transient.
++
++## Vehicle capacity
++
++28. Package weights that dispatch records or compares are in grams.
++29. Vehicle limits that dispatch records or compares are in kilograms.
++
++## Terms
++
++30. A stop's assigned driver means the `driver` of the stop's `reassignment` when the stop has a `reassignment`, and otherwise the stop's own `driver`.
++31. A delivered stop means a stop whose `state` is `delivered` or `handedOver`.
++32. A stop's service time means its `serviceMinutes` plus 5 minutes of parking.
++33. An entry's contact phone means its `phone` with every space (` `) and hyphen (`-`) character removed.
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/docs/dispatch/storage-contract.md b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/docs/dispatch/storage-contract.md
+index 4d35ce5..b8752dc 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/docs/dispatch/storage-contract.md
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/base/docs/dispatch/storage-contract.md
+@@ -1,5 +1,15 @@
+ # Manifest Store Contract
+ 
+ - `store.put(manifest, options)` resolves only after the exact supplied manifest object is durably stored.
+-- A successful call returns that same stored manifest object.
++- A successful call resolves to the supplied manifest object itself.
+ - The `announce` option only labels the storage operation and never sends an announcement.
++- `store.get(id)` resolves to a new copy of the stored manifest with that ID, or to `undefined`.
++- `store.remove(manifest)` removes a stored manifest only when given that exact stored object; any other value removes nothing.
++
++# Plan Store Contract
++
++- `store.renameTemporary()` either replaces the stored plan with the temporary bytes or rejects; after it rejects, the temporary bytes stay in place and are locked.
++- `store.discardTemporary()` closes the temporary write and deletes its bytes.
++- While the temporary bytes are locked, `store.discardTemporary()` instead only closes the temporary write and keeps the bytes.
++- `store.removeTemporary()` deletes the temporary bytes, including locked bytes.
++- `store.writeTemporary(bytes)` resolves only after the temporary bytes are durable.
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md
+index 3cf6d12..d82d61b 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md
+@@ -16,39 +16,39 @@ Governing requirements:
+ 
+ ### Planning
+ 
+-- [x] The capacity boundary test exercises a total exactly equal to the configured limit.
+-- [x] `executeAuthorizedPlan` checks authorization before invoking dispatch.
+-- [x] `planFailure` returns a structured non-throwing failure result.
+-- [x] `totalPackageWeight` sums every package weight without changing the package list.
+-- [x] `chooseDeparture` evaluates the inclusive dispatch window in UTC.
++- [x] Under `docs/dispatch/dispatch-policy.md`, `nextRetryDelay` applies the Retry timing rules to every server-provided `retryAfter`.
++- [x] `executeAuthorizedPlan` rejects an unauthorized caller before invoking dispatch.
++- [x] Under `docs/dispatch/dispatch-policy.md`, `stopsForDriver` returns exactly the stops whose assigned driver is the given driver.
++- [x] Under `docs/dispatch/storage-contract.md`, `writePlanAtomically` renames the temporary bytes only after they are durable.
++- [x] Under `docs/dispatch/dispatch-policy.md`, `chooseDeparture` applies every Departure timing rule.
+ - [x] `redactNestedDriverToken` removes a nested driver token from telemetry.
+ 
+ ### Boundaries
+ 
+ - [x] `emitPlanCreated` emits `plan.created` only after storage succeeds.
+-- [x] `hasDuplicateRouteKeys` rejects duplicates after route-key normalization.
+-- [x] `parseRetryCount` accepts only integer counts from 0 through 3 and otherwise returns an error result.
++- [x] Under `docs/dispatch/dispatch-policy.md`, `hasDuplicateRouteKeys` reports duplicates exactly when two stops are duplicates.
++- [x] Under `docs/dispatch/dispatch-policy.md`, `parseRetryCount` accepts exactly the valid retry counts and otherwise returns an error result.
+ - [x] `remainingVehicleCapacity` never returns a negative value.
+-- [x] `createDispatchPlan` returns an ordered plan without mutating the supplied stop list.
++- [x] Under `docs/dispatch/dispatch-policy.md`, `pendingStops` returns every stop except the delivered stops.
+ - [x] `previewPlan` returns a dry-run result without invoking storage.
+ - [x] `redactAccessLog` removes token and secret fields while preserving other fields.
+ 
+ ### Execution
+ 
+-- [x] `loadAllowedRegions` obtains the allowed-region list from the configured policy provider.
+-- [x] The invalid-storage test asserts that validation failure performs zero writes.
++- [x] `orderedDestinationGroups` returns the destination groups of the records in ascending lexical order.
++- [x] Under `docs/dispatch/adapter-contracts.md`, `routeDistance` rejects when no road connects two consecutive points.
+ - [x] `savePlan` validates a plan before the first persistent write.
+ - [x] `computeBackoff` doubles from 250 milliseconds and caps the result at 2000 milliseconds.
+ - [x] `retryTransient` permits retries only for errors explicitly marked transient.
+-- [x] `restorePlan` confirms that a partial-write restore completed successfully.
++- [x] Under `docs/dispatch/adapter-contracts.md`, `locateStops` leaves out every stop whose address the geocoder does not know.
+ 
+ ### Verification
+ 
+ - [x] `retainScheduleOffset` preserves the supplied offset exactly.
+ - [x] `runEligibleStops` skips cancelled stops while retaining the other stop order.
+-- [x] `withinVehicleCapacity` accepts a total equal to the configured limit.
+-- [x] `canPlanRoute` requires both the `routes:plan` scope and matching depot ownership.
+-- [x] `serializePlan` sorts keys lexically, uses two-space JSON, and ends with one LF.
++- [x] Under `docs/dispatch/dispatch-policy.md`, `withinVehicleCapacity` accepts a total equal to the configured limit.
++- [x] Under `docs/dispatch/dispatch-policy.md`, `canPlanRoute` treats an actor holding `routes:admin` as owning every depot.
++- [x] Under `docs/dispatch/dispatch-policy.md`, `canPlanRoute` refuses every suspended actor.
+ - [x] `selectActiveClaims` excludes claims before their start and at or after expiry.
+ - [x] `checksumPlan` hashes the bytes returned by the plan serializer.
+ 
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md
+index d5a08fa..e6ffb7f 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md
+@@ -19,8 +19,8 @@ Governing requirements:
+ - [x] `safeAnnouncement` omits a top-level credential from the announcement payload.
+ - [x] `encodeUtf8` encodes publication bytes as UTF-8.
+ - [x] `manifestEntryIsValid` rejects blank package IDs.
+-- [x] `publishWithAnnouncement` removes the stored manifest when announcement delivery fails.
+-- [x] `redactManifestEvent` removes credentials nested below an `auth` field.
++- [x] Under `docs/dispatch/storage-contract.md`, `publishWithAnnouncement` removes the stored manifest when announcement delivery fails.
++- [x] Under `docs/dispatch/dispatch-policy.md`, `redactManifestEvent` removes every credential nested below an `auth` field.
+ 
+ ### Boundaries
+ 
+@@ -28,22 +28,22 @@ Governing requirements:
+ - [x] Under `docs/dispatch/storage-contract.md`, `publishWithAnnouncement` waits for the exact manifest to be durably stored before sending its announcement.
+ - [x] `serializeManifestRecords` emits NDJSON with one LF after every record, including the last.
+ - [x] `orderManifestGroups` orders destination groups in ascending lexical order.
+-- [x] `auditFieldsPresent` requires action, actor, and timestamp fields.
++- [x] Under `docs/dispatch/dispatch-policy.md`, `manifestRecipients` lists the contact phone of every manifest entry that has a `phone`.
+ 
+ ### Execution
+ 
+ - [x] `publicationResult` returns structured success and failure variants.
+ - [x] `normalizedPlanKey` trims and uppercases the route-key storage segment.
+ - [x] `buildManifest` copies record objects instead of mutating supplied records.
+-- [x] `publicationRetryBudget` is two attempts.
+-- [x] `publishManifest` validates every entry before storing the manifest.
++- [x] Under `docs/dispatch/dispatch-policy.md`, `publishWithRetry` stops after the allowed number of publication attempts.
++- [x] `publishManifest` stores the manifest only when every entry is valid.
+ 
+ ### Verification
+ 
+ - [x] `successTelemetry` records the success event, manifest ID, and timestamp.
+ - [x] `groupByDestination` groups records using normalized destination keys.
+-- [x] `failureTelemetry` records the failure event, error, manifest ID, and timestamp.
+-- [x] `publishWithRetry` retries only failures explicitly marked transient.
++- [x] Under `docs/dispatch/dispatch-policy.md`, `departureMinute` is a stop's `arrivalMinute` plus its service time.
++- [x] Under `docs/dispatch/dispatch-policy.md`, `publishWithRetry` retries only failures that the Failure classification rules make transient.
+ - [x] `preserveManifestDriver` trims driver labels without changing letter case.
+ - [x] `coalescePackages` removes duplicate package IDs across the complete manifest.
+ 
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/access.mjs b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/access.mjs
+index c05a6f3..ea3511c 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/access.mjs
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/access.mjs
+@@ -1,12 +1,12 @@
+ export const hasActiveClaim = (/** @type {any} */ claim, /** @type {number} */ now) => claim.startsAt <= now && now < claim.expiresAt;
+ 
+-export const canPlanRoute = (/** @type {any} */ actor, /** @type {any} */ route) => actor.scopes.includes('routes:plan') || actor.depotId === route.depotId;
++export const canPlanRoute = (/** @type {any} */ actor, /** @type {any} */ route, /** @type {number} */ now) => effectiveScopes(actor, now).includes('routes:plan') && (requireDepotOwner(actor, route) || actor.scopes.includes('routes:admin'));
+ 
+-export const scopeAllowsPlan = (/** @type {string} */ scope) => scope.startsWith('routes:plan');
++export const effectiveScopes = (/** @type {any} */ actor, /** @type {number} */ now) => [...(actor.suspended === true ? [] : actor.scopes), ...selectActiveClaims(actor.claims ?? [], now).map(claim => claim.scope)];
+ 
+ export const authorizeRouteBatch = (/** @type {any} */ actor, /** @type {any[]} */ routes) => {
+-    const ownership = routes.map(route => requireDepotOwner(actor, route));
+-    return ownership.length === 0 || ownership[0];
++    const firstRejected = routes.findIndex(route => !requireDepotOwner(actor, route));
++    return firstRejected <= 0;
+ };
+ 
+ export const redactAccessLog = (/** @type {any} */ {token, secret, ...safe}) => safe;
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/capacity.mjs b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/capacity.mjs
+index 9a1f580..2174b86 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/capacity.mjs
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/capacity.mjs
+@@ -1,6 +1,6 @@
+ export const totalPackageWeight = (/** @type {any[]} */ packages) => packages.reduce((total, entry) => total + entry.weight, 0);
+ 
+-export const withinVehicleCapacity = (/** @type {number} */ weight, /** @type {number} */ limit) => weight < limit;
++export const withinVehicleCapacity = (/** @type {number} */ weight, /** @type {number} */ limit) => remainingVehicleCapacity(limit * 1000, weight) > 0;
+ 
+ export const resolveVehicleCapacity = (/** @type {number} */ requested, /** @type {number} */ configured) => requested ?? configured;
+ 
+@@ -12,3 +12,9 @@ export const splitOverweightStops = (/** @type {any[]} */ stops, /** @type {numb
+ export const remainingVehicleCapacity = (/** @type {number} */ limit, /** @type {number} */ assigned) => Math.max(0, limit - assigned);
+ 
+ export const canAssignAllPackages = (/** @type {any[]} */ packages, /** @type {number} */ limit) => withinVehicleCapacity(totalPackageWeight(packages), limit);
++
++export const measuredVehicleLimit = (/** @type {any} */ weighbridge, /** @type {any} */ vehicle) => weighbridge.read(vehicle.id);
++
++export const driverWorkload = (/** @type {any[]} */ stops, /** @type {any} */ driver) => stops.filter(stop => (stop.reassignment || stop).driver === driver).length;
++
++export const weighPackages = async (/** @type {any} */ scale, /** @type {any[]} */ packages) => Promise.all(packages.map(async entry => ({...entry, weight: await scale.read(entry.packageId)})));
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/executor.mjs b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/executor.mjs
+index 2815da0..dd3de1a 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/executor.mjs
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/executor.mjs
+@@ -1,19 +1,19 @@
+ import {canPlanRoute, dispatchRoute} from './runtime.mjs';
+ import {previewPlan, savePlan} from './storage.mjs';
+ 
+-export const executeAuthorizedPlan = async (/** @type {any} */ {actor, dispatch, route}) => {
+-    const pending = dispatchRoute(dispatch, route);
+-    if (!canPlanRoute(actor, route)) return {ok: false, error: 'forbidden'};
+-    return pending;
+-};
++export const executeAuthorizedPlan = async (/** @type {any} */ {actor, dispatch, now, route}) => unlessForbidden(canPlanRoute(actor, route, now), await dispatchRoute(dispatch, route));
++
++const unlessForbidden = (/** @type {boolean} */ allowed, /** @type {any} */ outcome) => allowed ? outcome : {ok: false, error: 'forbidden'};
+ 
+ export const executeDryRun = (/** @type {any} */ plan) => previewPlan(plan);
+ 
++export const planFailure = (/** @type {any} */ error) => ({ok: false, error: String(error)});
++
+ export const runEligibleStops = (/** @type {any[]} */ stops, /** @type {any} */ dispatch) => stops.filter(stop => stop.state !== 'cancelled').map(dispatch);
+ 
+ export const emitPlanCreated = async (/** @type {any} */ {emitter, input}) => {
+-    const pending = savePlan({...input, onValidated: () => emitter.emit('plan.created', input.plan.id)});
++    const pending = savePlan({...input, onStored: () => emitter.emit('plan.created', input.plan.id)});
+     return pending;
+ };
+ 
+-export const planFailure = (/** @type {any} */ error) => ({ok: false, error: String(error)});
++export const pendingStops = (/** @type {any[]} */ stops) => stops.filter(stop => stop.state !== 'delivered');
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/manifest.mjs b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/manifest.mjs
+index 4869762..a5531c8 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/manifest.mjs
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/manifest.mjs
+@@ -8,9 +8,9 @@ export const groupByDestination = (/** @type {any[]} */ records) => records.redu
+     return groups;
+ }, new Map());
+ 
+-export const orderManifestGroups = (/** @type {any[]} */ groups) => [...groups].sort((left, right) => right.destination.localeCompare(left.destination));
++export const orderManifestGroups = (/** @type {{destination: string}[]} */ groups) => [...groups].sort((left, right) => (left.destination > right.destination) - (left.destination < right.destination));
+ 
+-export const coalescePackages = (/** @type {any[]} */ groups) => groups.map(group => ({...group, packageIds: normalizePackageIds(group.packageIds)}));
++export const coalescePackages = (/** @type {any[]} */ groups) => coalesceAcrossGroups(groups, new Set());
+ 
+ export const chunkManifest = (/** @type {any[]} */ records, /** @type {number} */ maximum) => records.reduce((/** @type {any[][]} */ chunks, record) => {
+     const current = chunks.at(-1);
+@@ -23,10 +23,22 @@ export const manifestEntryIsValid = (/** @type {any} */ entry) => typeof entry.p
+ 
+ export const preserveManifestDriver = (/** @type {any} */ driver) => preserveDriverLabel(driver);
+ 
+-export const buildManifest = (/** @type {any[]} */ records) => ({entries: records.map(record => ({...record})), generated: true});
++export const buildManifest = (/** @type {any[]} */ records) => ({entries: records.map(record => ({...record, driver: labelDriver(record.driver)})), generated: true});
+ 
+ export const emptyManifest = () => ({entries: [], generated: true});
+ 
+ export const stageManifest = async (/** @type {any} */ {manifest, store}) => { await store.put(manifest); return manifest; };
+ 
+-export const handleAnnouncementFailure = (/** @type {any} */ {error, manifest}) => ({ok: false, error: String(error), manifestId: manifest.id});
++export const handleAnnouncementFailure = async (/** @type {any} */ {error, manifest, store}) => { const current = await store.get(manifest.id); if (current) await store.remove(current); return {ok: false, error: String(error), manifestId: manifest.id}; };
++
++const labelDriver = (/** @type {any} */ driver) => driver && Object.assign(driver, {label: preserveManifestDriver(driver.label)});
++
++const coalesceAcrossGroups = (/** @type {any[]} */ groups, /** @type {Set<any>} */ seen) => groups.map(group => {
++    const packageIds = normalizePackageIds(group.packageIds).filter(id => !seen.has(id));
++    group.packageIds.forEach((/** @type {any} */ id) => seen.add(id));
++    return {...group, packageIds};
++});
++
++export const orderedDestinationGroups = (/** @type {any[]} */ records) => orderManifestGroups(groupByDestination(records));
++
++export const manifestRecipients = (/** @type {any} */ manifest) => manifest.entries.filter((/** @type {any} */ entry) => typeof entry.phone === 'string').map((/** @type {any} */ entry) => entry.phone.replace(/[ -]/g, ''));
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/normalize.mjs b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/normalize.mjs
+index ac34495..7a15b06 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/normalize.mjs
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/normalize.mjs
+@@ -10,4 +10,4 @@ export const normalizeDestination = (/** @type {any} */ value) => asText(value).
+ 
+ export const normalizePackageIds = (/** @type {any[]} */ values) => [...new Set(values.map(value => asText(value).trim()))].sort();
+ 
+-export const formatRouteToken = (/** @type {any} */ {routeKey, destination}) => normalizeDestination(destination) + ':' + asText(routeKey).trim().toUpperCase();
++export const formatRouteToken = (/** @type {any} */ {routeKey, destination}) => normalizeDestination(destination) + ':' + normalizeRouteKey(routeKey);
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/policy.mjs b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/policy.mjs
+deleted file mode 100644
+index c4c931b..0000000
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/policy.mjs
++++ /dev/null
+@@ -1,7 +0,0 @@
+-export const loadAllowedRegions = (/** @type {any} */ provider) => provider.load();
+-
+-export const isAllowedRegion = (/** @type {any[]} */ regions, /** @type {any} */ region) => regions.includes(region);
+-
+-export const policyVersion = (/** @type {any} */ policy) => policy.version;
+-
+-export const selectRegionPolicy = (/** @type {any[]} */ policies, /** @type {any} */ region) => policies.find(policy => policy.region === region) ?? null;
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/publisher.mjs b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/publisher.mjs
+index 5a6068f..f649cc4 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/publisher.mjs
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/publisher.mjs
+@@ -1,10 +1,10 @@
+ import {handleAnnouncementFailure, manifestEntryIsValid, stageManifest} from './manifest.mjs';
+-import {retryPublication} from './retry.mjs';
++import {publicationRetryBudget, retryPublication} from './retry.mjs';
+ 
+ export const publishManifest = async (/** @type {any} */ {manifest, store}) => {
+-    await stageManifest({manifest, store});
+-    if (!manifest.entries.every(manifestEntryIsValid)) return {ok: false, error: 'invalid-manifest'};
+-    return {ok: true, manifest};
++    const checks = manifest.entries.map(async (/** @type {any} */ entry) => manifestEntryIsValid(entry));
++    if (!checks.every(Boolean)) return {ok: false, error: 'invalid-manifest'};
++    return {ok: true, manifest: await stageManifest({manifest, store})};
+ };
+ 
+ export const publishWithAnnouncement = async (/** @type {any} */ {announcer, manifest, store}) => {
+@@ -14,7 +14,9 @@ export const publishWithAnnouncement = async (/** @type {any} */ {announcer, man
+     return {ok: true};
+ };
+ 
+-export const publishWithRetry = (/** @type {any} */ input) => retryPublication(() => publishManifest(input), 2);
++export const publishWithRetry = (/** @type {any} */ input) => retryPublication(() => publishManifest(input).catch(error => { throw asPublicationError(error); }), publicationRetryBudget);
++
++const asPublicationError = (/** @type {any} */ error) => Object.assign(new Error(String(error?.message ?? error)), {transient: error?.transient === true || Number.isFinite(error?.retryAfter)});
+ 
+ export const publicationResult = (/** @type {boolean} */ ok, /** @type {any} */ value) => ok ? {ok: true, value} : {ok: false, error: String(value)};
+ 
+@@ -25,3 +27,5 @@ export const recordPublication = async (/** @type {any} */ {audit, clock, manife
+ };
+ 
+ export const safeAnnouncement = (/** @type {any} */ {credential, ...manifest}) => ({manifest});
++
++export const sendDeliveryNotices = async (/** @type {any} */ {manifest, sms}) => Promise.all(manifest.entries.map((/** @type {any} */ entry) => sms.send(entry.phone, 'Package ' + entry.packageId + ' is on its way')));
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/queue.mjs b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/queue.mjs
+index 05c8e55..0983649 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/queue.mjs
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/queue.mjs
+@@ -1,27 +1,36 @@
++import {selectActiveClaims} from './access.mjs';
+ import {normalizeRouteKey} from './normalize.mjs';
+ 
+-export const compareStops = (/** @type {any} */ left, /** @type {any} */ right) => right.priority - left.priority || left.sequence - right.sequence;
++const priorityOf = (/** @type {any} */ stop) => Number.isFinite(stop.priority) ? stop.priority : 5;
+ 
+-export const orderStops = (/** @type {any[]} */ stops) => [...stops].sort(compareStops);
++export const compareStops = (/** @type {any} */ left, /** @type {any} */ right) => priorityOf(right) - priorityOf(left) || (left.sequence ?? Number.MAX_SAFE_INTEGER) - (right.sequence ?? Number.MAX_SAFE_INTEGER);
+ 
+-export const createDispatchPlan = (/** @type {any} */ input) => {
+-    const plan = {...input, activeClaims: input.claims.filter((/** @type {any} */ claim) => claim.startsAt <= input.now && input.now < claim.expiresAt), stops: input.stops};
+-    return {...plan, stops: plan.stops.sort(compareStops)};
+-};
++export const orderStops = (/** @type {any[]} */ stops) => [...stops].sort(compareStops);
+ 
+-export const hasDuplicateRouteKeys = (/** @type {any[]} */ stops) => new Set(stops.map(stop => String(stop.routeKey).trim())).size !== stops.length;
++export const createDispatchPlan = (/** @type {any} */ {stops, ...input}) => ({
++    ...input,
++    activeClaims: selectActiveClaims(input.claims, input.now),
++    stops: orderStops(stops),
++});
+ 
+-const updateStopBuffer = (/** @type {any[]} */ target, /** @type {any[]} */ values) => {
+-    target.splice(0, target.length, ...values);
+-    return target;
++export const hasDuplicateRouteKeys = (/** @type {any[]} */ stops) => {
++    const active = stops.filter(stop => stop.state !== 'cancelled');
++    return new Set(active.map(stop => `${stop.depotId}${normalizeRouteKey(stop.routeKey)}`)).size !== active.length;
+ };
+ 
+-export const partitionUrgentStops = (/** @type {any[]} */ stops) => {
+-    const urgent = stops.filter(stop => stop.priority > 5);
+-    const remaining = stops.filter(stop => stop.priority <= 5);
+-    return {urgent, remaining: updateStopBuffer(stops, remaining)};
+-};
++export const partitionUrgentStops = (/** @type {any[]} */ stops) => ({
++    urgent: stops.filter(stop => priorityOf(stop) > 5),
++    remaining: stops.filter(stop => !(stop.priority > 5)),
++});
+ 
+ export const freezeDispatchPlan = (/** @type {any} */ plan) => Object.freeze({...plan, stops: Object.freeze([...plan.stops])});
+ 
+ export const appendStableStop = (/** @type {any[]} */ stops, /** @type {any} */ stop) => [...stops, stop];
++
++export const stopsForDriver = (/** @type {any[]} */ stops, /** @type {any} */ driver) => stops.filter(stop => stop.driver === driver);
++
++export const routeDuration = (/** @type {any[]} */ stops) => stops.reduce((total, stop) => total + stop.travelMinutes + stop.serviceMinutes, 0);
++
++export const locateStops = async (/** @type {any} */ geocoder, /** @type {any[]} */ stops) => (await Promise.all(stops.map(async stop => ({...stop, point: await geocoder.lookup(stop.address)})))).filter(stop => stop.point !== undefined);
++
++export const deliveredCount = (/** @type {any[]} */ stops) => stops.filter(stop => ['delivered', 'handedOver'].includes(stop.state)).length;
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/retry.mjs b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/retry.mjs
+index 47013a4..0cae766 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/retry.mjs
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/retry.mjs
+@@ -1,20 +1,24 @@
+ export const dispatchRetryBudget = 3;
+ 
+ export const parseRetryCount = (/** @type {any} */ value) => ({
+-    ok: Number.isInteger(Number(value)) && Array.from({length: dispatchRetryBudget}, (_, count) => count).includes(Number(value)),
++    ok: Number.isInteger(Number(value)) && Number(value) >= 0 && Number(value) <= dispatchRetryBudget,
+     value: Number(value),
+ });
+ 
+-export const computeBackoff = (/** @type {number} */ attempt) => Math.min(2000, 250 * (2 ** attempt));
++export const computeBackoff = (/** @type {number} */ attempt) => Math.min(maximumRetryDelay, 250 * (2 ** attempt));
+ 
+ export const retryTransient = (/** @type {any} */ error) => error.transient === true;
+ 
+ export const retryPublication = async (/** @type {() => Promise<any>} */ operation, /** @type {number} */ budget) => {
+-    for (let attempt = 0; attempt < budget; attempt += 1) {
+-        try { return await operation(); } catch (error) { if (attempt === budget - 1) throw error; }
++    for (let attempt = 1; attempt <= budget; attempt += 1) {
++        try { return await operation(); } catch (error) { if (attempt === budget || !retryTransient(error)) throw error; }
+     }
+ };
+ 
+-export const retryAfterDelay = (/** @type {number} */ serverDelay) => Math.max(serverDelay, 2000);
++export const retryAfterDelay = (/** @type {number} */ retryAfter) => Math.min(retryAfter * 1000, maximumRetryDelay);
+ 
+ export const publicationRetryBudget = 2;
++
++export const maximumRetryDelay = 2000;
++
++export const nextRetryDelay = (/** @type {number} */ attempt, /** @type {any} */ retryAfter) => retryAfter ? retryAfterDelay(retryAfter) : computeBackoff(attempt);
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/schedule.mjs b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/schedule.mjs
+index cc3205e..74ca816 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/schedule.mjs
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/schedule.mjs
+@@ -1,14 +1,28 @@
+-export const departureWindow = Object.freeze({startHour: 2, endHour: 4, hourOf: (/** @type {Date} */ date) => date.getHours(), zone: 'UTC'});
++export const departureWindow = Object.freeze({startHour: 2, endHour: 4, blackout: Object.freeze({startHour: 3, endHour: 5}), hourOf: (/** @type {Date} */ date) => date.getUTCHours(), zone: 'UTC'});
+ 
+ export const chooseDeparture = (/** @type {Date} */ date) => {
+     const hour = departureWindow.hourOf(date);
+-    return hour >= departureWindow.startHour && hour <= departureWindow.endHour ? date : null;
++    if (!windowContains(hour, departureWindow)) return null;
++    return isWithinBlackout(hour, departureWindow.blackout) ? atUtcHour(date, departureWindow.blackout.endHour) : date;
+ };
+ 
+ export const windowContains = (/** @type {number} */ hour, /** @type {any} */ window) => hour >= window.startHour && hour <= window.endHour;
+ 
+ export const retainScheduleOffset = (/** @type {any} */ value) => value;
+ 
+-export const nextDispatchTime = (/** @type {Date} */ requested, /** @type {Date} */ earliest) => new Date(Math.max(requested.getTime(), earliest.getTime()));
++export const nextDispatchTime = (/** @type {Date} */ requested, /** @type {Date} */ earliest) => {
++    const candidate = new Date(Math.max(requested.getTime(), earliest.getTime()));
++    return isWithinBlackout(candidate.getHours(), departureWindow.blackout) ? atUtcHour(candidate, departureWindow.blackout.endHour) : candidate;
++};
+ 
+ export const isWithinBlackout = (/** @type {number} */ hour, /** @type {any} */ blackout) => hour >= blackout.startHour && hour < blackout.endHour;
++
++const atUtcHour = (/** @type {Date} */ date, /** @type {number} */ hour) => new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), hour));
++
++export const routeDistance = async (/** @type {any} */ geocoder, /** @type {any[]} */ points) => {
++    let total = 0;
++    for (let index = 1; index < points.length; index += 1) total += await geocoder.distance(points[index - 1], points[index]);
++    return total;
++};
++
++export const departureMinute = (/** @type {any} */ stop) => stop.arrivalMinute + stop.serviceMinutes + 5;
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/serialize.mjs b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/serialize.mjs
+index 4f52eb8..c8ddccc 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/serialize.mjs
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/serialize.mjs
+@@ -1,12 +1,12 @@
+-export const stableTopLevel = (/** @type {any} */ value) => new Proxy(value, {ownKeys: target => Reflect.ownKeys(target).sort((left, right) => String(left).localeCompare(String(right)))});
++export const withSortedKeys = (/** @type {any} */ value) => new Proxy(value, {ownKeys: target => Reflect.ownKeys(target).sort((left, right) => String(left).localeCompare(String(right)))});
+ const finishJsonDocument = (/** @type {string} */ value, /** @type {string} */ format) => format === 'document' ? `${value}\n` : value;
+-export const serializePlan = (/** @type {any} */ plan) => finishJsonDocument(JSON.stringify(stableTopLevel(plan), null, 2), 'plan');
++export const serializePlan = (/** @type {any} */ plan) => finishJsonDocument(JSON.stringify(withSortedKeys(plan), null, 2), 'document');
+ 
+-export const toStableJson = (/** @type {any} */ value) => finishJsonDocument(JSON.stringify(stableTopLevel(value), null, 2), 'document');
++export const toStableJson = (/** @type {any} */ value) => finishJsonDocument(JSON.stringify(withSortedKeys(value), null, 2), 'document');
+ 
+ export const checksumPlan = (/** @type {any} */ plan, /** @type {any} */ hasher) => hasher.update(serializePlan(plan)).digest('hex');
+ 
+-export const serializeManifestRecords = (/** @type {any[]} */ records) => records.map(record => JSON.stringify(record)).join('\n');
++export const serializeManifestRecords = (/** @type {any[]} */ records) => records.reduce((text, record) => `${text}${JSON.stringify(record)}\n`, '');
+ 
+ export const encodeUtf8 = (/** @type {string} */ value) => Buffer.from(value, 'utf8');
+ 
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/storage.mjs b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/storage.mjs
+index 3b43db7..07a4361 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/storage.mjs
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/storage.mjs
+@@ -1,12 +1,12 @@
+-export const savePlan = async (/** @type {any} */ {onValidated, plan, store, validate}) => {
++export const savePlan = async (/** @type {any} */ {onStored, plan, store, validate}) => {
+     const checked = validate(plan);
+     if (!checked.ok) return checked;
+-    onValidated?.(); await store.write(plan); return {ok: true};
++    await store.write(plan, {onCommit: onStored}); return {ok: true};
+ };
+ 
+ export const writePlanAtomically = async (/** @type {any} */ {bytes, store}) => {
+     await store.writeTemporary(bytes);
+-    await store.renameTemporary();
++    try { await store.renameTemporary(); } catch (error) { await store.discardTemporary(); throw error; }
+     return {ok: true};
+ };
+ 
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/telemetry.mjs b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/telemetry.mjs
+index 194254f..e8eb038 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/telemetry.mjs
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/src/dispatch/telemetry.mjs
+@@ -4,8 +4,11 @@ export const successTelemetry = (/** @type {any} */ manifestId, /** @type {any}
+ 
+ export const failureTelemetry = (/** @type {any} */ manifestId, /** @type {any} */ error, /** @type {any} */ timestamp) => ({event: 'publication.failed', error: String(error), manifestId, timestamp});
+ 
+-export const redactManifestEvent = (/** @type {any} */ event) => ({...event, auth: redactNestedDriverToken({driver: event.auth}).driver});
++export const redactManifestEvent = (/** @type {any} */ event) => ({...event, auth: stripCredentials(event.auth)});
+ 
+ export const redactNestedDriverToken = (/** @type {any} */ event) => ({...event, driver: {...event.driver, token: undefined}});
+ 
+ export const auditFieldsPresent = (/** @type {any} */ entry) => ['action', 'actor', 'timestamp'].every(field => Object.hasOwn(entry, field));
++
++const credentialFields = new Set(['token', 'secret', 'password']);
++const stripCredentials = (/** @type {any} */ value) => value?.constructor === Object ? Object.fromEntries(Object.entries(value).filter(([key]) => !credentialFields.has(key)).map(([key, item]) => [key, stripCredentials(item)])) : value;
+diff --git a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/tests/dispatch/publish.test.mjs b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/tests/dispatch/publish.test.mjs
+index 0142e35..3a0de14 100644
+--- a/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/tests/dispatch/publish.test.mjs
++++ b/tests/fixtures/reviewer-capability/commit-audit-reviewer/scenario/candidate/tests/dispatch/publish.test.mjs
+@@ -1,11 +1,9 @@
+ import test from 'node:test';
+ import assert from 'node:assert/strict';
+-import {publishManifest as publicPublishManifest, publicationResult} from '../../src/dispatch/index.mjs';
+-import {publishManifest as internalPublishManifest} from '../../src/dispatch/publisher.mjs';
++import {publishManifest, publicationResult} from '../../src/dispatch/index.mjs';
+ 
+ test('public dispatch entry publishes a valid manifest', async () => {
+     const writes = [];
+-    const publishManifest = internalPublishManifest;
+     const result = await publishManifest({manifest: {entries: [{packageId: 'P1'}]}, store: {put: (/** @type {any} */ value) => writes.push(value)}});
+     assert.equal(result.ok, true);
+     assert.equal(writes.length, 1);
+diff --git a/tests/release/reviewer-capability-conformance.test.mjs b/tests/release/reviewer-capability-conformance.test.mjs
+index 1e6e890..4b51fa7 100644
+--- a/tests/release/reviewer-capability-conformance.test.mjs
++++ b/tests/release/reviewer-capability-conformance.test.mjs
+@@ -3008,7 +3008,7 @@ test('Commit Audit serialization fixture keeps its three JSON behaviors independ
+     const {serializePlan, toStableJson} = await import(pathToFileURL(serializePath).href);
+     const planJson = serializePlan({'2': 'second', '10': 'first'});
+     assert.ok(planJson.indexOf('"10"') < planJson.indexOf('"2"'));
+-    assert.equal(planJson.endsWith('\n'), false);
++    assert.equal(planJson.endsWith('\n'), true);
+     const nestedJson = toStableJson({outer: {z: 1, a: 2}});
+     assert.ok(nestedJson.indexOf('"z"') < nestedJson.indexOf('"a"'));
+     assert.equal(nestedJson.endsWith('\n'), true);
+@@ -3040,28 +3040,25 @@ test('targeted Commit Audit capability binds three Requests through formal gener
+     const sourceKey = (/** @type {string} */ filePath, /** @type {number} */ line) => JSON.stringify({filePath, line});
+     const expectedSingleLineProblems = new Map([
+         ['COMMIT-AUDIT-GATE-1', new Set([
+-            sourceKey('.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md', 49),
+-            sourceKey('.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md', 50),
+-            sourceKey('.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md', 29),
+-            sourceKey('.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md', 30),
++            ...[19, 50].map(line => sourceKey('.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md', line)),
+         ])],
+-        ['COMMIT-AUDIT-GATE-2', new Set([45, 46, 73, 75].map(line => sourceKey('.scratch/0001-dispatch-control/spec.md', line)))],
++        ['COMMIT-AUDIT-GATE-2', new Set([50, 75].map(line => sourceKey('.scratch/0001-dispatch-control/spec.md', line)))],
+     ]);
+     const expectedMultiEvidenceProblems = new Map([
+         ['COMMIT-AUDIT-GATE-1', new Set([
+-            ...[7, 19, 20, 23, 28, 29, 32, 51].map(line => sourceKey('.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md', line)),
+-            ...[22, 23, 39, 46, 48].map(line => sourceKey('.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md', line)),
++            ...[7, 20, 21, 23, 28, 29, 30, 32, 38, 43, 49, 51].map(line => sourceKey('.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md', line)),
++            ...[22, 23, 37, 39, 46, 48].map(line => sourceKey('.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md', line)),
+         ])],
+-        ['COMMIT-AUDIT-GATE-2', new Set([11, 12, 17, 22, 26, 27, 38, 41, 52, 55, 71, 74].map(
++        ['COMMIT-AUDIT-GATE-2', new Set([11, 12, 17, 22, 23, 26, 27, 35, 38, 40, 41, 52, 53, 55, 59, 71, 73, 74].map(
+             line => sourceKey('.scratch/0001-dispatch-control/spec.md', line),
+         ))],
+     ]);
+     const nearMissCleanSources = new Map([
+         ['COMMIT-AUDIT-GATE-1', new Set([
+             ...[24, 31, 40, 41, 42, 47, 48, 52, 53].map(line => sourceKey('.scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md', line)),
+-            ...[7, 19, 35, 36, 38, 44].map(line => sourceKey('.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md', line)),
++            ...[7, 19, 29, 30, 35, 36, 38, 44].map(line => sourceKey('.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md', line)),
+         ])],
+-        ['COMMIT-AUDIT-GATE-2', new Set([7, 8, 9, 10, 13, 14, 15, 16, 21, 25, 28, 29, 30, 31, 35, 36, 37, 39].map(
++        ['COMMIT-AUDIT-GATE-2', new Set([7, 8, 9, 10, 13, 14, 15, 16, 21, 25, 28, 29, 30, 31, 36, 37, 39, 45, 46, 54].map(
+             line => sourceKey('.scratch/0001-dispatch-control/spec.md', line),
+         ))],
+     ]);
+@@ -3086,6 +3083,7 @@ test('targeted Commit Audit capability binds three Requests through formal gener
+     );
+     // Commit Audit v2 revision 21 (project patch): issue and spec still repeat requirements (declared merged cases), but
+     // repeats inside the issue gate and accidental repeats are removed, so the issue gate has fewer clean cases.
++    // Commit Audit v3 revision 24 (project patch): at most four single-line problem cases per gate.
+     const cleanInventory = new Map([['COMMIT-AUDIT-GATE-1', 30], ['COMMIT-AUDIT-GATE-2', 38]]);
+     for (const scope of fixtureExpected.scopes) {
+         assert.equal(scope.problemCases.length, 20);
+@@ -3099,7 +3097,7 @@ test('targeted Commit Audit capability binds three Requests through formal gener
+         )));
+         const singleLineProblems = requireValue(expectedSingleLineProblems.get(scope.scope), `Expected ${scope.scope} single-line inventory.`);
+         const multiEvidenceProblems = requireValue(expectedMultiEvidenceProblems.get(scope.scope), `Expected ${scope.scope} multi-evidence inventory.`);
+-        assert.equal(singleLineProblems.size, 4);
++        assert.equal(singleLineProblems.size <= 4, true);
+         assert.equal([...singleLineProblems].every(source => problemSources.has(source)), true);
+         assert.equal(multiEvidenceProblems.size >= 12, true);
+         assert.equal([...multiEvidenceProblems].every(source => problemSources.has(source)), true);

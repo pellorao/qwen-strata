@@ -30,7 +30,8 @@
        "reason": "schedule.mjs 第 1、4、5 行：正例问 chooseDeparture 是否按 UTC 取小时（取了本地小时），反例问窗口是否含首尾小时（成立，chooseDeparture 是可选证据）；性质不同"}]},
     "0f02cf4372f74d2c9a37ca95834cad7a94456b9355884ebe6efb536d51bfd7bb": {"version": "Commit Audit v2 草稿（修订号 23；29 个合并用例由答案键的 merge 字段声明，不在此登记）", "sharedEvidence": [
       {"cases": ["COMMIT-AUDIT-GATE-1/problem/2", "COMMIT-AUDIT-GATE-2/clean/9"],
-       "reason": "schedule.mjs 第 1、4、5 行：正例问 chooseDeparture 是否按 UTC 取小时（取了本地小时），反例问窗口是否含首尾小时（成立，chooseDeparture 是可选证据）；性质不同"}]}
+       "reason": "schedule.mjs 第 1、4、5 行：正例问 chooseDeparture 是否按 UTC 取小时（取了本地小时），反例问窗口是否含首尾小时（成立，chooseDeparture 是可选证据）；性质不同"}]},
+    "81796f467cc54bde5c1c1f1dbe9a9e1819eca11fbeae59bb650c95b5aff00108": {"version": "Commit Audit v3（修订号 24；29 个合并用例由答案键的 merge 字段声明，不在此登记；无共用证据）"}
   },
   "spec-readiness-reviewer": {
     "e5d17bac8d81e8238516dbf509fad0216d51a2a93a8131b0a2a1079917ff0598": {"version": "ARW 原版（previous 快照）", "legacy": true},

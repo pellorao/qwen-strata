@@ -6,7 +6,7 @@
 
 这里是真正的工作队列，按优先级排列，做完一项接下一项。状态页 queue 只显示排在最前的 5 项，每日检查（三项合为一项，见「周期流程」）单独显示，不占这 5 个位置。顺序有变化时，先改这里，再用 `status.py order` 同步状态页。
 
-1. **Commit Audit v3 定稿**（进行中）：见「benchmark 前置工作」。
+1. **Commit Audit v3 定稿**（已冻结，待正式测量）：见「benchmark 前置工作」。
 2. **修正 catalog 上下文窗口**：同上。
 3. **核对写死在代码里的上下文和压缩阈值**：同上。
 4. **统一 Codex 与 Claude Code 的上下文档位**：同上。
@@ -34,13 +34,13 @@
 场景流程、判据与停止条件见 `.claude/rules/reviewer-suite.md`「场景流程」。Spec Readiness 已到 v4.1 收尾（经过见[历史记录](work-history.md)「Spec Readiness 重构 v2→v4.1」，[报告](../reports/v0.1.42/spec-readiness-v4/summary.md)）。
 
 - [ ] **评分规则检查与改进**（用户 2026-10-14；审计与 r7 已完成并提交，口径已写入 `.claude/rules/measurement.md` 与 `reviewer-suite.md`「评分」）：剩余待办——多词 `findingTerms` 连续短语匹配是否完成、必选组标为仅供裁决参考是否完成；Sonnet 盲裁试点（在 v5.1 已有池上与 Opus 裁决比一致率，效果好再逐步扩大）。只读分析时不改冻结件。
-- [ ] **Commit Audit 场景**：v2 已完成（修订号 23，Q3 ×10 比值 0.880，[报告](../reports/v0.1.44.1/commit-audit-v2/summary.md)），加难版 v3 进行中，定稿步骤见「benchmark 前置工作」。按场景流程推进（`.claude/rules/reviewer-suite.md`「场景流程」）。
+- [ ] **Commit Audit 场景**：v2 已完成（修订号 23，Q3 ×10 比值 0.880，[报告](../reports/v0.1.44.1/commit-audit-v2/summary.md)），加难版 v3（修订号 24）2026-10-18 冻结，正式测量见「benchmark 前置工作」。按场景流程推进（`.claude/rules/reviewer-suite.md`「场景流程」）。
 
 ## benchmark 前置工作（用户 2026-10-18）
 
 多模型 benchmark 开跑前必须完成。每项都已核对过会影响 benchmark 的结果、费用或可比性（2026-10-18 排查）。
 
-- [ ] **Commit Audit v3 定稿**：v3.3 第 3 轮审计 → 冻结前取独立意见 → 冻结入库 → 正式测量（Opus medium ×3，Q3 ×5，空闲时加测到 10，Haiku 计分）。四个场景要全部定稿，benchmark 才能开始。
+- [ ] **Commit Audit v3 定稿**：v3.3 已于 2026-10-18 冻结入库（[变更说明](../benchmarks/reviewer-suite-v1/commit-audit-v3.md)）。下一步：p基准（Haiku-high ×5，答案键 `81796f46…`）→ 正式测量（Strata 0.1.45；Opus medium ×3，Q3 ×5，空闲时加测到 10；全部候选用冻结 brief 盲裁），运行计划与判定按变更说明「审计、校准与冻结」一节的要求事先写定。四个场景要全部定稿，benchmark 才能开始。
 - [ ] **修正 catalog 上下文窗口**（2026-10-15 发现）：`tools/ops/model_catalog.py` 给三个量化都写死 `CONTEXT_WINDOW = 156584`，IQ3_XXS 默认档却是 206584／150000。改为按量化取部署配置 `context_tiers` 的首档。同时检查 `config/maintenance-baseline.json`（维护基线有意固定为 Q2_0 100K／156584，核对是否仍成立）。这属于部署，需独立审查后在维护窗口部署。影响：Codex 经日常 catalog 调用 Strata 时，窗口与部署档位不一致。
 - [ ] **核对写死在代码里的上下文和压缩阈值**：
   - `tools/reviewer/arw_measure.py:190`：不由 ARW 持有模型时，selection 没给窗口就用 250000，超出 IQ3_XXS 档位 206584；

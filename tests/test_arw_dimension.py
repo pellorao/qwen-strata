@@ -132,6 +132,12 @@ class EffectTests(unittest.TestCase):
         template = 'benchmarks/reviewer-suite-v1/measurement-note-time-limit-commit-audit.txt'
         required_scenario_note({'arw_source_manifest': manifest, 'measurement_note_path': plain}, 'commit-audit-reviewer')
         required_scenario_note({'arw_source_manifest': manifest, 'measurement_note_template': {'path': template}}, 'commit-audit-reviewer')
+        # v3 keeps the same note (revision 24 change note).
+        v3 = manifest.replace('-v2.json', '-v3.json')
+        self.assertTrue((ROOT / v3).is_file())
+        required_scenario_note({'arw_source_manifest': v3, 'measurement_note_path': plain}, 'commit-audit-reviewer')
+        with self.assertRaisesRegex(ValueError, 'needs the measurement note'):
+            required_scenario_note({'arw_source_manifest': v3}, 'commit-audit-reviewer')
         # Other reviewers or manifests keep the common note.
         required_scenario_note({'arw_source_manifest': manifest}, 'code-spec-reviewer')
         required_scenario_note({'arw_source_manifest': manifest.replace('-commit-audit-v2', '')}, 'commit-audit-reviewer')

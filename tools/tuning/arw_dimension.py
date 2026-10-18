@@ -22,11 +22,12 @@ CODEX = Path.home() / ('.local/lib/node_modules/@openai/codex/node_modules/@open
                        'vendor/x86_64-unknown-linux-musl/bin/codex')
 MEASUREMENT_NOTE = 'benchmarks/reviewer-suite-v1/measurement-note.txt'
 # Scenario versions whose handoff needs its own measurement note: (reviewer, source manifest file) -> (plain note,
-# time-limit template). Commit Audit v2 declares merged issue/spec requirements, which its note explains (user 2026-10-17).
+# time-limit template). Commit Audit v2 and v3 declare merged issue/spec requirements, which the note explains (user 2026-10-17).
+COMMIT_AUDIT_NOTES = ('benchmarks/reviewer-suite-v1/measurement-note-commit-audit.txt',
+                      'benchmarks/reviewer-suite-v1/measurement-note-time-limit-commit-audit.txt')
 SCENARIO_NOTES = {
-    ('commit-audit-reviewer', 'manifest-commit-audit-v2.json'): (
-        'benchmarks/reviewer-suite-v1/measurement-note-commit-audit.txt',
-        'benchmarks/reviewer-suite-v1/measurement-note-time-limit-commit-audit.txt'),
+    ('commit-audit-reviewer', 'manifest-commit-audit-v2.json'): COMMIT_AUDIT_NOTES,
+    ('commit-audit-reviewer', 'manifest-commit-audit-v3.json'): COMMIT_AUDIT_NOTES,
 }
 
 
