@@ -1,0 +1,86 @@
+{
+ "q3:A#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:A#2": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:A#3": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:B#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "q3:B#2": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "haiku:haiku-1#1": {
+  "pairs": 29,
+  "inconsistent": 1,
+  "detail": [
+   "01:30+spec:59 gap/satisfied"
+  ],
+  "missing": []
+ },
+ "haiku:haiku-2#1": {
+  "pairs": 29,
+  "inconsistent": 1,
+  "detail": [
+   "01:30+spec:59 gap/satisfied"
+  ],
+  "missing": []
+ },
+ "haiku:haiku-3#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "haiku:haiku-4#1": {
+  "pairs": 29,
+  "inconsistent": 1,
+  "detail": [
+   "01:30+spec:59 gap/satisfied"
+  ],
+  "missing": []
+ },
+ "haiku:haiku-5#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "opus:opus-1#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "opus:opus-2#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ },
+ "opus:opus-3#1": {
+  "pairs": 29,
+  "inconsistent": 0,
+  "detail": [],
+  "missing": []
+ }
+}

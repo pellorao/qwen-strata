@@ -1,0 +1,695 @@
+{
+ "original": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/A/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/0b39df8c-0684-47c4-9317-367f2292a9ce/ca/3/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+ "original_sha256": "d9531332fa71a5d4bf299bca65806aa84fe2405a6117186994b90c3f94d3325b",
+ "changes": {
+  "scalar-lines": 76
+ },
+ "details": [
+  {
+   "kind": "scalar-lines",
+   "row": 3,
+   "evidence": 1,
+   "before": 5,
+   "after": [
+    5
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 4,
+   "evidence": 0,
+   "before": 19,
+   "after": [
+    19
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 5,
+   "evidence": 0,
+   "before": 1,
+   "after": [
+    1
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 7,
+   "evidence": 0,
+   "before": 9,
+   "after": [
+    9
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 9,
+   "evidence": 0,
+   "before": 12,
+   "after": [
+    12
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 9,
+   "evidence": 1,
+   "before": 3,
+   "after": [
+    3
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 11,
+   "evidence": 0,
+   "before": 12,
+   "after": [
+    12
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 13,
+   "evidence": 0,
+   "before": 15,
+   "after": [
+    15
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 14,
+   "evidence": 0,
+   "before": 12,
+   "after": [
+    12
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 15,
+   "evidence": 0,
+   "before": 1,
+   "after": [
+    1
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 18,
+   "evidence": 0,
+   "before": 8,
+   "after": [
+    8
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 19,
+   "evidence": 0,
+   "before": 10,
+   "after": [
+    10
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 20,
+   "evidence": 0,
+   "before": 13,
+   "after": [
+    13
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 21,
+   "evidence": 0,
+   "before": 10,
+   "after": [
+    10
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 22,
+   "evidence": 0,
+   "before": 12,
+   "after": [
+    12
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 27,
+   "evidence": 0,
+   "before": 7,
+   "after": [
+    7
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 29,
+   "evidence": 0,
+   "before": 27,
+   "after": [
+    27
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 30,
+   "evidence": 0,
+   "before": 11,
+   "after": [
+    11
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 31,
+   "evidence": 0,
+   "before": 22,
+   "after": [
+    22
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 32,
+   "evidence": 1,
+   "before": 30,
+   "after": [
+    30
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 36,
+   "evidence": 0,
+   "before": 9,
+   "after": [
+    9
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 37,
+   "evidence": 0,
+   "before": 11,
+   "after": [
+    11
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 38,
+   "evidence": 0,
+   "before": 11,
+   "after": [
+    11
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 39,
+   "evidence": 0,
+   "before": 19,
+   "after": [
+    19
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 40,
+   "evidence": 0,
+   "before": 21,
+   "after": [
+    21
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 41,
+   "evidence": 0,
+   "before": 26,
+   "after": [
+    26
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 42,
+   "evidence": 0,
+   "before": 20,
+   "after": [
+    20
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 44,
+   "evidence": 0,
+   "before": 3,
+   "after": [
+    3
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 46,
+   "evidence": 0,
+   "before": 5,
+   "after": [
+    5
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 47,
+   "evidence": 0,
+   "before": 17,
+   "after": [
+    17
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 48,
+   "evidence": 0,
+   "before": 24,
+   "after": [
+    24
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 48,
+   "evidence": 1,
+   "before": 5,
+   "after": [
+    5
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 49,
+   "evidence": 0,
+   "before": 13,
+   "after": [
+    13
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 49,
+   "evidence": 1,
+   "before": 11,
+   "after": [
+    11
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 50,
+   "evidence": 0,
+   "before": 3,
+   "after": [
+    3
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 52,
+   "evidence": 0,
+   "before": 8,
+   "after": [
+    8
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 53,
+   "evidence": 0,
+   "before": 10,
+   "after": [
+    10
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 56,
+   "evidence": 0,
+   "before": 28,
+   "after": [
+    28
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 57,
+   "evidence": 0,
+   "before": 5,
+   "after": [
+    5
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 58,
+   "evidence": 0,
+   "before": 5,
+   "after": [
+    5
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 58,
+   "evidence": 1,
+   "before": 24,
+   "after": [
+    24
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 60,
+   "evidence": 1,
+   "before": 30,
+   "after": [
+    30
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 61,
+   "evidence": 0,
+   "before": 11,
+   "after": [
+    11
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 62,
+   "evidence": 0,
+   "before": 13,
+   "after": [
+    13
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 62,
+   "evidence": 1,
+   "before": 11,
+   "after": [
+    11
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 64,
+   "evidence": 1,
+   "before": 30,
+   "after": [
+    30
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 65,
+   "evidence": 0,
+   "before": 12,
+   "after": [
+    12
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 68,
+   "evidence": 0,
+   "before": 3,
+   "after": [
+    3
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 69,
+   "evidence": 0,
+   "before": 15,
+   "after": [
+    15
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 70,
+   "evidence": 0,
+   "before": 27,
+   "after": [
+    27
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 71,
+   "evidence": 0,
+   "before": 8,
+   "after": [
+    8
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 72,
+   "evidence": 0,
+   "before": 25,
+   "after": [
+    25
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 73,
+   "evidence": 0,
+   "before": 10,
+   "after": [
+    10
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 74,
+   "evidence": 0,
+   "before": 14,
+   "after": [
+    14
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 76,
+   "evidence": 0,
+   "before": 9,
+   "after": [
+    9
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 77,
+   "evidence": 0,
+   "before": 12,
+   "after": [
+    12
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 79,
+   "evidence": 0,
+   "before": 12,
+   "after": [
+    12
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 80,
+   "evidence": 0,
+   "before": 1,
+   "after": [
+    1
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 82,
+   "evidence": 0,
+   "before": 11,
+   "after": [
+    11
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 83,
+   "evidence": 0,
+   "before": 9,
+   "after": [
+    9
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 87,
+   "evidence": 0,
+   "before": 13,
+   "after": [
+    13
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 88,
+   "evidence": 0,
+   "before": 14,
+   "after": [
+    14
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 89,
+   "evidence": 1,
+   "before": 5,
+   "after": [
+    5
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 90,
+   "evidence": 0,
+   "before": 19,
+   "after": [
+    19
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 91,
+   "evidence": 0,
+   "before": 22,
+   "after": [
+    22
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 92,
+   "evidence": 0,
+   "before": 5,
+   "after": [
+    5
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 95,
+   "evidence": 0,
+   "before": 7,
+   "after": [
+    7
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 96,
+   "evidence": 0,
+   "before": 5,
+   "after": [
+    5
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 99,
+   "evidence": 0,
+   "before": 3,
+   "after": [
+    3
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 100,
+   "evidence": 0,
+   "before": 21,
+   "after": [
+    21
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 101,
+   "evidence": 0,
+   "before": 1,
+   "after": [
+    1
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 102,
+   "evidence": 0,
+   "before": 17,
+   "after": [
+    17
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 103,
+   "evidence": 0,
+   "before": 11,
+   "after": [
+    11
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 104,
+   "evidence": 0,
+   "before": 5,
+   "after": [
+    5
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 105,
+   "evidence": 0,
+   "before": 13,
+   "after": [
+    13
+   ]
+  },
+  {
+   "kind": "scalar-lines",
+   "row": 106,
+   "evidence": 0,
+   "before": 18,
+   "after": [
+    18
+   ]
+  }
+ ],
+ "normalized": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/post/repair/A/3/review.jsonl",
+ "normalized_sha256": "b5df0c7ad8b860ed097b259b006ede2acd5543e3f4da0ddd75e5ba064c05a671"
+}

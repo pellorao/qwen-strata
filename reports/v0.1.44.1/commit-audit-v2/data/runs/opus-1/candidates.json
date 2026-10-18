@@ -1,0 +1,1115 @@
+[
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-1:COMMIT-AUDIT-GATE-1:finding-1",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 19,
+    "lineStart": 4
+   },
+   {
+    "filePath": "src/dispatch/index.mjs",
+    "lineEnd": 11,
+    "lineStart": 1
+   },
+   {
+    "filePath": "src/dispatch/policy.mjs",
+    "line": 1
+   }
+  ],
+  "expectation": "The public dispatch entry omits the executor surface.",
+  "finding": "src/dispatch/index.mjs does not re-export executor.mjs (or policy.mjs), so the execution operations executeAuthorizedPlan, executeDryRun, runEligibleStops, emitPlanCreated and planFailure, plus loadAllowedRegions, cannot be reached through the public dispatch entry.",
+  "findingIndex": 0,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 1,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "Connect dispatch planning and"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-2:COMMIT-AUDIT-GATE-1:finding-2",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "tests/dispatch/plan.test.mjs",
+    "lineEnd": 7,
+    "lineStart": 5
+   },
+   {
+    "filePath": "tests/dispatch/scenarios.mjs",
+    "lineEnd": 8,
+    "lineStart": 3
+   }
+  ],
+  "expectation": "The capacity test covers only a value below the limit and omits the equality boundary.",
+  "finding": "The scenario sums package weights 4 + 5 = 9 against vehicleCapacity 10, so the test never exercises a total equal to the limit.",
+  "findingIndex": 1,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 2,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "The capacity boundary test"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-3:COMMIT-AUDIT-GATE-1:finding-4",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/schedule.mjs",
+    "lineEnd": 6,
+    "lineStart": 1
+   }
+  ],
+  "expectation": "`chooseDeparture` reads the host-local hour instead of the UTC hour.",
+  "finding": "departureWindow.hourOf uses date.getHours(), which returns the local-time hour, not getUTCHours(). The window is inclusive, but it is evaluated in local time, not UTC.",
+  "findingIndex": 3,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 3,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "chooseDeparture"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-4:COMMIT-AUDIT-GATE-1:finding-5",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 17,
+    "lineStart": 14
+   },
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "lineEnd": 5,
+    "lineStart": 1
+   }
+  ],
+  "expectation": "`emitPlanCreated` emits before the storage operation completes.",
+  "finding": "emitPlanCreated emits plan.created through savePlan's onValidated callback, and savePlan calls that callback before await store.write(plan). The event fires before storage and also fires when the write fails.",
+  "findingIndex": 4,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 4,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "emitPlanCreated"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-5:COMMIT-AUDIT-GATE-1:finding-6",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/normalize.mjs",
+    "line": 3
+   },
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "lineEnd": 12,
+    "lineStart": 1
+   }
+  ],
+  "expectation": "Duplicate detection trims raw keys but does not apply `normalizeRouteKey` (NFKC and uppercase).",
+  "finding": "hasDuplicateRouteKeys only applies String(...).trim(). It skips normalizeRouteKey (NFKC and uppercase), so keys that differ only by case or compatibility form are not detected as duplicates.",
+  "findingIndex": 5,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 5,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "hasDuplicateRouteKeys"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-6:COMMIT-AUDIT-GATE-1:finding-7",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "lineEnd": 6,
+    "lineStart": 1
+   }
+  ],
+  "expectation": "parseRetryCount treats the retry maximum as a count of allowed values and rejects the required upper bound of 3.",
+  "finding": "The accepted set is Array.from({length: dispatchRetryBudget}) with dispatchRetryBudget = 3, which yields 0, 1 and 2. A count of 3 is rejected.",
+  "findingIndex": 6,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 6,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "parseRetryCount"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-7:COMMIT-AUDIT-GATE-1:finding-8",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "lineEnd": 10,
+    "lineStart": 3
+   }
+  ],
+  "expectation": "`createDispatchPlan` sorts the caller-owned stop list in place.",
+  "finding": "plan.stops is the same array as input.stops, and plan.stops.sort(compareStops) sorts it in place. The caller's stop list is mutated.",
+  "findingIndex": 7,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 7,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "createDispatchPlan"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-9:COMMIT-AUDIT-GATE-1:finding-3",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 8,
+    "lineStart": 4
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 5
+   }
+  ],
+  "expectation": "executeAuthorizedPlan invokes dispatch before checking authorization.",
+  "finding": "dispatchRoute(dispatch, route) is called on line 5, which invokes dispatch, before the canPlanRoute check on line 6. A forbidden caller still triggers dispatch.",
+  "findingIndex": 2,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 9,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "executeAuthorizedPlan"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-10:COMMIT-AUDIT-GATE-1:finding-9",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "line": 13
+   }
+  ],
+  "expectation": "No available contract establishes what `restore` returns after a partial write.",
+  "finding": "restorePlan returns adapter.restore(snapshot) unchanged and does not check the result itself. No restore-adapter contract is staged, so it is unknown whether that return value confirms the restore succeeded.",
+  "findingIndex": 8,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 10,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "restorePlan"
+  ],
+  "result": "uncertain",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-11:COMMIT-AUDIT-GATE-1:finding-10",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "line": 3
+   }
+  ],
+  "expectation": "`withinVehicleCapacity` uses a strict less-than comparison and rejects the inclusive limit.",
+  "finding": "withinVehicleCapacity uses weight < limit, so a total exactly equal to the limit is rejected.",
+  "findingIndex": 9,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 11,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "withinVehicleCapacity"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-12:COMMIT-AUDIT-GATE-1:finding-11",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "line": 3
+   }
+  ],
+  "expectation": "`canPlanRoute` accepts either scope or ownership instead of requiring both.",
+  "finding": "canPlanRoute combines the scope check and the depot-ownership check with ||. Either condition alone grants planning.",
+  "findingIndex": 10,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 12,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "canPlanRoute"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-13:COMMIT-AUDIT-GATE-1:finding-12",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/serialize.mjs",
+    "lineEnd": 3,
+    "lineStart": 1
+   }
+  ],
+  "expectation": "`serializePlan` selects a formatter mode that leaves the JSON document without the required terminal LF.",
+  "finding": "serializePlan passes format 'plan' to finishJsonDocument, which only appends the LF for 'document'. The serialized plan has no terminal LF.",
+  "findingIndex": 11,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 13,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "serializePlan"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-14:COMMIT-AUDIT-GATE-1:finding-13",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 32
+   },
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "lineEnd": 15,
+    "lineStart": 10
+   }
+  ],
+  "expectation": "The announcement failure branch returns without removing the already stored manifest.",
+  "finding": "When the announcement fails, the catch branch calls handleAnnouncementFailure, which only builds a failure object and never uses store. The manifest stored on line 11 is not removed.",
+  "findingIndex": 12,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 14,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "publishWithAnnouncement"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-15:COMMIT-AUDIT-GATE-1:finding-14",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/telemetry.mjs",
+    "lineEnd": 9,
+    "lineStart": 7
+   }
+  ],
+  "expectation": "`redactManifestEvent` reuses token redaction and leaves other nested authentication credentials unchanged.",
+  "finding": "redactManifestEvent only clears auth.token (by passing auth through redactNestedDriverToken). No staged source defines which auth fields count as credentials, so it is unknown whether other credential fields under auth (for example secret or password) need removal.",
+  "findingIndex": 13,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 15,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "redactManifestEvent"
+  ],
+  "result": "uncertain",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-16:COMMIT-AUDIT-GATE-1:finding-15",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/serialize.mjs",
+    "line": 9
+   }
+  ],
+  "expectation": "`serializeManifestRecords` joins records with LF but omits the terminal LF.",
+  "finding": "serializeManifestRecords uses records.map(...).join('\\n'), so the final record has no trailing LF.",
+  "findingIndex": 14,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 16,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "serializeManifestRecords"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-17:COMMIT-AUDIT-GATE-1:finding-16",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 11
+   }
+  ],
+  "expectation": "`orderManifestGroups` sorts destinations in descending order.",
+  "finding": "The comparator is right.destination.localeCompare(left.destination), which sorts in descending order.",
+  "findingIndex": 15,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 17,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "orderManifestGroups"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-18:COMMIT-AUDIT-GATE-1:finding-17",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 30
+   },
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "lineEnd": 8,
+    "lineStart": 4
+   }
+  ],
+  "expectation": "`publishManifest` stores the manifest before validating its entries.",
+  "finding": "publishManifest calls stageManifest (store.put) first and only then validates entries. Invalid manifests are stored before the 'invalid-manifest' failure is returned.",
+  "findingIndex": 16,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 18,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "publishManifest"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-19:COMMIT-AUDIT-GATE-1:finding-18",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "line": 17
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "lineEnd": 16,
+    "lineStart": 10
+   }
+  ],
+  "expectation": "`retryPublication` retries every thrown error without checking whether it is transient.",
+  "finding": "publishWithRetry delegates to retryPublication, which catches and retries every error until the budget runs out. It never checks retryTransient or error.transient.",
+  "findingIndex": 17,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 19,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "publishWithRetry"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-1:problem-20:COMMIT-AUDIT-GATE-1:finding-19",
+  "check": "COMMIT-AUDIT-GATE-1",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 13
+   },
+   {
+    "filePath": "src/dispatch/normalize.mjs",
+    "line": 11
+   }
+  ],
+  "expectation": "`coalescePackages` deduplicates each group independently and retains duplicates across groups.",
+  "finding": "coalescePackages deduplicates package IDs separately inside each group. An ID that appears in two destination groups stays duplicated across the manifest.",
+  "findingIndex": 18,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 20,
+  "problemScope": "COMMIT-AUDIT-GATE-1",
+  "referenceTerms": [
+   "coalescePackages"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-1:COMMIT-AUDIT-GATE-2:finding-6",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/capacity.mjs",
+    "lineEnd": 3,
+    "lineStart": 1
+   }
+  ],
+  "expectation": "canAssignAllPackages delegates the equality boundary to a strict capacity predicate and rejects a total equal to the limit.",
+  "finding": "canAssignAllPackages delegates to withinVehicleCapacity, which uses weight < limit, so a total equal to the vehicle limit is rejected.",
+  "findingIndex": 5,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 1,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Assigning all packages accepts"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-2:COMMIT-AUDIT-GATE-2:finding-1",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/serialize.mjs",
+    "lineEnd": 5,
+    "lineStart": 1
+   }
+  ],
+  "expectation": "`toStableJson` sorts only top-level keys and leaves nested object order unchanged.",
+  "finding": "stableTopLevel puts a Proxy ownKeys trap on the top-level object only. Keys of nested objects are not sorted.",
+  "findingIndex": 0,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 2,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Stable JSON sorts keys"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-3:COMMIT-AUDIT-GATE-2:finding-2",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/telemetry.mjs",
+    "lineEnd": 9,
+    "lineStart": 7
+   }
+  ],
+  "expectation": "`redactManifestEvent` reuses token redaction and leaves other nested authentication credentials unchanged.",
+  "finding": "Same conclusion as issue 02 line 23: only auth.token is cleared, and no staged source defines which other fields in the authentication data count as credentials.",
+  "findingIndex": 1,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 3,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Manifest-event redaction removes credentials"
+  ],
+  "result": "uncertain",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-4:COMMIT-AUDIT-GATE-2:finding-15",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 8,
+    "lineStart": 4
+   },
+   {
+    "filePath": "src/dispatch/runtime.mjs",
+    "line": 5
+   }
+  ],
+  "expectation": "Authorized execution invokes dispatch before it can reject the caller.",
+  "finding": "Same conclusion as issue 01 line 20: dispatchRoute invokes dispatch before canPlanRoute is checked.",
+  "findingIndex": 14,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 4,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Authorized execution rejects"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-5:COMMIT-AUDIT-GATE-2:finding-3",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 32
+   },
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "lineEnd": 15,
+    "lineStart": 10
+   }
+  ],
+  "expectation": "The failure branch does not remove the stored manifest.",
+  "finding": "Same conclusion as issue 02 line 22: handleAnnouncementFailure never uses store, so the manifest written on line 11 is not rolled back.",
+  "findingIndex": 2,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 5,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Announcement failure rolls back"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-6:COMMIT-AUDIT-GATE-2:finding-4",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 13
+   },
+   {
+    "filePath": "src/dispatch/normalize.mjs",
+    "line": 11
+   }
+  ],
+  "expectation": "`coalescePackages` deduplicates only within each group.",
+  "finding": "coalescePackages normalizes packageIds per group only, so an ID that appears in different destination groups is not removed.",
+  "findingIndex": 3,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 6,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Package coalescing removes duplicate"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-7:COMMIT-AUDIT-GATE-2:finding-5",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "lineEnd": 11,
+    "lineStart": 7
+   }
+  ],
+  "expectation": "No available contract establishes cleanup behavior when `renameTemporary` fails.",
+  "finding": "writePlanAtomically has no failure handling around store.renameTemporary(). If the rename fails, the temporary bytes from writeTemporary are left behind.",
+  "findingIndex": 4,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 7,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Atomic plan writes remove"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-8:COMMIT-AUDIT-GATE-2:finding-7",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 19,
+    "lineStart": 4
+   },
+   {
+    "filePath": "src/dispatch/index.mjs",
+    "lineEnd": 11,
+    "lineStart": 1
+   }
+  ],
+  "expectation": "The public entry does not export `executor.mjs`.",
+  "finding": "index.mjs does not re-export executor.mjs, so the execution operations are missing from the public dispatch entry.",
+  "findingIndex": 6,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 8,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "The public dispatch entry"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-9:COMMIT-AUDIT-GATE-2:finding-8",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/queue.mjs",
+    "lineEnd": 23,
+    "lineStart": 14
+   }
+  ],
+  "expectation": "`partitionUrgentStops` removes elements from the supplied list with `splice`.",
+  "finding": "partitionUrgentStops passes the supplied stops array to updateStopBuffer, which splices it in place. Urgent stops are removed from the caller's list.",
+  "findingIndex": 7,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 9,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Urgent-stop partitioning leaves the"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-10:COMMIT-AUDIT-GATE-2:finding-9",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/executor.mjs",
+    "lineEnd": 17,
+    "lineStart": 14
+   },
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "lineEnd": 5,
+    "lineStart": 1
+   }
+  ],
+  "expectation": "`emitPlanCreated` emits before awaiting storage.",
+  "finding": "Same conclusion as issue 01 line 28: plan.created is emitted through onValidated before store.write(plan).",
+  "findingIndex": 8,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 10,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Plan-created telemetry is emitted"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-11:COMMIT-AUDIT-GATE-2:finding-10",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/manifest.mjs",
+    "line": 11
+   }
+  ],
+  "expectation": "`orderManifestGroups` orders destinations descending.",
+  "finding": "orderManifestGroups sorts with right.destination.localeCompare(left.destination), which is descending.",
+  "findingIndex": 9,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 11,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Manifest destination groups are"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-12:COMMIT-AUDIT-GATE-2:finding-11",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/serialize.mjs",
+    "line": 9
+   }
+  ],
+  "expectation": "`serializeManifestRecords` omits the final LF.",
+  "finding": "serializeManifestRecords joins records with '\\n', so the final record has no LF.",
+  "findingIndex": 10,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 12,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Manifest NDJSON ends every"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-13:COMMIT-AUDIT-GATE-2:finding-13",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "lineEnd": 10,
+    "lineStart": 7
+   }
+  ],
+  "expectation": "`authorizeRouteBatch` computes every route ownership result but returns only the first result.",
+  "finding": "authorizeRouteBatch computes ownership for every route but returns only ownership[0]. A batch whose later routes belong to other depots is still authorized.",
+  "findingIndex": 12,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 13,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Batch authorization checks depot"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-14:COMMIT-AUDIT-GATE-2:finding-14",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/storage.mjs",
+    "line": 13
+   }
+  ],
+  "expectation": "The available adapter contract does not define the result returned by `restore`.",
+  "finding": "restorePlan returns adapter.restore(snapshot) directly. No storage-adapter restore contract is staged, so it is unknown whether that value reports restoration of the requested snapshot.",
+  "findingIndex": 13,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 14,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Plan restoration reports whether"
+  ],
+  "result": "uncertain",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-16:COMMIT-AUDIT-GATE-2:finding-16",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "lineEnd": 6,
+    "lineStart": 1
+   }
+  ],
+  "expectation": "parseRetryCount derives only three allowed values from the inclusive maximum and rejects the required upper bound.",
+  "finding": "The accepted set is built from length dispatchRetryBudget = 3, which yields only 0 through 2, so the integer 3 is rejected.",
+  "findingIndex": 15,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 16,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Retry-count parsing rejects fractions"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-17:COMMIT-AUDIT-GATE-2:finding-19",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/normalize.mjs",
+    "lineEnd": 13,
+    "lineStart": 3
+   }
+  ],
+  "expectation": "formatRouteToken bypasses the route-key normalizer while using the destination normalizer.",
+  "finding": "formatRouteToken normalizes the route key with trim().toUpperCase() only. It skips the NFKC step that normalizeRouteKey applies, so the route-key part is not the normalized route key.",
+  "findingIndex": 18,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 17,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Route tokens combine"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-18:COMMIT-AUDIT-GATE-2:finding-17",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/publisher.mjs",
+    "line": 17
+   },
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "lineEnd": 16,
+    "lineStart": 12
+   }
+  ],
+  "expectation": "`retryPublication` does not inspect the transient marker before retrying.",
+  "finding": "retryPublication retries every thrown error until the budget runs out, without checking a transient marker.",
+  "findingIndex": 16,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 18,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Publication retries stop immediately"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-19:COMMIT-AUDIT-GATE-2:finding-18",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/access.mjs",
+    "line": 5
+   }
+  ],
+  "expectation": "`scopeAllowsPlan` uses prefix matching and accepts scopes such as `routes:plan-admin`.",
+  "finding": "scopeAllowsPlan uses scope.startsWith('routes:plan'), so other scopes such as 'routes:planner' also match.",
+  "findingIndex": 17,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 19,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "routes:plan"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:problem-20:COMMIT-AUDIT-GATE-2:finding-20",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "evidence": [
+   {
+    "filePath": "src/dispatch/retry.mjs",
+    "line": 18
+   }
+  ],
+  "expectation": "`retryAfterDelay` enforces a minimum of 2000 milliseconds instead of a maximum.",
+  "finding": "retryAfterDelay uses Math.max(serverDelay, 2000), which sets a 2000 ms floor, not a cap.",
+  "findingIndex": 19,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "association",
+  "problemCaseIndex": 20,
+  "problemScope": "COMMIT-AUDIT-GATE-2",
+  "referenceTerms": [
+   "Server-provided retry delays are"
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer"
+ },
+ {
+  "allowedDecisions": [
+   "unsupported",
+   "supported",
+   "problem-15"
+  ],
+  "candidateId": "commit-audit-reviewer:default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-12",
+  "check": "COMMIT-AUDIT-GATE-2",
+  "cleanTargets": [],
+  "evidence": [
+   {
+    "filePath": "tests/dispatch/publish.test.mjs",
+    "lineEnd": 4,
+    "lineStart": 3
+   }
+  ],
+  "finding": "The test imports publicPublishManifest from index.mjs but calls a local publishManifest bound to internalPublishManifest from publisher.mjs. The public binding is never invoked.",
+  "findingIndex": 11,
+  "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+  "kind": "finding",
+  "problemOptions": [
+   {
+    "decision": "problem-15",
+    "expectation": "The publication test imports the public operation but executes the internal publisher directly."
+   }
+  ],
+  "result": "gap",
+  "reviewerId": "commit-audit-reviewer",
+  "scope": "COMMIT-AUDIT-GATE-2"
+ }
+]

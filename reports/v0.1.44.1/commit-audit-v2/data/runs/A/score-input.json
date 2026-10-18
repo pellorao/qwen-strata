@@ -1,0 +1,29 @@
+{
+ "artifacts": [
+  {
+   "reviewerId": "commit-audit-reviewer",
+   "instances": [
+    {
+     "instanceId": "default-0b39df8c-0684-47c4-9317-367f2292a9ce-instance-1",
+     "artifactPaths": [
+      "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/A/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/0b39df8c-0684-47c4-9317-367f2292a9ce/ca/1/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+     ]
+    },
+    {
+     "instanceId": "default-0b39df8c-0684-47c4-9317-367f2292a9ce-instance-2",
+     "artifactPaths": [
+      "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/A/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/0b39df8c-0684-47c4-9317-367f2292a9ce/ca/2/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+     ]
+    },
+    {
+     "instanceId": "default-0b39df8c-0684-47c4-9317-367f2292a9ce-instance-3",
+     "artifactPaths": null,
+     "formatCorrection": {
+      "originalReportPath": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/A/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/0b39df8c-0684-47c4-9317-367f2292a9ce/ca/3/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+      "correctedReportPath": "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/q3/runs/A/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/0b39df8c-0684-47c4-9317-367f2292a9ce/ca/3/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.format-corrected.jsonl"
+     }
+    }
+   ]
+  }
+ ]
+}

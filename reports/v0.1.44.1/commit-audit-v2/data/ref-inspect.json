@@ -1,0 +1,196 @@
+{
+ "haiku-1": {
+  "tool_calls": 19,
+  "by_tool": {
+   "Bash": 17,
+   "Read": 1,
+   "Write": 1
+  },
+  "flagged": [],
+  "tool_errors": [
+   "<tool_use_error>InputValidationError: Bash failed due to the following issue:\nAn unexpected parameter `workdir` was provided</tool_use_error>",
+   "Exit code 1\nrows 106 gate1 expected 49 missing [] extra []\nspec rows 57 unique 57\nspec body lines match true\nfinding/result mismatch 0\nmulti-object same file 0\n{ gap: 36, satisfied: 68, uncertain: 2 }"
+  ],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> 0776df46a63ef758ab3cbffc0ff025fa65b3ba486f2b46a06343b0ac8c778ecb  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 20,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ },
+ "opus-1": {
+  "tool_calls": 6,
+  "by_tool": {
+   "Bash": 6
+  },
+  "flagged": [],
+  "tool_errors": [],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> 822ca166f1208fa69e634f3b535b4a184bfeaf97f0de4ee26bdbe91daf6ee065  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 7,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ },
+ "opus-2": {
+  "tool_calls": 6,
+  "by_tool": {
+   "Bash": 6
+  },
+  "flagged": [],
+  "tool_errors": [],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> 22b6d7b238eb8ba30e7c58dd79ecccfd991436639fa94745161d7df0e991ac13  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 7,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ },
+ "opus-3": {
+  "tool_calls": 7,
+  "by_tool": {
+   "Bash": 7
+  },
+  "flagged": [],
+  "tool_errors": [],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> 76177c253695fe8fe05b35085518487cc6341e4391f79c6f316442c0d1c75645  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 8,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ },
+ "haiku-2": {
+  "tool_calls": 15,
+  "by_tool": {
+   "Bash": 10,
+   "Read": 4,
+   "Write": 1
+  },
+  "flagged": [],
+  "tool_errors": [],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> 0e0f8c977a069cd1422a945ecfd313ba783336467ae2a4910678da5c03b03e8a  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 16,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ },
+ "haiku-3": {
+  "tool_calls": 17,
+  "by_tool": {
+   "Bash": 6,
+   "Read": 10,
+   "Write": 1
+  },
+  "flagged": [],
+  "tool_errors": [
+   "File does not exist. Note: your current working directory is /home/pello/arw-opus/ca2f-haiku-3-h0/repo."
+  ],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> 0ce0146f3e3798a8b6e82ae59a481d87d3e2aaf079c3e09f9157e2dbb47bcfb3  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 18,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ },
+ "haiku-4": {
+  "tool_calls": 25,
+  "by_tool": {
+   "Bash": 12,
+   "Edit": 1,
+   "Read": 11,
+   "Write": 1
+  },
+  "flagged": [],
+  "tool_errors": [
+   "File does not exist. Note: your current working directory is /home/pello/arw-opus/ca2f-haiku-4-h0/repo."
+  ],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> ea6f8b69c864ebbc502bee14bac3409118fbccc22a96668c5945acf136fa757a  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 26,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ },
+ "haiku-5": {
+  "tool_calls": 15,
+  "by_tool": {
+   "Bash": 12,
+   "Read": 2,
+   "Write": 1
+  },
+  "flagged": [],
+  "tool_errors": [],
+  "files_diff": [
+   "< e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl",
+   "> f72ca01d1e7e0e5577ce552ac194f1b5e651c8b53afb2c8a3ec1ec78e635c2e7  ./.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+  ],
+  "isolation_check": "",
+  "result_subtype": "success",
+  "is_error": false,
+  "num_turns": 16,
+  "run": {
+   "rc": 0,
+   "reminded": 0,
+   "stopped_at_T": 0,
+   "T": "none"
+  }
+ }
+}

@@ -1,0 +1,42 @@
+{
+ "default-0b39df8c-0684-47c4-9317-367f2292a9ce-instance-1": {
+  "src": "q3:A",
+  "report": "runs/A/review-1.jsonl",
+  "repaired": false
+ },
+ "default-0b39df8c-0684-47c4-9317-367f2292a9ce-instance-2": {
+  "src": "q3:A",
+  "report": "runs/A/review-2.jsonl",
+  "repaired": false
+ },
+ "default-0b39df8c-0684-47c4-9317-367f2292a9ce-instance-3": {
+  "src": "q3:A",
+  "report": "runs/A/review-3.jsonl",
+  "repaired": true
+ },
+ "default-adfeaf13-e409-4ac1-aec1-4a4b5d7fc5bc-instance-1": {
+  "src": "q3:B",
+  "report": "runs/B/review-1.jsonl",
+  "repaired": false
+ },
+ "default-adfeaf13-e409-4ac1-aec1-4a4b5d7fc5bc-instance-2": {
+  "src": "q3:B",
+  "report": "runs/B/review-2.jsonl",
+  "repaired": false
+ },
+ "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1": {
+  "src": "opus:opus-1",
+  "report": "runs/opus-1/review-1.jsonl",
+  "repaired": false
+ },
+ "default-39f681fd-2dd9-48cd-ba3f-3aeac7d4f466-instance-1": {
+  "src": "opus:opus-2",
+  "report": "runs/opus-2/review-1.jsonl",
+  "repaired": false
+ },
+ "default-2365deee-25ab-4025-9406-6320bffd776a-instance-1": {
+  "src": "opus:opus-3",
+  "report": "runs/opus-3/review-1.jsonl",
+  "repaired": false
+ }
+}

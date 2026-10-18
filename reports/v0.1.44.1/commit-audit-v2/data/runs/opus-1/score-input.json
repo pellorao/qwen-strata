@@ -1,0 +1,15 @@
+{
+ "artifacts": [
+  {
+   "reviewerId": "commit-audit-reviewer",
+   "instances": [
+    {
+     "instanceId": "default-d4612462-3c4e-4276-baa9-bf8e2df3c9d6-instance-1",
+     "artifactPaths": [
+      "/home/pello/projects/qwen_strata/.tmp/commit-audit/measure/ref/runs/opus-1/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/d4612462-3c4e-4276-baa9-bf8e2df3c9d6/ca/1/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+     ]
+    }
+   ]
+  }
+ ]
+}

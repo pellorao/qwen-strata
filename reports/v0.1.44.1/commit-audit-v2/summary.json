@@ -1,0 +1,1365 @@
+{
+ "meta": {
+  "scenario": "Commit Audit v2",
+  "revision": 23,
+  "freeze": "a1ed615",
+  "plan": "db03be2",
+  "scoring": "r8.3",
+  "strata": "0.1.44.1",
+  "codex": "0.162.0",
+  "model": "IQ3_XXS",
+  "effort": "high",
+  "expectedSha256": "0f02cf4372f74d2c9a37ca95834cad7a94456b9355884ebe6efb536d51bfd7bb",
+  "tokenSource": {
+   "q3": "Strata 引擎日志段（本次与下一次派发之间）",
+   "opus/haiku": "claude -p stream-json result.usage"
+  }
+ },
+ "rows": [
+  {
+   "batch": "A",
+   "rep": 1,
+   "score": 0.847,
+   "raw": 0.847,
+   "r": 0,
+   "rRepairable": 0,
+   "T": 177,
+   "p": 0.0,
+   "work_min": 13.6,
+   "read": 47306,
+   "reused": 1482264,
+   "generated": 69672,
+   "tool_calls": 26,
+   "engine_in_tps": 1352.0,
+   "engine_out_tps": 94.0,
+   "task_in_tps": 58.0,
+   "task_out_tps": 85.4,
+   "compactions": 0,
+   "flagged_actions": 3,
+   "final": "{\"status\":\"ready\"}",
+   "mergeInconsistent": 0
+  },
+  {
+   "batch": "A",
+   "rep": 2,
+   "score": 0.4798,
+   "raw": 0.4798,
+   "r": 0,
+   "rRepairable": 0,
+   "T": 176,
+   "p": 0.0,
+   "work_min": 12.1,
+   "read": 62900,
+   "reused": 1251353,
+   "generated": 65906,
+   "tool_calls": 22,
+   "engine_in_tps": 1688.0,
+   "engine_out_tps": 97.2,
+   "task_in_tps": 86.7,
+   "task_out_tps": 90.9,
+   "compactions": 0,
+   "flagged_actions": 0,
+   "final": "{\"status\":\"ready\"}",
+   "mergeInconsistent": 0
+  },
+  {
+   "batch": "A",
+   "rep": 3,
+   "score": 0.727,
+   "raw": 0.8077,
+   "r": 76,
+   "rRepairable": 76,
+   "T": 156,
+   "p": 0.48717948717948717,
+   "work_min": 12.1,
+   "read": 68279,
+   "reused": 1851443,
+   "generated": 62536,
+   "tool_calls": 34,
+   "engine_in_tps": 1482.0,
+   "engine_out_tps": 93.1,
+   "task_in_tps": 93.7,
+   "task_out_tps": 85.9,
+   "compactions": 0,
+   "flagged_actions": 1,
+   "final": "{\"status\":\"ready\"}",
+   "mergeInconsistent": 0
+  },
+  {
+   "batch": "B",
+   "rep": 1,
+   "score": 0.7387,
+   "raw": 0.7387,
+   "r": 0,
+   "rRepairable": 0,
+   "T": 115,
+   "p": 0.0,
+   "work_min": 9.7,
+   "read": 58088,
+   "reused": 1382893,
+   "generated": 47619,
+   "tool_calls": 30,
+   "engine_in_tps": 1464.0,
+   "engine_out_tps": 94.4,
+   "task_in_tps": 99.7,
+   "task_out_tps": 81.8,
+   "compactions": 0,
+   "flagged_actions": 1,
+   "final": "{\"status\":\"ready\"}",
+   "mergeInconsistent": 0
+  },
+  {
+   "batch": "B",
+   "rep": 2,
+   "score": 0.824,
+   "raw": 0.824,
+   "r": 0,
+   "rRepairable": 0,
+   "T": 136,
+   "p": 0.0,
+   "work_min": 11.1,
+   "read": 55244,
+   "reused": 2020085,
+   "generated": 57941,
+   "tool_calls": 37,
+   "engine_in_tps": 1284.0,
+   "engine_out_tps": 94.7,
+   "task_in_tps": 83.0,
+   "task_out_tps": 87.1,
+   "compactions": 0,
+   "flagged_actions": 1,
+   "final": "{\"status\":\"ready\"}",
+   "mergeInconsistent": 0
+  }
+ ],
+ "opus": [
+  {
+   "src": "opus:opus-1",
+   "score": 0.8374,
+   "raw": 0.8374,
+   "r": 0,
+   "T": 128,
+   "wall_min": 2.2,
+   "usage": {
+    "input_tokens": 14,
+    "cache_creation_input_tokens": 61778,
+    "cache_read_input_tokens": 211588,
+    "output_tokens": 15559
+   },
+   "cost_usd": 0.848,
+   "tool_calls": 6,
+   "num_turns": 7,
+   "mergeInconsistent": 0,
+   "inspect": {
+    "flagged": [],
+    "tool_errors": [],
+    "result_subtype": "success"
+   }
+  },
+  {
+   "src": "opus:opus-2",
+   "score": 0.914,
+   "raw": 0.914,
+   "r": 0,
+   "T": 161,
+   "wall_min": 2.7,
+   "usage": {
+    "input_tokens": 14,
+    "cache_creation_input_tokens": 55775,
+    "cache_read_input_tokens": 245073,
+    "output_tokens": 16742
+   },
+   "cost_usd": 0.83,
+   "tool_calls": 6,
+   "num_turns": 7,
+   "mergeInconsistent": 0,
+   "inspect": {
+    "flagged": [],
+    "tool_errors": [],
+    "result_subtype": "success"
+   }
+  },
+  {
+   "src": "opus:opus-3",
+   "score": 0.8628,
+   "raw": 0.8628,
+   "r": 0,
+   "T": 161,
+   "wall_min": 2.6,
+   "usage": {
+    "input_tokens": 16,
+    "cache_creation_input_tokens": 61003,
+    "cache_read_input_tokens": 277417,
+    "output_tokens": 18324
+   },
+   "cost_usd": 0.91,
+   "tool_calls": 7,
+   "num_turns": 8,
+   "mergeInconsistent": 0,
+   "inspect": {
+    "flagged": [],
+    "tool_errors": [],
+    "result_subtype": "success"
+   }
+  }
+ ],
+ "agg": {
+  "q3": {
+   "n": 5,
+   "mean": 0.7233,
+   "sd": 0.1458,
+   "rawMean": 0.7394
+  },
+  "opus": {
+   "n": 3,
+   "mean": 0.8714,
+   "sd": 0.039
+  },
+  "ratio": 0.83,
+  "ratioRaw": 0.849
+ },
+ "haiku": [
+  {
+   "src": "haiku:haiku-1",
+   "upper": 0.8103,
+   "lower": 0,
+   "r": 0,
+   "T": 152,
+   "wall_min": 5.7,
+   "usage": {
+    "input_tokens": 26,
+    "cache_creation_input_tokens": 144578,
+    "cache_read_input_tokens": 823866,
+    "output_tokens": 88156
+   },
+   "tool_calls": 19,
+   "mergeInconsistent": 1
+  },
+  {
+   "src": "haiku:haiku-2",
+   "upper": 0.8211,
+   "lower": 0,
+   "r": 0,
+   "T": 156,
+   "wall_min": 5.6,
+   "usage": {
+    "input_tokens": 28,
+    "cache_creation_input_tokens": 128731,
+    "cache_read_input_tokens": 897921,
+    "output_tokens": 76712
+   },
+   "tool_calls": 15,
+   "mergeInconsistent": 1
+  },
+  {
+   "src": "haiku:haiku-3",
+   "upper": 0.8855,
+   "lower": 0,
+   "r": 0,
+   "T": 144,
+   "wall_min": 5.8,
+   "usage": {
+    "input_tokens": 20,
+    "cache_creation_input_tokens": 132008,
+    "cache_read_input_tokens": 574001,
+    "output_tokens": 82028
+   },
+   "tool_calls": 17,
+   "mergeInconsistent": 0
+  },
+  {
+   "src": "haiku:haiku-4",
+   "upper": 0.8562,
+   "lower": 0,
+   "r": 0,
+   "T": 151,
+   "wall_min": 6.6,
+   "usage": {
+    "input_tokens": 32,
+    "cache_creation_input_tokens": 146563,
+    "cache_read_input_tokens": 1299269,
+    "output_tokens": 90555
+   },
+   "tool_calls": 25,
+   "mergeInconsistent": 1
+  },
+  {
+   "src": "haiku:haiku-5",
+   "upper": 0.8601,
+   "lower": 0,
+   "r": 0,
+   "T": 160,
+   "wall_min": 4.6,
+   "usage": {
+    "input_tokens": 24,
+    "cache_creation_input_tokens": 105806,
+    "cache_read_input_tokens": 670053,
+    "output_tokens": 62792
+   },
+   "tool_calls": 15,
+   "mergeInconsistent": 0
+  }
+ ],
+ "cases": [
+  {
+   "case": "G1#0",
+   "merge": "01:7+spec:27",
+   "q3Hits": 5,
+   "q3Mean": 0.89,
+   "opusHits": 3,
+   "opusMean": 0.96,
+   "expectation": "The public dispatch entry omits the executor surface."
+  },
+  {
+   "case": "G1#1",
+   "merge": null,
+   "q3Hits": 5,
+   "q3Mean": 0.94,
+   "opusHits": 3,
+   "opusMean": 0.98,
+   "expectation": "The capacity test covers only a value below the limit and omits the equality boundary."
+  },
+  {
+   "case": "G1#2",
+   "merge": null,
+   "q3Hits": 5,
+   "q3Mean": 0.95,
+   "opusHits": 3,
+   "opusMean": 0.95,
+   "expectation": "`chooseDeparture` reads the host-local hour instead of the UTC hour."
+  },
+  {
+   "case": "G1#3",
+   "merge": "01:28+spec:41",
+   "q3Hits": 5,
+   "q3Mean": 0.9,
+   "opusHits": 3,
+   "opusMean": 0.96,
+   "expectation": "`emitPlanCreated` emits before the storage operation completes."
+  },
+  {
+   "case": "G1#4",
+   "merge": null,
+   "q3Hits": 5,
+   "q3Mean": 0.95,
+   "opusHits": 3,
+   "opusMean": 0.93,
+   "expectation": "Duplicate detection trims raw keys but does not apply `normalizeRouteKey` (NFKC and uppercase)."
+  },
+  {
+   "case": "G1#5",
+   "merge": "01:30+spec:59",
+   "q3Hits": 5,
+   "q3Mean": 0.9,
+   "opusHits": 3,
+   "opusMean": 0.91,
+   "expectation": "parseRetryCount treats the retry maximum as a count of allowed values and rejects the required upper bound of 3."
+  },
+  {
+   "case": "G1#6",
+   "merge": null,
+   "q3Hits": 5,
+   "q3Mean": 0.86,
+   "opusHits": 3,
+   "opusMean": 0.92,
+   "expectation": "`createDispatchPlan` sorts the caller-owned stop list in place."
+  },
+  {
+   "case": "G1#7",
+   "merge": null,
+   "q3Hits": 0,
+   "q3Mean": 0,
+   "opusHits": 1,
+   "opusMean": 0.3,
+   "expectation": "No available provider contract establishes that `provider.load()` returns the configured allowed-region list."
+  },
+  {
+   "case": "G1#8",
+   "merge": "01:20+spec:55",
+   "q3Hits": 5,
+   "q3Mean": 0.85,
+   "opusHits": 3,
+   "opusMean": 0.97,
+   "expectation": "executeAuthorizedPlan invokes dispatch before checking authorization."
+  },
+  {
+   "case": "G1#9",
+   "merge": "01:43+spec:53",
+   "q3Hits": 4,
+   "q3Mean": 0.73,
+   "opusHits": 3,
+   "opusMean": 1,
+   "expectation": "No available contract establishes what `restore` returns after a partial write."
+  },
+  {
+   "case": "G1#10",
+   "merge": "01:49+spec:26",
+   "q3Hits": 5,
+   "q3Mean": 0.95,
+   "opusHits": 3,
+   "opusMean": 1,
+   "expectation": "`withinVehicleCapacity` uses a strict less-than comparison and rejects the inclusive limit."
+  },
+  {
+   "case": "G1#11",
+   "merge": null,
+   "q3Hits": 5,
+   "q3Mean": 0.95,
+   "opusHits": 3,
+   "opusMean": 1,
+   "expectation": "`canPlanRoute` accepts either scope or ownership instead of requiring both."
+  },
+  {
+   "case": "G1#12",
+   "merge": null,
+   "q3Hits": 5,
+   "q3Mean": 0.98,
+   "opusHits": 3,
+   "opusMean": 0.96,
+   "expectation": "`serializePlan` selects a formatter mode that leaves the JSON document without the required terminal LF."
+  },
+  {
+   "case": "G1#13",
+   "merge": "02:22+spec:17",
+   "q3Hits": 5,
+   "q3Mean": 0.86,
+   "opusHits": 3,
+   "opusMean": 0.95,
+   "expectation": "The announcement failure branch returns without removing the already stored manifest."
+  },
+  {
+   "case": "G1#14",
+   "merge": "02:23+spec:12",
+   "q3Hits": 2,
+   "q3Mean": 0.39,
+   "opusHits": 3,
+   "opusMean": 0.73,
+   "expectation": "`redactManifestEvent` reuses token redaction and leaves other nested authentication credentials unchanged."
+  },
+  {
+   "case": "G1#15",
+   "merge": "02:29+spec:46",
+   "q3Hits": 5,
+   "q3Mean": 0.97,
+   "opusHits": 3,
+   "opusMean": 1,
+   "expectation": "`serializeManifestRecords` joins records with LF but omits the terminal LF."
+  },
+  {
+   "case": "G1#16",
+   "merge": "02:30+spec:45",
+   "q3Hits": 5,
+   "q3Mean": 0.97,
+   "opusHits": 3,
+   "opusMean": 1,
+   "expectation": "`orderManifestGroups` sorts destinations in descending order."
+  },
+  {
+   "case": "G1#17",
+   "merge": null,
+   "q3Hits": 5,
+   "q3Mean": 0.79,
+   "opusHits": 3,
+   "opusMean": 0.93,
+   "expectation": "`publishManifest` stores the manifest before validating its entries."
+  },
+  {
+   "case": "G1#18",
+   "merge": "02:46+spec:71",
+   "q3Hits": 5,
+   "q3Mean": 0.91,
+   "opusHits": 3,
+   "opusMean": 0.9,
+   "expectation": "`retryPublication` retries every thrown error without checking whether it is transient."
+  },
+  {
+   "case": "G1#19",
+   "merge": "02:48+spec:22",
+   "q3Hits": 5,
+   "q3Mean": 0.95,
+   "opusHits": 3,
+   "opusMean": 0.94,
+   "expectation": "`coalescePackages` deduplicates each group independently and retains duplicates across groups."
+  },
+  {
+   "case": "G2#0",
+   "merge": "01:49+spec:26",
+   "q3Hits": 5,
+   "q3Mean": 0.9,
+   "opusHits": 3,
+   "opusMean": 0.96,
+   "expectation": "canAssignAllPackages delegates the equality boundary to a strict capacity predicate and rejects a total equal to the limit."
+  },
+  {
+   "case": "G2#1",
+   "merge": null,
+   "q3Hits": 5,
+   "q3Mean": 0.94,
+   "opusHits": 3,
+   "opusMean": 0.98,
+   "expectation": "`toStableJson` sorts only top-level keys and leaves nested object order unchanged."
+  },
+  {
+   "case": "G2#2",
+   "merge": "02:23+spec:12",
+   "q3Hits": 2,
+   "q3Mean": 0.39,
+   "opusHits": 3,
+   "opusMean": 0.73,
+   "expectation": "`redactManifestEvent` reuses token redaction and leaves other nested authentication credentials unchanged."
+  },
+  {
+   "case": "G2#3",
+   "merge": "01:20+spec:55",
+   "q3Hits": 5,
+   "q3Mean": 0.86,
+   "opusHits": 3,
+   "opusMean": 0.97,
+   "expectation": "Authorized execution invokes dispatch before it can reject the caller."
+  },
+  {
+   "case": "G2#4",
+   "merge": "02:22+spec:17",
+   "q3Hits": 5,
+   "q3Mean": 0.91,
+   "opusHits": 3,
+   "opusMean": 0.95,
+   "expectation": "The failure branch does not remove the stored manifest."
+  },
+  {
+   "case": "G2#5",
+   "merge": "02:48+spec:22",
+   "q3Hits": 5,
+   "q3Mean": 0.96,
+   "opusHits": 3,
+   "opusMean": 0.94,
+   "expectation": "`coalescePackages` deduplicates only within each group."
+  },
+  {
+   "case": "G2#6",
+   "merge": null,
+   "q3Hits": 5,
+   "q3Mean": 0.44,
+   "opusHits": 3,
+   "opusMean": 0.51,
+   "expectation": "No available contract establishes cleanup behavior when `renameTemporary` fails."
+  },
+  {
+   "case": "G2#7",
+   "merge": "01:7+spec:27",
+   "q3Hits": 5,
+   "q3Mean": 0.89,
+   "opusHits": 3,
+   "opusMean": 0.96,
+   "expectation": "The public entry does not export `executor.mjs`."
+  },
+  {
+   "case": "G2#8",
+   "merge": null,
+   "q3Hits": 5,
+   "q3Mean": 0.92,
+   "opusHits": 3,
+   "opusMean": 0.92,
+   "expectation": "`partitionUrgentStops` removes elements from the supplied list with `splice`."
+  },
+  {
+   "case": "G2#9",
+   "merge": "01:28+spec:41",
+   "q3Hits": 5,
+   "q3Mean": 0.9,
+   "opusHits": 3,
+   "opusMean": 0.96,
+   "expectation": "`emitPlanCreated` emits before awaiting storage."
+  },
+  {
+   "case": "G2#10",
+   "merge": "02:30+spec:45",
+   "q3Hits": 5,
+   "q3Mean": 0.99,
+   "opusHits": 3,
+   "opusMean": 1,
+   "expectation": "`orderManifestGroups` orders destinations descending."
+  },
+  {
+   "case": "G2#11",
+   "merge": "02:29+spec:46",
+   "q3Hits": 5,
+   "q3Mean": 0.99,
+   "opusHits": 3,
+   "opusMean": 1,
+   "expectation": "`serializeManifestRecords` omits the final LF."
+  },
+  {
+   "case": "G2#12",
+   "merge": null,
+   "q3Hits": 5,
+   "q3Mean": 0.83,
+   "opusHits": 3,
+   "opusMean": 0.92,
+   "expectation": "`authorizeRouteBatch` computes every route ownership result but returns only the first result."
+  },
+  {
+   "case": "G2#13",
+   "merge": "01:43+spec:53",
+   "q3Hits": 4,
+   "q3Mean": 0.73,
+   "opusHits": 3,
+   "opusMean": 1,
+   "expectation": "The available adapter contract does not define the result returned by `restore`."
+  },
+  {
+   "case": "G2#14",
+   "merge": null,
+   "q3Hits": 5,
+   "q3Mean": 0.94,
+   "opusHits": 3,
+   "opusMean": 0.89,
+   "expectation": "The publication test imports the public operation but executes the internal publisher directly."
+  },
+  {
+   "case": "G2#15",
+   "merge": "01:30+spec:59",
+   "q3Hits": 5,
+   "q3Mean": 0.9,
+   "opusHits": 3,
+   "opusMean": 0.91,
+   "expectation": "parseRetryCount derives only three allowed values from the inclusive maximum and rejects the required upper bound."
+  },
+  {
+   "case": "G2#16",
+   "merge": null,
+   "q3Hits": 3,
+   "q3Mean": 0.53,
+   "opusHits": 3,
+   "opusMean": 0.9,
+   "expectation": "formatRouteToken bypasses the route-key normalizer while using the destination normalizer."
+  },
+  {
+   "case": "G2#17",
+   "merge": "02:46+spec:71",
+   "q3Hits": 5,
+   "q3Mean": 0.91,
+   "opusHits": 3,
+   "opusMean": 0.87,
+   "expectation": "`retryPublication` does not inspect the transient marker before retrying."
+  },
+  {
+   "case": "G2#18",
+   "merge": null,
+   "q3Hits": 5,
+   "q3Mean": 0.96,
+   "opusHits": 3,
+   "opusMean": 1,
+   "expectation": "`scopeAllowsPlan` uses prefix matching and accepts scopes such as `routes:plan-admin`."
+  },
+  {
+   "case": "G2#19",
+   "merge": null,
+   "q3Hits": 5,
+   "q3Mean": 0.97,
+   "opusHits": 3,
+   "opusMean": 1,
+   "expectation": "`retryAfterDelay` enforces a minimum of 2000 milliseconds instead of a maximum."
+  }
+ ],
+ "cleanCases": [
+  {
+   "case": "G1c#0",
+   "merge": "01:40+spec:16",
+   "q3Fail": 5,
+   "q3Mean": 0.71,
+   "opusFail": 3,
+   "opusMean": 0.88,
+   "expectation": "The implementation satisfies: savePlan validates a plan before the first persistent write."
+  },
+  {
+   "case": "G1c#1",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `planFailure` returns a structured non-throwing failure result."
+  },
+  {
+   "case": "G1c#2",
+   "merge": "01:22+spec:43",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `totalPackageWeight` sums every package weight without changing the package list."
+  },
+  {
+   "case": "G1c#3",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `redactNestedDriverToken` removes a nested driver token from telemetry."
+  },
+  {
+   "case": "G1c#4",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `remainingVehicleCapacity` never returns a negative value."
+  },
+  {
+   "case": "G1c#5",
+   "merge": "01:33+spec:29",
+   "q3Fail": 3,
+   "q3Mean": 0.9,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `previewPlan` returns a dry-run result without invoking storage."
+  },
+  {
+   "case": "G1c#6",
+   "merge": "01:34+spec:42",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `redactAccessLog` removes token and secret fields while preserving other fields."
+  },
+  {
+   "case": "G1c#7",
+   "merge": null,
+   "q3Fail": 5,
+   "q3Mean": 0.75,
+   "opusFail": 3,
+   "opusMean": 0.77,
+   "expectation": "The implementation satisfies: The invalid-storage test asserts that validation failure performs zero writes."
+  },
+  {
+   "case": "G1c#8",
+   "merge": "01:41+spec:31",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `computeBackoff` doubles from 250 milliseconds and caps the result at 2000 milliseconds."
+  },
+  {
+   "case": "G1c#9",
+   "merge": "01:42+spec:36",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `retryTransient` permits retries only for errors explicitly marked transient."
+  },
+  {
+   "case": "G1c#10",
+   "merge": "01:47+spec:10",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `retainScheduleOffset` preserves the supplied offset exactly."
+  },
+  {
+   "case": "G1c#11",
+   "merge": "01:48+spec:25",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `runEligibleStops` skips cancelled stops while retaining the other stop order."
+  },
+  {
+   "case": "G1c#12",
+   "merge": null,
+   "q3Fail": 1,
+   "q3Mean": 0.91,
+   "opusFail": 1,
+   "opusMean": 0.85,
+   "expectation": "The implementation satisfies: `selectActiveClaims` excludes claims before their start and at or after expiry."
+  },
+  {
+   "case": "G1c#13",
+   "merge": null,
+   "q3Fail": 1,
+   "q3Mean": 0.97,
+   "opusFail": 3,
+   "opusMean": 0.79,
+   "expectation": "The implementation satisfies: `checksumPlan` hashes the bytes returned by the plan serializer."
+  },
+  {
+   "case": "G1c#14",
+   "merge": null,
+   "q3Fail": 5,
+   "q3Mean": 0.35,
+   "opusFail": 3,
+   "opusMean": 0.33,
+   "expectation": "The implementation satisfies: Connect dispatch manifest publication through the public dispatch entry."
+  },
+  {
+   "case": "G1c#15",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `safeAnnouncement` omits a top-level credential from the announcement payload."
+  },
+  {
+   "case": "G1c#16",
+   "merge": "02:20+spec:72",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `encodeUtf8` encodes publication bytes as UTF-8."
+  },
+  {
+   "case": "G1c#17",
+   "merge": "02:21+spec:57",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `manifestEntryIsValid` rejects blank package IDs."
+  },
+  {
+   "case": "G1c#18",
+   "merge": "02:27+spec:67",
+   "q3Fail": 5,
+   "q3Mean": 0.81,
+   "opusFail": 3,
+   "opusMean": 0.96,
+   "expectation": "The implementation satisfies: `chunkManifest` limits every non-empty chunk to the configured maximum."
+  },
+  {
+   "case": "G1c#19",
+   "merge": null,
+   "q3Fail": 5,
+   "q3Mean": 0.77,
+   "opusFail": 1,
+   "opusMean": 0.97,
+   "expectation": "The implementation satisfies: Under the Manifest Store contract, `publishWithAnnouncement` waits for the exact manifest to be durably stored before sending its announcement."
+  },
+  {
+   "case": "G1c#20",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `auditFieldsPresent` requires action, actor, and timestamp fields."
+  },
+  {
+   "case": "G1c#21",
+   "merge": "02:35+spec:56",
+   "q3Fail": 1,
+   "q3Mean": 0.93,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `publicationResult` returns structured success and failure variants."
+  },
+  {
+   "case": "G1c#22",
+   "merge": "02:36+spec:69",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `normalizedPlanKey` trims and uppercases the route-key storage segment."
+  },
+  {
+   "case": "G1c#23",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `buildManifest` copies record objects instead of mutating supplied records."
+  },
+  {
+   "case": "G1c#24",
+   "merge": null,
+   "q3Fail": 2,
+   "q3Mean": 0.93,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `publicationRetryBudget` is two attempts."
+  },
+  {
+   "case": "G1c#25",
+   "merge": "02:43+spec:28",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `successTelemetry` records the success event, manifest ID, and timestamp."
+  },
+  {
+   "case": "G1c#26",
+   "merge": "02:44+spec:51",
+   "q3Fail": 5,
+   "q3Mean": 0.65,
+   "opusFail": 3,
+   "opusMean": 0.88,
+   "expectation": "The implementation satisfies: `groupByDestination` groups records using normalized destination keys."
+  },
+  {
+   "case": "G1c#27",
+   "merge": "02:45+spec:14",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `failureTelemetry` records the failure event, error, manifest ID, and timestamp."
+  },
+  {
+   "case": "G1c#28",
+   "merge": "02:47+spec:15",
+   "q3Fail": 1,
+   "q3Mean": 0.91,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: `preserveManifestDriver` trims driver labels without changing letter case."
+  },
+  {
+   "case": "G1c#29",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "{\"noOtherSupportedFinding\": true}"
+  },
+  {
+   "case": "G2c#0",
+   "merge": null,
+   "q3Fail": 2,
+   "q3Mean": 0.82,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Stop ordering uses descending priority followed by ascending sequence."
+  },
+  {
+   "case": "G2c#1",
+   "merge": null,
+   "q3Fail": 5,
+   "q3Mean": 0.59,
+   "opusFail": 3,
+   "opusMean": 0.77,
+   "expectation": "The implementation satisfies: Publication audit records include action, actor, and timestamp."
+  },
+  {
+   "case": "G2c#2",
+   "merge": "01:47+spec:10",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Schedule offsets pass through without coercion."
+  },
+  {
+   "case": "G2c#3",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Empty manifests use an empty entries array and a generated marker."
+  },
+  {
+   "case": "G2c#4",
+   "merge": "02:45+spec:14",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Publication failure telemetry includes the manifest ID, error, and timestamp."
+  },
+  {
+   "case": "G2c#5",
+   "merge": "02:47+spec:15",
+   "q3Fail": 2,
+   "q3Mean": 0.82,
+   "opusFail": 2,
+   "opusMean": 0.7,
+   "expectation": "The implementation satisfies: Driver labels are trimmed without changing their letter case."
+  },
+  {
+   "case": "G2c#6",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Package IDs are trimmed, deduplicated, and sorted lexically."
+  },
+  {
+   "case": "G2c#7",
+   "merge": null,
+   "q3Fail": 5,
+   "q3Mean": 0.83,
+   "opusFail": 3,
+   "opusMean": 0.89,
+   "expectation": "The implementation satisfies: Under the Manifest Store contract, valid manifest publication returns the exact durably stored manifest object in a success result."
+  },
+  {
+   "case": "G2c#8",
+   "merge": "01:48+spec:25",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Eligible-stop execution excludes cancelled stops."
+  },
+  {
+   "case": "G2c#9",
+   "merge": null,
+   "q3Fail": 3,
+   "q3Mean": 0.88,
+   "opusFail": 3,
+   "opusMean": 0.71,
+   "expectation": "The implementation satisfies: Window membership includes both the declared start and end hour."
+  },
+  {
+   "case": "G2c#10",
+   "merge": "02:43+spec:28",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Publication success telemetry includes the manifest ID and timestamp."
+  },
+  {
+   "case": "G2c#11",
+   "merge": "01:33+spec:29",
+   "q3Fail": 1,
+   "q3Mean": 0.97,
+   "opusFail": 2,
+   "opusMean": 0.89,
+   "expectation": "The implementation satisfies: Plan previews return without touching persistent storage."
+  },
+  {
+   "case": "G2c#12",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Appending a stable stop returns a new list."
+  },
+  {
+   "case": "G2c#13",
+   "merge": "01:41+spec:31",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Dispatch backoff is capped at 2000 milliseconds."
+  },
+  {
+   "case": "G2c#14",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Frozen dispatch plans also freeze a copied stop list."
+  },
+  {
+   "case": "G2c#15",
+   "merge": "01:42+spec:36",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Transient retry classification requires an explicit true marker."
+  },
+  {
+   "case": "G2c#16",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Depot ownership requires equal actor and depot identifiers."
+  },
+  {
+   "case": "G2c#17",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Destination keys are normalized with NFKC, trimmed, and uppercased."
+  },
+  {
+   "case": "G2c#18",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: The next dispatch time is not earlier than either supplied bound."
+  },
+  {
+   "case": "G2c#19",
+   "merge": "01:34+spec:42",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Access-log redaction removes both token and secret fields."
+  },
+  {
+   "case": "G2c#20",
+   "merge": "01:22+spec:43",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Package weight totals include every supplied package."
+  },
+  {
+   "case": "G2c#21",
+   "merge": null,
+   "q3Fail": 2,
+   "q3Mean": 0.96,
+   "opusFail": 1,
+   "opusMean": 0.97,
+   "expectation": "The implementation satisfies: `toStableJson` uses two-space indentation and one terminal LF."
+  },
+  {
+   "case": "G2c#22",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: An explicit vehicle capacity of zero is preserved instead of replaced by a default."
+  },
+  {
+   "case": "G2c#23",
+   "merge": "02:44+spec:51",
+   "q3Fail": 5,
+   "q3Mean": 0.62,
+   "opusFail": 3,
+   "opusMean": 0.83,
+   "expectation": "The implementation satisfies: Destination grouping uses normalized keys and copied records."
+  },
+  {
+   "case": "G2c#24",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Blackout intervals include the start and exclude the end."
+  },
+  {
+   "case": "G2c#25",
+   "merge": "01:40+spec:16",
+   "q3Fail": 5,
+   "q3Mean": 0.71,
+   "opusFail": 3,
+   "opusMean": 0.88,
+   "expectation": "The implementation satisfies: Plan persistence completes validation before any write."
+  },
+  {
+   "case": "G2c#26",
+   "merge": "02:35+spec:56",
+   "q3Fail": 1,
+   "q3Mean": 0.93,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Successful publication results and failed publication results use distinct structured variants."
+  },
+  {
+   "case": "G2c#27",
+   "merge": "02:21+spec:57",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Blank package IDs make a manifest entry invalid."
+  },
+  {
+   "case": "G2c#28",
+   "merge": null,
+   "q3Fail": 5,
+   "q3Mean": 0.57,
+   "opusFail": 3,
+   "opusMean": 0.71,
+   "expectation": "The implementation satisfies: Serialized plan parsing returns structured success or failure."
+  },
+  {
+   "case": "G2c#29",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Depot aliases are trimmed and lowercased."
+  },
+  {
+   "case": "G2c#30",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: The ordinary stop-ordering operation sorts a copy of its input."
+  },
+  {
+   "case": "G2c#31",
+   "merge": null,
+   "q3Fail": 5,
+   "q3Mean": 0.5,
+   "opusFail": 3,
+   "opusMean": 0.62,
+   "expectation": "The implementation satisfies: Stops at the vehicle weight limit remain in the accepted partition."
+  },
+  {
+   "case": "G2c#32",
+   "merge": "02:27+spec:67",
+   "q3Fail": 5,
+   "q3Mean": 0.81,
+   "opusFail": 3,
+   "opusMean": 0.96,
+   "expectation": "The implementation satisfies: Manifest chunks never exceed their configured maximum size."
+  },
+  {
+   "case": "G2c#33",
+   "merge": "02:36+spec:69",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: Normalized plan storage keys trim and uppercase route keys."
+  },
+  {
+   "case": "G2c#34",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: The declared departure window records UTC as its time zone."
+  },
+  {
+   "case": "G2c#35",
+   "merge": "02:20+spec:72",
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "The implementation satisfies: UTF-8 encoding uses the explicit `utf8` encoding name."
+  },
+  {
+   "case": "G2c#36",
+   "merge": null,
+   "q3Fail": 5,
+   "q3Mean": 0.56,
+   "opusFail": 3,
+   "opusMean": 0.56,
+   "expectation": "The implementation satisfies: Route keys are normalized with NFKC before trimming and uppercasing."
+  },
+  {
+   "case": "G2c#37",
+   "merge": null,
+   "q3Fail": 0,
+   "q3Mean": 1,
+   "opusFail": 0,
+   "opusMean": 1,
+   "expectation": "{\"noOtherSupportedFinding\": true}"
+  }
+ ],
+ "mergeConsistency": {
+  "q3:A#1": {
+   "pairs": 29,
+   "inconsistent": 0,
+   "detail": [],
+   "missing": []
+  },
+  "q3:A#2": {
+   "pairs": 29,
+   "inconsistent": 0,
+   "detail": [],
+   "missing": []
+  },
+  "q3:A#3": {
+   "pairs": 29,
+   "inconsistent": 0,
+   "detail": [],
+   "missing": []
+  },
+  "q3:B#1": {
+   "pairs": 29,
+   "inconsistent": 0,
+   "detail": [],
+   "missing": []
+  },
+  "q3:B#2": {
+   "pairs": 29,
+   "inconsistent": 0,
+   "detail": [],
+   "missing": []
+  },
+  "haiku:haiku-1#1": {
+   "pairs": 29,
+   "inconsistent": 1,
+   "detail": [
+    "01:30+spec:59 gap/satisfied"
+   ],
+   "missing": []
+  },
+  "haiku:haiku-2#1": {
+   "pairs": 29,
+   "inconsistent": 1,
+   "detail": [
+    "01:30+spec:59 gap/satisfied"
+   ],
+   "missing": []
+  },
+  "haiku:haiku-3#1": {
+   "pairs": 29,
+   "inconsistent": 0,
+   "detail": [],
+   "missing": []
+  },
+  "haiku:haiku-4#1": {
+   "pairs": 29,
+   "inconsistent": 1,
+   "detail": [
+    "01:30+spec:59 gap/satisfied"
+   ],
+   "missing": []
+  },
+  "haiku:haiku-5#1": {
+   "pairs": 29,
+   "inconsistent": 0,
+   "detail": [],
+   "missing": []
+  },
+  "opus:opus-1#1": {
+   "pairs": 29,
+   "inconsistent": 0,
+   "detail": [],
+   "missing": []
+  },
+  "opus:opus-2#1": {
+   "pairs": 29,
+   "inconsistent": 0,
+   "detail": [],
+   "missing": []
+  },
+  "opus:opus-3#1": {
+   "pairs": 29,
+   "inconsistent": 0,
+   "detail": [],
+   "missing": []
+  }
+ }
+}
