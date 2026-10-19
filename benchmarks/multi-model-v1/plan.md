@@ -15,10 +15,10 @@
 
 | # | harness | 模型 | 强度 | 凭据 | 基础提示 | guardian |
 |---|---|---|---|---|---|---|
-| 1–3 | Codex 0.162.0 + ARW | `gpt-6.1-sol` | low / medium / high | ChatGPT 套餐登录 | 无 | 原生默认（codex-auto-review） |
-| 4–6 | Codex 0.162.0 + ARW | `gpt-6-luna` | low / medium / high | ChatGPT 套餐登录 | 无 | 原生默认（codex-auto-review） |
-| 7–9 | Codex 0.162.0 + ARW | `deepseek-flash` | low / medium / high | `BENCHMARK_DEEPSEEK_API_KEY` | 无 | 无原生默认，用同模型 low |
-| 10–12 | Codex 0.162.0 + ARW | Strata `qwen3.8-flash-next-iq3_xxs` | low / medium / high | 前端租约 | 启动提示与压缩提示 | Strata 自身（512/1024） |
+| 1–3 | Codex 0.163.0 + ARW | `gpt-6.1-sol` | low / medium / high | ChatGPT 套餐登录 | 无 | 原生默认（codex-auto-review） |
+| 4–6 | Codex 0.163.0 + ARW | `gpt-6-luna` | low / medium / high | ChatGPT 套餐登录 | 无 | 原生默认（codex-auto-review） |
+| 7–9 | Codex 0.163.0 + ARW | `deepseek-flash` | low / medium / high | `BENCHMARK_DEEPSEEK_API_KEY` | 无 | 无原生默认，用同模型 low |
+| 10–12 | Codex 0.163.0 + ARW | Strata `qwen3.8-flash-next-iq3_xxs` | low / medium / high | 前端租约 | 启动提示与压缩提示 | Strata 自身（512/1024） |
 | 13–15 | Claude Code 2.1.303 无头 | Opus（`opus`） | low / medium / high | 订阅 | 无 | 无（dontAsk） |
 | 16–18 | Claude Code 2.1.303 无头 | Sonnet（`sonnet`） | low / medium / high | 订阅 | 无 | 无 |
 | 19–21 | Claude Code 2.1.303 无头 | Haiku（`haiku`） | low / medium / high | 订阅 | 无 | 无 |
@@ -56,11 +56,13 @@
 
 - **版本**：
   - Strata 开跑前可以升级（D12），第一个模型实例开始后固定，直到最后一个实例跑完。
-  - Codex 0.162.0 和 Claude Code 2.1.303 另装 benchmark 专用副本，记录 SHA，不动用户日常安装和它们的自动更新。Codex 副本由 `native_cli` 绑定校验；Claude Code 副本用 `--claude` 传给 `claude_headless` 和 `claude_gate`，两个 CLI 都拒绝运行版本不是 2.1.303 的二进制，并把路径和 SHA 写进绑定（`claude_headless.pinned_binary`）。
+  - Codex 0.163.0（用户 2026-10-19 决定，取代 0.162.0）和 Claude Code 2.1.303 另装 benchmark 专用副本，记录 SHA，不动用户日常安装和它们的自动更新。Codex 副本由 `native_cli_binding`（`CODEX`、`pinned_codex`）固定：安全门每个会话、`arw_measure` 未写 `native_cli` 的 selection 都用它，启动前核对 SHA 和版本，不再用 PATH 上的 `codex`（用户日常安装已改为 `~/.codex/packages/standalone` 下自动更新的版本，位于 G7 deny-read 范围内）；Claude Code 副本用 `--claude` 传给 `claude_headless` 和 `claude_gate`，两个 CLI 都拒绝运行版本不是 2.1.303 的二进制，并把路径和 SHA 写进绑定（`claude_headless.pinned_binary`）。
   - Claude Code 副本在核对版本后跑一次 `tools.ops.claude_compact_probe`（部署规则），否则 Strata 臂的压缩点可能退回到窗口 − 23000。
   - 已安装（2026-10-19，阶段 0），目录只读，不在任何 PATH 上：
     - Claude Code：`/home/pello/.local/share/qwen-bench/claude-code-2.1.303/claude`，sha256 `375988f457756524234695cf2d8f64ace99c5f68682e47ea24862a843c191450`。与官方 2.1.303 发布清单（manifest.json，linux-x64）的 checksum 一致；从日常安装的同一版本复制，未另行下载。`--claude` 传这个路径；运行环境照旧 `DISABLE_AUTOUPDATER=1`。compact probe（`--claude` 指向该副本，`--repeat 3`，两种方式 × 阈值 ±100）12 格全部通过：149.9K 不压缩，150.1K 压缩后继续。
-    - Codex：`/home/pello/.local/share/qwen-bench/codex-0.162.0/node_modules/@openai/codex/`，由 npm registry 的 `@openai/codex@0.162.0` 与 `@openai/codex@0.162.0-linux-x64` 两个 tarball 解出（sha512 与 registry integrity 一致，未运行安装脚本）。`native_cli` 绑定的 executable 为其下 `node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex`，sha256 `50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38`（与日常安装逐字节相同）。
+    - Codex：`/home/pello/.local/share/qwen-bench/codex-0.163.0/node_modules/@openai/codex/`，由 npm registry 的 `@openai/codex@0.163.0` 与 `@openai/codex@0.163.0-linux-x64` 两个 tarball 解出（sha512 与 registry integrity 一致，包里没有安装脚本，未运行任何脚本）。`native_cli` 绑定的 executable 为其下 `node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex`，sha256 `399ff69c431c066e40de318fba45c2b07f45a76b19939d247ee4828fc70c4215`；vendor 目录 43 个文件与用户日常安装的 0.163.0（standalone）逐字节相同。
+    - 0.162.0 副本（`codex-0.162.0/`，sha256 `50ed828f…`）保留到 #10–12 的 0.163.0 证据全部入库，之后可删；0.162.0 上的零模型证据只作历史。
+    - 0.162.0 → 0.163.0 的相关变化（release notes 与零模型核对，2026-10-19）：内置 catalog（`debug models --bundled`）逐字节相同；原生压缩提示仍为 `ab0c334d…`；mock 门请求里模型可见的工具和输入（路径归一化后）与 0.162.0 相同，rollout 的 `session_meta.runtime_workspace_roots` 结构不变（ARW 补丁 `codex-0.162-workspace-roots.patch` 仍适用）。新默认开的特性：`cli_daybreak`（eligible OpenAI 账号的 background turns 用 Daybreak）、`api_key_cyber_access_programs`、`code_mode_interrupt`；命令环境新增 `CODEX_THREAD_ID`、`CODEX_TOOL_CALL_ID`（关联用，非凭据）；冷 resume 恢复线程自有的权限快照；Guardian Decisions 在默认 openai provider 下可回退到 `OPENAI_API_KEY`（ARW daemon 环境已去掉 `OPENAI_*`）；`async_compaction` 新增但默认关。
 - **场景与评分**：
   - 场景版本：Code Spec v5（修订 38）、Code Standards v5.1（修订 25）、Spec Readiness v4.3（修订 46）、Commit Audit v3（修订 24），各自的冻结源 manifest 见 [versions.md](../reviewer-suite-v1/versions.md)。
   - 评分用 r8.3，格式罚基准用 `format-baseline.json` 的现行登记。测量说明（`measurement-note*.txt`）的 SHA 写进绑定。
@@ -94,7 +96,7 @@
   - DeepSeek key 只在进程环境里，由 Codex 的 `env_key` 读取，或作为 Claude Code 的 `ANTHROPIC_AUTH_TOKEN`；命令环境里会被去掉。
   - 所有凭据变量（`BENCHMARK_DEEPSEEK_API_KEY`、`BENCHMARK_OPENAI_API_KEY`、`STRATA_API_KEY`、`STRATA_REMOTE_PASSWORD`）在每个 Codex 臂的命令环境里一律排除，ARW daemon 的环境也去掉本次 provider 以外的 key（`providers.shell_exclude`、`process_environment`）。审查前的 ChatGPT mock 门显示，全局设置的 DeepSeek key 在 OpenAI 臂的命令环境里可见（`shell_env_key: VISIBLE`）；修复后用 DeepSeek 变量名作 canary 重跑，结果为 `absent`（`.tmp/bench-final-1019/codex-chatgpt-mock-m1`）。
   - 需要恢复的运行（`recovery-required.json`）不归还登录，因为恢复还要用它；恢复完成后由恢复步骤调用 `release_login`。
-- **API 模型的 catalog**：开跑前把 Codex 0.162.0 内置 catalog 中 `gpt-6.1-sol`、`gpt-6-luna` 的条目，以及 DeepSeek 条目（按 ARW `deepseek.md` 写），存为 `benchmarks/multi-model-v1/catalogs/` 下的冻结文件并记 SHA。注意 catalog 里 luna 的默认档可能是 priority，`serviceTier` 显式写 default。
+- **API 模型的 catalog**：开跑前把 Codex 0.163.0 内置 catalog（与 0.162.0 逐字节相同）中 `gpt-6.1-sol`、`gpt-6-luna` 的条目，以及 DeepSeek 条目（按 ARW `deepseek.md` 写），存为 `benchmarks/multi-model-v1/catalogs/` 下的冻结文件并记 SHA。注意 catalog 里 luna 的默认档可能是 priority，`serviceTier` 显式写 default。
 - **排程**：同一场景内，配置按块交替，每轮反转顺序；Strata 的同一配置连跑，换配置时冷加载并预热（测量规则）。付费模型固定 5 次；Strata 在 GPU 空闲时加测到 10 次，目标次数事先定为 10，主表只用预登记的前 5 次。
 
 ## 4. 混杂与适用范围
@@ -208,7 +210,7 @@
   - [x] 冻结三份 brief（08484d7；单名 Opus 输出合同，S3 诱饵条款经机械核对，没有再经 Opus 复核）；
   - [ ] 冻结 API catalog（本轮未做）；
   - [x] 安装 benchmark 专用的 Codex 和 Claude Code 副本，并跑 compact probe（见 §3「版本」）；
-  - [x] G7 Codex 凭据路径 deny-read，并用合成文件验证（eeae71e；三种 mock 门通过；登录改用默认 `~/.codex` 后，deny 改为整个 `~/.codex` 目录，三种 mock 门重跑通过；live 门的 deny 未实测；待用户复核）；
+  - [x] G7 Codex 凭据路径 deny-read，并用合成文件验证（eeae71e；三种 mock 门通过；登录改用默认 `~/.codex` 后，deny 改为整个 `~/.codex` 目录，三种 mock 门重跑通过；Codex 0.163.0 副本上三种 mock 门重跑通过，`deny_read_pass` 为真、搜索工具 0；live 门的 deny 未实测；待用户复核）；
   - [x] G8 `claude_gate` 的 Strata live smoke：rtx3080ti、IQ3_XXS、high、benchmark 副本，smoke 6 个探针全部尝试且通过，隔离通过；加载 28.7 秒，会话 43.1 秒（stream `duration_ms`），7 个引擎请求，token 未缓存 8,519 / 缓存 61,477 / 输出 3,140（引擎日志），引擎输入 1,220.7 tok/s、引擎输出 88.9 tok/s，任务平均输入约 197.7 tok/s、输出约 72.9 tok/s（按 stream 时长近似，没有用 `review_work_time`）；启动提示加载 SHA `1cae169a…`（源 `5f9efc02…`，防循环段关闭）；引擎正常卸载，租约已归还；
   - [x] Code Standards brief 的 extraCharges / memberId 诱饵条款：按答案键 C22、C29 的 placement 核对后补上（独立核对建议 S3）；
   - [x] 重建物化目录，`check_briefs.py` 改为缺副本时自动物化，冻结前的机械核对全部通过；
@@ -217,6 +219,7 @@
     - 汇总层已实现（2026-10-19）：`tools/reviewer/benchmark_summary.py`，输入每实例一条的归一化记录（JSONL），输出 `summary.json`/`summary.md`（§5 各项、27 个预登记比较、逐实例表，含 Code Standards），用合成数据测试。未做：把 Codex（`arw_measure`）和 Claude Code（`claude_scenario`）的运行记录与评分结果转成归一化记录的适配层，等两条路径的记录格式在阶段 1 冒烟中定下后再写。
   - [x] 核实项目压缩提示文件对 OpenAI 远端压缩是否生效（API 臂已关闭该提示，只需确认关闭后没有残留）；
     - 已核实（2026-10-19，零模型）：API 臂（`project_compaction_instructions: false`）渲染出的压缩提示只有 Codex 原生提示一个来源（sha256 `ab0c334d…`，policy `native-only-diagnostic`），不含工程压缩提示；Codex 0.162.0 的原生提示用 `verify_codex_compact_prompt` 重新采集，与存档的 0.160.1 版逐字节相同。内置 openai provider 加合成 ChatGPT 登录、在只有回环的网络命名空间里对 mock 手动压缩：Codex 走服务端压缩（`responses_compaction_v2`，向 `/responses` 发一次 `request_kind: compaction` 请求），请求里既没有原生压缩提示，也没有 `experimental_compact_prompt_file` 中的标记文字，两种设置的请求除 id、路径和时间外相同。所以 OpenAI 臂的压缩不受该文件影响；DeepSeek 臂走本地压缩，用的是与原生相同的提示。
+    - 0.163.0 重核（2026-10-19，零模型）：原生提示重新采集仍为 `ab0c334d…`（426 字节，与 0.162.0、0.160.1 存档逐字节相同）；OpenAI 臂同样走 `responses_compaction_v2`，有无 `experimental_compact_prompt_file` 的两次请求都不含原生提示和标记文字，除 id、路径和时间外相同。
   - [ ] 本计划冻结（本轮按指示不冻结）。
   - 不做（用户 2026-10-19）：G6 luna 裁决 runner、Commit Audit v3 brief 的 `unsure` 字段。P5 改由另一 worker 做。
 - **阶段 1（门与探针）**：两种 harness 的完整门 → P0–P2 → 27 次冒烟 → P3 预检。
