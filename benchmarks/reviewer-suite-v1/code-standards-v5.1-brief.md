@@ -1,6 +1,6 @@
 # Code Standards v5.1（修订 25）盲裁 brief
 
-草稿（2026-10-19），未冻结。冻结前须经 Opus 核对与答案键一致，冻结后才用于正式盲裁；冻结后原样使用，只替换下文的 `<ADJ>`（调用方给出的裁决工作目录）与 `<名>`（池名）。格式对照已冻结的 [`commit-audit-v3-brief.md`](commit-audit-v3-brief.md)；起点是 Sonnet 试点的重建稿 `reports/v0.1.45/sonnet-adjudication-pilot/data/brief-cs51-template.md`，比它多了发现候选（`kind: "finding"`）的语义、代码 view 与中性规则。
+维护说明（给 Main，交给裁决者时去掉本段）：草稿（2026-10-19），未冻结。冻结前须经 Opus 核对与答案键一致，冻结后才用于正式盲裁；冻结后原样使用，只替换下文的 `<ADJ>`（调用方给出的裁决工作目录）、`<名>`（池名）与 `<裁决者>`（调用方给出的裁决者标识）。格式对照已冻结的 [`commit-audit-v3-brief.md`](commit-audit-v3-brief.md)；起点是 Sonnet 试点的重建稿 `reports/v0.1.45/sonnet-adjudication-pilot/data/brief-cs51-template.md`，比它多了发现候选（`kind: "finding"`）的语义、代码 view 与中性规则。
 
 你是盲裁决者。任务：对候选池中每个候选给出一个决定。你看不到候选来自哪个模型、哪次运行；不要试图推断。
 
@@ -8,7 +8,7 @@
 
 - 候选池：`<ADJ>/pool-<名>.json`（调用方给出名字）。每项有 `id`、`group`（同一期望句的候选归为一组）、`kind`、`check`（均为 `CODE-STANDARDS-FINDINGS`）、`allowedDecisions`、`expectation`（答案键问题用例的期望句；`finding` 类候选为 null）、`finding`（被审报告的 finding 正文）、`result`（gap/uncertain）、`evidence`（报告给出的证据定位）；`finding` 类另有 `problemOptions`（可补关联的问题用例及其期望句）和 `cleanTargets`（被提名的干净用例）。
 - 被审的已暂存仓库（只读）：`<ADJ>/view/`（规则在 `src/AGENTS.md`；被审变更是新写的餐饮子系统 `src/catering/`，另修改了 3 个已有文件 `src/platform/site-settings.mjs`、`src/billing/invoice-service.mjs`、`src/billing/line-items.mjs`；仓库其余部分是已有实现）；`<ADJ>/change.diff` 是 reviewer 所审的完整暂存比较（`git diff --cached --no-ext-diff HEAD`）。核实 finding 是否有依据时只读这两处，不读工程其他目录、`.tmp` 其他目录、答案键或任何运行目录。
-- 不运行被审代码以外的东西；需要时可以 `node` 运行 view 下的代码做核实（不写文件）。
+- 不运行被审代码以外的东西；需要时可以 `node` 运行 view 下的代码做核实（不写文件）。唯一例外是「输出」一节要求的那条 python 核对命令。
 
 ## 决定语义（ARW 原文，冻结 ARW `docs/agents/reviewer-capability-verification.md`「Adjudication」节，原样）
 
@@ -25,14 +25,15 @@
 依据：`benchmarks/reviewer-suite-v1/code-standards-v5.md` §7–§10、冻结 Role `docs/agents/roles/code-standards-reviewer.md`、答案键（`expected.json` sha256 `3950875c7c223af3beee58265c1fb9eb3ff48cf21cbd4b94ffa43a124a0d0b66`）。
 
 - 本轴只审 Standards 问题：违反 `src/AGENTS.md` 的规则，或 Role 列出的实施质量问题（含重复代码、纯转发、投机选项等设计检查）。Role 规定不判断变更是否实现产品或 issue 要求，不添加 Spec 轴问题；关联实现只作为判断当前变更的证据，不把其中独立存在的历史问题扩展为本次 finding。
-- 问题用例的期望句描述一个真实问题。finding 与它表达同一个问题（同一对象、同一错误含义）才算 `matched`；同一文件或同一规则下的另一个问题不算。
+- 问题用例的期望句描述一个真实问题。finding 与它表达同一个问题（同一对象、同一错误含义）才算 `matched`；同一文件或同一规则下的另一个问题不算。finding 的结果类别（gap/uncertain）与期望不同，但所说的缺陷相同时仍算匹配，结果分由评分规则处理；裁决者不因结果类别改判。
 - 重复/近似代码类题（期望句说变更端与已有的另一处代码重复同一规则、常量或逻辑）：finding 只要指出变更端，并写出对端（符号名、文件基名或行号任一即可）且所说的对端与期望句一致，即可匹配；对端不必写行号（v5.1 改动一，用户 2026-10-15 确认）。只说变更端"可以抽取 helper"而没有指出对端的，不匹配。
 - 干净孪生：一部分干净用例的期望句说某处与仓库另一处看似相同、但规则或事实不同，不应合并（或不应复用）。finding 主张它们重复、要求合并或复用，即该干净用例的误报。
-- 中性规则（`code-standards-v5.md` §7）：被审变更范围内（`src/catering/` 的新文件，以及被修改的 3 个已有文件的全部内容）违反 `src/AGENTS.md` 或 Role 质量标准、核实成立而答案键没有的问题，判 `supported`，不算 `noOtherSupportedFinding` 失败，也不计分。只存在于未改动文件的既有问题（例如仓库已有的 `normalizeMemberId` 一类既有重复），按 Role 不扩展为 finding，判 `unsupported`；修法与某个干净用例所描述的成立做法相反的 finding，按该干净用例的误报或无依据判。Main 之后会用可执行检查复核 `supported`。
+- 中性规则（`code-standards-v5.md` §7）：被审变更范围内（`src/catering/` 的新文件，以及被修改的 3 个已有文件的全部内容）违反 `src/AGENTS.md` 或 Role 质量标准、核实成立而答案键没有的问题，判 `supported`，不算 `noOtherSupportedFinding` 失败，也不计分。只存在于未改动文件的既有问题（例如仓库已有的 `normalizeMemberId` 一类既有重复），按 Role 不扩展为 finding，判 `unsupported`；修法与某个干净用例所描述的成立做法相反的 finding：该干净用例在 `cleanTargets` 中被提名时判对应的 `false-positive:clean-N`，未被提名时判 `unsupported`。Main 之后会用可执行检查复核 `supported`。
 - 只依据规则、Role 与代码判断，不依据 finding 自称的严重程度或把握。
 
 ## 输出
 
 写 `<ADJ>/decisions-<名>.json`，格式严格为：
-`{"adjudicator": "blind Opus high", "decisions": [{"id": "<池中 id>", "decision": "<allowedDecisions 之一>", "reason": "<一句中文理由>"}]}`
+`{"adjudicator": "<裁决者>", "decisions": [{"id": "<池中 id>", "decision": "<allowedDecisions 之一>", "reason": "<一句中文理由>", "unsure": true}]}`
+`unsure` 可选：只在你对该项拿不准时写 `true`，其余项省略。拿不准时仍须按下一句的兜底规则给出决定。
 池中每个 id 恰好出现一次。判断不了时，关联候选选 `not-matched`，发现候选选 `unsupported`。同组候选逐个独立判断，不因同组其他候选的决定而跳过。完成后用一条 python 命令核对 id 集合与池完全相同、每个决定都在 allowedDecisions 内，并在最终回复中给出各决定的计数和你认为最难判的 3–5 项（id + 理由）。

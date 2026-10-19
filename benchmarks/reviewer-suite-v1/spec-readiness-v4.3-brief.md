@@ -1,14 +1,14 @@
 # Spec Readiness v4.3（修订号 46）盲裁 brief
 
-草稿（2026-10-19），未冻结。冻结前须经 Opus 核对与答案键一致，冻结后才用于正式盲裁；冻结后原样使用，只替换下文的 `<ADJ>`（调用方给出的裁决工作目录）与 `<名>`（池名）。格式对照已冻结的 [`commit-audit-v3-brief.md`](commit-audit-v3-brief.md)；取代 [`spec-readiness-v4.md`](spec-readiness-v4.md)「裁决 brief（新用例）」一节只覆盖新用例的做法，成为完整 brief（该节原样收在下文）。
+维护说明（给 Main，交给裁决者时去掉本段）：草稿（2026-10-19），未冻结。冻结前须经 Opus 核对与答案键一致，冻结后才用于正式盲裁；冻结后原样使用，只替换下文的 `<ADJ>`（调用方给出的裁决工作目录）、`<名>`（池名）与 `<裁决者>`（调用方给出的裁决者标识）。格式对照已冻结的 [`commit-audit-v3-brief.md`](commit-audit-v3-brief.md)；取代 [`spec-readiness-v4.md`](spec-readiness-v4.md)「裁决 brief（新用例）」一节只覆盖新用例的做法，成为完整 brief（该节原样收在下文）。
 
 你是盲裁决者。任务：对候选池中每个候选给出一个决定。你看不到候选来自哪个模型、哪次运行；不要试图推断。
 
 ## 输入
 
 - 候选池：`<ADJ>/pool-<名>.json`（调用方给出名字）。每项有 `id`、`group`（同一期望句的候选归为一组）、`kind`、`scenario`（`runtime-migration` 即 RM，或 `artifact-promotion` 即 AP）、`check`（被审报告中 finding 所在的检查）、`allowedDecisions`、`expectation`（答案键问题用例的期望句；`finding` 类候选为 null）、`finding`（被审报告的 finding 正文）、`result`（gap/uncertain）、`evidence`（报告给出的证据定位）；`finding` 类另有 `problemOptions`（可补关联的问题用例及其期望句）和 `cleanTargets`（被提名的干净用例）。
-- 被审的规格与上下文（只读）：`<ADJ>/view-rm/` 与 `<ADJ>/view-ap/`，分别是两个子场景 reviewer 所见的场景根；各自的 `REVIEWER-REQUEST.json` 是该子场景的 Reviewer Request（列出选定的 Input 及章节）。按候选的 `scenario` 只读对应的一个 view。核实 finding 是否有依据时只读这两处，不读工程其他目录、`.tmp` 其他目录、答案键或任何运行目录。
-- 不运行任何程序（本场景的 Input 都是文档）；只读文件。
+- 被审的规格与上下文（只读）：`<ADJ>/view-rm/` 与 `<ADJ>/view-ap/`，分别是两个子场景 reviewer 所见的场景根；各自的 `REVIEWER-REQUEST.json` 是该子场景的 Reviewer Request（列出选定的 Input 及章节）；行号以其中 `inputs[].content` 与 view 中的文件为准。按候选的 `scenario` 只读对应的一个 view。核实 finding 是否有依据时只读这两处，不读工程其他目录、`.tmp` 其他目录、答案键或任何运行目录。
+- 不运行被审材料（本场景的 Input 都是文档）；只读文件。唯一例外是「输出」一节要求的那条 python 核对命令。
 
 ## 决定语义（ARW 原文，冻结 ARW `docs/agents/reviewer-capability-verification.md`「Adjudication」节，原样）
 
@@ -25,9 +25,10 @@
 依据：`benchmarks/reviewer-suite-v1/spec-readiness-v4.md`（v4.2、v4.3 两节）、冻结 Role `docs/agents/roles/spec-readiness-reviewer.md`、答案键（`expected.json` sha256 `74252e0aa4e50d231efaefdfa24a27e1b4d97936e747425787d30bace996a344`，k 覆盖文件 `judgment/spec-readiness-v4.2.json`）。
 
 - 两个子场景是两道独立的题：RM 只审 `SPEC-READINESS-INPUTS`、`SPEC-READINESS-REQUIREMENTS` 两项需求检查，这两项的问题用例与干净用例都只属于 RM；AP 是全量审查，这两项在 AP 只有 `noOtherSupportedFinding`，其余 9 项检查的用例都属于 AP。候选只按它所属子场景的 view 与答案键判断，不因另一子场景有同一缺陷而改判。
-- 期望句描述一个规格缺陷。finding 与它表达同一个缺陷（同一对象、同一错误含义）才算 `matched`；同一 Input 或同一检查下的另一个问题不算。
+- 期望句描述一个规格缺陷。finding 与它表达同一个缺陷（同一对象、同一错误含义）才算 `matched`；同一 Input 或同一检查下的另一个问题不算。finding 的结果类别（gap/uncertain）与期望不同，但所说的缺陷相同时仍算匹配，结果分由评分规则处理；裁决者不因结果类别改判。
 - 选定与未选定 Input：Role 原文"未选择的章节或 Input 只有在其声明角色支持当前使用方合同或责任归属时才作为比较证据, 不能变成 issue 要实现的要求或独立审查范围."
-- 答案键内的缺陷报在没有其 placement 的检查下（不是该问题用例的候选，`problemOptions` 中也没有它）：finding 有依据，判 `supported`，不判 `unsupported`。这是 v4.2 正式计分的先例（c003：把 MODULES#0 的重复校验所有权报在 DEPENDENCIES-DATA-FLOW 下，经独立审查确认，[v4.2 报告](../../reports/v0.1.44.1/spec-readiness-v4.2/summary.md)「偏离」第 4 条），与下文 m2 的判法相同。
+- 答案键内的缺陷报在没有其 placement 的检查下（不是该问题用例的候选，`problemOptions` 中也没有它）：finding 有依据，判 `supported`，不判 `unsupported`。这是 v4.2 正式计分的先例（一条把 MODULES#0 的重复校验所有权报在 DEPENDENCIES-DATA-FLOW 下的 finding 判 `supported`，经独立审查确认），与下文 m2 的判法相同。
+- 读法：下文"正例 N""反例 N""MODULES#0"是答案键在该检查内从 0 起的序号，与 `problem-N`、`false-positive:clean-N`（从 1 起）不同；选 `problem-N` 或 `clean-N` 时一律按 `problemOptions`、`cleanTargets` 中的期望句内容对应，不按序号换算。`prc` 指 `promotion-recovery.md`，`prt` 指 `promotion-runtime.md`；文中文件名省略了 view 内的 `specs/` 目录前缀。
 - 冻结前的逐项裁决口径（`spec-readiness-v4.md`「裁决 brief（新用例）」一节正文，原样；sha256 743abf4708ebc55b1f9fc5dbd594774943395c11b65a39666da00f6a6e155b64）：
 
 - MODULES 正例 1：指出 Promotion 提前返回、绕过 Recovery 交接，或与 `promotion-runtime.md:41/:45/:57`、`promotion-recovery.md:65/:73`、`architecture/02-commit.md:5` 的交接或传播表述不一致的 finding，与重复校验是同一缺陷，判 matched。这类 finding 若同时成为 DEPENDENCIES-DATA-FLOW 正例 0（缺权威来源表）或正例 1（Promotion Flow 缺 Artifact Storage 读取调用）的候选，按各自缺陷判 not-matched。
@@ -38,13 +39,15 @@
 - 第 2、3 轮审计补充（m1、m2、m5，冻结前补齐，冻结后改 brief 就不能沿用已有裁决）：
   - RM 键外疑点（m1）：`runtime-migration.md:5`（Scope 只写 reader guide）与 Requirements 的"不一致"或"migration 未定义"，判 `unsupported`：Scope 未被选择，按 Role 只能作比较证据，不构成独立审查范围（Role 对未选章节的限制针对的是范围扩张：审查者不得把未选章节当作新的审查对象）；`:5` 说的是 reader guide 本身不拥有 runtime behavior，与 `:11` 的迁移要求不矛盾；判 `supported` 又会与"夹具不得含清单外受支持缺陷"冲突（第 2 轮建议 `supported`，第 3 轮改判，按第 3 轮执行）。选定 Requirements 把部分失败结果委托给未选 Interfaces 节（`access-review.md:15`、`promotion-runtime.md:11`、`promotion-recovery.md:19`）的 finding，判 `unsupported`。
   - MODULES 正例 1（m2）：上面的交接与传播表述清单加上 `promotion-recovery.md:11`（commit 失败后必须先完成 rollback attempt，而 Promotion 提前返回时不调用 Recovery）；MODULE-DESIGN 检查下判 matched，AP 中归到 REQUIREMENTS 的判 `supported`。
-  - SEAMS-ADAPTERS 正例 0 类 finding（Module 与 Adapter 重复授权策略）因证据含 `access-review.md:51` 而成为 INTERFACES 正例 1 的候选时，判 not-matched（m5，Opus 盲答已实际出现）。
+  - SEAMS-ADAPTERS 正例 0 类 finding（Module 与 Adapter 重复授权策略）因证据含 `access-review.md:51` 而成为 INTERFACES 正例 1 的候选时，判 not-matched（m5，已有盲答实际出现）。
   - 指出 Recovery Storage 成功形状缺失的 finding 判 `unsupported`：`promotion-recovery.md:57` 已给出精确的成功 `recoveryState`（第 3 轮审计修改后）。
+  - RM 的 REQUIREMENTS export-retention 问题用例（期望结果为 uncertain）：断言"target 是人工维护的文档、该节不适用"的 finding，关联候选判 `not-matched`；成为发现候选时判 `unsupported`，不选对应的 `problem-N`（v4 正式计分已定判例，v4.2 沿用）。判 gap、但理由与期望句相同的 finding 仍算匹配，结果分由评分规则扣除。
 
 - 只依据 Input 原文判断，不依据 finding 自称的严重程度或把握。
 
 ## 输出
 
 写 `<ADJ>/decisions-<名>.json`，格式严格为：
-`{"adjudicator": "blind Opus high", "decisions": [{"id": "<池中 id>", "decision": "<allowedDecisions 之一>", "reason": "<一句中文理由>"}]}`
+`{"adjudicator": "<裁决者>", "decisions": [{"id": "<池中 id>", "decision": "<allowedDecisions 之一>", "reason": "<一句中文理由>", "unsure": true}]}`
+`unsure` 可选：只在你对该项拿不准时写 `true`，其余项省略。拿不准时仍须按下一句的兜底规则给出决定。
 池中每个 id 恰好出现一次。判断不了时，关联候选选 `not-matched`，发现候选选 `unsupported`。同组候选逐个独立判断，不因同组其他候选的决定而跳过。完成后用一条 python 命令核对 id 集合与池完全相同、每个决定都在 allowedDecisions 内，并在最终回复中给出各决定的计数和你认为最难判的 3–5 项（id + 理由）。
