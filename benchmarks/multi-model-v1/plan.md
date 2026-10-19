@@ -84,7 +84,7 @@
 - **guardian**（D6）：OpenAI 用原生默认 codex-auto-review；DeepSeek 用同模型 low（selection 写 `guardian_model`）；Strata 用服务端默认。Claude Code 的 dontAsk 没有 guardian，列为混杂。
 - **权限**：
   - Codex 路径沿用 `:read-only` 加报告专用父目录写授权，审批走 on-request / auto_review。
-  - 收紧（G7，2026-10-19 已实施，待用户复核）：所有 Codex 臂（包括 Strata）对 `~/.claude/.credentials.json`、`~/.codex/auth.json`、benchmark 登录目录（`~/.local/share/qwen-bench/codex-home` 和本次 ChatGPT 登录的 `auth_home`）和 `project.private.toml` 一律 deny-read。原因：`:read-only` 能读这些文件，API 臂会把读到的内容发往外部服务。这偏离 reviewer-suite「不额外收紧」，规则的豁免已同时写入。
+  - 收紧（G7，2026-10-19 已实施，待用户复核）：所有 Codex 臂（包括 Strata）对 `~/.claude/.credentials.json`、`~/.codex` 整个目录（ChatGPT 登录按用户 2026-10-19 决定用默认的 `~/.codex`；selection 另写的 `auth_home` 同样拒读）和 `project.private.toml` 一律 deny-read。原因：`:read-only` 能读这些文件，API 臂会把读到的内容发往外部服务。这偏离 reviewer-suite「不额外收紧」，规则的豁免已同时写入。
     - 实现：`providers.credential_deny_paths` 列出路径（不打开），`arw_measure` 写进 runtime 的 `denyRead`；`arw_native_setup.mjs` 在每次 `open` 时把这些路径以 `none` 加进 ARW 生成的 Reviewer profile（不改 ARW 代码和它保存的设置，接续线程同样生效）。安全门也用同一份列表，外加合成 HOME 下的合成目标。
     - 零模型验证（`.tmp/bench-stage0-1019/g7/`）：Strata、DeepSeek、ChatGPT（合成登录、netns）三种 mock 门都通过，四类合成目标和链接进 CODEX_HOME 的登录文件全部 `denied`，原生沙箱写边界 8 类照旧拒绝；场景根外的合成答案键和工程 README 仍可读（`:read-only` 原样）。读探针遇到任一目标可读即判门失败（`deny_read_pass`）。
   - Claude Code 路径用 `claude_headless` 的隔离参数：`--setting-sources ""`、`--restricted`、dontAsk、只授权写路径、Bash 沙箱只读工作目录且无网络、`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1`、工作目录在 `/var/tmp/qwen-claude`。DeepSeek 和 Strata 臂另用全新的 `HOME` 和 `CLAUDE_CONFIG_DIR`。
@@ -186,7 +186,7 @@
   - 观察到：ChatGPT 登录下 Codex 照样走 `openai_base_url`，请求体用 zstd 压缩，mock 已支持。
 - **残余风险**：
   - Codex `:read-only` 能读宿主文件，包括链接进来的 ChatGPT 登录文件、`~/.claude/.credentials.json` 和 `project.private.toml`；mock 读探针显示 `credential_file: READABLE`。API 臂会把读到的内容发往外部服务，所以与 Strata 路径能读工程文件不同类。处理：G7 deny-read（§3「权限」），已实施，三种 mock 门用合成文件验证通过；live 门的读探针同样检查，没通过就不启动 API 臂。会话检查把 `auth.json`、`.credentials.json` 标为凭据材料，提取输出对 token 打码，作为兜底。
-  - Claude Code 上的 Strata 臂没有 live 冒烟，因为 `claude_gate` 的 live 模式不支持 Strata。G8（阶段 0）：给 `claude_gate` 加 Strata live smoke，经 `strata_run` 领租约运行；做完之前用 mock 门加该配置第一个实例的会话检查代替，并在报告里写明。
+  - Claude Code 上的 Strata 臂原先没有 live 冒烟，因为 `claude_gate` 的 live 模式不支持 Strata。G8（阶段 0）已完成（2026-10-19）：`claude_gate --live --backend strata --host <id>` 领租约冷启动（安装默认、发布档），核对实际加载的启动提示，结束后停引擎并保存本次引擎日志段；smoke 子集 1 次在 rtx3080ti 上通过（见 §9 阶段 0）。
   - DeepSeek key 在 Codex 进程环境里。mock 门显示 `/proc` 祖先不可读，命令环境里没有这个 key。建议用户在 DeepSeek 控制台给 benchmark key 设单独的花费上限。
 
 ## 8. 开跑前的探针方案（只写方案，本轮不运行）
@@ -204,19 +204,21 @@
 ## 9. 分批顺序与额度、GPU 预算
 
 - **阶段 0（无模型，开跑前）**：
-  - 冻结三份 brief（Opus 核对后）；
-  - 冻结 API catalog；
-  - 安装 benchmark 专用的 Codex 和 Claude Code 副本，并跑 compact probe；
-  - G7 Codex 凭据路径 deny-read，并用合成文件验证（之后交用户复核）；
-  - G8 `claude_gate` 的 Strata live smoke；
-  - Code Standards brief 的 extraCharges / memberId 诱饵条款：按答案键 C22、C29 的 placement 核对后补上（独立核对建议 S3）；
-  - 重建 `check_briefs.py` 依赖的物化目录（`.tmp/bench-prep-1019/arw-*` 已删），或改为直接对照答案键，再做冻结前的机械核对；
-  - 盲裁 view 从冻结 fixture 构造：Spec Readiness 的 `REVIEWER-REQUEST.json` 由运行目录中的请求文件复制改名，并把 `draftPath` 打码；
-  - 跨模型汇总报告流水线（含 G4 Code Standards 逐实例表）；
+  状态（2026-10-19 阶段 0 worker）：除 API catalog 冻结、汇总适配层和本计划冻结外都已完成。
+  - [x] 冻结三份 brief（08484d7；单名 Opus 输出合同，S3 诱饵条款经机械核对，没有再经 Opus 复核）；
+  - [ ] 冻结 API catalog（本轮未做）；
+  - [x] 安装 benchmark 专用的 Codex 和 Claude Code 副本，并跑 compact probe（见 §3「版本」）；
+  - [x] G7 Codex 凭据路径 deny-read，并用合成文件验证（eeae71e；三种 mock 门通过；登录改用默认 `~/.codex` 后，deny 改为整个 `~/.codex` 目录，三种 mock 门重跑通过；live 门的 deny 未实测；待用户复核）；
+  - [x] G8 `claude_gate` 的 Strata live smoke：rtx3080ti、IQ3_XXS、high、benchmark 副本，smoke 6 个探针全部尝试且通过，隔离通过；加载 28.7 秒，会话 43.1 秒（stream `duration_ms`），7 个引擎请求，token 未缓存 8,519 / 缓存 61,477 / 输出 3,140（引擎日志），引擎输入 1,220.7 tok/s、引擎输出 88.9 tok/s，任务平均输入约 197.7 tok/s、输出约 72.9 tok/s（按 stream 时长近似，没有用 `review_work_time`）；启动提示加载 SHA `1cae169a…`（源 `5f9efc02…`，防循环段关闭）；引擎正常卸载，租约已归还；
+  - [x] Code Standards brief 的 extraCharges / memberId 诱饵条款：按答案键 C22、C29 的 placement 核对后补上（独立核对建议 S3）；
+  - [x] 重建物化目录，`check_briefs.py` 改为缺副本时自动物化，冻结前的机械核对全部通过；
+  - [x] 盲裁 view 从冻结 fixture 构造（`tools/reviewer/adjudication_view.py`；Commit Audit v3 重建结果与先例逐字节相同）；
+  - [~] 跨模型汇总报告流水线（含 G4 Code Standards 逐实例表）；
     - 汇总层已实现（2026-10-19）：`tools/reviewer/benchmark_summary.py`，输入每实例一条的归一化记录（JSONL），输出 `summary.json`/`summary.md`（§5 各项、27 个预登记比较、逐实例表，含 Code Standards），用合成数据测试。未做：把 Codex（`arw_measure`）和 Claude Code（`claude_scenario`）的运行记录与评分结果转成归一化记录的适配层，等两条路径的记录格式在阶段 1 冒烟中定下后再写。
-  - 核实项目压缩提示文件对 OpenAI 远端压缩是否生效（API 臂已关闭该提示，只需确认关闭后没有残留）；
+  - [x] 核实项目压缩提示文件对 OpenAI 远端压缩是否生效（API 臂已关闭该提示，只需确认关闭后没有残留）；
     - 已核实（2026-10-19，零模型）：API 臂（`project_compaction_instructions: false`）渲染出的压缩提示只有 Codex 原生提示一个来源（sha256 `ab0c334d…`，policy `native-only-diagnostic`），不含工程压缩提示；Codex 0.162.0 的原生提示用 `verify_codex_compact_prompt` 重新采集，与存档的 0.160.1 版逐字节相同。内置 openai provider 加合成 ChatGPT 登录、在只有回环的网络命名空间里对 mock 手动压缩：Codex 走服务端压缩（`responses_compaction_v2`，向 `/responses` 发一次 `request_kind: compaction` 请求），请求里既没有原生压缩提示，也没有 `experimental_compact_prompt_file` 中的标记文字，两种设置的请求除 id、路径和时间外相同。所以 OpenAI 臂的压缩不受该文件影响；DeepSeek 臂走本地压缩，用的是与原生相同的提示。
-  - 本计划冻结。
+  - [ ] 本计划冻结（本轮按指示不冻结）。
+  - 不做（用户 2026-10-19）：G6 luna 裁决 runner、Commit Audit v3 brief 的 `unsure` 字段。P5 改由另一 worker 做。
 - **阶段 1（门与探针）**：两种 harness 的完整门 → P0–P2 → 27 次冒烟 → P3 预检。
 - **阶段 2（按场景分批）**：每个场景的全部配置尽量在 48 小时内跑完，场景之间不并行。
   - 顺序为 Commit Audit v3（brief 已冻结）→ Code Spec v5 → Code Standards v5.1 → Spec Readiness v4.3。
@@ -246,7 +248,7 @@
 
 开始前由 Main 说明清楚并取得用户同意，再开始等待。
 
-1. **Codex 登录**（使用 OpenAI 模型之前）：Main 通知用户后，用户在 benchmark 专用目录里登录。目录在工程外，建议 `/home/pello/.local/share/qwen-bench/codex-home`。命令为 `CODEX_HOME=<该目录> <benchmark 专用 codex> login`，按提示完成 ChatGPT 登录。agent 不读这个目录里的文件。
+1. **Codex 登录**（使用 OpenAI 模型之前）：用户决定（2026-10-19）用默认的 `~/.codex` 登录，不建专用目录；selection 的 `auth_home` 写 `/home/pello/.codex`。每次运行仍用全新的 CODEX_HOME，只放指向该登录文件的链接；所有 Codex 臂对整个 `~/.codex` deny-read（G7）。agent 不读这个目录里的文件。
 2. **DeepSeek key**（使用 DeepSeek 之前）：用户只在启动 benchmark 会话的那个终端里 `export BENCHMARK_DEEPSEEK_API_KEY=…`，不写进 shell profile，以免日常的其他会话也带着它。runner 已对非 DeepSeek 的子进程去掉它（§3「凭据」）。建议同时在 DeepSeek 控制台给这个 key 设单独的花费上限，并把上限告诉 Main。
 
 ## 12. 实现位置（本轮已完成的代码适配）
@@ -266,8 +268,8 @@
 - `tools/reviewer/inspect_session.py`：凭据值打码（含 JSON、单引号和转义引号写法，以及 `*PASSWORD=`），`auth.json` 和 `.credentials.json` 计为凭据材料。
 - 审查后补的（2026-10-19）：`providers.shell_exclude` / `process_environment`（所有凭据变量排除，M1）；`claude_headless.pinned_binary` 与两个 CLI 的 `--claude`（M6）；`safety_gate --web-search`（Strata 零模型模式）。
 - 仍待实现（阶段 0）：
-  - G7 deny-read；G8 Strata 臂在 Claude Code 上的 live 冒烟；
-  - 跨模型汇总流水线；
+  - G7 deny-read、G8 live 冒烟已完成（§9 阶段 0）；
+  - 跨模型汇总流水线：汇总层已完成，适配层待写；
   - Codex selection 的 `startup_instructions` / `project_compaction_instructions` 已有开关，只需在 plan 里写成 false。
 
 ## 13. 独立审查意见与处理
@@ -281,14 +283,14 @@
 | 编号 | 意见 | 处理 |
 |---|---|---|
 | M1 | 本次 provider 以外的 key（如全局设置的 `BENCHMARK_DEEPSEEK_API_KEY`）进入 Reviewer 命令环境；ChatGPT mock 显示 `shell_env_key: VISIBLE` | 已修：所有凭据变量一律排除，daemon 环境去掉其他 provider 的 key；DeepSeek 变量名作 canary 重跑 mock，结果 `absent`；§11 改为不写进 shell profile |
-| M2 | Codex `:read-only` 能读 `~/.claude/.credentials.json`、`~/.codex/auth.json`、`project.private.toml`，API 臂可能把它们发出去 | 写入计划，未实施：G7 阶段 0 必做，没通过就不启动 API 臂；偏离"不额外收紧"，交用户复核；混杂 13 已补 |
+| M2 | Codex `:read-only` 能读 `~/.claude/.credentials.json`、`~/.codex/auth.json`、`project.private.toml`，API 臂可能把它们发出去 | 已实施（2026-10-19，G7，mock 门验证）：没通过就不启动 API 臂；偏离"不额外收紧"，交用户复核；混杂 13 已补 |
 | M3 | luna 裁决 runner 不能用 `:read-only` | 已改 §6.2：用原生权限 profile 加零模型探针 |
 | M4 | 开头"冻结要通过试点"与 §6.2"试点在冻结之后"矛盾 | 已改：冻结 brief → 试点 → 不过则维持 Opus、brief 不改 |
 | M5 | S5 应只对实际返回的 tier 触发；模型 ID 匹配规则 | 已改 §2、§3、§10 |
 | M6 | Claude Code 二进制要锁版本并记 SHA | 已实现：两个 CLI 的 `--claude`，版本不是 2.1.303 就拒绝 |
 | M7 | Holm 族、α、自由度、Strata 次数、最小可分辨差 | 已写入 §5 |
 | M8 | reviewer-suite「会话检查」缺 benchmark 例外 | 已写入规则 |
-| M9 | Claude Code 上的 Strata 臂缺 live smoke | 写入计划，未实施：G8 阶段 0 |
+| M9 | Claude Code 上的 Strata 臂缺 live smoke | 已实施（2026-10-19）：G8，smoke 在 rtx3080ti 上通过 |
 | M10 | README、work-history 的双裁应写"暂定"；试点补 Code Spec 池 | 已改 |
 | 建议 | Codex 逐实例查 `web_search_call`；更正 Strata 搜索证据；断言 API 臂不接入基础提示；P4 测法；P5 具体 ID 的 effort；P0 套餐容量；P6 并行速度对照；编排费用归项；升级率线；锚点或合成负例不达标整池重裁；恢复路径归还登录；远端压缩核实；打码补单引号；按阶段墙钟；work-history 链接；README 措辞 | 全部写入计划或已修。Strata 搜索证据已补测：加 `--web-search disabled` 后为 0。打码、链接、README 已改；其余写进 §3、§5、§6.2、§8、§9 |
 
