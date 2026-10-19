@@ -49,7 +49,7 @@ rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），只对外提
 
 ## 主线
 
-- [ ] **Reviewer 场景重构**：Spec Readiness 已到 v4.1 收尾；Code Spec v4.7 完成（Q3/Opus 0.744，[报告](reports/v0.1.43.1/code-spec-v4/summary.md)）；阅读量维度完成（150K 档成立，Opus 20/20；Q3 原样题命中 88%→73%，[报告](reports/v0.1.44.1/code-spec-rv/summary.md)）；**Code Spec 正式场景 v5 完成**（修订 38，F2 与按对计分：Q3 ×5 0.625 / Opus ×3 0.847，Q3/Opus 0.738，×10 为 0.693；罚前 0.766，[报告](reports/v0.1.44.1/code-spec-v5/summary.md)）；**Code Standards 收尾**：v5.1 为末版，Q3/Opus 0.90，记为区分度不足（v6 r27 全面加难未拉开差距，用户 2026-10-15 决定按停止条件结束）；下一步 Spec Readiness v4.2、Commit Audit；顺序为 Code Spec → Strata 升级到 v0.1.43.1 与例行检查（2026-10-13 完成）→ Code Standards → Commit Audit（用户 2026-10-13）（[计划](docs/plan.md#reviewer-场景重构用户-2026-10-13)）。
+- [ ] **多模型 benchmark**：四个 reviewer 场景都已冻结并测完（评分 r8 起的 Q3/Opus：Code Spec v5 0.733（×5，r8 重算）、Code Standards v5.1 0.936（×10，r8 重算；区分度不足的末版）、Spec Readiness v4.3 0.584（×5）、Commit Audit v3 0.730（×5，r8.3）），benchmark 前置工作完成；方案稿和独立审查已完成，模型清单等决定待用户答复，答复前先做无模型准备（[计划](docs/plan.md#多模型-benchmark用户-2026-10-17)）。
 - [ ] **rtx4070tis 恢复后**：核对实际状态、补同步部署，再决定 ARW 安全恢复和 Spec Readiness 十二实例。
 
 ## 进展
@@ -68,4 +68,4 @@ rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），只对外提
 - 2026-10-18 rtx3080ti 升级到 Strata v0.1.45，短检查通过（含 Codex guardian 子会话，[升级报告](reports/v0.1.45/upgrade.md)）；上游称答案逐字节相同，但 0.1.44.1 在本机参数下 greedy 本身不可复现，逐字比对无法核实，0.1.44.1 上的 Q3 基线沿用与否待定；调参结论来自旧版本，没有在本版上重新测量。
 
 - 2026-10-18 Commit Audit v3 修订号 24 冻结（按难度因素加难，(a) 已确认、(b) 判为无效构造；新题型命中率 14/21 压在 2/3 线上，比值 0.735；Main 与独立审查一致：有条件冻结，条件已落实，用户已知悉）。同日**定版**：Q3 ×5 0.616 / Opus medium ×3 0.843，Q3/Opus 0.730（×10 为 0.706），第二裁决者复评 38/38 一致、11/11 负例识别；区分度主要来自非因素题，(b) 无效；独立意见有条件定版，条件已满足，用户已知悉（[报告](reports/v0.1.45/commit-audit-v3/summary.md)）：[v3 变更说明](benchmarks/reviewer-suite-v1/commit-audit-v3.md#审计校准与冻结2026-10-18)、[设计说明](benchmarks/reviewer-suite-v1/commit-audit-v3-design.md#11-方向停止条件与核对冻结前2026-10-18)、[versions](benchmarks/reviewer-suite-v1/versions.md)。
-- 2026-10-19 benchmark 前置：catalog 窗口改取部署档位、去掉写死的窗口与阈值、qwen-agent 统一用默认档，部署到 rtx3080ti，隔离冒烟通过；安全门零模型探针修好，实跑待用户定口径（[报告](reports/v0.1.45/context-tier-unify/summary.md)）。Sonnet 盲裁试点通过三条通过线（[报告](reports/v0.1.45/sonnet-adjudication-pilot/summary.md)），benchmark 裁决模型待用户定。
+- 2026-10-19 benchmark 前置：catalog 窗口改取部署档位、去掉写死的窗口与阈值、qwen-agent 统一用默认档，部署到 rtx3080ti，隔离冒烟通过；安全门零模型探针修好（[报告](reports/v0.1.45/context-tier-unify/summary.md)）。安全门按新源重跑通过（[报告](reports/v0.1.45/safety-gate-env-fix/summary.md)）。Sonnet 盲裁试点通过三条通过线（[报告](reports/v0.1.45/sonnet-adjudication-pilot/summary.md)），用户决定 benchmark 盲裁仍用 Opus（见现行决定）。

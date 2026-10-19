@@ -1,6 +1,6 @@
 # 后续计划
 
-更新：2026-10-18。只放待办和需要重复执行的流程；已完成的经过见[历史工作](work-history.md)，测量通用约束见 `.claude/rules/`，参数任务只在[每机调参手册](host-tuning.md)维护。整个工程的现行决定见 [README](../README.md#现行决定)。
+更新：2026-10-19。只放待办和需要重复执行的流程；已完成的经过见[历史工作](work-history.md)，测量通用约束见 `.claude/rules/`，参数任务只在[每机调参手册](host-tuning.md)维护。整个工程的现行决定见 [README](../README.md#现行决定)。
 
 ## 待办顺序
 
@@ -11,7 +11,7 @@
 3. ~~核对写死在代码里的上下文和压缩阈值~~：同上。
 4. ~~统一 Codex 与 Claude Code 的上下文档位~~：同上。
 5. ~~修好安全门并在 v0.1.45 上重跑~~：2026-10-19 在 WSL 3.0.3、目录授权下通过；单模型对外与隔离修复部署后两次重跑都通过，现行证据 [safety-gate-env-fix](../reports/v0.1.45/safety-gate-env-fix/summary.md)。
-6. **评分规则遗留**：两项核实已完成（r7 已实现，69969fa 补测试）；Sonnet 盲裁试点通过（[报告](../reports/v0.1.45/sonnet-adjudication-pilot/summary.md)），但用户 2026-10-19 决定 benchmark 仍用 Opus 裁决（质量优先）。本项完成。
+6. ~~评分规则遗留~~：两项核实已完成（r7 已实现，69969fa 补测试）；Sonnet 盲裁试点通过（[报告](../reports/v0.1.45/sonnet-adjudication-pilot/summary.md)），但用户 2026-10-19 决定 benchmark 仍用 Opus 裁决（质量优先）。本项完成。
 7. **多模型 benchmark 方案设计**：见「多模型 benchmark」。
 8. **多模型 benchmark 执行与报告**：同上。
 9. **采样与窗口重新测量**：负载设计，见同名一节。
@@ -34,14 +34,14 @@
 
 场景流程、判据与停止条件见 `.claude/rules/reviewer-suite.md`「场景流程」。Spec Readiness 已到 v4.1 收尾（经过见[历史记录](work-history.md)「Spec Readiness 重构 v2→v4.1」，[报告](../reports/v0.1.42/spec-readiness-v4/summary.md)）。
 
-- [ ] **评分规则检查与改进**（用户 2026-10-14；审计与 r7 已完成并提交，口径已写入 `.claude/rules/measurement.md` 与 `reviewer-suite.md`「评分」）：剩余待办——多词 `findingTerms` 连续短语匹配是否完成、必选组标为仅供裁决参考是否完成；Sonnet 盲裁试点（在 v5.1 已有池上与 Opus 裁决比一致率，效果好再逐步扩大）。只读分析时不改冻结件。
-- [ ] **Commit Audit 场景**：v2 已完成（修订号 23，Q3 ×10 比值 0.880，[报告](../reports/v0.1.44.1/commit-audit-v2/summary.md)），加难版 v3（修订号 24）2026-10-18 冻结，正式测量见「benchmark 前置工作」。按场景流程推进（`.claude/rules/reviewer-suite.md`「场景流程」）。
+- [x] **评分规则检查与改进**（2026-10-19 完成，同待办第 6 项；用户 2026-10-14；审计与 r7 已完成并提交，口径已写入 `.claude/rules/measurement.md` 与 `reviewer-suite.md`「评分」）：剩余待办——多词 `findingTerms` 连续短语匹配是否完成、必选组标为仅供裁决参考是否完成；Sonnet 盲裁试点（在 v5.1 已有池上与 Opus 裁决比一致率，效果好再逐步扩大）。只读分析时不改冻结件。
+- [x] **Commit Audit 场景**：v2 已完成（修订号 23，Q3 ×10 比值 0.880，[报告](../reports/v0.1.44.1/commit-audit-v2/summary.md)），加难版 v3（修订号 24）2026-10-18 冻结并定版（[报告](../reports/v0.1.45/commit-audit-v3/summary.md)）。按场景流程推进（`.claude/rules/reviewer-suite.md`「场景流程」）。
 
 ## benchmark 前置工作（用户 2026-10-18）
 
 多模型 benchmark 开跑前必须完成。每项都已核对过会影响 benchmark 的结果、费用或可比性（2026-10-18 排查）。
 
-- [ ] **评分规则遗留**：先核实两项是否已完成——多词 `findingTerms` 是否按连续短语匹配，必选组是否标为仅供裁决参考；没有完成就补上并重算受影响的场景。再做 Sonnet 盲裁试点（在已有裁决池上与 Opus 裁决比一致率）。benchmark 的裁决量是模型数 × 4 场景 × 5 次，裁决模型决定费用，所以试点结果要在方案设计前出来。
+- [x] **评分规则遗留**（2026-10-19 完成，同待办第 6 项）：先核实两项是否已完成——多词 `findingTerms` 是否按连续短语匹配，必选组是否标为仅供裁决参考；没有完成就补上并重算受影响的场景。再做 Sonnet 盲裁试点（在已有裁决池上与 Opus 裁决比一致率）。benchmark 的裁决量是模型数 × 4 场景 × 5 次，裁决模型决定费用，所以试点结果要在方案设计前出来。
 
 以下遗留经核对不挡 benchmark，记入方案的混杂清单：
 - IQ3_XXS 参数来自 v0.1.42 调参，不另行在 v0.1.45 上重测：benchmark 本身就在当前版本上跑，数据随之得到（用户 2026-10-18）；
