@@ -122,6 +122,8 @@ class InspectClaudeStreamTest(unittest.TestCase):
                   {'type': 'assistant', 'message': {'content': [{'type': 'thinking', 'thinking': 'not read'},
                                                                 {'type': 'text', 'text': 'Done.'}]}},
                   {'type': 'system', 'subtype': 'compact_boundary'},
+                  {'type': 'system', 'subtype': 'permission_denied', 'tool_name': 'Write', 'decision_reason': 'outside',
+                   'message': '/tmp/x is outside the working directory'},
                   {'type': 'result', 'subtype': 'success', 'duration_ms': 90000, 'num_turns': 6, 'result': 'Final.',
                    'permission_denials': [{}],
                    'modelUsage': {'a': {'inputTokens': 10, 'cacheCreationInputTokens': 90, 'cacheReadInputTokens': 500, 'outputTokens': 40},
@@ -138,7 +140,9 @@ class InspectClaudeStreamTest(unittest.TestCase):
         self.assertEqual((r['work_seconds'], r['work_time_source'], r['stream_span_seconds']), (90.0, 'result duration_ms', 30.0))
         self.assertEqual((r['compactions'], r['final'], r['permission_denials'], r['threadId']), (1, 'Final.', 1, 's1'))
         self.assertEqual({k: r['tokens'][k] for k in ('uncached_input', 'cached_input', 'output')}, {'uncached_input': 105, 'cached_input': 500, 'output': 41})
-        self.assertEqual([m['text'] for m in r['messages']], ['Done.'])
+        self.assertEqual([m['text'] for m in r['messages']],
+                         ['Done.', 'permission_denied Write: outside: /tmp/x is outside the working directory'])
+        self.assertEqual([m['role'] for m in r['messages']], ['assistant', 'harness'])
         out = Path(tempfile.mkdtemp())
         summary = render(r, out)
         self.assertIn('工作时间 1.5 分钟', (out / 'actions.md').read_text())

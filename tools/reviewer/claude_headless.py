@@ -37,6 +37,7 @@ from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 import json
 import os
+import stat
 from pathlib import Path
 import re
 import shutil
@@ -63,7 +64,28 @@ AGENT = ROOT / 'scripts/wsl/qwen-agent'
 # Named directories, not top-level ones: Claude Code 2.1.303 left /home readable to sandboxed commands with denyRead
 # ["/home"], while /home/pello was denied (tools.safety.claude_gate, 2026-10-19). The working directory is re-opened
 # by allowRead inside WORK_BASE.
-DENY_READ = [str(Path.home()), '/root', '/mnt/c', '/mnt/wsl', '/mnt/wslg', str(WORK_BASE), '/etc/claude-code']
+# Claude Code's shared temporary directory (its default sandbox TMPDIR, also holding other sessions' task outputs and
+# scratchpads): every run gets its own TMPDIR instead (run_tmp), and sandboxed commands can neither read nor write the
+# shared one (2026-10-19: concurrent instances wrote and could read same-named drafts there).
+SHARED_TMP = [f'/tmp/claude-{os.getuid()}']
+# All of /tmp is shared between runs and sessions: sandboxed commands could create /tmp/<name> (mock 2026-10-19), so
+# /tmp is denied for writes. A top-level denyRead of /tmp is not enforced by Claude Code 2.1.303 (as with /home), so
+# shared_tmp_entries() denies reads of every entry present when the run starts.
+SHARED_DENY = ['/tmp', *SHARED_TMP]
+# The other world-writable directories: the sandbox let commands create files in /var/tmp and /run/lock that landed on
+# the host, and read /var/tmp files (mock 2026-10-19). A denyWrite on /var/tmp would cover the runs' own directories
+# beneath it (bwrap then fails); a denyRead of each directory works instead: the sandbox mounts an empty private
+# directory there (each run re-allowed its own directories under WORK_BASE), so writes stay inside the sandbox.
+WORLD_WRITABLE = [d for d in ('/var/tmp', '/run/lock', '/run/screen', '/dev/shm', '/dev/mqueue', '/var/crash', '/mnt/wsl',
+                              '/mnt/wslg') if os.path.isdir(d)]
+SETTINGS_ARGUMENT_LIMIT = 120000
+
+
+def shared_tmp_entries():
+    """Entries at the top of /tmp when a run starts, except Unix sockets (connecting to them is blocked anyway)."""
+    return sorted(str(p) for p in Path('/tmp').iterdir() if not p.is_socket() and str(p) not in SHARED_DENY)
+DENY_READ = [str(Path.home()), '/root', '/mnt/c', '/mnt/wsl', '/mnt/wslg', str(WORK_BASE), '/etc/claude-code', *SHARED_DENY,
+             *(d for d in WORLD_WRITABLE if d not in ('/mnt/wsl', '/mnt/wslg'))]
 # Inputs that never belong in a working directory: credentials, private state and answer material.
 FORBIDDEN = ['project.private.toml', 'installation.private.toml', '.credentials.json', '.claude.json', '.state',
              'key*.json', 'expected*.json', 'judgment']
@@ -111,6 +133,19 @@ def copy_inputs(work, copies, forbidden=FORBIDDEN):
 def file_hashes(work):
     return {str(p.relative_to(work)): hashlib.sha256(p.read_bytes()).hexdigest()
             for p in sorted(work.rglob('*')) if p.is_file() and not p.is_symlink()}
+
+
+def run_tmp(work):
+    """The run's own temporary directory, `<run root>/tmp` (0700) beside the working directory, given to Claude Code as
+    TMPDIR and CLAUDE_CODE_TMPDIR. Claude Code 2.1.303 derives the sandboxed commands' TMPDIR from TMPDIR
+    (`<tmp>/claude-<uid>`; CLAUDE_CODE_TMPDIR alone left it at the shared /tmp/claude-<uid>, mock 2026-10-19), and
+    keeps its own temporary files under CLAUDE_CODE_TMPDIR; settings() grants the directory to this run only."""
+    tmp = Path(work).resolve().parent / 'tmp'
+    tmp.mkdir(mode=0o700, exist_ok=True)
+    st = tmp.lstat()
+    if not stat.S_ISDIR(st.st_mode) or st.st_mode & 0o777 != 0o700 or st.st_uid != os.getuid():
+        raise ValueError(f'{tmp} is not this user\'s own 0700 directory')
+    return tmp
 
 
 def write_targets(work, writes):
@@ -175,11 +210,12 @@ def settings(work, writes, hooks):
     # The sandbox always lets commands write in the working directory; denying the directory itself breaks bwrap
     # (it creates placeholders such as .git and scripts there), so every existing entry outside the grants is denied
     # and a new file at the top of the working directory stays possible (tools.safety.claude_gate records it).
-    deny_write = outside_grants(work.resolve(), targets)
+    deny_write = outside_grants(work.resolve(), targets) + SHARED_DENY
+    tmp = str(run_tmp(work))
     return {'autoMemoryEnabled': False, 'includeGitInstructions': False,
             'sandbox': {'enabled': True, 'autoAllowBashIfSandboxed': True, 'allowUnsandboxedCommands': False,
-                        'filesystem': {'denyRead': list(DENY_READ), 'allowRead': [str(work)],
-                                       'denyWrite': deny_write, 'allowWrite': [str(t) for t in targets]},
+                        'filesystem': {'denyRead': list(DENY_READ) + shared_tmp_entries(), 'allowRead': [str(work), tmp],
+                                       'denyWrite': deny_write, 'allowWrite': [str(t) for t in targets] + [tmp]},
                         'network': {'allowedDomains': []}},
             'hooks': hooks}
 
@@ -205,6 +241,15 @@ def deepseek_model(model):
     return model
 
 
+def settings_argument(session_settings):
+    """The settings as one argv string. Linux caps a single argument at 131072 bytes (MAX_ARG_STRLEN) and the denyRead
+    list grows with /tmp (shared_tmp_entries); refuse before the kernel does, with the reason."""
+    text = json.dumps(session_settings)
+    if len(text.encode()) > SETTINGS_ARGUMENT_LIMIT:
+        raise ValueError(f'Settings are {len(text.encode())} bytes, over {SETTINGS_ARGUMENT_LIMIT}: clear stale /tmp entries')
+    return text
+
+
 def command(backend, model, effort, work, writes, session_settings, tools=TOOLS, startup=True, claude=CLAUDE):
     """The Claude Code command. All backends get the same flags; the startup prompt is appended here for API models
     and by the service for Strata, so each model sees it once (D4). The multi-model benchmark gives it only to Strata,
@@ -214,7 +259,7 @@ def command(backend, model, effort, work, writes, session_settings, tools=TOOLS,
     if backend == 'deepseek':
         deepseek_model(model)
     argv = [claude, '-p', '--model', model, '--effort', effort, '--restricted', '--strict-mcp-config',
-            '--disable-slash-commands', '--setting-sources', '', '--settings', json.dumps(session_settings),
+            '--disable-slash-commands', '--setting-sources', '', '--settings', settings_argument(session_settings),
             '--tools', tools, '--disallowedTools', DISALLOWED, '--permission-mode', 'dontAsk', '--permission-prompts', 'none',
             '--allowedTools', allowed_tools(work, writes),
             '--output-format', 'stream-json', '--verbose', '--no-session-persistence']
@@ -240,11 +285,17 @@ def deepseek_environment(model, key, base=DEEPSEEK_BASE):
             **{name: deepseek_model(model) for name in DEEPSEEK_MODEL_VARIABLES}}
 
 
-def environment(backend, effort, home=None, config_dir=None, strata=None):
+def environment(backend, effort, home=None, config_dir=None, strata=None, tmp=None):
     """Minimal environment, the effect of `env -i`: no variable of the calling session reaches Claude Code.
-    `strata` is the backend's model environment (Strata's from qwen-agent, or deepseek_environment())."""
+    `strata` is the backend's model environment (Strata's from qwen-agent, or deepseek_environment()); `tmp` is the
+    run's own TMPDIR (run_tmp), required so that no run falls back to the shared /tmp/claude-<uid>."""
+    shared = [Path(p) for p in SHARED_TMP]
+    if not tmp or Path(tmp).resolve() == Path('/tmp') or any(
+            Path(tmp).resolve() == p or p in Path(tmp).resolve().parents for p in shared):
+        raise ValueError('Every run has its own TMPDIR beside its working directory (run_tmp)')
     env = {'PATH': os.environ.get('PATH', '/usr/bin:/bin'), 'LANG': 'C.UTF-8', 'TERM': 'dumb',
-           'DISABLE_AUTOUPDATER': '1', 'CLAUDE_CODE_EFFORT_LEVEL': effort, 'CLAUDE_CODE_SUBPROCESS_ENV_SCRUB': '1'}
+           'DISABLE_AUTOUPDATER': '1', 'CLAUDE_CODE_EFFORT_LEVEL': effort, 'CLAUDE_CODE_SUBPROCESS_ENV_SCRUB': '1',
+           'CLAUDE_CODE_TMPDIR': str(tmp), 'TMPDIR': str(tmp)}
     if backend == 'anthropic':
         # A synthetic HOME (anthropic_home) whose only content links the real configuration directory, which supplies
         # the subscription login; --setting-sources "" keeps its settings, hooks and CLAUDE.md out (verified by
@@ -408,13 +459,13 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
         binding['startup_instructions'] = ({'enabled': True, 'placement': '--append-system-prompt',
                                             'sha256': startup_text()[1]} if startup else {'enabled': False})
         if backend == 'anthropic':
-            env = environment('anthropic', effort, anthropic_home(work.parent))
+            env = environment('anthropic', effort, anthropic_home(work.parent), tmp=run_tmp(work))
         else:
             home, config_dir = work.parent / 'home', work.parent / 'claude-config'
             home.mkdir()
             config_dir.mkdir()
             env = environment('deepseek', effort, home, config_dir,
-                              deepseek_environment(model, os.environ.get(DEEPSEEK_KEY)))
+                              deepseek_environment(model, os.environ.get(DEEPSEEK_KEY)), tmp=run_tmp(work))
             binding['endpoint'] = DEEPSEEK_BASE
         save(out / 'environment-names.json', sorted(env))
         save(out / 'binding.json', binding)
@@ -465,7 +516,7 @@ def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file,
                            measurement_host=measurement_host.metadata(),
                            strata_release=measurement_host.installed_release(),
                            model_environment={k: v for k, v in strata.items() if k in MODEL_ENVIRONMENT_RECORDED})
-            env = environment('strata', effort, home, config_dir, strata)
+            env = environment('strata', effort, home, config_dir, strata, tmp=run_tmp(work))
             save(out / 'environment-names.json', sorted(env))
             save(out / 'binding.json', binding)
             result = execute(out, prompt_text, argv, env, work, limit, started_file)

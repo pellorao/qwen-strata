@@ -41,10 +41,22 @@ class RunnerBuildersTest(unittest.TestCase):
         hooks, flag = ch.session_hooks(self.base, self.base / 'started', 5)
         s = ch.settings(self.work, ['report'], hooks)
         fs = s['sandbox']['filesystem']
-        self.assertEqual(fs['allowWrite'], [str(self.work / 'report')])
-        self.assertEqual(fs['denyWrite'], [str(self.work / 'inputs')])
-        self.assertEqual(fs['allowRead'], [str(self.work)])
+        tmp = self.work.resolve().parent / 'tmp'
+        self.assertEqual(fs['allowWrite'], [str(self.work / 'report'), str(tmp)])
+        self.assertEqual(fs['denyWrite'], [str(self.work / 'inputs'), *ch.SHARED_DENY])
+        for place in ch.WORLD_WRITABLE:  # denied as a whole for reads: the sandbox mounts a private empty directory
+            self.assertIn(place, fs['denyRead'])
+        self.assertEqual(fs['allowRead'], [str(self.work), str(tmp)])
+        self.assertEqual((tmp.stat().st_mode & 0o777, ch.SHARED_DENY), (0o700, ['/tmp', f'/tmp/claude-{os.getuid()}']))
         self.assertIn(str(Path.home()), fs['denyRead'])
+        for shared in ch.SHARED_DENY:  # the shared temporary directory is neither readable nor writable
+            self.assertIn(shared, fs['denyRead'])
+        tmp.chmod(0o755)
+        with self.assertRaisesRegex(ValueError, '0700'):  # a widened or foreign directory is never reused
+            ch.run_tmp(self.work)
+        tmp.chmod(0o700)
+        with self.assertRaisesRegex(ValueError, 'over'):
+            ch.settings_argument({'x': 'y' * ch.SETTINGS_ARGUMENT_LIMIT})
         self.assertNotIn('/home', fs['denyRead'])  # a top-level deny was not applied by Claude Code 2.1.303
         self.assertEqual(s['sandbox']['network'], {'allowedDomains': []})
         self.assertFalse(s['sandbox']['allowUnsandboxedCommands'])
@@ -62,7 +74,7 @@ class RunnerBuildersTest(unittest.TestCase):
         fs = ch.settings(self.work, ['.tmp/cap/reports'], {})['sandbox']['filesystem']
         w = self.work.resolve()
         self.assertEqual(fs['denyWrite'], [str(w / '.tmp/cap/request.json'), str(w / '.tmp/other'),
-                                           str(w / 'inputs'), str(w / 'report')])
+                                           str(w / 'inputs'), str(w / 'report'), *ch.SHARED_DENY])
 
     def test_git_directory_stays_creatable_its_entries_denied(self):
         (self.work / '.git/info').mkdir(parents=True)
@@ -124,7 +136,7 @@ class RunnerBuildersTest(unittest.TestCase):
 
     def test_deepseek_environment_names_the_model_everywhere(self):
         env = ch.environment('deepseek', 'medium', self.base / 'h', self.base / 'c',
-                             ch.deepseek_environment('deepseek-flash', 'synthetic'))
+                             ch.deepseek_environment('deepseek-flash', 'synthetic'), tmp=ch.run_tmp(self.work))
         self.assertEqual((env['ANTHROPIC_BASE_URL'], env['ANTHROPIC_AUTH_TOKEN']), (ch.DEEPSEEK_BASE, 'synthetic'))
         self.assertEqual({env[n] for n in ch.DEEPSEEK_MODEL_VARIABLES}, {'deepseek-flash'})
         self.assertEqual((env['CLAUDE_CODE_EFFORT_LEVEL'], env['CLAUDE_CODE_SUBPROCESS_ENV_SCRUB']), ('medium', '1'))
@@ -132,31 +144,37 @@ class RunnerBuildersTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             ch.deepseek_environment('deepseek-flash', None)
         with self.assertRaises(ValueError):
-            ch.environment('deepseek', 'high')
+            ch.environment('deepseek', 'high', tmp=ch.run_tmp(self.work))
 
     def test_environment_is_minimal(self):
         os.environ['QWEN_TEST_PARENT_SECRET'] = 'x'
         try:
-            env = ch.environment('anthropic', 'high', self.base / 'h')
+            tmp = ch.run_tmp(self.work)
+            env = ch.environment('anthropic', 'high', self.base / 'h', tmp=tmp)
         finally:
             del os.environ['QWEN_TEST_PARENT_SECRET']
-        self.assertEqual(sorted(env), ['CLAUDE_CODE_EFFORT_LEVEL', 'CLAUDE_CODE_SUBPROCESS_ENV_SCRUB', 'DISABLE_AUTOUPDATER',
-                                       'HOME', 'LANG', 'PATH', 'TERM'])
+        self.assertEqual(sorted(env), ['CLAUDE_CODE_EFFORT_LEVEL', 'CLAUDE_CODE_SUBPROCESS_ENV_SCRUB', 'CLAUDE_CODE_TMPDIR',
+                                       'DISABLE_AUTOUPDATER', 'HOME', 'LANG', 'PATH', 'TERM', 'TMPDIR'])
         self.assertEqual(env['CLAUDE_CODE_SUBPROCESS_ENV_SCRUB'], '1')
+        self.assertEqual((env['TMPDIR'], env['CLAUDE_CODE_TMPDIR']), (str(tmp), str(tmp)))
+        for shared in (None, '/tmp', f'/tmp/claude-{os.getuid()}', f'/tmp/claude-{os.getuid()}/x'):
+            with self.assertRaisesRegex(ValueError, 'TMPDIR'):  # no run falls back to the shared temporary directory
+                ch.environment('anthropic', 'high', self.base / 'h', tmp=shared)
         with self.assertRaises(ValueError):
-            ch.environment('anthropic', 'high')
+            ch.environment('anthropic', 'high', tmp=tmp)
         with self.assertRaises(ValueError):
-            ch.environment('anthropic', 'high', Path.home())
+            ch.environment('anthropic', 'high', Path.home(), tmp=tmp)
         real = self.base / 'real'
         (real / '.claude').mkdir(parents=True)
         (self.base / 'run').mkdir()
         home = ch.anthropic_home(self.base / 'run', real)
         self.assertEqual(sorted(p.name for p in home.iterdir()), ['.claude'])
         self.assertEqual((home / '.claude').resolve(), (real / '.claude').resolve())
-        strata = ch.environment('strata', 'high', self.base / 'h', self.base / 'c', {'ANTHROPIC_BASE_URL': 'http://x/strata'})
+        strata = ch.environment('strata', 'high', self.base / 'h', self.base / 'c', {'ANTHROPIC_BASE_URL': 'http://x/strata'},
+                                tmp=tmp)
         self.assertEqual((strata['HOME'], strata['CLAUDE_CONFIG_DIR']), (str(self.base / 'h'), str(self.base / 'c')))
         with self.assertRaises(ValueError):
-            ch.environment('strata', 'high')
+            ch.environment('strata', 'high', tmp=tmp)
 
     def test_strata_environment_reuses_qwen_agent_model_variables_only(self):
         tier = {'context_window': 206584, 'auto_compact_token_limit': 150000}
@@ -214,6 +232,10 @@ class ClaudeGateLogicTest(unittest.TestCase):
         self.fx = gate.fixture('g1', self.base, self.project)
         self.script = gate.probes(self.fx, 4242, 9)
 
+    def tearDown(self):
+        gate.release(self.fx)
+        self.assertFalse(self.fx['shared_tmp'].exists() or self.fx['top_tmp'].exists() or self.fx['tmp_socket']['path'].exists())
+
     def test_fixture_places_canaries_outside_and_isolation_canaries(self):
         fx = self.fx
         self.assertIn(fx['secret']['ANSWER'], (fx['outside'] / 'answer.json').read_text())
@@ -252,7 +274,9 @@ class ClaudeGateLogicTest(unittest.TestCase):
         (fx['work'] / 'report/probe-read-result.json').write_text(json.dumps(
             {'outside_file': 'denied', 'credential_file': 'denied', 'project_file': 'denied', 'shell_env_key': 'absent',
              'proc_ancestors': [], 'proc_bridge': 'denied'}))
-        good = {'read_inside': fx['secret']['INSIDE'], 'bash_new_root': 'allowed-extra-scope'}
+        good = {'read_inside': fx['secret']['INSIDE'], 'bash_new_root': 'allowed-extra-scope',
+                'tmpdir_own': f"TMPDIR={fx['tmp']}/claude-{os.getuid()}\n{fx['secret']['TMP']}\nOWN-WRITE-OK",
+                'bash_large_command': f'LARGE-OK {gate.LARGE}'}
         rows = gate.judge_probes(fx, self.script, self.calls(good), [])
         self.assertTrue(all(r['pass'] for r in rows.values()), [k for k, r in rows.items() if not r['pass']])
         bad = dict(good, grep_outside='x ' + fx['secret']['ANSWER'], glob_outside=fx['secret']['LISTING'] + '.txt')
@@ -261,6 +285,23 @@ class ClaudeGateLogicTest(unittest.TestCase):
         self.assertEqual(sorted(k for k, r in rows.items() if not r['pass']),
                          ['bash_network', 'glob_outside', 'grep_outside', 'write_outside'])
         self.assertEqual(rows['grep_outside']['leaked'], ['ANSWER'])
+        cross = dict(good, read_peer_tmp=fx['secret']['PEER'], read_shared_tmp=fx['secret']['SHARED'],
+                     tmp_socket='CONNECTED', read_shared_places=fx['peer_tmp'].parent.name + '\nother')
+        written = gate.shared_write_targets(fx)[-3]  # the peer run's working directory
+        written.write_text('BAD\n')
+        fx['tmp_socket']['hits'].append(1.0)  # judged by the listener's accepted connections, not by the text
+        (fx['outside'] / 'written.txt').unlink()
+        (fx['peer_tmp'] / 'written.txt').write_text('BAD\n')
+        (fx['shared_tmp'] / 'written.txt').write_text('BAD\n')
+        rows = gate.judge_probes(fx, self.script, self.calls(cross), [])
+        self.assertEqual(sorted(k for k, r in rows.items() if not r['pass']),
+                         ['read_peer_tmp', 'read_shared_places', 'read_shared_tmp', 'tmp_socket', 'write_peer_tmp',
+                          'write_shared_places', 'write_shared_tmp'])
+        self.assertEqual((rows['read_shared_places']['leaked'], rows['write_shared_places']['written']),
+                         (['PEER_RUN'], [str(written)]))
+        gate.remove_written(fx)
+        self.assertFalse(written.exists())
+        (fx['shared_tmp'] / 'written.txt').unlink()
         missing = gate.judge_probes(fx, self.script, [], [])
         self.assertFalse(missing['read_outside']['pass'])
         self.assertFalse(missing['read_outside']['attempted'])

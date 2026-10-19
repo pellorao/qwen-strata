@@ -359,6 +359,18 @@
 - 用户复核（2026-10-19）：§14 全部同意。顺序口径补充：同一类模型（同一厂商或模型族的各配置，例如 Anthropic 三个模型的 9 个配置、Strata 的 6 个、GPT 的 6 个、DeepSeek 的 6 个）要在尽量短的时间段内跑完，不同类之间可以间隔几天。
 - 2026-10-19 22:20，Claude Code 上 Strata 臂（#25–27）第一个实例之前补代码。e470539 的 `claude_scenario` 只能跑 API 臂：没有 `--backend`/`--host`，且加载了启动提示的实例会被 checks 判无效。补上 `--backend strata --host <id>`；Strata 实例的 checks 用本次实际加载的两份提示 sha（binding）代替"启动提示关闭"，并按服务日志（model-server.log 本次段）核对每个请求的思考上限和总输出与 §2.1 一致；`claude_headless.strata_run` 另存服务日志段、Strata 版本和 qwen-agent 模型变量的值（不含 key 和前端地址）。Anthropic 臂的代码路径和判定不变（测试覆盖）。排程沿用冻结代码 `strata_run` 的做法：每个根线程领一次租约、冷加载、跑完停模型并归还，不做 §3 所说的同配置连跑与预热；每个实例从相同冷态开始，前缀缓存不跨实例（与 G8、`arw_measure` 自持模型路径一致），实例之间归还租约，Codex 侧 worker 可以在间隙领用。交 Main 复核。
 - 2026-10-19 22:29（87d86c2），DeepSeek key 的变量名改为 `DEEPSEEK_API_KEY`（用户已写进 `~/.profile`），凭据排除改为已知变量加 `*_API_KEY`、`*_TOKEN`、`*_SECRET` 通配；`arw_measure` 的 Strata 路径原先只排除 `STRATA_API_KEY`，现在与安全门一致，排除全部凭据变量和通配。原因：方案里的 `BENCHMARK_DEEPSEEK_API_KEY` 与用户实际设置的名字不符，旧的 `process_environment` 只按 `BENCHMARK_` 前缀去掉 key，换名后 DeepSeek key 会进入其他臂的 daemon 环境；Strata 路径的 Codex 命令也能看到它。影响：#10–12 尚未开跑，Claude Code 臂（#13–27）的最小环境不变，已跑实例不受影响。0.163.0 上三种 Codex mock 门和 Claude Code DeepSeek mock 门复跑通过：canary `DEEPSEEK_API_KEY` 与通配 canary `QWEN_GATE_CANARY_TOKEN` 在命令环境里都 `absent`，命令环境里没有任何这类名字（`shell_credential_names` 为空）。
+- 2026-10-19 23:00–00:50，Claude Code 臂的临时目录隔离修复，Anthropic 臂已跑实例全部作废（用户决定）。
+  - **原因**：Claude Code 2.1.303 把沙箱命令的 TMPDIR 设为 `$TMPDIR/claude-<uid>`，未设 TMPDIR 时就是共享的 `/tmp/claude-1000`；所有并发实例都能读写它，操作者会话的文件也在里面，构成跨实例通道。`/tmp` 顶层也可写。扫描结果在 `.tmp/bench-anthropic-1019/tmpdir-audit/`（原 CA 有 71 次工具调用触及共享 TMPDIR）。处理：CA 首轮 25 个有效实例全部作废，旧目录 `.tmp/bench-anthropic-1019/ca/` 保留不删，新运行目录 `ca-r2/`，尝试计数从零开始。CS/CStd 的 P4 探针只用 Read 工具、不涉及 TMPDIR，沿用。
+  - **修复**（`claude_headless`）：每个运行一个 `<run root>/tmp`（0700，属主和类型都核对），同时设为 TMPDIR 和 CLAUDE_CODE_TMPDIR，只授权给本运行。`environment()` 拒绝空值、`/tmp` 和共享目录。`/tmp` 与 `/tmp/claude-<uid>` 拒写；`/tmp` 顶层整体 denyRead 在 2.1.303 不生效，所以运行开始时逐条列出现有条目禁读。`/var/tmp`、`/run/lock`、`/run/screen`、`/dev/shm`、`/dev/mqueue`、`/var/crash` 整目录 denyRead：沙箱会在这些位置挂一个私有空目录，写入只留在沙箱内。修复前 mock 显示 `/var/tmp`、`/run/lock` 可写到宿主，`/var/tmp` 顶层文件可读。这些目录不能用 denyWrite，因为 `/var/tmp` 的 denyWrite 会盖住 WORK_BASE 下本运行的写授权，bwrap 会失败。settings 参数超过 120000 字节时报错，对应内核单参数上限 131072。
+  - **验证**：
+    - mock 门新增探针：自己的 TMPDIR（对照）；60K 字符的大 heredoc；读写 peer 的 TMPDIR（Bash 与 Read）；读写 `/tmp/claude-1000` 和 `/tmp` 顶层；连接 `/tmp` 下监听中的 AF_UNIX socket（按实际接受的连接判定）；读 `/var/tmp`、`/dev/shm` 的 canary，并列出 WORK_BASE；向各全局可写目录、peer 工作目录和 `$HOME/.claude` 写入（检查宿主上的实际文件）。
+    - `--pair` 让两个实例并发、互为 peer：anthropic、strata、deepseek 三种后端各 repeat 2，全部通过。
+    - live Anthropic 门（Haiku high，真实 HOME 链接形状，不在 userns 里）跑 3 次：没有泄漏、宿主上没有写入，Haiku 执行了的探针全部通过。其中 1 次 Haiku 拒绝了大部分探针；另 2 次只没执行 60K 命令探针，它只有 mock 证据。
+    - 宿主的 `/tmp`、`/tmp/claude-1000`、`/var/tmp` 和真实 `~/.claude` 都没有残留。全量单元测试通过。
+  - **独立审查**（全新 Opus agent）：有条件通过。条件一是补 live Anthropic 门，已补。条件二是补 `/tmp` 以外共享位置的读写探针，已补；补测时发现 `/var/tmp` 与 `/run/lock` 的写通道，修好后复验通过。建议项已做：`run_tmp` 核对、settings 长度保护。未做：清理 `/tmp` 下他人测试遗留的 `tmp*`，不确定是否仍在使用。
+  - **残余风险**：运行开始后才新建的 `/tmp` 顶层条目可读。没有沙箱实例能写 `/tmp`，所以这不构成实例之间的通道；`ls /tmp` 也仍能看到文件名。
+  - **command too long**：Main 决定。"Sandboxed command is too long"（131071）的原因是模型命令里单引号的嵌套转义膨胀，每个约 334 字节，与挂载数无关。这是 Claude Code 原生限制下模型自身的行为，所有模型一视同仁：不改 harness，不判实例无效，报告按配置统计出现次数。
+  - **另一条臂**：Claude Code 上的 Strata 臂（#25–27）也走 `claude_headless`，它此前的实例同样用过共享 TMPDIR，是否作废交 Main 定。
 
 ### 14.2 #10–12（Codex 上的 Strata）补冻结（2026-10-19）
 

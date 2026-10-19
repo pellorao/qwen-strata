@@ -259,6 +259,13 @@ def inspect_claude(stream, root, allow=()):
         if kind == 'result':
             result = e
             continue
+        if kind == 'system':
+            # Other system events carry no model action; a denial by the harness (e.g. --restricted on a path
+            # outside the working directory) is kept as a flagged message, its message being a plain string.
+            if e.get('subtype') == 'permission_denied':
+                messages.append({'event': i, 'role': 'harness', 'text': f"permission_denied {e.get('tool_name')}: "
+                                 f"{e.get('decision_reason')}: {e.get('message')}"})
+            continue
         content = (e.get('message') or {}).get('content')
         if not isinstance(content, list):
             if kind == 'user' and isinstance(content, str):
