@@ -11,7 +11,7 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 | `rtx3080ti` | RTX 3080 Ti 12GB，i9-13900 | 可用；本工程所在机 |
 | `rtx4070tis` | RTX 4070 Ti SUPER | 离线，短期不启用；原 Spec Readiness 主线在这台 |
 
-rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），默认模型 IQ3_XXS，参数沿用 v0.1.42 调参结果（未在新版上重测）；rtx4070tis 离线，仍为 v0.1.40.2，恢复后同步。模型 Q2_0 / IQ2_XS / IQ3_XXS。
+rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），只对外提供 IQ3_XXS，参数沿用 v0.1.42 调参结果（未在新版上重测）；Q2_0、IQ2_XS 权重保留，默认不运行、不测试。rtx4070tis 离线，仍为 v0.1.40.2，对外模型暂定 IQ3_XXS（占位），恢复后核实并同步。
 
 ## 文档
 
@@ -31,7 +31,7 @@ rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），默认模型
 
 只收对整个工程有影响的决定，每条一行：结论、日期、依据（用户决定的出处，或含 Main 与独立 agent 双方意见的报告）。单个场景或单项测量内部的决定留在各自报告里；被取代的决定移到 [work-history](docs/work-history.md)。agent 的工作规则在 [AGENTS.md](AGENTS.md)。
 
-- 默认模型 IQ3_XXS，其余量化只作对照；IQ3_XXS 8 维调参结果为默认值（2026-10-11）：[升级报告](reports/v0.1.42/upgrade.md)、[调参手册](docs/host-tuning.md#iq3_xxs)。
+- 每台机器只对外提供一个模型：rtx3080ti 为 IQ3_XXS（8 维调参结果为默认值，2026-10-11），Q2_0、IQ2_XS 权重保留，默认不再运行或测试，除非用户提出专门针对它们的任务（走部署 `--condition`，结束后普通部署恢复）；维护基线 = 本机唯一对外模型 + 部署默认值，不再单独成文件（B1）（2026-10-19，用户决定 + 独立审查）：[历史工作](docs/work-history.md#每台机器只对外一个模型维护基线退役2026-10-19)、[调参手册](docs/host-tuning.md#iq3_xxs)。
 - IQ3_XXS 默认档改为 206584／150000（2026-10-14）：经过见[历史工作](docs/work-history.md)「自主模式（2026-10-14 01:58 起，已结束）」。
 - 思考上限三档 low 2048／8192、medium 4096／16384、high 8192／24576，guardian 512／1024（2026-10-12，回滚方案 A）：[历史工作](docs/work-history.md)「Spec Readiness 思考上限诊断」。
 - 显存预留 512（2026-10-11）：[调参报告](reports/v0.1.42/iq3_xxs-tuning/vram-reserve/summary.md)。
@@ -55,7 +55,6 @@ rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），默认模型
 ## 进展
 
 - 2026-10-09 从 Codex 工程迁入：主机改按 GPU 命名；私有配置合并为 `project.private.toml`；tools 按用途分子目录，已关闭路线的脚本和测试删除；规则改写为 `AGENTS.md` + `.claude/rules/` + `.claude/skills/`。
-- 维护测量基线：[Q2_0/high/default](config/maintenance-baseline.json)，100K 压缩阈值 / 156584 窗口，8192 思考 / 24576 总输出。历史测量绑定 Codex 0.160.1，换新版 Codex 后的结果单独标注，不改历史标签。
 - 2026-10-09 前端重写并部署到 rtx3080ti：常驻 `192.168.60.212:8000`，独占租约 + `/strata/v1/*` 直通原生 Chat / Responses / Messages；WSL 可直连。无模型验收通过。
 - 2026-10-09 agent 接入：Codex 0.162.0 与 Claude Code 2.1.295 经 `bin/qwen-agent` 调用本地模型，冒烟检查通过（[记录](docs/work-history.md)）。托管搜索暂缺，见[计划](docs/plan.md#前端)。
 - 2026-10-10 2b 模型验收通过（[报告](reports/v0.1.40.2/agent-integration-2b/summary.md)）。搜索三项通过。Claude Code 自写审批（方案 B）优于内置 auto mode。补上了 Claude Code 压缩时的工程压缩提示（PreCompact hook）。SSD 大量读取的原因是每次加载模型都读 36 GB（[探索](reports/v0.1.40.2/resource-calibration/ssd-reads/summary.md)），已改为模型跨租约驻留，相同参数复用不再加载。`qwen-agent` 固定用 `qwen-approve` 审批。

@@ -10,11 +10,11 @@
 
 rtx3080ti 为 i9-13900、RTX 3080 Ti 12 GB。rtx4070tis 为 i9-14900K、64 GB RAM、RTX 4070 Ti SUPER 16 GB、NVMe。CPU 支持 AVX2/FMA/F16C，无 AVX-512。Windows 私有环境由 `C:\Python314\python.exe` 3.14.7 创建，依赖检查通过；历史Linux Codex验收版本为0.160.0，当前原生回归使用0.160.1。当前使用官方预编译引擎，无需安装编译工具或重新编译。
 
-默认加载 Q2_0，IQ2_XS、IQ3_XXS 均已安装。引擎参数与测量依据见[调优记录](tuning.md)。当前运行起点按用户决定使用Q2_0/high/default，思考8192、总输出24576，100000压缩阈值及156584引擎/harness窗口；具体启动和生成选项见[运行基线](../config/maintenance-baseline.json)。这是用户选择，当前版本完整推理验收和新增调参仍待执行；所选容量通过启动参数显式覆盖，安装原始配置保留250000。调用方须同步自己的harness及模型catalog，不自动改写其他工程配置。
+每台机器只对外提供一个模型（用户 2026-10-19）：rtx3080ti 提供 IQ3_XXS，Q2_0、IQ2_XS 的权重和 pack 保留在安装目录，默认不再运行或测试，除非用户提出专门针对它们的任务（这类专项按部署规则走 `--condition`，结束后普通部署恢复）。对外模型由 `config/deployments/<host>.json` 的 `models`（恰好一个）决定；安装目录只部署它的 prebuilt 配置和 catalog 条目，前端拒绝启动其他量化。引擎参数与测量依据见[调优记录](tuning.md)。维护基线不再单独成文件：基线 = 本机唯一对外模型 + 部署默认值（`installation_defaults` 与该模型的首个上下文档位，B1，用户 2026-10-19）；原 Q2_0 维护基线文件已删除，历史内容用 `git show ff94f3c:config/maintenance-baseline.json` 查看。安装原始配置保留 250000，所选窗口由部署档位显式覆盖。调用方须同步自己的 harness 及模型 catalog，不自动改写其他工程配置。
 
 ## 安装目录
 
-受维护代码、启动／压缩提示、调用手册、公共运行基线及每台机器的部署配置，以维护工程为唯一来源。安装目录仅保存部署副本、上游制品的安装结果及运行状态；读取安装文件可用于运行、计量和回读核验，不能反过来作为新配置模板。上游制品的版本、下载地址及SHA由工程保存，native packs／MTP的逐文件绑定见[支持资产清单](../config/artifacts/native-support.json)；用户已决定模型、native packs、MTP及既有离线依赖直接从不可变现有文件传输，传完核对完整性，不先建立额外大缓存或重新下载。该复制不作为从安装代码／配置派生另一台发布输入的许可。
+受维护代码、启动／压缩提示、调用手册及每台机器的部署配置，以维护工程为唯一来源。安装目录仅保存部署副本、上游制品的安装结果及运行状态；读取安装文件可用于运行、计量和回读核验，不能反过来作为新配置模板。上游制品的版本、下载地址及SHA由工程保存，native packs／MTP的逐文件绑定见[支持资产清单](../config/artifacts/native-support.json)；用户已决定模型、native packs、MTP及既有离线依赖直接从不可变现有文件传输，传完核对完整性，不先建立额外大缓存或重新下载。该复制不作为从安装代码／配置派生另一台发布输入的许可。
 
 两台机器共用代码及实验条件，各自的路径、端口、CPU线程数及显存相关设置单独维护。`config/deployments/`保存公开硬件／部署来源，私有主机配置提供各自安装路径和服务端口；`tools/ops/deployment_source.py`从工程模板生成目标副本，安装文件只用于回读核验。修改部署集合中的工程源后分别同步登记目标；每台须等待空闲、领取维护key、确认模型停止并关闭前端，回读校验。离线／繁忙／失败的目标记录为待同步，不抢占调用方，也不将部分完成称为两台一致。持有状态、日志、运行临时配置及私有凭据不作为公共同步内容；双机文件部署及回读已完成，rtx3080ti三量化短推理已通过，见[短安装验收](../reports/v0.1.40.1/multi-host-deployment/validation.md)及[文件阶段结果](../reports/v0.1.40.1/multi-host-deployment/summary.md)。
 
@@ -26,10 +26,10 @@ rtx3080ti 为 i9-13900、RTX 3080 Ti 12 GB。rtx4070tis 为 i9-14900K、64 GB RA
 |---|---|
 | `maintenance/Install-Frontend.ps1` | 一次性防火墙和计划任务设置，调用方不执行 |
 | `runtime/Strata/` | 固定源码、`engine/strata.exe`、私有 `.venv` 和默认专家 profile |
-| `data/models/` | Q2_0、IQ2_XS、IQ3_XXS 双分片 GGUF |
+| `data/models/` | Q2_0、IQ2_XS、IQ3_XXS 双分片 GGUF（只有对外模型被加载，其余保留） |
 | `data/packs/` | 各量化 native pack 与 tokenizer |
 | `data/mtp/` | 已核验的原始张量、pack 与 runtime draft |
-| `config/` | 模型配置及 `installed-release.json` |
+| `config/` | 对外模型的 prebuilt 配置、`deployment.json`、catalog 及 `installed-release.json`；其他量化的 prebuilt 不部署（部署时备份后删除） |
 | `downloads/wheels/` | 重建Windows Python环境所需的离线依赖缓存 |
 | `logs/` | 前端、原生服务和引擎日志 |
 | `src/` | 前端、模型进程管理、原生服务包装、基础提示加载及文件 MCP |

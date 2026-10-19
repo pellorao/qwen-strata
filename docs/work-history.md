@@ -1386,3 +1386,10 @@ v4.0–v4.6 逐步加难：缺陷推理步数从约 2 步加到约 4 步，再�
 - ARW 运行环境两项：测量说明已加上"不发中途消息、不查询环境变量或平台身份"（`benchmarks/reviewer-suite-v1/measurement-note*.txt`）。
 - Commit Audit v3：修订号 24 定版（2026-10-18；Strata 0.1.45，Q3 ×5 0.616 / Opus medium ×3 0.843，Q3/Opus 0.730，×10 为 0.706；第二裁决者复评 38/38 一致），[报告](../reports/v0.1.45/commit-audit-v3/summary.md)。
 - benchmark 前置第 2–4 项（catalog 窗口、写死的窗口与阈值、Codex 与 Claude Code 档位统一）：2026-10-19 部署到 rtx3080ti，冒烟通过，[报告](../reports/v0.1.45/context-tier-unify/summary.md)；rtx4070tis 恢复后先补 `context_tiers` 再同步。
+
+## 每台机器只对外一个模型，维护基线退役（2026-10-19）
+
+用户 2026-10-19 决定每台机器只对外提供一个模型（rtx3080ti 为 IQ3_XXS；Q2_0、IQ2_XS 权重保留，默认不再运行或测试），维护基线采用方案 B1（取消独立基线文件，基线 = 本机唯一对外模型 + 部署默认值），实现经独立审查。被取代的条目原文如下：
+
+- README 现行决定（2026-10-11）：默认模型 IQ3_XXS，其余量化只作对照；IQ3_XXS 8 维调参结果为默认值：[升级报告](../reports/v0.1.42/upgrade.md)、[调参手册](host-tuning.md#iq3_xxs)。其中"IQ3_XXS 8 维调参结果为默认值"仍有效，并入新条目。
+- README 进展：维护测量基线 Q2_0/high/default，100K 压缩阈值 / 156584 窗口，8192 思考 / 24576 总输出。历史测量绑定 Codex 0.160.1，换新版 Codex 后的结果单独标注，不改历史标签。基线文件 `config/maintenance-baseline.json` 已删除，最后版本用 `git show ff94f3c:config/maintenance-baseline.json` 查看；`benchmarks/` 里各计划记录的该文件 SHA 是当时的冻结绑定，不受影响。

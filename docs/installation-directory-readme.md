@@ -75,22 +75,18 @@
 
 | 字段 | 说明 |
 |---|---|
-| `model` | Q2_0、IQ2_XS、IQ3_XXS；省略为 IQ3_XXS |
-| `context_window` | 可省略，省略为该量化的第一档。只能取安装目录 `config/deployment.json` 中 `context_tiers.<量化>` 列出的 `context_window`；每档附带实测的 `auto_compact_token_limit`，调用方必须把自己 harness 的窗口和自动压缩阈值设为同一档的这两个值。该量化没有列出档位时只能省略 |
+| `model` | 可省略。本机只对外提供一个模型，即 `config/deployment.json` 中 `models` 列出的那一个，省略即用它；安装目录里其他量化的权重不对外，请求它们返回 400 |
+| `context_window` | 可省略，省略为对外模型的第一档。只能取安装目录 `config/deployment.json` 中 `context_tiers.<模型>` 列出的 `context_window`；每档附带实测的 `auto_compact_token_limit`，调用方必须把自己 harness 的窗口和自动压缩阈值设为同一档的这两个值。该量化没有列出档位时只能省略 |
 
 其他字段返回 400。推理强度见[推理强度与输出](#推理强度与输出)。
 
-启动完成时前端核对实际加载的模型和上下文容量。换量化或档位时，`/model/start` 会自动先停掉旧模型；"相同"按校验后的完整运行配置比较，包括部署后改动的安装预置。
+启动完成时前端核对实际加载的模型和上下文容量。换档位时，`/model/start` 会自动先停掉旧模型；"相同"按校验后的完整运行配置比较，包括部署后改动的安装预置。
 
-| 量化 | 模型 ID |
-|---|---|
-| Q2_0 | qwen3.8-flash-next-q2_0 |
-| IQ2_XS | qwen3.8-flash-next-iq2_xs |
-| IQ3_XXS | qwen3.8-flash-next-iq3_xxs |
+模型 ID 为 `qwen3.8-flash-next-` 加对外模型名的小写（如 IQ3_XXS 为 `qwen3.8-flash-next-iq3_xxs`）。
 
 ### 安装预置
 
-rtx3080ti：IQ3_XXS 的默认档是窗口 206584、自动压缩阈值 150000（2026-10-14 起），另有可选档窗口 156584、阈值 100000；Q2_0、IQ2_XS 只有 156584／100000 一档。206584 已在约 151K token 以内的长上下文检索负载上验证，同负载下与 156584 档速度相同；更长的提示在 200K 级检索中出现过系统性错误，256584 未发布。`config/model-catalog.json` 中每个模型的窗口是本机该模型的默认档；调用方仍需把自己 harness 的自动压缩阈值设为所用档的值（IQ3_XXS 默认档为 150000）。`bin/qwen-agent` 使用所选量化的默认档，即 `context_tiers` 的第一档（见[与 Codex 的参数对照](#与-codex-的参数对照)）。其余预置：high，思考 8192／总输出 24576，temperature 0、top_p 1、top_k 20，CPU 辅助 auto。这是维护起点，不是完整质量验收或最优参数的结论。服务不会替调用方压缩。
+rtx3080ti：对外模型为 IQ3_XXS，默认档是窗口 206584、自动压缩阈值 150000（2026-10-14 起），另有可选档窗口 156584、阈值 100000。206584 已在约 151K token 以内的长上下文检索负载上验证，同负载下与 156584 档速度相同；更长的提示在 200K 级检索中出现过系统性错误，256584 未发布。`config/model-catalog.json` 只列对外模型，窗口是它在本机的默认档；调用方仍需把自己 harness 的自动压缩阈值设为所用档的值（IQ3_XXS 默认档为 150000）。`bin/qwen-agent` 使用对外模型的默认档，即 `context_tiers` 的第一档（见[与 Codex 的参数对照](#与-codex-的参数对照)）。其余预置：high，思考 8192／总输出 24576，temperature 0、top_p 1、top_k 20，CPU 辅助 auto。这是维护起点，不是完整质量验收或最优参数的结论。服务不会替调用方压缩。
 
 ## 推理强度与输出
 
@@ -116,13 +112,14 @@ Responses 使用 `reasoning.effort` 和 `max_output_tokens`，Chat 使用 `reaso
 
 ```bash
 qwen_install=/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next
-python3 "$qwen_install/bin/qwen-agent" codex                       # 交互式 Codex，IQ3_XXS、high
+python3 "$qwen_install/bin/qwen-agent" codex                       # 交互式 Codex，本机对外模型、high
 python3 "$qwen_install/bin/qwen-agent" --effort medium codex exec "任务描述"
-python3 "$qwen_install/bin/qwen-agent" --model Q2_0 claude         # Claude Code，Q2_0
+python3 "$qwen_install/bin/qwen-agent" claude                      # Claude Code
 ```
 
+- `--model` 可省略，默认即本机对外模型（`config/deployment.json` 的 `models`）；写其他量化时在领租约前报错退出。
 - 租约已被他人持有时立即退出，不排队、不抢占。
-- rtx3080ti 加载 Q2_0 约 20 秒；IQ3_XXS 待测。Ctrl-C 交给 agent 处理；agent 退出、终端关闭或进程被终止时都会归还租约。归还失败时会提示重启前端任务。
+- 加载耗时：rtx3080ti 上旧 Q2_0 约 20 秒，IQ3_XXS 未单独记录；相同参数复用已加载的模型时不再加载。Ctrl-C 交给 agent 处理；agent 退出、终端关闭或进程被终止时都会归还租约。归还失败时会提示重启前端任务。
 - key 只放在 agent 进程的环境变量里，不写入文件或命令行参数。
 - 脚本不修改调用方的 `~/.codex` 或 `~/.claude` 配置；所有设置都以命令行覆盖或环境变量传入。
 
@@ -154,7 +151,7 @@ key 通过 `env_key` 指定的环境变量只提供给该 harness。请求重试
 
 程序每次运行都新建 `CODEX_HOME` 时（测量、批处理），另加 `-c features.plugins=false`（或在该目录的 `config.toml` 写 `[features]` `plugins = false`）：否则 Codex 0.162 会在每个新目录克隆约 105MB 的插件仓库，这些内容不进入模型输入。固定使用 `~/.codex` 的交互式用法只克隆一次，不需要设置。
 
-`config/model-catalog.json` 只描述三种量化的模型事实：模型名、推理档位、窗口（本机该量化的默认档，即 `config/deployment.json` 中 `context_tiers` 的第一档）、只接收文本、可使用网页搜索工具，以及 `auto_review_model_override` 指向自身。基础指令与消息结构取自所装 Codex 版本自带的 luna 模型条目，不额外限制工作内容；只读、可写范围等约束由各场景的提示词和沙箱权限决定。该文件对应 Codex 0.162.0，升级 Codex 后由维护工程重新生成。
+`config/model-catalog.json` 只描述本机对外模型的事实：模型名、推理档位、窗口（本机该模型的默认档，即 `config/deployment.json` 中 `context_tiers` 的第一档）、只接收文本、可使用网页搜索工具，以及 `auto_review_model_override` 指向自身。基础指令与消息结构取自所装 Codex 版本自带的 luna 模型条目，不额外限制工作内容；只读、可写范围等约束由各场景的提示词和沙箱权限决定。该文件对应 Codex 0.162.0，升级 Codex 后由维护工程重新生成。
 
 原生 Responses 支持 function、namespace、custom 工具、`additional_tools`、客户端 `tool_search` 和推理内容回放。网页搜索由前端托管，见下文。
 
@@ -196,7 +193,7 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default
 
 ### 与 Codex 的参数对照
 
-`bin/qwen-agent` 让两种 agent 在参数层面完全一致（2026-10-12 起）。它按所选量化的默认档（`config/deployment.json` 中 `context_tiers` 的第一档）启动模型，并把同一档的窗口和阈值传给两种 agent；该量化没有列出档位时报错退出，不领取租约。下表以 rtx3080ti 的 IQ3_XXS 为例（Q2_0、IQ2_XS 为 156584／100000）。
+`bin/qwen-agent` 让两种 agent 在参数层面完全一致（2026-10-12 起）。它按对外模型的默认档（`config/deployment.json` 中 `context_tiers` 的第一档）启动模型，并把同一档的窗口和阈值传给两种 agent；没有列出档位时报错退出，不领取租约。下表以 rtx3080ti 的 IQ3_XXS 为例。
 
 | 参数 | Codex | Claude Code |
 |---|---|---|
@@ -257,7 +254,7 @@ try:
     with os.fdopen(fd, "w") as stream:
         fd = None
         json.dump({"base_url": base, "key": key}, stream)
-    request("/model/start", {"model": "Q2_0"}, key)
+    request("/model/start", {}, key)  # 省略 model 即本机对外模型
     answer = request("/strata/v1/chat/completions", {
         "messages": [{"role": "user", "content": "2+2=?"}],
         "reasoning_effort": "low", "temperature": 0}, key)

@@ -4,15 +4,11 @@
 
 ## 模型与推理强度
 
-已安装的量化及模型 ID：
+对外模型及模型 ID：
 
-| 启动量化 | 请求模型 ID |
-|---|---|
-| Q2_0 | qwen3.8-flash-next-q2_0 |
-| IQ2_XS | qwen3.8-flash-next-iq2_xs |
-| IQ3_XXS | qwen3.8-flash-next-iq3_xxs |
+每台机器只对外提供一个模型（用户 2026-10-19）：rtx3080ti 为 IQ3_XXS，请求模型 ID `qwen3.8-flash-next-iq3_xxs`。对外模型以安装目录 `config/deployment.json` 的 `models` 为准；`/model/start` 省略 `model` 即用它，其他量化（Q2_0、IQ2_XS 权重仍在，但不对外）返回 400。安装目录的 model catalog 也只列这一个。
 
-请求模型 ID 必须与实际加载量化一致，修改请求名称不会加载另一份模型。当前维护运行起点按用户决定使用Q2_0/high/default，思考8192、总输出24576，100K阈值／156584窗口，见[运行基线](../config/maintenance-baseline.json)。high是依据现有耗时选择的起点，不代表v0.1.40已完成运行验收或所有配置最优。旧Commit Audit的low／medium／high各5次已闭合，其剩余原生检查已取消，诊断结果保留；升级后的下一配置比较是Spec Readiness合并场景medium/high × 100K/150K四组合，每组合3次，共12次。历史测量保留原配置，四类正式reviewer benchmark仍由ARW负责。
+请求模型 ID 必须与实际加载量化一致，修改请求名称不会加载另一份模型。维护基线 = 本机唯一对外模型 + 部署默认值（B1，用户 2026-10-19）：high、思考8192、总输出24576，窗口与压缩阈值取该模型的首个上下文档位（rtx3080ti IQ3_XXS 为 206584／150000）。原 Q2_0 运行基线文件（Q2_0/high/default、100K阈值／156584窗口）已删除，历史内容用 `git show ff94f3c:config/maintenance-baseline.json` 查看；历史测量保留原配置。旧Commit Audit的low／medium／high各5次已闭合，诊断结果保留；四类正式reviewer benchmark仍由ARW负责。
 
 Responses 请求用 reasoning.effort；原生 Chat 用 reasoning_effort。Codex 配置字段为 model_reasoning_effort，provider 的 wire_api 使用 responses，base_url 为 `http://192.168.60.212:8000/strata/v1`。工程应管理自己的配置入口和 model catalog；config/ 中的 Windows profile 是环境参考，不能直接复制到 Linux。官方字段见[配置参考](https://learn.chatgpt.com/docs/config-file/config-reference)。
 
