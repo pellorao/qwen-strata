@@ -235,6 +235,7 @@ def main():
     p.add_argument('--window', type=int, help='explore another window (with --limit) instead of the published tier')
     p.add_argument('--limit', type=int)
     p.add_argument('--no-blocking-override', action='store_true', help="drop qwen-agent's compaction override")
+    p.add_argument('--claude', help='Claude Code binary to probe (default: claude on PATH), e.g. the benchmark copy')
     a = p.parse_args()
     if a.out.exists():
         p.error(f'{a.out} exists')
@@ -242,7 +243,7 @@ def main():
         p.error('--window and --limit go together')
     tier = a.window and {'context_window': a.window, 'auto_compact_token_limit': a.limit}
     summary = run(a.out, a.host, a.model, a.effort, a.claimed, tuple(a.way or ('two-turn', 'mid-turn')), a.repeat,
-                  not a.no_blocking_override, tier)
+                  not a.no_blocking_override, tier, a.claude)
     print(json.dumps({k: summary[k] for k in ('claude_version', 'tier', 'agent_environment', 'pass')}))
     raise SystemExit(0 if summary['pass'] else 1)
 

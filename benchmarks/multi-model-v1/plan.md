@@ -58,6 +58,9 @@
   - Strata 开跑前可以升级（D12），第一个模型实例开始后固定，直到最后一个实例跑完。
   - Codex 0.162.0 和 Claude Code 2.1.303 另装 benchmark 专用副本，记录 SHA，不动用户日常安装和它们的自动更新。Codex 副本由 `native_cli` 绑定校验；Claude Code 副本用 `--claude` 传给 `claude_headless` 和 `claude_gate`，两个 CLI 都拒绝运行版本不是 2.1.303 的二进制，并把路径和 SHA 写进绑定（`claude_headless.pinned_binary`）。
   - Claude Code 副本在核对版本后跑一次 `tools.ops.claude_compact_probe`（部署规则），否则 Strata 臂的压缩点可能退回到窗口 − 23000。
+  - 已安装（2026-10-19，阶段 0），目录只读，不在任何 PATH 上：
+    - Claude Code：`/home/pello/.local/share/qwen-bench/claude-code-2.1.303/claude`，sha256 `375988f457756524234695cf2d8f64ace99c5f68682e47ea24862a843c191450`。与官方 2.1.303 发布清单（manifest.json，linux-x64）的 checksum 一致；从日常安装的同一版本复制，未另行下载。`--claude` 传这个路径；运行环境照旧 `DISABLE_AUTOUPDATER=1`。compact probe（`--claude` 指向该副本，`--repeat 3`，两种方式 × 阈值 ±100）12 格全部通过：149.9K 不压缩，150.1K 压缩后继续。
+    - Codex：`/home/pello/.local/share/qwen-bench/codex-0.162.0/node_modules/@openai/codex/`，由 npm registry 的 `@openai/codex@0.162.0` 与 `@openai/codex@0.162.0-linux-x64` 两个 tarball 解出（sha512 与 registry integrity 一致，未运行安装脚本）。`native_cli` 绑定的 executable 为其下 `node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex`，sha256 `50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38`（与日常安装逐字节相同）。
 - **场景与评分**：
   - 场景版本：Code Spec v5（修订 38）、Code Standards v5.1（修订 25）、Spec Readiness v4.3（修订 46）、Commit Audit v3（修订 24），各自的冻结源 manifest 见 [versions.md](../reviewer-suite-v1/versions.md)。
   - 评分用 r8.3，格式罚基准用 `format-baseline.json` 的现行登记。测量说明（`measurement-note*.txt`）的 SHA 写进绑定。
@@ -104,7 +107,7 @@
 4. **基础提示只给 Strata**：注入位置不同。Codex 路径由服务端追加；Claude Code 路径由服务端追加启动提示，PreCompact hook 追加压缩提示。
 5. **搜索全部关闭**，偏离 ARW 原生设置（2026-10-11 规则）。各模型都没有搜索，但这与 ARW 自己的结果不可直接比较。
 6. **guardian 不同**：OpenAI 用 codex-auto-review，DeepSeek 用同模型 low，Strata 用自身，Claude Code 没有。
-7. **窗口与压缩不同**：Strata 为 206584/150000，其他模型用原生设置（OpenAI catalog 272000）。OpenAI 可能用服务端压缩。Claude Code 路径的压缩提示只给 Strata。
+7. **窗口与压缩不同**：Strata 为 206584/150000，其他模型用原生设置（OpenAI catalog 272000）。OpenAI 用服务端压缩（零模型核实，见 §9 阶段 0）。Claude Code 路径的压缩提示只给 Strata。
 8. **ARW 早停接续只在 Codex 路径**：Claude Code `-p` 没有接续。
 9. **时限按各自的速度计算**：API 模型的速度含网络。服务端可能漂移，而执行窗口约一到两周。
 10. **ChatGPT 套餐**：只报 token，不报金额。套餐的限速或路由可能与 API 不同。
