@@ -82,7 +82,7 @@ class SafetyGateTests(unittest.TestCase):
    self.assertEqual(seen['outside_readable'],['outside_file','credential_file','project_file'])
    self.assertEqual(seen['results']['proc_ancestors'][-1]['pid'],os.getpid())
    # Unsandboxed, every G7 deny-read target is readable, so deny_read_pass is not vacuous.
-   self.assertEqual(set(seen['deny_read']),{'claude_credentials','codex_auth','benchmark_login','private_host_file'})
+   self.assertEqual(set(seen['deny_read']),{'claude_credentials','codex_auth','codex_home','private_host_file'})
    self.assertFalse(seen['deny_read_pass']);self.assertEqual(set(seen['deny_read'].values()),{'READABLE'})
    subprocess.run(['bash','-c',command],env={k:v for k,v in os.environ.items()if k!='BENCHMARK_TEST_KEY'},check=True,capture_output=True)
    seen=read_exposure(directory);self.assertFalse(seen['fake_key_exposed']);self.assertTrue(seen['shell_key_excluded'])
@@ -90,18 +90,18 @@ class SafetyGateTests(unittest.TestCase):
    self.assertEqual(read_exposure(root),{'ran':False})
 
  def test_gate_deny_list_is_the_measurement_list_plus_the_synthetic_one(self):
-  from tools.reviewer.providers import credential_deny_paths,PROJECT_ROOT,BENCHMARK_LOGIN_HOME
+  from tools.reviewer.providers import credential_deny_paths,PROJECT_ROOT
   from tools.safety.safety_gate import gate_deny_paths
   real=credential_deny_paths(None)
-  self.assertEqual(real,[str(Path.home()/'.claude/.credentials.json'),str(Path.home()/'.codex/auth.json'),str(BENCHMARK_LOGIN_HOME),str(PROJECT_ROOT/'project.private.toml')])
+  self.assertEqual(real,[str(Path.home()/'.claude/.credentials.json'),str(Path.home()/'.codex'),str(PROJECT_ROOT/'project.private.toml')])
   login={'auth':'chatgpt','auth_home':'/srv/login'}
   self.assertEqual(credential_deny_paths(login)[-1],'/srv/login')
   with tempfile.TemporaryDirectory()as tmp:
    fixture=read_fixture(Path(tmp),'t');paths=gate_deny_paths(None,fixture)
-   self.assertEqual(paths[:4],real)
+   self.assertEqual(paths[:3],real)
    for target in fixture['deny_targets'].values():
-    self.assertTrue(any(str(target)==p or str(target).startswith(p+'/')for p in paths[4:]),target)
-   self.assertTrue(all(p.startswith(tmp)for p in paths[4:]))
+    self.assertTrue(any(str(target)==p or str(target).startswith(p+'/')for p in paths[3:]),target)
+   self.assertTrue(all(p.startswith(tmp)for p in paths[3:]))
 
  def test_deny_read_settings_add_none_to_the_reviewer_profile(self):
   script='''import {denyReadSettings} from %s;

@@ -6,8 +6,8 @@ An API provider takes no lease and has no engine log: tokens come from API usage
 Two credential modes:
 - ``env_key`` (DeepSeek; OpenAI only when a plan asks for an API key): Codex reads the key from a variable through
   its own ``env_key``; the variable is never written anywhere by this project.
-- ``chatgpt`` (OpenAI, the default since the user chose the ChatGPT plan, 2026-10-19): the user logs in once in a
-  benchmark-only CODEX_HOME (``auth_home``); every run gets a fresh CODEX_HOME holding only a symbolic link to that
+- ``chatgpt`` (OpenAI, the default since the user chose the ChatGPT plan, 2026-10-19): the user logs in once in the
+  CODEX_HOME named by ``auth_home`` (the default ~/.codex, user 2026-10-19); every run gets a fresh CODEX_HOME holding only a symbolic link to that
   login file. Codex's built-in ``openai`` provider is used unchanged. The project never opens the file.
 """
 import os
@@ -109,20 +109,14 @@ def process_environment(provider, environ=None):
     return {k: v for k, v in environ.items() if not (k.startswith('BENCHMARK_') and k != own)}
 
 
-# The benchmark ChatGPT login lives here (plan §11); every Codex arm denies it, whichever provider it runs.
-BENCHMARK_LOGIN_HOME = Path.home() / '.local/share/qwen-bench/codex-home'
-
-
-def credential_deny_paths(provider=None, home=None, project_root=None, login_home=None):
-    """Paths no Codex Reviewer command may read (G7, plan §3): the Claude and Codex logins, the benchmark login
-    directory and the project's private host file. :read-only can read them, and an API arm would send what it read
-    to an outside service. home/project_root/login_home default to the real ones; gates pass synthetic ones.
-    A ChatGPT provider's own auth_home is denied as well. Paths are listed, never opened."""
+def credential_deny_paths(provider=None, home=None, project_root=None):
+    """Paths no Codex Reviewer command may read (G7, plan §3): the Claude login, the user's Codex home (which holds
+    the benchmark ChatGPT login, user 2026-10-19) and the project's private host file. :read-only can read them, and
+    an API arm would send what it read to an outside service. home/project_root default to the real ones; gates pass
+    synthetic ones. A ChatGPT provider's own auth_home is denied as well. Paths are listed, never opened."""
     home = Path(home) if home is not None else Path.home()
     project_root = Path(project_root) if project_root is not None else PROJECT_ROOT
-    login_home = Path(login_home) if login_home is not None else BENCHMARK_LOGIN_HOME
-    paths = [home / '.claude/.credentials.json', home / '.codex/auth.json', login_home,
-             project_root / 'project.private.toml']
+    paths = [home / '.claude/.credentials.json', home / '.codex', project_root / 'project.private.toml']
     if provider and provider.get('auth') == 'chatgpt':
         paths.append(Path(provider['auth_home']))
     return list(dict.fromkeys(os.path.normpath(str(p)) for p in paths))

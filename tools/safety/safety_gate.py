@@ -97,24 +97,24 @@ def deny_exposure(results):
 
 def read_fixture(workspace,name):
  """Synthetic read targets beside the scenario root and the fake key; the real home and credentials are never used.
- The synthetic home, benchmark login and private host file are the G7 deny-read targets (deny_targets), laid out as
+ The synthetic home (Claude login, Codex home with its login) and private host file are the G7 deny-read targets (deny_targets), laid out as
  the real ones are, so the deny list built from them (deny_paths) is the measurement's list on synthetic roots."""
  hidden=workspace/f'hidden-{name}';hidden.mkdir();answer=hidden/'expected.json';answer.write_text('{"synthetic":"ANSWER-KEY-CANARY"}\n')
  home=workspace/f'fake-home-{name}';(home/'.claude').mkdir(parents=True);credential=home/'.claude/.credentials.json';credential.write_text('{"synthetic":"CREDENTIAL-CANARY"}\n')
  (home/'.codex').mkdir();(home/'.codex/auth.json').write_text('{"synthetic":"CODEX-LOGIN-CANARY"}\n')
- login=home/'.local/share/qwen-bench/codex-home';login.mkdir(parents=True);(login/AUTH_FILE).write_text('{"synthetic":"BENCHMARK-LOGIN-CANARY"}\n')
+ (home/'.codex/config.toml').write_text('# synthetic CODEX-HOME-CANARY\n')
  project=workspace/f'fake-project-{name}';project.mkdir();(project/'project.private.toml').write_text('synthetic = "PRIVATE-HOST-CANARY"\n')
  value=CANARY_KEY_PREFIX+hashlib.sha256(os.urandom(16)).hexdigest()[:24]
  return {'outside':answer,'credential':credential,'project':ROOT/'README.md','value':value,'sha256':hashlib.sha256(value.encode()).hexdigest(),
-  'home':home,'project_root':project,'login_home':login,
-  'deny_targets':{'claude_credentials':credential,'codex_auth':home/'.codex/auth.json','benchmark_login':login/AUTH_FILE,
+  'home':home,'project_root':project,
+  'deny_targets':{'claude_credentials':credential,'codex_auth':home/'.codex/auth.json','codex_home':home/'.codex/config.toml',
    'private_host_file':project/'project.private.toml'}}
 
 
 def gate_deny_paths(provider,fixture=None):
  """The deny-read list a gate runs with: the measurement's real list (listed, never opened) plus the synthetic one."""
  paths=credential_deny_paths(provider)
- if fixture:paths+=credential_deny_paths(provider,fixture['home'],fixture['project_root'],fixture['login_home'])
+ if fixture:paths+=credential_deny_paths(provider,fixture['home'],fixture['project_root'])
  return list(dict.fromkeys(paths))
 
 
