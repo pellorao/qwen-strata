@@ -13,7 +13,7 @@ from tools.reviewer.wsl_client import ROOT
 sys.path.append(str(ROOT/'src'))
 from startup_instructions import startup_prompt_bytes
 
-OPENAI={'id':'openai','base_url':'https://api.openai.com/v1'}
+OPENAI={'id':'openai','auth':'env_key','base_url':'https://api.openai.com/v1'}
 API={'provider':OPENAI,'model':'gpt-6.1-sol','effort':'high'}
 STRATA={'model':'IQ3_XXS','effort':'high','context_window':206584,'auto_compact_token_limit':150000}
 
@@ -119,6 +119,13 @@ class ApiProviderTests(unittest.TestCase):
                 with patch.dict('os.environ',{'BENCHMARK_OPENAI_API_KEY':'synthetic','STRATA_API_KEY':'synthetic'},clear=True),\
                         self.assertRaises(ValueError):
                     run_api(root/'api',API,[],root/'c.json')
+            self.assertFalse((root/'api').exists())
+            # ChatGPT login mode: the key variable is optional; the login file must exist, and is never opened.
+            chatgpt={**API,'provider':{'id':'openai','auth_home':str(root/'login')}}
+            with patch('tools.reviewer.native_cli_binding.verify_native_cli',lambda value:None),\
+                    patch.dict('os.environ',{},clear=True):
+                with self.assertRaises(ValueError)as missing:run_api(root/'api',chatgpt,[],root/'c.json')
+                self.assertIn('ChatGPT login',str(missing.exception))
             self.assertFalse((root/'api').exists())
 
 

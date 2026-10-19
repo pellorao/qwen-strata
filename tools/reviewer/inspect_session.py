@@ -30,7 +30,17 @@ RISKY = [
      'environment/identity query'),
     (re.compile(r'process\.env|os\.environ|getenv\(|\$\{?HOME\b|(?:^|\s)~/|/proc/'), 'environment or home path'),
     (re.compile(r'\b(curl|wget|ssh|scp|nc)\b|https?://'), 'network'),
-    (re.compile(r'sessions/|rollout-|codex-home|/\.state\b|private\.toml', re.I), 'session/credential material'),
+    (re.compile(r'sessions/|rollout-|codex-home|/\.state\b|private\.toml|auth\.json|\.credentials\.json', re.I),
+     'session/credential material'),
+]
+# Credential-shaped values are masked in everything written, so the extracted view can go to a cheaper model
+# without carrying a token a run happened to see (a linked ChatGPT login, a provider key; benchmark 2026-10-19).
+SECRETS = [
+    re.compile(r'eyJ[\w-]{8,}\.[\w-]{8,}\.[\w-]*'),                       # JWT
+    re.compile(r'(?i)(bearer\s+)[\w.~+/=-]{12,}'),
+    re.compile(r'\bsk-[\w-]{16,}'),
+    re.compile(r'(?i)("(?:access_token|refresh_token|id_token|api_key|OPENAI_API_KEY|auth_token)"\s*:\s*")[^"]{8,}(")'),
+    re.compile(r'(?i)\b((?:ANTHROPIC_AUTH_TOKEN|ANTHROPIC_API_KEY|[A-Z_]*API_KEY)=)\S{8,}'),
 ]
 DENIED = re.compile(r'sandbox denied|Operation not permitted|Permission denied|EPERM|EACCES|CreateProcess', re.I)
 UUID = re.compile(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
@@ -306,6 +316,14 @@ def inspect_claude(stream, root, allow=()):
             'permission_denials': len((result or {}).get('permission_denials') or []), 'tokens': claude_tokens(result)}
 
 
+def redact(text):
+    if not isinstance(text, str):
+        return text
+    for pattern in SECRETS:
+        text = pattern.sub(lambda m: (m.group(1) if m.lastindex else '') + '<redacted>' + (m.group(2) if (m.lastindex or 0) > 1 else ''), text)
+    return text
+
+
 def one_line(s, n=LINE_CHARS):
     s = ' '.join(s.split())
     return s if len(s) <= n else s[:n] + f' …(+{len(s) - n})'
@@ -332,7 +350,7 @@ def render(r, out):
             lines.append(f"- e{m['event']} {m['role']}：压缩摘要 {len(m['text'])} 字（不例行阅读）")
         else:
             lines.append(f"- e{m['event']} {m['role']}{' **FLAG**' if m['flag'] else ''}：{one_line(norm(m['text']), 2000)}")
-    (out / 'actions.md').write_text('\n'.join(lines) + '\n')
+    (out / 'actions.md').write_text(redact('\n'.join(lines)) + '\n')
     detail = ['# 标记项全文', '']
     for a in r['actions']:
         if a['reasons']:
@@ -344,7 +362,7 @@ def render(r, out):
     for m in r['messages']:
         if m['flag']:
             detail += [f"## 消息 e{m['event']} {m['role']}", '', '```', m['text'], '```', '']
-    (out / 'flagged.md').write_text('\n'.join(detail) + '\n')
+    (out / 'flagged.md').write_text(redact('\n'.join(detail)) + '\n')
     summary = {k: v for k, v in r.items() if k not in ('actions', 'messages')}
     summary['flagged_actions'] = [a['n'] for a in r['actions'] if a['reasons']]
     summary['flagged_messages'] = [m['event'] for m in r['messages'] if m['flag']]

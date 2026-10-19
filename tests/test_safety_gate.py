@@ -87,7 +87,7 @@ class SafetyGateTests(unittest.TestCase):
    self.assertEqual(read_exposure(root),{'ran':False})
 
  def test_provider_config_and_environment_hold_only_the_fake_key(self):
-  provider={'id':'openai','codex_id':'benchmark_openai','name':'OpenAI','base_url':'https://api.openai.com/v1','env_key':'BENCHMARK_OPENAI_API_KEY'}
+  provider={'id':'openai','codex_id':'benchmark_openai','name':'OpenAI','base_url':'https://api.openai.com/v1','env_key':'BENCHMARK_OPENAI_API_KEY','auth':'env_key','relay':True}
   with tempfile.TemporaryDirectory()as tmp:
    root=Path(tmp)
    values=config(root,root/'r.jsonl','http://127.0.0.1:1/v1',None,None,provider=provider)
@@ -107,7 +107,7 @@ class SafetyGateTests(unittest.TestCase):
  def test_api_plan_and_session(self):
   with tempfile.TemporaryDirectory()as tmp:
    root=Path(tmp);catalog=root/'catalog.json';catalog.write_text(json.dumps({'models':[{'slug':'gpt-6.1-sol'}]}));path=root/'plan.json'
-   selection={'provider':{'id':'openai','base_url':'https://api.openai.com/v1'},'model':'gpt-6.1-sol','effort':'high'}
+   selection={'provider':{'id':'openai','auth':'env_key','base_url':'https://api.openai.com/v1'},'model':'gpt-6.1-sol','effort':'high'}
    path.write_text(json.dumps({'authorization':{'approved':True},'selection':selection,'catalog':str(catalog)}))
    plan,api=api_plan(path);self.assertEqual(api['provider']['codex_id'],'benchmark_openai')
    _,session=gate_session(root,None,None,api)

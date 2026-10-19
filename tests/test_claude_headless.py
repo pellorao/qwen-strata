@@ -66,6 +66,8 @@ class RunnerBuildersTest(unittest.TestCase):
             self.assertEqual(argv[argv.index('--permission-mode') + 1], 'dontAsk')
             self.assertEqual(argv[argv.index('--permission-prompts') + 1], 'none')
             self.assertEqual(argv[argv.index('--tools') + 1], ch.TOOLS)
+            self.assertEqual(argv[argv.index('--disallowedTools') + 1], 'WebSearch,WebFetch')
+            self.assertNotIn('WebSearch', ch.TOOLS)
             self.assertNotIn('--safe-mode', argv)
         strip = lambda argv: [x for x in argv if x not in ('opus', 'qwen3.8-flash-next-iq3_xxs')]
         self.assertEqual(strip(a)[:-2], strip(b))
@@ -74,6 +76,23 @@ class RunnerBuildersTest(unittest.TestCase):
                                                              startup=False))
         with self.assertRaises(ValueError):
             ch.command('codex', 'm', 'high', self.work, [], s)
+        d = ch.command('deepseek', 'deepseek-flash', 'high', self.work, ['report'], s, startup=False)
+        self.assertEqual([x for x in d if x != 'deepseek-flash'], strip(b))
+        for bad in ('claude-opus-4-1', 'opus', 'deepseek-sonnet', 'gpt-6-luna', ''):
+            with self.assertRaises(ValueError):
+                ch.command('deepseek', bad, 'high', self.work, ['report'], s)
+
+    def test_deepseek_environment_names_the_model_everywhere(self):
+        env = ch.environment('deepseek', 'medium', self.base / 'h', self.base / 'c',
+                             ch.deepseek_environment('deepseek-flash', 'synthetic'))
+        self.assertEqual((env['ANTHROPIC_BASE_URL'], env['ANTHROPIC_AUTH_TOKEN']), (ch.DEEPSEEK_BASE, 'synthetic'))
+        self.assertEqual({env[n] for n in ch.DEEPSEEK_MODEL_VARIABLES}, {'deepseek-flash'})
+        self.assertEqual((env['CLAUDE_CODE_EFFORT_LEVEL'], env['CLAUDE_CODE_SUBPROCESS_ENV_SCRUB']), ('medium', '1'))
+        self.assertNotIn('ANTHROPIC_API_KEY', env)
+        with self.assertRaises(ValueError):
+            ch.deepseek_environment('deepseek-flash', None)
+        with self.assertRaises(ValueError):
+            ch.environment('deepseek', 'high')
 
     def test_environment_is_minimal(self):
         os.environ['QWEN_TEST_PARENT_SECRET'] = 'x'
@@ -125,11 +144,16 @@ class RunnerBuildersTest(unittest.TestCase):
         stream = self.base / 's.jsonl'
         stream.write_text('\n'.join(json.dumps(e) for e in (
             {'type': 'system', 'subtype': 'init', 'model': 'm', 'tools': ['Read'], 'mcp_servers': []},
-            {'type': 'result', 'subtype': 'success', 'num_turns': 2, 'usage': {'output_tokens': 3}})) + '\n')
+            {'type': 'assistant', 'message': {'id': 'm1', 'usage': {'service_tier': 'standard'}}},
+            {'type': 'assistant', 'message': {'id': 'm1', 'usage': {'service_tier': 'standard'}}},
+            {'type': 'assistant', 'message': {'id': 'm2', 'usage': {'output_tokens': 1}}},
+            {'type': 'result', 'subtype': 'success', 'num_turns': 2,
+             'usage': {'output_tokens': 3, 'server_tool_use': {'web_search_requests': 1}}})) + '\n')
         s = ch.stream_summary(stream)
         self.assertTrue(s['result_event'])
         self.assertEqual((s['init']['tools'], s['num_turns']), (['Read'], 2))
-        self.assertEqual(ch.stream_summary(self.base / 'none'), {'result_event': False, 'init': None})
+        self.assertEqual((s['service_tiers'], s['server_web_requests']), ({'standard': 1, 'not-returned': 1}, 1))
+        self.assertEqual(ch.stream_summary(self.base / 'none'), {'result_event': False, 'init': None, 'service_tiers': {}})
 
 
 class ClaudeGateLogicTest(unittest.TestCase):
@@ -202,8 +226,15 @@ class ClaudeGateLogicTest(unittest.TestCase):
         self.assertFalse(gate.judge_isolation(fx, [main], {}, 'strata')['pass'])
         leaked = dict(main, system=[{'type': 'text', 'text': startup + fx['secret']['USER-MEMORY']}])
         self.assertEqual(gate.judge_isolation(fx, [leaked], {}, 'anthropic')['loaded_canaries'], ['USER-MEMORY'])
+        self.assertEqual(gate.judge_isolation(fx, [main], {}, 'deepseek')['expected_startup_count'], 1)
+        self.assertEqual(gate.judge_isolation(fx, [main], {}, 'deepseek', startup=False)['expected_startup_count'], 0)
+        searching = dict(main, tools=main['tools'] + [{'type': 'web_search_20250305', 'name': 'web_search'}])
+        self.assertEqual(gate.judge_isolation(fx, [searching], {}, 'anthropic')['web_tools'], ['web_search'])
+        self.assertFalse(gate.judge_isolation(fx, [searching], {}, 'anthropic')['pass'])
+        self.assertFalse(gate.judge_isolation(fx, [main], {'tools': ['Read', 'WebFetch']}, 'anthropic')['pass'])
         (fx['markers'] / 'user-settings-SessionStart').write_text('')
         self.assertFalse(gate.judge_isolation(fx, [main], {}, 'anthropic')['pass'])
+        self.assertEqual([p[0] for p in gate.probes(fx, 1, 2, 'smoke')], list(gate.SMOKE))
 
     def test_stream_calls_pairs_uses_with_results(self):
         stream = self.base / 's.jsonl'

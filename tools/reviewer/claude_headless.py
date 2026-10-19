@@ -1,8 +1,11 @@
 """Headless Claude Code runs for references, blind adjudication and the Claude Code cross arm.
 
-One runner, one parameter set, two backends (review 2026-10-19, D3/H3): `anthropic` runs the named Anthropic model
+One runner, one parameter set, three backends (review 2026-10-19, D3/H3): `anthropic` runs the named Anthropic model
 with the real configuration directory; `strata` takes the frontend lease, starts the served model with the
-installation defaults and points the same Claude Code command at the frontend. The cross arm never goes through
+installation defaults and points the same Claude Code command at the frontend; `deepseek` points the same command at
+DeepSeek's Anthropic-format endpoint with a fresh configuration directory and the key from BENCHMARK_DEEPSEEK_API_KEY
+(multi-model benchmark, user 2026-10-19). The DeepSeek model is always named explicitly in every model variable,
+because the endpoint maps Claude model names such as claude-opus-* to another model. The cross arm never goes through
 qwen-approve or qwen-agent's own settings: only qwen-agent's model environment is reused.
 
 Isolation (measurement rule "Claude Code 测试隔离"):
@@ -13,6 +16,8 @@ Isolation (measurement rule "Claude Code 测试隔离"):
 - the working directory lives under WORK_BASE, outside /home/pello, so no ancestor CLAUDE.md applies;
 - the Bash sandbox reads only the working directory, writes only the granted paths and has no network; a new file at the
   top of the working directory stays writable (the sandbox always grants the working directory, see settings());
+- web tools are off twice: `--tools` lists none and `--disallowedTools WebSearch,WebFetch` denies them (benchmark
+  search rule, user 2026-10-19); tools.safety.claude_gate checks that no request offers a search tool;
 - CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 keeps the backend key out of command environments: without it the mock gate saw
   ANTHROPIC_AUTH_TOKEN in the shell (2026-10-19).
 `--safe-mode` is not used: it also disables the hooks that carry the time reminder and the project compact prompt;
@@ -33,6 +38,7 @@ from importlib.util import module_from_spec, spec_from_loader
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import signal
 import subprocess
@@ -48,6 +54,7 @@ from startup_instructions import startup_prompt_bytes
 # Tunables
 WORK_BASE = Path('/var/tmp/qwen-claude')  # isolated working directories, outside /home/pello
 TOOLS = 'Read,Write,Edit,Glob,Grep,Bash'  # no web tools: search stays a separate decision (D5)
+DISALLOWED = 'WebSearch,WebFetch'  # denied as well, whatever --tools lists (benchmark: search off, user 2026-10-19)
 REMINDER_AFTER, HARD_LIMIT = LIMITS['initial']  # 3300 s, 3600 s
 ESTIMATE = Path.home() / '.claude/statusline/estimate.sh'
 CLAUDE = 'claude'
@@ -61,7 +68,13 @@ FORBIDDEN = ['project.private.toml', 'installation.private.toml', '.credentials.
              'key*.json', 'expected*.json', 'judgment']
 STARTUP = ROOT / 'config/prompts/startup-instructions.txt'
 COMPACT = ROOT / 'config/prompts/compact-prompt.txt'
-BACKENDS = ('anthropic', 'strata')
+BACKENDS = ('anthropic', 'strata', 'deepseek')
+DEEPSEEK_BASE = 'https://api.deepseek.com/anthropic'
+DEEPSEEK_KEY = 'BENCHMARK_DEEPSEEK_API_KEY'
+DEEPSEEK_MODEL = re.compile(r'deepseek-[a-z0-9][a-z0-9.-]*')
+# Every variable that names a model for some request kind; all of them name the DeepSeek model.
+DEEPSEEK_MODEL_VARIABLES = ('ANTHROPIC_MODEL', 'ANTHROPIC_SMALL_FAST_MODEL', 'ANTHROPIC_DEFAULT_OPUS_MODEL',
+                            'ANTHROPIC_DEFAULT_SONNET_MODEL', 'ANTHROPIC_DEFAULT_HAIKU_MODEL', 'CLAUDE_CODE_SUBAGENT_MODEL')
 
 
 def workspace(run_id, base=WORK_BASE):
@@ -161,17 +174,27 @@ def startup_text():
     return raw.decode('utf-8').strip(), hashlib.sha256(raw).hexdigest()
 
 
+def deepseek_model(model):
+    """The DeepSeek model named verbatim; Claude names would be remapped by the endpoint to another model."""
+    if not DEEPSEEK_MODEL.fullmatch(model or '') or re.search(r'claude|opus|sonnet|haiku', model):
+        raise ValueError('The DeepSeek backend names a deepseek-* model explicitly, never a Claude model name')
+    return model
+
+
 def command(backend, model, effort, work, writes, session_settings, tools=TOOLS, startup=True, claude=CLAUDE):
-    """The Claude Code command. Both backends get the same flags; the startup prompt is appended here for
-    Anthropic models and by the service for Strata, so each model sees it once (D4)."""
+    """The Claude Code command. All backends get the same flags; the startup prompt is appended here for API models
+    and by the service for Strata, so each model sees it once (D4). The multi-model benchmark gives it only to Strata,
+    so its API runs pass startup=False (--no-startup-prompt)."""
     if backend not in BACKENDS:
         raise ValueError('Unknown backend')
+    if backend == 'deepseek':
+        deepseek_model(model)
     argv = [claude, '-p', '--model', model, '--effort', effort, '--restricted', '--strict-mcp-config',
             '--disable-slash-commands', '--setting-sources', '', '--settings', json.dumps(session_settings),
-            '--tools', tools, '--permission-mode', 'dontAsk', '--permission-prompts', 'none',
+            '--tools', tools, '--disallowedTools', DISALLOWED, '--permission-mode', 'dontAsk', '--permission-prompts', 'none',
             '--allowedTools', allowed_tools(work, writes),
             '--output-format', 'stream-json', '--verbose', '--no-session-persistence']
-    if backend == 'anthropic' and startup:
+    if backend != 'strata' and startup:
         argv += ['--append-system-prompt', startup_text()[0]]
     return argv
 
@@ -185,8 +208,17 @@ def strata_environment(base, key, model, effort, tier):
     return agent.claude(frontend, model, effort, tier, [])[1]
 
 
+def deepseek_environment(model, key, base=DEEPSEEK_BASE):
+    """DeepSeek's Anthropic-format endpoint: the key as the bearer token, the model named in every model variable."""
+    if not key:
+        raise ValueError('The DeepSeek backend needs ' + DEEPSEEK_KEY)
+    return {'ANTHROPIC_BASE_URL': base, 'ANTHROPIC_AUTH_TOKEN': key, 'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC': '1',
+            **{name: deepseek_model(model) for name in DEEPSEEK_MODEL_VARIABLES}}
+
+
 def environment(backend, effort, home=None, config_dir=None, strata=None):
-    """Minimal environment, the effect of `env -i`: no variable of the calling session reaches Claude Code."""
+    """Minimal environment, the effect of `env -i`: no variable of the calling session reaches Claude Code.
+    `strata` is the backend's model environment (Strata's from qwen-agent, or deepseek_environment())."""
     env = {'PATH': os.environ.get('PATH', '/usr/bin:/bin'), 'LANG': 'C.UTF-8', 'TERM': 'dumb',
            'DISABLE_AUTOUPDATER': '1', 'CLAUDE_CODE_EFFORT_LEVEL': effort, 'CLAUDE_CODE_SUBPROCESS_ENV_SCRUB': '1'}
     if backend == 'anthropic':
@@ -197,7 +229,7 @@ def environment(backend, effort, home=None, config_dir=None, strata=None):
             env['CLAUDE_CONFIG_DIR'] = str(config_dir)
     else:
         if not (home and config_dir and strata):
-            raise ValueError('The Strata backend needs a fresh HOME, CLAUDE_CONFIG_DIR and its model environment')
+            raise ValueError('This backend needs a fresh HOME, CLAUDE_CONFIG_DIR and its model environment')
         env.update(HOME=str(home), CLAUDE_CONFIG_DIR=str(config_dir), **strata)
     return env
 
@@ -210,19 +242,31 @@ def stream_summary(stream):
     except OSError:
         lines = []
     init = None
+    tiers, seen = {}, set()
     for line in lines:
         try:
             event = json.loads(line)
         except ValueError:
             continue
+        message = event.get('message') if event.get('type') == 'assistant' else None
+        usage = message.get('usage') if isinstance(message, dict) else None
+        if isinstance(usage, dict) and message.get('id') not in seen:
+            # D14: the tier the API returned for each assistant message (stream-json repeats a message once per
+            # content block, so it counts once by id); the absence is counted, not filled in.
+            seen.add(message.get('id'))
+            tier = usage.get('service_tier') or 'not-returned'
+            tiers[tier] = tiers.get(tier, 0) + 1
         if event.get('type') == 'system' and event.get('subtype') == 'init' and init is None:
             init = {k: event.get(k) for k in ('model', 'tools', 'mcp_servers', 'permissionMode', 'claude_code_version')}
         if event.get('type') == 'result':
             result = event
     if result is None:
-        return {'result_event': False, 'init': init}
+        return {'result_event': False, 'init': init, 'service_tiers': tiers}
     keep = ('subtype', 'is_error', 'duration_ms', 'duration_api_ms', 'num_turns', 'total_cost_usd', 'usage', 'modelUsage')
-    return {'result_event': True, 'init': init, **{k: result.get(k) for k in keep},
+    server_tools = (result.get('usage') or {}).get('server_tool_use') or {}
+    searches = (server_tools.get('web_search_requests') or 0) + (server_tools.get('web_fetch_requests') or 0)
+    return {'result_event': True, 'init': init, **{k: result.get(k) for k in keep}, 'service_tiers': tiers,
+            'server_web_requests': searches,
             'token_source': 'Claude Code stream-json result usage (API usage; engine log for the Strata arm)'}
 
 
@@ -301,10 +345,18 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
                'tools': tools, 'prompt_sha256': hashlib.sha256(prompt_text.encode()).hexdigest(),
                'compact_prompt_sha256': hashlib.sha256(COMPACT.read_bytes()).hexdigest(),
                'claude_version': subprocess.run([claude, '--version'], capture_output=True, text=True).stdout.strip()}
-    if backend == 'anthropic':
+    if backend in ('anthropic', 'deepseek'):
         binding['startup_instructions'] = ({'enabled': True, 'placement': '--append-system-prompt',
                                             'sha256': startup_text()[1]} if startup else {'enabled': False})
-        env = environment('anthropic', effort)
+        if backend == 'anthropic':
+            env = environment('anthropic', effort)
+        else:
+            home, config_dir = work.parent / 'home', work.parent / 'claude-config'
+            home.mkdir()
+            config_dir.mkdir()
+            env = environment('deepseek', effort, home, config_dir,
+                              deepseek_environment(model, os.environ.get(DEEPSEEK_KEY)))
+            binding['endpoint'] = DEEPSEEK_BASE
         save(out / 'environment-names.json', sorted(env))
         save(out / 'binding.json', binding)
         result = execute(out, prompt_text, argv, env, work, limit, started_file)
@@ -376,14 +428,15 @@ if __name__ == '__main__':
     parser.add_argument('--out', type=Path, required=True, help='Run record directory (project .tmp/).')
     parser.add_argument('--prompt', type=Path, required=True, help='Final prompt text; placeholders already filled.')
     parser.add_argument('--backend', choices=BACKENDS, required=True)
-    parser.add_argument('--model', required=True, help='Anthropic model (opus, sonnet, haiku or an ID), or the served Strata model ID.')
+    parser.add_argument('--model', required=True, help='Anthropic model (opus, sonnet, haiku or an ID), the served Strata model ID, or the DeepSeek model ID.')
     parser.add_argument('--effort', choices=('low', 'medium', 'high', 'xhigh', 'max'), required=True)
     parser.add_argument('--label', required=True, help='Quota ledger label (estimate.sh --add-stream).')
     parser.add_argument('--copy', type=parse_copy, action='append', default=[], help='SOURCE:NAME copied into the working directory.')
     parser.add_argument('--write', action='append', default=[], help='Working-directory path the run may write (repeatable).')
     parser.add_argument('--limit', type=int, default=HARD_LIMIT, help='Hard limit in seconds (default ARW 3600).')
     parser.add_argument('--reminder-after', type=float, help='Reminder time in seconds (default ARW: limit - 300).')
-    parser.add_argument('--no-startup-prompt', action='store_true', help='D4 no-prompt arm only.')
+    parser.add_argument('--no-startup-prompt', action='store_true',
+                        help='D4 no-prompt arm, and every API model run of the multi-model benchmark.')
     parser.add_argument('--tools', default=TOOLS)
     parser.add_argument('--host', help='Registered host for the Strata backend.')
     args = parser.parse_args()

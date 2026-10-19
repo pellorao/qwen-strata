@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools.reviewer.inspect_session import inspect
+from tools.reviewer.inspect_session import inspect, redact
 
 ROOT = '/home/u/run/ca/1'
 
@@ -55,6 +55,16 @@ class InspectSessionTest(unittest.TestCase):
         self.assertIn('workdir outside root', reasons[2])
         self.assertIn('environment/identity query', reasons[3])
         self.assertIn('environment or home path', reasons[4])
+        self.assertIn('session/credential material', reasons[4])
+
+    def test_credential_values_are_redacted(self):
+        jwt = 'eyJhbGciOiJub25lIn0.eyJleHAiOjQxMDI0NDQ4MDB9.c3ludGhldGlj'
+        text = redact(f'Bearer abcdefghijklmnopqrst {{"refresh_token": "rt-123456789"}} sk-abcdefghijklmnopqrstuv {jwt} '
+                      'ANTHROPIC_AUTH_TOKEN=abcdefghijk keep')
+        for value in (jwt, 'abcdefghijklmnopqrst', 'rt-123456789', 'sk-abcdefghijklmnopqrstuv', 'abcdefghijk'):
+            self.assertNotIn(value, text)
+        self.assertTrue(text.endswith(' keep'))
+        self.assertEqual(redact('cat request.json'), 'cat request.json')
 
     def test_second_scenario_root_is_allowed(self):
         second = '/home/u/run/ap/1'

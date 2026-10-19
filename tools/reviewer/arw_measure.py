@@ -19,8 +19,8 @@ from tools.metrics.review_work_time import ReviewWorkClock
 from tools.reviewer.wsl_client import ROOT,save
 from tools.metrics.context_capacity import CONTEXT_WINDOWS
 from tools.metrics.prompt_policy import compaction_config
-from tools.reviewer.providers import (api_model, api_provider, provider_entry, service_tier, shell_exclude,
-    validate_api_selection, web_search_mode)
+from tools.reviewer.providers import (api_model, api_provider, credential_present, link_login, provider_config,
+    release_login, service_tier, shell_exclude, validate_api_selection, web_search_mode)
 
 sys.path.append(str(ROOT / 'src'))
 from startup_instructions import startup_prompt_bytes
@@ -194,10 +194,12 @@ def review_settings(selection,runtime_file,folder):
             settings['config']['model_providers']['qwen_strata']['http_headers']={'X-Loop-Reminder':'on'}
     else:
         # The provider's own window and compaction defaults apply unless the selection states a compaction limit.
+        # With a relay (run_api, D14) Codex reaches the provider through it; the endpoint is the only change.
+        relay=os.environ.get('QWEN_API_RELAY_BASE') if provider['relay'] else None
         settings={'model':api_model(selection),'modelProvider':provider['codex_id'],
             'reasoningEffort':selection['effort'],'serviceTier':service_tier(selection),'config':{
                 'shell_environment_policy':review_shell_policy(runtime_file,shell_exclude(provider)),
-                'model_providers':{provider['codex_id']:provider_entry(provider)}}}
+                **provider_config(provider,relay)}}
     if web_search_mode(selection) is not None:
         settings['config']['web_search']=web_search_mode(selection)
     if 'auto_compact_token_limit' in selection:
@@ -692,8 +694,8 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
     from tools.reviewer.native_cli_binding import verify_native_cli
     native_cli=verify_native_cli(selection.get('native_cli'))
     provider=validate_api_selection(selection)
-    if not os.environ.get(provider['env_key']):
-        raise ValueError('Provider credential variable is not set: '+provider['env_key'])
+    if not credential_present(provider):
+        raise ValueError('Provider credential is not available: '+(provider['env_key'] or 'the benchmark ChatGPT login'))
     if os.environ.get('STRATA_API_KEY'):
         raise ValueError('A Strata key is present; API provider runs never hold a Strata lease')
     out.mkdir(parents=True,exist_ok=False)
@@ -712,6 +714,13 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
                   **({'codexExecutable':native_cli['executable'],'nativeCliBinding':native_cli} if native_cli else {}),
                   'catalog':str(catalog),'cleanupPath':str(cleanup_path)})
     os.environ['QWEN_ARW_RUNTIME_FILE']=str(runtime)
+    # A fresh CODEX_HOME per run; a ChatGPT login enters it only as a link to the benchmark login (never opened).
+    codex_home=native_install/'codex-home';login=link_login(provider,codex_home)
+    relay=None
+    if provider['relay']:
+        from tools.reviewer.api_relay import Relay
+        relay=Relay(provider['base_url'],out/'relay').__enter__();os.environ['QWEN_API_RELAY_BASE']=relay.url
+    save(out/'provider-binding.json',{'provider':provider,'login_link':login,'relay':relay.url if relay else None})
     old_path=os.environ['PATH'];os.environ['PATH']=str(shim)+os.pathsep+old_path
     records=[];safe=True
     daemon_log=(out/'daemon-stderr.log').open('w');daemon_path=out/'daemon-stdout.jsonl';daemon_output=daemon_path.open('w')
@@ -742,6 +751,8 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
             record['token_consumption']=combined if record.get('complete') and None not in combined.values() else None
             record['token_consumption_source']=('API usage reported by the provider: Reviewer rounds plus guardian '
                                                'histories; no engine log exists for an API provider')
+            # D14: what the provider returned, not what was asked; unknown without the relay.
+            record['service_tier_returned']=relay.summary(record['started_at'],time.time()) if relay else None
             save(folder/'result.json',record);records.append(record);save(out/'results.json',records)
     finally:
         if machine:machine.close()
@@ -752,7 +763,9 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
             if value and value.get('cleanup',{}).get('status')=='ready':daemon.wait(timeout=30)
             else:safe=False
         daemon_log.close();daemon_output.close();daemon_reader.close()
-        os.environ['PATH']=old_path;os.environ.pop('QWEN_ARW_RUNTIME_FILE',None)
+        os.environ['PATH']=old_path;os.environ.pop('QWEN_ARW_RUNTIME_FILE',None);os.environ.pop('QWEN_API_RELAY_BASE',None)
+        if relay:relay.close()
+        if safe:save(out/'login-release.json',{'status':release_login(provider,codex_home)})
         if not safe:
             save(out/'recovery-required.json',{'reason':'Reviewer completion or native cleanup is uncertain; preserve the ARW runtime.',
                 'runtime':str(runtime),'model_owner':'api','daemon_pid':daemon.pid})

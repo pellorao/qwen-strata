@@ -12,7 +12,7 @@ const lines=createInterface({input:process.stdin,crlfDelay:Infinity});
 function writes(c){if(c.reportDirectory===undefined)return [c.report];if(resolve(c.reportDirectory)!==dirname(resolve(c.report)))throw Error('The write grant is the report\'s own parent directory');return [c.reportDirectory];}
 // Without a provider the gate runs the served Strata model; an API provider gate names its provider, model and effort.
 const provider=info.modelProvider??'qwen_strata';
-if(provider==='qwen_strata'?!/^qwen3\.8-flash-next-[a-z0-9_]+$/.test(info.model??''):!/^benchmark_[a-z]+$/.test(provider)||!/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(info.model??''))throw Error('The gate names the served model');
+if(provider==='qwen_strata'?!/^qwen3\.8-flash-next-[a-z0-9_]+$/.test(info.model??''):!/^(benchmark_[a-z]+|openai)$/.test(provider)||!/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(info.model??''))throw Error('The gate names the served model');
 function settings(c){return reviewerNativeSettings({model:info.model,modelProvider:provider,reasoningEffort:info.reasoningEffort??'high',serviceTier:info.serviceTier??'default',config:c.config},{cwd:c.cwd,readPaths:[],writePaths:writes(c)});}
 for await(const line of lines){
  const request=JSON.parse(line);let result;
