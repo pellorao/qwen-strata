@@ -6,7 +6,9 @@ from pathlib import Path
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import subprocess
-from tools.safety.safety_gate import BOUNDARY_PROBE,OUTSIDE_WRITES,boundary,escalations,fixture_calls,gate_plan,guardian_decisions
+from tools.safety.safety_gate import BOUNDARY_PROBE,OUTSIDE_WRITES,READ_PROBE,ApiOwner,api_plan,boundary,config,escalations,fixture_calls,gate_environment,gate_plan,gate_session,guardian_decisions,proxy_usage,read_command,read_exposure,read_fixture
+import os
+from unittest.mock import patch
 
 
 class SafetyGateTests(unittest.TestCase):
@@ -68,6 +70,62 @@ class SafetyGateTests(unittest.TestCase):
    session=Path(tmp)/'s.jsonl';calls=[{'type':'function_call','arguments':json.dumps({'cmd':'cat x'})},{'type':'function_call','arguments':json.dumps({'cmd':'cat y','sandbox_permissions':'require_escalated'})},{'type':'message'}]
    session.write_text(''.join(json.dumps({'payload':c})+'\n'for c in calls))
    self.assertEqual(escalations(session),1);self.assertIsNone(escalations(Path(tmp)/'missing.jsonl'))
+
+ def test_read_probe_detects_unsandboxed_reads_and_fake_key(self):
+  # Outside any sandbox every synthetic target is readable and an unexcluded key is visible, so the probe is not vacuous.
+  with tempfile.TemporaryDirectory()as tmp:
+   root=Path(tmp);directory=root/'scenario/report';directory.mkdir(parents=True);fixture=read_fixture(root,'t');probe=root/'probe-read.py';probe.write_text(READ_PROBE)
+   self.assertTrue(fixture['value'].startswith('FAKE-CANARY-KEY-'));self.assertNotEqual(fixture['credential'].parent.parent,Path.home())
+   command=read_command(probe,directory,fixture,'BENCHMARK_TEST_KEY',os.getpid())
+   subprocess.run(['bash','-c',command],env=dict(os.environ,BENCHMARK_TEST_KEY=fixture['value']),check=True,capture_output=True)
+   seen=read_exposure(directory);self.assertTrue(seen['fake_key_exposed']);self.assertFalse(seen['shell_key_excluded'])
+   self.assertEqual(seen['outside_readable'],['outside_file','credential_file','project_file'])
+   self.assertEqual(seen['results']['proc_ancestors'][-1]['pid'],os.getpid())
+   subprocess.run(['bash','-c',command],env={k:v for k,v in os.environ.items()if k!='BENCHMARK_TEST_KEY'},check=True,capture_output=True)
+   seen=read_exposure(directory);self.assertFalse(seen['fake_key_exposed']);self.assertTrue(seen['shell_key_excluded'])
+   self.assertNotIn(fixture['value'],(directory/'probe-read-result.json').read_text())
+   self.assertEqual(read_exposure(root),{'ran':False})
+
+ def test_provider_config_and_environment_hold_only_the_fake_key(self):
+  provider={'id':'openai','codex_id':'benchmark_openai','name':'OpenAI','base_url':'https://api.openai.com/v1','env_key':'BENCHMARK_OPENAI_API_KEY'}
+  with tempfile.TemporaryDirectory()as tmp:
+   root=Path(tmp)
+   values=config(root,root/'r.jsonl','http://127.0.0.1:1/v1',None,None,provider=provider)
+   self.assertEqual(values['model_providers']['benchmark_openai']['base_url'],'http://127.0.0.1:1/v1')
+   self.assertEqual(values['model_providers']['benchmark_openai']['env_key'],'BENCHMARK_OPENAI_API_KEY')
+   self.assertEqual(values['shell_environment_policy']['exclude'],['BENCHMARK_OPENAI_API_KEY','STRATA_API_KEY','STRATA_REMOTE_PASSWORD'])
+   self.assertNotIn('model_context_window',values)
+   tier={'context_window':206584,'auto_compact_token_limit':150000}
+   strata=config(root,root/'r.jsonl','http://127.0.0.1:1/v1',None,tier)
+   self.assertNotIn('env_key',strata['model_providers']['qwen_strata'])
+   self.assertEqual(config(root,root/'r.jsonl','http://x/v1',None,tier,canary_key='STRATA_API_KEY')['model_providers']['qwen_strata']['env_key'],'STRATA_API_KEY')
+  with patch.dict('os.environ',{'BENCHMARK_OPENAI_API_KEY':'real-value','STRATA_API_KEY':'lease','STRATA_REMOTE_PASSWORD':'pw'}):
+   env=gate_environment('BENCHMARK_OPENAI_API_KEY','FAKE-CANARY-KEY-x',provider)
+   owner=ApiOwner(provider);self.assertEqual(owner.key,'real-value');self.assertEqual(owner.responses_url,'https://api.openai.com/v1/responses')
+  self.assertEqual(env['BENCHMARK_OPENAI_API_KEY'],'FAKE-CANARY-KEY-x');self.assertNotIn('STRATA_API_KEY',env);self.assertNotIn('STRATA_REMOTE_PASSWORD',env)
+
+ def test_api_plan_and_session(self):
+  with tempfile.TemporaryDirectory()as tmp:
+   root=Path(tmp);catalog=root/'catalog.json';catalog.write_text(json.dumps({'models':[{'slug':'gpt-6.1-sol'}]}));path=root/'plan.json'
+   selection={'provider':{'id':'openai','base_url':'https://api.openai.com/v1'},'model':'gpt-6.1-sol','effort':'high'}
+   path.write_text(json.dumps({'authorization':{'approved':True},'selection':selection,'catalog':str(catalog)}))
+   plan,api=api_plan(path);self.assertEqual(api['provider']['codex_id'],'benchmark_openai')
+   _,session=gate_session(root,None,None,api)
+   self.assertEqual(session,{'catalog':str(root/'catalog.json'),'model':'gpt-6.1-sol','modelProvider':'benchmark_openai','reasoningEffort':'high','serviceTier':'default','envKey':'BENCHMARK_OPENAI_API_KEY'})
+   for bad in ({'authorization':{'approved':False},'selection':selection,'catalog':str(catalog)},{'authorization':{'approved':True},'selection':selection},
+               {'authorization':{'approved':True},'selection':{**selection,'model_owner':'arw'},'catalog':str(catalog)}):
+    path.write_text(json.dumps(bad))
+    with self.assertRaises(ValueError):api_plan(path)
+
+ def test_proxy_usage_counts_forwarded_api_usage_and_missing_usage(self):
+  with tempfile.TemporaryDirectory()as tmp:
+   requests=Path(tmp)/'native-1/requests';requests.mkdir(parents=True)
+   done={'type':'response.completed','response':{'usage':{'input_tokens':100,'input_tokens_details':{'cached_tokens':60},'output_tokens':7}}}
+   (requests/'response-1.sse').write_text('data: '+json.dumps({'type':'response.created'})+'\n\ndata: '+json.dumps(done)+'\n\n')
+   (requests/'response-2.sse').write_text('')
+   usage=proxy_usage(tmp)
+   self.assertEqual((usage['input_tokens'],usage['cached_input_tokens'],usage['output_tokens'],usage['responses']),(100,60,7,1))
+   self.assertFalse(usage['complete'])
 
 
 if __name__=='__main__':unittest.main()

@@ -19,6 +19,8 @@ from tools.metrics.review_work_time import ReviewWorkClock
 from tools.reviewer.wsl_client import ROOT,save
 from tools.metrics.context_capacity import CONTEXT_WINDOWS
 from tools.metrics.prompt_policy import compaction_config
+from tools.reviewer.providers import (api_model, api_provider, provider_entry, service_tier, shell_exclude,
+    validate_api_selection, web_search_mode)
 
 sys.path.append(str(ROOT / 'src'))
 from startup_instructions import startup_prompt_bytes
@@ -155,9 +157,9 @@ def review_shell_environment(runtime_file):
 REVIEW_SHELL_EXCLUDE=['STRATA_API_KEY']
 
 
-def review_shell_policy(runtime_file):
+def review_shell_policy(runtime_file,exclude=REVIEW_SHELL_EXCLUDE):
     """Codex shell_environment_policy for Reviewer commands: hide the provider key, restore the arw shim."""
-    return {'exclude':list(REVIEW_SHELL_EXCLUDE),'set':review_shell_environment(runtime_file)}
+    return {'exclude':list(exclude),'set':review_shell_environment(runtime_file)}
 
 
 def driver_context(selection):
@@ -177,6 +179,48 @@ def spec_repetition_order(jobs):
                   if j[1].get('scenarioId') in SPEC_STAGES else ('',0))
 
 
+def review_settings(selection,runtime_file,folder):
+    """Native Reviewer settings. A selection without a provider is the Strata path and keeps its exact settings."""
+    provider=api_provider(selection)
+    if provider is None:
+        settings={'model':'qwen3.8-flash-next-'+selection['model'].lower(),'modelProvider':'qwen_strata',
+            'reasoningEffort':selection['effort'],'serviceTier':service_tier(selection),'config':{
+                'shell_environment_policy':review_shell_policy(runtime_file),
+                'model_providers':{'qwen_strata':{'name':'Local Strata','base_url':os.environ['QWEN_ARW_MODEL_BASE'],
+                    'wire_api':'responses','env_key':'STRATA_API_KEY','requires_openai_auth':False,'supports_websockets':False}}}}
+        if selection.get('model_owner')!='arw':  # ARW's provider sets the window from the selected installation tier
+            settings['config']['model_context_window']=driver_context(selection)[0]
+        if selection.get('loop_reminder')=='on':  # deprecated frontend loop reminder, off unless selected
+            settings['config']['model_providers']['qwen_strata']['http_headers']={'X-Loop-Reminder':'on'}
+    else:
+        # The provider's own window and compaction defaults apply unless the selection states a compaction limit.
+        settings={'model':api_model(selection),'modelProvider':provider['codex_id'],
+            'reasoningEffort':selection['effort'],'serviceTier':service_tier(selection),'config':{
+                'shell_environment_policy':review_shell_policy(runtime_file,shell_exclude(provider)),
+                'model_providers':{provider['codex_id']:provider_entry(provider)}}}
+    if web_search_mode(selection) is not None:
+        settings['config']['web_search']=web_search_mode(selection)
+    if 'auto_compact_token_limit' in selection:
+        settings['config']['model_auto_compact_token_limit']=selection['auto_compact_token_limit']
+    settings['config']=compaction_config(settings['config'],folder/'prompt-policy',
+        include_project_base=selection.get('project_compaction_instructions',True))
+    return settings
+
+
+def api_startup_instructions(selection):
+    """D4 for API providers: the project startup prompt as Strata loads it (deprecated loop block removed).
+    None on the Strata path, where the service appends it; {'enabled': False} only for an explicit no-prompt arm."""
+    if api_provider(selection) is None:
+        return None
+    if selection.get('startup_instructions',True) is False:
+        return None
+    source_raw=(ROOT/'config/prompts/startup-instructions.txt').read_bytes()
+    raw=startup_prompt_bytes(source_raw,False)
+    return {'enabled':True,'placement':'appended to developer instructions','path':'config/prompts/startup-instructions.txt',
+            'sha256':hashlib.sha256(raw).hexdigest(),'source_sha256':hashlib.sha256(source_raw).hexdigest(),
+            'loop_prevention_enabled':False,'text':raw.decode('utf-8').strip()}
+
+
 def execute_review(machine,source,preparation,handoff,folder,selection,catalog,run_metadata=None,previous=None,new_thread=False):
     native_input=handoff.get('input')
     project=Path(native_input['cwd'] if native_input else handoff['scenarioRoot']);folder.mkdir(parents=True,exist_ok=False)
@@ -189,19 +233,7 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
     instructions=native_input['instructions'] if native_input else (project/f'docs/agents/roles/{handoff["reviewerId"]}.md').read_text()+'\n'+(project/'docs/agents/reviewer.md').read_text()
     identity=preparation['identity'];state=Path(native_input['stateDirectory']) if native_input else source/'.tmp/codex'/identity['sessionId']/'measurement-recovery'
     state.mkdir(parents=True,exist_ok=True)
-    settings={'model':'qwen3.8-flash-next-'+selection['model'].lower(),'modelProvider':'qwen_strata',
-        'reasoningEffort':selection['effort'],'serviceTier':'default','config':{
-            'shell_environment_policy':review_shell_policy(os.environ['QWEN_ARW_RUNTIME_FILE']),
-            'model_providers':{'qwen_strata':{'name':'Local Strata','base_url':os.environ['QWEN_ARW_MODEL_BASE'],
-                'wire_api':'responses','env_key':'STRATA_API_KEY','requires_openai_auth':False,'supports_websockets':False}}}}
-    if selection.get('model_owner')!='arw':  # ARW's provider sets the window from the selected installation tier
-        settings['config']['model_context_window']=driver_context(selection)[0]
-    if selection.get('loop_reminder')=='on':  # deprecated frontend loop reminder, off unless selected
-        settings['config']['model_providers']['qwen_strata']['http_headers']={'X-Loop-Reminder':'on'}
-    if 'auto_compact_token_limit' in selection:
-        settings['config']['model_auto_compact_token_limit']=selection['auto_compact_token_limit']
-    settings['config']=compaction_config(settings['config'],folder/'prompt-policy',
-        include_project_base=selection.get('project_compaction_instructions',True))
+    settings=review_settings(selection,os.environ['QWEN_ARW_RUNTIME_FILE'],folder)
     prompt_receipt=json.loads((folder/'prompt-policy/compact-prompt-policy.json').read_text())
     expected=selection.get('compaction_prompt_policy')
     if expected and prompt_receipt['rendered_sha256']!=expected['rendered_sha256']:
@@ -209,6 +241,11 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
     bound={**native_input,'settings':settings} if native_input else {'role':handoff['agentType'],'identity':{'kind':'isolated','instanceId':handoff['instanceId']},
         'instructions':instructions,'handoff':handoff['prompt'],'cwd':str(project),
         'writePaths':[str(report.parent)],'reportPath':str(report),'stateDirectory':str(state),'settings':settings}
+    startup=api_startup_instructions(selection)
+    if startup:
+        # Strata appends this prompt to the caller instructions server-side; an API provider gets the same bytes
+        # appended to the developer instructions (D4), never replacing the Role.
+        bound['instructions']=bound['instructions'].rstrip('\n')+'\n\n'+startup['text']
     note=selection.get('measurement_note')
     if note:
         # Frozen capability-measurement addendum: appended only, never replacing the native handoff or Role.
@@ -233,6 +270,10 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
         'report':str(report),'binding_path':str(folder/'binding.json'),'selection':selection,'started_at':time.time(),'prompt_sha256':hashlib.sha256(bound['handoff'].encode()).hexdigest()}
     record.update(run_metadata or {})
     if note:record['measurement_note']=note
+    if api_provider(selection) is not None:
+        record['provider']=api_provider(selection)
+        record['startup_instructions']=startup or {'enabled':False}
+        record['instructions_sha256']=hashlib.sha256(bound['instructions'].encode()).hexdigest()
     record['compaction_prompt_policy']=prompt_receipt
     # Bind the actual startup snapshot before dispatch, including a failed or
     # interrupted submission that never returns a terminal result.
@@ -606,9 +647,124 @@ def load_resume_cleanup(path, recovering_native=False):
     return json.loads(path.read_text())
 
 
+def prepared_jobs(preparation_paths,schedule=None,profile=None):
+    """Prepared instances in the Main-owned schedule order, or in preparation order."""
+    preparations=[json.loads(p.read_text()) for p in preparation_paths]
+    source=Path(preparations[0]['repositoryRoot'])
+    if any(p['repositoryRoot']!=str(source) or p['identity']!=preparations[0]['identity'] for p in preparations):raise ValueError('Mixed upstream preparation identity')
+    by_path={str(path.resolve()):prep for path,prep in zip(preparation_paths,preparations)}
+    jobs=[]
+    if schedule:
+        seen=set()
+        for item in schedule:
+            preparation=by_path[str(Path(item['preparation']).resolve())]
+            handoff=next(h for h in preparation['handoffs'] if h['instanceId']==item['instanceId'])
+            if handoff['instanceId'] in seen:raise ValueError('Duplicate native instance in schedule')
+            seen.add(handoff['instanceId']);jobs.append((preparation,handoff,item.get('profile')))
+        if seen!={h['instanceId'] for p in preparations for h in p['handoffs']}:
+            raise ValueError('Schedule must retain all original prepared instances')
+    else:jobs=[(p,h,profile) for p in preparations for h in p['handoffs']]
+    return preparations,source,jobs
+
+
+def api_review_catalog(source,target,selection):
+    """API provider catalog: the selected model's native entry. Guardian and search stay native unless the
+    selection names a guardian model (D6) or a web_search mode (D5); there is no ARW Strata provider."""
+    catalog=json.loads(Path(source).read_text())
+    catalog.pop('providers',None)
+    model=api_model(selection)
+    selected=next((m for m in catalog['models'] if m['slug']==model),None)
+    if selected is None:
+        raise ValueError('Selected API model is absent from the measurement catalog')
+    guardian=selection.get('guardian_model')
+    if guardian is not None:
+        if not isinstance(guardian,str) or not guardian:raise ValueError('Unsupported guardian model')
+        selected['auto_review_model_override']=guardian
+    save(target,catalog)
+    return target
+
+
+def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
+    """Run prepared handoffs on an API provider through the same ARW runtime: no lease, no host, no engine log.
+
+    Token consumption is the native API usage (Reviewer rounds plus guardian histories, tools.reviewer.arw_metrics),
+    labeled as such; the provider key stays in this process environment and Codex reads it through env_key."""
+    from tools.reviewer.native_cli_binding import verify_native_cli
+    native_cli=verify_native_cli(selection.get('native_cli'))
+    provider=validate_api_selection(selection)
+    if not os.environ.get(provider['env_key']):
+        raise ValueError('Provider credential variable is not set: '+provider['env_key'])
+    if os.environ.get('STRATA_API_KEY'):
+        raise ValueError('A Strata key is present; API provider runs never hold a Strata lease')
+    out.mkdir(parents=True,exist_ok=False)
+    compaction_config({},out/'prompt-policy-preflight',include_project_base=selection.get('project_compaction_instructions',True))
+    catalog=api_review_catalog(catalog,out/'native-model-catalog.json',selection)
+    preparations,source,jobs=prepared_jobs(preparation_paths,schedule)
+    jobs=spec_repetition_order(jobs)
+    save(out/'schedule.json',[{'preparation':p['preparedPath'],'instanceId':h['instanceId'],'profile':None} for p,h,_ in jobs])
+    if limit is not None:
+        save(out/'deferred.json',[h['instanceId'] for _,h,_ in jobs[limit:]]);jobs=jobs[:limit]
+    runtime=out/'runtime.json';native_install=out/'arw-installation';cleanup_path=out/'arw-cleanup.json'
+    shim=out/'bin';shim.mkdir();entry=shim/'arw'
+    entry.write_text('#!/bin/sh\nexec node '+shlex.quote(str(ROOT/'tools/reviewer/arw_runtime.mjs'))+' client "$@"\n');entry.chmod(0o755)
+    save(runtime,{'repositoryRoot':str(source),'programDirectory':preparations[0].get('programDirectory',str(source)),
+                  'installationDirectory':str(native_install),
+                  **({'codexExecutable':native_cli['executable'],'nativeCliBinding':native_cli} if native_cli else {}),
+                  'catalog':str(catalog),'cleanupPath':str(cleanup_path)})
+    os.environ['QWEN_ARW_RUNTIME_FILE']=str(runtime)
+    old_path=os.environ['PATH'];os.environ['PATH']=str(shim)+os.pathsep+old_path
+    records=[];safe=True
+    daemon_log=(out/'daemon-stderr.log').open('w');daemon_path=out/'daemon-stdout.jsonl';daemon_output=daemon_path.open('w')
+    daemon=subprocess.Popen(['node',str(ROOT/'tools/reviewer/arw_runtime.mjs'),'daemon',str(runtime)],
+        stdin=subprocess.PIPE,stdout=daemon_output,stderr=daemon_log,text=True)
+    daemon_reader=daemon_path.open();machine=None
+    try:
+        value=read_daemon_message(daemon_reader,daemon)
+        if not value.get('ready'):raise RuntimeError('Original ARW manager did not start')
+        save(out/'arw-providers.json',value.get('providers',{}))
+        machine=Machine(source,runtime,out)
+        for preparation,handoff,_ in jobs:
+            verify_native_cli(selection.get('native_cli'))
+            folder=out/handoff['instanceId'];safe=False
+            record=execute_review(machine,source,preparation,handoff,folder,selection,catalog,
+                {'runtime_installation':str(native_install),'model_owner':'api'})
+            if record.get('arw_pause'):
+                raise RuntimeError('ARW paused the Reviewer task after repeated early exits; the user decides how to continue')
+            if record['runtime_result'].get('state') in ('starting','running','working','unknown'):
+                raise RuntimeError('Current native work is not terminal; preserve the ARW runtime for recovery')
+            if record['complete']:
+                if handoff['reviewerId']=='commit-audit-reviewer' and selection.get('generation_policy')!='first-delivery-only':
+                    record=audit_generation(machine,source,preparation,handoff,folder,record)
+                else:record['generation']=generate_original(source,preparation,handoff,folder)
+            safe=True
+            record['cost']=collect_cost(record,native_install/'codex-home')
+            combined=record['cost']['combined_api_tokens']
+            record['token_consumption']=combined if record.get('complete') and None not in combined.values() else None
+            record['token_consumption_source']=('API usage reported by the provider: Reviewer rounds plus guardian '
+                                               'histories; no engine log exists for an API provider')
+            save(folder/'result.json',record);records.append(record);save(out/'results.json',records)
+    finally:
+        if machine:machine.close()
+        if safe:
+            daemon.stdin.close()
+            value=read_daemon_message(daemon_reader,daemon)
+            if value:save(cleanup_path,value)
+            if value and value.get('cleanup',{}).get('status')=='ready':daemon.wait(timeout=30)
+            else:safe=False
+        daemon_log.close();daemon_output.close();daemon_reader.close()
+        os.environ['PATH']=old_path;os.environ.pop('QWEN_ARW_RUNTIME_FILE',None)
+        if not safe:
+            save(out/'recovery-required.json',{'reason':'Reviewer completion or native cleanup is uncertain; preserve the ARW runtime.',
+                'runtime':str(runtime),'model_owner':'api','daemon_pid':daemon.pid})
+            print('Reviewer state requires recovery; the ARW runtime has been preserved.',flush=True)
+    return records
+
+
 def run(installation,out,selection,preparation_paths,catalog,profile=None,schedule=None,resume=False,resume_native_install=None,host=None,limit=None):
     from tools.reviewer.native_cli_binding import verify_native_cli
     native_cli = verify_native_cli(selection.get('native_cli'))
+    if api_provider(selection) is not None:
+        raise ValueError('An API provider selection runs through run_api, without a host or lease')
     if host is None:
         raise ValueError('Provide a registered host')
     from tools.ops.measurement_host import MeasurementHost
@@ -638,21 +794,7 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
     compaction_config({},out/'prompt-policy-preflight',include_project_base=selection.get('project_compaction_instructions',True))
     catalog = local_review_catalog(catalog, out/'native-model-catalog.json', selection['model'],selection.get('context_window'),
                                    installation if arw_owned else None)
-    preparations=[json.loads(p.read_text()) for p in preparation_paths]
-    source=Path(preparations[0]['repositoryRoot'])
-    if any(p['repositoryRoot']!=str(source) or p['identity']!=preparations[0]['identity'] for p in preparations):raise ValueError('Mixed upstream preparation identity')
-    by_path={str(path.resolve()):prep for path,prep in zip(preparation_paths,preparations)}
-    jobs=[]
-    if schedule:
-        seen=set()
-        for item in schedule:
-            preparation=by_path[str(Path(item['preparation']).resolve())]
-            handoff=next(h for h in preparation['handoffs'] if h['instanceId']==item['instanceId'])
-            if handoff['instanceId'] in seen:raise ValueError('Duplicate native instance in schedule')
-            seen.add(handoff['instanceId']);jobs.append((preparation,handoff,item.get('profile')))
-        if seen!={h['instanceId'] for p in preparations for h in p['handoffs']}:
-            raise ValueError('Schedule must retain all original prepared instances')
-    else:jobs=[(p,h,profile) for p in preparations for h in p['handoffs']]
+    preparations,source,jobs=prepared_jobs(preparation_paths,schedule,profile)
     if arw_owned:jobs=spec_repetition_order(jobs)
     save(out/'schedule.json',[{'preparation':p['preparedPath'],'instanceId':h['instanceId'],'profile':f} for p,h,f in jobs])
     if limit is not None:  # run the first instances now; the rest stay prepared for a later --resume
@@ -902,5 +1044,12 @@ if __name__=='__main__':
     parser.add_argument('--limit',type=int,help='Run only the first N scheduled instances; the others are listed in deferred.json.')
     parser.add_argument('--resume-native-install',type=Path,help='After verified native exit, retain old busy state and use fresh isolated state for never-started instances.')
     args=parser.parse_args()
+    selection=json.loads(args.selection.read_text())
+    if api_provider(selection) is not None:
+        if args.host or args.install_root or args.profile or args.resume or args.resume_native_install:
+            parser.error('API provider runs take no host, installation, profile or resume')
+        run_api(args.out.resolve(),selection,args.preparation,args.catalog.resolve(),
+                json.loads(args.schedule.read_text()) if args.schedule else None,args.limit)
+        sys.exit(0)
     run(args.install_root,args.out.resolve(),json.loads(args.selection.read_text()),args.preparation,args.catalog.resolve(),args.profile,
         json.loads(args.schedule.read_text()) if args.schedule else None,args.resume,args.resume_native_install,args.host,args.limit)

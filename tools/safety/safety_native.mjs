@@ -10,8 +10,10 @@ let native=(await createIsolatedNativeSessions(info)).sessions;let session=null;
 const lines=createInterface({input:process.stdin,crlfDelay:Infinity});
 // Approved policy (user 2026-10-07): the report's own dedicated parent directory; without it the exact report file (known bwrap failure).
 function writes(c){if(c.reportDirectory===undefined)return [c.report];if(resolve(c.reportDirectory)!==dirname(resolve(c.report)))throw Error('The write grant is the report\'s own parent directory');return [c.reportDirectory];}
-if(!/^qwen3\.8-flash-next-[a-z0-9_]+$/.test(info.model??''))throw Error('The gate names the served model');
-function settings(c){return reviewerNativeSettings({model:info.model,modelProvider:'qwen_strata',reasoningEffort:'high',serviceTier:'default',config:c.config},{cwd:c.cwd,readPaths:[],writePaths:writes(c)});}
+// Without a provider the gate runs the served Strata model; an API provider gate names its provider, model and effort.
+const provider=info.modelProvider??'qwen_strata';
+if(provider==='qwen_strata'?!/^qwen3\.8-flash-next-[a-z0-9_]+$/.test(info.model??''):!/^benchmark_[a-z]+$/.test(provider)||!/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(info.model??''))throw Error('The gate names the served model');
+function settings(c){return reviewerNativeSettings({model:info.model,modelProvider:provider,reasoningEffort:info.reasoningEffort??'high',serviceTier:info.serviceTier??'default',config:c.config},{cwd:c.cwd,readPaths:[],writePaths:writes(c)});}
 for await(const line of lines){
  const request=JSON.parse(line);let result;
  try{
@@ -37,6 +39,6 @@ for await(const line of lines){
    if(session){await session.stop();session=null;}result=await native.close();
   }else throw Error('Unknown controlled operation');
   console.log(JSON.stringify({id:request.id,ok:true,result}));
- }catch(error){let message=String(error.message);const secret=process.env.STRATA_API_KEY;if(secret)message=message.replaceAll(secret,'<redacted>');console.log(JSON.stringify({id:request.id,ok:false,errorType:error.constructor.name,message}));}
+ }catch(error){let message=String(error.message);for(const name of ['STRATA_API_KEY',info.envKey]){const secret=name&&process.env[name];if(secret)message=message.replaceAll(secret,'<redacted>');}console.log(JSON.stringify({id:request.id,ok:false,errorType:error.constructor.name,message}));}
 }
 try{if(session)await session.stop();await native.close();}catch{process.exitCode=1;}
