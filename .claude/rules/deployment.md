@@ -18,3 +18,4 @@ paths:
 - 安装目录运行时不读工程目录（用户坚持）。重建安装目录时改名旧目录、移动大目录，不原地删除。租约不加自动回收或空闲超时，卡住的租约靠重启前端清除（用户拒绝过自动回收）。
 - 区分请求类别（如 Codex guardian）用协议元数据（`thread_source`、subagent 头），不匹配提示词前缀（用户 2026-10-12）；没有结构化标识时先提备选并说明风险。
 - 部署后用 `qwen-agent` 测 Claude Code 的冒烟检查，按测量规则「Claude Code 测试隔离」运行。
+- `qwen-agent` 让 Claude Code 在档位阈值压缩，靠的是未公开的 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`，升级 Claude Code 后可能退回窗口 − 23000 才压缩。用 `qwen-agent` 跑 Claude Code 的测试（冒烟、升级短检查、测量）前，核对 `claude --version` 与调用手册「自动压缩」记的核对版本；不同就先跑 `python3 -m tools.ops.claude_compact_probe --out .tmp/<工作>/compact-probe --repeat 3`（无模型、不领租约），通过后改手册里的版本号并部署；不通过按意外事件处理，修好前不经 Claude Code 路径测量。

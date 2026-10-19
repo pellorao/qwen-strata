@@ -13,6 +13,7 @@
 | `model_catalog` | 由所装 Codex 的 luna 条目生成日常 `config/model-catalog.json`；`--check` 核对是否与当前 Codex 版本一致 |
 | `upgrade_release` | 安装已校验的 Strata 源包和引擎，带备份和回滚；同样经前端租约停服 |
 | `install_offline` | 在 Windows 上用已有文件离线重建安装 |
+| `claude_compact_probe` | 假 Anthropic 服务器上核对 Claude Code 在 `qwen-agent` 档位下的压缩点（阈值 ±100，两回合与回合中途），不用模型和租约 |
 | `controller_client`、`measurement_host` | 测量用的前端租约客户端和引擎内部日志读取 |
 | `export_reports` | 只发布按版本 / 类型的汇总 |
 
