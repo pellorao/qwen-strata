@@ -199,19 +199,22 @@ def result_text(content):
     return json.dumps(content, ensure_ascii=False)
 
 
-def claude_tokens(result):
-    """API usage of the whole run from its result event, summed over models when per-model usage is present."""
+def claude_tokens(results):
+    """API usage of the whole run. modelUsage of the last result event is cumulative over the run (summed over models);
+    usage is per result event, so without modelUsage it is summed over all of them."""
+    result = results[-1] if results else None
     models = (result or {}).get('modelUsage') or {}
     if models:
         total = lambda key: sum(m.get(key) or 0 for m in models.values())
         uncached, cached, output = (total('inputTokens') + total('cacheCreationInputTokens'),
                                     total('cacheReadInputTokens'), total('outputTokens'))
     else:
-        usage = (result or {}).get('usage') or {}
-        if not usage:
+        usages = [r.get('usage') for r in results if r.get('usage')]
+        if not usages:
             return {'uncached_input': None, 'cached_input': None, 'output': None, 'source': 'no result event'}
-        uncached = (usage.get('input_tokens') or 0) + (usage.get('cache_creation_input_tokens') or 0)
-        cached, output = usage.get('cache_read_input_tokens'), usage.get('output_tokens')
+        total = lambda key: sum(u.get(key) or 0 for u in usages)
+        uncached = total('input_tokens') + total('cache_creation_input_tokens')
+        cached, output = total('cache_read_input_tokens'), total('output_tokens')
     return {'uncached_input': uncached, 'cached_input': cached, 'output': output,
             'source': 'Claude Code stream-json result event (API usage); cache writes count as uncached input'}
 
@@ -226,15 +229,18 @@ def stamp(value):
 def inspect_claude(stream, root, allow=()):
     """Same view as inspect() for a Claude Code stream-json run, plus tool-call counts and work time.
 
-    Assistant and user events carry timestamps; action times count from the first of them. Work time is the result
-    event's duration (a -p run is one turn with no idle wait), else the span of the timestamps."""
+    Assistant and user events carry timestamps; action times count from the first of them. Work time is the sum of the
+    result events' durations, else the span of the timestamps. A -p run usually has one result event; when the model
+    leaves a background command running, Claude Code waits for it after the first result and then runs one more turn
+    for its notification, with a result event of its own: each result's duration_ms, num_turns, permission_denials
+    and usage cover only its own turn, and the wait between them is not work."""
     lines = Path(stream).read_bytes().splitlines()
     stamps = []
     root = os.path.normpath(root)
     allow = [os.path.normpath(a) for a in allow]
     norm = lambda s: UUID.sub('<UUID>', s.replace(root, '<ROOT>'))
     startup, actions, messages, compactions, outputs = {}, [], [], 0, {}
-    result, session_id, first = None, None, None
+    results, session_id, first = [], None, None
     for i, raw in enumerate(lines):
         try:
             e = json.loads(raw)
@@ -257,7 +263,7 @@ def inspect_claude(stream, root, allow=()):
             compactions += 1
             continue
         if kind == 'result':
-            result = e
+            results.append(e)
             continue
         if kind == 'system':
             # Other system events carry no model action; a denial by the harness (e.g. --restricted on a path
@@ -310,7 +316,9 @@ def inspect_claude(stream, root, allow=()):
     counts = {}
     for a in actions:
         counts[a['tool']] = counts.get(a['tool'], 0) + 1
-    duration = (result or {}).get('duration_ms')
+    result = results[-1] if results else None
+    durations = [r.get('duration_ms') for r in results]
+    duration = sum(durations) if durations and all(type(d) in (int, float) for d in durations) else None
     span = max(stamps) - first if stamps else None
     return {'session': str(stream), 'threadId': session_id, 'source': 'claude-code stream-json', 'thread_source': None,
             'root': root, 'startup': startup, 'handoff_found': 'init' in startup, 'compactions': compactions,
@@ -321,8 +329,10 @@ def inspect_claude(stream, root, allow=()):
             'work_time_source': 'result duration_ms' if type(duration) in (int, float) else (
                 'event timestamp span' if span is not None else None),
             'stream_span_seconds': span, 'result_subtype': (result or {}).get('subtype'),
-            'num_turns': (result or {}).get('num_turns'),
-            'permission_denials': len((result or {}).get('permission_denials') or []), 'tokens': claude_tokens(result)}
+            'result_events': len(results),
+            'num_turns': sum(r.get('num_turns') or 0 for r in results) if results else None,
+            'permission_denials': sum(len(r.get('permission_denials') or []) for r in results),
+            'tokens': claude_tokens(results)}
 
 
 def redact(text):

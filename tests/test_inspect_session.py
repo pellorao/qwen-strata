@@ -148,6 +148,34 @@ class InspectClaudeStreamTest(unittest.TestCase):
         self.assertIn('工作时间 1.5 分钟', (out / 'actions.md').read_text())
         self.assertEqual(summary['flagged_actions'], [2, 3, 4, 5])
 
+    def test_background_task_notification_turn_adds_its_own_result(self):
+        # Claude Code 2.1.303 -p: a backgrounded command outlives the first result; after it stops, a notification
+        # turn ends with a second result whose duration_ms, num_turns, usage and denials cover that turn only
+        # (modelUsage is cumulative). CA r2 strata-medium-a2: 1092441 + 5174 ms, not 5174.
+        from tools.reviewer.inspect_session import inspect_claude
+        def at(m):
+            return {'type': 'assistant', 'timestamp': f'2026-10-20T01:{m:02d}:00Z', 'message': {'content': [{'type': 'text', 'text': 'x'}]}}
+        def res(ms, turns, usage, denials=(), model=None):
+            e = {'type': 'result', 'subtype': 'success', 'duration_ms': ms, 'num_turns': turns, 'usage': usage,
+                 'permission_denials': list(denials), 'result': f'r{turns}'}
+            if model:
+                e['modelUsage'] = {'m': model}
+            return e
+        u1 = {'input_tokens': 50, 'cache_creation_input_tokens': 0, 'cache_read_input_tokens': 2000, 'output_tokens': 80}
+        u2 = {'input_tokens': 4, 'cache_creation_input_tokens': 0, 'cache_read_input_tokens': 100, 'output_tokens': 3}
+        events = [{'type': 'system', 'subtype': 'init', 'session_id': 's'}, at(0), res(1092441, 57, u1, [{}]),
+                  {'type': 'system', 'subtype': 'task_notification', 'status': 'stopped'},
+                  {'type': 'system', 'subtype': 'init', 'session_id': 's'}, at(27), res(5174, 1, u2)]
+        r = inspect_claude(self.stream(events), ROOT)
+        self.assertEqual((r['work_seconds'], r['result_events'], r['num_turns'], r['permission_denials'], r['final']),
+                         (1097.615, 2, 58, 1, 'r1'))
+        self.assertEqual(r['stream_span_seconds'], 1620.0)
+        self.assertEqual({k: r['tokens'][k] for k in ('uncached_input', 'cached_input', 'output')},
+                         {'uncached_input': 54, 'cached_input': 2100, 'output': 83})
+        events[-1] = res(5174, 1, u2, model={'inputTokens': 54, 'cacheCreationInputTokens': 0,
+                                             'cacheReadInputTokens': 2100, 'outputTokens': 83})
+        self.assertEqual(inspect_claude(self.stream(events), ROOT)['tokens']['output'], 83)
+
     def test_missing_result_falls_back_to_timestamps_and_unknown_tokens(self):
         from tools.reviewer.inspect_session import inspect_claude
         events = [{'type': 'system', 'subtype': 'init', 'session_id': 's'},
