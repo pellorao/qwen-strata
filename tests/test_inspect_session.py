@@ -80,3 +80,62 @@ class InspectSessionTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class InspectClaudeStreamTest(unittest.TestCase):
+    """Claude Code stream-json: actions, flags, tool-call counts, work time and API tokens."""
+    def stream(self, events):
+        folder = tempfile.mkdtemp()
+        path = Path(folder) / 'stream.jsonl'
+        path.write_text('\n'.join(json.dumps(e) for e in events) + '\n')
+        return path
+
+    def test_actions_flags_counts_and_work_time(self):
+        from tools.reviewer.inspect_session import inspect_claude, render
+        def use(n, name, value, at):
+            return {'type': 'assistant', 'timestamp': f'2026-10-19T05:00:{at:02d}.000Z',
+                    'message': {'content': [{'type': 'tool_use', 'id': f't{n}', 'name': name, 'input': value}]}}
+        def result(n, text, error=False):
+            return {'type': 'user', 'timestamp': '2026-10-19T05:00:30.000Z',
+                    'message': {'content': [{'type': 'tool_result', 'tool_use_id': f't{n}', 'content': text, 'is_error': error}]}}
+        events = [{'type': 'system', 'subtype': 'init', 'session_id': 's1', 'tools': ['Read', 'Bash'], 'model': 'm',
+                   'cwd': ROOT, 'claude_code_version': '2.1.303'},
+                  use(1, 'Read', {'file_path': f'{ROOT}/src/a.mjs'}, 0), result(1, 'one'),
+                  use(2, 'Read', {'file_path': '/home/u/run/ca/expected.json'}, 5),
+                  result(2, 'Claude requested permissions to read from /home/u/run/ca/expected.json, but you haven\'t granted it yet.', True),
+                  use(3, 'Grep', {'pattern': 'foo', 'path': '../other'}, 9), result(3, 'x'),
+                  use(4, 'Bash', {'command': 'env | grep KEY'}, 12), result(4, 'none'),
+                  use(5, 'Glob', {'pattern': '**/*.md'}, 15),
+                  {'type': 'assistant', 'message': {'content': [{'type': 'thinking', 'thinking': 'not read'},
+                                                                {'type': 'text', 'text': 'Done.'}]}},
+                  {'type': 'system', 'subtype': 'compact_boundary'},
+                  {'type': 'result', 'subtype': 'success', 'duration_ms': 90000, 'num_turns': 6, 'result': 'Final.',
+                   'permission_denials': [{}],
+                   'modelUsage': {'a': {'inputTokens': 10, 'cacheCreationInputTokens': 90, 'cacheReadInputTokens': 500, 'outputTokens': 40},
+                                  'b': {'inputTokens': 5, 'cacheCreationInputTokens': 0, 'cacheReadInputTokens': 0, 'outputTokens': 1}}}]
+        r = inspect_claude(self.stream(events), ROOT)
+        reasons = [' '.join(a['reasons']) for a in r['actions']]
+        self.assertEqual(reasons[0], '')
+        self.assertIn('target outside root', reasons[1]);self.assertIn('denied/permission in result', reasons[1])
+        self.assertIn('escapes root', reasons[2])
+        self.assertIn('environment/identity query', reasons[3])
+        self.assertIn('no result', reasons[4])
+        self.assertEqual([a['time'] for a in r['actions']], ['+0s', '+5s', '+9s', '+12s', '+15s'])
+        self.assertEqual((r['tool_calls'], r['tool_call_counts']), (5, {'Read': 2, 'Grep': 1, 'Bash': 1, 'Glob': 1}))
+        self.assertEqual((r['work_seconds'], r['work_time_source'], r['stream_span_seconds']), (90.0, 'result duration_ms', 30.0))
+        self.assertEqual((r['compactions'], r['final'], r['permission_denials'], r['threadId']), (1, 'Final.', 1, 's1'))
+        self.assertEqual({k: r['tokens'][k] for k in ('uncached_input', 'cached_input', 'output')}, {'uncached_input': 105, 'cached_input': 500, 'output': 41})
+        self.assertEqual([m['text'] for m in r['messages']], ['Done.'])
+        out = Path(tempfile.mkdtemp())
+        summary = render(r, out)
+        self.assertIn('工作时间 1.5 分钟', (out / 'actions.md').read_text())
+        self.assertEqual(summary['flagged_actions'], [2, 3, 4, 5])
+
+    def test_missing_result_falls_back_to_timestamps_and_unknown_tokens(self):
+        from tools.reviewer.inspect_session import inspect_claude
+        events = [{'type': 'system', 'subtype': 'init', 'session_id': 's'},
+                  {'type': 'assistant', 'timestamp': '2026-10-19T05:00:00Z', 'message': {'content': [{'type': 'text', 'text': 'a'}]}},
+                  {'type': 'assistant', 'timestamp': '2026-10-19T05:02:00Z', 'message': {'content': [{'type': 'text', 'text': 'b'}]}}]
+        r = inspect_claude(self.stream(events), ROOT)
+        self.assertEqual((r['work_seconds'], r['work_time_source']), (120.0, 'event timestamp span'))
+        self.assertIsNone(r['tokens']['output']);self.assertEqual(r['final'], 'b')

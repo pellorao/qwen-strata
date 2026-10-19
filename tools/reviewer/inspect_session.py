@@ -1,4 +1,5 @@
-"""Action-centred inspection view of one closed native Codex reviewer session.
+"""Action-centred inspection view of one closed native Codex reviewer session, or of one
+headless Claude Code run (stream-json, tools.reviewer.claude_headless).
 
 Programs extract and classify; Main reads every action line and decides.
 Reasoning, metadata and outputs of calls whose targets stay inside the
@@ -8,6 +9,7 @@ Flagged calls get their full command and output in flagged.md. The original
 session is only read, never copied or changed.
 """
 import argparse
+from datetime import datetime
 import hashlib
 import json
 import os
@@ -160,6 +162,150 @@ def inspect(session, root=None, allow=()):
             'messages': messages, 'final': messages[-1]['text'] if messages else None}
 
 
+# Claude Code built-in tools and the field that names their target
+CLAUDE_TARGETS = {'Read': 'file_path', 'Write': 'file_path', 'Edit': 'file_path', 'NotebookEdit': 'notebook_path',
+                  'Glob': 'path', 'Grep': 'path', 'LS': 'path', 'Bash': 'command'}
+CLAUDE_KNOWN = set(CLAUDE_TARGETS) | {'TodoWrite'}
+CLAUDE_DENIED = re.compile(r'permission|haven.t granted|was blocked|not allowed|outside (?:of )?the (?:allowed )?working director', re.I)
+
+
+def claude_text(name, value):
+    """The command or target that the action line shows; patterns go with their search path."""
+    if name == 'Bash':
+        return value.get('command', '')
+    if name in ('Glob', 'Grep'):
+        return ' '.join(str(x) for x in (value.get('path') or '', value.get('pattern', ''), value.get('glob') or '') if x)
+    target = value.get(CLAUDE_TARGETS.get(name, ''), '')
+    return target if isinstance(target, str) and target else json.dumps(value, ensure_ascii=False)
+
+
+def result_text(content):
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return ''.join(c.get('text', '') if isinstance(c, dict) else str(c) for c in content)
+    return json.dumps(content, ensure_ascii=False)
+
+
+def claude_tokens(result):
+    """API usage of the whole run from its result event, summed over models when per-model usage is present."""
+    models = (result or {}).get('modelUsage') or {}
+    if models:
+        total = lambda key: sum(m.get(key) or 0 for m in models.values())
+        uncached, cached, output = (total('inputTokens') + total('cacheCreationInputTokens'),
+                                    total('cacheReadInputTokens'), total('outputTokens'))
+    else:
+        usage = (result or {}).get('usage') or {}
+        if not usage:
+            return {'uncached_input': None, 'cached_input': None, 'output': None, 'source': 'no result event'}
+        uncached = (usage.get('input_tokens') or 0) + (usage.get('cache_creation_input_tokens') or 0)
+        cached, output = usage.get('cache_read_input_tokens'), usage.get('output_tokens')
+    return {'uncached_input': uncached, 'cached_input': cached, 'output': output,
+            'source': 'Claude Code stream-json result event (API usage); cache writes count as uncached input'}
+
+
+def stamp(value):
+    try:
+        return datetime.fromisoformat(value.replace('Z', '+00:00')).timestamp()
+    except (AttributeError, ValueError):
+        return None
+
+
+def inspect_claude(stream, root, allow=()):
+    """Same view as inspect() for a Claude Code stream-json run, plus tool-call counts and work time.
+
+    Assistant and user events carry timestamps; action times count from the first of them. Work time is the result
+    event's duration (a -p run is one turn with no idle wait), else the span of the timestamps."""
+    lines = Path(stream).read_bytes().splitlines()
+    stamps = []
+    root = os.path.normpath(root)
+    allow = [os.path.normpath(a) for a in allow]
+    norm = lambda s: UUID.sub('<UUID>', s.replace(root, '<ROOT>'))
+    startup, actions, messages, compactions, outputs = {}, [], [], 0, {}
+    result, session_id, first = None, None, None
+    for i, raw in enumerate(lines):
+        try:
+            e = json.loads(raw)
+        except ValueError:
+            continue
+        at = stamp(e.get('timestamp'))
+        if at is not None:
+            stamps.append(at)
+            first = at if first is None else first
+        kind = e.get('type')
+        if kind == 'system' and e.get('subtype') == 'init':
+            session_id = e.get('session_id')
+            # tools, MCP servers, model and mode are what this run started with; they must match across instances
+            startup['init'] = hashlib.sha256(norm(json.dumps({k: e.get(k) for k in (
+                'tools', 'mcp_servers', 'model', 'permissionMode', 'slash_commands', 'agents', 'skills', 'plugins')},
+                sort_keys=True, ensure_ascii=False)).encode()).hexdigest()[:16]
+            startup['claude_code_version'] = e.get('claude_code_version')
+            continue
+        if kind == 'system' and e.get('subtype') == 'compact_boundary':
+            compactions += 1
+            continue
+        if kind == 'result':
+            result = e
+            continue
+        content = (e.get('message') or {}).get('content')
+        if not isinstance(content, list):
+            if kind == 'user' and isinstance(content, str):
+                messages.append({'event': i, 'role': 'user', 'text': content})
+            continue
+        for block in content:
+            btype = block.get('type')
+            if kind == 'assistant' and btype == 'tool_use':
+                name, value = block.get('name'), block.get('input') or {}
+                text = claude_text(name, value)
+                reasons = [] if name in CLAUDE_KNOWN else [f'unknown tool {name}']
+                target = value.get(CLAUDE_TARGETS.get(name, ''), '') if name != 'Bash' else ''
+                if isinstance(target, str) and target.startswith('/') and not any(
+                        inside(target, r) for r in (root, *allow)):
+                    reasons.append(f'target outside root: {target}')
+                elif isinstance(target, str) and target and not target.startswith('/') and not inside(
+                        os.path.join(root, target), root):
+                    reasons.append(f'.. escapes root: {target}')
+                reasons += [r for r in path_reasons(text, root, root, allow) if r not in reasons
+                            and not (r.startswith('outside root: ') and f'target outside root: {r[14:]}' in reasons)]
+                reasons += [label for rx, label in RISKY if rx.search(text)]
+                time_text = '' if at is None or first is None else f'+{at - first:.0f}s'
+                actions.append({'n': len(actions) + 1, 'event': i, 'time': time_text, 'tool': name, 'workdir': '',
+                                'text': text, 'call_id': block.get('id'), 'reasons': reasons})
+            elif kind == 'assistant' and btype == 'text':
+                messages.append({'event': i, 'role': 'assistant', 'text': block.get('text', '')})
+            elif kind == 'user' and btype == 'tool_result':
+                outputs[block.get('tool_use_id')] = (result_text(block.get('content')), bool(block.get('is_error')))
+            elif kind == 'user' and btype == 'text':
+                messages.append({'event': i, 'role': 'user', 'text': block.get('text', '')})
+    for a in actions:
+        out, error = outputs.get(a['call_id'], (None, False))
+        a['output_chars'] = None if out is None else len(out)
+        a['exit'] = 'error' if error else ''
+        if out is None:
+            a['reasons'].append('no result')
+        elif error and CLAUDE_DENIED.search(out[:2000]) or DENIED.search(out[:2000]):
+            a['reasons'].append('denied/permission in result')
+        a['output'] = out
+    for m in messages:
+        m['flag'] = m['role'] != 'assistant' or len(m['text']) > 2000
+    counts = {}
+    for a in actions:
+        counts[a['tool']] = counts.get(a['tool'], 0) + 1
+    duration = (result or {}).get('duration_ms')
+    span = max(stamps) - first if stamps else None
+    return {'session': str(stream), 'threadId': session_id, 'source': 'claude-code stream-json', 'thread_source': None,
+            'root': root, 'startup': startup, 'handoff_found': 'init' in startup, 'compactions': compactions,
+            'actions': actions, 'messages': messages,
+            'final': (result or {}).get('result', messages[-1]['text'] if messages else None),
+            'tool_calls': len(actions), 'tool_call_counts': counts,
+            'work_seconds': duration / 1000 if type(duration) in (int, float) else span,
+            'work_time_source': 'result duration_ms' if type(duration) in (int, float) else (
+                'event timestamp span' if span is not None else None),
+            'stream_span_seconds': span, 'result_subtype': (result or {}).get('subtype'),
+            'num_turns': (result or {}).get('num_turns'),
+            'permission_denials': len((result or {}).get('permission_denials') or []), 'tokens': claude_tokens(result)}
+
+
 def one_line(s, n=LINE_CHARS):
     s = ' '.join(s.split())
     return s if len(s) <= n else s[:n] + f' …(+{len(s) - n})'
@@ -171,7 +317,10 @@ def render(r, out):
              f"- 会话：`{r['session']}`", f"- 根目录 `<ROOT>`：`{r['root']}`",
              f"- 来源：{r['source']} / {r['thread_source']}；找到交接：{r['handoff_found']}；压缩 {r['compactions']} 次",
              f"- 启动上下文 SHA（`<ROOT>`、UUID、日期、codex-home 路径已归一，跨实例应一致）：`{json.dumps(r['startup'], ensure_ascii=False)}`",
-             f"- 工具调用 {len(r['actions'])} 次，标记 {sum(bool(a['reasons']) for a in r['actions'])} 次",
+             f"- 工具调用 {len(r['actions'])} 次，标记 {sum(bool(a['reasons']) for a in r['actions'])} 次"
+             + (f"；按工具 {json.dumps(r['tool_call_counts'], ensure_ascii=False)}；工作时间 "
+                f"{'未知' if r['work_seconds'] is None else format(r['work_seconds'] / 60, '.1f') + ' 分钟'}（{r['work_time_source']}）"
+                if 'tool_call_counts' in r else ''),
              '', '## 动作', '']
     for a in r['actions']:
         flag = f"  **FLAG**: {'; '.join(a['reasons'])}" if a['reasons'] else ''
@@ -205,12 +354,21 @@ def render(r, out):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--session', required=True, type=Path, help='Native rollout JSONL')
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument('--session', type=Path, help='Native rollout JSONL')
+    source.add_argument('--claude-stream', type=Path, help='Claude Code stream-json output (needs --root)')
     parser.add_argument('--root', help='Scenario root; defaults to the session cwd')
     parser.add_argument('--allow', action='append', default=[], help='Extra allowed path (repeatable)')
     parser.add_argument('--out', required=True, type=Path)
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
+    if args.claude_stream:
+        if not args.root:
+            parser.error('--claude-stream needs --root (the isolated working directory)')
+        summary = render(inspect_claude(args.claude_stream, args.root, args.allow), args.out)
+        print(json.dumps({k: summary[k] for k in ('threadId', 'tool_calls', 'work_seconds', 'compactions',
+                                                  'flagged_actions', 'flagged_messages')}, ensure_ascii=False))
+        return
     others = sorted(set(args.session.parent.glob('rollout-*.jsonl')) - {args.session})
     summary = render(inspect(args.session, args.root, args.allow), args.out)
     summary['other_sessions_same_day'] = [
