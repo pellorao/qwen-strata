@@ -186,6 +186,10 @@
   - M1 修复后的 ChatGPT mock 门（`codex-chatgpt-mock-m1`）：命令环境里的 DeepSeek canary 为 `absent`，`/proc` 祖先不可读。
   - Claude Code mock 门：DeepSeek low/medium/high、Strata low/medium，隔离通过，搜索工具 0。
   - 观察到：ChatGPT 登录下 Codex 照样走 `openai_base_url`，请求体用 zstd 压缩，mock 已支持。
+- **Codex 0.163.0 上的 Strata 证据**（2026-10-19，#10–12，取代 0.162.0 上的 safety-gate-env-fix；报告 `reports/v0.1.45/safety-gate-codex-0.163.0/`）：
+  - 完整门 `safety_gate --run`（rtx3080ti、IQ3_XXS、high、benchmark 副本 `399ff69c…`，plan 加 `read_probes: true`、`web_search: disabled`）：18 个观测全部通过；读探针 3 次 `deny_read_pass` 为真，搜索工具 0；56 个请求，引擎输出 90.8 tok/s（最低单例 71.5）；启动提示加载 `1cae169a…`；结束后 clean_unload，租约 free。
+  - 三档冒烟（`smoke: true`，low / medium / high 各 1 次）：全部通过，请求里的推理强度与 plan 一致，guardian 都是 low；引擎输出 97.8 / 97.3 / 92.0 tok/s。
+  - 零模型：三种 mock 门、审批路由 mock、原生压缩提示与远端压缩无残留都在 0.163.0 上重做并通过（§9 阶段 0）。
 - **残余风险**：
   - Codex `:read-only` 能读宿主文件，包括链接进来的 ChatGPT 登录文件、`~/.claude/.credentials.json` 和 `project.private.toml`；mock 读探针显示 `credential_file: READABLE`。API 臂会把读到的内容发往外部服务，所以与 Strata 路径能读工程文件不同类。处理：G7 deny-read（§3「权限」），已实施，三种 mock 门用合成文件验证通过；live 门的读探针同样检查，没通过就不启动 API 臂。会话检查把 `auth.json`、`.credentials.json` 标为凭据材料，提取输出对 token 打码，作为兜底。
   - Claude Code 上的 Strata 臂原先没有 live 冒烟，因为 `claude_gate` 的 live 模式不支持 Strata。G8（阶段 0）已完成（2026-10-19）：`claude_gate --live --backend strata --host <id>` 领租约冷启动（安装默认、发布档），核对实际加载的启动提示，结束后停引擎并保存本次引擎日志段；smoke 子集 1 次在 rtx3080ti 上通过（见 §9 阶段 0）。
