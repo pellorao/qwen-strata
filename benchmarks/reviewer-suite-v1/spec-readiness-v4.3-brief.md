@@ -39,10 +39,10 @@
 - 第 2、3 轮审计补充（m1、m2、m5，冻结前补齐，冻结后改 brief 就不能沿用已有裁决）：
   - RM 键外疑点（m1）：`runtime-migration.md:5`（Scope 只写 reader guide）与 Requirements 的"不一致"或"migration 未定义"，判 `unsupported`：Scope 未被选择，按 Role 只能作比较证据，不构成独立审查范围（Role 对未选章节的限制针对的是范围扩张：审查者不得把未选章节当作新的审查对象）；`:5` 说的是 reader guide 本身不拥有 runtime behavior，与 `:11` 的迁移要求不矛盾；判 `supported` 又会与"夹具不得含清单外受支持缺陷"冲突（第 2 轮建议 `supported`，第 3 轮改判，按第 3 轮执行）。选定 Requirements 把部分失败结果委托给未选 Interfaces 节（`access-review.md:15`、`promotion-runtime.md:11`、`promotion-recovery.md:19`）的 finding，判 `unsupported`。
   - MODULES 正例 1（m2）：上面的交接与传播表述清单加上 `promotion-recovery.md:11`（commit 失败后必须先完成 rollback attempt，而 Promotion 提前返回时不调用 Recovery）；MODULE-DESIGN 检查下判 matched，AP 中归到 REQUIREMENTS 的判 `supported`。
-  - SEAMS-ADAPTERS 正例 0 类 finding（Module 与 Adapter 重复授权策略）因证据含 `access-review.md:51` 而成为 INTERFACES 正例 1 的候选时，判 not-matched（m5，已有盲答实际出现）。
+  - SEAMS-ADAPTERS 正例 0 类 finding（Module 与 Adapter 重复授权策略）因证据含 `access-review.md:51` 而成为 INTERFACES 正例 1 的候选时，判 not-matched（m5，Opus 盲答已实际出现）。
   - 指出 Recovery Storage 成功形状缺失的 finding 判 `unsupported`：`promotion-recovery.md:57` 已给出精确的成功 `recoveryState`（第 3 轮审计修改后）。
-  - RM 的 REQUIREMENTS export-retention 问题用例（期望结果为 uncertain）：断言"target 是人工维护的文档、该节不适用"的 finding，关联候选判 `not-matched`；成为发现候选时判 `unsupported`，不选对应的 `problem-N`（v4 正式计分已定判例，v4.2 沿用）。判 gap、但理由与期望句相同的 finding 仍算匹配，结果分由评分规则扣除。
 
+- 原样段之外的已定判例：RM 的 REQUIREMENTS export-retention 问题用例（期望结果为 uncertain）：断言"target 是人工维护的文档、该节不适用"的 finding，关联候选判 `not-matched`；成为发现候选时判 `unsupported`，不选对应的 `problem-N`（v4 正式计分已定判例，v4.2 沿用）。判 gap、但理由与期望句相同的 finding 仍算匹配，结果分由评分规则扣除。
 - 只依据 Input 原文判断，不依据 finding 自称的严重程度或把握。
 
 ## 输出
