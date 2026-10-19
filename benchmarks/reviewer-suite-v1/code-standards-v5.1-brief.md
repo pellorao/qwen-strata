@@ -1,6 +1,6 @@
 # Code Standards v5.1（修订 25）盲裁 brief
 
-维护说明（给 Main，交给裁决者时去掉本段）：草稿（2026-10-19），未冻结。冻结前须经 Opus 核对与答案键一致，冻结后才用于正式盲裁；冻结后原样使用，只替换下文的 `<ADJ>`（调用方给出的裁决工作目录）与 `<名>`（池名）。格式对照已冻结的 [`commit-audit-v3-brief.md`](commit-audit-v3-brief.md)；起点是 Sonnet 试点的重建稿 `reports/v0.1.45/sonnet-adjudication-pilot/data/brief-cs51-template.md`，比它多了发现候选（`kind: "finding"`）的语义、代码 view 与中性规则。
+冻结件（2026-10-19），正式盲裁原样使用，只替换下文的 `<ADJ>`（调用方给出的裁决工作目录）与 `<名>`（池名）。
 
 你是盲裁决者。任务：对候选池中每个候选给出一个决定。你看不到候选来自哪个模型、哪次运行；不要试图推断。
 
@@ -28,6 +28,8 @@
 - 问题用例的期望句描述一个真实问题。finding 与它表达同一个问题（同一对象、同一错误含义）才算 `matched`；同一文件或同一规则下的另一个问题不算。finding 的结果类别（gap/uncertain）与期望不同，但所说的缺陷相同时仍算匹配，结果分由评分规则处理；裁决者不因结果类别改判。
 - 重复/近似代码类题（期望句说变更端与已有的另一处代码重复同一规则、常量或逻辑）：finding 只要指出变更端，并写出对端（符号名、文件基名或行号任一即可）且所说的对端与期望句一致，即可匹配；对端不必写行号（v5.1 改动一，用户 2026-10-15 确认）。只说变更端"可以抽取 helper"而没有指出对端的，不匹配。
 - 干净孪生：一部分干净用例的期望句说某处与仓库另一处看似相同、但规则或事实不同，不应合并（或不应复用）。finding 主张它们重复、要求合并或复用，即该干净用例的误报。
+- `extraCharges` 诱饵（答案键两个干净用例）：`buildLineItems` 的新参数 `extraCharges`（`src/billing/line-items.mjs:26`）由唯一调用方 `draftFor`（`src/billing/invoice-service.mjs`）传入；`previewInvoice`、`issueInvoice` 的 `extraCharges` 入口参数（`src/billing/invoice-service.mjs:22`、`src/billing/invoice-service.mjs:32`）与其他 service 入口一样由仓库外调用，餐饮入口 `memberInvoiceCharges`（`src/catering/catering-service.mjs:148`）用 `invoiceCharges`（`src/catering/catering-pricing.mjs:30`）构造这个输入。finding 主张 `extraCharges` 是投机选项、未被使用、没有调用方或应删除，即对应干净用例的误报：该干净用例在 `cleanTargets` 中被提名时判 `false-positive:clean-N`，未被提名时判 `unsupported`。
+- `memberId` 诱饵：`buildLineItems` 对 `extraCharges` 的每项去掉 `memberId`（`src/billing/line-items.mjs:32`）。`memberId` 只供 `isBilled` 按会员过滤，过滤后去掉，使附加项与经 `lineItemFor` 构造、同样不含 `memberId` 的预订行项字段一致；发票本身另记 `memberId`。finding 称这里丢失会员信息、行项不一致或应保留 `memberId`，没有依据，判 `unsupported`。
 - 中性规则（`code-standards-v5.md` §7）：被审变更范围内（`src/catering/` 的新文件，以及被修改的 3 个已有文件的全部内容）违反 `src/AGENTS.md` 或 Role 质量标准、核实成立而答案键没有的问题，判 `supported`，不算 `noOtherSupportedFinding` 失败，也不计分。只存在于未改动文件的既有问题（例如仓库已有的 `normalizeMemberId` 一类既有重复），按 Role 不扩展为 finding，判 `unsupported`；修法与某个干净用例所描述的成立做法相反的 finding：该干净用例在 `cleanTargets` 中被提名时判对应的 `false-positive:clean-N`，未被提名时判 `unsupported`。Main 之后会用可执行检查复核 `supported`。
 - 只依据规则、Role 与代码判断，不依据 finding 自称的严重程度或把握。
 

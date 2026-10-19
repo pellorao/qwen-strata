@@ -1,6 +1,6 @@
 # 多模型 benchmark v1 运行计划（定稿，待冻结）
 
-2026-10-19 定稿。依据：用户决定（`docs/plan.md`「多模型 benchmark」，三轮答复）、方案稿与独立审查（Opus high）。本计划按[运行计划](../../.claude/skills/run-plan/SKILL.md)的结构写成。独立审查（硬约束 1「重要决策」）已完成，意见和处理记在 §13。三份盲裁 brief 草稿（Code Spec v5、Code Standards v5.1、Spec Readiness v4.3）已按独立核对修改，尚未冻结。顺序固定为：在看到任何 benchmark 输出之前冻结 brief → 用冻结 brief 做单名 Opus 盲裁（§6.2；用户 2026-10-19 决定不改双裁）。
+2026-10-19 定稿。依据：用户决定（`docs/plan.md`「多模型 benchmark」，三轮答复）、方案稿与独立审查（Opus high）。本计划按[运行计划](../../.claude/skills/run-plan/SKILL.md)的结构写成。独立审查（硬约束 1「重要决策」）已完成，意见和处理记在 §13。三份盲裁 brief（Code Spec v5、Code Standards v5.1、Spec Readiness v4.3）已按独立核对修改，2026-10-19 在看到任何 benchmark 输出之前冻结（[versions.md](../reviewer-suite-v1/versions.md)）。顺序固定为：在看到任何 benchmark 输出之前冻结 brief → 用冻结 brief 做单名 Opus 盲裁（§6.2；用户 2026-10-19 决定不改双裁）。
 
 ## 1. 目的
 
