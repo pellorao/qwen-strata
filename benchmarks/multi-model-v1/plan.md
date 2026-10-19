@@ -422,6 +422,7 @@
   - **缺陷**：`arw_measure.observe_review` 只在 ARW 掌管预算（`model_owner arw`）时检测早退暂停消息。API 路径不设时限，暂停之后会一直空等。
   - **修法**：各路径都检测这条消息；API 路径检测到后保存暂停记录 `result.json`，按 S2 收尾。新增零模型单测：脚本化的 machine，`model_owner api`，旧代码会一直空等（超时），新代码会停下。`run_one`（sha256 `d369e01c…6759`）运行中监视暂停消息：一出现就写 `ARW_PAUSED`，并把这一格写进 `.tmp/bench-openai-1020/stop-cells.txt`；收尾时清理掉 runtime，记录 `s2_paused`。已列入 stop-cells 的格子不再开新实例，调度器走现有的 arw_pause 分支停这一格。
   - **a3 的情况**：模型连续 10 个回合正常结束都没交付报告，ARW 于 08:05 暂停。模型最后自报 `{"status":"incomplete", …"The bound report remains empty."}`，3 个 `review.jsonl` 都是 0 字节。现场（rollout、`machine.jsonl`、运行中的 prep）复制到 `ca/luna-high-a3/scene/` 后，08:18 结束进程组，收尾记录由 worker 按同样字段写入（运行中的 run_one 是旧版本）。a3 不计分也不作废，记为 `s2_paused`，计分方式交用户定。luna-high 这一格到此停下，待用户定；a4、a5 有效，a6 已自然跑完（无效，原因是一次上游传输错误）。
+  - **传输错误**（Main 决定）：判据不改，仍按 L494（M2）执行：relay 有传输错误即判无效、重跑，与 Anthropic 臂 L347 一致。另记字段 `recovered_transport_error`：有传输错误、且每次之后都有 completed 的 200 回复（即 harness 自己重试成功）时为 true，只作记录，不改判定。luna-high-a6 和 luna-medium-a4 都是 true。`run_one` sha256 `42342746…7a23`。
 
 - 2026-10-20 06:40–06:50，#10–12（Codex 上的 Strata）的 ARW prep 改放 /tmp，与 OpenAI 臂同一布局（Main 指示；尚未开跑，没有实例受影响）：
   - **已证实无效，未用于任何正式实例**（Main 10-20 撤回）：OpenAI 臂实测 prep 放 /tmp 后仍出现空目录。真实 ARW 的报告目录嵌在场景仓库（如 `ca/1`）下的 `.tmp/codex/…` 里，扁平布局的 stubtest 覆盖不到。#10–12 暂停，等真实嵌套布局下的成因和修法审查通过。以下为当时的方案记录。
