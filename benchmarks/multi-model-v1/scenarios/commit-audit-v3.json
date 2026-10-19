@@ -1,0 +1,24 @@
+{
+ "schema": "arw-dimension-v1",
+ "host": "none (Claude Code API arm; no Strata)",
+ "model": "claude-code-api-arm",
+ "reviewer": "commit-audit-reviewer",
+ "authorization": {
+  "approved": true,
+  "source": "多模型 benchmark（benchmarks/multi-model-v1/plan.md）Anthropic 臂；冻结记录 benchmarks/multi-model-v1/anthropic-freeze.md",
+  "scope": "只用于 ARW 零模型 prepare（冻结 manifest 与测量说明）；模型、强度、时限由 tools.reviewer.claude_scenario 的参数给出"
+ },
+ "method": "tools.reviewer.claude_scenario：arw_dimension.prepare → 场景根副本为工作目录 → claude_headless.run（Claude Code 2.1.303 benchmark 副本）",
+ "fixed_conditions": {
+  "codex": "0.162.0",
+  "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
+  "effort": "per configuration (claude_scenario --effort)",
+  "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest-commit-audit-v3.json",
+  "arw_source_manifest_sha256": "56a95344f07e1e0ca7626369174f8d0d213cda2ef862ca7c477b5e73780ccafc",
+  "measurement_note_path": "benchmarks/reviewer-suite-v1/measurement-note-commit-audit.txt",
+  "measurement_note_sha256": "35e135fdd18ea07aba99b55ff662e1776cdded1b141f44a47bf77a5132d3d90d"
+ },
+ "codex_thread_id": "59773751-09d2-4c7d-8189-46ed8c9e2164",
+ "dimensions": [],
+ "derived_from": "benchmarks/reviewer-suite-v1/commit-audit-v3-iq3_xxs-2026-10-18-v0.1.45/plan.json"
+}

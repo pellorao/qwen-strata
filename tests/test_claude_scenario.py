@@ -45,6 +45,14 @@ class ClaudeScenarioTest(unittest.TestCase):
         result['summary']['service_tiers'] = {'not-returned': 2}
         result['summary']['server_web_requests'] = 1
         self.assertFalse(cs.checks(result, 'claude-opus-5-5', False)['valid'])
+        result['summary']['server_web_requests'] = 0
+        self.assertTrue(cs.checks(result, 'claude-opus-5-5', False)['valid'])
+        stopped = dict(result, exit=-15, hard_interrupt=True, summary=dict(result['summary'], result_event=False))
+        self.assertTrue(cs.checks(stopped, 'claude-opus-5-5', False)['valid'])
+        changed = dict(result, changed_files=['r/review.jsonl', 'package.json', '.env.local', '.git/info/exclude', 'src/x.js'])
+        self.assertEqual(cs.checks(changed, 'claude-opus-5-5', False, 'r')['unexpected_changes'], ['src/x.js'])
+        failed = dict(result, exit=1)
+        self.assertFalse(cs.checks(failed, 'claude-opus-5-5', False)['valid'])
 
 
 if __name__ == '__main__':

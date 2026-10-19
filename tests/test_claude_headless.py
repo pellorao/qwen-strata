@@ -64,6 +64,15 @@ class RunnerBuildersTest(unittest.TestCase):
         self.assertEqual(fs['denyWrite'], [str(w / '.tmp/cap/request.json'), str(w / '.tmp/other'),
                                            str(w / 'inputs'), str(w / 'report')])
 
+    def test_git_directory_stays_creatable_its_entries_denied(self):
+        (self.work / '.git/info').mkdir(parents=True)
+        (self.work / '.git/config').write_text('')
+        fs = ch.settings(self.work, ['report'], {})['sandbox']['filesystem']
+        w = self.work.resolve()
+        self.assertIn(str(w / '.git/config'), fs['denyWrite'])
+        self.assertIn(str(w / '.git/info'), fs['denyWrite'])
+        self.assertNotIn(str(w / '.git'), fs['denyWrite'])  # the sandbox stubs .git/config.lock inside it
+
     def test_command_flags_are_shared_and_startup_only_for_anthropic(self):
         s = ch.settings(self.work, ['report'], {})
         a = ch.command('anthropic', 'opus', 'high', self.work, ['report'], s)

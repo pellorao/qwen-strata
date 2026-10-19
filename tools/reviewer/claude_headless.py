@@ -156,8 +156,11 @@ def outside_grants(folder, targets):
         r = p.resolve()
         if any(r == t or t in r.parents for t in targets):
             continue
-        if p.is_dir() and not p.is_symlink() and any(r in t.parents for t in targets):
-            denied += outside_grants(p, targets)
+        if p.is_dir() and not p.is_symlink() and (p.name == '.git' or any(r in t.parents for t in targets)):
+            # `.git` itself stays writable for new entries only: with CLAUDE_CODE_SUBPROCESS_ENV_SCRUB Claude Code
+            # mounts empty stubs such as .git/config.lock, and bwrap cannot create them in a read-only .git (every
+            # sandboxed command then fails, 2026-10-19). Its existing entries are denied one by one.
+            denied += outside_grants(p, targets) if p.name != '.git' else [str(c) for c in sorted(p.iterdir())]
         else:
             denied.append(str(p))
     return denied

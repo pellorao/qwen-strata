@@ -8,8 +8,10 @@ session as ARW's one-root-thread-per-instance rule) runs once through tools.revi
   the request files' absolute draft path are rewritten to the copy, Spec Readiness' host-relative draft path to the
   root-relative one;
 - only the report's directory is writable; the report is copied back to the prepared `reportPath` for scoring.
-Each handoff's record gets `checks`: the returned model IDs against the bound ID (plan §2 match rule), service tiers
-(S5), server web requests, startup prompt off, completion.
+Each handoff's record gets `checks`: the returned model IDs against the bound ID (plan §2 match rule; a safeguards
+refusal fallback to another model fails it), service tiers (S5), server web requests, startup prompt off, and a normal
+end (a stop at the hard limit stays valid; an API or transport error does not). With `--time-limit-seconds T` the
+hard stop is T and the reminder comes at ARW's lead before it.
 
     python3 -m tools.reviewer.claude_scenario --plan <plan.json> --out .tmp/<work>/<run> --model claude-opus-5-5 \\
         --effort high --label <label> --claude <binary> --no-startup-prompt --no-compact-prompt [--handoffs 2]
@@ -27,6 +29,10 @@ from tools.reviewer import claude_headless as ch
 from tools.reviewer.wsl_client import ROOT, save
 
 TIERS_OK = {'default', 'standard', 'not-returned'}
+# Empty stubs Claude Code itself creates in the working directory with CLAUDE_CODE_SUBPROCESS_ENV_SCRUB (listed in
+# .git/info/exclude by the harness, which also adds .git/commondir and .git/config.worktree); recorded, not the model's.
+HARNESS_STUBS = re.compile(r'(\.env(\.[a-z]+)*|\.gitmodules|\.npmrc|\.yarnrc(\.yml)?|bunfig\.toml|package(-lock)?\.json|'
+                           r'pnpm-lock\.yaml|yarn\.lock|\.git/(commondir|config\.worktree|info/exclude))')
 
 
 def prompt_text(handoff, note):
@@ -60,14 +66,15 @@ def stage(handoff, prompt, work, stage_dir):
         raise ValueError('The prompt does not name the scenario root')
     relative = str(Path(report).relative_to(root))
     host = host_relative(report, root)
+    prompt = prompt.replace(root, str(work))  # absolute paths first: the host-relative path is a suffix of them
     hosts = prompt.count(host)
-    prompt = prompt.replace(host, relative).replace(root, str(work))
+    prompt = prompt.replace(host, relative)
     if root in prompt or re.search(r'/home/pello', prompt):
         raise ValueError('The prompt still names a path under /home')
     return prompt, {'rewritten_requests': rewritten, 'host_relative_replaced': hosts, 'report': relative}
 
 
-def checks(result, model, startup):
+def checks(result, model, startup, report_dir=None):
     """Per-run validity: plan §2 model match (exact or a date suffix), §3 tiers, search and startup prompt."""
     summary = result.get('summary') or {}
     returned = sorted({*(summary.get('modelUsage') or {}), *([summary['init']['model']] if summary.get('init') else [])})
@@ -79,13 +86,23 @@ def checks(result, model, startup):
            'completed': result.get('exit') == 0 and not result.get('hard_interrupt') and summary.get('result_event') is True
            and not summary.get('is_error'),
            'startup_prompt_off': not startup}
-    out['valid'] = (out['model_match'] and out['tier_ok'] and out['server_web_requests'] == 0 and out['startup_prompt_off'])
+    # A run stopped at the hard limit stays valid (scored on what it wrote, as ARW); any other abnormal end (API or
+    # transport error, non-zero exit) is invalid and rerun.
+    # Files changed outside the report directory other than the harness stubs: recorded for the session check (the
+    # sandbox lets commands create new files in the report's ancestor directories, never change existing ones).
+    out['unexpected_changes'] = [f for f in result.get('changed_files') or []
+                                 if not (report_dir and f.startswith(report_dir + '/')) and not HARNESS_STUBS.fullmatch(f)]
+    out['ended_normally'] = out['completed'] or bool(result.get('hard_interrupt'))
+    out['valid'] = (out['model_match'] and out['tier_ok'] and out['server_web_requests'] == 0 and out['startup_prompt_off']
+                    and out['ended_normally'])
     return out
 
 
 def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_LIMIT, time_limit=None,
         startup=False, compact=False, dry_run=False, backend='anthropic'):
     from tools.tuning.arw_dimension import load_plan, prepare
+    if time_limit is not None:
+        limit = time_limit  # the note's limit is the hard stop; the reminder follows ARW's lead (reminder_time)
     out = Path(out).resolve()
     out.mkdir(parents=True, exist_ok=False)
     plan = load_plan(Path(plan_path))[0]
@@ -116,7 +133,7 @@ def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_
             shutil.copyfile(produced, target)
         record.update(report_exists=produced.exists(),
                       report_sha256=hashlib.sha256(produced.read_bytes()).hexdigest() if produced.exists() else None,
-                      wall_seconds=result.get('wall_seconds'), checks=checks(result, model, startup))
+                      wall_seconds=result.get('wall_seconds'), checks=checks(result, model, startup, report_dir))
         records.append(record)
         save(out / 'instance.json', {'plan': str(plan_path), 'model': model, 'effort': effort, 'label': label,
                                      'handoffs': records})
@@ -135,7 +152,8 @@ if __name__ == '__main__':
     parser.add_argument('--claude', required=True, help=f'The benchmark Claude Code binary ({ch.CLAUDE_VERSION}).')
     parser.add_argument('--handoffs', type=int, default=1)
     parser.add_argument('--limit', type=int, default=ch.HARD_LIMIT, help='Hard limit per handoff in seconds (ARW 3600).')
-    parser.add_argument('--time-limit-seconds', type=int, help='Review time limit rendered into a time-limited note.')
+    parser.add_argument('--time-limit-seconds', type=int,
+                        help='Review time limit rendered into a time-limited note; also the hard stop (overrides --limit).')
     parser.add_argument('--no-startup-prompt', action='store_true')
     parser.add_argument('--no-compact-prompt', action='store_true')
     parser.add_argument('--dry-run', action='store_true', help='Prepare and stage only; no model run.')
