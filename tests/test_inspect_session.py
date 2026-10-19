@@ -117,6 +117,13 @@ class InspectSessionTest(unittest.TestCase):
         self.assertEqual(a['startup']['developer@1'], b['startup']['developer@1'])
         self.assertNotEqual(a['startup']['developer@1'], c['startup']['developer@1'])
 
+    def test_startup_sha_ignores_codex_arg0_directory(self):
+        a = self.run_session(developer='<path>/h/codex-home/tmp/arg0-linux/codex-arg08p0Hjt</path>')
+        b = self.run_session(developer='<path>/h/codex-home/tmp/arg0-linux/codex-arg0HGVGOv</path>')
+        c = self.run_session(developer='<path>/h/codex-home/tmp/arg0-linux/other</path>')
+        self.assertEqual(a['startup']['developer@1'], b['startup']['developer@1'])
+        self.assertNotEqual(a['startup']['developer@1'], c['startup']['developer@1'])
+
 
 if __name__ == '__main__':
     unittest.main()

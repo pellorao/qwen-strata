@@ -406,6 +406,18 @@
   - **补丁 A 是必需的**：4 个实例的 ca/1 报告目录全都留下了四个占位目录，都被补丁放过。Codex 0.163 在真实负载下几乎每次都会留下这些目录，不打补丁就跑不了。
   - **运行脚本**：`run_one.py` sha256 `19518faf…4d79`，取代 `751d691a…68a3`。`schedule.py` `cc426573…3cf15a989c`，新增续跑功能：已有实例保留原编号、尝试次数和有效判定，`reclassified` 优先，每个有效实例从队列里扣掉一次。
 
+- 2026-10-20 07:58，OpenAI 臂 CA 启动上下文守卫误报，作废 3 个实例：
+  - **经过**：luna-medium-a2 结束后，调度器发现同一 cell 内的启动上下文不一致，于是停止调度，并结束了运行中的 luna-high-a1、luna-high-a2、luna-low-a2。这 3 个实例都发出了模型请求（relay 记录分别为 17、24、13 条），按作废处理，不计入尝试次数。它们的 /tmp prep 复制到了各自目录下的 `prep-killed/` 留作现场，/tmp 中的原件已删除。
+  - **原因是两处误报**：
+    - 调度器比较的是整个 startup 字典，里面的 ARW `messageId` 本来就每次不同。
+    - `user@3`（AGENTS.md 加权限说明）里，Codex 的权限配置列出了每个进程各自的 arg0 临时目录 `codex-arg0XXXXXX`（mkdtemp 生成的随机后缀）。除了这一处，内容逐字相同。
+  - **修正**：
+    - `tools/reviewer/inspect_session.py` 把 `codex-arg0` 后面的随机后缀归一化，并新增单测。
+    - 调度器比较时去掉 `messageId`。
+    - 续跑时用已完成实例重算的启动哈希做基准，写在 `startup_recheck` 字段，原值保留。6 个有效实例重算后，在各自 cell 内一致；跨模型只有 `base_instructions` 不同，这是模型自带的。
+    - 续跑时，没有 instance.json 的目录也占用编号。
+  - **运行脚本**：`schedule.py` sha256 `695b2f39…c04f`。
+
 - 2026-10-20 06:40–06:50，#10–12（Codex 上的 Strata）的 ARW prep 改放 /tmp，与 OpenAI 臂同一布局（Main 指示；尚未开跑，没有实例受影响）：
   - **已证实无效，未用于任何正式实例**（Main 10-20 撤回）：OpenAI 臂实测 prep 放 /tmp 后仍出现空目录。真实 ARW 的报告目录嵌在场景仓库（如 `ca/1`）下的 `.tmp/codex/…` 里，扁平布局的 stubtest 覆盖不到。#10–12 暂停，等真实嵌套布局下的成因和修法审查通过。以下为当时的方案记录。
   - **原因**：Codex 0.163.0 的 bubblewrap 在可写根里给受保护的名字建 synthetic mount target，工作区在工程盘且是 git 根时，`.git`、`.codex`、`.agents`、`.aws` 空目录留在报告目录里，ARW 收尾判"报告目录只能有绑定报告"失败。Strata 路径的零模型对照（Strata mock，`.tmp/bench-strata-1019/stubtest/`，仿 `.tmp/bench-openai-1020/stubtest/`）：工程盘 + git 根，报告目录多出这 4 个空目录；工程盘无 git、/tmp + git 根、/tmp 无 git 都不出现。`arw_dimension.prepare` 会把 ARW checkout `git init`，所以 #10–12 的正式路径会撞上。

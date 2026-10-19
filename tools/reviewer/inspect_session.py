@@ -53,6 +53,8 @@ UUID = re.compile(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
 # per-instance Codex home holding the platform skills
 DATE = re.compile(r'\b\d{4}-\d{2}-\d{2}\b')
 CODEX_HOME = re.compile(r'\S*/codex-home/')
+# Codex's per-process arg0 helper directory (mkdtemp suffix) named in the permission profile (2026-10-20)
+ARG0 = re.compile(r'codex-arg0[A-Za-z0-9]{6}\b')
 
 
 def inside(path, root):
@@ -113,7 +115,7 @@ def inspect(session, root=None, allow=()):
     allow = [os.path.normpath(a) for a in allow]
     norm = lambda s: UUID.sub('<UUID>', s.replace(root, '<ROOT>'))
     sha = lambda s: hashlib.sha256(
-        DATE.sub('<DATE>', CODEX_HOME.sub('<CODEX_HOME>/', norm(s))).encode()).hexdigest()[:16]
+        ARG0.sub('codex-arg0<RAND>', DATE.sub('<DATE>', CODEX_HOME.sub('<CODEX_HOME>/', norm(s)))).encode()).hexdigest()[:16]
     startup = {'base_instructions': sha(json.dumps(meta.get('base_instructions'), ensure_ascii=False))}
     handoff_seen = False
     actions, flagged, messages, compactions = [], [], [], 0
