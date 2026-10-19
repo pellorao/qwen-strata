@@ -461,11 +461,13 @@ if __name__ == '__main__':
     parser.add_argument('--no-startup-prompt', action='store_true', help='API backends without the startup prompt (benchmark).')
     parser.add_argument('--subset', choices=('full', 'smoke'), default='full')
     parser.add_argument('--label', help='Quota ledger label for a live gate (estimate.sh --add-stream).')
+    parser.add_argument('--claude', default=ch.CLAUDE, help=f'Claude Code binary; must report version {ch.CLAUDE_VERSION}.')
     args = parser.parse_args()
+    found = ch.pinned_binary(args.claude)
     if args.live and args.backend == 'strata':
         raise SystemExit('A live gate runs an API backend; the Strata arm uses the same command shape')
     if not args.live and os.environ.get(NETNS_FLAG) != '1':
         raise SystemExit(in_network_namespace([sys.executable, '-m', 'tools.safety.claude_gate', *sys.argv[1:]]))
-    print(json.dumps(gate(args.out, args.backend, args.model, args.effort, args.repeat, args.live, label=args.label,
-                          startup=not args.no_startup_prompt, subset=None if args.subset == 'full' else args.subset),
-                     ensure_ascii=False))
+    summary = gate(args.out, args.backend, args.model, args.effort, args.repeat, args.live, claude=args.claude,
+                   label=args.label, startup=not args.no_startup_prompt, subset=None if args.subset == 'full' else args.subset)
+    print(json.dumps({**summary, 'claude': found}, ensure_ascii=False))

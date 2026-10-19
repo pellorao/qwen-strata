@@ -39,8 +39,10 @@ SECRETS = [
     re.compile(r'eyJ[\w-]{8,}\.[\w-]{8,}\.[\w-]*'),                       # JWT
     re.compile(r'(?i)(bearer\s+)[\w.~+/=-]{12,}'),
     re.compile(r'\bsk-[\w-]{16,}'),
-    re.compile(r'(?i)("(?:access_token|refresh_token|id_token|api_key|OPENAI_API_KEY|auth_token)"\s*:\s*")[^"]{8,}(")'),
-    re.compile(r'(?i)\b((?:ANTHROPIC_AUTH_TOKEN|ANTHROPIC_API_KEY|[A-Z_]*API_KEY)=)\S{8,}'),
+    # JSON, Python-repr and escaped-in-a-string spellings: "k": "v", 'k': 'v', \"k\": \"v\"
+    re.compile(r"""(?i)(\\?["'](?:access_token|refresh_token|id_token|api_key|OPENAI_API_KEY|auth_token)\\?["']\s*:\s*\\?["'])"""
+               r"""[^"'\\]{8,}(\\?["'])"""),
+    re.compile(r'(?i)\b((?:ANTHROPIC_AUTH_TOKEN|[A-Z_]*API_KEY|[A-Z_]*PASSWORD)=)\S{8,}'),
 ]
 DENIED = re.compile(r'sandbox denied|Operation not permitted|Permission denied|EPERM|EACCES|CreateProcess', re.I)
 UUID = re.compile(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')

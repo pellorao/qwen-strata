@@ -91,6 +91,19 @@ class RunnerBuildersTest(unittest.TestCase):
             ch.run(self.base / 'r', self.base / 'p.md', 'strata', 'qwen3.8-flash-next-iq3_xxs', 'high', 'x', compact=False,
                    base=self.base / 'w', record=False)
 
+    def test_cli_runs_only_the_gated_binary_and_records_its_hash(self):
+        fake = self.base / 'claude'
+        for version, ok in (('2.1.303 (Claude Code)', True), ('2.1.304 (Claude Code)', False)):
+            fake.write_text(f'#!/bin/sh\necho "{version}"\n')
+            fake.chmod(0o755)
+            if ok:
+                found = ch.pinned_binary(str(fake))
+                self.assertEqual((found['path'], found['version']), (str(fake.resolve()), version))
+                self.assertEqual(len(found['sha256']), 64)
+            else:
+                with self.assertRaises(SystemExit):
+                    ch.pinned_binary(str(fake))
+
     def test_deepseek_environment_names_the_model_everywhere(self):
         env = ch.environment('deepseek', 'medium', self.base / 'h', self.base / 'c',
                              ch.deepseek_environment('deepseek-flash', 'synthetic'))

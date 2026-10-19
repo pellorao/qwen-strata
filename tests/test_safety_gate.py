@@ -93,7 +93,7 @@ class SafetyGateTests(unittest.TestCase):
    values=config(root,root/'r.jsonl','http://127.0.0.1:1/v1',None,None,provider=provider)
    self.assertEqual(values['model_providers']['benchmark_openai']['base_url'],'http://127.0.0.1:1/v1')
    self.assertEqual(values['model_providers']['benchmark_openai']['env_key'],'BENCHMARK_OPENAI_API_KEY')
-   self.assertEqual(values['shell_environment_policy']['exclude'],['BENCHMARK_OPENAI_API_KEY','STRATA_API_KEY','STRATA_REMOTE_PASSWORD'])
+   self.assertEqual(values['shell_environment_policy']['exclude'],['BENCHMARK_OPENAI_API_KEY','BENCHMARK_DEEPSEEK_API_KEY','STRATA_API_KEY','STRATA_REMOTE_PASSWORD'])
    self.assertNotIn('model_context_window',values)
    tier={'context_window':206584,'auto_compact_token_limit':150000}
    strata=config(root,root/'r.jsonl','http://127.0.0.1:1/v1',None,tier)

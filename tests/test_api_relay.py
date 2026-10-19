@@ -10,8 +10,8 @@ from pathlib import Path
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from tools.reviewer.api_relay import Relay, load, tier_summary
-from tools.reviewer.providers import (api_provider, credential_present, link_login, provider_config, release_login,
-    shell_exclude)
+from tools.reviewer.providers import (api_provider, credential_present, link_login, process_environment, provider_config,
+    release_login, shell_exclude)
 from tools.safety.safety_gate import guardian_request, request_body, synthetic_login, web_search_tools
 
 SECRET='Bearer synthetic-secret-token'
@@ -68,7 +68,12 @@ class ChatgptLoginTests(unittest.TestCase):
             provider=self.provider(tmp)
             self.assertEqual((provider['auth'],provider['codex_id'],provider['env_key']),('chatgpt','openai',None))
             self.assertEqual(provider_config(provider,'http://127.0.0.1:9'),{'openai_base_url':'http://127.0.0.1:9'})
-            self.assertEqual(shell_exclude(provider),['STRATA_API_KEY'])
+            self.assertEqual(shell_exclude(provider),['BENCHMARK_DEEPSEEK_API_KEY','BENCHMARK_OPENAI_API_KEY','STRATA_API_KEY',
+                                                      'STRATA_REMOTE_PASSWORD'])
+            env={'BENCHMARK_DEEPSEEK_API_KEY':'d','BENCHMARK_OPENAI_API_KEY':'o','PATH':'/bin','STRATA_API_KEY':'s'}
+            self.assertEqual(process_environment(provider,env),{'PATH':'/bin','STRATA_API_KEY':'s'})
+            deepseek=api_provider({'provider':{'id':'deepseek','base_url':'https://api.deepseek.com'}})
+            self.assertEqual(sorted(process_environment(deepseek,env)),['BENCHMARK_DEEPSEEK_API_KEY','PATH','STRATA_API_KEY'])
             for bad in ({'id':'openai'},{'id':'openai','auth_home':'relative'},{'id':'openai','auth_home':tmp,'env_key':'X_KEY'},
                         {'id':'openai','auth_home':str(Path(__file__).resolve().parents[1]/'x')},
                         {'id':'deepseek','base_url':'https://api.deepseek.com','auth_home':tmp},

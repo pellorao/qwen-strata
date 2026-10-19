@@ -90,9 +90,23 @@ def provider_config(provider, base_url=None):
     return {'model_providers': {provider['codex_id']: provider_entry(provider, base_url)}}
 
 
+# Every credential variable this project knows of. Reviewer commands never see any of them, whichever provider runs:
+# a benchmark key set in the user's environment must not reach an OpenAI or Strata run (review 2026-10-19, M1).
+CREDENTIAL_VARIABLES = tuple(sorted({p['env_key'] for p in API_PROVIDERS.values()})) + (STRATA_KEY, 'STRATA_REMOTE_PASSWORD')
+
+
 def shell_exclude(provider):
-    """Variables Reviewer shell commands never see: the provider key, and the Strata key in every case."""
-    return [STRATA_KEY] if provider is None or not provider.get('env_key') else [provider['env_key'], STRATA_KEY]
+    """Variables Reviewer shell commands never see: the provider key first, then every known credential variable."""
+    own = [provider['env_key']] if provider and provider.get('env_key') else []
+    return own + [name for name in CREDENTIAL_VARIABLES if name not in own]
+
+
+def process_environment(provider, environ=None):
+    """Environment for a Codex process: other providers' benchmark keys removed, so Codex itself never holds a key it
+    does not use; the selected provider's key stays for Codex's env_key. Strata variables are left to their own rules."""
+    environ = dict(os.environ if environ is None else environ)
+    own = provider.get('env_key') if provider else None
+    return {k: v for k, v in environ.items() if not (k.startswith('BENCHMARK_') and k != own)}
 
 
 def credential_present(provider):

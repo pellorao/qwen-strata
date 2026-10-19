@@ -58,6 +58,7 @@ DISALLOWED = 'WebSearch,WebFetch'  # denied as well, whatever --tools lists (ben
 REMINDER_AFTER, HARD_LIMIT = LIMITS['initial']  # 3300 s, 3600 s
 ESTIMATE = Path.home() / '.claude/statusline/estimate.sh'
 CLAUDE = 'claude'
+CLAUDE_VERSION = '2.1.303'  # the version every gate and mock check was run on; the CLIs refuse any other
 AGENT = ROOT / 'scripts/wsl/qwen-agent'
 # Named directories, not top-level ones: Claude Code 2.1.303 left /home readable to sandboxed commands with denyRead
 # ["/home"], while /home/pello was denied (tools.safety.claude_gate, 2026-10-19). The working directory is re-opened
@@ -324,6 +325,21 @@ def account(stream, label, effort, out, estimate=ESTIMATE):
     return done.returncode
 
 
+def binary(claude=CLAUDE):
+    """Resolved path, SHA-256 and version of the Claude Code binary, recorded in every binding."""
+    path = Path(shutil.which(claude) or claude).resolve()
+    version = subprocess.run([str(path), '--version'], capture_output=True, text=True).stdout.strip()
+    return {'path': str(path), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'version': version}
+
+
+def pinned_binary(claude=CLAUDE, expected=CLAUDE_VERSION):
+    """The CLI entry points run only the gated version; an auto-update would otherwise change the harness unseen."""
+    found = binary(claude)
+    if found['version'].split()[0:1] != [expected]:
+        raise SystemExit(f"Claude Code {found['version']!r} at {found['path']} is not the gated {expected}")
+    return found
+
+
 def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=HARD_LIMIT, reminder_after=None,
         startup=True, tools=TOOLS, host=None, run_id=None, base=WORK_BASE, record=True, claude=CLAUDE, compact=True):
     if backend == 'strata' and not compact:
@@ -349,7 +365,7 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
                'writes': list(writes), 'limit_seconds': limit, 'reminder_after_seconds': reminder_after,
                'tools': tools, 'prompt_sha256': hashlib.sha256(prompt_text.encode()).hexdigest(),
                'compact_prompt_sha256': hashlib.sha256(COMPACT.read_bytes()).hexdigest() if compact else None,
-               'claude_version': subprocess.run([claude, '--version'], capture_output=True, text=True).stdout.strip()}
+               'claude': binary(claude)}
     if backend in ('anthropic', 'deepseek'):
         binding['startup_instructions'] = ({'enabled': True, 'placement': '--append-system-prompt',
                                             'sha256': startup_text()[1]} if startup else {'enabled': False})
@@ -446,8 +462,10 @@ if __name__ == '__main__':
                         help='API backends only: no project compact prompt (multi-model benchmark).')
     parser.add_argument('--tools', default=TOOLS)
     parser.add_argument('--host', help='Registered host for the Strata backend.')
+    parser.add_argument('--claude', default=CLAUDE, help=f'Claude Code binary; must report version {CLAUDE_VERSION}.')
     args = parser.parse_args()
+    pinned_binary(args.claude)
     print(json.dumps(run(args.out, args.prompt, args.backend, args.model, args.effort, args.label, args.copy, args.write,
                          args.limit, args.reminder_after, not args.no_startup_prompt, args.tools, args.host,
-                         compact=not args.no_compact_prompt),
+                         compact=not args.no_compact_prompt, claude=args.claude),
                      ensure_ascii=False))

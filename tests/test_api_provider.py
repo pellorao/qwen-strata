@@ -69,7 +69,7 @@ class ApiProviderTests(unittest.TestCase):
         self.assertEqual((settings['model'],settings['modelProvider'],settings['serviceTier']),('gpt-6.1-sol','benchmark_openai','default'))
         self.assertEqual(config['model_providers'],{'benchmark_openai':{'name':'OpenAI','base_url':'https://api.openai.com/v1',
             'wire_api':'responses','env_key':'BENCHMARK_OPENAI_API_KEY','requires_openai_auth':False,'supports_websockets':False}})
-        self.assertEqual(config['shell_environment_policy']['exclude'],['BENCHMARK_OPENAI_API_KEY','STRATA_API_KEY'])
+        self.assertEqual(config['shell_environment_policy']['exclude'],['BENCHMARK_OPENAI_API_KEY','BENCHMARK_DEEPSEEK_API_KEY','STRATA_API_KEY','STRATA_REMOTE_PASSWORD'])
         self.assertNotIn('model_context_window',config);self.assertIn('experimental_compact_prompt_file',config)
         self.assertEqual(record['provider']['codex_id'],'benchmark_openai')
 

@@ -65,6 +65,9 @@ class InspectSessionTest(unittest.TestCase):
             self.assertNotIn(value, text)
         self.assertTrue(text.endswith(' keep'))
         self.assertEqual(redact('cat request.json'), 'cat request.json')
+        for text in ("{'access_token': 'at-123456789'}", '"{\\"id_token\\": \\"it-123456789\\"}"',
+                     'STRATA_REMOTE_PASSWORD=pw-123456789'):
+            self.assertNotIn('-123456789', redact(text))
 
     def test_second_scenario_root_is_allowed(self):
         second = '/home/u/run/ap/1'

@@ -19,8 +19,8 @@ from tools.metrics.review_work_time import ReviewWorkClock
 from tools.reviewer.wsl_client import ROOT,save
 from tools.metrics.context_capacity import CONTEXT_WINDOWS
 from tools.metrics.prompt_policy import compaction_config
-from tools.reviewer.providers import (api_model, api_provider, credential_present, link_login, provider_config,
-    release_login, service_tier, shell_exclude, validate_api_selection, web_search_mode)
+from tools.reviewer.providers import (api_model, api_provider, credential_present, link_login, process_environment,
+    provider_config, release_login, service_tier, shell_exclude, validate_api_selection, web_search_mode)
 
 sys.path.append(str(ROOT / 'src'))
 from startup_instructions import startup_prompt_bytes
@@ -725,7 +725,7 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
     records=[];safe=True
     daemon_log=(out/'daemon-stderr.log').open('w');daemon_path=out/'daemon-stdout.jsonl';daemon_output=daemon_path.open('w')
     daemon=subprocess.Popen(['node',str(ROOT/'tools/reviewer/arw_runtime.mjs'),'daemon',str(runtime)],
-        stdin=subprocess.PIPE,stdout=daemon_output,stderr=daemon_log,text=True)
+        stdin=subprocess.PIPE,stdout=daemon_output,stderr=daemon_log,text=True,env=process_environment(provider))
     daemon_reader=daemon_path.open();machine=None
     try:
         value=read_daemon_message(daemon_reader,daemon)
@@ -867,7 +867,7 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
         daemon_path=out/('daemon'+suffix+'-stdout.jsonl')
         daemon_output=daemon_path.open('w')
         daemon=subprocess.Popen(['node',str(ROOT/'tools/reviewer/arw_runtime.mjs'),'daemon',str(runtime)],
-            stdin=subprocess.PIPE,stdout=daemon_output,stderr=daemon_log,text=True)
+            stdin=subprocess.PIPE,stdout=daemon_output,stderr=daemon_log,text=True,env=process_environment(None))
         daemon_reader=daemon_path.open()
         machine=None;http_archive=None
         try:
