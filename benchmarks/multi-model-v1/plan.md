@@ -374,6 +374,10 @@
 - 2026-10-20，Strata 臂（#25–27）随临时目录修复作废重跑（用户 10-19 决定已跑正式实例全部作废）：CA 的 strata-low-a1、a2 两个有效实例作废，旧目录 `.tmp/bench-strata-1019/ca/` 保留不删；新运行目录 `<场景>-r2/`，尝试计数从零开始。修复后的 `claude_headless`（88999a5）与 958d289 的 Strata 支持合用，Strata 后端同样用每运行独立 TMPDIR；重跑前 Strata mock 门 `--pair --repeat 2` 通过（自身 TMPDIR、peer TMPDIR 读写、共享 TMPDIR 与 `/tmp` 读写、socket、其他全局可写目录全部按预期，宿主 HOME 与 `/tmp` 无新增；`.tmp/bench-strata-1019/mock-pair-strata`）。low、medium smoke（10-19，修复前）只用于核实三档上限与提示 sha，不重跑。
 - 2026-10-20 01:00 前后，Codex 0.163.0 上 Strata mock 门补共享位置写探针（f50d0d1，`safety_gate` 边界探针，按探针名在宿主上查 canary）。结果：`/var/tmp`、`/run/lock` 拒写；`/dev/shm` 在沙箱内写入成功，但宿主上没有 canary（`shared_host_writes` 为空，宿主三处列表前后相同）；8 类边界照旧拒绝，HOME 无新增（`.tmp/bench-strata-1019/codex-strata-mock-shared`）。Main 判定：`/dev/shm` 的写入只落在沙箱私有的 tmpfs，不构成跨实例或对宿主的通道，#10–12 可在 #25–27 之后按顺序开跑；此后每个 Codex 实例开跑前 `boundary()` 继续核对宿主 `/dev/shm`，一旦宿主出现 canary 就停下报告。偏离：这次 mock 门开跑时没等到基准进程数降到 3 个以下（等了约 9 分钟），运行约 1 分钟期间 WSL 里 Claude Code 与 Codex 基准进程合计约 6 个，超过预登记的 ≤5；mock 门不发模型请求，正在运行的 Strata 与 Anthropic 实例不受其输出影响，只可能有轻微 CPU 争用。
 
+- 2026-10-20 06:19–06:21，OpenAI 臂（#1–6）冻结（c877a8b）后的两处偏离，Main 同意：
+  - **run_one 补 ARW 主会话身份**：CA 第一次开跑时，3 个实例在 ARW `spawn_agent` 处失败，报错 "Main session identity is missing"。原因是 `run_one.py` 没有像 `arw_dimension` 和 Strata 臂那样传 `CODEX_THREAD_ID=<plan codex_thread_id>`。这 3 个实例的 relay 请求数都是 0，没有发出模型请求，所以按准备失败记录，不计入尝试次数，目录改名为 `ca-prefail/`。修正后 `run_one.py` 的 sha256 为 `e1984fee…088df`，取代 §14.3 中的绑定，判定逻辑不变。
+  - **进程上限**：Anthropic 臂当时也在运行。CA 开跑时 OpenAI 实例的 Codex 进程启动有滞后，调度器的计数没反映出来，06:20 时 WSL 里基准进程合计一度为 6 个，超过 §14 的 ≤5。之后新增 `.tmp/bench-openai-1020/slotctl.py`（sha256 `6981c2a4…`）：每 10 秒把 `slots.txt` 写成 min(4, 5 − 其他臂进程数 − 预留数)，调度器每次启动前都读它；R1 的门运行用 `reserve.txt` 预留 1 位。Main 已让 Anthropic 臂在 11:00 前不再开新实例。
+
 ### 14.2 #10–12（Codex 上的 Strata）补冻结（2026-10-19）
 
 §14 为 #10–12 设的条件都已在 Codex 0.163.0 上满足，按 §14 以单独 commit 补冻结。
