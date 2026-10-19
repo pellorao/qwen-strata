@@ -1,6 +1,6 @@
 # 多模型 benchmark v1 运行计划（定稿，待冻结）
 
-2026-10-19 定稿。依据：用户决定（`docs/plan.md`「多模型 benchmark」，三轮答复）、方案稿与独立审查（Opus high）。本计划按[运行计划](../../.claude/skills/run-plan/SKILL.md)的结构写成。独立审查（硬约束 1「重要决策」）已完成，意见和处理记在 §13。三份盲裁 brief 草稿（Code Spec v5、Code Standards v5.1、Spec Readiness v4.3）已按独立核对修改，尚未冻结。顺序固定为：在看到任何 benchmark 输出之前冻结 brief → 用冻结 brief 做双裁试点（§6.2）→ 试点不过就维持单名 Opus，brief 不改。
+2026-10-19 定稿。依据：用户决定（`docs/plan.md`「多模型 benchmark」，三轮答复）、方案稿与独立审查（Opus high）。本计划按[运行计划](../../.claude/skills/run-plan/SKILL.md)的结构写成。独立审查（硬约束 1「重要决策」）已完成，意见和处理记在 §13。三份盲裁 brief 草稿（Code Spec v5、Code Standards v5.1、Spec Readiness v4.3）已按独立核对修改，尚未冻结。顺序固定为：在看到任何 benchmark 输出之前冻结 brief → 用冻结 brief 做单名 Opus 盲裁（§6.2；用户 2026-10-19 决定不改双裁）。
 
 ## 1. 目的
 
@@ -98,7 +98,7 @@
 
 报告逐条列出以下各项，结论只在这些条件下成立。
 
-1. **场景按 Opus 标定**：加难时确认的是"Q3 低、Opus 命中"；答案键经 Opus 审计；Opus 同时担任参考和（试点前的）裁决者。所以 Opus 的位置可能偏高，Opus 的绝对分不是上限。Commit Audit v3 另给"含 / 不含难度因素题"两套分数。
+1. **场景按 Opus 标定**：加难时确认的是"Q3 低、Opus 命中"；答案键经 Opus 审计；Opus 同时担任参考和裁决者。所以 Opus 的位置可能偏高，Opus 的绝对分不是上限。Commit Audit v3 另给"含 / 不含难度因素题"两套分数。
 2. **厂商与 harness 部分绑定**：OpenAI 只在 Codex 上，Anthropic 只在 Claude Code 上。只有 Strata 和 DeepSeek 两边都有，可以用来观察 harness 的影响。
 3. **"强度"含义因厂商而异**：Strata 三档见 §2.1；DeepSeek 在 Claude Code 上可能不区分（P1）。
 4. **基础提示只给 Strata**：注入位置不同。Codex 路径由服务端追加；Claude Code 路径由服务端追加启动提示，PreCompact hook 追加压缩提示。
@@ -109,7 +109,7 @@
 9. **时限按各自的速度计算**：API 模型的速度含网络。服务端可能漂移，而执行窗口约一到两周。
 10. **ChatGPT 套餐**：只报 token，不报金额。套餐的限速或路由可能与 API 不同。
 11. **IQ3_XXS 参数来自 v0.1.42 调参**：benchmark 就在当前版本上跑。Haiku 的订阅额度扣减比例未核对，首次 Haiku 运行时记录前后用量。
-12. **盲裁方式**（§6）：试点通过后，裁决者不是单名 Opus；每个场景内部只用一种方式。
+12. **盲裁方式**（§6）：单名 Opus 盲裁，与场景标定同一模型（见第 1 条）。
 13. **两个 harness 的读取范围不同**：Claude Code 的工具和 Bash 沙箱只能读工作目录；Codex `:read-only` 能读宿主文件（G7 只去掉凭据路径）。
 
 ## 5. 统计口径
@@ -154,27 +154,16 @@
 - 历史对照：已完成场景周期的启动估计里，盲裁约占三分之一。Commit Audit v3 正式周期中，两次 Opus 盲裁 $28.4 / 周期合计 $81.3 ≈ 35%；Spec Readiness v4.2 为 $22.0 / $65.6 ≈ 34%。那些周期的模型运行几乎都是 Strata，不占额度，所以只作上界参考。
 - 总量：中值约 $680（含 Main 开销）。按 K = 0.086%/美元（`estimate.sh` 已校准）折算，约占周额度 58%，范围 45–73%，需要跨两个额度周期。最能省的是后处理脚本化和会话检查交便宜模型。
 
-**结论（暂定）**：按"占 benchmark 的 Anthropic 总消耗"算，中值 24% ≥ 20%，历史对照也高于 20%，所以暂定改为双裁，并先试点。若分母是"占周额度"，盲裁约 140 × 0.086% ≈ 12%，不足 20%，应维持单名 Opus。用户规则没写分母，交用户确认；确认前按双裁准备，但试点和正式裁决都在用户答复之后才开始。这一改动暂定取代 README「现行决定」中"盲裁用 Opus，不用 Sonnet"那一条。双裁省下的 Anthropic 额度约为 $140 −（Sonnet $54 + Opus 复核约 $21 + 试点约 $10）≈ $55，约占周额度 5%。luna 用 ChatGPT 套餐，只报 token。
+**结论（用户 2026-10-19 决定）**：维持单名 Opus 全量盲裁，加锚点和合成负例，不改双裁。按"占 benchmark 的 Anthropic 总消耗"算中值约 24%，超过 20% 规则的线，但用户按例外处理：双裁只省约 $55–58（约占周额度 5%），benchmark 结果影响后续全部工作，质量优先。README「现行决定」中"盲裁用 Opus，不用 Sonnet"一条继续有效。双裁试点、luna 裁决 runner（原 G6）和 brief 的 `unsure` 字段都不做。
 
-### 6.2 双裁流程
+### 6.2 单名 Opus 盲裁流程
 
-- 两名裁决者独立工作，都看不到对方的结论，用同一份冻结 brief，都读被审代码的 view。
-  - Sonnet medium：Claude Code 无头，参数同 Sonnet 试点。
-  - gpt-6-luna high：Codex 无头。需要新增裁决 runner（G6）：全新 CODEX_HOME、链接登录、`web_search: disabled`；权限不用 `:read-only`，而用 `tools.tuning.codex_workload.isolation` 一类的原生权限 profile，命令只能读裁决工作目录（池、view、brief）并只写结果文件，开跑前用 `tools.tuning.sandbox_probe` 一类的零模型探针确认答案键、工程、CODEX_HOME 和其他运行目录读不到。
-- 两者一致且都没有标"拿不准"（brief 输出的 `unsure: true`）的，直接采纳。已冻结的 Commit Audit v3 brief 没有 `unsure` 字段，也写死了裁决者，是否只加这两处输出字段后重新冻结，按重要决策处理（§13）；未处理前 Commit Audit 走单名 Opus。分歧项和任一方标"拿不准"的交 Opus high 终裁。所有 k = 4 档的反例误报一律双裁，这是评分 r8 的规则。
-- 池按场景混合打乱，所有配置跑完后统一盲裁，隐去来源。每池混入锚点（10–15 个已有 Opus 裁决）和合成负例。锚点一致率按来源模型分组报告。
-- **试点**（在冻结 brief 之后、任何 benchmark 裁决之前）：
-  - 用 Sonnet 试点的两个池：s1 为 Commit Audit v3 的 92 项，s2 为 Code Standards v5.1 的 62 项；再加 Spec Readiness v4.2 和 Code Spec v5 的 Opus 已裁池，四个场景都有试点。锚点从同一场景版本的已裁池中取（Code Spec v5 正式池里来自 v4.7 的锚点不能用，它们引用的代码在 v5 已改正）。
-  - 完整走一遍双裁加 Opus 终裁，结果与原 Opus 裁决比较。
-  - 通过线（事先写定，三条同时满足）：
-    1. 最终裁决与 Opus 原判的一致率：真实候选 ≥ 95%，难项层 ≥ 90%；
-    2. 合成负例全部识别；
-    3. 按最终裁决重算已有正式实例，每个配置的场景均值 |Δ| ≤ 0.02。原通过线的比值判据不适用于 benchmark，改为这一条。
-  - 另记升级率（交 Opus 终裁的比例）：超过 30% 时双裁省不下额度，按未通过处理。
-  - 正式裁决中，某个池的锚点一致率低于 90% 或合成负例有一个没识别，该池整池交 Opus 重裁。
-  - 裁决编排（拆池、合并、终裁派发）的费用计入 §6.1 的"后处理"一项。
-  - 未通过：维持单名 Opus 全量裁决，加锚点与合成负例，并在报告里写明。
-- 第一个场景批次做完后，用实测费用重算一次占比，只用于下一个周期的额度预测，不再回头改裁决方式。每个场景内部只用一种方式。
+- 裁决者为 Opus high（Claude Code 无头，与 Commit Audit v3 的盲裁相同），用冻结 brief，读被审代码的 view。brief 输出写死 `"adjudicator": "blind Opus high"`，与已冻结的 Commit Audit v3 brief 同一合同。
+- 池按场景混合打乱，所有配置跑完后统一盲裁，隐去来源。每池混入锚点（10–15 个已有 Opus 裁决，取自同一场景版本的已裁池；Code Spec v5 正式池里来自 v4.7 的锚点不能用，它们引用的代码在 v5 已改正）和合成负例。锚点一致率按来源模型分组报告。
+- 某个池的锚点一致率低于 90% 或合成负例有一个没识别，该池整池重裁并扩大复核（reviewer-suite「盲裁只裁有变化的部分」）。
+- 所有 k = 4 档的反例误报一律双裁（评分 r8）；现行四个场景没有 k = 4 用例，不涉及。
+- 裁决编排（拆池、合并）的费用计入 §6.1 的"后处理"一项。
+- 第一个场景批次做完后，用实测费用重算一次占比，只用于下一个周期的额度预测。
 
 ## 7. 安全验收
 
@@ -215,10 +204,8 @@
   - 冻结三份 brief（Opus 核对后）；
   - 冻结 API catalog；
   - 安装 benchmark 专用的 Codex 和 Claude Code 副本，并跑 compact probe；
-  - G6 luna 裁决 runner 加零模型门；
   - G7 Codex 凭据路径 deny-read，并用合成文件验证（之后交用户复核）；
   - G8 `claude_gate` 的 Strata live smoke；
-  - 已冻结的 Commit Audit v3 brief 是否加 `unsure` 字段（§6.2）；
   - Code Standards brief 的 extraCharges / memberId 诱饵条款：按答案键 C22、C29 的 placement 核对后补上（独立核对建议 S3）；
   - 重建 `check_briefs.py` 依赖的物化目录（`.tmp/bench-prep-1019/arw-*` 已删），或改为直接对照答案键，再做冻结前的机械核对；
   - 盲裁 view 从冻结 fixture 构造：Spec Readiness 的 `REVIEWER-REQUEST.json` 由运行目录中的请求文件复制改名，并把 `draftPath` 打码；
@@ -233,7 +220,7 @@
     - OpenAI 臂串行；
     - Anthropic 臂按 `estimate.sh --can-start` 逐批放行；
     - DeepSeek 臂受用户给的花费上限约束。
-- **阶段 3**：试点通过后，按场景盲裁，再做会话检查和计分。全部完成后统一重评一次。
+- **阶段 3**：按场景单名 Opus 盲裁，再做会话检查和计分。全部完成后统一重评一次。
 - **阶段 4**：报告与独立审查。
 - **GPU**：Strata 6 个配置 × 20 实例。每实例实测 CS 9.5、CStd ~9.5、SR 15.9、CA 13.8 分钟（high；low、medium 按 ×0.8 估），合计约 22–25 小时，另加每批冷加载与预热约 2 小时。空闲加测到 10 次再加约 22 小时，与其他工作并行，不拖慢其他工作。
 - **Anthropic 额度**：中值约 $680，占周额度约 58%（§6.1），跨两个周期。每个 Anthropic 批次开跑前都要跑一次 `estimate.sh --can-start`；判定不建议时，只推进 Strata、OpenAI、DeepSeek 的运行。
@@ -274,13 +261,15 @@
 - `tools/reviewer/inspect_session.py`：凭据值打码（含 JSON、单引号和转义引号写法，以及 `*PASSWORD=`），`auth.json` 和 `.credentials.json` 计为凭据材料。
 - 审查后补的（2026-10-19）：`providers.shell_exclude` / `process_environment`（所有凭据变量排除，M1）；`claude_headless.pinned_binary` 与两个 CLI 的 `--claude`（M6）；`safety_gate --web-search`（Strata 零模型模式）。
 - 仍待实现（阶段 0）：
-  - G6 luna 裁决 runner；G7 deny-read；G8 Strata 臂在 Claude Code 上的 live 冒烟；
+  - G7 deny-read；G8 Strata 臂在 Claude Code 上的 live 冒烟；
   - 跨模型汇总流水线；
   - Codex selection 的 `startup_instructions` / `project_compaction_instructions` 已有开关，只需在 plan 里写成 false。
 
 ## 13. 独立审查意见与处理
 
 2026-10-19，两名全新的 Opus 独立 agent（不是 fork），开之前 `estimate.sh --can-start` 判定可以开始。
+
+用户 2026-10-19 决定维持单名 Opus 盲裁后，下表中与双裁有关的 M3、M4、M10，以及 13.2 的 M1（`unsure` 与 `<裁决者>`，已从三份 brief 去掉）和「第 4 节」都不再适用。
 
 ### 13.1 方案与规则审查：结论"有条件冻结"
 
@@ -317,6 +306,6 @@
 
 ### 13.3 仍需用户决定的事项
 
-- 20% 规则的分母：按"占 benchmark 的 Anthropic 总消耗"约 24%，改双裁；按"占周额度"约 12%，维持单名 Opus。方案审查的兜底倾向是维持单名 Opus。
+- ~~20% 规则的分母~~：用户 2026-10-19 决定维持单名 Opus（§6.1）。
 - G7 deny-read 偏离"不额外收紧"，实施后交用户复核。
 - P1 若显示 DeepSeek 某个格式下三档无差别，是否删档。

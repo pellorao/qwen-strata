@@ -23,15 +23,13 @@ class AdjudicationBriefTests(unittest.TestCase):
         for name in BRIEFS:
             self.assertIn(self.arw,text(name),name)
     def test_output_contract_matches_frozen_brief(self):
-        # Same contract as the frozen brief, plus the dual-adjudication fields: a caller-named adjudicator and `unsure`.
-        output=self.frozen[self.frozen.index('## 输出'):].replace('"blind Opus high"','"<裁决者>"').replace(
-            '"reason": "<一句中文理由>"}]}`\n','"reason": "<一句中文理由>", "unsure": true}]}`\n'
-            '`unsure` 可选：只在你对该项拿不准时写 `true`，其余项省略。拿不准时仍须按下一句的兜底规则给出决定。\n')
+        # Same contract as the frozen brief: one blind Opus adjudicator (user 2026-10-19, no dual adjudication).
+        output=self.frozen[self.frozen.index('## 输出'):]
         for name in BRIEFS:
             brief=text(name);self.assertEqual(brief[brief.index('## 输出'):],output,name)
     def test_only_caller_placeholders(self):
         for name in BRIEFS:
-            self.assertEqual(set(re.findall(r'<(?:[A-Z]+|名|裁决者)>',text(name))),{'<ADJ>','<名>','<裁决者>'},name)
+            self.assertEqual(set(re.findall(r'<(?:[A-Z]+|名|裁决者)>',text(name))),{'<ADJ>','<名>'},name)
     def test_cited_answer_key_is_registered(self):
         registry=json.loads(text('judgment/registry.json'))
         for name,(reviewer,digest) in BRIEFS.items():

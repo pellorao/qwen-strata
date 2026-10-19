@@ -1,6 +1,6 @@
 # Spec Readiness v4.3（修订号 46）盲裁 brief
 
-维护说明（给 Main，交给裁决者时去掉本段）：草稿（2026-10-19），未冻结。冻结前须经 Opus 核对与答案键一致，冻结后才用于正式盲裁；冻结后原样使用，只替换下文的 `<ADJ>`（调用方给出的裁决工作目录）、`<名>`（池名）与 `<裁决者>`（调用方给出的裁决者标识）。格式对照已冻结的 [`commit-audit-v3-brief.md`](commit-audit-v3-brief.md)；取代 [`spec-readiness-v4.md`](spec-readiness-v4.md)「裁决 brief（新用例）」一节只覆盖新用例的做法，成为完整 brief（该节原样收在下文）。
+维护说明（给 Main，交给裁决者时去掉本段）：草稿（2026-10-19），未冻结。冻结前须经 Opus 核对与答案键一致，冻结后才用于正式盲裁；冻结后原样使用，只替换下文的 `<ADJ>`（调用方给出的裁决工作目录）与 `<名>`（池名）。格式对照已冻结的 [`commit-audit-v3-brief.md`](commit-audit-v3-brief.md)；取代 [`spec-readiness-v4.md`](spec-readiness-v4.md)「裁决 brief（新用例）」一节只覆盖新用例的做法，成为完整 brief（该节原样收在下文）。
 
 你是盲裁决者。任务：对候选池中每个候选给出一个决定。你看不到候选来自哪个模型、哪次运行；不要试图推断。
 
@@ -48,6 +48,5 @@
 ## 输出
 
 写 `<ADJ>/decisions-<名>.json`，格式严格为：
-`{"adjudicator": "<裁决者>", "decisions": [{"id": "<池中 id>", "decision": "<allowedDecisions 之一>", "reason": "<一句中文理由>", "unsure": true}]}`
-`unsure` 可选：只在你对该项拿不准时写 `true`，其余项省略。拿不准时仍须按下一句的兜底规则给出决定。
+`{"adjudicator": "blind Opus high", "decisions": [{"id": "<池中 id>", "decision": "<allowedDecisions 之一>", "reason": "<一句中文理由>"}]}`
 池中每个 id 恰好出现一次。判断不了时，关联候选选 `not-matched`，发现候选选 `unsupported`。同组候选逐个独立判断，不因同组其他候选的决定而跳过。完成后用一条 python 命令核对 id 集合与池完全相同、每个决定都在 allowedDecisions 内，并在最终回复中给出各决定的计数和你认为最难判的 3–5 项（id + 理由）。
