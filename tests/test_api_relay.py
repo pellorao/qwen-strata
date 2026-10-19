@@ -68,12 +68,16 @@ class ChatgptLoginTests(unittest.TestCase):
             provider=self.provider(tmp)
             self.assertEqual((provider['auth'],provider['codex_id'],provider['env_key']),('chatgpt','openai',None))
             self.assertEqual(provider_config(provider,'http://127.0.0.1:9'),{'openai_base_url':'http://127.0.0.1:9'})
-            self.assertEqual(shell_exclude(provider),['BENCHMARK_DEEPSEEK_API_KEY','BENCHMARK_OPENAI_API_KEY','STRATA_API_KEY',
-                                                      'STRATA_REMOTE_PASSWORD'])
-            env={'BENCHMARK_DEEPSEEK_API_KEY':'d','BENCHMARK_OPENAI_API_KEY':'o','PATH':'/bin','STRATA_API_KEY':'s'}
-            self.assertEqual(process_environment(provider,env),{'PATH':'/bin','STRATA_API_KEY':'s'})
+            self.assertEqual(shell_exclude(provider),['BENCHMARK_OPENAI_API_KEY','DEEPSEEK_API_KEY','STRATA_API_KEY',
+                                                      'STRATA_REMOTE_PASSWORD','*_API_KEY','*_TOKEN','*_SECRET'])
+            # Synthetic values; a key under a new name (wildcard shapes) is dropped as well.
+            env={'DEEPSEEK_API_KEY':'d','BENCHMARK_OPENAI_API_KEY':'o','PATH':'/bin','STRATA_API_KEY':'s',
+                 'ANTHROPIC_API_KEY':'a','GH_TOKEN':'g','aws_secret':'x','TOKENIZERS_PARALLELISM':'false'}
+            self.assertEqual(process_environment(provider,env),{'PATH':'/bin','STRATA_API_KEY':'s','TOKENIZERS_PARALLELISM':'false'})
             deepseek=api_provider({'provider':{'id':'deepseek','base_url':'https://api.deepseek.com'}})
-            self.assertEqual(sorted(process_environment(deepseek,env)),['BENCHMARK_DEEPSEEK_API_KEY','PATH','STRATA_API_KEY'])
+            self.assertEqual(deepseek['env_key'],'DEEPSEEK_API_KEY')
+            self.assertEqual(sorted(process_environment(deepseek,env)),['DEEPSEEK_API_KEY','PATH','STRATA_API_KEY','TOKENIZERS_PARALLELISM'])
+            self.assertEqual(shell_exclude(deepseek)[0],'DEEPSEEK_API_KEY')
             for bad in ({'id':'openai'},{'id':'openai','auth_home':'relative'},{'id':'openai','auth_home':tmp,'env_key':'X_KEY'},
                         {'id':'openai','auth_home':str(Path(__file__).resolve().parents[1]/'x')},
                         {'id':'deepseek','base_url':'https://api.deepseek.com','auth_home':tmp},

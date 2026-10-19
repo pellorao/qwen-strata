@@ -123,16 +123,17 @@ out.errors=errors;console.log(JSON.stringify(out));'''%json.dumps(str(Path(__fil
    values=config(root,root/'r.jsonl','http://127.0.0.1:1/v1',None,None,provider=provider)
    self.assertEqual(values['model_providers']['benchmark_openai']['base_url'],'http://127.0.0.1:1/v1')
    self.assertEqual(values['model_providers']['benchmark_openai']['env_key'],'BENCHMARK_OPENAI_API_KEY')
-   self.assertEqual(values['shell_environment_policy']['exclude'],['BENCHMARK_OPENAI_API_KEY','BENCHMARK_DEEPSEEK_API_KEY','STRATA_API_KEY','STRATA_REMOTE_PASSWORD'])
+   self.assertEqual(values['shell_environment_policy']['exclude'],['BENCHMARK_OPENAI_API_KEY','DEEPSEEK_API_KEY','STRATA_API_KEY','STRATA_REMOTE_PASSWORD','*_API_KEY','*_TOKEN','*_SECRET'])
    self.assertNotIn('model_context_window',values)
    tier={'context_window':206584,'auto_compact_token_limit':150000}
    strata=config(root,root/'r.jsonl','http://127.0.0.1:1/v1',None,tier)
    self.assertNotIn('env_key',strata['model_providers']['qwen_strata'])
    self.assertEqual(config(root,root/'r.jsonl','http://x/v1',None,tier,canary_key='STRATA_API_KEY')['model_providers']['qwen_strata']['env_key'],'STRATA_API_KEY')
-  with patch.dict('os.environ',{'BENCHMARK_OPENAI_API_KEY':'real-value','STRATA_API_KEY':'lease','STRATA_REMOTE_PASSWORD':'pw'}):
+  with patch.dict('os.environ',{'BENCHMARK_OPENAI_API_KEY':'real-value','STRATA_API_KEY':'lease','STRATA_REMOTE_PASSWORD':'pw','DEEPSEEK_API_KEY':'synthetic-d','GH_TOKEN':'synthetic-g'}):
    env=gate_environment('BENCHMARK_OPENAI_API_KEY','FAKE-CANARY-KEY-x',provider)
    owner=ApiOwner(provider);self.assertEqual(owner.key,'real-value');self.assertEqual(owner.responses_url,'https://api.openai.com/v1/responses')
   self.assertEqual(env['BENCHMARK_OPENAI_API_KEY'],'FAKE-CANARY-KEY-x');self.assertNotIn('STRATA_API_KEY',env);self.assertNotIn('STRATA_REMOTE_PASSWORD',env)
+  self.assertNotIn('DEEPSEEK_API_KEY',env);self.assertNotIn('GH_TOKEN',env)
 
  def test_api_plan_and_session(self):
   with tempfile.TemporaryDirectory()as tmp:

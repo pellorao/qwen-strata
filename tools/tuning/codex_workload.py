@@ -29,6 +29,7 @@ import time
 
 from tools.tuning import sampling_bank, staged_decision, window_bank
 from tools.reviewer.native_cli_binding import CODEX, CODEX_VENDOR
+from tools.reviewer.providers import CREDENTIAL_PATTERNS, CREDENTIAL_VARIABLES
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / 'config/model-catalog.json'
@@ -114,7 +115,7 @@ def isolation(workload, folder):
                 ':minimal': 'read', str(CODEX_VENDOR): 'read',
                 workspace: 'write' if workload == 'sampling' else 'read',
                 str((Path(folder) / 'codex-home').resolve()): 'none'},
-            'shell_environment_policy.exclude': ['STRATA_*', 'CODEX_*'],
+            'shell_environment_policy.exclude': ['STRATA_*', 'CODEX_*', *CREDENTIAL_VARIABLES, *CREDENTIAL_PATTERNS],
             'shell_environment_policy.set': {'TMPDIR': workspace}}
 
 

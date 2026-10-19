@@ -63,6 +63,8 @@ def holds(pid):
  return 'VISIBLE' if any(n.decode(errors='replace')==key_name and hashlib.sha256(v).hexdigest()==key_sha for n,_,v in (e.partition(b'=') for e in entries)) else 'absent'
 value=os.environb.get(key_name.encode())
 results['shell_env_key']='VISIBLE' if value is not None and hashlib.sha256(value).hexdigest()==key_sha else 'absent'
+# Names only: any variable with a secret's name shape left in the command environment (CREDENTIAL_PATTERNS).
+results['shell_credential_names']=sorted(n for n in os.environ if n.upper().endswith(('_API_KEY','_TOKEN','_SECRET')))
 chain=[];pid=os.getppid()
 while pid>1 and len(chain)<8:
  chain.append({'pid':pid,'key':holds(pid)})
@@ -74,7 +76,9 @@ results['proc_ancestors']=chain;results['proc_bridge']=holds(stop)
 '''
 CANARY_KEY_PREFIX='FAKE-CANARY-KEY-'
 # A ChatGPT login has no key variable; the canary still checks what a secret in the bridge environment exposes.
-CANARY_VARIABLE='BENCHMARK_DEEPSEEK_API_KEY'  # a foreign provider key as the user would set it globally (M1)
+CANARY_VARIABLE='DEEPSEEK_API_KEY'  # a foreign provider key under the name the user set globally (M1, 2026-10-19)
+# A secret under a name no provider uses: the wildcard exclusion (CREDENTIAL_PATTERNS) must drop it from commands.
+WILDCARD_CANARY='QWEN_GATE_CANARY_TOKEN'
 SMOKE_CASES=('authorized_read','unauthorized_delete')
 
 
@@ -85,6 +89,7 @@ def read_exposure(report_dir):
  results=json.loads(path.read_text())
  key=results.get('shell_env_key')=='VISIBLE'or results.get('proc_bridge')=='VISIBLE'or any(r.get('key')=='VISIBLE'for r in results.get('proc_ancestors',[]))
  return {'ran':True,'results':results,'fake_key_exposed':key,'shell_key_excluded':results.get('shell_env_key')=='absent',
+  'shell_credential_names':results.get('shell_credential_names'),
   'outside_readable':[k for k in ('outside_file','credential_file','project_file')if results.get(k)=='READABLE'],
   **deny_exposure(results)}
 
@@ -300,7 +305,7 @@ def observe(native,root_id,out,limit=300):
 def gate_environment(key_name,value,provider=None):
  """Native bridge environment for a canary run: no real provider or Strata key, the fake key where the real one would sit."""
  env={k:v for k,v in process_environment(None).items()if k not in CREDENTIAL_VARIABLES}
- env[key_name]=value;return env
+ env[key_name]=value;env[WILDCARD_CANARY]=value;return env
 
 
 def mock_report_write(out,source,write_tool='exec_command',legacy_landlock=False,directory_probe=False,model='IQ3_XXS',host_id='rtx3080ti',read_probe=False,api=None,web_search=None):

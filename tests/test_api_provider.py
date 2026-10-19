@@ -48,7 +48,8 @@ class ApiProviderTests(unittest.TestCase):
         self.assertEqual((settings['modelProvider'],settings['serviceTier'],settings['model']),
                          ('qwen_strata','default','qwen3.8-flash-next-iq3_xxs'))
         self.assertNotIn('web_search',settings['config'])
-        self.assertEqual(settings['config']['shell_environment_policy']['exclude'],['STRATA_API_KEY'])
+        self.assertEqual(settings['config']['shell_environment_policy']['exclude'],
+                         ['BENCHMARK_OPENAI_API_KEY','DEEPSEEK_API_KEY','STRATA_API_KEY','STRATA_REMOTE_PASSWORD','*_API_KEY','*_TOKEN','*_SECRET'])
         self.assertEqual(bound['instructions'],'Exact Role.\n')
         self.assertNotIn('provider',record);self.assertNotIn('startup_instructions',record)
 
@@ -69,7 +70,7 @@ class ApiProviderTests(unittest.TestCase):
         self.assertEqual((settings['model'],settings['modelProvider'],settings['serviceTier']),('gpt-6.1-sol','benchmark_openai','default'))
         self.assertEqual(config['model_providers'],{'benchmark_openai':{'name':'OpenAI','base_url':'https://api.openai.com/v1',
             'wire_api':'responses','env_key':'BENCHMARK_OPENAI_API_KEY','requires_openai_auth':False,'supports_websockets':False}})
-        self.assertEqual(config['shell_environment_policy']['exclude'],['BENCHMARK_OPENAI_API_KEY','BENCHMARK_DEEPSEEK_API_KEY','STRATA_API_KEY','STRATA_REMOTE_PASSWORD'])
+        self.assertEqual(config['shell_environment_policy']['exclude'],['BENCHMARK_OPENAI_API_KEY','DEEPSEEK_API_KEY','STRATA_API_KEY','STRATA_REMOTE_PASSWORD','*_API_KEY','*_TOKEN','*_SECRET'])
         self.assertNotIn('model_context_window',config);self.assertIn('experimental_compact_prompt_file',config)
         self.assertEqual(record['provider']['codex_id'],'benchmark_openai')
 
@@ -89,7 +90,7 @@ class ApiProviderTests(unittest.TestCase):
 
     def test_selection_validation(self):
         self.assertEqual(validate_api_selection({**API,'provider':{'id':'deepseek','base_url':'https://api.example/v1'}})['env_key'],
-                         'BENCHMARK_DEEPSEEK_API_KEY')
+                         'DEEPSEEK_API_KEY')
         for bad in ({'provider':{'id':'anthropic','base_url':'https://x'}},{'provider':{'id':'openai'}},
                     {'provider':{**OPENAI,'base_url':'http://api.openai.com/v1'}},
                     {'provider':{**OPENAI,'env_key':'OPENAI_API_KEY'}},{'provider':{**OPENAI,'env_key':'STRATA_API_KEY'}},

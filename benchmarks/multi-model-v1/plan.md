@@ -17,12 +17,12 @@
 |---|---|---|---|---|---|---|
 | 1–3 | Codex 0.163.0 + ARW | `gpt-6.1-sol` | low / medium / high | ChatGPT 套餐登录 | 无 | 原生默认（codex-auto-review） |
 | 4–6 | Codex 0.163.0 + ARW | `gpt-6-luna` | low / medium / high | ChatGPT 套餐登录 | 无 | 原生默认（codex-auto-review） |
-| 7–9 | Codex 0.163.0 + ARW | `deepseek-flash` | low / medium / high | `BENCHMARK_DEEPSEEK_API_KEY` | 无 | 无原生默认，用同模型 low |
+| 7–9 | Codex 0.163.0 + ARW | `deepseek-flash` | low / medium / high | `DEEPSEEK_API_KEY` | 无 | 无原生默认，用同模型 low |
 | 10–12 | Codex 0.163.0 + ARW | Strata `qwen3.8-flash-next-iq3_xxs` | low / medium / high | 前端租约 | 启动提示与压缩提示 | Strata 自身（512/1024） |
 | 13–15 | Claude Code 2.1.303 无头 | Opus（`opus`） | low / medium / high | 订阅 | 无 | 无（dontAsk） |
 | 16–18 | Claude Code 2.1.303 无头 | Sonnet（`sonnet`） | low / medium / high | 订阅 | 无 | 无 |
 | 19–21 | Claude Code 2.1.303 无头 | Haiku（`haiku`） | low / medium / high | 订阅 | 无 | 无 |
-| 22–24 | Claude Code 2.1.303 无头 | `deepseek-flash` | low / medium / high | `BENCHMARK_DEEPSEEK_API_KEY` | 无 | 无 |
+| 22–24 | Claude Code 2.1.303 无头 | `deepseek-flash` | low / medium / high | `DEEPSEEK_API_KEY` | 无 | 无 |
 | 25–27 | Claude Code 2.1.303 无头 | Strata `qwen3.8-flash-next-iq3_xxs` | low / medium / high | 前端租约 | 启动提示（服务端）与压缩提示（PreCompact） | 无 |
 
 - 模型 ID 以 API 实际返回的为准，逐实例记录：Codex 的 API provider 由 relay 记录，Claude Code 从 stream 的 `model` 和 `modelUsage` 读取。别名 `opus`、`sonnet`、`haiku` 在开跑前解析成具体 ID，写进绑定，正式运行的 `--model` 直接传具体 ID。
@@ -94,7 +94,7 @@
   - ChatGPT 登录：每次运行的全新 CODEX_HOME 里只放一个指向 benchmark 专用登录文件的符号链接，运行结束时移除；Codex 刷新登录、把链接换成真文件时，原样移回（`providers.link_login` / `release_login`）。工程从不打开登录文件。
   - 同一份登录在同一时刻只给一个 Codex 运行用，所以 OpenAI 的 6 个配置串行，不并行，以免 refresh token 轮换时互相作废。
   - DeepSeek key 只在进程环境里，由 Codex 的 `env_key` 读取，或作为 Claude Code 的 `ANTHROPIC_AUTH_TOKEN`；命令环境里会被去掉。
-  - 所有凭据变量（`BENCHMARK_DEEPSEEK_API_KEY`、`BENCHMARK_OPENAI_API_KEY`、`STRATA_API_KEY`、`STRATA_REMOTE_PASSWORD`）在每个 Codex 臂的命令环境里一律排除，ARW daemon 的环境也去掉本次 provider 以外的 key（`providers.shell_exclude`、`process_environment`）。审查前的 ChatGPT mock 门显示，全局设置的 DeepSeek key 在 OpenAI 臂的命令环境里可见（`shell_env_key: VISIBLE`）；修复后用 DeepSeek 变量名作 canary 重跑，结果为 `absent`（`.tmp/bench-final-1019/codex-chatgpt-mock-m1`）。
+  - 所有凭据变量（`DEEPSEEK_API_KEY`、`BENCHMARK_OPENAI_API_KEY`、`STRATA_API_KEY`、`STRATA_REMOTE_PASSWORD`），以及名字形如 `*_API_KEY`、`*_TOKEN`、`*_SECRET` 的任何变量，在每个 Codex 臂（包括 Strata 臂）的命令环境里一律排除；ARW daemon 的环境也去掉本次 provider 以外的这类变量，`STRATA_*` 除外（Strata 路径要用 `STRATA_API_KEY`）（`providers.shell_exclude`、`process_environment`）。通配排除防止以后换变量名时漏掉（用户 2026-10-19 把 DeepSeek key 设为 `DEEPSEEK_API_KEY`）。Claude Code 臂本来就只给最小环境，DeepSeek key 只作为 `ANTHROPIC_AUTH_TOKEN` 交给 Claude Code 进程。审查前的 ChatGPT mock 门显示，全局设置的 DeepSeek key 在 OpenAI 臂的命令环境里可见（`shell_env_key: VISIBLE`）；修复后用 DeepSeek 变量名作 canary 重跑，结果为 `absent`（`.tmp/bench-final-1019/codex-chatgpt-mock-m1`）。
   - 需要恢复的运行（`recovery-required.json`）不归还登录，因为恢复还要用它；恢复完成后由恢复步骤调用 `release_login`。
 - **API 模型的 catalog**：开跑前把 Codex 0.163.0 内置 catalog（与 0.162.0 逐字节相同）中 `gpt-6.1-sol`、`gpt-6-luna` 的条目，以及 DeepSeek 条目（按 ARW `deepseek.md` 写），存为 `benchmarks/multi-model-v1/catalogs/` 下的冻结文件并记 SHA。注意 catalog 里 luna 的默认档可能是 priority，`serviceTier` 显式写 default。
 - **排程**：同一场景内，配置按块交替，每轮反转顺序；Strata 的同一配置连跑，换配置时冷加载并预热（测量规则）。付费模型固定 5 次；Strata 在 GPU 空闲时加测到 10 次，目标次数事先定为 10，主表只用预登记的前 5 次。
@@ -256,7 +256,7 @@
 开始前由 Main 说明清楚并取得用户同意，再开始等待。
 
 1. **Codex 登录**（使用 OpenAI 模型之前）：用户决定（2026-10-19）用默认的 `~/.codex` 登录，不建专用目录；selection 的 `auth_home` 写 `/home/pello/.codex`。每次运行仍用全新的 CODEX_HOME，只放指向该登录文件的链接；所有 Codex 臂对整个 `~/.codex` deny-read（G7）。agent 不读这个目录里的文件。
-2. **DeepSeek key**（使用 DeepSeek 之前）：用户只在启动 benchmark 会话的那个终端里 `export BENCHMARK_DEEPSEEK_API_KEY=…`，不写进 shell profile，以免日常的其他会话也带着它。runner 已对非 DeepSeek 的子进程去掉它（§3「凭据」）。建议同时在 DeepSeek 控制台给这个 key 设单独的花费上限，并把上限告诉 Main。
+2. **DeepSeek key**（使用 DeepSeek 之前）：用户已在 WSL 的 `~/.profile` 设置 `DEEPSEEK_API_KEY`（2026-10-19；原方案是只在启动 benchmark 会话的终端里 export，不写进 profile）。agent 不读该文件，也不打印这个变量的值。写进 profile 后，从登录 shell 启动的所有进程（包括日常的其他会话）都带着它；runner 对非 DeepSeek 的子进程和所有 Reviewer 命令去掉它（§3「凭据」）。DeepSeek 臂的 runner 要从带着这个变量的环境启动；非登录 shell（例如 agent 的 Bash 工具）里可能没有它，开跑前只检查是否存在、不看值。建议同时在 DeepSeek 控制台给这个 key 设单独的花费上限，并把上限告诉 Main。
 
 ## 12. 实现位置（本轮已完成的代码适配）
 
@@ -289,7 +289,7 @@
 
 | 编号 | 意见 | 处理 |
 |---|---|---|
-| M1 | 本次 provider 以外的 key（如全局设置的 `BENCHMARK_DEEPSEEK_API_KEY`）进入 Reviewer 命令环境；ChatGPT mock 显示 `shell_env_key: VISIBLE` | 已修：所有凭据变量一律排除，daemon 环境去掉其他 provider 的 key；DeepSeek 变量名作 canary 重跑 mock，结果 `absent`；§11 改为不写进 shell profile |
+| M1 | 本次 provider 以外的 key（如全局设置的 DeepSeek key，现名 `DEEPSEEK_API_KEY`）进入 Reviewer 命令环境；ChatGPT mock 显示 `shell_env_key: VISIBLE` | 已修：所有凭据变量一律排除，daemon 环境去掉其他 provider 的 key；DeepSeek 变量名作 canary 重跑 mock，结果 `absent`；§11 改为不写进 shell profile |
 | M2 | Codex `:read-only` 能读 `~/.claude/.credentials.json`、`~/.codex/auth.json`、`project.private.toml`，API 臂可能把它们发出去 | 已实施（2026-10-19，G7，mock 门验证）：没通过就不启动 API 臂；偏离"不额外收紧"，交用户复核；混杂 13 已补 |
 | M3 | luna 裁决 runner 不能用 `:read-only` | 已改 §6.2：用原生权限 profile 加零模型探针 |
 | M4 | 开头"冻结要通过试点"与 §6.2"试点在冻结之后"矛盾 | 已改：冻结 brief → 试点 → 不过则维持 Opus、brief 不改 |
@@ -358,3 +358,4 @@
 - 2026-10-19 21:52，场景 plan 的 Codex 绑定改为 0.163.0。原因：另一个 worker 把 `native_cli_binding.CODEX` 指向 0.163.0 副本（用户已定），ARW 的零模型 prepare 会核对 plan 里的 `native_cli_sha256`，不改就拒绝准备。四个场景 plan 只改了 `codex` 和 `native_cli_sha256` 两个字段（改为 `399ff69c…`），新 sha256 为 commit-audit-v3 `6de471d9…`、code-spec-v5 `990e9363…`、code-standards-v5.1 `89b604c9…`、spec-readiness-v4.3 `f1ad28d1…`。Claude Code 臂不运行 Codex。改后 dry-run 的 CA 提示与改前已跑实例的提示逐字相同（路径和 UUID 归一化后），所以对已跑实例没有影响。改动期间有 5 个实例在 prepare 阶段失败，没有发出模型请求，按准备失败记录，不计入尝试次数。
 - 用户复核（2026-10-19）：§14 全部同意。顺序口径补充：同一类模型（同一厂商或模型族的各配置，例如 Anthropic 三个模型的 9 个配置、Strata 的 6 个、GPT 的 6 个、DeepSeek 的 6 个）要在尽量短的时间段内跑完，不同类之间可以间隔几天。
 - 2026-10-19 22:20，Claude Code 上 Strata 臂（#25–27）第一个实例之前补代码。e470539 的 `claude_scenario` 只能跑 API 臂：没有 `--backend`/`--host`，且加载了启动提示的实例会被 checks 判无效。补上 `--backend strata --host <id>`；Strata 实例的 checks 用本次实际加载的两份提示 sha（binding）代替"启动提示关闭"，并按服务日志（model-server.log 本次段）核对每个请求的思考上限和总输出与 §2.1 一致；`claude_headless.strata_run` 另存服务日志段、Strata 版本和 qwen-agent 模型变量的值（不含 key 和前端地址）。Anthropic 臂的代码路径和判定不变（测试覆盖）。排程沿用冻结代码 `strata_run` 的做法：每个根线程领一次租约、冷加载、跑完停模型并归还，不做 §3 所说的同配置连跑与预热；每个实例从相同冷态开始，前缀缓存不跨实例（与 G8、`arw_measure` 自持模型路径一致），实例之间归还租约，Codex 侧 worker 可以在间隙领用。交 Main 复核。
+- 2026-10-19 23:00 前后，DeepSeek key 的变量名改为 `DEEPSEEK_API_KEY`（用户已写进 `~/.profile`），凭据排除改为已知变量加 `*_API_KEY`、`*_TOKEN`、`*_SECRET` 通配；`arw_measure` 的 Strata 路径原先只排除 `STRATA_API_KEY`，现在与安全门一致，排除全部凭据变量和通配。原因：方案里的 `BENCHMARK_DEEPSEEK_API_KEY` 与用户实际设置的名字不符，旧的 `process_environment` 只按 `BENCHMARK_` 前缀去掉 key，换名后 DeepSeek key 会进入其他臂的 daemon 环境；Strata 路径的 Codex 命令也能看到它。影响：#10–12 尚未开跑，Claude Code 臂（#13–27）的最小环境不变，已跑实例不受影响。0.163.0 上三种 Codex mock 门和 Claude Code DeepSeek mock 门复跑通过：canary `DEEPSEEK_API_KEY` 与通配 canary `QWEN_GATE_CANARY_TOKEN` 在命令环境里都 `absent`，命令环境里没有任何这类名字（`shell_credential_names` 为空）。

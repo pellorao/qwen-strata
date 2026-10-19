@@ -20,8 +20,9 @@ AUTH_FILE = 'auth.json'
 CHATGPT_UPSTREAM = 'https://chatgpt.com/backend-api/codex'
 # Default credential variables. The isolated Codex environment drops every CODEX_* and OPENAI_* variable
 # (tools/reviewer/arw_native_setup.mjs), so a key under those prefixes would never reach Codex.
+# DeepSeek reads the name the user set in the WSL login environment (user 2026-10-19).
 API_PROVIDERS = {'openai': {'name': 'OpenAI', 'auth': 'chatgpt', 'env_key': 'BENCHMARK_OPENAI_API_KEY'},
-                 'deepseek': {'name': 'DeepSeek', 'auth': 'env_key', 'env_key': 'BENCHMARK_DEEPSEEK_API_KEY'}}
+                 'deepseek': {'name': 'DeepSeek', 'auth': 'env_key', 'env_key': 'DEEPSEEK_API_KEY'}}
 AUTH_MODES = {'openai': ('chatgpt', 'env_key'), 'deepseek': ('env_key',)}
 SERVICE_TIERS = ('default', 'flex', 'priority')
 WEB_SEARCH_MODES = ('disabled', 'cached', 'live')
@@ -93,20 +94,30 @@ def provider_config(provider, base_url=None):
 # Every credential variable this project knows of. Reviewer commands never see any of them, whichever provider runs:
 # a benchmark key set in the user's environment must not reach an OpenAI or Strata run (review 2026-10-19, M1).
 CREDENTIAL_VARIABLES = tuple(sorted({p['env_key'] for p in API_PROVIDERS.values()})) + (STRATA_KEY, 'STRATA_REMOTE_PASSWORD')
+# Name shapes of any other secret, so a key the user sets under a new name is dropped too (user 2026-10-19). Codex's
+# shell_environment_policy.exclude takes them as case-insensitive globs; credential_name() is the same test here.
+CREDENTIAL_PATTERNS = ('*_API_KEY', '*_TOKEN', '*_SECRET')
+
+
+def credential_name(name):
+    """Whether a variable is a known credential variable or has a secret's name shape."""
+    upper = name.upper()
+    return name in CREDENTIAL_VARIABLES or any(upper.endswith(p[1:]) for p in CREDENTIAL_PATTERNS)
 
 
 def shell_exclude(provider):
-    """Variables Reviewer shell commands never see: the provider key first, then every known credential variable."""
+    """What Reviewer shell commands never see: the provider key first, every known credential variable, then the
+    secret name shapes."""
     own = [provider['env_key']] if provider and provider.get('env_key') else []
-    return own + [name for name in CREDENTIAL_VARIABLES if name not in own]
+    return own + [name for name in CREDENTIAL_VARIABLES if name not in own] + list(CREDENTIAL_PATTERNS)
 
 
 def process_environment(provider, environ=None):
-    """Environment for a Codex process: other providers' benchmark keys removed, so Codex itself never holds a key it
-    does not use; the selected provider's key stays for Codex's env_key. Strata variables are left to their own rules."""
+    """Environment for a Codex process: every credential variable removed except the selected provider's key, which
+    Codex reads through env_key. Strata variables are left to their own rules: the Strata path needs STRATA_API_KEY."""
     environ = dict(os.environ if environ is None else environ)
     own = provider.get('env_key') if provider else None
-    return {k: v for k, v in environ.items() if not (k.startswith('BENCHMARK_') and k != own)}
+    return {k: v for k, v in environ.items() if k == own or k.startswith('STRATA_') or not credential_name(k)}
 
 
 def credential_deny_paths(provider=None, home=None, project_root=None):

@@ -3,7 +3,7 @@
 One runner, one parameter set, three backends (review 2026-10-19, D3/H3): `anthropic` runs the named Anthropic model
 with the real configuration directory; `strata` takes the frontend lease, starts the served model with the
 installation defaults and points the same Claude Code command at the frontend; `deepseek` points the same command at
-DeepSeek's Anthropic-format endpoint with a fresh configuration directory and the key from BENCHMARK_DEEPSEEK_API_KEY
+DeepSeek's Anthropic-format endpoint with a fresh configuration directory and the key from DEEPSEEK_API_KEY
 (multi-model benchmark, user 2026-10-19). The DeepSeek model is always named explicitly in every model variable,
 because the endpoint maps Claude model names such as claude-opus-* to another model. The cross arm never goes through
 qwen-approve or qwen-agent's own settings: only qwen-agent's model environment is reused.
@@ -71,7 +71,7 @@ STARTUP = ROOT / 'config/prompts/startup-instructions.txt'
 COMPACT = ROOT / 'config/prompts/compact-prompt.txt'
 BACKENDS = ('anthropic', 'strata', 'deepseek')
 DEEPSEEK_BASE = 'https://api.deepseek.com/anthropic'
-DEEPSEEK_KEY = 'BENCHMARK_DEEPSEEK_API_KEY'
+DEEPSEEK_KEY = 'DEEPSEEK_API_KEY'  # the name the user set in the WSL login environment (2026-10-19)
 DEEPSEEK_MODEL = re.compile(r'deepseek-[a-z0-9][a-z0-9.-]*')
 # Every variable that names a model for some request kind; all of them name the DeepSeek model.
 DEEPSEEK_MODEL_VARIABLES = ('ANTHROPIC_MODEL', 'ANTHROPIC_SMALL_FAST_MODEL', 'ANTHROPIC_DEFAULT_OPUS_MODEL',

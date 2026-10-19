@@ -53,7 +53,7 @@
 
 四个 reviewer 场景（Code Spec、Code Standards、Spec Readiness、Commit Audit）全部定稿，且「benchmark 前置工作」全部完成后开始。参与者：OpenAI 的几个模型、Anthropic 的几个模型、Strata（IQ3_XXS）、DeepSeek 等；每个场景每个模型跑 5 次取平均；得分处同时给耗时、token、工具调用数。
 
-- [ ] **方案设计**（开跑前，按 AGENTS.md 硬约束 1 处理测量设计部分）：用户决定已齐（2026-10-19 三轮答复），定稿见[运行计划](../benchmarks/multi-model-v1/plan.md)：27 个配置 × 4 场景 × 5 次，基础提示只给 Strata，搜索全部关闭，OpenAI 用 ChatGPT 套餐登录，DeepSeek 用 `BENCHMARK_DEEPSEEK_API_KEY`。代码适配已完成（ChatGPT 登录链接、relay 记录实际 service tier、两个 harness 关闭搜索、Claude Code 的 DeepSeek backend）。盲裁维持单名 Opus（用户 2026-10-19）。阶段 0 进展（2026-10-19）：三份盲裁 brief 已冻结；G7 deny-read 已实施；benchmark 专用 Codex 与 Claude Code 副本已装、compact probe 通过；API 臂压缩提示无残留已核实；G8 Strata live 冒烟通过；汇总层已实现。剩余：冻结 API catalog、汇总适配层、冻结计划（状态见运行计划 §9）。
+- [ ] **方案设计**（开跑前，按 AGENTS.md 硬约束 1 处理测量设计部分）：用户决定已齐（2026-10-19 三轮答复），定稿见[运行计划](../benchmarks/multi-model-v1/plan.md)：27 个配置 × 4 场景 × 5 次，基础提示只给 Strata，搜索全部关闭，OpenAI 用 ChatGPT 套餐登录，DeepSeek 用 `DEEPSEEK_API_KEY`（用户 10-19 设在 `~/.profile`）。代码适配已完成（ChatGPT 登录链接、relay 记录实际 service tier、两个 harness 关闭搜索、Claude Code 的 DeepSeek backend）。盲裁维持单名 Opus（用户 2026-10-19）。阶段 0 进展（2026-10-19）：三份盲裁 brief 已冻结；G7 deny-read 已实施；benchmark 专用 Codex 与 Claude Code 副本已装、compact probe 通过；API 臂压缩提示无残留已核实；G8 Strata live 冒烟通过；汇总层已实现。剩余：冻结 API catalog、汇总适配层、冻结计划（状态见运行计划 §9）。
 - [ ] **执行与报告**：按场景分批运行。报告给出每个模型的均值 ± 标准差、耗时、token、工具调用数，以及每次的费用。
 
 ## 采样与窗口重新测量（用户 2026-10-12）

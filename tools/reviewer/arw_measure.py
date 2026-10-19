@@ -153,13 +153,11 @@ def review_shell_environment(runtime_file):
     return {'QWEN_ARW_RUNTIME_FILE':str(runtime),'BASH_ENV':str(bootstrap)}
 
 
-# The provider key is read by Codex itself through env_key; Reviewer shell commands never need it (user 2026-10-12).
-REVIEW_SHELL_EXCLUDE=['STRATA_API_KEY']
-
-
-def review_shell_policy(runtime_file,exclude=REVIEW_SHELL_EXCLUDE):
-    """Codex shell_environment_policy for Reviewer commands: hide the provider key, restore the arw shim."""
-    return {'exclude':list(exclude),'set':review_shell_environment(runtime_file)}
+def review_shell_policy(runtime_file,exclude=None):
+    """Codex shell_environment_policy for Reviewer commands: hide every credential variable and secret name shape
+    (the Strata path's default; the provider key is read by Codex itself through env_key, user 2026-10-12 and
+    2026-10-19), restore the arw shim."""
+    return {'exclude':list(shell_exclude(None) if exclude is None else exclude),'set':review_shell_environment(runtime_file)}
 
 
 def driver_context(selection):

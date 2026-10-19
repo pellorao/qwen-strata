@@ -33,7 +33,8 @@ class ReviewShellEnvironmentTests(unittest.TestCase):
             (root/'bin').mkdir()
             (root/'bin'/'arw').write_text('#!/bin/sh\n')
             policy=review_shell_policy(root/'runtime.json')
-            self.assertEqual(policy['exclude'],['STRATA_API_KEY'])
+            self.assertEqual(policy['exclude'],['BENCHMARK_OPENAI_API_KEY','DEEPSEEK_API_KEY','STRATA_API_KEY','STRATA_REMOTE_PASSWORD',
+                                               '*_API_KEY','*_TOKEN','*_SECRET'])
             self.assertEqual(policy['set']['QWEN_ARW_RUNTIME_FILE'],str(root/'runtime.json'))
             self.assertNotIn('STRATA_API_KEY',policy['set'])
 
