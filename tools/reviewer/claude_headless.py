@@ -148,14 +148,28 @@ def session_hooks(control, started_file, reminder_after, compact=True):
     return hooks, flag
 
 
+def outside_grants(folder, targets):
+    """Every existing entry under `folder` that is neither a grant nor inside one; an ancestor of a grant (such as the
+    scenario root's `.tmp` above a nested report directory) is walked instead of left writable."""
+    denied = []
+    for p in sorted(folder.iterdir()):
+        r = p.resolve()
+        if any(r == t or t in r.parents for t in targets):
+            continue
+        if p.is_dir() and not p.is_symlink() and any(r in t.parents for t in targets):
+            denied += outside_grants(p, targets)
+        else:
+            denied.append(str(p))
+    return denied
+
+
 def settings(work, writes, hooks):
     """Session settings passed with --settings; no user, project or local settings file is read."""
     targets = write_targets(work, writes)
     # The sandbox always lets commands write in the working directory; denying the directory itself breaks bwrap
     # (it creates placeholders such as .git and scripts there), so every existing entry outside the grants is denied
     # and a new file at the top of the working directory stays possible (tools.safety.claude_gate records it).
-    deny_write = [str(p) for p in sorted(work.iterdir())
-                  if not any(p.resolve() == t or p.resolve() in t.parents for t in targets)]
+    deny_write = outside_grants(work.resolve(), targets)
     return {'autoMemoryEnabled': False, 'includeGitInstructions': False,
             'sandbox': {'enabled': True, 'autoAllowBashIfSandboxed': True, 'allowUnsandboxedCommands': False,
                         'filesystem': {'denyRead': list(DENY_READ), 'allowRead': [str(work)],
@@ -226,9 +240,13 @@ def environment(backend, effort, home=None, config_dir=None, strata=None):
     env = {'PATH': os.environ.get('PATH', '/usr/bin:/bin'), 'LANG': 'C.UTF-8', 'TERM': 'dumb',
            'DISABLE_AUTOUPDATER': '1', 'CLAUDE_CODE_EFFORT_LEVEL': effort, 'CLAUDE_CODE_SUBPROCESS_ENV_SCRUB': '1'}
     if backend == 'anthropic':
-        # The real configuration directory supplies only the subscription login; --setting-sources "" keeps its
-        # settings, hooks and CLAUDE.md out (verified by tools.safety.claude_gate).
-        env['HOME'] = str(home or Path.home())
+        # A synthetic HOME (anthropic_home) whose only content links the real configuration directory, which supplies
+        # the subscription login; --setting-sources "" keeps its settings, hooks and CLAUDE.md out (verified by
+        # tools.safety.claude_gate). The real HOME is never the run's HOME: the Bash sandbox (bwrap) creates empty
+        # mount points for protected dotfiles that do not exist, such as ~/.bash_profile (2026-10-19).
+        if not home or Path(home).resolve() == Path.home().resolve():
+            raise ValueError('The Anthropic backend runs with a synthetic HOME (anthropic_home), never the real one')
+        env['HOME'] = str(home)
         if config_dir:
             env['CLAUDE_CONFIG_DIR'] = str(config_dir)
     else:
@@ -236,6 +254,20 @@ def environment(backend, effort, home=None, config_dir=None, strata=None):
             raise ValueError('This backend needs a fresh HOME, CLAUDE_CONFIG_DIR and its model environment')
         env.update(HOME=str(home), CLAUDE_CONFIG_DIR=str(config_dir), **strata)
     return env
+
+
+def anthropic_home(run_root, real=None):
+    """`<run_root>/home` holding only links to the real ~/.claude and ~/.claude.json (the login and Claude Code's own
+    state, used as before); dotfiles the sandbox creates land here instead of in the real HOME. Nothing is opened."""
+    real = Path(real or Path.home())
+    home = Path(run_root) / 'home'
+    if str(home.resolve()).startswith(str(real.resolve()) + '/'):
+        raise ValueError('The synthetic HOME must be outside the real HOME')
+    home.mkdir()
+    (home / '.claude').symlink_to(real / '.claude')
+    if (real / '.claude.json').exists():
+        (home / '.claude.json').symlink_to(real / '.claude.json')
+    return home
 
 
 def stream_summary(stream):
@@ -370,7 +402,7 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
         binding['startup_instructions'] = ({'enabled': True, 'placement': '--append-system-prompt',
                                             'sha256': startup_text()[1]} if startup else {'enabled': False})
         if backend == 'anthropic':
-            env = environment('anthropic', effort)
+            env = environment('anthropic', effort, anthropic_home(work.parent))
         else:
             home, config_dir = work.parent / 'home', work.parent / 'claude-config'
             home.mkdir()

@@ -55,6 +55,15 @@ class RunnerBuildersTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             ch.settings(self.work, ['../out'], hooks)
 
+    def test_nested_grant_denies_siblings_along_its_ancestors(self):
+        (self.work / '.tmp/cap/reports').mkdir(parents=True)
+        (self.work / '.tmp/cap/request.json').write_text('{}')
+        (self.work / '.tmp/other').mkdir()
+        fs = ch.settings(self.work, ['.tmp/cap/reports'], {})['sandbox']['filesystem']
+        w = self.work.resolve()
+        self.assertEqual(fs['denyWrite'], [str(w / '.tmp/cap/request.json'), str(w / '.tmp/other'),
+                                           str(w / 'inputs'), str(w / 'report')])
+
     def test_command_flags_are_shared_and_startup_only_for_anthropic(self):
         s = ch.settings(self.work, ['report'], {})
         a = ch.command('anthropic', 'opus', 'high', self.work, ['report'], s)
@@ -119,12 +128,22 @@ class RunnerBuildersTest(unittest.TestCase):
     def test_environment_is_minimal(self):
         os.environ['QWEN_TEST_PARENT_SECRET'] = 'x'
         try:
-            env = ch.environment('anthropic', 'high')
+            env = ch.environment('anthropic', 'high', self.base / 'h')
         finally:
             del os.environ['QWEN_TEST_PARENT_SECRET']
         self.assertEqual(sorted(env), ['CLAUDE_CODE_EFFORT_LEVEL', 'CLAUDE_CODE_SUBPROCESS_ENV_SCRUB', 'DISABLE_AUTOUPDATER',
                                        'HOME', 'LANG', 'PATH', 'TERM'])
         self.assertEqual(env['CLAUDE_CODE_SUBPROCESS_ENV_SCRUB'], '1')
+        with self.assertRaises(ValueError):
+            ch.environment('anthropic', 'high')
+        with self.assertRaises(ValueError):
+            ch.environment('anthropic', 'high', Path.home())
+        real = self.base / 'real'
+        (real / '.claude').mkdir(parents=True)
+        (self.base / 'run').mkdir()
+        home = ch.anthropic_home(self.base / 'run', real)
+        self.assertEqual(sorted(p.name for p in home.iterdir()), ['.claude'])
+        self.assertEqual((home / '.claude').resolve(), (real / '.claude').resolve())
         strata = ch.environment('strata', 'high', self.base / 'h', self.base / 'c', {'ANTHROPIC_BASE_URL': 'http://x/strata'})
         self.assertEqual((strata['HOME'], strata['CLAUDE_CONFIG_DIR']), (str(self.base / 'h'), str(self.base / 'c')))
         with self.assertRaises(ValueError):

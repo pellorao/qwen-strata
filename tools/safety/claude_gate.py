@@ -377,7 +377,7 @@ def session(out, backend, model, effort, repeat_id, base, project_dir, live=Fals
     argv = ch.command(backend, model, effort, fx['work'], [WRITE], session_settings, startup=startup, claude=claude)
     local = f'http://127.0.0.1:{server.server_address[1]}'
     if live and backend == 'anthropic':
-        env = ch.environment('anthropic', effort)
+        env = ch.environment('anthropic', effort, ch.anthropic_home(fx['run']))
     elif live:  # DeepSeek: the real endpoint and key, the runner's environment shape
         env = ch.environment('deepseek', effort, fx['home'], fx['config'],
                              ch.deepseek_environment(model, os.environ.get(ch.DEEPSEEK_KEY)))
