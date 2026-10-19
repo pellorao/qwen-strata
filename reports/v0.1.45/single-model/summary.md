@@ -77,3 +77,20 @@
 - **测试隔离漏洞**：`qwen-agent` 原来只去掉 `ANTHROPIC_*`、`OPENAI_*`，从 Claude Code 会话里启动时，子 Claude Code / Codex 继承了父会话的会话 id、消息 socket 和 token，此前的冒烟和测量很可能一样。修复：`qwen-agent` 不再传入以 `CLAUDE` 开头的父环境变量（`CLAUDE_CONFIG_DIR` 除外），只保留它自己设的那几个，并加测试；部署后安全门再按新源重跑。
 - rtx4070tis 恢复后：核实实际权重和对外模型，补 IQ3_XXS 档位，部署时清理旧 prebuilt 和基线文件（`docs/plan.md`）。
 - 原始数据：`.tmp/single-model-1019/`（方案、审查、实现进度）、`.tmp/deploy-single-1019/`（部署回执、租约核对、冒烟记录）。
+
+## 隔离修复（4285199，2026-10-19）
+
+**结论**：隔离修复已部署到 rtx3080ti，冒烟通过。`qwen-agent` 不再把父 Claude Code 会话的变量（`CLAUDECODE`、`AI_AGENT`、`CLAUDE_CODE_SESSION_ID`、`CLAUDE_CODE_MESSAGING_*` 等）传给子 agent。不加 `env -i` 时，用户的第三方 key 仍会传下去，所以测量规则要求从 agent 会话里启动时用 `env -i`。独立审查结论"补调用手册后可部署"，已补；审查指出的剩余途径：同用户进程能读祖先进程的 `/proc/<pid>/environ`，环境变量层面清不掉，只能靠沙箱。按新源重跑的安全门通过：[safety-gate-env-fix](../safety-gate-env-fix/summary.md)。
+
+部署（16:48）：files 20，read_back_verified，removed []；`verify_sources` 通过；安装目录 `bin/qwen-agent` 与工程源 SHA 相同（`cf9815fb…898d`）；`claude --version` 2.1.303，与手册记录一致。
+
+冒烟：四次都用 IQ3_XXS，exit 0，各 2 个引擎阶段，租约都已归还；工作目录在 `/home/pello` 之外，每次全新配置目录，stdin 接 `/dev/null`。"子进程环境"是包装截到的 `qwen-agent` 实际传给 agent 的变量，只记变量名。
+
+| 实例 | 方式 | 结果 | read / reused / generated | 子进程环境 |
+|---|---|---|---|---|
+| X1 | `env -i` + `qwen-agent codex exec`，新 `CODEX_HOME` | 原样读出标记 | 9049 / 9079 / 149 | 5 个变量，没有 `CLAUDE*`、`AI_AGENT`、`ANTHROPIC_*`、`OPENAI_*` |
+| C1 | `env -i` + `qwen-agent claude --strict-mcp-config --setting-sources user -p`，新 `CLAUDE_CONFIG_DIR` | 原样读出标记 | 15857 / 15864 / 107 | 15 个变量；`CLAUDE*` 只有 `qwen-agent` 自设的 6 个 `CLAUDE_CODE_*` 和 `CLAUDE_CONFIG_DIR` |
+| N1 | 不加 `env -i`，从本会话直接启动 claude，子 agent 只输出变量名 | 只输出变量名 | 16166 / 15931 / 455 | 44 个变量；父会话的会话绑定变量都没有传；第三方 key 照常传下去 |
+| N2 | 同 N1，子 agent 只输出各变量值的 SHA-256 前 16 位，与父会话比对 | 见下 | — | — |
+
+N1 子 agent 的 Bash 环境里仍能看到 `CLAUDECODE`、`AI_AGENT`、`CLAUDE_CODE_SESSION_ID`、`CLAUDE_CODE_MESSAGING_*`。N2 比对值：`SESSION_ID`、`MESSAGING_SOCKET`、`MESSAGING_TOKEN`、`CLAUDE_PID` 都与父会话不同，是内层 Claude Code 给自己 Bash 工具设的；`CLAUDECODE`、`AI_AGENT`、`CHILD_SESSION` 值相同但都是常量，包装记录证明 `qwen-agent` 没有传，同样是内层自设。结论：没有泄漏。两次 claude 运行的 stderr 都有 `[claude-code:unrecognized_model]` 提示，上次冒烟也有，不影响运行。记录没有保存任何 token 或 session id 的值。明细在 `.tmp/deploy-env-1019/`。
