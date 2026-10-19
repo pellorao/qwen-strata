@@ -406,6 +406,16 @@
   - **跨臂通道与覆盖**：同 OpenAI 臂的审查意见（`.tmp/bench-openai-1020/prep-review.md`）：Claude Code 实例启动时把 /tmp 顶层已有条目逐条 denyRead，基目录建好之后启动的实例读不到其中内容；Claude Code 沙箱拒写 /tmp。建目录时正在跑的 Claude Code 实例只有 Strata CS low（Strata 臂自己，场景与 #10–12 当时的场景不同时不构成计分泄漏）。#10–12 跑完后按每个时间重叠的 Claude Code 实例的 `settings.json` 审计 denyRead 是否含基目录，结果写进报告。
   - **残余风险**（交用户复核）：同 OpenAI 臂；0700 挡不住同一用户，防护只靠 denyRead；`ls /tmp` 能看到目录名。
 
+- 2026-10-20 08:00–08:40，#10–12 改用补丁 A，prep 放回工程盘（Main 指示；尚未开跑，没有实例受影响）：
+  - **prep 位置定为工程盘**：`<尝试>/prep`，在 `.tmp/bench-strata-1019/<场景>-codex/` 下；上一条的 /tmp 方案撤销。`/tmp/qwen-strata-codex` 一直为空，已删除，复制回工程盘和 `prep-copy.json` 都不再需要。ARW checkout 是 git 根，占位空目录会稳定出现（零模型门两次都出现），由补丁 A 放过。
+  - **补丁 A**：运行脚本调用 `arw_dimension.prepare` 时显式传 `harness_patches=('codex-0.163-synthetic-mount-targets',)`。`prep/harness-patches.json` 里的补丁 sha 必须是 `c1347209…a476`，否则拒跑。每次启动前用 `native_cli_binding.pinned_codex()` 核对 Codex 0.163.0（sha256 `399ff69c…4215`，版本 `codex-cli 0.163.0`），结果和补丁绑定一起写进 launch 记录。
+  - **catalog 改用主机渲染版**：单模型部署（10-19）以后，主机的 `deployment.json` 只给 IQ3_XXS 发布上下文档位。工程 `config/model-catalog.json` 里还列着 Q2_0 和 IQ2_XS，ARW 的 Strata catalog 支持读不到这两个的档位，daemon 启动即失败（零模型门首轮实测）。所以按实例写入 `deployment_source.source_bytes('config/model-catalog.json', 'rtx3080ti')`，这正是部署装进安装目录的内容：只有 IQ3_XXS 一条，窗口取主机首档。IQ3_XXS 条目经 ARW 处理后的内容不变，只是去掉了不对外的两条。`arw_dimension.run` 里也写死了 `CATALOG = config/model-catalog.json`，同样会撞上这个问题，交 Main。
+  - **判据**（审查 M1，与 OpenAI 臂相同）：runtime 进入终态（Strata 路径实测为 `idle`；`exited` 同样算），并且有 completion 记录，就有效，模型自报 ready 还是 incomplete 都计分。completion 原因是报告绑定被拒时，报告目录里如果有绑定报告和四个占位名之外的条目，就按模型结果计分；否则停下交 Main。每个实例结束后重新检查：占位目录必须是真实的空目录，不能是链接；有绑定 sha 的报告要逐个核对 sha。任一项不符就停。`mount_targets_ignored` 按实例记录。
+  - **租约与孤儿 daemon**：daemon 持有 Strata 独占 key，脚本不结束它。出现 `recovery-required.json` 时，记下 daemon pid 和租约状态后停下，恢复和归还交 Main 按部署规则处理。每个实例开跑前，租约必须是 free；结束后再核对一次，不是 free 也停下。
+  - **零模型门**（`.tmp/bench-strata-1019/mtgate/gate.py`）：真实 `arw_measure.run`，走主机路径（`model_owner arw`），用基准 Codex 0.163.0、CA 真实嵌套布局，prep 放在工程盘 git 根。前端换成回环 mock，提供租约、模型启停、`/health` 和脚本化的 `/strata/v1/responses`，在只有回环的网络命名空间里运行，不领真实租约，也不加载模型。measurement host 换成假对象，只读安装目录的公开 config。结果：
+    - 打补丁 2 次（patched-1、patched-2）：每次报告目录里都留下 `.agents .aws .codex .git`，ARW 记 12 条放过事件（4 个目录 × 3 次绑定检查），completion 为 ready、state 为 `idle`，`harness-patches.json` 存在。启动提示期望 sha `1cae169a…`，渲染后的压缩提示 `ec0b5a7a…`（源含 `3856cb62…`），都与冻结值一致。mock 前端看到 ARW 自己领取并归还了租约。
+    - 未打补丁 1 次（unpatched-1）：报 `background-agent-operation-failed`（报告目录只能有绑定报告），留下 `recovery-required.json`。daemon 继续持有 mock 租约（pid 607041 及其 codex 子进程），复现了孤儿 daemon 持有租约的情形。这个 daemon 只持有 mock 租约，已按进程组结束。
+
 ### 14.2 #10–12（Codex 上的 Strata）补冻结（2026-10-19）
 
 §14 为 #10–12 设的条件都已在 Codex 0.163.0 上满足，按 §14 以单独 commit 补冻结。
