@@ -87,6 +87,21 @@ def load_host(identifier, project=None, condition=None):
     return value
 
 
+def published_tier(identifier, model, context_window=None, project=None):
+    """One published context tier from the public host file (no private inputs): the default first tier
+    unless `context_window` names another. A model without published tiers is an error, never a guess."""
+    if not isinstance(identifier, str) or not re.fullmatch(r'[a-z0-9][a-z0-9-]*', identifier):
+        raise ValueError('Invalid host identifier')
+    path = Path(project or ROOT) / 'config/deployments' / (identifier + '.json')
+    tiers = json.loads(path.read_text(encoding='utf-8')).get('context_tiers', {}).get(model)
+    if not tiers:
+        raise ValueError(f'{identifier} publishes no context tier for {model}')
+    match = [t for t in tiers if context_window is None or t['context_window'] == context_window]
+    if not match:
+        raise ValueError(f'{identifier} publishes no {context_window} tier for {model}')
+    return {'context_window': match[0]['context_window'], 'auto_compact_token_limit': match[0]['auto_compact_token_limit']}
+
+
 def host_for_installation(installation, project=None):
     """Registered host whose private installation_path is this local installation."""
     import subprocess

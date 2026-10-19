@@ -15,11 +15,10 @@ import subprocess
 import sys
 
 from tools.ops.deployment_source import load_condition, model_configuration
+from tools.reviewer.native_cli_binding import CODEX
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / 'config/model-catalog.json'
-CODEX = Path.home() / ('.local/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/'
-                       'vendor/x86_64-unknown-linux-musl/bin/codex')
 MEASUREMENT_NOTE = 'benchmarks/reviewer-suite-v1/measurement-note.txt'
 # Scenario versions whose handoff needs its own measurement note: (reviewer, source manifest file) -> (plain note,
 # time-limit template). Commit Audit v2 and v3 declare merged issue/spec requirements, which the note explains (user 2026-10-17).

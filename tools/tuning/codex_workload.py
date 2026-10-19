@@ -28,11 +28,10 @@ import subprocess
 import time
 
 from tools.tuning import sampling_bank, staged_decision, window_bank
+from tools.reviewer.native_cli_binding import CODEX, CODEX_VENDOR
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / 'config/model-catalog.json'
-CODEX_VENDOR = Path.home() / '.local/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor'
-CODEX = CODEX_VENDOR / 'x86_64-unknown-linux-musl/bin/codex'
 STARTUP = ROOT / 'config/prompts/startup-instructions.txt'
 TIERS = {156584: 100000, 206584: 150000}
 KILL_GRACE_SECONDS = 5          # SIGTERM to the session's process group, then SIGKILL

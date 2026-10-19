@@ -10,7 +10,6 @@ import json
 import os
 from pathlib import Path
 import queue
-import shutil
 import signal
 import subprocess
 import sys
@@ -19,6 +18,8 @@ import time
 
 ROOT = Path(__file__).resolve().parents[2]
 from tools.metrics.prompt_policy import NATIVE_COMPACT_VERSION
+from tools.ops.deployment_source import published_tier
+from tools.reviewer.native_cli_binding import CODEX
 from tools.safety.scripted_responses import scripted_stream
 
 
@@ -51,18 +52,19 @@ class MockResponses(BaseHTTPRequestHandler):
 
 
 class Client:
-    def __init__(self, folder, workspace, base_url):
+    def __init__(self, folder, workspace, base_url, slug, tier):
         home = folder / 'codex-home'
         home.mkdir()
         catalog = json.loads((ROOT / 'config/model-catalog.json').read_text())
-        catalog['models'] = catalog['models'][:1]
+        catalog['models'] = [m for m in catalog['models'] if m['slug'] == slug]
         model = catalog['models'][0]
-        model.update(context_window=156584, max_context_window=156584)
+        model.update(context_window=tier['context_window'], max_context_window=tier['context_window'])
         save(folder / 'catalog.json', catalog)
         config = {
             'model': model['slug'], 'model_provider': 'loopback_mock',
             'model_catalog_json': str(folder / 'catalog.json'),
-            'model_context_window': 156584, 'model_auto_compact_token_limit': 100000,
+            'model_context_window': tier['context_window'],
+            'model_auto_compact_token_limit': tier['auto_compact_token_limit'],
             'model_reasoning_effort': 'high', 'features.plugins': False,
             'model_providers.loopback_mock.name': 'Loopback mock, no inference',
             'model_providers.loopback_mock.base_url': base_url,
@@ -86,7 +88,7 @@ class Client:
         self.responses = queue.Queue()
         self.changed = threading.Condition()
         self.number = 0
-        self.proc = subprocess.Popen([shutil.which('codex'), '--no-daemon', *overrides,
+        self.proc = subprocess.Popen([str(CODEX), '--no-daemon', *overrides,
             'app-server'], cwd=workspace, env=env, stdin=subprocess.PIPE,
             stdout=subprocess.PIPE, stderr=self.stderr, start_new_session=True)
         self.reader = threading.Thread(target=self.read, daemon=True)
@@ -151,12 +153,13 @@ class Client:
         self.events.close()
 
 
-def run(folder):
+def run(folder, model='IQ3_XXS', host='rtx3080ti'):
     folder = folder.resolve()
+    slug, tier = 'qwen3.8-flash-next-' + model.lower(), published_tier(host, model)
     folder.mkdir(parents=True, exist_ok=False)
     workspace = folder / 'workspace'
     workspace.mkdir()
-    version = subprocess.check_output(['codex', '--version'], text=True).strip()
+    version = subprocess.check_output([str(CODEX), '--version'], text=True).strip()
     server = ThreadingHTTPServer(('127.0.0.1', 0), MockResponses)
     server.folder, server.requests = folder, []
     threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -164,11 +167,11 @@ def run(folder):
     result = {'status': 'failed', 'codex_version': version, 'real_model_requests': 0,
               'scope': 'Native manual compact prompt capture against loopback mock only'}
     try:
-        client = Client(folder, workspace, f'http://127.0.0.1:{server.server_port}/v1')
+        client = Client(folder, workspace, f'http://127.0.0.1:{server.server_port}/v1', slug, tier)
         client.send('initialize', {'clientInfo': {'name': 'compact_prompt_capture', 'version': '1'},
                                   'capabilities': {'experimentalApi': True}})
         client.send('initialized', {}, notify=True)
-        thread = client.send('thread/start', {'model': 'qwen3.8-flash-next-q2_0',
+        thread = client.send('thread/start', {'model': slug,
             'modelProvider': 'loopback_mock', 'cwd': str(workspace), 'sandbox': 'read-only',
             'approvalPolicy': 'on-request', 'approvalsReviewer': 'auto_review', 'ephemeral': True})
         thread_id = thread['thread']['id']
@@ -208,7 +211,9 @@ def run(folder):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--model', choices=('Q2_0', 'IQ2_XS', 'IQ3_XXS'), default='IQ3_XXS')
+    parser.add_argument('--host', default='rtx3080ti', help='host whose default context tier the mock session uses')
     args = parser.parse_args()
-    result = run(args.out)
+    result = run(args.out, args.model, args.host)
     print(json.dumps(result, ensure_ascii=False))
     raise SystemExit(0 if result['status'] == 'passed' else 1)

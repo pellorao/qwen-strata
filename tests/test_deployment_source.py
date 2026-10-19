@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.ops.deployment_source import frontend_configuration, load_host, model_configuration, source_bytes
+from tools.ops.deployment_source import frontend_configuration, load_host, model_configuration, published_tier, source_bytes
 
 
 class SourceRenderingTests(unittest.TestCase):
@@ -151,6 +151,16 @@ installation_path='C:\\Strata'
                          [(156584, 156584), (1, 1)])  # IQ3_XXS is not installed on this host
         with self.assertRaisesRegex(ValueError, 'no context tier for installed model Q2_0'):
             source_bytes('config/model-catalog.json', 'plain', self.root)
+
+    def test_published_tier_reads_only_public_tiers_and_never_guesses(self):
+        (self.root/'project.private.toml').unlink()
+        self.assertEqual(published_tier('tuned', 'Q2_0', project=self.root),
+                         {'context_window': 156584, 'auto_compact_token_limit': 100000})
+        self.assertEqual(published_tier('tuned', 'Q2_0', 65536, self.root)['auto_compact_token_limit'], 40000)
+        with self.assertRaisesRegex(ValueError, 'no 206584 tier'):
+            published_tier('tuned', 'Q2_0', 206584, self.root)
+        with self.assertRaisesRegex(ValueError, 'no context tier for Q2_0'):
+            published_tier('plain', 'Q2_0', project=self.root)
 
     def test_old_schema_and_unknown_fields_are_rejected(self):
         self.host('old', schema_version=1)

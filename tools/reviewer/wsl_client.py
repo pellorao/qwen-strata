@@ -10,9 +10,9 @@ import threading
 import time
 import urllib.request
 from tools.metrics.prompt_policy import compaction_config
+from tools.reviewer.native_cli_binding import CODEX
 
 ROOT = Path(__file__).resolve().parents[2]
-MODEL = 'qwen3.8-flash-next-q2_0'
 
 
 def save(path, value):
@@ -30,8 +30,11 @@ def http(url, value=None, timeout=900):
         return json.load(response)
 
 
-def configuration(out, workspace, base_url, *, model_slug=MODEL, effort='low', extra_config=None):
-    """Create only an experiment-local home/catalog, independent of user's config."""
+def configuration(out, workspace, base_url, *, model_slug, tier, effort='low', extra_config=None):
+    """Create only an experiment-local home/catalog, independent of user's config.
+
+    `tier` is the published context tier the model was started with; its window and limit go to the harness."""
+    window, limit = tier['context_window'], tier['auto_compact_token_limit']
     home = out / 'codex-home'
     home.mkdir(parents=True, exist_ok=True)
     catalog = json.loads((ROOT / 'config/model-catalog.json').read_text())
@@ -43,11 +46,12 @@ def configuration(out, workspace, base_url, *, model_slug=MODEL, effort='low', e
     model['base_instructions'] = instructions
     model['model_messages']['instructions_template'] = instructions
     model['truncation_policy']['limit'] = 36000
+    model['context_window'] = model['max_context_window'] = window
     catalog['models'] = [model]
     save(out / 'catalog.json', catalog)
     values = {
         'model': model_slug, 'model_provider': 'qwen_strata', 'model_catalog_json': str(out / 'catalog.json'),
-        'model_context_window': 250000, 'model_auto_compact_token_limit': 200000,
+        'model_context_window': window, 'model_auto_compact_token_limit': limit,
         'model_auto_compact_token_limit_scope': 'total', 'model_reasoning_effort': effort,
         'experimental_compact_prompt_file': str(ROOT / 'config/prompts/compact-prompt.txt'),
         'web_search': 'disabled', 'agents.enabled': False, 'features.apps': False,
@@ -80,24 +84,22 @@ def configuration(out, workspace, base_url, *, model_slug=MODEL, effort='low', e
 
 
 class Client:
-    def __init__(self, out, workspace, base_url, *, model_slug=MODEL, effort='low', extra_config=None,
-                 command_prefix=None, env_overrides=None, configuration_factory=None):
+    def __init__(self, out, workspace, base_url, *, model_slug, tier, effort='low', extra_config=None):
         self.out, self.workspace = out, workspace
         out.mkdir(parents=True, exist_ok=True)
         self.model_slug = model_slug
-        factory = configuration_factory or configuration
-        home, overrides = factory(out, workspace, base_url, model_slug=model_slug,
-                                  effort=effort, extra_config=extra_config)
+        home, overrides = configuration(out, workspace, base_url, model_slug=model_slug, tier=tier,
+                                        effort=effort, extra_config=extra_config)
         env = os.environ.copy()
         env['CODEX_HOME'] = str(home)
         for key in list(env):
             if key.upper().endswith('_PROXY') or key.startswith(('CODEX_', 'OPENAI_')):
                 if key != 'CODEX_HOME':
                     env.pop(key)
-        env.update(env_overrides or {})
         self.events = (out / 'events.jsonl').open('a', encoding='utf-8')
         self.stderr = (out / 'stderr.log').open('a', encoding='utf-8')
-        self.proc = subprocess.Popen([*(command_prefix or []), shutil.which('codex'), '--no-daemon', *overrides, 'app-server'],
+        # The native binary ARW runs use (native_cli), not the npm wrapper on PATH.
+        self.proc = subprocess.Popen([str(CODEX), '--no-daemon', *overrides, 'app-server'],
             cwd=workspace, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             stderr=self.stderr, start_new_session=True)
         self.messages, self.responses = [], queue.Queue()

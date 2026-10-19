@@ -7,7 +7,9 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.reviewer.arw_recovery import archive_recovery, verify_stopped_runtime
-from tools.reviewer.arw_measure import execute_review, load_resume_cleanup
+from tools.reviewer.arw_measure import driver_context, execute_review, load_resume_cleanup
+
+TIER = {'context_window': 206584, 'auto_compact_token_limit': 150000}
 
 
 class RecoveryTests(unittest.TestCase):
@@ -121,7 +123,7 @@ class RecoveryTests(unittest.TestCase):
     def test_startup_snapshot_survives_failed_dispatch(self):
         metadata = {'startup_instructions': {'sha256': 'snapshot', 'text': 'Service instructions'},
                     'runtime_installation': str(self.new)}
-        self.failed_dispatch({'model': 'Q2_0', 'effort': 'medium'}, metadata)
+        self.failed_dispatch({'model': 'Q2_0', 'effort': 'medium', **TIER}, metadata)
         record = json.loads((self.out / 'next/result.json').read_text())
         self.assertEqual(record['startup_instructions'], metadata['startup_instructions'])
         self.assertEqual(record['runtime_installation'], str(self.new))
@@ -130,7 +132,7 @@ class RecoveryTests(unittest.TestCase):
     def test_measurement_note_is_appended_and_bound(self):
         note = {'path': 'benchmarks/reviewer-suite-v1/measurement-note.txt',
                 'sha256': '0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb'}
-        self.failed_dispatch({'model': 'IQ3_XXS', 'effort': 'high', 'measurement_note': note})
+        self.failed_dispatch({'model': 'IQ3_XXS', 'effort': 'high', 'measurement_note': note, **TIER})
         binding = json.loads((self.out / 'next/binding.json').read_text())
         self.assertTrue(binding['handoff'].startswith('Original handoff\n\nMeasurement note: '))
         self.assertTrue(binding['handoff'].endswith('outside the scenario root).'))
@@ -138,9 +140,14 @@ class RecoveryTests(unittest.TestCase):
 
     def test_changed_measurement_note_is_refused(self):
         note = {'path': 'benchmarks/reviewer-suite-v1/measurement-note.txt', 'sha256': '0' * 64}
-        self.failed_dispatch({'model': 'IQ3_XXS', 'effort': 'high', 'measurement_note': note},
+        self.failed_dispatch({'model': 'IQ3_XXS', 'effort': 'high', 'measurement_note': note, **TIER},
                              error='Measurement note differs')
         self.assertFalse((self.out / 'next/binding.json').exists())
+
+    def test_driver_owned_selection_without_window_is_refused(self):
+        with self.assertRaisesRegex(ValueError, 'context_window and auto_compact_token_limit'):
+            driver_context({'model': 'IQ3_XXS', 'effort': 'high', 'context_window': 206584})
+        self.assertEqual(driver_context(TIER), (206584, 150000))
 
 
 if __name__ == '__main__':

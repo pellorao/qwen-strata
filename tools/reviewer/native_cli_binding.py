@@ -3,6 +3,11 @@ import hashlib
 from pathlib import Path
 import subprocess
 
+# The native Codex binary the npm `codex` wrapper starts. ARW runs (native_cli) execute it directly, and its
+# sandbox helper re-executes it, so a restricted permission profile must keep this directory readable.
+CODEX_VENDOR = Path.home() / '.local/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor'
+CODEX = CODEX_VENDOR / 'x86_64-unknown-linux-musl/bin/codex'
+
 
 def verify_native_cli(binding):
     if binding is None:

@@ -160,6 +160,14 @@ def review_shell_policy(runtime_file):
     return {'exclude':list(REVIEW_SHELL_EXCLUDE),'set':review_shell_environment(runtime_file)}
 
 
+def driver_context(selection):
+    """A driver-owned run states its harness window and compaction limit; nothing falls back to a guess."""
+    window,limit=selection.get('context_window'),selection.get('auto_compact_token_limit')
+    if type(window) is not int or type(limit) is not int or not 0<limit<window:
+        raise ValueError('A driver-owned selection needs its context_window and auto_compact_token_limit')
+    return window,limit
+
+
 SPEC_STAGES={'runtime-migration':0,'artifact-promotion':1}
 
 
@@ -187,7 +195,7 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
             'model_providers':{'qwen_strata':{'name':'Local Strata','base_url':os.environ['QWEN_ARW_MODEL_BASE'],
                 'wire_api':'responses','env_key':'STRATA_API_KEY','requires_openai_auth':False,'supports_websockets':False}}}}
     if selection.get('model_owner')!='arw':  # ARW's provider sets the window from the selected installation tier
-        settings['config']['model_context_window']=selection.get('context_window',250000)
+        settings['config']['model_context_window']=driver_context(selection)[0]
     if selection.get('loop_reminder')=='on':  # deprecated frontend loop reminder, off unless selected
         settings['config']['model_providers']['qwen_strata']['http_headers']={'X-Loop-Reminder':'on'}
     if 'auto_compact_token_limit' in selection:
@@ -615,6 +623,7 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
             or selection.get('loop_prevention_instructions') or 'auto_compact_token_limit' in selection or profile or resume):
         raise ValueError('ARW-owned model runs choose only the model, effort and a published context tier; '
                          'engine, sampling and compaction settings are installation defaults, with ARW continuation and no resume')
+    if not arw_owned:driver_context(selection)
     old_runtime=json.loads((out/'runtime.json').read_text()) if resume else {}
     cleanup_path=Path(old_runtime.get('cleanupPath',out/'arw-cleanup.json'))
     if resume:
@@ -771,6 +780,8 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
                     if current_profile:options['profile_file']=current_profile
                     profile_before=measurement_host.profile_sha256(selection['model']) if measurement_host and current_profile is None else None
                     status,load_s=controller.start(**options)
+                    if status.get('native_health',{}).get('max_context')!=selection['context_window']:
+                        raise RuntimeError('Loaded Strata capacity differs from the selected harness window')
                     startup=status.get('native_health',{}).get('startup_instructions')
                     if selection.get('startup_instructions',True) is False:
                         if not startup or startup.get('enabled') is not False:
