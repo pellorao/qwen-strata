@@ -1,6 +1,6 @@
 # 多模型 benchmark v1 运行计划（定稿，待冻结）
 
-2026-10-19 定稿。依据：用户决定（`docs/plan.md`「多模型 benchmark」，三轮答复）、方案稿与独立审查（Opus high）。本计划按[运行计划](../../.claude/skills/run-plan/SKILL.md)的结构写成。冻结前还要过独立审查（硬约束 1「重要决策」），审查意见和处理记在本文末尾。三份盲裁 brief 草稿（Code Spec v5、Code Standards v5.1、Spec Readiness v4.3）尚未冻结。冻结要满足两点：在看到任何 benchmark 输出之前；通过本文「盲裁」一节的试点。
+2026-10-19 定稿。依据：用户决定（`docs/plan.md`「多模型 benchmark」，三轮答复）、方案稿与独立审查（Opus high）。本计划按[运行计划](../../.claude/skills/run-plan/SKILL.md)的结构写成。独立审查（硬约束 1「重要决策」）已完成，意见和处理记在 §13。三份盲裁 brief 草稿（Code Spec v5、Code Standards v5.1、Spec Readiness v4.3）已按独立核对修改，尚未冻结。顺序固定为：在看到任何 benchmark 输出之前冻结 brief → 用冻结 brief 做双裁试点（§6.2）→ 试点不过就维持单名 Opus，brief 不改。
 
 ## 1. 目的
 
@@ -25,7 +25,8 @@
 | 22–24 | Claude Code 2.1.303 无头 | `deepseek-flash` | low / medium / high | `BENCHMARK_DEEPSEEK_API_KEY` | 无 | 无 |
 | 25–27 | Claude Code 2.1.303 无头 | Strata `qwen3.8-flash-next-iq3_xxs` | low / medium / high | 前端租约 | 启动提示（服务端）与压缩提示（PreCompact） | 无 |
 
-- 模型 ID 以 API 实际返回的为准，逐实例记录：Codex 的 API provider 由 relay 记录，Claude Code 从 stream 的 `model` 和 `modelUsage` 读取。别名 `opus`、`sonnet`、`haiku` 在开跑前解析成具体 ID，写进绑定。
+- 模型 ID 以 API 实际返回的为准，逐实例记录：Codex 的 API provider 由 relay 记录，Claude Code 从 stream 的 `model` 和 `modelUsage` 读取。别名 `opus`、`sonnet`、`haiku` 在开跑前解析成具体 ID，写进绑定，正式运行的 `--model` 直接传具体 ID。
+- 匹配规则（用于 S5）：返回的 ID 与绑定 ID 完全相同，或是绑定 ID 后接日期后缀（`-YYYY-MM-DD` 或 `-YYYYMMDD`），算一致；其余算不符。ChatGPT 后端若不返回模型 ID，记为未知，不触发 S5。Strata 不适用。
 - DeepSeek 在两个 harness 上都写死为 `deepseek-flash`（官方 2026-10-19：当前为 DeepSeek-V4.1-Flash-1017）。在 Claude Code 上，`claude-opus-*` 这类名字会被端点映射到 v4-pro，所以 runner 把所有模型变量都设为 `deepseek-flash`，并拒绝 Claude 名字（`tools/reviewer/claude_headless.py` 的 `deepseek_model`）。
 - 端点：
   - DeepSeek 在 Codex 上用 OpenAI 格式 `https://api.deepseek.com`（Responses，`wire_api = "responses"`），在 Claude Code 上用 Anthropic 格式 `https://api.deepseek.com/anthropic`。
@@ -55,7 +56,7 @@
 
 - **版本**：
   - Strata 开跑前可以升级（D12），第一个模型实例开始后固定，直到最后一个实例跑完。
-  - Codex 0.162.0 和 Claude Code 2.1.303 另装 benchmark 专用副本，记录 SHA，不动用户日常安装和它们的自动更新。Codex 副本由 `native_cli` 绑定校验；Claude Code 副本用 `claude=` 参数传给 runner。
+  - Codex 0.162.0 和 Claude Code 2.1.303 另装 benchmark 专用副本，记录 SHA，不动用户日常安装和它们的自动更新。Codex 副本由 `native_cli` 绑定校验；Claude Code 副本用 `--claude` 传给 `claude_headless` 和 `claude_gate`，两个 CLI 都拒绝运行版本不是 2.1.303 的二进制，并把路径和 SHA 写进绑定（`claude_headless.pinned_binary`）。
   - Claude Code 副本在核对版本后跑一次 `tools.ops.claude_compact_probe`（部署规则），否则 Strata 臂的压缩点可能退回到窗口 − 23000。
 - **场景与评分**：
   - 场景版本：Code Spec v5（修订 38）、Code Standards v5.1（修订 25）、Spec Readiness v4.3（修订 46）、Commit Audit v3（修订 24），各自的冻结源 manifest 见 [versions.md](../reviewer-suite-v1/versions.md)。
@@ -68,22 +69,26 @@
 - **基础提示**（D4，硬约束 3 的 benchmark 例外）：
   - 启动提示和压缩提示只给 Strata，SHA 绑定照旧：启动提示 `5f9efc02…`，去掉防循环段后加载；压缩提示 `3856cb62…`。
   - API 模型都不接入：Codex 的 selection 写 `startup_instructions: false` 和 `project_compaction_instructions: false`；Claude Code 传 `--no-startup-prompt --no-compact-prompt`。
+  - 逐实例核对：API 臂的记录必须是 `startup_instructions.enabled == false`、`compact_prompt_sha256` 为空，Strata 臂必须是两份 SHA 与上面一致；不符的实例无效。
   - 场景提示只追加，与 Strata 相同。
 - **搜索全部关闭**（D5 最终，2026-10-11 规则在 benchmark 期间豁免）：
-  - Codex：所有 selection（包括 Strata）都写 `web_search: "disabled"`。安全门在请求里看到搜索工具即判失败（`web_search_tools`）。
+  - Codex：所有 selection（包括 Strata）都写 `web_search: "disabled"`。安全门在请求里看到搜索工具即判失败（`web_search_tools`）。正式实例逐个检查 rollout 中 `web_search_call` 为 0。
   - Claude Code：`--tools` 不含任何 web 工具，同时 `--disallowedTools WebSearch,WebFetch`。`claude_gate` 检查请求和 init 事件中都没有客户端或服务端搜索工具，并逐实例统计 `server_web_requests`，必须为 0。
 - **service tier**（D14）：
   - 一律 default。Codex 用 `serviceTier: default`（mock 请求显示，default 时 Codex 不发送 `service_tier` 字段）；Claude Code 不传。
   - 实际返回值逐实例记录：Codex 的 API provider 由 `tools/reviewer/api_relay.py` 记录（`service_tier_returned`）；Claude Code 从 stream 每条 assistant 消息的 `usage.service_tier` 读取（`service_tiers`）。Strata 不适用。
-  - 返回值不是 default 或 standard 时，按停止点 S5 处理。
+  - 只有实际返回了 tier、且不在 {default, standard} 内时，才按停止点 S5 处理。没有返回（`not-returned`）的记为未知，照常计分，在报告里注明。
 - **guardian**（D6）：OpenAI 用原生默认 codex-auto-review；DeepSeek 用同模型 low（selection 写 `guardian_model`）；Strata 用服务端默认。Claude Code 的 dontAsk 没有 guardian，列为混杂。
 - **权限**：
   - Codex 路径沿用 `:read-only` 加报告专用父目录写授权，审批走 on-request / auto_review。
+  - 计划中的收紧（G7，阶段 0 必做，待用户复核）：所有 Codex 臂（包括 Strata）对 `~/.claude/.credentials.json`、`~/.codex/auth.json`、benchmark 登录目录和 `project.private.toml` 一律 deny-read，并在合成 `HOME` 下用合成文件验证。原因：`:read-only` 能读这些文件，API 臂会把读到的内容发往外部服务。这偏离 reviewer-suite「不额外收紧」，所以实施后由用户复核；规则的豁免与实施同时写入。
   - Claude Code 路径用 `claude_headless` 的隔离参数：`--setting-sources ""`、`--restricted`、dontAsk、只授权写路径、Bash 沙箱只读工作目录且无网络、`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1`、工作目录在 `/var/tmp/qwen-claude`。DeepSeek 和 Strata 臂另用全新的 `HOME` 和 `CLAUDE_CONFIG_DIR`。
 - **凭据**：
   - ChatGPT 登录：每次运行的全新 CODEX_HOME 里只放一个指向 benchmark 专用登录文件的符号链接，运行结束时移除；Codex 刷新登录、把链接换成真文件时，原样移回（`providers.link_login` / `release_login`）。工程从不打开登录文件。
   - 同一份登录在同一时刻只给一个 Codex 运行用，所以 OpenAI 的 6 个配置串行，不并行，以免 refresh token 轮换时互相作废。
   - DeepSeek key 只在进程环境里，由 Codex 的 `env_key` 读取，或作为 Claude Code 的 `ANTHROPIC_AUTH_TOKEN`；命令环境里会被去掉。
+  - 所有凭据变量（`BENCHMARK_DEEPSEEK_API_KEY`、`BENCHMARK_OPENAI_API_KEY`、`STRATA_API_KEY`、`STRATA_REMOTE_PASSWORD`）在每个 Codex 臂的命令环境里一律排除，ARW daemon 的环境也去掉本次 provider 以外的 key（`providers.shell_exclude`、`process_environment`）。审查前的 ChatGPT mock 门显示，全局设置的 DeepSeek key 在 OpenAI 臂的命令环境里可见（`shell_env_key: VISIBLE`）；修复后用 DeepSeek 变量名作 canary 重跑，结果为 `absent`（`.tmp/bench-final-1019/codex-chatgpt-mock-m1`）。
+  - 需要恢复的运行（`recovery-required.json`）不归还登录，因为恢复还要用它；恢复完成后由恢复步骤调用 `release_login`。
 - **API 模型的 catalog**：开跑前把 Codex 0.162.0 内置 catalog 中 `gpt-6.1-sol`、`gpt-6-luna` 的条目，以及 DeepSeek 条目（按 ARW `deepseek.md` 写），存为 `benchmarks/multi-model-v1/catalogs/` 下的冻结文件并记 SHA。注意 catalog 里 luna 的默认档可能是 priority，`serviceTier` 显式写 default。
 - **排程**：同一场景内，配置按块交替，每轮反转顺序；Strata 的同一配置连跑，换配置时冷加载并预热（测量规则）。付费模型固定 5 次；Strata 在 GPU 空闲时加测到 10 次，目标次数事先定为 10，主表只用预登记的前 5 次。
 
@@ -103,6 +108,7 @@
 10. **ChatGPT 套餐**：只报 token，不报金额。套餐的限速或路由可能与 API 不同。
 11. **IQ3_XXS 参数来自 v0.1.42 调参**：benchmark 就在当前版本上跑。Haiku 的订阅额度扣减比例未核对，首次 Haiku 运行时记录前后用量。
 12. **盲裁方式**（§6）：试点通过后，裁决者不是单名 Opus；每个场景内部只用一种方式。
+13. **两个 harness 的读取范围不同**：Claude Code 的工具和 Bash 沙箱只能读工作目录；Codex `:read-only` 能读宿主文件（G7 只去掉凭据路径）。
 
 ## 5. 统计口径
 
@@ -115,8 +121,9 @@
   - 费用：Anthropic 按 API 等价美元并折算周额度；DeepSeek 按开跑当日的官方单价；OpenAI 只报 token；Strata 按测量规则的等效费用公式；
   - 实际返回的模型 ID 和 service tier。
 - 逐实例表固定保留（测量规则）。不给比值、综合分和排名（D7）。
-- 文字比较只用预登记的一组：同一 harness、同一强度下，Strata 对其他每个配置；DeepSeek 和 Strata 各自的 Codex 对 Claude Code。Holm 校正后，Welch 95% 区间不含 0 才写"高于 / 低于"，其余写"未分出"。表中全部数字照常给出。
-- 实例无效、重跑和会话检查按测量规则与 reviewer-suite「会话检查」执行。会话检查交便宜模型（D9）：它读过滤后的 `actions.md` 和 `flagged.md`（`inspect_session` 已对凭据值打码），被标记项再由 Main 复核。
+- 文字比较只用预登记的一组：同一 harness、同一强度下，Strata 对其他每个配置（Codex 3 × 3、Claude Code 4 × 3）；DeepSeek 和 Strata 各自的 Codex 对 Claude Code（2 × 3）。每个场景是一个校正族，共 27 个比较，Holm 校正，双侧 α = 0.05，Welch t 检验用 Welch–Satterthwaite 自由度；Strata 只用预登记的前 5 次。校正后显著才写"高于 / 低于"，其余写"未分出"。n = 5 对 5 时能分辨的差约 0.3（审查估算），报告写明这一点。表中全部数字照常给出。
+- 墙钟耗时按阶段报告（门与探针、每个场景批次、盲裁、会话检查、计分），用于下次 benchmark 的排期。
+- 实例无效、重跑和会话检查按测量规则与 reviewer-suite「会话检查」执行。会话检查交便宜模型（D9，reviewer-suite「会话检查」已写入例外）：它读过滤后的 `actions.md` 和 `flagged.md`（`inspect_session` 已对凭据值打码），被标记项和它判为可疑的实例再由 Main 复核。
 
 ## 6. 盲裁
 
@@ -145,22 +152,25 @@
 - 历史对照：已完成场景周期的启动估计里，盲裁约占三分之一。Commit Audit v3 正式周期中，两次 Opus 盲裁 $28.4 / 周期合计 $81.3 ≈ 35%；Spec Readiness v4.2 为 $22.0 / $65.6 ≈ 34%。那些周期的模型运行几乎都是 Strata，不占额度，所以只作上界参考。
 - 总量：中值约 $680（含 Main 开销）。按 K = 0.086%/美元（`estimate.sh` 已校准）折算，约占周额度 58%，范围 45–73%，需要跨两个额度周期。最能省的是后处理脚本化和会话检查交便宜模型。
 
-**结论**：中值 24% ≥ 20%，历史对照也高于 20%，按用户规则改为双裁，并先试点。这一改动取代 README「现行决定」中"盲裁用 Opus，不用 Sonnet"那一条，因为用户后来给的 20% 规则是更新的决定。双裁省下的 Anthropic 额度约为 $140 −（Sonnet $54 + Opus 复核约 $21 + 试点约 $10）≈ $55，约占周额度 5%。luna 用 ChatGPT 套餐，只报 token。
+**结论（暂定）**：按"占 benchmark 的 Anthropic 总消耗"算，中值 24% ≥ 20%，历史对照也高于 20%，所以暂定改为双裁，并先试点。若分母是"占周额度"，盲裁约 140 × 0.086% ≈ 12%，不足 20%，应维持单名 Opus。用户规则没写分母，交用户确认；确认前按双裁准备，但试点和正式裁决都在用户答复之后才开始。这一改动暂定取代 README「现行决定」中"盲裁用 Opus，不用 Sonnet"那一条。双裁省下的 Anthropic 额度约为 $140 −（Sonnet $54 + Opus 复核约 $21 + 试点约 $10）≈ $55，约占周额度 5%。luna 用 ChatGPT 套餐，只报 token。
 
 ### 6.2 双裁流程
 
 - 两名裁决者独立工作，都看不到对方的结论，用同一份冻结 brief，都读被审代码的 view。
   - Sonnet medium：Claude Code 无头，参数同 Sonnet 试点。
-  - gpt-6-luna high：Codex 无头。需要新增裁决 runner，参照 Sonnet 试点的隔离方式，用全新 CODEX_HOME、链接登录、`:read-only` 加只写结果目录、`web_search: disabled`，并先过零模型门；这是开跑前缺口 G6。
-- 两者一致且都没有标"拿不准"的，直接采纳。分歧项和任一方标"拿不准"的交 Opus high 终裁。所有 k = 4 档的反例误报一律双裁，这是评分 r8 的规则。
+  - gpt-6-luna high：Codex 无头。需要新增裁决 runner（G6）：全新 CODEX_HOME、链接登录、`web_search: disabled`；权限不用 `:read-only`，而用 `tools.tuning.codex_workload.isolation` 一类的原生权限 profile，命令只能读裁决工作目录（池、view、brief）并只写结果文件，开跑前用 `tools.tuning.sandbox_probe` 一类的零模型探针确认答案键、工程、CODEX_HOME 和其他运行目录读不到。
+- 两者一致且都没有标"拿不准"（brief 输出的 `unsure: true`）的，直接采纳。已冻结的 Commit Audit v3 brief 没有 `unsure` 字段，也写死了裁决者，是否只加这两处输出字段后重新冻结，按重要决策处理（§13）；未处理前 Commit Audit 走单名 Opus。分歧项和任一方标"拿不准"的交 Opus high 终裁。所有 k = 4 档的反例误报一律双裁，这是评分 r8 的规则。
 - 池按场景混合打乱，所有配置跑完后统一盲裁，隐去来源。每池混入锚点（10–15 个已有 Opus 裁决）和合成负例。锚点一致率按来源模型分组报告。
 - **试点**（在冻结 brief 之后、任何 benchmark 裁决之前）：
-  - 用 Sonnet 试点的两个池：s1 为 Commit Audit v3 的 92 项，s2 为 Code Standards v5.1 的 62 项；再加 Spec Readiness v4.2 的 Opus 已裁池。
+  - 用 Sonnet 试点的两个池：s1 为 Commit Audit v3 的 92 项，s2 为 Code Standards v5.1 的 62 项；再加 Spec Readiness v4.2 和 Code Spec v5 的 Opus 已裁池，四个场景都有试点。锚点从同一场景版本的已裁池中取（Code Spec v5 正式池里来自 v4.7 的锚点不能用，它们引用的代码在 v5 已改正）。
   - 完整走一遍双裁加 Opus 终裁，结果与原 Opus 裁决比较。
   - 通过线（事先写定，三条同时满足）：
     1. 最终裁决与 Opus 原判的一致率：真实候选 ≥ 95%，难项层 ≥ 90%；
     2. 合成负例全部识别；
     3. 按最终裁决重算已有正式实例，每个配置的场景均值 |Δ| ≤ 0.02。原通过线的比值判据不适用于 benchmark，改为这一条。
+  - 另记升级率（交 Opus 终裁的比例）：超过 30% 时双裁省不下额度，按未通过处理。
+  - 正式裁决中，某个池的锚点一致率低于 90% 或合成负例有一个没识别，该池整池交 Opus 重裁。
+  - 裁决编排（拆池、合并、终裁派发）的费用计入 §6.1 的"后处理"一项。
   - 未通过：维持单名 Opus 全量裁决，加锚点与合成负例，并在报告里写明。
 - 第一个场景批次做完后，用实测费用重算一次占比，只用于下一个周期的额度预测，不再回头改裁决方式。每个场景内部只用一种方式。
 
@@ -174,25 +184,28 @@
 - **每个模型配置一次短冒烟**（27 次）：
   - Codex 的 API 配置：`safety_gate --provider-run`，plan 写 `smoke: true`，效果为 `authorized_read` 加 `unauthorized_delete` 各 1 次，读探针开启。
   - Claude Code 的 API 配置：`claude_gate --live --subset smoke --repeat 1`。
-  - Strata 配置：Codex 侧用 `safety_gate --run` 的 smoke plan。Claude Code 侧目前只有 mock 门，因为 `claude_gate` 的 live 模式不支持 Strata（要领租约）；用 mock 门加该配置第一个实例的会话检查代替，这一偏离交 Main 定。
+  - Strata 配置：Codex 侧用 `safety_gate --run` 的 smoke plan。Claude Code 侧见下文 G8。
 - **零模型证据**（2026-10-19，`.tmp/bench-final-1019/`）全部通过：
-  - Codex mock 门：ChatGPT 合成登录（netns 内）、DeepSeek key 模式、Strata。三者都是原生沙箱 9 类中 8 类拒绝，`new_sibling` 按已批准策略允许；搜索工具 0（DeepSeek 和 ChatGPT 的 plan 写了 disabled）。
+  - Codex mock 门：ChatGPT 合成登录（netns 内）、DeepSeek key 模式、Strata。三者都是原生沙箱 9 类中 8 类拒绝，`new_sibling` 按已批准策略允许。搜索工具：DeepSeek 和 ChatGPT 的 plan 写了 disabled，为 0；Strata 第一次没传 `web_search`，请求里有 2 个搜索工具，加 `--web-search disabled` 重跑后为 0（`codex-strata-mock-nosearch`）。
+  - M1 修复后的 ChatGPT mock 门（`codex-chatgpt-mock-m1`）：命令环境里的 DeepSeek canary 为 `absent`，`/proc` 祖先不可读。
   - Claude Code mock 门：DeepSeek low/medium/high、Strata low/medium，隔离通过，搜索工具 0。
   - 观察到：ChatGPT 登录下 Codex 照样走 `openai_base_url`，请求体用 zstd 压缩，mock 已支持。
-- **残余风险（交 Main 决定）**：
-  - Codex `:read-only` 能读宿主文件，包括链接进来的 ChatGPT 登录文件。mock 读探针显示 `credential_file: READABLE`，这与 Strata 路径上本来就能读工程文件同类。现有缓解：会话检查把 `auth.json` 标为凭据材料，提取输出对 JWT 和 token 打码，链接在运行结束即移除。
-  - 可选的进一步收紧：给 Codex 加对该文件的 deny-read。这偏离"不额外收紧"的规则，所以不默认启用。
+- **残余风险**：
+  - Codex `:read-only` 能读宿主文件，包括链接进来的 ChatGPT 登录文件、`~/.claude/.credentials.json` 和 `project.private.toml`；mock 读探针显示 `credential_file: READABLE`。API 臂会把读到的内容发往外部服务，所以与 Strata 路径能读工程文件不同类。处理：G7 deny-read（§3「权限」），阶段 0 实施并用合成文件验证，没通过就不启动 API 臂。会话检查把 `auth.json`、`.credentials.json` 标为凭据材料，提取输出对 token 打码，作为兜底。
+  - Claude Code 上的 Strata 臂没有 live 冒烟，因为 `claude_gate` 的 live 模式不支持 Strata。G8（阶段 0）：给 `claude_gate` 加 Strata live smoke，经 `strata_run` 领租约运行；做完之前用 mock 门加该配置第一个实例的会话检查代替，并在报告里写明。
   - DeepSeek key 在 Codex 进程环境里。mock 门显示 `/proc` 祖先不可读，命令环境里没有这个 key。建议用户在 DeepSeek 控制台给 benchmark key 设单独的花费上限。
 
 ## 8. 开跑前的探针方案（只写方案，本轮不运行）
 
 | 编号 | 问题 | 做法 | 规模与费用 | 判定 |
 |---|---|---|---|---|
-| P0 | ChatGPT 登录 + relay 是否可用；WebSocket 是否会回退到 HTTP；返回的 tier | 用户登录后，在 `gpt-6-luna` low 上跑一次 `safety_gate --provider-run`（smoke） | 2 个会话，少量 token | 判定条件：`relay.jsonl` 中请求数 > 0；`websocket_refused` 为 0，或被拒后 HTTP 请求成功；`service_tiers` 只有 default；`login-release.json` 为 `link-removed` 或 `refreshed-file-moved-back`。失败时先关 relay（`relay: false`），tier 记为未知，交 Main 定 |
+| P0 | ChatGPT 登录 + relay 是否可用；WebSocket 是否会回退到 HTTP；返回的 tier | 用户登录后，在 `gpt-6-luna` low 上跑一次 `safety_gate --provider-run`（smoke） | 2 个会话，少量 token | 判定条件：`relay.jsonl` 中请求数 > 0；`websocket_refused` 为 0，或被拒后 HTTP 请求成功；`service_tiers` 只有 default；`login-release.json` 为 `link-removed` 或 `refreshed-file-moved-back`。失败时先关 relay（`relay: false`），tier 记为未知，交 Main 定。同时记下这 2 个会话消耗的套餐用量，估算 6 个 OpenAI 配置 × 20 实例能否在套餐限额内跑完 |
 | P1 | DeepSeek 在 Claude Code（Anthropic 格式）和 Codex（Responses）上，三档是否真的不同 | 固定一道需要多步推理的短题，每档 3 次单请求，直接发给端点，key 取自环境变量，不打印。Anthropic 格式发 `output_config.effort` 和 `thinking: adaptive`，与 Claude Code 2.1.303 实际发送的相同（mock 已核实）；Responses 发 `reasoning.effort` | 每个格式 9 个请求，约 $0.05 | 记录各档输出 token 中位数和思考 token（若返回）。high 的中位数不到 low 的 1.5 倍，且分布重叠，就判"该格式下三档无差别"。三档照跑（用户已定），但报告注明；是否删档属于测量目标，交用户 |
 | P2 | Claude Code 上 DeepSeek 的搜索能否关掉 | 零模型部分已完成：mock 请求里没有任何客户端或服务端搜索工具。live 部分：用 `claude_gate --live --backend deepseek --subset smoke` 跑一次，再发 1 个不带工具、询问当日新闻的单请求 | 2 次 | 通过条件：stream 的 `server_web_requests` 为 0，响应 `usage.server_tool_use` 为空或 0，正文没有引用来源。之后每个实例持续检查 `server_web_requests` 为 0 |
 | P3 | DeepSeek 的 Responses 端点能否支撑 Codex + ARW（自由格式工具 apply_patch、推理项回放、流事件） | 每个 provider 先跑 1 个预检实例（Commit Audit，不计入统计） | 1 实例 | ARW 正常交付报告即通过。出现 ARW 的 `deepseek-timeout`、`deepseek-no-final-report` 标签或协议错误，就停下这一组配置并报告 |
-| P4 | CS/CStd 时限公式的 P、G、β | 每个配置在这两个场景的批次前跑一次短探针 | 每配置 1 次 | 写进绑定 |
+| P4 | CS/CStd 时限公式的 P、G、β | 每个配置在这两个场景的批次前跑一次短探针（[scenario-design.md](../reviewer-suite-v1/scenario-design.md) 的定义）：P、G 为该配置的读入、生成速度（token/s），β 为该场景输入的字节 ÷ 实际输入 token（字节/token），k 沿用场景已定值。Strata 取引擎日志；API 模型取 usage 与墙钟，P 含网络和首 token 延迟 | 每配置 1 次 | 写进绑定；探针失败或数值离同类配置 3 倍以上时重测一次，仍异常就交 Main |
+| P5 | Claude Code 对 Anthropic 具体模型 ID 是否也发送 `output_config.effort` | 零模型：mock 门用具体 ID（如 Opus 的完整 ID）跑 low/high 各 1 次，查看请求体 | 0 费用 | 请求里有对应的 `output_config.effort` 即通过；不通过就改用别名并记录解析结果 |
+| P6 | Strata 与其他运行同机并行时速度是否下降 | 预登记：每个 Strata 批次记引擎输出 tok/s，与无并行时的基线对照 | 不额外运行 | 低于 60 tok/s 按 S3 处理；与基线差超过 10% 时在报告里注明 |
 
 ## 9. 分批顺序与额度、GPU 预算
 
@@ -201,7 +214,14 @@
   - 冻结 API catalog；
   - 安装 benchmark 专用的 Codex 和 Claude Code 副本，并跑 compact probe；
   - G6 luna 裁决 runner 加零模型门；
+  - G7 Codex 凭据路径 deny-read，并用合成文件验证（之后交用户复核）；
+  - G8 `claude_gate` 的 Strata live smoke；
+  - 已冻结的 Commit Audit v3 brief 是否加 `unsure` 字段（§6.2）；
+  - Code Standards brief 的 extraCharges / memberId 诱饵条款：按答案键 C22、C29 的 placement 核对后补上（独立核对建议 S3）；
+  - 重建 `check_briefs.py` 依赖的物化目录（`.tmp/bench-prep-1019/arw-*` 已删），或改为直接对照答案键，再做冻结前的机械核对；
+  - 盲裁 view 从冻结 fixture 构造：Spec Readiness 的 `REVIEWER-REQUEST.json` 由运行目录中的请求文件复制改名，并把 `draftPath` 打码；
   - 跨模型汇总报告流水线（含 G4 Code Standards 逐实例表）；
+  - 核实项目压缩提示文件对 OpenAI 远端压缩是否生效（API 臂已关闭该提示，只需确认关闭后没有残留）；
   - 本计划冻结。
 - **阶段 1（门与探针）**：两种 harness 的完整门 → P0–P2 → 27 次冒烟 → P3 预检。
 - **阶段 2（按场景分批）**：每个场景的全部配置尽量在 48 小时内跑完，场景之间不并行。
@@ -223,7 +243,7 @@
 - S2：ARW 到达原版 10/5 次早退暂停点，停下交用户。
 - S3：意外事件，如 Strata 引擎输出低于 60 tok/s、主机重启、租约异常。先记录，再尽量解决或绕过；受影响的实例作废后重跑。
 - S4：`estimate.sh --can-start` 判定不建议，暂停 Anthropic 批次，其余照常。
-- S5：返回的 service tier 不是 default 或 standard、模型 ID 与绑定不符，或 `server_web_requests` > 0，该实例无效，暂停该配置，查明原因后再继续。
+- S5：实际返回的 service tier 不在 {default, standard} 内（未返回的不算）、模型 ID 按 §2 的匹配规则与绑定不符，或 `server_web_requests` > 0、rollout 中 `web_search_call` > 0，该实例无效，暂停该配置，查明原因后再继续。
 - S6：DeepSeek 达到用户给的花费上限、ChatGPT 套餐限速持续超过 1 小时，暂停对应配置。
 - S7：P3 预检失败，该 provider 的那组配置停下报告，其余配置继续。
 - 完成条件：540 个有效实例全部计分，会话检查完成，报告经独立审查。
@@ -233,7 +253,7 @@
 开始前由 Main 说明清楚并取得用户同意，再开始等待。
 
 1. **Codex 登录**（使用 OpenAI 模型之前）：Main 通知用户后，用户在 benchmark 专用目录里登录。目录在工程外，建议 `/home/pello/.local/share/qwen-bench/codex-home`。命令为 `CODEX_HOME=<该目录> <benchmark 专用 codex> login`，按提示完成 ChatGPT 登录。agent 不读这个目录里的文件。
-2. **DeepSeek key**（使用 DeepSeek 之前）：用户把 key 设为 WSL 环境变量 `BENCHMARK_DEEPSEEK_API_KEY`。建议同时在 DeepSeek 控制台给这个 key 设单独的花费上限，并把上限告诉 Main。
+2. **DeepSeek key**（使用 DeepSeek 之前）：用户只在启动 benchmark 会话的那个终端里 `export BENCHMARK_DEEPSEEK_API_KEY=…`，不写进 shell profile，以免日常的其他会话也带着它。runner 已对非 DeepSeek 的子进程去掉它（§3「凭据」）。建议同时在 DeepSeek 控制台给这个 key 设单独的花费上限，并把上限告诉 Main。
 
 ## 12. 实现位置（本轮已完成的代码适配）
 
@@ -249,13 +269,52 @@
   - `--disallowedTools WebSearch,WebFetch`、`--no-compact-prompt`；
   - stream 摘要记录 `service_tiers`、`server_web_requests`。
 - `tools/safety/claude_gate.py`：deepseek mock/live、`--no-startup-prompt`、`--subset smoke`、搜索工具判定。
-- `tools/reviewer/inspect_session.py`：凭据值打码，`auth.json` 和 `.credentials.json` 计为凭据材料。
+- `tools/reviewer/inspect_session.py`：凭据值打码（含 JSON、单引号和转义引号写法，以及 `*PASSWORD=`），`auth.json` 和 `.credentials.json` 计为凭据材料。
+- 审查后补的（2026-10-19）：`providers.shell_exclude` / `process_environment`（所有凭据变量排除，M1）；`claude_headless.pinned_binary` 与两个 CLI 的 `--claude`（M6）；`safety_gate --web-search`（Strata 零模型模式）。
 - 仍待实现（阶段 0）：
-  - G6 luna 裁决 runner；
+  - G6 luna 裁决 runner；G7 deny-read；G8 Strata 臂在 Claude Code 上的 live 冒烟；
   - 跨模型汇总流水线；
-  - Strata 臂在 Claude Code 上的 live 冒烟（可选，见 §7）；
   - Codex selection 的 `startup_instructions` / `project_compaction_instructions` 已有开关，只需在 plan 里写成 false。
 
 ## 13. 独立审查意见与处理
 
-（审查完成后填写。）
+2026-10-19，两名全新的 Opus 独立 agent（不是 fork），开之前 `estimate.sh --can-start` 判定可以开始。
+
+### 13.1 方案与规则审查：结论"有条件冻结"
+
+| 编号 | 意见 | 处理 |
+|---|---|---|
+| M1 | 本次 provider 以外的 key（如全局设置的 `BENCHMARK_DEEPSEEK_API_KEY`）进入 Reviewer 命令环境；ChatGPT mock 显示 `shell_env_key: VISIBLE` | 已修：所有凭据变量一律排除，daemon 环境去掉其他 provider 的 key；DeepSeek 变量名作 canary 重跑 mock，结果 `absent`；§11 改为不写进 shell profile |
+| M2 | Codex `:read-only` 能读 `~/.claude/.credentials.json`、`~/.codex/auth.json`、`project.private.toml`，API 臂可能把它们发出去 | 写入计划，未实施：G7 阶段 0 必做，没通过就不启动 API 臂；偏离"不额外收紧"，交用户复核；混杂 13 已补 |
+| M3 | luna 裁决 runner 不能用 `:read-only` | 已改 §6.2：用原生权限 profile 加零模型探针 |
+| M4 | 开头"冻结要通过试点"与 §6.2"试点在冻结之后"矛盾 | 已改：冻结 brief → 试点 → 不过则维持 Opus、brief 不改 |
+| M5 | S5 应只对实际返回的 tier 触发；模型 ID 匹配规则 | 已改 §2、§3、§10 |
+| M6 | Claude Code 二进制要锁版本并记 SHA | 已实现：两个 CLI 的 `--claude`，版本不是 2.1.303 就拒绝 |
+| M7 | Holm 族、α、自由度、Strata 次数、最小可分辨差 | 已写入 §5 |
+| M8 | reviewer-suite「会话检查」缺 benchmark 例外 | 已写入规则 |
+| M9 | Claude Code 上的 Strata 臂缺 live smoke | 写入计划，未实施：G8 阶段 0 |
+| M10 | README、work-history 的双裁应写"暂定"；试点补 Code Spec 池 | 已改 |
+| 建议 | Codex 逐实例查 `web_search_call`；更正 Strata 搜索证据；断言 API 臂不接入基础提示；P4 测法；P5 具体 ID 的 effort；P0 套餐容量；P6 并行速度对照；编排费用归项；升级率线；锚点或合成负例不达标整池重裁；恢复路径归还登录；远端压缩核实；打码补单引号；按阶段墙钟；work-history 链接；README 措辞 | 全部写入计划或已修。Strata 搜索证据已补测：加 `--web-search disabled` 后为 0。打码、链接、README 已改；其余写进 §3、§5、§6.2、§8、§9 |
+
+### 13.2 三份 brief 草稿核对：结论"三份都是修改后可冻结"
+
+答案键 sha 与实物一致，ARW Adjudication 节与 r7 段和已冻结的 Commit Audit v3 brief 逐字相同。
+
+| 编号 | 意见 | 处理 |
+|---|---|---|
+| M1 | 三份没有"拿不准"的输出，裁决者写死为 Opus | 已改：可选 `unsure` 字段，裁决者用占位符 `<裁决者>` |
+| M2 | SR 第 11 行"不运行任何程序"与 python 核对冲突 | 已改，CS、CStd 同步写明例外（S5） |
+| M3 | SR 漏了 export-retention 已定判例 | 已补，放在 sha 绑定的原样段之后 |
+| M4 | SR 从 0 起的序号与 `problem-N` 易混；`prc`/`prt` 没有图例 | 已补读法说明，原样段不动，原样段 sha 仍成立 |
+| M5 | SR 的 c003 id、v4.2 报告链接和"Opus 盲答"会泄露来源 | c003 id 和链接已去掉，判法保留。"Opus 盲答已实际出现"在 sha 绑定的原样段里（测试 `test_spec_readiness_quotes_frozen_adjudication_section` 校验），未改；它只说历史盲答出现过这种写法，不指明池中候选的来源 |
+| M6 | CStd"误报或无依据"二选一 | 已改为确定判法 |
+| S1、S2、S4、S6 | CS 写明不沿用 m2/m4；诱饵写出具体行；结果类别不同仍算匹配；头部维护说明与正文分开 | 已改；诱饵行号已在 fixture 核实 |
+| S3 | CStd 登记 extraCharges/memberId 诱饵 | 未改：需按答案键 C22、C29 的 placement 核对措辞，列入阶段 0 |
+| S7 | 锚点要取自同版本已裁池；SR 请求文件要复制改名并打码；view 从冻结 fixture 构造；`check_briefs.py` 的物化目录已删 | 写入 §6.2 和 §9 阶段 0 |
+| 第 4 节 | 已冻结的 Commit Audit v3 brief 也缺 `unsure` 字段 | 属于"冻结"类重要决策，本轮不改冻结件；§6.2 写明未处理前 Commit Audit 走单名 Opus |
+
+### 13.3 仍需用户决定的事项
+
+- 20% 规则的分母：按"占 benchmark 的 Anthropic 总消耗"约 24%，改双裁；按"占周额度"约 12%，维持单名 Opus。方案审查的兜底倾向是维持单名 Opus。
+- G7 deny-read 偏离"不额外收紧"，实施后交用户复核。
+- P1 若显示 DeepSeek 某个格式下三档无差别，是否删档。

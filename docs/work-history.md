@@ -1396,6 +1396,6 @@ v4.0–v4.6 逐步加难：缺陷推理步数从约 2 步加到约 4 步，再�
 
 ## 多模型 benchmark 盲裁方式（2026-10-19）
 
-用户先决定盲裁用 Opus，后来改为按盲裁占 benchmark 总额度的比例决定：不足 20% 维持单名 Opus，达到 20% 改为 Sonnet medium + gpt-6-luna high 双裁。定稿评估的占比中值约 24%（[计划 §6](../benchmarks/multi-model-v1/plan.md#6-盲裁)），因此改为双裁并先试点。被取代的「现行决定」条目原文如下：
+用户先决定盲裁用 Opus，后来改为按盲裁占 benchmark 总额度的比例决定：不足 20% 维持单名 Opus，达到 20% 改为 Sonnet medium + gpt-6-luna high 双裁。定稿评估的占比中值约 24%（按 benchmark 的 Anthropic 总消耗；按周额度约 12%，分母待用户确认，[计划 §6](../benchmarks/multi-model-v1/plan.md#6-盲裁)），因此暂定改为双裁并先试点。被暂定取代的「现行决定」条目原文如下（链接已按本文件位置改为 `../`）：
 
-- 多模型 benchmark 的盲裁用 Opus，不用 Sonnet：benchmark 结果影响全部后续工作，质量优先（2026-10-19，用户决定；Sonnet 试点达到通过线也不改，[试点报告](reports/v0.1.45/sonnet-adjudication-pilot/summary.md)）。
+- 多模型 benchmark 的盲裁用 Opus，不用 Sonnet：benchmark 结果影响全部后续工作，质量优先（2026-10-19，用户决定；Sonnet 试点达到通过线也不改，[试点报告](../reports/v0.1.45/sonnet-adjudication-pilot/summary.md)）。

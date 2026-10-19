@@ -83,13 +83,13 @@ paths:
 - 能力验证和 benchmark 中，早停接续使用 ARW 原版运行层的接续机制，本工程驱动不另发继续指示（用户 2026-10-11：最大限度还原 ARW，便于与 ARW 自己的结果直接对比）。到达原版 10 / 5 次早退暂停点时，停下交给用户决定。
 - 能力验证和 benchmark 由 ARW 自己的 Strata provider 持有独占并启动模型（打了本工程接口补丁的 ARW，`selection.model_owner = "arw"`），引擎参数用安装目录的每机每量化默认值。每批开跑前 `arw_measure` 经租约停掉常驻模型，批从冷加载开始；实例之间不停模型，只允许 Strata 精确前缀缓存的复用，不复用上一个实例的上下文；token 按派发时刻切分的引擎日志段计算（用户 2026-10-11）。
 - 测量交接末尾追加冻结的测量说明（不发送中途消息、不需要运行标识、禁止查询环境变量和平台身份），记录 SHA；只追加，不改原版交接和 Role。
-- Reviewer 的命令环境用 Codex 原生 `shell_environment_policy.exclude` 去掉 `STRATA_API_KEY`（用户 2026-10-12；provider key 由 Codex 自己经 `env_key` 读取，命令不需要）。Codex 0.162.0 默认会把它传给命令，无模型探测已确认排除生效、`set` 的变量照常可见。
+- Reviewer 的命令环境用 Codex 原生 `shell_environment_policy.exclude` 去掉 `STRATA_API_KEY`（用户 2026-10-12；provider key 由 Codex 自己经 `env_key` 读取，命令不需要）。Codex 0.162.0 默认会把它传给命令，无模型探测已确认排除生效、`set` 的变量照常可见。2026-10-19 起所有凭据变量（各 provider key、`STRATA_API_KEY`、`STRATA_REMOTE_PASSWORD`）一律排除，daemon 环境也去掉本次 provider 以外的 key（`providers.shell_exclude`、`process_environment`；benchmark 审查发现全局设置的 DeepSeek key 会进入 Reviewer 命令环境）。
 - Spec Readiness 的 runtime-migration 与 artifact-promotion 各用全新根线程，互不可见，与 ARW 准备规则一致（每个 instanceId 一个独立线程和一次审核）；两份报告分别绑定，按原版融合评分。合并实例（同一线程先 RM 后 AP）已停用（用户 2026-10-13）：它偏离 ARW，且有 AP 照搬 RM finding、引用 RM 专有约定的污染证据（[审查报告](../../reports/v0.1.42/spec-rule-audit/summary.md)）；旧合并实例的结果只在合并实例之间可比。
 - 各场景现行版本、冻结源 manifest 与补丁见 [versions.md](../../benchmarks/reviewer-suite-v1/versions.md)；分数只在同一版本内比较。
 
 ## 会话检查
 - 按冻结 ARW 的 `docs/agents/reviewer-capability-session-inspection.md` 检查每个原生会话：准备项、线程身份、启动上下文、交接后的全部消息、每次工具调用及结果、读写范围、报告和终态，并排查隐藏答案、其他实例等禁止来源。
-- 用 `tools.reviewer.inspect_session` 提取，Main 逐条审阅动作（用户 2026-10-11）：
+- 用 `tools.reviewer.inspect_session` 提取，Main 逐条审阅动作（用户 2026-10-11）。多模型 benchmark 例外（用户 2026-10-19，D9）：逐条审阅交便宜模型，它读过滤并打码后的 `actions.md` 和 `flagged.md`，被标记项和它判为可疑的实例再由 Main 复核（[benchmark 计划](../../benchmarks/multi-model-v1/plan.md#5-统计口径)）：
   - 必读 `actions.md` 全文和 `flagged.md` 全文。后者含被标记调用（目标出根目录、`..` 越界、未赋值变量、环境与身份查询、网络、会话或凭据材料、拒绝报错、无结果）的完整命令和结果，以及交接后的非 assistant 消息。
   - 推理、元数据、压缩摘要和未标记调用的结果在安全检查中不作例行阅读。依据：Reviewer 只能经工具调用接触来源，调用目标限于场景根时，结果也只来自场景根。ARW 文档不要求检查推理。诊断早停、卡住等问题时按事件号调取原文。
 - 解题过程分析：按测量规则「会话分析」执行。reviewer 场景还要判断场景设计是否达到目的：难度从哪里来、干草堆是否参与找针、有没有捷径。
