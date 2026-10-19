@@ -9,7 +9,8 @@ const {reviewerNativeSettings,declineReviewerInteractions}=await import(pathToFi
 let native=(await createIsolatedNativeSessions(info)).sessions;let session=null;let root=null;let current=null;
 const lines=createInterface({input:process.stdin,crlfDelay:Infinity});
 function writes(c){if(c.diagnosticWriteDirectory && info.zeroModelDiagnostic!==true)throw Error('Directory grants are zero-model diagnostics only');return [c.diagnosticWriteDirectory??c.report];}
-function settings(c){return reviewerNativeSettings({model:'qwen3.8-flash-next-q2_0',modelProvider:'qwen_strata',reasoningEffort:'high',serviceTier:'default',config:c.config},{cwd:c.cwd,readPaths:[],writePaths:writes(c)});}
+if(!/^qwen3\.8-flash-next-[a-z0-9_]+$/.test(info.model??''))throw Error('The gate names the served model');
+function settings(c){return reviewerNativeSettings({model:info.model,modelProvider:'qwen_strata',reasoningEffort:'high',serviceTier:'default',config:c.config},{cwd:c.cwd,readPaths:[],writePaths:writes(c)});}
 for await(const line of lines){
  const request=JSON.parse(line);let result;
  try{
