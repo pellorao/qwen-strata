@@ -44,6 +44,8 @@ rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），默认模型
 - 出题原则：一道题只出一次；意外的重复改题，有意保留的重复在答案键里显式声明为合并用例、评分按声明合并，不靠计分端去重；报告凡给得分处同时给耗时，附 token 数和工具调用数，耗时不进分数（2026-10-16／17，用户决定）：[Reviewer 规则](.claude/rules/reviewer-suite.md)、[Commit Audit v2 变更说明](benchmarks/reviewer-suite-v1/commit-audit-v2.md)。
 - 场景能力判定用相对口径 Q3／Opus，目标 < 0.8（2026-10-13；2026-10-15 用户确认维持 Opus 参考）：[Reviewer 规则](.claude/rules/reviewer-suite.md)。
 - `qwen-agent` 改按所选量化的默认档启动，Codex 与 Claude Code 同值（IQ3_XXS 206584／150000）；Claude Code 的压缩点依赖未公开的 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`，版本变化后用 `tools.ops.claude_compact_probe` 重新核对（2026-10-19，Main 与独立审查一致，rtx3080ti 已部署，rtx4070tis 补档位后同步）：[报告](reports/v0.1.45/context-tier-unify/summary.md)。
+- 报告写授权用专用父目录（目录里只有该报告），绕过 Codex 单文件写授权的 bwrap 故障；安全门与测量同一策略（2026-10-07，用户决定）：[ARW Reviewer 规则](.claude/rules/reviewer-suite.md#正式测量前的安全验收)。
+- 多模型 benchmark 的盲裁用 Opus，不用 Sonnet：benchmark 结果影响全部后续工作，质量优先（2026-10-19，用户决定；Sonnet 试点达到通过线也不改，[试点报告](reports/v0.1.45/sonnet-adjudication-pilot/summary.md)）。
 
 ## 主线
 

@@ -10,8 +10,8 @@
 2. ~~修正 catalog 上下文窗口~~：2026-10-19 部署到 rtx3080ti，见 work-history。
 3. ~~核对写死在代码里的上下文和压缩阈值~~：同上。
 4. ~~统一 Codex 与 Claude Code 的上下文档位~~：同上。
-5. **修好安全门并在 v0.1.45 上重跑**（2026-10-18 Commit Audit v3 测量时发现；2026-10-19 零模型探针已修好并部署，6f18380；实跑等用户定：WSL 是否先升级、已知 bwrap 失败的判定口径、report-directory 授权）：零模型探针引用的全局 codex 已经不存在，`safety_gate.py` 写死了 156584/100000（与第 3 项一并处理）；必须在下一个场景正式测量和 benchmark 的新 provider 安全验收之前完成。
-6. **评分规则遗留**：两项核实已完成（r7 已实现，69969fa 补测试）；Sonnet 盲裁试点通过（[报告](../reports/v0.1.45/sonnet-adjudication-pilot/summary.md)），benchmark 裁决模型待用户定。
+5. **修好安全门并在 v0.1.45 上重跑**（2026-10-18 Commit Audit v3 测量时发现；2026-10-19 零模型探针已修好并部署，6f18380；用户 2026-10-19 定：先把 WSL 升到 3.0.3 再实跑；写授权用已批准的报告专用父目录，见 reviewer-suite 规则）：零模型探针引用的全局 codex 已经不存在，`safety_gate.py` 写死了 156584/100000（与第 3 项一并处理）；必须在下一个场景正式测量和 benchmark 的新 provider 安全验收之前完成。
+6. **评分规则遗留**：两项核实已完成（r7 已实现，69969fa 补测试）；Sonnet 盲裁试点通过（[报告](../reports/v0.1.45/sonnet-adjudication-pilot/summary.md)），但用户 2026-10-19 决定 benchmark 仍用 Opus 裁决（质量优先）。本项完成。
 7. **多模型 benchmark 方案设计**：见「多模型 benchmark」。
 8. **多模型 benchmark 执行与报告**：同上。
 9. **采样与窗口重新测量**：负载设计，见同名一节。
