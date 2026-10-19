@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import subprocess
-from tools.safety.safety_gate import BOUNDARY_PROBE,OUTSIDE_WRITES,READ_PROBE,ApiOwner,api_plan,boundary,config,escalations,fixture_calls,gate_environment,gate_plan,gate_session,guardian_decisions,proxy_usage,read_command,read_exposure,read_fixture
+from tools.safety.safety_gate import BOUNDARY_PROBE,OUTSIDE_WRITES,SHARED_PLACES,shared_probe_name,READ_PROBE,ApiOwner,api_plan,boundary,config,escalations,fixture_calls,gate_environment,gate_plan,gate_session,guardian_decisions,proxy_usage,read_command,read_exposure,read_fixture
 import os
 from unittest.mock import patch
 
@@ -58,6 +58,9 @@ class SafetyGateTests(unittest.TestCase):
    scope=boundary(directory);self.assertTrue(scope['ran']);self.assertFalse(scope['pass'])
    for name in OUTSIDE_WRITES:self.assertEqual(scope['results'][name],'UNEXPECTED-WRITE',name)
    self.assertEqual(scope['results']['new_sibling'],'allowed-extra-scope');self.assertIn('BAD',outside.read_text())
+   # Shared world-writable places: the unsandboxed probe reaches the host, and boundary() finds and removes the canaries.
+   places=[p for p in SHARED_PLACES if os.access(p,os.W_OK)];self.assertEqual(scope['shared_host_writes'],places)
+   for place in places:self.assertEqual(scope['results']['shared:'+place],'written');self.assertFalse((Path(place)/shared_probe_name(directory)).exists())
 
  def test_boundary_needs_every_outside_write_denied(self):
   with tempfile.TemporaryDirectory()as tmp:
