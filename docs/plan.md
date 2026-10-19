@@ -7,10 +7,10 @@
 这里是真正的工作队列，按优先级排列，做完一项接下一项。状态页 queue 只显示排在最前的 5 项，每日检查（三项合为一项，见「周期流程」）单独显示，不占这 5 个位置。顺序有变化时，先改这里，再用 `status.py order` 同步状态页。
 
 1. ~~Commit Audit v3 定稿~~：2026-10-18 定版完成，见 work-history。
-2. **修正 catalog 上下文窗口**：代码完成（01d6aa7），待独立审查与部署，见「benchmark 前置工作」。
-3. **核对写死在代码里的上下文和压缩阈值**：代码完成（b6bf6a6），同上。
-4. **统一 Codex 与 Claude Code 的上下文档位**：假服务器核对通过，qwen-agent 改到 150K 档（04dbab5），待独立审查与部署。
-5. **修好安全门并在 v0.1.45 上重跑**（2026-10-18 Commit Audit v3 测量时发现；2026-10-19 零模型探针已修好并通过，6f18380，实跑待部署后）：零模型探针引用的全局 codex 已经不存在，`safety_gate.py` 写死了 156584/100000（与第 3 项一并处理）；必须在下一个场景正式测量和 benchmark 的新 provider 安全验收之前完成。
+2. ~~修正 catalog 上下文窗口~~：2026-10-19 部署到 rtx3080ti，见 work-history。
+3. ~~核对写死在代码里的上下文和压缩阈值~~：同上。
+4. ~~统一 Codex 与 Claude Code 的上下文档位~~：同上。
+5. **修好安全门并在 v0.1.45 上重跑**（2026-10-18 Commit Audit v3 测量时发现；2026-10-19 零模型探针已修好并部署，6f18380；实跑等用户定：WSL 是否先升级、已知 bwrap 失败的判定口径、report-directory 授权）：零模型探针引用的全局 codex 已经不存在，`safety_gate.py` 写死了 156584/100000（与第 3 项一并处理）；必须在下一个场景正式测量和 benchmark 的新 provider 安全验收之前完成。
 6. **评分规则遗留**：两项核实已完成（r7 已实现，69969fa 补测试）；Sonnet 盲裁试点通过（[报告](../reports/v0.1.45/sonnet-adjudication-pilot/summary.md)），benchmark 裁决模型待用户定。
 7. **多模型 benchmark 方案设计**：见「多模型 benchmark」。
 8. **多模型 benchmark 执行与报告**：同上。
@@ -41,15 +41,6 @@
 
 多模型 benchmark 开跑前必须完成。每项都已核对过会影响 benchmark 的结果、费用或可比性（2026-10-18 排查）。
 
-- [ ] **修正 catalog 上下文窗口**（2026-10-15 发现）：`tools/ops/model_catalog.py` 给三个量化都写死 `CONTEXT_WINDOW = 156584`，IQ3_XXS 默认档却是 206584／150000。改为按量化取部署配置 `context_tiers` 的首档。同时检查 `config/maintenance-baseline.json`（维护基线有意固定为 Q2_0 100K／156584，核对是否仍成立）。这属于部署，需独立审查后在维护窗口部署。影响：Codex 经日常 catalog 调用 Strata 时，窗口与部署档位不一致。
-- [ ] **核对写死在代码里的上下文和压缩阈值**：
-  - `tools/reviewer/arw_measure.py:190`：不由 ARW 持有模型时，selection 没给窗口就用 250000，超出 IQ3_XXS 档位 206584；
-  - `tools/reviewer/wsl_client.py:50`：写死 250000／200000；
-  - `config/qwen-strata.config.toml`：迁入时的旧文件，250000／200000、Q2_0，没有引用；
-  - `tools/safety/safety_gate.py:78`、`tools/reviewer/verify_codex_compact_prompt.py:65`：写死 156584／100000。
-  
-  逐个确认是否进入实际运行；没有用的删掉，用到的改为读部署档位，或改为缺值时报错。影响：任何一处进入 benchmark 运行，Strata 的窗口或压缩阈值就会和已定档位不一致。
-- [ ] **统一 Codex 与 Claude Code 的上下文档位**：`scripts/wsl/qwen-agent` 让两个 agent 都跑 100K 档（156584／100000），理由是 Claude Code 在 200K 以上窗口的压缩行为没有核对过；ARW 测量用的是 150K 档。benchmark 如果让 Strata 经 Claude Code 运行，或把 harness 列为一个维度，两条路径的档位就不同。做法：用假服务器核对 Claude Code 在 206584／150000 下的压缩点（沿用 agent-parity 的核对方法），通过后把 qwen-agent 改到 150K 档；不通过就在 benchmark 方案里写明各 harness 用哪一档。这属于部署（默认参数改值），需独立审查。
 - [ ] **评分规则遗留**：先核实两项是否已完成——多词 `findingTerms` 是否按连续短语匹配，必选组是否标为仅供裁决参考；没有完成就补上并重算受影响的场景。再做 Sonnet 盲裁试点（在已有裁决池上与 Opus 裁决比一致率）。benchmark 的裁决量是模型数 × 4 场景 × 5 次，裁决模型决定费用，所以试点结果要在方案设计前出来。
 
 以下遗留经核对不挡 benchmark，记入方案的混杂清单：
@@ -83,7 +74,7 @@
 rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢复后再决定它的工作。
 
 3. [ ] **防循环弃用部署**：代码、手册和测试已改（2026-10-11），随 v0.1.42 升级一起部署到 rtx3080ti；rtx4070tis 待同步。
-6. [ ] **rtx4070tis 恢复后**：核对实际文件、版本、服务和持有状态；补同步离线期间的部署（rtx3080ti 当前的 Strata 版本、前端、新默认值；它仍为 v0.1.40.2）；再按[ARW 同步与 Spec 恢复](#arw-同步与-spec-恢复)和调参手册的本机待办安排。思考上限沿用 8192/24576，不采用方案 A（用户 2026-10-12 回滚）；guardian 用思考 512 / 总输出 1024。
+6. [ ] **rtx4070tis 恢复后**：核对实际文件、版本、服务和持有状态；补同步离线期间的部署（先在 `config/deployments/rtx4070tis.json` 补 `context_tiers`，否则渲染 catalog 会失败停下；rtx3080ti 当前的 Strata 版本、前端、新默认值；它仍为 v0.1.40.2）；再按[ARW 同步与 Spec 恢复](#arw-同步与-spec-恢复)和调参手册的本机待办安排。思考上限沿用 8192/24576，不采用方案 A（用户 2026-10-12 回滚）；guardian 用思考 512 / 总输出 1024。
 
 ## IQ3_XXS 遗留事项
 

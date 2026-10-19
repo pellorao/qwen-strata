@@ -43,6 +43,7 @@ rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），默认模型
 - Reviewer 评分：证据 F2、按 k 分档计分（默认 0.25，难以核实的 1 或 4；分数以什么都不报为 0、满分为 1，取代 F2 总分与 A／B 两类计分，2026-10-16 评分 r8）、格式罚按比例、罚分归属原则、越过停止点算一个失败反例（2026-10-14／15，评分 r7）、Commit Audit 满足行上的误报只扣一次（2026-10-17，评分 r8.1）、答案键声明的合并用例只计一次（取低分，2026-10-17，评分 r8.2；Commit Audit 发现候选不跨行补关联，评分 r8.3）：经过见[历史工作](docs/work-history.md)，现行规则见[评分规则](.claude/rules/reviewer-suite.md#评分)。
 - 出题原则：一道题只出一次；意外的重复改题，有意保留的重复在答案键里显式声明为合并用例、评分按声明合并，不靠计分端去重；报告凡给得分处同时给耗时，附 token 数和工具调用数，耗时不进分数（2026-10-16／17，用户决定）：[Reviewer 规则](.claude/rules/reviewer-suite.md)、[Commit Audit v2 变更说明](benchmarks/reviewer-suite-v1/commit-audit-v2.md)。
 - 场景能力判定用相对口径 Q3／Opus，目标 < 0.8（2026-10-13；2026-10-15 用户确认维持 Opus 参考）：[Reviewer 规则](.claude/rules/reviewer-suite.md)。
+- `qwen-agent` 改按所选量化的默认档启动，Codex 与 Claude Code 同值（IQ3_XXS 206584／150000）；Claude Code 的压缩点依赖未公开的 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`，版本变化后用 `tools.ops.claude_compact_probe` 重新核对（2026-10-19，Main 与独立审查一致，rtx3080ti 已部署，rtx4070tis 补档位后同步）：[报告](reports/v0.1.45/context-tier-unify/summary.md)。
 
 ## 主线
 
@@ -66,3 +67,4 @@ rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），默认模型
 - 2026-10-18 rtx3080ti 升级到 Strata v0.1.45，短检查通过（含 Codex guardian 子会话，[升级报告](reports/v0.1.45/upgrade.md)）；上游称答案逐字节相同，但 0.1.44.1 在本机参数下 greedy 本身不可复现，逐字比对无法核实，0.1.44.1 上的 Q3 基线沿用与否待定；调参结论来自旧版本，没有在本版上重新测量。
 
 - 2026-10-18 Commit Audit v3 修订号 24 冻结（按难度因素加难，(a) 已确认、(b) 判为无效构造；新题型命中率 14/21 压在 2/3 线上，比值 0.735；Main 与独立审查一致：有条件冻结，条件已落实，用户已知悉）。同日**定版**：Q3 ×5 0.616 / Opus medium ×3 0.843，Q3/Opus 0.730（×10 为 0.706），第二裁决者复评 38/38 一致、11/11 负例识别；区分度主要来自非因素题，(b) 无效；独立意见有条件定版，条件已满足，用户已知悉（[报告](reports/v0.1.45/commit-audit-v3/summary.md)）：[v3 变更说明](benchmarks/reviewer-suite-v1/commit-audit-v3.md#审计校准与冻结2026-10-18)、[设计说明](benchmarks/reviewer-suite-v1/commit-audit-v3-design.md#11-方向停止条件与核对冻结前2026-10-18)、[versions](benchmarks/reviewer-suite-v1/versions.md)。
+- 2026-10-19 benchmark 前置：catalog 窗口改取部署档位、去掉写死的窗口与阈值、qwen-agent 统一用默认档，部署到 rtx3080ti，隔离冒烟通过；安全门零模型探针修好，实跑待用户定口径（[报告](reports/v0.1.45/context-tier-unify/summary.md)）。Sonnet 盲裁试点通过三条通过线（[报告](reports/v0.1.45/sonnet-adjudication-pilot/summary.md)），benchmark 裁决模型待用户定。

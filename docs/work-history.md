@@ -1385,3 +1385,4 @@ v4.0–v4.6 逐步加难：缺陷推理步数从约 2 步加到约 4 步，再�
 - Codex 与 Claude Code 参数一致：分支 agent-parity 已合并（8056e86）；
 - ARW 运行环境两项：测量说明已加上"不发中途消息、不查询环境变量或平台身份"（`benchmarks/reviewer-suite-v1/measurement-note*.txt`）。
 - Commit Audit v3：修订号 24 定版（2026-10-18；Strata 0.1.45，Q3 ×5 0.616 / Opus medium ×3 0.843，Q3/Opus 0.730，×10 为 0.706；第二裁决者复评 38/38 一致），[报告](../reports/v0.1.45/commit-audit-v3/summary.md)。
+- benchmark 前置第 2–4 项（catalog 窗口、写死的窗口与阈值、Codex 与 Claude Code 档位统一）：2026-10-19 部署到 rtx3080ti，冒烟通过，[报告](../reports/v0.1.45/context-tier-unify/summary.md)；rtx4070tis 恢复后先补 `context_tiers` 再同步。
