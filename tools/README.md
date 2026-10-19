@@ -58,6 +58,8 @@
 | `inspect_session` | 会话检查：提取并判定每次工具调用，输出逐条动作表和标记项全文 |
 | `repair_reviewer_report` | 在独立副本上做格式归一（单值行号、成对写法的范围），供评分使用 |
 | `native_cli_binding`、`native_codex_runtime`、`wsl_client`、`verify_codex_compact_prompt` | Codex CLI 绑定、app-server 客户端、原生压缩提示采集 |
+| `check_briefs`、`adjudication_view` | 盲裁 brief 冻结前的机械核对；从冻结 fixture 构造盲裁 view |
+| `benchmark_summary` | 多模型 benchmark 跨模型汇总：逐配置统计、27 个预登记比较（Welch、Holm）、逐实例表 |
 
 ## safety：安全验收
 

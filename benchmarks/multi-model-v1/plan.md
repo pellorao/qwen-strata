@@ -213,6 +213,7 @@
   - 重建 `check_briefs.py` 依赖的物化目录（`.tmp/bench-prep-1019/arw-*` 已删），或改为直接对照答案键，再做冻结前的机械核对；
   - 盲裁 view 从冻结 fixture 构造：Spec Readiness 的 `REVIEWER-REQUEST.json` 由运行目录中的请求文件复制改名，并把 `draftPath` 打码；
   - 跨模型汇总报告流水线（含 G4 Code Standards 逐实例表）；
+    - 汇总层已实现（2026-10-19）：`tools/reviewer/benchmark_summary.py`，输入每实例一条的归一化记录（JSONL），输出 `summary.json`/`summary.md`（§5 各项、27 个预登记比较、逐实例表，含 Code Standards），用合成数据测试。未做：把 Codex（`arw_measure`）和 Claude Code（`claude_scenario`）的运行记录与评分结果转成归一化记录的适配层，等两条路径的记录格式在阶段 1 冒烟中定下后再写。
   - 核实项目压缩提示文件对 OpenAI 远端压缩是否生效（API 臂已关闭该提示，只需确认关闭后没有残留）；
     - 已核实（2026-10-19，零模型）：API 臂（`project_compaction_instructions: false`）渲染出的压缩提示只有 Codex 原生提示一个来源（sha256 `ab0c334d…`，policy `native-only-diagnostic`），不含工程压缩提示；Codex 0.162.0 的原生提示用 `verify_codex_compact_prompt` 重新采集，与存档的 0.160.1 版逐字节相同。内置 openai provider 加合成 ChatGPT 登录、在只有回环的网络命名空间里对 mock 手动压缩：Codex 走服务端压缩（`responses_compaction_v2`，向 `/responses` 发一次 `request_kind: compaction` 请求），请求里既没有原生压缩提示，也没有 `experimental_compact_prompt_file` 中的标记文字，两种设置的请求除 id、路径和时间外相同。所以 OpenAI 臂的压缩不受该文件影响；DeepSeek 臂走本地压缩，用的是与原生相同的提示。
   - 本计划冻结。
