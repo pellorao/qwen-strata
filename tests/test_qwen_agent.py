@@ -23,6 +23,21 @@ DEFAULT = TIERS['IQ3_XXS'][0]
 
 
 class LauncherTests(unittest.TestCase):
+    def test_child_environment_drops_credentials_and_parent_session(self):
+        parent = {'PATH': '/bin', 'CLAUDE_CONFIG_DIR': '/tmp/cfg', 'CLAUDE_CONFIG_DIRX': 'x', 'ANTHROPIC_API_KEY': 'x',
+                  'OPENAI_API_KEY': 'x', 'AI_AGENT': 'claude-code', 'CLAUDECODE': '1', 'CLAUDE_CODE_SESSION_ID': 's',
+                  'CLAUDE_CODE_MESSAGING_SOCKET': '/run/s', 'CLAUDE_CODE_MESSAGING_TOKEN': 't',
+                  'CLAUDE_CODE_CHILD_SESSION': '1', 'CLAUDE_CODE_ENTRYPOINT': 'cli', 'CLAUDE_EFFORT': 'high', 'CLAUDE_PID': '1'}
+        self.assertEqual(agent.child_environment(parent, {}), {'PATH': '/bin', 'CLAUDE_CONFIG_DIR': '/tmp/cfg'})
+
+    def test_child_environment_launcher_values_win(self):
+        _, own = agent.claude(Fake(), 'qwen3.8-flash-next-iq3_xxs', 'high', DEFAULT, ['-p', 'hi'])
+        parent = {'ANTHROPIC_BASE_URL': 'http://elsewhere', 'CLAUDE_CODE_EFFORT_LEVEL': 'low'}
+        env = agent.child_environment(parent, own)
+        self.assertEqual(env['ANTHROPIC_BASE_URL'], 'http://192.168.60.212:8000/strata')
+        self.assertEqual(env['CLAUDE_CODE_EFFORT_LEVEL'], 'high')
+        self.assertEqual(env['CLAUDE_CODE_MAX_CONTEXT_TOKENS'], '206584')
+
     def test_codex_uses_strata_provider_and_key_variable(self):
         command, env = agent.codex(Fake(), 'qwen3.8-flash-next-iq3_xxs', 'medium', DEFAULT, ['exec', 'hi'])
         config = dict(command[i + 1].split('=', 1) for i in range(1, len(command) - 2, 2) if command[i] == '-c')

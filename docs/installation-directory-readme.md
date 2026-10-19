@@ -121,6 +121,7 @@ python3 "$qwen_install/bin/qwen-agent" claude                      # Claude Code
 - 租约已被他人持有时立即退出，不排队、不抢占。
 - 加载耗时：rtx3080ti 上旧 Q2_0 约 20 秒，IQ3_XXS 未单独记录；相同参数复用已加载的模型时不再加载。Ctrl-C 交给 agent 处理；agent 退出、终端关闭或进程被终止时都会归还租约。归还失败时会提示重启前端任务。
 - key 只放在 agent 进程的环境变量里，不写入文件或命令行参数。
+- 调用方环境中的 `ANTHROPIC_*`、`OPENAI_*`、`AI_AGENT` 和以 `CLAUDE` 开头的变量（`CLAUDE_CONFIG_DIR` 除外）不传给 agent，所以在 Claude Code 会话里启动时，agent 拿不到父会话的会话 id 和消息通道；需要的 Claude Code 定制写进 settings.json 的 `env`。
 - 脚本不修改调用方的 `~/.codex` 或 `~/.claude` 配置；所有设置都以命令行覆盖或环境变量传入。
 
 ## Codex 接入

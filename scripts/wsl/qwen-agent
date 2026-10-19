@@ -126,6 +126,15 @@ def claude(frontend, model, effort, tier, arguments):
     return ['claude', *options, *arguments], environment
 
 
+def child_environment(environ, environment):
+    """Caller environment minus provider credentials and a parent Claude Code session's bindings
+    (session id, messaging socket and token), so the agent cannot reach back into the session that launched it;
+    the launcher's own variables win."""
+    kept = {k: v for k, v in environ.items()
+            if not (k.startswith(('ANTHROPIC_', 'OPENAI_', 'CLAUDE')) or k == 'AI_AGENT') or k == 'CLAUDE_CONFIG_DIR'}
+    return dict(kept, **environment)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--model', help='a model this installation serves; default: its only served model')
@@ -149,8 +158,7 @@ def main():
             command, environment = codex(frontend, model, args.effort, tier, args.arguments)
         else:
             command, environment = claude(frontend, model, args.effort, tier, args.arguments)
-        env = {k: v for k, v in os.environ.items() if not k.startswith(('ANTHROPIC_', 'OPENAI_'))}
-        process = subprocess.Popen(command, env=dict(env, **environment))
+        process = subprocess.Popen(command, env=child_environment(os.environ, environment))
         while True:
             try:
                 code = process.wait()
