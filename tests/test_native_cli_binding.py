@@ -6,7 +6,8 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.native_cli_binding import verify_native_cli
+from tools.reviewer.native_cli_binding import (CODEX, CODEX_SHA256, CODEX_VERSION, selection_native_cli,
+                                               verify_native_cli)
 
 
 class NativeCliBindingTests(unittest.TestCase):
@@ -34,6 +35,15 @@ class NativeCliBindingTests(unittest.TestCase):
             with patch('tools.reviewer.native_cli_binding.subprocess.check_output', return_value='codex-cli 0.160.1\n') as run:
                 self.assertEqual(verify_native_cli(binding)['observed_version'], 'codex-cli 0.160.1')
                 run.assert_called_once_with([str(path), '--version'], text=True, timeout=20)
+
+    def test_unbound_selection_runs_the_pinned_benchmark_copy(self):
+        self.assertEqual(CODEX_VERSION, '0.163.0')
+        self.assertIn('/.local/share/qwen-bench/codex-0.163.0/', str(CODEX))
+        with patch('tools.reviewer.native_cli_binding.verify_native_cli', side_effect=lambda b: b) as verify:
+            self.assertEqual(selection_native_cli(None),
+                             {'executable': str(CODEX), 'version': '0.163.0', 'sha256': CODEX_SHA256})
+            self.assertEqual(selection_native_cli({'executable': '/x'}), {'executable': '/x'})
+            self.assertEqual(verify.call_count, 2)
 
 
 if __name__ == '__main__':

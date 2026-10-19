@@ -691,8 +691,8 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
 
     Token consumption is the native API usage (Reviewer rounds plus guardian histories, tools.reviewer.arw_metrics),
     labeled as such; the provider key stays in this process environment and Codex reads it through env_key."""
-    from tools.reviewer.native_cli_binding import verify_native_cli
-    native_cli=verify_native_cli(selection.get('native_cli'))
+    from tools.reviewer.native_cli_binding import selection_native_cli
+    native_cli=selection_native_cli(selection.get('native_cli'))
     provider=validate_api_selection(selection)
     if not credential_present(provider):
         raise ValueError('Provider credential is not available: '+(provider['env_key'] or 'the benchmark ChatGPT login'))
@@ -734,7 +734,7 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
         save(out/'arw-providers.json',value.get('providers',{}))
         machine=Machine(source,runtime,out)
         for preparation,handoff,_ in jobs:
-            verify_native_cli(selection.get('native_cli'))
+            selection_native_cli(selection.get('native_cli'))
             folder=out/handoff['instanceId'];safe=False
             record=execute_review(machine,source,preparation,handoff,folder,selection,catalog,
                 {'runtime_installation':str(native_install),'model_owner':'api'})
@@ -775,8 +775,8 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
 
 
 def run(installation,out,selection,preparation_paths,catalog,profile=None,schedule=None,resume=False,resume_native_install=None,host=None,limit=None):
-    from tools.reviewer.native_cli_binding import verify_native_cli
-    native_cli = verify_native_cli(selection.get('native_cli'))
+    from tools.reviewer.native_cli_binding import selection_native_cli
+    native_cli = selection_native_cli(selection.get('native_cli'))
     if api_provider(selection) is not None:
         raise ValueError('An API provider selection runs through run_api, without a host or lease')
     if host is None:
@@ -889,7 +889,7 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
                 http_archive.thread.start()
             last_repetition=None
             for preparation,handoff,current_profile in jobs:
-                    verify_native_cli(selection.get('native_cli'))
+                    selection_native_cli(selection.get('native_cli'))
                     if handoff['instanceId'] in completed:
                         print(json.dumps({'instanceId':handoff['instanceId'],'reuse':'exact prior report/settings/profile; no Reviewer rerun'}),flush=True)
                         continue
