@@ -10,8 +10,8 @@
  },
  "method": "tools.reviewer.claude_scenario：arw_dimension.prepare → 场景根副本为工作目录 → claude_headless.run（Claude Code 2.1.303 benchmark 副本）",
  "fixed_conditions": {
-  "codex": "0.162.0",
-  "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
+  "codex": "0.163.0",
+  "native_cli_sha256": "399ff69c431c066e40de318fba45c2b07f45a76b19939d247ee4828fc70c4215",
   "effort": "per configuration (claude_scenario --effort)",
   "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest-code-spec-v5.json",
   "arw_source_manifest_sha256": "0001a1823c62b697c184210e1a7425f1edef6cc0378ce078009dfe714790e362",

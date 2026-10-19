@@ -345,3 +345,7 @@
   - P6 基线：取 Anthropic 停跑后 Strata 实例引擎输出 tok/s 的中位数。G8 的 88.9 tok/s 只作参考。判定照旧：低于 60 tok/s 按 S3 处理，差超过 10% 在报告里注明。
 - **残余风险**（§7 补充，交用户复核）：Claude Code 的沙箱拒写工作目录里所有已有文件，包括 `.git` 的每个子项（`hooks`、`refs`、`config` 等），但授权报告目录的祖先目录里允许新建文件。这与扁平门"顶层可新建"同类。计分只取指定的 `reportPath`；实例记录 `checks.unexpected_changes`，不为空时由会话检查逐条判定，只有影响评分或越出工作目录才判无效。`.git` 本身不能整体禁写，否则沙箱建不了 `.git/config.lock` 存根，Bash 会全部失败。
 - 冻结之后，冻结范围内的任何修改都作为偏离记进 §13（日期、原因、对已跑实例的影响），不在正文里静默改动。
+
+### 14.1 冻结后的偏离
+
+- 2026-10-19 21:52，场景 plan 的 Codex 绑定改为 0.163.0。原因：另一个 worker 把 `native_cli_binding.CODEX` 指向 0.163.0 副本（用户已定），ARW 的零模型 prepare 会核对 plan 里的 `native_cli_sha256`，不改就拒绝准备。四个场景 plan 只改了 `codex` 和 `native_cli_sha256` 两个字段（改为 `399ff69c…`），新 sha256 为 commit-audit-v3 `6de471d9…`、code-spec-v5 `990e9363…`、code-standards-v5.1 `89b604c9…`、spec-readiness-v4.3 `f1ad28d1…`。Claude Code 臂不运行 Codex。改后 dry-run 的 CA 提示与改前已跑实例的提示逐字相同（路径和 UUID 归一化后），所以对已跑实例没有影响。改动期间有 5 个实例在 prepare 阶段失败，没有发出模型请求，按准备失败记录，不计入尝试次数。
