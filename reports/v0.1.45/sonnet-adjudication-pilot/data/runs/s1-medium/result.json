@@ -1,0 +1,207 @@
+{
+ "pool": "s1",
+ "effort": "medium",
+ "items": 92,
+ "real": {
+  "n": 81,
+  "agree": 79,
+  "rate": 0.9753
+ },
+ "byStratum": {
+  "hard": {
+   "n": 36,
+   "agree": 34,
+   "rate": 0.9444
+  },
+  "matched": {
+   "n": 45,
+   "agree": 45,
+   "rate": 1.0
+  }
+ },
+ "bySource": {
+  "opus": {
+   "n": 23,
+   "agree": 23,
+   "rate": 1.0
+  },
+  "q3": {
+   "n": 58,
+   "agree": 56,
+   "rate": 0.9655
+  }
+ },
+ "byReferenceClass": {
+  "false-positive": {
+   "n": 7,
+   "agree": 5,
+   "rate": 0.7143
+  },
+  "matched": {
+   "n": 45,
+   "agree": 45,
+   "rate": 1.0
+  },
+  "not-matched": {
+   "n": 5,
+   "agree": 5,
+   "rate": 1.0
+  },
+  "problem-N": {
+   "n": 17,
+   "agree": 17,
+   "rate": 1.0
+  },
+  "supported": {
+   "n": 2,
+   "agree": 2,
+   "rate": 1.0
+  },
+  "unsupported": {
+   "n": 5,
+   "agree": 5,
+   "rate": 1.0
+  }
+ },
+ "confusion": [
+  {
+   "reference": "false-positive",
+   "sonnet": "false-positive",
+   "n": 5
+  },
+  {
+   "reference": "false-positive",
+   "sonnet": "supported",
+   "n": 1
+  },
+  {
+   "reference": "false-positive",
+   "sonnet": "unsupported",
+   "n": 1
+  },
+  {
+   "reference": "matched",
+   "sonnet": "matched",
+   "n": 45
+  },
+  {
+   "reference": "not-matched",
+   "sonnet": "not-matched",
+   "n": 5
+  },
+  {
+   "reference": "problem-N",
+   "sonnet": "problem-N",
+   "n": 17
+  },
+  {
+   "reference": "supported",
+   "sonnet": "supported",
+   "n": 2
+  },
+  {
+   "reference": "unsupported",
+   "sonnet": "unsupported",
+   "n": 5
+  }
+ ],
+ "disagreements": [
+  {
+   "id": "s1-024",
+   "orig": "p3-075",
+   "src": "q3:C",
+   "stratum": "hard",
+   "opus": "false-positive:clean-11",
+   "opusSecond": null,
+   "sonnet": "supported",
+   "reason": "总量等于上限被拒属实，但不对应所列问题，也非 clean-11 误报",
+   "expectation": null,
+   "finding": "Repeated requirement already reviewed at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 49; same conclusion and evidence. canAssignAllPackages delegates to withinVehicleCapacity, which decides with remainingVehicleCapacity(limit * 1000, weight) > 0, so a total exactly equal to the limit leaves 0 remaining and is rejected. Verified: canAssignAllPackages([{weight:10000}], 10) returns false, which is a package total in grams equal to the 10 kilogram limit converted by dispatch-policy rules 28 and 29."
+  },
+  {
+   "id": "s1-040",
+   "orig": "p1-002",
+   "src": "q3:B-x2",
+   "stratum": "hard",
+   "opus": "false-positive:clean-22",
+   "opusSecond": null,
+   "sonnet": "unsupported",
+   "reason": "非字符串 phone 的行为属推测，依据不足",
+   "expectation": null,
+   "finding": "The filter requires typeof entry.phone === \"string\", so an entry that has a phone which is not a string is dropped from the recipient list even though Terms rule 33 still defines its contact phone."
+  }
+ ],
+ "synthetic": {
+  "n": 11,
+  "identified": 11,
+  "missed": []
+ },
+ "rescore": {
+  "original": {
+   "x5": {
+    "q3Mean": 0.6156,
+    "opusMean": 0.8432,
+    "ratio": 0.7301
+   },
+   "x10": {
+    "q3Mean": 0.5957,
+    "opusMean": 0.8432,
+    "ratio": 0.7064
+   }
+  },
+  "q3fav": {
+   "x5": {
+    "q3Mean": 0.6156,
+    "opusMean": 0.8432,
+    "ratio": 0.7301
+   },
+   "x10": {
+    "q3Mean": 0.5957,
+    "opusMean": 0.8432,
+    "ratio": 0.7064
+   },
+   "perSource": {
+    "q3:C": [
+     0.6545,
+     0.3348,
+     0.6106
+    ]
+   }
+  },
+  "q3unf": {
+   "x5": {
+    "q3Mean": 0.6156,
+    "opusMean": 0.8432,
+    "ratio": 0.7301
+   },
+   "x10": {
+    "q3Mean": 0.5957,
+    "opusMean": 0.8432,
+    "ratio": 0.7064
+   },
+   "perSource": {
+    "q3:C": [
+     0.6545,
+     0.3348,
+     0.6106
+    ]
+   }
+  },
+  "affectedSources": [
+   "q3:B-x2",
+   "q3:C"
+  ],
+  "filled": {},
+  "delta": {
+   "x5": 0.0,
+   "x10": 0.0
+  }
+ },
+ "pass": {
+  "real>=95%": true,
+  "hard>=90%": true,
+  "syntheticAll": true,
+  "ratioDelta<=0.02": true,
+  "verdictUnchanged": true
+ }
+}

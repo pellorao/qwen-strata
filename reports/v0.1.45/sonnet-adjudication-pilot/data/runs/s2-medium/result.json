@@ -1,0 +1,85 @@
+{
+ "pool": "s2",
+ "effort": "medium",
+ "items": 62,
+ "real": {
+  "n": 62,
+  "agree": 61,
+  "rate": 0.9839
+ },
+ "byStratum": {
+  "anchor": {
+   "n": 12,
+   "agree": 12,
+   "rate": 1.0
+  },
+  "new": {
+   "n": 50,
+   "agree": 49,
+   "rate": 0.98
+  }
+ },
+ "bySource": {
+  "anchor": {
+   "n": 12,
+   "agree": 12,
+   "rate": 1.0
+  },
+  "opus": {
+   "n": 30,
+   "agree": 30,
+   "rate": 1.0
+  },
+  "q3": {
+   "n": 20,
+   "agree": 19,
+   "rate": 0.95
+  }
+ },
+ "byReferenceClass": {
+  "matched": {
+   "n": 43,
+   "agree": 42,
+   "rate": 0.9767
+  },
+  "not-matched": {
+   "n": 19,
+   "agree": 19,
+   "rate": 1.0
+  }
+ },
+ "confusion": [
+  {
+   "reference": "matched",
+   "sonnet": "matched",
+   "n": 42
+  },
+  {
+   "reference": "matched",
+   "sonnet": "not-matched",
+   "n": 1
+  },
+  {
+   "reference": "not-matched",
+   "sonnet": "not-matched",
+   "n": 19
+  }
+ ],
+ "disagreements": [
+  {
+   "id": "s2-047",
+   "orig": "c034",
+   "src": "q3-9",
+   "stratum": "new",
+   "opus": "matched",
+   "opusSecond": null,
+   "sonnet": "not-matched",
+   "reason": "仅涉及窗口起点的重复且未覆盖包含判断，对象不够确定，保守不匹配",
+   "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference.",
+   "finding": "23. `src/catering/catering-service.mjs:137`\n    - Design smell: `Duplicated Code`; the delivery window start is derived a second time instead of using the policy module that owns it.\n    - `const arrivesFrom = order.deliverAt - CATERING.deliveryLead;` repeats `deliveryWindow(order).startAt` (`src/catering/catering-policy.mjs:22`), which is what `fitsReservation` (line 31) and `clashesWith` (line 41) use.\n    - Impact: the front-desk day list and the room-clash check answer \"when does this delivery start\" with two expressions of the same constant. If the window becomes asymmetric, or `deliveryL"
+  }
+ ],
+ "pass": {
+  "real>=95%": true
+ }
+}

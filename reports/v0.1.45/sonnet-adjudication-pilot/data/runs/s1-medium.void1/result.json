@@ -1,0 +1,247 @@
+{
+ "pool": "s1",
+ "effort": "medium.void1",
+ "items": 92,
+ "real": {
+  "n": 81,
+  "agree": 77,
+  "rate": 0.9506
+ },
+ "byStratum": {
+  "hard": {
+   "n": 36,
+   "agree": 32,
+   "rate": 0.8889
+  },
+  "matched": {
+   "n": 45,
+   "agree": 45,
+   "rate": 1.0
+  }
+ },
+ "bySource": {
+  "opus": {
+   "n": 23,
+   "agree": 23,
+   "rate": 1.0
+  },
+  "q3": {
+   "n": 58,
+   "agree": 54,
+   "rate": 0.931
+  }
+ },
+ "byReferenceClass": {
+  "false-positive": {
+   "n": 7,
+   "agree": 6,
+   "rate": 0.8571
+  },
+  "matched": {
+   "n": 45,
+   "agree": 45,
+   "rate": 1.0
+  },
+  "not-matched": {
+   "n": 5,
+   "agree": 4,
+   "rate": 0.8
+  },
+  "problem-N": {
+   "n": 17,
+   "agree": 17,
+   "rate": 1.0
+  },
+  "supported": {
+   "n": 2,
+   "agree": 2,
+   "rate": 1.0
+  },
+  "unsupported": {
+   "n": 5,
+   "agree": 3,
+   "rate": 0.6
+  }
+ },
+ "confusion": [
+  {
+   "reference": "false-positive",
+   "sonnet": "false-positive",
+   "n": 6
+  },
+  {
+   "reference": "false-positive",
+   "sonnet": "supported",
+   "n": 1
+  },
+  {
+   "reference": "matched",
+   "sonnet": "matched",
+   "n": 45
+  },
+  {
+   "reference": "not-matched",
+   "sonnet": "matched",
+   "n": 1
+  },
+  {
+   "reference": "not-matched",
+   "sonnet": "not-matched",
+   "n": 4
+  },
+  {
+   "reference": "problem-N",
+   "sonnet": "problem-N",
+   "n": 17
+  },
+  {
+   "reference": "supported",
+   "sonnet": "supported",
+   "n": 2
+  },
+  {
+   "reference": "unsupported",
+   "sonnet": "supported",
+   "n": 2
+  },
+  {
+   "reference": "unsupported",
+   "sonnet": "unsupported",
+   "n": 3
+  }
+ ],
+ "disagreements": [
+  {
+   "id": "s1-024",
+   "orig": "p3-075",
+   "src": "q3:C",
+   "stratum": "hard",
+   "opus": "false-positive:clean-11",
+   "opusSecond": null,
+   "sonnet": "supported",
+   "reason": "等于上限被拒属实，但干净用例11不相关，也无对应问题可补",
+   "expectation": null,
+   "finding": "Repeated requirement already reviewed at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md line 49; same conclusion and evidence. canAssignAllPackages delegates to withinVehicleCapacity, which decides with remainingVehicleCapacity(limit * 1000, weight) > 0, so a total exactly equal to the limit leaves 0 remaining and is rejected. Verified: canAssignAllPackages([{weight:10000}], 10) returns false, which is a package total in grams equal to the 10 kilogram limit converted by dispatch-policy rules 28 and 29."
+  },
+  {
+   "id": "s1-032",
+   "orig": "p2-023",
+   "src": "q3:B-x2",
+   "stratum": "hard",
+   "opus": "unsupported",
+   "opusSecond": null,
+   "sonnet": "supported",
+   "reason": "retryAfter被2000ms截断有规则7/8依据，但不对应列出的问题20",
+   "expectation": null,
+   "finding": "Repeated requirement, already reviewed as the Gate 1 row at .scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md:19. Same defect: retryAfterDelay clamps the converted retryAfter to 2000 ms instead of letting the server-provided delay replace the computed backoff as Retry timing rule 7 requires."
+  },
+  {
+   "id": "s1-043",
+   "orig": "p2-007",
+   "src": "q3:B-x2",
+   "stratum": "hard",
+   "opus": "unsupported",
+   "opusSecond": "unsupported",
+   "sonnet": "supported",
+   "reason": "2000ms截断有规则依据，但不对应问题2",
+   "expectation": null,
+   "finding": "retryAfterDelay returns Math.min(retryAfter * 1000, maximumRetryDelay), so a server-provided retryAfter above 2000 ms is truncated to 2000 instead of replacing the computed backoff as Retry timing rule 7 requires; rule 8 caps only the computed backoff."
+  },
+  {
+   "id": "s1-081",
+   "orig": "p1-263",
+   "src": "q3:Af",
+   "stratum": "hard",
+   "opus": "not-matched",
+   "opusSecond": "not-matched",
+   "sonnet": "matched",
+   "reason": "finding与期望句描述同一缺陷",
+   "expectation": "`authorizeRouteBatch` accepts the batch when `findIndex` returns 0, so a batch whose first route fails depot ownership is authorized.",
+   "finding": "`authorizeRouteBatch` computes `firstRejected = routes.findIndex(route => !requireDepotOwner(actor, route))` and returns `firstRejected <= 0`, so a batch is only rejected when the very first route fails ownership; a rejection found at any later index produces a positive number and the batch is accepted. `authorizeRouteBatch({depotId: 'A'}, [{depotId: 'A'}, {depotId: 'B'}])` returns `false`, meaning the batch is authorized although its second route fails depot ownership. Recommendation: return `!routes.some(route => !requireDepotOwner(actor, route))`."
+  }
+ ],
+ "synthetic": {
+  "n": 11,
+  "identified": 11,
+  "missed": []
+ },
+ "rescore": {
+  "original": {
+   "x5": {
+    "q3Mean": 0.6156,
+    "opusMean": 0.8432,
+    "ratio": 0.7301
+   },
+   "x10": {
+    "q3Mean": 0.5957,
+    "opusMean": 0.8432,
+    "ratio": 0.7064
+   }
+  },
+  "q3fav": {
+   "x5": {
+    "q3Mean": 0.6238,
+    "opusMean": 0.8432,
+    "ratio": 0.7398
+   },
+   "x10": {
+    "q3Mean": 0.5998,
+    "opusMean": 0.8432,
+    "ratio": 0.7113
+   },
+   "perSource": {
+    "q3:Af": [
+     0.6506,
+     0.601,
+     0.5325
+    ],
+    "q3:C": [
+     0.6545,
+     0.3348,
+     0.6106
+    ]
+   }
+  },
+  "q3unf": {
+   "x5": {
+    "q3Mean": 0.6238,
+    "opusMean": 0.8432,
+    "ratio": 0.7398
+   },
+   "x10": {
+    "q3Mean": 0.5998,
+    "opusMean": 0.8432,
+    "ratio": 0.7113
+   },
+   "perSource": {
+    "q3:Af": [
+     0.6506,
+     0.601,
+     0.5325
+    ],
+    "q3:C": [
+     0.6545,
+     0.3348,
+     0.6106
+    ]
+   }
+  },
+  "affectedSources": [
+   "q3:Af",
+   "q3:B-x2",
+   "q3:C"
+  ],
+  "filled": {},
+  "delta": {
+   "x5": 0.009700000000000042,
+   "x10": 0.0049000000000000155
+  }
+ },
+ "pass": {
+  "real>=95%": true,
+  "hard>=90%": false,
+  "syntheticAll": true,
+  "ratioDelta<=0.02": true,
+  "verdictUnchanged": true
+ }
+}

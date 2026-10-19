@@ -1,0 +1,465 @@
+{
+ "adjudicator": "blind Opus high",
+ "decisions": [
+  {
+   "id": "s1-001",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-002",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-003",
+   "decision": "not-matched",
+   "reason": "只谈2000ms上限截断，不是retryAfter为0回退"
+  },
+  {
+   "id": "s1-004",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-005",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-006",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-007",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-008",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-009",
+   "decision": "not-matched",
+   "reason": "讲reassignment归属，与改写入参期望不同"
+  },
+  {
+   "id": "s1-010",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-011",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-012",
+   "decision": "not-matched",
+   "reason": "只说未检查暂停，未指出claim范围保留"
+  },
+  {
+   "id": "s1-013",
+   "decision": "problem-7",
+   "reason": "入口缺executor导出，与问题7一致"
+  },
+  {
+   "id": "s1-014",
+   "decision": "unsupported",
+   "reason": "称非有限priority同时在urgent与remaining，与priorityOf规则15矛盾，结论方向错误"
+  },
+  {
+   "id": "s1-015",
+   "decision": "problem-16",
+   "reason": "Number接受空串/空格填充/布尔等非十进制文本，匹配问题16"
+  },
+  {
+   "id": "s1-016",
+   "decision": "problem-8",
+   "reason": "只排顶层键，嵌套顺序影响哈希"
+  },
+  {
+   "id": "s1-017",
+   "decision": "false-positive:clean-9",
+   "reason": "所示输出P1保留于A、从B去重，是正确去重，属对已满足要求的误报"
+  },
+  {
+   "id": "s1-018",
+   "decision": "problem-20",
+   "reason": "retryAfter为0因真值判断回退到退避"
+  },
+  {
+   "id": "s1-019",
+   "decision": "false-positive:clean-16",
+   "reason": "规则26使有限retryAfter失败为瞬时，retryTransient本身需显式true，误报"
+  },
+  {
+   "id": "s1-020",
+   "decision": "supported",
+   "reason": "executor未导出属实，但所列问题6不相关"
+  },
+  {
+   "id": "s1-021",
+   "decision": "problem-8",
+   "reason": "只排顶层键"
+  },
+  {
+   "id": "s1-022",
+   "decision": "problem-13",
+   "reason": "findIndex返回0即放行首路由失败的批次"
+  },
+  {
+   "id": "s1-023",
+   "decision": "supported",
+   "reason": "rename被拒后discardTemporary不删除锁定字节属实，但列出的问题4不相关"
+  },
+  {
+   "id": "s1-024",
+   "decision": "supported",
+   "reason": "等于上限被拒属实，但干净用例11不相关，也无对应问题可补"
+  },
+  {
+   "id": "s1-025",
+   "decision": "false-positive:clean-16",
+   "reason": "同019，误报"
+  },
+  {
+   "id": "s1-026",
+   "decision": "unsupported",
+   "reason": "称直接fs.writeFileSync不调store，与其他候选证据（调用renameTemporary/discardTemporary）矛盾"
+  },
+  {
+   "id": "s1-027",
+   "decision": "problem-11",
+   "reason": "onCommit时机合同未定义"
+  },
+  {
+   "id": "s1-028",
+   "decision": "problem-9",
+   "reason": "文本\"9\"或Infinity不在任何分区"
+  },
+  {
+   "id": "s1-029",
+   "decision": "problem-10",
+   "reason": "使用getHours本地小时而非UTC"
+  },
+  {
+   "id": "s1-030",
+   "decision": "unsupported",
+   "reason": "称仅首路由失败才拒绝，与<=0逻辑相反，示例结论自相矛盾"
+  },
+  {
+   "id": "s1-031",
+   "decision": "problem-11",
+   "reason": "onCommit时机合同未定义"
+  },
+  {
+   "id": "s1-032",
+   "decision": "supported",
+   "reason": "retryAfter被2000ms截断有规则7/8依据，但不对应列出的问题20"
+  },
+  {
+   "id": "s1-033",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-034",
+   "decision": "unsupported",
+   "reason": "称retry.mjs使用eval，无依据"
+  },
+  {
+   "id": "s1-035",
+   "decision": "problem-8",
+   "reason": "Number接受null/空串/空格文本，匹配该问题"
+  },
+  {
+   "id": "s1-036",
+   "decision": "problem-7",
+   "reason": "拼接无分隔符导致标识碰撞"
+  },
+  {
+   "id": "s1-037",
+   "decision": "false-positive:clean-2",
+   "reason": "token置undefined序列化后不出现，算移除，误报"
+  },
+  {
+   "id": "s1-038",
+   "decision": "false-positive:clean-9",
+   "reason": "自引规则26认定有限retryAfter为瞬时，误报"
+  },
+  {
+   "id": "s1-039",
+   "decision": "problem-6",
+   "reason": "onCommit时机合同未定义"
+  },
+  {
+   "id": "s1-040",
+   "decision": "false-positive:clean-22",
+   "reason": "非字符串phone无可去空格的联系电话，要求仍满足，倾向误报"
+  },
+  {
+   "id": "s1-041",
+   "decision": "problem-6",
+   "reason": "onCommit时机合同未定义"
+  },
+  {
+   "id": "s1-042",
+   "decision": "problem-2",
+   "reason": "retryAfter为0回退到退避"
+  },
+  {
+   "id": "s1-043",
+   "decision": "supported",
+   "reason": "2000ms截断有规则依据，但不对应问题2"
+  },
+  {
+   "id": "s1-044",
+   "decision": "problem-1",
+   "reason": "公共入口缺executor"
+  },
+  {
+   "id": "s1-045",
+   "decision": "problem-5",
+   "reason": "阻断移到窗口外未拒绝"
+  },
+  {
+   "id": "s1-046",
+   "decision": "unsupported",
+   "reason": "所示行为是正确去重，未涉及空白变体"
+  },
+  {
+   "id": "s1-047",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-048",
+   "decision": "not-matched",
+   "reason": "authorizeRouteBatch问题，与数组内凭据无关"
+  },
+  {
+   "id": "s1-049",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-050",
+   "decision": "not-matched",
+   "reason": "只谈上限截断，不涉及retryAfter为0"
+  },
+  {
+   "id": "s1-051",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-052",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-053",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-054",
+   "decision": "not-matched",
+   "reason": "只谈上界3，本版接受3"
+  },
+  {
+   "id": "s1-055",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-056",
+   "decision": "not-matched",
+   "reason": "只谈缺失sequence，不匹配"
+  },
+  {
+   "id": "s1-057",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-058",
+   "decision": "not-matched",
+   "reason": "所述去重行为本身正确，不是空白变体问题"
+  },
+  {
+   "id": "s1-059",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-060",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-061",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-062",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-063",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-064",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-065",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-066",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-067",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-068",
+   "decision": "not-matched",
+   "reason": "声称非有限优先级同时落入两分区，与期望的无分区方向不符"
+  },
+  {
+   "id": "s1-069",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-070",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-071",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-072",
+   "decision": "not-matched",
+   "reason": "publishManifest异步校验，与chooseDeparture无关"
+  },
+  {
+   "id": "s1-073",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-074",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-075",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-076",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-077",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-078",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-079",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-080",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-081",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-082",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-083",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-084",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-085",
+   "decision": "not-matched",
+   "reason": "routeDuration停车时间，与本地小时无关"
+  },
+  {
+   "id": "s1-086",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-087",
+   "decision": "not-matched",
+   "reason": "路由标识拼接，与容量余量期望无关"
+  },
+  {
+   "id": "s1-088",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-089",
+   "decision": "not-matched",
+   "reason": "手机号原始值问题，与transient:false期望无关"
+  },
+  {
+   "id": "s1-090",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-091",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  },
+  {
+   "id": "s1-092",
+   "decision": "matched",
+   "reason": "finding与期望句描述同一缺陷"
+  }
+ ]
+}

@@ -1,0 +1,498 @@
+{
+ "s2-001": {
+  "orig": "c006",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-3:CODE-STANDARDS-FINDINGS:finding-9",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-002": {
+  "orig": "c051",
+  "src": "q3-9",
+  "candidateId": "code-standards-reviewer:default-4d204d20-6c01-49d3-a954-f4a9826828ef-instance-1:scope-1:problem-17:CODE-STANDARDS-FINDINGS:finding-3",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-003": {
+  "orig": "c052",
+  "src": "q3-10",
+  "candidateId": "code-standards-reviewer:default-bcc3dd51-757b-42ef-b5a5-4a27b4b4b29d-instance-1:scope-1:problem-17:CODE-STANDARDS-FINDINGS:finding-26",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-004": {
+  "orig": "c053",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-17:CODE-STANDARDS-FINDINGS:finding-18",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-005": {
+  "orig": "c050",
+  "src": "q3-1",
+  "candidateId": "code-standards-reviewer:default-a23c6bde-fdee-4940-a625-1eb5ae937a37-instance-1:scope-1:problem-17:CODE-STANDARDS-FINDINGS:finding-22",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-006": {
+  "orig": "c049",
+  "src": "q3-3",
+  "candidateId": "code-standards-reviewer:default-a7aef2d0-dff6-4464-8e1a-6f8fc602fe9b-instance-1:scope-1:problem-17:CODE-STANDARDS-FINDINGS:finding-15",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-007": {
+  "orig": "c054",
+  "src": "q3-2",
+  "candidateId": "code-standards-reviewer:default-c3cc0f19-1d90-445e-8681-ae9ce81cb984-instance-1:scope-1:problem-17:CODE-STANDARDS-FINDINGS:finding-27",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-008": {
+  "orig": "c055",
+  "src": "q3-9",
+  "candidateId": "code-standards-reviewer:default-4d204d20-6c01-49d3-a954-f4a9826828ef-instance-1:scope-1:problem-17:CODE-STANDARDS-FINDINGS:finding-19",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-009": {
+  "orig": "c056",
+  "src": "q3-5",
+  "candidateId": "code-standards-reviewer:default-665100cf-dc54-4981-9187-53eb2a887d46-instance-1:scope-1:problem-17:CODE-STANDARDS-FINDINGS:finding-16",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-010": {
+  "orig": "c016",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-16:CODE-STANDARDS-FINDINGS:finding-22",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-011": {
+  "orig": "c015",
+  "src": "anchor",
+  "candidateId": "code-standards-reviewer:default-667bb440-934e-4e76-acd1-e563b2ee497d-instance-1:scope-1:problem-16:CODE-STANDARDS-FINDINGS:finding-14",
+  "expected": "matched",
+  "stratum": "anchor",
+  "synthetic": false
+ },
+ "s2-012": {
+  "orig": "c017",
+  "src": "anchor",
+  "candidateId": "code-standards-reviewer:default-a23c6bde-fdee-4940-a625-1eb5ae937a37-instance-1:scope-1:problem-16:CODE-STANDARDS-FINDINGS:finding-15",
+  "expected": "matched",
+  "stratum": "anchor",
+  "synthetic": false
+ },
+ "s2-013": {
+  "orig": "c018",
+  "src": "anchor",
+  "candidateId": "code-standards-reviewer:default-c2ba48ef-b239-4ed2-8330-d73b25337240-instance-1:scope-1:problem-16:CODE-STANDARDS-FINDINGS:finding-19",
+  "expected": "matched",
+  "stratum": "anchor",
+  "synthetic": false
+ },
+ "s2-014": {
+  "orig": "c061",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-26:CODE-STANDARDS-FINDINGS:finding-23",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-015": {
+  "orig": "c058",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-4:CODE-STANDARDS-FINDINGS:finding-13",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-016": {
+  "orig": "c001",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-13:CODE-STANDARDS-FINDINGS:finding-7",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-017": {
+  "orig": "c002",
+  "src": "anchor",
+  "candidateId": "code-standards-reviewer:default-a7aef2d0-dff6-4464-8e1a-6f8fc602fe9b-instance-1:scope-1:problem-13:CODE-STANDARDS-FINDINGS:finding-23",
+  "expected": "not-matched",
+  "stratum": "anchor",
+  "synthetic": false
+ },
+ "s2-018": {
+  "orig": "c059",
+  "src": "q3-1",
+  "candidateId": "code-standards-reviewer:default-a23c6bde-fdee-4940-a625-1eb5ae937a37-instance-1:scope-1:problem-25:CODE-STANDARDS-FINDINGS:finding-5",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-019": {
+  "orig": "c060",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-25:CODE-STANDARDS-FINDINGS:finding-19",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-020": {
+  "orig": "c020",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-9:CODE-STANDARDS-FINDINGS:finding-6",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-021": {
+  "orig": "c022",
+  "src": "anchor",
+  "candidateId": "code-standards-reviewer:default-a23c6bde-fdee-4940-a625-1eb5ae937a37-instance-1:scope-1:problem-9:CODE-STANDARDS-FINDINGS:finding-6",
+  "expected": "not-matched",
+  "stratum": "anchor",
+  "synthetic": false
+ },
+ "s2-022": {
+  "orig": "c019",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-9:CODE-STANDARDS-FINDINGS:finding-14",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-023": {
+  "orig": "c021",
+  "src": "anchor",
+  "candidateId": "code-standards-reviewer:default-a7aef2d0-dff6-4464-8e1a-6f8fc602fe9b-instance-1:scope-1:problem-9:CODE-STANDARDS-FINDINGS:finding-22",
+  "expected": "not-matched",
+  "stratum": "anchor",
+  "synthetic": false
+ },
+ "s2-024": {
+  "orig": "c057",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-8:CODE-STANDARDS-FINDINGS:finding-11",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-025": {
+  "orig": "c048",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-12:CODE-STANDARDS-FINDINGS:finding-10",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-026": {
+  "orig": "c030",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-5:CODE-STANDARDS-FINDINGS:finding-3",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-027": {
+  "orig": "c041",
+  "src": "q3-3",
+  "candidateId": "code-standards-reviewer:default-a7aef2d0-dff6-4464-8e1a-6f8fc602fe9b-instance-1:scope-1:problem-21:CODE-STANDARDS-FINDINGS:finding-23",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-028": {
+  "orig": "c043",
+  "src": "opus-1",
+  "candidateId": "code-standards-reviewer:default-675b5a73-674f-4099-9a79-a6d87df94c07-instance-1:scope-1:problem-21:CODE-STANDARDS-FINDINGS:finding-16",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-029": {
+  "orig": "c042",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-21:CODE-STANDARDS-FINDINGS:finding-15",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-030": {
+  "orig": "c033",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-11:CODE-STANDARDS-FINDINGS:finding-5",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-031": {
+  "orig": "c032",
+  "src": "opus-1",
+  "candidateId": "code-standards-reviewer:default-675b5a73-674f-4099-9a79-a6d87df94c07-instance-1:scope-1:problem-22:CODE-STANDARDS-FINDINGS:finding-14",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-032": {
+  "orig": "c031",
+  "src": "q3-8",
+  "candidateId": "code-standards-reviewer:default-667bb440-934e-4e76-acd1-e563b2ee497d-instance-1:scope-1:problem-22:CODE-STANDARDS-FINDINGS:finding-21",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-033": {
+  "orig": "c024",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-7:CODE-STANDARDS-FINDINGS:finding-8",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-034": {
+  "orig": "c023",
+  "src": "anchor",
+  "candidateId": "code-standards-reviewer:default-bcc3dd51-757b-42ef-b5a5-4a27b4b4b29d-instance-1:scope-1:problem-7:CODE-STANDARDS-FINDINGS:finding-12",
+  "expected": "matched",
+  "stratum": "anchor",
+  "synthetic": false
+ },
+ "s2-035": {
+  "orig": "c062",
+  "src": "q3-3",
+  "candidateId": "code-standards-reviewer:default-a7aef2d0-dff6-4464-8e1a-6f8fc602fe9b-instance-1:scope-1:problem-20:CODE-STANDARDS-FINDINGS:finding-23",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-036": {
+  "orig": "c027",
+  "src": "q3-9",
+  "candidateId": "code-standards-reviewer:default-4d204d20-6c01-49d3-a954-f4a9826828ef-instance-1:scope-1:problem-19:CODE-STANDARDS-FINDINGS:finding-28",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-037": {
+  "orig": "c028",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-19:CODE-STANDARDS-FINDINGS:finding-16",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-038": {
+  "orig": "c029",
+  "src": "opus-1",
+  "candidateId": "code-standards-reviewer:default-675b5a73-674f-4099-9a79-a6d87df94c07-instance-1:scope-1:problem-19:CODE-STANDARDS-FINDINGS:finding-15",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-039": {
+  "orig": "c046",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-2:CODE-STANDARDS-FINDINGS:finding-2",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-040": {
+  "orig": "c007",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-18:CODE-STANDARDS-FINDINGS:finding-20",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-041": {
+  "orig": "c010",
+  "src": "anchor",
+  "candidateId": "code-standards-reviewer:default-4d204d20-6c01-49d3-a954-f4a9826828ef-instance-1:scope-1:problem-18:CODE-STANDARDS-FINDINGS:finding-18",
+  "expected": "matched",
+  "stratum": "anchor",
+  "synthetic": false
+ },
+ "s2-042": {
+  "orig": "c011",
+  "src": "opus-1",
+  "candidateId": "code-standards-reviewer:default-675b5a73-674f-4099-9a79-a6d87df94c07-instance-1:scope-1:problem-18:CODE-STANDARDS-FINDINGS:finding-21",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-043": {
+  "orig": "c009",
+  "src": "q3-8",
+  "candidateId": "code-standards-reviewer:default-667bb440-934e-4e76-acd1-e563b2ee497d-instance-1:scope-1:problem-18:CODE-STANDARDS-FINDINGS:finding-21",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-044": {
+  "orig": "c008",
+  "src": "q3-1",
+  "candidateId": "code-standards-reviewer:default-a23c6bde-fdee-4940-a625-1eb5ae937a37-instance-1:scope-1:problem-18:CODE-STANDARDS-FINDINGS:finding-5",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-045": {
+  "orig": "c037",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-23:CODE-STANDARDS-FINDINGS:finding-17",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-046": {
+  "orig": "c040",
+  "src": "opus-1",
+  "candidateId": "code-standards-reviewer:default-675b5a73-674f-4099-9a79-a6d87df94c07-instance-1:scope-1:problem-23:CODE-STANDARDS-FINDINGS:finding-17",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-047": {
+  "orig": "c034",
+  "src": "q3-9",
+  "candidateId": "code-standards-reviewer:default-4d204d20-6c01-49d3-a954-f4a9826828ef-instance-1:scope-1:problem-23:CODE-STANDARDS-FINDINGS:finding-23",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-048": {
+  "orig": "c039",
+  "src": "q3-3",
+  "candidateId": "code-standards-reviewer:default-a7aef2d0-dff6-4464-8e1a-6f8fc602fe9b-instance-1:scope-1:problem-23:CODE-STANDARDS-FINDINGS:finding-21",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-049": {
+  "orig": "c036",
+  "src": "q3-3",
+  "candidateId": "code-standards-reviewer:default-a7aef2d0-dff6-4464-8e1a-6f8fc602fe9b-instance-1:scope-1:problem-23:CODE-STANDARDS-FINDINGS:finding-23",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-050": {
+  "orig": "c035",
+  "src": "anchor",
+  "candidateId": "code-standards-reviewer:default-667bb440-934e-4e76-acd1-e563b2ee497d-instance-1:scope-1:problem-23:CODE-STANDARDS-FINDINGS:finding-18",
+  "expected": "matched",
+  "stratum": "anchor",
+  "synthetic": false
+ },
+ "s2-051": {
+  "orig": "c038",
+  "src": "q3-7",
+  "candidateId": "code-standards-reviewer:default-c2ba48ef-b239-4ed2-8330-d73b25337240-instance-1:scope-1:problem-23:CODE-STANDARDS-FINDINGS:finding-17",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-052": {
+  "orig": "c013",
+  "src": "q3-1",
+  "candidateId": "code-standards-reviewer:default-a23c6bde-fdee-4940-a625-1eb5ae937a37-instance-1:scope-1:problem-24:CODE-STANDARDS-FINDINGS:finding-22",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-053": {
+  "orig": "c012",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-24:CODE-STANDARDS-FINDINGS:finding-24",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-054": {
+  "orig": "c014",
+  "src": "q3-10",
+  "candidateId": "code-standards-reviewer:default-bcc3dd51-757b-42ef-b5a5-4a27b4b4b29d-instance-1:scope-1:problem-24:CODE-STANDARDS-FINDINGS:finding-26",
+  "expected": "not-matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-055": {
+  "orig": "c047",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-15:CODE-STANDARDS-FINDINGS:finding-21",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-056": {
+  "orig": "c003",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-1:CODE-STANDARDS-FINDINGS:finding-1",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-057": {
+  "orig": "c004",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-6:CODE-STANDARDS-FINDINGS:finding-4",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-058": {
+  "orig": "c005",
+  "src": "anchor",
+  "candidateId": "code-standards-reviewer:default-c3cc0f19-1d90-445e-8681-ae9ce81cb984-instance-1:scope-1:problem-6:CODE-STANDARDS-FINDINGS:finding-7",
+  "expected": "matched",
+  "stratum": "anchor",
+  "synthetic": false
+ },
+ "s2-059": {
+  "orig": "c026",
+  "src": "anchor",
+  "candidateId": "code-standards-reviewer:default-5cbfe36f-d0da-4cec-8942-5bbaaaa3500d-instance-1:scope-1:problem-14:CODE-STANDARDS-FINDINGS:finding-14",
+  "expected": "matched",
+  "stratum": "anchor",
+  "synthetic": false
+ },
+ "s2-060": {
+  "orig": "c025",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-14:CODE-STANDARDS-FINDINGS:finding-14",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-061": {
+  "orig": "c044",
+  "src": "opus-2",
+  "candidateId": "code-standards-reviewer:default-3713acf7-55e7-44a2-b547-0da75d06e593-instance-1:scope-1:problem-10:CODE-STANDARDS-FINDINGS:finding-12",
+  "expected": "matched",
+  "stratum": "new",
+  "synthetic": false
+ },
+ "s2-062": {
+  "orig": "c045",
+  "src": "anchor",
+  "candidateId": "code-standards-reviewer:default-a23c6bde-fdee-4940-a625-1eb5ae937a37-instance-1:scope-1:problem-10:CODE-STANDARDS-FINDINGS:finding-22",
+  "expected": "matched",
+  "stratum": "anchor",
+  "synthetic": false
+ }
+}

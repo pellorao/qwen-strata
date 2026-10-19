@@ -1,0 +1,684 @@
+[
+ {
+  "id": "s2-001",
+  "group": "E01",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "kitchen-manifest.mjs is a rule module but imports the Node.js built-in node:crypto; rule 2 allows built-in imports only in store and platform modules (the node: prefix alone is not enough).",
+  "finding": "- `src/catering/kitchen-manifest.mjs:1,46`: `kitchen-manifest.mjs` is a rule module (not `*-service.mjs` or `*-store.mjs`) but imports `createHash` from `node:crypto`. This breaks `src/AGENTS.md` rule 2 (\"Only store modules and platform modules may import Node.js built-in modules\"). Fix: move the SHA-256 digest into a platform module (for example a hashing helper next to `src/platform/csv-format.mjs`) and import it from there."
+ },
+ {
+  "id": "s2-002",
+  "group": "E02",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source).",
+  "finding": "3. `src/catering/menu.mjs:11`\n   - Violated instruction: `src/AGENTS.md` rule 3 \"Array and plain-object values exported directly from a module must be frozen before export.\"\n   - `export const DIETARY_TAGS = Object.keys(DIETARY_LABELS);` exports a mutable array. `DIETARY_LABELS` on line 4 is frozen, so the intent to freeze exported data is clear, and the other module-level collections in this change are frozen too (`src/catering/vendors.mjs:3`, `src/catering/kitchen-manifest.mjs:8,19`, `src/catering/catering-states.mjs:1`).\n   - Impact: `DIETARY_TAGS` is the authority for dietary validation and reporting (`src/catering/menu.mjs:16`, `src/catering/catering-statements.mjs:9`), so any caller that pushes or splices it changes which tags every feature accepts for the rest of the process.\n   - Fix: `export const DIETARY_TAGS = Object.freeze(Object.keys(DIETARY_LABELS));`."
+ },
+ {
+  "id": "s2-003",
+  "group": "E02",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source).",
+  "finding": "26. `src/catering/menu.mjs:11` - `export const DIETARY_TAGS = Object.keys(DIETARY_LABELS);` exports a plain array directly without freezing it, violating `src/AGENTS.md` rule 3 (\"Array and plain-object values exported directly from a module must be frozen before export.\"). It is the only directly exported array or plain object in `src/` that is not frozen; every other one uses `Object.freeze`, for example `src/exports/reservation-columns.mjs:1`, `src/catering/menu.mjs:4,13`, `src/catering/vendors.mjs:3`, `src/catering/catering-notices.mjs:7` and `src/catering/kitchen-manifest.mjs:8,19`.\n   - `Object.keys` returns a fresh mutable array that the module then hands out as the shared dietary vocabulary. `requireDietaryTags` at `src/catering/menu.mjs:16` validates every menu item's tags and every order's dietary needs against it through `src/catering/catering-fields.mjs:14`, and `dietaryCounts` at `src/catering/catering-statements.mjs:9-12` builds each vendor statement's dietary counts from the same array object, so one in-place change to `DIETARY_TAGS` silently changes what the whole feature accepts as a valid dietary tag and which counts appear in every statement.\n   - Fix: `export const DIETARY_TAGS = Object.freeze(Object.keys(DIETARY_LABELS));`."
+ },
+ {
+  "id": "s2-004",
+  "group": "E02",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source).",
+  "finding": "- `src/catering/kitchen-manifest.mjs:19-25,53-55`, `src/catering/vendors.mjs:1,9-12`, `src/catering/catering-service.mjs:150-153`: `KITCHENS`/`kitchenFor` re-derives which vendor handles an order (`halal` -> `crescent`, `headcount >= 31` -> `banquet`, else `deli`). This duplicates `vendorFor` in `vendors.mjs` (`headcount > LARGE_ORDER` with `LARGE_ORDER = 30`) and ignores the `vendorId` already stored on each order by `newOrder`. This is `Duplicated Code`/`Repeated Switches` on the same vendor choice, with the size threshold in two forms in two files. When the vendor rule changes, or an order was placed under an older rule, manifests group orders under a different vendor than the one notified and billed. `vendorManifests` only loads menus for the requested `vendorIds`, so a group key outside that list makes `menus[vendorId]` `undefined` and `requireMenuItem` fails. Fix: group by `order.vendorId` in `kitchenManifests` and delete `KITCHENS`/`kitchenFor`."
+ },
+ {
+  "id": "s2-005",
+  "group": "E02",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source).",
+  "finding": "- `src/catering/menu.mjs:11` - `export const DIETARY_TAGS = Object.keys(DIETARY_LABELS);` exports an array that is not frozen.\n  - Violates `src/AGENTS.md` Source Rules 3: \"Array and plain-object values exported directly from a module must be frozen before export.\" Every other exported collection in this change is frozen (`src/catering/menu.mjs:4,13`, `src/catering/vendors.mjs:3`, `src/catering/catering-states.mjs:1`, `src/catering/catering-notices.mjs:7`, `src/catering/kitchen-manifest.mjs:8,19`).\n  - `DIETARY_TAGS` is the validation domain for dietary tags: `requireDietaryTags` at line 16 tests membership in it, and `dietaryCounts` in `src/catering/catering-statements.mjs:9-12` builds the reported tag set from it. A caller that mutates this exported array changes what the whole feature accepts as a valid tag and what every vendor statement reports, without any error.\n  - Fix: `export const DIETARY_TAGS = Object.freeze(Object.keys(DIETARY_LABELS));`."
+ },
+ {
+  "id": "s2-006",
+  "group": "E02",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source).",
+  "finding": "- 15. `src/catering/kitchen-manifest.mjs:19-25,53-55` and `src/catering/vendors.mjs:1,10-12` - vendor routing implemented twice, and a kitchen name used as a vendor id.\n    - Design check: `Duplicated Code` and `Mysterious Name`, against `docs/agents/writing.md` \"Common capabilities\" (one responsibility, one place).\n    - Evidence: `KITCHENS` routes `halal` to `crescent`, `order.headcount >= 31` to `banquet`, and everything else to `deli`. `vendorFor` routes `halal` to `crescent`, `order.headcount > LARGE_ORDER` to `banquet`, and everything else to `deli`, with `LARGE_ORDER = 30`. The same threshold is written two ways. Then `kitchenFor`'s group key is bound as `vendorId` in `.map(([vendorId, vendorOrders]) => manifestOf(vendorId, vendorOrders, menus[vendorId]))`, and `manifestOf` reports it as `vendorId` in the manifest record.\n    - Impact: the two rules agree only because the kitchen names happen to equal the vendor keys. The order's vendor is fixed at placement (`src/catering/catering-service.mjs:58` `vendorFor(prepared)`) and re-checked on headcount change (`src/catering/catering-service.mjs:84`), while the manifest group is recomputed from `KITCHENS`. Editing `LARGE_ORDER` in `vendors.mjs` leaves the manifest grouping at 31, so an order of exactly 31 covers is grouped under `banquet` while `vendorFor` assigns it to `deli`, and `rowsFor` at line 36 then prices its lines against the wrong vendor's menu from `menus[vendorId]`. The manifest also reports a kitchen as the vendor the site pays.\n    - Fix: group manifests with `vendorFor(order)` and delete `KITCHENS`, keeping one threshold; if a kitchen is genuinely a separate concept from a vendor, name the group key `kitchenId` and give it its own rule instead of reusing vendor ids."
+ },
+ {
+  "id": "s2-007",
+  "group": "E02",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source).",
+  "finding": "27. `src/catering/kitchen-manifest.mjs:8-25,40-48`, `src/catering/catering-policy.mjs:24`\n    - Design check: `Divergent Change`, and the requirement to separate responsibilities that belong to different reasons to change.\n    - The file holds two unrelated things: the capacity and routing rule `KITCHENS` with `kitchenFor` (lines 19-25), and the manifest output contract `COLUMNS`, `rowsFor` and the digest in `manifestOf` (lines 8-17, 29-38, 40-48). The capacity rule already has an owner in this feature: `needsStaff` at `src/catering/catering-policy.mjs:24` is the other headcount-based decision about an order, and `catering-policy.mjs` is where `earliestDelivery`, `deliveryWindow` and `clashesWith` decide where and when an order is served. `KITCHENS` puts a second capacity rule in the module whose other job is writing CSV, so a change to kitchen capacity thresholds and a change to the manifest columns both land in the same file, and `src/catering/catering-service.mjs:150-152` cannot see the routing rule at all because `kitchenManifests` hides it. The repository already separates these two jobs for exports: the column contract lives in `src/exports/reservation-columns.mjs:1-16` while `src/exports/export-service.mjs:8-12` only builds the CSV.\n    - Fix: move `KITCHENS` and `kitchenFor` into `src/catering/catering-policy.mjs` next to `needsStaff` and export the assignment from there, and keep `kitchen-manifest.mjs` responsible only for turning orders into rows, CSV and digest."
+ },
+ {
+  "id": "s2-008",
+  "group": "E02",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source).",
+  "finding": "19. `src/catering/vendors.mjs:1,10-11`, `src/catering/kitchen-manifest.mjs:19-25,53-55`\n    - Design smells: `Duplicated Code`, `Repeated Switches` and `Primitive Obsession`; `docs/agents/writing.md` requires one authoritative source per fact.\n    - Vendor routing is `dietary.includes('halal') -> 'crescent'`, else `headcount > LARGE_ORDER` (30) `-> 'banquet'`, else `'deli'` (`src/catering/vendors.mjs:10-11`). Kitchen routing restates the same decision as `dietary.includes('halal') -> 'crescent'`, `headcount >= 31 -> 'banquet'`, else `'deli'` (`src/catering/kitchen-manifest.mjs:20-22`). `kitchenManifests` then treats the kitchen name as a vendor id: `Map.groupBy(due, kitchenFor)` keys the map by kitchen, and line 55 passes that key to `manifestOf(vendorId, ...)` and looks up `menus[vendorId]`, where `menus` was built from `vendorIds` at `src/catering/catering-service.mjs:151`.\n    - Impact: two copies of one routing rule use different literals (`> 30` versus `>= 31`), so they can drift. If `LARGE_ORDER` changes to 25, an order of 28 servings is stored with `vendorId: 'banquet'` but grouped under the kitchen `deli`, so `menus['deli']` is used for a banquet order and `requireMenuItem` (`src/catering/menu.mjs:48`) throws for any menu item only the banquet vendor carries. Kitchen identity and vendor identity are separate domain concepts joined only by matching strings.\n    - Fix: give the routing rule one owner. Either assign the kitchen from the already stored `order.vendorId` (`kitchenFor = (order) => order.vendorId`) and delete `KITCHENS`, or express both thresholds once in `CATERING` (`src/platform/site-settings.mjs:21-28`) and have `vendorFor` and the kitchen selection read the same named threshold."
+ },
+ {
+  "id": "s2-009",
+  "group": "E02",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source).",
+  "finding": "16. `src/catering/menu.mjs:11`\n   - Violated instruction: `src/AGENTS.md` rule 3 \"Array and plain-object values exported directly from a module must be frozen before export.\"\n   - `export const DIETARY_TAGS = Object.keys(DIETARY_LABELS);` exports a mutable array. Every other exported collection in the new feature is frozen (`DIETARY_LABELS` at `src/catering/menu.mjs:4`, `COURSES` at line 13, `VENDORS` at `src/catering/vendors.mjs:3`, `COLUMNS` and `KITCHENS` at `src/catering/kitchen-manifest.mjs:8,19`, `CATERING` at `src/platform/site-settings.mjs:21`).\n   - Impact: `DIETARY_TAGS` is the authority for what counts as a dietary tag. `requireDietaryTags` at `src/catering/menu.mjs:16` validates against it, `dietaryCounts` at `src/catering/catering-statements.mjs:9` builds the reported counts from it, and `prepareNeeds` at `src/catering/catering-fields.mjs:17` feeds member input through it. A caller that appends to the exported array changes validation and reporting for the whole feature with no owner noticing it.\n   - Fix: `export const DIETARY_TAGS = Object.freeze(Object.keys(DIETARY_LABELS));`."
+ },
+ {
+  "id": "s2-010",
+  "group": "E03",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity.",
+  "finding": "- `src/catering/catering-time.mjs:1`, `src/catering/catering-policy.mjs:4`, `src/catering/catering-service.mjs:11`: `catering-time.mjs` only re-exports `DAY` and `addMinutes` from `../platform/time.mjs`, and catering modules import them through it. This is a `Middle Man` module that adds no policy, which `docs/agents/writing.md` \"Common capabilities\" forbids (\"不得创建只转发调用且没有隐藏任何复杂性的公共包装器\"). Readers have to follow an extra hop to find the platform owner, and the indirection suggests catering-specific time semantics that don't exist. Fix: delete `catering-time.mjs` and import `DAY`/`addMinutes` directly from `../platform/time.mjs`."
+ },
+ {
+  "id": "s2-011",
+  "group": "E03",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity.",
+  "finding": "- `src/catering/catering-time.mjs:1` - the whole module is a re-export of `DAY` and `addMinutes` from `src/platform/time.mjs` and adds no behaviour.\n  - Rule broken: `docs/agents/writing.md` \"Common capabilities\": \"不得创建只转发调用且没有隐藏任何复杂性的公共包装器\" (do not create a public wrapper that only forwards the call and hides no complexity). The named design smell is `Middle Man`: the module only delegates. `rg -n \"^export \\{.*\\} from\" src` shows this is the only such shim in `src/`.\n  - Impact: two catering modules import time helpers from a feature-local name (`src/catering/catering-policy.mjs:4`, `src/catering/catering-service.mjs:11`) while every other catering module imports the same platform module directly (`src/catering/catering-policy.mjs:1-3`, `src/catering/catering-pricing.mjs:2-4`), so a reader must open the shim to learn that `addMinutes` is the platform one. Any future helper added here becomes a second place to change.\n  - Fix: delete `src/catering/catering-time.mjs` and import `{addMinutes}` at `src/catering/catering-policy.mjs:4` and `{DAY}` at `src/catering/catering-service.mjs:11` from `../platform/time.mjs`."
+ },
+ {
+  "id": "s2-012",
+  "group": "E03",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity.",
+  "finding": "- `src/catering/catering-time.mjs:1` - the whole module is `export {DAY, addMinutes} from '../platform/time.mjs';`, used by `src/catering/catering-policy.mjs:4` and `src/catering/catering-service.mjs:11`.\n  - `docs/agents/writing.md` Common capabilities: \"不得创建只转发调用且没有隐藏任何复杂性的公共包装器\". The module adds no name, default value or behaviour, and it is the only re-export module in `src/`, while every other feature imports the platform module directly, for example `src/schedules/desk-policy.mjs:4` and `src/platform/invoice-terms.mjs:3`.\n  - Middle Man: readers of `src/catering/catering-policy.mjs:4` and `src/catering/catering-service.mjs:11` must open a second file to learn that `DAY` and `addMinutes` are the platform values from `src/platform/time.mjs:3,5`, and the extra file becomes a place where feature-local time helpers can appear without showing that the platform already owns them.\n  - Fix: import `DAY` and `addMinutes` from `../platform/time.mjs` in `catering-policy.mjs` and `catering-service.mjs`, and delete `src/catering/catering-time.mjs`."
+ },
+ {
+  "id": "s2-013",
+  "group": "E03",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity.",
+  "finding": "19. `src/catering/catering-time.mjs:1` - A module that only forwards existing exports (`Middle Man`; `docs/agents/writing.md` \"不得创建只转发调用且没有隐藏任何复杂性的公共包装器\").\n   - Evidence: the whole file is `export {DAY, addMinutes} from '../platform/time.mjs';`. Consumers are `src/catering/catering-policy.mjs:4` (`import {addMinutes} from './catering-time.mjs';`) and `src/catering/catering-service.mjs:11` (`import {DAY} from './catering-time.mjs';`), while sibling catering modules import the platform module directly, for example `src/catering/catering-statements.mjs:1-3` and `src/catering/kitchen-manifest.mjs:2-4`.\n   - Impact: the file adds a catering-local name for two platform values without hiding anything, so a reader must open a third file to learn where `DAY` and `addMinutes` come from, and the feature now has two import paths for the same capability.\n   - Fix: import `DAY` and `addMinutes` from `../platform/time.mjs` in `catering-policy.mjs` and `catering-service.mjs`, and delete `catering-time.mjs`."
+ },
+ {
+  "id": "s2-014",
+  "group": "E04",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "vendorStatement takes a withCanceled option that its only caller, vendorStatements, never passes; catering-statements.mjs is a rule module, not an entry point, so the option is machinery for an assumed future need (writing.md minimal sufficient contracts) and can be removed.",
+  "finding": "- `src/catering/catering-statements.mjs:14-16`, `src/catering/catering-service.mjs:143-146`: `vendorStatement` takes an options bag `{withCanceled = false}` that no caller passes (the only caller, `vendorStatements`, calls `vendorStatement(delivered, vendorId, period)` with orders already listed as `state: 'delivered'`). This is `Speculative Generality`, against `docs/agents/writing.md` \"Minimal sufficient contracts\" (no mechanisms for hypothetical future needs). The unused branch also makes the local name `delivered` wrong whenever it is set, and it would count canceled orders' `charge.subtotal` into `payableToVendor`. Fix: remove the `withCanceled` option and the `counted` wrapper, and filter with `deliveredIn(period)` only."
+ },
+ {
+  "id": "s2-015",
+  "group": "E05",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "loadMenu in menu.mjs, a rule module, catches the JSON parse error; rule 4.1 forbids catching in rule modules even when the replacement keeps the cause, and menuFor in the service already wraps menu failures.",
+  "finding": "- `src/catering/menu.mjs:35-44`: `loadMenu` is in a rule module but wraps `JSON.parse(feed)` in `try/catch` and throws a replacement error. This breaks `src/AGENTS.md` rule 4.1 (\"Rule modules must not catch errors; they let errors propagate to their caller.\"). The service already converts menu failures in `menuFor` (`src/catering/catering-service.mjs:16-22`), so failures are wrapped twice in two layers. Fix: remove the `try/catch` from `loadMenu` and let `menuFor` in the service own the error conversion (it already keeps `cause`). If the feed-parsing message is needed, move the parsing into the service."
+ },
+ {
+  "id": "s2-016",
+  "group": "E06",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "addLine copies the order with a shallow spread and then pushes into amended.lines, which is still the caller's order.lines array, mutating caller data.",
+  "finding": "- `src/catering/catering-service.mjs:70-79`: `addLine` builds `const amended = {...order};` and then calls `amended.lines.push(prepareLine(line))`. The spread is shallow, so `push` mutates the `lines` array of the caller-supplied order (and of the record held by the store). This breaks `src/AGENTS.md` rule 5 (exported functions must not mutate caller-supplied objects or arrays; store records count as caller-supplied). If `itemsFor` later rejects the new line, the caller's order and the stored record still keep the invalid line, and the stored `charge` no longer matches its `lines`. Fix: build a new array, e.g. `const amended = {...order, lines: [...order.lines, prepareLine(line)]};`, then compute `charge` on the copy."
+ },
+ {
+  "id": "s2-017",
+  "group": "E06",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "addLine copies the order with a shallow spread and then pushes into amended.lines, which is still the caller's order.lines array, mutating caller data.",
+  "finding": "- 23. `src/catering/catering-service.mjs:45-153` - one module carries the write path and four unrelated read models.\n    - Design check: `Divergent Change`, against `docs/agents/writing.md` \"Minimal sufficient contracts\" (a module carries its confirmed responsibilities) and the general rule to separate responsibilities that change for different reasons.\n    - Evidence: the file exports the order write path (`placeOrder` 45, `addLine` 70, `changeHeadcount` 81, `postponeOrder` 89, `confirmOrder` 99, `deliverOrder` 104, `cancelOrder` 109, `cancelForReservation` 115) and separately the read models `upcomingOrders` 124, `listOrders` 128, `deskDeliveries` 134, `vendorStatements` 143, `memberInvoiceCharges` 148 and `vendorManifests` 150. At 153 lines with 14 exported functions it is the largest service module in `src` (next largest is 99 lines), and it imports from four features at lines 2-14.\n    - Impact: a change to cursor paging, to the desk's day window, to the vendor statement columns, or to the charge shape exported for billing all land in the same file as the order lifecycle rules, and each of them pulls the imports used by the others. A reader editing `cancelOrder` must also carry the manifest, statement and billing export code, and any of those four read models can break the lifecycle functions by touching a shared import.\n    - Fix: move the read models into rule modules that take records and instants as parameters, following the shape already used by `catering-statements.mjs` (`vendorStatement`) and `kitchen-manifest.mjs` (`kitchenManifests`), and keep `catering-service.mjs` for the commands that write an order."
+ },
+ {
+  "id": "s2-018",
+  "group": "E07",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "deliveredNotice in catering-notices.mjs sums line servings with its own reduce, the same fact that servingsOf in catering-statements.mjs computes; the notice can call servingsOf so the servings total keeps one authority.",
+  "finding": "- `src/catering/catering-store.mjs:33-41` - `save` returns the promise chain that has already absorbed its own failure through `.catch(() => undefined)` at line 39.\n  - Violates `src/AGENTS.md` Source Rules 4.3: a store may catch only to keep its internal write queue usable, and \"the promise or value it returns to its caller must still reject or throw with the original error.\"\n  - The intended shape already exists in the repository: `src/platform/append-log.mjs:9-17` keeps the absorbed chain internally (`writes = appended.catch(() => undefined)`) and returns `appended`, so the internal queue stays usable and the caller still rejects.\n  - When the request key guard at line 36 throws, `await store.save(...)` resolves with `undefined`. `saveThenNotify` in `src/platform/records.mjs:7-11` then calls `send(saved)` with that `undefined`, so `src/catering/catering-notices.mjs:14-52` reads `order.id` on `undefined` and the caller sees an unrelated TypeError instead of the duplicate request key error; `src/catering/catering-service.mjs:77,85,96` likewise report the amended order as saved.\n  - Fix: `const appended = this.#writes.then(() => {...}); this.#writes = appended.catch(() => undefined); return appended;`."
+ },
+ {
+  "id": "s2-019",
+  "group": "E07",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "deliveredNotice in catering-notices.mjs sums line servings with its own reduce, the same fact that servingsOf in catering-statements.mjs computes; the notice can call servingsOf so the servings total keeps one authority.",
+  "finding": "- `src/catering/catering-notices.mjs:37-42`, `src/catering/catering-statements.mjs:5`: `deliveredNotice` computes total servings with `order.lines.reduce((total, line) => total + line.servings, 0)`, while the same change adds `servingsOf(order)` (`sumOf(order.lines.map((line) => line.servings))`) in `catering-statements.mjs`, and `src/platform/amounts.mjs` already provides `sumOf`. This is `Duplicated Code` for the same per-order servings figure; the notice and vendor statement can drift apart. Fix: have `deliveredNotice` use `servingsOf(order)` (or move `servingsOf` to a module both import) instead of the inline `reduce`."
+ },
+ {
+  "id": "s2-020",
+  "group": "E08",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error.",
+  "finding": "- `src/catering/catering-store.mjs:33-41`: `save` chains `.catch(() => undefined)` onto the write and returns that same promise. A rejected write, such as the request-key conflict thrown on line 36, therefore resolves to `undefined` for the caller. This breaks `src/AGENTS.md` rule 4.3: a store may catch only to keep its write queue usable, and \"the promise or value it returns to its caller must still reject or throw with the original error.\" Callers like `placeOrder` (via `saveThenNotify`), `addLine`, `changeHeadcount` and `postponeOrder` treat a failed save as success. `saveThenNotify` then calls the notifier with `undefined`, and the duplicate-request-key protection never reaches the caller. Fix: keep a separate queue tail, e.g. `const write = this.#writes.then(() => {...}); this.#writes = write.catch(() => undefined); return write;`."
+ },
+ {
+  "id": "s2-021",
+  "group": "E08",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error.",
+  "finding": "- `src/catering/catering-store.mjs:1-44` - the new store re-implements the record `Map`, the serialized write queue, the optional-key query matcher and `findByRequestKey` that already exist in `src/billing/invoice-store.mjs:1-23`, `src/reservations/reservation-store.mjs:1-20`, `src/waitlist/waitlist-store.mjs:1-20`, `src/maintenance/ticket-store.mjs:1-18`, `src/visitors/visitor-store.mjs:1-17` and `src/platform/append-log.mjs:1-19`, and it is the only store in `src/` written as a `class` (line 12).\n  - `docs/agents/writing.md` Common capabilities: \"当同一责任分散在多个位置时, 优先把它提取为公共方法或公共模块\" and \"是否提取能力取决于其责任是否真正通用, 而不是当前调用方的数量\". The responsibility here (in-memory record collection with a serialized write queue and an optional-key list filter) is generic and independent of catering, so it belongs in a platform module; this change adds a sixth copy instead.\n  - `docs/agents/writing.md` Repository-owned Source Checkout JavaScript style: \"除非外部 Interface 要求, 否则避免使用 `class`\". No external Interface requires a class here; every other store is a factory that returns `Object.freeze({...})`. `createCateringStore` at line 44 returns an unfrozen instance, so a caller can reassign `save` or `list` on the object the service injects, unlike the frozen stores every service in this repository already relies on.\n  - Fix: extract the generic scaffolding into a platform factory following the `createAppendLog` shape (record Map, `find`, `list` with an injected matcher, `findByRequestKey`, `save` that returns the unabsorbed promise, frozen returned object) and let `createCateringStore` supply only the catering-specific matcher from lines 1-6."
+ },
+ {
+  "id": "s2-022",
+  "group": "E08",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error.",
+  "finding": "- `src/catering/catering-store.mjs:12-44`: the new store is built as `class CateringStore` with private fields, and `createCateringStore` wraps it. The repository-owned JavaScript style in `docs/agents/writing.md` says \"除非外部 Interface 要求, 否则避免使用 `class`\" (avoid `class` unless an external interface requires it). Here only a factory is exported, so no external interface needs a class. Every other store, e.g. `src/visitors/visitor-store.mjs`, uses a closure factory that returns a frozen object. Because the catering store has a different shape, its write-queue handling can't be compared or kept in line with the other stores. Fix: rewrite it as a closure-based `createCateringStore` that returns `Object.freeze({find, findByRequestKey, list, save})`, as the other store modules do."
+ },
+ {
+  "id": "s2-023",
+  "group": "E08",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error.",
+  "finding": "- 22. `src/catering/catering-store.mjs:12-44` - class where the interface does not require one.\n    - Violated instruction: `docs/agents/writing.md` \"Source Checkout JavaScript 样式\": \"使用描述性名称和输入输出清晰的小函数. 除非外部 Interface 要求, 否则避免使用 `class`.\"\n    - Evidence: `class CateringStore` with `constructor`, four methods and `export const createCateringStore = (initialOrders = []) => new CateringStore(initialOrders);`. It is the only `class` declaration in `src`. Every other store is a closure factory returning a frozen object with the same injected interface, for example `src/billing/invoice-store.mjs:3-22` and `src/audit/audit-store.mjs:1-11`, which freeze the object the service holds.\n    - Impact: the injected interface is four functions, which the factory pattern already provides, so the class buys nothing while diverging from the store convention this change otherwise follows (`matches`, `requestKeyHolder`, `#writes` queue). The instance is not frozen, so `store.save` and `store.list` can be reassigned on the object the service captured, which no other store in `src` allows.\n    - Fix: rewrite `createCateringStore` as a closure factory that keeps `records` and `writes` in the closure and returns `Object.freeze({find, findByRequestKey, list, save})`."
+ },
+ {
+  "id": "s2-024",
+  "group": "E09",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "catering-service.mjs imports isFrontDeskOpen from schedules/front-desk-service.mjs, a service module of another feature (rule 7.2); the rule module schedules/desk-policy.mjs (isDeskOpen) can be used with the injected desk store (moving the capability to platform under rule 7.4 is also an acceptable fix).",
+  "finding": "- `src/catering/catering-service.mjs:4,39-40`: the catering service imports `isFrontDeskOpen` from `../schedules/front-desk-service.mjs`, which is a service module of the `schedules` feature. This breaks `src/AGENTS.md` rule 7.2 (a feature module may import rule modules of another feature, \"but never service or store modules of another feature\"). Catering now depends on the schedules service's injected-dependency contract (`store: desk`) and gets coupled to schedules orchestration. Fix: use the rule-module check that `isFrontDeskOpen` itself delegates to, `isDeskOpen(schedule, closures, at)` from `src/schedules/desk-policy.mjs`, with the schedule and closures supplied by the injected desk dependency, or move the capability to a platform module per rule 7.4."
+ },
+ {
+  "id": "s2-025",
+  "group": "E10",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "kitchenManifests passes the caller's orders array to inDeliveryOrder, which sorts it in place with Array.prototype.sort, so the exported function reorders caller data (rule 5).",
+  "finding": "- `src/catering/kitchen-manifest.mjs:27,50-52`, `src/catering/catering-service.mjs:152`: `inDeliveryOrder = (orders) => orders.sort(byDelivery)` sorts the array passed to the exported `kitchenManifests` in place. This breaks `src/AGENTS.md` rule 5 (exported functions must not mutate caller-supplied arrays). The caller's `orders` array (here the list returned by the store) is reordered as a side effect. Fix: use `orders.toSorted(byDelivery)`, as `listOrders` already does in `src/catering/catering-service.mjs:129`."
+ },
+ {
+  "id": "s2-026",
+  "group": "E11",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "cancelOrder passes its whole argument object, including the injected now function, to cancellationFee in catering-pricing.mjs, a rule module, which calls context.now() (rule 6.1 and 6.2: rule modules take instants); cancelOrder thereby reads the clock twice in one call (rule 6.3).",
+  "finding": "- `src/catering/catering-pricing.mjs:35`, `src/catering/catering-service.mjs:109-113`: `cancellationFee(order, context)` is in a rule module but takes the service context and calls `context.now()`. `cancelOrder` also calls `now()` itself on line 111 (`advanceOrder(order, 'cancel', now())`) and then hands the same `context` to `cancellationFee`, so one service call reads the clock twice. This breaks `src/AGENTS.md` rule 6.2 (rule modules receive instants, never a `now` function) and rule 6.3 (a service function calls `now` at most once per call and passes that instant on). The fee cutoff and the `canceledAt` stamp can therefore come from different instants, and the pricing rule depends on the whole service context instead of on one value. Fix: change the signature to `cancellationFee(order, at)`, and in `cancelOrder` take `const at = now();` once and pass `at` to both `advanceOrder` and `cancellationFee`."
+ },
+ {
+  "id": "s2-027",
+  "group": "E12",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended.",
+  "finding": "- 23. `src/catering/catering-service.mjs:45-153` - one module carries the write path and four unrelated read models.\n    - Design check: `Divergent Change`, against `docs/agents/writing.md` \"Minimal sufficient contracts\" (a module carries its confirmed responsibilities) and the general rule to separate responsibilities that change for different reasons.\n    - Evidence: the file exports the order write path (`placeOrder` 45, `addLine` 70, `changeHeadcount` 81, `postponeOrder` 89, `confirmOrder` 99, `deliverOrder` 104, `cancelOrder` 109, `cancelForReservation` 115) and separately the read models `upcomingOrders` 124, `listOrders` 128, `deskDeliveries` 134, `vendorStatements` 143, `memberInvoiceCharges` 148 and `vendorManifests` 150. At 153 lines with 14 exported functions it is the largest service module in `src` (next largest is 99 lines), and it imports from four features at lines 2-14.\n    - Impact: a change to cursor paging, to the desk's day window, to the vendor statement columns, or to the charge shape exported for billing all land in the same file as the order lifecycle rules, and each of them pulls the imports used by the others. A reader editing `cancelOrder` must also carry the manifest, statement and billing export code, and any of those four read models can break the lifecycle functions by touching a shared import.\n    - Fix: move the read models into rule modules that take records and instants as parameters, following the shape already used by `catering-statements.mjs` (`vendorStatement`) and `kitchen-manifest.mjs` (`kitchenManifests`), and keep `catering-service.mjs` for the commands that write an order."
+ },
+ {
+  "id": "s2-028",
+  "group": "E12",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended.",
+  "finding": "- `src/catering/catering-service.mjs:55` - Duplicated Code: `if (at < (member.suspension?.expiresAt ?? at))` re-implements `isSuspended(member, at)` from the rule module `src/members/suspension.mjs`, which defines `member.suspension !== undefined && at < member.suspension.expiresAt`. Fix: import `isSuspended` and use `if (isSuspended(member, at))`, so suspension semantics have one owner."
+ },
+ {
+  "id": "s2-029",
+  "group": "E12",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended.",
+  "finding": "- `src/catering/catering-service.mjs:55`: `placeOrder` re-implements the suspension check inline: `if (at < (member.suspension?.expiresAt ?? at))`. The repository already owns this rule as `isSuspended(member, at)` in the rule module `src/members/suspension.mjs:6`, which `src/AGENTS.md` rule 7.2 allows catering to import. This is `Duplicated Code` and violates `docs/agents/writing.md` \"Common capabilities\" (check and reuse existing capabilities). If the members feature changes what counts as suspended, catering silently keeps the old rule. Fix: `if (isSuspended(member, at)) throw new Error('member cannot place catering orders now');` with `isSuspended` imported from `../members/suspension.mjs`."
+ },
+ {
+  "id": "s2-030",
+  "group": "E13",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "notifyVendor replaces the caught notifier error with new Error(message, error); the caught error is passed as the options argument, not as {cause: error}, so the new error has no cause.",
+  "finding": "- `src/catering/catering-service.mjs:31-37`: `notifyVendor` catches the notifier failure and throws `new Error(\\`vendor of order ${order.id} was not notified\\`, error)`. The second argument is passed as the options object, not as `{cause: error}`, so the original error is dropped. This breaks `src/AGENTS.md` rule 4.2 (a replacing error must keep the caught error as its `cause`). The vendor delivery failure loses its underlying reason. Fix: `throw new Error(\\`vendor of order ${order.id} was not notified\\`, {cause: error});`, matching `menuFor` on lines 16-22."
+ },
+ {
+  "id": "s2-031",
+  "group": "E14",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "fitsReservation recomputes the reservation building-access window, duplicating reservations/policy.mjs accessWindow and its SETTINGS (partySize > 8 is largeParty, 30 and 15 minutes early are largeAccessMinutes and accessMinutes, 15 minutes after is accessMinutes); it can be contains(accessWindow(reservation), deliveryWindow(order)).",
+  "finding": "- `src/catering/catering-policy.mjs:26-35` - Duplicated Code: `guestsArriveFrom` and `guestsLeaveBy` re-implement `accessWindow` from `src/reservations/policy.mjs` with hard-coded copies of reservation settings. The `partySize > 8 ? -30 : -15` arrival lead and the `+15` departure margin are `SETTINGS.largeParty`, `SETTINGS.largeAccessMinutes` and `SETTINGS.accessMinutes` from `src/reservations/calendar.mjs`. If the reservation access rules change, catering delivery checks silently keep the old values. `policy.mjs` is a rule module, so rule 7.2 allows importing it. Fix: implement `fitsReservation` as `reservation.state === 'confirmed' && contains(accessWindow(reservation), deliveryWindow(order))`, importing `accessWindow` and `contains`, and delete the two local helpers."
+ },
+ {
+  "id": "s2-032",
+  "group": "E14",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "fitsReservation recomputes the reservation building-access window, duplicating reservations/policy.mjs accessWindow and its SETTINGS (partySize > 8 is largeParty, 30 and 15 minutes early are largeAccessMinutes and accessMinutes, 15 minutes after is accessMinutes); it can be contains(accessWindow(reservation), deliveryWindow(order)).",
+  "finding": "- `src/catering/catering-policy.mjs:26-28`, `src/catering/vendors.mjs:1`, `src/catering/catering-notices.mjs:5`, `src/platform/site-settings.mjs:21-28` - catering policy values are split between the new `CATERING` settings block and literals written inside rule modules.\n  - Design smell: `Shotgun Surgery`, and `docs/agents/writing.md` \"Minimal sufficient contracts\" requires each fact to have one authoritative home. The comparison adds `CATERING` with `leadTime`, `deliveryLead`, `cancelCutoff`, `maxHeadcount` and `staffThreshold` as the home for catering timing and limits, yet the same kinds of values stay inline: the guest arrival and departure buffers `-30`, `-15`, `+15` and the `partySize > 8` test in `guestsArriveFrom` and `guestsLeaveBy` (`src/catering/catering-policy.mjs:26-28`), the vendor size limit `LARGE_ORDER = 30` (`src/catering/vendors.mjs:1`), and `PAYABLE_WITHIN_DAYS = 14` (`src/catering/catering-notices.mjs:5`).\n  - Impact: `fitsReservation` builds its answer from `CATERING.deliveryLead` (`src/catering/catering-policy.mjs:22`) and from the inline buffers (lines 26-28) in the same expression, so tuning one delivery-timing decision means editing `src/platform/site-settings.mjs` and `src/catering/catering-policy.mjs` together, and the headcount limits `maxHeadcount` 60, `staffThreshold` 20 and `LARGE_ORDER` 30 sit in two different places with no single place to compare them. The literals `-30`, `-15`, `15`, `8` and `14` also carry no name that says which policy they express.\n  - Fix: move the catering timing and limit values that the same feature already reads from `CATERING` into `CATERING` (guest arrival buffer, guest departure buffer, party size for the longer buffer, payable window in days) and read them at `src/catering/catering-policy.mjs:26-28` and `src/catering/catering-notices.mjs:5`, keeping the values that are genuinely per-course menu data in the course table described above."
+ },
+ {
+  "id": "s2-033",
+  "group": "E15",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "postponeOrder changes the record returned by store.find in place with Object.assign before validating it; rule 5 treats store records as caller-supplied, and a rejected postponement leaves the stored order already changed.",
+  "finding": "- `src/catering/catering-service.mjs:89-97`: `postponeOrder` loads `order` from the injected store and changes it in place with `Object.assign(order, {deliverAt, postponedAt: now()})` before `checkDeliverySlot` validates it. This breaks `src/AGENTS.md` rule 5 (\"Records returned by an injected store count as caller-supplied: build a changed copy and save the copy.\"). With the in-memory store this rewrites the stored record directly, so a rejected postponement (closed desk, outside the reservation, clash) still leaves the new `deliverAt`/`postponedAt` in the store without `save`. Fix: build `const postponed = {...order, deliverAt, postponedAt: now()};`, validate `postponed`, and save `postponed`."
+ },
+ {
+  "id": "s2-034",
+  "group": "E15",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "postponeOrder changes the record returned by store.find in place with Object.assign before validating it; rule 5 treats store records as caller-supplied, and a rejected postponement leaves the stored order already changed.",
+  "finding": "12. `src/catering/catering-service.mjs:89-97` - `postponeOrder` mutates a record returned by the injected store, violating `src/AGENTS.md` rule 5.\n   - `const order = await store.find(orderId);` at line 90 returns the stored record (`src/catering/catering-store.mjs:21-23` returns the object held in `this.#records`), and `Object.assign(order, {deliverAt, postponedAt: now()});` at line 94 writes the new delivery time and stamp into that record.\n   - `checkDeliverySlot` at line 95 then validates the already-mutated record instead of a candidate, so when it throws the caller keeps an order whose `deliverAt` moved to a slot the feature just rejected, and `store.save(order)` at line 96 re-saves the same mutated object rather than a changed copy.\n   - Fix: capture one instant (`const at = now();`), build `const changed = {...order, deliverAt, postponedAt: at};`, pass `changed` to `checkDeliverySlot`, and save and return `changed`."
+ },
+ {
+  "id": "s2-035",
+  "group": "E16",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "listOrders sorts by byDelivery, finds the first order after the cursor and slices page.limit orders; this is the same result as platform/listing.mjs pageOf with the predicate byDelivery(order, page.after) > 0, so it can be replaced by pageOf.",
+  "finding": "- 23. `src/catering/catering-service.mjs:45-153` - one module carries the write path and four unrelated read models.\n    - Design check: `Divergent Change`, against `docs/agents/writing.md` \"Minimal sufficient contracts\" (a module carries its confirmed responsibilities) and the general rule to separate responsibilities that change for different reasons.\n    - Evidence: the file exports the order write path (`placeOrder` 45, `addLine` 70, `changeHeadcount` 81, `postponeOrder` 89, `confirmOrder` 99, `deliverOrder` 104, `cancelOrder` 109, `cancelForReservation` 115) and separately the read models `upcomingOrders` 124, `listOrders` 128, `deskDeliveries` 134, `vendorStatements` 143, `memberInvoiceCharges` 148 and `vendorManifests` 150. At 153 lines with 14 exported functions it is the largest service module in `src` (next largest is 99 lines), and it imports from four features at lines 2-14.\n    - Impact: a change to cursor paging, to the desk's day window, to the vendor statement columns, or to the charge shape exported for billing all land in the same file as the order lifecycle rules, and each of them pulls the imports used by the others. A reader editing `cancelOrder` must also carry the manifest, statement and billing export code, and any of those four read models can break the lifecycle functions by touching a shared import.\n    - Fix: move the read models into rule modules that take records and instants as parameters, following the shape already used by `catering-statements.mjs` (`vendorStatement`) and `kitchen-manifest.mjs` (`kitchenManifests`), and keep `catering-service.mjs` for the commands that write an order."
+ },
+ {
+  "id": "s2-036",
+  "group": "E17",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax.",
+  "finding": "28. `src/catering/catering-pricing.mjs:14-20,24`, `src/catering/catering-notices.mjs:19`, `src/billing/totals.mjs:7-14`\n    - Data ownership problem: one amount, two authorities with different composition.\n    - `orderCharge` builds `total: subtotal + serviceCharge + tax` and `placedNotice` reports it as `estimatedTotal` (`src/catering/catering-notices.mjs:19`). When the same order is billed, `chargeOf` (`src/catering/catering-pricing.mjs:24`) drops `tax` and emits `amount: order.charge.subtotal + order.charge.serviceCharge`, which `invoiceTotals` then taxes again with the invoice's own `taxRateBasisPoints` (`src/billing/totals.mjs:11-13`).\n    - Impact: the catering tax computed at order time never reaches the invoice, while the invoice applies its own tax to the same subtotal, so the `estimatedTotal` the member was told at placement and the invoiced total for the same order are produced by two different compositions of the same money and can differ. `order.charge.tax` is written into the stored record and read by no one.\n    - Fix: pick one owner for the catering charge total. Either report `subtotal + serviceCharge` in `placedNotice` and stop computing `tax` in `orderCharge`, or bill the full `order.charge` and exclude catering lines from the invoice-level tax base; then delete the unused `tax` field."
+ },
+ {
+  "id": "s2-037",
+  "group": "E17",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax.",
+  "finding": "- `src/catering/catering-pricing.mjs:9-12,18`, `src/billing/totals.mjs:3-5`: the new `share(amount, basisPoints)` computes half-up rounding of an amount by basis points (`Math.round((amount * basisPoints) / 1e4)`). This is the same tax-rounding logic as the existing `roundedTax` in billing. The mechanism is generic money arithmetic with no catering semantics. This is `Duplicated Code`, and the role's design check requires business-independent capabilities to live in the shared platform module. The two tax computations can drift apart (they already use different expressions and constants: `1e4` vs `BASIS = 10_000`). Fix: move the basis-point rounding into `src/platform/amounts.mjs`, use it from both `billing/totals.mjs` and `catering-pricing.mjs`, and delete `share`."
+ },
+ {
+  "id": "s2-038",
+  "group": "E17",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax.",
+  "finding": "- `src/catering/catering-pricing.mjs:9-12,18` - Duplicated Code. `share(amount, basisPoints)` re-implements basis-point tax rounding that already exists as `roundedTax(taxable, basisPoints)` in `src/billing/totals.mjs`, which uses round-half-up on `BASIS = 10_000`. Two copies of the same tax rounding can drift, so a catering estimate and a billing invoice would round tax differently. `catering-pricing.mjs` already imports from `billing/line-items.mjs`. Fix: reuse `roundedTax`. Because basis-point rounding is not specific to billing, the better fix is to move it to `src/platform/amounts.mjs`, as `docs/agents/writing.md` \"Common capabilities\" requires, and import it from both features."
+ },
+ {
+  "id": "s2-039",
+  "group": "E18",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "vendorNotice reads the clock with Date.now(); only service modules may read the current time, through the injected now function, and the notices module is a rule module.",
+  "finding": "- `src/catering/catering-notices.mjs:44-55`: `vendorNotice` is in a rule module but sets `sentAt: Date.now()`. This breaks `src/AGENTS.md` rule 6.1 (only service modules read the current time, and only through the injected `now`; `Date.now()` is forbidden) and rule 6.2 (rule modules receive instants as parameters). The notice timestamp can't be controlled through the injected clock, so it's nondeterministic in tests and inconsistent with the `now()` instant the calling service uses. Fix: add an `at` instant parameter to `vendorNotice(order, menu, at)` and have `notifyVendor`/`placeOrder` in `catering-service.mjs` pass the instant they already took from `now()`."
+ },
+ {
+  "id": "s2-040",
+  "group": "E19",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting.",
+  "finding": "- `src/catering/catering-notices.mjs:5,27`, `src/platform/site-settings.mjs:9-13`: `confirmedNotice` reports `payableWithinDays: PAYABLE_WITHIN_DAYS` with a local `const PAYABLE_WITHIN_DAYS = 14;`. The payment term is already owned by `PAYMENT_TERMS.dueMinutes` (`20_160` minutes = 14 days), which `src/platform/invoice-terms.mjs` uses for `dueAt`. This breaks `docs/agents/writing.md` \"each fact keeps one authoritative source\" (\"每个事实只保留一个权威来源\"). If the payment terms change, catering notices keep promising 14 days while invoices use the new due date. Fix: derive the value from `PAYMENT_TERMS.dueMinutes` (e.g. `PAYMENT_TERMS.dueMinutes / 1440`, or a helper in `invoice-terms.mjs`) instead of a separate constant."
+ },
+ {
+  "id": "s2-041",
+  "group": "E19",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting.",
+  "finding": "18. `src/catering/catering-notices.mjs:5`\n    - Violated instruction: `docs/agents/writing.md` \"Minimal sufficient contracts\": \"每个事实只保留一个权威来源. 不得在配置, 文档和代码中重复同一事实.\"\n    - `const PAYABLE_WITHIN_DAYS = 14;` is reported to the member at line 27 as `payableWithinDays`. The payment due window is already owned by `src/platform/site-settings.mjs:10` `PAYMENT_TERMS.dueMinutes: 20_160` (exactly 14 days) and applied by `src/platform/invoice-terms.mjs:4` `dueAt`.\n    - Impact: one fact is stored twice in different units and modules. A change to `PAYMENT_TERMS.dueMinutes` - for example a shorter payment term - leaves the catering confirmation notice quoting 14 days, and nothing links the two values.\n    - Fix: derive the notice value from the existing terms, for example `payableWithinDays: PAYMENT_TERMS.dueMinutes / DAY` using `DAY` from `src/platform/time.mjs:5`, or report the due instant from `dueAt` (`src/platform/invoice-terms.mjs:4`) and drop the local constant."
+ },
+ {
+  "id": "s2-042",
+  "group": "E19",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting.",
+  "finding": "- `src/catering/catering-notices.mjs:5,27` - This violates the single-source rule in `docs/agents/writing.md` \"Minimal sufficient contracts\": \"每个事实只保留一个权威来源\". `PAYABLE_WITHIN_DAYS = 14` restates the invoice payment term already owned by `PAYMENT_TERMS.dueMinutes` (`20_160` minutes = 14 days) in `src/platform/site-settings.mjs`, which `src/platform/invoice-terms.mjs` uses for `dueAt`. If the payment term changes, confirmed catering notices will advertise the wrong deadline. Fix: derive the value from `PAYMENT_TERMS.dueMinutes`, for example by dividing it by `DAY` from `src/platform/time.mjs`."
+ },
+ {
+  "id": "s2-043",
+  "group": "E19",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting.",
+  "finding": "- `src/catering/catering-policy.mjs:26-28`, `src/catering/vendors.mjs:1`, `src/catering/catering-notices.mjs:5`, `src/platform/site-settings.mjs:21-28` - catering policy values are split between the new `CATERING` settings block and literals written inside rule modules.\n  - Design smell: `Shotgun Surgery`, and `docs/agents/writing.md` \"Minimal sufficient contracts\" requires each fact to have one authoritative home. The comparison adds `CATERING` with `leadTime`, `deliveryLead`, `cancelCutoff`, `maxHeadcount` and `staffThreshold` as the home for catering timing and limits, yet the same kinds of values stay inline: the guest arrival and departure buffers `-30`, `-15`, `+15` and the `partySize > 8` test in `guestsArriveFrom` and `guestsLeaveBy` (`src/catering/catering-policy.mjs:26-28`), the vendor size limit `LARGE_ORDER = 30` (`src/catering/vendors.mjs:1`), and `PAYABLE_WITHIN_DAYS = 14` (`src/catering/catering-notices.mjs:5`).\n  - Impact: `fitsReservation` builds its answer from `CATERING.deliveryLead` (`src/catering/catering-policy.mjs:22`) and from the inline buffers (lines 26-28) in the same expression, so tuning one delivery-timing decision means editing `src/platform/site-settings.mjs` and `src/catering/catering-policy.mjs` together, and the headcount limits `maxHeadcount` 60, `staffThreshold` 20 and `LARGE_ORDER` 30 sit in two different places with no single place to compare them. The literals `-30`, `-15`, `15`, `8` and `14` also carry no name that says which policy they express.\n  - Fix: move the catering timing and limit values that the same feature already reads from `CATERING` into `CATERING` (guest arrival buffer, guest departure buffer, party size for the longer buffer, payable window in days) and read them at `src/catering/catering-policy.mjs:26-28` and `src/catering/catering-notices.mjs:5`, keeping the values that are genuinely per-course menu data in the course table described above."
+ },
+ {
+  "id": "s2-044",
+  "group": "E19",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting.",
+  "finding": "- `src/catering/catering-store.mjs:33-41` - `save` returns the promise chain that has already absorbed its own failure through `.catch(() => undefined)` at line 39.\n  - Violates `src/AGENTS.md` Source Rules 4.3: a store may catch only to keep its internal write queue usable, and \"the promise or value it returns to its caller must still reject or throw with the original error.\"\n  - The intended shape already exists in the repository: `src/platform/append-log.mjs:9-17` keeps the absorbed chain internally (`writes = appended.catch(() => undefined)`) and returns `appended`, so the internal queue stays usable and the caller still rejects.\n  - When the request key guard at line 36 throws, `await store.save(...)` resolves with `undefined`. `saveThenNotify` in `src/platform/records.mjs:7-11` then calls `send(saved)` with that `undefined`, so `src/catering/catering-notices.mjs:14-52` reads `order.id` on `undefined` and the caller sees an unrelated TypeError instead of the duplicate request key error; `src/catering/catering-service.mjs:77,85,96` likewise report the amended order as saved.\n  - Fix: `const appended = this.#writes.then(() => {...}); this.#writes = appended.catch(() => undefined); return appended;`."
+ },
+ {
+  "id": "s2-045",
+  "group": "E20",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference.",
+  "finding": "- `src/catering/catering-service.mjs:134-141`, `src/catering/catering-policy.mjs:22`, `src/catering/kitchen-manifest.mjs:52`: `deskDeliveries` open-codes the delivery window (`order.deliverAt - CATERING.deliveryLead`) and the containment test against `[day, day + DAY]`. The policy module already owns that window as `deliveryWindow(order)`, and `kitchenManifests` expresses the same test as `contains(period, deliveryWindow(order))`. This is `Duplicated Code`: a change to the window definition in `catering-policy.mjs` has to be repeated in the service (`Shotgun Surgery`), otherwise front-desk lists and kitchen manifests disagree about which orders fall on a day. Fix: in `deskDeliveries`, filter with `contains({startAt: day, endAt: day + DAY}, deliveryWindow(order))` (and `order.buildingId === buildingId`), and drop the direct `CATERING` use."
+ },
+ {
+  "id": "s2-046",
+  "group": "E20",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference.",
+  "finding": "- `src/catering/catering-service.mjs:134-141` - Duplicated Code. `deskDeliveries` recomputes the delivery window inline (`order.deliverAt - CATERING.deliveryLead`) and checks containment by hand. This duplicates `deliveryWindow` in `src/catering/catering-policy.mjs:22` and `contains` in `src/platform/periods.mjs`, which `kitchenManifests` already combines as `contains(period, deliveryWindow(order))`. If the window definition changes, this copy must also change. Fix: filter with `order.buildingId === buildingId && contains({startAt: day, endAt: day + DAY}, deliveryWindow(order))`."
+ },
+ {
+  "id": "s2-047",
+  "group": "E20",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference.",
+  "finding": "23. `src/catering/catering-service.mjs:137`\n    - Design smell: `Duplicated Code`; the delivery window start is derived a second time instead of using the policy module that owns it.\n    - `const arrivesFrom = order.deliverAt - CATERING.deliveryLead;` repeats `deliveryWindow(order).startAt` (`src/catering/catering-policy.mjs:22`), which is what `fitsReservation` (line 31) and `clashesWith` (line 41) use.\n    - Impact: the front-desk day list and the room-clash check answer \"when does this delivery start\" with two expressions of the same constant. If the window becomes asymmetric, or `deliveryLead` is applied differently for a vendor, `deskDeliveries` shows a delivery on a different day than the one `clashesWith` accepted.\n    - Fix: `const {startAt: arrivesFrom} = deliveryWindow(order);` using the existing export from `catering-policy.mjs`."
+ },
+ {
+  "id": "s2-048",
+  "group": "E20",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference.",
+  "finding": "- 21. `src/catering/catering-service.mjs:134-141` and `src/catering/catering-policy.mjs:22` - delivery window arithmetic duplicated in the service.\n    - Design check: `Duplicated Code` and `Feature Envy`: `deskDeliveries` computes the policy module's own value instead of asking for it.\n    - Evidence: `const arrivesFrom = order.deliverAt - CATERING.deliveryLead;` and `arrivesFrom >= day && order.deliverAt <= day + DAY`. `deliveryWindow` in `src/catering/catering-policy.mjs:22` already owns that expression (`startAt: order.deliverAt - CATERING.deliveryLead, endAt: order.deliverAt`) and is what `fitsReservation` (line 30) and `clashesWith` (line 37) use, both of which `checkDeliverySlot` at `src/catering/catering-service.mjs:39-43` applies to the same order.\n    - Impact: the desk's list of due deliveries and the acceptance check for the same delivery are derived from two copies of the window. Any change to the window, such as a service duration after delivery or a different lead per building, updates `deliveryWindow` and leaves `deskDeliveries` behind, so a delivery appears on the desk list and is then rejected by `checkDeliverySlot` with 'another delivery is due in this room' or 'delivery falls outside the reservation'.\n    - Fix: use `deliveryWindow(order)` in `deskDeliveries` and compare its `startAt` and `endAt` against `day` and `day + DAY`."
+ },
+ {
+  "id": "s2-049",
+  "group": "E20",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference.",
+  "finding": "- 23. `src/catering/catering-service.mjs:45-153` - one module carries the write path and four unrelated read models.\n    - Design check: `Divergent Change`, against `docs/agents/writing.md` \"Minimal sufficient contracts\" (a module carries its confirmed responsibilities) and the general rule to separate responsibilities that change for different reasons.\n    - Evidence: the file exports the order write path (`placeOrder` 45, `addLine` 70, `changeHeadcount` 81, `postponeOrder` 89, `confirmOrder` 99, `deliverOrder` 104, `cancelOrder` 109, `cancelForReservation` 115) and separately the read models `upcomingOrders` 124, `listOrders` 128, `deskDeliveries` 134, `vendorStatements` 143, `memberInvoiceCharges` 148 and `vendorManifests` 150. At 153 lines with 14 exported functions it is the largest service module in `src` (next largest is 99 lines), and it imports from four features at lines 2-14.\n    - Impact: a change to cursor paging, to the desk's day window, to the vendor statement columns, or to the charge shape exported for billing all land in the same file as the order lifecycle rules, and each of them pulls the imports used by the others. A reader editing `cancelOrder` must also carry the manifest, statement and billing export code, and any of those four read models can break the lifecycle functions by touching a shared import.\n    - Fix: move the read models into rule modules that take records and instants as parameters, following the shape already used by `catering-statements.mjs` (`vendorStatement`) and `kitchen-manifest.mjs` (`kitchenManifests`), and keep `catering-service.mjs` for the commands that write an order."
+ },
+ {
+  "id": "s2-050",
+  "group": "E20",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference.",
+  "finding": "- `src/catering/catering-service.mjs:134-141`, `src/catering/catering-policy.mjs:22` - `deskDeliveries` re-derives the delivery window instead of using `deliveryWindow`.\n  - Design smell: `Duplicated Code`. `deliveryWindow` owns the definition \"a delivery occupies `CATERING.deliveryLead` before `deliverAt`\" (`src/catering/catering-policy.mjs:22`) and is used by `fitsReservation` (line 31), `clashesWith` (line 41) and `kitchenManifests` (`src/catering/kitchen-manifest.mjs:52`). `deskDeliveries` writes the same window by hand at line 137 (`order.deliverAt - CATERING.deliveryLead`) and the same containment test at line 138 (`arrivesFrom >= day && order.deliverAt <= day + DAY`), which is exactly `contains({startAt: day, endAt: day + DAY}, deliveryWindow(order))` as written at `src/catering/kitchen-manifest.mjs:52`.\n  - Impact: the window now has three independent spellings, so a change to the lead - for example a per-vendor lead - must be edited in `catering-policy.mjs` and again in `src/catering/catering-service.mjs:137`, and the desk list silently keeps the old window while clash detection and manifests use the new one.\n  - Fix: `const window = deliveryWindow(order);` and test `order.buildingId === buildingId && contains({startAt: day, endAt: day + DAY}, window)`, add `deliveryWindow` to the existing import at line 7 and import `contains` from `src/platform/periods.mjs`."
+ },
+ {
+  "id": "s2-051",
+  "group": "E20",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference.",
+  "finding": "17. `src/catering/catering-service.mjs:134-141` - The delivery window is recomputed inline instead of using the exported rule that owns it (`Duplicated Code`; `Shotgun Surgery`).\n   - Evidence: lines 137-138 `const arrivesFrom = order.deliverAt - CATERING.deliveryLead;` and `arrivesFrom >= day && order.deliverAt <= day + DAY`. `src/catering/catering-policy.mjs:22` already exports `deliveryWindow = (order) => ({startAt: order.deliverAt - CATERING.deliveryLead, endAt: order.deliverAt})`, and this file already imports from that module at line 7 (`byDelivery, clashesWith, earliestDelivery, fitsReservation`) without using `deliveryWindow`.\n   - Impact: the meaning of \"when a delivery is due in a room\" now lives in two places. `clashesWith` (`src/catering/catering-policy.mjs:37-42`) and `fitsReservation` (line 30-35) use `deliveryWindow`, so any change to the lead semantics (for example a setup window before delivery, or a lead that depends on headcount) must be edited in the policy module and again in `deskDeliveries`, and the front-desk list can disagree with the clash check that admitted the order.\n   - Fix: `const window = deliveryWindow(order);` and test `window.startAt >= day && window.endAt <= day + DAY`, importing `deliveryWindow` at line 7."
+ },
+ {
+  "id": "s2-052",
+  "group": "E21",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them.",
+  "finding": "- `src/catering/menu.mjs:11` - `export const DIETARY_TAGS = Object.keys(DIETARY_LABELS);` exports an array that is not frozen.\n  - Violates `src/AGENTS.md` Source Rules 3: \"Array and plain-object values exported directly from a module must be frozen before export.\" Every other exported collection in this change is frozen (`src/catering/menu.mjs:4,13`, `src/catering/vendors.mjs:3`, `src/catering/catering-states.mjs:1`, `src/catering/catering-notices.mjs:7`, `src/catering/kitchen-manifest.mjs:8,19`).\n  - `DIETARY_TAGS` is the validation domain for dietary tags: `requireDietaryTags` at line 16 tests membership in it, and `dietaryCounts` in `src/catering/catering-statements.mjs:9-12` builds the reported tag set from it. A caller that mutates this exported array changes what the whole feature accepts as a valid tag and what every vendor statement reports, without any error.\n  - Fix: `export const DIETARY_TAGS = Object.freeze(Object.keys(DIETARY_LABELS));`."
+ },
+ {
+  "id": "s2-053",
+  "group": "E21",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them.",
+  "finding": "- `src/catering/menu.mjs:13,22`, `src/catering/catering-policy.mjs:6-15`, `src/catering/catering-notices.mjs:7,11`: the set of courses (`breakfast`, `lunch`, `snack`, `dessert`) and per-course behavior are spread over three modules: `COURSES` validates them in `menu.mjs`, a `switch` in `prepMinutes` gives preparation time in `catering-policy.mjs`, and `SERVING_ORDER` gives display order in `catering-notices.mjs`. This is `Repeated Switches`/`Shotgun Surgery` on the same course type. Adding or renaming a course needs coordinated edits in all three files. If one is missed, an item that passed menu validation either throws `course ... is unknown` at order time or sorts with `undefined` (`NaN` comparator) in notices. Fix: define one frozen course table in `menu.mjs` (e.g. `COURSES = Object.freeze({breakfast: Object.freeze({prepMinutes: 45, servingOrder: 0}), ...})`), validate against its keys, and have `prepMinutes` and `menuLines` read from it."
+ },
+ {
+  "id": "s2-054",
+  "group": "E21",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them.",
+  "finding": "26. `src/catering/menu.mjs:11` - `export const DIETARY_TAGS = Object.keys(DIETARY_LABELS);` exports a plain array directly without freezing it, violating `src/AGENTS.md` rule 3 (\"Array and plain-object values exported directly from a module must be frozen before export.\"). It is the only directly exported array or plain object in `src/` that is not frozen; every other one uses `Object.freeze`, for example `src/exports/reservation-columns.mjs:1`, `src/catering/menu.mjs:4,13`, `src/catering/vendors.mjs:3`, `src/catering/catering-notices.mjs:7` and `src/catering/kitchen-manifest.mjs:8,19`.\n   - `Object.keys` returns a fresh mutable array that the module then hands out as the shared dietary vocabulary. `requireDietaryTags` at `src/catering/menu.mjs:16` validates every menu item's tags and every order's dietary needs against it through `src/catering/catering-fields.mjs:14`, and `dietaryCounts` at `src/catering/catering-statements.mjs:9-12` builds each vendor statement's dietary counts from the same array object, so one in-place change to `DIETARY_TAGS` silently changes what the whole feature accepts as a valid dietary tag and which counts appear in every statement.\n   - Fix: `export const DIETARY_TAGS = Object.freeze(Object.keys(DIETARY_LABELS));`."
+ },
+ {
+  "id": "s2-055",
+  "group": "E22",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "findMenuItem in menu.mjs only forwards to requireMenuItem with the same arguments and hides no complexity (writing.md: no pure forwarding wrappers); catering-notices.mjs can call requireMenuItem directly.",
+  "finding": "- `src/catering/menu.mjs:52`, `src/catering/catering-notices.mjs:2,10`: `export const findMenuItem = (menu, id) => requireMenuItem(menu, id);` is a pure alias with identical behavior, used only by `catering-notices.mjs`. This is a `Middle Man`/`Mysterious Name`: the `find` prefix suggests a nullable lookup (as `findRoom` in `reservations/catalog.mjs` returns `null`), but it throws, and `docs/agents/writing.md` forbids wrappers that only forward without hiding complexity. Fix: delete `findMenuItem` and import `requireMenuItem` in `catering-notices.mjs`."
+ },
+ {
+  "id": "s2-056",
+  "group": "E23",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "catering-states.mjs exports advanceOrder as a default export and catering-service.mjs imports it as one, violating the named-export rule.",
+  "finding": "- `src/catering/catering-states.mjs:29-35`, `src/catering/catering-service.mjs:10`: `catering-states.mjs` exports `advanceOrder` with `export default advanceOrder;`, and the service imports it as `import advanceOrder, {canAmend, canCancel, newOrder} from './catering-states.mjs';`. This breaks `src/AGENTS.md` rule 1 (\"Modules must use named exports. Default exports are forbidden.\"). Because the default binding is renamed at each import site, callers can pick any local name, so the module's interface is no longer consistent across the codebase. Fix: export it as `export const advanceOrder = ...`, remove the default export, and import `{advanceOrder, canAmend, canCancel, newOrder}`."
+ },
+ {
+  "id": "s2-057",
+  "group": "E24",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "upcomingOrders hands now to the private helper isUpcoming, whose returned predicate calls now() once per order; rule 6.3 allows one read per call and passing now on only to another exported service function.",
+  "finding": "- `src/catering/catering-service.mjs:122-126`: `isUpcoming(now)` returns a predicate that calls `now()` for every order it filters (`order.deliverAt >= now()`), so one `upcomingOrders` call reads the clock once per listed order. This breaks `src/AGENTS.md` rule 6.3 (a service function calls `now` at most once per call). Orders in the same result can be compared against different instants. Fix: in `upcomingOrders`, read `const at = now();` once and build the predicate from that instant (`isUpcoming(at)` comparing `order.deliverAt >= at`)."
+ },
+ {
+  "id": "s2-058",
+  "group": "E24",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "upcomingOrders hands now to the private helper isUpcoming, whose returned predicate calls now() once per order; rule 6.3 allows one read per call and passing now on only to another exported service function.",
+  "finding": "7. `src/catering/catering-service.mjs:122-126`\n   - Violated instruction: `src/AGENTS.md` rule 6.3 \"A service function calls `now` at most once per call and passes that instant to everything that needs the current time.\"\n   - `isUpcoming = (now) => (order) => canCancel(order) && order.deliverAt >= now()` calls the injected `now` once per order inside `upcomingOrders`, so a single service call with N stored orders reads the clock N times. Orders near the boundary are then classified against different instants, and the returned list is not a snapshot of one moment. Every other catering service function reads `now` at most once (`placeOrder` line 51, `postponeOrder` line 94, `confirmOrder` line 100, `deliverOrder` line 105).\n   - Fix: `export const upcomingOrders = async ({memberId, now, store}) => { const at = now(); return (await store.list({memberId})).filter((order) => canCancel(order) && order.deliverAt >= at).sort(byDelivery); };` and delete `isUpcoming`."
+ },
+ {
+  "id": "s2-059",
+  "group": "E25",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "catering-store.mjs implements the store as a class although no external Interface requires one; repository stores are factory closures (writing.md: avoid class unless an external Interface requires it).",
+  "finding": "14. `src/catering/catering-store.mjs:12-44` - `class` is used where the repository style rule and every sibling store use a factory.\n   - `class CateringStore` with `#records` and `#writes` is the only `class` in `src/`; it is exported through `createCateringStore` at line 44.\n   - Violated instruction: `docs/agents/writing.md` \"Source Checkout JavaScript style\" requires small functions with clear inputs and outputs and says to avoid `class` unless an external interface requires one.\n   - Evidence that no external interface requires it: every other store is a factory returning a frozen object of closures (`src/billing/invoice-store.mjs:3-23`, `src/audit/audit-store.mjs:1-25`, `src/messaging/outbox-store.mjs:1-21`, `src/platform/append-log.mjs:1-19`), and `src/catering/catering-service.mjs` only ever uses the injected methods `find`, `findByRequestKey`, `list` and `save` (`src/catering/catering-service.mjs:42,48,90,96,116,124,129,136,144,148,152`).\n   - Impact: the catering store is the one place where a reader must switch to class and private-field reading to understand the write queue, and unlike every sibling factory its returned object is not frozen, so a caller can reassign the injected methods that `src/catering/catering-service.mjs` relies on.\n   - Fix: rewrite `createCateringStore` as a factory over local `records` and `writes` that returns `Object.freeze({find, findByRequestKey, list, save})`, matching `src/audit/audit-store.mjs:1-25`."
+ },
+ {
+  "id": "s2-060",
+  "group": "E25",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "catering-store.mjs implements the store as a class although no external Interface requires one; repository stores are factory closures (writing.md: avoid class unless an external Interface requires it).",
+  "finding": "- `src/catering/catering-store.mjs:12-44`: the new store is built as `class CateringStore` with private fields, and `createCateringStore` wraps it. The repository-owned JavaScript style in `docs/agents/writing.md` says \"除非外部 Interface 要求, 否则避免使用 `class`\" (avoid `class` unless an external interface requires it). Here only a factory is exported, so no external interface needs a class. Every other store, e.g. `src/visitors/visitor-store.mjs`, uses a closure factory that returns a frozen object. Because the catering store has a different shape, its write-queue handling can't be compared or kept in line with the other stores. Fix: rewrite it as a closure-based `createCateringStore` that returns `Object.freeze({find, findByRequestKey, list, save})`, as the other store modules do."
+ },
+ {
+  "id": "s2-061",
+  "group": "E26",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "DIETARY_TAGS is exported directly from menu.mjs as Object.keys(DIETARY_LABELS), a new array that is not frozen although DIETARY_LABELS is.",
+  "finding": "- `src/catering/menu.mjs:11`: `export const DIETARY_TAGS = Object.keys(DIETARY_LABELS);` exports a plain array without freezing it. This breaks `src/AGENTS.md` rule 3 (\"Array and plain-object values exported directly from a module must be frozen before export.\"). Any importer (`catering-statements.mjs`, and `requireDietaryTags` through the same module) can mutate the shared list of allowed dietary tags and change validation for every caller. Fix: `export const DIETARY_TAGS = Object.freeze(Object.keys(DIETARY_LABELS));`."
+ },
+ {
+  "id": "s2-062",
+  "group": "E26",
+  "kind": "association",
+  "allowedDecisions": [
+   "matched",
+   "not-matched"
+  ],
+  "expectation": "DIETARY_TAGS is exported directly from menu.mjs as Object.keys(DIETARY_LABELS), a new array that is not frozen although DIETARY_LABELS is.",
+  "finding": "- `src/catering/menu.mjs:11` - `export const DIETARY_TAGS = Object.keys(DIETARY_LABELS);` exports an array that is not frozen.\n  - Violates `src/AGENTS.md` Source Rules 3: \"Array and plain-object values exported directly from a module must be frozen before export.\" Every other exported collection in this change is frozen (`src/catering/menu.mjs:4,13`, `src/catering/vendors.mjs:3`, `src/catering/catering-states.mjs:1`, `src/catering/catering-notices.mjs:7`, `src/catering/kitchen-manifest.mjs:8,19`).\n  - `DIETARY_TAGS` is the validation domain for dietary tags: `requireDietaryTags` at line 16 tests membership in it, and `dietaryCounts` in `src/catering/catering-statements.mjs:9-12` builds the reported tag set from it. A caller that mutates this exported array changes what the whole feature accepts as a valid tag and what every vendor statement reports, without any error.\n  - Fix: `export const DIETARY_TAGS = Object.freeze(Object.keys(DIETARY_LABELS));`."
+ }
+]

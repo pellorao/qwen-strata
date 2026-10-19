@@ -1,0 +1,465 @@
+{
+ "adjudicator": "blind Opus high",
+ "decisions": [
+  {
+   "id": "s1-001",
+   "decision": "matched",
+   "reason": "sendDeliveryNotices 传原始 phone，与期望一致"
+  },
+  {
+   "id": "s1-002",
+   "decision": "matched",
+   "reason": "均指出 store.write/onCommit 时机合同未定义"
+  },
+  {
+   "id": "s1-003",
+   "decision": "not-matched",
+   "reason": "只谈 retryAfter 上限截断，未涉及 0 回退；且规则 8 本就要求封顶"
+  },
+  {
+   "id": "s1-004",
+   "decision": "matched",
+   "reason": "移除的是 store.get 的副本"
+  },
+  {
+   "id": "s1-005",
+   "decision": "matched",
+   "reason": "暂停时仍加入 active claim 范围"
+  },
+  {
+   "id": "s1-006",
+   "decision": "matched",
+   "reason": "无分隔符拼接导致碰撞"
+  },
+  {
+   "id": "s1-007",
+   "decision": "matched",
+   "reason": "无分隔符拼接导致碰撞"
+  },
+  {
+   "id": "s1-008",
+   "decision": "matched",
+   "reason": "labelDriver 改写调用方 driver 对象"
+  },
+  {
+   "id": "s1-009",
+   "decision": "not-matched",
+   "reason": "讲 stopsForDriver 的 reassignment，与本组变更调用方记录的期望不同"
+  },
+  {
+   "id": "s1-010",
+   "decision": "matched",
+   "reason": "暂停仅清空自身范围，claim 仍计入"
+  },
+  {
+   "id": "s1-011",
+   "decision": "matched",
+   "reason": "暂停仅清空自身范围，claim 仍计入"
+  },
+  {
+   "id": "s1-012",
+   "decision": "not-matched",
+   "reason": "只说未检查暂停，且代码实际检查了；未指出 claim 范围保留"
+  },
+  {
+   "id": "s1-013",
+   "decision": "problem-7",
+   "reason": "index.mjs 未导出 executor.mjs"
+  },
+  {
+   "id": "s1-014",
+   "decision": "unsupported",
+   "reason": "称非有限 priority 同时进入 urgent 与 remaining，实际 priorityOf 返回 5 不会 urgent，论断不成立"
+  },
+  {
+   "id": "s1-015",
+   "decision": "problem-16",
+   "reason": "指出 Number() 接受 ''、空格填充文本、true、null"
+  },
+  {
+   "id": "s1-016",
+   "decision": "problem-8",
+   "reason": "只排顶层键，嵌套字段顺序进入序列化"
+  },
+  {
+   "id": "s1-017",
+   "decision": "false-positive:clean-9",
+   "reason": "跨组去重行为符合『去重』要求，所述结果正是正确去重"
+  },
+  {
+   "id": "s1-018",
+   "decision": "problem-20",
+   "reason": "retryAfter 为 0 回退到退避"
+  },
+  {
+   "id": "s1-019",
+   "decision": "false-positive:clean-16",
+   "reason": "规则 26 本就令有限 retryAfter 为 transient，未提 transient:false，不成缺陷"
+  },
+  {
+   "id": "s1-020",
+   "decision": "supported",
+   "reason": "index 确实缺 executor/runtime 导出，但不对应所列问题 6"
+  },
+  {
+   "id": "s1-021",
+   "decision": "problem-8",
+   "reason": "只排顶层键"
+  },
+  {
+   "id": "s1-022",
+   "decision": "problem-13",
+   "reason": "findIndex 返回 0 被接受"
+  },
+  {
+   "id": "s1-023",
+   "decision": "supported",
+   "reason": "discardTemporary 在锁定时不删除字节，属实，但不对应所列问题 4"
+  },
+  {
+   "id": "s1-024",
+   "decision": "supported",
+   "reason": "总量等于上限被拒属实，但不对应所列问题，也非 clean-11 误报"
+  },
+  {
+   "id": "s1-025",
+   "decision": "false-positive:clean-16",
+   "reason": "规则 26 使有限 retryAfter 为 transient，所述并非缺陷"
+  },
+  {
+   "id": "s1-026",
+   "decision": "unsupported",
+   "reason": "代码并未使用 fs.writeFileSync，而是经 store"
+  },
+  {
+   "id": "s1-027",
+   "decision": "problem-11",
+   "reason": "onCommit 时机合同未定义"
+  },
+  {
+   "id": "s1-028",
+   "decision": "problem-9",
+   "reason": "'9' 或 Infinity 的停靠点不在任何分区，属实"
+  },
+  {
+   "id": "s1-029",
+   "decision": "problem-10",
+   "reason": "使用 getHours 本地小时而非 UTC"
+  },
+  {
+   "id": "s1-030",
+   "decision": "unsupported",
+   "reason": "论断方向相反：仅首个路线失败时被接受，后续失败会被拒，示例输出也自相矛盾"
+  },
+  {
+   "id": "s1-031",
+   "decision": "problem-11",
+   "reason": "onCommit 时机合同未定义"
+  },
+  {
+   "id": "s1-032",
+   "decision": "unsupported",
+   "reason": "规则 8 要求所有延迟不超过 2000，截断是正确的"
+  },
+  {
+   "id": "s1-033",
+   "decision": "matched",
+   "reason": "rename 失败后 discardTemporary 保留锁定字节，未调用 removeTemporary"
+  },
+  {
+   "id": "s1-034",
+   "decision": "unsupported",
+   "reason": "retry.mjs 无 eval"
+  },
+  {
+   "id": "s1-035",
+   "decision": "problem-8",
+   "reason": "Number() 接受非十进制文本"
+  },
+  {
+   "id": "s1-036",
+   "decision": "problem-7",
+   "reason": "无分隔符拼接碰撞"
+  },
+  {
+   "id": "s1-037",
+   "decision": "false-positive:clean-2",
+   "reason": "token 置为 undefined 序列化后不出现，按口径算移除"
+  },
+  {
+   "id": "s1-038",
+   "decision": "false-positive:clean-9",
+   "reason": "规则 26 使有限 retryAfter 为 transient，所述并非缺陷"
+  },
+  {
+   "id": "s1-039",
+   "decision": "problem-6",
+   "reason": "onCommit 时机合同未定义"
+  },
+  {
+   "id": "s1-040",
+   "decision": "unsupported",
+   "reason": "非字符串 phone 的行为属推测，依据不足"
+  },
+  {
+   "id": "s1-041",
+   "decision": "problem-6",
+   "reason": "onCommit 时机合同未定义"
+  },
+  {
+   "id": "s1-042",
+   "decision": "problem-2",
+   "reason": "retryAfter 为 0 回退退避"
+  },
+  {
+   "id": "s1-043",
+   "decision": "unsupported",
+   "reason": "规则 8 对所有延迟封顶，截断并非缺陷"
+  },
+  {
+   "id": "s1-044",
+   "decision": "problem-1",
+   "reason": "index 未导出 executor 表面"
+  },
+  {
+   "id": "s1-045",
+   "decision": "problem-5",
+   "reason": "移到禁发结束小时落在窗口外未拒绝"
+  },
+  {
+   "id": "s1-046",
+   "decision": "unsupported",
+   "reason": "组内重复 ID 跨组去重属正确行为，所述并非缺陷"
+  },
+  {
+   "id": "s1-047",
+   "decision": "matched",
+   "reason": "数组内凭据未删除"
+  },
+  {
+   "id": "s1-048",
+   "decision": "not-matched",
+   "reason": "讲 authorizeRouteBatch，与脱敏数组期望无关"
+  },
+  {
+   "id": "s1-049",
+   "decision": "matched",
+   "reason": "transient:false 带有限 retryAfter 被重试"
+  },
+  {
+   "id": "s1-050",
+   "decision": "not-matched",
+   "reason": "只谈 2000ms 截断，未涉及 0 回退"
+  },
+  {
+   "id": "s1-051",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 回退，并指出 Infinity"
+  },
+  {
+   "id": "s1-052",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 回退，并指出 Infinity"
+  },
+  {
+   "id": "s1-053",
+   "decision": "matched",
+   "reason": "指出 Number() 接受 ''、' 1'、'0x1'、'1e0'"
+  },
+  {
+   "id": "s1-054",
+   "decision": "not-matched",
+   "reason": "只谈上界 3，口径明确不匹配"
+  },
+  {
+   "id": "s1-055",
+   "decision": "matched",
+   "reason": "指出 NaN sequence 未排在有数值者之后"
+  },
+  {
+   "id": "s1-056",
+   "decision": "not-matched",
+   "reason": "只谈缺失 sequence，口径明确不匹配"
+  },
+  {
+   "id": "s1-057",
+   "decision": "matched",
+   "reason": "归一化 ID 对原始 ID 的 seen，空白变体跨组保留"
+  },
+  {
+   "id": "s1-058",
+   "decision": "not-matched",
+   "reason": "讲组内重复，不是空白变体；所述行为本身正确"
+  },
+  {
+   "id": "s1-059",
+   "decision": "matched",
+   "reason": "原始 ID 入 seen、归一化 ID 过滤"
+  },
+  {
+   "id": "s1-060",
+   "decision": "matched",
+   "reason": "await dispatchRoute 先于 unlessForbidden"
+  },
+  {
+   "id": "s1-061",
+   "decision": "matched",
+   "reason": "await dispatchRoute 先于 unlessForbidden"
+  },
+  {
+   "id": "s1-062",
+   "decision": "matched",
+   "reason": "Number() 接受 '0x2' 等"
+  },
+  {
+   "id": "s1-063",
+   "decision": "matched",
+   "reason": "handedOver 仍被返回"
+  },
+  {
+   "id": "s1-064",
+   "decision": "matched",
+   "reason": "移除 store.get 副本"
+  },
+  {
+   "id": "s1-065",
+   "decision": "matched",
+   "reason": "stopsForDriver 不看 reassignment"
+  },
+  {
+   "id": "s1-066",
+   "decision": "matched",
+   "reason": "uncertain，指出合同未规定未知地址的 lookup 行为"
+  },
+  {
+   "id": "s1-067",
+   "decision": "matched",
+   "reason": "await dispatch 作为参数先于授权"
+  },
+  {
+   "id": "s1-068",
+   "decision": "not-matched",
+   "reason": "称非有限 priority 同时 urgent 与 remaining，实际不成立"
+  },
+  {
+   "id": "s1-069",
+   "decision": "matched",
+   "reason": "Infinity 不在任何分区"
+  },
+  {
+   "id": "s1-070",
+   "decision": "matched",
+   "reason": "onCommit 时机合同未定义"
+  },
+  {
+   "id": "s1-071",
+   "decision": "matched",
+   "reason": "总量等于上限被拒"
+  },
+  {
+   "id": "s1-072",
+   "decision": "not-matched",
+   "reason": "讲 publishManifest 异步校验，与 chooseDeparture 无关"
+  },
+  {
+   "id": "s1-073",
+   "decision": "matched",
+   "reason": "移到窗口外未拒绝"
+  },
+  {
+   "id": "s1-074",
+   "decision": "matched",
+   "reason": "移到窗口外未拒绝"
+  },
+  {
+   "id": "s1-075",
+   "decision": "matched",
+   "reason": "只排顶层"
+  },
+  {
+   "id": "s1-076",
+   "decision": "matched",
+   "reason": "async map 的 Promise 恒真"
+  },
+  {
+   "id": "s1-077",
+   "decision": "matched",
+   "reason": "async map 的 Promise 恒真"
+  },
+  {
+   "id": "s1-078",
+   "decision": "matched",
+   "reason": "Map 传入 orderManifestGroups 致未排序"
+  },
+  {
+   "id": "s1-079",
+   "decision": "matched",
+   "reason": "index 未导出 executor"
+  },
+  {
+   "id": "s1-080",
+   "decision": "matched",
+   "reason": "index 0 被接受"
+  },
+  {
+   "id": "s1-081",
+   "decision": "not-matched",
+   "reason": "论断方向相反，称仅首个失败被拒，实际首个失败反被接受"
+  },
+  {
+   "id": "s1-082",
+   "decision": "matched",
+   "reason": "数组内凭据保留"
+  },
+  {
+   "id": "s1-083",
+   "decision": "matched",
+   "reason": "uncertain，指出 scale.read 单位未规定"
+  },
+  {
+   "id": "s1-084",
+   "decision": "matched",
+   "reason": "用 getHours 本地小时"
+  },
+  {
+   "id": "s1-085",
+   "decision": "not-matched",
+   "reason": "讲 routeDuration 少 5 分钟，与本组期望的本地小时缺陷不同"
+  },
+  {
+   "id": "s1-086",
+   "decision": "matched",
+   "reason": "余量 0 时 >0 为假，等于上限被拒"
+  },
+  {
+   "id": "s1-087",
+   "decision": "not-matched",
+   "reason": "讲路线标识拼接，与容量期望无关"
+  },
+  {
+   "id": "s1-088",
+   "decision": "matched",
+   "reason": "canPlanRoute 用自身 scopes 检查 routes:admin"
+  },
+  {
+   "id": "s1-089",
+   "decision": "not-matched",
+   "reason": "讲 sendDeliveryNotices 原始 phone，与 transient 期望无关"
+  },
+  {
+   "id": "s1-090",
+   "decision": "matched",
+   "reason": "transient:false 带有限 retryAfter 被重试"
+  },
+  {
+   "id": "s1-091",
+   "decision": "matched",
+   "reason": "routeDuration 少算 5 分钟停车"
+  },
+  {
+   "id": "s1-092",
+   "decision": "matched",
+   "reason": "index 未导出 executor"
+  }
+ ]
+}

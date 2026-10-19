@@ -1,0 +1,31 @@
+{
+ "autoMemoryEnabled": false,
+ "includeGitInstructions": false,
+ "sandbox": {
+  "enabled": true,
+  "autoAllowBashIfSandboxed": true,
+  "allowUnsandboxedCommands": false,
+  "filesystem": {
+   "denyRead": [
+    "/home",
+    "/mnt",
+    "/tmp",
+    "/etc/claude-code"
+   ],
+   "allowRead": [
+    "/home/pello/arw-opus/sadj-s2-medium"
+   ],
+   "denyWrite": [
+    "/home/pello/arw-opus/sadj-s2-medium/pool-s2.json",
+    "/home/pello/arw-opus/sadj-s2-medium/prompt.md",
+    "/home/pello/arw-opus/sadj-s2-medium/settings.json"
+   ],
+   "allowWrite": [
+    "/home/pello/arw-opus/sadj-s2-medium"
+   ]
+  },
+  "network": {
+   "allowedDomains": []
+  }
+ }
+}

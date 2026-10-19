@@ -1,0 +1,900 @@
+{
+ "s1-001": {
+  "orig": "p3-030",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:problem-19:COMMIT-AUDIT-GATE-2:finding-14",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-018",
+  "r1second": "matched"
+ },
+ "s1-002": {
+  "orig": "p1-124",
+  "src": "opus:opus-1",
+  "candidateId": "commit-audit-reviewer:default-1fb3d470-8ee5-499c-8d20-5f7efe3c9f5f-instance-1:scope-1:problem-6:COMMIT-AUDIT-GATE-1:finding-6",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-048",
+  "r1second": "matched"
+ },
+ "s1-003": {
+  "orig": "p1-016",
+  "src": "q3:B-x2",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-1:problem-2:COMMIT-AUDIT-GATE-1:finding-2",
+  "synthetic": false,
+  "expected": "not-matched",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-004": {
+  "orig": "p1-162",
+  "src": "opus:opus-3",
+  "candidateId": "commit-audit-reviewer:default-72a07af6-acc3-4e42-a1a1-fab8e40195a7-instance-1:scope-1:problem-15:COMMIT-AUDIT-GATE-1:finding-15",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-001",
+  "r1second": "matched"
+ },
+ "s1-005": {
+  "orig": "p1-107",
+  "src": "opus:opus-1",
+  "candidateId": "commit-audit-reviewer:default-1fb3d470-8ee5-499c-8d20-5f7efe3c9f5f-instance-1:scope-2:problem-18:COMMIT-AUDIT-GATE-2:finding-18",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-002",
+  "r1second": "matched"
+ },
+ "s1-006": {
+  "orig": "p1-306",
+  "src": "q3:Af",
+  "candidateId": "commit-audit-reviewer:default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-2:scope-1:problem-7:COMMIT-AUDIT-GATE-1:finding-6",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-007": {
+  "orig": "p1-307",
+  "src": "opus:opus-3",
+  "candidateId": "commit-audit-reviewer:default-72a07af6-acc3-4e42-a1a1-fab8e40195a7-instance-1:scope-1:problem-7:COMMIT-AUDIT-GATE-1:finding-7",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-035",
+  "r1second": "matched"
+ },
+ "s1-008": {
+  "orig": "p1-288",
+  "src": "q3:B",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-1:scope-1:problem-17:COMMIT-AUDIT-GATE-1:finding-16",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-007",
+  "r1second": "matched"
+ },
+ "s1-009": {
+  "orig": "r1-008",
+  "src": "synthetic",
+  "synthetic": true,
+  "type": "mismatch",
+  "expected": "not-matched",
+  "stratum": "synthetic"
+ },
+ "s1-010": {
+  "orig": "p1-149",
+  "src": "opus:opus-1",
+  "candidateId": "commit-audit-reviewer:default-1fb3d470-8ee5-499c-8d20-5f7efe3c9f5f-instance-1:scope-1:problem-14:COMMIT-AUDIT-GATE-1:finding-14",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-011": {
+  "orig": "p1-148",
+  "src": "q3:Af",
+  "candidateId": "commit-audit-reviewer:default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-1:scope-1:problem-14:COMMIT-AUDIT-GATE-1:finding-12",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-012": {
+  "orig": "r1-028",
+  "src": "synthetic",
+  "synthetic": true,
+  "type": "rule",
+  "expected": "not-matched",
+  "stratum": "synthetic"
+ },
+ "s1-013": {
+  "orig": "p1-053",
+  "src": "q3:Af",
+  "candidateId": "commit-audit-reviewer:default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-3:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-3",
+  "synthetic": false,
+  "expected": "problem-7",
+  "stratum": "hard",
+  "r1": "r1-023",
+  "r1second": "problem-7"
+ },
+ "s1-014": {
+  "orig": "p2-025",
+  "src": "q3:B-x2",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-7",
+  "synthetic": false,
+  "expected": "unsupported",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-015": {
+  "orig": "p2-022",
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-12",
+  "synthetic": false,
+  "expected": "problem-16",
+  "stratum": "hard",
+  "r1": "r1-022",
+  "r1second": "problem-16"
+ },
+ "s1-016": {
+  "orig": "p3-069",
+  "src": "q3:D",
+  "candidateId": "commit-audit-reviewer:default-27bd2e24-eea0-4030-a7d5-e7dd808004f4-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-5",
+  "synthetic": false,
+  "expected": "problem-8",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-017": {
+  "orig": "p3-076",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-2",
+  "synthetic": false,
+  "expected": "false-positive:clean-9",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-018": {
+  "orig": "p3-072",
+  "src": "q3:D",
+  "candidateId": "commit-audit-reviewer:default-27bd2e24-eea0-4030-a7d5-e7dd808004f4-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-13",
+  "synthetic": false,
+  "expected": "problem-20",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-019": {
+  "orig": "p1-054",
+  "src": "q3:B-x2",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-6",
+  "synthetic": false,
+  "expected": "false-positive:clean-16",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-020": {
+  "orig": "p3-070",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-5",
+  "synthetic": false,
+  "expected": "supported",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-021": {
+  "orig": "p3-073",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-6",
+  "synthetic": false,
+  "expected": "problem-8",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-022": {
+  "orig": "p2-020",
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-10",
+  "synthetic": false,
+  "expected": "problem-13",
+  "stratum": "hard",
+  "r1": "r1-020",
+  "r1second": "problem-13"
+ },
+ "s1-023": {
+  "orig": "p3-071",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-3",
+  "synthetic": false,
+  "expected": "supported",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-024": {
+  "orig": "p3-075",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-4",
+  "synthetic": false,
+  "expected": "false-positive:clean-11",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-025": {
+  "orig": "p1-052",
+  "src": "opus:opus-2",
+  "candidateId": "commit-audit-reviewer:default-51f3e26c-9ff0-41cb-bedc-78f1f3aa1e80-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-9",
+  "synthetic": false,
+  "expected": "false-positive:clean-16",
+  "stratum": "hard",
+  "r1": "r1-027",
+  "r1second": "false-positive:clean-16"
+ },
+ "s1-026": {
+  "orig": "r1-019",
+  "src": "synthetic",
+  "synthetic": true,
+  "type": "false-fact",
+  "expected": "unsupported",
+  "stratum": "synthetic"
+ },
+ "s1-027": {
+  "orig": "p2-019",
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-9",
+  "synthetic": false,
+  "expected": "problem-11",
+  "stratum": "hard",
+  "r1": "r1-025",
+  "r1second": "problem-11"
+ },
+ "s1-028": {
+  "orig": "p2-021",
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-7",
+  "synthetic": false,
+  "expected": "problem-9",
+  "stratum": "hard",
+  "r1": "r1-024",
+  "r1second": "problem-9"
+ },
+ "s1-029": {
+  "orig": "p2-024",
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-8",
+  "synthetic": false,
+  "expected": "problem-10",
+  "stratum": "hard",
+  "r1": "r1-021",
+  "r1second": "problem-10"
+ },
+ "s1-030": {
+  "orig": "p2-026",
+  "src": "q3:Af",
+  "candidateId": "commit-audit-reviewer:default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-1:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-9",
+  "synthetic": false,
+  "expected": "unsupported",
+  "stratum": "hard",
+  "r1": "r1-026",
+  "r1second": "unsupported"
+ },
+ "s1-031": {
+  "orig": "p3-074",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-9",
+  "synthetic": false,
+  "expected": "problem-11",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-032": {
+  "orig": "p2-023",
+  "src": "q3:B-x2",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-2:unassociated:COMMIT-AUDIT-GATE-2:finding-16",
+  "synthetic": false,
+  "expected": "unsupported",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-033": {
+  "orig": "p1-201",
+  "src": "opus:opus-1",
+  "candidateId": "commit-audit-reviewer:default-1fb3d470-8ee5-499c-8d20-5f7efe3c9f5f-instance-1:scope-2:problem-5:COMMIT-AUDIT-GATE-2:finding-5",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-017",
+  "r1second": "matched"
+ },
+ "s1-034": {
+  "orig": "r1-033",
+  "src": "synthetic",
+  "synthetic": true,
+  "type": "false-fact",
+  "expected": "unsupported",
+  "stratum": "synthetic"
+ },
+ "s1-035": {
+  "orig": "p2-004",
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-7",
+  "synthetic": false,
+  "expected": "problem-8",
+  "stratum": "hard",
+  "r1": "r1-029",
+  "r1second": "problem-8"
+ },
+ "s1-036": {
+  "orig": "p3-045",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-7",
+  "synthetic": false,
+  "expected": "problem-7",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-037": {
+  "orig": "p1-003",
+  "src": "q3:A-x1",
+  "candidateId": "commit-audit-reviewer:default-ae93ac75-f7ea-46b6-9901-a267f06059a2-instance-1:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-6",
+  "synthetic": false,
+  "expected": "false-positive:clean-2",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-038": {
+  "orig": "p1-001",
+  "src": "q3:B-x2",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-9",
+  "synthetic": false,
+  "expected": "false-positive:clean-9",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-039": {
+  "orig": "p2-005",
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-6",
+  "synthetic": false,
+  "expected": "problem-6",
+  "stratum": "hard",
+  "r1": "r1-032",
+  "r1second": "problem-6"
+ },
+ "s1-040": {
+  "orig": "p1-002",
+  "src": "q3:B-x2",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-14",
+  "synthetic": false,
+  "expected": "false-positive:clean-22",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-041": {
+  "orig": "p3-046",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-6",
+  "synthetic": false,
+  "expected": "problem-6",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-042": {
+  "orig": "p3-044",
+  "src": "q3:D",
+  "candidateId": "commit-audit-reviewer:default-27bd2e24-eea0-4030-a7d5-e7dd808004f4-instance-1:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-2",
+  "synthetic": false,
+  "expected": "problem-2",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-043": {
+  "orig": "p2-007",
+  "src": "q3:B-x2",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-2",
+  "synthetic": false,
+  "expected": "unsupported",
+  "stratum": "hard",
+  "r1": "r1-030",
+  "r1second": "unsupported"
+ },
+ "s1-044": {
+  "orig": "p1-004",
+  "src": "q3:Af",
+  "candidateId": "commit-audit-reviewer:default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-3:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-1",
+  "synthetic": false,
+  "expected": "problem-1",
+  "stratum": "hard",
+  "r1": "r1-031",
+  "r1second": "problem-1"
+ },
+ "s1-045": {
+  "orig": "p2-006",
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-5",
+  "synthetic": false,
+  "expected": "problem-5",
+  "stratum": "hard",
+  "r1": "r1-034",
+  "r1second": "problem-5"
+ },
+ "s1-046": {
+  "orig": "p4-001",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:unassociated:COMMIT-AUDIT-GATE-1:finding-13",
+  "synthetic": false,
+  "expected": "unsupported",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-047": {
+  "orig": "p1-044",
+  "src": "opus:opus-3",
+  "candidateId": "commit-audit-reviewer:default-72a07af6-acc3-4e42-a1a1-fab8e40195a7-instance-1:scope-2:problem-2:COMMIT-AUDIT-GATE-2:finding-2",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-016",
+  "r1second": "matched"
+ },
+ "s1-048": {
+  "orig": "r1-015",
+  "src": "synthetic",
+  "synthetic": true,
+  "type": "mismatch",
+  "expected": "not-matched",
+  "stratum": "synthetic"
+ },
+ "s1-049": {
+  "orig": "p1-235",
+  "src": "opus:opus-1",
+  "candidateId": "commit-audit-reviewer:default-1fb3d470-8ee5-499c-8d20-5f7efe3c9f5f-instance-1:scope-1:problem-19:COMMIT-AUDIT-GATE-1:finding-19",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-050": {
+  "orig": "p1-138",
+  "src": "q3:B-x2",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-2:problem-20:COMMIT-AUDIT-GATE-2:finding-16",
+  "synthetic": false,
+  "expected": "not-matched",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-051": {
+  "orig": "p1-133",
+  "src": "opus:opus-3",
+  "candidateId": "commit-audit-reviewer:default-72a07af6-acc3-4e42-a1a1-fab8e40195a7-instance-1:scope-2:problem-20:COMMIT-AUDIT-GATE-2:finding-20",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-052": {
+  "orig": "p1-135",
+  "src": "opus:opus-2",
+  "candidateId": "commit-audit-reviewer:default-51f3e26c-9ff0-41cb-bedc-78f1f3aa1e80-instance-1:scope-2:problem-20:COMMIT-AUDIT-GATE-2:finding-21",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-003",
+  "r1second": "matched"
+ },
+ "s1-053": {
+  "orig": "p1-271",
+  "src": "opus:opus-1",
+  "candidateId": "commit-audit-reviewer:default-1fb3d470-8ee5-499c-8d20-5f7efe3c9f5f-instance-1:scope-1:problem-8:COMMIT-AUDIT-GATE-1:finding-8",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-010",
+  "r1second": "matched"
+ },
+ "s1-054": {
+  "orig": "r1-009",
+  "src": "synthetic",
+  "synthetic": true,
+  "type": "rule",
+  "expected": "not-matched",
+  "stratum": "synthetic"
+ },
+ "s1-055": {
+  "orig": "p3-121",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-12:COMMIT-AUDIT-GATE-2:finding-9",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-056": {
+  "orig": "r1-047",
+  "src": "synthetic",
+  "synthetic": true,
+  "type": "rule",
+  "expected": "not-matched",
+  "stratum": "synthetic"
+ },
+ "s1-057": {
+  "orig": "p1-112",
+  "src": "q3:B",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-1:scope-2:problem-4:COMMIT-AUDIT-GATE-2:finding-4",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-058": {
+  "orig": "p3-148",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-2:scope-1:problem-20:COMMIT-AUDIT-GATE-1:finding-13",
+  "synthetic": false,
+  "expected": "not-matched",
+  "stratum": "hard",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-059": {
+  "orig": "p1-171",
+  "src": "opus:opus-3",
+  "candidateId": "commit-audit-reviewer:default-72a07af6-acc3-4e42-a1a1-fab8e40195a7-instance-1:scope-1:problem-20:COMMIT-AUDIT-GATE-1:finding-20",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-046",
+  "r1second": "matched"
+ },
+ "s1-060": {
+  "orig": "p1-024",
+  "src": "opus:opus-2",
+  "candidateId": "commit-audit-reviewer:default-51f3e26c-9ff0-41cb-bedc-78f1f3aa1e80-instance-1:scope-2:problem-15:COMMIT-AUDIT-GATE-2:finding-16",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-061": {
+  "orig": "p1-023",
+  "src": "q3:Af",
+  "candidateId": "commit-audit-reviewer:default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-3:scope-2:problem-15:COMMIT-AUDIT-GATE-2:finding-8",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-043",
+  "r1second": "matched"
+ },
+ "s1-062": {
+  "orig": "p1-062",
+  "src": "opus:opus-2",
+  "candidateId": "commit-audit-reviewer:default-51f3e26c-9ff0-41cb-bedc-78f1f3aa1e80-instance-1:scope-2:problem-16:COMMIT-AUDIT-GATE-2:finding-17",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-049",
+  "r1second": "matched"
+ },
+ "s1-063": {
+  "orig": "p3-032",
+  "src": "q3:D",
+  "candidateId": "commit-audit-reviewer:default-27bd2e24-eea0-4030-a7d5-e7dd808004f4-instance-1:scope-1:problem-9:COMMIT-AUDIT-GATE-1:finding-9",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-064": {
+  "orig": "p3-098",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-3:COMMIT-AUDIT-GATE-2:finding-2",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-065": {
+  "orig": "p1-193",
+  "src": "q3:Af",
+  "candidateId": "commit-audit-reviewer:default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-2:scope-1:problem-4:COMMIT-AUDIT-GATE-1:finding-4",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-045",
+  "r1second": "matched"
+ },
+ "s1-066": {
+  "orig": "p1-143",
+  "src": "opus:opus-3",
+  "candidateId": "commit-audit-reviewer:default-72a07af6-acc3-4e42-a1a1-fab8e40195a7-instance-1:scope-1:problem-11:COMMIT-AUDIT-GATE-1:finding-11",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-067": {
+  "orig": "p1-250",
+  "src": "q3:Af",
+  "candidateId": "commit-audit-reviewer:default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-3:scope-1:problem-3:COMMIT-AUDIT-GATE-1:finding-3",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-068": {
+  "orig": "p1-010",
+  "src": "q3:B-x2",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-2:problem-9:COMMIT-AUDIT-GATE-2:finding-7",
+  "synthetic": false,
+  "expected": "not-matched",
+  "stratum": "hard",
+  "r1": "r1-012",
+  "r1second": "not-matched"
+ },
+ "s1-069": {
+  "orig": "p1-007",
+  "src": "opus:opus-2",
+  "candidateId": "commit-audit-reviewer:default-51f3e26c-9ff0-41cb-bedc-78f1f3aa1e80-instance-1:scope-2:problem-9:COMMIT-AUDIT-GATE-2:finding-10",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-011",
+  "r1second": "matched"
+ },
+ "s1-070": {
+  "orig": "p3-056",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-3:scope-2:problem-11:COMMIT-AUDIT-GATE-2:finding-8",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-071": {
+  "orig": "p3-136",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-6:COMMIT-AUDIT-GATE-2:finding-5",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-072": {
+  "orig": "r1-041",
+  "src": "synthetic",
+  "synthetic": true,
+  "type": "mismatch",
+  "expected": "not-matched",
+  "stratum": "synthetic"
+ },
+ "s1-073": {
+  "orig": "p1-180",
+  "src": "opus:opus-3",
+  "candidateId": "commit-audit-reviewer:default-72a07af6-acc3-4e42-a1a1-fab8e40195a7-instance-1:scope-1:problem-5:COMMIT-AUDIT-GATE-1:finding-5",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-074": {
+  "orig": "p3-129",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-5:COMMIT-AUDIT-GATE-1:finding-5",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-040",
+  "r1second": "matched"
+ },
+ "s1-075": {
+  "orig": "p1-279",
+  "src": "opus:opus-2",
+  "candidateId": "commit-audit-reviewer:default-51f3e26c-9ff0-41cb-bedc-78f1f3aa1e80-instance-1:scope-2:problem-8:COMMIT-AUDIT-GATE-2:finding-8",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-014",
+  "r1second": "matched"
+ },
+ "s1-076": {
+  "orig": "p1-246",
+  "src": "q3:B",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-1:scope-1:problem-18:COMMIT-AUDIT-GATE-1:finding-17",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-077": {
+  "orig": "p1-247",
+  "src": "opus:opus-3",
+  "candidateId": "commit-audit-reviewer:default-72a07af6-acc3-4e42-a1a1-fab8e40195a7-instance-1:scope-1:problem-18:COMMIT-AUDIT-GATE-1:finding-18",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-039",
+  "r1second": "matched"
+ },
+ "s1-078": {
+  "orig": "p1-094",
+  "src": "opus:opus-1",
+  "candidateId": "commit-audit-reviewer:default-1fb3d470-8ee5-499c-8d20-5f7efe3c9f5f-instance-1:scope-1:problem-10:COMMIT-AUDIT-GATE-1:finding-10",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-004",
+  "r1second": "matched"
+ },
+ "s1-079": {
+  "orig": "p1-300",
+  "src": "q3:B-x2",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-2:scope-1:problem-1:COMMIT-AUDIT-GATE-1:finding-1",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-013",
+  "r1second": "matched"
+ },
+ "s1-080": {
+  "orig": "p1-266",
+  "src": "opus:opus-3",
+  "candidateId": "commit-audit-reviewer:default-72a07af6-acc3-4e42-a1a1-fab8e40195a7-instance-1:scope-2:problem-13:COMMIT-AUDIT-GATE-2:finding-13",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-081": {
+  "orig": "p1-263",
+  "src": "q3:Af",
+  "candidateId": "commit-audit-reviewer:default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-1:scope-2:problem-13:COMMIT-AUDIT-GATE-2:finding-9",
+  "synthetic": false,
+  "expected": "not-matched",
+  "stratum": "hard",
+  "r1": "r1-037",
+  "r1second": "not-matched"
+ },
+ "s1-082": {
+  "orig": "p2-028",
+  "src": "q3:Bf",
+  "candidateId": "commit-audit-reviewer:default-7ac679c8-14ee-4ee3-b441-f6e14fba3cf2-instance-1:scope-1:problem-16:COMMIT-AUDIT-GATE-1:finding-12",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-083": {
+  "orig": "p1-217",
+  "src": "opus:opus-2",
+  "candidateId": "commit-audit-reviewer:default-51f3e26c-9ff0-41cb-bedc-78f1f3aa1e80-instance-1:scope-2:problem-14:COMMIT-AUDIT-GATE-2:finding-15",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-042",
+  "r1second": "matched"
+ },
+ "s1-084": {
+  "orig": "p1-210",
+  "src": "q3:B",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-1:scope-2:problem-10:COMMIT-AUDIT-GATE-2:finding-10",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-085": {
+  "orig": "r1-005",
+  "src": "synthetic",
+  "synthetic": true,
+  "type": "mismatch",
+  "expected": "not-matched",
+  "stratum": "synthetic"
+ },
+ "s1-086": {
+  "orig": "p3-103",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-1:problem-12:COMMIT-AUDIT-GATE-1:finding-10",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-087": {
+  "orig": "r1-006",
+  "src": "synthetic",
+  "synthetic": true,
+  "type": "mismatch",
+  "expected": "not-matched",
+  "stratum": "synthetic"
+ },
+ "s1-088": {
+  "orig": "p1-222",
+  "src": "q3:Af",
+  "candidateId": "commit-audit-reviewer:default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-1:scope-1:problem-13:COMMIT-AUDIT-GATE-1:finding-11",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-044",
+  "r1second": "matched"
+ },
+ "s1-089": {
+  "orig": "r1-038",
+  "src": "synthetic",
+  "synthetic": true,
+  "type": "mismatch",
+  "expected": "not-matched",
+  "stratum": "synthetic"
+ },
+ "s1-090": {
+  "orig": "p1-084",
+  "src": "q3:Af",
+  "candidateId": "commit-audit-reviewer:default-16258b8f-bc85-4ba7-b0b9-c980ce9bd6fc-instance-2:scope-2:problem-17:COMMIT-AUDIT-GATE-2:finding-12",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ },
+ "s1-091": {
+  "orig": "p1-067",
+  "src": "q3:B",
+  "candidateId": "commit-audit-reviewer:default-a58b90f2-d23f-4948-835d-d96df2a011e6-instance-1:scope-2:problem-1:COMMIT-AUDIT-GATE-2:finding-1",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": "r1-036",
+  "r1second": "matched"
+ },
+ "s1-092": {
+  "orig": "p3-035",
+  "src": "q3:C",
+  "candidateId": "commit-audit-reviewer:default-a1ac9352-26a3-4f5e-831b-b2341c763358-instance-1:scope-2:problem-7:COMMIT-AUDIT-GATE-2:finding-6",
+  "synthetic": false,
+  "expected": "matched",
+  "stratum": "matched",
+  "r1": null,
+  "r1second": null
+ }
+}

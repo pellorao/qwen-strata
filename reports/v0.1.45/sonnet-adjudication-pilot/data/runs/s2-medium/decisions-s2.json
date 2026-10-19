@@ -1,0 +1,315 @@
+{
+ "adjudicator": "blind",
+ "decisions": [
+  {
+   "id": "s2-001",
+   "decision": "matched",
+   "reason": "变更端 kitchen-manifest 引入 node:crypto 违反规则2"
+  },
+  {
+   "id": "s2-002",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-003",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-004",
+   "decision": "matched",
+   "reason": "指出 kitchenFor 与 vendorFor 重复并建议按 order.vendorId 分组"
+  },
+  {
+   "id": "s2-005",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-006",
+   "decision": "matched",
+   "reason": "指出 KITCHENS 与 vendorFor 重复同一路由规则（>30 与 >=31），修复为单一来源"
+  },
+  {
+   "id": "s2-007",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-008",
+   "decision": "matched",
+   "reason": "指出两份路由规则重复并建议用已存的 order.vendorId"
+  },
+  {
+   "id": "s2-009",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-010",
+   "decision": "matched",
+   "reason": "catering-time 仅转发 DAY/addMinutes"
+  },
+  {
+   "id": "s2-011",
+   "decision": "matched",
+   "reason": "同上"
+  },
+  {
+   "id": "s2-012",
+   "decision": "matched",
+   "reason": "同上"
+  },
+  {
+   "id": "s2-013",
+   "decision": "matched",
+   "reason": "同上"
+  },
+  {
+   "id": "s2-014",
+   "decision": "matched",
+   "reason": "withCanceled 无人传入的推测性选项"
+  },
+  {
+   "id": "s2-015",
+   "decision": "matched",
+   "reason": "loadMenu 捕获错误违反规则4.1，且指出 menuFor 已包装"
+  },
+  {
+   "id": "s2-016",
+   "decision": "matched",
+   "reason": "addLine 浅拷贝后 push 改变调用方 lines"
+  },
+  {
+   "id": "s2-017",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-018",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-019",
+   "decision": "matched",
+   "reason": "deliveredNotice 内联 reduce 与 servingsOf 重复"
+  },
+  {
+   "id": "s2-020",
+   "decision": "matched",
+   "reason": "save 吞掉失败并返回 undefined，违反4.3"
+  },
+  {
+   "id": "s2-021",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-022",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-023",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-024",
+   "decision": "matched",
+   "reason": "导入另一 feature 的 service 模块违反7.2"
+  },
+  {
+   "id": "s2-025",
+   "decision": "matched",
+   "reason": "inDeliveryOrder 原地 sort 改变调用方数组"
+  },
+  {
+   "id": "s2-026",
+   "decision": "matched",
+   "reason": "cancellationFee 取 context.now 并双读时钟"
+  },
+  {
+   "id": "s2-027",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-028",
+   "decision": "matched",
+   "reason": "placeOrder 内联暂停检查重复 isSuspended"
+  },
+  {
+   "id": "s2-029",
+   "decision": "matched",
+   "reason": "同上"
+  },
+  {
+   "id": "s2-030",
+   "decision": "matched",
+   "reason": "new Error(msg, error) 丢失 cause"
+  },
+  {
+   "id": "s2-031",
+   "decision": "matched",
+   "reason": "guestsArriveFrom/LeaveBy 重复 accessWindow 与其设置"
+  },
+  {
+   "id": "s2-032",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-033",
+   "decision": "matched",
+   "reason": "postponeOrder 原地 Object.assign 修改 store 记录"
+  },
+  {
+   "id": "s2-034",
+   "decision": "matched",
+   "reason": "同上"
+  },
+  {
+   "id": "s2-035",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-036",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-037",
+   "decision": "matched",
+   "reason": "share 重复 billing roundedTax"
+  },
+  {
+   "id": "s2-038",
+   "decision": "matched",
+   "reason": "同上"
+  },
+  {
+   "id": "s2-039",
+   "decision": "matched",
+   "reason": "vendorNotice 用 Date.now() 违反6.1"
+  },
+  {
+   "id": "s2-040",
+   "decision": "matched",
+   "reason": "PAYABLE_WITHIN_DAYS 重复 PAYMENT_TERMS.dueMinutes"
+  },
+  {
+   "id": "s2-041",
+   "decision": "matched",
+   "reason": "同上"
+  },
+  {
+   "id": "s2-042",
+   "decision": "matched",
+   "reason": "同上"
+  },
+  {
+   "id": "s2-043",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-044",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-045",
+   "decision": "matched",
+   "reason": "deskDeliveries 内联窗口重复 deliveryWindow 与 kitchenManifests 的 contains"
+  },
+  {
+   "id": "s2-046",
+   "decision": "matched",
+   "reason": "同上"
+  },
+  {
+   "id": "s2-047",
+   "decision": "not-matched",
+   "reason": "仅涉及窗口起点的重复且未覆盖包含判断，对象不够确定，保守不匹配"
+  },
+  {
+   "id": "s2-048",
+   "decision": "matched",
+   "reason": "deskDeliveries 内联窗口及包含判断重复 deliveryWindow"
+  },
+  {
+   "id": "s2-049",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-050",
+   "decision": "matched",
+   "reason": "同上并指出 kitchenManifests 写法"
+  },
+  {
+   "id": "s2-051",
+   "decision": "matched",
+   "reason": "同上，覆盖窗口与包含判断"
+  },
+  {
+   "id": "s2-052",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-053",
+   "decision": "matched",
+   "reason": "课程事实分散在三处，同一缺陷"
+  },
+  {
+   "id": "s2-054",
+   "decision": "not-matched",
+   "reason": "该 finding 指向不同对象或不同问题（或仅部分重叠），与期望句不是同一缺陷"
+  },
+  {
+   "id": "s2-055",
+   "decision": "matched",
+   "reason": "findMenuItem 纯转发 requireMenuItem"
+  },
+  {
+   "id": "s2-056",
+   "decision": "matched",
+   "reason": "advanceOrder 默认导出违反命名导出规则"
+  },
+  {
+   "id": "s2-057",
+   "decision": "matched",
+   "reason": "isUpcoming 每单调用 now()"
+  },
+  {
+   "id": "s2-058",
+   "decision": "matched",
+   "reason": "同上"
+  },
+  {
+   "id": "s2-059",
+   "decision": "matched",
+   "reason": "catering-store 使用 class"
+  },
+  {
+   "id": "s2-060",
+   "decision": "matched",
+   "reason": "同上"
+  },
+  {
+   "id": "s2-061",
+   "decision": "matched",
+   "reason": "DIETARY_TAGS 未冻结"
+  },
+  {
+   "id": "s2-062",
+   "decision": "matched",
+   "reason": "同上"
+  }
+ ]
+}
