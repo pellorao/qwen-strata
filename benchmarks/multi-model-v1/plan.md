@@ -398,6 +398,14 @@
   - **其他**：arw_measure 因 ARW 错误退出时会留下 runtime daemon，`run_one` 结束时把属于本实例的 daemon 连同整个进程树结束（先 SIGTERM，5 秒后 SIGKILL），再核对没有仍指向本实例运行目录或 prep 的进程（codex、bwrap 等），记进 `leftover_cleanup`，不干净就 `halt`（审查 M2）。此前留下的 10 个 daemon（各带 `recovery-required.json`）：prefail 537508、537735、538012，07:11 检查时已不在，退出时间不明；stubfail 538870、539328、539875 和 tmpfail 565812、566274、566853、570276，共 7 个，07:11 前后用 SIGTERM 结束，随后确认已不在。它们在实例结束后都是空闲的（stderr 0 字节，共享 codex-home 06:55:18 后无写入，relay 随 arw_measure 退出），发不出模型请求；06:19–07:40 期间 R1 门和 Strata 臂的速度数据是在这些空闲进程存在时测的，影响应可忽略，交 Main 标注。prep 仍放 /tmp，做法见 `.tmp/bench-openai-1020/prep-review.md`：基目录 `/tmp/qwen-openai-1020`（0700，inode 876755）06:43:01 建好；运行结束后复制回 `<实例>/prep` 并核对 sha，评分只读副本；每个场景结束后审计 denyRead 的覆盖情况。
   - **运行脚本**：`run_one.py` sha256 `751d691a…68a3`，取代 `eaf9f11a…16fa` 和更早的 `e1984fee…`；`schedule.py` `c4d4233c…48471b3a`。
 
+- 2026-10-20 07:50–07:53，OpenAI 臂 CA 首批 4 个实例的判据修正（Main 决定）：
+  - **经过**：07:50 开跑 sol-low/medium/high 和 luna-low 各 a1，4 个都正常走完：arw_measure 退出码 0，无 `recovery-required.json`，completion 都是 ready，复制回工程盘后 sha 核对一致，进程清理干净。但调度器按 `halt` 停下了。
+  - **原因**：`run_one` 的 `ended_normally` 写成了 `state=='exited'`。ARW 的 Reviewer 正常完成时 state 是 `idle`，taskState 是 `ended`，所以这个条件永远不成立。mtgate 的 6 次运行也都是 `idle`，但那几次没经过 `run_one` 的判据，所以没有发现。
+  - **修正**：改用 arw_measure 自己接受完成的条件：有 completion，且 state 不在 starting/running/working 之中。判据只是改成与 arw_measure 一致，与得分无关；改之前没有看过报告内容，也就不涉及按结果挑选。这 4 个实例按新判据计入有效。它们的 `instance.json` 保留原判定，另加 `reclassified` 字段，记录新判据下的检查结果和 run_one 的 sha。
+  - **首查四项**：都正常。`models_returned` 和 `service_tiers` 非空（default 8–9 次），说明 relay 对无 Content-Type 回复的修正在真实 ChatGPT 上端到端有效；`prep/harness-patches.json` 存在；`mount_targets_ignored` 为 20–28。
+  - **补丁 A 是必需的**：4 个实例的 ca/1 报告目录全都留下了四个占位目录，都被补丁放过。Codex 0.163 在真实负载下几乎每次都会留下这些目录，不打补丁就跑不了。
+  - **运行脚本**：`run_one.py` sha256 `19518faf…4d79`，取代 `751d691a…68a3`。`schedule.py` `cc426573…3cf15a989c`，新增续跑功能：已有实例保留原编号、尝试次数和有效判定，`reclassified` 优先，每个有效实例从队列里扣掉一次。
+
 - 2026-10-20 06:40–06:50，#10–12（Codex 上的 Strata）的 ARW prep 改放 /tmp，与 OpenAI 臂同一布局（Main 指示；尚未开跑，没有实例受影响）：
   - **已证实无效，未用于任何正式实例**（Main 10-20 撤回）：OpenAI 臂实测 prep 放 /tmp 后仍出现空目录。真实 ARW 的报告目录嵌在场景仓库（如 `ca/1`）下的 `.tmp/codex/…` 里，扁平布局的 stubtest 覆盖不到。#10–12 暂停，等真实嵌套布局下的成因和修法审查通过。以下为当时的方案记录。
   - **原因**：Codex 0.163.0 的 bubblewrap 在可写根里给受保护的名字建 synthetic mount target，工作区在工程盘且是 git 根时，`.git`、`.codex`、`.agents`、`.aws` 空目录留在报告目录里，ARW 收尾判"报告目录只能有绑定报告"失败。Strata 路径的零模型对照（Strata mock，`.tmp/bench-strata-1019/stubtest/`，仿 `.tmp/bench-openai-1020/stubtest/`）：工程盘 + git 根，报告目录多出这 4 个空目录；工程盘无 git、/tmp + git 根、/tmp 无 git 都不出现。`arw_dimension.prepare` 会把 ARW checkout `git init`，所以 #10–12 的正式路径会撞上。
