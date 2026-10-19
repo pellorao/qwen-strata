@@ -316,3 +316,32 @@
 - ~~20% 规则的分母~~：用户 2026-10-19 决定维持单名 Opus（§6.1）。
 - G7 deny-read 偏离"不额外收紧"，实施后交用户复核。
 - P1 若显示 DeepSeek 某个格式下三档无差别，是否删档。
+
+## 14. 提前部分冻结（2026-10-19）
+
+依据：用户 10-19 指示"这几天优先跑 Anthropic、优先用完周额度"；Main 要求把提前冻结的独立意见范围扩大到 Anthropic 臂加 Strata 臂。独立意见出自全新的 Opus high agent（不是 fork），开之前 `estimate.sh --can-start` 判定可以开。结论是同意按条件开跑；Anthropic 臂 worker 综合后全部采纳，处理写在下面。
+
+- **冻结对象**：plan.md 在 commit `aee7b3a` 时的内容（sha256 `778f235ba7f43090fc2fcd85fbdffaac45b70f714d845faad26b30bce9bc382f`），适用于配置 #13–21（Anthropic）和 #25–27（Claude Code 上的 Strata）。#10–12（Codex 上的 Strata）只冻结方案、暂缓执行，等 CODEX163_READY 后，并在 0.163.0 上完成 `safety_gate --run` 完整门（每类探针 3 次、15 个审批用例、读探针、G7 deny-read、`web_search disabled`）、三档冒烟和压缩提示核实，再以单独 commit 补冻结。
+- **除外项**，另行冻结：
+  1. §2 #1–9、#22–24 各行，以及 P0–P3 的实测结果；
+  2. 所有与 Codex 版本有关的文字，包括 §3「版本」中的 Codex 条目、§12 中与 Codex 副本有关的部分，以及 #10–12 的门证据。用户已定 benchmark 的 Codex 用 0.163.0，这些文字由另一个 worker 单独提交修改。
+- **代码与输入绑定**：
+  - 代码 commit `e470539`：`tools/reviewer/claude_headless.py`、`tools/reviewer/claude_scenario.py`，合成 HOME 来自 63f1434；
+  - 场景 plan sha256：`benchmarks/multi-model-v1/scenarios/` 下 commit-audit-v3 `e509de73…`、code-spec-v5 `fb570844…`、code-standards-v5.1 `7a43f4b5…`、spec-readiness-v4.3 `d6a5b598…`。测量说明和 manifest 的 sha 写在各 plan 的 `fixed_conditions` 里；
+  - Claude Code benchmark 副本 2.1.303，sha256 `375988f4…191450`；模型 ID `claude-opus-5-5`、`claude-sonnet-5-5`、`claude-haiku-5-5`（P5）；
+  - Strata 臂：启动提示加载后 `1cae169a…`（源 `5f9efc02…`，防循环段关闭），压缩提示 `3856cb62…`，部署 JSON `1c8650e1…`，档位 206584 / 150000，`CLAUDE_CODE_MAX_CONTEXT_TOKENS`、`CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 与 `max_tokens`（§2.1）。第一个 Strata 实例要从请求或日志核实 8192 / 16384 / 24576 确实生效，并逐实例核对两份提示的 sha。
+- **对正文的偏离**（交用户复核）：
+  - §3「版本」：Strata 版本从 Strata 臂第一个实例开始锁定，到 27 个配置全部跑完为止，用户 D12 的升级窗口到此结束。第一个 Strata 实例开跑前，把 Strata 版本、安装 sha 写进绑定。
+  - §9 阶段 1、阶段 2：Anthropic 臂和 Claude Code 上的 Strata 臂先跑，OpenAI、DeepSeek 臂后跑，同一场景的全部配置不保证在 48 小时内跑完；§4 第 9 条的漂移窗口相应变长。
+  - Claude Code 上 Strata 的 low、medium 在正式运行前各补一次 smoke（G8 只跑了 high）。
+- **预登记**（看到任何新输出之前）：
+  - 并发：Anthropic 臂最多 4 个 `claude -p` 并行。Strata 臂同时运行时，WSL 里的 Claude Code、Codex 进程合计不超过 5 个。
+  - 排程：按轮次块交替，每轮 9 个配置，顺序逐轮反转。每个场景的第一个 Opus 实例先跑完，其他 Opus 实例才开始，Sonnet、Haiku 同时进行。第一个实例算正式实例。
+  - 无效判据（`claude_scenario.checks`）：模型 ID 不符（包括 safeguards 回退到另一个模型）、tier 不在 {default, standard, 未返回}、服务端搜索 > 0、API 或传输错误、非零退出。到硬时限停止的实例有效。每格（配置 × 场景）最多尝试 8 次，撞额度的不计入。Opus 某格前 3 次尝试里有 2 次回退，就停掉该格并列入 decide。
+  - 撞额度（429、限额）：作废，等 `five_reset` 后重跑；`five_used` ≥ 90% 时不启动新实例。每个实例启动前跑 `estimate.sh --can-start`。首个 Haiku 批次前后记录用量。
+  - CS、CStd 的 P4 沿用 Opus 参考运行的测法。"离同类 3 倍以上"中的同类，限定为同一模型的三档。Strata 臂用自己的引擎日志 P4。
+  - 只跑不看：提前跑出的实例（含 Strata 臂）在相应配置组齐之前不计分、不盲裁、不读报告；会话检查只输出判定，结论不用于修改任何冻结内容。
+  - 锚点（同版本已裁池中 10–15 个）和合成负例在读任何新输出之前选定，并把 sha 存档。
+  - P6 基线：取 Anthropic 停跑后 Strata 实例引擎输出 tok/s 的中位数。G8 的 88.9 tok/s 只作参考。判定照旧：低于 60 tok/s 按 S3 处理，差超过 10% 在报告里注明。
+- **残余风险**（§7 补充，交用户复核）：Claude Code 的沙箱拒写工作目录里所有已有文件，包括 `.git` 的每个子项（`hooks`、`refs`、`config` 等），但授权报告目录的祖先目录里允许新建文件。这与扁平门"顶层可新建"同类。计分只取指定的 `reportPath`；实例记录 `checks.unexpected_changes`，不为空时由会话检查逐条判定，只有影响评分或越出工作目录才判无效。`.git` 本身不能整体禁写，否则沙箱建不了 `.git/config.lock` 存根，Bash 会全部失败。
+- 冻结之后，冻结范围内的任何修改都作为偏离记进 §13（日期、原因、对已跑实例的影响），不在正文里静默改动。
