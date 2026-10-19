@@ -153,6 +153,38 @@ def git_apply(patch, destination, *options, check=True):
                           env=dict(os.environ, GIT_CEILING_DIRECTORIES=str(Path(destination).resolve().parent))).returncode == 0
 
 
+# Harness compatibility patches a caller opts into at prepare time (not in the frozen manifests, whose sha the scenario
+# plans bind). codex-0.163-synthetic-mount-targets: Codex 0.163 bubblewrap leaves empty .git/.codex/.agents/.aws mount
+# targets in the writable report directory (stubtest2, 2026-10-20); the binding check sets exactly those aside and logs
+# each one. Recorded in docs/arw-upstream-issues.md.
+HARNESS_PATCHES = {
+    'codex-0.163-synthetic-mount-targets': {
+        'file': 'codex-0.163-synthetic-mount-targets.patch',
+        'sha256': 'c1347209125ebb3682b5b3a69eb0fc192ea70469822596d433383ce10f63a476',
+        'base': {'lib/reviewer-runtime/reviewer-runtime.mjs':
+                 '7ac16d500831a4912718e1a2823cc7dc72c58fb7d5aaa5460944c628b687f020'},
+        'result': {'lib/reviewer-runtime/reviewer-runtime.mjs':
+                   '7fae6d7233111b312775e692673fa4551ab98b44e46c4b7baeacf686eff93354',
+                   'lib/reviewer-runtime/codex-mount-targets.mjs':
+                   '0060fdcbf8ca5b61dd5100f2a134e98c46b2689d5aa19497090b5fda42126922',
+                   'tests/reviewer-runtime/codex-mount-targets.test.mjs':
+                   '61ddfae128067afcac8aed470dfcb2ab78cf3e66288c337ded97e2aa6ba5991d'}}}
+
+
+def apply_harness_patch(name, destination):
+    """Apply one pinned harness patch to a materialized copy, checking the members before and after."""
+    entry = HARNESS_PATCHES[name]
+    destination = Path(destination)
+    for member, expected in entry['base'].items():
+        if sha((destination / member).read_bytes()) != expected:
+            raise ValueError(f'{name}: base member differs: {member}')
+    git_apply(pinned_patch(entry['file'], entry['sha256']), destination)
+    for member, expected in entry['result'].items():
+        if sha((destination / member).read_bytes()) != expected:
+            raise ValueError(f'{name}: patched member differs: {member}')
+    return {'name': name, 'file': entry['file'], 'sha256': entry['sha256'], 'result': entry['result']}
+
+
 def pinned_patch(name, digest):
     patch = PATCHES / name
     if sha(patch.read_bytes()) != digest:

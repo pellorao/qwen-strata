@@ -186,13 +186,17 @@ def selection(plan, condition, context_window=None, folder=None, time_limit_seco
             **({} if context_window is None else {'context_window': context_window})}
 
 
-def prepare(plan, condition, folder, reviewer=None, context_window=None, time_limit_seconds=None):
-    """Fresh ARW batch for one slot; only its first handoff(s) run, the others stay deferred."""
+def prepare(plan, condition, folder, reviewer=None, context_window=None, time_limit_seconds=None, harness_patches=()):
+    """Fresh ARW batch for one slot; only its first handoff(s) run, the others stay deferred. harness_patches: names
+    from freeze_arw_source.HARNESS_PATCHES applied to the materialized copy (recorded in harness-patches.json)."""
     folder.mkdir(parents=True)
     arw = folder / 'arw'
     subprocess.run([sys.executable, '-m', 'tools.reviewer.freeze_arw_source', '--manifest',
                     plan['fixed_conditions']['arw_source_manifest'], '--out', str(arw)],
                    cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
+    if harness_patches:
+        from tools.reviewer.freeze_arw_source import apply_harness_patch
+        save(folder / 'harness-patches.json', [apply_harness_patch(name, arw) for name in harness_patches])
     (arw / 'config.json').write_text(extract_agent_config((arw / 'docs/manuals/agent-cli.md').read_text()))
     save(folder / 'selection-source.json', selection(plan, condition, context_window, folder, time_limit_seconds, reviewer))
     subprocess.run(['git', 'init', '-q'], cwd=arw, check=True)

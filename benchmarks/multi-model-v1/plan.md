@@ -378,6 +378,26 @@
   - **run_one 补 ARW 主会话身份**：CA 第一次开跑时，3 个实例在 ARW `spawn_agent` 处失败，报错 "Main session identity is missing"。原因是 `run_one.py` 没有像 `arw_dimension` 和 Strata 臂那样传 `CODEX_THREAD_ID=<plan codex_thread_id>`。这 3 个实例的 relay 请求数都是 0，没有发出模型请求，所以按准备失败记录，不计入尝试次数，目录改名为 `ca-prefail/`。修正后 `run_one.py` 的 sha256 为 `e1984fee…088df`，取代 §14.3 中的绑定，判定逻辑不变。
   - **进程上限**：Anthropic 臂当时也在运行。CA 开跑时 OpenAI 实例的 Codex 进程启动有滞后，调度器的计数没反映出来，06:20 时 WSL 里基准进程合计一度为 6 个，超过 §14 的 ≤5。之后新增 `.tmp/bench-openai-1020/slotctl.py`（sha256 `6981c2a4…`）：每 10 秒把 `slots.txt` 写成 min(4, 5 − 其他臂进程数 − 预留数)，调度器每次启动前都读它；R1 的门运行用 `reserve.txt` 预留 1 位。Main 已让 Anthropic 臂在 11:00 前不再开新实例。
 
+- 2026-10-20 06:24–07:40，OpenAI 臂（#1–6）CA 开跑失败后的作废与修正（Main 逐项决定；补丁 A 待限时独立审查）：
+  - **作废实例**，都不计入尝试次数，目录保留：
+
+| 批次 | 目录 | 实例数 | 是否发出模型请求 | 原因 |
+|---|---|---|---|---|
+| prefail | `ca-prefail/` | 3 | 否，relay 请求数 0 | 没有传 ARW 主会话身份（上一条） |
+| stubfail | `ca-stubfail/` | 4（sol low/medium/high、luna low，最后一个被提前终止） | 是，POST 7–14 次 | 报告目录里有 Codex 的占位空目录，ARW 绑定检查判失败；prep 在工程盘 |
+| tmpfail | `ca-tmpfail/` | 6（各配置 a1） | 是，POST 5–12 次 | 同上；prep 已改放 /tmp，照样出现；luna-low 的 ARW completion 是 incomplete，原因同样是报告目录检查失败 |
+
+  - 两批共用掉周窗口 1 个百分点（36%→37%），credits 不变。这两批不看报告。
+  - **原因**：Codex 0.163.0 的 bubblewrap 在写授权目录里建 `.git`、`.codex`、`.agents`、`.aws` 空占位目录，删除不可靠（零模型对照见 `.tmp/bench-openai-1020/stubtest2/`）。详见 `docs/arw-upstream-issues.md` E。把 prep 改放 /tmp 解决不了。
+  - **补丁 A**：`benchmarks/reviewer-suite-v1/arw-patches/codex-0.163-synthetic-mount-targets.patch`，sha256 `c1347209…a476`。只放过报告目录直属、名字恰为这四个之一的真实空目录，每次放过都记一条 stderr 事件，`run_one` 按实例统计 `mount_targets_ignored`。这个补丁不进冻结 manifest，manifest 的 sha 仍是场景 plan 绑定的值；它在 prepare 时由 `harness_patches` 选择应用，应用前后都核对成员 sha，结果写进 `prep/harness-patches.json`。适用于 #1–6 和 #10–12，Claude Code 各臂不使用 ARW runtime，不受影响。
+    - ARW 单测：新增 6 个，覆盖只有空占位目录、占位目录里有文件、名单外的名字、符号链接、额外文件、同名文件；连同 reviewer-runtime 全部 49 个测试通过。
+    - 工程单测：`tests/test_harness_patches.py`，在四个场景源上各应用一次。
+    - 零模型门：`.tmp/bench-openai-1020/mtgate/`，真实 arw_measure 走 OpenAI 路径，脚本化模型，网络命名空间。未打补丁时，占位目录留下的那次判 incomplete；打补丁后，留下的那次判 ready，记录 12 条忽略事件。其余几次占位目录都被 Codex 自己删掉了，结果都是 ready。
+  - **计量修正**（`tools/reviewer/api_relay.py`）：ChatGPT 上游的 SSE 回复不带 Content-Type，relay 因此记不到 model 和 tier，现在不论 Content-Type 都先按 SSE 扫描。426 是 websocket 被设计性拒绝，不再计入 errors。这是计量工具的缺陷修复，不改变被测条件。
+  - **有效判据**（`run_one.checks`，按 §14 跨臂口径）："未完成"指运行时没有正常结束。现在只要 runtime 正常退出（state=exited）且有 completion 记录，就判有效并计分，不管模型自报 ready 还是 incomplete。completion 原因是 ARW 报告绑定被拒时，算 harness 故障，判无效（`harness_rejected`）。
+  - **其他**：arw_measure 因 ARW 错误退出时会留下 runtime daemon，`run_one` 结束时把属于本实例的 daemon 结束掉，并记进 `orphan_daemons_killed`。prep 仍放 /tmp，做法见 `.tmp/bench-openai-1020/prep-review.md`：基目录 `/tmp/qwen-openai-1020`（0700，inode 876755）06:43:01 建好；运行结束后复制回 `<实例>/prep` 并核对 sha，评分只读副本；每个场景结束后审计 denyRead 的覆盖情况。
+  - **运行脚本**：`run_one.py` sha256 `eaf9f11a…16fa`，取代上一条的 `e1984fee…`；`schedule.py` `3d411a61…55d3815b`。
+
 - 2026-10-20 06:40–06:50，#10–12（Codex 上的 Strata）的 ARW prep 改放 /tmp，与 OpenAI 臂同一布局（Main 指示；尚未开跑，没有实例受影响）：
   - **已证实无效，未用于任何正式实例**（Main 10-20 撤回）：OpenAI 臂实测 prep 放 /tmp 后仍出现空目录。真实 ARW 的报告目录嵌在场景仓库（如 `ca/1`）下的 `.tmp/codex/…` 里，扁平布局的 stubtest 覆盖不到。#10–12 暂停，等真实嵌套布局下的成因和修法审查通过。以下为当时的方案记录。
   - **原因**：Codex 0.163.0 的 bubblewrap 在可写根里给受保护的名字建 synthetic mount target，工作区在工程盘且是 git 根时，`.git`、`.codex`、`.agents`、`.aws` 空目录留在报告目录里，ARW 收尾判"报告目录只能有绑定报告"失败。Strata 路径的零模型对照（Strata mock，`.tmp/bench-strata-1019/stubtest/`，仿 `.tmp/bench-openai-1020/stubtest/`）：工程盘 + git 根，报告目录多出这 4 个空目录；工程盘无 git、/tmp + git 根、/tmp 无 git 都不出现。`arw_dimension.prepare` 会把 ARW checkout `git init`，所以 #10–12 的正式路径会撞上。

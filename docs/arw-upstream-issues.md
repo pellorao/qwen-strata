@@ -85,6 +85,13 @@
 - **本工程修改**（2026-10-11）：重开条目时，`reviewFilesystem` 改用 `checkReportBinding(previous, false, recoveryPath)`，也就是原记录的作用域，与条目仍在内存时的路径一致。新交接的文件系统照旧在 `acceptTask` 成功后替换。新交接仍按原样先做 `fresh` 校验。ARW 全套测试的失败集合和未修改时完全相同，都是安装、发布、终端标题类的环境性失败，与本补丁无关。
 - **建议上游**：采用同样的修改。更一般地说，条目的文件系统应当始终和 `entry.record` 描述的任务一致，只有在任务切换（接受新任务）时才一起替换。
 
+### E. Codex 0.163 在报告目录留下 synthetic mount target 空目录，绑定检查判失败（`arw-patches/codex-0.163-synthetic-mount-targets.patch`）
+
+- **现象**（2026-10-20，多模型 benchmark OpenAI 臂）：Codex 0.163.0 的 bubblewrap 沙箱会在每个写授权目录里为受保护的名字（`.git`、`.codex`、`.agents`、`.aws`）建空的挂载占位目录，session 启动后不到 1 秒就出现。正常情况下 Codex 在 turn 结束前会自己删掉，但删除不可靠，有时会留下，留下后进程关闭也不删。ARW 的报告目录正是 Reviewer 唯一的写授权目录，`checkReportBinding` 要求它只含绑定报告，所以完成时判 "The Reviewer report directory must contain only its exact bound report."。CA 正式运行的 10 个实例都受到影响，其中 1 个提前终止。
+- **证据**：`.tmp/bench-openai-1020/stubtest2/`（零模型，真实 CA 嵌套布局的副本，主机每 0.1 秒列一次目录）：13 次运行全部出现占位目录，5 次留到进程关闭以后。哪个目录是写授权，占位目录就出现在哪里，与布局、git、/tmp 无关。把写授权换成报告文件本身时 thread/start 被拒；设 `features.use_legacy_landlock` 时也被拒；设 `features.use_linux_sandbox_bwrap=false` 不起作用。Codex 二进制里有 "synthetic mount registry"、"failed to remove synthetic bubblewrap mount target" 字样。端到端零模型门：`.tmp/bench-openai-1020/mtgate/`（真实 arw_measure 走 OpenAI 路径，脚本化模型，网络命名空间）。未打补丁时，占位目录留下的那次判 incomplete；打补丁后，留下的那次判 ready，并记录了 12 条忽略事件。
+- **本工程修改**：`checkReportBinding` 把报告目录直属、名字恰为这四个之一的真实空目录放过，其余额外条目照旧失败，包括：非空的占位目录、名单外的名字、符号链接、文件、额外文件。每次放过都在 stderr 写一行 `{"event":"codex-synthetic-mount-target-ignored","path":…}`。补丁不在冻结 manifest 里，由调用方在 prepare 时选择应用（`tools.reviewer.freeze_arw_source.HARNESS_PATCHES`，`prepare(..., harness_patches=…)`），核对补丁前后成员的 sha。写权限不变。
+- **建议上游**：绑定检查应能识别 Codex 自建的挂载占位目录；也可以向 Codex 报告：同步删除失败时，至少应在进程退出时把占位目录清掉。
+
 ### B. 能力测量中不要求每实例冷启动
 
 - 本工程以前在每个实例之间停模型、冷启动，以便按引擎日志分段计量。这是本工程自己的旧做法，ARW 本身不这样做（它在整个共享 App Server 期间持有独占，关闭时才归还，也不停模型）。现在本工程也不再停模型，引擎日志按派发时刻分段。

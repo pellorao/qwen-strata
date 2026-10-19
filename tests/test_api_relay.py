@@ -27,7 +27,10 @@ class Upstream(BaseHTTPRequestHandler):
                 {'type':'response.completed','response':{'id':'resp_1','model':'gpt-x','status':'completed',
                  'service_tier':'default','usage':{'input_tokens':9,'output_tokens':2}}}]
         body=''.join('data: '+json.dumps(e)+'\n\n' for e in events).encode()
-        self.send_response(200);self.send_header('Content-Type','text/event-stream')
+        if getattr(self.server,'json_body',False):body=json.dumps({**events[-1]['response'],'object':'response'}).encode()
+        self.send_response(200)
+        ctype=getattr(self.server,'ctype','text/event-stream')
+        if ctype:self.send_header('Content-Type',ctype)
         self.send_header('Content-Length',str(len(body)));self.end_headers();self.wfile.write(body)
 
 
@@ -52,6 +55,23 @@ class RelayTests(unittest.TestCase):
                 self.assertEqual((summary['requests'],summary['websocket_refused'],summary['service_tiers']),(1,1,{'default':1}))
         finally:
             upstream.shutdown();upstream.server_close()
+
+    def test_reply_without_content_type_is_scanned_and_refusal_is_no_error(self):
+        # The ChatGPT backend streams SSE with no Content-Type (2026-10-20); a plain JSON reply still parses.
+        for json_body in (False,True):
+            upstream=ThreadingHTTPServer(('127.0.0.1',0),Upstream);upstream.seen=[];upstream.ctype=None;upstream.json_body=json_body
+            threading.Thread(target=upstream.serve_forever,daemon=True).start()
+            try:
+                with tempfile.TemporaryDirectory()as tmp, Relay(f'http://127.0.0.1:{upstream.server_port}',tmp) as relay:
+                    ws=urllib.request.Request(relay.url+'/responses',headers={'Upgrade':'websocket','Connection':'Upgrade'})
+                    with self.assertRaises(urllib.error.HTTPError):urllib.request.urlopen(ws)
+                    with urllib.request.urlopen(urllib.request.Request(relay.url+'/responses',b'{}',method='POST'))as reply:reply.read()
+                    summary=relay.summary()
+                    self.assertEqual((summary['models'],summary['service_tiers'],summary['errors'],summary['websocket_refused']),
+                                     ({'gpt-x':1},{'default':1},0,1))
+            finally:
+                upstream.shutdown();upstream.server_close()
+        self.assertEqual(tier_summary([{'started_at':1,'status':502}])['errors'],1)
 
     def test_tier_summary_window_and_missing_tier(self):
         rows=[{'started_at':1,'service_tier':'flex'},{'started_at':5,'status':200},{'started_at':9,'service_tier':'default'}]

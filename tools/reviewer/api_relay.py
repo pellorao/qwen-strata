@@ -122,17 +122,17 @@ class Handler(BaseHTTPRequestHandler):
                         self.send_header(key, value)
                 self.send_header('Connection', 'close')
                 self.end_headers()
-                stream = 'event-stream' in kind
+                # The ChatGPT backend streams SSE without a Content-Type (2026-10-20, relayprobe), so every reply is
+                # scanned as SSE first and parsed as one JSON body only when no event was found.
                 read = getattr(reply, 'read1', reply.read)  # read1 returns what has arrived, so events stream through
                 while data := read(CHUNK):
-                    if stream:
-                        fields.feed(data)
-                    elif len(whole) < 4 << 20:
+                    fields.feed(data)
+                    if len(whole) < 4 << 20:
                         whole += data
                     self.wfile.write(data)
                     self.wfile.flush()
             self.close_connection = True
-            values = fields.finish(None if 'event-stream' in kind else whole)
+            values = fields.finish(None if fields.values or 'event-stream' in kind else whole)
             relay.record({'started_at': started, 'ended_at': time.time(), 'method': self.command, 'path': self.path,
                           'status': status, **values})
         except Exception as error:  # the client sees a broken stream; the record says so, without any content
@@ -195,7 +195,9 @@ def tier_summary(rows, since=None, until=None):
             models[row['model']] = models.get(row['model'], 0) + 1
     return {'requests': sum(1 for r in chosen if not r.get('websocket_refused')),
             'websocket_refused': sum(1 for r in chosen if r.get('websocket_refused')),
-            'errors': sum(1 for r in chosen if r.get('transport_error') or (r.get('status') or 0) >= 400),
+            # the 426 WebSocket refusal is the relay's own by-design answer (Codex falls back to HTTP), not an error
+            'errors': sum(1 for r in chosen if not r.get('websocket_refused')
+                          and (r.get('transport_error') or (r.get('status') or 0) >= 400)),
             'service_tiers': tiers, 'models': models,
             'source': 'service_tier and model fields of the provider replies, recorded by tools.reviewer.api_relay'}
 
