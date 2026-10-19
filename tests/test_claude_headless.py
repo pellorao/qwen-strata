@@ -82,6 +82,15 @@ class RunnerBuildersTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 ch.command('deepseek', bad, 'high', self.work, ['report'], s)
 
+    def test_compact_prompt_hook_is_optional(self):
+        hooks, _ = ch.session_hooks(self.base, self.base / 'started', 10)
+        self.assertIn('PreCompact', hooks)
+        hooks, _ = ch.session_hooks(self.base, self.base / 'started', 10, compact=False)
+        self.assertEqual(sorted(hooks), ['PostToolUse'])
+        with self.assertRaises(ValueError):
+            ch.run(self.base / 'r', self.base / 'p.md', 'strata', 'qwen3.8-flash-next-iq3_xxs', 'high', 'x', compact=False,
+                   base=self.base / 'w', record=False)
+
     def test_deepseek_environment_names_the_model_everywhere(self):
         env = ch.environment('deepseek', 'medium', self.base / 'h', self.base / 'c',
                              ch.deepseek_environment('deepseek-flash', 'synthetic'))

@@ -136,12 +136,15 @@ def reminder_time(limit):
     return limit - lead if limit >= 2 * lead else limit / 2
 
 
-def session_hooks(control, started_file, reminder_after):
+def session_hooks(control, started_file, reminder_after, compact=True):
     """The time reminder after tool calls, and the project compact prompt appended to Claude Code's own summary
-    instructions, never replacing them (as qwen-agent does)."""
+    instructions, never replacing them (as qwen-agent does). compact=False leaves Claude Code's own compaction
+    unchanged (multi-model benchmark: the project prompts go to Strata only, user 2026-10-19)."""
     hook, flag = reminder_hook(control, started_file, reminder_after)
-    return {'PostToolUse': [{'matcher': '*', 'hooks': [hook]}],
-            'PreCompact': [{'hooks': [{'type': 'command', 'command': f'cat {COMPACT}'}]}]}, flag
+    hooks = {'PostToolUse': [{'matcher': '*', 'hooks': [hook]}]}
+    if compact:
+        hooks['PreCompact'] = [{'hooks': [{'type': 'command', 'command': f'cat {COMPACT}'}]}]
+    return hooks, flag
 
 
 def settings(work, writes, hooks):
@@ -322,7 +325,9 @@ def account(stream, label, effort, out, estimate=ESTIMATE):
 
 
 def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=HARD_LIMIT, reminder_after=None,
-        startup=True, tools=TOOLS, host=None, run_id=None, base=WORK_BASE, record=True, claude=CLAUDE):
+        startup=True, tools=TOOLS, host=None, run_id=None, base=WORK_BASE, record=True, claude=CLAUDE, compact=True):
+    if backend == 'strata' and not compact:
+        raise ValueError('The Strata arm keeps the project compact prompt (hard constraint 3)')
     out = Path(out).resolve()
     out.mkdir(parents=True, exist_ok=False)
     control = out / 'control'
@@ -334,7 +339,7 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
         (work / name).mkdir(parents=True, exist_ok=True)
     started_file = control / 'started-at.txt'
     reminder_after = reminder_time(limit) if reminder_after is None else reminder_after
-    hooks, flag = session_hooks(control, started_file, reminder_after)
+    hooks, flag = session_hooks(control, started_file, reminder_after, compact)
     session_settings = settings(work, writes, hooks)
     prompt_text = Path(prompt).read_text()
     argv = command(backend, model, effort, work, writes, session_settings, tools, startup, claude)
@@ -343,7 +348,7 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
     binding = {'backend': backend, 'model': model, 'effort': effort, 'label': label, 'work': str(work),
                'writes': list(writes), 'limit_seconds': limit, 'reminder_after_seconds': reminder_after,
                'tools': tools, 'prompt_sha256': hashlib.sha256(prompt_text.encode()).hexdigest(),
-               'compact_prompt_sha256': hashlib.sha256(COMPACT.read_bytes()).hexdigest(),
+               'compact_prompt_sha256': hashlib.sha256(COMPACT.read_bytes()).hexdigest() if compact else None,
                'claude_version': subprocess.run([claude, '--version'], capture_output=True, text=True).stdout.strip()}
     if backend in ('anthropic', 'deepseek'):
         binding['startup_instructions'] = ({'enabled': True, 'placement': '--append-system-prompt',
@@ -437,9 +442,12 @@ if __name__ == '__main__':
     parser.add_argument('--reminder-after', type=float, help='Reminder time in seconds (default ARW: limit - 300).')
     parser.add_argument('--no-startup-prompt', action='store_true',
                         help='D4 no-prompt arm, and every API model run of the multi-model benchmark.')
+    parser.add_argument('--no-compact-prompt', action='store_true',
+                        help='API backends only: no project compact prompt (multi-model benchmark).')
     parser.add_argument('--tools', default=TOOLS)
     parser.add_argument('--host', help='Registered host for the Strata backend.')
     args = parser.parse_args()
     print(json.dumps(run(args.out, args.prompt, args.backend, args.model, args.effort, args.label, args.copy, args.write,
-                         args.limit, args.reminder_after, not args.no_startup_prompt, args.tools, args.host),
+                         args.limit, args.reminder_after, not args.no_startup_prompt, args.tools, args.host,
+                         compact=not args.no_compact_prompt),
                      ensure_ascii=False))
