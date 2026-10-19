@@ -19,7 +19,10 @@ from pathlib import Path
 # Executables and devices that are not observation sources
 SYSTEM_PATHS = ('/usr/bin/', '/bin/', '/usr/local/bin/', '/dev/null', '/dev/stdin',
                 '/dev/stdout', '/dev/stderr', '/usr/bin/env')
-KNOWN_TOOLS = {'exec_command', 'write_stdin', 'apply_patch', 'view_image', 'update_plan'}
+KNOWN_TOOLS = {'exec_command', 'write_stdin', 'apply_patch', 'view_image', 'update_plan', 'exec'}
+# Code-mode models (0.163.0 code_mode_only) call every tool from JavaScript inside `exec`; what actually ran is in the
+# item_completed CommandExecution / FileChange events, checked as their own actions (benchmark §14.3 M6, 2026-10-20).
+CODE_MODE_ITEMS = ('CommandExecution', 'FileChange')
 LINE_CHARS = 300          # command text shown per action line
 FLAGGED_OUTPUT_CHARS = 6000
 ABS_PATH = re.compile(r'(?:^|(?<=[\s\'"=(:,<>]))(/[\w.@+~-]+(?:/[\w.@+~-]*)*)')
@@ -122,6 +125,32 @@ def inspect(session, root=None, allow=()):
             compactions += 1
             if messages and messages[-1]['role'] == 'assistant':
                 messages[-1]['compaction_summary'] = True
+        if e['type'] == 'event_msg' and kind == 'item_completed' and (p.get('item') or {}).get('type') in CODE_MODE_ITEMS:
+            item = p['item']
+            reasons = []
+            if item['type'] == 'CommandExecution':
+                cmd = item.get('command')
+                text = cmd[-1] if isinstance(cmd, list) and len(cmd) == 3 and cmd[1] in ('-lc', '-c') else (
+                    ' '.join(map(str, cmd)) if isinstance(cmd, list) else str(cmd))
+                workdir = (item.get('cwd') or '').removeprefix('file://') or None
+                wd = os.path.normpath(workdir) if workdir else root
+                if workdir and not any(inside(wd, r) for r in (root, *allow)):
+                    reasons.append(f'workdir outside root: {workdir}')
+                reasons += path_reasons(text, wd, root, allow)
+                reasons += [label for rx, label in RISKY if rx.search(text)]
+                output = f"{item.get('aggregated_output') or ''}\nExit code: {item.get('exit_code')}"
+                tool = 'exec>command'
+            else:
+                paths = list((item.get('changes') or {}))
+                text, workdir = 'FileChange ' + ' '.join(paths), None
+                reasons += [f'patch outside root: {x}' for x in paths if not inside(os.path.normpath(x), root)]
+                output = item.get('stdout') or item.get('status') or ''
+                tool = 'exec>file_change'
+            actions.append({'n': len(actions) + 1, 'event': i, 'time': e.get('timestamp', '')[11:19], 'tool': tool,
+                            'workdir': norm(workdir) if workdir else '', 'text': text, 'call_id': item['id'],
+                            'reasons': reasons})
+            outputs[item['id']] = output
+            continue
         if e['type'] != 'response_item':
             continue
         if kind == 'message':

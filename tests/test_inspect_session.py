@@ -57,6 +57,33 @@ class InspectSessionTest(unittest.TestCase):
         self.assertIn('environment or home path', reasons[4])
         self.assertIn('session/credential material', reasons[4])
 
+    def test_code_mode_items_are_checked_as_actions(self):
+        events = [{'type': 'session_meta', 'payload': {'id': 't', 'cwd': ROOT, 'base_instructions': 'x'}},
+                  message('developer', 'role'), message('user', 'ARW messageId: m1\n\nhandoff'),
+                  {'type': 'response_item', 'payload': {'type': 'custom_tool_call', 'name': 'exec', 'call_id': 'x1',
+                                                        'input': 'await tools.exec_command({cmd: "ls"})'}},
+                  {'type': 'event_msg', 'payload': {'type': 'item_completed', 'item': {
+                      'type': 'CommandExecution', 'id': 'i1', 'command': ['/bin/bash', '-lc', f'cat {ROOT}/a'],
+                      'cwd': ROOT, 'aggregated_output': 'ok', 'exit_code': 0}}},
+                  {'type': 'event_msg', 'payload': {'type': 'item_completed', 'item': {
+                      'type': 'CommandExecution', 'id': 'i2', 'command': ['/bin/bash', '-lc', 'cat ~/.codex/auth.json'],
+                      'cwd': '/home/u', 'exit_code': 1}}},
+                  {'type': 'event_msg', 'payload': {'type': 'item_completed', 'item': {
+                      'type': 'FileChange', 'id': 'i3', 'changes': {f'{ROOT}/b': {}, '/home/u/x': {}}}}},
+                  message('assistant', '{"status":"ready"}')]
+        with tempfile.NamedTemporaryFile('w', suffix='.jsonl', delete=False) as f:
+            f.write('\n'.join(json.dumps(e) for e in events))
+        try:
+            r = inspect(f.name)
+        finally:
+            Path(f.name).unlink()
+        mine = [a for a in r['actions'] if a['tool'].startswith('exec>')]
+        self.assertEqual([a['tool'] for a in mine], ['exec>command', 'exec>command', 'exec>file_change'])
+        self.assertEqual(mine[0]['reasons'], [])
+        self.assertIn('workdir outside root', ' '.join(mine[1]['reasons']))
+        self.assertIn('session/credential material', ' '.join(mine[1]['reasons']))
+        self.assertEqual(mine[2]['reasons'], ['patch outside root: /home/u/x'])
+
     def test_credential_values_are_redacted(self):
         jwt = 'eyJhbGciOiJub25lIn0.eyJleHAiOjQxMDI0NDQ4MDB9.c3ludGhldGlj'
         text = redact(f'Bearer abcdefghijklmnopqrst {{"refresh_token": "rt-123456789"}} sk-abcdefghijklmnopqrstuv {jwt} '
