@@ -71,7 +71,7 @@
   - Haiku 不盲裁，只给机械区间，用于 p基准。
 - **p基准**：已登记到 `format-baseline.json`（答案键 `81796f46…`）。
   - Haiku ×5：r 合计 0，T 合计 1058，pooled 0，取下限值 pBase = 0.0094518。
-  - bootstrap 90% 区间 [0.00889, 0.00996]（种子 20261018，10000 次）。
+  - bootstrap 90% 区间 [0.00892, 0.00996]（`bootstrap_interval` 默认种子，10000 次；登记时曾按种子 20261018 写入 0.00889，2026-10-19 改为与函数一致）。
   - 报告存档在 `benchmarks/reviewer-suite-v1/format-baseline/commit-audit-v3/`。
 
 ## 逐实例
