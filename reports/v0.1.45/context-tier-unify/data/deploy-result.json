@@ -1,0 +1,14 @@
+{
+  "host": "rtx3080ti",
+  "files": 23,
+  "read_back_verified": true,
+  "condition": null,
+  "model_configuration_sha256": {
+    "config/q2_0-prebuilt.json": "02c4547d55554af0a41355ad3a6af370453ad0e5421b9cf009002e0761270a2e",
+    "config/iq2_xs-prebuilt.json": "cb4a1002bcb7297cf6d4d64ec010e156f87a8916d2b5ec9a1b0c6b29153ab1da",
+    "config/iq3_xxs-prebuilt.json": "85f37fcbe64a2ba3490ffba8b703f4fbc1fa5b1a1180fe0c942c8efb4247cf76"
+  },
+  "private_file": "installation.private.toml written and verified",
+  "removed": [],
+  "backup": "/home/pello/projects/qwen_strata/.tmp/maintenance-backups/deploy-20261019-144518-791700"
+}

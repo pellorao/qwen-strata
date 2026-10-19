@@ -1,0 +1,53 @@
+{
+ "model": "qwen3.8-flash-next-iq3_xxs",
+ "effort": "high",
+ "window": 206584,
+ "limit": 150000,
+ "blocking_override": true,
+ "effective_limit": 150000,
+ "claimed": 149900,
+ "mid_turn": true,
+ "claude_version": "2.1.303 (Claude Code)",
+ "compacted": false,
+ "expected_compaction": false,
+ "continued": false,
+ "main_requests_after": 1,
+ "exits": [
+  0
+ ],
+ "runs": [
+  {
+   "label": "turn1",
+   "exit": 0,
+   "stdout": "OK.\n",
+   "stderr": "[claude-code:unrecognized_model] {\"model\":\"qwen3.8-flash-next-iq3_xxs\",\"query_source\":\"sdk\"}\n",
+   "requests": [
+    {
+     "n": 1,
+     "path": "/strata/v1/messages?beta=true",
+     "model": "qwen3.8-flash-next-iq3_xxs",
+     "max_tokens": 24576,
+     "messages": 2,
+     "compaction": false,
+     "stream": true,
+     "claimed_input": 149900,
+     "tool_use": true,
+     "at": 1792388455.552842
+    },
+    {
+     "n": 2,
+     "path": "/strata/v1/messages?beta=true",
+     "model": "qwen3.8-flash-next-iq3_xxs",
+     "max_tokens": 24576,
+     "messages": 5,
+     "compaction": false,
+     "stream": true,
+     "claimed_input": 149900,
+     "tool_use": false,
+     "at": 1792388455.58417
+    }
+   ]
+  }
+ ],
+ "ok": true
+}

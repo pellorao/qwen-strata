@@ -1,0 +1,60 @@
+{
+ "window": 156584,
+ "limit": 100000,
+ "claimed": 100100,
+ "blocking_override": true,
+ "claude_version": "2.1.303 (Claude Code)",
+ "turn2_compacted": true,
+ "turn2_main_requests": 1,
+ "runs": [
+  {
+   "label": "turn1",
+   "exit": 0,
+   "stdout": "OK.\n",
+   "stderr": "[claude-code:unrecognized_model] {\"model\":\"qwen3.8-flash-next-iq3_xxs\",\"query_source\":\"sdk\"}\n",
+   "requests": [
+    {
+     "n": 1,
+     "path": "/v1/messages?beta=true",
+     "model": "qwen3.8-flash-next-iq3_xxs",
+     "max_tokens": 24576,
+     "messages": 2,
+     "compaction": false,
+     "stream": true,
+     "claimed_input": 100100,
+     "at": 1792386282.7589135
+    }
+   ]
+  },
+  {
+   "label": "turn2",
+   "exit": 0,
+   "stdout": "OK.\n",
+   "stderr": "[claude-code:unrecognized_model] {\"model\":\"qwen3.8-flash-next-iq3_xxs\",\"query_source\":\"compact\"}\n",
+   "requests": [
+    {
+     "n": 2,
+     "path": "/v1/messages?beta=true",
+     "model": "qwen3.8-flash-next-iq3_xxs",
+     "max_tokens": 24576,
+     "messages": 4,
+     "compaction": true,
+     "stream": true,
+     "claimed_input": 2000,
+     "at": 1792386282.987282
+    },
+    {
+     "n": 3,
+     "path": "/v1/messages?beta=true",
+     "model": "qwen3.8-flash-next-iq3_xxs",
+     "max_tokens": 24576,
+     "messages": 2,
+     "compaction": false,
+     "stream": true,
+     "claimed_input": 100100,
+     "at": 1792386283.004255
+    }
+   ]
+  }
+ ]
+}

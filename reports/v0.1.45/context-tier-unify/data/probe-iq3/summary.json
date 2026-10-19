@@ -1,0 +1,195 @@
+{
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "effort": "high",
+ "tier": {
+  "context_window": 206584,
+  "auto_compact_token_limit": 150000
+ },
+ "blocking_override": true,
+ "claude_version": "2.1.303 (Claude Code)",
+ "agent_environment": {
+  "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+  "CLAUDE_CODE_MAX_CONTEXT_TOKENS": "206584",
+  "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "24576",
+  "CLAUDE_CODE_EFFORT_LEVEL": "high",
+  "CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE": "150000"
+ },
+ "cells": [
+  {
+   "cell": "w206584-l150000-c149900-r1",
+   "way": "two-turn",
+   "repeat": 1,
+   "claimed": 149900,
+   "effective_limit": 150000,
+   "expected_compaction": false,
+   "compacted": false,
+   "continued": false,
+   "exits": [
+    0,
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c150100-r1",
+   "way": "two-turn",
+   "repeat": 1,
+   "claimed": 150100,
+   "effective_limit": 150000,
+   "expected_compaction": true,
+   "compacted": true,
+   "continued": true,
+   "exits": [
+    0,
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c149900-mid-r1",
+   "way": "mid-turn",
+   "repeat": 1,
+   "claimed": 149900,
+   "effective_limit": 150000,
+   "expected_compaction": false,
+   "compacted": false,
+   "continued": false,
+   "exits": [
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c150100-mid-r1",
+   "way": "mid-turn",
+   "repeat": 1,
+   "claimed": 150100,
+   "effective_limit": 150000,
+   "expected_compaction": true,
+   "compacted": true,
+   "continued": true,
+   "exits": [
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c149900-r2",
+   "way": "two-turn",
+   "repeat": 2,
+   "claimed": 149900,
+   "effective_limit": 150000,
+   "expected_compaction": false,
+   "compacted": false,
+   "continued": false,
+   "exits": [
+    0,
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c150100-r2",
+   "way": "two-turn",
+   "repeat": 2,
+   "claimed": 150100,
+   "effective_limit": 150000,
+   "expected_compaction": true,
+   "compacted": true,
+   "continued": true,
+   "exits": [
+    0,
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c149900-mid-r2",
+   "way": "mid-turn",
+   "repeat": 2,
+   "claimed": 149900,
+   "effective_limit": 150000,
+   "expected_compaction": false,
+   "compacted": false,
+   "continued": false,
+   "exits": [
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c150100-mid-r2",
+   "way": "mid-turn",
+   "repeat": 2,
+   "claimed": 150100,
+   "effective_limit": 150000,
+   "expected_compaction": true,
+   "compacted": true,
+   "continued": true,
+   "exits": [
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c149900-r3",
+   "way": "two-turn",
+   "repeat": 3,
+   "claimed": 149900,
+   "effective_limit": 150000,
+   "expected_compaction": false,
+   "compacted": false,
+   "continued": false,
+   "exits": [
+    0,
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c150100-r3",
+   "way": "two-turn",
+   "repeat": 3,
+   "claimed": 150100,
+   "effective_limit": 150000,
+   "expected_compaction": true,
+   "compacted": true,
+   "continued": true,
+   "exits": [
+    0,
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c149900-mid-r3",
+   "way": "mid-turn",
+   "repeat": 3,
+   "claimed": 149900,
+   "effective_limit": 150000,
+   "expected_compaction": false,
+   "compacted": false,
+   "continued": false,
+   "exits": [
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c150100-mid-r3",
+   "way": "mid-turn",
+   "repeat": 3,
+   "claimed": 150100,
+   "effective_limit": 150000,
+   "expected_compaction": true,
+   "compacted": true,
+   "continued": true,
+   "exits": [
+    0
+   ],
+   "ok": true
+  }
+ ],
+ "pass": true
+}

@@ -1,0 +1,94 @@
+{
+ "stage": "X1",
+ "calls": [
+  {
+   "path": "/lease/acquire",
+   "body": {},
+   "at": 1792388921.994378
+  },
+  {
+   "path": "/model/start",
+   "body": {
+    "model": "IQ3_XXS",
+    "context_window": 206584
+   },
+   "at": 1792388931.3393753,
+   "reply": {
+    "status": "running",
+    "model": "qwen3.8-flash-next-iq3_xxs",
+    "reused": true,
+    "max_context": 206584,
+    "startup_instructions": {
+     "path": "config/prompts/startup-instructions.txt",
+     "sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+     "enabled": true,
+     "loop_prevention_enabled": false,
+     "source_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e"
+    }
+   }
+  },
+  {
+   "path": "/lease/release",
+   "body": {},
+   "at": 1792388934.9414475,
+   "reply": {
+    "lease": "free",
+    "model": "qwen3.8-flash-next-iq3_xxs"
+   }
+  }
+ ],
+ "agent_settings": {
+  "tier": {
+   "context_window": 206584,
+   "auto_compact_token_limit": 150000
+  },
+  "arguments": [
+   "exec",
+   "--skip-git-repo-check",
+   "Run `cat note.txt` and reply with exactly the file content, nothing else."
+  ],
+  "model": "\"qwen3.8-flash-next-iq3_xxs\"",
+  "model_reasoning_effort": "\"high\"",
+  "model_context_window": "206584",
+  "model_auto_compact_token_limit": "150000",
+  "experimental_compact_prompt_file": "\"/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next/config/prompts/compact-prompt.txt\""
+ },
+ "started": 1792388921.978209,
+ "finished": 1792388934.9414701,
+ "seconds": 13.0,
+ "exit": 0,
+ "engine_records": [
+  {
+   "input": 9093,
+   "cached": 9088,
+   "uncached": 5,
+   "prompt_ms": 169.0,
+   "output": 55,
+   "decode_ms": 580.0,
+   "log_line": 2
+  },
+  {
+   "input": 9211,
+   "cached": 9149,
+   "uncached": 62,
+   "prompt_ms": 536.0,
+   "output": 85,
+   "decode_ms": 835.0,
+   "log_line": 9
+  }
+ ],
+ "engine_tokens": {
+  "uncached_input": 67,
+  "cached_input": 18237,
+  "output": 140
+ },
+ "engine_rates": {
+  "engine_input_seconds": 0.705,
+  "engine_decode_seconds": 1.415,
+  "engine_input_tokens_per_second": 95.0354609929078,
+  "engine_output_tokens_per_second": 98.9399293286219,
+  "unit": "token/s",
+  "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+ },
+ "note": "SMOKE-d8dff084"
+}

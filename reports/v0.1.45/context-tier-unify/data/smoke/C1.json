@@ -1,0 +1,98 @@
+{
+ "stage": "C1",
+ "calls": [
+  {
+   "path": "/lease/acquire",
+   "body": {},
+   "at": 1792388935.021204
+  },
+  {
+   "path": "/model/start",
+   "body": {
+    "model": "IQ3_XXS",
+    "context_window": 206584
+   },
+   "at": 1792388944.363844,
+   "reply": {
+    "status": "running",
+    "model": "qwen3.8-flash-next-iq3_xxs",
+    "reused": true,
+    "max_context": 206584,
+    "startup_instructions": {
+     "path": "config/prompts/startup-instructions.txt",
+     "sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+     "enabled": true,
+     "loop_prevention_enabled": false,
+     "source_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e"
+    }
+   }
+  },
+  {
+   "path": "/lease/release",
+   "body": {},
+   "at": 1792388953.9019077,
+   "reply": {
+    "lease": "free",
+    "model": "qwen3.8-flash-next-iq3_xxs"
+   }
+  }
+ ],
+ "agent_settings": {
+  "tier": {
+   "context_window": 206584,
+   "auto_compact_token_limit": 150000
+  },
+  "arguments": [
+   "--strict-mcp-config",
+   "--setting-sources",
+   "user",
+   "-p",
+   "Use the Read tool to read note.txt, then reply with exactly its content, nothing else."
+  ],
+  "ANTHROPIC_BASE_URL": "http://192.168.60.212:8000/strata",
+  "ANTHROPIC_MODEL": "qwen3.8-flash-next-iq3_xxs",
+  "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+  "CLAUDE_CODE_MAX_CONTEXT_TOKENS": "206584",
+  "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "24576",
+  "CLAUDE_CODE_EFFORT_LEVEL": "high",
+  "CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE": "150000"
+ },
+ "started": 1792388935.00479,
+ "finished": 1792388953.90193,
+ "seconds": 18.9,
+ "exit": 0,
+ "engine_records": [
+  {
+   "input": 15814,
+   "cached": 0,
+   "uncached": 15814,
+   "prompt_ms": 7378.0,
+   "output": 94,
+   "decode_ms": 871.0,
+   "log_line": 3
+  },
+  {
+   "input": 15958,
+   "cached": 15909,
+   "uncached": 49,
+   "prompt_ms": 322.0,
+   "output": 44,
+   "decode_ms": 385.0,
+   "log_line": 8
+  }
+ ],
+ "engine_tokens": {
+  "uncached_input": 15863,
+  "cached_input": 15909,
+  "output": 138
+ },
+ "engine_rates": {
+  "engine_input_seconds": 7.7,
+  "engine_decode_seconds": 1.256,
+  "engine_input_tokens_per_second": 2060.12987012987,
+  "engine_output_tokens_per_second": 109.87261146496816,
+  "unit": "token/s",
+  "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+ },
+ "note": "SMOKE-d8dff084"
+}

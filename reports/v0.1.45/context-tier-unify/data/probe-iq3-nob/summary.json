@@ -1,0 +1,194 @@
+{
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "effort": "high",
+ "tier": {
+  "context_window": 206584,
+  "auto_compact_token_limit": 150000
+ },
+ "blocking_override": false,
+ "claude_version": "2.1.303 (Claude Code)",
+ "agent_environment": {
+  "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+  "CLAUDE_CODE_MAX_CONTEXT_TOKENS": "206584",
+  "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "24576",
+  "CLAUDE_CODE_EFFORT_LEVEL": "high"
+ },
+ "cells": [
+  {
+   "cell": "w206584-l150000-c183484-nob-r1",
+   "way": "two-turn",
+   "repeat": 1,
+   "claimed": 183484,
+   "effective_limit": 183584,
+   "expected_compaction": false,
+   "compacted": false,
+   "continued": false,
+   "exits": [
+    0,
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c183684-nob-r1",
+   "way": "two-turn",
+   "repeat": 1,
+   "claimed": 183684,
+   "effective_limit": 183584,
+   "expected_compaction": true,
+   "compacted": true,
+   "continued": true,
+   "exits": [
+    0,
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c183484-nob-mid-r1",
+   "way": "mid-turn",
+   "repeat": 1,
+   "claimed": 183484,
+   "effective_limit": 183584,
+   "expected_compaction": false,
+   "compacted": false,
+   "continued": false,
+   "exits": [
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c183684-nob-mid-r1",
+   "way": "mid-turn",
+   "repeat": 1,
+   "claimed": 183684,
+   "effective_limit": 183584,
+   "expected_compaction": true,
+   "compacted": true,
+   "continued": true,
+   "exits": [
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c183484-nob-r2",
+   "way": "two-turn",
+   "repeat": 2,
+   "claimed": 183484,
+   "effective_limit": 183584,
+   "expected_compaction": false,
+   "compacted": false,
+   "continued": false,
+   "exits": [
+    0,
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c183684-nob-r2",
+   "way": "two-turn",
+   "repeat": 2,
+   "claimed": 183684,
+   "effective_limit": 183584,
+   "expected_compaction": true,
+   "compacted": true,
+   "continued": true,
+   "exits": [
+    0,
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c183484-nob-mid-r2",
+   "way": "mid-turn",
+   "repeat": 2,
+   "claimed": 183484,
+   "effective_limit": 183584,
+   "expected_compaction": false,
+   "compacted": false,
+   "continued": false,
+   "exits": [
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c183684-nob-mid-r2",
+   "way": "mid-turn",
+   "repeat": 2,
+   "claimed": 183684,
+   "effective_limit": 183584,
+   "expected_compaction": true,
+   "compacted": true,
+   "continued": true,
+   "exits": [
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c183484-nob-r3",
+   "way": "two-turn",
+   "repeat": 3,
+   "claimed": 183484,
+   "effective_limit": 183584,
+   "expected_compaction": false,
+   "compacted": false,
+   "continued": false,
+   "exits": [
+    0,
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c183684-nob-r3",
+   "way": "two-turn",
+   "repeat": 3,
+   "claimed": 183684,
+   "effective_limit": 183584,
+   "expected_compaction": true,
+   "compacted": true,
+   "continued": true,
+   "exits": [
+    0,
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c183484-nob-mid-r3",
+   "way": "mid-turn",
+   "repeat": 3,
+   "claimed": 183484,
+   "effective_limit": 183584,
+   "expected_compaction": false,
+   "compacted": false,
+   "continued": false,
+   "exits": [
+    0
+   ],
+   "ok": true
+  },
+  {
+   "cell": "w206584-l150000-c183684-nob-mid-r3",
+   "way": "mid-turn",
+   "repeat": 3,
+   "claimed": 183684,
+   "effective_limit": 183584,
+   "expected_compaction": true,
+   "compacted": true,
+   "continued": true,
+   "exits": [
+    0
+   ],
+   "ok": true
+  }
+ ],
+ "pass": true
+}
