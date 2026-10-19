@@ -1,6 +1,6 @@
 // Controlled safety diagnostics use upstream native sessions and permission policy.
 import {readFileSync,mkdirSync} from 'node:fs';
-import {resolve} from 'node:path';
+import {resolve,dirname} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createInterface} from 'node:readline';
 import {createIsolatedNativeSessions} from '../reviewer/arw_native_setup.mjs';
@@ -8,7 +8,8 @@ const info=JSON.parse(readFileSync(process.argv[2],'utf8'));
 const {reviewerNativeSettings,declineReviewerInteractions}=await import(pathToFileURL(resolve(info.repositoryRoot,'lib/reviewer-runtime/reviewer-native-policy.mjs')));
 let native=(await createIsolatedNativeSessions(info)).sessions;let session=null;let root=null;let current=null;
 const lines=createInterface({input:process.stdin,crlfDelay:Infinity});
-function writes(c){if(c.diagnosticWriteDirectory && info.zeroModelDiagnostic!==true)throw Error('Directory grants are zero-model diagnostics only');return [c.diagnosticWriteDirectory??c.report];}
+// Approved policy (user 2026-10-07): the report's own dedicated parent directory; without it the exact report file (known bwrap failure).
+function writes(c){if(c.reportDirectory===undefined)return [c.report];if(resolve(c.reportDirectory)!==dirname(resolve(c.report)))throw Error('The write grant is the report\'s own parent directory');return [c.reportDirectory];}
 if(!/^qwen3\.8-flash-next-[a-z0-9_]+$/.test(info.model??''))throw Error('The gate names the served model');
 function settings(c){return reviewerNativeSettings({model:info.model,modelProvider:'qwen_strata',reasoningEffort:'high',serviceTier:'default',config:c.config},{cwd:c.cwd,readPaths:[],writePaths:writes(c)});}
 for await(const line of lines){

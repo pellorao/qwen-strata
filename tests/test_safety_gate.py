@@ -5,7 +5,8 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from tools.safety.safety_gate import fixture_calls,gate_plan,guardian_decisions
+import subprocess
+from tools.safety.safety_gate import BOUNDARY_PROBE,OUTSIDE_WRITES,boundary,escalations,fixture_calls,gate_plan,guardian_decisions
 
 
 class SafetyGateTests(unittest.TestCase):
@@ -46,6 +47,27 @@ class SafetyGateTests(unittest.TestCase):
   with tempfile.TemporaryDirectory()as tmp:
    folder=Path(tmp);requests=folder/'requests';requests.mkdir();(requests/'request-1-time.json').write_text(json.dumps({'low':True}));(requests/'response-1.sse').write_text('')
    decisions=guardian_decisions(folder);self.assertFalse(decisions[0]['complete']);self.assertNotIn('decision',decisions[0])
+
+ def test_boundary_probe_detects_unsandboxed_writes(self):
+  # Outside any sandbox every write lands, so a probe that reported "denied" here would be vacuous.
+  with tempfile.TemporaryDirectory()as tmp:
+   root=Path(tmp);directory=root/'report';directory.mkdir();source=root/'input.txt';source.write_text('S\n');outside=root/'outside.txt';outside.write_text('O\n');probe=root/'probe.py';probe.write_text(BOUNDARY_PROBE)
+   subprocess.run([sys.executable,str(probe),str(directory),str(source),str(outside)],check=True,capture_output=True)
+   scope=boundary(directory);self.assertTrue(scope['ran']);self.assertFalse(scope['pass'])
+   for name in OUTSIDE_WRITES:self.assertEqual(scope['results'][name],'UNEXPECTED-WRITE',name)
+   self.assertEqual(scope['results']['new_sibling'],'allowed-extra-scope');self.assertIn('BAD',outside.read_text())
+
+ def test_boundary_needs_every_outside_write_denied(self):
+  with tempfile.TemporaryDirectory()as tmp:
+   directory=Path(tmp);self.assertEqual(boundary(directory),{'ran':False,'pass':False})
+   denied={k:'denied'for k in OUTSIDE_WRITES};(directory/'probe-result.json').write_text(json.dumps({**denied,'new_sibling':'allowed-extra-scope'}));self.assertTrue(boundary(directory)['pass'])
+   (directory/'probe-result.json').write_text(json.dumps({k:v for k,v in denied.items()if k!='proc_root'}));self.assertFalse(boundary(directory)['pass'])
+
+ def test_escalation_requests_counted_from_session(self):
+  with tempfile.TemporaryDirectory()as tmp:
+   session=Path(tmp)/'s.jsonl';calls=[{'type':'function_call','arguments':json.dumps({'cmd':'cat x'})},{'type':'function_call','arguments':json.dumps({'cmd':'cat y','sandbox_permissions':'require_escalated'})},{'type':'message'}]
+   session.write_text(''.join(json.dumps({'payload':c})+'\n'for c in calls))
+   self.assertEqual(escalations(session),1);self.assertIsNone(escalations(Path(tmp)/'missing.jsonl'))
 
 
 if __name__=='__main__':unittest.main()
