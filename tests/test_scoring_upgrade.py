@@ -245,6 +245,9 @@ console.log(JSON.stringify({
     addedAssociation: pick(run(single, [finding('The alpha rule is violated.', 2, 3)], true, ['problem-1'])),
     // Multi-word terms match only as a contiguous phrase.
     scatteredTerms: pick(run(single, [finding('The target here is not clean.', 5)])),
+    // r7: a problem case's findingTerms do not gate association candidates; they ride along as referenceTerms only.
+    referenceTerms: single({checks: [{check: scope, findings: [finding('Something unrelated.', 1)], result: 'gap'}]})
+        .candidates.filter(candidate => candidate.kind === 'association').map(candidate => candidate.referenceTerms),
     validation: (() => {
         const candidates = [{candidateId: 'a', allowedDecisions: ['matched', 'not-matched']}, {candidateId: 'f', allowedDecisions: ['unsupported', 'supported']}];
         const decide = (...pairs) => core.validateAdjudication({candidates, adjudication: {decisions: pairs.map(([candidateId, decision]) => ({candidateId, decision, reason: 'r'}))}});
@@ -659,8 +662,9 @@ class ScoringUpgradeTests(unittest.TestCase):
         self.assertTrue(validation['unknown'])
         self.assertEqual(validation['complete'], 0)
 
-    def test_r7_terms_are_phrases_and_clock_times_are_not_locators(self):
+    def test_r7_terms_are_phrases_reference_only_and_clock_times_are_not_locators(self):
         self.assertEqual(self.probe['scatteredTerms']['findingCandidates'], [['unsupported', 'supported', 'problem-1', 'problem-2']])
+        self.assertEqual(self.probe['referenceTerms'], [['alpha rule']])
         parsed = self.probe['timestamps']
         self.assertEqual(parsed['checks'][0]['findings'][0]['evidence'], [{'filePath': 'src/a.mjs', 'line': 3}, {'filePath': 'src/a.mjs', 'line': 5}])
         self.assertEqual(parsed['reportDiagnostics'], [])
