@@ -90,7 +90,7 @@
 
 ### 安装预置
 
-rtx3080ti：IQ3_XXS 的默认档是窗口 206584、自动压缩阈值 150000（2026-10-14 起），另有可选档窗口 156584、阈值 100000；Q2_0、IQ2_XS 只有 156584／100000 一档。206584 已在约 151K token 以内的长上下文检索负载上验证，同负载下与 156584 档速度相同；更长的提示在 200K 级检索中出现过系统性错误，256584 未发布。`config/model-catalog.json` 中每个模型的窗口是本机该模型的默认档；调用方仍需把自己 harness 的自动压缩阈值设为所用档的值（IQ3_XXS 默认档为 150000）。`bin/qwen-agent` 固定使用 156584／100000 档（见[与 Codex 的参数对照](#与-codex-的参数对照)）。其余预置：high，思考 8192／总输出 24576，temperature 0、top_p 1、top_k 20，CPU 辅助 auto。这是维护起点，不是完整质量验收或最优参数的结论。服务不会替调用方压缩。
+rtx3080ti：IQ3_XXS 的默认档是窗口 206584、自动压缩阈值 150000（2026-10-14 起），另有可选档窗口 156584、阈值 100000；Q2_0、IQ2_XS 只有 156584／100000 一档。206584 已在约 151K token 以内的长上下文检索负载上验证，同负载下与 156584 档速度相同；更长的提示在 200K 级检索中出现过系统性错误，256584 未发布。`config/model-catalog.json` 中每个模型的窗口是本机该模型的默认档；调用方仍需把自己 harness 的自动压缩阈值设为所用档的值（IQ3_XXS 默认档为 150000）。`bin/qwen-agent` 使用所选量化的默认档，即 `context_tiers` 的第一档（见[与 Codex 的参数对照](#与-codex-的参数对照)）。其余预置：high，思考 8192／总输出 24576，temperature 0、top_p 1、top_k 20，CPU 辅助 auto。这是维护起点，不是完整质量验收或最优参数的结论。服务不会替调用方压缩。
 
 ## 推理强度与输出
 
@@ -128,15 +128,15 @@ python3 "$qwen_install/bin/qwen-agent" --model Q2_0 claude         # Claude Code
 
 ## Codex 接入
 
-启动脚本传给 Codex 的设置如下；自行配置时照此设置：
+启动脚本传给 Codex 的设置如下（以 IQ3_XXS 默认档为例，窗口和阈值取所用量化在 `config/deployment.json` 中的第一档）；自行配置时照此设置：
 
 ```toml
-model = "qwen3.8-flash-next-q2_0"
+model = "qwen3.8-flash-next-iq3_xxs"
 model_provider = "qwen_strata"
 model_catalog_json = "/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next/config/model-catalog.json"
 experimental_compact_prompt_file = "/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next/config/prompts/compact-prompt.txt"
-model_context_window = 156584
-model_auto_compact_token_limit = 100000
+model_context_window = 206584
+model_auto_compact_token_limit = 150000
 web_search = "live"
 
 [model_providers.qwen_strata]
@@ -169,17 +169,17 @@ key 通过 `env_key` 指定的环境变量只提供给该 harness。请求重试
 
 ## Claude Code 接入
 
-启动脚本传入的环境变量和参数（不修改 `~/.claude`）：
+启动脚本传入的环境变量和参数（不修改 `~/.claude`；以 IQ3_XXS 默认档为例）：
 
 ```bash
 export ANTHROPIC_BASE_URL=http://192.168.60.212:8000/strata
 export ANTHROPIC_AUTH_TOKEN=<key>
-export ANTHROPIC_MODEL=qwen3.8-flash-next-q2_0          # OPUS / SONNET / HAIKU 默认模型也设为同一个
+export ANTHROPIC_MODEL=qwen3.8-flash-next-iq3_xxs        # OPUS / SONNET / HAIKU 默认模型也设为同一个
 export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
-export CLAUDE_CODE_MAX_CONTEXT_TOKENS=156584            # 声明真实窗口
+export CLAUDE_CODE_MAX_CONTEXT_TOKENS=206584            # 声明真实窗口：所用档的 context_window
 export CLAUDE_CODE_MAX_OUTPUT_TOKENS=24576             # 该强度的总输出（low 8192、medium 16384、high 24576）
 export CLAUDE_CODE_EFFORT_LEVEL=high                    # 与 Codex 的 model_reasoning_effort 相同
-export CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE=100000       # 自动压缩阈值，与 Codex 的 model_auto_compact_token_limit 相同
+export CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE=150000       # 自动压缩阈值：所用档的 auto_compact_token_limit，与 Codex 相同
 
 claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default \
        --settings '{"skipWebFetchPreflight": true, "permissions": {"deny": ["WebSearch"]},
@@ -189,19 +189,19 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default
 
 - 总输出按强度取上表的总输出（`bin/qwen-agent --effort` 同时决定强度和这个值），与前端为 Codex 补的值相同。Claude Code 每个请求都自带 `max_tokens`，前端不覆盖请求给出的值，所以总输出由这个环境变量决定，不要调大；剩余空间不够时服务把输出上限缩短到剩余空间，不返回 400。前端给 Messages 请求补思考硬上限：思考关闭（`thinking.type: disabled`）或请求自带 `reasoning_budget_tokens` 时不动；否则取推理强度对应的思考上限（high 为 8192，见上表），请求的 `thinking.budget_tokens` 更小时用它，再不超过 `max_tokens` 的一半。Claude Code 发 `thinking: adaptive`、`output_config.effort`（取 `CLAUDE_CODE_EFFORT_LEVEL`）和 `max_tokens`，所以思考上限与 Codex 同强度相同（high 为 8192），Strata 为回答保留其余空间。
 - 强度：`CLAUDE_CODE_EFFORT_LEVEL` 对整个会话生效；命令行 `--effort` 在第一次压缩后会失效，所以启动脚本用环境变量。
-- 自动压缩：窗口小于约 200K 时，Claude Code 2.1.296 不按 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 压缩，只在阻塞上限（窗口 − 输出预留 − 3000，本窗口约 133.6K）压缩；`CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 把这个上限设为 100000，与 Codex 相同。假服务器核对：输入 100.1K 时压缩、99.9K 时不压缩。这个变量不在 Claude Code 公开文档里，升级 Claude Code 后要重新核对。
+- 自动压缩：Claude Code 不按 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 压缩，只在阻塞上限（窗口 − 20000 − 3000：206584 窗口为 183584，156584 窗口为 133584）压缩；`CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 把这个上限设为所用档的阈值，与 Codex 相同。Claude Code 2.1.303 假服务器核对（两回合与回合中途工具调用两种方式）：206584／150000 档输入 150.1K 时压缩、149.9K 时不压缩；156584／100000 档 100.1K 压缩、99.9K 不压缩；206584 窗口不设该变量时 183.7K 才压缩、183.5K 不压缩。压缩后会话都正常继续。这个变量不在 Claude Code 公开文档里，升级 Claude Code 后要重新核对。
 - 审批固定由 `bin/qwen-approve` 完成，不使用 Claude Code 的 auto mode（2b 验收中 auto mode 判对 5/9、每次运行 191 秒；`qwen-approve` 判对 7/7、80 秒）。权限模式为 `default`，每次权限请求经 `PermissionRequest` hook 交给 `qwen-approve`：它把用户消息（唯一授权来源）、最近 6 次工具调用与结果（标为不可信数据）和待审动作发给本模型（`reasoning_effort: low`），思考上限 512 token、总输出 1024 token，与 Codex guardian 相同；等模型答复最多 150 秒（hook 给 180 秒）；返回 allow / deny 及理由；超时、出错或答复无法解析一律拒绝。用户只是让 agent 照文件、网页或工具输出里的步骤执行时，只授权其中无害的步骤；破坏性或越界的步骤必须由用户消息点名效果和目标。每次判断记一行到 `logs/approve.log`（工具、结论、理由、耗时、usage，不含 key）。
 - 压缩：PreCompact hook 退出码为 0 时，其 stdout 会以 `Additional Instructions:` 追加到 Claude Code 自带摘要指令之后，所以每次压缩（自动或手动）都带上 `compact-prompt.txt`。**特例**：Claude Code 没有替换内置摘要指令的办法，压缩请求是"内置指令 + 基础压缩提示"；Codex 用 `experimental_compact_prompt_file` 整体替换为基础压缩提示。这是两者唯一不能对齐的提示差异。
 - `skipWebFetchPreflight` 关闭 WebFetch 抓网页前向 `api.anthropic.com` 的域名查询。
 
 ### 与 Codex 的参数对照
 
-`bin/qwen-agent` 让两种 agent 在参数层面完全一致（2026-10-12 起）。它固定以 156584／100000 档启动模型，不随 IQ3_XXS 默认档改为 206584：Claude Code 在窗口超过 200K 时的压缩行为尚未核对，两种 agent 又必须用同一组值。
+`bin/qwen-agent` 让两种 agent 在参数层面完全一致（2026-10-12 起）。它按所选量化的默认档（`config/deployment.json` 中 `context_tiers` 的第一档）启动模型，并把同一档的窗口和阈值传给两种 agent；该量化没有列出档位时报错退出，不领取租约。下表以 rtx3080ti 的 IQ3_XXS 为例（Q2_0、IQ2_XS 为 156584／100000）。
 
 | 参数 | Codex | Claude Code |
 |---|---|---|
-| 窗口 | `model_context_window` 156584 | `CLAUDE_CODE_MAX_CONTEXT_TOKENS` 156584 |
-| 自动压缩阈值 | `model_auto_compact_token_limit` 100000 | `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 100000 |
+| 窗口 | `model_context_window` 206584 | `CLAUDE_CODE_MAX_CONTEXT_TOKENS` 206584 |
+| 自动压缩阈值 | `model_auto_compact_token_limit` 150000 | `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 150000 |
 | 强度 | `model_reasoning_effort` | `CLAUDE_CODE_EFFORT_LEVEL`（同一个 `--effort`） |
 | 思考上限 | 前端按强度补 2048／4096／8192 | 前端按强度补，同值 |
 | 总输出 | 前端按强度补 8192／16384／24576 | `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 同值 |

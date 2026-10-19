@@ -21,10 +21,6 @@ import urllib.request
 
 INSTALL = Path(__file__).resolve().parents[1]
 MODELS = {'Q2_0': 'q2_0', 'IQ2_XS': 'iq2_xs', 'IQ3_XXS': 'iq3_xxs'}
-# Both agents run on the 100K tier, not the IQ3_XXS default: Claude Code's compaction with a window above
-# 200K (206584) has not been checked, and the two agents must keep identical limits.
-CONTEXT_WINDOW = 156584
-AUTO_COMPACT = 100000
 # Total output per effort: the totals the frontend fills in for Codex (src/frontend.py EFFORT_BUDGETS).
 # Claude Code always sends its own max_tokens, so it is given the same value here.
 MAX_OUTPUT = {'low': 8192, 'medium': 16384, 'high': 24576}
@@ -51,11 +47,22 @@ class Frontend:
             raise SystemExit(f'qwen-agent: {path} failed with HTTP {error.code}: {message}') from None
 
 
-def codex(frontend, model, effort, arguments):
+def default_tier(model):
+    """The installation's default context tier for the model: the first one deployment.json publishes.
+
+    Both agents get the same window and compaction threshold.  Claude Code 2.1.303 against a fake server
+    compacted at 150.1K but not at 149.9K with the 206584/150000 tier, and at 100.1K but not 99.9K with 156584/100000."""
+    tiers = json.loads((INSTALL / 'config/deployment.json').read_text(encoding='utf-8')).get('context_tiers', {})
+    if not tiers.get(model):
+        raise SystemExit(f'qwen-agent: this installation publishes no context tier for {model}')
+    return tiers[model][0]
+
+
+def codex(frontend, model, effort, tier, arguments):
     config = {
         'model': model, 'model_provider': 'qwen_strata', 'model_reasoning_effort': effort,
         'model_catalog_json': str(INSTALL / 'config/model-catalog.json'),
-        'model_context_window': CONTEXT_WINDOW, 'model_auto_compact_token_limit': AUTO_COMPACT,
+        'model_context_window': tier['context_window'], 'model_auto_compact_token_limit': tier['auto_compact_token_limit'],
         'experimental_compact_prompt_file': str(INSTALL / 'config/prompts/compact-prompt.txt'),
         'web_search': 'live',  # served by the frontend through Brave
         'model_providers.qwen_strata.name': 'Local Strata',
@@ -71,7 +78,7 @@ def codex(frontend, model, effort, arguments):
     return ['codex', *overrides, *arguments], {'QWEN_STRATA_KEY': frontend.key}
 
 
-def claude(frontend, model, effort, arguments):
+def claude(frontend, model, effort, tier, arguments):
     # Nothing may fall back to Anthropic services: search comes from the Brave MCP server,
     # WebFetch skips its Anthropic domain lookup, and approvals run on this model.
     # A PreCompact hook's stdout is appended to Claude Code's own summary instructions: the project
@@ -94,13 +101,12 @@ def claude(frontend, model, effort, arguments):
         'ANTHROPIC_DEFAULT_SONNET_MODEL': model, 'ANTHROPIC_DEFAULT_HAIKU_MODEL': model,
         'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC': '1',
         # Unknown models are assumed to have a 200K window; declare the real limits.
-        'CLAUDE_CODE_MAX_CONTEXT_TOKENS': str(CONTEXT_WINDOW), 'CLAUDE_CODE_MAX_OUTPUT_TOKENS': str(MAX_OUTPUT[effort]),
+        'CLAUDE_CODE_MAX_CONTEXT_TOKENS': str(tier['context_window']), 'CLAUDE_CODE_MAX_OUTPUT_TOKENS': str(MAX_OUTPUT[effort]),
         # The same effort as Codex; --effort would last only until the first compaction.
         'CLAUDE_CODE_EFFORT_LEVEL': effort,
-        # Compact at Codex's threshold.  Below a 200K window Claude Code 2.1.296 compacts only at its blocking
-        # limit (window - output reserve - 3000, about 133.6K here) and ignores CLAUDE_AUTOCOMPACT_PCT_OVERRIDE;
-        # this sets that limit, and a fake server showed compaction at 100.1K but not at 99.9K.
-        'CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE': str(AUTO_COMPACT),
+        # Compact at Codex's threshold.  Claude Code compacts only at its blocking limit (window - 20000 - 3000:
+        # 183584 for 206584, 133584 for 156584) and ignores CLAUDE_AUTOCOMPACT_PCT_OVERRIDE; this sets that limit.
+        'CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE': str(tier['auto_compact_token_limit']),
     }
     return ['claude', *options, *arguments], environment
 
@@ -113,6 +119,7 @@ def main():
     parser.add_argument('arguments', nargs=argparse.REMAINDER)
     args = parser.parse_args()
     model = 'qwen3.8-flash-next-' + MODELS[args.model]
+    tier = default_tier(args.model)  # before the lease, so a missing tier holds nothing
     frontend = Frontend()
     # A closed terminal or kill must still reach the release below.
     for name in ('SIGHUP', 'SIGTERM'):
@@ -120,16 +127,12 @@ def main():
     frontend.key = frontend.call('/lease/acquire', {})['key']
     try:
         print(f'qwen-agent: starting {args.model}...', file=sys.stderr, flush=True)
-        tiers = json.loads((INSTALL / 'config/deployment.json').read_text(encoding='utf-8')).get('context_tiers', {})
-        start = {'model': args.model}
-        if any(t['context_window'] == CONTEXT_WINDOW for t in tiers.get(args.model, [])):
-            start['context_window'] = CONTEXT_WINDOW  # a model without published tiers runs its only window
-        if frontend.call('/model/start', start).get('reused'):
+        if frontend.call('/model/start', {'model': args.model, 'context_window': tier['context_window']}).get('reused'):
             print('qwen-agent: reusing the loaded model', file=sys.stderr, flush=True)
         if args.agent == 'codex':
-            command, environment = codex(frontend, model, args.effort, args.arguments)
+            command, environment = codex(frontend, model, args.effort, tier, args.arguments)
         else:
-            command, environment = claude(frontend, model, args.effort, args.arguments)
+            command, environment = claude(frontend, model, args.effort, tier, args.arguments)
         env = {k: v for k, v in os.environ.items() if not k.startswith(('ANTHROPIC_', 'OPENAI_'))}
         process = subprocess.Popen(command, env=dict(env, **environment))
         while True:
