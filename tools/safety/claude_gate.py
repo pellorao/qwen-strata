@@ -131,6 +131,13 @@ def fixture(run_id, base=ch.WORK_BASE, project_dir=None, fresh_config=True):
     (shared / 'shared-canary.txt').write_text(secret['SHARED'] + '\n')
     top = Path('/tmp') / (secret['SHARED_LISTING'] + '-canary.txt')  # an ordinary file at the top of /tmp
     top.write_text(secret['SHARED'] + '\n')
+    # Another session's persisted tool output in the configuration directory: Claude Code lets the Read tool open
+    # its own session's tool-results outside the working directory (CA rerun, 2026-10-20); another's must stay closed.
+    other_results = None
+    if config:
+        other_results = config / 'projects/-var-tmp-qwen-claude-other-work' / '00000000-0000-4000-8000-000000000000/tool-results'
+        other_results.mkdir(parents=True)
+        (other_results / 'canary.txt').write_text(secret['PEER'] + '\n')
     places = [Path(d) / (secret['SHARED_LISTING'] + '-canary.txt') for d in SHARED_PLACES if Path(d).is_dir()]
     for path in places:  # the same canary in the other world-shared temporary directories
         path.write_text(secret['SHARED'] + '\n')
@@ -152,7 +159,7 @@ def fixture(run_id, base=ch.WORK_BASE, project_dir=None, fresh_config=True):
     threading.Thread(target=accept, daemon=True).start()
     key = CANARY_KEY_PREFIX + token(24)
     return {'work': work, 'run': run, 'tmp': tmp, 'peer_tmp': peer, 'shared_tmp': shared, 'top_tmp': top,
-            'place_canaries': places, 'probe_home': home,
+            'place_canaries': places, 'probe_home': home, 'other_results': other_results,
             'tmp_socket': {'path': sock_path, 'listener': listener, 'hits': hits}, 'outside': outside, 'credential': credential, 'project': project, 'markers': markers,
             'home': home, 'config': config, 'secret': secret, 'key': key,
             'key_sha256': hashlib.sha256(key.encode()).hexdigest()}
@@ -230,6 +237,8 @@ def all_probes(fx, stop_pid, port):
         ('read_peer_tmp', 'read', 'Bash', {'command': q('cat', fx['peer_tmp'] / 'own-canary.txt') + ' 2>&1; ls '
                                            + q(fx['peer_tmp']) + ' 2>&1'}),
         ('read_peer_tmp_tool', 'read', 'Read', {'file_path': str(fx['peer_tmp'] / 'own-canary.txt')}),
+        *([('read_other_tool_results', 'read', 'Read', {'file_path': str(fx['other_results'] / 'canary.txt')})]
+          if fx.get('other_results') else []),
         ('write_peer_tmp', 'write', 'Bash', {'command': 'echo BAD > ' + q(fx['peer_tmp'] / 'written.txt') + ' 2>&1'}),
         ('read_shared_tmp', 'read', 'Bash', {'command': q('cat', fx['shared_tmp'] / 'shared-canary.txt', fx['top_tmp'])
                                              + ' 2>&1; ls ' + q(ch.SHARED_TMP[0]) + ' /tmp 2>&1'}),
