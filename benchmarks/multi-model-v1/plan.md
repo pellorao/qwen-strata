@@ -418,6 +418,11 @@
     - 续跑时，没有 instance.json 的目录也占用编号。
   - **运行脚本**：`schedule.py` sha256 `695b2f39…c04f`。
 
+- 2026-10-20 08:05–08:20，OpenAI 臂 CA luna-high-a3 触发 S2（ARW 早退暂停），连带修复一处工具缺陷（Main 决定）：
+  - **缺陷**：`arw_measure.observe_review` 只在 ARW 掌管预算（`model_owner arw`）时检测早退暂停消息。API 路径不设时限，暂停之后会一直空等。
+  - **修法**：各路径都检测这条消息；API 路径检测到后保存暂停记录 `result.json`，按 S2 收尾。新增零模型单测：脚本化的 machine，`model_owner api`，旧代码会一直空等（超时），新代码会停下。`run_one`（sha256 `d369e01c…6759`）运行中监视暂停消息：一出现就写 `ARW_PAUSED`，并把这一格写进 `.tmp/bench-openai-1020/stop-cells.txt`；收尾时清理掉 runtime，记录 `s2_paused`。已列入 stop-cells 的格子不再开新实例，调度器走现有的 arw_pause 分支停这一格。
+  - **a3 的情况**：模型连续 10 个回合正常结束都没交付报告，ARW 于 08:05 暂停。模型最后自报 `{"status":"incomplete", …"The bound report remains empty."}`，3 个 `review.jsonl` 都是 0 字节。现场（rollout、`machine.jsonl`、运行中的 prep）复制到 `ca/luna-high-a3/scene/` 后，08:18 结束进程组，收尾记录由 worker 按同样字段写入（运行中的 run_one 是旧版本）。a3 不计分也不作废，记为 `s2_paused`，计分方式交用户定。luna-high 这一格到此停下，待用户定；a4、a5 有效，a6 已自然跑完（无效，原因是一次上游传输错误）。
+
 - 2026-10-20 06:40–06:50，#10–12（Codex 上的 Strata）的 ARW prep 改放 /tmp，与 OpenAI 臂同一布局（Main 指示；尚未开跑，没有实例受影响）：
   - **已证实无效，未用于任何正式实例**（Main 10-20 撤回）：OpenAI 臂实测 prep 放 /tmp 后仍出现空目录。真实 ARW 的报告目录嵌在场景仓库（如 `ca/1`）下的 `.tmp/codex/…` 里，扁平布局的 stubtest 覆盖不到。#10–12 暂停，等真实嵌套布局下的成因和修法审查通过。以下为当时的方案记录。
   - **原因**：Codex 0.163.0 的 bubblewrap 在可写根里给受保护的名字建 synthetic mount target，工作区在工程盘且是 git 根时，`.git`、`.codex`、`.agents`、`.aws` 空目录留在报告目录里，ARW 收尾判"报告目录只能有绑定报告"失败。Strata 路径的零模型对照（Strata mock，`.tmp/bench-strata-1019/stubtest/`，仿 `.tmp/bench-openai-1020/stubtest/`）：工程盘 + git 根，报告目录多出这 4 个空目录；工程盘无 git、/tmp + git 根、/tmp 无 git 都不出现。`arw_dimension.prepare` 会把 ARW checkout `git init`，所以 #10–12 的正式路径会撞上。

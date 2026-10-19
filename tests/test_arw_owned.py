@@ -24,6 +24,25 @@ class ArwOwnedTests(unittest.TestCase):
             self.assertEqual(result['arw_pause']['notification'], pause)
             self.assertFalse(result['complete'])
 
+    def test_pause_message_stops_an_untimed_api_observation_too(self):
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            record = {'accepted': {'runId': 'run', 'messageId': 'm'}, 'role': 'commit-audit-reviewer', 'instanceId': 'i',
+                      'started_at': 10, 'selection': {'model_owner': 'api'}}
+            pause = {'type': 'message', 'sequence': 34, 'text': ARW_PAUSE_PREFIX + '10 normally completed turns ...'}
+            calls = []
+            class Machine:
+                def call(self, operation, value, **kwargs):
+                    calls.append(operation)
+                    if operation == 'wait_agent':
+                        return {'cursor': 1}
+                    assert operation == 'list_agents', operation
+                    return {'runId': 'run', 'state': 'idle', 'taskState': 'working', 'completion': None,
+                            'notifications': [pause] if len(calls) > 2 else [], 'measurement': {}}
+            result = observe_review(Machine(), record, folder)
+            self.assertEqual(result['arw_pause']['notification'], pause)
+            self.assertFalse(result['complete'])
+
     def test_followup_waits_for_the_original_task_instead_of_abandoning_on_busy(self):
         busy = RuntimeError(json.dumps({'code': 'reviewer-busy', 'message': 'The original Reviewer is still executing.'}))
 

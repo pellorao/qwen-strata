@@ -360,16 +360,16 @@ def observe_review(machine,record,folder,*,continuation_start_timeout=120):
         result=machine.call('list_agents',{'runId':run_id})
         save(folder/'latest.json',result)
         if native_start is None:native_start=native_work_start(result)
-        if arw_owned:
-            # ARW enforces the work budget itself; its early-exit pause waits for the user.
-            pause=next((n for n in result.get('notifications',[]) if n.get('type')=='message'
-                        and str(n.get('text','')).startswith(ARW_PAUSE_PREFIX)),None)
-            if pause:
-                record['arw_pause']={'at':time.time(),'notification':pause}
-                record['runtime_result']=result;record['measurement']=result.get('measurement',{})
-                record['tokens']=native_tokens(record['measurement']);record['complete']=False
-                break
-        else:deadline.advance(machine,result)
+        # ARW's early-exit pause waits for the user on every path (plan S2). On the API path it was checked only
+        # when ARW owned the budget, so an untimed API run waited on it forever (2026-10-20, CA luna-high-a3).
+        pause=next((n for n in result.get('notifications',[]) if n.get('type')=='message'
+                    and str(n.get('text','')).startswith(ARW_PAUSE_PREFIX)),None)
+        if pause:
+            record['arw_pause']={'at':time.time(),'notification':pause}
+            record['runtime_result']=result;record['measurement']=result.get('measurement',{})
+            record['tokens']=native_tokens(record['measurement']);record['complete']=False
+            break
+        if not arw_owned:deadline.advance(machine,result)
         if record.get('selection',{}).get('command_loop_guard',{}).get('enabled'):
             from tools.loop.command_loop_guard import observe_command_loops
             observe_command_loops(machine,record,result,folder)
@@ -747,6 +747,7 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None,cod
             record=execute_review(machine,source,preparation,handoff,folder,selection,catalog,
                 {'runtime_installation':str(native_install),'model_owner':'api'})
             if record.get('arw_pause'):
+                save(folder/'result.json',record)  # the paused record stays for the user (S2)
                 raise RuntimeError('ARW paused the Reviewer task after repeated early exits; the user decides how to continue')
             if record['runtime_result'].get('state') in ('starting','running','working','unknown'):
                 raise RuntimeError('Current native work is not terminal; preserve the ARW runtime for recovery')
