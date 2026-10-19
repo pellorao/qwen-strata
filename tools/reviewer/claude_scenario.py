@@ -12,10 +12,14 @@ Each handoff's record gets `checks`: the returned model IDs against the bound ID
 refusal fallback to another model fails it), service tiers (S5), server web requests, startup prompt off, and a normal
 end (a stop at the hard limit stays valid; an API or transport error does not). With `--time-limit-seconds T` the
 hard stop is T and the reminder comes at ARW's lead before it.
+`--backend strata --host <id>` runs the served model through claude_headless's Strata arm (lease, cold start with the
+installation defaults, engine-log tokens; the startup prompt by the service, the compact prompt by PreCompact): its
+checks replace "startup prompt off" with the two prompt SHA-256 the run actually loaded (plan §14) and the thinking
+budget and output limit the native service applied to every request (plan §2.1).
 
     python3 -m tools.reviewer.claude_scenario --plan <plan.json> --out .tmp/<work>/<run> --model claude-opus-5-5 \\
         --effort high --label <label> --claude <binary> --no-startup-prompt --no-compact-prompt [--handoffs 2]
-        [--time-limit-seconds T] [--limit S] [--dry-run]
+        [--time-limit-seconds T] [--limit S] [--dry-run] [--backend strata --host <id>]
 """
 import argparse
 import hashlib
@@ -74,8 +78,17 @@ def stage(handoff, prompt, work, stage_dir):
     return prompt, {'rewritten_requests': rewritten, 'host_relative_replaced': hosts, 'report': relative}
 
 
-def checks(result, model, startup, report_dir=None):
-    """Per-run validity: plan §2 model match (exact or a date suffix), §3 tiers, search and startup prompt."""
+def strata_expected(effort):
+    """Strata arm: the prompt SHA-256 the service and the PreCompact hook must load, and §2.1's effort limits."""
+    from frontend import EFFORT_BUDGETS  # src/ is on the path (claude_headless)
+    budget, total = EFFORT_BUDGETS[effort]
+    return {'startup_sha256': ch.startup_text()[1], 'compact_sha256': hashlib.sha256(ch.COMPACT.read_bytes()).hexdigest(),
+            'thinking_budget': min(budget, total // 2), 'max_tokens': total}
+
+
+def checks(result, model, startup, report_dir=None, strata=None, binding=None):
+    """Per-run validity: plan §2 model match (exact or a date suffix), §3 tiers, search and startup prompt.
+    `strata` (strata_expected) checks the Strata arm's loaded prompts (from the run's `binding`) and output limits."""
     summary = result.get('summary') or {}
     returned = sorted({*(summary.get('modelUsage') or {}), *([summary['init']['model']] if summary.get('init') else [])})
     pattern = re.compile(re.escape(model) + r'(-\d{4}-\d{2}-\d{2}|-\d{8})?')
@@ -93,13 +106,23 @@ def checks(result, model, startup, report_dir=None):
     out['unexpected_changes'] = [f for f in result.get('changed_files') or []
                                  if not (report_dir and f.startswith(report_dir + '/')) and not HARNESS_STUBS.fullmatch(f)]
     out['ended_normally'] = out['completed'] or bool(result.get('hard_interrupt'))
-    out['valid'] = (out['model_match'] and out['tier_ok'] and out['server_web_requests'] == 0 and out['startup_prompt_off']
+    prompts_ok = out['startup_prompt_off']
+    if strata:
+        loaded = {'startup_sha256': ((binding or {}).get('startup_instructions') or {}).get('sha256'),
+                  'compact_sha256': (binding or {}).get('compact_prompt_sha256')}
+        limits = result.get('output_limits') or {}
+        del out['startup_prompt_off']
+        out.update(prompts=loaded, prompts_ok=all(loaded[k] == strata[k] for k in loaded), output_limits=limits,
+                   output_limits_ok=limits.get('max_tokens') == [strata['max_tokens']]
+                   and limits.get('thinking_budgets') in ([], [strata['thinking_budget']]))
+        prompts_ok = out['prompts_ok'] and out['output_limits_ok']
+    out['valid'] = (out['model_match'] and out['tier_ok'] and out['server_web_requests'] == 0 and prompts_ok
                     and out['ended_normally'])
     return out
 
 
 def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_LIMIT, time_limit=None,
-        startup=False, compact=False, dry_run=False, backend='anthropic'):
+        startup=False, compact=False, dry_run=False, backend='anthropic', host=None):
     from tools.tuning.arw_dimension import load_plan, prepare
     if time_limit is not None:
         limit = time_limit  # the note's limit is the hard stop; the reminder follows ARW's lead (reminder_time)
@@ -125,7 +148,7 @@ def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_
             records.append(record)
             continue
         result = ch.run(out / f'h{k}', out / f'prompt-h{k}.md', backend, model, effort, f'{label} h{k}', copies,
-                        [report_dir], limit, startup=startup, run_id=run_id, claude=claude, compact=compact)
+                        [report_dir], limit, startup=startup, run_id=run_id, claude=claude, compact=compact, host=host)
         produced = out / f'h{k}' / 'outputs' / report_dir / Path(staging['report']).name
         if produced.exists():
             target = Path(handoff['input']['reportPath'])
@@ -133,7 +156,14 @@ def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_
             shutil.copyfile(produced, target)
         record.update(report_exists=produced.exists(),
                       report_sha256=hashlib.sha256(produced.read_bytes()).hexdigest() if produced.exists() else None,
-                      wall_seconds=result.get('wall_seconds'), checks=checks(result, model, startup, report_dir))
+                      wall_seconds=result.get('wall_seconds'))
+        if backend == 'strata':
+            binding = json.loads((out / f'h{k}' / 'binding.json').read_text())
+            record.update(checks=checks(result, model, startup, report_dir, strata_expected(effort), binding),
+                          engine_tokens=result.get('engine_tokens'), strata_release=binding.get('strata_release'),
+                          load_seconds=binding.get('load_seconds'), model_environment=binding.get('model_environment'))
+        else:
+            record['checks'] = checks(result, model, startup, report_dir)
         records.append(record)
         save(out / 'instance.json', {'plan': str(plan_path), 'model': model, 'effort': effort, 'label': label,
                                      'handoffs': records})
@@ -157,8 +187,11 @@ if __name__ == '__main__':
     parser.add_argument('--no-startup-prompt', action='store_true')
     parser.add_argument('--no-compact-prompt', action='store_true')
     parser.add_argument('--dry-run', action='store_true', help='Prepare and stage only; no model run.')
+    parser.add_argument('--backend', choices=('anthropic', 'strata'), default='anthropic')
+    parser.add_argument('--host', help='Registered host for the Strata backend.')
     args = parser.parse_args()
     ch.pinned_binary(args.claude)
     print(json.dumps(run(args.plan, args.out, args.model, args.effort, args.label, args.claude, args.handoffs, args.limit,
-                         args.time_limit_seconds, not args.no_startup_prompt, not args.no_compact_prompt, args.dry_run),
+                         args.time_limit_seconds, not args.no_startup_prompt, not args.no_compact_prompt, args.dry_run,
+                         args.backend, args.host),
                      ensure_ascii=False))

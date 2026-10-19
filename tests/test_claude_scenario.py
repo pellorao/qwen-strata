@@ -54,6 +54,31 @@ class ClaudeScenarioTest(unittest.TestCase):
         failed = dict(result, exit=1)
         self.assertFalse(cs.checks(failed, 'claude-opus-5-5', False)['valid'])
 
+    def test_strata_checks_loaded_prompts_and_output_limits(self):
+        from tools.reviewer import claude_headless as ch
+        log = ('[strata] thinking: 53 of budget 2048 (max 8192) tokens, 66.2 tok/s, 5 s\n'
+               '[strata] writing a tool call: Read: 1466 of max 8192 tokens, 86.1 tok/s, 21 s\n'
+               '[strata] answering: 334 of max 8192 tokens, 91.6 tok/s, 4 s\n')
+        self.assertEqual(ch.output_limits(log), {'thinking_budgets': [2048], 'max_tokens': [8192]})
+        expected = cs.strata_expected('low')
+        self.assertEqual((expected['thinking_budget'], expected['max_tokens']), (2048, 8192))
+        self.assertEqual(cs.strata_expected('high')['max_tokens'], 24576)
+        result = {'exit': 0, 'hard_interrupt': False, 'output_limits': ch.output_limits(log),
+                  'summary': {'result_event': True, 'is_error': False, 'init': {'model': 'qwen3.8-flash-next-iq3_xxs'},
+                              'modelUsage': {'qwen3.8-flash-next-iq3_xxs': {}}, 'service_tiers': {'not-returned': 4},
+                              'server_web_requests': 0}}
+        binding = {'startup_instructions': {'sha256': expected['startup_sha256']},
+                   'compact_prompt_sha256': expected['compact_sha256']}
+        out = cs.checks(result, 'qwen3.8-flash-next-iq3_xxs', True, None, expected, binding)
+        self.assertTrue(out['valid'])
+        self.assertNotIn('startup_prompt_off', out)
+        self.assertFalse(cs.checks(result, 'qwen3.8-flash-next-iq3_xxs', True, None, cs.strata_expected('medium'),
+                                   binding)['valid'])
+        wrong = dict(binding, compact_prompt_sha256='0' * 64)
+        self.assertFalse(cs.checks(result, 'qwen3.8-flash-next-iq3_xxs', True, None, expected, wrong)['valid'])
+        # Without the Strata expectation a run that loaded the startup prompt stays invalid (the API arms' rule).
+        self.assertFalse(cs.checks(result, 'qwen3.8-flash-next-iq3_xxs', True)['valid'])
+
 
 if __name__ == '__main__':
     unittest.main()

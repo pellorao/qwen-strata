@@ -76,6 +76,9 @@ DEEPSEEK_MODEL = re.compile(r'deepseek-[a-z0-9][a-z0-9.-]*')
 # Every variable that names a model for some request kind; all of them name the DeepSeek model.
 DEEPSEEK_MODEL_VARIABLES = ('ANTHROPIC_MODEL', 'ANTHROPIC_SMALL_FAST_MODEL', 'ANTHROPIC_DEFAULT_OPUS_MODEL',
                             'ANTHROPIC_DEFAULT_SONNET_MODEL', 'ANTHROPIC_DEFAULT_HAIKU_MODEL', 'CLAUDE_CODE_SUBAGENT_MODEL')
+# Strata arm: qwen-agent's model variables whose values go into the binding (never the lease key or the frontend URL).
+MODEL_ENVIRONMENT_RECORDED = ('ANTHROPIC_MODEL', 'CLAUDE_CODE_MAX_CONTEXT_TOKENS', 'CLAUDE_CODE_MAX_OUTPUT_TOKENS',
+                              'CLAUDE_CODE_EFFORT_LEVEL', 'CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE')
 
 
 def workspace(run_id, base=WORK_BASE):
@@ -448,6 +451,7 @@ def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file,
     config_dir.mkdir()
     with measurement_host.controller(out / 'controller') as owner:
         offset = log_offset(measurement_host.installation, quantization, measurement_host)
+        service_offset = measurement_host.log_offset()
         try:
             options = {'model': quantization, 'context_window': tier['context_window']}
             if not startup:
@@ -456,9 +460,11 @@ def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file,
             loaded = state['native_health'].get('startup_instructions')
             if startup:
                 verify_loaded_startup(loaded, startup_text()[1])
-            binding.update(startup_instructions=loaded, context_tier=tier, load_seconds=load,
-                           measurement_host=measurement_host.metadata())
             strata = strata_environment(owner.base, owner.key, model, effort, tier)
+            binding.update(startup_instructions=loaded, context_tier=tier, load_seconds=load,
+                           measurement_host=measurement_host.metadata(),
+                           strata_release=measurement_host.installed_release(),
+                           model_environment={k: v for k, v in strata.items() if k in MODEL_ENVIRONMENT_RECORDED})
             env = environment('strata', effort, home, config_dir, strata)
             save(out / 'environment-names.json', sorted(env))
             save(out / 'binding.json', binding)
@@ -467,9 +473,18 @@ def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file,
             stopped, stages, tokens = stop_and_capture_engine_log(owner, measurement_host.installation, quantization,
                                                                   offset, out, measurement_host)
             save(out / 'engine-stop.json', stopped)
-    result.update(engine_requests=stages, engine_tokens=tokens,
+            service = measurement_host.log_bytes_since(None, service_offset).decode(errors='replace')
+            (out / 'service-log.txt').write_text(service)
+    result.update(engine_requests=stages, engine_tokens=tokens, output_limits=output_limits(service),
                   token_consumption_source='engine log segment of this run (API usage in the stream is diagnostic only)')
     return result
+
+
+def output_limits(service_log):
+    """The thinking budgets and output limits the native service applied to this run's requests, from its progress
+    lines ("thinking: n of budget B (max M) tokens", "... of max M tokens"): plan §14 checks them per instance."""
+    return {'thinking_budgets': sorted({int(b) for b in re.findall(r'of budget (\d+) \(max \d+\)', service_log)}),
+            'max_tokens': sorted({int(m) for m in re.findall(r'\(?max (\d+)\)? tokens', service_log)})}
 
 
 def parse_copy(value):
