@@ -6,6 +6,8 @@ import re
 import tomllib
 
 ROOT = Path(__file__).resolve().parents[2]
+# Every quantization the project knows; a host serves exactly one of them (its `models` entry, user 2026-10-19).
+# Overrides, environment and tiers of the others stay in the host file as unpublished data.
 MODELS = ('Q2_0', 'IQ2_XS', 'IQ3_XXS')
 MODEL_PORT = 8100
 PUBLIC_FIELDS = {'schema_version', 'id', 'cuda_arch', 'models', 'engine_overrides', 'model_overrides', 'model_environment', 'hardware',
@@ -42,18 +44,18 @@ def load_host(identifier, project=None, condition=None):
     if type(value.get('cuda_arch')) is not int or value['cuda_arch'] <= 0:
         raise ValueError('Deployment needs its actual CUDA architecture')
     models = value.get('models')
-    if not isinstance(models, list) or not models or set(models) - set(MODELS) or len(set(models)) != len(models):
-        raise ValueError('Invalid installed model selection')
+    if not isinstance(models, list) or len(models) != 1 or set(models) - set(MODELS):
+        raise ValueError('A host serves exactly one known model')
     if not isinstance(value.get('engine_overrides'), dict):
         raise ValueError('engine_overrides must be an object')
     per_model = value.setdefault('model_overrides', {})
-    if (not isinstance(per_model, dict) or set(per_model) - set(models)
+    if (not isinstance(per_model, dict) or set(per_model) - set(MODELS)
             or not all(isinstance(v, dict) for v in per_model.values())):
-        raise ValueError('model_overrides maps installed models to engine overrides tuned for that model')
+        raise ValueError('model_overrides maps known models to engine overrides tuned for that model')
     environment = value.setdefault('model_environment', {})
-    if (not isinstance(environment, dict) or set(environment) - set(models)
+    if (not isinstance(environment, dict) or set(environment) - set(MODELS)
             or not all(isinstance(v, dict) for v in environment.values())):
-        raise ValueError('model_environment maps installed models to engine environment tuned for that model')
+        raise ValueError('model_environment maps known models to engine environment tuned for that model')
     defaults = value.get('installation_defaults', {})
     if not isinstance(defaults, dict) or set(defaults) - INSTALLATION_DEFAULTS:
         raise ValueError('Unsupported per-host installation defaults')
@@ -61,12 +63,12 @@ def load_host(identifier, project=None, condition=None):
     if guardian != [None, None] and not all(type(v) is int and v > 0 for v in guardian):
         raise ValueError('Guardian defaults need both a thinking budget and a total output limit')
     tiers = value.setdefault('context_tiers', {})
-    if not isinstance(tiers, dict) or set(tiers) - set(models) or not all(
+    if not isinstance(tiers, dict) or set(tiers) - set(MODELS) or not all(
             isinstance(v, list) and v and len({t.get('context_window') for t in v}) == len(v) and all(
                 isinstance(t, dict) and set(t) == {'context_window', 'auto_compact_token_limit'}
                 and type(t['context_window']) is int and type(t['auto_compact_token_limit']) is int
                 and 0 < t['auto_compact_token_limit'] < t['context_window'] for t in v) for v in tiers.values()):
-        raise ValueError('context_tiers maps installed models to measured context windows with their compaction limits')
+        raise ValueError('context_tiers maps known models to measured context windows with their compaction limits')
     if condition is not None:
         from src.model_process import ENVIRONMENT
         if (not isinstance(condition, dict) or set(condition) - CONDITION_FIELDS
@@ -77,7 +79,7 @@ def load_host(identifier, project=None, condition=None):
                 or set(condition.get('model_environment', {})) - ENVIRONMENT
                 or set(condition.get('request_defaults', {})) - CONDITION_REQUEST_DEFAULTS
                 or not all(type(v) in (int, float) for v in condition.get('request_defaults', {}).values())):
-            raise ValueError('A deployment condition names one installed model and its engine overrides/environment/sampling')
+            raise ValueError('A deployment condition names the served model and its engine overrides/environment/sampling')
         model = condition['model']
         per_model[model] = {**per_model.get(model, {}), **condition.get('model_overrides', {})}
         environment[model] = {**environment.get(model, {}), **condition.get('model_environment', {})}
@@ -87,13 +89,24 @@ def load_host(identifier, project=None, condition=None):
     return value
 
 
+def _public_host_file(identifier, project=None):
+    if not isinstance(identifier, str) or not re.fullmatch(r'[a-z0-9][a-z0-9-]*', identifier):
+        raise ValueError('Invalid host identifier')
+    return json.loads((Path(project or ROOT) / 'config/deployments' / (identifier + '.json')).read_text(encoding='utf-8'))
+
+
+def served_model(identifier, project=None):
+    """The one model the host serves, from the public host file (no private inputs)."""
+    models = _public_host_file(identifier, project).get('models')
+    if not isinstance(models, list) or len(models) != 1 or models[0] not in MODELS:
+        raise ValueError(f'{identifier} must serve exactly one known model')
+    return models[0]
+
+
 def published_tier(identifier, model, context_window=None, project=None):
     """One published context tier from the public host file (no private inputs): the default first tier
     unless `context_window` names another. A model without published tiers is an error, never a guess."""
-    if not isinstance(identifier, str) or not re.fullmatch(r'[a-z0-9][a-z0-9-]*', identifier):
-        raise ValueError('Invalid host identifier')
-    path = Path(project or ROOT) / 'config/deployments' / (identifier + '.json')
-    tiers = json.loads(path.read_text(encoding='utf-8')).get('context_tiers', {}).get(model)
+    tiers = _public_host_file(identifier, project).get('context_tiers', {}).get(model)
     if not tiers:
         raise ValueError(f'{identifier} publishes no context tier for {model}')
     match = [t for t in tiers if context_window is None or t['context_window'] == context_window]
@@ -177,18 +190,13 @@ def model_configuration(model, identifier, project=None, condition=None):
     return value
 
 
-def baseline_configuration(identifier, project=None, condition=None):
-    project = Path(project or ROOT)
-    host = load_host(identifier, project, condition)
-    value = json.loads((project / 'config/maintenance-baseline.json').read_text(encoding='utf-8'))
-    value['start_options']['engine_overrides'].update(host['engine_overrides'])
-    value['start_options']['engine_overrides'].update(host['model_overrides'].get(value['start_options']['model'], {}))
-    return value
-
-
 def public_host(identifier, project=None, condition=None):
+    """The installation's deployment.json: per-model data only for the served model."""
     host = load_host(identifier, project, condition)
-    return {k: v for k, v in host.items() if k in PUBLIC_FIELDS | {'deployment_condition'}}
+    value = {k: v for k, v in host.items() if k in PUBLIC_FIELDS | {'deployment_condition'}}
+    for field in ('model_overrides', 'model_environment', 'context_tiers'):
+        value[field] = {m: v for m, v in value[field].items() if m in host['models']}
+    return value
 
 
 def source_bytes(relative, identifier, project=None, condition=None):
@@ -205,22 +213,20 @@ def source_bytes(relative, identifier, project=None, condition=None):
     if path.as_posix() == 'config/frontend.json':
         return (json.dumps(frontend_configuration(identifier, project), indent=2) + '\n').encode()
     if path.as_posix() == 'config/model-catalog.json':
-        # The catalog window states each model's default (first published) tier on this host.
-        # An installed model without published tiers would leave the catalog window unrelated to the engine's.
+        # The installed catalog lists only the served model, with its default (first published) tier on this host.
+        # A served model without published tiers would leave the catalog window unrelated to the engine's.
         raw = (project / path).read_bytes()
         host, value = load_host(identifier, project, condition), json.loads(raw)
+        value['models'] = [e for e in value['models']
+                           if e['slug'].removeprefix('qwen3.8-flash-next-').upper() in host['models']]
+        if len(value['models']) != 1:
+            raise ValueError(f'The catalog needs one entry for {identifier} served model {host["models"][0]}')
         for entry in value['models']:
             model = entry['slug'].removeprefix('qwen3.8-flash-next-').upper()
-            if model not in host['models']:
-                continue
             if model not in host['context_tiers']:
-                raise ValueError(f'{identifier} publishes no context tier for installed model {model}')
+                raise ValueError(f'{identifier} publishes no context tier for served model {model}')
             entry['context_window'] = entry['max_context_window'] = host['context_tiers'][model][0]['context_window']
         return raw if value == json.loads(raw) else (json.dumps(value, ensure_ascii=False, indent=1) + '\n').encode()
-    if path.as_posix() == 'config/maintenance-baseline.json':
-        raw = (project / path).read_bytes()
-        value = baseline_configuration(identifier, project, condition)
-        return raw if value == json.loads(raw) else (json.dumps(value, indent=2) + '\n').encode()
     return (project / path).read_bytes()
 
 

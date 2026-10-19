@@ -42,18 +42,18 @@ class CatalogWindowTests(unittest.TestCase):
             self.assertEqual((entry['context_window'], entry['max_context_window']), (windows[quant],) * 2)
 
 
-class MaintenanceBaselineTests(unittest.TestCase):
-    def test_baseline_runs_a_published_tier_of_its_model(self):
-        """The Q2_0 maintenance baseline is pinned on purpose; it must stay one of that model's published tiers."""
-        baseline = json.loads((ROOT / 'config/maintenance-baseline.json').read_text(encoding='utf-8'))
-        model = baseline['start_options']['model']
-        pair = {'context_window': baseline['harness']['model_context_window'],
-                'auto_compact_token_limit': baseline['harness']['model_auto_compact_token_limit']}
-        self.assertEqual(baseline['start_options']['engine_overrides']['max-context'], pair['context_window'])
+class ServedModelTests(unittest.TestCase):
+    def test_each_host_serves_one_model_and_publishes_its_default_tier_first(self):
+        """One served model per host (user 2026-10-19); its default window is the first tier, as the catalog states it.
+        The maintenance baseline is the served model with the deployment defaults; no separate baseline file."""
+        self.assertFalse((ROOT / 'config/maintenance-baseline.json').exists())
+        windows = model_catalog.default_windows()
         for path in sorted((ROOT / 'config/deployments').glob('*.json')):
-            tiers = json.loads(path.read_text(encoding='utf-8')).get('context_tiers', {})
-            if model in tiers:
-                self.assertIn(pair, tiers[model], path.name)
+            host = json.loads(path.read_text(encoding='utf-8'))
+            self.assertEqual(len(host['models']), 1, path.name)
+            tiers = host.get('context_tiers', {}).get(host['models'][0])
+            if tiers:  # a host returning from offline adds its tiers before it is deployed
+                self.assertEqual(tiers[0]['context_window'], windows[host['models'][0]], path.name)
 
 
 if __name__ == '__main__':

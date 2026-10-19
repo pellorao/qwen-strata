@@ -17,7 +17,7 @@ class MeasurementHostTests(unittest.TestCase):
         host.identifier='rtx3080ti'
         host.windows_root=PureWindowsPath('C:/strata')
         host.installation=Path('/mnt/c/strata')
-        host.deployment={'hardware':{'vram_gib':12},'engine_overrides':{'prefill':8192},
+        host.deployment={'hardware':{'vram_gib':12},'engine_overrides':{'prefill':8192},'models':['IQ3_XXS'],
                          'frontend_url':'http://192.168.0.4:8000'}
         return host
 
@@ -41,26 +41,6 @@ class MeasurementHostTests(unittest.TestCase):
             owned=host_selection({'model_owner':'arw','engine_overrides':{}},'rtx3080ti')
         self.assertEqual(owned['engine_overrides'],{})  # ARW starts the model with installation defaults
 
-    def test_smoke_baseline_retains_host_overrides_and_generation_budget(self):
-        host=self.remote();host.deployment['engine_overrides']['pool-affinity']='all'
-        source={'start_options':{'engine_overrides':{'prefill':16384,'pool-affinity':'auto','max-context':156584},
-                                'request_defaults':{'reasoning_effort':'high','max_tokens':24576}}}
-        before=copy.deepcopy(source);rendered=host.maintenance_baseline(source)
-        self.assertEqual(source,before)
-        self.assertEqual(rendered['start_options']['engine_overrides'],
-                         {'prefill':8192,'pool-affinity':'all','max-context':156584})
-        self.assertEqual(rendered['start_options']['request_defaults'],source['start_options']['request_defaults'])
-
-    def test_smoke_profile_rejects_another_installation_path(self):
-        host=self.remote()
-        baseline={'profile':{'installation_relative_path':'profiles/default.json','sha256':'known','save_enabled':False}}
-        good={'args':['--expert-profile','C:/strata/profiles/default.json'],'expert_profile_save':False}
-        with patch.object(host,'configuration',return_value=good),patch.object(host,'profile_sha256',return_value='known'),patch.object(host,'read_deployed_bytes',return_value=b'config'):
-            self.assertEqual(host.maintenance_profile_binding(baseline)['profile'],baseline['profile'])
-        bad={**good,'args':['--expert-profile','C:/other-host/profiles/default.json']}
-        with patch.object(host,'configuration',return_value=bad),self.assertRaisesRegex(ValueError,'binding differs'):
-            host.maintenance_profile_binding(baseline)
-
     def test_unbound_main_selection_is_rejected_before_model_work(self):
         with tempfile.TemporaryDirectory() as directory:
             target=Path(directory)/'run'
@@ -76,9 +56,23 @@ class MeasurementHostTests(unittest.TestCase):
 
     def test_private_paths_cannot_be_read_via_public_deployment_reader(self):
         host=self.remote()
-        for relative in ('.state/ownership.json','installation.private.toml'):
+        # the prebuilt of an installed but unserved model is not a deployment file either
+        for relative in ('.state/ownership.json','installation.private.toml','config/q2_0-prebuilt.json'):
             with self.assertRaises(ValueError):
                 host.read_deployed_bytes(relative)
+
+    def test_sources_check_fails_while_an_unserved_prebuilt_remains(self):
+        host=self.remote();host.condition=None
+        with tempfile.TemporaryDirectory() as directory:
+            host.installation=Path(directory)
+            with patch('tools.ops.measurement_host.source_bytes',return_value=b'x'):
+                from tools.ops.deploy import deployment_files
+                for target in deployment_files(host.deployment):
+                    (host.installation/target).parent.mkdir(parents=True,exist_ok=True);(host.installation/target).write_bytes(b'x')
+                self.assertTrue(host.verify_sources()['source_sha_verified'])
+                (host.installation/'config/q2_0-prebuilt.json').write_bytes(b'{}')
+                with self.assertRaisesRegex(RuntimeError,'unserved-model files: config/q2_0-prebuilt.json'):
+                    host.verify_sources()
 
     def test_log_access_reads_only_bytes_after_offset(self):
         host=self.remote()

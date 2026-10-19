@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Run Codex or Claude Code on the local Strata model, from lease to release.
 
-Usage: qwen-agent [--model IQ3_XXS] [--effort high] {codex|claude} [agent arguments...]
+Usage: qwen-agent [--model MODEL] [--effort high] {codex|claude} [agent arguments...]
+
+MODEL defaults to the one model this installation serves (config/deployment.json `models`).
 
 Takes the frontend lease (fails if someone else holds it), starts the model
 (or reuses one left loaded with the same options), runs the agent with the key
@@ -20,7 +22,6 @@ import urllib.error
 import urllib.request
 
 INSTALL = Path(__file__).resolve().parents[1]
-MODELS = {'Q2_0': 'q2_0', 'IQ2_XS': 'iq2_xs', 'IQ3_XXS': 'iq3_xxs'}
 # Total output per effort: the totals the frontend fills in for Codex (src/frontend.py EFFORT_BUDGETS).
 # Claude Code always sends its own max_tokens, so it is given the same value here.
 MAX_OUTPUT = {'low': 8192, 'medium': 16384, 'high': 24576}
@@ -47,12 +48,26 @@ class Frontend:
             raise SystemExit(f'qwen-agent: {path} failed with HTTP {error.code}: {message}') from None
 
 
+def deployment():
+    return json.loads((INSTALL / 'config/deployment.json').read_text(encoding='utf-8'))
+
+
+def served_model(requested=None):
+    """The requested model if this installation serves it; by default its first (only) served model."""
+    models = deployment().get('models') or []
+    if not models:
+        raise SystemExit('qwen-agent: config/deployment.json names no served model')
+    if requested not in (None, *models):
+        raise SystemExit(f'qwen-agent: this installation serves only {", ".join(models)}, not {requested}')
+    return requested or models[0]
+
+
 def default_tier(model):
     """The installation's default context tier for the model: the first one deployment.json publishes.
 
     Both agents get the same window and compaction threshold.  Claude Code 2.1.303 against a fake server
     compacted at 150.1K but not at 149.9K with the 206584/150000 tier, and at 100.1K but not 99.9K with 156584/100000."""
-    tiers = json.loads((INSTALL / 'config/deployment.json').read_text(encoding='utf-8')).get('context_tiers', {})
+    tiers = deployment().get('context_tiers', {})
     if not tiers.get(model):
         raise SystemExit(f'qwen-agent: this installation publishes no context tier for {model}')
     return tiers[model][0]
@@ -113,13 +128,14 @@ def claude(frontend, model, effort, tier, arguments):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--model', choices=MODELS, default='IQ3_XXS')
+    parser.add_argument('--model', help='a model this installation serves; default: its only served model')
     parser.add_argument('--effort', choices=('low', 'medium', 'high'), default='high', help='reasoning effort for either agent')
     parser.add_argument('agent', choices=('codex', 'claude'))
     parser.add_argument('arguments', nargs=argparse.REMAINDER)
     args = parser.parse_args()
-    model = 'qwen3.8-flash-next-' + MODELS[args.model]
-    tier = default_tier(args.model)  # before the lease, so a missing tier holds nothing
+    args.model = served_model(args.model)  # before the lease, like the tier, so a refusal holds nothing
+    model = 'qwen3.8-flash-next-' + args.model.lower()
+    tier = default_tier(args.model)
     frontend = Frontend()
     # A closed terminal or kill must still reach the release below.
     for name in ('SIGHUP', 'SIGTERM'):

@@ -11,6 +11,11 @@ from tools.reviewer.arw_measure import execute_review, review_request_path
 from tools.metrics.context_capacity import context_capacity, validate_context_pair, THRESHOLDS
 from tools.metrics.prompt_policy import verify_loaded_startup
 
+# A frozen measurement baseline as context_measure reads it (--baseline); the shared maintenance baseline file was retired 2026-10-19.
+BASELINE={'start_options':{'model':'IQ3_XXS','engine_overrides':{'prefill':8192,'max-context':206584},
+                           'request_defaults':{'reasoning_effort':'high','reasoning_budget_tokens':8192,'max_tokens':24576}},
+          'harness':{'model_reasoning_effort':'high'}}
+
 
 class ContextMeasurementTests(unittest.TestCase):
     def test_prompt_receipt_is_pinned_by_the_loaded_sha(self):
@@ -18,9 +23,8 @@ class ContextMeasurementTests(unittest.TestCase):
         self.assertEqual(verify_loaded_startup(metadata,sha),metadata)
         for changed in ({'enabled':False},{'sha256':'b'*64},{'path':None}):
             with self.assertRaises(ValueError):verify_loaded_startup({**metadata,**changed},sha)
-    def test_current_baseline_works_without_legacy_startup_binding(self):
-        root=Path(__file__).resolve().parents[1]
-        baseline=json.loads((root/'config/maintenance-baseline.json').read_text())
+    def test_frozen_baseline_works_without_legacy_startup_binding(self):
+        baseline=json.loads(json.dumps(BASELINE))
         before=json.dumps(baseline,sort_keys=True)
         binding=startup_binding(baseline)
         self.assertEqual(binding['installation_relative_path'],'config/prompts/startup-instructions.txt')
@@ -34,8 +38,7 @@ class ContextMeasurementTests(unittest.TestCase):
             'installation_relative_path':'config/prompts/startup-instructions.txt','sha256':'0'*64}})
 
     def test_medium_budget_is_not_overwritten_by_high_baseline(self):
-        root=Path(__file__).resolve().parents[1]
-        baseline=json.loads((root/'config/maintenance-baseline.json').read_text())
+        baseline=json.loads(json.dumps(BASELINE))
         baseline['harness']['model_reasoning_effort']='medium'
         with self.assertRaises(ValueError):context_start_options(baseline,156584,100000)
         defaults=baseline['start_options']['request_defaults']

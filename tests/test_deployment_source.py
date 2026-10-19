@@ -6,7 +6,8 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.ops.deployment_source import frontend_configuration, load_host, model_configuration, published_tier, source_bytes
+from tools.ops.deployment_source import (frontend_configuration, load_host, model_configuration, published_tier,
+                                         served_model, source_bytes)
 
 
 class SourceRenderingTests(unittest.TestCase):
@@ -68,35 +69,64 @@ installation_path='C:\\Strata'
         with self.assertRaisesRegex(ValueError, 'context_tiers'):
             model_configuration('Q2_0', 'tuned', self.root)
 
-    def test_model_overrides_apply_only_to_that_model(self):
+    def iq3_template(self, args):
         (self.root/'config/templates/iq3_xxs-prebuilt.json').write_text(
-            json.dumps({'exe': 'x', 'port': 8100, 'args': ['--prefill', '512']}), encoding='utf-8')
-        self.host('tuned', models=['Q2_0', 'IQ3_XXS'], engine_overrides={'prefill': 8192},
+            json.dumps({'exe': 'x', 'port': 8100, 'args': args}), encoding='utf-8')
+
+    def test_a_host_serves_exactly_one_known_model(self):
+        for models in (['Q2_0', 'IQ3_XXS'], [], ['Q8'], 'Q2_0'):
+            self.host('stray', engine_overrides={}, models=models)
+            with self.assertRaisesRegex(ValueError, 'exactly one'):
+                load_host('stray', self.root)
+        self.assertEqual(served_model('tuned', self.root), 'Q2_0')
+        (self.root/'project.private.toml').unlink()  # the public host file alone names it
+        self.assertEqual(served_model('plain', self.root), 'Q2_0')
+
+    def test_unserved_model_data_stays_unpublished(self):
+        """Overrides, environment and tiers of installed but unserved models stay in the host file only."""
+        self.iq3_template(['--prefill', '512'])
+        self.host('tuned', models=['IQ3_XXS'], engine_overrides={'prefill': 8192},
+                  model_overrides={'Q2_0': {'vram-reserve-mib': 512}, 'IQ3_XXS': {'spec': 4}},
+                  model_environment={'Q2_0': {'STRATA_ADAPT_LAG': 1}, 'IQ3_XXS': {'STRATA_ADAPT_LAG': 2}},
+                  context_tiers={'Q2_0': [{'context_window': 156584, 'auto_compact_token_limit': 100000}],
+                                 'IQ3_XXS': [{'context_window': 206584, 'auto_compact_token_limit': 150000}]})
+        served = model_configuration('IQ3_XXS', 'tuned', self.root)
+        self.assertEqual(served['args'], ['--prefill', '8192', '--spec', '4', '--max-context', '206584'])
+        self.assertEqual(served['engine_environment'], {'STRATA_ADAPT_LAG': 2})
+        with self.assertRaisesRegex(ValueError, 'not registered'):
+            model_configuration('Q2_0', 'tuned', self.root)
+        public = json.loads(source_bytes('config/deployment.json', 'tuned', self.root))
+        self.assertEqual(public['models'], ['IQ3_XXS'])
+        for field in ('model_overrides', 'model_environment', 'context_tiers'):
+            self.assertEqual(list(public[field]), ['IQ3_XXS'], field)
+        with self.assertRaisesRegex(ValueError, 'not registered'):
+            source_bytes('config/templates/q2_0-prebuilt.json', 'tuned', self.root)
+
+    def test_model_overrides_apply_only_to_that_model(self):
+        self.iq3_template(['--prefill', '512'])
+        self.host('tuned', models=['IQ3_XXS'], engine_overrides={'prefill': 8192},
                   model_overrides={'Q2_0': {'vram-reserve-mib': 512}})
-        self.assertEqual(model_configuration('Q2_0', 'tuned', self.root)['args'],
-                         ['--prefill', '8192', '--max-context', '250000', '--vram-reserve-mib', '512'])
         self.assertEqual(model_configuration('IQ3_XXS', 'tuned', self.root)['args'], ['--prefill', '8192'])
-        self.host('tuned', models=['Q2_0', 'IQ3_XXS'], engine_overrides={}, model_overrides={'IQ3_XXS': {'prefill': None}})
+        self.host('tuned', models=['IQ3_XXS'], engine_overrides={}, model_overrides={'IQ3_XXS': {'prefill': None}})
         self.assertEqual(model_configuration('IQ3_XXS', 'tuned', self.root)['args'], [])
-        self.host('stray', engine_overrides={}, model_overrides={'IQ2_XS': {'vram-reserve-mib': 512}})
+        self.host('stray', engine_overrides={}, model_overrides={'Q8': {'vram-reserve-mib': 512}})
         with self.assertRaisesRegex(ValueError, 'model_overrides'):
             load_host('stray', self.root)
 
     def test_model_environment_applies_only_to_that_model(self):
-        (self.root/'config/templates/iq3_xxs-prebuilt.json').write_text(
-            json.dumps({'exe': 'x', 'port': 8100, 'args': []}), encoding='utf-8')
-        self.host('tuned', models=['Q2_0', 'IQ3_XXS'], engine_overrides={},
+        self.iq3_template([])
+        self.host('tuned', models=['IQ3_XXS'], engine_overrides={},
                   model_environment={'IQ3_XXS': {'STRATA_ADAPT_LAG': 2}})
         self.assertEqual(model_configuration('IQ3_XXS', 'tuned', self.root)['engine_environment']['STRATA_ADAPT_LAG'], 2)
+        self.host('tuned', engine_overrides={}, model_environment={'IQ3_XXS': {'STRATA_ADAPT_LAG': 2}})
         self.assertNotIn('STRATA_ADAPT_LAG', model_configuration('Q2_0', 'tuned', self.root).get('engine_environment', {}))
-        self.host('stray', engine_overrides={}, model_environment={'IQ2_XS': {'STRATA_ADAPT_LAG': 2}})
+        self.host('stray', engine_overrides={}, model_environment={'Q8': {'STRATA_ADAPT_LAG': 2}})
         with self.assertRaisesRegex(ValueError, 'model_environment'):
             load_host('stray', self.root)
 
-    def test_condition_overlays_one_model_until_a_plain_render(self):
-        (self.root/'config/templates/iq3_xxs-prebuilt.json').write_text(
-            json.dumps({'exe': 'x', 'port': 8100, 'args': ['--spec', '4', '--expert-profile', 'shipped']}), encoding='utf-8')
-        self.host('tuned', models=['Q2_0', 'IQ3_XXS'], engine_overrides={},
+    def test_condition_overlays_the_served_model_until_a_plain_render(self):
+        self.iq3_template(['--spec', '4', '--expert-profile', 'shipped'])
+        self.host('tuned', models=['IQ3_XXS'], engine_overrides={},
                   installation_defaults={'cpu_prefill_share': 'auto'},
                   model_environment={'IQ3_XXS': {'STRATA_ADAPT_LAG': 2}})
         condition = {'id': 'trial', 'model': 'IQ3_XXS',
@@ -109,26 +139,22 @@ installation_path='C:\\Strata'
         plain = model_configuration('IQ3_XXS', 'tuned', self.root)
         self.assertEqual(plain['args'], ['--spec', '4', '--expert-profile', 'shipped'])
         self.assertEqual(plain['engine_environment'], {'STRATA_PREFILL_CPU_SHARE': 'auto', 'STRATA_ADAPT_LAG': 2})
-        self.assertEqual(model_configuration('Q2_0', 'tuned', self.root, condition),
-                         model_configuration('Q2_0', 'tuned', self.root))
         public = json.loads(source_bytes('config/deployment.json', 'tuned', self.root, condition))
         self.assertEqual(public['deployment_condition'], 'trial')
         self.assertNotIn('deployment_condition', json.loads(source_bytes('config/deployment.json', 'tuned', self.root)))
-        for bad in ({**condition, 'model': 'IQ2_XS'}, {**condition, 'model_environment': {'PATH': 'x'}},
+        # An unserved quantization is not a condition model (multi-model conditions are not implemented)
+        for bad in ({**condition, 'model': 'Q2_0'}, {**condition, 'model_environment': {'PATH': 'x'}},
                     {**condition, 'extra': 1}):
             with self.assertRaisesRegex(ValueError, 'deployment condition'):
                 load_host('tuned', self.root, bad)
 
-    def test_condition_sampling_overlays_only_its_model(self):
-        (self.root/'config/templates/iq3_xxs-prebuilt.json').write_text(
-            json.dumps({'exe': 'x', 'port': 8100, 'args': []}), encoding='utf-8')
-        self.host('tuned', models=['Q2_0', 'IQ3_XXS'], engine_overrides={},
+    def test_condition_sampling_overlays_only_the_condition(self):
+        self.iq3_template([])
+        self.host('tuned', models=['IQ3_XXS'], engine_overrides={},
                   installation_defaults={'reasoning_effort': 'high', 'temperature': 0.0, 'top_p': 1.0, 'top_k': 20})
         condition = {'id': 'sampling-t06', 'model': 'IQ3_XXS', 'request_defaults': {'temperature': 0.6, 'top_p': 0.95}}
         self.assertEqual(model_configuration('IQ3_XXS', 'tuned', self.root, condition)['request_defaults'],
                          {'reasoning_effort': 'high', 'temperature': 0.6, 'top_p': 0.95, 'top_k': 20})
-        self.assertEqual(model_configuration('Q2_0', 'tuned', self.root, condition),
-                         model_configuration('Q2_0', 'tuned', self.root))
         self.assertEqual(model_configuration('IQ3_XXS', 'tuned', self.root)['request_defaults']['temperature'], 0.0)
         for bad in ({'max_tokens': 1}, {'reasoning_effort': 'low'}, {'temperature': '0.6'}, []):
             with self.assertRaisesRegex(ValueError, 'deployment condition'):
@@ -141,16 +167,20 @@ installation_path='C:\\Strata'
         for private in ('secret-sentinel', 'frontend_url', 'installation_root', '模型'):
             self.assertNotIn(private, public)
 
-    def test_catalog_window_is_each_installed_models_default_tier(self):
+    def test_installed_catalog_lists_only_the_served_model_with_its_default_tier(self):
         (self.root/'config').mkdir(exist_ok=True)
         catalog = {'models': [{'slug': 'qwen3.8-flash-next-q2_0', 'context_window': 1, 'max_context_window': 1},
                               {'slug': 'qwen3.8-flash-next-iq3_xxs', 'context_window': 1, 'max_context_window': 1}]}
         (self.root/'config/model-catalog.json').write_text(json.dumps(catalog), encoding='utf-8')
         rendered = json.loads(source_bytes('config/model-catalog.json', 'tuned', self.root))
-        self.assertEqual([(m['context_window'], m['max_context_window']) for m in rendered['models']],
-                         [(156584, 156584), (1, 1)])  # IQ3_XXS is not installed on this host
-        with self.assertRaisesRegex(ValueError, 'no context tier for installed model Q2_0'):
+        self.assertEqual([(m['slug'], m['context_window'], m['max_context_window']) for m in rendered['models']],
+                         [('qwen3.8-flash-next-q2_0', 156584, 156584)])
+        with self.assertRaisesRegex(ValueError, 'no context tier for served model Q2_0'):
             source_bytes('config/model-catalog.json', 'plain', self.root)
+        self.host('stray', engine_overrides={}, models=['IQ2_XS'],
+                  context_tiers={'IQ2_XS': [{'context_window': 156584, 'auto_compact_token_limit': 100000}]})
+        with self.assertRaisesRegex(ValueError, 'catalog needs one entry'):
+            source_bytes('config/model-catalog.json', 'stray', self.root)
 
     def test_published_tier_reads_only_public_tiers_and_never_guesses(self):
         (self.root/'project.private.toml').unlink()

@@ -6,7 +6,7 @@ import tomllib
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.ops.deploy import FILES, private_bytes
+from tools.ops.deploy import deployment_files, obsolete_files, private_bytes
 
 
 class DeployTests(unittest.TestCase):
@@ -20,7 +20,20 @@ class DeployTests(unittest.TestCase):
                 private_bytes(root)
 
     def test_private_file_is_never_a_public_deployment_file(self):
-        self.assertNotIn('installation.private.toml', FILES)
+        self.assertNotIn('installation.private.toml', deployment_files({'models': ['IQ3_XXS']}))
+
+    def test_only_the_served_models_prebuilt_is_deployed_and_the_others_are_removed(self):
+        host = {'models': ['IQ3_XXS']}
+        files = deployment_files(host)
+        self.assertEqual(files['config/iq3_xxs-prebuilt.json'], 'config/templates/iq3_xxs-prebuilt.json')
+        self.assertEqual(sorted(t for t in files if t.endswith('-prebuilt.json')), ['config/iq3_xxs-prebuilt.json'])
+        self.assertNotIn('config/maintenance-baseline.json', files)
+        obsolete = obsolete_files(host)
+        # backed up, then removed; weights, runtime and data are never listed
+        self.assertTrue({'config/q2_0-prebuilt.json', 'config/iq2_xs-prebuilt.json',
+                         'config/maintenance-baseline.json'} <= set(obsolete))
+        self.assertFalse(set(obsolete) & set(files))
+        self.assertTrue(all(t.startswith(('config/', 'src/', 'maintenance/', 'Run-')) for t in obsolete))
 
 
 if __name__ == '__main__':

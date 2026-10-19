@@ -21,26 +21,41 @@ from tools.ops.deployment_source import MODELS, load_condition, load_host, load_
 
 ROOT = Path(__file__).resolve().parents[2]
 TASK = 'QwenStrataFrontend'
-# installation target -> project source
+# installation target -> project source, apart from the served model's prebuilt configuration (deployment_files)
 FILES = {f'src/{name}': f'src/{name}' for name in (
     'frontend.py', 'model_process.py', 'native_service.py', 'startup_instructions.py', 'project_files_mcp.py',
     'brave_search.py', 'hosted_search.py', 'brave_mcp.py', 'loop_detector.py', 'loop_reminder.py')}
 FILES.update({name: name for name in (
     'config/prompts/startup-instructions.txt', 'config/prompts/compact-prompt.txt', 'config/model-catalog.json',
-    'config/maintenance-baseline.json', 'config/deployment.json', 'config/frontend.json')})
-FILES.update({f'config/{m.lower()}-prebuilt.json': f'config/templates/{m.lower()}-prebuilt.json' for m in MODELS})
+    'config/deployment.json', 'config/frontend.json')})
 FILES['README.md'] = 'docs/installation-directory-readme.md'
 FILES['maintenance/Install-Frontend.ps1'] = 'scripts/windows/Install-Frontend.ps1'
 FILES['bin/qwen-agent'] = 'scripts/wsl/qwen-agent'
 FILES['bin/qwen-approve'] = 'scripts/wsl/qwen-approve'
-# Left by the retired WSL controller and SSH bridge.
+# Left by the retired WSL controller and SSH bridge, and the maintenance baseline retired 2026-10-19.
 OBSOLETE = ('Run-Strata-Controller.ps1', 'Run-Strata-Controller.sh', 'maintenance/Setup-Native-Network.ps1',
             'maintenance/Setup-WSL-Network.sh', 'config/service.json', 'config/startup-instructions.txt',
-            'config/compact_prompt.txt', *(f'src/{name}' for name in (
+            'config/compact_prompt.txt', 'config/maintenance-baseline.json', *(f'src/{name}' for name in (
                 'responses_bridge.py', 'windows_host.py', 'wsl_launcher.py',
                 'setup_wsl_firewall.ps1', 'service_access.py', 'service_settings.py', 'controller_backend.py')))
 OBSOLETE_TREES = ('.state', '.tmp/controller-model')
 PRIVATE = 'installation.private.toml'
+
+
+def prebuilt(model):
+    return f'config/{model.lower()}-prebuilt.json'
+
+
+def deployment_files(host):
+    """Installation target -> project source for a loaded host (tools.ops.deployment_source.load_host):
+    the shared files plus the prebuilt configuration of the one model the host serves."""
+    return {**FILES, **{prebuilt(m): 'config/templates/' + prebuilt(m).removeprefix('config/') for m in host['models']}}
+
+
+def obsolete_files(host):
+    """Files a deployment backs up and removes: retired files and the prebuilt configurations of the models the
+    host keeps installed but does not serve. Weights, runtime and data stay."""
+    return (*OBSOLETE, *(prebuilt(m) for m in MODELS if m not in host['models']))
 
 
 def private_bytes(project=None):
@@ -126,12 +141,13 @@ def deploy(identifier, docs_only=False, condition=None):
     root = local_path(host['installation_root'])
     if not (root / 'runtime/Strata/.venv').is_dir():
         raise RuntimeError('Installation runtime is missing')
-    files = {t: s for t, s in FILES.items() if not docs_only or t == 'README.md'}
+    files = {t: s for t, s in deployment_files(host).items() if not docs_only or t == 'README.md'}
+    obsolete = () if docs_only else obsolete_files(host)
     expected = {target: source_bytes(source, identifier, condition=condition) for target, source in files.items()}
     private = None if docs_only else private_bytes()
     backup = ROOT / '.tmp/maintenance-backups' / ('deploy-' + datetime.now().strftime('%Y%m%d-%H%M%S-%f'))
     before = {}
-    for target in sorted(expected) + ([] if docs_only else list(OBSOLETE)):
+    for target in sorted(expected) + list(obsolete):
         path = root / target
         before[target] = sha(path.read_bytes()) if path.is_file() else None
         if path.is_file():
@@ -153,7 +169,7 @@ def deploy(identifier, docs_only=False, condition=None):
                 stream.write(private)
             os.replace(stream.name, root / PRIVATE)
         if not docs_only:
-            for target in OBSOLETE:
+            for target in obsolete:
                 if (root / target).is_file():
                     (root / target).unlink()
                     removed.append(target)

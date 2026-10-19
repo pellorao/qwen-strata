@@ -13,7 +13,6 @@ import urllib.request
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME = ROOT / 'runtime/Strata'
 ENTRY = ROOT / 'src/native_service.py'
-MODELS = ('Q2_0', 'IQ2_XS', 'IQ3_XXS')
 LOAD_TIMEOUT = 600
 
 # Engine flags a caller may override. Values are only type-checked: which values
@@ -45,13 +44,22 @@ def _scalar(value):
     return type(value) in (int, float, str) and ' ' not in str(value)
 
 
+def served_models():
+    """The models this installation serves (deployment.json `models`); the first is the default."""
+    models = json.loads((ROOT / 'config/deployment.json').read_text(encoding='utf-8')).get('models')
+    if not isinstance(models, list) or not models or not all(isinstance(m, str) for m in models):
+        raise RuntimeError('config/deployment.json names no served model.')
+    return models
+
+
 def configuration(options, model_port):
     """Validate start options; return (model, native run config, env, reasoning defaults)."""
     if not isinstance(options, dict) or set(options) - START_OPTIONS:
         raise ValueError('Unknown model start option.')
-    model = options.get('model', 'IQ3_XXS')
-    if model not in MODELS:
-        raise ValueError('Unknown model quantization.')
+    models = served_models()
+    model = options.get('model', models[0])
+    if model not in models:
+        raise ValueError(f'This installation serves only {", ".join(models)}; other installed quantizations are not served.')
     config = json.loads((ROOT / f'config/{model.lower()}-prebuilt.json').read_text(encoding='utf-8'))
     config['port'], config['host'] = model_port, '127.0.0.1'
     args = config['args']

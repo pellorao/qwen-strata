@@ -50,6 +50,8 @@ def frozen_inputs(plan_path,workload_path):
         raise ValueError('This exact resource work is not approved')
     if plan['authorization'].get('paused_by_user'):
         raise ValueError('This exact resource work is not approved and resumed')
+    if not isinstance(plan.get('baseline',{}).get('start_options',{}).get('model'),str):
+        raise ValueError('The plan baseline names its model explicitly')
     schedule=experiment_schedule(plan)
     if len(schedule)!=plan['model_instances'] or len(schedule)*(0 if plan.get('probe_only')else 3)!=plan['logical_requests']:
         raise ValueError('Requested execution count differs from the approved work')
@@ -220,7 +222,7 @@ def logical_request(owner,body,expected,folder,limit):
 
 
 def run_case(host,plan,workload,job,folder):
-    folder.mkdir();options=copy.deepcopy(plan['baseline']['start_options']);model=options.get('model','Q2_0')
+    folder.mkdir();options=copy.deepcopy(plan['baseline']['start_options']);model=options['model']
     options['engine_overrides'].update(job['overrides']);label=job['label'];condition=job['condition']
     options.setdefault('engine_environment',{}).update(job.get('environment',{}))
     row={'label':label,'condition':condition,'repetition':job['repetition'],'started_at':time.time(),'requests':[],
@@ -327,7 +329,7 @@ def run(plan_path,workload_path,out,resume=False):
     progress_path=out/'progress.json'
     progress=json.loads(progress_path.read_text())if resume else{'status':'running','started_at':time.time(),'rows':[],'attempts':[]}
     host=MeasurementHost(plan['host']);save(out/'source-verification.json',host.verify_sources())
-    if host.profile_sha256(plan['baseline']['start_options'].get('model','Q2_0'))!=plan['default_profile_sha256_verified']:raise RuntimeError('Default profile changed')
+    if host.profile_sha256(plan['baseline']['start_options']['model'])!=plan['default_profile_sha256_verified']:raise RuntimeError('Default profile changed')
     for job in experiment_schedule(plan):
         label=job['label']
         if any(r['label']==label and r['status']=='closed-valid-observation'for r in progress['rows']):continue

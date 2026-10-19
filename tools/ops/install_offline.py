@@ -17,7 +17,7 @@ def deny_network(*args, **kwargs):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--model", choices=["IQ2_XS", "Q2_0", "IQ3_XXS"], default="Q2_0")
+    parser.add_argument("--model", choices=["IQ2_XS", "Q2_0", "IQ3_XXS"], default="IQ3_XXS")
     args = parser.parse_args()
     if Path(sys.prefix).resolve() != (RUNTIME / ".venv").resolve():
         parser.error("Run with the installation's .venv/Scripts/python.exe")

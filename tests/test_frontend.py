@@ -32,7 +32,7 @@ class FakeModel:
         self.running, self.native_key, self.options = True, 'native-secret', options
         self.starts += 1
         self.reasoning_defaults = {'reasoning_effort': 'high', 'reasoning_budget_tokens': 8192, 'max_tokens': 24576}
-        return {'status': 'running', 'model': 'qwen3.8-flash-next-q2_0'}
+        return {'status': 'running', 'model': 'qwen3.8-flash-next-iq3_xxs'}
 
     def stop(self):
         self.running, self.native_key = False, None
@@ -88,7 +88,7 @@ class LeaseTests(unittest.TestCase):
         with self.assertRaises(frontend.Refused):
             self.front.start('wrong', {})
         self.front.start(key, {})
-        self.assertEqual(self.front.release(key), {'lease': 'free', 'model': 'qwen3.8-flash-next-q2_0'})
+        self.assertEqual(self.front.release(key), {'lease': 'free', 'model': 'qwen3.8-flash-next-iq3_xxs'})
         self.assertFalse(self.front.model.stopped())
         with self.assertRaises(frontend.Refused):
             self.front.status(key)
@@ -98,19 +98,19 @@ class LeaseTests(unittest.TestCase):
 
     def test_next_lease_reuses_same_options_and_restarts_for_different_ones(self):
         key = self.front.acquire()['key']
-        self.assertFalse(self.front.start(key, {'model': 'Q2_0'})['reused'])
+        self.assertFalse(self.front.start(key, {'model': 'IQ3_XXS'})['reused'])
         self.front.release(key)
         key = self.front.acquire()['key']
-        self.assertTrue(self.front.start(key, {'model': 'Q2_0'})['reused'])
+        self.assertTrue(self.front.start(key, {'model': 'IQ3_XXS'})['reused'])
         self.assertEqual(self.front.model.starts, 1)
-        self.assertFalse(self.front.start(key, {'model': 'Q2_0', 'engine_overrides': {'prefill': 4096}},
+        self.assertFalse(self.front.start(key, {'model': 'IQ3_XXS', 'engine_overrides': {'prefill': 4096}},
                                           maintenance=True)['reused'])
         self.assertEqual(self.front.model.starts, 2)
 
     def test_callers_choose_only_model_and_context_tier(self):
         key = self.front.acquire()['key']
-        for options in ({'model': 'Q2_0', 'engine_overrides': {'prefill': 4096}},
-                        {'model': 'Q2_0', 'request_defaults': {'temperature': 0.7}}, {'startup_instructions': False}):
+        for options in ({'model': 'IQ3_XXS', 'engine_overrides': {'prefill': 4096}},
+                        {'model': 'IQ3_XXS', 'request_defaults': {'temperature': 0.7}}, {'startup_instructions': False}):
             with self.assertRaisesRegex(ValueError, 'installation defaults'):
                 self.front.start(key, options)
         self.assertEqual(self.front.model.starts, 0)
@@ -242,6 +242,7 @@ class ConfigurationTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         root = Path(self.temp.name)
         (root / 'config').mkdir()
+        (root / 'config/deployment.json').write_text(json.dumps({'models': ['IQ3_XXS']}))
         (root / 'config/iq3_xxs-prebuilt.json').write_text(json.dumps({
             'args': ['--max-context', '156584', '--expert-profile', 'x'],
             'request_defaults': {'reasoning_effort': 'high', 'reasoning_budget_tokens': 8192,
@@ -259,12 +260,23 @@ class ConfigurationTests(unittest.TestCase):
     def test_overrides_sampling_and_environment(self):
         model, config, env, reasoning = model_process.configuration(
             {'engine_overrides': {'vram-reserve-mib': 500, 'no-capture': True}}, 8100)
-        self.assertEqual(model, 'IQ3_XXS')  # default model since 2026-10-11
+        self.assertEqual(model, 'IQ3_XXS')  # the installation's only served model
         self.assertEqual(config['args'][-3:], ['--vram-reserve-mib', '500', '--no-capture'])
         self.assertEqual(config['sampling'], {'top_k': 20})
         self.assertEqual((config['port'], config['host']), (8100, '127.0.0.1'))
         self.assertEqual(env['STRATA_PREFILL_CPU_SHARE'], 'auto')
         self.assertEqual(reasoning['reasoning_budget_tokens'], 8192)
+
+    def test_only_the_served_model_starts(self):
+        """Installed but unserved quantizations are refused (400) for normal and maintenance starts alike."""
+        self.assertEqual(model_process.configuration({'model': 'IQ3_XXS'}, 8100)[0], 'IQ3_XXS')
+        (model_process.ROOT / 'config/q2_0-prebuilt.json').write_text(json.dumps({'args': []}))
+        for model in ('Q2_0', 'IQ2_XS'):
+            with self.assertRaisesRegex(ValueError, 'serves only IQ3_XXS'):
+                model_process.configuration({'model': model}, 8100)
+        (model_process.ROOT / 'config/deployment.json').unlink()
+        with self.assertRaises(OSError):
+            model_process.configuration({}, 8100)
 
     def test_fit_max_tokens_defaults_on_and_explicit_false_is_kept(self):
         self.assertIs(model_process.configuration({}, 8100)[1]['fit_max_tokens'], True)
@@ -372,7 +384,7 @@ class PassthroughTests(unittest.TestCase):
         self.assertEqual((status, raw), (200, b'data: one\n\ndata: two\n\n'))
         path, authorization, body = self.upstream.seen[-1]
         self.assertEqual((path, authorization), ('/v1/responses', 'Bearer native-secret'))
-        self.assertEqual(body['model'], 'qwen3.8-flash-next-q2_0')
+        self.assertEqual(body['model'], 'qwen3.8-flash-next-iq3_xxs')
         self.assertEqual(body['reasoning_budget_tokens'], 8192)
         self.post('/strata/v1/messages', {'max_tokens': 5}, key)
         self.assertEqual(self.upstream.seen[-1][2]['reasoning_budget_tokens'], 2)  # at most half of max_tokens

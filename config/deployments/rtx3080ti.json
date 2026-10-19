@@ -3,8 +3,6 @@
   "id": "rtx3080ti",
   "cuda_arch": 86,
   "models": [
-    "Q2_0",
-    "IQ2_XS",
     "IQ3_XXS"
   ],
   "engine_overrides": {

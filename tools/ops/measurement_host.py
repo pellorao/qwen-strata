@@ -76,38 +76,23 @@ class MeasurementHost:
         """Read public upstream version metadata without using it as a source."""
         return json.loads((self.installation / 'config/installed-release.json').read_text())
 
-    def maintenance_baseline(self, source):
-        result = copy.deepcopy(source)
-        result['start_options']['engine_overrides'].update(self.deployment['engine_overrides'])
-        return result
-
-    def maintenance_profile_binding(self, baseline):
-        profile = baseline['profile']
-        config = self.configuration('Q2_0')
-        args = config['args']
-        actual = PureWindowsPath(args[args.index('--expert-profile') + 1])
-        expected = self.windows_root / profile['installation_relative_path']
-        if (actual != expected or config.get('expert_profile_save')
-                or any(a.startswith('--expert-profile-save') for a in args)
-                or profile['save_enabled'] or self.profile_sha256('Q2_0') != profile['sha256']):
-            raise ValueError('Host default profile/no-save binding differs')
-        raw = self.read_deployed_bytes('config/q2_0-prebuilt.json')
-        return {'profile': profile, 'prebuilt_config_sha256': hashlib.sha256(raw).hexdigest()}
-
     def read_deployed_bytes(self, relative):
-        from tools.ops.deploy import FILES
-        if relative not in FILES:
-            raise ValueError('Only registered public deployment files may be read')
+        from tools.ops.deploy import deployment_files
+        if relative not in deployment_files(self.deployment):
+            raise ValueError('Only registered public deployment files of the served model may be read')
         return (self.installation / relative).read_bytes()
 
     def verify_sources(self):
-        from tools.ops.deploy import FILES
+        from tools.ops.deploy import deployment_files, obsolete_files
         expected = {target: hashlib.sha256(source_bytes(source, self.identifier, condition=self.condition)).hexdigest()
-                    for target, source in FILES.items()}
+                    for target, source in deployment_files(self.deployment).items()}
         actual = {target: hashlib.sha256((self.installation / target).read_bytes()).hexdigest()
                   for target in expected}
         if actual != expected:
             raise RuntimeError('Installed public sources differ from this host project deployment')
+        left = [target for target in obsolete_files(self.deployment) if (self.installation / target).exists()]
+        if left:
+            raise RuntimeError('Installation still holds retired or unserved-model files: ' + ', '.join(left))
         return {'files': actual, 'source_sha_verified': True, **self.metadata()}
 
     def configuration(self, model):

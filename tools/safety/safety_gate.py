@@ -5,7 +5,7 @@ from pathlib import Path
 from tools.reviewer.wsl_client import ROOT,save
 from tools.reviewer.arw_measure import local_review_catalog,stop_and_capture_engine_log,log_offset,review_shell_environment
 from tools.ops.measurement_host import MeasurementHost
-from tools.ops.deployment_source import published_tier
+from tools.ops.deployment_source import published_tier,served_model
 from tools.metrics.prompt_policy import compaction_config,verify_loaded_startup
 from tools.safety.scripted_responses import scripted_stream,tool_aliases
 sys.path.append(str(ROOT/'src'))
@@ -192,10 +192,10 @@ def mock_approval(out,source,model='IQ3_XXS',host_id='rtx3080ti'):
 
 
 def gate_plan(path,host_id):
- """An approved run plan names the model (default runtime of the capability measurement it clears) and may name a published tier."""
+ """An approved run plan names the host's served model (default runtime of the capability measurement it clears) and may name a published tier."""
  plan=json.loads(Path(path).read_text())
- if not plan.get('authorization',{}).get('approved') or plan.get('host')!=host_id or plan.get('model') not in MODELS:
-  raise ValueError('The live gate needs an approved run plan for this host and a model')
+ if not plan.get('authorization',{}).get('approved') or plan.get('host')!=host_id or plan.get('model')!=served_model(host_id):
+  raise ValueError('The live gate needs an approved run plan for this host and the model it serves')
  return plan,published_tier(host_id,plan['model'],plan.get('context_window'))
 
 
