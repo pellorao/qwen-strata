@@ -1393,3 +1393,9 @@ v4.0–v4.6 逐步加难：缺陷推理步数从约 2 步加到约 4 步，再�
 
 - README 现行决定（2026-10-11）：默认模型 IQ3_XXS，其余量化只作对照；IQ3_XXS 8 维调参结果为默认值：[升级报告](../reports/v0.1.42/upgrade.md)、[调参手册](host-tuning.md#iq3_xxs)。其中"IQ3_XXS 8 维调参结果为默认值"仍有效，并入新条目。
 - README 进展：维护测量基线 Q2_0/high/default，100K 压缩阈值 / 156584 窗口，8192 思考 / 24576 总输出。历史测量绑定 Codex 0.160.1，换新版 Codex 后的结果单独标注，不改历史标签。基线文件 `config/maintenance-baseline.json` 已删除，最后版本用 `git show ff94f3c:config/maintenance-baseline.json` 查看；`benchmarks/` 里各计划记录的该文件 SHA 是当时的冻结绑定，不受影响。
+
+## 多模型 benchmark 盲裁方式（2026-10-19）
+
+用户先决定盲裁用 Opus，后来改为按盲裁占 benchmark 总额度的比例决定：不足 20% 维持单名 Opus，达到 20% 改为 Sonnet medium + gpt-6-luna high 双裁。定稿评估的占比中值约 24%（[计划 §6](../benchmarks/multi-model-v1/plan.md#6-盲裁)），因此改为双裁并先试点。被取代的「现行决定」条目原文如下：
+
+- 多模型 benchmark 的盲裁用 Opus，不用 Sonnet：benchmark 结果影响全部后续工作，质量优先（2026-10-19，用户决定；Sonnet 试点达到通过线也不改，[试点报告](reports/v0.1.45/sonnet-adjudication-pilot/summary.md)）。

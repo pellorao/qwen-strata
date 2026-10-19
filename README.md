@@ -45,11 +45,11 @@ rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），只对外提
 - 场景能力判定用相对口径 Q3／Opus，目标 < 0.8（2026-10-13；2026-10-15 用户确认维持 Opus 参考）：[Reviewer 规则](.claude/rules/reviewer-suite.md)。
 - `qwen-agent` 改按所选量化的默认档启动，Codex 与 Claude Code 同值（IQ3_XXS 206584／150000）；Claude Code 的压缩点依赖未公开的 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`，版本变化后用 `tools.ops.claude_compact_probe` 重新核对（2026-10-19，Main 与独立审查一致，rtx3080ti 已部署，rtx4070tis 补档位后同步）：[报告](reports/v0.1.45/context-tier-unify/summary.md)。
 - 报告写授权用专用父目录（目录里只有该报告），绕过 Codex 单文件写授权的 bwrap 故障；安全门与测量同一策略（2026-10-07，用户决定）：[ARW Reviewer 规则](.claude/rules/reviewer-suite.md#正式测量前的安全验收)。
-- 多模型 benchmark 的盲裁用 Opus，不用 Sonnet：benchmark 结果影响全部后续工作，质量优先（2026-10-19，用户决定；Sonnet 试点达到通过线也不改，[试点报告](reports/v0.1.45/sonnet-adjudication-pilot/summary.md)）。
+- 多模型 benchmark（2026-10-19，用户决定；方案定稿待冻结，[计划](benchmarks/multi-model-v1/plan.md)）：27 个配置（Codex：gpt-6.1-sol、gpt-6-luna、deepseek-flash、Strata；Claude Code：Opus、Sonnet、Haiku、deepseek-flash、Strata；均 low／medium／high）× 4 场景 × 5 次；只报分场景原始分，不算比值和综合分；两份基础提示只给 Strata（硬约束 3 例外）；搜索全部关闭（2026-10-11 搜索规则在 benchmark 期间豁免）；service tier 一律 default 并记录实际返回值；OpenAI 用 ChatGPT 套餐登录、只报 token。盲裁按用户的 20% 规则评估，占比中值约 24%，所以改为 Sonnet medium + gpt-6-luna high 双裁、分歧和拿不准的交 Opus，先试点，试点不过则维持单名 Opus；这取代此前的"盲裁用 Opus，不用 Sonnet"（原文见[历史工作](docs/work-history.md#多模型-benchmark-盲裁方式2026-10-19)）。待独立审查与用户复核。
 
 ## 主线
 
-- [ ] **多模型 benchmark**：四个 reviewer 场景都已冻结并测完（评分 r8 起的 Q3/Opus：Code Spec v5 0.733（×5，r8 重算）、Code Standards v5.1 0.936（×10，r8 重算；区分度不足的末版）、Spec Readiness v4.3 0.584（×5）、Commit Audit v3 0.730（×5，r8.3）），benchmark 前置工作完成；方案稿和独立审查已完成，模型清单等决定待用户答复，答复前先做无模型准备（[计划](docs/plan.md#多模型-benchmark用户-2026-10-17)）。
+- [ ] **多模型 benchmark**：四个 reviewer 场景都已冻结并测完（评分 r8 起的 Q3/Opus：Code Spec v5 0.733（×5，r8 重算）、Code Standards v5.1 0.936（×10，r8 重算；区分度不足的末版）、Spec Readiness v4.3 0.584（×5）、Commit Audit v3 0.730（×5，r8.3）），benchmark 前置工作完成；用户决定已齐，代码适配完成，定稿方案待独立审查后冻结（[运行计划](benchmarks/multi-model-v1/plan.md)、[待办](docs/plan.md#多模型-benchmark用户-2026-10-17)）。
 - [ ] **rtx4070tis 恢复后**：核对实际状态、补同步部署，再决定 ARW 安全恢复和 Spec Readiness 十二实例。
 
 ## 进展

@@ -12,7 +12,7 @@
 4. ~~统一 Codex 与 Claude Code 的上下文档位~~：同上。
 5. ~~修好安全门并在 v0.1.45 上重跑~~：2026-10-19 在 WSL 3.0.3、目录授权下通过；单模型对外与隔离修复部署后两次重跑都通过，现行证据 [safety-gate-env-fix](../reports/v0.1.45/safety-gate-env-fix/summary.md)。
 6. ~~评分规则遗留~~：两项核实已完成（r7 已实现，69969fa 补测试）；Sonnet 盲裁试点通过（[报告](../reports/v0.1.45/sonnet-adjudication-pilot/summary.md)），但用户 2026-10-19 决定 benchmark 仍用 Opus 裁决（质量优先）。本项完成。
-7. **多模型 benchmark 方案设计**：见「多模型 benchmark」。
+7. **多模型 benchmark 方案设计**：用户决定已齐，代码适配完成，[运行计划](../benchmarks/multi-model-v1/plan.md)已定稿，待独立审查后冻结；三份盲裁 brief 待核对后冻结。见「多模型 benchmark」。
 8. **多模型 benchmark 执行与报告**：同上。
 9. **采样与窗口重新测量**：负载设计，见同名一节。
 10. **v5 题库**：用户 2026-10-13 暂停，何时恢复由用户定。
@@ -53,13 +53,7 @@
 
 四个 reviewer 场景（Code Spec、Code Standards、Spec Readiness、Commit Audit）全部定稿，且「benchmark 前置工作」全部完成后开始。参与者：OpenAI 的几个模型、Anthropic 的几个模型、Strata（IQ3_XXS）、DeepSeek 等；每个场景每个模型跑 5 次取平均；得分处同时给耗时、token、工具调用数。
 
-- [ ] **方案设计**（开跑前，按 AGENTS.md 硬约束 1 处理测量设计部分）：
-  - 模型清单与推理强度，由用户定。
-  - 统一 harness：现有 Q3 测量走 Codex + ARW，Opus 盲答走 Claude Code 无头运行。跨模型比较应使用同一 harness，或者把 harness 列为一个维度；还要核实 Codex 接入 Anthropic、DeepSeek 的可行路径。
-  - 凭据：OpenAI、DeepSeek 的 key 由用户配置，agent 不经手。
-  - 费用：OpenAI、DeepSeek 按各自账户计费，需用户给出预算；Anthropic 运行和每次的语义裁决占周额度，开跑前按 `estimate.sh` 分批。
-  - 规模：模型数 × 4 × 5 次。裁决成本随运行次数线性增长，先评估能否用机械关联加抽样复核来减少 Opus 裁决。
-  - 安全验收：每个新 provider 先通过测量规则「正式测量前的安全验收」。
+- [ ] **方案设计**（开跑前，按 AGENTS.md 硬约束 1 处理测量设计部分）：用户决定已齐（2026-10-19 三轮答复），定稿见[运行计划](../benchmarks/multi-model-v1/plan.md)：27 个配置 × 4 场景 × 5 次，基础提示只给 Strata，搜索全部关闭，OpenAI 用 ChatGPT 套餐登录，DeepSeek 用 `BENCHMARK_DEEPSEEK_API_KEY`，盲裁按 20% 规则改为双裁并先试点。代码适配已完成（ChatGPT 登录链接、relay 记录实际 service tier、两个 harness 关闭搜索、Claude Code 的 DeepSeek backend）。剩余：独立审查后冻结计划；冻结三份盲裁 brief；阶段 0 的无模型准备（API catalog、benchmark 专用 Codex 与 Claude Code 副本、luna 裁决 runner、汇总流水线）。
 - [ ] **执行与报告**：按场景分批运行。报告给出每个模型的均值 ± 标准差、耗时、token、工具调用数，以及每次的费用。
 
 ## 采样与窗口重新测量（用户 2026-10-12）

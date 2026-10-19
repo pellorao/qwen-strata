@@ -18,7 +18,7 @@ paths:
 - 报告凡给得分处同时给耗时，附 token 数和工具调用数；耗时不进分数（用户 2026-10-17）。
 - 补充或新增问题用例时，优先选审计或夹具本身能证明、非某一方模型独家发现的缺陷；若取自某个被测模型回答里的线索，报告给出含/不含该用例的两套分数与 Q3/Opus，并注明来源（用户 2026-10-13 同意）。
 - 设计或改版场景前读 [scenario-design.md](../../benchmarks/reviewer-suite-v1/scenario-design.md)：场景时长、阅读量维度与时限公式、难度设计、场景分工。
-- 权限、网络沿用原生设置：`:read-only` 加显式写路径，审批走 on-request / auto_review；网络与 Codex 默认一致（允许 web_search，不允许脚本访问网络），搜索、MCP 保持原生（用户 2026-10-11）。不额外收紧，不启用可选的严格隔离。
+- 权限、网络沿用原生设置：`:read-only` 加显式写路径，审批走 on-request / auto_review；网络与 Codex 默认一致（允许 web_search，不允许脚本访问网络），搜索、MCP 保持原生（用户 2026-10-11）。不额外收紧，不启用可选的严格隔离。多模型 benchmark 期间豁免搜索这一项：所有模型、两个 harness 都关闭搜索（Codex `web_search = "disabled"`，Claude Code 不提供并禁用 WebSearch/WebFetch），安全门和逐实例检查确认没有搜索工具（用户 2026-10-19，D5；[benchmark 计划](../../benchmarks/multi-model-v1/plan.md#3-固定条件)）。其余权限设置不变。
 - 正式能力测量之前先过「正式测量前的安全验收」。
 
 ## 评分
