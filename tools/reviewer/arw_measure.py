@@ -684,11 +684,15 @@ def api_review_catalog(source,target,selection):
     return target
 
 
-def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
+def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None,codex_home=None):
     """Run prepared handoffs on an API provider through the same ARW runtime: no lease, no host, no engine log.
 
     Token consumption is the native API usage (Reviewer rounds plus guardian histories, tools.reviewer.arw_metrics),
-    labeled as such; the provider key stays in this process environment and Codex reads it through env_key."""
+    labeled as such; the provider key stays in this process environment and Codex reads it through env_key.
+
+    codex_home: a CODEX_HOME shared by parallel runs (user 2026-10-20). Its owner (the scheduler) links the ChatGPT
+    login into it once before the runs and releases it once after them, so a refreshed login reaches every run; this run
+    neither links nor releases. Without it each run gets a fresh CODEX_HOME holding its own link, as before."""
     from tools.reviewer.native_cli_binding import selection_native_cli
     native_cli=selection_native_cli(selection.get('native_cli'))
     provider=validate_api_selection(selection)
@@ -696,6 +700,9 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
         raise ValueError('Provider credential is not available: '+(provider['env_key'] or 'the benchmark ChatGPT login'))
     if os.environ.get('STRATA_API_KEY'):
         raise ValueError('A Strata key is present; API provider runs never hold a Strata lease')
+    shared_home=Path(codex_home).resolve() if codex_home else None
+    if shared_home and provider['auth']=='chatgpt' and not os.path.lexists(shared_home/'auth.json'):
+        raise ValueError('The shared CODEX_HOME does not hold the benchmark login link')
     out.mkdir(parents=True,exist_ok=False)
     compaction_config({},out/'prompt-policy-preflight',include_project_base=selection.get('project_compaction_instructions',True))
     catalog=api_review_catalog(catalog,out/'native-model-catalog.json',selection)
@@ -705,21 +712,24 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
     if limit is not None:
         save(out/'deferred.json',[h['instanceId'] for _,h,_ in jobs[limit:]]);jobs=jobs[:limit]
     runtime=out/'runtime.json';native_install=out/'arw-installation';cleanup_path=out/'arw-cleanup.json'
+    codex_home=shared_home or native_install/'codex-home'
     shim=out/'bin';shim.mkdir();entry=shim/'arw'
     entry.write_text('#!/bin/sh\nexec node '+shlex.quote(str(ROOT/'tools/reviewer/arw_runtime.mjs'))+' client "$@"\n');entry.chmod(0o755)
     save(runtime,{'repositoryRoot':str(source),'programDirectory':preparations[0].get('programDirectory',str(source)),
                   'installationDirectory':str(native_install),
                   **({'codexExecutable':native_cli['executable'],'nativeCliBinding':native_cli} if native_cli else {}),
                   'catalog':str(catalog),'cleanupPath':str(cleanup_path),
-                  'denyRead':credential_deny_paths(provider)})
+                  **({'codexHome':str(shared_home)} if shared_home else {}),
+                  'denyRead':credential_deny_paths(provider,codex_home=codex_home)})
     os.environ['QWEN_ARW_RUNTIME_FILE']=str(runtime)
-    # A fresh CODEX_HOME per run; a ChatGPT login enters it only as a link to the benchmark login (never opened).
-    codex_home=native_install/'codex-home';login=link_login(provider,codex_home)
+    # A fresh CODEX_HOME per run holds a link to the benchmark login (never opened); a shared one already holds it.
+    login=None if shared_home else link_login(provider,codex_home)
     relay=None
     if provider['relay']:
         from tools.reviewer.api_relay import Relay
         relay=Relay(provider['base_url'],out/'relay').__enter__();os.environ['QWEN_API_RELAY_BASE']=relay.url
-    save(out/'provider-binding.json',{'provider':provider,'login_link':login,'relay':relay.url if relay else None})
+    save(out/'provider-binding.json',{'provider':provider,'login_link':login,'relay':relay.url if relay else None,
+                                       'codex_home':str(codex_home),'shared_codex_home':shared_home is not None})
     old_path=os.environ['PATH'];os.environ['PATH']=str(shim)+os.pathsep+old_path
     records=[];safe=True
     daemon_log=(out/'daemon-stderr.log').open('w');daemon_path=out/'daemon-stdout.jsonl';daemon_output=daemon_path.open('w')
@@ -745,7 +755,7 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
                     record=audit_generation(machine,source,preparation,handoff,folder,record)
                 else:record['generation']=generate_original(source,preparation,handoff,folder)
             safe=True
-            record['cost']=collect_cost(record,native_install/'codex-home')
+            record['cost']=collect_cost(record,codex_home)
             combined=record['cost']['combined_api_tokens']
             record['token_consumption']=combined if record.get('complete') and None not in combined.values() else None
             record['token_consumption_source']=('API usage reported by the provider: Reviewer rounds plus guardian '
@@ -764,7 +774,7 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
         daemon_log.close();daemon_output.close();daemon_reader.close()
         os.environ['PATH']=old_path;os.environ.pop('QWEN_ARW_RUNTIME_FILE',None);os.environ.pop('QWEN_API_RELAY_BASE',None)
         if relay:relay.close()
-        if safe:save(out/'login-release.json',{'status':release_login(provider,codex_home)})
+        if safe and not shared_home:save(out/'login-release.json',{'status':release_login(provider,codex_home)})
         if not safe:
             save(out/'recovery-required.json',{'reason':'Reviewer completion or native cleanup is uncertain; preserve the ARW runtime.',
                 'runtime':str(runtime),'model_owner':'api','daemon_pid':daemon.pid})
@@ -1057,13 +1067,14 @@ if __name__=='__main__':
     parser.add_argument('--resume',action='store_true',help='Continue a closed batch, verifying prior bytes and fixed conditions; never rerun recorded instances.')
     parser.add_argument('--limit',type=int,help='Run only the first N scheduled instances; the others are listed in deferred.json.')
     parser.add_argument('--resume-native-install',type=Path,help='After verified native exit, retain old busy state and use fresh isolated state for never-started instances.')
+    parser.add_argument('--codex-home',type=Path,help='API provider runs: a CODEX_HOME shared by parallel runs; its owner links and releases the login.')
     args=parser.parse_args()
     selection=json.loads(args.selection.read_text())
     if api_provider(selection) is not None:
         if args.host or args.install_root or args.profile or args.resume or args.resume_native_install:
             parser.error('API provider runs take no host, installation, profile or resume')
         run_api(args.out.resolve(),selection,args.preparation,args.catalog.resolve(),
-                json.loads(args.schedule.read_text()) if args.schedule else None,args.limit)
+                json.loads(args.schedule.read_text()) if args.schedule else None,args.limit,args.codex_home)
         sys.exit(0)
     run(args.install_root,args.out.resolve(),json.loads(args.selection.read_text()),args.preparation,args.catalog.resolve(),args.profile,
         json.loads(args.schedule.read_text()) if args.schedule else None,args.resume,args.resume_native_install,args.host,args.limit)

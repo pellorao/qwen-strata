@@ -120,16 +120,21 @@ def process_environment(provider, environ=None):
     return {k: v for k, v in environ.items() if k == own or k.startswith('STRATA_') or not credential_name(k)}
 
 
-def credential_deny_paths(provider=None, home=None, project_root=None):
+def credential_deny_paths(provider=None, home=None, project_root=None, codex_home=None):
     """Paths no Codex Reviewer command may read (G7, plan §3): the Claude login, the user's Codex home (which holds
     the benchmark ChatGPT login, user 2026-10-19) and the project's private host file. :read-only can read them, and
     an API arm would send what it read to an outside service. home/project_root default to the real ones; gates pass
-    synthetic ones. A ChatGPT provider's own auth_home is denied as well. Paths are listed, never opened."""
+    synthetic ones. A ChatGPT provider's own auth_home is denied as well, and codex_home when given. Paths are listed,
+    never opened."""
     home = Path(home) if home is not None else Path.home()
     project_root = Path(project_root) if project_root is not None else PROJECT_ROOT
     paths = [home / '.claude/.credentials.json', home / '.codex', project_root / 'project.private.toml']
     if provider and provider.get('auth') == 'chatgpt':
         paths.append(Path(provider['auth_home']))
+    if codex_home is not None:
+        # The run's own CODEX_HOME: its login link or refreshed login, and, when shared by parallel runs (user
+        # 2026-10-20), the other runs' sessions and state. Codex itself reads it; Reviewer commands never do.
+        paths.append(Path(codex_home))
     return list(dict.fromkeys(os.path.normpath(str(p)) for p in paths))
 
 

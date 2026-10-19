@@ -12,7 +12,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from tools.reviewer.api_relay import Relay, load, tier_summary
 from tools.reviewer.providers import (api_provider, credential_present, link_login, process_environment, provider_config,
     release_login, shell_exclude)
-from tools.safety.safety_gate import guardian_request, request_body, synthetic_login, web_search_tools
+from tools.safety.safety_gate import guardian_request, rate_limit_header, request_body, synthetic_login, web_search_tools
 
 SECRET='Bearer synthetic-secret-token'
 
@@ -83,6 +83,12 @@ class ChatgptLoginTests(unittest.TestCase):
                         {'id':'deepseek','base_url':'https://api.deepseek.com','auth_home':tmp},
                         {'id':'deepseek','auth':'chatgpt','auth_home':tmp}):
                 with self.assertRaises(ValueError):api_provider({'provider':bad})
+
+    def test_gate_passes_back_only_plan_usage_headers(self):
+        self.assertTrue(rate_limit_header('X-Codex-Primary-Used-Percent'))
+        self.assertTrue(rate_limit_header('x-codex-secondary-reset-at'))
+        for name in ('Set-Cookie','Authorization','openai-organization','Content-Type'):
+            self.assertFalse(rate_limit_header(name))
 
     def test_link_and_release_never_copy_the_login(self):
         with tempfile.TemporaryDirectory()as tmp:

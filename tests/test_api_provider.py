@@ -129,5 +129,35 @@ class ApiProviderTests(unittest.TestCase):
                 self.assertIn('ChatGPT login',str(missing.exception))
             self.assertFalse((root/'api').exists())
 
+    def test_shared_codex_home_needs_its_login_link_and_is_denied(self):
+        from tools.reviewer.providers import credential_deny_paths
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'login').mkdir();(root/'login/auth.json').write_text('{}')
+            chatgpt={**API,'provider':{'id':'openai','auth_home':str(root/'login')}}
+            shared=root/'shared';shared.mkdir()
+            with patch('tools.reviewer.native_cli_binding.verify_native_cli',lambda value:None),\
+                    patch.dict('os.environ',{},clear=True):
+                # The scheduler links the login into the shared home once; a run never links or releases it itself.
+                with self.assertRaises(ValueError)as missing:run_api(root/'api',chatgpt,[],root/'c.json',codex_home=shared)
+                self.assertIn('shared CODEX_HOME',str(missing.exception))
+            self.assertFalse((root/'api').exists())
+            provider=validate_api_selection(chatgpt)
+            paths=credential_deny_paths(provider,root/'home',root/'project',codex_home=shared)
+            self.assertEqual(paths[-1],str(shared))
+            self.assertNotIn(str(shared),credential_deny_paths(provider,root/'home',root/'project'))
+
+    def test_bound_files_are_written_once_and_checked(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as tmp:
+            target=Path(tmp)/'config.toml'
+            script=("import {bindFile} from %s;const p=%s;"
+                    "await Promise.all([1,2,3].map(async()=>bindFile(p,Buffer.from('same\\n'),'differs')));"
+                    "try{bindFile(p,Buffer.from('other\\n'),'differs');console.log('accepted')}catch(e){console.log(e.message)}"
+                    % (json.dumps((ROOT/'tools/reviewer/arw_native_setup.mjs').as_uri()),json.dumps(str(target))))
+            out=subprocess.run(['node','--input-type=module','-e',script],capture_output=True,text=True,check=True).stdout
+            self.assertEqual(out.strip(),'differs')
+            self.assertEqual(target.read_text(),'same\n')
+            self.assertEqual(sorted(p.name for p in Path(tmp).iterdir()),['config.toml'])
+
 
 if __name__=='__main__':unittest.main()
