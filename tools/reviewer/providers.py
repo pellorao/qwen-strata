@@ -109,6 +109,25 @@ def process_environment(provider, environ=None):
     return {k: v for k, v in environ.items() if not (k.startswith('BENCHMARK_') and k != own)}
 
 
+# The benchmark ChatGPT login lives here (plan §11); every Codex arm denies it, whichever provider it runs.
+BENCHMARK_LOGIN_HOME = Path.home() / '.local/share/qwen-bench/codex-home'
+
+
+def credential_deny_paths(provider=None, home=None, project_root=None, login_home=None):
+    """Paths no Codex Reviewer command may read (G7, plan §3): the Claude and Codex logins, the benchmark login
+    directory and the project's private host file. :read-only can read them, and an API arm would send what it read
+    to an outside service. home/project_root/login_home default to the real ones; gates pass synthetic ones.
+    A ChatGPT provider's own auth_home is denied as well. Paths are listed, never opened."""
+    home = Path(home) if home is not None else Path.home()
+    project_root = Path(project_root) if project_root is not None else PROJECT_ROOT
+    login_home = Path(login_home) if login_home is not None else BENCHMARK_LOGIN_HOME
+    paths = [home / '.claude/.credentials.json', home / '.codex/auth.json', login_home,
+             project_root / 'project.private.toml']
+    if provider and provider.get('auth') == 'chatgpt':
+        paths.append(Path(provider['auth_home']))
+    return list(dict.fromkeys(os.path.normpath(str(p)) for p in paths))
+
+
 def credential_present(provider):
     """Whether the run can authenticate, without opening any credential: the variable is set, or the login file exists."""
     if provider['auth'] == 'chatgpt':

@@ -81,7 +81,9 @@
 - **guardian**（D6）：OpenAI 用原生默认 codex-auto-review；DeepSeek 用同模型 low（selection 写 `guardian_model`）；Strata 用服务端默认。Claude Code 的 dontAsk 没有 guardian，列为混杂。
 - **权限**：
   - Codex 路径沿用 `:read-only` 加报告专用父目录写授权，审批走 on-request / auto_review。
-  - 计划中的收紧（G7，阶段 0 必做，待用户复核）：所有 Codex 臂（包括 Strata）对 `~/.claude/.credentials.json`、`~/.codex/auth.json`、benchmark 登录目录和 `project.private.toml` 一律 deny-read，并在合成 `HOME` 下用合成文件验证。原因：`:read-only` 能读这些文件，API 臂会把读到的内容发往外部服务。这偏离 reviewer-suite「不额外收紧」，所以实施后由用户复核；规则的豁免与实施同时写入。
+  - 收紧（G7，2026-10-19 已实施，待用户复核）：所有 Codex 臂（包括 Strata）对 `~/.claude/.credentials.json`、`~/.codex/auth.json`、benchmark 登录目录（`~/.local/share/qwen-bench/codex-home` 和本次 ChatGPT 登录的 `auth_home`）和 `project.private.toml` 一律 deny-read。原因：`:read-only` 能读这些文件，API 臂会把读到的内容发往外部服务。这偏离 reviewer-suite「不额外收紧」，规则的豁免已同时写入。
+    - 实现：`providers.credential_deny_paths` 列出路径（不打开），`arw_measure` 写进 runtime 的 `denyRead`；`arw_native_setup.mjs` 在每次 `open` 时把这些路径以 `none` 加进 ARW 生成的 Reviewer profile（不改 ARW 代码和它保存的设置，接续线程同样生效）。安全门也用同一份列表，外加合成 HOME 下的合成目标。
+    - 零模型验证（`.tmp/bench-stage0-1019/g7/`）：Strata、DeepSeek、ChatGPT（合成登录、netns）三种 mock 门都通过，四类合成目标和链接进 CODEX_HOME 的登录文件全部 `denied`，原生沙箱写边界 8 类照旧拒绝；场景根外的合成答案键和工程 README 仍可读（`:read-only` 原样）。读探针遇到任一目标可读即判门失败（`deny_read_pass`）。
   - Claude Code 路径用 `claude_headless` 的隔离参数：`--setting-sources ""`、`--restricted`、dontAsk、只授权写路径、Bash 沙箱只读工作目录且无网络、`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1`、工作目录在 `/var/tmp/qwen-claude`。DeepSeek 和 Strata 臂另用全新的 `HOME` 和 `CLAUDE_CONFIG_DIR`。
 - **凭据**：
   - ChatGPT 登录：每次运行的全新 CODEX_HOME 里只放一个指向 benchmark 专用登录文件的符号链接，运行结束时移除；Codex 刷新登录、把链接换成真文件时，原样移回（`providers.link_login` / `release_login`）。工程从不打开登录文件。
@@ -191,7 +193,7 @@
   - Claude Code mock 门：DeepSeek low/medium/high、Strata low/medium，隔离通过，搜索工具 0。
   - 观察到：ChatGPT 登录下 Codex 照样走 `openai_base_url`，请求体用 zstd 压缩，mock 已支持。
 - **残余风险**：
-  - Codex `:read-only` 能读宿主文件，包括链接进来的 ChatGPT 登录文件、`~/.claude/.credentials.json` 和 `project.private.toml`；mock 读探针显示 `credential_file: READABLE`。API 臂会把读到的内容发往外部服务，所以与 Strata 路径能读工程文件不同类。处理：G7 deny-read（§3「权限」），阶段 0 实施并用合成文件验证，没通过就不启动 API 臂。会话检查把 `auth.json`、`.credentials.json` 标为凭据材料，提取输出对 token 打码，作为兜底。
+  - Codex `:read-only` 能读宿主文件，包括链接进来的 ChatGPT 登录文件、`~/.claude/.credentials.json` 和 `project.private.toml`；mock 读探针显示 `credential_file: READABLE`。API 臂会把读到的内容发往外部服务，所以与 Strata 路径能读工程文件不同类。处理：G7 deny-read（§3「权限」），已实施，三种 mock 门用合成文件验证通过；live 门的读探针同样检查，没通过就不启动 API 臂。会话检查把 `auth.json`、`.credentials.json` 标为凭据材料，提取输出对 token 打码，作为兜底。
   - Claude Code 上的 Strata 臂没有 live 冒烟，因为 `claude_gate` 的 live 模式不支持 Strata。G8（阶段 0）：给 `claude_gate` 加 Strata live smoke，经 `strata_run` 领租约运行；做完之前用 mock 门加该配置第一个实例的会话检查代替，并在报告里写明。
   - DeepSeek key 在 Codex 进程环境里。mock 门显示 `/proc` 祖先不可读，命令环境里没有这个 key。建议用户在 DeepSeek 控制台给 benchmark key 设单独的花费上限。
 

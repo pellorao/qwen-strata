@@ -81,10 +81,40 @@ class SafetyGateTests(unittest.TestCase):
    seen=read_exposure(directory);self.assertTrue(seen['fake_key_exposed']);self.assertFalse(seen['shell_key_excluded'])
    self.assertEqual(seen['outside_readable'],['outside_file','credential_file','project_file'])
    self.assertEqual(seen['results']['proc_ancestors'][-1]['pid'],os.getpid())
+   # Unsandboxed, every G7 deny-read target is readable, so deny_read_pass is not vacuous.
+   self.assertEqual(set(seen['deny_read']),{'claude_credentials','codex_auth','benchmark_login','private_host_file'})
+   self.assertFalse(seen['deny_read_pass']);self.assertEqual(set(seen['deny_read'].values()),{'READABLE'})
    subprocess.run(['bash','-c',command],env={k:v for k,v in os.environ.items()if k!='BENCHMARK_TEST_KEY'},check=True,capture_output=True)
    seen=read_exposure(directory);self.assertFalse(seen['fake_key_exposed']);self.assertTrue(seen['shell_key_excluded'])
    self.assertNotIn(fixture['value'],(directory/'probe-read-result.json').read_text())
    self.assertEqual(read_exposure(root),{'ran':False})
+
+ def test_gate_deny_list_is_the_measurement_list_plus_the_synthetic_one(self):
+  from tools.reviewer.providers import credential_deny_paths,PROJECT_ROOT,BENCHMARK_LOGIN_HOME
+  from tools.safety.safety_gate import gate_deny_paths
+  real=credential_deny_paths(None)
+  self.assertEqual(real,[str(Path.home()/'.claude/.credentials.json'),str(Path.home()/'.codex/auth.json'),str(BENCHMARK_LOGIN_HOME),str(PROJECT_ROOT/'project.private.toml')])
+  login={'auth':'chatgpt','auth_home':'/srv/login'}
+  self.assertEqual(credential_deny_paths(login)[-1],'/srv/login')
+  with tempfile.TemporaryDirectory()as tmp:
+   fixture=read_fixture(Path(tmp),'t');paths=gate_deny_paths(None,fixture)
+   self.assertEqual(paths[:4],real)
+   for target in fixture['deny_targets'].values():
+    self.assertTrue(any(str(target)==p or str(target).startswith(p+'/')for p in paths[4:]),target)
+   self.assertTrue(all(p.startswith(tmp)for p in paths[4:]))
+
+ def test_deny_read_settings_add_none_to_the_reviewer_profile(self):
+  script='''import {denyReadSettings} from %s;
+const s={model:'m',config:{default_permissions:'p','permissions.p.filesystem':{'/w':'read','/r':'write'},other:1}};
+const d=denyReadSettings(s,['/home/u/.claude/.credentials.json','/w2']);
+const out={fs:d.config['permissions.p.filesystem'],other:d.config.other,unchanged:s.config['permissions.p.filesystem']};
+const errors=[];
+for(const [settings,paths] of [[s,['/w']],[s,[]],[s,['relative']],[{config:{}},['/x']]]){try{denyReadSettings(settings,paths);errors.push('none')}catch(e){errors.push('error')}}
+out.errors=errors;console.log(JSON.stringify(out));'''%json.dumps(str(Path(__file__).resolve().parents[1]/'tools/reviewer/arw_native_setup.mjs'))
+  result=json.loads(subprocess.run(['node','--input-type=module','-e',script],capture_output=True,text=True,check=True).stdout)
+  self.assertEqual(result['fs'],{'/w':'read','/r':'write','/home/u/.claude/.credentials.json':'none','/w2':'none'})
+  self.assertEqual(result['unchanged'],{'/w':'read','/r':'write'});self.assertEqual(result['other'],1)
+  self.assertEqual(result['errors'],['error']*4)
 
  def test_provider_config_and_environment_hold_only_the_fake_key(self):
   provider={'id':'openai','codex_id':'benchmark_openai','name':'OpenAI','base_url':'https://api.openai.com/v1','env_key':'BENCHMARK_OPENAI_API_KEY','auth':'env_key','relay':True}

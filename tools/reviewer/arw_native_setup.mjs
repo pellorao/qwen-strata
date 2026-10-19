@@ -44,5 +44,29 @@ export async function createIsolatedNativeSessions(info) {
    env.CODEX_HOME=codexHome;return env;
   },
  });
+ if(info.denyRead!==undefined)sessions.open=denyReadOpen(sessions.open.bind(sessions),info.denyRead);
  return {sessions,modelCatalog};
+}
+
+// G7 (benchmark plan §3): upstream's Reviewer profile extends :read-only, which can read the user's logins and the
+// project's private host file. Every root thread this runtime opens gets those paths as `none` in the profile it
+// runs with; upstream code and its persisted settings stay unchanged, so a resumed thread is denied the same way.
+export function denyReadSettings(settings,paths){
+ if(!Array.isArray(paths)||!paths.length||paths.some(p=>typeof p!=='string'||!p.startsWith('/')))
+  throw Error('Deny-read paths must be a non-empty list of absolute paths.');
+ const profile=settings.config?.default_permissions;const key=`permissions.${profile}.filesystem`;
+ const filesystem=settings.config?.[key];
+ if(typeof profile!=='string'||filesystem===null||typeof filesystem!=='object')
+  throw Error('Deny-read needs the Reviewer permission profile.');
+ const denied={...filesystem};
+ for(const path of paths){
+  if(path in denied&&denied[path]!=='none')throw Error('A deny-read path is also granted: '+path);
+  denied[path]='none';
+ }
+ return {...settings,config:{...settings.config,[key]:denied}};
+}
+
+function denyReadOpen(open,paths){
+ denyReadSettings({config:{default_permissions:'check','permissions.check.filesystem':{}}},paths);
+ return input=>open({...input,settings:denyReadSettings(input.settings,paths)});
 }

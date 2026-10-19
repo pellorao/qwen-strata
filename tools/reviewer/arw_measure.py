@@ -19,7 +19,7 @@ from tools.metrics.review_work_time import ReviewWorkClock
 from tools.reviewer.wsl_client import ROOT,save
 from tools.metrics.context_capacity import CONTEXT_WINDOWS
 from tools.metrics.prompt_policy import compaction_config
-from tools.reviewer.providers import (api_model, api_provider, credential_present, link_login, process_environment,
+from tools.reviewer.providers import (api_model, api_provider, credential_deny_paths, credential_present, link_login, process_environment,
     provider_config, release_login, service_tier, shell_exclude, validate_api_selection, web_search_mode)
 
 sys.path.append(str(ROOT / 'src'))
@@ -712,7 +712,8 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None):
     save(runtime,{'repositoryRoot':str(source),'programDirectory':preparations[0].get('programDirectory',str(source)),
                   'installationDirectory':str(native_install),
                   **({'codexExecutable':native_cli['executable'],'nativeCliBinding':native_cli} if native_cli else {}),
-                  'catalog':str(catalog),'cleanupPath':str(cleanup_path)})
+                  'catalog':str(catalog),'cleanupPath':str(cleanup_path),
+                  'denyRead':credential_deny_paths(provider)})
     os.environ['QWEN_ARW_RUNTIME_FILE']=str(runtime)
     # A fresh CODEX_HOME per run; a ChatGPT login enters it only as a link to the benchmark login (never opened).
     codex_home=native_install/'codex-home';login=link_login(provider,codex_home)
@@ -855,7 +856,9 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
         save(runtime,{'repositoryRoot':str(source),'programDirectory':preparations[0].get('programDirectory',str(source)),
                       'installationDirectory':str(native_install),
                       **({'codexExecutable':native_cli['executable'],'nativeCliBinding':native_cli} if native_cli else {}),
-                      'catalog':str(catalog),'cleanupPath':str(cleanup_path)})
+                      'catalog':str(catalog),'cleanupPath':str(cleanup_path),
+                      # G7: Strata arms deny the same credential paths as the API arms.
+                      'denyRead':credential_deny_paths(None)})
         # With ARW owning the model, its provider connection replaces this base URL and key.
         os.environ['STRATA_API_KEY']=controller.key if controller else 'arw-owned'
         os.environ['QWEN_ARW_MODEL_BASE']=(controller.model_base if controller
