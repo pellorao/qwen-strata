@@ -314,8 +314,8 @@
     "limit": 10000
    },
    "supports_image_detail_original": false,
-   "context_window": 156584,
-   "max_context_window": 156584,
+   "context_window": 206584,
+   "max_context_window": 206584,
    "comp_hash": "3000",
    "effective_context_window_percent": 100,
    "experimental_supported_tools": [],

@@ -141,6 +141,17 @@ installation_path='C:\\Strata'
         for private in ('secret-sentinel', 'frontend_url', 'installation_root', '模型'):
             self.assertNotIn(private, public)
 
+    def test_catalog_window_is_each_installed_models_default_tier(self):
+        (self.root/'config').mkdir(exist_ok=True)
+        catalog = {'models': [{'slug': 'qwen3.8-flash-next-q2_0', 'context_window': 1, 'max_context_window': 1},
+                              {'slug': 'qwen3.8-flash-next-iq3_xxs', 'context_window': 1, 'max_context_window': 1}]}
+        (self.root/'config/model-catalog.json').write_text(json.dumps(catalog), encoding='utf-8')
+        rendered = json.loads(source_bytes('config/model-catalog.json', 'tuned', self.root))
+        self.assertEqual([(m['context_window'], m['max_context_window']) for m in rendered['models']],
+                         [(156584, 156584), (1, 1)])  # IQ3_XXS is not installed on this host
+        with self.assertRaisesRegex(ValueError, 'no context tier for installed model Q2_0'):
+            source_bytes('config/model-catalog.json', 'plain', self.root)
+
     def test_old_schema_and_unknown_fields_are_rejected(self):
         self.host('old', schema_version=1)
         with self.assertRaisesRegex(ValueError, 'schema'):

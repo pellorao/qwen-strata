@@ -191,12 +191,16 @@ def source_bytes(relative, identifier, project=None, condition=None):
         return (json.dumps(frontend_configuration(identifier, project), indent=2) + '\n').encode()
     if path.as_posix() == 'config/model-catalog.json':
         # The catalog window states each model's default (first published) tier on this host.
+        # An installed model without published tiers would leave the catalog window unrelated to the engine's.
         raw = (project / path).read_bytes()
-        tiers, value = load_host(identifier, project, condition)['context_tiers'], json.loads(raw)
+        host, value = load_host(identifier, project, condition), json.loads(raw)
         for entry in value['models']:
-            model_tiers = tiers.get(entry['slug'].removeprefix('qwen3.8-flash-next-').upper())
-            if model_tiers:
-                entry['context_window'] = entry['max_context_window'] = model_tiers[0]['context_window']
+            model = entry['slug'].removeprefix('qwen3.8-flash-next-').upper()
+            if model not in host['models']:
+                continue
+            if model not in host['context_tiers']:
+                raise ValueError(f'{identifier} publishes no context tier for installed model {model}')
+            entry['context_window'] = entry['max_context_window'] = host['context_tiers'][model][0]['context_window']
         return raw if value == json.loads(raw) else (json.dumps(value, ensure_ascii=False, indent=1) + '\n').encode()
     if path.as_posix() == 'config/maintenance-baseline.json':
         raw = (project / path).read_bytes()
