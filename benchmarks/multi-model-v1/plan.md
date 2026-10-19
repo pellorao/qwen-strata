@@ -359,3 +359,26 @@
 - 用户复核（2026-10-19）：§14 全部同意。顺序口径补充：同一类模型（同一厂商或模型族的各配置，例如 Anthropic 三个模型的 9 个配置、Strata 的 6 个、GPT 的 6 个、DeepSeek 的 6 个）要在尽量短的时间段内跑完，不同类之间可以间隔几天。
 - 2026-10-19 22:20，Claude Code 上 Strata 臂（#25–27）第一个实例之前补代码。e470539 的 `claude_scenario` 只能跑 API 臂：没有 `--backend`/`--host`，且加载了启动提示的实例会被 checks 判无效。补上 `--backend strata --host <id>`；Strata 实例的 checks 用本次实际加载的两份提示 sha（binding）代替"启动提示关闭"，并按服务日志（model-server.log 本次段）核对每个请求的思考上限和总输出与 §2.1 一致；`claude_headless.strata_run` 另存服务日志段、Strata 版本和 qwen-agent 模型变量的值（不含 key 和前端地址）。Anthropic 臂的代码路径和判定不变（测试覆盖）。排程沿用冻结代码 `strata_run` 的做法：每个根线程领一次租约、冷加载、跑完停模型并归还，不做 §3 所说的同配置连跑与预热；每个实例从相同冷态开始，前缀缓存不跨实例（与 G8、`arw_measure` 自持模型路径一致），实例之间归还租约，Codex 侧 worker 可以在间隙领用。交 Main 复核。
 - 2026-10-19 22:29（87d86c2），DeepSeek key 的变量名改为 `DEEPSEEK_API_KEY`（用户已写进 `~/.profile`），凭据排除改为已知变量加 `*_API_KEY`、`*_TOKEN`、`*_SECRET` 通配；`arw_measure` 的 Strata 路径原先只排除 `STRATA_API_KEY`，现在与安全门一致，排除全部凭据变量和通配。原因：方案里的 `BENCHMARK_DEEPSEEK_API_KEY` 与用户实际设置的名字不符，旧的 `process_environment` 只按 `BENCHMARK_` 前缀去掉 key，换名后 DeepSeek key 会进入其他臂的 daemon 环境；Strata 路径的 Codex 命令也能看到它。影响：#10–12 尚未开跑，Claude Code 臂（#13–27）的最小环境不变，已跑实例不受影响。0.163.0 上三种 Codex mock 门和 Claude Code DeepSeek mock 门复跑通过：canary `DEEPSEEK_API_KEY` 与通配 canary `QWEN_GATE_CANARY_TOKEN` 在命令环境里都 `absent`，命令环境里没有任何这类名字（`shell_credential_names` 为空）。
+
+### 14.2 #10–12（Codex 上的 Strata）补冻结（2026-10-19）
+
+§14 为 #10–12 设的条件都已在 Codex 0.163.0 上满足，按 §14 以单独 commit 补冻结。
+
+- **条件核对**（全部满足，证据在 §7「Codex 0.163.0 上的 Strata 证据」，报告 `reports/v0.1.45/safety-gate-codex-0.163.0/`）：
+  - 完整门 `safety_gate --run`（rtx3080ti、IQ3_XXS、high，21:59–22:03）：原生 3 行、15 个审批用例，共 18 个观测全部通过。
+  - 读探针 3 次都跑了；G7 deny-read 的 4 个合成目标都是 denied，`deny_read_pass` 为真；假 key 在命令环境和 `/proc` 祖先中都不可见。
+  - `web_search: disabled`：请求里搜索工具 0。
+  - 三档冒烟（low / medium / high 各 1 次）：全部通过，请求的推理强度与 plan 一致。
+  - 压缩提示核实：live 门与冒烟加载的压缩提示是 `3856cb62…`，启动提示加载后是 `1cae169a…`（源 `5f9efc02…`，防循环段关闭）。原生压缩提示 `ab0c334d…` 与 0.162.0 逐字节相同；远端压缩无残留（阶段 0 零模型）。
+- **门之后的改动**（87d86c2）：Strata 路径的命令环境从只排除 `STRATA_API_KEY`，改为排除全部凭据变量和 `*_API_KEY`、`*_TOKEN`、`*_SECRET`，见 §14.1。live 门本来就用全部凭据变量的排除名单（`shell_exclude(None)`），这次只多了通配。改动只去掉更多环境变量，不改模型输入。0.163.0 上的 Strata mock 门已复跑通过（边界 8 类拒绝，`deny_read_pass` 为真，命令环境里没有任何凭据形变量），所以判定条件仍然满足，不重跑 live 门。
+- **冻结对象**：plan.md 在 commit `bfd22f1` 时的内容（sha256 `43897bba…f3d407`），加上本节，适用于配置 #10–12。§14 的预登记、无效判据和偏离口径照样适用。§14 的除外项仍然除外（#1–9、#22–24 和 P0–P3）。
+- **绑定**：
+  - Codex：benchmark 专用副本 0.163.0，native sha256 `399ff69c431c066e40de318fba45c2b07f45a76b19939d247ee4828fc70c4215`，路径 `~/.local/share/qwen-bench/codex-0.163.0/`。
+  - 代码：commit `bfd22f1` 的 `tools/reviewer/arw_measure.py`、`providers.py`、`native_cli_binding.py` 和 `tools/safety/safety_gate.py`。
+  - 场景 plan sha256：commit-audit-v3 `6de471d9…`、code-spec-v5 `990e9363…`、code-standards-v5.1 `89b604c9…`、spec-readiness-v4.3 `f1ad28d1…`（§14.1 的 0.163.0 绑定）。
+  - Strata 侧：部署 JSON `1c8650e1…`；默认 profile `8f59b4aa…`（门前 preflight 与门一致）；档位 206584 / 150000；三档的思考上限和总输出按 §2.1，guardian 512/1024。
+  - 提示：启动提示加载后 `1cae169a…`，压缩提示 `3856cb62…`。
+- **第一个实例要做的检查**：
+  - 从服务日志核实 2048/8192、4096/16384、8192/24576 确实生效。冒烟只核对了请求里的推理强度，没核对前端填入的上限。
+  - 逐实例核对两份提示的 sha。
+  - 把 Strata 版本和安装 sha 写进绑定（§14 偏离第 1 条）。
