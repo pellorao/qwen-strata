@@ -13,8 +13,12 @@ are ARW's run/results.json. One record per instance directory, with the same fie
   identity (the plan's Main identity and the prep's); original_prepared; repository_check (what the Reviewer saw);
   plus the benchmark_summary fields, score fields left null until scored.
 
-An instance without a recorded pause field gets pause_known false (and pause_count null): an old record cannot tell
-"no pause" from "not recorded"; pause_note says what the harness of that time would have done.
+Pauses (plan S2) of an instance without a recorded pause field are rebuilt mechanically, per arm, with the basis
+in pause_basis: OpenAI from instance.json `arw_pause` and the distinct ARW pause notices ("The Reviewer runtime paused
+this same task after ...") in run/machine.jsonl; Strata Codex from run/machine.jsonl; a Claude Code handoff of the
+harness before execute_continued (no `continuation`) could not continue an early exit, so it never reached a pause point
+(0 by construction). Where no basis exists the record keeps pause_known false and the scorer refuses it. Claude Code
+records carry harness_generation; config_notes names a configuration that mixes both generations.
 
     python3 -m tools.reviewer.bench_records --all [--out records.jsonl]
     python3 -m tools.reviewer.bench_records --arm openai --scenario code-spec-v5 --dir .tmp/bench-openai-1020/cs
@@ -23,6 +27,7 @@ import argparse
 import hashlib
 import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -49,6 +54,7 @@ DIR_NAME = re.compile(r'^(?P<model>[a-z-]+?)-(?P<effort>low|medium|high)-a(?P<at
 SUB_SCENARIO = re.compile(r'^(.+)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-instance-\d+$')
 PREPARED = 'prep/arw/.tmp/codex/*/_reviewer-cap/runs/*/prepared.json'
 SCORE_FIELDS = {'score': None, 'raw_score': None, 'format_penalty': None, 'repairs': None}
+ARW_PAUSE_PREFIX = 'The Reviewer runtime paused this same task after '  # tools/reviewer/arw_measure.py
 
 
 def sha256_file(path):
@@ -112,9 +118,41 @@ def tree_differences(recorded, fresh):
 def pause_fields(events, continues, note):
     if events is None:
         return {'pause_known': False, 'pause_count': None, 'pause_events': None, 'continue_count': continues,
-                'pause_note': note}
+                'pause_basis': None, 'pause_note': note}
     return {'pause_known': True, 'pause_count': len(events), 'pause_events': events, 'continue_count': continues,
-            'pause_note': None}
+            'pause_basis': 'recorded arw_pause_events', 'pause_note': None}
+
+
+def rebuilt_pause(count, basis):
+    """Pause fields rebuilt from a run's own logs (no arw_pause_events recorded)."""
+    return {'pause_known': True, 'pause_count': count, 'pause_events': None, 'continue_count': None,
+            'pause_basis': basis, 'pause_note': None}
+
+
+def machine_pauses(path):
+    """Distinct ARW pause notices (messageId, else sequence) in an ARW machine log, or None without the log."""
+    path = Path(path)
+    if not path.is_file():
+        return None
+    seen = set()
+
+    def walk(value):
+        if isinstance(value, dict):
+            if value.get('type') == 'message' and str(value.get('text', '')).startswith(ARW_PAUSE_PREFIX):
+                seen.add(value.get('messageId') or f"sequence-{value.get('sequence')}")
+            for item in value.values():
+                walk(item)
+        elif isinstance(value, list):
+            for item in value:
+                walk(item)
+    for line in path.read_text(errors='replace').splitlines():
+        if ARW_PAUSE_PREFIX not in line:
+            continue
+        try:
+            walk(json.loads(line))
+        except ValueError:
+            return None  # a pause line that does not parse: the count cannot be established
+    return len(seen)
 
 
 def base(arm, scenario, folder):
@@ -167,9 +205,15 @@ def openai_record(arm, scenario, folder):
         record.update(pause_fields([e for h in handoff_list for e in h['arw_pause_events']],
                                    sum(h.get('continue_count') or 0 for h in handoff_list), None))
     else:
-        record.update(pause_fields(None, None, f"run_one before the S2 continue path (arw_pause={instance.get('arw_pause')}, "
-                                               f"s2_paused={instance.get('s2_paused')}): "
-                                               'a pause left the run waiting (s2_paused), so a completed run had none'))
+        count = machine_pauses(folder / 'run/machine.jsonl')
+        flag = instance.get('arw_pause')
+        if 'arw_pause' in instance and count is not None and bool(flag) == (count > 0):
+            record.update(rebuilt_pause(count, f'run_one before the S2 continue path: instance.json arw_pause={bool(flag)}, '
+                                               f'run/machine.jsonl {count} distinct ARW pause notice(s)'))
+        else:
+            record.update(pause_fields(None, None, f"no pause basis: arw_pause={flag!r} "
+                                                   f"({'present' if 'arw_pause' in instance else 'absent'}), "
+                                                   f'run/machine.jsonl pause notices {count}'))
     location = load(folder / 'prep-location.json') or {}
     copies = location.get('reports') or {}
     manifest = load(folder / 'scenario-copies.json') or {}
@@ -237,36 +281,28 @@ def claude_record(arm, scenario, folder):
     instance = instance or {}
     record['started'] = None
     record['time_limit_seconds'], record['time_limit_source'] = time_limit(folder)
+    continued = [('continuation' in h) for h in instance.get('handoffs') or []]
+    record['harness_generation'] = ('execute_continued' if continued and all(continued) else
+                                    'before execute_continued' if continued and not any(continued) else
+                                    'mixed' if continued else None)
     if 'arw_pause_events' in instance:
         record.update(pause_fields(instance['arw_pause_events'], instance.get('continue_count'), None))
+    elif record['harness_generation'] == 'before execute_continued':
+        record.update(rebuilt_pause(0, 'claude_headless before execute_continued (no handoff continuation): an early '
+                                       'exit was not continued, so no ARW pause point could be reached; 0 by construction'))
     else:
-        record.update(pause_fields(None, None, 'claude_headless before execute_continued: early exits were not '
-                                               'continued, so no ARW pause point could be reached'))
+        record.update(pause_fields(None, None, f"no pause basis (harness {record['harness_generation']}, "
+                                               'no arw_pause_events)'))
     record['handoffs'] = handoffs
     record['repository_manifest'] = {'kind': 'h<k>/files-before.json'} if any(h['files_before'] for h in handoffs) else None
     return record
 
 
 def read_spills(out):
-    """Kept tool-output files Claude Code spilled (large outputs saved under tool-results/) that the session opened with
-    its Read tool: only Read shows their line numbers, so only these can be what a report cites (repair (d))."""
-    kept = {p.name: p for p in sorted(out.glob('session-files/*/*/tool-results/*')) if p.is_file()}
-    opened = set()
-    for stream in sorted(out.glob('stream*.jsonl')):
-        for line in stream.read_text(errors='replace').splitlines():
-            if 'tool-results' not in line:
-                continue
-            try:
-                event = json.loads(line)
-            except ValueError:
-                continue
-            content = (event.get('message') or {}).get('content')
-            for item in content if isinstance(content, list) else []:
-                if item.get('type') == 'tool_use' and item.get('name') == 'Read':
-                    path = str((item.get('input') or {}).get('file_path', ''))
-                    if '/tool-results/' in path:
-                        opened.add(path.rsplit('/', 1)[1])
-    return [str(kept[name]) for name in sorted(opened) if name in kept]
+    """Every kept tool-output file Claude Code spilled for the handoff (large outputs saved under tool-results/). Any
+    view of one (Read, cat -n, grep -n) shows its line numbers, so all are offered to repair (d), which converts a
+    locator only through a unique, content-checked reading."""
+    return [str(p) for p in sorted(out.glob('session-files/*/*/tool-results/*')) if p.is_file()]
 
 
 def strata_codex_record(arm, scenario, folder, done):
@@ -287,7 +323,12 @@ def strata_codex_record(arm, scenario, folder, done):
         events = [e for r in results for e in r['arw_pause_events']]
         record.update(pause_fields(events, sum(r.get('continue_count') or 0 for r in results), None))
     else:
-        record.update(pause_fields(None, None, 'results.json without arw_pause_events'))
+        count = machine_pauses(folder / 'run/machine.jsonl')
+        if count is not None and results:
+            record.update(rebuilt_pause(count, f'results.json without arw_pause_events: run/machine.jsonl {count} '
+                                               'distinct ARW pause notice(s)'))
+        else:
+            record.update(pause_fields(None, None, 'results.json without arw_pause_events and no run/machine.jsonl'))
     reports = sorted((folder / 'report').glob('*')) if (folder / 'report').is_dir() else []
     handoffs = []
     for k, r in enumerate(results):
@@ -354,6 +395,19 @@ def scene_records(arm, scenario, scene):
     return out
 
 
+def config_notes(records):
+    """A note for each arm/scenario/configuration whose instances come from both Claude Code harness generations."""
+    groups = {}
+    for r in records:
+        if r.get('harness_generation'):
+            groups.setdefault((r['arm'], r['scenario'], r['config_label']), {}).setdefault(r['harness_generation'], []).append(r['id'])
+    return [{'arm': arm, 'scenario': scenario, 'config': label,
+             'note': 'instances from both harness generations (before / with execute_continued): pauses of the older '
+                     'ones are 0 by construction, the newer ones continue early exits and record pauses',
+             'generations': {g: len(ids) for g, ids in sorted(by.items())}}
+            for (arm, scenario, label), by in sorted(groups.items()) if len(by) > 1]
+
+
 def all_records(layout=LAYOUT):
     out = []
     for arm, (root, scenes) in layout.items():
@@ -376,6 +430,8 @@ def main():
         records = scene_records(args.arm, args.scenario, args.dir or ROOT / LAYOUT[args.arm][0] / LAYOUT[args.arm][1][args.scenario])
     else:
         parser.error('give --all, or --arm and --scenario')
+    for note in config_notes(records):
+        print(json.dumps(note, ensure_ascii=False), file=sys.stderr)
     text = ''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in records)
     if args.out:
         args.out.write_text(text)

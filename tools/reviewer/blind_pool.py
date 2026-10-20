@@ -6,13 +6,14 @@
             into <ADJ>. Items are grouped by expectation (E##, finding candidates one group each, F##), sources hidden.
             Controls in every pool: the anchors of the scenario registry (association decisions already made in a
             blind pool of the same scenario version, or confirmed by Main with an executable check) and all of its
-            synthetic items. Finding-kind controls are always synthetic (user 2026-10-20); synthetic findings are
+            synthetic items; every pool holds at least one not-matched control. Finding-kind controls are always synthetic (user 2026-10-20); synthetic findings are
             written in each report family's own style (OpenAI "- Title sentence. ...", Anthropic "- `loc` — ...",
             Strata "1. `loc` - ..."), since the layout of a finding shows its family anyway (accepted, user 2026-10-20).
     split   <ADJ>/decisions-<name>.json + key -> control agreement by report family (anchors, synthetic), the pool
             verdict (anchors >= 90 % and every synthetic item right, else the pool is adjudicated again: nothing is
             written), the decisions written into <score root>/<record id>/decisions.json keyed by stable candidate id
-            (earlier values kept in its history), and Main's review lists: every `supported` decision, and the disputed
+            with the fingerprint of the item the adjudicator saw (earlier values kept in its history; a decision is
+            reused only for a candidate with the same fingerprint), and Main's review lists: every `supported` decision, and the disputed
             `unsupported` ones (named among the adjudicator's hardest, hedged reasons, or evidence shared with an item
             decided otherwise).
     override  Main's decision after review, into the store (history kept).
@@ -93,6 +94,17 @@ def pool_item(candidate, scenario):
     return item
 
 
+def item_fingerprint(item):
+    """sha256 of a pool item without its pool id and group."""
+    text = json.dumps({k: v for k, v in item.items() if k not in ('id', 'group')}, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def fingerprint(candidate, scenario):
+    """Fingerprint of the adjudicator's view of a candidate: a stored decision holds only for the same content."""
+    return item_fingerprint(pool_item(candidate, scenario))
+
+
 def registry_paths(scenario, registry=REGISTRY):
     return Path(registry) / f'{scenario}.json'
 
@@ -129,6 +141,11 @@ def pick_anchors(anchors, count, rnd):
         for family in sorted(by_family):
             if by_family[family] and len(picked) < count:
                 picked.append(by_family[family].pop())
+    left = [a for items in by_family.values() for a in items if a['expected'] == 'not-matched']
+    if picked and left and not any(a['expected'] == 'not-matched' for a in picked):
+        # A pool needs a not-matched control; swap one in for the last pick of the same family when possible.
+        swap = next((a for a in left if a['family'] == picked[-1]['family']), left[0])
+        picked[-1] = swap
     return picked
 
 
@@ -164,32 +181,42 @@ def chunks(groups, limit):
     return pools
 
 
-def stored(root, record_id, cache={}):
+def stored(root, record_id):
+    """stable id -> fingerprint of the decisions an instance's store holds."""
     path = store_path(root, record_id)
-    if path not in cache:
-        cache[path] = set(load(path)['decisions']) if path.is_file() else set()
-    return cache[path]
+    if not path.is_file():
+        return {}
+    return {sid: d.get('fingerprint') for sid, d in load(path)['decisions'].items()}
 
 
 def build(scenario, name, adj, keys, candidate_files, registry=REGISTRY, limit=MAX_ITEMS, seed=20261020,
           anchor_count=ANCHORS_PER_POOL, root=None):
+    if Path(keys).resolve().is_relative_to(Path(adj).resolve()):
+        raise ValueError('the key directory must not be under the adjudication directory')
     reg, reg_sha = load_registry(scenario, registry)
     rnd = random.Random(seed)
     control_items = controls(reg, anchor_count, rnd)
+    if not any(meta['expected'] == 'not-matched' for _, meta in control_items):
+        raise ValueError(f'{scenario}: no not-matched control (anchor or synthetic) for the pools')
     anchor_origins = {(c['origin']['record'], c['origin']['stable_id']) for c in reg.get('anchors', [])
                       if (c.get('origin') or {}).get('record')}
-    real, skipped = [], 0
+    real, skipped, stores = [], 0, {}
     for path in candidate_files:
         for candidate in load(path):
             if candidate['record'].split('/')[1] != scenario:
                 raise ValueError(f"{path}: candidate of {candidate['record']}, not {scenario}")
-            if root is not None and candidate['stable_id'] in stored(root, candidate['record']):
-                skipped += 1  # already adjudicated (an earlier pool): only what changed is adjudicated again
-                continue
-            real.append((pool_item(candidate, scenario),
+            item = pool_item(candidate, scenario)
+            mark = item_fingerprint(item)
+            if root is not None:
+                if candidate['record'] not in stores:
+                    stores[candidate['record']] = stored(root, candidate['record'])
+                if stores[candidate['record']].get(candidate['stable_id']) == mark:
+                    skipped += 1  # already adjudicated with the same content: only what changed is adjudicated again
+                    continue
+            real.append((item,
                          {'source': 'instance', 'record': candidate['record'], 'stable_id': candidate['stable_id'],
                           'candidateId': candidate['candidateId'], 'kind': candidate['kind'],
-                          'family': record_family(candidate['record'])}))
+                          'family': record_family(candidate['record']), 'fingerprint': mark}))
     clash = [m for _, m in real if (m['record'], m['stable_id']) in anchor_origins]
     if clash:
         # An anchor taken from an instance being scored would show the adjudicator the same item twice.
@@ -347,8 +374,10 @@ def write_stores(real, decisions, pool_name, root):
         store = load(path) if path.is_file() else {'decisions': {}, 'history': []}
         for r in rows:
             d = decisions[r['id']]
+            if not r.get('fingerprint'):
+                raise ValueError(f"{r['id']}: key item without a fingerprint")
             new = {'decision': d['decision'], 'reason': d['reason'], 'source': f"pool {pool_name}:{r['id']}",
-                   'kind': r['kind']}
+                   'kind': r['kind'], 'fingerprint': r['fingerprint']}
             old = store['decisions'].get(r['stable_id'])
             if old is not None and old != new:
                 store['history'].append({'stable_id': r['stable_id'], 'replaced': old, 'by': new['source']})
@@ -368,7 +397,8 @@ def override(record_id, stable_id, decision, reason, by='Main review', root=DEFA
     association = old.get('kind') == 'association'
     if not DECISION.match(decision) or association != (decision in ('matched', 'not-matched')):
         raise ValueError(f'{decision!r} is not a decision of a {old.get("kind")} candidate')
-    new = {'decision': decision, 'reason': reason, 'source': f'override ({by})', 'kind': old.get('kind')}
+    new = {'decision': decision, 'reason': reason, 'source': f'override ({by})', 'kind': old.get('kind'),
+           'fingerprint': old.get('fingerprint')}
     store['history'].append({'stable_id': stable_id, 'replaced': old, 'by': new['source']})
     store['decisions'][stable_id] = new
     save(path, store)
@@ -430,8 +460,6 @@ def main():
     a.add_argument('--registry', type=Path, default=REGISTRY)
     args = parser.parse_args()
     if args.command == 'build':
-        if args.keys.resolve().is_relative_to(args.adj.resolve()):
-            parser.error('the key must not be under the adjudication directory')
         print(json.dumps(build(args.scenario, args.name, args.adj, args.keys, args.candidates, args.registry, args.max,
                                args.seed, args.anchors, args.root), indent=1))
     elif args.command == 'split':

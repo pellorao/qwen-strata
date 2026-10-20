@@ -25,11 +25,14 @@ Markdown reports (Code Spec, Code Standards; user 2026-10-12):
       file and the model cites its lines; user 2026-10-20): converted through
       the diff hunk headers of the spill files when exactly one reading exists:
       every spill whose lines at the start and end are new-side diff lines of
-      the named file gives the same source lines. A part no spill reads that
-      way, or that two spills read differently, stays as written (an invalid
-      locator). The caller gives the spills the session opened with its Read
-      tool (bench_records.read_spills), the only view that shows their line
-      numbers; a part within its source file is read as written.
+      the named file, and whose every new-side line in between equals the
+      frozen source line it maps to (the spill line without its diff prefix
+      character), gives the same source lines. A part no spill reads that way,
+      or that two spills read differently, stays as written (an invalid
+      locator). The caller gives every spill kept for the handoff
+      (bench_records.read_spills); a part within its source file is read as
+      written, and the repair record counts those a spill would also read
+      uniquely (`diagnostics.inRangeSpillReadable`, scoring unchanged).
 Other locator errors (out-of-range lines, non-file text) stay as written.
 Whether a repaired report is still penalized is decided by the scorer: the
 ARW patch keeps the original's diagnostics.
@@ -126,13 +129,15 @@ def check_only_markdown_changes(original, normalized, changes):
     assert normalized == apply_changes(original, changes), 'normalization changed more than the recorded items'
 
 
-def normalize_markdown(text, sources=None, spills=()):
+def normalize_markdown(text, sources=None, spills=(), texts=None, diagnostics=None):
     """Return the copy and the list of changes.
 
     sources maps each frozen source path to its line count. A backquoted
     locator naming only a file (`name.mjs:3`) is completed with its directory
     when exactly one source has that name and every line is within it.
-    spills are the texts of harness-spilled tool-output files (see (d))."""
+    spills are the texts of harness-spilled tool-output files and texts maps
+    each frozen source path to its lines (text.split('\n')); (d) needs both.
+    diagnostics, a dict, receives inRangeSpillReadable."""
     lines = text.splitlines(keepends=True)
     first = next((i for i, line in enumerate(lines) if FINDING_START.match(line)), 0)
     removed = lines[:first]
@@ -150,12 +155,13 @@ def normalize_markdown(text, sources=None, spills=()):
                             'before': before, 'after': after})
             offset += len(after) - len(before)
     maps = [spill_map(spill) for spill in spills]
-    if maps and sources:
+    found = {'inRangeSpillReadable': 0}
+    if maps and sources and texts:
         current = apply_changes(text, changes).splitlines(keepends=True)
         for index, line in enumerate(current):
             offset = 0
             for match in BACKQUOTED.finditer(line):
-                converted = spill_conversion(match[0][1:-1], sources, maps)
+                converted = spill_conversion(match[0][1:-1], sources, maps, texts, found)
                 if converted is None:
                     continue
                 after, parts = converted
@@ -167,6 +173,8 @@ def normalize_markdown(text, sources=None, spills=()):
     if changes:
         normalized = apply_changes(text, changes)
     check_only_markdown_changes(text, normalized, changes)
+    if diagnostics is not None:
+        diagnostics.update(found)
     return normalized, changes
 
 
@@ -177,10 +185,11 @@ HUNK = re.compile(r'^@@ -[0-9]+(?:,(?P<old>[0-9]+))? \+(?P<new_start>[0-9]+)(?:,
 
 
 def spill_map(text):
-    """Line number in a spilled tool output -> (path, new-side line) for the context and added lines of every diff
-    hunk in it; other lines (headers, removed lines, other output) map to nothing."""
+    """Line number in a spilled tool output -> (path, new-side line, content without the diff prefix) for the context
+    and added lines of every diff hunk in it; other lines (headers, removed lines, other output) map to nothing.
+    Lines are split at '\n' only, as a file viewer numbers them."""
     out, path, old, new, line_no = {}, None, 0, 0, 0
-    for number, line in enumerate(text.splitlines(), 1):
+    for number, line in enumerate(text.split('\n'), 1):
         if old > 0 or new > 0:
             if line.startswith('\\'):
                 continue
@@ -189,7 +198,7 @@ def spill_map(text):
                 continue
             if line.startswith('+') or line.startswith(' ') or line == '':
                 if path is not None:
-                    out[number] = (path, line_no)
+                    out[number] = (path, line_no, line[1:])
                 line_no += 1
                 new -= 1
                 if not line.startswith('+'):
@@ -208,8 +217,24 @@ def spill_map(text):
     return out
 
 
-def spill_conversion(content, sources, maps):
-    """(converted content, converted parts) of one backquoted locator, or None when no part is converted."""
+def spill_reading(path, start, end, sources, maps, texts):
+    """The one source range (a, b) every spill that reads spill lines start-end as new-side lines of path agrees on,
+    each mapped line in between equal to the frozen source line; None when no spill or several readings."""
+    results = set()
+    for mapping in maps:
+        a, b = mapping.get(start), mapping.get(end)
+        if not (a and b and a[0] == path == b[0] and a[1] <= b[1] <= sources[path]):
+            continue
+        lines = texts.get(path) or []
+        inside = [mapping[n] for n in range(start, end + 1) if n in mapping]
+        if all(m[0] == path and m[1] <= len(lines) and lines[m[1] - 1] == m[2] for m in inside):
+            results.add((a[1], b[1]))
+    return next(iter(results)) if len(results) == 1 else None
+
+
+def spill_conversion(content, sources, maps, texts, found=None):
+    """(converted content, converted parts) of one backquoted locator, or None when no part is converted. found counts
+    the parts within their source that a spill would also read uniquely (diagnostic only)."""
     parts, path, changed, converted = content.split(','), None, [], []
     for part in parts:
         match = LOCATOR_PART.match(part)
@@ -219,19 +244,16 @@ def spill_conversion(content, sources, maps):
         if path is None or path not in sources:
             return None
         start, end = int(match['start']), int(match['end'] or match['start'])
+        reading = spill_reading(path, start, end, sources, maps, texts)
         if start <= sources[path]:
+            if reading is not None and found is not None:
+                found['inRangeSpillReadable'] += 1
             changed.append(part)
             continue
-        # A spill reads the part consistently when both ends fall on new-side lines of the named file, in order.
-        results = set()
-        for mapping in maps:
-            a, b = mapping.get(start), mapping.get(end)
-            if a and b and a[0] == path == b[0] and a[1] <= b[1] <= sources[path]:
-                results.add((a[1], b[1]))
-        if len(results) != 1:
+        if reading is None:
             changed.append(part)
             continue
-        (a, b), = results
+        a, b = reading
         lines = f'{a}-{b}' if match['end'] else f'{a}'
         new = f"{match['path']}:{lines}" if match['path'] else lines
         changed.append(new)
@@ -241,10 +263,15 @@ def spill_conversion(content, sources, maps):
     return ','.join(changed), converted
 
 
-def staged_sources(root):
-    """Line counts of the files in the scenario index (the frozen source)."""
+def staged_texts(root):
+    """Texts of the files in the scenario index (the frozen source)."""
     git = lambda *args: subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True, text=True).stdout
-    return {path: len(git('show', ':' + path).splitlines()) for path in git('ls-files').splitlines()}
+    return {path: git('show', ':' + path) for path in git('ls-files').splitlines()}
+
+
+def staged_sources(root, texts=None):
+    """Line counts of the files in the scenario index (the frozen source)."""
+    return {path: len(text.splitlines()) for path, text in (texts if texts is not None else staged_texts(root)).items()}
 
 
 def summary(changes):
@@ -263,9 +290,13 @@ def main():
                         help='harness-spilled tool-output file of the session (markdown reports); repeatable')
     args = parser.parse_args()
     raw = args.report.read_bytes()
+    diagnostics = {}
     if args.report.suffix == '.md':
-        normalized, changes = normalize_markdown(raw.decode('utf-8'), staged_sources(args.scenario_root) if args.scenario_root else None,
-                                                 [p.read_text(encoding='utf-8', errors='replace') for p in args.spill])
+        texts = staged_texts(args.scenario_root) if args.scenario_root else None
+        normalized, changes = normalize_markdown(raw.decode('utf-8'), staged_sources(None, texts) if texts else None,
+                                                 [p.read_text(encoding='utf-8', errors='replace') for p in args.spill],
+                                                 {k: v.split('\n') for k, v in texts.items()} if texts else None,
+                                                 diagnostics)
         output = normalized
     else:
         rows = [json.loads(line) for line in raw.decode('utf-8').splitlines() if line.strip()]
@@ -274,7 +305,8 @@ def main():
     record = {'original': str(args.report), 'original_sha256': hashlib.sha256(raw).hexdigest(),
               **({'spills': [{'path': str(p), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()} for p in args.spill]}
                  if args.spill else {}),
-              'changes': summary(changes), 'details': changes}
+              'changes': summary(changes), 'details': changes,
+              **({'diagnostics': diagnostics} if args.spill else {})}
     args.out.parent.mkdir(parents=True, exist_ok=True)
     if changes:
         args.out.write_text(output, encoding='utf-8')

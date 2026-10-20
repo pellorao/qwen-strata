@@ -1,10 +1,13 @@
+import hashlib
 import json
+import os
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
-from tools.reviewer import bench_records, bench_score
+from tools.reviewer import bench_records, bench_score, blind_pool
 
 CID = 'code-spec-reviewer:default-42b4f896-1071-4617-bcba-e1110a1fc457-instance-1:scope-1:problem-14:CODE-SPEC-FINDINGS:finding-9'
 SR = ('spec-readiness-reviewer:artifact-promotion-6ccd5ad3-55e9-477f-93b4-0e9e0c9167c0-instance-2:scope-5:unassociated:'
@@ -35,18 +38,18 @@ class MergeTest(unittest.TestCase):
         self.assertEqual(bench_score.merge(-0.2, 0.0, True, False)[1], 0.0)
 
     def test_pause_once_however_many_pauses(self):
-        record = {'id': 'x', 'pause_known': True, 'pause_count': 3, 'pause_note': None}
-        state = bench_score.pause_state(record, 'refuse')
+        record = {'id': 'x', 'pause_known': True, 'pause_count': 3, 'pause_note': None, 'pause_basis': 'recorded'}
+        state = bench_score.pause_state(record)
         self.assertTrue(state['paused'])
+        self.assertEqual(state['pause_basis'], 'recorded')
         self.assertEqual(bench_score.merge(1.0, 0.0, state['paused'], False)[1], 0.9)
 
-    def test_unknown_pause_is_refused_unless_scored_as_none(self):
-        record = {'id': 'x', 'pause_known': False, 'pause_count': None, 'pause_note': 'old harness'}
+    def test_a_pause_without_basis_is_refused(self):
+        record = {'id': 'x', 'pause_known': False, 'pause_count': None, 'pause_note': 'no machine log'}
         with self.assertRaises(ValueError):
-            bench_score.pause_state(record, 'refuse')
-        state = bench_score.pause_state(record, 'none')
-        self.assertFalse(state['paused'])
-        self.assertIn('old harness', state['pause_basis'])
+            bench_score.pause_state(record)
+        rebuilt = {'id': 'x', **bench_records.rebuilt_pause(0, 'old harness, 0 by construction')}
+        self.assertEqual(bench_score.pause_state(rebuilt)['paused'], False)
 
 
 def upstream(score_before, codes=(), score=None):
@@ -147,6 +150,169 @@ class AdjudicateTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             bench_score.adjudicate(self.prepared, 'in.json', self.tmp.name, lambda c: ('supported', 'r', 's'),
                                    scorer=self.scorer)
+
+
+class StoredDecisionTest(unittest.TestCase):
+    def test_a_decision_holds_only_for_the_content_it_was_made_for(self):
+        live = {**candidate(1), 'check': 'CODE-SPEC-FINDINGS', 'expectation': 'E1', 'finding': '- f', 'result': 'gap',
+                'evidence': [{'filePath': 'src/a.mjs', 'line': 400}]}
+        sid = bench_score.stable_id(live['candidateId'])
+        store = {sid: {'decision': 'not-matched', 'reason': 'r', 'source': 'pool p:p001',
+                       'fingerprint': blind_pool.fingerprint(live, 'code-spec-v5')}}
+        self.assertEqual(bench_score.stored_choice(store, live, 'code-spec-v5'), ('not-matched', 'r', 'pool p:p001'))
+        # Same stable id, the evidence changed (a spill conversion made it valid): adjudicate again.
+        changed = {**live, 'evidence': [{'filePath': 'src/a.mjs', 'line': 4}]}
+        self.assertEqual(bench_score.stored_choice(store, changed, 'code-spec-v5'), 'stale')
+        self.assertIsNone(bench_score.stored_choice({}, live, 'code-spec-v5'))
+        legacy = {sid: {'decision': 'matched', 'reason': 'r'}}  # no fingerprint: never reused
+        self.assertEqual(bench_score.stored_choice(legacy, live, 'code-spec-v5'), 'stale')
+
+
+CA_IID = 'default-42b4f896-1071-4617-bcba-e1110a1fc457-instance-1'
+
+
+def ca_candidate(check, index, finding):
+    return {'candidateId': f'commit-audit-reviewer:{CA_IID}:scope-1:problem-1:{check}:finding-{index + 1}',
+            'instanceId': CA_IID, 'check': check, 'findingIndex': index, 'finding': finding, 'kind': 'association'}
+
+
+class RequirementSourceTest(unittest.TestCase):
+    ROWS = [
+        {'source': {'filePath': '.scratch/0001-x/issues/01-a.md', 'line': 7}, 'requirement': 'r7', 'result': 'gap',
+         'finding': 'same text'},
+        {'source': {'filePath': '.scratch/0001-x/issues/01-a.md', 'line': 9}, 'requirement': 'r9', 'result': 'satisfied'},
+        {'source': {'filePath': '.scratch/0001-x/issues/02-b.md', 'line': 3}, 'requirement': 'r3', 'result': 'uncertain',
+         'finding': 'only in gate one'},
+        {'source': {'filePath': '.scratch/0001-x/spec.md', 'line': 11}, 'requirement': 's11', 'result': 'gap',
+         'finding': 'spec only'},
+        {'source': {'filePath': '.scratch/0001-x/spec.md', 'line': 12}, 'requirement': 's12', 'result': 'gap',
+         'finding': 'twice'},
+        {'source': {'filePath': '.scratch/0001-x/spec.md', 'line': 14}, 'requirement': 's14', 'result': 'gap',
+         'finding': 'twice'},
+    ]
+
+    def test_the_row_of_a_finding_by_text_within_its_gate(self):
+        source = bench_score.requirement_source(ca_candidate('COMMIT-AUDIT-GATE-1', 1, 'only in gate one'), self.ROWS)
+        self.assertEqual(source, {'filePath': '.scratch/0001-x/issues/02-b.md', 'line': 3, 'requirement': 'r3'})
+        # findingIndex counts per gate: the spec row is GATE-2 finding 0.
+        source = bench_score.requirement_source(ca_candidate('COMMIT-AUDIT-GATE-2', 0, 'spec only'), self.ROWS)
+        self.assertEqual(source['line'], 11)
+
+    def test_a_repeated_text_is_resolved_by_finding_index_or_refused(self):
+        self.assertEqual(bench_score.requirement_source(ca_candidate('COMMIT-AUDIT-GATE-2', 2, 'twice'), self.ROWS)['line'], 14)
+        with self.assertRaises(ValueError):
+            bench_score.requirement_source(ca_candidate('COMMIT-AUDIT-GATE-2', 0, 'twice'), self.ROWS)
+        with self.assertRaises(ValueError):
+            bench_score.requirement_source(ca_candidate('COMMIT-AUDIT-GATE-2', 0, 'same text'), self.ROWS)
+
+    def test_annotate_reads_the_scored_report(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            report = Path(tmp) / 'review.jsonl'
+            report.write_text(''.join(json.dumps(r) + '\n' for r in self.ROWS) + 'not json\n')
+            upstream_input = {'artifacts': [{'reviewerId': 'commit-audit-reviewer', 'instances': [
+                {'instanceId': CA_IID, 'artifactPaths': None,
+                 'formatCorrection': {'originalReportPath': 'x', 'correctedReportPath': str(report)}}]}]}
+            c = bench_score.annotate(ca_candidate('COMMIT-AUDIT-GATE-1', 0, 'same text'), 'commit-audit-v3', upstream_input, {})
+            self.assertEqual(c['requirementSource']['line'], 7)
+            self.assertEqual(blind_pool.pool_item(c, 'commit-audit-v3')['requirementSource']['requirement'], 'r7')
+            other = bench_score.annotate({'candidateId': CID}, 'code-spec-v5', upstream_input, {})
+            self.assertNotIn('requirementSource', other)
+
+
+class ReportsTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        t = Path(self.tmp.name)
+        self.prepared = {'preparedPath': str(t / 'prepared.json'), 'handoffs': [
+            {'instanceId': CA_IID, 'reviewerId': 'code-spec-reviewer', 'scenarioRoot': str(t / 'scenario'),
+             'input': {'reportPath': str(t / 'scenario/.tmp/reports/review-result.md')}}]}
+        Path(self.prepared['preparedPath']).write_text(json.dumps({'contracts': []}))
+        self.work = t / 'work'
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def record(self, **handoff):
+        return {'id': 'anthropic/code-spec-v5/opus-low-a1', 'dir': self.tmp.name, 'original_prepared': None,
+                'handoffs': [{'k': 0, 'instanceId': CA_IID, 'sub_scenario': 'default', 'report': None,
+                              'report_sha256': None, 'report_ok': False, **handoff}]}
+
+    def test_a_recorded_sha_without_its_report_is_an_error(self):
+        with self.assertRaises(ValueError):
+            bench_score.place_reports(self.record(report_sha256='ab' * 32), self.prepared, self.work)
+
+    def test_no_report_goes_upstream_as_a_model_failure(self):
+        upstream_input, repairs, rows = bench_score.place_reports(self.record(report_exists=False), self.prepared, self.work)
+        [entry] = upstream_input['artifacts'][0]['instances']
+        self.assertEqual(entry['artifactPaths'], None)
+        self.assertTrue(entry['modelFailure']['reason'].strip())
+        self.assertNotIn('formatCorrection', entry)
+        self.assertEqual(repairs, {CA_IID: None})
+        self.assertEqual(rows[0]['scored'], 'modelFailure: no report')
+
+    def test_preparation_without_original_or_manifest_is_marked_unverified(self):
+        checks = bench_score.check_preparation(self.record(), self.prepared)
+        self.assertTrue(checks['unverified'])
+        self.assertEqual(checks['trees'], [{'k': 0, 'tree': 'no manifest kept'}])
+
+
+class SpillScoringEndToEndTest(unittest.TestCase):
+    """A spill-cited report on a fresh zero-model Code Standards v5.1 preparation, scored by the frozen ARW scorer:
+    the converted fragments counted in r are locators T reads, one each, and T is the same for the report as written,
+    the converted copy and a report written with the source lines directly."""
+
+    def test_r_and_t_count_the_same_fragments(self):
+        from tools.reviewer.repair_reviewer_report import spill_map, staged_sources
+        from tools.tuning.arw_dimension import load_plan, prepare
+        plan = load_plan(bench_records.ROOT / 'benchmarks/multi-model-v1/scenarios/code-standards-v5.1.json')[0]
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            prepare(plan, None, work / 'prep', time_limit_seconds=1200)
+            prepared = json.loads((work / 'prep/preparation.json').read_text())
+            handoff = prepared['handoffs'][0]
+            diff = subprocess.run(['git', '-C', handoff['scenarioRoot'], 'diff', '--cached'], capture_output=True,
+                                  text=True, check=True).stdout
+            spill_text = 'other output\n' * 400 + diff
+            spill = work / 'spill.txt'
+            spill.write_text(spill_text)
+            mapping, counts = spill_map(spill_text), staged_sources(handoff['scenarioRoot'])
+            n = next(n for n in sorted(mapping) if n > counts[mapping[n][0]] and all(
+                mapping.get(n + d, (None, None))[:2] == (mapping[n][0], mapping[n][1] + d) for d in (1, 2)))
+            path, line = mapping[n][:2]
+            other = next(p for p in sorted(counts) if p != path and p.endswith('.mjs'))
+            body = lambda a: (f'- `{path}:{a},{a + 1}-{a + 2}`, `{other}:1`: first finding.\n'
+                              f'- `{other}:2`: second finding.\n')
+            old = os.environ.get('CODEX_THREAD_ID')
+            os.environ['CODEX_THREAD_ID'] = plan['codex_thread_id']
+            try:
+                results = {}
+                for name, text, spills in (('spill', body(n), [str(spill)]), ('as-written', body(n), []),
+                                           ('direct', body(line), [])):
+                    report = work / f'{name}.md'
+                    report.write_text(text)
+                    record = {'id': f'anthropic/code-standards-v5.1/{name}', 'handoffs': [
+                        {'k': 0, 'instanceId': handoff['instanceId'], 'report': str(report),
+                         'report_sha256': hashlib.sha256(report.read_bytes()).hexdigest(), 'report_ok': True,
+                         'spill_files': spills}]}
+                    upstream_input, repairs, rows = bench_score.place_reports(record, prepared, work / name)
+                    bench_score.save(work / name / 'in.json', upstream_input)
+                    up, _, _, _ = bench_score.adjudicate(
+                        prepared, work / name / 'in.json', work / name / 'up',
+                        lambda c: (bench_score.bound_decision(c, 'lower'), 'test', 'test'))
+                    results[name] = (bench_score.repetition_score(up, repairs), rows[0])
+            finally:
+                if old is None:
+                    os.environ.pop('CODEX_THREAD_ID', None)
+                else:
+                    os.environ['CODEX_THREAD_ID'] = old
+        spilled, row = results['spill']
+        self.assertEqual((row['spill_edits'], row['spill_fragments']), (1, 2))
+        self.assertEqual(spilled['rRepairable'], 2)
+        self.assertEqual({name: r['T_locators'] for name, (r, _) in results.items()},
+                         {'spill': 4, 'as-written': 4, 'direct': 4})
+        self.assertEqual(results['direct'][0]['rRepairable'], 0)
+        # The converted copy is scored as the report written with the source lines.
+        self.assertEqual(spilled['scoreBeforePenalty'], results['direct'][0]['scoreBeforePenalty'])
 
 
 class RecordHelpersTest(unittest.TestCase):

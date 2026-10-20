@@ -6,29 +6,36 @@ Input: a normalized instance record (tools.reviewer.bench_records) and its froze
      scenario repository against what the Reviewer saw (scenario-copies.json or h<k>/files-before.json; .git and
      .tmp left out, git object bytes do not reproduce);
   2. each bound report (sha256 checked) copied to the fresh handoff's reportPath, repaired on an independent copy
-     (repair_reviewer_report) and scored from the repaired copy as a format correction when anything changed;
+     (repair_reviewer_report, with every spill file kept for the handoff) and scored from the repaired copy as a format
+     correction when anything changed. A handoff with a recorded report sha256 whose report is not found is an error;
+     one that genuinely wrote no report (no file, no sha256) goes upstream as an explicit modelFailure;
   3. upstream score-completed (single_scenario_score.upstream_score, project scoring upgrade applied, the plan's
      Main identity) repeated until no candidate is pending, every pending candidate decided from the instance's
      decision store (<work>/decisions.json, written by tools.reviewer.blind_pool split/override). Decisions are keyed
      by a stable candidate id (the candidateId without the preparation uuid and instance number) so they survive
-     fresh preparations;
+     fresh preparations, and carry the fingerprint of what the adjudicator saw (blind_pool.fingerprint of the pool
+     item); a stored decision is used only while the live candidate has the same fingerprint, otherwise the candidate
+     is pending again. Commit Audit candidates get their requirementSource (the requirement row of the finding) from
+     the scored review.jsonl before both;
   4. format penalty f (format_penalty.score_repetitions) and the overall merge (user 2026-10-20, reviewer-suite
      「整体罚分只扣一次」; plan §14.1 L445, L453-457):
         final = max(0, scoreBeforePenalty) x (1 - max(0.1 if paused, f, 0.1 if ARW cut))
      scoreBeforePenalty is the repetition score before ARW's 0.9 cut; the cut (a report diagnostic outside the
      project's REPORT_DIAGNOSTIC_TREATMENT, scoring-k.patch) joins the same max, so no overall penalty multiplies
-     another. A paused instance (arw_pause_events not empty) loses 0.1 once, however many pauses it had (plan L457).
+     another. A paused instance loses 0.1 once, however many pauses it had (plan L457). The pause count is the
+     record's (recorded or rebuilt per arm, bench_records pause_basis); a record without a basis (pause_known false)
+     is refused.
 
 Without decisions for every pending candidate the result is `needs-adjudication` with the pending candidates in
 <work>/pending.json. --provisional lower|upper fills the missing ones (lower: not-matched / unsupported, upper: matched
 / supported) and marks the score provisional. --enumerate lists the candidate superset (every association decided
 not-matched gives every finding candidate) in <work>/candidates.json for the blind pool; it scores nothing.
 
-An instance record without a pause field (pause_known false) is refused unless --pause-unknown none is given; the
-record's pause_note says what the harness of that time did.
+The last output line lists the instances whose preparation could be checked neither against an original
+prepared.json nor against a manifest of the repository the Reviewer saw.
 
     python3 -m tools.reviewer.bench_score --id openai/code-spec-v5/sol-high-a1 [--root .tmp/bench-score]
-        [--records records.jsonl] [--enumerate | --provisional lower|upper] [--pause-unknown none]
+        [--records records.jsonl] [--enumerate | --provisional lower|upper]
 """
 import argparse
 import hashlib
@@ -41,6 +48,7 @@ import sys
 from pathlib import Path
 
 from tools.reviewer import bench_records
+from tools.reviewer.blind_pool import fingerprint
 
 ROOT = bench_records.ROOT
 DEFAULT_ROOT = ROOT / '.tmp/bench-score'
@@ -54,6 +62,7 @@ TREATED_DIAGNOSTICS = {
     'requirement-row-invalid', 'requirement-missing', 'requirement-coverage-invalid', 'requirement-duplicate',
     'requirement-conflicting', 'requirement-source-unexpected', 'requirement-source-invalid',
     'requirement-scope-continuation'}
+CA_SCOPES = {'COMMIT-AUDIT-GATE-1': re.compile(r'/issues/[^/]+$'), 'COMMIT-AUDIT-GATE-2': re.compile(r'/spec\.md$')}
 UUID_INSTANCE = re.compile(r'-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-instance-\d+')
 BOUNDS = {'lower': ('not-matched', 'unsupported'), 'upper': ('matched', 'supported')}
 
@@ -205,6 +214,7 @@ def check_preparation(record, prepared):
                              f"{differences[:10]}")
         trees.append({'k': handoff['k'], 'tree': f'same as {source}'})
     checks['trees'] = trees
+    checks['unverified'] = not record.get('original_prepared') and any(t['tree'] == 'no manifest kept' for t in trees)
     return checks
 
 
@@ -217,9 +227,19 @@ def place_reports(record, prepared, work):
         row = {'k': handoff['k'], 'instanceId': fresh['instanceId'], 'original_instanceId': handoff['instanceId'],
                'report': handoff['report'], 'report_sha256': handoff['report_sha256']}
         rows.append(row)
-        if not handoff['report'] or handoff.get('report_exists') is False:
-            row['scored'] = 'no report'
+        if not handoff['report']:
+            if handoff.get('report_sha256'):
+                raise ValueError(f"{record['id']} h{handoff['k']}: report sha256 recorded but no report file found")
+            # Upstream needs an explicit model failure for a handoff without scorable content (zero bytes is not
+            # "No findings"): the Reviewer wrote no report at all.
+            reason = 'The Reviewer wrote no report (instance record: no report file and no report sha256).'
+            entries.setdefault(fresh['reviewerId'], []).append(
+                {'instanceId': fresh['instanceId'], 'artifactPaths': None, 'modelFailure': {'reason': reason}})
+            repairs[fresh['instanceId']] = None
+            row.update(scored='modelFailure: no report', repair={})
             continue
+        if handoff.get('report_exists') is False:
+            raise ValueError(f"{record['id']} h{handoff['k']}: a report was found although the record says none exists")
         if not handoff['report_ok'] or sha256_file(handoff['report']) != handoff['report_sha256']:
             raise ValueError(f"{record['id']} h{handoff['k']}: report differs from its recorded sha256")
         target = Path(fresh['input']['reportPath'])
@@ -243,7 +263,11 @@ def place_reports(record, prepared, work):
             repairs[fresh['instanceId']] = change_record
         else:
             repairs[fresh['instanceId']] = None
-        row.update(scored='repaired copy' if change_record['changes'] else 'original', repair=change_record['changes'])
+        spill_changes = [c for c in change_record['details'] if c['kind'] == 'spill-locator']
+        row.update(scored='repaired copy' if change_record['changes'] else 'original', repair=change_record['changes'],
+                   spill_files=len(handoff.get('spill_files') or []), spill_edits=len(spill_changes),
+                   spill_fragments=sum(len(c['converted']) for c in spill_changes),
+                   spill_in_range_readable=(change_record.get('diagnostics') or {}).get('inRangeSpillReadable'))
         entries.setdefault(fresh['reviewerId'], []).append(entry)
     upstream_input = {'artifacts': [{'reviewerId': r, 'instances': i} for r, i in entries.items()]}
     return upstream_input, repairs, rows
@@ -304,6 +328,17 @@ def adjudicate(prepared, input_path, work, decide, rounds=10, scorer=None):
     raise ValueError(f'candidates still pending after {rounds} rounds')
 
 
+def stored_choice(store, candidate, scenario):
+    """The stored (decision, reason, source) of a live candidate; None when nothing is stored, 'stale' when the stored
+    decision was made for other content (fingerprint differs), so the candidate is adjudicated again."""
+    stored = store.get(stable_id(candidate['candidateId']))
+    if stored is None:
+        return None
+    if stored.get('fingerprint') != fingerprint(candidate, scenario):
+        return 'stale'
+    return stored['decision'], stored['reason'], stored.get('source', 'store')
+
+
 def merge(score_before_penalty, f, paused, arw_cut):
     """User 2026-10-20: one overall deduction, the largest of pause (0.1 once), format f and ARW's residual cut."""
     deduction = max(PAUSE_CUT if paused else 0.0, f, ARW_CUT if arw_cut else 0.0)
@@ -331,21 +366,75 @@ def repetition_score(up, repairs, registry=None):
                                               'locatorCount': i.get('locatorCount')} for i in rep['instances']}}
 
 
-def pause_state(record, pause_unknown):
-    if record['pause_known']:
-        return {'paused': record['pause_count'] > 0, 'pause_count': record['pause_count'], 'pause_basis': 'record'}
-    if pause_unknown != 'none':
-        raise ValueError(f"{record['id']}: no pause record (pause_known false: {record['pause_note']}); "
-                         'give --pause-unknown none to score it as unpaused')
-    return {'paused': False, 'pause_count': None, 'pause_basis': f"no record, scored as none: {record['pause_note']}"}
+def pause_state(record):
+    if not record['pause_known']:
+        raise ValueError(f"{record['id']}: pauses cannot be established (pause_known false: {record['pause_note']})")
+    return {'paused': record['pause_count'] > 0, 'pause_count': record['pause_count'],
+            'pause_basis': record.get('pause_basis') or 'record', 'harness_generation': record.get('harness_generation')}
 
 
-def score_instance(record, work, provisional=None, enumerate_only=False, pause_unknown='refuse', scorer=None):
+# ---- Commit Audit requirementSource -------------------------------------------------------------------------------
+
+def scored_report(upstream_input, instance_id):
+    for artifact in upstream_input['artifacts']:
+        for entry in artifact['instances']:
+            if entry['instanceId'] == instance_id:
+                if entry.get('formatCorrection'):
+                    return entry['formatCorrection']['correctedReportPath']
+                return (entry.get('artifactPaths') or [None])[0]
+    return None
+
+
+def review_rows(path):
+    rows = []
+    for line in Path(path).read_text(encoding='utf-8', errors='replace').splitlines():
+        if line.strip():
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(row, dict):
+                rows.append(row)
+    return rows
+
+
+def requirement_source(candidate, rows):
+    """The requirement row of a Commit Audit candidate's finding in the scored review.jsonl: the only finding row of the
+    candidate's gate with the same finding text, or, when the text repeats, the findingIndex-th finding row of that gate
+    (the scorer numbers findings per check) with that text. Anything else is an error, never a guess."""
+    scope = CA_SCOPES[candidate['check']]
+    same = [r for r in rows if r.get('result') != 'satisfied' and 'finding' in r and isinstance(r.get('source'), dict)
+            and scope.search(str(r['source'].get('filePath', '')))]
+    hits = [r for r in same if r['finding'] == candidate['finding']]
+    index = candidate.get('findingIndex')
+    if len(hits) == 1:
+        row = hits[0]
+    elif hits and isinstance(index, int) and index < len(same) and same[index]['finding'] == candidate['finding']:
+        row = same[index]
+    else:
+        raise ValueError(f"{candidate['candidateId']}: no unique requirement row of its finding ({len(hits)} rows)")
+    return {'filePath': row['source'].get('filePath'), 'line': row['source'].get('line'),
+            'requirement': row.get('requirement')}
+
+
+def annotate(candidate, scenario, upstream_input, cache):
+    """Add requirementSource to a Commit Audit candidate (frozen brief field); others pass unchanged."""
+    if not scenario.startswith('commit-audit') or candidate.get('requirementSource') is not None:
+        return candidate
+    path = scored_report(upstream_input, candidate['instanceId'])
+    if path is None:
+        raise ValueError(f"{candidate['candidateId']}: no scored report for its instance")
+    if path not in cache:
+        cache[path] = review_rows(path)
+    return {**candidate, 'requirementSource': requirement_source(candidate, cache[path])}
+
+
+def score_instance(record, work, provisional=None, enumerate_only=False, scorer=None):
     if not record['valid']:
         raise ValueError(f"{record['id']}: not a valid instance ({record['validity']})")
     work = Path(work)
     work.mkdir(parents=True, exist_ok=True)
-    pause = None if enumerate_only else pause_state(record, pause_unknown)
+    pause = None if enumerate_only else pause_state(record)
     plan, prepared = prepare_fresh(record, work)
     os.environ['CODEX_THREAD_ID'] = plan['codex_thread_id']
     checks = check_preparation(record, prepared)
@@ -358,27 +447,34 @@ def score_instance(record, work, provisional=None, enumerate_only=False, pause_u
         return result
     input_path = work / 'score-input.json'
     save(input_path, upstream_input)
+    rows_cache = {}
+    live = lambda c: annotate(c, record['scenario'], upstream_input, rows_cache)
     if enumerate_only:
         up, seen, used, pending = adjudicate(prepared, input_path, work / 'enumerate',
                                              lambda c: (bound_decision(c, 'lower'), 'enumeration only', 'enumerate'),
                                              scorer=scorer)
-        candidates = [{'stable_id': sid, 'record': record['id'], **c} for sid, c in sorted(seen.items())]
+        candidates = [{'stable_id': sid, 'record': record['id'], **live(c)} for sid, c in sorted(seen.items())]
         save(work / 'candidates.json', candidates)
         return {**base, 'status': 'enumerated', 'candidates': len(candidates)}
     store = load_store(work)['decisions']
+    stale = []
 
     def decide(candidate):
-        stored = store.get(stable_id(candidate['candidateId']))
-        if stored is not None:
-            return stored['decision'], stored['reason'], stored.get('source', 'store')
+        choice = stored_choice(store, live(candidate), record['scenario'])
+        if choice == 'stale':
+            stale.append(stable_id(candidate['candidateId']))
+        elif choice is not None:
+            return choice
         if provisional:
             return bound_decision(candidate, provisional), f'provisional {provisional} bound: not adjudicated', 'provisional'
         return None
 
     up, seen, used, pending = adjudicate(prepared, input_path, work / 'upstream', decide, scorer=scorer)
     if pending:
-        save(work / 'pending.json', [{'stable_id': stable_id(c['candidateId']), 'record': record['id'], **c} for c in pending])
-        result = {**base, 'status': 'needs-adjudication', 'pending': len(pending), 'decided': len(used)}
+        save(work / 'pending.json', [{'stable_id': stable_id(c['candidateId']), 'record': record['id'], **live(c)}
+                                     for c in pending])
+        result = {**base, 'status': 'needs-adjudication', 'pending': len(pending), 'decided': len(used),
+                  'stale_decisions': sorted(set(stale))}
         save(work / 'score.json', result)
         return result
     if up.get('status') == 'failed':
@@ -392,7 +488,7 @@ def score_instance(record, work, provisional=None, enumerate_only=False, pause_u
         sources[d['source']] = sources.get(d['source'], 0) + 1
     result = {**base, 'status': 'provisional' if any(d['source'] == 'provisional' for d in used.values()) else 'final',
               'provisional_bound': provisional, **pause, **scored, 'overall_deduction': deduction, 'final': final,
-              'decisions': len(used), 'decision_sources': sources,
+              'decisions': len(used), 'decision_sources': sources, 'stale_decisions': sorted(set(stale)),
               'upstream_status': up.get('status'),
               'rule': 'final = max(0, scoreBeforePenalty) x (1 - max(0.1 if paused, f, 0.1 if ARW cut))'}
     save(work / 'score.json', result)
@@ -407,14 +503,18 @@ def main():
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--enumerate', action='store_true', help='write the candidate superset only')
     mode.add_argument('--provisional', choices=sorted(BOUNDS), help='fill missing decisions with this bound')
-    parser.add_argument('--pause-unknown', choices=('refuse', 'none'), default='refuse')
     args = parser.parse_args()
+    unverified = []
     for record_id in args.id:
         record = find_record(record_id, args.records)
-        result = score_instance(record, work_dir(args.root, record_id), args.provisional, args.enumerate,
-                                args.pause_unknown)
+        result = score_instance(record, work_dir(args.root, record_id), args.provisional, args.enumerate)
+        if result['checks'].get('unverified'):
+            unverified.append(record_id)
         print(json.dumps({k: result.get(k) for k in ('id', 'status', 'final', 'scoreBeforePenalty', 'f', 'paused',
                                                       'arw_cut', 'pending', 'candidates')}, ensure_ascii=False))
+    print(json.dumps({'preparation_unverified': unverified,
+                      'note': 'neither an original prepared.json nor a manifest of the repository the Reviewer saw'
+                      }, ensure_ascii=False))
 
 
 if __name__ == '__main__':

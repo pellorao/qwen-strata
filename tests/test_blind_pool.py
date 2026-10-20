@@ -141,6 +141,43 @@ class BlindPoolTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             blind_pool.override('anthropic/code-spec-v5/opus-low-a1', sid, 'matched', 'x', root=self.root)
 
+    def test_stores_carry_fingerprints_and_a_changed_candidate_is_pooled_again(self):
+        self.built()
+        key, decisions = self.answer('p')
+        blind_pool.split(key, decisions, self.root)
+        store = json.loads((self.root / 'openai/code-spec-v5/sol-high-a1/decisions.json').read_text())
+        entry = store['decisions'][association(1, 'E1')['stable_id']]
+        self.assertEqual(entry['fingerprint'], blind_pool.fingerprint(association(1, 'E1'), 'code-spec-v5'))
+        changed = association(1, 'E1')
+        changed['evidence'] = [{'filePath': 'src/a.mjs', 'line': 99}]
+        blind_pool.save(self.candidates, [changed, association(2, 'E2'), finding(7, line=1), finding(8, line=3)])
+        [info] = blind_pool.build('code-spec-v5', 'q', self.adj, self.keys, [self.candidates], self.registry,
+                                  root=self.root)
+        self.assertEqual((info['real'], info['already_decided_skipped']), (1, 3))
+
+    def test_stored_reads_the_store_each_time(self):
+        self.assertEqual(blind_pool.stored(self.root, 'openai/code-spec-v5/sol-high-a1'), {})
+        blind_pool.save(blind_pool.store_path(self.root, 'openai/code-spec-v5/sol-high-a1'),
+                        {'decisions': {'x': {'decision': 'matched', 'fingerprint': 'f'}}, 'history': []})
+        self.assertEqual(blind_pool.stored(self.root, 'openai/code-spec-v5/sol-high-a1'), {'x': 'f'})
+
+    def test_every_pool_holds_a_not_matched_control(self):
+        registry = json.loads((self.registry / 'code-spec-v5.json').read_text())
+        registry['synthetic'] = [s for s in registry['synthetic'] if s['expected'] != 'not-matched']
+        blind_pool.save(self.registry / 'code-spec-v5.json', registry)
+        with self.assertRaises(ValueError):
+            self.built()
+        registry['anchors'].append(control('a99', 'association', 'strata', 'not-matched'))
+        blind_pool.save(self.registry / 'code-spec-v5.json', registry)
+        for seed in range(5):
+            self.built(seed=seed, anchor_count=3)
+            key = json.loads((self.keys / 'key-p.json').read_text())
+            self.assertIn('not-matched', [m['expected'] for m in key['items'].values() if m['source'] != 'instance'])
+
+    def test_the_key_directory_must_not_be_under_adj(self):
+        with self.assertRaises(ValueError):
+            blind_pool.build('code-spec-v5', 'p', self.adj, self.adj / 'keys', [self.candidates], self.registry)
+
     def test_anchors_are_association_decisions_with_their_fields(self):
         item = {k: v for k, v in association(3, 'E3').items() if k in blind_pool.FIELDS and k not in ('kind', 'allowedDecisions')}
         anchor = blind_pool.anchor_add('code-spec-v5', item, 'not-matched', 'anthropic', 'Main executable check',

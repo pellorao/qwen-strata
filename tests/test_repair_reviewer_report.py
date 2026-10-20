@@ -122,27 +122,42 @@ SPILL = ('# Rules\n\nsome text\n'
          'diff --git a/src/b/two.mjs b/src/b/two.mjs\nnew file mode 100644\n--- /dev/null\n+++ b/src/b/two.mjs\n'
          '@@ -0,0 +1,3 @@\n+one\n+two\n+three\n')
 SPILL_SOURCES = {'src/a/one.mjs': 13, 'src/b/two.mjs': 3}
+SPILL_TEXTS = {'src/a/one.mjs': [f'line {n}' for n in range(1, 10)] + ['context ten', 'new eleven', 'new twelve',
+                                                                        'context thirteen', ''],
+               'src/b/two.mjs': ['one', 'two', 'three', '']}
+
+
+def spill_normalize(text, sources=SPILL_SOURCES, spills=(SPILL,), texts=SPILL_TEXTS, diagnostics=None):
+    return normalize_markdown(text, sources, list(spills), texts, diagnostics)
 
 
 class SpillLocatorTest(unittest.TestCase):
     def test_spill_map_follows_hunk_headers(self):
         mapping = spill_map(SPILL)
-        self.assertEqual(mapping[9], ('src/a/one.mjs', 10))
+        self.assertEqual(mapping[9], ('src/a/one.mjs', 10, 'context ten'))
         self.assertNotIn(10, mapping)  # removed line
-        self.assertEqual([mapping[n] for n in (11, 12, 13)], [('src/a/one.mjs', 11), ('src/a/one.mjs', 12),
-                                                            ('src/a/one.mjs', 13)])
-        self.assertEqual(mapping[19], ('src/b/two.mjs', 1))
-        self.assertEqual(mapping[21], ('src/b/two.mjs', 3))
+        self.assertEqual([mapping[n][:2] for n in (11, 12, 13)], [('src/a/one.mjs', 11), ('src/a/one.mjs', 12),
+                                                                ('src/a/one.mjs', 13)])
+        self.assertEqual(mapping[19], ('src/b/two.mjs', 1, 'one'))
+        self.assertEqual(mapping[21], ('src/b/two.mjs', 3, 'three'))
         self.assertNotIn(3, mapping)
         self.assertNotIn(18, mapping)  # hunk header
 
+    def test_lines_are_split_at_newlines_only(self):
+        # A form feed or line separator inside other output is not a line break for a file viewer.
+        mapping = spill_map('a\x0cb\u2028c\n' + SPILL)
+        self.assertEqual(mapping[10], ('src/a/one.mjs', 10, 'context ten'))
+
     def test_out_of_range_parts_that_one_spill_reads_are_converted(self):
         text = '- `src/a/one.mjs:2,11-12,src/b/two.mjs:20` - x\n'
-        fixed, changes = normalize_markdown(text, SPILL_SOURCES, [SPILL])
+        diagnostics = {}
+        fixed, changes = spill_normalize(text, diagnostics=diagnostics)
         # `2` lies within one.mjs and is read as written; `11-12` is within the file too; only 20 is beyond two.mjs.
         self.assertEqual(fixed, '- `src/a/one.mjs:2,11-12,src/b/two.mjs:2` - x\n')
         self.assertEqual([c['converted'] for c in changes], [[{'before': 'src/b/two.mjs:20', 'after': 'src/b/two.mjs:2'}]])
-        fixed, changes = normalize_markdown('- `src/b/two.mjs:19-21`, `src/b/two.mjs:1,19`\n', SPILL_SOURCES, [SPILL])
+        # `11-12` within the file is also a unique spill reading (spill lines 11-12 are one.mjs 11-12): diagnostic only.
+        self.assertEqual(diagnostics, {'inRangeSpillReadable': 1})
+        fixed, changes = spill_normalize('- `src/b/two.mjs:19-21`, `src/b/two.mjs:1,19`\n')
         self.assertEqual(fixed, '- `src/b/two.mjs:1-3`, `src/b/two.mjs:1,1`\n')
         self.assertEqual(sum(len(c['converted']) for c in changes), 2)
 
@@ -151,15 +166,27 @@ class SpillLocatorTest(unittest.TestCase):
         for text in ('- `src/a/one.mjs:50` - no spill line\n', '- `src/a/one.mjs:10` - removed line\n',
                      '- `src/a/one.mjs:13-19` - crosses into another file\n', '- `src/b/two.mjs:11` - line of one.mjs\n',
                      '- `src/b/two.mjs:21` - beyond the staged source\n'):
-            self.assertEqual(normalize_markdown(text, sources, [SPILL]), (text, []))
+            self.assertEqual(spill_normalize(text, sources), (text, []))
         shifted = 'one more line\n' + SPILL
         text = '- `src/b/two.mjs:20` - x\n'
-        self.assertEqual(normalize_markdown(text, SPILL_SOURCES, [SPILL, shifted]), (text, []))
+        self.assertEqual(spill_normalize(text, spills=(SPILL, shifted)), (text, []))
         self.assertEqual(normalize_markdown(text, SPILL_SOURCES), (text, []))
+        # Without the frozen source texts nothing is converted (content cannot be checked).
+        self.assertEqual(normalize_markdown(text, SPILL_SOURCES, [SPILL]), (text, []))
+
+    def test_a_spill_of_another_version_is_not_converted(self):
+        text = '- `src/b/two.mjs:19-21` - x\n'
+        other = dict(SPILL_TEXTS, **{'src/b/two.mjs': ['one', 'TWO', 'three', '']})
+        self.assertEqual(spill_normalize(text, texts=other), (text, []))
+        # One spill of the frozen version and one of another version that reads the same lines: only the frozen one
+        # counts, so the reading stays unique.
+        stale = SPILL.replace('+two\n', '+TWO\n')
+        fixed, changes = spill_normalize(text, spills=(SPILL, stale))
+        self.assertEqual(fixed, '- `src/b/two.mjs:1-3` - x\n')
 
     def test_round_trip_rejects_a_spill_change_beyond_line_numbers(self):
         text = '- `src/b/two.mjs:20` - x\n'
-        fixed, changes = normalize_markdown(text, SPILL_SOURCES, [SPILL])
+        fixed, changes = spill_normalize(text)
         check_only_markdown_changes(text, fixed, changes)
         changes[0]['after'] = '`src/a/one.mjs:2`'
         with self.assertRaises(AssertionError):

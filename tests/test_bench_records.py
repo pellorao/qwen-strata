@@ -51,7 +51,7 @@ class RecordsTest(unittest.TestCase):
         self.assertEqual(records['luna-low-a2']['validity']['status'], 'no-record')
         self.assertIsNone(records['luna-low-a1']['score'])
 
-    def test_claude_layout_without_pause_record_and_with_a_sandbox_fault(self):
+    def test_claude_layout_of_the_old_harness_and_with_a_sandbox_fault(self):
         d = self.scene / 'opus-low-a1'
         write(d / 'h0/outputs/.tmp/reports/review-result.md', self.report)
         write(d / 'instance.json', {'handoffs': [
@@ -62,18 +62,56 @@ class RecordsTest(unittest.TestCase):
         r = records['opus-low-a1']
         self.assertEqual(r['validity']['status'], 'harness-fault')
         self.assertFalse(r['valid'])
-        self.assertFalse(r['pause_known'])
+        # No handoff continuation: the old harness never continued an early exit, so no pause by construction.
+        self.assertEqual((r['pause_known'], r['pause_count'], r['harness_generation']),
+                         (True, 0, 'before execute_continued'))
+        self.assertIn('by construction', r['pause_basis'])
         self.assertTrue(r['handoffs'][0]['report_ok'])
         self.assertEqual(records['opus-low-a2']['validity']['status'], 'void')
 
-    def test_spills_are_those_the_session_read(self):
+    def test_claude_pauses_recorded_or_without_basis(self):
+        write(self.scene / 'opus-low-a3/instance.json', {'arw_pause_events': [{'at': 1}, {'at': 2}], 'handoffs': [
+            {'instanceId': IID, 'continuation': {'arw_pause_events': []}, 'checks': {'valid': True, 'sandbox_failures': 0}}]})
+        write(self.scene / 'opus-low-a4/instance.json', {'handoffs': [
+            {'instanceId': IID, 'continuation': {}, 'checks': {'valid': True, 'sandbox_failures': 0}}]})
+        write(self.scene / 'opus-low-a5/instance.json', {'handoffs': [
+            {'instanceId': IID, 'checks': {'valid': True, 'sandbox_failures': 0}}]})
+        records = bench_records.scene_records('anthropic', 'code-spec-v5', self.scene)
+        r = {x['id'].rsplit('/', 1)[1]: x for x in records}
+        self.assertEqual((r['opus-low-a3']['pause_known'], r['opus-low-a3']['pause_count']), (True, 2))
+        self.assertEqual((r['opus-low-a4']['pause_known'], r['opus-low-a4']['pause_count']), (False, None))
+        [note] = bench_records.config_notes(records)
+        self.assertEqual(note['config'], 'opus-low')
+        self.assertEqual(note['generations'], {'before execute_continued': 1, 'execute_continued': 2})
+
+    def openai_instance(self, name, fields, machine=None):
+        d = self.scene / name
+        write(d / 'instance.json', {'valid': True, 'handoffs': [], **fields})
+        if machine is not None:
+            write(d / 'run/machine.jsonl', ''.join(json.dumps(line) + '\n' for line in machine))
+        return d
+
+    def test_openai_pauses_rebuilt_from_the_flag_and_the_machine_log(self):
+        notice = lambda mid: {'ok': True, 'result': {'notifications': [
+            {'type': 'message', 'messageId': mid, 'text': bench_records.ARW_PAUSE_PREFIX + '10 turns.'}]}}
+        self.openai_instance('sol-low-a1', {'arw_pause': False}, [{'ok': True, 'result': {}}])
+        self.openai_instance('sol-low-a2', {'arw_pause': {'at': 1}}, [notice('m1'), notice('m1')])
+        self.openai_instance('sol-low-a3', {'arw_pause': False}, [notice('m1')])  # flag and log disagree
+        self.openai_instance('sol-low-a4', {'arw_pause': False})  # no machine log
+        self.openai_instance('sol-low-a5', {}, [{'ok': True}])  # no flag
+        r = {x['id'].rsplit('/', 1)[1]: x for x in bench_records.scene_records('openai', 'code-spec-v5', self.scene)}
+        self.assertEqual((r['sol-low-a1']['pause_known'], r['sol-low-a1']['pause_count']), (True, 0))
+        self.assertIn('machine.jsonl 0', r['sol-low-a1']['pause_basis'])
+        self.assertEqual((r['sol-low-a2']['pause_known'], r['sol-low-a2']['pause_count']), (True, 1))
+        for name in ('sol-low-a3', 'sol-low-a4', 'sol-low-a5'):
+            self.assertFalse(r[name]['pause_known'], name)
+
+    def test_spills_are_every_kept_tool_output(self):
         out = self.scene / 'h0'
-        kept = write(out / 'session-files/p/s/tool-results/b1.txt', 'diff')
-        write(out / 'session-files/p/s/tool-results/b2.txt', 'diff')
-        read = {'message': {'content': [{'type': 'tool_use', 'name': 'Read',
-                                         'input': {'file_path': '/var/home/.claude/projects/p/s/tool-results/b1.txt'}}]}}
-        write(out / 'stream.jsonl', json.dumps(read) + '\n')
-        self.assertEqual(bench_records.read_spills(out), [str(kept)])
+        first = write(out / 'session-files/p/s/tool-results/b1.txt', 'diff')
+        second = write(out / 'session-files/p/s/tool-results/b2.txt', 'diff')
+        write(out / 'session-files/p/s/other/b3.txt', 'not a spill')
+        self.assertEqual(bench_records.read_spills(out), [str(first), str(second)])
 
     def test_strata_codex_layout(self):
         write(self.scene / 'schedule.jsonl', json.dumps({'event': 'done', 'out': 'codex-strata-low-a1', 'kind': 'valid'}) + '\n')
@@ -90,6 +128,17 @@ class RecordsTest(unittest.TestCase):
         self.assertTrue(r['handoffs'][0]['report_ok'])
         self.assertIsNone(r['time_limit_seconds'])
         self.assertEqual(records['codex-strata-low-a2']['validity']['status'], 'running')
+
+    def test_strata_codex_pauses_rebuilt_from_the_machine_log(self):
+        write(self.scene / 'schedule.jsonl', '')
+        for name, machine in (('codex-strata-low-a1', ''), ('codex-strata-low-a2', None)):
+            d = self.scene / name
+            write(d / 'run/results.json', [{'instanceId': IID, 'report_sha256': self.sha}])
+            if machine is not None:
+                write(d / 'run/machine.jsonl', machine)
+        r = {x['id'].rsplit('/', 1)[1]: x for x in bench_records.scene_records('strata-codex', 'commit-audit-v3', self.scene)}
+        self.assertEqual((r['codex-strata-low-a1']['pause_known'], r['codex-strata-low-a1']['pause_count']), (True, 0))
+        self.assertFalse(r['codex-strata-low-a2']['pause_known'])
 
 
 if __name__ == '__main__':
