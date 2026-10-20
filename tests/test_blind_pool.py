@@ -66,14 +66,14 @@ class BlindPoolTest(unittest.TestCase):
                 if meta['control'] in wrong:
                     decision = 'not-matched' if decision == 'matched' else 'supported'
             decisions.append({'id': pid, 'decision': decision, 'reason': '可能如此' if decision == 'unsupported' else '一致'})
-        path = self.adj / f'decisions-{pool_name}.json'
+        path = self.adj / pool_name / f'decisions-{pool_name}.json'
         blind_pool.save(path, {'adjudicator': 'blind Opus high', 'decisions': decisions})
         return self.keys / f'key-{pool_name}.json', path
 
     def test_pool_follows_the_brief_and_hides_sources(self):
         [info] = self.built()
         self.assertEqual((info['items'], info['real'], info['controls']), (18, 4, 14))
-        pool = json.loads((self.adj / 'pool-p.json').read_text())
+        pool = json.loads((self.adj / 'p' / 'pool-p.json').read_text())
         text = json.dumps(pool)
         for hidden in (UUID, 'sol-high', 'opus-low', 'referenceTerms', 'stable_id', 'problemCaseIndex'):
             self.assertNotIn(hidden, text)
@@ -83,6 +83,31 @@ class BlindPoolTest(unittest.TestCase):
         groups = {i['group'] for i in pool if i['expectation'] == 'E1'}
         self.assertEqual(len(groups), 1)
         self.assertFalse((self.adj / 'key-p.json').exists())
+
+    def test_prompt_is_the_frozen_brief_plus_the_fairness_note(self):
+        self.built()
+        key = self.keys / 'key-p.json'
+        with self.assertRaises(ValueError):
+            blind_pool.prompt(key)  # view not staged yet
+        (self.adj / 'p' / 'view').mkdir()
+        (self.adj / 'p' / 'change.diff').write_text('')
+        info = blind_pool.prompt(key)
+        text = Path(info['prompt_path']).read_text()
+        brief = blind_pool.brief_path('code-spec-v5').read_text()
+        body = brief.replace('<ADJ>', str((self.adj / 'p').resolve())).replace('<名>', 'p').rstrip('\n')
+        self.assertEqual(text, f'{body}\n\n{blind_pool.FAIRNESS_NOTE}\n')
+        self.assertNotIn('<ADJ>', text)
+        self.assertIn('来源', blind_pool.FAIRNESS_NOTE)
+        self.assertEqual(json.loads(key.read_text())['prompt_sha256'], blind_pool.sha256_file(info['prompt_path']))
+        (self.adj / 'p' / 'pool-other.json').write_text('[]')
+        with self.assertRaises(ValueError):
+            blind_pool.prompt(key)  # another pool in <ADJ>
+
+    def test_each_pool_has_its_own_adj(self):
+        infos = self.built(limit=17)
+        self.assertGreater(len(infos), 1)
+        for info in infos:
+            self.assertEqual(sorted(p.name for p in Path(info['adj']).iterdir()), [f"pool-{info['pool']}.json"])
 
     def test_pools_split_by_whole_groups(self):
         infos = self.built(limit=17)
@@ -203,6 +228,17 @@ class RegistryTest(unittest.TestCase):
             items = blind_pool.controls(registry)
             self.assertGreaterEqual(sum(m['source'] == 'anchor' for _, m in items), 10, path.name)
             self.assertTrue(all(i['kind'] == 'association' for i, m in items if m['source'] == 'anchor'))
+            self.assertTrue(any(m['expected'] == 'not-matched' for _, m in items), path.name)
+            self.assertEqual({m['family'] for _, m in items if m['source'] == 'synthetic'}, set(blind_pool.FAMILIES),
+                             path.name)
+            marks = [blind_pool.item_fingerprint(i) for i, _ in items]
+            self.assertEqual(len(marks), len(set(marks)), path.name)
+            for item, meta in items:
+                # A control must look like a real candidate of the scenario: same fields in the same order.
+                view = blind_pool.pool_item(item, path.stem)
+                self.assertEqual(list(view), list(item), f"{path.name} {meta['control']}")
+                self.assertEqual(view, item, f"{path.name} {meta['control']}")
+                self.assertTrue(all(isinstance(e, dict) for e in item['evidence']), f"{path.name} {meta['control']}")
 
 
 if __name__ == '__main__':

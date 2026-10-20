@@ -166,6 +166,16 @@
 - 裁决者为 Opus high（Claude Code 无头，与 Commit Audit v3 的盲裁相同），用冻结 brief，读被审代码的 view。brief 输出写死 `"adjudicator": "blind Opus high"`，与已冻结的 Commit Audit v3 brief 同一合同。
 - 池按场景混合打乱，所有配置跑完后统一盲裁，隐去来源。每池混入锚点（10–15 个已有 Opus 裁决，取自同一场景版本的已裁池；Code Spec v5 正式池里来自 v4.7 的锚点不能用，它们引用的代码在 v5 已改正）和合成负例。锚点一致率按来源模型分组报告。
 - 某个池的锚点一致率低于 90% 或合成负例有一个没识别，该池整池重裁并扩大复核（reviewer-suite「盲裁只裁有变化的部分」）。
+- 运行参数（2026-10-20 写定，与 `tools/reviewer/blind_pool.py` 一致）：
+  - 裁决者：Opus high，Claude Code 无头；回复的 `adjudicator` 必须是 `blind Opus high`，否则 `split` 拒收。
+  - 池大小：每池最多 150 项（`MAX_ITEMS`），按期望句整组切分，一组不跨池。同一实例的候选和拿来作锚点的实例不能同池。
+  - 控制项：每池 12 个锚点（`ANCHORS_PER_POOL`），从场景注册表 `benchmarks/multi-model-v1/anchors/<场景>.json` 按来源 family 轮流抽取，并保证池里至少有一个 not-matched 控制项；注册表的全部合成项进每个池。锚点只用 association 决定；finding 类控制项一律用合成项，按三个 family 各自的报告写法写成（用户 2026-10-20）。Sonnet、Haiku 的锚点等第一个裁决批次出来后再补（scoring-fixes 第 6 项）。
+  - 门槛：锚点一致率 ≥ 90%，且合成项全部判对，且两类都存在；三条都满足才写入分数库。不通过的池整池重裁，什么都不写入。合成项里除负例外还有 finding-problem 这类正例，所以"全部判对"比上一条的"合成负例都识别"更严。
+  - 每池一个裁决目录：`build` 把每个池写进自己的 `<adj>/<池名>/`，它就是 brief 里的 `<ADJ>`；隐藏的 key 放在 `--adj` 之外。`prompt` 生成裁决提示前核对 `<ADJ>` 里只有本池的 pool 文件（sha 与 key 一致）、brief 指定的 view（CS/CStd 为 `view/` 与 `change.diff`，CA 为 `view/`，SR 为 `view-rm/` 与 `view-ap/`）和本池的 decisions，多出任何文件都拒绝。
+  - 裁决提示：冻结 brief 只替换 `<ADJ>` 和 `<名>`，正文之后附一段调用方说明（公平判定，见 §14.1 2026-10-20 条）；brief 和提示的 sha256 记进 key。
+  - 复核清单（`split` 输出）：全部 `supported` 决定，以及有争议的 `unsupported`（裁决者列为最难的、理由含犹豫词、或与判成其他结果的候选共用证据位置）。Main 复核后用 `override` 改判，原值留在历史里。
+  - 沿用已有决定：只对内容指纹相同的候选沿用；候选内容变了就重新入池。
+  - 上游最终状态（ARW 报告的 completion status）只作诊断写进计分结果，不参与计分。
 - 所有 k = 4 档的反例误报一律双裁（评分 r8）；现行四个场景没有 k = 4 用例，不涉及。
 - 裁决编排（拆池、合并）的费用计入 §6.1 的"后处理"一项。
 - 第一个场景批次做完后，用实测费用重算一次占比，只用于下一个周期的额度预测。
@@ -565,6 +575,10 @@
     - 结果（12:29，新 T / 旧 T，秒）：CS opus 1112/1202、1061/1132、1085/1188，sonnet 833/990、863/911、908/976，haiku 544/546、515/540、521/514；CStd opus 1052/1099、1065/1106、1034/1043，sonnet 794/843、799/848、761/861，haiku 509/553、483/499、497/491（各为 low/medium/high）。比值 0.84–1.01，无一低于 0.75。CStd opus-low 首测作废：Claude Code 把材料请求重发了一次，usage 是两次请求的合计（β 1.22，T 4729），重测正常。CS haiku-high 读缓存 TTFT 4.58 秒；a5 的 wall 252.5 秒，新旧 T 下都没到提醒点 T/2（260.5 / 257 秒），保持有效（Main 复核）。
   - **进程上限**：Anthropic 调度器（`schedule.py`、`p4run.py`，共用 `slots.py`）每次启动前计算 free = min(4 − 本臂在跑, 5 − 其他臂基准进程 − 本臂在跑 − OpenAI 保留)。OpenAI 调度器在跑时，给它保留 4 路，扣掉它正在跑的实例，所以它两个实例之间的空档不会被抢；它退出后改按 `reserve.txt`。两次启动之间至少隔 15 秒。
 - 2026-10-20 18:30，rtx3080ti 部署前端输出上限内部重试（4686a57，手册 75b5306）：流式 /v1/responses 撞到 max_output_tokens 时，前端丢弃截断的那次，带服务端通知（不进调用方历史）在内部重试 1 次，Codex 看不到截断；Messages 不处理。`src/output_limit.py` sha256 `8f61d9d0d44732df8c14dfbab8d22b82a4954f4490a89dc5f9eaa234ec88231b`，NOTICE sha256 `82ab19ed6f2d5f698b8d491a3ce825703236c1da7b57ba30f7e2d10e7af40d31`。从此刻起这是 Strata Codex 臂（#10–12）的固定条件。作废：ca-codex 的 low-a3、low-a5、medium-a2、medium-a3（Codex 收到 response.incomplete 后结束回合）。部署前已跑的其他有效实例都没撞过上限，不追溯。
+- 2026-10-20，盲裁提示附加公平判定说明（用户 2026-10-20 决定）：
+  - **内容**：每个池的裁决提示 = 冻结 brief（只替换 `<ADJ>`、`<名>`）+ 正文之后一段调用方说明：「调用方附加说明（不属于冻结 brief，用户 2026-10-20 决定加入）：候选的写法可能让你看得出它来自哪类模型或哪次运行。不要据此推断来源，也不要因来源调整判断；请只按上文口径和 view 中的证据，对每个候选公平判定。」由 `blind_pool prompt` 生成，brief 和提示的 sha256 记进 key。
+  - **原因**：池里隐去了来源，但各 family 的报告写法不同（OpenAI、Anthropic、Strata 的 finding 格式各异），裁决者仍可能认出来源；合成 finding 也按各 family 的写法写成。用户要求提醒裁决者只按证据公平判定。
+  - **为什么不改 brief**：brief 已冻结，正文逐字不变；说明作为调用方段落放在 brief 之外，不改变口径和输出合同。
 
 ### 14.2 #10–12（Codex 上的 Strata）补冻结（2026-10-19）
 

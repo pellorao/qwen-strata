@@ -2,8 +2,9 @@
 (benchmarks/reviewer-suite-v1/<scenario>-brief.md), and the way back to each instance's decision store.
 
     build   real candidates (bench_score --enumerate, candidates.json of each instance) + controls -> pools of at most
-            --max items (default 150), each written to <ADJ>/pool-<name>.json; the hidden key goes to --keys, never
-            into <ADJ>. Items are grouped by expectation (E##, finding candidates one group each, F##), sources hidden.
+            --max items (default 150), each in its own adjudication directory <adj>/<pool>/pool-<pool>.json (that
+            directory is the brief's <ADJ>, so an adjudicator sees only its own pool); the hidden key goes to --keys,
+            never under --adj. Items are grouped by expectation (E##, finding candidates one group each, F##), sources hidden.
             Controls in every pool: the anchors of the scenario registry (association decisions already made in a
             blind pool of the same scenario version, or confirmed by Main with an executable check) and all of its
             synthetic items; every pool holds at least one not-matched control. Finding-kind controls are always synthetic (user 2026-10-20); synthetic findings are
@@ -16,13 +17,19 @@
             reused only for a candidate with the same fingerprint), and Main's review lists: every `supported` decision, and the disputed
             `unsupported` ones (named among the adjudicator's hardest, hedged reasons, or evidence shared with an item
             decided otherwise).
+    prompt  the adjudication prompt of one pool: the frozen brief (benchmarks/reviewer-suite-v1/<scenario>-brief.md)
+            with only <ADJ> and <名> replaced, then the caller's fairness note (user 2026-10-20) as a paragraph after
+            the brief body, not an edit of the frozen text (plan §14.1). It checks that <ADJ> holds the pool the key
+            was written for, the view the brief names, its own decisions and nothing else (no other pool or key), writes
+            <keys>/prompt-<pool>.md and records the brief and prompt sha256 in the key.
     override  Main's decision after review, into the store (history kept).
     anchor-add  register an association decision as a new anchor (Main's executable check, or a blind decision of a
             same-version pool); kind and allowedDecisions are filled in.
 
     python3 -m tools.reviewer.blind_pool build --scenario code-spec-v5 --name cs1 --adj ADJ --keys KEYS \\
         --candidates .tmp/bench-score/*/code-spec-v5/*/candidates.json
-    python3 -m tools.reviewer.blind_pool split --key KEYS/key-cs1.json --decisions ADJ/decisions-cs1.json \\
+    python3 -m tools.reviewer.blind_pool prompt --key KEYS/key-cs1.json   # after staging ADJ/cs1/view and change.diff
+    python3 -m tools.reviewer.blind_pool split --key KEYS/key-cs1.json --decisions ADJ/cs1/decisions-cs1.json \\
         [--hard p001 p017] [--root .tmp/bench-score]
     python3 -m tools.reviewer.blind_pool override --record openai/code-spec-v5/sol-high-a1 --stable-id ID \\
         --decision supported --reason '...' [--root .tmp/bench-score]
@@ -51,6 +58,12 @@ FIELDS = ('kind', 'scenario', 'check', 'allowedDecisions', 'expectation', 'findi
 SUB_SCENARIOS = ('runtime-migration', 'artifact-promotion')
 HEDGES = re.compile(r'可能|似乎|不确定|难以|无法确定|或许|勉强|边界|倾向|存疑|不太|未必|大概')
 FAMILIES = ('openai', 'anthropic', 'strata')
+BRIEFS = ROOT / 'benchmarks/reviewer-suite-v1'
+# Caller-appended paragraph after the frozen brief body (user 2026-10-20; plan §14.1): report layout can show its family.
+FAIRNESS_NOTE = ('调用方附加说明（不属于冻结 brief，用户 2026-10-20 决定加入）：候选的写法可能让你看得出它来自哪类模型或哪次运行。'
+                 '不要据此推断来源，也不要因来源调整判断；请只按上文口径和 view 中的证据，对每个候选公平判定。')
+# What the brief lets an adjudicator read in <ADJ> besides its pool, per scenario family.
+VIEWS = {'spec-readiness': ('view-rm', 'view-ap'), 'commit-audit': ('view',), 'code-': ('view', 'change.diff')}
 
 
 def load(path):
@@ -247,14 +260,57 @@ def build(scenario, name, adj, keys, candidate_files, registry=REGISTRY, limit=M
             item, meta = items[j]
             pool.append({'id': pid, 'group': labels[j], **item})
             key[pid] = meta
-        pool_path = Path(adj) / f'pool-{pool_name}.json'
+        pool_path = Path(adj) / pool_name / f'pool-{pool_name}.json'
         save(pool_path, pool)
         key_path = Path(keys) / f'key-{pool_name}.json'
         save(key_path, {'pool': pool_name, 'scenario': scenario, 'pool_path': str(pool_path),
                         'pool_sha256': sha256_file(pool_path), 'registry_sha256': reg_sha, 'items': key})
-        written.append({'pool': pool_name, 'items': len(pool), 'real': len(pool) - len(control_items),
-                        'controls': len(control_items), 'already_decided_skipped': skipped, 'key': str(key_path)})
+        written.append({'pool': pool_name, 'adj': str(pool_path.parent), 'items': len(pool),
+                        'real': len(pool) - len(control_items), 'controls': len(control_items),
+                        'already_decided_skipped': skipped, 'key': str(key_path)})
     return written
+
+
+# ---- prompt -------------------------------------------------------------------------------------------------------
+
+def brief_path(scenario):
+    return BRIEFS / f'{scenario}-brief.md'
+
+
+def views(scenario):
+    return next(v for prefix, v in VIEWS.items() if scenario.startswith(prefix))
+
+
+def check_adj(key):
+    """<ADJ> of a pool holds exactly its pool, the view the brief names and, after the run, its decisions."""
+    adj, name = Path(key['pool_path']).parent, key['pool']
+    if sha256_file(key['pool_path']) != key['pool_sha256']:
+        raise ValueError('pool file differs from the one the key was written for')
+    allowed = {f'pool-{name}.json', f'decisions-{name}.json', *views(key['scenario'])}
+    extra = sorted(p.name for p in adj.iterdir() if p.name not in allowed)
+    if extra:
+        raise ValueError(f'{adj} holds more than the current pool and its view: {extra}')
+    missing = [v for v in views(key['scenario']) if not (adj / v).exists()]
+    if missing:
+        raise ValueError(f'{adj}: stage {missing} (the reviewed view the brief names) first')
+    return adj
+
+
+def prompt(key_path):
+    key = load(key_path)
+    adj = check_adj(key)
+    brief = brief_path(key['scenario'])
+    text = brief.read_text()
+    for placeholder in ('<ADJ>', '<名>'):
+        if placeholder not in text:
+            raise ValueError(f'{brief}: no {placeholder} to replace')
+    body = text.replace('<ADJ>', str(adj.resolve())).replace('<名>', key['pool']).rstrip('\n')
+    out = Path(key_path).with_name(f"prompt-{key['pool']}.md")
+    out.write_text(f'{body}\n\n{FAIRNESS_NOTE}\n')
+    key.update({'brief_path': str(brief), 'brief_sha256': sha256_file(brief), 'prompt_path': str(out),
+                'prompt_sha256': sha256_file(out)})
+    save(key_path, key)
+    return {k: key[k] for k in ('pool', 'brief_path', 'brief_sha256', 'prompt_path', 'prompt_sha256')} | {'adj': str(adj)}
 
 
 # ---- split --------------------------------------------------------------------------------------------------------
@@ -430,7 +486,7 @@ def main():
     b = sub.add_parser('build')
     b.add_argument('--scenario', required=True, choices=bench_records.SCENARIOS)
     b.add_argument('--name', required=True)
-    b.add_argument('--adj', type=Path, required=True, help='adjudication directory the brief names <ADJ>')
+    b.add_argument('--adj', type=Path, required=True, help='parent of the per-pool adjudication directories <ADJ>')
     b.add_argument('--keys', type=Path, required=True, help='hidden key directory (not under <ADJ>)')
     b.add_argument('--candidates', type=Path, nargs='+', required=True)
     b.add_argument('--registry', type=Path, default=REGISTRY)
@@ -438,6 +494,8 @@ def main():
     b.add_argument('--seed', type=int, default=20261020)
     b.add_argument('--anchors', type=int, default=ANCHORS_PER_POOL, help='anchors per pool (plan: 10-15)')
     b.add_argument('--root', type=Path, help='score root: skip candidates its decision stores already hold')
+    p = sub.add_parser('prompt')
+    p.add_argument('--key', type=Path, required=True)
     s = sub.add_parser('split')
     s.add_argument('--key', type=Path, required=True)
     s.add_argument('--decisions', type=Path, required=True)
@@ -462,6 +520,8 @@ def main():
     if args.command == 'build':
         print(json.dumps(build(args.scenario, args.name, args.adj, args.keys, args.candidates, args.registry, args.max,
                                args.seed, args.anchors, args.root), indent=1))
+    elif args.command == 'prompt':
+        print(json.dumps(prompt(args.key), ensure_ascii=False))
     elif args.command == 'split':
         verdict, _, out = split(args.key, args.decisions, args.root, args.hard, args.accept_failed)
         print(json.dumps({**{k: verdict[k] for k in ('pool', 'passed', 'anchor_rate', 'synthetic_all_right', 'written',
