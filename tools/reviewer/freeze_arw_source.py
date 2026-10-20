@@ -188,7 +188,23 @@ HARNESS_PATCHES = {
                    'lib/background-agent/model-catalog.mjs':
                    '7b45b8b0367afa9f7c4bc4bebbd1c0ca259ec948c8dc230c091405627f535f21',
                    'tests/background-agent/strata-time-limit.test.mjs':
-                   'c882c3625c2d3da298d6b6c8393c2d14bd605d7aa05d98f1e37c020f2f921e07'}}}
+                   'c882c3625c2d3da298d6b6c8393c2d14bd605d7aa05d98f1e37c020f2f921e07'}},
+    # reviewer-private-scratch: a Codex Reviewer gets a private writable scratch outside the scenario root and the report
+    # directory, also its commands' TMPDIR, as the Claude Code arms have (F2, user 2026-10-20: a Reviewer must be able to
+    # write scripts); the common scratch root is denied, so no Reviewer reaches another one's. tools.reviewer.reviewer_scratch
+    # computes the same path and removes it after the instance. Default for later Codex Reviewer measurements; the
+    # multi-model benchmark v1 never selects it (user 2026-10-20, no rerun, same condition for every Codex arm).
+    'reviewer-private-scratch': {
+        'file': 'reviewer-private-scratch.patch',
+        'sha256': '12b35b5b297f81344c785a201970fda4384692bdf8f1774c4bda2c677752f1ca',
+        'base': {'lib/reviewer-runtime/reviewer-native-policy.mjs':
+                 'bad1b30494faf504b542bcddbc50fb1b2379ea40c47727dd6e93af570ab2b280'},
+        'result': {'lib/reviewer-runtime/reviewer-native-policy.mjs':
+                   'e8469645d95352d1b0f7ab59fbf8d4315835f5b5306251942680770deba9046c',
+                   'lib/reviewer-runtime/reviewer-scratch.mjs':
+                   'b851ef995a7d822cd37369dca80c5556bf577cbcc04c8c9d41cd6a4a893ee827',
+                   'tests/reviewer-runtime/reviewer-scratch.test.mjs':
+                   '88573f9a91bfcb83b5b1caba850e15945020fb118ccd1b3079d8d66b312239ba'}}}
 
 
 def apply_harness_patch(name, destination):

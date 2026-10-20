@@ -1,4 +1,5 @@
 import json
+import os
 import shutil
 import subprocess
 import tempfile
@@ -41,6 +42,28 @@ class HarnessPatchTest(unittest.TestCase):
                 if scenario == 'commit-audit-v3' and shutil.which('node'):
                     done = subprocess.run(['node', '--test', 'tests/background-agent/strata-time-limit.test.mjs'], cwd=arw,
                                           capture_output=True, text=True)
+                    self.assertEqual(done.returncode, 0, done.stdout[-2000:])
+
+    def test_scratch_patch_stacks_with_the_other_harness_patches_and_its_node_test_passes(self):
+        name = 'reviewer-private-scratch'
+        for scenario in ('commit-audit-v3', 'code-spec-v5', 'code-standards-v5.1', 'spec-readiness-v4.3'):
+            manifest = json.loads((MANIFESTS / f'manifest-{scenario}.json').read_text())
+            (ROOT / '.tmp').mkdir(exist_ok=True)
+            with tempfile.TemporaryDirectory(dir=ROOT / '.tmp', prefix='harness-patch-') as tmp:
+                arw = Path(tmp) / 'arw'
+                materialize(manifest, MANIFESTS / manifest['snapshot']['file'], arw)
+                apply_harness_patch('codex-0.163-synthetic-mount-targets', arw)
+                applied = apply_harness_patch(name, arw)
+                apply_harness_patch('strata-measurement-time-limit', arw)
+                self.assertEqual(applied['result'], HARNESS_PATCHES[name]['result'])
+                with self.assertRaises(ValueError):
+                    apply_harness_patch(name, arw)
+                if scenario == 'commit-audit-v3' and shutil.which('node'):
+                    # Scratch created by the tests stays under this temporary directory, not /tmp.
+                    env = dict(os.environ, ARW_REVIEWER_SCRATCH_ROOT=str(Path(tmp) / 'scratch'))
+                    done = subprocess.run(['node', '--test', 'tests/reviewer-runtime/reviewer-scratch.test.mjs',
+                                           'tests/reviewer-runtime/reviewer-runtime.test.mjs'], cwd=arw,
+                                          capture_output=True, text=True, env=env)
                     self.assertEqual(done.returncode, 0, done.stdout[-2000:])
 
 

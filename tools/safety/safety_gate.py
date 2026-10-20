@@ -4,6 +4,7 @@ from http.server import ThreadingHTTPServer,BaseHTTPRequestHandler
 from pathlib import Path
 from tools.reviewer.wsl_client import ROOT,save
 from tools.reviewer.native_cli_binding import pinned_codex
+from tools.reviewer import reviewer_scratch
 from tools.reviewer.arw_measure import local_review_catalog,api_review_catalog,stop_and_capture_engine_log,log_offset,review_shell_environment
 from tools.reviewer.providers import (CREDENTIAL_VARIABLES,credential_deny_paths,process_environment,shell_exclude,validate_api_selection,provider_config,service_tier,api_model,credential_present,
  link_login,release_login,web_search_mode,AUTH_FILE)
@@ -88,6 +89,74 @@ while pid>1 and len(chain)<8:
 results['proc_ancestors']=chain;results['proc_bridge']=holds(stop)
 (Path(report_dir)/'probe-read-result.json').write_text(json.dumps(results));print(json.dumps(results))
 '''
+# Private Reviewer scratch (ARW patch reviewer-private-scratch, plan §14.1 F2): TMPDIR is the expected scratch; a script
+# written there runs, a copied source file is changed and run there; another Reviewer's scratch under the same root, the
+# root itself and a link out of the scratch stay closed. The result stays in the scratch, so the report directory holds
+# only what the other probes put there; scratch_exposure() reads it from the host.
+SCRATCH_PROBE='''import json,os,stat,subprocess,sys
+from pathlib import Path
+expected,source,sibling,outside=sys.argv[1:5];results={};tmp=os.environ.get('TMPDIR','')
+results['tmpdir']='expected' if tmp==expected else 'OTHER:'+tmp
+scratch=Path(tmp or expected)
+def attempt(name,action,ok='written'):
+ try:action();results[name]=ok
+ except OSError:results[name]='denied'
+def script():
+ path=scratch/'probe-script.sh';path.write_text('#!/bin/sh\\necho SCRATCH-SCRIPT-RAN > "$TMPDIR/probe-script.out"\\n');path.chmod(0o700)
+ subprocess.run([str(path)],check=True);results['script_output']=(scratch/'probe-script.out').read_text().strip()
+attempt('script',script,'ran')
+def copy_modify_run():
+ work=scratch/'verify';work.mkdir(exist_ok=True);copy=work/'copy.py'
+ copy.write_text('TEXT='+repr(Path(source).read_text())+'\\n');copy.write_text(copy.read_text()+'print("COPY-RAN", len(TEXT))\\n')
+ out=subprocess.run([sys.executable,str(copy)],capture_output=True,text=True,check=True).stdout;results['copy_output']=out.split()[0]
+attempt('copy_modify_run',copy_modify_run,'ran')
+def mktemp():
+ import tempfile
+ with tempfile.NamedTemporaryFile(delete=False) as f:results['tempfile_in_scratch']=Path(f.name).parent==scratch
+attempt('tempfile',mktemp,'ran')
+def read(name,path):
+ try:os.close(os.open(path,os.O_RDONLY));results[name]='READABLE'
+ except OSError:results[name]='denied'
+read('sibling_read',Path(sibling)/'canary.txt')
+attempt('sibling_list',lambda:os.listdir(sibling),'LISTED')
+attempt('root_list',lambda:os.listdir(scratch.parent),'LISTED')
+def append(path):
+ with open(path,'a')as f:f.write('BAD')
+attempt('sibling_write',lambda:append(Path(sibling)/'canary.txt'),'UNEXPECTED-WRITE')
+attempt('sibling_new',lambda:(Path(sibling)/'new.txt').write_text('BAD'),'UNEXPECTED-WRITE')
+attempt('root_new',lambda:(scratch.parent/'probe-new.txt').write_text('BAD'),'UNEXPECTED-WRITE')
+def link_out():
+ link=scratch/'probe-link-out';link.symlink_to(outside);append(link)
+attempt('link_out',link_out,'UNEXPECTED-WRITE')
+# Informational: Codex keeps its protected names (.git, .codex, .agents, .aws) read-only at the top of a writable root.
+for name,target in (('git_init_sub',scratch/'repo'),('git_init_top',scratch)):
+ done=subprocess.run(['git','init','-q',str(target)],capture_output=True);results[name]='ran' if done.returncode==0 else 'failed'
+(scratch/'probe-scratch-result.json').write_text(json.dumps(results));print(json.dumps(results))
+'''
+SCRATCH_CLOSED=('sibling_read','sibling_list','root_list','sibling_write','sibling_new','root_new','link_out')
+# Files the boundary and read probes leave in the report directory by design; anything else there fails the scratch check.
+PROBE_REPORT_ENTRIES=('probe-result.json','probe-sibling.txt','probe-read-result.json','probe-symlink','probe-hardlink')
+# Codex 0.163's synthetic mount targets, set aside by the patch codex-0.163-synthetic-mount-targets when empty.
+MOUNT_TARGETS=('.git','.codex','.agents','.aws')
+
+
+def scratch_exposure(scratch,report,sibling,outside):
+ """The scratch probe's result read from the host, the bytes it wrote, and the report directory listing."""
+ scratch=Path(scratch);path=scratch/'probe-scratch-result.json'
+ if not path.exists():return {'ran':False,'pass':False,'scratch':str(scratch)}
+ results=json.loads(path.read_text());directory=Path(report).parent
+ extra=sorted(p.name for p in directory.iterdir()if p.name!=Path(report).name and p.name not in PROBE_REPORT_ENTRIES
+              and not(p.name in MOUNT_TARGETS and p.is_dir()and not p.is_symlink()and not any(p.iterdir())))
+ host={'script_output':(scratch/'probe-script.out').read_text().strip()if(scratch/'probe-script.out').exists()else None,
+  'sibling_canary':(Path(sibling)/'canary.txt').read_text(),'sibling_entries':sorted(p.name for p in Path(sibling).iterdir()),
+  'outside':Path(outside).read_text(),'root_entries':sorted(p.name for p in scratch.parent.iterdir())}
+ ok=(results.get('tmpdir')=='expected'and results.get('script')=='ran'and host['script_output']=='SCRATCH-SCRIPT-RAN'
+     and results.get('copy_modify_run')=='ran'and results.get('copy_output')=='COPY-RAN'and results.get('tempfile_in_scratch')is True
+     and all(results.get(k)=='denied'for k in SCRATCH_CLOSED)and host['sibling_canary']=='SIBLING-SCRATCH-CANARY\n'
+     and host['sibling_entries']==['canary.txt']and host['outside']=='KEEP\n'and'probe-new.txt'not in host['root_entries']and not extra)
+ return {'ran':True,'scratch':str(scratch),'results':results,'host':host,'report_dir_extra':extra,'pass':ok}
+
+
 CANARY_KEY_PREFIX='FAKE-CANARY-KEY-'
 # A ChatGPT login has no key variable; the canary still checks what a secret in the bridge environment exposes.
 CANARY_VARIABLE='DEEPSEEK_API_KEY'  # a foreign provider key under the name the user set globally (M1, 2026-10-19)
@@ -415,10 +484,13 @@ def gate_environment(key_name,value,provider=None):
  env[key_name]=value;env[WILDCARD_CANARY]=value;return env
 
 
-def mock_report_write(out,source,write_tool='exec_command',legacy_landlock=False,directory_probe=False,model='IQ3_XXS',host_id='rtx3080ti',read_probe=False,api=None,web_search=None,codex_home=None):
+def mock_report_write(out,source,write_tool='exec_command',legacy_landlock=False,directory_probe=False,model='IQ3_XXS',host_id='rtx3080ti',read_probe=False,api=None,web_search=None,codex_home=None,scratch_probe=False):
  """codex_home: a CODEX_HOME shared with other gate runs (user 2026-10-20); the first run links the synthetic login, no
- run releases it, and the read probe must find the shared home unreadable."""
+ run releases it, and the read probe must find the shared home unreadable. scratch_probe: the source carries the ARW patch
+ reviewer-private-scratch; SCRATCH_PROBE runs after the other probes beside a synthetic sibling scratch, and both
+ scratches are removed afterwards."""
  if read_probe and not directory_probe:raise ValueError('The read probe runs inside the dedicated report-directory grant')
+ if scratch_probe and not directory_probe:raise ValueError('The scratch probe runs inside the dedicated report-directory grant')
  tier=None if api else published_tier(host_id,model)
  out=Path(out).resolve();out.mkdir(parents=True,exist_ok=False);workspace=Path('/tmp')/('qwen-report-write-'+str(time.time_ns()));workspace.mkdir();report=workspace/'bound-report.jsonl';report.write_text('');(workspace/'AGENTS.md').write_text('This is a synthetic native permission diagnostic. Use only the exact bound report.\n')
  server=ThreadingHTTPServer(('127.0.0.1',0),Proxy);server.requests=[];server.out=out/'requests';server.live=False;server.mode='file-write';server.workspace=workspace;server.command='python3 -c '+shlex.quote('from pathlib import Path; Path('+repr(str(report))+').write_text("NATIVE-WRITE-OK\\n")')
@@ -448,6 +520,11 @@ def mock_report_write(out,source,write_tool='exec_command',legacy_landlock=False
  native=Native(info,out,env)
  if read_probe:
   rprobe=workspace/'probe-read.py';rprobe.write_text(READ_PROBE);server.command+=' && '+read_command(rprobe,directory,fixture,key,native.proc.pid)
+ if scratch_probe:
+  root=reviewer_scratch.scratch_root();root.mkdir(mode=0o700,exist_ok=True);expected=reviewer_scratch.scratch_path(workspace,[directory])
+  sibling=root/hashlib.sha256(os.urandom(16)).hexdigest()[:32];sibling.mkdir(mode=0o700);(sibling/'canary.txt').write_text('SIBLING-SCRATCH-CANARY\n')
+  sprobe=workspace/'probe-scratch.py';sprobe.write_text(SCRATCH_PROBE)
+  server.command+=' && python3 '+' '.join(shlex.quote(str(x))for x in (sprobe,expected,workspace/'AGENTS.md',sibling,canary))
  try:
   values=config(workspace,report,f'http://127.0.0.1:{server.server_port}/v1',catalog,tier,provider=provider,canary_key=key if key and not api else None,
                web_search=web_search_mode(api['selection'])if api else web_search)
@@ -460,6 +537,9 @@ def mock_report_write(out,source,write_tool='exec_command',legacy_landlock=False
   if read_probe:
    result['read_exposure']=read_exposure(directory)
    if not result['read_exposure'].get('deny_read_pass'):result['status']='failed'
+  if scratch_probe:
+   result['scratch']=scratch_exposure(expected,report,sibling,canary)
+   if not result['scratch']['pass']:result['status']='failed'
   result['web_search_tools']=web_search_tools(out/'requests')
   if api:result['provider']=provider
   if (web_search_mode(api['selection'])if api else web_search)=='disabled'and result['web_search_tools']:result['status']='failed'
@@ -467,6 +547,8 @@ def mock_report_write(out,source,write_tool='exec_command',legacy_landlock=False
  finally:
   native.close();server.shutdown();server.server_close();thread.join()
   if login and not shared:save(out/'login-release.json',{'status':release_login(provider,home)})
+  if scratch_probe:
+   save(out/'scratch-removed.json',{'own':reviewer_scratch.remove(expected),'sibling':reviewer_scratch.remove(sibling)})
 
 
 def guardian_decisions(folder):
@@ -684,11 +766,11 @@ def provider_gate(out,source,plan_path):
 
 if __name__=='__main__':
  import argparse
- p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--mock-report-write',type=Path);p.add_argument('--mock-approval',type=Path);p.add_argument('--run',type=Path);p.add_argument('--plan',type=Path,help='Approved run plan for --run: host, model and optional context_window; with --provider-run, the API selection and catalog.');p.add_argument('--provider-run',type=Path,help='Live gate on the API provider the --plan selection names (no lease).');p.add_argument('--model',choices=MODELS,default='IQ3_XXS',help='Zero-model modes only; --run takes the plan model.');p.add_argument('--resume-native',type=Path);p.add_argument('--host',default='rtx3080ti');p.add_argument('--directory-probe',action='store_true',help='Zero-model check of the approved dedicated report-directory grant the live gate uses.');p.add_argument('--read-probe',action='store_true',help='Zero-model read probe with a fake key; needs --directory-probe.');p.add_argument('--api-plan',type=Path,help='Zero-model modes on an API provider configuration: plan with selection and catalog; no request leaves the scripted parent.');p.add_argument('--legacy-landlock',action='store_true',help='Zero-model compatibility probe only; never changes the live gate.');p.add_argument('--web-search',choices=['disabled','cached','live'],help='Zero-model Strata modes: the Codex web_search mode (an --api-plan takes its selection).');p.add_argument('--codex-home',type=Path,help='Zero-model report-write mode: a CODEX_HOME shared with other gate runs.');p.add_argument('--write-tool',choices=['exec_command','apply_patch','exec_escalated'],default='exec_command');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--mock-report-write',type=Path);p.add_argument('--mock-approval',type=Path);p.add_argument('--run',type=Path);p.add_argument('--plan',type=Path,help='Approved run plan for --run: host, model and optional context_window; with --provider-run, the API selection and catalog.');p.add_argument('--provider-run',type=Path,help='Live gate on the API provider the --plan selection names (no lease).');p.add_argument('--model',choices=MODELS,default='IQ3_XXS',help='Zero-model modes only; --run takes the plan model.');p.add_argument('--resume-native',type=Path);p.add_argument('--host',default='rtx3080ti');p.add_argument('--directory-probe',action='store_true',help='Zero-model check of the approved dedicated report-directory grant the live gate uses.');p.add_argument('--read-probe',action='store_true',help='Zero-model read probe with a fake key; needs --directory-probe.');p.add_argument('--api-plan',type=Path,help='Zero-model modes on an API provider configuration: plan with selection and catalog; no request leaves the scripted parent.');p.add_argument('--legacy-landlock',action='store_true',help='Zero-model compatibility probe only; never changes the live gate.');p.add_argument('--web-search',choices=['disabled','cached','live'],help='Zero-model Strata modes: the Codex web_search mode (an --api-plan takes its selection).');p.add_argument('--codex-home',type=Path,help='Zero-model report-write mode: a CODEX_HOME shared with other gate runs.');p.add_argument('--scratch-probe',action='store_true',help='Zero-model check of the ARW patch reviewer-private-scratch (the --source carries it); needs --directory-probe.');p.add_argument('--write-tool',choices=['exec_command','apply_patch','exec_escalated'],default='exec_command');a=p.parse_args()
  api=api_plan(a.api_plan)[1]if a.api_plan else None
  if api and api['provider']['auth']=='chatgpt'and a.mock_report_write and os.environ.get(NETNS_FLAG)!='1':
   raise SystemExit(in_network_namespace([sys.executable,'-m','tools.safety.safety_gate',*sys.argv[1:]]))
- if a.mock_report_write:print(json.dumps(mock_report_write(a.mock_report_write,a.source,a.write_tool,a.legacy_landlock,a.directory_probe,a.model,a.host,a.read_probe,api,a.web_search,a.codex_home)))
+ if a.mock_report_write:print(json.dumps(mock_report_write(a.mock_report_write,a.source,a.write_tool,a.legacy_landlock,a.directory_probe,a.model,a.host,a.read_probe,api,a.web_search,a.codex_home,a.scratch_probe)))
  if a.mock_approval:print(json.dumps(mock_approval(a.mock_approval,a.source,a.model,a.host)))
  if a.run:
   if a.plan is None:p.error('--run needs --plan')

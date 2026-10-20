@@ -534,6 +534,17 @@
   - **门**：ARW 侧 `tests/background-agent/strata-time-limit.test.mjs`（5 个：有 T 时提醒一次并在 T 停、T<600 秒的改写、无 T 时 55/60 不变、provider 配置传到策略）；ARW 现有 `tests/background-agent` 166 个中 165 通过，唯一失败（untrusted titles 终端控制字符）在未打补丁的源上同样失败；`tests/test_harness_patches.py` 覆盖四个场景源上叠加两个补丁并跑 node 测试；`tests/test_arw_owned.py` 覆盖 provider 限时字段与 `call_through_stop`。零模型门 `mtgate/gate2.py`（mock 前端 + netns，T=20 秒、模型连续 sleep 7 秒）：提醒按改写文字在 10 秒送达，约 23 秒停止，状态 exited、completion incomplete、租约归还、无 recovery-required。run_codex_strata.py 在有 T（CS、CStd）时叠加该补丁并核对 sha，CA 不叠加。
   - **以往 Strata 限时运行**：2026-10-14 的 Q3 Code Spec v5（T≈933/924 秒）同样走 ARW 持有模型的路径，当时代码同样不对它执行 T，只有 ARW 自己的 55/60 分钟。报告记没有实例被时限中断、用时为 T 的 53–72%，故无实例触到 T；T−300 秒（约 68%）的提醒对用时超过它的少数实例本应发出而没有发出，影响未量化。Code Standards v5.1、Spec Readiness v4.3 的 Q3 限时运行同理，未逐例核对。
 
+- 2026-10-20，F2（Codex 臂没有可写临时目录）：做了 ARW 补丁，但本 benchmark 不启用。
+  - **用户原话**：先是"reviewer 一定要有能写脚本的能力"（F2 选 A，ARW 规则可以直接改，做法是新增 ARW 补丁）。11:3x 更新为："目前判断能不能写临时文件对它的编程能力几乎没有影响, 所以我决定在这件事上不重跑……但是 OpenAI 的场景, 之后也要给一个临时目录, 这次 benchmark 就统一不给, 防止前后差异."（依据：Main 查了 OpenAI 臂 138 个会话，往 /tmp 落盘失败只有 5 次；不落盘的内联脚本有 612 次，code mode 能跨调用保存状态。）
+  - **本 benchmark 不启用**：所有 Codex 臂（OpenAI #1–6、DeepSeek #7–9、Strata #10–12）都不选这个补丁。`prepare` 默认不选，只有显式传 `harness_patches` 时才叠加。以后的 Codex Reviewer 测量默认选用（reviewer-suite.md「私有 scratch」）。
+  - **补丁**：`reviewer-private-scratch`，sha256 `12b35b5b…52f1ca`，登记在 `freeze_arw_source.HARNESS_PATCHES`。只改 `reviewer-native-policy.mjs`（base `bad1b304…`），另新增 `reviewer-scratch.mjs` 和它的测试，和 mount-targets、time-limit 两个补丁不碰同一文件，三个按任意顺序都能叠加。做法：每个 Reviewer 按（场景根，报告目录）的 sha256 取 `/tmp/arw-reviewer-scratch-<uid>/<32 位>`（0700，核对属主、类型和权限，拒绝链接）；profile 里给它 `write`，给公共根 `none`；命令环境的 `shell_environment_policy.set.TMPDIR` 指向它。写授权、报告目录和读范围都不变，凭据 deny-read 照旧。实例结束后由 `tools.reviewer.reviewer_scratch --remove <arw_measure 输出目录>` 按 binding.json 删除。
+  - **零模型验证**（`.tmp/f2-scratch-1020/`）：
+    - 三种 mock 门（Strata、DeepSeek key 模式、ChatGPT 合成登录且在 netns 内），`--directory-probe --read-probe --scratch-probe`，全部 passed：边界 8 类拒绝，deny_read 四类拒绝，`deny_read_pass` 为真，`shell_env_key` 为 absent，搜索工具 0；TMPDIR 等于预期路径，能在里面写脚本并执行，能复制源文件改完再运行，tempfile 落在 scratch 里；兄弟 scratch 读、列目录、改写、新建都被拒，公共根不能列也不能新建，scratch 里指向外面的链接写不进去；报告目录里除了绑定报告和探针本身的文件，没有别的条目；跑完两份 scratch 都删掉了。
+    - 对照：只打 mount-targets 补丁的源，scratch 探针判失败（scratch 不存在，TMPDIR 也没设）。
+    - 端到端：真实 arw_measure 走 OpenAI 路径（脚本化模型，netns，CA），3 次都是 completion ready，报告目录只有 review.jsonl 和被放过的占位空目录。模型用 `$TMPDIR` 里的脚本写报告；`run_scratches` 找到的路径和 ARW 写的 granted 事件一致，`remove_run` 删除后不留残余。对照（不打 scratch 补丁）判 incomplete。
+    - 单测：ARW 侧 4 个新测试，reviewer-runtime 和 time-limit 测试叠加后全部通过（58 个）。ARW 全量测试在打补丁前后失败的是同一组 51 个，都是环境原因。工程侧 `tests/test_reviewer_scratch.py` 核对 Python 和 JS 算出的路径一致；`tests/test_harness_patches.py` 在四个场景源上叠加三个补丁。
+  - **已知差异与风险**：Codex 会在可写根顶层放只读的 `.git`、`.codex`、`.agents`、`.aws`，所以 `git init "$TMPDIR"` 会失败，`git init "$TMPDIR/repo"` 可以。Codex 自己的 bwrap 占位登记目录（`codex-bwrap-synthetic-mount-targets-<uid>`）会随 TMPDIR 移进 scratch，模型能改它，原来它在宿主共享的 /tmp。scratch 在 /tmp，主机重启后会清空。
+
 ### 14.2 #10–12（Codex 上的 Strata）补冻结（2026-10-19）
 
 §14 为 #10–12 设的条件都已在 Codex 0.163.0 上满足，按 §14 以单独 commit 补冻结。
