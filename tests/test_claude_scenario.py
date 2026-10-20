@@ -1,4 +1,5 @@
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,6 +11,7 @@ class ClaudeScenarioTest(unittest.TestCase):
     """Zero-model checks of the Claude Code scenario driver: staging, path rewriting and validity checks."""
     def setUp(self):
         self.base = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.base, True)
         self.root = self.base / 'arw/.tmp/codex/t/_reviewer-cap/runs/u/ca/1'
         cap = self.root / '.tmp/codex/t/_commit-audit-capability'
         (cap / 'reports').mkdir(parents=True)
@@ -53,6 +55,9 @@ class ClaudeScenarioTest(unittest.TestCase):
         self.assertEqual(cs.checks(changed, 'claude-opus-5-5', False, 'r')['unexpected_changes'], ['src/x.js'])
         failed = dict(result, exit=1)
         self.assertFalse(cs.checks(failed, 'claude-opus-5-5', False)['valid'])
+        broken = dict(result, summary=dict(result['summary'], sandbox_failures=3))
+        self.assertEqual(cs.checks(broken, 'claude-opus-5-5', False)['sandbox_failures'], 3)
+        self.assertFalse(cs.checks(broken, 'claude-opus-5-5', False)['valid'])
 
     def test_strata_checks_loaded_prompts_and_output_limits(self):
         from tools.reviewer import claude_headless as ch

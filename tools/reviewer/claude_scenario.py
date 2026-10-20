@@ -106,6 +106,8 @@ def checks(result, model, startup, report_dir=None, strata=None, binding=None):
     out['unexpected_changes'] = [f for f in result.get('changed_files') or []
                                  if not (report_dir and f.startswith(report_dir + '/')) and not HARNESS_STUBS.fullmatch(f)]
     out['ended_normally'] = out['completed'] or bool(result.get('hard_interrupt'))
+    # Harness fault: a Bash call whose sandbox could not be built never ran (bwrap argument limit, 2026-10-20).
+    out['sandbox_failures'] = summary.get('sandbox_failures') or 0
     prompts_ok = out['startup_prompt_off']
     if strata:
         loaded = {'startup_sha256': ((binding or {}).get('startup_instructions') or {}).get('sha256'),
@@ -117,7 +119,7 @@ def checks(result, model, startup, report_dir=None, strata=None, binding=None):
                    and limits.get('thinking_budgets') in ([], [strata['thinking_budget']]))
         prompts_ok = out['prompts_ok'] and out['output_limits_ok']
     out['valid'] = (out['model_match'] and out['tier_ok'] and out['server_web_requests'] == 0 and prompts_ok
-                    and out['ended_normally'])
+                    and out['ended_normally'] and out['sandbox_failures'] == 0)
     return out
 
 

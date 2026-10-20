@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 import sys
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -14,6 +15,7 @@ class RunnerBuildersTest(unittest.TestCase):
     """Zero-model checks of the Claude Code runner's command, settings, environment and inputs."""
     def setUp(self):
         self.base = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.base, True)
         self.work = ch.workspace('r1', self.base)
         (self.work / 'inputs').mkdir()
         (self.work / 'inputs/a.txt').write_text('a\n')
@@ -221,7 +223,36 @@ class RunnerBuildersTest(unittest.TestCase):
         self.assertTrue(s['result_event'])
         self.assertEqual((s['init']['tools'], s['num_turns']), (['Read'], 2))
         self.assertEqual((s['service_tiers'], s['server_web_requests']), ({'standard': 1, 'not-returned': 1}, 1))
-        self.assertEqual(ch.stream_summary(self.base / 'none'), {'result_event': False, 'init': None, 'service_tiers': {}})
+        self.assertEqual(ch.stream_summary(self.base / 'none'),
+                         {'result_event': False, 'init': None, 'service_tiers': {}, 'sandbox_failures': 0})
+        self.assertEqual(s['sandbox_failures'], 0)
+
+    def test_stream_summary_counts_sandbox_setup_failures(self):
+        # 2026-10-20: every Bash call failed at sandbox setup (bwrap argument limit); a command's own error does not count.
+        limit = ('Sandbox profile has 9672 bwrap arguments and bwrap accepts at most 9000 (about 3000 mounts); '
+                 'reduce what the configuration expands to')
+        results = [{'type': 'tool_result', 'tool_use_id': 'a', 'is_error': True, 'content': limit},
+                   {'type': 'tool_result', 'tool_use_id': 'b', 'is_error': True,
+                    'content': [{'type': 'text', 'text': 'bwrap: Can\'t mount proc on /newroot/proc'}]},
+                   {'type': 'tool_result', 'tool_use_id': 'c', 'is_error': True, 'content': 'Exit code 1\ngrep: x: No such file'},
+                   {'type': 'tool_result', 'tool_use_id': 'd', 'is_error': False, 'content': 'docs say bwrap accepts at most 9000'}]
+        stream = self.base / 'sandbox.jsonl'
+        stream.write_text('\n'.join(json.dumps({'type': 'user', 'message': {'role': 'user', 'content': [r]}}) for r in results)
+                          + '\n' + json.dumps({'type': 'result', 'subtype': 'success'}) + '\n')
+        self.assertEqual(ch.stream_summary(stream)['sandbox_failures'], 2)
+
+    def test_shared_tmp_entries_refuse_over_limit(self):
+        expected = sorted(str(p) for p in Path('/tmp').iterdir() if not p.is_socket() and str(p) not in ch.SHARED_DENY)
+        self.assertEqual(ch.shared_tmp_entries(), expected)  # under the limit: the same list as before the check
+        self.assertEqual(ch.SHARED_TMP_LIMIT, 1500)
+        (self.base / 'probe').mkdir(exist_ok=True)
+        original = ch.SHARED_TMP_LIMIT
+        ch.SHARED_TMP_LIMIT = -1
+        try:
+            with self.assertRaisesRegex(RuntimeError, 'over -1'):
+                ch.shared_tmp_entries()
+        finally:
+            ch.SHARED_TMP_LIMIT = original
 
 
 class ClaudeGateLogicTest(unittest.TestCase):
@@ -229,6 +260,8 @@ class ClaudeGateLogicTest(unittest.TestCase):
     def setUp(self):
         self.base = Path(tempfile.mkdtemp())
         self.project = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.base, True)
+        self.addCleanup(shutil.rmtree, self.project, True)
         self.fx = gate.fixture('g1', self.base, self.project)
         self.script = gate.probes(self.fx, 4242, 9)
 

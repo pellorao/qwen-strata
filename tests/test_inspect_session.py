@@ -1,4 +1,5 @@
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -133,6 +134,7 @@ class InspectClaudeStreamTest(unittest.TestCase):
     """Claude Code stream-json: actions, flags, tool-call counts, work time and API tokens."""
     def stream(self, events):
         folder = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, folder, True)
         path = Path(folder) / 'stream.jsonl'
         path.write_text('\n'.join(json.dumps(e) for e in events) + '\n')
         return path
@@ -178,6 +180,7 @@ class InspectClaudeStreamTest(unittest.TestCase):
                          ['Done.', 'permission_denied Write: outside: /tmp/x is outside the working directory'])
         self.assertEqual([m['role'] for m in r['messages']], ['assistant', 'harness'])
         out = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, out, True)
         summary = render(r, out)
         self.assertIn('工作时间 1.5 分钟', (out / 'actions.md').read_text())
         self.assertEqual(summary['flagged_actions'], [2, 3, 4, 5])

@@ -81,9 +81,18 @@ WORLD_WRITABLE = [d for d in ('/var/tmp', '/run/lock', '/run/screen', '/dev/shm'
 SETTINGS_ARGUMENT_LIMIT = 120000
 
 
+# Each denied path costs bwrap about three arguments and bwrap takes at most 9000: with 2136 /tmp entries every Bash
+# call of Claude Code 2.1.303 failed at sandbox setup (2026-10-20, test leftovers in /tmp). Refuse well before that.
+SHARED_TMP_LIMIT = 1500
+
+
 def shared_tmp_entries():
     """Entries at the top of /tmp when a run starts, except Unix sockets (connecting to them is blocked anyway)."""
-    return sorted(str(p) for p in Path('/tmp').iterdir() if not p.is_socket() and str(p) not in SHARED_DENY)
+    entries = sorted(str(p) for p in Path('/tmp').iterdir() if not p.is_socket() and str(p) not in SHARED_DENY)
+    if len(entries) > SHARED_TMP_LIMIT:
+        raise RuntimeError(f'/tmp holds {len(entries)} top-level entries, over {SHARED_TMP_LIMIT}: each is denied '
+                           'separately and the sandbox would exceed the bwrap argument limit; clear stale /tmp entries')
+    return entries
 DENY_READ = [str(Path.home()), '/root', '/mnt/c', '/mnt/wsl', '/mnt/wslg', str(WORK_BASE), '/etc/claude-code', *SHARED_DENY,
              *(d for d in WORLD_WRITABLE if d not in ('/mnt/wsl', '/mnt/wslg'))]
 # Inputs that never belong in a working directory: credentials, private state and answer material.
@@ -327,9 +336,21 @@ def anthropic_home(run_root, real=None):
     return home
 
 
+# A Bash call whose sandbox could not be built: Claude Code's own bwrap argument check, or bwrap failing before the
+# command ran. Seen as the start of an error tool result (2026-10-20); the command never ran.
+SANDBOX_FAILURE = re.compile(r'(Error: )?(Sandbox profile has \d+ bwrap arguments|.*bwrap accepts at most|bwrap: )')
+
+
+def tool_result_text(content):
+    if isinstance(content, list):
+        return '\n'.join(c.get('text', '') for c in content if isinstance(c, dict))
+    return content if isinstance(content, str) else ''
+
+
 def stream_summary(stream):
     """The result event of a stream-json run: usage, cost, turns and durations as Claude Code reports them."""
     result = None
+    sandbox_failures = 0
     try:
         lines = Path(stream).read_text(errors='replace').splitlines()
     except OSError:
@@ -349,17 +370,22 @@ def stream_summary(stream):
             seen.add(message.get('id'))
             tier = usage.get('service_tier') or 'not-returned'
             tiers[tier] = tiers.get(tier, 0) + 1
+        if event.get('type') == 'user' and isinstance(event.get('message'), dict):
+            for block in event['message'].get('content') or []:
+                if (isinstance(block, dict) and block.get('type') == 'tool_result' and block.get('is_error')
+                        and SANDBOX_FAILURE.match(tool_result_text(block.get('content')))):
+                    sandbox_failures += 1
         if event.get('type') == 'system' and event.get('subtype') == 'init' and init is None:
             init = {k: event.get(k) for k in ('model', 'tools', 'mcp_servers', 'permissionMode', 'claude_code_version')}
         if event.get('type') == 'result':
             result = event
     if result is None:
-        return {'result_event': False, 'init': init, 'service_tiers': tiers}
+        return {'result_event': False, 'init': init, 'service_tiers': tiers, 'sandbox_failures': sandbox_failures}
     keep = ('subtype', 'is_error', 'duration_ms', 'duration_api_ms', 'num_turns', 'total_cost_usd', 'usage', 'modelUsage')
     server_tools = (result.get('usage') or {}).get('server_tool_use') or {}
     searches = (server_tools.get('web_search_requests') or 0) + (server_tools.get('web_fetch_requests') or 0)
     return {'result_event': True, 'init': init, **{k: result.get(k) for k in keep}, 'service_tiers': tiers,
-            'server_web_requests': searches,
+            'server_web_requests': searches, 'sandbox_failures': sandbox_failures,
             'token_source': 'Claude Code stream-json result usage (API usage; engine log for the Strata arm)'}
 
 
