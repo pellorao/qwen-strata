@@ -106,12 +106,19 @@ class RecordsTest(unittest.TestCase):
         for name in ('sol-low-a3', 'sol-low-a4', 'sol-low-a5'):
             self.assertFalse(r[name]['pause_known'], name)
 
-    def test_spills_are_every_kept_tool_output(self):
+    def test_spills_are_those_a_tool_call_names(self):
         out = self.scene / 'h0'
-        first = write(out / 'session-files/p/s/tool-results/b1.txt', 'diff')
-        second = write(out / 'session-files/p/s/tool-results/b2.txt', 'diff')
-        write(out / 'session-files/p/s/other/b3.txt', 'not a spill')
-        self.assertEqual(bench_records.read_spills(out), [str(first), str(second)])
+        read = write(out / 'session-files/p/s/tool-results/b1.txt', 'diff')
+        catted = write(out / 'session-files/p/s/tool-results/b2.txt', 'diff')
+        write(out / 'session-files/p/s/tool-results/b3.txt', 'diff')  # only announced, never viewed
+        events = [{'message': {'content': [{'type': 'tool_use', 'name': 'Read',
+                                            'input': {'file_path': '/v/.claude/projects/p/s/tool-results/b1.txt'}}]}},
+                  {'message': {'content': [{'type': 'tool_use', 'name': 'Bash',
+                                            'input': {'command': 'cat -n /v/p/s/tool-results/b2.txt | sed -n 1,9p'}}]}},
+                  {'message': {'content': [{'type': 'tool_result',
+                                            'content': 'Output too large, saved to: /v/p/s/tool-results/b3.txt'}]}}]
+        write(out / 'stream.jsonl', ''.join(json.dumps(e) + '\n' for e in events))
+        self.assertEqual(bench_records.read_spills(out), [str(read), str(catted)])
 
     def test_strata_codex_layout(self):
         write(self.scene / 'schedule.jsonl', json.dumps({'event': 'done', 'out': 'codex-strata-low-a1', 'kind': 'valid'}) + '\n')

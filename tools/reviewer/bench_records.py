@@ -299,10 +299,26 @@ def claude_record(arm, scenario, folder):
 
 
 def read_spills(out):
-    """Every kept tool-output file Claude Code spilled for the handoff (large outputs saved under tool-results/). Any
-    view of one (Read, cat -n, grep -n) shows its line numbers, so all are offered to repair (d), which converts a
-    locator only through a unique, content-checked reading."""
-    return [str(p) for p in sorted(out.glob('session-files/*/*/tool-results/*')) if p.is_file()]
+    """Kept tool-output files Claude Code spilled for the handoff (large outputs saved under tool-results/) that a tool
+    call of the session names (Read, or Bash such as cat -n / grep -n / sed -n / nl / awk on that path): the model can
+    only have taken line numbers from a spill it viewed. Repair (d) converts a locator only through a unique,
+    content-checked reading of these."""
+    kept = {p.name: p for p in sorted(out.glob('session-files/*/*/tool-results/*')) if p.is_file()}
+    named = set()
+    for stream in sorted(out.glob('stream*.jsonl')):
+        for line in stream.read_text(errors='replace').splitlines():
+            if 'tool_use' not in line or not any(name in line for name in kept):
+                continue
+            try:
+                event = json.loads(line)
+            except ValueError:
+                continue
+            content = (event.get('message') or {}).get('content')
+            for item in content if isinstance(content, list) else []:
+                if isinstance(item, dict) and item.get('type') == 'tool_use':
+                    text = json.dumps(item.get('input'), ensure_ascii=False)
+                    named.update(name for name in kept if name in text)
+    return [str(kept[name]) for name in sorted(named)]
 
 
 def strata_codex_record(arm, scenario, folder, done):

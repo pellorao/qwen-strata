@@ -174,6 +174,14 @@ class SpillLocatorTest(unittest.TestCase):
         # Without the frozen source texts nothing is converted (content cannot be checked).
         self.assertEqual(normalize_markdown(text, SPILL_SOURCES, [SPILL]), (text, []))
 
+    def test_a_second_spill_reading_differently_makes_the_part_ambiguous(self):
+        # Why only viewed spills are offered: an unviewed spill holding the same diff at other line numbers would
+        # otherwise make a cited part ambiguous (bench_records.read_spills keeps it out).
+        text = '- `src/b/two.mjs:20` - x\n'
+        unviewed = 'x\n' + SPILL
+        self.assertEqual(spill_normalize(text, spills=(SPILL, unviewed)), (text, []))
+        self.assertEqual(spill_normalize(text, spills=(SPILL,))[0], '- `src/b/two.mjs:2` - x\n')
+
     def test_a_spill_of_another_version_is_not_converted(self):
         text = '- `src/b/two.mjs:19-21` - x\n'
         other = dict(SPILL_TEXTS, **{'src/b/two.mjs': ['one', 'TWO', 'three', '']})
