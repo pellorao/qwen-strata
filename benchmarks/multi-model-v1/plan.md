@@ -476,6 +476,11 @@
       - 保留报告、ARW 运行元数据、`run/`（machine.jsonl、日志、状态）、`inspect/` 和 instance.json；rollout 在共享 CODEX_HOME 里。
     - 已跑完的实例由 `tools/backfill_clean.py` 补清了一遍：先列清单，再删。一起删掉的还有 prep-killed/、S2 的 scene/prep-live、P4 的 /tmp 工作区，以及 CS sol-low-a1 的 /tmp prep。ca+cs+cstd 从 1.2G 降到 252M。
     - 注意：计分要读证据所在的文件，得先按冻结输入重新 prepare 出场景仓库，再用 `scenario-copies.json` 核对。
+  - **全部完成**（10:29，borrow=1）：CA、CS、CStd 都是 6 个配置各 5 个有效。
+    - 有效实例中没有撞时限，也没有 ARW 暂停（continue_count 全部为 0）。
+    - CS 和 CStd 都在这一次借用里跑完。早先预计 CS 要分两次借用，那条时间混杂不再适用。
+    - 收尾：10:29:02 登录已归还，共享 home 上的 Codex 进程为 0；memories_stage1_outputs 0；home 下没有新增 dotfile；周用量 39% → 44%，credits 不变。
+    - 在跑的 Claude Code 实例抽查，denyRead 都含 /tmp/qwen-openai-1020。
   - 当前 sha256：`arw_measure.py` `9e6f14fc…e051a49b`，`run_one.py` `c70c8a5e…9ab94b1d`，`schedule.py` `521fc743…bad73877`，`slotctl.py` `b5410a01…66d122e5`。
 
 - 2026-10-20 06:40–06:50，#10–12（Codex 上的 Strata）的 ARW prep 改放 /tmp，与 OpenAI 臂同一布局（Main 指示；尚未开跑，没有实例受影响）：
