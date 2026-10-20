@@ -496,6 +496,7 @@
     - 实例记录里的 borrow 一直是 2，11:28 之后开的实例实际属于第 3 次借用，分析时按开始时刻区分（Main 同意）。
     - **SR 清理缺陷**：`run_one.clean_instance` 只按 `runs/<id>/<场景>/<rep>` 找场景仓库，SR 多一层 `sr/<handoff>/<rep>`，所以此前 12 个 SR 实例的仓库副本没删，`scenario-copies.json` 为空。改为按 ARW 的 `.prepared` 标记找仓库：每个实例计分后由 `.tmp/bench-openai-1020/tools/score_sr.py --clean` 先写 manifest 再删（每实例 6 个仓库），instance.json 记 `cleanup_sr_repositories`。CA/CS/CStd 的层级正确，不受影响。
     - **边跑边计分**（用户要求）：入口 `tools.reviewer.single_scenario_score.upstream_score`。在实例原来的 /tmp prep 路径重新物化冻结 ARW（同一 manifest、同一补丁），放回保留的 `prep/arw/.tmp`，核对绑定报告 sha 后计分。未裁候选按 not-matched / unsupported 记，标为暂定分。SR 的问题用例要经裁决为 matched 才得分，所以暂定分是下界，目前全部为 0。Main 决定不加上界。另逐实例记干净通过率、待裁候选数、格式诊断、早退暂停数和报告是否可解析，作为及早暴露问题的信号（`.tmp/bench-openai-1020/progress.md` 的 sr-scores 段）。正式分等盲裁。
+  - **SR 完成**（12:15:52）：6 个配置各 5 个有效。luna-high 另有 1 个无效（a3，AP 有一次 relay 传输错误，按 L425 计入尝试并补跑）。作废 3 个，即上面的误报连带。早退暂停 0 次。机械信号（暂定分全为 0，下界）：干净通过率均值 sol 三档都是 0.770，luna low/medium/high 依次为 0.923/0.872/0.843。待裁候选 sol 44–56、luna 4–38。不可修复格式错误 0；格式诊断（review-evidence-invalid、requirement-scope-continuation）只出现在 luna，共 7 条。唯一的异常信号是 luna-medium-a3 的干净通过率 0.766：harness 正常，是模型写得更宽造成的波动。本次借用只跑 SR（Main：CS/CStd 的新 T 用存档探针数据重算，不重测）。12:16:32 归还登录（`--keep-login` 之后由 worker 手动归还），本臂 Codex 进程为 0。周用量 46% → 49%，credits 不变。
 
 - 2026-10-20 06:40–06:50，#10–12（Codex 上的 Strata）的 ARW prep 改放 /tmp，与 OpenAI 臂同一布局（Main 指示；尚未开跑，没有实例受影响）：
   - **已证实无效，未用于任何正式实例**（Main 10-20 撤回）：OpenAI 臂实测 prep 放 /tmp 后仍出现空目录。真实 ARW 的报告目录嵌在场景仓库（如 `ca/1`）下的 `.tmp/codex/…` 里，扁平布局的 stubtest 覆盖不到。#10–12 暂停，等真实嵌套布局下的成因和修法审查通过。以下为当时的方案记录。
