@@ -105,11 +105,11 @@
 
 1. **场景按 Opus 标定**：加难时确认的是"Q3 低、Opus 命中"；答案键经 Opus 审计；Opus 同时担任参考和裁决者。所以 Opus 的位置可能偏高，Opus 的绝对分不是上限。Commit Audit v3 另给"含 / 不含难度因素题"两套分数。
 2. **厂商与 harness 部分绑定**：OpenAI 只在 Codex 上，Anthropic 只在 Claude Code 上。只有 Strata 和 DeepSeek 两边都有，可以用来观察 harness 的影响。
-3. **"强度"含义因厂商而异**：Strata 三档见 §2.1；DeepSeek 在 Claude Code 上可能不区分（P1）。
+3. **"强度"含义因厂商而异**：Strata 三档见 §2.1。DeepSeek：Claude Code（Anthropic 格式）上三档实测无差别（P1b）；Codex（Responses）上 high 略长于 low。medium 不是 DeepSeek 的原生档（官方 Codex catalog 只列 low/high/max），两种格式都照发 medium、端点返回 200，报告写"请求 medium（非原生档，服务端处理未知）"（2026-10-21 冻结审查）。
 4. **基础提示只给 Strata**：注入位置不同。Codex 路径由服务端追加；Claude Code 路径由服务端追加启动提示，PreCompact hook 追加压缩提示。
 5. **搜索全部关闭**，偏离 ARW 原生设置（2026-10-11 规则）。各模型都没有搜索，但这与 ARW 自己的结果不可直接比较。
 6. **guardian 不同**：OpenAI 用 codex-auto-review，DeepSeek 用同模型 low，Strata 用自身，Claude Code 没有。
-7. **窗口与压缩不同**：Strata 为 206584/150000，其他模型用原生设置（OpenAI catalog 272000）。OpenAI 用服务端压缩（零模型核实，见 §9 阶段 0）。Claude Code 路径的压缩提示只给 Strata。
+7. **窗口与压缩不同**：Strata 为 206584/150000，其他模型用原生设置（OpenAI catalog 272000）。DeepSeek 在 Codex 上为官方 catalog 的 1048576（95%，auto_compact 未设），实际不压缩；在 Claude Code 上未设 `CLAUDE_CODE_MAX_CONTEXT_TOKENS`，约 162K 时压缩（2026-10-21 冻结审查，不改）。OpenAI 用服务端压缩（零模型核实，见 §9 阶段 0）。Claude Code 路径的压缩提示只给 Strata。
 8. **ARW 早停接续只在 Codex 路径**：Claude Code `-p` 没有接续。
 9. **时限按各自的速度计算**：API 模型的速度含网络。服务端可能漂移，而执行窗口约一到两周。
 10. **ChatGPT 套餐**：只报 token，不报金额。套餐的限速或路由可能与 API 不同。
@@ -639,7 +639,7 @@
     - 运行状态：未完成、非零退出、要求恢复；
     - 返回内容：tier 不在 {default, standard, 未返回}；返回模型既不匹配绑定（§2 规则），也不是 codex-auto-review，或者没有一个匹配绑定；rollout 里 `web_search_call` > 0；启动提示未关闭；
     - 错误（M2）：relay 有 HTTP ≥ 400 或传输错误（提醒中断除外，见下）；撞额度，即 relay 状态码为 429，或 rollout 错误事件的 `codex_error_info` 含 usage_limit、rate_limit、quota，不再对日志做子串匹配。
-    - 提醒中断（Main 2026-10-20，Opus high 独立审查后决定）：ARW 发时限提醒或硬截止中断时，Codex 会放弃正在接收的流并立即重发，relay 写回时记一次传输错误。一行 relay 错误同时满足下列各条时记为 `reminder_interrupt`，不计入 `relay_errors`：(a) BrokenPipeError 或 ConnectionResetError，且 status 200；(b) 本实例 deadline JSON 的 reminder（或 interrupt）status 为 accepted；(c) 这个请求在提醒发出时正在进行：started_at < attempted_at ≤ ended_at，且 ended_at 不晚于 attempted_at + 30 s（Codex 要等到这个请求的第一个流事件才放弃它，请求还在预填充时会晚于 1 s；2026-10-20 CStd codex-medium-a1 实测 1.49 s，原先的 +1.0 s 窗口过窄，按此放宽）；(d) 每次提醒最多豁免 1 行；(e) 下一个 /responses 请求在 attempted_at 之后、且在该行 ended_at 前后 1 s 内开始，200 completed（硬截止不要求）；(f) 其他检查都通过；(g) rollout 有 messageId 等于 reminder.receipt.messageId 的 user 消息。被放弃请求的 token 不在 relay usage 里，费用以余额差为准。适用所有经 relay 的臂；此前只有 DeepSeek CS codex-low a1–a3 符合，改判有效并全部保留（3 次尝试、3 个有效）；OpenAI 臂作废的 3 例是真实上游 URLError，不受影响。Strata-Codex 不走 relay，同类中断检不出来，记为检测不对称；Claude Code 的提醒走 PostToolUse hook，没有这个效应。
+    - 提醒中断（Main 2026-10-20，Opus high 独立审查后决定）：ARW 发时限提醒或硬截止中断时，Codex 会放弃正在接收的流并立即重发，relay 写回时记一次传输错误。一行 relay 错误同时满足下列各条时记为 `reminder_interrupt`，不计入 `relay_errors`：(a) BrokenPipeError 或 ConnectionResetError，且 status 200；(b) 本实例 deadline JSON 的 reminder（或 interrupt）status 为 accepted；(c) 这个请求在提醒发出时正在进行：started_at < attempted_at ≤ ended_at，且 ended_at 不晚于 attempted_at + 30 s（Codex 要等到这个请求的第一个流事件才放弃它，请求还在预填充时会晚于 1 s；2026-10-20 CStd codex-medium-a1 实测 1.49 s，原先的 +1.0 s 窗口过窄，按此放宽）；(d) 每次提醒最多豁免 1 行；(e) 下一个 /responses 请求在 attempted_at 之后、且在该行 ended_at 前后 1 s 内开始，200 completed（硬截止不要求）；(f) 其他检查都通过；(g) rollout 有 messageId 等于 reminder.receipt.messageId 的 user 消息。被放弃请求的 token 不在 relay usage 里，所以逐实例费用偏低（记被弃请求数）；批次与合计以余额差为准（2026-10-21 改为只指批次与合计，见 §14.4）。适用所有经 relay 的臂；此前只有 DeepSeek CS codex-low a1–a3 符合，改判有效并全部保留（3 次尝试、3 个有效）；OpenAI 臂作废的 3 例是真实上游 URLError，不受影响。Strata-Codex 不走 relay，同类中断检不出来，记为检测不对称；Claude Code 的提醒走 PostToolUse hook，没有这个效应。
     - 到硬时限停止的实例有效。每格最多尝试 8 次，无效实例排到队尾重跑。撞额度的实例不计入尝试次数，并停止全部新实例（S6）。ARW 早退暂停（S2）的那一格直接停下交用户，不重跑（M2）。
   - 额度（M1）：调度器每轮循环从共享 sessions 读最新的 `token_count.rate_limits`。
     - 周窗口 `used_percent` 达到上限就不启动新实例。上限交用户定（R2），答复前临时取 60%（开跑时 36%）；CA 第一轮外推的结果如果更紧，就取外推值，写进 `usage_cap.txt`。
@@ -659,3 +659,44 @@
   - 共享目录被拒读后，命令读不到 `codex-home/skills/.system` 下的 imagegen skill 文件，对评审任务没有影响。
   - 真实账号的远端特性开关（memories 等）mock 测不出来，由 M4 的逐实例检查兜底。
 - **双方意见与处理**：worker 草稿建议把降档参考改为 83.4，并在速度低于参考 10% 时把 OpenAI 并行数降一档。Main 临时决定参照仍按 93，不降档。审查认为，按 §14 的定义 P6 基线就是 83.4；93 是 P4 的 G，不是 P6 基线；降档不在 plan 里。Main 采纳审查意见：基线取 83.4，不降档。其余各项见上文 M1–M6、R1–R5，全部照做，R2 交用户。
+
+### 14.4 #7–9、#22–24（DeepSeek）补冻结（2026-10-21）
+
+DeepSeek 臂 worker 跑完探针 P1–P4 和第 1 轮（6 配置 × 4 场景各 1 个，计为各格 a1）后写出冻结材料（`.tmp/bench-deepseek-1020/progress.md`），由全新的 Opus high 独立审查（结论"改后可冻结，第 1 轮 24 格保持有效"，摘要 `.tmp/bench-deepseek-1020/review-freeze.md`）。Main 决定按审查清单冻结，第 1 轮作为 a1 保留。
+
+- **条件核对**（证据在 `.tmp/bench-deepseek-1020/`）：
+  - 官方页面（`docs/`，SHA256SUMS）：`deepseek-flash` → DeepSeek-V4.1-Flash-1017；北京时间工作日 9–12、14–18 为高峰。每百万 token 低谷 0.02 / 1 / 4 元（缓存命中 / 未命中 / 输出），高峰 0.04 / 2 / 8 元。
+  - P1：Anthropic 格式三档无差别；Responses 格式 high 略长于 low（P1b 中位数 1763 / 4404 / 2653），medium 行为与两者都不同（§4 第 3 条）。可选 P1c 结果记在 progress.md。
+  - P2：Claude Code 路径没有服务端搜索，citations 0。
+  - P3：Codex CA high 预检有效，没有 deepseek-timeout 或 no-final-report。
+  - Codex 三档冒烟通过：请求里的 effort 与配置一致，guardian 为 deepseek-flash low，deny_read_pass 为真，假 key absent，搜索工具 0，边界 8 类拒绝。
+  - P4 偏离：Codex 路径直连流式 Responses（不经 Codex），Claude Code 路径用 Anthropic 臂的统一测法；审查认为偏差可以忽略（1/P 项不到 T 的 1%，两种测法的 G 分布重合）。三档 T 相差 ±12% 是抽样噪声，报告写明。
+- **冻结对象**：plan.md 在本节提交时的内容，适用于配置 #7–9、#22–24。§14 的预登记、无效判据和偏离口径照样适用，下列各项除外。
+- **绑定**：
+  - Codex 副本同 §14.3（0.163.0，`399ff69c…4215`）；Claude Code 副本同 §14（2.1.303）。
+  - Catalog：`benchmarks/multi-model-v1/catalogs/deepseek-codex-0.163.0.json`，sha256 `71af1beabbac0fb541518f926c21fdd058cc8e31bda09cbc9bc03a41103c9283`。内容是官方 Codex 指引 models.json 中 deepseek-flash 条目的原样，只补了 0.163 schema 需要的 8 个中性字段；窗口 1048576 / 95% / auto_compact null 都是官方原值。
+  - `/models` 条目：`models-ref.json` `6bba8ce0785989b7c1561f47a2037768d0b267fb873c8f0ebcb436470c380f28`，每个实例启动前核对。
+  - 代码：commit `92c36a5` 时的 `tools/`，其中 `tools/reviewer/reminder_interrupt.py` 为 `92c36a5`，`claude_headless.py`、`claude_scenario.py` 为 `6d522ba`，`api_relay.py` 为 `87432b8`（本臂运行期间不改）。
+  - 运行脚本 sha256（`.tmp/bench-deepseek-1020/`）：
+    - `run_codex_one.py` `52ba176a4d8f2f845b35c352c4963e7f443b713944aec92f1e30e457aa517357`、`cc_one.py` `a56a4992928ef939661a7b87fcb0855efdafa76686ba5619da3849930de87411`；
+    - 第 1 轮调度器 `round1.py` `909a48585ecbf1b9d12e600cdcda1c6af13bbd73b5b89b13b642a52e65683a25`、第 2–5 轮调度器 `schedule.py` `f63169ed22ec786e456a20fd6900ed7929f5378c7e00be51ee92c044bea66bea`；
+    - `cost.py` `670d4b07788136b6496619df9c1b7a58e9f40398aae17af5bb2d1574067dde6b`、`steer.py` `415dc480a94283ecf16f6d85aeed0578423887d4def7c42fec49b98a8f189526`；
+    - `tools/p4resp.py` `50f95f7646aee2bbaf96b753e59f73b23e59e251344cffa281ad7f7a43f333a0`、`tools/p4cc.py` `a906d95b4073f1516cab1c35222d7b3c8157cf6baa5626322fd69d4376ad8b20`。
+  - selection：Codex 路径 web_search disabled，guardian 同模型 low，两份基础提示关闭（D4），tier default。Claude Code 路径由 `cc_one.py` 直接调用 `claude_scenario.run(backend='deepseek')`（CLI 的 `--backend` 没有 deepseek；其余参数与 Anthropic 臂相同），所有模型变量都是 `deepseek-flash`。T 取 `p4u-<场景>/<配置>/p4.json`。
+- **对正文的偏离**（交用户复核）：
+  - 第 1 轮按场景 CS→CA→CStd→SR、每格 1 个跑完，作为各格 a1；第 1 轮的有效与重跑按当时判据执行，其中 CS codex-low 3 个、CStd codex-medium 和 codex-high 各 2 个有效，全部保留（不事后挑选）。
+  - 只在低谷启动实例（见预登记），所以 §4 第 9 条的漂移窗口按天计。
+- **预登记**（第 2–5 轮）：
+  - 排程（`schedule.py`）：场景顺序 CS→CA→CStd→SR，场景之间不并行，同一场景最多 2 个并行。场景内按轮：第 r 轮（第 1 轮为 r = 0）r 为偶数时顺序是 codex-low、cc-low、codex-medium、cc-medium、codex-high、cc-high，r 为奇数时反转；某格的有效数 ≤ r 时排入该轮。无效实例排到本场景的队尾重跑，每格最多尝试 8 次（§14；第 1 轮调度器用过 3，作废）。到 5 个有效就停，所有实例按尝试顺序保留。WSL 里基准 Claude Code + Codex 进程合计 ≤ 5。
+  - 有效性：最终结论只写在 `instance.json` 的 `valid` 一个字段。Codex 实例由 `steer.py` 按 reminder_interrupt 判据写入（原值保留为 `valid_runner`，`reminder-judgement.json` 与之一致）；Claude Code 实例由 `schedule.py` 按各 handoff 的 `checks.valid` 和 handoff 数写入。`validity_source` 记来源。
+  - S2：ARW 早退暂停一律回"continue"，计分时每个实例 ×0.9 一次，不停格。只有 ARW 拒绝接续，或 runner 判为 halt，才停下交 Main。
+  - 启动截止：只在低谷启动。截止时刻 = 高峰开始 − 场景硬时限：SR、CA 在北京 8:00、13:00 之后不再启动；CS、CStd 在 8:50、13:50 之后不再启动。高峰结束（12:00、18:00）后恢复。周末全天是低谷。
+  - 价格核对：每个场景第一个实例启动前重抓官方定价页（快照存 `docs/pricing-zh-<时刻>.html`），核对 deepseek-flash → DeepSeek-V4.1-Flash-1017、六个单价和高峰时段文字；任何一项不符就停下本臂。每个实例启动前核对 `/models` 条目和余额，返回的模型串只能是 `deepseek-flash`。
+  - S6：余额 < 本场景已测单实例最高费用 × 1.5 × （在跑实例数 + 1）就不再启动；因余额不足中断的实例作废。资金不够时停下，报实测缺口。
+  - 费用：
+    - 逐实例按 token 计。Codex 用 relay usage，每个请求按它的开始时刻取高峰或低谷价；Claude Code 用 stream result 的 usage，按实例开始时刻定价，跨过峰谷边界的整个实例按高峰价。
+    - 有提醒中断的 Codex 实例记被弃请求数，并标"偏低"。
+    - 批次与全臂合计以余额差为准，与 token 合计对账，报告列出差额。
+  - 速率代理：每个实例记 输出 token ÷ 墙钟秒数，并与同格第 1 轮 a1 比较。只注明，不作废，不改时限。
+  - 只跑不看：同 §14。
+- **残余风险**：被弃请求的 token 不进 relay usage，逐实例费用是下界。低谷时段的服务端负载与第 1 轮可能不同，速率代理只能发现明显变化。
