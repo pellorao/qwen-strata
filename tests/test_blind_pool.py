@@ -208,12 +208,16 @@ class BlindPoolTest(unittest.TestCase):
 
     def test_anchors_are_association_decisions_with_their_fields(self):
         item = {k: v for k, v in association(3, 'E3').items() if k in blind_pool.FIELDS and k not in ('kind', 'allowedDecisions')}
+        with self.assertRaises(ValueError):
+            blind_pool.anchor_add('code-spec-v5', item, 'not-matched', 'anthropic', 'x', registry=self.registry)  # no model
+        origin = {'record': 'anthropic/code-spec-v5/opus-low-a1', 'stable_id': 's1'}
         anchor = blind_pool.anchor_add('code-spec-v5', item, 'not-matched', 'anthropic', 'Main executable check',
-                                       registry=self.registry)
+                                       origin=origin, registry=self.registry, model='opus')
+        self.assertEqual((anchor['model'], anchor['origin']), ('opus', origin))
         self.assertEqual(anchor['item']['allowedDecisions'], ['matched', 'not-matched'])
         self.assertEqual(anchor['item']['kind'], 'association')
         with self.assertRaises(ValueError):
-            blind_pool.anchor_add('code-spec-v5', finding(9), 'matched', 'openai', 'x', registry=self.registry)
+            blind_pool.anchor_add('code-spec-v5', finding(9), 'matched', 'openai', 'x', registry=self.registry, model='m')
 
     def test_an_anchor_of_a_pooled_instance_is_refused(self):
         registry = json.loads((self.registry / 'code-spec-v5.json').read_text())

@@ -84,6 +84,33 @@ class RecordsTest(unittest.TestCase):
         self.assertEqual(note['config'], 'opus-low')
         self.assertEqual(note['generations'], {'before execute_continued': 1, 'execute_continued': 2})
 
+    def test_b_class_final_status_not_in_arw_form(self):
+        def result_line(text, error=False):
+            return json.dumps({'type': 'result', 'is_error': error, 'result': text}) + '\n'
+        for name, streams in (('opus-low-a6', [result_line('Done.\n\n{"status":"ready"}')]),
+                              ('opus-low-a7', [result_line('Done. {"status":"ready"}'), result_line('{"status":"ready"}')]),
+                              ('opus-low-a8', [result_line('{"status":"incomplete","reason":"time"}')]),
+                              ('opus-low-a9', [result_line('prompt too long', error=True)])):
+            d = self.scene / name
+            write(d / 'h0/outputs/r.md', self.report)
+            for i, text in enumerate(streams):
+                write(d / 'h0' / ('stream.jsonl' if i == 0 else f'stream-{i}.jsonl'), text)
+            write(d / 'instance.json', {'handoffs': [
+                {'instanceId': IID, 'staging': {'report': 'r.md'}, 'report_sha256': self.sha,
+                 'checks': {'valid': True, 'sandbox_failures': 0}}]})
+        write(self.scene / 'opus-low-a10/instance.json', {'handoffs': [
+            {'instanceId': IID, 'checks': {'valid': True, 'sandbox_failures': 0}}]})
+        write(self.scene / 'opus-low-a10/h0/stream.jsonl', result_line('ok, {"status":"ready"}'))  # no report: not B
+        r = {x['id'].rsplit('/', 1)[1]: x for x in bench_records.scene_records('anthropic', 'code-spec-v5', self.scene)}
+        self.assertEqual(r['opus-low-a6']['handoffs'][0]['final_status'], 'not-arw-form')
+        self.assertEqual(r['opus-low-a6']['final_status_format_errors'], 1)
+        self.assertEqual(r['opus-low-a6']['final_status_basis']['handoffs'], [0])
+        for name in ('opus-low-a7', 'opus-low-a8', 'opus-low-a9', 'opus-low-a10'):  # corrected, incomplete, error, no report
+            self.assertEqual(r[name]['final_status_format_errors'], 0, name)
+        self.assertEqual(r['opus-low-a7']['handoffs'][0]['final_status'], 'ready')
+        self.assertEqual(r['opus-low-a8']['handoffs'][0]['final_status'], 'incomplete')
+        self.assertIsNone(r['opus-low-a9']['handoffs'][0]['final_status'])
+
     def openai_instance(self, name, fields, machine=None):
         d = self.scene / name
         write(d / 'instance.json', {'valid': True, 'handoffs': [], **fields})

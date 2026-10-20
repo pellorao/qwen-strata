@@ -463,7 +463,7 @@ def override(record_id, stable_id, decision, reason, by='Main review', root=DEFA
     return new
 
 
-def anchor_add(scenario, item, expected, family, confirmed_by, origin=None, registry=REGISTRY, anchor_id=None):
+def anchor_add(scenario, item, expected, family, confirmed_by, origin=None, registry=REGISTRY, anchor_id=None, model=None):
     if item.get('kind', 'association') != 'association':
         raise ValueError('anchors are association decisions; finding-kind controls are synthetic (user 2026-10-20)')
     if expected not in ('matched', 'not-matched'):
@@ -474,7 +474,9 @@ def anchor_add(scenario, item, expected, family, confirmed_by, origin=None, regi
     anchor_id = anchor_id or f"a{len(reg['anchors']) + 1:02d}"
     if any(a['id'] == anchor_id for a in reg['anchors']):
         raise ValueError(f'{anchor_id} already registered')
-    anchor = {'id': anchor_id, 'family': family, 'expected': expected, 'confirmed_by': confirmed_by,
+    if not model:
+        raise ValueError('an anchor needs its source model, so agreement can be reported per model (plan §6.2)')
+    anchor = {'id': anchor_id, 'family': family, 'model': model, 'expected': expected, 'confirmed_by': confirmed_by,
               'origin': origin, 'item': {k: item[k] for k in FIELDS if k in item}}
     check_control(anchor, ('association',))
     reg['anchors'].append(anchor)
@@ -518,6 +520,9 @@ def main():
     a.add_argument('--expected', required=True, choices=('matched', 'not-matched'))
     a.add_argument('--family', required=True, choices=FAMILIES)
     a.add_argument('--confirmed-by', required=True, help="e.g. 'Main executable check: node -e ...'")
+    a.add_argument('--model', required=True, help='source model of the candidate (e.g. gpt-6.1-sol, opus, strata-q3)')
+    a.add_argument('--origin-record', help='record id the candidate came from (arm/scenario/dir)')
+    a.add_argument('--origin-stable-id', help='stable candidate id within that record')
     a.add_argument('--registry', type=Path, default=REGISTRY)
     args = parser.parse_args()
     if args.command == 'build':
@@ -533,8 +538,12 @@ def main():
         print(json.dumps(override(args.record, args.stable_id, args.decision, args.reason, args.by, args.root),
                          ensure_ascii=False))
     else:
+        origin = ({'record': args.origin_record, 'stable_id': args.origin_stable_id}
+                  if args.origin_record or args.origin_stable_id else None)
+        if origin and not (args.origin_record and args.origin_stable_id):
+            parser.error('--origin-record and --origin-stable-id go together')
         print(json.dumps(anchor_add(args.scenario, load(args.item), args.expected, args.family, args.confirmed_by,
-                                    registry=args.registry), ensure_ascii=False))
+                                    origin=origin, registry=args.registry, model=args.model), ensure_ascii=False))
 
 
 if __name__ == '__main__':

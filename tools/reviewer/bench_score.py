@@ -17,7 +17,8 @@ Input: a normalized instance record (tools.reviewer.bench_records) and its froze
      item); a stored decision is used only while the live candidate has the same fingerprint, otherwise the candidate
      is pending again. Commit Audit candidates get their requirementSource (the requirement row of the finding) from
      the scored review.jsonl before both;
-  4. format penalty f (format_penalty.score_repetitions) and the overall merge (user 2026-10-20, reviewer-suite
+  4. format penalty f (format_penalty.score_repetitions; r also counts the record's final_status_format_errors, 1 for a
+     B-class instance whose last final message is not ARW's status form, user 2026-10-20) and the overall merge (user 2026-10-20, reviewer-suite
      「整体罚分只扣一次」; plan §14.1 L445, L453-457):
         final = max(0, scoreBeforePenalty) x (1 - max(0.1 if paused, f, 0.1 if ARW cut))
      scoreBeforePenalty is the repetition score before ARW's 0.9 cut; the cut (a report diagnostic outside the
@@ -345,9 +346,9 @@ def merge(score_before_penalty, f, paused, arw_cut):
     return deduction, max(0.0, score_before_penalty) * (1 - deduction)
 
 
-def repetition_score(up, repairs, registry=None):
-    from tools.reviewer.format_penalty import score_repetitions
-    rows = score_repetitions(up, repairs) if registry is None else score_repetitions(up, repairs, registry)
+def repetition_score(up, repairs, registry=None, final_status_errors=0):
+    from tools.reviewer.format_penalty import REGISTRY, score_repetitions
+    rows = score_repetitions(up, repairs, registry or REGISTRY, extra_errors=final_status_errors)
     repetitions = [rep for result in up['results'] for rep in result.get('repetitions', [])]
     if len(rows) != 1 or len(repetitions) != 1:
         raise ValueError(f'expected one scored repetition, got {len(repetitions)}')
@@ -361,7 +362,8 @@ def repetition_score(up, repairs, registry=None):
     return {'scoreBeforePenalty': before, 'arw_score': rep['score'], 'rawScore': rep.get('rawScore'),
             'arw_cut': bool(cut_codes), 'arw_cut_codes': cut_codes, 'report_diagnostic_codes': sorted(set(codes)),
             'r': row['r'], 'rRepairable': row['rRepairable'], 'rUnrepairable': row['rUnrepairable'],
-            'rOverrun': row['rOverrun'], 'T_locators': row['T'], 'p': row['p'], 'f': row['f'],
+            'rOverrun': row['rOverrun'], 'rFinalStatus': row['rFinalStatus'], 'T_locators': row['T'], 'p': row['p'],
+            'f': row['f'],
             'per_handoff': {i['instanceId']: {'score': i.get('score'), 'rawScore': i.get('rawScore'),
                                               'locatorCount': i.get('locatorCount')} for i in rep['instances']}}
 
@@ -481,7 +483,9 @@ def score_instance(record, work, provisional=None, enumerate_only=False, scorer=
         result = {**base, 'status': 'upstream-failed', 'diagnostics': up.get('diagnostics')}
         save(work / 'score.json', result)
         return result
-    scored = repetition_score(up, repairs)
+    if 'final_status_format_errors' not in record:
+        raise ValueError(f"{record['id']}: record without final_status_format_errors (rebuild it with bench_records)")
+    scored = repetition_score(up, repairs, final_status_errors=record['final_status_format_errors'])
     deduction, final = merge(scored['scoreBeforePenalty'], scored['f'], pause['paused'], scored['arw_cut'])
     sources = {}
     for d in used.values():
@@ -489,7 +493,7 @@ def score_instance(record, work, provisional=None, enumerate_only=False, scorer=
     result = {**base, 'status': 'provisional' if any(d['source'] == 'provisional' for d in used.values()) else 'final',
               'provisional_bound': provisional, **pause, **scored, 'overall_deduction': deduction, 'final': final,
               'decisions': len(used), 'decision_sources': sources, 'stale_decisions': sorted(set(stale)),
-              'upstream_status': up.get('status'),
+              'upstream_status': up.get('status'), 'final_status_basis': record.get('final_status_basis'),
               'rule': 'final = max(0, scoreBeforePenalty) x (1 - max(0.1 if paused, f, 0.1 if ARW cut))'}
     save(work / 'score.json', result)
     return result

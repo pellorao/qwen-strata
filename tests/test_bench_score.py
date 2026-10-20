@@ -83,6 +83,13 @@ class RepetitionScoreTest(unittest.TestCase):
         self.assertEqual(row['arw_cut_codes'], ['some-new-code'])
         self.assertAlmostEqual(bench_score.merge(row['scoreBeforePenalty'], row['f'], False, row['arw_cut'])[1], 0.72)
 
+    def test_a_final_status_error_adds_one_to_r(self):
+        up = upstream(0.8)
+        plain = bench_score.repetition_score(up, {'default-x-instance-1': None}, self.registry)
+        b = bench_score.repetition_score(up, {'default-x-instance-1': None}, self.registry, final_status_errors=1)
+        self.assertEqual((b['r'] - plain['r'], b['rFinalStatus'], plain['rFinalStatus']), (1, 1, 0))
+        self.assertGreater(b['f'], plain['f'])
+
     def test_a_cut_that_disagrees_with_the_codes_is_an_error(self):
         with self.assertRaises(ValueError):
             bench_score.repetition_score(upstream(0.8, score=0.72), {'default-x-instance-1': None}, self.registry)

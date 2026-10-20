@@ -135,10 +135,12 @@ def instance_errors(instance, repairs):
     return (repairable_count(record) if record is not None else 0), instance['unrepairableFormatErrors'], instance['overrunLocators']
 
 
-def score_repetitions(upstream, repairs, registry=REGISTRY):
+def score_repetitions(upstream, repairs, registry=REGISTRY, extra_errors=0):
     """Final scores of every repetition of an upstream score-completed output.
 
-    repairs maps every instanceId to its repair record, or to None when nothing was repaired."""
+    repairs maps every instanceId to its repair record, or to None when nothing was repaired. extra_errors adds format
+    errors the reports do not show to each repetition's r (B class: a final status message not in ARW's form, 1 per
+    instance; user 2026-10-20)."""
     rows = []
     for result in upstream['results']:
         for repetition in result.get('repetitions', []):
@@ -148,12 +150,13 @@ def score_repetitions(upstream, repairs, registry=REGISTRY):
             if len(bases) != 1:
                 raise ValueError('instances of one repetition have different format baselines')
             parts = [sum(values) for values in zip(*(instance_errors(i, repairs) for i in instances))]
-            r = sum(parts)
+            r = sum(parts) + extra_errors
             t = sum(i['locatorCount'] for i in instances)
             p, f = penalty(r, t, bases.pop())
             rows.append({'reviewerId': result['reviewerId'], 'repetition': repetition['repetition'],
                          'instances': [i['instanceId'] for i in instances], 'raw': repetition['score'],
                          'r': r, 'rRepairable': parts[0], 'rUnrepairable': parts[1], 'rOverrun': parts[2],
+                         'rFinalStatus': extra_errors,
                          'T': t, 'p': p, 'f': f, 'score': final_score(repetition['score'], f)})
     return rows
 

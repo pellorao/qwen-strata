@@ -229,7 +229,10 @@ def openai_record(arm, scenario, folder):
                          'tokens': h.get('tokens'), 'tool_calls': h.get('tool_calls'), 'thread_id': h.get('thread_id'),
                          'session': h.get('session'), 'pause_events': h.get('arw_pause_events'),
                          'models_returned': (h.get('checks') or {}).get('models_returned'),
-                         'service_tiers': (h.get('checks') or {}).get('service_tiers')})
+                         'service_tiers': (h.get('checks') or {}).get('service_tiers'),
+                         'final_status': (h.get('checks') or {}).get('completion_status'),
+                         'final_status_source': 'instance.json checks.completion_status (ARW completion: its final '
+                                                'status form by construction)'})
     record['handoffs'] = handoffs
     record['repository_manifest'] = {'kind': 'scenario-copies.json', 'entries': len(manifest)} if manifest else None
     return record
@@ -269,7 +272,8 @@ def claude_record(arm, scenario, folder):
                          'continuation_stop': checks.get('continuation_stop'),
                          'models_returned': checks.get('models_returned'), 'service_tiers': checks.get('service_tiers'),
                          'files_before': str(out / 'files-before.json') if (out / 'files-before.json').is_file() else None,
-                         'spill_files': read_spills(out)})
+                         'spill_files': read_spills(out),
+                         **dict(zip(('final_status', 'final_status_source'), claude_final_status(out)))})
     if void is not None:
         record.update(validity('void', [void.get('reason')], 'void.json'))
     elif instance is None:
@@ -353,7 +357,10 @@ def strata_codex_record(arm, scenario, folder, done):
                          'report': path, 'report_ok': ok, 'report_sha256': r.get('report_sha256'),
                          'seconds': r.get('review_work_seconds'), 'tokens': r.get('engine_tokens'), 'tool_calls': None,
                          'thread_id': (r.get('runtime_result') or {}).get('threadId'),
-                         'pause_events': r.get('arw_pause_events')})
+                         'pause_events': r.get('arw_pause_events'),
+                         'final_status': ((r.get('runtime_result') or {}).get('completion') or {}).get('status'),
+                         'final_status_source': 'run/results.json runtime_result.completion (ARW completion: its final '
+                                                'status form by construction)'})
     record['handoffs'] = handoffs
     manifest = load(folder / 'scenario-copies.json')
     record['repository_manifest'] = {'kind': 'scenario-copies.json', 'entries': len(manifest)} if manifest else None
@@ -381,6 +388,34 @@ def summary_fields(record):
             'cost_usd': None, 'model_ids': models, 'service_tiers': tiers}
 
 
+FINAL_STATUS_FORMS = ('ready', 'incomplete')
+
+
+def claude_final_status(out):
+    """ARW final status of a Claude Code handoff's last answer (last segment with a result event)."""
+    from tools.reviewer.claude_headless import accounting_stream, final_status, segment_end, segment_streams
+    streams = [s for s in segment_streams(out) if s.is_file()]
+    if not streams:
+        return None, 'no stream'
+    stream = accounting_stream(streams)
+    result = segment_end(stream)[1]
+    if result is None:
+        return None, f'{stream.name}: no result event'
+    if result.get('is_error'):
+        return None, f'{stream.name}: result is_error ({result.get("subtype")}), not a final status message'
+    return final_status(result.get('result')) or 'not-arw-form', f'{stream.name}: final result text'
+
+
+def final_status_error(record):
+    """B class (user 2026-10-20, reviewer-suite 「可机械修复」): report written, the last final message not exactly ARW's
+    status form and not corrected by a continuation -> scored as delivered, 1 format error in r per instance."""
+    hits = [h['k'] for h in record['handoffs'] if h.get('final_status') == 'not-arw-form' and h.get('report_ok')]
+    record['final_status_format_errors'] = 1 if hits else 0
+    record['final_status_basis'] = ({'handoffs': hits, 'rule': 'report written, last final message not ARW form'} if hits
+                                    else 'every handoff ended in ARW form, wrote no report, or has no final message')
+    return record
+
+
 def scene_records(arm, scenario, scene):
     scene = Path(scene)
     if not scene.is_dir():
@@ -401,6 +436,7 @@ def scene_records(arm, scenario, scene):
             record = claude_record(arm, scenario, folder)
         record.update(SCORE_FIELDS)
         record.update(summary_fields(record))
+        final_status_error(record)
         out.append(record)
     # Plan §3: Strata's first 5 valid instances are preregistered; rank the valid ones by attempt number.
     ranked = sorted((r for r in out if r['valid']), key=lambda r: (r['config'], r['attempt']))
