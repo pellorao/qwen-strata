@@ -14,6 +14,7 @@ import time
 from brave_search import BraveSearch
 import hosted_search
 import loop_reminder
+import output_limit
 from model_process import PUBLIC_START_OPTIONS, ROOT, ModelProcess
 
 MAX_BODY = 64 * 1024 * 1024
@@ -305,6 +306,7 @@ class Handler(BaseHTTPRequestHandler):
             raise Refused(503, 'No model is running. Start one through /model/start.')
         raw = self.body() if self.command == 'POST' else None
         path = target.split('?', 1)[0]
+        guarded = None  # a streamed answer that is retried inside when it ends at the output limit
         if raw and path in GENERATION:
             body = json.loads(raw)
             if body.get('model', loaded) != loaded:
@@ -330,6 +332,8 @@ class Handler(BaseHTTPRequestHandler):
                 # Requests without the tool (e.g. Codex compaction) still replay earlier searches.
                 body['input'] = hosted_search.native_input(body.get('input'), frontend.search_results)
             raw = json.dumps(body, ensure_ascii=False).encode()
+            if output_limit.wanted(path, body):
+                guarded = body
         headers = {k: v for k, v in self.headers.items()
                    if k.lower() in ('content-type', 'accept', 'anthropic-version', 'anthropic-beta')}
         headers['Authorization'] = 'Bearer ' + native_key
@@ -346,6 +350,11 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header('Connection', 'close')
             self.end_headers()
             self.close_connection = True
+            if guarded is not None and reply.status == 200 and 'text/event-stream' in (
+                    reply.getheader('Content-Type') or ''):
+                output_limit.relay(path, guarded, reply, self.stream_out,
+                                   lambda retry: self.open_native(target, retry, headers), log)
+                return
             while chunk := reply.read1(65536):
                 self.wfile.write(chunk)
                 self.wfile.flush()
@@ -355,6 +364,20 @@ class Handler(BaseHTTPRequestHandler):
             self.close_connection = True  # caller or model left mid-stream; closing lets Strata cancel
         finally:
             upstream.close()
+
+    def stream_out(self, raw):
+        self.wfile.write(raw)
+        self.wfile.flush()
+
+    def open_native(self, target, body, headers):
+        """A further request to the engine within this caller's stream (output-limit retry)."""
+        connection = http.client.HTTPConnection('127.0.0.1', self.server.frontend.model.port, timeout=UPSTREAM_TIMEOUT)
+        try:
+            connection.request('POST', target, json.dumps(body, ensure_ascii=False).encode(), headers)
+            return connection, connection.getresponse()
+        except BaseException:
+            connection.close()
+            raise
 
     def hosted(self, body, native_key):
         """Serve a Responses stream that uses hosted web_search; see hosted_search."""

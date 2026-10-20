@@ -24,7 +24,7 @@ TASK = 'QwenStrataFrontend'
 # installation target -> project source, apart from the served model's prebuilt configuration (deployment_files)
 FILES = {f'src/{name}': f'src/{name}' for name in (
     'frontend.py', 'model_process.py', 'native_service.py', 'startup_instructions.py', 'project_files_mcp.py',
-    'brave_search.py', 'hosted_search.py', 'brave_mcp.py', 'loop_detector.py', 'loop_reminder.py')}
+    'brave_search.py', 'hosted_search.py', 'brave_mcp.py', 'loop_detector.py', 'loop_reminder.py', 'output_limit.py')}
 FILES.update({name: name for name in (
     'config/prompts/startup-instructions.txt', 'config/prompts/compact-prompt.txt', 'config/model-catalog.json',
     'config/deployment.json', 'config/frontend.json')})

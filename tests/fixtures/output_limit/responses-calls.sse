@@ -1,0 +1,50 @@
+event: response.created
+data: {"type": "response.created", "sequence_number": 0, "response": {"id": "resp_calls", "object": "response", "created_at": 1792475000, "status": "in_progress", "background": false, "error": null, "incomplete_details": null, "instructions": null, "max_output_tokens": 8192, "model": "qwen3.8-flash-next-iq3_xxs", "output": [], "parallel_tool_calls": true, "previous_response_id": null, "reasoning": {"effort": "low", "summary": null}, "store": false, "temperature": null, "text": {"format": {"type": "text"}}, "tool_choice": "auto", "tools": [], "top_p": null, "truncation": "disabled", "usage": null, "user": null, "metadata": {}}}
+
+event: response.in_progress
+data: {"type": "response.in_progress", "sequence_number": 1, "response": {"id": "resp_calls", "object": "response", "created_at": 1792475000, "status": "in_progress", "background": false, "error": null, "incomplete_details": null, "instructions": null, "max_output_tokens": 8192, "model": "qwen3.8-flash-next-iq3_xxs", "output": [], "parallel_tool_calls": true, "previous_response_id": null, "reasoning": {"effort": "low", "summary": null}, "store": false, "temperature": null, "text": {"format": {"type": "text"}}, "tool_choice": "auto", "tools": [], "top_p": null, "truncation": "disabled", "usage": null, "user": null, "metadata": {}}}
+
+: keep-alive
+
+event: response.output_item.added
+data: {"type": "response.output_item.added", "sequence_number": 2, "output_index": 0, "item": {"id": "rs__fixed0", "type": "reasoning", "status": "in_progress", "summary": [], "content": [{"type": "reasoning_text", "text": ""}]}}
+
+event: response.reasoning_text.delta
+data: {"type": "response.reasoning_text.delta", "sequence_number": 3, "item_id": "rs__fixed0", "output_index": 0, "content_index": 0, "delta": "plan"}
+
+event: response.reasoning_text.done
+data: {"type": "response.reasoning_text.done", "sequence_number": 4, "item_id": "rs__fixed0", "output_index": 0, "content_index": 0, "text": "plan"}
+
+event: response.output_item.done
+data: {"type": "response.output_item.done", "sequence_number": 5, "output_index": 0, "item": {"id": "rs__fixed0", "type": "reasoning", "status": "completed", "summary": [], "content": [{"type": "reasoning_text", "text": "plan"}]}}
+
+event: response.output_item.added
+data: {"type": "response.output_item.added", "sequence_number": 6, "output_index": 1, "item": {"id": "ctc_fixed1", "type": "custom_tool_call", "status": "in_progress", "call_id": "call_p1", "name": "apply_patch", "input": ""}}
+
+event: response.custom_tool_call_input.delta
+data: {"type": "response.custom_tool_call_input.delta", "sequence_number": 7, "item_id": "ctc_fixed1", "output_index": 1, "delta": "*** Begin Patch\n*** Add File: a.txt\n+hello\n*** End Patch\n"}
+
+event: response.custom_tool_call_input.done
+data: {"type": "response.custom_tool_call_input.done", "sequence_number": 8, "item_id": "ctc_fixed1", "output_index": 1, "input": "*** Begin Patch\n*** Add File: a.txt\n+hello\n*** End Patch\n"}
+
+event: response.output_item.done
+data: {"type": "response.output_item.done", "sequence_number": 9, "output_index": 1, "item": {"id": "ctc_fixed1", "type": "custom_tool_call", "status": "completed", "call_id": "call_p1", "name": "apply_patch", "input": "*** Begin Patch\n*** Add File: a.txt\n+hello\n*** End Patch\n"}}
+
+event: response.output_item.added
+data: {"type": "response.output_item.added", "sequence_number": 10, "output_index": 2, "item": {"id": "fc__fixed2", "type": "function_call", "status": "in_progress", "call_id": "call_e1", "name": "exec_command", "arguments": ""}}
+
+event: response.function_call_arguments.delta
+data: {"type": "response.function_call_arguments.delta", "sequence_number": 11, "item_id": "fc__fixed2", "output_index": 2, "delta": "{\"cmd\": "}
+
+event: response.function_call_arguments.delta
+data: {"type": "response.function_call_arguments.delta", "sequence_number": 12, "item_id": "fc__fixed2", "output_index": 2, "delta": "\"ls\"}"}
+
+event: response.function_call_arguments.done
+data: {"type": "response.function_call_arguments.done", "sequence_number": 13, "item_id": "fc__fixed2", "output_index": 2, "name": "exec_command", "arguments": "{\"cmd\": \"ls\"}"}
+
+event: response.output_item.done
+data: {"type": "response.output_item.done", "sequence_number": 14, "output_index": 2, "item": {"id": "fc__fixed2", "type": "function_call", "status": "completed", "call_id": "call_e1", "name": "exec_command", "arguments": "{\"cmd\": \"ls\"}"}}
+
+event: response.completed
+data: {"type": "response.completed", "sequence_number": 15, "response": {"id": "resp_calls", "object": "response", "created_at": 1792475000, "status": "completed", "background": false, "error": null, "incomplete_details": null, "instructions": null, "max_output_tokens": 8192, "model": "qwen3.8-flash-next-iq3_xxs", "output": [{"id": "rs__fixed0", "type": "reasoning", "status": "completed", "summary": [], "content": [{"type": "reasoning_text", "text": "plan"}]}, {"id": "ctc_fixed1", "type": "custom_tool_call", "status": "completed", "call_id": "call_p1", "name": "apply_patch", "input": "*** Begin Patch\n*** Add File: a.txt\n+hello\n*** End Patch\n"}, {"id": "fc__fixed2", "type": "function_call", "status": "completed", "call_id": "call_e1", "name": "exec_command", "arguments": "{\"cmd\": \"ls\"}"}], "parallel_tool_calls": true, "previous_response_id": null, "reasoning": {"effort": "low", "summary": null}, "store": false, "temperature": null, "text": {"format": {"type": "text"}}, "tool_choice": "auto", "tools": [], "top_p": null, "truncation": "disabled", "usage": {"input_tokens": 1000, "input_tokens_details": {"cached_tokens": 900}, "output_tokens": 300, "output_tokens_details": {"reasoning_tokens": 120}, "total_tokens": 1300}, "user": null, "metadata": {}}}
+
