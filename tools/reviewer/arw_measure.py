@@ -30,21 +30,25 @@ ARW_PAUSE_PREFIX='The Reviewer runtime paused this same task after '
 ARW_CONTINUE_MESSAGE='继续'  # the user's answer to an ARW early-exit pause (user 2026-10-20)
 
 
-def strata_provider(installation, context_window=None):
-    """ARW provider entry: callers choose only the model and, optionally, a published context tier."""
+def strata_provider(installation, context_window=None, time_limit_seconds=None):
+    """ARW provider entry: callers choose only the model and, optionally, a published context tier and a measurement
+    time limit T (needs the ARW patch strata-measurement-time-limit: reminder before T, stop at T instead of 55/60 minutes)."""
     if context_window is not None and type(context_window) is not int:
         raise ValueError('Unsupported measurement context window')
+    if time_limit_seconds is not None and (type(time_limit_seconds) not in (int, float) or time_limit_seconds <= 0):
+        raise ValueError('Unsupported measurement time limit')
     return {'driver': 'strata', 'installationDirectory': str(installation),
-            **({} if context_window is None else {'contextWindow': context_window})}
+            **({} if context_window is None else {'contextWindow': context_window}),
+            **({} if time_limit_seconds is None else {'reviewTimeLimitSeconds': time_limit_seconds})}
 
 
-def local_review_catalog(source, target, model, context_window=None, strata_installation=None):
+def local_review_catalog(source, target, model, context_window=None, strata_installation=None, time_limit_seconds=None):
     """Declare installed text search and route guardian to the local model."""
     catalog = json.loads(Path(source).read_text())
     if strata_installation is not None:
         # ARW's own Strata provider: it takes the lease, starts the model with the installation
         # defaults and a published context tier, and applies its continuation, pause and work-budget policy.
-        catalog['providers'] = {'qwen_strata': strata_provider(strata_installation, context_window)}
+        catalog['providers'] = {'qwen_strata': strata_provider(strata_installation, context_window, time_limit_seconds)}
     slug = 'qwen3.8-flash-next-' + model.lower()
     selected = next((m for m in catalog['models'] if m['slug'] == slug), None)
     if selected is None:
@@ -345,6 +349,19 @@ def followup_when_idle(machine,bound,*,poll=5,limit=3600,record=None,handled=())
             time.sleep(poll)
 
 
+def call_through_stop(machine,operation,value,patience=180,**kwargs):
+    """A read-only call that retries while ARW is stopping the managed root (its own work-limit stop, or the stop at a
+    measurement time limit T): the root refuses new work until it has exited, then reports the terminal state; a refused
+    stop (tool still active) is retried by ARW."""
+    until=time.monotonic()+patience
+    while True:
+        try:return machine.call(operation,value,**kwargs)
+        except RuntimeError as error:
+            # reviewer-stop-failed: a native tool was still running at the stop; ARW's policy retries the stop every 10 s.
+            if not any(text in str(error) for text in ('Managed root is stopping','reviewer-stop-failed')) or time.monotonic()>=until:raise
+            time.sleep(1)
+
+
 def observe_review(machine,record,folder,*,continuation_start_timeout=120):
     run_id=record['accepted']['runId'];cursor=0;last_progress=0
     awaiting_turn=None;original_thread=None;continuation_requested_at=None
@@ -387,7 +404,7 @@ def observe_review(machine,record,folder,*,continuation_start_timeout=120):
                     break
                 time.sleep(.1)
                 continue
-        result=machine.call('list_agents',{'runId':run_id})
+        result=call_through_stop(machine,'list_agents',{'runId':run_id})
         save(folder/'latest.json',result)
         if native_start is None:native_start=native_work_start(result)
         # ARW's early-exit pause is checked on every path (plan S2; on the API path it once went unseen, 2026-10-20 CA
@@ -438,7 +455,7 @@ def observe_review(machine,record,folder,*,continuation_start_timeout=120):
                     record['runtime_result']=result;record['measurement']=result.get('measurement',{})
                     record['tokens']=native_tokens(record['measurement']);record['complete']=False
                     break
-                observation=machine.call('wait_agent',{'runId':run_id,'cursor':cursor,'timeout_ms':10000},timeout=30)
+                observation=call_through_stop(machine,'wait_agent',{'runId':run_id,'cursor':cursor,'timeout_ms':10000},timeout=30)
                 cursor=observation.get('cursor',cursor)
                 continue
             awaiting_turn=None
@@ -509,7 +526,7 @@ def observe_review(machine,record,folder,*,continuation_start_timeout=120):
                         save(folder/'result.json',record)
                         continue
             break
-        observation=machine.call('wait_agent',{'runId':run_id,'cursor':cursor,'timeout_ms':10000},timeout=30)
+        observation=call_through_stop(machine,'wait_agent',{'runId':run_id,'cursor':cursor,'timeout_ms':10000},timeout=30)
         cursor=observation.get('cursor',cursor)
     work_clock.set_working(False,time.time())
     record['finished_at']=time.time()
@@ -851,7 +868,7 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
         out.mkdir(parents=True,exist_ok=False)
     compaction_config({},out/'prompt-policy-preflight',include_project_base=selection.get('project_compaction_instructions',True))
     catalog = local_review_catalog(catalog, out/'native-model-catalog.json', selection['model'],selection.get('context_window'),
-                                   installation if arw_owned else None)
+                                   installation if arw_owned else None,selection.get('review_time_limit_seconds') if arw_owned else None)
     preparations,source,jobs=prepared_jobs(preparation_paths,schedule,profile)
     if arw_owned:jobs=spec_repetition_order(jobs)
     save(out/'schedule.json',[{'preparation':p['preparedPath'],'instanceId':h['instanceId'],'profile':f} for p,h,f in jobs])
@@ -922,7 +939,7 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
             if not value.get('ready'):raise RuntimeError('Original ARW manager did not start')
             if arw_owned:
                 # The manager must hold exactly the provider this run bound, read through ARW's own catalog.
-                expected={**strata_provider(installation,selection.get('context_window')),'maxInstances':1}
+                expected={**strata_provider(installation,selection.get('context_window'),selection.get('review_time_limit_seconds')),'maxInstances':1}
                 if value.get('providers',{}).get('qwen_strata')!=expected:
                     raise RuntimeError('ARW manager did not read the bound Strata provider')
                 save(out/'arw-providers.json',value['providers'])

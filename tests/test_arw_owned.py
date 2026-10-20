@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.arw_measure import ARW_CONTINUE_MESSAGE, ARW_PAUSE_PREFIX, capture_segment, cold_start_arw_batch, followup_when_idle, local_review_catalog, spec_repetition_order, observe_review, run
+from tools.reviewer.arw_measure import call_through_stop, ARW_CONTINUE_MESSAGE, ARW_PAUSE_PREFIX, capture_segment, cold_start_arw_batch, followup_when_idle, local_review_catalog, spec_repetition_order, observe_review, run
 
 TMP = Path(__file__).resolve().parents[1] / '.tmp'
 
@@ -45,6 +45,30 @@ class ArwOwnedTests(unittest.TestCase):
                 self.assertEqual([(e['messageId'], e['text'], e['continue_count']) for e in result['arw_pause_events']],
                                  [('p1', first['text'], 0), ('p2', second['text'], 1)])
                 self.assertEqual(json.loads((folder / 'result.json').read_text())['continue_count'], 2)
+
+    def test_reads_retry_while_arw_stops_the_root_and_give_up_on_other_errors(self):
+        errors = ['{"code": "background-agent-operation-failed", "message": "Managed root is stopping and cannot reserve new work."}',
+                  '{"code": "reviewer-stop-failed", "message": "Native background tool remains active."}']
+
+        class Machine:
+            def __init__(self, failures):
+                self.failures = list(failures)
+
+            def call(self, operation, value, **kwargs):
+                if self.failures:
+                    raise RuntimeError(self.failures.pop(0))
+                return {'state': 'exited'}
+
+        import tools.reviewer.arw_measure as module
+        original, module.time.sleep = module.time.sleep, lambda seconds: None
+        try:
+            self.assertEqual(call_through_stop(Machine(errors), 'wait_agent', {}), {'state': 'exited'})
+            with self.assertRaises(RuntimeError):
+                call_through_stop(Machine(['{"code": "other"}']), 'wait_agent', {})
+            with self.assertRaises(RuntimeError):
+                call_through_stop(Machine(errors * 2), 'wait_agent', {}, patience=-1)
+        finally:
+            module.time.sleep = original
 
     def test_a_refused_continue_stops_for_the_user(self):
         with tempfile.TemporaryDirectory(dir=TMP, prefix='arw-pause-') as directory:
@@ -114,6 +138,11 @@ class ArwOwnedTests(unittest.TestCase):
             # The window is a provider choice that ARW resolves against the installation's published tiers.
             self.assertEqual(tier['providers']['qwen_strata']['contextWindow'], 65536)
             self.assertNotIn('context_window', tier['models'][0])
+            limited = json.loads(local_review_catalog(source, folder / 'd.json', 'IQ3_XXS', None, '/install', 867).read_text())
+            self.assertEqual(limited['providers']['qwen_strata'], {'driver': 'strata', 'installationDirectory': '/install',
+                                                                  'reviewTimeLimitSeconds': 867})
+            with self.assertRaises(ValueError):
+                local_review_catalog(source, folder / 'e.json', 'IQ3_XXS', None, '/install', 0)
 
     def test_arw_reads_the_bound_provider_and_installation_tier_through_its_own_catalog(self):
         import subprocess

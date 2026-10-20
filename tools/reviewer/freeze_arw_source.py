@@ -168,7 +168,27 @@ HARNESS_PATCHES = {
                    'lib/reviewer-runtime/codex-mount-targets.mjs':
                    '0060fdcbf8ca5b61dd5100f2a134e98c46b2689d5aa19497090b5fda42126922',
                    'tests/reviewer-runtime/codex-mount-targets.test.mjs':
-                   '61ddfae128067afcac8aed470dfcb2ab78cf3e66288c337ded97e2aa6ba5991d'}}}
+                   '61ddfae128067afcac8aed470dfcb2ab78cf3e66288c337ded97e2aa6ba5991d'}},
+    # strata-measurement-time-limit: ARW's Strata work policy hard-codes a 55-minute reminder and 60-minute stop and never
+    # reads the measurement time limit T (independent review F1, 2026-10-20). With a provider reviewTimeLimitSeconds the
+    # reminder comes 300 s before T (T/2 when T < 600 s, reminder_message wording) and the stop at T; without it nothing changes.
+    'strata-measurement-time-limit': {
+        'file': 'strata-measurement-time-limit.patch',
+        'sha256': '8b285e30868bfb803255b7e62333a8351875b736f1e8bc230cce990f3d8648b9',
+        'base': {'lib/background-agent/strata-work-policy.mjs':
+                 '4a9bff8c488a09ad3a98baf9ab6c8a50ac2febd64c1c1c7beebcf282b1101785',
+                 'lib/background-agent/strata-driver.mjs':
+                 '6ce2a8d093911042ca8c4d94af90e4717c3da83962166aa4bf27e87a604103a4',
+                 'lib/background-agent/model-catalog.mjs':
+                 'ec2e2fc2db43752c87744855fa6aa5019a0f0eeb2d5c9948b0eebb9ab80bcd4e'},
+        'result': {'lib/background-agent/strata-work-policy.mjs':
+                   'd57b1c3ab4836b12589332e13cd917efd3b0195395e4c9aa24df8b53abc7fc60',
+                   'lib/background-agent/strata-driver.mjs':
+                   '5d1b4586b61c5dc6e3d3264c205291e91017d821b23430d3a40eae890b99c8dc',
+                   'lib/background-agent/model-catalog.mjs':
+                   '7b45b8b0367afa9f7c4bc4bebbd1c0ca259ec948c8dc230c091405627f535f21',
+                   'tests/background-agent/strata-time-limit.test.mjs':
+                   'c882c3625c2d3da298d6b6c8393c2d14bd605d7aa05d98f1e37c020f2f921e07'}}}
 
 
 def apply_harness_patch(name, destination):
