@@ -7,9 +7,11 @@ transport errors; a relay error row is a `reminder_interrupt` (not a relay error
 
  (a) transport_error BrokenPipeError or ConnectionResetError, status 200;
  (b) the deadline record's reminder (or interrupt) status is accepted;
- (c) the row's ended_at lies in [attempted_at - 0.2 s, attempted_at + 1.0 s];
+ (c) the request was in flight when the event was sent (started_at < attempted_at <= ended_at) and ended within
+     30 s of it (Codex drops the stream at its next stream event, which for a request still in prefill comes later);
  (d) at most one row is exempted per reminder / interrupt;
- (e) for a reminder, the next /responses request starts within 1 s of the row's end and is 200 completed;
+ (e) for a reminder, the next /responses request starts after attempted_at and within 1 s (either side) of the
+     row's end, and is 200 completed;
  (g) the rollout has a user message whose ARW messageId equals the event's receipt.messageId (an interrupt without a
      receipt is exempt from this).
 Condition (f), every other validity check passing, belongs to the caller. The abandoned request's tokens are not in the
@@ -21,7 +23,7 @@ import json
 from pathlib import Path
 
 CLIENT_ERRORS = ('BrokenPipeError', 'ConnectionResetError')
-BEFORE, AFTER, NEXT_WITHIN = 0.2, 1.0, 1.0
+IN_FLIGHT_MAX, NEXT_WITHIN = 30.0, 1.0
 
 
 def error_rows(rows):
@@ -65,12 +67,13 @@ def classify(rows, events, message_ids):
                 continue
             if row.get('transport_error') not in CLIENT_ERRORS or row.get('status') != 200:  # (a)
                 continue
-            if not at - BEFORE <= row['ended_at'] <= at + AFTER:  # (c)
+            if not (row['started_at'] < at <= row['ended_at'] <= at + IN_FLIGHT_MAX):  # (c)
                 continue
             if kind == 'reminder':  # (e)
                 nxt = next((o for o in rows if o['started_at'] > row['started_at'] and o is not row
                             and o.get('path') == '/responses'), None)
-                if not (nxt and nxt['started_at'] - row['ended_at'] <= NEXT_WITHIN and nxt.get('status') == 200
+                if not (nxt and nxt['started_at'] > at and abs(nxt['started_at'] - row['ended_at']) <= NEXT_WITHIN
+                        and nxt.get('status') == 200
                         and nxt.get('response_status') == 'completed'):
                     continue
             used.add(id(row))  # (d)

@@ -48,8 +48,19 @@ class ReminderInterrupt(unittest.TestCase):
         self.assertEqual(self.check(rows((1, 'transport_error', 'URLError')))['relay_errors'], 1)
 
     def test_far_from_attempted_at_counts(self):
-        self.assertEqual(self.check(rows((1, 'ended_at', AT + 5)))['relay_errors'], 1)
+        self.assertEqual(self.check(rows((1, 'ended_at', AT + 31), (2, 'started_at', AT + 30.9)))['relay_errors'], 1)
         self.assertEqual(self.check(rows((1, 'ended_at', AT - 0.5)))['relay_errors'], 1)
+
+    def test_request_in_prefill_exempted(self):
+        # CStd codex-medium-a1: sent 0.08 s before the reminder, dropped at its first stream event 1.49 s after it
+        r = self.check(rows((1, 'started_at', AT - 0.077), (1, 'ended_at', AT + 1.487), (2, 'started_at', AT + 1.451)))
+        self.assertEqual(r['relay_errors'], 0)
+
+    def test_row_started_after_reminder_counts(self):
+        self.assertEqual(self.check(rows((1, 'started_at', AT + 0.05)))['relay_errors'], 1)
+
+    def test_next_request_before_reminder_counts(self):
+        self.assertEqual(self.check(rows((2, 'started_at', AT - 0.05)))['relay_errors'], 1)
 
     def test_status_not_200_counts(self):
         self.assertEqual(self.check(rows((1, 'status', 502)))['relay_errors'], 1)
@@ -57,11 +68,11 @@ class ReminderInterrupt(unittest.TestCase):
     def test_next_request_failing_counts(self):
         self.assertEqual(self.check(rows((2, 'response_status', 'failed')))['relay_errors'], 1)
         self.assertEqual(self.check(rows((2, 'status', 500)))['relay_errors'], 2)
-        self.assertEqual(self.check(rows((2, 'started_at', BROKEN['ended_at'] + 2)))['relay_errors'], 1)
+        self.assertEqual(self.check(rows((2, 'started_at', BROKEN['ended_at'] + 1.5)))['relay_errors'], 1)
         self.assertEqual(self.check(rows()[:2])['relay_errors'], 1)
 
     def test_second_row_for_one_reminder_counts(self):
-        second = dict(BROKEN, n=14, started_at=BROKEN['started_at'] + 1, ended_at=AT + 0.3)
+        second = dict(BROKEN, n=14, started_at=BROKEN['started_at'] + 1, ended_at=AT + 0.15)
         r = self.check(rows() + [second])
         self.assertEqual((r['errors'], r['relay_errors'], len(r['reminder_interrupts'])), (2, 1, 1))
 
