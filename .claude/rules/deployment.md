@@ -17,6 +17,7 @@ paths:
 - 调用接口或参数变化时，先改调用手册源文件，再部署。
 - 备份与保留（用户 2026-10-14）：部署和升级的备份放工程 `.tmp/maintenance-backups/`，只保留最新的升级备份和最近的部署备份；`artifacts/` 下每种制品只保留最新版和前一个版本（前一版用于遇到无法修复的问题时回退），更早的版本删除文件、保留下载清单中的来源和 SHA。
 - 安装目录运行时不读工程目录（用户坚持）。重建安装目录时改名旧目录、移动大目录，不原地删除。租约不加自动回收或空闲超时，卡住的租约靠重启前端清除（用户拒绝过自动回收）。
+- 服务端优先、只做通用能力（用户 2026-10-20）：harness 与 Strata 不协调的地方（例如单次输出撞上限后 Codex 直接结束回合），尽量在前端或 Strata 内部处理，不改写 harness 的消息、不伪造工具调用。内部处理必须是对所有客户端和任务都成立的通用能力，不为某个场景、工具或 benchmark 加专门逻辑。服务端发给模型的提醒要注明是服务端自动通知，只进转发给引擎的请求，不进调用方的历史（先例：`src/loop_reminder.py`）。
 - 区分请求类别（如 Codex guardian）用协议元数据（`thread_source`、subagent 头），不匹配提示词前缀（用户 2026-10-12）；没有结构化标识时先提备选并说明风险。
 - 部署后用 `qwen-agent` 测 Claude Code 的冒烟检查，按测量规则「Claude Code 测试隔离」运行。
 - `qwen-agent` 让 Claude Code 在档位阈值压缩，靠的是未公开的 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`，升级 Claude Code 后可能退回窗口 − 23000 才压缩。用 `qwen-agent` 跑 Claude Code 的测试（冒烟、升级短检查、测量）前，核对 `claude --version` 与调用手册「自动压缩」记的核对版本；不同就先跑 `python3 -m tools.ops.claude_compact_probe --out .tmp/<工作>/compact-probe --repeat 3`（无模型、不领租约），通过后改手册里的版本号并部署；不通过按意外事件处理，修好前不经 Claude Code 路径测量。
