@@ -454,6 +454,14 @@
     - 打补丁 2 次（patched-1、patched-2）：每次报告目录里都留下 `.agents .aws .codex .git`，ARW 记 12 条放过事件（4 个目录 × 3 次绑定检查），completion 为 ready、state 为 `idle`，`harness-patches.json` 存在。启动提示期望 sha `1cae169a…`，渲染后的压缩提示 `ec0b5a7a…`（源含 `3856cb62…`），都与冻结值一致。mock 前端看到 ARW 自己领取并归还了租约。
     - 未打补丁 1 次（unpatched-1）：报 `background-agent-operation-failed`（报告目录只能有绑定报告），留下 `recovery-required.json`。daemon 继续持有 mock 租约（pid 607041 及其 codex 子进程），复现了孤儿 daemon 持有租约的情形。这个 daemon 只持有 mock 租约，已按进程组结束。
 
+- 2026-10-20 07:15–09:40，Claude Code 臂的 Bash 沙箱超过 bwrap 参数上限（意外事件，Main 逐项决定；修复 6038d3a）：
+  - **现象**：`claude_headless.shared_tmp_entries` 把 /tmp 顶层的每个条目都单独写进 denyRead。单测里 `mkdtemp` 不清理，残留越积越多（10-19 18:01 起每次全量单测约 32 个），/tmp 顶层到了约 2460 条。denyRead 超过约 2135 条后，Claude Code 2.1.303 的 bwrap 参数超过 9000，每条 Bash 都在建立沙箱时失败（"Sandbox profile has N bwrap arguments and bwrap accepts at most 9000"）；Read、Glob、Grep 仍可用。实测阈值：2135 条正常，2136 条失败。
+  - **作废并重跑**（harness 故障，不计入尝试次数）：Strata 臂 CS r2 low-a5（Bash 7/7 失败）；CStd r2 除 low-a1 以外的 14 个，每个实例里的 Bash 全部失败；SR r2 high-a1（失败 2 次）。机械扫描 46 个 stream，CA r2 的 15 个和 CS r2 其余 14 个都没有命中。CStd 的 P4 直接测 API，不经过 Claude Code，T（867/886/898）沿用。Main 已核对：Anthropic 臂的 cs-r1、cstd-r1 都没有命中。
+  - **处理**：
+    - 清理 /tmp 下名字匹配 `^tmp[a-z0-9_]{8}$`、是目录、mtime 早于 2 小时、没有进程在用的条目，共 2038 个（清单 `.tmp/bench-strata-1019/tmp-cleanup-list.txt`，抽查 5 个都是单测 fixture），/tmp 顶层从 2460 降到 422。
+    - 修复 6038d3a：三个测试补 `addCleanup`；/tmp 顶层条目超过 1500 就拒跑（低于阈值时 denyRead 不变）；`stream_summary` 新增 `sandbox_failures`，统计 is_error 的 tool_result 中以 bwrap 参数上限报错或 `bwrap: ` 开头的条数，`claude_scenario.checks` 要求它为 0 才判有效。
+  - **调度**：`.tmp/bench-strata-1019/run_strata.py`（sha256 `85aa0233…`）把 stream 里有 `sandbox_failures` 的实例归为 `harness_fault`，不计入尝试次数（上限 8），新出现时就停下，不自动重跑。重跑顺序：CS low 补 1 个，CStd 补 14 个，再跑 SR，然后接 #10–12。
+
 ### 14.2 #10–12（Codex 上的 Strata）补冻结（2026-10-19）
 
 §14 为 #10–12 设的条件都已在 Codex 0.163.0 上满足，按 §14 以单独 commit 补冻结。
