@@ -111,6 +111,17 @@ class EffectTests(unittest.TestCase):
                     time_limited_note({'measurement_note_template': template}, folder, bad)
             with self.assertRaises(ValueError):
                 time_limited_note({'measurement_note_template': {**template, 'sha256': '0' * 64}}, folder, 900)
+
+    def test_time_limited_note_outside_the_project_keeps_an_absolute_path(self):
+        (ROOT / '.tmp').mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=ROOT / '.tmp') as directory, tempfile.TemporaryDirectory() as outside:
+            raw = b'Stop after {{time_limit_minutes}} minutes.\n'
+            (Path(directory) / 'template.txt').write_bytes(raw)
+            template = {'path': str((Path(directory) / 'template.txt').relative_to(ROOT)), 'sha256': sha(raw)}
+            note, _ = time_limited_note({'measurement_note_template': template}, Path(outside), 600)
+            self.assertTrue(Path(note['path']).is_absolute())
+            self.assertEqual((ROOT / note['path']).read_text(), 'Stop after 10 minutes.\n')
+
     def test_plain_note_is_the_common_note_or_the_named_scenario_note(self):
         common = (ROOT / MEASUREMENT_NOTE).read_bytes()
         self.assertEqual(plain_note({'measurement_note_sha256': sha(common)}), {'path': MEASUREMENT_NOTE, 'sha256': sha(common)})

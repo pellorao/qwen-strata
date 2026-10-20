@@ -425,6 +425,17 @@
   - **传输错误**（Main 决定）：判据不改，仍按 L494（M2）执行：relay 有传输错误即判无效、重跑，与 Anthropic 臂 L347 一致。另记字段 `recovered_transport_error`：有传输错误、且每次之后都有 completed 的 200 回复（即 harness 自己重试成功）时为 true，只作记录，不改判定。luna-high-a6 和 luna-medium-a4 都是 true。`run_one` sha256 `42342746…7a23`。这一版漏掉了 `stopped_cells` 的定义行，08:24 luna-medium-a5 启动即崩溃，崩溃发生在 prepare 和任何模型请求之前，调度器按 halt 停止开新。已补回，sha256 `cce0c547…875d`，开跑前用拒绝路径冒烟确认能走通。a5 目录保留，占编号，不计尝试。
   - **第二例 S2**：luna-low-a4，08:09:51 开跑，用的还是修复前的代码。模型 08:11 最后自报 incomplete，之后 ARW 暂停，3 个 `review.jsonl` 都是 0 字节。这个实例空等到 08:56 才被我发现：08:26–08:56 的监视只看结束事件，没看空闲却没有 completion 的情况，这个疏漏已补上。处理与 a3 相同：现场存进 `scene/`，08:56 结束进程组，记为 `s2_paused`，luna-low 这一格在 4 个有效实例处停下，待用户定。`schedule.py`（sha256 `dbc41372…db6f`）续跑时读取 stop-cells，不再为停下的格子开实例。
 
+- 2026-10-20 09:00–09:12，OpenAI 臂 CA 结束，CS 开跑（Main 选 R3 的 A 方案）：
+  - **CA 结果**：sol 三档各 5 个有效，luna-medium 5 个；luna-low 4 个、luna-high 2 个，这两格因 S2 停下，待用户定。周用量 37%→39%，credits 不变。denyRead 审计：06:40 之后启动的 17 个 Claude Code 实例（都是 Strata 臂的 cs-r2/cstd-r2）的 denyRead 都含 `/tmp/qwen-openai-1020`。
+  - **CS 的 P4**（`.tmp/bench-openai-1020/p4-cs/`，`cs-T.json` sha256 `802e4c2e…6058`）：β 4.038；G（tok/s）sol 54.0/58.2/55.8，luna 119.7/132.3/128.5；T（秒）sol-low 1456、sol-medium 1351、sol-high 1409、luna-low 657、luna-medium 594、luna-high 612。模型和 tier 都正常（default），两轮都没有工具调用，登录已归还。同一模型的三档相差都在 3 倍以内。
+  - **排程**（Main）：
+    - 按轮次交替，一轮 6 个配置跑完才开下一轮；重跑的实例并入最后一轮。
+    - 每个配置停开新实例的时刻取 min(10:40, 10:55 − T − 2 分钟)：sol 约 10:29，luna 为 10:40。这样在跑的实例都能在 10:58 前自然结束。
+    - 每个实例记录 `borrow=1`、轮次和开跑时刻。下次借用要沿用同一份 `cs-T.json`、同一份代码和同一个 Codex sha（`399ff69c…4215`）；开跑前核对模型 ID 和 tier 与这次相同，否则交 Main。
+    - CS 分两次借用跑完，这是一个时间混杂因素，报告里要写明。
+    - `schedule.py` sha256 `4ab62962…360f`；stop-cells 文件改为按场景分开：`stop-cells-ca.txt`、`stop-cells-cs.txt`。
+  - **首次开跑即 halt**：09:09 sol-low-a1 在 prepare 阶段崩溃，还没有发出任何模型请求。原因是 `arw_dimension.time_limited_note` 要求渲染出的测量说明在工程目录下，而 prep 在 /tmp。现改为工程外的 prep 保留绝对路径（读取方用 `ROOT / path` 拼接，结果不变），并新增单测；在 /tmp 下对 CS 计划完整 prepare 一次，确认测量说明和时限正确。a1 目录保留，占编号。
+
 - 2026-10-20 06:40–06:50，#10–12（Codex 上的 Strata）的 ARW prep 改放 /tmp，与 OpenAI 臂同一布局（Main 指示；尚未开跑，没有实例受影响）：
   - **已证实无效，未用于任何正式实例**（Main 10-20 撤回）：OpenAI 臂实测 prep 放 /tmp 后仍出现空目录。真实 ARW 的报告目录嵌在场景仓库（如 `ca/1`）下的 `.tmp/codex/…` 里，扁平布局的 stubtest 覆盖不到。#10–12 暂停，等真实嵌套布局下的成因和修法审查通过。以下为当时的方案记录。
   - **原因**：Codex 0.163.0 的 bubblewrap 在可写根里给受保护的名字建 synthetic mount target，工作区在工程盘且是 git 根时，`.git`、`.codex`、`.agents`、`.aws` 空目录留在报告目录里，ARW 收尾判"报告目录只能有绑定报告"失败。Strata 路径的零模型对照（Strata mock，`.tmp/bench-strata-1019/stubtest/`，仿 `.tmp/bench-openai-1020/stubtest/`）：工程盘 + git 根，报告目录多出这 4 个空目录；工程盘无 git、/tmp + git 根、/tmp 无 git 都不出现。`arw_dimension.prepare` 会把 ARW checkout `git init`，所以 #10–12 的正式路径会撞上。

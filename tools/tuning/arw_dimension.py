@@ -136,7 +136,9 @@ def time_limited_note(fixed, folder, time_limit_seconds):
         raise ValueError('Measurement note template has an unrendered placeholder')
     rendered = folder / 'measurement-note.txt'
     rendered.write_text(text)
-    return ({'path': str(rendered.relative_to(ROOT)), 'sha256': sha(text.encode())},
+    # A prep outside the project (OpenAI arm, /tmp) keeps the absolute path; readers join it onto ROOT.
+    path = rendered.relative_to(ROOT) if rendered.is_relative_to(ROOT) else rendered
+    return ({'path': str(path), 'sha256': sha(text.encode())},
             {'measurement_note_template': template, 'review_time_limit_seconds': time_limit_seconds})
 
 
