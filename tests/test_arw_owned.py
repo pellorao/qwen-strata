@@ -25,7 +25,7 @@ class ArwOwnedTests(unittest.TestCase):
             self.assertFalse(result['complete'])
 
     def test_pause_message_stops_an_untimed_api_observation_too(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[1] / '.tmp', prefix='arw-pause-') as directory:
             folder = Path(directory)
             record = {'accepted': {'runId': 'run', 'messageId': 'm'}, 'role': 'commit-audit-reviewer', 'instanceId': 'i',
                       'started_at': 10, 'selection': {'model_owner': 'api'}}

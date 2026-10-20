@@ -114,7 +114,7 @@ class EffectTests(unittest.TestCase):
 
     def test_time_limited_note_outside_the_project_keeps_an_absolute_path(self):
         (ROOT / '.tmp').mkdir(exist_ok=True)
-        with tempfile.TemporaryDirectory(dir=ROOT / '.tmp') as directory, tempfile.TemporaryDirectory() as outside:
+        with tempfile.TemporaryDirectory(dir=ROOT / '.tmp') as directory, tempfile.TemporaryDirectory(dir='/var/tmp', prefix='qwen-note-') as outside:
             raw = b'Stop after {{time_limit_minutes}} minutes.\n'
             (Path(directory) / 'template.txt').write_bytes(raw)
             template = {'path': str((Path(directory) / 'template.txt').relative_to(ROOT)), 'sha256': sha(raw)}

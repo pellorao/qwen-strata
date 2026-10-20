@@ -14,7 +14,8 @@ class HarnessPatchTest(unittest.TestCase):
         # The scenario versions the multi-model benchmark binds; all share the patched Reviewer runtime.
         for name in ('commit-audit-v3', 'code-spec-v5', 'code-standards-v5.1', 'spec-readiness-v4.3'):
             manifest = json.loads((MANIFESTS / f'manifest-{name}.json').read_text())
-            with tempfile.TemporaryDirectory() as tmp:
+            (ROOT / '.tmp').mkdir(exist_ok=True)
+            with tempfile.TemporaryDirectory(dir=ROOT / '.tmp', prefix='harness-patch-') as tmp:
                 arw = Path(tmp) / 'arw'
                 materialize(manifest, MANIFESTS / manifest['snapshot']['file'], arw)
                 applied = apply_harness_patch('codex-0.163-synthetic-mount-targets', arw)
