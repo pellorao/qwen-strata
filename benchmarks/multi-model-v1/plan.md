@@ -490,6 +490,7 @@
   - **核实**：两个线程的 `base_instructions`、`developer@2`、`user@3` 相同，只有 handoff 消息 `user@7` 不同，而它本来就随 handoff 而变。差异有三处：handoff 名（runtime-migration / artifact-promotion）构成的路径、每个 handoff 各自的 request/draft id，以及 AP 末尾追加的场景文件 `spec-readiness-reviewer/full-review-handoff.md` 段落。三处都由场景决定，不是 harness 或模型漂移。
   - **修正**：`schedule.py` 改为按（配置，handoff）分组比较（sha256 `6a2a7411…72f8`）。零模型测试 `.tmp/bench-openai-1020/tools/test_startup_group.py`（3 项通过）用 sol-low-a1 的真实记录验证两个 handoff 不互比，同一 handoff 内的漂移仍能查出。
   - **作废**：sol-medium-a1、sol-high-a1、luna-low-a1 按 harness 故障作废，不计入尝试次数，`void.json` 已写；/tmp prep 已按清理规则删除，run/ 留下。
+  - **暂停**（用户 11:01 决定暂停所有臂，要改 ARW 规则：Codex Reviewer 也要有私有可写的 scratch 目录，各臂统一按时限 T 跑）：Main 11:01:44 放下 RETURN，调度器 11:01:50 停止开新实例。在跑的 3 个实例都在宽限期内跑完，有效，没有因归还而作废。11:04:43 归还登录，本臂 Codex 进程为 0。SR 停在每个配置 2 个有效（共 12 个），continue_count 全为 0；周用量 44% → 46%，credits 不变。
 
 - 2026-10-20 06:40–06:50，#10–12（Codex 上的 Strata）的 ARW prep 改放 /tmp，与 OpenAI 臂同一布局（Main 指示；尚未开跑，没有实例受影响）：
   - **已证实无效，未用于任何正式实例**（Main 10-20 撤回）：OpenAI 臂实测 prep 放 /tmp 后仍出现空目录。真实 ARW 的报告目录嵌在场景仓库（如 `ca/1`）下的 `.tmp/codex/…` 里，扁平布局的 stubtest 覆盖不到。#10–12 暂停，等真实嵌套布局下的成因和修法审查通过。以下为当时的方案记录。
