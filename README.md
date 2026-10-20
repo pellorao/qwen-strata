@@ -46,6 +46,7 @@ rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），只对外提
 - `qwen-agent` 改按所选量化的默认档启动，Codex 与 Claude Code 同值（IQ3_XXS 206584／150000）；Claude Code 的压缩点依赖未公开的 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`，版本变化后用 `tools.ops.claude_compact_probe` 重新核对（2026-10-19，Main 与独立审查一致，rtx3080ti 已部署，rtx4070tis 补档位后同步）：[报告](reports/v0.1.45/context-tier-unify/summary.md)。
 - 所有 Codex Reviewer 臂（含 Strata）对用户登录（`~/.claude/.credentials.json`、`~/.codex` 整个目录，含默认位置的 ChatGPT 登录）和 `project.private.toml` deny-read，偏离 reviewer-suite「不额外收紧」（2026-10-19，Main 按硬约束 4 决定，三种 mock 门用合成文件验证通过，待用户复核）：[ARW Reviewer 规则](.claude/rules/reviewer-suite.md#合同)、[benchmark 计划 §3](benchmarks/multi-model-v1/plan.md#3-固定条件)。
 - 报告写授权用专用父目录（目录里只有该报告），绕过 Codex 单文件写授权的 bwrap 故障；安全门与测量同一策略（2026-10-07，用户决定）：[ARW Reviewer 规则](.claude/rules/reviewer-suite.md#正式测量前的安全验收)。
+- 多模型 benchmark 的有效性判据：Codex 在时限提醒时放弃流造成的 relay 传输错误记为提醒中断、不作废，按可机械检查的 7 条判据认定（2026-10-20，Main 经独立审查决定，待用户复核）：[计划 §14 M2](benchmarks/multi-model-v1/plan.md)。
 - 多模型 benchmark（2026-10-19，用户决定；方案定稿待冻结，[计划](benchmarks/multi-model-v1/plan.md)）：27 个配置（Codex：gpt-6.1-sol、gpt-6-luna、deepseek-flash、Strata；Claude Code：Opus、Sonnet、Haiku、deepseek-flash、Strata；均 low／medium／high）× 4 场景 × 5 次；只报分场景原始分，不算比值和综合分；两份基础提示只给 Strata（硬约束 3 例外）；搜索全部关闭（2026-10-11 搜索规则在 benchmark 期间豁免）；service tier 一律 default 并记录实际返回值；OpenAI 用 ChatGPT 套餐登录、只报 token。盲裁维持单名 Opus 全量裁（加锚点和合成负例）：按用户的 20% 规则盲裁占 benchmark 的 Anthropic 总消耗中值约 24%，但双裁只省约 $55–58，用户按例外处理、质量优先（2026-10-19，用户决定；计划 §6），"盲裁用 Opus，不用 Sonnet"继续有效。
 
 ## 主线
