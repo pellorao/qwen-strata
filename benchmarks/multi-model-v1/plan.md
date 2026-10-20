@@ -54,6 +54,7 @@
 
 开跑前逐项核对实际加载的值并写进绑定，执行窗口内不改。
 
+- **DeepSeek 只在低谷时段跑**（用户 2026-10-21）：低谷价约为高峰的一半，所以凡是调用 DeepSeek API 的工作，包括正式实例、探针、冒烟和补跑，都安排在低谷时段。启动截止时刻和对高峰的处理见 §14.4。
 - **版本**：
   - Strata 开跑前可以升级（D12），第一个模型实例开始后固定，直到最后一个实例跑完。
   - Codex 0.163.0（用户 2026-10-19 决定，取代 0.162.0）和 Claude Code 2.1.303 另装 benchmark 专用副本，记录 SHA，不动用户日常安装和它们的自动更新。Codex 副本由 `native_cli_binding`（`CODEX`、`pinned_codex`）固定：安全门每个会话、`arw_measure` 未写 `native_cli` 的 selection 都用它，启动前核对 SHA 和版本，不再用 PATH 上的 `codex`（用户日常安装已改为 `~/.codex/packages/standalone` 下自动更新的版本，位于 G7 deny-read 范围内）；Claude Code 副本用 `--claude` 传给 `claude_headless` 和 `claude_gate`，两个 CLI 都拒绝运行版本不是 2.1.303 的二进制，并把路径和 SHA 写进绑定（`claude_headless.pinned_binary`）。
