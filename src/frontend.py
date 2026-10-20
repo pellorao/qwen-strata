@@ -352,7 +352,7 @@ class Handler(BaseHTTPRequestHandler):
             self.close_connection = True
             if guarded is not None and reply.status == 200 and 'text/event-stream' in (
                     reply.getheader('Content-Type') or ''):
-                output_limit.relay(path, guarded, reply, self.stream_out,
+                output_limit.relay(guarded, reply, self.stream_out,
                                    lambda retry: self.open_native(target, retry, headers), log)
                 return
             while chunk := reply.read1(65536):

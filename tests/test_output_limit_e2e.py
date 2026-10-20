@@ -1,5 +1,5 @@
 """Output-limit retry end to end: the real frontend Handler between a scripted engine (Strata v0.1.45 fixture streams)
-and the real clients, Codex 0.163.0 (benchmark copy) and Claude Code (isolated config).  No model is used."""
+and the real Codex 0.163.0 (benchmark copy).  No model is used."""
 from http.server import BaseHTTPRequestHandler
 import json
 import os
@@ -17,11 +17,10 @@ from test_frontend import FakeModel, frontend, serve
 from tools.reviewer.native_cli_binding import CODEX
 
 FIXTURES = ROOT / 'tests/fixtures/output_limit'
-CLAUDE = shutil.which('claude')
 
 
 class Script(BaseHTTPRequestHandler):
-    """Serves the next fixture stream to each generation request; Claude Code's side requests get a plain answer."""
+    """Serves the next fixture stream to each generation request."""
     protocol_version = 'HTTP/1.1'
 
     def log_message(self, *args):
@@ -29,19 +28,9 @@ class Script(BaseHTTPRequestHandler):
 
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers['Content-Length'])) or b'{}')
-        if self.path.endswith('/count_tokens'):
-            raw = b'{"input_tokens": 100}'
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.send_header('Content-Length', str(len(raw)))
-            self.end_headers()
-            self.wfile.write(raw)
-            return
-        main = self.path == '/v1/responses' or bool(body.get('tools'))
-        if main:
-            self.server.seen.append(body)
+        self.server.seen.append(body)
         script = self.server.script
-        name = script[min(len(self.server.seen), len(script)) - 1] if main else script[-1]
+        name = script[min(len(self.server.seen), len(script)) - 1]
         self.send_response(200)
         self.send_header('Content-Type', 'text/event-stream')
         self.end_headers()
@@ -88,12 +77,15 @@ class EndToEnd(unittest.TestCase):
                 process.wait()
         return process.returncode, out.decode(), err.decode()
 
-    def test_frontend_passes_streams_without_a_limit_hit_byte_for_byte(self):
+    def test_frontend_passes_streams_without_a_retry_byte_for_byte(self):
         import http.client
         for path, name, stream in (('/v1/responses', 'responses-calls', True), ('/v1/responses', 'responses-text', False),
                                    ('/v1/responses', 'responses-limit-after-call', True),
+                                   ('/v1/responses', 'responses-keepalive', True),
+                                   ('/v1/responses', 'responses-failed', True),
+                                   ('/v1/responses', 'responses-limit-custom', False),
                                    ('/v1/messages', 'messages-tool', True),
-                                   ('/v1/messages', 'messages-limit-after-tool', True)):
+                                   ('/v1/messages', 'messages-limit-tool', True)):
             with self.subTest(name=name, stream=stream):
                 self.engine.script, self.engine.seen = [name], []
                 connection = http.client.HTTPConnection('127.0.0.1', self.server.server_port, timeout=10)
@@ -132,7 +124,7 @@ class EndToEnd(unittest.TestCase):
         self.assertNotIn('error', [line['type'] for line in lines])
         self.assertEqual((self.folder / 'ws/a.txt').read_text(), 'hello\n')       # the retry's patch ran
         retry, after = self.engine.seen[1], self.engine.seen[2]
-        notice = frontend.output_limit.NOTICE.format(limit=retry['max_output_tokens'], what='a tool call (apply_patch)')
+        notice = frontend.output_limit.NOTICE.format(what='a tool call (apply_patch)')
         self.assertEqual(retry['input'][-1]['content'][0]['text'], notice)
         history = json.dumps(after['input'])
         self.assertNotIn('call_c1', history)                                   # the cut-off call
@@ -141,32 +133,6 @@ class EndToEnd(unittest.TestCase):
         rollout = next((self.folder / 'codex-home/sessions').rglob('rollout-*.jsonl')).read_text()
         self.assertNotIn('"incomplete"', rollout)
         self.assertNotIn('Incomplete response returned', rollout)
-
-    @unittest.skipUnless(CLAUDE, 'Claude Code not installed')
-    def test_claude_code_gets_the_retry_in_place_of_the_cut_off_tool_use(self):
-        self.engine.script = ['messages-limit-tool', 'messages-retry-ok', 'messages-text']
-        (self.folder / 'ws').mkdir()
-        config = self.folder / 'claude-config'
-        config.mkdir()
-        (config / 'settings.json').write_text('{}')
-        env = {'PATH': str(Path(CLAUDE).parent) + ':/usr/bin:/bin', 'HOME': str(self.folder), 'LANG': 'C.UTF-8',
-               'CLAUDE_CONFIG_DIR': str(config), 'ANTHROPIC_BASE_URL': self.base, 'ANTHROPIC_API_KEY': self.key,
-               'DISABLE_TELEMETRY': '1', 'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC': '1',
-               'CLAUDE_CODE_MAX_OUTPUT_TOKENS': '8192', **{name: 'qwen3.8-flash-next-iq3_xxs' for name in (
-                   'ANTHROPIC_MODEL', 'ANTHROPIC_DEFAULT_HAIKU_MODEL', 'ANTHROPIC_DEFAULT_SONNET_MODEL',
-                   'ANTHROPIC_DEFAULT_OPUS_MODEL', 'CLAUDE_CODE_SUBAGENT_MODEL')}}
-        code, out, err = self.client([CLAUDE, '-p', 'write the report', '--setting-sources', 'user',
-                                      '--output-format', 'stream-json', '--verbose', '--max-turns', '4'], env)
-        self.assertEqual(code, 0, err[-2000:])
-        self.assertEqual(json.loads(out.splitlines()[-1])['subtype'], 'success')
-        retry, after = self.engine.seen[1], self.engine.seen[2]
-        self.assertEqual(retry['messages'][-1]['content'][-1]['text'],
-                         frontend.output_limit.NOTICE.format(limit=retry['max_tokens'], what='a tool call (Write)'))
-        history = json.dumps(after['messages'])
-        self.assertNotIn('toolu_2', history)
-        self.assertNotIn('Output limit: automatic notice', history)
-        self.assertIn('toolu_5', history)
-        self.assertNotIn('max_tokens', out)
 
 
 if __name__ == '__main__':
