@@ -435,6 +435,11 @@
     - CS 分两次借用跑完，这是一个时间混杂因素，报告里要写明。
     - `schedule.py` sha256 `4ab62962…360f`；stop-cells 文件改为按场景分开：`stop-cells-ca.txt`、`stop-cells-cs.txt`。
   - **首次开跑即 halt**：09:09 sol-low-a1 在 prepare 阶段崩溃，还没有发出任何模型请求。原因是 `arw_dimension.time_limited_note` 要求渲染出的测量说明在工程目录下，而 prep 在 /tmp。现改为工程外的 prep 保留绝对路径（读取方用 `ROOT / path` 拼接，结果不变），并新增单测；在 /tmp 下对 CS 计划完整 prepare 一次，确认测量说明和时限正确。a1 目录保留，占编号。
+  - **CS 完成**（09:38，第 0–4 轮，全部 `borrow=1`）：6 个配置各 5 个有效实例，没有撞时限，也没有 S2 暂停。
+    - sol-high-a5 的检查全部通过，但清理后残留 1 个 bwrap（Codex fs-helper，pid 710176）。它已重新挂到 /init 下，没有子进程，两个管道都没有对端，按"清理不干净"判 halt。
+    - 现场存在 `cs/sol-high-a5/scene-leftover/`；该进程不响应 TERM，用 KILL 结束。
+    - Main 判其有效：halt 只是为了查清原因，有效判据里没有清理这一条。instance.json 保留原判定，另加 `leftover_after_completion` 和 `reclassified`。
+    - `run_one.py` 的修改：杀完进程树后，再结束仍引用本实例 run 目录（以 `/run/` 结尾）或 prep 目录（带 time_ns 后缀）的进程，先 TERM，5 秒后 KILL，记为 `named_killed`。用一个目标进程加相邻编号的诱饵进程做零模型测试：目标被结束，诱饵存活；拒跑路径的冒烟测试也通过。
 
 - 2026-10-20 06:40–06:50，#10–12（Codex 上的 Strata）的 ARW prep 改放 /tmp，与 OpenAI 臂同一布局（Main 指示；尚未开跑，没有实例受影响）：
   - **已证实无效，未用于任何正式实例**（Main 10-20 撤回）：OpenAI 臂实测 prep 放 /tmp 后仍出现空目录。真实 ARW 的报告目录嵌在场景仓库（如 `ca/1`）下的 `.tmp/codex/…` 里，扁平布局的 stubtest 覆盖不到。#10–12 暂停，等真实嵌套布局下的成因和修法审查通过。以下为当时的方案记录。
