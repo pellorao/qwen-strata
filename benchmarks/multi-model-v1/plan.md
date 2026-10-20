@@ -454,12 +454,29 @@
     - 原版 `score` 的 ×0.9 只看报告诊断（`reportDiagnostics`）。本工程计分补丁 r7 之后，这一折减只留给报告里越过需求范围停止点（`requirement-scope-continuation`）这一项，也就是 `format_penalty.py` 文档串说的"停止规则"。
     - 运行时的早退暂停不在报告里，评分器看不到。所以答复继续之后，原版评分不会因为暂停记 0.9。
     - 计分阶段由本工程按 `arw_pause_events` 乘 0.9，只乘这一次。
-    - 一个实例暂停多次时是乘一次还是逐次乘，待定。
+    - 用户决定（2026-10-20，Main 转达）：ARW 早退暂停的扣分每个实例最多扣一次 ×0.9，不论暂停几次。
   - **CA 的 luna-high-a3、luna-low-a4**：
     - 判为不能按原线程恢复。原因：复制之后原 /tmp prep 已删，包括 ARW checkout、绑定报告和 recovery 路径；ARW daemon 的状态绑定的是这些绝对路径；`arw_measure` 也没有经过测试的重新挂接模式。
     - 两个都作废，原因记为"harness 未按用户决定继续"，不计尝试次数（instance.json 加 `void.attempt_counted=false`）。现场留在 scene/。
     - `stop-cells-ca.txt` 清空，原内容存在 `ca/stop-cells-ca.before-1020-continue.txt`。补跑按新逻辑进行：luna-high 补 3 个，luna-low 补 1 个。
   - **CStd 的 P4**（`p4-cstd/`，`cstd-T.json` sha256 `6cd6a5e2…5028`）：β 4.01；G（tok/s）sol 52.1/55.3/56.7，luna 126.7/128.2/122.4；T（秒）sol-low 1416、sol-medium 1335、sol-high 1300、luna-low 582、luna-medium 575、luna-high 606。两轮都没有工具调用，模型和 tier 正常（default），登录已归还。CStd 09:54 开跑，`borrow=1`。
+  - **CStd luna-low-a2 作废**（10:00，Main 判）：
+    - handoff 已送达，13 秒后 ARW 自己中断了第一个 turn，原因原文："Reviewer background terminal cleanup is unverified: Native member facts are incomplete."。没有模型输出。
+    - 当时 5 秒内同一 home 上有 4 个实例在启动。判为 harness 启动故障，不计尝试次数。
+    - 之后本臂任何两次开跑至少错开 15 秒，几个调度器共用一个锁文件 `last-launch`。同类故障再出现一次就停下交 Main。
+  - **CA 补跑与调度器并行的故障**：
+    - 09:54 那次 CStd 调度器因 halt 退出，收尾时归还了共享 home 的登录。10:06:57 开跑的 CA luna-high-a8 因此在发出模型请求之前就被 `arw_measure` 拒跑。按 harness 故障作废，不计尝试次数。
+    - 同一段收尾代码还会 SIGKILL 共享 home 上所有的 Codex 进程，会误杀另一个调度器的实例。实际没有发生：a8 失败时 CA 调度器正停在 halt 状态，我在它进入收尾之前用 SIGKILL 结束了它。
+    - `schedule.py` 已改：收尾时如果本臂还有别的调度器在跑，就不杀进程、不还登录（记 `login_not_released`）。新增 `--slots-file`（CA 补跑独占 1 个槽；slotctl 给 CStd 的槽数改为 4 − reserve，本臂总数 ≤4）和 `--no-new-after`（CA 补跑 10:25 后不开新实例）。
+    - 当前在跑的 CStd 调度器是改动之前启动的，收尾仍会杀共享 home 的进程，所以让 CA 补跑先于它结束。
+  - **每实例清理**（用户规则 2026-10-20，measurement.md「存放」）：
+    - `run_one` 收尾时，确认 prep 副本校验通过、会话检查已产出之后，执行 `clean_instance`：
+      - 先把每个场景仓库副本的逐文件 sha256 清单写进 `scenario-copies.json`，供计分时重建对照；
+      - 删除场景仓库副本里 `.tmp` 以外的内容、空的占位目录、副本中的 ARW checkout，以及 /tmp 下属于本实例的 prep；
+      - 保留报告、ARW 运行元数据、`run/`（machine.jsonl、日志、状态）、`inspect/` 和 instance.json；rollout 在共享 CODEX_HOME 里。
+    - 已跑完的实例由 `tools/backfill_clean.py` 补清了一遍：先列清单，再删。一起删掉的还有 prep-killed/、S2 的 scene/prep-live、P4 的 /tmp 工作区，以及 CS sol-low-a1 的 /tmp prep。ca+cs+cstd 从 1.2G 降到 252M。
+    - 注意：计分要读证据所在的文件，得先按冻结输入重新 prepare 出场景仓库，再用 `scenario-copies.json` 核对。
+  - 当前 sha256：`arw_measure.py` `9e6f14fc…e051a49b`，`run_one.py` `c70c8a5e…9ab94b1d`，`schedule.py` `521fc743…bad73877`，`slotctl.py` `b5410a01…66d122e5`。
 
 - 2026-10-20 06:40–06:50，#10–12（Codex 上的 Strata）的 ARW prep 改放 /tmp，与 OpenAI 臂同一布局（Main 指示；尚未开跑，没有实例受影响）：
   - **已证实无效，未用于任何正式实例**（Main 10-20 撤回）：OpenAI 臂实测 prep 放 /tmp 后仍出现空目录。真实 ARW 的报告目录嵌在场景仓库（如 `ca/1`）下的 `.tmp/codex/…` 里，扁平布局的 stubtest 覆盖不到。#10–12 暂停，等真实嵌套布局下的成因和修法审查通过。以下为当时的方案记录。
