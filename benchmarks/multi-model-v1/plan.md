@@ -491,6 +491,11 @@
   - **修正**：`schedule.py` 改为按（配置，handoff）分组比较（sha256 `6a2a7411…72f8`）。零模型测试 `.tmp/bench-openai-1020/tools/test_startup_group.py`（3 项通过）用 sol-low-a1 的真实记录验证两个 handoff 不互比，同一 handoff 内的漂移仍能查出。
   - **作废**：sol-medium-a1、sol-high-a1、luna-low-a1 按 harness 故障作废，不计入尝试次数，`void.json` 已写；/tmp prep 已按清理规则删除，run/ 留下。
   - **暂停**（用户 11:01 决定暂停所有臂，要改 ARW 规则：Codex Reviewer 也要有私有可写的 scratch 目录，各臂统一按时限 T 跑）：Main 11:01:44 放下 RETURN，调度器 11:01:50 停止开新实例。在跑的 3 个实例都在宽限期内跑完，有效，没有因归还而作废。11:04:43 归还登录，本臂 Codex 进程为 0。SR 停在每个配置 2 个有效（共 12 个），continue_count 全为 0；周用量 44% → 46%，credits 不变。
+  - **续跑**（用户 11:3x 再次借出 Codex，原话："你现在继续用 openai 模型吧, 用完了告诉我就行. 不过要在不影响整体计划的前提下, 尽量提前使用, 尽早给我."；用户另定本次 benchmark 的 Codex 臂都不给 scratch，已跑实例不重跑）：11:28:53 删 RETURN、重新领登录续跑，目标每配置 5 个有效。`schedule.py` 加 `--keep-login`：队列跑完不还登录，留给同一次借用里的后续工作，RETURN 仍照常归还。
+    - `arw_measure.py`：前 12 个实例用 `9e6f14fc…e051a49b`，之后用 `1735b7be…`（932c1eb、b6c8147）。差异只在 `call_through_stop`（ARW 停止期间只读调用重试）和 Strata provider 的限时 T，OpenAI 路径不受影响（Main 同意）。补丁仍只有 `codex-0.163-synthetic-mount-targets`。
+    - 实例记录里的 borrow 一直是 2，11:28 之后开的实例实际属于第 3 次借用，分析时按开始时刻区分（Main 同意）。
+    - **SR 清理缺陷**：`run_one.clean_instance` 只按 `runs/<id>/<场景>/<rep>` 找场景仓库，SR 多一层 `sr/<handoff>/<rep>`，所以此前 12 个 SR 实例的仓库副本没删，`scenario-copies.json` 为空。改为按 ARW 的 `.prepared` 标记找仓库：每个实例计分后由 `.tmp/bench-openai-1020/tools/score_sr.py --clean` 先写 manifest 再删（每实例 6 个仓库），instance.json 记 `cleanup_sr_repositories`。CA/CS/CStd 的层级正确，不受影响。
+    - **边跑边计分**（用户要求）：入口 `tools.reviewer.single_scenario_score.upstream_score`。在实例原来的 /tmp prep 路径重新物化冻结 ARW（同一 manifest、同一补丁），放回保留的 `prep/arw/.tmp`，核对绑定报告 sha 后计分。未裁候选按 not-matched / unsupported 记，标为暂定分。SR 的问题用例要经裁决为 matched 才得分，所以暂定分是下界，目前全部为 0。Main 决定不加上界。另逐实例记干净通过率、待裁候选数、格式诊断、早退暂停数和报告是否可解析，作为及早暴露问题的信号（`.tmp/bench-openai-1020/progress.md` 的 sr-scores 段）。正式分等盲裁。
 
 - 2026-10-20 06:40–06:50，#10–12（Codex 上的 Strata）的 ARW prep 改放 /tmp，与 OpenAI 臂同一布局（Main 指示；尚未开跑，没有实例受影响）：
   - **已证实无效，未用于任何正式实例**（Main 10-20 撤回）：OpenAI 臂实测 prep 放 /tmp 后仍出现空目录。真实 ARW 的报告目录嵌在场景仓库（如 `ca/1`）下的 `.tmp/codex/…` 里，扁平布局的 stubtest 覆盖不到。#10–12 暂停，等真实嵌套布局下的成因和修法审查通过。以下为当时的方案记录。
