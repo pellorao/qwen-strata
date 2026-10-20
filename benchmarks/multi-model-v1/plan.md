@@ -17,12 +17,12 @@
 |---|---|---|---|---|---|---|
 | 1–3 | Codex 0.163.0 + ARW | `gpt-6.1-sol` | low / medium / high | ChatGPT 套餐登录 | 无 | 原生默认（codex-auto-review） |
 | 4–6 | Codex 0.163.0 + ARW | `gpt-6-luna` | low / medium / high | ChatGPT 套餐登录 | 无 | 原生默认（codex-auto-review） |
-| 7–9 | Codex 0.163.0 + ARW | `deepseek-flash` | low / medium / high | `DEEPSEEK_API_KEY` | 无 | 无原生默认，用同模型 low |
+| 7–9 | Codex 0.163.0 + ARW | `deepseek-flash` | low / high / max（用户 2026-10-21；已跑的 medium 见 §14.4） | `DEEPSEEK_API_KEY` | 无 | 无原生默认，用同模型 low |
 | 10–12 | Codex 0.163.0 + ARW | Strata `qwen3.8-flash-next-iq3_xxs` | low / medium / high | 前端租约 | 启动提示与压缩提示 | Strata 自身（512/1024） |
 | 13–15 | Claude Code 2.1.303 无头 | Opus（`opus`） | low / medium / high | 订阅 | 无 | 无（dontAsk） |
 | 16–18 | Claude Code 2.1.303 无头 | Sonnet（`sonnet`） | low / medium / high | 订阅 | 无 | 无 |
 | 19–21 | Claude Code 2.1.303 无头 | Haiku（`haiku`） | low / medium / high | 订阅 | 无 | 无 |
-| 22–24 | Claude Code 2.1.303 无头 | `deepseek-flash` | low / medium / high | `DEEPSEEK_API_KEY` | 无 | 无 |
+| 22–24 | Claude Code 2.1.303 无头 | `deepseek-flash` | low / high / max（用户 2026-10-21；已跑的 medium 见 §14.4） | `DEEPSEEK_API_KEY` | 无 | 无 |
 | 25–27 | Claude Code 2.1.303 无头 | Strata `qwen3.8-flash-next-iq3_xxs` | low / medium / high | 前端租约 | 启动提示（服务端）与压缩提示（PreCompact） | 无 |
 
 - 模型 ID 以 API 实际返回的为准，逐实例记录：Codex 的 API provider 由 relay 记录，Claude Code 从 stream 的 `model` 和 `modelUsage` 读取。别名 `opus`、`sonnet`、`haiku` 在开跑前解析成具体 ID，写进绑定，正式运行的 `--model` 直接传具体 ID。
@@ -31,7 +31,7 @@
 - 端点：
   - DeepSeek 在 Codex 上用 OpenAI 格式 `https://api.deepseek.com`（Responses，`wire_api = "responses"`），在 Claude Code 上用 Anthropic 格式 `https://api.deepseek.com/anthropic`。
   - OpenAI 用 Codex 内置的 `openai` provider（ChatGPT 后端），`openai_base_url` 只是指向本地 relay。
-- 不用 ultra、xhigh、max。ultra 会派子 agent，ARW 拒收；Strata 的 xhigh、max 预算与 high 相同。
+- 不用 ultra、xhigh、max。ultra 会派子 agent，ARW 拒收；Strata 的 xhigh、max 预算与 high 相同，所以 Strata 不跑 max。例外：DeepSeek 用 max（用户 2026-10-21）。官方 thinking_mode 页只列 low / high / max，并把 minimal 映射为 low、medium 和 xhigh 映射为 high。
 
 ### 2.1 Strata 三档参数在两个 harness 上的映射
 
@@ -105,13 +105,13 @@
 
 1. **场景按 Opus 标定**：加难时确认的是"Q3 低、Opus 命中"；答案键经 Opus 审计；Opus 同时担任参考和裁决者。所以 Opus 的位置可能偏高，Opus 的绝对分不是上限。Commit Audit v3 另给"含 / 不含难度因素题"两套分数。
 2. **厂商与 harness 部分绑定**：OpenAI 只在 Codex 上，Anthropic 只在 Claude Code 上。只有 Strata 和 DeepSeek 两边都有，可以用来观察 harness 的影响。
-3. **"强度"含义因厂商而异**：Strata 三档见 §2.1。DeepSeek：Claude Code（Anthropic 格式）上三档实测无差别（P1b）；Codex（Responses）上 high 略长于 low。medium 不是 DeepSeek 的原生档（官方 Codex catalog 只列 low/high/max），两种格式都照发 medium、端点返回 200，报告写"请求 medium（非原生档，服务端处理未知）"（2026-10-21 冻结审查）。
+3. **"强度"含义因厂商而异**：Strata 三档见 §2.1。DeepSeek 自 2026-10-21 起测 low / high / max（用户决定）。依据是官方 thinking_mode 页：原生档为 low / high / max，medium 映射为 high。P1b、P1c 的实测与这个映射不矛盾，但也证明不了它：P1c 的简单题上 low/medium/high 无差别，max 长约 1.5 倍；端点的 422 报错把 medium 列为合法枚举值。已跑的 medium 实例按 §14.4 处理：CA、SR 两个 harness 和 CStd-Codex 的 medium 并入 high；CS 两侧和 CStd-CC 的 medium 只作补充行，标"high requested as medium, T=…"，因为它们的时限 T 与 high 不同。
 4. **基础提示只给 Strata**：注入位置不同。Codex 路径由服务端追加；Claude Code 路径由服务端追加启动提示，PreCompact hook 追加压缩提示。
 5. **搜索全部关闭**，偏离 ARW 原生设置（2026-10-11 规则）。各模型都没有搜索，但这与 ARW 自己的结果不可直接比较。
 6. **guardian 不同**：OpenAI 用 codex-auto-review，DeepSeek 用同模型 low，Strata 用自身，Claude Code 没有。
 7. **窗口与压缩不同**：Strata 为 206584/150000，其他模型用原生设置（OpenAI catalog 272000）。DeepSeek 在 Codex 上为官方 catalog 的 1048576（95%，auto_compact 未设），实际不压缩；在 Claude Code 上未设 `CLAUDE_CODE_MAX_CONTEXT_TOKENS`，约 162K 时压缩（2026-10-21 冻结审查，不改）。OpenAI 用服务端压缩（零模型核实，见 §9 阶段 0）。Claude Code 路径的压缩提示只给 Strata。
 8. **ARW 早停接续只在 Codex 路径**：Claude Code `-p` 没有接续。
-9. **时限按各自的速度计算**：API 模型的速度含网络。服务端可能漂移，而执行窗口约一到两周。
+9. **时限按各自的速度计算**：API 模型的速度含网络。服务端可能漂移，而执行窗口约一到两周。DeepSeek 的 max 比其他档晚几小时到几天才跑，它的 P4 也是另一时刻测的；CS、CA 只有 max 格还在轮换，所以 max 与 low/high 之间多一层时间漂移（2026-10-21）。
 10. **ChatGPT 套餐**：只报 token，不报金额。套餐的限速或路由可能与 API 不同。
 11. **IQ3_XXS 参数来自 v0.1.42 调参**：benchmark 就在当前版本上跑。Haiku 的订阅额度扣减比例未核对，首次 Haiku 运行时记录前后用量。
 12. **盲裁方式**（§6）：单名 Opus 盲裁，与场景标定同一模型（见第 1 条）。
@@ -129,7 +129,7 @@
   - 费用：Anthropic 按 API 等价美元并折算周额度；DeepSeek 按开跑当日的官方单价；OpenAI 只报 token；Strata 按测量规则的等效费用公式；
   - 实际返回的模型 ID 和 service tier。
 - 逐实例表固定保留（测量规则）。不给比值、综合分和排名（D7）。
-- 文字比较只用预登记的一组：同一 harness、同一强度下，Strata 对其他每个配置（Codex 3 × 3、Claude Code 4 × 3）；DeepSeek 和 Strata 各自的 Codex 对 Claude Code（2 × 3）。每个场景是一个校正族，共 27 个比较，Holm 校正，双侧 α = 0.05，Welch t 检验用 Welch–Satterthwaite 自由度；Strata 只用预登记的前 5 次。校正后显著才写"高于 / 低于"，其余写"未分出"。n = 5 对 5 时能分辨的差约 0.3（审查估算），报告写明这一点。表中全部数字照常给出。
+- 文字比较只用预登记的一组：同一 harness、同一强度下，Strata 对其他每个配置；DeepSeek 和 Strata 各自的 Codex 对 Claude Code。2026-10-21 DeepSeek 改为 low / high / max 后，每个场景的族为 25 个比较：Codex 8 个（GPT 2 × 3，DeepSeek low、high），Claude Code 11 个（Anthropic 3 × 3，DeepSeek low、high），harness 6 个（Strata 三档，DeepSeek low / high / max）。Strata 没有 max，DeepSeek 没有 medium，所以这两档不和 Strata 配对。每个场景是一个校正族，Holm 校正，双侧 α = 0.05，Welch t 检验用 Welch–Satterthwaite 自由度；Strata 只用预登记的前 5 次。校正后显著才写"高于 / 低于"，其余写"未分出"。n = 5 对 5 时能分辨的差约 0.3（审查估算），报告写明这一点。表中全部数字照常给出。
 - 墙钟耗时按阶段报告（门与探针、每个场景批次、盲裁、会话检查、计分），用于下次 benchmark 的排期。
 - 实例无效、重跑和会话检查按测量规则与 reviewer-suite「会话检查」执行。会话检查交便宜模型（D9，reviewer-suite「会话检查」已写入例外）：它读过滤后的 `actions.md` 和 `flagged.md`（`inspect_session` 已对凭据值打码），被标记项和它判为可疑的实例再由 Main 复核。
 
@@ -700,3 +700,16 @@ DeepSeek 臂 worker 跑完探针 P1–P4 和第 1 轮（6 配置 × 4 场景各 
   - 速率代理：每个实例记 输出 token ÷ 墙钟秒数，并与同格第 1 轮 a1 比较。只注明，不作废，不改时限。
   - 只跑不看：同 §14。
 - **残余风险**：被弃请求的 token 不进 relay usage，逐实例费用是下界。低谷时段的服务端负载与第 1 轮可能不同，速率代理只能发现明显变化。
+- **偏离：改测 low / high / max（2026-10-21，用户决定；Main 采纳独立审查方案 C′，摘要 `.tmp/bench-deepseek-1020/review-lhm.md`，提案与核对 `proposal-lhm.md`）**。以下各项写于看到任何分数之前。
+  - 依据：官方 thinking_mode 页的原生档是 low / high / max，medium 映射为 high。请求体机械核对：两个 harness 的 medium 与 high 只差 effort 值；CS、CStd 的时限 T 按配置不同，CS 差 16%，CStd-CC 的 T 不同。CStd-Codex 只差 1 s，模型看到的时限句相同。
+  - 并入（C′）：CA、SR 两个 harness 的 medium，以及 CStd-Codex 的 medium，计入同 harness 的 high。并入格的全部有效实例进主统计；按开始时刻取前 5 个作一致性行；满 5 个的格不再补跑，不足的只补到 5 个。每格最多 8 次尝试，medium 与 high 的尝试合计。不按时长或是否收到提醒部分并入。
+  - 补充行：CS 两个 harness 的 medium 和 CStd-CC 的 medium（cc-medium-a1）不并入。它们照样计分，并走盲裁和会话检查，标"high requested as medium, T=…"，另给"high+medium 合并"的描述性敏感性行。两者都不进 Holm。CStd-CC 的 high 因此补到 5 个。
+  - Holm：每个场景 25 个比较（§5）。DeepSeek 的 harness 比较用 low / high / max；Strata 与 DeepSeek 不在 medium、max 上配对。
+  - instance.json 新增 `requested_effort`、`effective_effort`、`pooled`、`supplementary`（补充行另有 `supplementary_label`），汇总按这几个字段分组；目录不改名。
+  - max 的条件核对：
+    - 零模型：CC mock 门 `claude_gate --effort max` 通过（`cc-mock-max/`）；零模型抓包证实 CC 2.1.303 发 `output_config.effort: "max"`，其余字段与各档相同（`cccap/`）。Codex 的 mock 门仍是 10-20 起所有档都有的旧故障（thread/start −32603，`mock-max.log`），由 live 冒烟代替。
+    - live：Codex max 冒烟（`smoke/max`）抓包证实主请求原样发 `reasoning.effort: "max"`，guardian 请求仍是 deepseek-flash low；三个用例的结果与 high 冒烟逐项相同。CC max 冒烟（`cc-smoke-max`）7 个探针通过，stop_reason end_turn。Anthropic 格式 max 单请求返回 200。
+    - CC 的 max_tokens 为 32000；max 实例被截断不判无效，列为混杂。
+  - max 的 T（P4，冻结测法，测于 10-21 04:38–04:42，与其他档不同时刻）：CS codex-max 406、cc-max 376 s；CStd codex-max 350、cc-max 362 s。同类按 low / high / max 比较，都在 3 倍以内。
+  - 排程：档位 low / high / max；CS/CStd 的启动截止提前量改为本场景最大 T 加 2 分钟、向上取整（9 分钟），SR/CA 仍为 60 分钟。max 的速率代理以同 harness 的 high a1 为参照，标为跨档参照。S6 不满足时，若有实例在跑就等它们结束后单路重试，没有实例在跑时才停。SR 开始前按实际 S6 留底重算预算；不够时先补满 SR 的 low、high，max 排后，到底时停下报缺口，不超出余额。SR 可能跨几个低谷时段（北京 12–13 时、18 时以后）。
+  - 新绑定（sha256，`.tmp/bench-deepseek-1020/`）：`schedule.py` `6439dca8e2cd692782bc8d46fe9bad54d0f810e91fb31ef8df0b1e7f295b0235`（冻结版另存为 `schedule-frozen-f63169ed.py`）、`run_codex_one.py` `4a05cda64ce59baeb5747cc4c98dcaa007ef69f8d952a1372071cf5d84c6ca6b`、`cc_one.py` `73a56e2bd19ee9a1ed8510dad32017848551f11ba120111069b808971cea22a1`。两个 runner 只在 effort 选项里加了 max。
