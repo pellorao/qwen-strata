@@ -483,6 +483,14 @@
     - 在跑的 Claude Code 实例抽查，denyRead 都含 /tmp/qwen-openai-1020。
   - 当前 sha256：`arw_measure.py` `9e6f14fc…e051a49b`，`run_one.py` `c70c8a5e…9ab94b1d`，`schedule.py` `521fc743…bad73877`，`slotctl.py` `b5410a01…66d122e5`。
 
+- 2026-10-20 10:37–10:50，OpenAI 臂 SR 开跑（用户 10-20：Codex 可继续用，通知后 30 分钟内归还）；启动上下文守卫误报，作废 3 个实例（Main 决定）：
+  - **条件**：周用量不设上限（`USED_CAP=100`），credits 一旦减少就停的规则照旧。SR 不测 P4：P4 只为 CS/CStd 定义，SR 与 CA、Strata 臂 sr-r2 一样不设时限。排程同 CS/CStd。
+  - **归还机制**：出现 `.tmp/bench-openai-1020/RETURN` 后不再开新实例。在跑的实例最多再跑约 24 分钟，到时杀掉并作废（原因"用户收回 Codex"，不计入尝试次数），然后归还登录，从触发到归还约 25–26 分钟。没选"T + 收尾超过 25 分钟就不开"：SR 没有 T，S2 自动继续也让单个实例的时长没有上界。
+  - **误报经过**：10:40:53 sol-low-a1 结束（有效）。调度器把它的两个根线程互相比较，发现启动上下文不同，于是停止调度，连带杀掉 sol-medium-a1、sol-high-a1、luna-low-a1；10:41:05 归还登录。
+  - **核实**：两个线程的 `base_instructions`、`developer@2`、`user@3` 相同，只有 handoff 消息 `user@7` 不同，而它本来就随 handoff 而变。差异有三处：handoff 名（runtime-migration / artifact-promotion）构成的路径、每个 handoff 各自的 request/draft id，以及 AP 末尾追加的场景文件 `spec-readiness-reviewer/full-review-handoff.md` 段落。三处都由场景决定，不是 harness 或模型漂移。
+  - **修正**：`schedule.py` 改为按（配置，handoff）分组比较（sha256 `6a2a7411…72f8`）。零模型测试 `.tmp/bench-openai-1020/tools/test_startup_group.py`（3 项通过）用 sol-low-a1 的真实记录验证两个 handoff 不互比，同一 handoff 内的漂移仍能查出。
+  - **作废**：sol-medium-a1、sol-high-a1、luna-low-a1 按 harness 故障作废，不计入尝试次数，`void.json` 已写；/tmp prep 已按清理规则删除，run/ 留下。
+
 - 2026-10-20 06:40–06:50，#10–12（Codex 上的 Strata）的 ARW prep 改放 /tmp，与 OpenAI 臂同一布局（Main 指示；尚未开跑，没有实例受影响）：
   - **已证实无效，未用于任何正式实例**（Main 10-20 撤回）：OpenAI 臂实测 prep 放 /tmp 后仍出现空目录。真实 ARW 的报告目录嵌在场景仓库（如 `ca/1`）下的 `.tmp/codex/…` 里，扁平布局的 stubtest 覆盖不到。#10–12 暂停，等真实嵌套布局下的成因和修法审查通过。以下为当时的方案记录。
   - **原因**：Codex 0.163.0 的 bubblewrap 在可写根里给受保护的名字建 synthetic mount target，工作区在工程盘且是 git 根时，`.git`、`.codex`、`.agents`、`.aws` 空目录留在报告目录里，ARW 收尾判"报告目录只能有绑定报告"失败。Strata 路径的零模型对照（Strata mock，`.tmp/bench-strata-1019/stubtest/`，仿 `.tmp/bench-openai-1020/stubtest/`）：工程盘 + git 根，报告目录多出这 4 个空目录；工程盘无 git、/tmp + git 根、/tmp 无 git 都不出现。`arw_dimension.prepare` 会把 ARW checkout `git init`，所以 #10–12 的正式路径会撞上。
