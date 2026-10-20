@@ -440,6 +440,26 @@
     - 现场存在 `cs/sol-high-a5/scene-leftover/`；该进程不响应 TERM，用 KILL 结束。
     - Main 判其有效：halt 只是为了查清原因，有效判据里没有清理这一条。instance.json 保留原判定，另加 `leftover_after_completion` 和 `reclassified`。
     - `run_one.py` 的修改：杀完进程树后，再结束仍引用本实例 run 目录（以 `/run/` 结尾）或 prep 目录（带 time_ns 后缀）的进程，先 TERM，5 秒后 KILL，记为 `named_killed`。用一个目标进程加相邻编号的诱饵进程做零模型测试：目标被结束，诱饵存活；拒跑路径的冒烟测试也通过。
+  - **用户决定（2026-10-20，Main 转达）**：
+    - 周额度上限取消，可以用到 0%。"credits 一减少就停掉在跑的实例并作废"照旧。
+    - S2 原话："和 Strata 一样，要求它继续，具体逻辑和 Strata 一样"。追加原话："然后记录自动停下这个违规行为，最后和其他违规行为一样，分数 * 0.9"。这条适用于所有臂，包括 Strata。
+  - **S2 改为答复继续**（`tools/reviewer/arw_measure.py`，arw_owned 与 API 两条路径共用）：
+    - ARW 原版的继续入口已在快照 `arw-760007c2134d-855835bef963.tar.gz` 上核实：`lib/background-agent/manager.mjs` 的暂停消息写明 "After approval, send this task an ordinary work message"。对暂停中的任务发一条普通 `send_message`，ARW 用这条消息恢复同一个原线程，下一个暂停点由 ARW 自己设为 +5 轮。上游测试 "a non-Strata Reviewer resumes its original task through ordinary messages after each early-exit pause" 在快照上跑过，通过。
+    - harness 以用户身份发 `继续`（`ARW_CONTINUE_MESSAGE`），不另写继续指示。每次暂停都记进 `arw_pause_events`（时刻、messageId、暂停消息原文、当时的 `continue_count`），继续次数记进 `continue_count`。
+    - 实例一直跑到正常完成，或碰到场景的硬时限。ARW 拒绝继续时，退回原来"停下等用户"的做法。
+    - `followup_when_idle` 遇到新的暂停也同样答复继续。
+    - 零模型单测（`tests/test_arw_owned.py`）：脚本化的 machine 连续两次发暂停消息，两次都收到继续，最后完成；另测拒绝继续的路径。
+    - 只对改动之后新启动的进程生效。Strata 臂正在跑的 chain3 是改动前启动的，已经载入旧代码，不受影响。
+  - **×0.9 不会和原版重复扣**：
+    - 原版 `score` 的 ×0.9 只看报告诊断（`reportDiagnostics`）。本工程计分补丁 r7 之后，这一折减只留给报告里越过需求范围停止点（`requirement-scope-continuation`）这一项，也就是 `format_penalty.py` 文档串说的"停止规则"。
+    - 运行时的早退暂停不在报告里，评分器看不到。所以答复继续之后，原版评分不会因为暂停记 0.9。
+    - 计分阶段由本工程按 `arw_pause_events` 乘 0.9，只乘这一次。
+    - 一个实例暂停多次时是乘一次还是逐次乘，待定。
+  - **CA 的 luna-high-a3、luna-low-a4**：
+    - 判为不能按原线程恢复。原因：复制之后原 /tmp prep 已删，包括 ARW checkout、绑定报告和 recovery 路径；ARW daemon 的状态绑定的是这些绝对路径；`arw_measure` 也没有经过测试的重新挂接模式。
+    - 两个都作废，原因记为"harness 未按用户决定继续"，不计尝试次数（instance.json 加 `void.attempt_counted=false`）。现场留在 scene/。
+    - `stop-cells-ca.txt` 清空，原内容存在 `ca/stop-cells-ca.before-1020-continue.txt`。补跑按新逻辑进行：luna-high 补 3 个，luna-low 补 1 个。
+  - **CStd 的 P4**（`p4-cstd/`，`cstd-T.json` sha256 `6cd6a5e2…5028`）：β 4.01；G（tok/s）sol 52.1/55.3/56.7，luna 126.7/128.2/122.4；T（秒）sol-low 1416、sol-medium 1335、sol-high 1300、luna-low 582、luna-medium 575、luna-high 606。两轮都没有工具调用，模型和 tier 正常（default），登录已归还。CStd 09:54 开跑，`borrow=1`。
 
 - 2026-10-20 06:40–06:50，#10–12（Codex 上的 Strata）的 ARW prep 改放 /tmp，与 OpenAI 臂同一布局（Main 指示；尚未开跑，没有实例受影响）：
   - **已证实无效，未用于任何正式实例**（Main 10-20 撤回）：OpenAI 臂实测 prep 放 /tmp 后仍出现空目录。真实 ARW 的报告目录嵌在场景仓库（如 `ca/1`）下的 `.tmp/codex/…` 里，扁平布局的 stubtest 覆盖不到。#10–12 暂停，等真实嵌套布局下的成因和修法审查通过。以下为当时的方案记录。

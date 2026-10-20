@@ -27,6 +27,7 @@ from startup_instructions import startup_prompt_bytes
 
 
 ARW_PAUSE_PREFIX='The Reviewer runtime paused this same task after '
+ARW_CONTINUE_MESSAGE='继续'  # the user's answer to an ARW early-exit pause (user 2026-10-20)
 
 
 def strata_provider(installation, context_window=None):
@@ -278,7 +279,10 @@ def execute_review(machine,source,preparation,handoff,folder,selection,catalog,r
     # Bind the actual startup snapshot before dispatch, including a failed or
     # interrupted submission that never returns a terminal result.
     save(folder/'result.json',record)
-    record['accepted']=followup_when_idle(machine,bound) if previous else machine.call('spawn_agent',bound)
+    handled=[event['messageId'] for event in (previous or {}).get('arw_pause_events',[])]
+    if handled:record['handled_arw_pauses']=handled  # answered while the original task ran; not this record's violations
+    record['accepted']=(followup_when_idle(machine,bound,record=record,handled=handled) if previous
+                        else machine.call('spawn_agent',bound))
     save(folder/'result.json',record)
     record=observe_review(machine,record,folder)
     if previous is not None and record['runtime_result'].get('threadId')!=previous['runtime_result'].get('threadId'):
@@ -294,12 +298,36 @@ def native_work_start(result):
     return started/1000 if type(started) in (int,float) and started>0 else None
 
 
-def followup_when_idle(machine,bound,*,poll=5,limit=3600):
+def continue_arw_pauses(machine,run_id,record,notifications,handled=()):
+    """Answer each new ARW early-exit pause as the user: "continue" (user 2026-10-20, S2: as with Strata).
+
+    The answer goes through ARW's own entry for an approved continuation, an ordinary work message to the paused task
+    (send_message); ARW resumes the same task with it and sets the next pause point itself (5 turns later). Every pause
+    is a violation scored like the others (x0.9, user 2026-10-20), so each one is recorded in arw_pause_events with
+    its time, original text and the continue_count at that moment. handled: messageIds already answered in this run.
+    Returns True when a pause was answered."""
+    seen=set(handled)|{event['messageId'] for event in record.get('arw_pause_events',[])}
+    answered=False
+    for note in notifications:
+        if note.get('type')!='message' or not str(note.get('text','')).startswith(ARW_PAUSE_PREFIX):continue
+        key=note.get('messageId') or f"sequence-{note.get('sequence')}"
+        if key in seen:continue
+        seen.add(key)
+        event={'at':time.time(),'messageId':key,'text':note['text'],'continue_count':record.get('continue_count',0)}
+        record.setdefault('arw_pause_events',[]).append(event)
+        event['continued']={'at':time.time(),'message':ARW_CONTINUE_MESSAGE,
+                            'accepted':machine.call('send_message',{'runId':run_id,'message':ARW_CONTINUE_MESSAGE})}
+        record['continue_count']=record.get('continue_count',0)+1
+        answered=True
+    return answered
+
+
+def followup_when_idle(machine,bound,*,poll=5,limit=3600,record=None,handled=()):
     """Send a same-thread follow-up once ARW has finished the original task.
 
     reviewer-busy means ARW is still running (or natively continuing) the original task;
-    wait for its terminal state instead of abandoning the run. An ARW early-exit pause
-    belongs to the user and is not waited out."""
+    wait for its terminal state instead of abandoning the run. A new ARW early-exit pause is answered "continue"
+    into record (continue_arw_pauses); without a record it stops for the user as before."""
     deadline=time.monotonic()+limit
     while True:
         try:return machine.call('followup_task',bound)
@@ -307,8 +335,10 @@ def followup_when_idle(machine,bound,*,poll=5,limit=3600):
             if '"reviewer-busy"' not in str(error) or time.monotonic()>=deadline:raise
         while True:
             state=machine.call('list_agents',{'runId':bound['runId']})
-            if any(n.get('type')=='message' and str(n.get('text','')).startswith(ARW_PAUSE_PREFIX)
-                   for n in state.get('notifications',[])):
+            notes=state.get('notifications',[])
+            if record is not None:
+                continue_arw_pauses(machine,bound['runId'],record,notes,handled)
+            elif any(n.get('type')=='message' and str(n.get('text','')).startswith(ARW_PAUSE_PREFIX) for n in notes):
                 raise RuntimeError('ARW paused the original task before the follow-up; the user decides')
             if state.get('completion') and state.get('state') not in ('starting','running','working'):break
             if time.monotonic()>=deadline:raise RuntimeError('Original task did not reach a terminal state for the follow-up')
@@ -360,12 +390,17 @@ def observe_review(machine,record,folder,*,continuation_start_timeout=120):
         result=machine.call('list_agents',{'runId':run_id})
         save(folder/'latest.json',result)
         if native_start is None:native_start=native_work_start(result)
-        # ARW's early-exit pause waits for the user on every path (plan S2). On the API path it was checked only
-        # when ARW owned the budget, so an untimed API run waited on it forever (2026-10-20, CA luna-high-a3).
-        pause=next((n for n in result.get('notifications',[]) if n.get('type')=='message'
-                    and str(n.get('text','')).startswith(ARW_PAUSE_PREFIX)),None)
-        if pause:
-            record['arw_pause']={'at':time.time(),'notification':pause}
+        # ARW's early-exit pause is checked on every path (plan S2; on the API path it once went unseen, 2026-10-20 CA
+        # luna-high-a3). The user answers every pause "continue" (user 2026-10-20). If ARW refuses the answer, the
+        # paused record stops for the user as before.
+        try:
+            if continue_arw_pauses(machine,run_id,record,result.get('notifications',[]),record.get('handled_arw_pauses',())):
+                save(folder/'result.json',record)
+                continue
+        except RuntimeError as error:
+            pause=next(n for n in reversed(result.get('notifications',[])) if n.get('type')=='message'
+                       and str(n.get('text','')).startswith(ARW_PAUSE_PREFIX))
+            record['arw_pause']={'at':time.time(),'notification':pause,'continue_refused':str(error)}
             record['runtime_result']=result;record['measurement']=result.get('measurement',{})
             record['tokens']=native_tokens(record['measurement']);record['complete']=False
             break

@@ -5,42 +5,63 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.arw_measure import ARW_PAUSE_PREFIX, capture_segment, cold_start_arw_batch, followup_when_idle, local_review_catalog, spec_repetition_order, observe_review, run
+from tools.reviewer.arw_measure import ARW_CONTINUE_MESSAGE, ARW_PAUSE_PREFIX, capture_segment, cold_start_arw_batch, followup_when_idle, local_review_catalog, spec_repetition_order, observe_review, run
+
+TMP = Path(__file__).resolve().parents[1] / '.tmp'
 
 
 class ArwOwnedTests(unittest.TestCase):
-    def test_pause_message_stops_observation_for_the_user(self):
-        with tempfile.TemporaryDirectory() as directory:
-            folder = Path(directory)
-            record = {'accepted': {'runId': 'run', 'messageId': 'm'}, 'role': 'commit-audit-reviewer', 'instanceId': 'i', 'started_at': 10,
-                      'selection': {'model_owner': 'arw'}}
-            pause = {'type': 'message', 'sequence': 4, 'text': ARW_PAUSE_PREFIX + '10 normally completed turns ...'}
-            class Machine:
-                def call(self, operation, value, **kwargs):
-                    assert operation == 'list_agents', operation  # no deadline reminder or continuation from the driver
-                    return {'runId': 'run', 'state': 'idle', 'taskState': 'working', 'notifications': [pause],
-                            'measurement': {}}
-            result = observe_review(Machine(), record, folder)
-            self.assertEqual(result['arw_pause']['notification'], pause)
-            self.assertFalse(result['complete'])
+    def test_each_pause_is_answered_continue_and_recorded_until_completion(self):
+        for owner in ('arw', 'api'):
+            with tempfile.TemporaryDirectory(dir=TMP, prefix='arw-pause-') as directory:
+                folder = Path(directory)
+                record = {'accepted': {'runId': 'run', 'messageId': 'm'}, 'role': 'commit-audit-reviewer', 'instanceId': 'i',
+                          'started_at': 10, 'selection': {'model_owner': owner}}
+                first = {'type': 'message', 'sequence': 34, 'messageId': 'p1', 'text': ARW_PAUSE_PREFIX + '10 normally completed turns ...'}
+                second = {'type': 'message', 'sequence': 51, 'messageId': 'p2', 'text': ARW_PAUSE_PREFIX + '15 normally completed turns ...'}
+                working = {'runId': 'run', 'state': 'running', 'taskState': 'working', 'completion': None, 'measurement': {}}
+                paused = {'runId': 'run', 'state': 'idle', 'taskState': 'working', 'completion': None, 'measurement': {}}
+                done = {'runId': 'run', 'state': 'idle', 'taskState': 'ended', 'completion': {'status': 'ready'}, 'measurement': {}}
+                script = [dict(working, notifications=[]), dict(paused, notifications=[first]),
+                          dict(working, notifications=[first]), dict(paused, notifications=[first, second]),
+                          dict(working, notifications=[first, second]), dict(done, notifications=[first, second])]
+                sent = []
 
-    def test_pause_message_stops_an_untimed_api_observation_too(self):
-        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[1] / '.tmp', prefix='arw-pause-') as directory:
-            folder = Path(directory)
+                class Machine:
+                    def call(self, operation, value, **kwargs):
+                        if operation == 'send_message':
+                            sent.append(value)
+                            return {'runId': 'run', 'messageId': f'c{len(sent)}', 'deliveryStatus': 'accepted'}
+                        if operation == 'wait_agent':
+                            return {'cursor': 1}
+                        assert operation == 'list_agents', operation
+                        return script.pop(0) if len(script) > 1 else script[0]
+
+                result = observe_review(Machine(), record, folder)
+                self.assertTrue(result['complete'])
+                self.assertNotIn('arw_pause', result)
+                self.assertEqual(sent, [{'runId': 'run', 'message': ARW_CONTINUE_MESSAGE}] * 2)
+                self.assertEqual(result['continue_count'], 2)
+                self.assertEqual([(e['messageId'], e['text'], e['continue_count']) for e in result['arw_pause_events']],
+                                 [('p1', first['text'], 0), ('p2', second['text'], 1)])
+                self.assertEqual(json.loads((folder / 'result.json').read_text())['continue_count'], 2)
+
+    def test_a_refused_continue_stops_for_the_user(self):
+        with tempfile.TemporaryDirectory(dir=TMP, prefix='arw-pause-') as directory:
             record = {'accepted': {'runId': 'run', 'messageId': 'm'}, 'role': 'commit-audit-reviewer', 'instanceId': 'i',
                       'started_at': 10, 'selection': {'model_owner': 'api'}}
-            pause = {'type': 'message', 'sequence': 34, 'text': ARW_PAUSE_PREFIX + '10 normally completed turns ...'}
-            calls = []
+            pause = {'type': 'message', 'sequence': 34, 'messageId': 'p1', 'text': ARW_PAUSE_PREFIX + '10 normally completed turns ...'}
+
             class Machine:
                 def call(self, operation, value, **kwargs):
-                    calls.append(operation)
-                    if operation == 'wait_agent':
-                        return {'cursor': 1}
-                    assert operation == 'list_agents', operation
+                    if operation == 'send_message':
+                        raise RuntimeError('{"message": "Original native thread identity is unavailable."}')
                     return {'runId': 'run', 'state': 'idle', 'taskState': 'working', 'completion': None,
-                            'notifications': [pause] if len(calls) > 2 else [], 'measurement': {}}
-            result = observe_review(Machine(), record, folder)
+                            'notifications': [pause], 'measurement': {}}
+
+            result = observe_review(Machine(), record, Path(directory))
             self.assertEqual(result['arw_pause']['notification'], pause)
+            self.assertIn('unavailable', result['arw_pause']['continue_refused'])
             self.assertFalse(result['complete'])
 
     def test_followup_waits_for_the_original_task_instead_of_abandoning_on_busy(self):
@@ -67,6 +88,15 @@ class ArwOwnedTests(unittest.TestCase):
                            'notifications': [{'type': 'message', 'text': ARW_PAUSE_PREFIX + '10 early exits.'}]}], [busy])
         with self.assertRaisesRegex(RuntimeError, 'user decides'):
             followup_when_idle(paused, {'runId': 'r'}, poll=0)
+        note = {'type': 'message', 'messageId': 'p2', 'text': ARW_PAUSE_PREFIX + '15 early exits.'}
+        answered = Machine([{'state': 'idle', 'completion': None, 'notifications': [dict(note, messageId='p1'), note]},
+                            {'state': 'idle', 'completion': {'status': 'ready'}, 'notifications': []}],
+                           [busy, {'runId': 'r', 'accepted': True}, {'runId': 'r', 'accepted': True}])
+        record = {}
+        self.assertEqual(followup_when_idle(answered, {'runId': 'r'}, poll=0, record=record, handled=['p1']),
+                         {'runId': 'r', 'accepted': True})
+        self.assertEqual(answered.calls, ['followup_task', 'list_agents', 'send_message', 'list_agents', 'followup_task'])
+        self.assertEqual([e['messageId'] for e in record['arw_pause_events']], ['p2'])
         other = Machine([], [RuntimeError(json.dumps({'code': 'recovery-not-found'}))])
         with self.assertRaisesRegex(RuntimeError, 'recovery-not-found'):
             followup_when_idle(other, {'runId': 'r'}, poll=0)
