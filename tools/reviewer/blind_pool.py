@@ -28,7 +28,7 @@
 
     python3 -m tools.reviewer.blind_pool build --scenario code-spec-v5 --name cs1 --adj ADJ --keys KEYS \\
         --candidates .tmp/bench-score/*/code-spec-v5/*/candidates.json
-    python3 -m tools.reviewer.blind_pool prompt --key KEYS/key-cs1.json   # after staging ADJ/cs1/view and change.diff
+    python3 -m tools.reviewer.blind_pool prompt --key KEYS/key-cs1.json [--adj-as adj]   # after staging ADJ/cs1/view and change.diff
     python3 -m tools.reviewer.blind_pool split --key KEYS/key-cs1.json --decisions ADJ/cs1/decisions-cs1.json \\
         [--hard p001 p017] [--root .tmp/bench-score]
     python3 -m tools.reviewer.blind_pool override --record openai/code-spec-v5/sol-high-a1 --stable-id ID \\
@@ -296,7 +296,9 @@ def check_adj(key):
     return adj
 
 
-def prompt(key_path):
+def prompt(key_path, adj_as=None):
+    """adj_as: the path the adjudicator's run sees <ADJ> at (e.g. `adj` when the runner copies <ADJ> into its working
+    directory as `adj`); default the absolute path of <ADJ>."""
     key = load(key_path)
     adj = check_adj(key)
     brief = brief_path(key['scenario'])
@@ -304,11 +306,11 @@ def prompt(key_path):
     for placeholder in ('<ADJ>', '<名>'):
         if placeholder not in text:
             raise ValueError(f'{brief}: no {placeholder} to replace')
-    body = text.replace('<ADJ>', str(adj.resolve())).replace('<名>', key['pool']).rstrip('\n')
+    body = text.replace('<ADJ>', adj_as or str(adj.resolve())).replace('<名>', key['pool']).rstrip('\n')
     out = Path(key_path).with_name(f"prompt-{key['pool']}.md")
     out.write_text(f'{body}\n\n{FAIRNESS_NOTE}\n')
     key.update({'brief_path': str(brief), 'brief_sha256': sha256_file(brief), 'prompt_path': str(out),
-                'prompt_sha256': sha256_file(out)})
+                'prompt_sha256': sha256_file(out), 'adj_as': adj_as or str(adj.resolve())})
     save(key_path, key)
     return {k: key[k] for k in ('pool', 'brief_path', 'brief_sha256', 'prompt_path', 'prompt_sha256')} | {'adj': str(adj)}
 
@@ -496,6 +498,7 @@ def main():
     b.add_argument('--root', type=Path, help='score root: skip candidates its decision stores already hold')
     p = sub.add_parser('prompt')
     p.add_argument('--key', type=Path, required=True)
+    p.add_argument('--adj-as', help='path of <ADJ> as the adjudicator run sees it (default: its absolute path)')
     s = sub.add_parser('split')
     s.add_argument('--key', type=Path, required=True)
     s.add_argument('--decisions', type=Path, required=True)
@@ -521,7 +524,7 @@ def main():
         print(json.dumps(build(args.scenario, args.name, args.adj, args.keys, args.candidates, args.registry, args.max,
                                args.seed, args.anchors, args.root), indent=1))
     elif args.command == 'prompt':
-        print(json.dumps(prompt(args.key), ensure_ascii=False))
+        print(json.dumps(prompt(args.key, args.adj_as), ensure_ascii=False))
     elif args.command == 'split':
         verdict, _, out = split(args.key, args.decisions, args.root, args.hard, args.accept_failed)
         print(json.dumps({**{k: verdict[k] for k in ('pool', 'passed', 'anchor_rate', 'synthetic_all_right', 'written',

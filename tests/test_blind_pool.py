@@ -99,6 +99,9 @@ class BlindPoolTest(unittest.TestCase):
         self.assertNotIn('<ADJ>', text)
         self.assertIn('来源', blind_pool.FAIRNESS_NOTE)
         self.assertEqual(json.loads(key.read_text())['prompt_sha256'], blind_pool.sha256_file(info['prompt_path']))
+        relative = Path(blind_pool.prompt(key, adj_as='adj')['prompt_path']).read_text()
+        self.assertEqual(relative, f"{brief.replace('<ADJ>', 'adj').replace('<名>', 'p').rstrip(chr(10))}\n\n{blind_pool.FAIRNESS_NOTE}\n")
+        self.assertEqual(json.loads(key.read_text())['adj_as'], 'adj')
         (self.adj / 'p' / 'pool-other.json').write_text('[]')
         with self.assertRaises(ValueError):
             blind_pool.prompt(key)  # another pool in <ADJ>
