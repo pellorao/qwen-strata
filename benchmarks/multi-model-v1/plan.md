@@ -559,6 +559,12 @@
     - 单测：ARW 侧 4 个新测试，reviewer-runtime 和 time-limit 测试叠加后全部通过（58 个）。ARW 全量测试在打补丁前后失败的是同一组 51 个，都是环境原因。工程侧 `tests/test_reviewer_scratch.py` 核对 Python 和 JS 算出的路径一致；`tests/test_harness_patches.py` 在四个场景源上叠加三个补丁。
   - **已知差异与风险**：Codex 会在可写根顶层放只读的 `.git`、`.codex`、`.agents`、`.aws`，所以 `git init "$TMPDIR"` 会失败，`git init "$TMPDIR/repo"` 可以。Codex 自己的 bwrap 占位登记目录（`codex-bwrap-synthetic-mount-targets-<uid>`）会随 TMPDIR 移进 scratch，模型能改它，原来它在宿主共享的 /tmp。scratch 在 /tmp，主机重启后会清空。
 
+- 2026-10-20 11:30–11:50，Anthropic 臂（#13–21）续跑前的三处变动（worker3，Main 指示）：
+  - **live 门补 transcript 探针**（79ccdfe）：live Anthropic 模式用真实配置目录，6d522ba 的兄弟会话探针原本不生成。现在 `claude_gate` 在真实 `~/.claude/projects` 下临时放一个合成兄弟会话，跑完删除；新增 `--subset transcript`（只含 2 个对照和 8 个 transcript 探针）。原因是 Haiku 在完整清单里一律拒读"其他会话"和凭据类目标。结果（`.tmp/bench-anthropic-1019/gate-live-1020*`）：完整清单 ×3 两轮，隔离 6/6，泄漏 0，执行了的探针全部通过；transcript 子集 ×3，兄弟会话 Read/Grep/Glob/Bash 各 3/3 都读不到，本会话 transcript 也被拒（只记录），门判通过。
+  - **P4 按统一定义重测**（`.tmp/p4-unify-1020/report.md`）：P = 未缓存输入 ÷ 预填充时间（`system/init` 到首个 thinking/text delta），G = 输出 token（含思考）÷ 纯解码时间（首个到最后一个 delta），β、k 不变，T = B×(1/P + k/G)/β。探针加 `--include-partial-messages`，逐行记接收时刻，材料前加每次不同的 nonce，强制不读缓存。结果写进 `cs-T-unified.json`、`cstd-T-unified.json`，旧文件不动，新旧 T 对照见进度记录。新 T 比旧值低 25% 以上就停下交 Main。已跑实例保留，依据是该报告的影响一节：提醒和硬停止的渠道不变，唯一需要复核的边界是 CS haiku-high-a5。CS 的 10 个 Haiku 重跑和 CStd 剩下的 30 个改用新 T。
+    - 结果（12:29，新 T / 旧 T，秒）：CS opus 1112/1202、1061/1132、1085/1188，sonnet 833/990、863/911、908/976，haiku 544/546、515/540、521/514；CStd opus 1052/1099、1065/1106、1034/1043，sonnet 794/843、799/848、761/861，haiku 509/553、483/499、497/491（各为 low/medium/high）。比值 0.84–1.01，无一低于 0.75。CStd opus-low 首测作废：Claude Code 把材料请求重发了一次，usage 是两次请求的合计（β 1.22，T 4729），重测正常。CS haiku-high 读缓存 TTFT 4.58 秒；a5 的 wall 252.5 秒，新旧 T 下都没到提醒点 T/2（260.5 / 257 秒），保持有效（Main 复核）。
+  - **进程上限**：Anthropic 调度器（`schedule.py`、`p4run.py`，共用 `slots.py`）每次启动前计算 free = min(4 − 本臂在跑, 5 − 其他臂基准进程 − 本臂在跑 − OpenAI 保留)。OpenAI 调度器在跑时，给它保留 4 路，扣掉它正在跑的实例，所以它两个实例之间的空档不会被抢；它退出后改按 `reserve.txt`。两次启动之间至少隔 15 秒。
+
 ### 14.2 #10–12（Codex 上的 Strata）补冻结（2026-10-19）
 
 §14 为 #10–12 设的条件都已在 Codex 0.163.0 上满足，按 §14 以单独 commit 补冻结。
