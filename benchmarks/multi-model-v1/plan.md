@@ -168,8 +168,9 @@
 - 某个池的锚点一致率低于 90% 或合成负例有一个没识别，该池整池重裁并扩大复核（reviewer-suite「盲裁只裁有变化的部分」）。
 - 运行参数（2026-10-20 写定，与 `tools/reviewer/blind_pool.py` 一致）：
   - 裁决者：Opus high，Claude Code 无头；回复的 `adjudicator` 必须是 `blind Opus high`，否则 `split` 拒收。
-  - 池大小：每池最多 150 项（`MAX_ITEMS`），按期望句整组切分，一组不跨池。同一实例的候选和拿来作锚点的实例不能同池。
+  - 池大小：每池最多 150 项（`MAX_ITEMS`），按期望句整组切分，一组不跨池。同一个候选不会在一池里出现两次：取自某实例的锚点，其原候选已有同指纹的决定，`build --root` 按指纹跳过它；若仍有同一候选既是锚点又待裁，`build` 拒绝。同一实例的其他候选可以和取自该实例的锚点同池（与代码一致，2026-10-20 改写）。
   - 控制项：每池 12 个锚点（`ANCHORS_PER_POOL`），从场景注册表 `benchmarks/multi-model-v1/anchors/<场景>.json` 按来源 family 轮流抽取，并保证池里至少有一个 not-matched 控制项；注册表的全部合成项进每个池。锚点只用 association 决定；finding 类控制项一律用合成项，按三个 family 各自的报告写法写成（用户 2026-10-20）。Sonnet、Haiku 的锚点等第一个裁决批次出来后再补（scoring-fixes 第 6 项）。
+  - 第一批裁决之后补锚点的挑选规则（2026-10-20 写定，任何盲裁开跑之前）：只从过了门槛且 Main 复核完的池里挑 association 决定；按来源 family × 决定（matched / not-matched）分层，每层用固定种子 20261021 打乱后依次取；每个候选先做 Main 的可执行检查（`node` 在 view 上复现，或对照 `governing-spec.md` / 合同原文可机械核实），做不了可执行检查的跳过并计数；通过的用 `blind_pool anchor-add --model --origin-record --origin-stable-id` 登记。挑出的样本同时回查第一批本身：Main 的检查与 Opus 原决定不一致即算该 family 的一次锚点未命中，该 family 在第一批里扩大复核。挑选数、跳过数和回查一致率写进报告。
   - 门槛：锚点一致率 ≥ 90%，且合成项全部判对，且两类都存在；三条都满足才写入分数库。不通过的池整池重裁，什么都不写入。合成项里除负例外还有 finding-problem 这类正例，所以"全部判对"比上一条的"合成负例都识别"更严。
   - 每池一个裁决目录：`build` 把每个池写进自己的 `<adj>/<池名>/`，它就是 brief 里的 `<ADJ>`；隐藏的 key 放在 `--adj` 之外。`prompt` 生成裁决提示前核对 `<ADJ>` 里只有本池的 pool 文件（sha 与 key 一致）、brief 指定的 view（CS/CStd 为 `view/` 与 `change.diff`，CA 为 `view/`，SR 为 `view-rm/` 与 `view-ap/`）和本池的 decisions，多出任何文件都拒绝。
   - 裁决提示：冻结 brief 只替换 `<ADJ>` 和 `<名>`，正文之后附一段调用方说明（公平判定，见 §14.1 2026-10-20 条）；brief 和提示的 sha256 记进 key。
@@ -579,6 +580,12 @@
   - **内容**：每个池的裁决提示 = 冻结 brief（只替换 `<ADJ>`、`<名>`）+ 正文之后一段调用方说明：「调用方附加说明（不属于冻结 brief，用户 2026-10-20 决定加入）：候选的写法可能让你看得出它来自哪类模型或哪次运行。不要据此推断来源，也不要因来源调整判断；请只按上文口径和 view 中的证据，对每个候选公平判定。」由 `blind_pool prompt` 生成，brief 和提示的 sha256 记进 key。
   - **原因**：池里隐去了来源，但各 family 的报告写法不同（OpenAI、Anthropic、Strata 的 finding 格式各异），裁决者仍可能认出来源；合成 finding 也按各 family 的写法写成。用户要求提醒裁决者只按证据公平判定。
   - **为什么不改 brief**：brief 已冻结，正文逐字不变；说明作为调用方段落放在 brief 之外，不改变口径和输出合同。
+- 2026-10-20，提前分场景盲裁 CS、CA（用户 2026-10-20 同意；独立审查 `.tmp/adjudication-1020/review-early.md`，Main 决定）：
+  - **按场景分批**：CS（code-spec-v5）、CA（commit-audit-v3）现在开裁，每池混合四个已跑臂（openai、anthropic、strata-claude、strata-codex）的有效实例；CStd、SR 以后再裁。偏离 §6.2「所有配置跑完后统一盲裁」和 §14「配置组齐前不计分、不盲裁」（L360）。只跑不看：CS/CA 的分数和裁决只放在 `.tmp/adjudication-1020/` 与 `.tmp/bench-score/`，不给监督剩余运行的 worker，状态页在全部跑完前不公布 CS/CA 分数。
+  - **DeepSeek 桥接批**：DeepSeek 臂（#7–9、#22–24）未跑，它的 CS/CA 候选以后作为桥接批单独裁，用同一冻结 brief、同一提示模板（只有池名不同）、benchmark Claude Code 副本 2.1.303 和同一模型 ID；锚点一致率按批报告。B 类实例（Anthropic CA 21、CS sonnet-high-a2、Strata CA strata-low-a5）按现在的有效判定入池，以后若有重跑，重跑实例进桥接批。
+  - **第一批锚点**：Sonnet、Haiku 和缺锚点的族按 §6.2 的挑选规则从第一批裁决中补，规则在任何盲裁开跑前写定。
+  - **沿用试点决定**：CS 试点池（2026-10-20，`.tmp/pilot-score-1020`，锚点 12/12、合成 8/8）里 openai sol-high-a1 的 23 项和 anthropic opus-high-a1 的 18 项决定 split 进正式根 `.tmp/bench-score`，按指纹跳过、不再入池；每条决定带 `origin` 注明来自试点（提示没有公平判定说明，池只含这两个实例）。sol-high-a1 在试点第二轮（round2，无锚点、未过门槛）的 2 项重新入池。
+  - **CS 锚点 a13–a18 取自 benchmark 实例**：它们是试点池里 sol-high-a1 的决定，突破了 L361「锚点在读任何新输出之前选定」；这样做是为了让 OpenAI 族有锚点。
 
 ### 14.2 #10–12（Codex 上的 Strata）补冻结（2026-10-19）
 
