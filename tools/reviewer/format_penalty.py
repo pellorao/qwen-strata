@@ -3,12 +3,15 @@
 Replaces the flat x0.9 for format errors, which are errors of the whole report (user 2026-10-15). For each repetition:
   p = r / T, f = 0.1 * min(1, p / (2 * pBase)), final = max(0, raw) * (1 - f)
 r counts every format error in scorer units (so `a:1,5` is two): the repairable ones found by
-`repair_reviewer_report` (from the repair record), those left in the scored report (`unrepairableFormatErrors` of
+`repair_reviewer_report` (from the repair record; a locator converted from a spilled tool output counts once per
+locator part), those left in the scored report (`unrepairableFormatErrors` of
 the upgraded scorer: report lines that are not findings, invalid JSON lines, rows that cannot be assigned to a
 requirement) and the line ranges the scorer cut back to the end of their file (`overrunLocators`). T is the number of
 locators the scorer read (`locatorCount`). Errors that belong to one case (invalid evidence, a missing or invalid
 requirement row) are not counted here: the scorer charges them inside that case. raw is the repetition score before
-the format penalty (ARW `score`, which keeps the 0.9 cut only for the stop rule awaiting the user's choice).
+the format penalty (ARW `score`, which keeps ARW's 0.9 cut only for report diagnostics outside the project's
+REPORT_DIAGNOSTIC_TREATMENT). The benchmark score (tools.reviewer.bench_score) starts from scoreBeforePenalty and
+takes f, the pause cut and that residual cut as one overall deduction, the largest (user 2026-10-20).
 
 Every instance must declare its repair: a repair record, or explicitly none; an undeclared instance is an error,
 since a repaired copy carries no trace of its repair.
@@ -37,6 +40,9 @@ def repairable_count(changes):
         if change['kind'] == 'short-evidence-path':
             # `name.mjs:3,7-9` is completed once but the scorer reads one locator per comma part.
             count += len(change['before'].strip('`').rsplit(':', 1)[1].split(','))
+        elif change['kind'] == 'spill-locator':
+            # Every converted comma part is one locator the scorer reads.
+            count += len(change['converted'])
         elif change['kind'] in ('markdown-preamble', 'scalar-lines'):
             count += 1
         else:

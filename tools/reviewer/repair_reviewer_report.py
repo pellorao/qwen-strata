@@ -18,6 +18,18 @@ Markdown reports (Code Spec, Code Standards; user 2026-10-12):
   (c) a backquoted locator that names only a file (`name.mjs:3`) gets its
       directory when exactly one frozen source has that name and every line
       is within it.
+  (d) a locator part (`path:a` or `path:a-b`, or a bare `a-b` part that belongs
+      to the nearest path) whose start lies beyond the end of that frozen
+      source, when the lines are those of a harness-spilled tool-output file
+      instead (Claude Code saves a large output, such as the staged diff, to a
+      file and the model cites its lines; user 2026-10-20): converted through
+      the diff hunk headers of the spill files when exactly one reading exists:
+      every spill whose lines at the start and end are new-side diff lines of
+      the named file gives the same source lines. A part no spill reads that
+      way, or that two spills read differently, stays as written (an invalid
+      locator). The caller gives the spills the session opened with its Read
+      tool (bench_records.read_spills), the only view that shows their line
+      numbers; a part within its source file is read as written.
 Other locator errors (out-of-range lines, non-file text) stay as written.
 Whether a repaired report is still penalized is decided by the scorer: the
 ARW patch keeps the original's diagnostics.
@@ -93,9 +105,9 @@ def apply_changes(original, changes):
     assert not any(FINDING_START.match(line) for line in removed), 'removed lines include a finding'
     lines = lines[len(removed):]
     for change in changes:
-        if change['kind'] == 'short-evidence-path':
+        if change['kind'] in ('short-evidence-path', 'spill-locator'):
             line = lines[change['line']]
-            assert line[change['column']:].startswith(change['before']), 'short locator is not where it was recorded'
+            assert line[change['column']:].startswith(change['before']), 'locator is not where it was recorded'
             lines[change['line']] = line[:change['column']] + change['after'] + line[change['column'] + len(change['before']):]
     return ''.join(lines)
 
@@ -107,15 +119,20 @@ def check_only_markdown_changes(original, normalized, changes):
         if change['kind'] == 'short-evidence-path':
             assert change['after'].startswith('`') and change['after'].endswith('/' + change['before'][1:]), \
                 'locator change is not a directory prefix'
+        if change['kind'] == 'spill-locator':
+            assert NUMBER.sub('N', change['before']) == NUMBER.sub('N', change['after']), \
+                'spill locator change is not a line-number conversion'
+            assert change['converted'], 'spill locator change converts nothing'
     assert normalized == apply_changes(original, changes), 'normalization changed more than the recorded items'
 
 
-def normalize_markdown(text, sources=None):
+def normalize_markdown(text, sources=None, spills=()):
     """Return the copy and the list of changes.
 
     sources maps each frozen source path to its line count. A backquoted
     locator naming only a file (`name.mjs:3`) is completed with its directory
-    when exactly one source has that name and every line is within it."""
+    when exactly one source has that name and every line is within it.
+    spills are the texts of harness-spilled tool-output files (see (d))."""
     lines = text.splitlines(keepends=True)
     first = next((i for i, line in enumerate(lines) if FINDING_START.match(line)), 0)
     removed = lines[:first]
@@ -132,11 +149,96 @@ def normalize_markdown(text, sources=None):
             changes.append({'kind': 'short-evidence-path', 'line': index, 'column': match.start() + offset,
                             'before': before, 'after': after})
             offset += len(after) - len(before)
+    maps = [spill_map(spill) for spill in spills]
+    if maps and sources:
+        current = apply_changes(text, changes).splitlines(keepends=True)
+        for index, line in enumerate(current):
+            offset = 0
+            for match in BACKQUOTED.finditer(line):
+                converted = spill_conversion(match[0][1:-1], sources, maps)
+                if converted is None:
+                    continue
+                after, parts = converted
+                after = f'`{after}`'
+                changes.append({'kind': 'spill-locator', 'line': index, 'column': match.start() + offset,
+                                'before': match[0], 'after': after, 'converted': parts})
+                offset += len(after) - len(match[0])
     normalized = text
     if changes:
         normalized = apply_changes(text, changes)
     check_only_markdown_changes(text, normalized, changes)
     return normalized, changes
+
+
+NUMBER = re.compile(r'[0-9]+')
+BACKQUOTED = re.compile(r'`[^`\n]+`')
+LOCATOR_PART = re.compile(r'^(?:(?P<path>[^\s:`]+/[^\s:`]+|[^\s:`/]+\.[A-Za-z0-9]+):)?(?P<start>[1-9][0-9]*)(?:-(?P<end>[1-9][0-9]*))?$')
+HUNK = re.compile(r'^@@ -[0-9]+(?:,(?P<old>[0-9]+))? \+(?P<new_start>[0-9]+)(?:,(?P<new>[0-9]+))? @@')
+
+
+def spill_map(text):
+    """Line number in a spilled tool output -> (path, new-side line) for the context and added lines of every diff
+    hunk in it; other lines (headers, removed lines, other output) map to nothing."""
+    out, path, old, new, line_no = {}, None, 0, 0, 0
+    for number, line in enumerate(text.splitlines(), 1):
+        if old > 0 or new > 0:
+            if line.startswith('\\'):
+                continue
+            if line.startswith('-'):
+                old -= 1
+                continue
+            if line.startswith('+') or line.startswith(' ') or line == '':
+                if path is not None:
+                    out[number] = (path, line_no)
+                line_no += 1
+                new -= 1
+                if not line.startswith('+'):
+                    old -= 1
+                continue
+            old = new = 0
+        if line.startswith('diff --git '):
+            path = None
+        elif line.startswith('+++ '):
+            target = line[4:].strip()
+            path = target[2:] if target.startswith('b/') else None
+        elif (hunk := HUNK.match(line)) and path is not None:
+            old = int(hunk['old'] if hunk['old'] is not None else 1)
+            new = int(hunk['new'] if hunk['new'] is not None else 1)
+            line_no = int(hunk['new_start'])
+    return out
+
+
+def spill_conversion(content, sources, maps):
+    """(converted content, converted parts) of one backquoted locator, or None when no part is converted."""
+    parts, path, changed, converted = content.split(','), None, [], []
+    for part in parts:
+        match = LOCATOR_PART.match(part)
+        if match is None:
+            return None
+        path = match['path'] or path
+        if path is None or path not in sources:
+            return None
+        start, end = int(match['start']), int(match['end'] or match['start'])
+        if start <= sources[path]:
+            changed.append(part)
+            continue
+        # A spill reads the part consistently when both ends fall on new-side lines of the named file, in order.
+        results = set()
+        for mapping in maps:
+            a, b = mapping.get(start), mapping.get(end)
+            if a and b and a[0] == path == b[0] and a[1] <= b[1] <= sources[path]:
+                results.add((a[1], b[1]))
+        if len(results) != 1:
+            changed.append(part)
+            continue
+        (a, b), = results
+        lines = f'{a}-{b}' if match['end'] else f'{a}'
+        new = f"{match['path']}:{lines}" if match['path'] else lines
+        changed.append(new)
+        converted.append({'before': part, 'after': new})
+    if not converted:
+        return None
+    return ','.join(changed), converted
 
 
 def staged_sources(root):
@@ -157,16 +259,21 @@ def main():
     parser.add_argument('--report', type=Path, required=True, help='Original bound report (review.jsonl or .md)')
     parser.add_argument('--out', type=Path, required=True, help='Normalized copy (a new file)')
     parser.add_argument('--scenario-root', type=Path, help='Scenario repository whose index holds the frozen source (markdown reports)')
+    parser.add_argument('--spill', type=Path, action='append', default=[],
+                        help='harness-spilled tool-output file of the session (markdown reports); repeatable')
     args = parser.parse_args()
     raw = args.report.read_bytes()
     if args.report.suffix == '.md':
-        normalized, changes = normalize_markdown(raw.decode('utf-8'), staged_sources(args.scenario_root) if args.scenario_root else None)
+        normalized, changes = normalize_markdown(raw.decode('utf-8'), staged_sources(args.scenario_root) if args.scenario_root else None,
+                                                 [p.read_text(encoding='utf-8', errors='replace') for p in args.spill])
         output = normalized
     else:
         rows = [json.loads(line) for line in raw.decode('utf-8').splitlines() if line.strip()]
         normalized, changes = normalize(rows)
         output = ''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in normalized)
     record = {'original': str(args.report), 'original_sha256': hashlib.sha256(raw).hexdigest(),
+              **({'spills': [{'path': str(p), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()} for p in args.spill]}
+                 if args.spill else {}),
               'changes': summary(changes), 'details': changes}
     args.out.parent.mkdir(parents=True, exist_ok=True)
     if changes:

@@ -1,7 +1,7 @@
 import unittest
 
 from tools.reviewer.repair_reviewer_report import (check_only_lines_changed, check_only_markdown_changes, normalize,
-                                                   normalize_markdown)
+                                                   normalize_markdown, spill_map)
 
 
 def report(*lines):
@@ -110,6 +110,58 @@ class ShortLocatorTest(unittest.TestCase):
         text = '1. `one.mjs:3` - x\n'
         fixed, changes = normalize_markdown(text, SOURCES)
         changes[0]['after'] = '`src/b/two.mjs:3`'
+        with self.assertRaises(AssertionError):
+            check_only_markdown_changes(text, fixed, changes)
+
+
+# A spilled tool output: 3 lines of other output, then a staged diff of src/a/one.mjs (new-side lines 10-13 at spill
+# lines 9 and 11-13, removed line at 10) and of src/b/two.mjs (new-side lines 1-3 at spill lines 19-21).
+SPILL = ('# Rules\n\nsome text\n'
+         'diff --git a/src/a/one.mjs b/src/a/one.mjs\nindex 1..2 100644\n--- a/src/a/one.mjs\n+++ b/src/a/one.mjs\n'
+         '@@ -10,3 +10,4 @@ const x\n context ten\n-old eleven\n+new eleven\n+new twelve\n context thirteen\n'
+         'diff --git a/src/b/two.mjs b/src/b/two.mjs\nnew file mode 100644\n--- /dev/null\n+++ b/src/b/two.mjs\n'
+         '@@ -0,0 +1,3 @@\n+one\n+two\n+three\n')
+SPILL_SOURCES = {'src/a/one.mjs': 13, 'src/b/two.mjs': 3}
+
+
+class SpillLocatorTest(unittest.TestCase):
+    def test_spill_map_follows_hunk_headers(self):
+        mapping = spill_map(SPILL)
+        self.assertEqual(mapping[9], ('src/a/one.mjs', 10))
+        self.assertNotIn(10, mapping)  # removed line
+        self.assertEqual([mapping[n] for n in (11, 12, 13)], [('src/a/one.mjs', 11), ('src/a/one.mjs', 12),
+                                                            ('src/a/one.mjs', 13)])
+        self.assertEqual(mapping[19], ('src/b/two.mjs', 1))
+        self.assertEqual(mapping[21], ('src/b/two.mjs', 3))
+        self.assertNotIn(3, mapping)
+        self.assertNotIn(18, mapping)  # hunk header
+
+    def test_out_of_range_parts_that_one_spill_reads_are_converted(self):
+        text = '- `src/a/one.mjs:2,11-12,src/b/two.mjs:20` - x\n'
+        fixed, changes = normalize_markdown(text, SPILL_SOURCES, [SPILL])
+        # `2` lies within one.mjs and is read as written; `11-12` is within the file too; only 20 is beyond two.mjs.
+        self.assertEqual(fixed, '- `src/a/one.mjs:2,11-12,src/b/two.mjs:2` - x\n')
+        self.assertEqual([c['converted'] for c in changes], [[{'before': 'src/b/two.mjs:20', 'after': 'src/b/two.mjs:2'}]])
+        fixed, changes = normalize_markdown('- `src/b/two.mjs:19-21`, `src/b/two.mjs:1,19`\n', SPILL_SOURCES, [SPILL])
+        self.assertEqual(fixed, '- `src/b/two.mjs:1-3`, `src/b/two.mjs:1,1`\n')
+        self.assertEqual(sum(len(c['converted']) for c in changes), 2)
+
+    def test_unmapped_crossing_or_ambiguous_parts_stay(self):
+        sources = {'src/a/one.mjs': 8, 'src/b/two.mjs': 2}
+        for text in ('- `src/a/one.mjs:50` - no spill line\n', '- `src/a/one.mjs:10` - removed line\n',
+                     '- `src/a/one.mjs:13-19` - crosses into another file\n', '- `src/b/two.mjs:11` - line of one.mjs\n',
+                     '- `src/b/two.mjs:21` - beyond the staged source\n'):
+            self.assertEqual(normalize_markdown(text, sources, [SPILL]), (text, []))
+        shifted = 'one more line\n' + SPILL
+        text = '- `src/b/two.mjs:20` - x\n'
+        self.assertEqual(normalize_markdown(text, SPILL_SOURCES, [SPILL, shifted]), (text, []))
+        self.assertEqual(normalize_markdown(text, SPILL_SOURCES), (text, []))
+
+    def test_round_trip_rejects_a_spill_change_beyond_line_numbers(self):
+        text = '- `src/b/two.mjs:20` - x\n'
+        fixed, changes = normalize_markdown(text, SPILL_SOURCES, [SPILL])
+        check_only_markdown_changes(text, fixed, changes)
+        changes[0]['after'] = '`src/a/one.mjs:2`'
         with self.assertRaises(AssertionError):
             check_only_markdown_changes(text, fixed, changes)
 
