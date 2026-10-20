@@ -406,19 +406,22 @@ def stream_summary(stream):
     """All result events of one or more stream-json files (a continued run's segments, in order). Claude Code 2.1.303
     reports `usage`, `num_turns` and the durations per result, while `modelUsage` and `total_cost_usd` run on across
     the session, also over --resume (mock 2026-10-20): the former are summed, the latter taken from the last result.
-    (Before 2026-10-20 only the last result was read, which undercounts any stream with more than one.)"""
+    (Before 2026-10-20 only the last result was read, which undercounts any stream with more than one.)
+    A segment without a result event (killed at the hard limit) leaves its usage and time out: the sums are then lower
+    bounds (`segments_without_result`, `usage_bound`). A total_cost_usd that falls between segments is not cumulative,
+    so it is summed instead."""
     streams = [stream] if isinstance(stream, (str, Path)) else list(stream)
-    lines = []
-    for one in streams:
+    lines, per_stream = [], [0] * len(streams)
+    for index, one in enumerate(streams):
         try:
-            lines += Path(one).read_text(errors='replace').splitlines()
+            lines += [(index, line) for line in Path(one).read_text(errors='replace').splitlines()]
         except OSError:
             pass
     results = []
     sandbox_failures = 0
     init = None
     tiers, seen = {}, set()
-    for line in lines:
+    for index, line in lines:
         try:
             event = json.loads(line)
         except ValueError:
@@ -440,9 +443,19 @@ def stream_summary(stream):
             init = {k: event.get(k) for k in ('model', 'tools', 'mcp_servers', 'permissionMode', 'claude_code_version')}
         if event.get('type') == 'result':
             results.append(event)
+            per_stream[index] += 1
+    without = sum(1 for n in per_stream if n == 0)
     if not results:
-        return {'result_event': False, 'init': init, 'service_tiers': tiers, 'sandbox_failures': sandbox_failures}
+        return {'result_event': False, 'init': init, 'service_tiers': tiers, 'sandbox_failures': sandbox_failures,
+                'segments': len(streams), 'segments_without_result': without}
     last = results[-1]
+    costs = [r.get('total_cost_usd') for r in results]
+    if any(c is None for c in costs):
+        cost = last.get('total_cost_usd')
+    elif all(b >= a for a, b in zip(costs, costs[1:])):
+        cost = costs[-1]  # cumulative across --resume, as 2.1.303 reports it
+    else:
+        cost = sum(costs)
     usage = {}
     for one in results:
         add_usage(usage, one.get('usage'))
@@ -459,8 +472,9 @@ def stream_summary(stream):
             'is_error': any(bool(r.get('is_error')) for r in results), 'error_kind': error_kind(last),
             'duration_ms': total('duration_ms'),
             'duration_api_ms': total('duration_api_ms'), 'num_turns': total('num_turns'),
-            'total_cost_usd': last.get('total_cost_usd'), 'usage': usage, 'modelUsage': last.get('modelUsage'),
-            'result_events': len(results), 'service_tiers': tiers,
+            'total_cost_usd': cost, 'usage': usage, 'modelUsage': last.get('modelUsage'),
+            'result_events': len(results), 'segments': len(streams), 'segments_without_result': without,
+            'usage_bound': 'lower' if without else 'complete', 'service_tiers': tiers,
             'server_web_requests': searches, 'sandbox_failures': sandbox_failures,
             'token_source': 'Claude Code stream-json result usage (API usage; engine log for the Strata arm)'}
 
@@ -690,6 +704,52 @@ def segment_streams(out):
     return [out / 'stream.jsonl', *more]
 
 
+def accounting_stream(streams):
+    """The last stream with a result event: estimate.sh --add-stream reads one result per session id, and a last
+    segment killed at the hard limit has none, so the one before it carries the cost so far (a lower bound then)."""
+    with_result = [s for s in streams if segment_end(s)[1] is not None]
+    return with_result[-1] if with_result else streams[-1]
+
+
+def project_slug(work):
+    """Claude Code's projects/<slug> name for a working directory (every character but a letter or digit is '-')."""
+    return re.sub(r'[^A-Za-z0-9]', '-', str(work))
+
+
+def config_root(backend, work):
+    """The run's Claude Code configuration directory: the real ~/.claude for the Anthropic arm (anthropic_home links
+    it), the run's fresh one otherwise."""
+    return Path.home() / '.claude' if backend == 'anthropic' else Path(work).parent / 'claude-config'
+
+
+def keep_session_files(work, config, out):
+    """Move this run's projects/<slug> (the session transcript when persisted, and tool-results) into out/session-files,
+    so the history stays with the run and no usage scan of ~/.claude/projects counts it as a main session. Nothing is
+    read; only this run's own slug moves."""
+    source = Path(config) / 'projects' / project_slug(work)
+    if not source.is_dir() or source.is_symlink():
+        return None
+    target = Path(out) / 'session-files' / source.name
+    target.parent.mkdir(exist_ok=True)
+    shutil.move(str(source), str(target))
+    return str(target.relative_to(out))
+
+
+def remove_run_tmp(work):
+    """Delete this run's own TMPDIR (`<run root>/tmp`, run_tmp) once the run is recorded (measurement rule: clean
+    each instance's leftovers, user 2026-10-20). Only that directory, never through a link; the bytes freed or None."""
+    tmp = Path(work).parent / 'tmp'
+    if not tmp.is_dir() or tmp.is_symlink():
+        return None
+    size = sum(p.lstat().st_size for p in tmp.rglob('*') if not p.is_symlink() and p.is_file())
+
+    def writable(function, path, _):
+        os.chmod(os.path.dirname(path), 0o700)  # sandboxed commands may leave read-only directories
+        function(path)
+    shutil.rmtree(tmp, onexc=writable)
+    return size
+
+
 def account(stream, label, effort, out, estimate=ESTIMATE):
     """Add this run to the quota ledger; the script itself ignores models that are not Anthropic's."""
     done = subprocess.run([str(estimate), '--add-stream', str(stream), label, '--effort', effort],
@@ -768,8 +828,10 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
         target = work / name
         if target.exists():
             shutil.copytree(target, out / 'outputs' / name, dirs_exist_ok=True)
-    if record:  # the last segment's result carries the session's cumulative cost under the one session id
-        result['estimate_exit'] = account(streams[-1], label, effort, out)
+    result['session_files'] = keep_session_files(work, config_root(backend, work), out)
+    result['run_tmp_removed'] = remove_run_tmp(work)  # after the copies above; the stream holds every tool result
+    if record:  # the last result carries the session's cumulative cost under the one session id
+        result['estimate_exit'] = account(accounting_stream(streams), label, effort, out)
     save(out / 'result.json', result)
     return result
 

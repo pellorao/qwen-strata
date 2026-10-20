@@ -144,6 +144,88 @@ class ContinuationTest(unittest.TestCase):
         self.assertEqual((c['stop'], result['hard_interrupt'], c['early_exit_count']), ('hard_limit', True, 1))
         self.assertLess(time.time() - started, 25)  # the limit counts from the first segment's start
         self.assertLess(result['wall_seconds'], 15)
+        # F-B/F-C: the killed last segment has no result; accounting uses the one before, sums are lower bounds
+        streams = ch.segment_streams(self.out)
+        self.assertEqual(ch.accounting_stream(streams), self.out / 'stream.jsonl')
+        summary = ch.stream_summary(streams)
+        self.assertEqual((summary['segments'], summary['segments_without_result'], summary['usage_bound'],
+                          summary['total_cost_usd']), (2, 1, 'lower', 0.5))
+        self.assertTrue(cs.checks({'summary': {**summary, 'modelUsage': {'m': {}}}, 'exit': -9, 'hard_interrupt': True,
+                                   'continuation': c}, 'm', False)['ended_normally'])
+
+    def test_killed_segment_work_time_is_its_timestamp_span(self):
+        from tools.reviewer.inspect_session import inspect_claude
+        stamp = lambda s: f'2026-10-20T01:00:{s:02d}.000Z'
+        event = lambda kind, s: json.dumps({'type': kind, 'timestamp': stamp(s), 'message': {
+            'role': kind, 'content': [{'type': 'text', 'text': 'x'}]}})
+        result = lambda ms: json.dumps({'type': 'result', 'duration_ms': ms, 'num_turns': 1, 'result': INCOMPLETE,
+                                        'total_cost_usd': 0.25})
+        (self.out / 'stream.jsonl').write_text('\n'.join([event('assistant', 0), event('assistant', 4), result(4000)]))
+        (self.out / 'stream-1.jsonl').write_text('\n'.join([event('assistant', 10), event('assistant', 17)]))
+        view = inspect_claude(self.out / 'stream.jsonl', str(self.work))
+        self.assertEqual((view['work_seconds'], view['segments'], view['segments_without_result']), (11.0, 2, 1))
+        self.assertEqual(view['work_time_source'], 'event timestamp span + result duration_ms')
+        (self.out / 'stream-1.jsonl').write_text(json.dumps({'type': 'result', 'duration_ms': 1000, 'total_cost_usd': 0.1}))
+        summary = ch.stream_summary(ch.segment_streams(self.out))
+        self.assertEqual((round(summary['total_cost_usd'], 3), summary['usage_bound']), (0.35, 'complete'))
+
+    def test_no_session_is_a_harness_fault(self):
+        summary = {'result_event': True, 'modelUsage': {'m': {}}}
+        check = lambda stop: cs.checks({'summary': summary, 'exit': 0, 'continuation': {'stop': stop}}, 'm', False)
+        self.assertTrue(check('delivered')['ended_normally'])
+        self.assertFalse(check('no_session')['ended_normally'])
+
+    def test_run_tmp_is_removed_at_closeout(self):
+        root = self.base / 'run'
+        work = root / 'work'
+        work.mkdir(parents=True)
+        tmp = ch.run_tmp(work)
+        (tmp / 'claude-1000/locked').mkdir(parents=True)
+        (tmp / 'claude-1000/locked/out.txt').write_text('12345')
+        os.chmod(tmp / 'claude-1000/locked', 0o500)  # a read-only directory a sandboxed command left
+        (root / 'answer.md').write_text('kept\n')
+        self.assertEqual(ch.remove_run_tmp(work), 5)
+        self.assertFalse(tmp.exists())
+        self.assertTrue(work.is_dir() and (root / 'answer.md').exists())  # nothing else in the run root
+        self.assertIsNone(ch.remove_run_tmp(work))
+
+    def test_run_closeout_moves_session_files_then_removes_the_run_tmp(self):
+        from unittest import mock
+        seen = {}
+
+        def segments(out, prompt_text, argv, env, work, limit, started_file, report):
+            config = self.base / 'cfg'
+            (config / 'projects' / ch.project_slug(work)).mkdir(parents=True)
+            (Path(work).parent / 'tmp/leftover.txt').write_text('x')
+            (Path(work) / 'r').mkdir(exist_ok=True)
+            (Path(work) / 'r/report.md').write_text('- f\n')
+            (out / 'stream.jsonl').write_text(json.dumps({'type': 'result', 'is_error': False, 'result': READY}) + '\n')
+            seen.update(work=Path(work), config=config)
+            return {'exit': 0, 'hard_interrupt': False}
+        prompt = self.base / 'p.md'
+        prompt.write_text('h\n')
+        with mock.patch.object(ch, 'run_segments', segments), \
+                mock.patch.object(ch, 'config_root', lambda backend, work: seen['config']):
+            result = ch.run(self.base / 'run', prompt, 'anthropic', 'm', 'high', 'x', writes=['r'], startup=False,
+                            base=self.base / 'runs', record=False, claude=sys.executable, report='r/report.md')
+        self.assertEqual(result['run_tmp_removed'], 1)
+        self.assertFalse((seen['work'].parent / 'tmp').exists())
+        self.assertTrue((self.base / 'run/session-files' / ch.project_slug(seen['work'])).is_dir())
+        self.assertTrue((self.base / 'run/outputs/r/report.md').exists())  # the answer is kept
+
+    def test_session_files_move_into_the_run_record(self):
+        work = Path('/var/tmp/qwen-claude/x-1/work')
+        self.assertEqual(ch.project_slug(work), '-var-tmp-qwen-claude-x-1-work')
+        config = self.base / 'claude-config'
+        own = config / 'projects' / ch.project_slug(work)
+        (own / 'tool-results').mkdir(parents=True)
+        (own / 'sid.jsonl').write_text('{}\n')
+        (config / 'projects/-other').mkdir()
+        self.assertEqual(ch.keep_session_files(work, config, self.out), 'session-files/' + own.name)
+        self.assertTrue((self.out / 'session-files' / own.name / 'sid.jsonl').exists())
+        self.assertFalse(own.exists())
+        self.assertTrue((config / 'projects/-other').is_dir())  # only this run's slug moves
+        self.assertIsNone(ch.keep_session_files(work, config, self.out))
 
     def test_no_new_segment_once_the_limit_has_passed(self):
         result = self.run_script([{'result': INCOMPLETE}], limit=50, clock=lambda: time.time() + 100)

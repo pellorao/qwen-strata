@@ -109,8 +109,11 @@ def checks(result, model, startup, report_dir=None, strata=None, binding=None):
     out['unexpected_changes'] = [f for f in result.get('changed_files') or []
                                  if not (report_dir and f.startswith(report_dir + '/')) and not HARNESS_STUBS.fullmatch(f)]
     out['error_kind'] = summary.get('error_kind')
-    out['ended_normally'] = (out['completed'] or bool(result.get('hard_interrupt'))
-                             or (summary.get('result_event') is True and summary.get('error_kind') == 'model'))
+    # A run left undelivered without a session id to resume is a harness fault (no continuation possible): invalid.
+    out['continuation_stop'] = (result.get('continuation') or {}).get('stop')
+    out['ended_normally'] = (out['continuation_stop'] != 'no_session'
+                             and (out['completed'] or bool(result.get('hard_interrupt'))
+                                  or (summary.get('result_event') is True and summary.get('error_kind') == 'model')))
     # Harness fault: a Bash call whose sandbox could not be built never ran (bwrap argument limit, 2026-10-20).
     out['sandbox_failures'] = summary.get('sandbox_failures') or 0
     prompts_ok = out['startup_prompt_off']

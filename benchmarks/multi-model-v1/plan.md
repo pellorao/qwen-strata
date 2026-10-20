@@ -526,6 +526,14 @@
   - **F4**：`claude_headless.error_kind` 把 is_error 分两类。模型侧（`terminal_reason` 为 `prompt_too_long`、subtype `error_max_turns`、文本含 "exceeded the N output token maximum"，mock 实测 2.1.303 的字段）停为 `model_error`，不接续，按已写出的报告计分（与 Codex 上 ARW 的 incomplete 对等）；其余（API 状态码、传输、认证）照旧判无效重跑。
   - **旧实例不能续跑**：都带 `--no-session-persistence`，没有会话文件（`~/.claude/projects/-var-tmp-qwen-claude-*` 下只有 tool-results），只能重跑。
   - **重跑范围**（Main 决定，2026-10-20）：只重跑最终消息为 incomplete、未交付的 10 个 Anthropic CS Haiku 实例（high-a1、a4；low-a2、a4、a5；medium-a1 到 a5），用新代码。原实例作废，原因"harness 未接续"，不计入尝试次数，每个配置凑够 5 个有效。只差终态格式的 B 类（报告已写完，最终消息不是恰为 `{"status":"ready"}`：Anthropic CA 21 个、CS sonnet-high-a2 1 个，Strata CA strata-low-a5 1 个）不自动重跑，列为待用户复核。Strata 臂的 7 个 A 类都是已作废的 bwrap 实例，不处理。
+  - **与 Codex 路径仍不对等**：Codex 路径（ARW 运行层）给每条接续消息和恢复消息都加 `ARW messageId: <id>` 前缀，Claude Code 路径的接续消息没有这个前缀。
+  - **1befd53 独立审查后的修正**（Opus high，开跑前完成）：
+    - F-A：安全门 `claude_gate` 改用场景运行的形态（`persist=True`、提醒带硬时限），新增 8 个探针：Read、Grep、Glob、Bash 分别读本会话的 transcript（只记录）和兄弟会话的 `.jsonl`（必须读不到）。anthropic、strata、deepseek 三种 mock 门各 ×3 全部通过，兄弟会话 4 种工具都读不到；本会话的 transcript 也全部被拒（`--restricted` 和沙箱）。
+    - F-B：额度记账用最后一个含 result 的 stream（末段被杀时不丢前面各段）。实例结束后把配置目录里的 `projects/<slug>/` 移进输出目录的 `session-files/`，usage 扫描不会把它当成 main 计入，会话历史也保留下来。
+    - F-C：`stream_summary` 和 `inspect_session` 逐段记录有没有 result，缺 result 的段记入 `segments_without_result`，usage 记为下界（`usage_bound: lower`）；inspect 对缺 result 的段改用该段的时间戳跨度。
+    - 轻项：`no_session` 判为 harness 故障（实例无效）；total_cost_usd 在段间下降时改为求和。
+    - 每实例清理：`claude_headless.run` 收尾时删除本实例的 `<run>/tmp`（TMPDIR），在会话文件搬移之后；已有残留里，对应实例已判定、已有 inspect 输出的 150 个已删除。
+    - sha256（1befd53 → 修正后）：`claude_headless.py` `51339172…76e6` → `38d8512c…b935b`，`claude_scenario.py` `2e1f7b19…d54a` → `a5a6b7b5…f621`，`inspect_session.py` `eb7fb109…b7bb96` → `de5979e3…3d43`，`tools/safety/claude_gate.py` `d59d5661…b5f` → `d6ed004b…f8f`。
   - sha256（改前 → 改后）：`claude_headless.py` `24932e88…0eec` → `51339172…76e6`，`claude_scenario.py` `afcd28b5…2100` → `2e1f7b19…d54a`，`inspect_session.py` `51254b0b…514e` → `eb7fb109…b7bb96`，`review_deadlines.py` `1aecbc50…ae92` → `b909c494…07f9`；新测试 `tests/test_claude_continuation.py`。
 - 2026-10-20，ARW 持有模型的路径统一按限时 T 跑（独立审查 F1，用户决定：直接改 ARW 规则，不在 harness 外绕）：
   - **缺陷**：ARW 的 Strata 工作策略（`strata-work-policy.mjs`）写死 55 分钟提醒、60 分钟截止，不读 T；harness 对 ARW 持有模型的路径又不调用 `deadline.advance`（73625b1 起如此）。#10–12 的 CS/CStd 本会收不到 T−5 分钟提醒，也不在 T 被中断。CS/CStd 因此暂缓，CA（无时限）已先跑。

@@ -273,16 +273,21 @@ def inspect_claude(stream, root, allow=()):
     the harness sent is listed as a harness message, so it is flagged for the session check.
 
     Assistant and user events carry timestamps; action times count from the first of them. Work time is the sum of the
-    result events' durations, else the span of the timestamps. A -p run usually has one result event; when the model
-    leaves a background command running, Claude Code waits for it after the first result and then runs one more turn
+    result events' durations, else the span of the timestamps; per segment for a continued run, so a segment killed
+    before its result event (hard limit) counts its timestamp span (segments_without_result). A -p run usually has
+    one result event; when the model leaves a background command running, Claude Code waits for it after the first result and then runs one more turn
     for its notification, with a result event of its own: each result's duration_ms, num_turns, permission_denials
     and usage cover only its own turn, and the wait between them is not work."""
-    lines = []
-    for path, sent in claude_segments(stream):
+    lines, segment_of, segments = [], [], []
+    for index, (path, sent) in enumerate(claude_segments(stream)):
+        segments.append({'stream': path.name, 'stamps': [], 'results': []})
         if sent is not None:
             text = sent.read_text(errors='replace') if sent.exists() else '(continuation message not recorded)'
             lines.append(json.dumps({'type': 'harness_continuation', 'segment': path.name, 'text': text}).encode())
-        lines += path.read_bytes().splitlines()
+            segment_of.append(index)
+        more = path.read_bytes().splitlines() if path.exists() else []
+        lines += more
+        segment_of += [index] * len(more)
     stamps = []
     root = os.path.normpath(root)
     allow = [os.path.normpath(a) for a in allow]
@@ -297,6 +302,7 @@ def inspect_claude(stream, root, allow=()):
         at = stamp(e.get('timestamp'))
         if at is not None:
             stamps.append(at)
+            segments[segment_of[i]]['stamps'].append(at)
             first = at if first is None else first
         kind = e.get('type')
         if kind == 'harness_continuation':
@@ -317,6 +323,7 @@ def inspect_claude(stream, root, allow=()):
             continue
         if kind == 'result':
             results.append(e)
+            segments[segment_of[i]]['results'].append(e)
             continue
         if kind == 'system':
             # Other system events carry no model action; a denial by the harness (e.g. --restricted on a path
@@ -370,17 +377,29 @@ def inspect_claude(stream, root, allow=()):
     for a in actions:
         counts[a['tool']] = counts.get(a['tool'], 0) + 1
     result = results[-1] if results else None
-    durations = [r.get('duration_ms') for r in results]
-    duration = sum(durations) if durations and all(type(d) in (int, float) for d in durations) else None
     span = max(stamps) - first if stamps else None
+    # Work time per segment: its results' durations, else (no result: killed at the hard limit, or not recorded) the
+    # span of its own timestamps, a lower bound; None when a segment has neither.
+    parts, sources = [], set()
+    for seg in segments:
+        durations = [r.get('duration_ms') for r in seg['results']]
+        if durations and all(type(d) in (int, float) for d in durations):
+            parts.append(sum(durations) / 1000)
+            sources.add('result duration_ms')
+        elif seg['stamps']:
+            parts.append(max(seg['stamps']) - min(seg['stamps']))
+            sources.add('event timestamp span')
+        else:
+            parts.append(None)
+    work = None if not parts or None in parts else sum(parts)
+    without = sum(1 for seg in segments if not seg['results'])
     return {'session': str(stream), 'threadId': session_id, 'source': 'claude-code stream-json', 'thread_source': None,
             'root': root, 'startup': startup, 'handoff_found': 'init' in startup, 'compactions': compactions,
             'actions': actions, 'messages': messages,
             'final': (result or {}).get('result', messages[-1]['text'] if messages else None),
             'tool_calls': len(actions), 'tool_call_counts': counts,
-            'work_seconds': duration / 1000 if type(duration) in (int, float) else span,
-            'work_time_source': 'result duration_ms' if type(duration) in (int, float) else (
-                'event timestamp span' if span is not None else None),
+            'work_seconds': work, 'work_time_source': ' + '.join(sorted(sources)) if work is not None else None,
+            'segments': len(segments), 'segments_without_result': without,
             'stream_span_seconds': span, 'result_subtype': (result or {}).get('subtype'),
             'result_events': len(results),
             'num_turns': sum(r.get('num_turns') or 0 for r in results) if results else None,

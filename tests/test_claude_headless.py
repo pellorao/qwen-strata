@@ -224,7 +224,8 @@ class RunnerBuildersTest(unittest.TestCase):
         self.assertEqual((s['init']['tools'], s['num_turns']), (['Read'], 2))
         self.assertEqual((s['service_tiers'], s['server_web_requests']), ({'standard': 1, 'not-returned': 1}, 1))
         self.assertEqual(ch.stream_summary(self.base / 'none'),
-                         {'result_event': False, 'init': None, 'service_tiers': {}, 'sandbox_failures': 0})
+                         {'result_event': False, 'init': None, 'service_tiers': {}, 'sandbox_failures': 0,
+                          'segments': 1, 'segments_without_result': 1})
         self.assertEqual(s['sandbox_failures'], 0)
 
     def test_stream_summary_counts_sandbox_setup_failures(self):
