@@ -27,6 +27,13 @@ Time limit as ARW (tools.reviewer.review_deadlines): a PostToolUse hook adds the
 worked REMINDER seconds, and the process group is stopped at the hard limit. The reminder can only arrive after a
 tool call. At the end `~/.claude/statusline/estimate.sh --add-stream <stream> <label> --effort <level>` records the run.
 
+Early-exit continuation as ARW's Reviewer runtime (`report=`, the scenario runs; user 2026-10-20, Codex parity): a
+normally ended turn without full delivery (final message exactly {"status":"ready"} and a non-empty readable bound
+report) gets ARW's own continuation instruction in the same session (`--resume <session id>`, the same argv and
+settings, so session persistence stays on for these runs); at ARW's 10th early exit and every 5 after it the runtime
+pauses and the harness answers 继续 as the user (one `arw_pause_events` entry each). The hard limit is the instance's
+wall clock from the first segment's start. Each segment keeps its own stream (stream.jsonl, stream-1.jsonl, ...).
+
     python3 -m tools.reviewer.claude_headless --out .tmp/<work>/<run> --prompt prompt.md --backend anthropic \\
         --model opus --effort high --label <label> --copy <source>:<name> --write <name>/<report dir>
 """
@@ -79,6 +86,10 @@ SHARED_DENY = ['/tmp', *SHARED_TMP]
 WORLD_WRITABLE = [d for d in ('/var/tmp', '/run/lock', '/run/screen', '/dev/shm', '/dev/mqueue', '/var/crash', '/mnt/wsl',
                               '/mnt/wslg') if os.path.isdir(d)]
 SETTINGS_ARGUMENT_LIMIT = 120000
+# ARW early-exit pause points (frozen ARW 760007c: lib/arw-common/config.mjs earlyExitNotificationThreshold 10,
+# lib/background-agent/manager.mjs noteEarlyExit nextEarlyExitNotificationCount = count + 5).
+EARLY_EXIT_PAUSE_AT, EARLY_EXIT_PAUSE_STEP = 10, 5
+CONTINUE_MESSAGE = '继续'  # the user's answer at a pause, as tools.reviewer.arw_measure.ARW_CONTINUE_MESSAGE
 
 
 # Each denied path costs bwrap about three arguments and bwrap takes at most 9000: with 2136 /tmp entries every Bash
@@ -165,16 +176,26 @@ def write_targets(work, writes):
     return targets
 
 
-def reminder_hook(control, started_file, after=REMINDER_AFTER, text=REMINDER):
-    """PostToolUse hook: once the run has worked `after` seconds, add the ARW reminder to the model context, once."""
+def reminder_hook(control, started_file, after=REMINDER_AFTER, text=REMINDER, hard=None):
+    """PostToolUse hook: once the run has worked `after` seconds, add the ARW reminder to the model context, once.
+    With `hard` (the hard limit in seconds; the scenario runs) the text is the Codex API path's
+    (review_deadlines.reminder_message, wall-clock basis): the lead rewritten when it is not 5 minutes and the remaining
+    seconds at the moment the hook fires (parity review F10, 2026-10-20). Without it the fixed text, as before."""
     script = control / 'deadline-reminder.py'
     flag = control / 'reminder-sent.json'
+    if hard is None:
+        message = f' print(json.dumps({{"hookSpecificOutput":{{"hookEventName":"PostToolUse","additionalContext":{text!r}}}}},ensure_ascii=False))\n'
+        head = ''
+    else:
+        head = f'sys.path.insert(0,{str(ROOT)!r})\nfrom tools.reviewer.review_deadlines import reminder_message\n'
+        message = (f' text=reminder_message({after!r},{hard!r},max(0,int({hard!r}-(time.time()-started))),started+{hard!r})\n'
+                   ' flag.write_text(json.dumps({"sent_at":time.time(),"elapsed":time.time()-started,"text":text},ensure_ascii=False))\n'
+                   ' print(json.dumps({"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":text}},ensure_ascii=False))\n')
     script.write_text(
-        'import json,sys,time\nfrom pathlib import Path\n'
+        'import json,sys,time\nfrom pathlib import Path\n' + head +
         f'started=float(Path({str(started_file)!r}).read_text());flag=Path({str(flag)!r})\n'
         f'if time.time()-started>={after!r} and not flag.exists():\n'
-        ' flag.write_text(json.dumps({"sent_at":time.time(),"elapsed":time.time()-started}))\n'
-        f' print(json.dumps({{"hookSpecificOutput":{{"hookEventName":"PostToolUse","additionalContext":{text!r}}}}},ensure_ascii=False))\n')
+        ' flag.write_text(json.dumps({"sent_at":time.time(),"elapsed":time.time()-started}))\n' + message)
     return {'type': 'command', 'command': f'{sys.executable} {script}'}, flag
 
 
@@ -184,11 +205,11 @@ def reminder_time(limit):
     return limit - lead if limit >= 2 * lead else limit / 2
 
 
-def session_hooks(control, started_file, reminder_after, compact=True):
+def session_hooks(control, started_file, reminder_after, compact=True, hard=None):
     """The time reminder after tool calls, and the project compact prompt appended to Claude Code's own summary
     instructions, never replacing them (as qwen-agent does). compact=False leaves Claude Code's own compaction
     unchanged (multi-model benchmark: the project prompts go to Strata only, user 2026-10-19)."""
-    hook, flag = reminder_hook(control, started_file, reminder_after)
+    hook, flag = reminder_hook(control, started_file, reminder_after, hard=hard)
     hooks = {'PostToolUse': [{'matcher': '*', 'hooks': [hook]}]}
     if compact:
         hooks['PreCompact'] = [{'hooks': [{'type': 'command', 'command': f'cat {COMPACT}'}]}]
@@ -259,10 +280,14 @@ def settings_argument(session_settings):
     return text
 
 
-def command(backend, model, effort, work, writes, session_settings, tools=TOOLS, startup=True, claude=CLAUDE):
+def command(backend, model, effort, work, writes, session_settings, tools=TOOLS, startup=True, claude=CLAUDE,
+            persist=False):
     """The Claude Code command. All backends get the same flags; the startup prompt is appended here for API models
     and by the service for Strata, so each model sees it once (D4). The multi-model benchmark gives it only to Strata,
-    so its API runs pass startup=False (--no-startup-prompt)."""
+    so its API runs pass startup=False (--no-startup-prompt). persist=True drops --no-session-persistence so that an
+    early exit can continue with --resume (scenario runs): the first request stays the same as without it (mock
+    2026-10-20, only the run's own paths and ids differ), and the transcript lands in the configuration directory,
+    which sandboxed commands and the restricted file tools cannot read (/home/pello and WORK_BASE are denied)."""
     if backend not in BACKENDS:
         raise ValueError('Unknown backend')
     if backend == 'deepseek':
@@ -271,7 +296,7 @@ def command(backend, model, effort, work, writes, session_settings, tools=TOOLS,
             '--disable-slash-commands', '--setting-sources', '', '--settings', settings_argument(session_settings),
             '--tools', tools, '--disallowedTools', DISALLOWED, '--permission-mode', 'dontAsk', '--permission-prompts', 'none',
             '--allowedTools', allowed_tools(work, writes),
-            '--output-format', 'stream-json', '--verbose', '--no-session-persistence']
+            '--output-format', 'stream-json', '--verbose', *([] if persist else ['--no-session-persistence'])]
     if backend != 'strata' and startup:
         argv += ['--append-system-prompt', startup_text()[0]]
     return argv
@@ -338,6 +363,24 @@ def anthropic_home(run_root, real=None):
 
 # A Bash call whose sandbox could not be built: Claude Code's own bwrap argument check, or bwrap failing before the
 # command ran. Seen as the start of an error tool result (2026-10-20); the command never ran.
+# F4 (2026-10-20): an is_error result caused by the model itself (its context or output exceeding the limits, mock
+# 2026-10-20 with Claude Code 2.1.303: terminal_reason 'prompt_too_long'; "API Error: Claude's response exceeded the N
+# output token maximum" with terminal_reason 'api_error') ends the run as ARW's incomplete on Codex would: scored on what
+# was written, no continuation. Every other is_error (API status, transport, auth) stays a harness fault: invalid, rerun.
+MODEL_ERROR_TEXT = re.compile(r'exceeded the \d+ output token maximum|^Prompt is too long')
+MODEL_ERROR_SUBTYPES = {'error_max_turns'}
+
+
+def error_kind(result):
+    """None for a result without is_error, 'model' for a model-side failure, 'api' for any other."""
+    if not isinstance(result, dict) or not result.get('is_error'):
+        return None
+    if (result.get('terminal_reason') == 'prompt_too_long' or result.get('subtype') in MODEL_ERROR_SUBTYPES
+            or MODEL_ERROR_TEXT.search(str(result.get('result') or ''))):
+        return 'model'
+    return 'api'
+
+
 SANDBOX_FAILURE = re.compile(r'(Error: )?(Sandbox profile has \d+ bwrap arguments|.*bwrap accepts at most|bwrap: )')
 
 
@@ -347,14 +390,32 @@ def tool_result_text(content):
     return content if isinstance(content, str) else ''
 
 
+def add_usage(total, usage):
+    """Per-result usage summed field by field (numbers only; nested server_tool_use counts too)."""
+    for key, value in (usage or {}).items():
+        if isinstance(value, bool):
+            continue
+        if isinstance(value, (int, float)):
+            total[key] = total.get(key, 0) + value
+        elif isinstance(value, dict) and key in ('server_tool_use', 'output_tokens_details', 'cache_creation'):
+            add_usage(total.setdefault(key, {}), value)
+    return total
+
+
 def stream_summary(stream):
-    """The result event of a stream-json run: usage, cost, turns and durations as Claude Code reports them."""
-    result = None
+    """All result events of one or more stream-json files (a continued run's segments, in order). Claude Code 2.1.303
+    reports `usage`, `num_turns` and the durations per result, while `modelUsage` and `total_cost_usd` run on across
+    the session, also over --resume (mock 2026-10-20): the former are summed, the latter taken from the last result.
+    (Before 2026-10-20 only the last result was read, which undercounts any stream with more than one.)"""
+    streams = [stream] if isinstance(stream, (str, Path)) else list(stream)
+    lines = []
+    for one in streams:
+        try:
+            lines += Path(one).read_text(errors='replace').splitlines()
+        except OSError:
+            pass
+    results = []
     sandbox_failures = 0
-    try:
-        lines = Path(stream).read_text(errors='replace').splitlines()
-    except OSError:
-        lines = []
     init = None
     tiers, seen = {}, set()
     for line in lines:
@@ -378,13 +439,28 @@ def stream_summary(stream):
         if event.get('type') == 'system' and event.get('subtype') == 'init' and init is None:
             init = {k: event.get(k) for k in ('model', 'tools', 'mcp_servers', 'permissionMode', 'claude_code_version')}
         if event.get('type') == 'result':
-            result = event
-    if result is None:
+            results.append(event)
+    if not results:
         return {'result_event': False, 'init': init, 'service_tiers': tiers, 'sandbox_failures': sandbox_failures}
-    keep = ('subtype', 'is_error', 'duration_ms', 'duration_api_ms', 'num_turns', 'total_cost_usd', 'usage', 'modelUsage')
-    server_tools = (result.get('usage') or {}).get('server_tool_use') or {}
+    last = results[-1]
+    usage = {}
+    for one in results:
+        add_usage(usage, one.get('usage'))
+    for key in ('service_tier', 'speed', 'inference_geo'):  # descriptive fields as the last result gives them
+        if key in (last.get('usage') or {}):
+            usage[key] = last['usage'][key]
+
+    def total(key):
+        values = [r.get(key) for r in results]
+        return None if any(v is None for v in values) else sum(values)
+    server_tools = usage.get('server_tool_use') or {}
     searches = (server_tools.get('web_search_requests') or 0) + (server_tools.get('web_fetch_requests') or 0)
-    return {'result_event': True, 'init': init, **{k: result.get(k) for k in keep}, 'service_tiers': tiers,
+    return {'result_event': True, 'init': init, 'subtype': last.get('subtype'),
+            'is_error': any(bool(r.get('is_error')) for r in results), 'error_kind': error_kind(last),
+            'duration_ms': total('duration_ms'),
+            'duration_api_ms': total('duration_api_ms'), 'num_turns': total('num_turns'),
+            'total_cost_usd': last.get('total_cost_usd'), 'usage': usage, 'modelUsage': last.get('modelUsage'),
+            'result_events': len(results), 'service_tiers': tiers,
             'server_web_requests': searches, 'sandbox_failures': sandbox_failures,
             'token_source': 'Claude Code stream-json result usage (API usage; engine log for the Strata arm)'}
 
@@ -432,6 +508,188 @@ def execute(out, prompt_text, argv, env, work, limit=HARD_LIMIT, started_file=No
             'wall_seconds': ended - started, 'pid': process.pid, 'changed_files': changed}
 
 
+# ARW's continuation instructions, verbatim from the frozen snapshot 760007c, lib/reviewer-runtime/reviewer-runtime.mjs
+# (the early-exit branch of the completion check): which one depends on the bound report's state.
+ARW_REPORT_EXISTS = ('The bound report exists, but complete successful delivery of this task has not been confirmed. An '
+                     'incomplete final status is legal and does not by itself establish that further work is impossible. '
+                     'Verify the complete review and deliver the required ready status. Preserve the existing report and '
+                     'evidence; do not create another Agent.')
+ARW_CONTINUE_BODY = ('Complete successful delivery of this review task has not been confirmed. An incomplete final status is '
+                     'legal and does not by itself establish that further work is impossible. Continue this same task using '
+                     'the existing input and evidence, correct recoverable errors, complete the necessary checks, personally '
+                     'deliver its original bound report and return the required ready status. Do not create another Agent '
+                     'or replace this task.')
+ARW_PAUSE_TEXT = ('The Reviewer runtime paused this same task after {count} normally completed turns without full report '
+                  'delivery. Ask the user whether to continue. After approval, send this task an ordinary work message; to '
+                  'end it, interrupt the original task.')  # lib/background-agent/manager.mjs noteEarlyExit
+# JavaScript String.prototype.trim's set (WhiteSpace and LineTerminator), which ARW applies to the report text.
+JS_SPACE = '\t\n\v\f\r                  　﻿'
+
+
+def final_status(text):
+    """ARW's reviewerFinalStatus: 'ready' only for exactly {"status":"ready"}, 'incomplete' for that status with one
+    non-blank reason, otherwise None (not the status-only contract)."""
+    try:
+        value = json.loads(text) if isinstance(text, str) and not text.startswith('﻿') else None
+    except ValueError:
+        return None
+    if not isinstance(value, dict):
+        return None
+    if value == {'status': 'ready'}:
+        return 'ready'
+    if (value.get('status') == 'incomplete' and len(value) == 2 and isinstance(value.get('reason'), str)
+            and value['reason'].strip(JS_SPACE)):
+        return 'incomplete'
+    return None
+
+
+def report_state(path):
+    """The bound report as ARW reads it (strict UTF-8, no lossy decoding): (state, text or decoding error)."""
+    path = Path(path)
+    if not path.exists() and not path.is_symlink():
+        return 'missing', None
+    if path.is_symlink() or not path.is_file() or path.stat().st_nlink > 1:
+        return 'unreadable', None  # ARW's scoped read refuses links and other kinds: no continuation
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return 'unreadable', None
+    try:
+        return 'text', data.decode('utf-8')
+    except UnicodeDecodeError:
+        return 'undecodable', 'The encoded data was not valid for encoding utf-8'  # Node's TextDecoder message
+
+
+def early_exit(final_text, report_path):
+    """ARW's completion check after a normally ended turn: delivered, or the continuation it sends.
+    `counted` says whether the turn counts towards the pause points (a recoverable read failure does not)."""
+    state, text = report_state(report_path)
+    delivered = final_status(final_text) == 'ready' and state == 'text' and bool(text.strip(JS_SPACE))
+    if delivered:
+        return {'delivered': True, 'report': state, 'continuable': False, 'counted': False, 'instruction': None}
+    if state == 'unreadable':
+        return {'delivered': False, 'report': state, 'continuable': False, 'counted': False, 'instruction': None}
+    if state == 'text' and text.strip(JS_SPACE):
+        instruction = ARW_REPORT_EXISTS
+    elif state == 'undecodable':
+        instruction = (f'The original bound report could not be read: filesystem-text-decoding-failed: {text}. Correct '
+                       'this recoverable error and preserve the original report, judgments and evidence.\n\n'
+                       + ARW_CONTINUE_BODY)
+    else:
+        instruction = ('The bound report is missing. ' if state == 'missing' else 'The bound report is empty. ') + ARW_CONTINUE_BODY
+    return {'delivered': False, 'report': state, 'continuable': True, 'counted': state != 'undecodable',
+            'instruction': instruction}
+
+
+def segment_end(stream):
+    """The session id and the last result event of one segment's stream."""
+    session, result = None, None
+    try:
+        lines = Path(stream).read_text(errors='replace').splitlines()
+    except OSError:
+        lines = []
+    for line in lines:
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if event.get('type') == 'system' and event.get('subtype') == 'init':
+            session = session or event.get('session_id')
+        if event.get('type') == 'result':
+            result = event
+            session = event.get('session_id') or session
+    return session, result
+
+
+def execute_continued(out, prompt_text, argv, env, work, report, limit=HARD_LIMIT, started_file=None, on_start=None,
+                      clock=time.time):
+    """execute(), then ARW's continuation in the same session until full delivery, a run that cannot continue, or the
+    hard limit counted from the first segment's start. Segment 0 is exactly execute(); segment i writes stream-i.jsonl,
+    stream-i.err and prompt-sent-i.md. The reminder hook keeps reading the first start, so it fires on the instance's
+    elapsed time (unchanged logic)."""
+    first = execute(out, prompt_text, argv, env, work, limit, started_file, on_start)
+    started, before = first['started_at'], json.loads((out / 'files-before.json').read_text())
+    segments = [{'index': 0, 'stream': 'stream.jsonl', 'message': 'handoff', **{k: first[k] for k in (
+        'exit', 'hard_interrupt', 'started_at', 'ended_at', 'wall_seconds', 'pid')}}]
+    early_exits, continue_count, next_pause, pauses = 0, 0, EARLY_EXIT_PAUSE_AT, []
+    stop, last = None, first
+    while stop is None:
+        segment = segments[-1]
+        session, result = segment_end(out / segment['stream'])
+        if last['hard_interrupt']:
+            stop = 'hard_limit'
+            break
+        if result is not None and error_kind(result) == 'model':
+            stop = 'model_error'  # F4: scored on what was written, as ARW's incomplete; no continuation
+            break
+        if last['exit'] != 0 or result is None or result.get('is_error'):
+            stop = 'abnormal_end'  # an API or transport error: the run is invalid as before, no continuation
+            break
+        check = early_exit(result.get('result'), Path(work) / report)
+        segment.update(final_status=final_status(result.get('result')), report=check['report'],
+                       delivered=check['delivered'])
+        if check['delivered']:
+            stop = 'delivered'
+            break
+        if not check['continuable']:
+            stop = 'not_continuable'
+            break
+        if not session:
+            stop = 'no_session'
+            break
+        message, kind = check['instruction'], 'arw_continuation'
+        if check['counted']:
+            early_exits += 1
+            segment['early_exit_count'] = early_exits
+            if early_exits >= next_pause:
+                pauses.append({'at': clock(), 'segment': segment['index'], 'early_exit_count': early_exits,
+                               'text': ARW_PAUSE_TEXT.format(count=early_exits), 'continue_count': continue_count})
+                next_pause = early_exits + EARLY_EXIT_PAUSE_STEP
+                message, kind = CONTINUE_MESSAGE, 'user_continue'
+                pauses[-1]['continued'] = {'at': clock(), 'message': CONTINUE_MESSAGE}
+                continue_count += 1
+        remaining = limit - (clock() - started)
+        if remaining <= 0:
+            stop = 'deadline_between_segments'
+            break
+        k = len(segments)
+        stream, errors = out / f'stream-{k}.jsonl', out / f'stream-{k}.err'
+        (out / f'prompt-sent-{k}.md').write_text(message)
+        with stream.open('wb') as stdout, errors.open('wb') as stderr:
+            begun = clock()
+            process = subprocess.Popen([*argv, '--resume', session], cwd=work, env=env, stdin=subprocess.PIPE,
+                                       stdout=stdout, stderr=stderr, start_new_session=True)
+            process.stdin.write(message.encode())
+            process.stdin.close()
+            timed_out = False
+            try:
+                code = process.wait(timeout=remaining)
+            except subprocess.TimeoutExpired:
+                timed_out = True
+                stop_group(process)
+                code = process.returncode
+            ended = clock()
+        last = {'exit': code, 'hard_interrupt': timed_out, 'started_at': begun, 'ended_at': ended,
+                'wall_seconds': ended - begun, 'pid': process.pid}
+        segments.append({'index': k, 'stream': stream.name, 'message': kind, 'session': session, **last})
+    after = file_hashes(work)
+    save(out / 'files-after.json', after)
+    changed = sorted(k for k in set(before) | set(after) if before.get(k) != after.get(k))
+    ended = segments[-1]['ended_at']
+    return {'exit': last['exit'], 'hard_interrupt': last['hard_interrupt'], 'started_at': started, 'ended_at': ended,
+            'wall_seconds': ended - started, 'pid': first['pid'], 'changed_files': changed,
+            'continuation': {'stop': stop, 'delivered': stop == 'delivered', 'early_exit_count': early_exits,
+                             'continue_count': continue_count, 'arw_pause_events': pauses, 'segments': segments,
+                             'session_id': segment_end(out / 'stream.jsonl')[0]}}
+
+
+def segment_streams(out):
+    """A run's streams in segment order: stream.jsonl, then stream-1.jsonl, stream-2.jsonl, ..."""
+    out = Path(out)
+    more = sorted(out.glob('stream-*.jsonl'), key=lambda p: int(p.stem.split('-')[1]))
+    return [out / 'stream.jsonl', *more]
+
+
 def account(stream, label, effort, out, estimate=ESTIMATE):
     """Add this run to the quota ledger; the script itself ignores models that are not Anthropic's."""
     done = subprocess.run([str(estimate), '--add-stream', str(stream), label, '--effort', effort],
@@ -456,7 +714,10 @@ def pinned_binary(claude=CLAUDE, expected=CLAUDE_VERSION):
 
 
 def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=HARD_LIMIT, reminder_after=None,
-        startup=True, tools=TOOLS, host=None, run_id=None, base=WORK_BASE, record=True, claude=CLAUDE, compact=True):
+        startup=True, tools=TOOLS, host=None, run_id=None, base=WORK_BASE, record=True, claude=CLAUDE, compact=True,
+        report=None):
+    """One run. `report` (the bound report, relative to the working directory) turns on ARW's early-exit
+    continuation (execute_continued) and session persistence; without it the run is the single `claude -p` as before."""
     if backend == 'strata' and not compact:
         raise ValueError('The Strata arm keeps the project compact prompt (hard constraint 3)')
     out = Path(out).resolve()
@@ -470,17 +731,18 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
         (work / name).mkdir(parents=True, exist_ok=True)
     started_file = control / 'started-at.txt'
     reminder_after = reminder_time(limit) if reminder_after is None else reminder_after
-    hooks, flag = session_hooks(control, started_file, reminder_after, compact)
+    hooks, flag = session_hooks(control, started_file, reminder_after, compact, hard=limit if report else None)
     session_settings = settings(work, writes, hooks)
     prompt_text = Path(prompt).read_text()
-    argv = command(backend, model, effort, work, writes, session_settings, tools, startup, claude)
+    argv = command(backend, model, effort, work, writes, session_settings, tools, startup, claude, persist=bool(report))
     save(out / 'settings.json', session_settings)
     save(out / 'command.json', [a if not a.startswith(startup_text()[0][:40]) else '<startup prompt>' for a in argv])
     binding = {'backend': backend, 'model': model, 'effort': effort, 'label': label, 'work': str(work),
                'writes': list(writes), 'limit_seconds': limit, 'reminder_after_seconds': reminder_after,
                'tools': tools, 'prompt_sha256': hashlib.sha256(prompt_text.encode()).hexdigest(),
                'compact_prompt_sha256': hashlib.sha256(COMPACT.read_bytes()).hexdigest() if compact else None,
-               'claude': binary(claude)}
+               'claude': binary(claude), 'continuation': {'report': report, 'pause_at': EARLY_EXIT_PAUSE_AT,
+                                                          'pause_step': EARLY_EXIT_PAUSE_STEP} if report else None}
     if backend in ('anthropic', 'deepseek'):
         binding['startup_instructions'] = ({'enabled': True, 'placement': '--append-system-prompt',
                                             'sha256': startup_text()[1]} if startup else {'enabled': False})
@@ -495,22 +757,30 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
             binding['endpoint'] = DEEPSEEK_BASE
         save(out / 'environment-names.json', sorted(env))
         save(out / 'binding.json', binding)
-        result = execute(out, prompt_text, argv, env, work, limit, started_file)
+        result = run_segments(out, prompt_text, argv, env, work, limit, started_file, report)
     else:
-        result = strata_run(out, prompt_text, argv, model, effort, work, limit, started_file, binding, startup, host)
+        result = strata_run(out, prompt_text, argv, model, effort, work, limit, started_file, binding, startup, host,
+                            report)
     result['reminder'] = json.loads(flag.read_text()) if flag.exists() else None
-    result['summary'] = stream_summary(out / 'stream.jsonl')
+    streams = segment_streams(out)
+    result['summary'] = stream_summary(streams)
     for name in writes:
         target = work / name
         if target.exists():
             shutil.copytree(target, out / 'outputs' / name, dirs_exist_ok=True)
-    if record:
-        result['estimate_exit'] = account(out / 'stream.jsonl', label, effort, out)
+    if record:  # the last segment's result carries the session's cumulative cost under the one session id
+        result['estimate_exit'] = account(streams[-1], label, effort, out)
     save(out / 'result.json', result)
     return result
 
 
-def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file, binding, startup, host):
+def run_segments(out, prompt_text, argv, env, work, limit, started_file, report):
+    if report:
+        return execute_continued(out, prompt_text, argv, env, work, report, limit, started_file)
+    return execute(out, prompt_text, argv, env, work, limit, started_file)
+
+
+def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file, binding, startup, host, report=None):
     """Lease, cold start with installation defaults on the published tier, the same command, engine-log tokens."""
     from tools.ops.measurement_host import MeasurementHost
     from tools.ops.deployment_source import published_tier, served_model
@@ -545,7 +815,7 @@ def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file,
             env = environment('strata', effort, home, config_dir, strata, tmp=run_tmp(work))
             save(out / 'environment-names.json', sorted(env))
             save(out / 'binding.json', binding)
-            result = execute(out, prompt_text, argv, env, work, limit, started_file)
+            result = run_segments(out, prompt_text, argv, env, work, limit, started_file, report)
         finally:
             stopped, stages, tokens = stop_and_capture_engine_log(owner, measurement_host.installation, quantization,
                                                                   offset, out, measurement_host)

@@ -257,15 +257,32 @@ def stamp(value):
         return None
 
 
+def claude_segments(stream):
+    """A continued run's streams in order (claude_headless.execute_continued): stream.jsonl, then stream-1.jsonl, ...
+    beside it, each with the harness message that started it (prompt-sent-<i>.md)."""
+    stream = Path(stream)
+    if stream.name != 'stream.jsonl':
+        return [(stream, None)]
+    more = sorted(stream.parent.glob('stream-*.jsonl'), key=lambda p: int(p.stem.split('-')[1]))
+    return [(stream, None)] + [(p, stream.parent / f'prompt-sent-{p.stem.split("-")[1]}.md') for p in more]
+
+
 def inspect_claude(stream, root, allow=()):
     """Same view as inspect() for a Claude Code stream-json run, plus tool-call counts and work time.
+    A continued run (ARW early-exit continuation, 2026-10-20) is read over all its segments; each continuation message
+    the harness sent is listed as a harness message, so it is flagged for the session check.
 
     Assistant and user events carry timestamps; action times count from the first of them. Work time is the sum of the
     result events' durations, else the span of the timestamps. A -p run usually has one result event; when the model
     leaves a background command running, Claude Code waits for it after the first result and then runs one more turn
     for its notification, with a result event of its own: each result's duration_ms, num_turns, permission_denials
     and usage cover only its own turn, and the wait between them is not work."""
-    lines = Path(stream).read_bytes().splitlines()
+    lines = []
+    for path, sent in claude_segments(stream):
+        if sent is not None:
+            text = sent.read_text(errors='replace') if sent.exists() else '(continuation message not recorded)'
+            lines.append(json.dumps({'type': 'harness_continuation', 'segment': path.name, 'text': text}).encode())
+        lines += path.read_bytes().splitlines()
     stamps = []
     root = os.path.normpath(root)
     allow = [os.path.normpath(a) for a in allow]
@@ -282,7 +299,12 @@ def inspect_claude(stream, root, allow=()):
             stamps.append(at)
             first = at if first is None else first
         kind = e.get('type')
+        if kind == 'harness_continuation':
+            messages.append({'event': i, 'role': 'harness', 'text': f"continuation ({e['segment']}): {e['text']}"})
+            continue
         if kind == 'system' and e.get('subtype') == 'init':
+            if session_id is not None:
+                continue  # a resumed segment's init: same session, startup already recorded
             session_id = e.get('session_id')
             # tools, MCP servers, model and mode are what this run started with; they must match across instances
             startup['init'] = hashlib.sha256(norm(json.dumps({k: e.get(k) for k in (

@@ -11,6 +11,18 @@ REMINDER = ('请立即整理已经取得的审查结果，保存完整的原版R
             '保留已有发现、结论和证据，不改变报告格式，不声称未完成的工作已完成。')
 
 
+def reminder_message(warning, hard, remaining, hard_deadline_at=None):
+    """The reminder sent at `warning` seconds of a `hard`-second limit: the lead rewritten when it is not 5 minutes,
+    then the remaining seconds, on the review-work basis (no hard_deadline_at) or the wall clock (with it).
+    Shared by the Codex API path (ReviewDeadline) and the Claude Code hook (claude_headless.reminder_hook)."""
+    lead = hard - warning
+    text = REMINDER if lead == REMINDER_LEAD else REMINDER.replace('最多5分钟', f'最多{int(lead)}秒')
+    if hard_deadline_at is None:
+        return text + f' 按审核工作时间累计，当前剩余{remaining}秒；停机和休眠期间暂停计时。'
+    until = datetime.fromtimestamp(hard_deadline_at, timezone.utc).isoformat()
+    return text + f' 硬截止为{until}，当前剩余{remaining}秒。'
+
+
 def save(path, value):
     stage = path.with_suffix('.json.stage')
     stage.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
@@ -70,13 +82,8 @@ class ReviewDeadline:
             operation, field, payload = 'interrupt_agent', 'interrupt', {}
         elif elapsed >= warning:
             remaining=max(0, int(hard-elapsed))
-            lead = hard - warning
-            text = REMINDER if lead == REMINDER_LEAD else REMINDER.replace('最多5分钟', f'最多{int(lead)}秒')
-            if self.alive_elapsed is not None:
-                message=text+f' 按审核工作时间累计，当前剩余{remaining}秒；停机和休眠期间暂停计时。'
-            else:
-                until = datetime.fromtimestamp(value['hard_deadline_at'], timezone.utc).isoformat()
-                message = text + f' 硬截止为{until}，当前剩余{remaining}秒。'
+            message = reminder_message(warning, hard, remaining,
+                                       None if self.alive_elapsed is not None else value['hard_deadline_at'])
             operation, field, payload = 'send_message', 'reminder', {'message': message}
         else:
             return

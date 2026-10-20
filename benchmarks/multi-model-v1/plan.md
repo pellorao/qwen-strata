@@ -517,6 +517,16 @@
     - 修复 6038d3a：三个测试补 `addCleanup`；/tmp 顶层条目超过 1500 就拒跑（低于阈值时 denyRead 不变）；`stream_summary` 新增 `sandbox_failures`，统计 is_error 的 tool_result 中以 bwrap 参数上限报错或 `bwrap: ` 开头的条数，`claude_scenario.checks` 要求它为 0 才判有效。
   - **调度**：`.tmp/bench-strata-1019/run_strata.py`（sha256 `85aa0233…`）把 stream 里有 `sandbox_failures` 的实例归为 `harness_fault`，不计入尝试次数（上限 8），新出现时就停下，不自动重跑。重跑顺序：CS low 补 1 个，CStd 补 14 个，再跑 SR，然后接 #10–12。
 
+- 2026-10-20，Claude Code 路径补上 ARW 早退接续与 S2，并修独立审查的 F10、F4（用户决定）：
+  - **用户原话**："我是希望尽量对等的, Anthropic 模型不提示继续就结束, 这已经完全不对等了, 肯定不行。……只要发生过提前退出且未完成任务的场景, 都要按上面说的规则重跑。"追加："都要按上面说的规则重跑或者续跑"；"只续跑或重跑出了问题的那些实例，不是把整个场景都重跑"。
+  - **原版依据**（快照 `arw-760007c2134d-855835bef963.tar.gz`）：`lib/reviewer-runtime/reviewer-runtime.mjs` 的完成检查：回合正常结束后，最终消息恰为 `{"status":"ready"}`、绑定报告可按 UTF-8 读出且 trim 后非空才算交付；否则按报告状态发三种接续指令之一（报告存在 / 缺失 / 为空），报告解码失败时先加可恢复错误反馈、不计次数。`lib/background-agent/manager.mjs` 的 `noteEarlyExit`：第 10 次（`config.mjs` 的 `earlyExitNotificationThreshold`）及之后每 +5 次暂停；暂停那一轮不发接续指令，等普通消息恢复。到截止时间后不再接续。
+  - **改动**：`claude_headless.execute_continued`。首段与原来相同；未交付就在同一会话里 `--resume <session id>`，用同一 argv、同一 settings 字符串，把原版指令原文作为下一条用户消息。到暂停点就记一条 `arw_pause_events`，并发 `继续`。时限从首段开始按整个实例的墙钟计，剩余预算不足就不再开新段。每段的 stream 都保留（`stream.jsonl`、`stream-<i>.jsonl`、`prompt-sent-<i>.md`）。`stream_summary` 读全部 result：usage、num_turns、时长逐段相加，modelUsage、total_cost_usd 取最后一段（2.1.303 跨 resume 累计，mock 实测）；原先只取最后一个 result 的缺陷一并修正。额度记账用最后一段。`claude_scenario` 的每个 handoff 记 `continuation`，instance.json 记 `arw_pause_events`、`continue_count`、`early_exit_count`。`inspect_session` 读全部段，每条接续消息都作为 harness 消息标记。场景运行去掉 `--no-session-persistence`。mock 实测首个请求与原来相同（只有本运行的路径和 id 不同）。会话文件在配置目录里，沙箱命令读不到（mock 显示 No such file），Read 也被 `--restricted` 拒绝。stream-json 输入方案会改变 Bash 工具描述，所以没有采用。新旧两条路径都严格按原版判定：最终消息不是恰好 `{"status":"ready"}`（例如包在 ```json 里）也算早退并接续。
+  - **F10**：提醒 hook 改用 `review_deadlines.reminder_message`（从 `ReviewDeadline.advance` 抽出的纯函数，Codex 路径行为不变）：T < 600 秒时按实际提前量改写"最多 5 分钟"，并附剩余秒数。
+  - **F4**：`claude_headless.error_kind` 把 is_error 分两类。模型侧（`terminal_reason` 为 `prompt_too_long`、subtype `error_max_turns`、文本含 "exceeded the N output token maximum"，mock 实测 2.1.303 的字段）停为 `model_error`，不接续，按已写出的报告计分（与 Codex 上 ARW 的 incomplete 对等）；其余（API 状态码、传输、认证）照旧判无效重跑。
+  - **旧实例不能续跑**：都带 `--no-session-persistence`，没有会话文件（`~/.claude/projects/-var-tmp-qwen-claude-*` 下只有 tool-results），只能重跑。
+  - **重跑范围**（Main 决定，2026-10-20）：只重跑最终消息为 incomplete、未交付的 10 个 Anthropic CS Haiku 实例（high-a1、a4；low-a2、a4、a5；medium-a1 到 a5），用新代码。原实例作废，原因"harness 未接续"，不计入尝试次数，每个配置凑够 5 个有效。只差终态格式的 B 类（报告已写完，最终消息不是恰为 `{"status":"ready"}`：Anthropic CA 21 个、CS sonnet-high-a2 1 个，Strata CA strata-low-a5 1 个）不自动重跑，列为待用户复核。Strata 臂的 7 个 A 类都是已作废的 bwrap 实例，不处理。
+  - sha256（改前 → 改后）：`claude_headless.py` `24932e88…0eec` → `51339172…76e6`，`claude_scenario.py` `afcd28b5…2100` → `2e1f7b19…d54a`，`inspect_session.py` `51254b0b…514e` → `eb7fb109…b7bb96`，`review_deadlines.py` `1aecbc50…ae92` → `b909c494…07f9`；新测试 `tests/test_claude_continuation.py`。
+
 ### 14.2 #10–12（Codex 上的 Strata）补冻结（2026-10-19）
 
 §14 为 #10–12 设的条件都已在 Codex 0.163.0 上满足，按 §14 以单独 commit 补冻结。

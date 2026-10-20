@@ -8,6 +8,8 @@ session as ARW's one-root-thread-per-instance rule) runs once through tools.revi
   the request files' absolute draft path are rewritten to the copy, Spec Readiness' host-relative draft path to the
   root-relative one;
 - only the report's directory is writable; the report is copied back to the prepared `reportPath` for scoring.
+Each handoff runs with ARW's early-exit continuation (claude_headless.execute_continued, user 2026-10-20): its record
+gets `continuation` and instance.json the Codex path's `arw_pause_events`, `continue_count` (plus `early_exit_count`).
 Each handoff's record gets `checks`: the returned model IDs against the bound ID (plan §2 match rule; a safeguards
 refusal fallback to another model fails it), service tiers (S5), server web requests, startup prompt off, and a normal
 end (a stop at the hard limit stays valid; an API or transport error does not). With `--time-limit-seconds T` the
@@ -99,13 +101,16 @@ def checks(result, model, startup, report_dir=None, strata=None, binding=None):
            'completed': result.get('exit') == 0 and not result.get('hard_interrupt') and summary.get('result_event') is True
            and not summary.get('is_error'),
            'startup_prompt_off': not startup}
-    # A run stopped at the hard limit stays valid (scored on what it wrote, as ARW); any other abnormal end (API or
-    # transport error, non-zero exit) is invalid and rerun.
+    # A run stopped at the hard limit or by a model-side error (F4: its context or output over the limits, as ARW's
+    # incomplete on Codex) stays valid, scored on what it wrote; any other abnormal end (API or transport error,
+    # non-zero exit) is invalid and rerun.
     # Files changed outside the report directory other than the harness stubs: recorded for the session check (the
     # sandbox lets commands create new files in the report's ancestor directories, never change existing ones).
     out['unexpected_changes'] = [f for f in result.get('changed_files') or []
                                  if not (report_dir and f.startswith(report_dir + '/')) and not HARNESS_STUBS.fullmatch(f)]
-    out['ended_normally'] = out['completed'] or bool(result.get('hard_interrupt'))
+    out['error_kind'] = summary.get('error_kind')
+    out['ended_normally'] = (out['completed'] or bool(result.get('hard_interrupt'))
+                             or (summary.get('result_event') is True and summary.get('error_kind') == 'model'))
     # Harness fault: a Bash call whose sandbox could not be built never ran (bwrap argument limit, 2026-10-20).
     out['sandbox_failures'] = summary.get('sandbox_failures') or 0
     prompts_ok = out['startup_prompt_off']
@@ -150,7 +155,8 @@ def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_
             records.append(record)
             continue
         result = ch.run(out / f'h{k}', out / f'prompt-h{k}.md', backend, model, effort, f'{label} h{k}', copies,
-                        [report_dir], limit, startup=startup, run_id=run_id, claude=claude, compact=compact, host=host)
+                        [report_dir], limit, startup=startup, run_id=run_id, claude=claude, compact=compact, host=host,
+                        report=staging['report'])
         produced = out / f'h{k}' / 'outputs' / report_dir / Path(staging['report']).name
         if produced.exists():
             target = Path(handoff['input']['reportPath'])
@@ -158,7 +164,7 @@ def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_
             shutil.copyfile(produced, target)
         record.update(report_exists=produced.exists(),
                       report_sha256=hashlib.sha256(produced.read_bytes()).hexdigest() if produced.exists() else None,
-                      wall_seconds=result.get('wall_seconds'))
+                      wall_seconds=result.get('wall_seconds'), continuation=continuation_record(result))
         if backend == 'strata':
             binding = json.loads((out / f'h{k}' / 'binding.json').read_text())
             record.update(checks=checks(result, model, startup, report_dir, strata_expected(effort), binding),
@@ -168,10 +174,27 @@ def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_
             record['checks'] = checks(result, model, startup, report_dir)
         records.append(record)
         save(out / 'instance.json', {'plan': str(plan_path), 'model': model, 'effort': effort, 'label': label,
-                                     'handoffs': records})
+                                     'handoffs': records, **pause_summary(records)})
     save(out / 'instance.json', {'plan': str(plan_path), 'model': model, 'effort': effort, 'label': label,
-                                 'handoffs': records, 'dry_run': dry_run})
+                                 'handoffs': records, 'dry_run': dry_run, **pause_summary(records)})
     return records
+
+
+def continuation_record(result):
+    """The handoff's early-exit continuation as ARW would have run it (claude_headless.execute_continued)."""
+    c = result.get('continuation') or {}
+    return {'stop': c.get('stop'), 'delivered': c.get('delivered'), 'early_exit_count': c.get('early_exit_count'),
+            'continue_count': c.get('continue_count'), 'arw_pause_events': c.get('arw_pause_events') or [],
+            'segments': len(c.get('segments') or []), 'session_id': c.get('session_id')}
+
+
+def pause_summary(records):
+    """Instance-level fields as the Codex path's instance.json: every pause of every handoff is one violation entry;
+    scoring multiplies the instance by 0.9 once when any exists (user 2026-10-20)."""
+    events = [dict(e, handoff=r['k']) for r in records for e in (r.get('continuation') or {}).get('arw_pause_events') or []]
+    return {'arw_pause_events': events,
+            'continue_count': sum((r.get('continuation') or {}).get('continue_count') or 0 for r in records),
+            'early_exit_count': sum((r.get('continuation') or {}).get('early_exit_count') or 0 for r in records)}
 
 
 if __name__ == '__main__':
