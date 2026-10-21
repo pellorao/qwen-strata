@@ -3,8 +3,8 @@
 A cut is the server's fault and the retry only reconnects; when the model saw the same input the instance stays valid.
 A relay error row is a `stream_cut_retry` (not a relay error) when all hold:
 
- (a) either status 200 and an upstream-side transport error (not BrokenPipeError / ConnectionResetError, which are the
-     client dropping the stream and belong to tools.reviewer.reminder_interrupt), or a transport failure before any
+ (a) either status 200 and an upstream-side transport error (`error_side` upstream; a client-side error is the
+     client dropping the stream and belongs to tools.reviewer.reminder_interrupt), or a transport failure before any
      HTTP status that lasted at most PRE_STATUS_MAX seconds (`kind` 'pre_status'; ruling extension 2026-10-21,
      provisional: a longer hang eats into the time limit and changes the task conditions, so it stays an error);
  (b) the cut stream wrote nothing into the rollout: between the row's start and the retry's start the rollouts have no
@@ -19,7 +19,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from tools.reviewer.reminder_interrupt import CLIENT_ERRORS, error_rows
+from tools.reviewer.reminder_interrupt import error_rows, error_side
 
 NEXT_WITHIN = 5.0
 PRE_STATUS_MAX = 5.0
@@ -46,7 +46,7 @@ def classify(rows, entries, skip=()):
             continue
         if not row.get('transport_error'):
             continue
-        if row.get('status') == 200 and row['transport_error'] not in CLIENT_ERRORS:  # (a)
+        if row.get('status') == 200 and error_side(row) != 'client':  # (a)
             kind = 'after_200'
         elif row.get('status') is None and row['ended_at'] - row['started_at'] <= PRE_STATUS_MAX:
             kind = 'pre_status'

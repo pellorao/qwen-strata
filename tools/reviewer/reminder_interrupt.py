@@ -5,7 +5,7 @@ it (Codex drops the in-flight /responses stream and resends with the message) is
 review. Such a row shows up in the relay as a write error towards the client. `classify` separates it from real
 transport errors; a relay error row is a `reminder_interrupt` (not a relay error) when all hold:
 
- (a) transport_error BrokenPipeError or ConnectionResetError, status 200;
+ (a) a client-side transport error (`error_side`), status 200;
  (b) the deadline record's reminder (or interrupt) status is accepted;
  (c) the request was in flight when the event was sent (started_at < attempted_at <= ended_at) and ended within
      30 s of it (Codex drops the stream at its next stream event, which for a request still in prefill comes later);
@@ -24,6 +24,19 @@ from pathlib import Path
 
 CLIENT_ERRORS = ('BrokenPipeError', 'ConnectionResetError')
 IN_FLIGHT_MAX, NEXT_WITHIN = 30.0, 1.0
+
+
+def error_side(row):
+    """'client' or 'upstream' for an error row; None when the row is not an error.
+
+    api_relay writes `error_side` on every error row. Older rows lack it: a transport error is then client-side exactly
+    when it is BrokenPipeError / ConnectionResetError, otherwise upstream; a status >= 400 without a transport error is
+    upstream."""
+    if row.get('error_side'):
+        return row['error_side']
+    if row.get('transport_error'):
+        return 'client' if row['transport_error'] in CLIENT_ERRORS else 'upstream'
+    return 'upstream' if (row.get('status') or 0) >= 400 else None
 
 
 def error_rows(rows):
@@ -65,7 +78,7 @@ def classify(rows, events, message_ids):
         for row in errors:
             if id(row) in used:
                 continue
-            if row.get('transport_error') not in CLIENT_ERRORS or row.get('status') != 200:  # (a)
+            if not row.get('transport_error') or error_side(row) != 'client' or row.get('status') != 200:  # (a)
                 continue
             if not (row['started_at'] < at <= row['ended_at'] <= at + IN_FLIGHT_MAX):  # (c)
                 continue

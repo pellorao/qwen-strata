@@ -8,6 +8,13 @@ an Anthropic Messages ``message_start``/``message_delta`` pair). Headers and bod
 
 A WebSocket upgrade is refused with 426 and recorded, so a client that prefers WebSocket falls back to HTTP; the
 zero-model probe in benchmarks/multi-model-v1/plan.md checks that Codex does.
+
+Error rows (a transport error, or an upstream status >= 400) carry ``error_side`` saying which side the failure was on:
+  'client'   the relay failed writing to the harness (it abandoned the stream or closed the connection), e.g. a
+             BrokenPipeError / ConnectionResetError from send_response, end_headers, write or flush;
+  'upstream' the upstream failed: connecting to it failed, reading its reply failed (stream cut, timeout), or it
+             answered with an error status (>= 400; the reply is passed through, so no transport_error then).
+Rows without the field are older records; tools.reviewer.reminder_interrupt.error_side infers the side for them.
 """
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -108,6 +115,7 @@ class Handler(BaseHTTPRequestHandler):
         headers['Accept-Encoding'] = 'identity'
         request = urllib.request.Request(relay.upstream + self.path, body, headers, method=self.command)
         fields, status, kind, whole = Fields(), None, '', b''
+        side = 'upstream'  # which side an exception raised now belongs to
         try:
             try:
                 reply = relay.opener.open(request, timeout=TIMEOUT)
@@ -116,12 +124,16 @@ class Handler(BaseHTTPRequestHandler):
             with reply:
                 status = reply.status if hasattr(reply, 'status') else reply.code
                 kind = reply.headers.get('Content-Type', '')
+                if status >= 400:
+                    fields.values['error_side'] = 'upstream'
+                side = 'client'
                 self.send_response(status)
                 for key, value in reply.headers.items():
                     if key.lower() not in HOP:
                         self.send_header(key, value)
                 self.send_header('Connection', 'close')
                 self.end_headers()
+                side = 'upstream'
                 # The ChatGPT backend streams SSE without a Content-Type (2026-10-20, relayprobe), so every reply is
                 # scanned as SSE first and parsed as one JSON body only when no event was found.
                 read = getattr(reply, 'read1', reply.read)  # read1 returns what has arrived, so events stream through
@@ -129,15 +141,17 @@ class Handler(BaseHTTPRequestHandler):
                     fields.feed(data)
                     if len(whole) < 4 << 20:
                         whole += data
+                    side = 'client'
                     self.wfile.write(data)
                     self.wfile.flush()
+                    side = 'upstream'
             self.close_connection = True
             values = fields.finish(None if fields.values or 'event-stream' in kind else whole)
             relay.record({'started_at': started, 'ended_at': time.time(), 'method': self.command, 'path': self.path,
                           'status': status, **values})
         except Exception as error:  # the client sees a broken stream; the record says so, without any content
             relay.record({'started_at': started, 'ended_at': time.time(), 'method': self.command, 'path': self.path,
-                          'status': status, 'transport_error': type(error).__name__})
+                          'status': status, 'transport_error': type(error).__name__, 'error_side': side})
             self.close_connection = True
 
     do_POST = do_GET = do_PUT = do_DELETE = forward

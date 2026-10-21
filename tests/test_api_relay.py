@@ -1,5 +1,8 @@
 import json
 import os
+import socket
+import struct
+import time
 import sys
 import tempfile
 import threading
@@ -72,6 +75,53 @@ class RelayTests(unittest.TestCase):
             finally:
                 upstream.shutdown();upstream.server_close()
         self.assertEqual(tier_summary([{'started_at':1,'status':502}])['errors'],1)
+
+    def test_error_rows_say_which_side_failed(self):
+        class Bad(BaseHTTPRequestHandler):
+            protocol_version='HTTP/1.1'
+            def log_message(self,*args):pass
+            def do_POST(self):
+                self.rfile.read(int(self.headers.get('Content-Length') or 0))
+                mode=self.path
+                if mode=='/status':
+                    body=b'{}';self.send_response(502);self.send_header('Content-Length','2');self.end_headers();self.wfile.write(body)
+                elif mode=='/cut':  # sends one chunk, then closes without the end chunk: upstream stream cut after 200
+                    self.send_response(200);self.send_header('Content-Type','text/event-stream')
+                    self.send_header('Transfer-Encoding','chunked');self.end_headers()
+                    self.wfile.write(b'b\r\ndata: {}\n\n\r\n');self.wfile.flush()
+                    self.close_connection=True
+                else:  # long stream the client abandons
+                    self.send_response(200);self.send_header('Content-Type','text/event-stream')
+                    self.send_header('Content-Length',str(64<<20));self.end_headers()
+                    try:
+                        for _ in range(64):self.wfile.write(b'x'*(1<<20));self.wfile.flush()
+                    except OSError:pass
+                    self.close_connection=True
+        upstream=ThreadingHTTPServer(('127.0.0.1',0),Bad)
+        threading.Thread(target=upstream.serve_forever,daemon=True).start()
+        try:
+            with tempfile.TemporaryDirectory()as tmp, Relay(f'http://127.0.0.1:{upstream.server_port}',tmp) as relay:
+                with self.assertRaises(urllib.error.HTTPError):urllib.request.urlopen(urllib.request.Request(relay.url+'/status',b'{}',method='POST'))
+                try:
+                    with urllib.request.urlopen(urllib.request.Request(relay.url+'/cut',b'{}',method='POST'))as reply:reply.read()
+                except Exception:pass
+                body=b'{}'
+                with socket.create_connection(('127.0.0.1',int(relay.url.rsplit(':',1)[1])))as conn:  # reads the head, then drops
+                    conn.sendall(b'POST /drop HTTP/1.1\r\nHost: x\r\nContent-Length: 2\r\n\r\n'+body);conn.recv(100)
+                    conn.setsockopt(socket.SOL_SOCKET,socket.SO_LINGER,struct.pack('ii',1,0))  # RST on close
+                deadline=time.time()+10
+                while len(relay.rows)<3 and time.time()<deadline:time.sleep(0.05)
+                by={r['path']:r for r in relay.rows}
+                self.assertEqual((by['/status']['status'],by['/status']['error_side'],'transport_error' in by['/status']),(502,'upstream',False))
+                self.assertEqual((by['/cut']['status'],by['/cut']['error_side']),(200,'upstream'))
+                self.assertEqual((by['/drop']['status'],by['/drop']['error_side']),(200,'client'))
+            dead=ThreadingHTTPServer(('127.0.0.1',0),Bad);port=dead.server_port;dead.server_close()
+            with tempfile.TemporaryDirectory()as tmp, Relay(f'http://127.0.0.1:{port}',tmp) as relay:  # nothing listens
+                try:urllib.request.urlopen(urllib.request.Request(relay.url+'/x',b'{}',method='POST'))
+                except Exception:pass
+                self.assertEqual((relay.rows[0]['status'],relay.rows[0]['error_side']),(None,'upstream'))
+        finally:
+            upstream.shutdown();upstream.server_close()
 
     def test_tier_summary_window_and_missing_tier(self):
         rows=[{'started_at':1,'service_tier':'flex'},{'started_at':5,'status':200},{'started_at':9,'service_tier':'default'}]
