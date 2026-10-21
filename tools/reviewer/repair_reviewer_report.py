@@ -11,12 +11,14 @@ JSONL reports (Commit Audit; `lines` is an array of positive integers or
   (a) a scalar `lines` value n becomes [n]. A top-level [a, b] is two lines
       by definition and is left as written.
   (e) a row whose `source` line does not hold the requirement it quotes, while the quoted `requirement` text matches
-      exactly one other requirement line of the same file in the Commit Audit request (user 2026-10-21; e.g. a report
-      whose row numbers are shifted by one): the row is moved to that line. A text matches a line when every
-      backquoted span of the text is in the line and at least 80% of the text's other words (articles and
-      prepositions ignored, plural -s dropped) are in the line; no match, several matches, or a target line another
-      row ends up on as well leaves the row as written. Each moved row is one format error. Rows of gate 2 (spec
-      lines are free) are never moved.
+      exactly one other line of the same file (user 2026-10-21; e.g. a report whose row numbers are shifted by one):
+      the row is moved to that line. The lines compared are the gate-1 requirement lines of that file in the Commit
+      Audit request, or, for a gate-2 document (spec lines are free), every line of that document (user 2026-10-22:
+      the same repair in both gates). A text matches a line when every backquoted span of the text is in the line
+      and at least 80% of the text's other words (articles and prepositions ignored, plural -s dropped) are in the
+      line; no match, several matches, or a target line another row ends up on as well leaves the row as written.
+      Each moved row is one format error. Only `source.line` moves: it names which requirement a row judges, while
+      the row quotes that requirement. Evidence `lines` are scored locators and are never moved (user 2026-10-22).
 
 Markdown reports (Code Spec, Code Standards; user 2026-10-12):
   (b) everything before the first finding (a line starting with `1. ` style
@@ -114,7 +116,8 @@ def text_matches(quoted, line_text, threshold=0.8):
 
 def requirement_moves(rows, requirements):
     """{row number: (before line, after line, text)} of the rows whose quoted requirement belongs to exactly one other
-    requirement line of their file. requirements maps file -> {line: text} (gate-1 requirement lines)."""
+    line of their file. requirements maps file -> {line: text} (request_requirements: gate-1 requirement lines,
+    gate-2 documents in full)."""
     moves = {}
     for number, row in enumerate(rows, 1):
         source, quoted = row.get('source'), row.get('requirement')
@@ -376,22 +379,28 @@ def staged_sources(root, texts=None):
 
 
 def request_requirements(report, scenario_root):
-    """File -> {line: text} of the gate-1 requirement lines of the Commit Audit request next to the report
-    (reports/review.jsonl beside request.json); None when there is no such request or scenario."""
+    """File -> {line: text} of the lines a Commit Audit row may quote, from the request next to the report
+    (reports/review.jsonl beside request.json): the gate-1 requirement lines of each issue file, and every line of
+    each gate-2 document (spec lines are free; a file that is also a gate-1 file keeps its gate-1 lines). None when
+    there is no such request or scenario."""
     request = Path(report).parent.parent / 'request.json'
     if scenario_root is None or not request.is_file():
         return None
     try:
-        gate1 = json.loads(request.read_text(encoding='utf-8')).get('gate1') or []
+        data = json.loads(request.read_text(encoding='utf-8'))
     except ValueError:
         return None
     texts = staged_texts(scenario_root)
     out = {}
-    for issue in gate1:
+    for issue in data.get('gate1') or []:
         for item in issue.get('requirements') or []:
             lines = texts.get(item.get('filePath'), '').split('\n')
             if is_int(item.get('line')) and 1 <= item['line'] <= len(lines):
                 out.setdefault(item['filePath'], {})[item['line']] = lines[item['line'] - 1]
+    for gate in data.get('gate2') or []:
+        for document in gate.get('documents') or []:
+            if document in texts and document not in out:
+                out[document] = dict(enumerate(texts[document].split('\n'), 1))
     return out
 
 
