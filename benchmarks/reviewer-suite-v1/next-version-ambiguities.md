@@ -9,8 +9,8 @@
 | 编号 | 场景与位置 | 问题 | 现行处理 | 影响 | 改写方向 |
 |---|---|---|---|---|---|
 | A1 | CS `governing-spec.md:160` | "Catalog locale keys and a member's `locale` are trimmed and lowercased, a missing or blank locale being `en`."：空白目录键是否也归 `en` | rulings「CS v5 governing-spec.md:160」（用户定 10-20）：不归，判 unsupported，报告另给判 supported 时的分数 | 13 条（另 10-14 试点 1 条） | 拆成两句，分别写明成员 locale 与目录键的处理 |
-| A2 | CA 需求行 `01:30`、`spec:59`，规则 `dispatch-policy.md:42-43` | "returns an error result"：指带 `error` 字段的结果，还是 `ok:false` 即可 | 未定；两条近同文本判法相反（ca-1-150 supported，ca-2-137 unsupported） | 2 条 | 需求行写明错误结果的形状 |
-| A3 | CA `dispatch-policy.md:52-54`（规则 26、27），需求行 `spec:71` / `02:46` | 规则 26"带有限 `retryAfter` 的失败也是 transient"与规则 27"`transient: false` 永不 transient"哪个优先 | 未定；ca-2-143 判 supported，复核倾向 problem-1；答案键靠"规则 27 优先"的读法 | 1 条，并影响该需求行的匹配口径 | 规则 26 加"除非标为 `transient: false`" |
+| A2 | CA 需求行 `01:30`、`spec:59`，规则 `dispatch-policy.md:42-43` | "returns an error result"：指带 `error` 字段的结果，还是 `ok:false` 即可 | 可执行检查定不了（两种读法下代码行为相同：被拒输入返回 `{ok:false}`，无 `error` 字段），确属两可。主读法按答案键：`ok:false` 即可，ca-1-150 判 supported（它讲到 `Number` 强转），ca-2-137 判 unsupported（10-21）；报告另给"须带 `error` 字段"读法下的分数（该读法下两条都判 supported，ca-56-130、ca-56-135 逐条复核） | 4 条 | 需求行写明错误结果的形状 |
+| A3 | CA `dispatch-policy.md:52-54`（规则 26、27），需求行 `spec:71` / `02:46` | 规则 26"带有限 `retryAfter` 的失败也是 transient"与规则 27"`transient: false` 永不 transient"哪个优先 | 经核对不是歧义：政策文档头写明"同节内后一条覆盖前一条"，规则 27 在 26 之后，所以规则 27 优先，与答案键一致（10-21）。ca-2-143 没有写出 `transient: false`，按 brief:46 不匹配问题用例，维持 supported | 1 条 | 文档头的覆盖规则离规则 26、27 太远，容易漏看；规则 26 直接加"除非标为 `transient: false`" |
 | A4 | SR `promotion-recovery.md:65`、`:85` | recoverPromotion 拒绝调用方自报，与别处状态读取要求是否矛盾 | 判 unsupported，复核同意但认为较难 | 6 条 | 待确认是否真有歧义；改成一处写清来源要求 |
 | A5（待核） | SR `promotion-runtime.md:11`、`:15`、`:45`、`:97` 与 Acceptance criteria | request binding、`retentionDays`、ADR 0004/0005、测试分支等，多个模型反复提出同类 finding | 都判 unsupported，复核全部同意 | 83 条（RM 21、AP 62） | 只是推测：逐类确认后，在规格里对常见误报加一句明确排除 |
 
@@ -34,4 +34,3 @@
 
 ## 未决事项
 
-- A2、A3 在本次计分中还没有统一判法，第一阶段正式计分前处理（按 rulings「场景原文有歧义」：可执行检查，确属两可的列为已知歧义并给两种读法下的分数）。
