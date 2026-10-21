@@ -228,6 +228,20 @@ class RunnerBuildersTest(unittest.TestCase):
                           'segments': 1, 'segments_without_result': 1})
         self.assertEqual(s['sandbox_failures'], 0)
 
+    def test_stream_summary_sums_every_result_of_one_stream(self):
+        # bench-strata-1019 ca-r2 strata-medium-a2/h0 (2026-10-20): one stream with several results; the summary
+        # read only the last one (5.2 s, 1 turn of 1097.6 s, 58 turns). Per-result fields add up, cost runs on.
+        stream = self.base / 'multi.jsonl'
+        stream.write_text('\n'.join(json.dumps(e) for e in (
+            {'type': 'result', 'subtype': 'success', 'num_turns': 57, 'duration_ms': 1092400, 'duration_api_ms': 900,
+             'total_cost_usd': 3.0, 'usage': {'output_tokens': 85167, 'input_tokens': 53346}},
+            {'type': 'result', 'subtype': 'success', 'num_turns': 1, 'duration_ms': 5200, 'duration_api_ms': 100,
+             'total_cost_usd': 3.5645, 'usage': {'output_tokens': 335, 'input_tokens': 401}})) + '\n')
+        s = ch.stream_summary(stream)
+        self.assertEqual((s['result_events'], s['num_turns'], s['duration_ms'], s['duration_api_ms']), (2, 58, 1097600, 1000))
+        self.assertEqual((s['usage']['output_tokens'], s['usage']['input_tokens']), (85502, 53747))
+        self.assertEqual((s['total_cost_usd'], s['usage_bound']), (3.5645, 'complete'))
+
     def test_stream_summary_counts_sandbox_setup_failures(self):
         # 2026-10-20: every Bash call failed at sandbox setup (bwrap argument limit); a command's own error does not count.
         limit = ('Sandbox profile has 9672 bwrap arguments and bwrap accepts at most 9000 (about 3000 mounts); '
