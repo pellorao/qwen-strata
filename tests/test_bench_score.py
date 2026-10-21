@@ -55,7 +55,27 @@ class MergeTest(unittest.TestCase):
         self.assertAlmostEqual(final, 0.72)  # pause, f and the ARW cut never multiply
         deduction, final = bench_score.merge(0.5, 0.06, False, False)
         self.assertAlmostEqual(final, 0.47)
-        self.assertEqual(bench_score.merge(-0.2, 0.0, True, False)[1], 0.0)
+
+    def test_r8_4_negative_scores_are_kept_and_deducted_by_their_size(self):
+        # s - d|s|: a positive score as s(1 - d), a negative one lower still; 0 stays 0.
+        self.assertAlmostEqual(bench_score.merge(-0.2, 0.0, True, False)[1], -0.22)
+        self.assertAlmostEqual(bench_score.merge(-0.5, 0.04, False, True)[1], -0.55)
+        self.assertAlmostEqual(bench_score.merge(-1.3, 0.05, False, False)[1], -1.365)
+        self.assertEqual(bench_score.merge(0.0, 0.1, True, True)[1], 0.0)
+        # Bit for bit the r8.3 product when s >= 0 (s - d*s can differ from s*(1-d) in the last bit).
+        self.assertEqual(bench_score.deduct(0.4662056413372203, 0.1), 0.4662056413372203 * (1 - 0.1))
+        # The r8.3 counterpart: cut at 0, deduction multiplied; equal to r8.4 whenever the score is >= 0.
+        self.assertEqual(bench_score.r83(-0.2, 0.1), (0.0, 0.0))
+        for s, d in ((0.8, 0.1), (0.5, 0.06), (0.0, 0.1), (1.0, 0.0)):
+            self.assertEqual(bench_score.r83(s, d)[0], s)
+            self.assertAlmostEqual(bench_score.r83(s, d)[1], bench_score.merge(s, d, False, False)[1], places=15)
+
+    def test_no_report_uses_the_model_failure_score_of_the_scoring_patch(self):
+        # One decision (user, pending: -1 or 0) in two places: bench_score and scoring-k.patch.
+        patch = (bench_score.ROOT / 'benchmarks/reviewer-suite-v1/arw-patches/scoring-k.patch').read_text()
+        fails = '+const MODEL_FAILURE_FAILS_CLEAN_CASES = true;' in patch
+        self.assertNotEqual(fails, '+const MODEL_FAILURE_FAILS_CLEAN_CASES = false;' in patch)
+        self.assertEqual(bench_score.MODEL_FAILURE_FINAL, -1.0 if fails else 0.0)
 
     def test_pause_once_however_many_pauses(self):
         record = {'id': 'x', 'pause_known': True, 'pause_count': 3, 'pause_note': None, 'pause_basis': 'recorded'}
@@ -113,6 +133,15 @@ class RepetitionScoreTest(unittest.TestCase):
     def test_a_cut_that_disagrees_with_the_codes_is_an_error(self):
         with self.assertRaises(ValueError):
             bench_score.repetition_score(upstream(0.8, score=0.72), {'default-x-instance-1': None}, self.registry)
+
+    def test_r8_4_arw_cut_of_a_negative_score_lowers_it(self):
+        up = upstream(-0.4, codes=('some-new-code',), score=-0.44)
+        row = bench_score.repetition_score(up, {'default-x-instance-1': None}, self.registry)
+        self.assertTrue(row['arw_cut'])
+        # The r8.3 form (x 0.9 = -0.36) no longer matches.
+        with self.assertRaises(ValueError):
+            bench_score.repetition_score(upstream(-0.4, codes=('some-new-code',), score=-0.36),
+                                         {'default-x-instance-1': None}, self.registry)
 
 
 def candidate(n, kind='association'):
@@ -340,6 +369,49 @@ class SpillScoringEndToEndTest(unittest.TestCase):
         self.assertEqual(results['direct'][0]['rRepairable'], 0)
         # The converted copy is scored as the report written with the source lines.
         self.assertEqual(spilled['scoreBeforePenalty'], results['direct'][0]['scoreBeforePenalty'])
+
+
+class ModelFailureEndToEndTest(unittest.TestCase):
+    """r8.4 on the four frozen answer keys of the benchmark: the negative-score denominator kCleanWeight (every clean
+    case's k, no-other cases at 0.25, a merged case once, the Spec Readiness pair added up) and the model failure score
+    (every clean case failed: -1 while MODEL_FAILURE_FAILS_CLEAN_CASES is true), through a fresh zero-model preparation
+    and the frozen ARW scorer."""
+
+    # Plan: (Σk of the clean cases, handoffs). Commit Audit v3: 50 clean cases with 18 merged pairs -> 50 units at 0.25.
+    EXPECTED = {'code-spec-v5': (7.25, 1), 'code-standards-v5.1': (16.25, 1), 'spec-readiness-v4.3': (14.75, 2),
+                'commit-audit-v3': (12.5, 1)}
+
+    def test_clean_weight_and_model_failure_score_of_each_scenario(self):
+        from tools.tuning.arw_dimension import load_plan, prepare
+        old = os.environ.get('CODEX_THREAD_ID')
+        try:
+            for name, (clean_weight, handoffs) in self.EXPECTED.items():
+                with self.subTest(name), tempfile.TemporaryDirectory() as tmp:
+                    plan = load_plan(bench_records.ROOT / f'benchmarks/multi-model-v1/scenarios/{name}.json')[0]
+                    work = Path(tmp)
+                    limited = 'measurement_note_template' in plan['fixed_conditions']
+                    prepare(plan, None, work / 'prep', time_limit_seconds=1200 if limited else None)
+                    prepared = json.loads((work / 'prep/preparation.json').read_text())
+                    os.environ['CODEX_THREAD_ID'] = plan['codex_thread_id']
+                    # The first repetition, as an instance record pairs its handoffs with the fresh ones.
+                    record = {'id': f'anthropic/{name}/failure', 'handoffs': [
+                        {'k': k, 'instanceId': h['instanceId'], 'report': None, 'report_sha256': None}
+                        for k, h in enumerate(prepared['handoffs'][:handoffs])]}
+                    upstream_input, _, _ = bench_score.place_reports(record, prepared, work / 'score')
+                    bench_score.save(work / 'in.json', upstream_input)
+                    up, seen, _, pending = bench_score.adjudicate(prepared, work / 'in.json', work / 'up', lambda c: None)
+                    self.assertEqual((seen, pending), ({}, []))
+                    [rep] = [rep for result in up['results'] for rep in result['repetitions']]
+                    self.assertAlmostEqual(rep['kCleanWeight'], clean_weight)
+                    self.assertAlmostEqual(rep['kFailedCleanWeight'], clean_weight)
+                    self.assertEqual(rep['kEarnedProblemPoints'], 0)
+                    self.assertAlmostEqual(rep['scoreBeforePenalty'], bench_score.MODEL_FAILURE_FINAL)
+                    self.assertEqual(rep['rawScore'], -clean_weight / rep['kProblemWeight'])
+        finally:
+            if old is None:
+                os.environ.pop('CODEX_THREAD_ID', None)
+            else:
+                os.environ['CODEX_THREAD_ID'] = old
 
 
 class RecordHelpersTest(unittest.TestCase):

@@ -38,9 +38,10 @@ rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），只对外提
 - 防循环提醒与检测弃用，只留离线复查（2026-10-11）：[历史工作](docs/work-history.md#2026-10-1011-防循环提醒试跑基线与弃用)。
 - Claude Code 用自写审批 `qwen-approve`，不用内置 auto mode（2026-10-10）：[验收报告](reports/v0.1.40.2/agent-integration-2b/summary.md)。
 - 模型跨租约驻留，相同参数复用不再加载（2026-10-10）：设计见[前端运行与维护](docs/frontend.md)，决定经过见[历史工作](docs/work-history.md)「2026-10-09 迁移决定」。
-- 调参默认用可机械判定的专用负载；ARW 场景须 10 次组内 SD ≤ 0.068（罚前、罚后都满足）才考虑用于调参（此值定于 r8 之前的尺度，r8 尺度下待定，新阈值同时看截断前的分，2026-10-16）；影响输出的参数按分阶段判定（2026-10-12／13，用户决定；规则见[测量规则](.claude/rules/measurement.md)）。
+- 调参默认用可机械判定的专用负载；ARW 场景须 10 次组内 SD ≤ 0.068（罚前、罚后都满足）才考虑用于调参（此值定于 r8 之前的尺度，r8 尺度下待定，新阈值同时看 `rawScore`，2026-10-16；评分 r8.4 起分数不再截断）；影响输出的参数按分阶段判定（2026-10-12／13，用户决定；规则见[测量规则](.claude/rules/measurement.md)）。
 - Spec Readiness 停用合并实例，改用独立根线程（2026-10-13）：[审查报告](reports/v0.1.42/spec-rule-audit/summary.md)。
 - Reviewer 评分：证据 F2、按 k 分档计分（默认 0.25，难以核实的 1 或 4；分数以什么都不报为 0、满分为 1，取代 F2 总分与 A／B 两类计分，2026-10-16 评分 r8）、格式罚按比例、罚分归属原则、越过停止点算一个失败反例（2026-10-14／15，评分 r7）、Commit Audit 满足行上的误报只扣一次（2026-10-17，评分 r8.1）、答案键声明的合并用例只计一次（取低分，2026-10-17，评分 r8.2；Commit Audit 发现候选不跨行补关联，评分 r8.3）：经过见[历史工作](docs/work-history.md)，现行规则见[评分规则](.claude/rules/reviewer-suite.md#评分)。
+- Reviewer 评分 r8.4：取消分数截到 0 的下限（N < 0 时按答案键全部反例的 k 之和归一，可低于 −1；原始分 ≥ 0 时与 r8.3 逐位相同），整体扣减改为 s − d·|s|；模型失误暂按 −1，取 −1 还是 0 待用户定（2026-10-21，用户决定，独立审查有条件实施）：[benchmark 计划 §14.1](benchmarks/multi-model-v1/plan.md#141-冻结后的偏离)、[Reviewer 规则](.claude/rules/reviewer-suite.md)。
 - 出题原则：一道题只出一次；意外的重复改题，有意保留的重复在答案键里显式声明为合并用例、评分按声明合并，不靠计分端去重；报告凡给得分处同时给耗时，附 token 数和工具调用数，耗时不进分数（2026-10-16／17，用户决定）：[Reviewer 规则](.claude/rules/reviewer-suite.md)、[Commit Audit v2 变更说明](benchmarks/reviewer-suite-v1/commit-audit-v2.md)。
 - 场景能力判定用相对口径 Q3／Opus，目标 < 0.8（2026-10-13；2026-10-15 用户确认维持 Opus 参考）：[Reviewer 规则](.claude/rules/reviewer-suite.md)。
 - `qwen-agent` 改按所选量化的默认档启动，Codex 与 Claude Code 同值（IQ3_XXS 206584／150000）；Claude Code 的压缩点依赖未公开的 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`，版本变化后用 `tools.ops.claude_compact_probe` 重新核对（2026-10-19，Main 与独立审查一致，rtx3080ti 已部署，rtx4070tis 补档位后同步）：[报告](reports/v0.1.45/context-tier-unify/summary.md)。

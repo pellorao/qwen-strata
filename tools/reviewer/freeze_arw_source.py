@@ -75,18 +75,18 @@ REPEATS = JUDGMENT / 'repeats.json'
 FIXTURES = 'tests/fixtures/reviewer-capability'
 SCORING_UPGRADE = {
     'file': 'scoring-k.patch',
-    'sha256': '21574f23f9e8174414d9edf39b0c4725d5b1f0fce8b7010d8e0a9b0c70bed6ce',
+    'sha256': '6e693fe3b9b243d7a40626c1de36ba19e1107b5cfa4216703c0223ca5550aed4',
     # Members no scenario patch touches: (ARW original, upgraded).
     'members': {
         'lib/release/reviewer-capability-scoring.mjs': (
             '89a4e6bdc0a47756c28abce013ce6940ebf224e8609ebf809a499c57b85d60c4',
-            'd61b20928c628e771f1c272b4f4446d7c1f65ea9d6a3fd851af43f0a68e61a50'),
+            'd70c6e6416396ecd92ec9201c2b953d62516e32705e5132616073fb6f8c468a9'),
         'lib/release/reviewer-capability-verification.mjs': (
             'a5e5a5f32fe87d2b84f55e259ea39db0ba1f7e56a681b96af93710ca7b01d9a1',
-            '5abdae4334e65a6093abad9882e9bec8a0924e0db3b09f4b22e2860e183d4074'),
+            '1c93cfd4ca65f6bb6d9bf0348f41d44a6317533dea077b32a43feca2ce9e155f'),
         'docs/agents/reviewer-capability-scoring.md': (
             '8dac785a4dc2eee70949fd02a212b65959039c256fa87f6a3e86c105ec011769',
-            '7517f410b3f27bf526b68a4400730dd040158a301ce0deadb3e4e73846e66113'),
+            'bb4f3e90b5d299d1b83d582211bef6fb9fc7599f2c6f70453f2ee22c6240570a'),
         'docs/agents/reviewer-capability-scenarios.md': (
             '5fe9b4e5511416a4af636baa67b812bf46f627710b75b1285e6c49758fdb909b',
             '3f444bc68cb9ed8cf3f2e004da5b14a328d0fef2469cd1158c6ed04932b2b859'),
@@ -107,7 +107,11 @@ SCORING_UPGRADE = {
     # Commit Audit row only by evidence and terms, so a false gap there also failed no-other (r8.1, user 2026-10-17). r8.1
     # had no merged cases and still gave a Spec Readiness case scored in both scenarios a 0.5 share (r8.2, user 2026-10-17).
     # r8.2 offered a Commit Audit finding the problem cases of other requirement rows in its finding decision (r8.3).
+    # r8.3 cut the score to [0, 1] and deducted by multiplying (r8.4, user 2026-10-21).
     'superseded': {
+        ('d61b20928c628e771f1c272b4f4446d7c1f65ea9d6a3fd851af43f0a68e61a50',
+         '5abdae4334e65a6093abad9882e9bec8a0924e0db3b09f4b22e2860e183d4074'): (
+            'superseded/scoring-k-r8.3.patch', '21574f23f9e8174414d9edf39b0c4725d5b1f0fce8b7010d8e0a9b0c70bed6ce'),
         ('bd274533d5c134c53ed80d6d015bf13402b52ddc5dcde85d658e0463cc9dc69d',
          '5abdae4334e65a6093abad9882e9bec8a0924e0db3b09f4b22e2860e183d4074'): (
             'superseded/scoring-k-r8.2.patch', 'cda3153729fb808199ad7b5ceaa71355e07926d65231d06d68e8924af43fb93b'),

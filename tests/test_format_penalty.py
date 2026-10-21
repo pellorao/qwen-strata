@@ -46,7 +46,9 @@ class FormatPenaltyTests(unittest.TestCase):
         self.assertAlmostEqual(f, 0.05)
         self.assertAlmostEqual(penalty(30, 50, 0.08)[1], 0.1)
         self.assertAlmostEqual(final_score(0.8, 0.05), 0.76)
-        self.assertEqual(final_score(-0.2, 0.05), 0)
+        # r8.4: raw - f|raw|, a negative score falls too.
+        self.assertAlmostEqual(final_score(-0.2, 0.05), -0.21)
+        self.assertEqual(final_score(0.0, 0.1), 0.0)
 
     def test_baseline_is_pooled_with_a_floor_of_two_per_report(self):
         self.assertAlmostEqual(pooled_baseline([(7, 41), (0, 44), (1, 54), (0, 37), (10, 48)])['pBase'], 18 / 224)

@@ -244,6 +244,38 @@ class SummaryTest(unittest.TestCase):
         self.assertEqual(configs[1]['service_tiers'], ['default'])
         self.assertEqual(len(result['instances']), 27 * 5 + 1)
 
+    def test_r8_4_negative_scores_and_the_r8_3_sensitivity_columns(self):
+        """Config 25 against 13 (Claude Code low): both negative under r8.4, both 0 under r8.3, so r8.3 cannot tell them
+        apart and the verdict changes."""
+        records = [r for r in full_design() if r['config'] not in (13, 25)]
+        records += [record(25, i, -0.6 - 0.01 * i) for i in range(1, 6)]
+        records += [record(13, i, -0.1 - 0.01 * i) for i in range(1, 6)]
+        for r in records:
+            r['score_r83'] = max(0.0, r['score'])
+        result = bs.summarize(ranked(records))['scenarios'][SCENARIO]
+        configs = {c['config']: c for c in result['configs'] if c['kind'] == 'main'}
+        self.assertEqual((configs[25]['n_negative'], configs[1]['n_negative']), (5, 0))
+        self.assertAlmostEqual(configs[25]['min'], -0.65)
+        self.assertAlmostEqual(configs[25]['median'], -0.63)
+        self.assertEqual(configs[25]['mean_r83'], 0)
+        self.assertAlmostEqual(configs[1]['mean_r83'], configs[1]['mean'])
+        rows = {(r['first'], r['second']): r for r in result['comparisons']}
+        self.assertEqual((rows[(25, 13)]['verdict'], rows[(25, 13)]['verdict_r83']), ('低于', '未分出'))
+        self.assertTrue(rows[(25, 13)]['verdict_changed'])
+        self.assertFalse(rows[(10, 1)]['verdict_changed'])
+        text = bs.markdown(bs.summarize(ranked(records)))
+        self.assertIn('r8.3 结论', text)
+        self.assertIn('| 是 |', text)
+        # Without r8.3 scores the sensitivity columns are unknown, not guessed.
+        for r in records:
+            r.pop('score_r83')
+        result = bs.summarize(ranked(records))['scenarios'][SCENARIO]
+        self.assertIsNone(result['comparisons'][0]['verdict_r83'])
+        self.assertIsNone(next(c for c in result['configs'] if c['config'] == 25)['mean_r83'])
+
+    def test_median(self):
+        self.assertEqual((bs.median([3, 1, 2]), bs.median([4, 1, 2, 3]), bs.median([])), (2, 2.5, None))
+
     def test_unscored_instances_mark_the_comparison(self):
         records = self.synthetic()
         for r in records:
@@ -272,9 +304,10 @@ class SummaryTest(unittest.TestCase):
                 work = Path(folder) / r['id']
                 work.mkdir(parents=True)
                 (work / 'score.json').write_text(json.dumps({'status': 'final', 'final': value, 'rawScore': 0.7,
-                                                             'f': 0.02, 'rRepairable': 1}))
+                                                             'f': 0.02, 'rRepairable': 1, 'final_r83': value + 1}))
             bs.attach_scores(records, folder)
         self.assertEqual([r['score'] for r in records], [0.4, 0.6])
+        self.assertEqual([r['score_r83'] for r in records], [1.4, 1.6])
         cell = bs.summarize(records)['scenarios'][SCENARIO]['configs'][0]
         self.assertAlmostEqual(cell['mean'], 0.5)
         self.assertEqual(cell['repairs_total'], 2)

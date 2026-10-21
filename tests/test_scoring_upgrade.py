@@ -1,7 +1,8 @@
 """The project's ARW scoring upgrade: evidence F2 instead of F3 (user 2026-10-14); r7: adjudicated clean
 cases, phrase terms, no evidence threshold for problem cases with k >= 1 (user 2026-10-15); r8: every case
 weighted by k, score = (earned problem points - failed clean weight) / problem cases (user 2026-10-16); r8.1: a Commit
-Audit finding on a satisfied row is charged once, to that row's clean case (user 2026-10-17)."""
+Audit finding on a satisfied row is charged once, to that row's clean case (user 2026-10-17); r8.4: no cut at 0, a
+negative net scores net / the k of every clean case, deductions take d of the score's size (user 2026-10-21)."""
 import hashlib
 import json
 from pathlib import Path
@@ -60,7 +61,7 @@ const run = (scorer, findings, present = true, findingDecisions = []) => {
     });
     return scorer({adjudicationDecisions: decisions, checks, cleanObservationScores});
 };
-const pick = result => ({...Object.fromEntries(['kProblemWeight', 'kEarnedProblemPoints', 'kFailedCleanWeight', 'kTiers', 'rawScore',
+const pick = result => ({...Object.fromEntries(['kProblemWeight', 'kEarnedProblemPoints', 'kFailedCleanWeight', 'kCleanWeight', 'kTiers', 'rawScore',
     'score', 'kWarning', 'extraFailedCleanCases', 'locatorCount'].map(key => [key, result[key]])),
     problem: result.caseScores.problem, clean: result.caseScores.clean[0],
     findingCandidates: result.candidates.filter(candidate => candidate.kind === 'finding').map(candidate => candidate.allowedDecisions)});
@@ -77,7 +78,7 @@ const countKeys = ['kEarnedProblemPoints', 'kFailedCleanWeight', 'kProblemWeight
 const stripped = Object.fromEntries(Object.entries(plain).filter(([key]) => !countKeys.includes(key)));
 try { core.combineScenarios([{...stripped, kProblemWeight: 1}]); } catch (error) { partial = error.message; }
 try { core.combineScenarios([stripped, stripped]); } catch (error) { missing = error.message; }
-// A Spec Readiness pair is added up before the score is cut to [0, 1]: three unsupported findings put the first scenario
+// A Spec Readiness pair is added up before the score is normalized: three unsupported findings put the first scenario
 // below 0 (no-other and two extra failed clean cases), a full hit puts the second above it.
 const below = run(scorerFor([Q], [D]), [finding('Something else.', 3), finding('Another thing.', 4), finding('A third thing.', 2)], true,
     ['unsupported', 'unsupported', 'unsupported']);
@@ -140,6 +141,16 @@ const stopScore = (checks, reportedFailedCleanCases) => {
     return {...pick(result), candidates: result.candidates.length};
 };
 const stopped = [{check: scope, findings: [finding('The second problem is present.', 7)], result: 'gap'}];
+// r8.4: ARW's residual 0.1 cut of a negative repetition (a code outside the project's treatment) lowers it by 0.1 of its size.
+const negativeResult = run(single, [finding('The clean target is wrong.', 5)]);
+const negativeCut = (() => {
+    const reportDiagnostics = [{code: 'some-new-code', instanceId: 'probe', message: 'x', reviewerId: 'spec-readiness-reviewer'}];
+    const instance = {artifact: {}, instanceId: 'probe', repetition: 1, reportDiagnostics, result: negativeResult, scenarioId: 'default',
+        unrepairableFormatErrors: 0};
+    const summary = policy.summarizeCapabilityScores({contract: {reviewerId: 'code-standards-reviewer'}, instanceScores: [instance]});
+    const [repetition] = summary.repetitions;
+    return {before: repetition.scoreBeforePenalty, score: repetition.score, final: summary.finalRepetitionScores[0]};
+})();
 // r8.1: Commit Audit. Clean cases and findings are bound to requirement rows; the key holds rows 5 and 6 satisfied and
 // row 7 a gap. A false gap on row 5 shares neither the clean case's evidence nor its spec-phrase terms.
 const auditScope = 'COMMIT-AUDIT-GATE-2';
@@ -274,7 +285,16 @@ console.log(JSON.stringify({
     above: pick(above),
     belowAbove: pick(core.combineScenarios([below, above])),
     partialClean: pick(partialClean),
-    formula: core.kScore({kEarnedProblemPoints: 3, kFailedCleanWeight: 0.5, kProblemWeight: 5}),
+    formula: core.kScore({kCleanWeight: 2, kEarnedProblemPoints: 3, kFailedCleanWeight: 0.5, kProblemWeight: 5}),
+    // r8.4: N = 0 scores 0 on either side; N < 0 scores N / kCleanWeight and may fall below -1; N < 0 without clean cases is an error.
+    zeroNet: core.kScore({kCleanWeight: 2, kEarnedProblemPoints: 0.5, kFailedCleanWeight: 0.5, kProblemWeight: 5}),
+    negativeNet: core.kScore({kCleanWeight: 2, kEarnedProblemPoints: 0.5, kFailedCleanWeight: 1, kProblemWeight: 5}),
+    allCleanFailed: core.kScore({kCleanWeight: 2, kEarnedProblemPoints: 0, kFailedCleanWeight: 2, kProblemWeight: 5}),
+    belowMinusOne: core.kScore({kCleanWeight: 2, kEarnedProblemPoints: 0, kFailedCleanWeight: 3, kProblemWeight: 5}),
+    noCleanCases: (() => { try { core.kScore({kCleanWeight: 0, kEarnedProblemPoints: 0, kFailedCleanWeight: 1, kProblemWeight: 5}); return null; }
+        catch (error) { return error.message; } })(),
+    deducted: [[0.5, 0.1], [-0.5, 0.1], [0, 0.1], [-1.5, 0.05], [0.4662056413372203, 0.1]].map(([score, d]) => core.deductScore(score, d)),
+    negativeCut,
     balanced: core.unbalancedKTiers({1: {clean: 2, problem: 2}, 4: {clean: 1, problem: 4}}),
     unbalanced: core.unbalancedKTiers({1: {clean: 2, problem: 2}, 4: {clean: 1, problem: 1}}),
 }));
@@ -331,13 +351,42 @@ class ScoringUpgradeTests(unittest.TestCase):
         self.assertGreater(probe['weakHit']['problem'][0], 0)
         self.assertLess(probe['weakHit']['problem'][0], 1)
         self.assertEqual(probe['weakHit']['kEarnedProblemPoints'], 2)
-        # The falsely flagged clean case C costs its k 1; a negative total becomes 0.
+        # The falsely flagged clean case C costs its k 1; r8.4: the negative net -1 is divided by the k of every clean
+        # case, C (1), D and no-other (0.25 each).
         self.assertEqual(probe['falseClean']['kFailedCleanWeight'], 1)
-        self.assertEqual((probe['falseClean']['rawScore'], probe['falseClean']['score']), (-0.5, 0))
+        self.assertEqual(probe['falseClean']['kCleanWeight'], 1.5)
+        self.assertEqual(probe['falseClean']['rawScore'], -0.5)
+        self.assertAlmostEqual(probe['falseClean']['score'], -1 / 1.5)
         self.assertEqual(probe['heavyFalseClean']['kFailedCleanWeight'], 4)
         self.assertEqual(probe['heavyFalseClean']['kTiers'], {'4': {'clean': 1, 'problem': 0}})
         self.assertIn('unbalanced', probe['heavyFalseClean']['kWarning'])
         self.assertAlmostEqual(probe['formula']['score'], 0.5)
+
+    def test_r8_4_negative_scores_are_normalized_by_the_clean_weight(self):
+        probe = self.probe
+        self.assertEqual((probe['zeroNet']['rawScore'], probe['zeroNet']['score']), (0, 0))
+        self.assertEqual(probe['negativeNet']['rawScore'], -0.1)
+        self.assertEqual(probe['negativeNet']['score'], -0.25)
+        self.assertEqual(probe['allCleanFailed']['score'], -1)
+        # Extra failed clean cases only add to N: below -1.
+        self.assertEqual(probe['belowMinusOne']['score'], -1.5)
+        self.assertIn('needs clean cases', probe['noCleanCases'])
+        # Reporting nothing still scores 0, a perfect report 1.
+        self.assertEqual((probe['silent']['score'], probe['hit']['score']), (0, 1))
+
+    def test_r8_4_deductions_take_their_share_of_the_score_size(self):
+        probe = self.probe
+        d = probe['deducted']
+        self.assertAlmostEqual(d[0], 0.45)
+        self.assertAlmostEqual(d[1], -0.55)
+        self.assertEqual(d[2], 0)
+        self.assertAlmostEqual(d[3], -1.575)
+        # A score >= 0 gets exactly the r8.3 product.
+        self.assertEqual(d[4], 0.4662056413372203 * 0.9)
+        cut = probe['negativeCut']
+        self.assertAlmostEqual(cut['before'], -1 / 1.5)
+        self.assertAlmostEqual(cut['score'], cut['before'] * 1.1)
+        self.assertAlmostEqual(cut['final'], cut['before'] * 1.1)
         self.assertEqual(probe['balanced'], [])
         self.assertEqual(probe['unbalanced'], ['4'])
 
@@ -359,6 +408,8 @@ class ScoringUpgradeTests(unittest.TestCase):
         # P and R, C and E: balanced at k 1 once paired (no shares since v4.3 / r8.2).
         self.assertEqual(pair['kTiers'], {'1': {'clean': 2, 'problem': 2}})
         self.assertEqual((pair['kProblemWeight'], pair['kFailedCleanWeight'], pair['score']), (4, 0, 0))
+        # r8.4: the clean weight of the pair is the sum of both scenarios (D and no-other; C, D, E and no-other).
+        self.assertEqual((first['kCleanWeight'], pair['kCleanWeight']), (0.5, 3))
         self.assertNotIn('kWarning', pair)
         self.assertIn('unbalanced in one scoring unit', self.probe['unequal'])
 
@@ -381,6 +432,8 @@ class ScoringUpgradeTests(unittest.TestCase):
         # A false gap on one or on both rows of the merged clean case costs 0.25 once (r8.1: the row's clean case, not no-other).
         for key in ('mergedFalseOne', 'mergedFalseBoth'):
             self.assertEqual((probe[key]['kFailedCleanWeight'], probe[key]['score'], probe[key]['extraFailedCleanCases']), (0.25, 0.875, 0), key)
+            # r8.4: the merged clean case counts once in the clean weight too (N once, two no-other cases).
+            self.assertEqual(probe[key]['kCleanWeight'], 0.75, key)
         self.assertEqual(probe['mergedFalseBoth']['clean'], [0, 1])
         self.assertEqual(probe['mergedFalseBoth']['kTiers'], {})
         # A merged case is exactly two cases of one kind, k and result in two scopes.
@@ -393,15 +446,17 @@ class ScoringUpgradeTests(unittest.TestCase):
         self.assertIn('incomplete k counts', self.probe['partial'])
         self.assertIn('incomplete k counts', self.probe['missing'])
 
-    def test_spec_readiness_pair_is_added_up_before_the_cut(self):
+    def test_spec_readiness_pair_is_added_up_before_the_score(self):
         below, above, pair = self.probe['below'], self.probe['above'], self.probe['belowAbove']
         self.assertEqual((below['kFailedCleanWeight'], below['extraFailedCleanCases'], below['rawScore']), (0.75, 2, -0.75))
-        self.assertEqual(below['score'], 0)
+        # r8.4: -0.75 over the clean weight 0.5 (D and no-other); the two extra failed clean cases take it below -1.
+        self.assertEqual((below['kCleanWeight'], below['score']), (0.5, -1.5))
         self.assertGreater(above['rawScore'], 0.75)
         self.assertAlmostEqual(pair['rawScore'], (above['kEarnedProblemPoints'] - 0.75) / 2)
         self.assertAlmostEqual(pair['score'], pair['rawScore'])
-        # Cutting each scenario first would score higher.
-        self.assertLess(pair['score'], (below['score'] + above['score']) / 2)
+        self.assertEqual(pair['kCleanWeight'], 1)
+        # Scoring each scenario first and averaging would give another value.
+        self.assertNotAlmostEqual(pair['score'], (below['score'] + above['score']) / 2)
 
     def test_k_1_clean_case_with_a_partial_observation_score_passes(self):
         partial = self.probe['partialClean']
