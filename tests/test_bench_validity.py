@@ -81,7 +81,7 @@ class ValidityTest(unittest.TestCase):
         self.assertFalse(r['cc-low-a1']['valid'])
         self.assertTrue(r['cc-low-a2']['valid'])
 
-    def codex(self, name, relay, rollout, instance=None, started=1.0):
+    def codex(self, name, relay, rollout, instance=None, started=1.0, relay_errors=1):
         d = self.scene / name
         session = write(d / 'run/rollout.jsonl', ''.join(json.dumps({'timestamp': iso(t), 'type': a,
                                                                      'payload': {'type': b}}) + '\n'
@@ -90,7 +90,7 @@ class ValidityTest(unittest.TestCase):
         write(d / 'instance.json', {'valid': False, 'started': started, 'arw_measure_exit': 0, 'prep_copy_ok': True,
                                     'arw_pause_events': [], 'continue_count': 0, **(instance or {}),
                                     'handoffs': [{'instanceId': IID, 'session': str(session), 'reviewer_active_seconds': 100.0,
-                                                  'checks': CODEX_CHECKS}]})
+                                                  'checks': {**CODEX_CHECKS, 'relay_errors': relay_errors}}]})
         return d
 
     CUT = [{'n': 1, 'started_at': 1000.0, 'ended_at': 1010.0, 'path': '/responses', 'status': 200,
@@ -118,6 +118,14 @@ class ValidityTest(unittest.TestCase):
         self.assertIn('relay errors 1', ' '.join(r['codex-low-a1']['validity']['reasons']))
         self.assertFalse(r['codex-low-a2']['valid'])
         self.assertIn('halt', r['codex-low-a2']['validity']['reasons'])
+
+    def test_runner_may_count_fewer_relay_errors_than_the_log_but_not_more(self):
+        self.codex('codex-high-a4', self.CUT, self.ROLLOUT, relay_errors=0)
+        self.codex('codex-high-a5', self.CUT, self.ROLLOUT, relay_errors=2)
+        r = self.records('deepseek-codex', 'spec-readiness-v4.3')
+        self.assertTrue(r['codex-high-a4']['valid'])
+        self.assertFalse(r['codex-high-a5']['valid'])
+        self.assertIn('exceed the relay log', ' '.join(r['codex-high-a5']['validity']['reasons']))
 
     def test_cut_row_with_usage_is_an_error(self):
         relay = [dict(r) for r in self.CUT]
@@ -152,6 +160,15 @@ class ValidityTest(unittest.TestCase):
         self.assertTrue(all(r['main_statistic'] for r in recs if r['config'] == 2))  # merged: every valid one
         self.assertFalse(by['q5']['first_n'])
         self.assertTrue(by['p1']['first_n'])
+
+    def test_merged_cell_stays_merged_when_its_pooled_runs_are_invalid(self):
+        recs = [{'id': 'm1', 'arm': 'x', 'scenario': 's', 'config': 2, 'attempt': 1, 'started': 1, 'valid': False,
+                 'pooled': True}]
+        recs += [{'id': f'h{i}', 'arm': 'x', 'scenario': 's', 'config': 2, 'attempt': i, 'started': 10 + i,
+                  'valid': True} for i in range(1, 7)]
+        bench_validity.rank_cells(recs)
+        self.assertTrue(all(r['main_statistic'] for r in recs if r['valid']))
+        self.assertTrue(recs[1]['cell_pooled'])
 
     def test_balance_cost(self):
         readings = [(0, 10.0), (5, 9.9), (20, 9.0), (30, 8.5)]

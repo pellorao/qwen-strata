@@ -174,8 +174,10 @@ def codex_rejudge(folder, instance):
     recorded = sum((h.get('checks') or {}).get('relay_errors') or 0 for h in instance.get('handoffs') or [])
     residual = ri['relay_errors'] - len(cuts)
     failed = codex_other_checks(instance)
-    if recorded != ri['errors']:
-        failed.append(f'relay errors recorded {recorded} differ from the relay log {ri["errors"]}')
+    # <= as in steer.py: every error row the classifier sees must be explained (residual below), and the runner may
+    # count fewer, since an interrupt's abandoned row can fall just after the runner's window (SR codex-high-a4 n904)
+    if recorded > ri['errors']:
+        failed.append(f'relay errors recorded {recorded} exceed the relay log {ri["errors"]}')
     if residual:
         failed.append(f'relay errors {residual} (not reminder interrupts or stream-cut retries)')
     spans = [rollout_span(s) for s in sessions]
@@ -262,14 +264,16 @@ def rank_cells(records, main_n=5):
     when the start is unknown). Not merged cells: the first main_n valid ones form the main statistic (later ones,
     reruns included, are supplementary rows). Merged cells (DeepSeek C': medium pooled into high): every valid
     instance is in the main statistic, the first main_n form the consistency row."""
-    cells = {}
+    cells, pooled_keys = {}, set()
     for r in records:
         r['valid_rank'] = r['main_statistic'] = r['first_n'] = None
+        if r.get('pooled'):   # from every record, so a merged cell stays merged when its medium runs are all invalid
+            pooled_keys.add(cell_key(r))
         if r['valid']:
             cells.setdefault(cell_key(r), []).append(r)
     for key, group in cells.items():
         group.sort(key=lambda r: (r.get('started') is None, r.get('started') or 0, r['attempt']))
-        pooled = any(r.get('pooled') for r in group)
+        pooled = key in pooled_keys
         for i, r in enumerate(group, 1):
             r['valid_rank'] = i
             r['first_n'] = i <= main_n
