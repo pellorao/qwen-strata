@@ -1,0 +1,77 @@
+{
+ "note": "Confirmed model failures of the multi-model benchmark v1 (tools.reviewer.bench_score): a handoff whose bound report is empty or whitespace only goes upstream as ARW's explicit modelFailure only when it is listed here with the sha256 of that report; ARW otherwise refuses it ('a confirmed modelFailure is required'). Each entry gives its basis. A report with content is never listed: it is scored as written (plan §14.1 F4).",
+ "failures": [
+  {
+   "record": "deepseek-claude/spec-readiness-v4.3/cc-high-a2",
+   "k": 1,
+   "sub_scenario": "artifact-promotion",
+   "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "basis": "Claude Code stopped the artifact-promotion handoff with \"exceeded the 32000 output token maximum\" (h1/result.json continuation.stop model_error, not continued); the report file it left is empty (0 bytes). Plan §14.1 F4: a model-side error stops as model_error and is scored from the report written; nothing was written, so the handoff is a model failure (r8.4: scored as reporting nothing).",
+   "confirmed": "Main 2026-10-22"
+  },
+  {
+   "record": "deepseek-claude/spec-readiness-v4.3/cc-low-a3",
+   "k": 1,
+   "sub_scenario": "artifact-promotion",
+   "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "basis": "Claude Code stopped the artifact-promotion handoff with \"exceeded the 32000 output token maximum\" (h1/result.json continuation.stop model_error, not continued); the report file it left is empty (0 bytes). Plan §14.1 F4: a model-side error stops as model_error and is scored from the report written; nothing was written, so the handoff is a model failure (r8.4: scored as reporting nothing).",
+   "confirmed": "Main 2026-10-22"
+  },
+  {
+   "record": "deepseek-claude/spec-readiness-v4.3/cc-low-a4",
+   "k": 1,
+   "sub_scenario": "artifact-promotion",
+   "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "basis": "Claude Code stopped the artifact-promotion handoff with \"exceeded the 32000 output token maximum\" (h1/result.json continuation.stop model_error, not continued); the report file it left is empty (0 bytes). Plan §14.1 F4: a model-side error stops as model_error and is scored from the report written; nothing was written, so the handoff is a model failure (r8.4: scored as reporting nothing).",
+   "confirmed": "Main 2026-10-22"
+  },
+  {
+   "record": "deepseek-claude/spec-readiness-v4.3/cc-max-a1",
+   "k": 1,
+   "sub_scenario": "artifact-promotion",
+   "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "basis": "Claude Code stopped the artifact-promotion handoff with \"exceeded the 32000 output token maximum\" (h1/result.json continuation.stop model_error, not continued); the report file it left is empty (0 bytes). Plan §14.1 F4: a model-side error stops as model_error and is scored from the report written; nothing was written, so the handoff is a model failure (r8.4: scored as reporting nothing).",
+   "confirmed": "Main 2026-10-22"
+  },
+  {
+   "record": "deepseek-claude/spec-readiness-v4.3/cc-max-a2",
+   "k": 1,
+   "sub_scenario": "artifact-promotion",
+   "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "basis": "Claude Code stopped the artifact-promotion handoff with \"exceeded the 32000 output token maximum\" (h1/result.json continuation.stop model_error, not continued); the report file it left is empty (0 bytes). Plan §14.1 F4: a model-side error stops as model_error and is scored from the report written; nothing was written, so the handoff is a model failure (r8.4: scored as reporting nothing).",
+   "confirmed": "Main 2026-10-22"
+  },
+  {
+   "record": "deepseek-claude/spec-readiness-v4.3/cc-max-a4",
+   "k": 1,
+   "sub_scenario": "artifact-promotion",
+   "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "basis": "Claude Code stopped the artifact-promotion handoff with \"exceeded the 32000 output token maximum\" (h1/result.json continuation.stop model_error, not continued); the report file it left is empty (0 bytes). Plan §14.1 F4: a model-side error stops as model_error and is scored from the report written; nothing was written, so the handoff is a model failure (r8.4: scored as reporting nothing).",
+   "confirmed": "Main 2026-10-22"
+  },
+  {
+   "record": "deepseek-claude/spec-readiness-v4.3/cc-max-a5",
+   "k": 1,
+   "sub_scenario": "artifact-promotion",
+   "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "basis": "Claude Code stopped the artifact-promotion handoff with \"exceeded the 32000 output token maximum\" (h1/result.json continuation.stop model_error, not continued); the report file it left is empty (0 bytes). Plan §14.1 F4: a model-side error stops as model_error and is scored from the report written; nothing was written, so the handoff is a model failure (r8.4: scored as reporting nothing).",
+   "confirmed": "Main 2026-10-22"
+  },
+  {
+   "record": "deepseek-codex/spec-readiness-v4.3/codex-high-a4",
+   "k": 1,
+   "sub_scenario": "artifact-promotion",
+   "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "basis": "The artifact-promotion handoff ran to the 60-minute hard limit (reviewer_active_seconds 3606.5, interrupted through ARW) and its report file is empty (0 bytes): no report delivered within the hard limit is a model failure (Main 2026-10-22; r8.4: scored as reporting nothing).",
+   "confirmed": "Main 2026-10-22"
+  },
+  {
+   "record": "deepseek-claude/code-spec-v5/cc-max-a4",
+   "k": 0,
+   "sub_scenario": "default",
+   "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "basis": "Claude Code was killed at the hard limit (376 s; h0/result.json continuation.stop hard_limit, exit 143; valid by ruling 2026-10-21) with the report file empty (0 bytes): no report delivered within the hard limit is a model failure of the whole instance (Main 2026-10-22; r8.4: 0, as reporting nothing).",
+   "confirmed": "Main 2026-10-22"
+  }
+ ]
+}

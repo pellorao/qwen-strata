@@ -169,6 +169,33 @@ class BlindPoolTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             blind_pool.override('anthropic/code-spec-v5/opus-low-a1', sid, 'matched', 'x', root=self.root)
 
+    def test_an_override_must_be_one_of_the_candidates_allowed_decisions(self):
+        self.built()
+        key, decisions = self.answer('p')
+        blind_pool.split(key, decisions, self.root)
+        record, sid = 'anthropic/code-spec-v5/opus-low-a1', 'code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-7'
+        path = self.root / record / 'decisions.json'
+        store = json.loads(path.read_text())
+        self.assertEqual(store['decisions'][sid]['allowedDecisions'], ['unsupported', 'supported', 'problem-1'])
+        # Well-formed but not offered for this candidate (the false-positive:clean-1 case of 10-22).
+        for bad in ('false-positive:clean-1', 'problem-2'):
+            with self.assertRaisesRegex(ValueError, 'not in allowedDecisions'):
+                blind_pool.override(record, sid, bad, 'x', root=self.root)
+        # A store written before allowedDecisions were kept: from the live candidate with the same fingerprint, or refused.
+        del store['decisions'][sid]['allowedDecisions']
+        blind_pool.save(path, store)
+        with self.assertRaisesRegex(ValueError, 'allowedDecisions unknown'):
+            blind_pool.override(record, sid, 'problem-1', 'x', root=self.root)
+        other = finding(7, line=2)  # same stable id, other content: another fingerprint
+        blind_pool.save(self.root / record / 'pending.json', [other])
+        with self.assertRaisesRegex(ValueError, 'allowedDecisions unknown'):
+            blind_pool.override(record, sid, 'problem-1', 'x', root=self.root)
+        blind_pool.save(self.root / record / 'candidates.json', [finding(7)])
+        new = blind_pool.override(record, sid, 'problem-1', 'node 复现成立', root=self.root)
+        self.assertEqual((new['decision'], new['allowedDecisions']), ('problem-1', ['unsupported', 'supported', 'problem-1']))
+        with self.assertRaisesRegex(ValueError, 'not in allowedDecisions'):
+            blind_pool.override(record, sid, 'false-positive:clean-1', 'x', root=self.root)
+
     def test_stores_carry_fingerprints_and_a_changed_candidate_is_pooled_again(self):
         self.built()
         key, decisions = self.answer('p')

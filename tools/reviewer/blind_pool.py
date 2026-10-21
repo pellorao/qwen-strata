@@ -22,7 +22,10 @@
             the brief body, not an edit of the frozen text (plan §14.1). It checks that <ADJ> holds the pool the key
             was written for, the view the brief names, its own decisions and nothing else (no other pool or key), writes
             <keys>/prompt-<pool>.md and records the brief and prompt sha256 in the key.
-    override  Main's decision after review, into the store (history kept).
+    override  Main's decision after review, into the store (history kept). The decision must be one of the candidate's
+            allowedDecisions: those stored with the decision (split writes them from the pool item), else those of the
+            candidate with the same stable id and fingerprint in <score root>/<record id>/pending.json or candidates.json;
+            when neither gives them the override is refused.
     anchor-add  register an association decision as a new anchor (Main's executable check, or a blind decision of a
             same-version pool); kind and allowedDecisions are filled in.
 
@@ -384,7 +387,7 @@ def split(key_path, decisions_path, root=DEFAULT_ROOT, hard=(), accept_failed=Fa
     review = review_lists(real, pool, decisions, set(hard))
     verdict['review'] = {'supported': len(review['supported']), 'disputed_unsupported': len(review['disputed_unsupported'])}
     if passed or accept_failed:
-        written = write_stores(real, decisions, key['pool'], root)
+        written = write_stores(real, decisions, key['pool'], root, pool)
         verdict['written'] = written
     else:
         verdict['written'] = 0
@@ -423,7 +426,7 @@ def store_path(root, record_id):
     return Path(root) / record_id / 'decisions.json'
 
 
-def write_stores(real, decisions, pool_name, root):
+def write_stores(real, decisions, pool_name, root, pool=None):
     by_record = {}
     for r in real:
         by_record.setdefault(r['record'], []).append(r)
@@ -436,12 +439,33 @@ def write_stores(real, decisions, pool_name, root):
                 raise ValueError(f"{r['id']}: key item without a fingerprint")
             new = {'decision': d['decision'], 'reason': d['reason'], 'source': f"pool {pool_name}:{r['id']}",
                    'kind': r['kind'], 'fingerprint': r['fingerprint']}
+            if pool is not None:
+                new['allowedDecisions'] = pool[r['id']]['allowedDecisions']
             old = store['decisions'].get(r['stable_id'])
-            if old is not None and old != new:
+            if old is not None and without_allowed(old) != without_allowed(new):
                 store['history'].append({'stable_id': r['stable_id'], 'replaced': old, 'by': new['source']})
             store['decisions'][r['stable_id']] = new
         save(path, store)
     return sum(len(rows) for rows in by_record.values())
+
+
+def without_allowed(entry):
+    return {k: v for k, v in entry.items() if k != 'allowedDecisions'}
+
+
+def allowed_decisions(root, record_id, stable_id, stored):
+    """allowedDecisions of a stored decision's candidate: stored with it, or from the live candidate with the same stable
+    id and fingerprint (what the adjudicator saw) in the record's pending.json or candidates.json; else an error."""
+    if stored.get('allowedDecisions'):
+        return stored['allowedDecisions']
+    scenario = record_id.split('/')[1]
+    for name in ('pending.json', 'candidates.json'):
+        path = Path(root) / record_id / name
+        for candidate in load(path) if path.is_file() else []:
+            if candidate.get('stable_id') == stable_id and fingerprint(candidate, scenario) == stored.get('fingerprint'):
+                return candidate['allowedDecisions']
+    raise ValueError(f'{record_id}: {stable_id}: allowedDecisions unknown (not stored with the decision, no candidate '
+                     'with its fingerprint in pending.json or candidates.json); override refused')
 
 
 def override(record_id, stable_id, decision, reason, by='Main review', root=DEFAULT_ROOT):
@@ -455,8 +479,11 @@ def override(record_id, stable_id, decision, reason, by='Main review', root=DEFA
     association = old.get('kind') == 'association'
     if not DECISION.match(decision) or association != (decision in ('matched', 'not-matched')):
         raise ValueError(f'{decision!r} is not a decision of a {old.get("kind")} candidate')
+    allowed = allowed_decisions(root, record_id, stable_id, old)
+    if decision not in allowed:
+        raise ValueError(f'{record_id}: {stable_id}: {decision!r} not in allowedDecisions {allowed}')
     new = {'decision': decision, 'reason': reason, 'source': f'override ({by})', 'kind': old.get('kind'),
-           'fingerprint': old.get('fingerprint')}
+           'fingerprint': old.get('fingerprint'), 'allowedDecisions': allowed}
     store['history'].append({'stable_id': stable_id, 'replaced': old, 'by': new['source']})
     store['decisions'][stable_id] = new
     save(path, store)

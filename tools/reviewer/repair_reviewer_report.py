@@ -22,6 +22,13 @@ Markdown reports (Code Spec, Code Standards; user 2026-10-12):
   (b) everything before the first finding (a line starting with `1. ` style
       numbering or `- `) is a preamble such as a title or scope note and is
       removed;
+  (b') after the first finding, a non-blank line that neither starts a finding
+      nor starts with whitespace (ARW's markdownFindingBlocks: such a line is
+      not part of any finding, so the whole report is a representation error
+      and ARW's fallback parse drops the line; e.g. a fenced code block written
+      at column 0 inside a finding) is removed. All such lines of a report are
+      one repair, counted once in r like the one review-format-invalid
+      diagnostic ARW gives the report as written (scorer units);
   (c) a backquoted locator that names only a file (`name.mjs:3`) gets its
       directory when exactly one frozen source has that name and every line
       is within it.
@@ -165,11 +172,21 @@ def normalize(rows, requirements=None):
 
 
 FINDING_START = re.compile(r'(?:[1-9][0-9]*\. |- )')
+CONTINUATION = re.compile(r'\s')
 SHORT_LOCATOR = re.compile(r'`(?P<name>[^`\s/:]+\.[A-Za-z0-9]+):(?P<lines>[1-9][0-9]*(?:-[1-9][0-9]*)?(?:,[1-9][0-9]*(?:-[1-9][0-9]*)?)*)`')
 
 
 def line_numbers(lines):
     return [int(n) for part in lines.split(',') for n in part.split('-')]
+
+
+def stray_lines(body):
+    """Indexes of the lines after the first finding that ARW reads as part of no finding (b')."""
+    first = next((i for i, line in enumerate(body) if FINDING_START.match(line)), None)
+    if first is None:
+        return []
+    return [i for i, line in enumerate(body) if i > first and line.strip() and not FINDING_START.match(line)
+            and not CONTINUATION.match(line)]
 
 
 def apply_changes(original, changes):
@@ -180,6 +197,13 @@ def apply_changes(original, changes):
     assert lines[:len(removed)] == removed, 'removed lines are not the leading lines'
     assert not any(FINDING_START.match(line) for line in removed), 'removed lines include a finding'
     lines = lines[len(removed):]
+    stray = [c for c in changes if c['kind'] == 'markdown-stray-lines']
+    assert len(stray) <= 1, 'stray lines recorded twice'
+    if stray:
+        indexes = stray[0]['lines']
+        assert indexes and indexes == stray_lines(lines), 'removed lines are not the lines outside every finding'
+        assert [lines[i] for i in indexes] == stray[0]['before'], 'removed lines differ from the recorded ones'
+        lines = [line for i, line in enumerate(lines) if i not in set(indexes)]
     for change in changes:
         if change['kind'] in ('short-evidence-path', 'spill-locator'):
             line = lines[change['line']]
@@ -216,6 +240,10 @@ def normalize_markdown(text, sources=None, spills=(), texts=None, diagnostics=No
     removed = lines[:first]
     changes = [{'kind': 'markdown-preamble', 'before': removed}] if any(line.strip() for line in removed) else []
     body = lines[len(removed):] if changes else lines
+    stray = stray_lines(body)
+    if stray:
+        changes.append({'kind': 'markdown-stray-lines', 'lines': stray, 'before': [body[i] for i in stray]})
+        body = [line for i, line in enumerate(body) if i not in set(stray)]
     for index, line in enumerate(body):
         offset = 0
         for match in SHORT_LOCATOR.finditer(line):

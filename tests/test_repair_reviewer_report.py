@@ -67,9 +67,37 @@ class NormalizeMarkdownTest(unittest.TestCase):
             self.assertEqual(normalize_markdown(original), (original, []))
 
     def test_later_lines_including_invalid_locators_are_kept(self):
-        body = FINDINGS + '   Evidence: 09:00 <= 11:00\n# trailing note\n'
+        body = FINDINGS + '   Evidence: 09:00 <= 11:00\n'
         text, _ = normalize_markdown('# Title\n' + body)
         self.assertEqual(text, body)
+
+    def test_lines_outside_every_finding_are_removed_once(self):
+        # ARW joins only indented lines to a finding; a column-0 code fence inside a finding is no finding's text.
+        fence = '```js\nconst a = 1;\n```\n'
+        original = '# Title\n' + FINDINGS + '\n' + fence + '   still the second finding\n# trailing note\n'
+        text, changes = normalize_markdown(original)
+        self.assertEqual(text, FINDINGS + '\n' + '   still the second finding\n')
+        self.assertEqual([c['kind'] for c in changes], ['markdown-preamble', 'markdown-stray-lines'])
+        self.assertEqual(changes[1]['lines'], [5, 6, 7, 9])
+        self.assertEqual(changes[1]['before'], ['```js\n', 'const a = 1;\n', '```\n', '# trailing note\n'])
+        from tools.reviewer.format_penalty import repairable_count
+        self.assertEqual(repairable_count({'details': changes}), 2)  # preamble once, stray lines once
+
+    def test_stray_lines_and_short_locators_are_both_recorded(self):
+        fixed, changes = normalize_markdown('1. `one.mjs:3` - x\n```\ncode\n```\n2. `two.mjs:1` - y\n', SOURCES)
+        self.assertEqual(fixed, '1. `src/a/one.mjs:3` - x\n2. `src/b/two.mjs:1` - y\n')
+        self.assertEqual([c['kind'] for c in changes], ['markdown-stray-lines', 'short-evidence-path', 'short-evidence-path'])
+
+    def test_round_trip_rejects_removing_finding_or_indented_lines(self):
+        original = FINDINGS + '```\n   kept\n'
+        text, changes = normalize_markdown(original)
+        self.assertEqual(text, FINDINGS + '   kept\n')
+        for lines, before in (([4], ['```\n']), ([3, 4], ['2. `b.mjs:4` - second\n', '```\n']), ([4, 5], ['```\n', '   kept\n'])):
+            with self.assertRaises(AssertionError):
+                check_only_markdown_changes(original, FINDINGS, [{'kind': 'markdown-stray-lines', 'lines': lines,
+                                                                   'before': before}])
+        with self.assertRaises(AssertionError):
+            check_only_markdown_changes(original, text.replace('kept', 'changed'), changes)
 
     def test_round_trip_rejects_changes_beyond_the_preamble(self):
         original = '# Title\n' + FINDINGS

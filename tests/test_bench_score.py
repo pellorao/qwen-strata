@@ -225,6 +225,7 @@ class StoredDecisionTest(unittest.TestCase):
 
 
 CA_IID = 'default-42b4f896-1071-4617-bcba-e1110a1fc457-instance-1'
+EMPTY = hashlib.sha256(b'').hexdigest()
 
 
 def ca_candidate(check, index, finding):
@@ -305,6 +306,48 @@ class ReportsTest(unittest.TestCase):
         self.assertNotIn('formatCorrection', entry)
         self.assertEqual(repairs, {CA_IID: None})
         self.assertEqual(rows[0]['scored'], 'modelFailure: no report')
+
+    def failures(self, **entry):
+        path = Path(self.tmp.name) / 'model-failures.json'
+        path.write_text(json.dumps({'failures': [{'record': 'anthropic/code-spec-v5/opus-low-a1', 'k': 0,
+                                                  'sub_scenario': 'default', 'report_sha256': EMPTY, 'basis': 'test basis',
+                                                  'confirmed': 'Main test', **entry}]}))
+        return path
+
+    def test_a_confirmed_empty_report_goes_upstream_as_a_model_failure(self):
+        report = Path(self.tmp.name) / 'review-result.md'
+        report.write_text('')
+        record = self.record(report=str(report), report_sha256=EMPTY, report_ok=True, report_exists=True)
+        upstream_input, repairs, rows = bench_score.place_reports(record, self.prepared, self.work, self.failures())
+        [entry] = upstream_input['artifacts'][0]['instances']
+        self.assertEqual(entry['artifactPaths'], None)
+        self.assertIn('test basis', entry['modelFailure']['reason'])
+        self.assertEqual(repairs, {CA_IID: None})
+        self.assertEqual(rows[0]['scored'], 'modelFailure: confirmed')
+        # Not confirmed: the empty report goes upstream as written (ARW then asks for a confirmed modelFailure).
+        self.assertEqual(bench_score.confirmed_failures(record['id'], Path(self.tmp.name) / 'none.json'), {})
+        self.assertEqual(bench_score.confirmed_failures('anthropic/code-spec-v5/opus-low-a2', self.failures()), {})
+
+    def test_a_confirmation_binds_one_empty_report(self):
+        report = Path(self.tmp.name) / 'review-result.md'
+        report.write_text('- `src/a.mjs:1`: a finding.\n')
+        sha = hashlib.sha256(report.read_bytes()).hexdigest()
+        record = self.record(report=str(report), report_sha256=sha, report_ok=True, report_exists=True)
+        with self.assertRaisesRegex(ValueError, 'another sub-scenario or report'):
+            bench_score.place_reports(record, self.prepared, self.work, self.failures())
+        with self.assertRaisesRegex(ValueError, 'with content'):
+            bench_score.place_reports(record, self.prepared, self.work, self.failures(report_sha256=sha))
+        with self.assertRaisesRegex(ValueError, 'does not have'):
+            bench_score.place_reports(record, self.prepared, self.work, self.failures(k=3))
+        with self.assertRaisesRegex(ValueError, 'without basis'):
+            bench_score.place_reports(record, self.prepared, self.work, self.failures(basis=' '))
+
+    def test_registered_model_failures_bind_empty_reports_with_a_basis(self):
+        entries = json.loads(bench_score.MODEL_FAILURES.read_text())['failures']
+        self.assertEqual(len({(e['record'], e['k']) for e in entries}), len(entries))
+        for e in entries:
+            self.assertEqual(e['report_sha256'], EMPTY)
+            self.assertTrue(e['basis'].strip() and e['confirmed'].strip())
 
     def test_preparation_without_original_or_manifest_is_marked_unverified(self):
         checks = bench_score.check_preparation(self.record(), self.prepared)
@@ -397,7 +440,7 @@ class ModelFailureEndToEndTest(unittest.TestCase):
                     record = {'id': f'anthropic/{name}/failure', 'handoffs': [
                         {'k': k, 'instanceId': h['instanceId'], 'report': None, 'report_sha256': None}
                         for k, h in enumerate(prepared['handoffs'][:handoffs])]}
-                    upstream_input, _, _ = bench_score.place_reports(record, prepared, work / 'score')
+                    upstream_input, repairs, _ = bench_score.place_reports(record, prepared, work / 'score')
                     bench_score.save(work / 'in.json', upstream_input)
                     up, seen, _, pending = bench_score.adjudicate(prepared, work / 'in.json', work / 'up', lambda c: None)
                     self.assertEqual((seen, pending), ({}, []))
@@ -407,6 +450,9 @@ class ModelFailureEndToEndTest(unittest.TestCase):
                     self.assertEqual(rep['kEarnedProblemPoints'], 0)
                     self.assertAlmostEqual(rep['scoreBeforePenalty'], bench_score.MODEL_FAILURE_FINAL)
                     self.assertEqual(rep['rawScore'], 0)
+                    # The format penalty of the scorer's model failure output: no error, no locator, f 0.
+                    scored = bench_score.repetition_score(up, repairs)
+                    self.assertEqual((scored['r'], scored['T_locators'], scored['f']), (0, 0, 0))
         finally:
             if old is None:
                 os.environ.pop('CODEX_THREAD_ID', None)

@@ -8,7 +8,10 @@ Input: a normalized instance record (tools.reviewer.bench_records) and its froze
   2. each bound report (sha256 checked) copied to the fresh handoff's reportPath, repaired on an independent copy
      (repair_reviewer_report, with every spill file kept for the handoff) and scored from the repaired copy as a format
      correction when anything changed. A handoff with a recorded report sha256 whose report is not found is an error;
-     one that genuinely wrote no report (no file, no sha256) goes upstream as an explicit modelFailure;
+     one that genuinely wrote no report (no file, no sha256) goes upstream as an explicit modelFailure, and so does one
+     whose empty (or whitespace-only) report Main confirmed as a model failure in MODEL_FAILURES (record, k,
+     sub-scenario and report sha256, with its basis; plan §14.1 F4, r8.4: the same as reporting nothing). A Spec
+     Readiness repetition with one such handoff is scored by ARW on the counts of both sub-scenarios added up;
   3. upstream score-completed (single_scenario_score.upstream_score, project scoring upgrade applied, the plan's
      Main identity) repeated until no candidate is pending, every pending candidate decided from the instance's
      decision store (<work>/decisions.json, written by tools.reviewer.blind_pool split/override). Decisions are keyed
@@ -72,6 +75,7 @@ TREATED_DIAGNOSTICS = {
 CA_SCOPES = {'COMMIT-AUDIT-GATE-1': re.compile(r'/issues/[^/]+$'), 'COMMIT-AUDIT-GATE-2': re.compile(r'/spec\.md$')}
 UUID_INSTANCE = re.compile(r'-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-instance-\d+')
 BOUNDS = {'lower': ('not-matched', 'unsupported'), 'upper': ('matched', 'supported')}
+MODEL_FAILURES = ROOT / 'benchmarks/multi-model-v1/model-failures.json'
 
 
 def stable_id(candidate_id):
@@ -219,13 +223,47 @@ def check_preparation(record, prepared):
 
 # ---- reports ------------------------------------------------------------------------------------------------------
 
-def place_reports(record, prepared, work):
+def confirmed_failures(record_id, path=MODEL_FAILURES):
+    """{k: entry} of the handoffs of a record that Main confirmed as model failures."""
+    out = {}
+    for entry in json.loads(Path(path).read_text())['failures'] if Path(path).is_file() else []:
+        if entry['record'] != record_id:
+            continue
+        if entry['k'] in out or not str(entry.get('basis', '')).strip() or not entry.get('confirmed'):
+            raise ValueError(f"{record_id} h{entry['k']}: model failure listed twice or without basis and confirmation")
+        out[entry['k']] = entry
+    return out
+
+
+def confirmed_failure_reason(record, handoff, entry):
+    """ARW's modelFailure reason of a confirmed handoff, after checking the entry still binds this empty report."""
+    where = f"{record['id']} h{handoff['k']}"
+    if entry['sub_scenario'] != handoff['sub_scenario'] or entry['report_sha256'] != handoff.get('report_sha256'):
+        raise ValueError(f'{where}: confirmed model failure is for another sub-scenario or report')
+    if not handoff.get('report') or sha256_file(handoff['report']) != entry['report_sha256']:
+        raise ValueError(f'{where}: report differs from the confirmed model failure')
+    if Path(handoff['report']).read_bytes().strip():
+        raise ValueError(f'{where}: a report with content is scored as written, never as a model failure')
+    return f"Confirmed model failure ({entry['confirmed']}): {entry['basis']}"
+
+
+def place_reports(record, prepared, work, failures=MODEL_FAILURES):
     """Copy each bound report to its fresh reportPath, repair a copy; the upstream input and the repair records."""
     entries, repairs, rows = {}, {}, []
+    confirmed = confirmed_failures(record['id'], failures)
+    if set(confirmed) - {h['k'] for h in record['handoffs']}:
+        raise ValueError(f"{record['id']}: confirmed model failure of a handoff the record does not have")
     for handoff, fresh in zip(record['handoffs'], prepared['handoffs']):
         row = {'k': handoff['k'], 'instanceId': fresh['instanceId'], 'original_instanceId': handoff['instanceId'],
                'report': handoff['report'], 'report_sha256': handoff['report_sha256']}
         rows.append(row)
+        if handoff['k'] in confirmed:
+            reason = confirmed_failure_reason(record, handoff, confirmed[handoff['k']])
+            entries.setdefault(fresh['reviewerId'], []).append(
+                {'instanceId': fresh['instanceId'], 'artifactPaths': None, 'modelFailure': {'reason': reason}})
+            repairs[fresh['instanceId']] = None
+            row.update(scored='modelFailure: confirmed', repair={})
+            continue
         if not handoff['report']:
             if handoff.get('report_sha256'):
                 raise ValueError(f"{record['id']} h{handoff['k']}: report sha256 recorded but no report file found")

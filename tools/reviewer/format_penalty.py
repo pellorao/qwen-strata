@@ -44,7 +44,8 @@ def repairable_count(changes):
         elif change['kind'] == 'spill-locator':
             # Every converted comma part is one locator the scorer reads.
             count += len(change['converted'])
-        elif change['kind'] in ('markdown-preamble', 'scalar-lines', 'requirement-line'):
+        elif change['kind'] in ('markdown-preamble', 'markdown-stray-lines', 'scalar-lines', 'requirement-line'):
+            # markdown-stray-lines: every line outside a finding of one report, once (ARW's one review-format-invalid).
             count += 1
         else:
             raise ValueError(f"unknown repair kind {change['kind']}")
@@ -130,6 +131,13 @@ def instance_errors(instance, repairs):
     if instance_id not in repairs:
         raise ValueError(f'instance {instance_id} declares no repair; give its repair record or declare none')
     record = repairs[instance_id]
+    if instance.get('modelFailure') is not None:
+        # No report: nothing to repair, no format error and no locator (scoring-k.patch zeroCapabilityScore gives
+        # locatorCount 0 and no overrunLocators). A Spec Readiness repetition whose other instance has a report is
+        # scored on that report's errors alone (user 2026-10-21: a model failure is the same as reporting nothing).
+        if record is not None or instance.get('locatorCount') != 0 or instance.get('unrepairableFormatErrors', 0) != 0:
+            raise ValueError(f'model failure {instance_id} declares a repair, locators or format errors')
+        return 0, 0, 0
     if record is None and instance.get('formatCorrection') is not None:
         raise ValueError(f'instance {instance_id} was scored through a format correction but declares no repair')
     if 'unrepairableFormatErrors' not in instance or 'overrunLocators' not in instance:

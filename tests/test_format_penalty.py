@@ -97,6 +97,24 @@ class FormatPenaltyTests(unittest.TestCase):
         self.assertEqual((row['r'], row['T'], row['instances']), (3, 100, ['rm', 'ap']))
         self.assertAlmostEqual(row['f'], 0.1 * 0.03 / (2 * registered_baseline(*SR41)))
 
+    def test_a_model_failure_adds_no_error_and_no_locator(self):
+        # The scorer's model failure: locatorCount 0, unrepairableFormatErrors 0, no overrunLocators (zeroCapabilityScore).
+        failure = {k: v for k, v in instance('ap', SR41, locators=0, modelFailure={'reason': 'no report'}).items()
+                   if k != 'overrunLocators'}
+        output = upstream(SR41[0], instance('rm', SR41, locators=40, unrepairable=1), failure, score=-0.05)
+        [row] = score_repetitions(output, {'rm': {'details': [short('`a.md:3`')]}, 'ap': None})
+        self.assertEqual((row['r'], row['rRepairable'], row['rUnrepairable'], row['rOverrun'], row['T']), (2, 1, 1, 0, 40))
+        self.assertAlmostEqual(row['score'], -0.05 * (1 + row['f']))
+        # A whole-instance model failure: r = T = 0, f = 0.
+        [row] = score_repetitions(upstream(CS51[0], {**failure, 'judgmentBinding': {'expectedSha256': CS51[1]}}, score=0),
+                                  {'ap': None})
+        self.assertEqual((row['r'], row['T'], row['f'], row['score']), (0, 0, 0, 0))
+        # A model failure never carries a repair or locators.
+        with self.assertRaisesRegex(ValueError, 'model failure'):
+            score_repetitions(upstream(SR41[0], failure), {'ap': {'details': []}})
+        with self.assertRaisesRegex(ValueError, 'model failure'):
+            score_repetitions(upstream(SR41[0], {**failure, 'locatorCount': 3}), {'ap': None})
+
     def test_instances_of_one_repetition_need_one_baseline(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'registry.json'
