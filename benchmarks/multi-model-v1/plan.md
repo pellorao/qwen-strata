@@ -745,4 +745,4 @@ DeepSeek 臂 worker 跑完探针 P1–P4 和第 1 轮（6 配置 × 4 场景各 
   - 新绑定：`steer.py` `c0afbe8f…1b12` → `b7451beb15e1861efded67939d148e215cd66d228b92b822c1d9dbbb316f2af7`。
   - 重判结果：全部 DeepSeek Codex 实例里只有 SR codex-high-a4 改判有效，`validity_source` 注明 pre-status 扩展。codex-low-a5、codex-low-a1 仍无效。重判前的文件备份在 `rejudge-1021b/`。
   - 调度器：在空闲点停下后重启，SR 剩余队列为 codex-low、cc-high、codex-max、cc-max，原排的 codex-high 补跑取消。
-  - 敏感性行：评分时另列一行，含因传输错误判无效的实例。
+  - 因传输错误判无效的实例照常重跑，不另列敏感性行（用户 2026-10-21：网络问题，与模型无关）。
