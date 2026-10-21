@@ -213,6 +213,11 @@ def attach_scores(records, score_root):
             r['format_penalty'] = result.get('f')
             r['repairs'] = result.get('rRepairable')
             r['score_r83'] = result.get('final_r83')
+            r['score_before_penalty'] = result.get('scoreBeforePenalty')
+            r['overall_deduction'] = result.get('overall_deduction')
+            # Handoffs scored as ARW's explicit modelFailure (no report, or an empty report Main confirmed).
+            r['model_failure_handoffs'] = [h.get('k') for h in result.get('handoffs') or []
+                                           if str(h.get('scored') or '').startswith('modelFailure')]
     return records
 
 
@@ -541,15 +546,68 @@ SUMMARY_RECORD_FIELDS = ('id', 'arm', 'scenario', 'config', 'supplementary_label
                          'validity', 'valid_rank', 'first_n', 'main_statistic', 'cell_pooled', 'in_main',
                          'score_status', 'score', 'raw_score', 'format_penalty', 'repairs', 'seconds',
                          'time_limit_seconds', 'tokens', 'token_source', 'tool_calls', 'cost_usd', 'cost_cny', 'cost_basis', 'cost_lower_bound',
-                         'model_ids', 'service_tiers', 'speeds', 'speed_basis', 'speed_lower_bounds')
+                         'model_ids', 'service_tiers', 'speeds', 'speed_basis', 'speed_lower_bounds',
+                         # Fields for tools.reviewer.benchmark_export (scoring details, pauses, effort, handoffs).
+                         'score_r83', 'score_before_penalty', 'overall_deduction', 'model_failure_handoffs',
+                         'requested_effort', 'effective_effort', 'pooled', 'pause_known', 'pause_count',
+                         'continue_count', 'seconds_adjustment', 'harness_generation', 'harness_reported_cost_usd',
+                         'handoff_metrics')
+CLAUDE_USAGE_ARMS = ('anthropic', 'deepseek-claude', 'strata-claude')
+
+
+def cache_write(usage):
+    """Claude Code result usage cache writes (counted inside uncached_input by bench_records.usage_tokens), with the
+    1-hour / 5-minute split when the usage gives it; None without usage."""
+    if not isinstance(usage, dict):
+        return None
+    split = usage.get('cache_creation') if isinstance(usage.get('cache_creation'), dict) else {}
+    return {'total': usage.get('cache_creation_input_tokens') or 0,
+            'ephemeral_1h': split.get('ephemeral_1h_input_tokens'), 'ephemeral_5m': split.get('ephemeral_5m_input_tokens')}
+
+
+def handoff_metrics(record):
+    """Per-handoff metrics of a record (Spec Readiness has two: runtime-migration, artifact-promotion) without paths,
+    ids or report content; [] for a record without handoffs."""
+    failures = set(record.get('model_failure_handoffs') or [])
+    out = []
+    for h in record.get('handoffs') or []:
+        api = record.get('arm') in CLAUDE_USAGE_ARMS and record.get('arm') != 'strata-claude'
+        out.append({'k': h.get('k'), 'sub_scenario': h.get('sub_scenario'), 'seconds': h.get('seconds'),
+                    'tokens': h.get('tokens') if isinstance(h.get('tokens'), dict) else None,
+                    'tokens_lower_bound': bool(h.get('tokens_lower_bound')),
+                    'cache_write': cache_write(h.get('api_usage')) if api else None,
+                    'tool_calls': h.get('tool_calls'), 'api_seconds': h.get('api_seconds'),
+                    'engine_read': h.get('engine_read'), 'engine_generated': h.get('engine_generated'),
+                    'engine_input_seconds': h.get('engine_input_seconds'),
+                    'engine_decode_seconds': h.get('engine_decode_seconds'),
+                    'model_failure': h.get('k') in failures,
+                    # Status enumerations only: final_status (ARW completion or the Claude Code result form) and,
+                    # on Claude Code, why the continuation loop stopped (delivered, model_error, hard_limit).
+                    'final_status': h.get('final_status'), 'continuation_stop': h.get('continuation_stop'),
+                    'harness_reported_cost_usd': h.get('cost_usd') if record.get('arm') in CLAUDE_USAGE_ARMS else None})
+    return out
+
+
+def harness_reported_cost(record):
+    """Claude Code result total_cost_usd over the handoffs (any Claude Code arm, Anthropic price list whatever the
+    backend), None unless every handoff has one."""
+    if record.get('arm') not in CLAUDE_USAGE_ARMS or not record.get('handoffs'):
+        return None
+    costs = [h.get('cost_usd') for h in record['handoffs']]
+    return None if None in costs else sum(costs)
 
 
 def compact(summary):
     """summary.json keeps the summary fields of each instance, not the whole run record."""
     out = dict(summary, scenarios={})
     for name, result in summary['scenarios'].items():
-        out['scenarios'][name] = dict(result, instances=[{k: r.get(k) for k in SUMMARY_RECORD_FIELDS}
-                                                         for r in result['instances']])
+        rows = []
+        for r in result['instances']:
+            row = {k: r.get(k) for k in SUMMARY_RECORD_FIELDS}
+            row['handoff_metrics'] = handoff_metrics(r)
+            row['harness_reported_cost_usd'] = harness_reported_cost(r)
+            rows.append(row)
+        out['scenarios'][name] = dict(result, instances=rows)
     return out
 
 
