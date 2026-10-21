@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.reminder_interrupt import classify, classify_instance, deadline_events, rollout_message_ids
+from tools.reviewer.reminder_interrupt import classify, classify_instance, deadline_events, error_side, rollout_message_ids
 
 # Shapes of DeepSeek CS codex-low-a1 (2026-10-20): the reminder steer at attempted_at, the abandoned stream's
 # BrokenPipeError 0.106 s later, the resent request starting before it ended.
@@ -46,6 +46,15 @@ class ReminderInterrupt(unittest.TestCase):
 
     def test_upstream_urlerror_counts(self):
         self.assertEqual(self.check(rows((1, 'transport_error', 'URLError')))['relay_errors'], 1)
+
+    def test_error_side_field_decides_and_old_rows_fall_back(self):
+        # new rows: the relay says which side failed, whatever the exception name
+        self.assertEqual(self.check(rows((1, 'transport_error', 'OSError'), (1, 'error_side', 'client')))['relay_errors'], 0)
+        self.assertEqual(self.check(rows((1, 'error_side', 'upstream')))['relay_errors'], 1)  # upstream reset
+        self.assertEqual(self.check(rows((1, 'error_side', 'client')))['relay_errors'], 0)
+        # old rows without the field: judged by the exception name as before
+        self.assertEqual([error_side(r) for r in (BROKEN, {'transport_error': 'URLError'}, {'status': 502}, {'status': 200})],
+                         ['client', 'upstream', 'upstream', None])
 
     def test_far_from_attempted_at_counts(self):
         self.assertEqual(self.check(rows((1, 'ended_at', AT + 31), (2, 'started_at', AT + 30.9)))['relay_errors'], 1)
