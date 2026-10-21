@@ -354,6 +354,35 @@ class ClaudeGateLogicTest(unittest.TestCase):
         self.assertFalse(missing['read_outside']['pass'])
         self.assertFalse(missing['read_outside']['attempted'])
 
+    def test_failed_session_still_removes_its_canaries_and_writes(self):
+        fx = self.fx
+        written = gate.shared_write_targets(fx)[-3]  # the peer run's working directory
+
+        def fails(*args, **kwargs):
+            written.write_text('BAD\n')  # a write probe got through, then the session broke before judging
+            raise RuntimeError('Claude Code broke')
+        original = ch.execute
+        ch.execute = fails
+        try:
+            with self.assertRaisesRegex(RuntimeError, 'broke'):
+                gate.session(self.base / 'out', 'anthropic', 'haiku', 'high', 1, self.base, None, fx=fx)
+        finally:
+            ch.execute = original
+        self.assertFalse(any(p.exists() for p in (fx['top_tmp'], fx['tmp_socket']['path'], *fx['place_canaries'])))
+        self.assertFalse(written.exists())
+        self.assertEqual(json.loads((self.base / 'out/unjudged-writes.json').read_text()), [str(written)])
+        # a failure before Claude Code starts (here the scripted server) releases them as well
+        other = gate.fixture('g2', self.base, Path(tempfile.mkdtemp(dir=self.project)))
+        original = gate.serve
+        gate.serve = lambda out=None: (_ for _ in ()).throw(OSError('no port'))
+        try:
+            with self.assertRaisesRegex(OSError, 'no port'):
+                gate.session(self.base / 'out2', 'anthropic', 'haiku', 'high', 2, self.base, None, fx=other)
+        finally:
+            gate.serve = original
+        self.assertFalse(any(p.exists() for p in (other['top_tmp'], other['tmp_socket']['path'], *other['place_canaries'])))
+        self.assertFalse((self.base / 'out2/unjudged-writes.json').exists())
+
     def test_isolation_flags_loaded_canaries_markers_tools_and_counts(self):
         fx = self.fx
         startup = ch.startup_text()[0]
