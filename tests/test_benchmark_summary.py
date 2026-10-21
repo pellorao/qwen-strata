@@ -94,15 +94,36 @@ class DesignTest(unittest.TestCase):
 
 class CostTest(unittest.TestCase):
     def test_deepseek_cost_is_cny_and_unknown_stays_unknown(self):
-        rows = [record(7, i, 0.5, cost_usd=None, cost_cny=0.2) for i in (1, 2)]
+        rows = [record(7, i, 0.5, cost_usd=0.03, cost_cny=0.2) for i in (1, 2)]
         stat = bs.statistics(7, rows, 'main', None, rows, 2)
         self.assertAlmostEqual(stat['cost_cny_total'], 0.4)
-        self.assertIsNone(stat['cost_usd_total'])
-        self.assertEqual(bs.cost_text(rows[0]), '¥0.200')
+        self.assertAlmostEqual(stat['cost_usd_total'], 0.06)
+        self.assertEqual(bs.cost_text(rows[0]), '0.030（¥0.200）')
         rows.append(record(7, 3, 0.5, cost_usd=None, cost_cny=None))
         stat = bs.statistics(7, rows, 'main', None, rows, 3)
         self.assertIsNone(stat['cost_cny_total'])
+        self.assertIsNone(stat['cost_usd_total'])
         self.assertEqual(bs.cost_text(rows[2]), '未知')
+
+    def test_lower_bound_cost_gets_a_floor_mark(self):
+        rows = [record(7, i, 0.5, cost_usd=0.03, cost_cny=0.2, cost_lower_bound=i == 2) for i in (1, 2)]
+        self.assertEqual(bs.cost_text(rows[0]), '0.030（¥0.200）')
+        self.assertEqual(bs.cost_text(rows[1]), '≥0.030（¥0.200）')
+        stat = bs.statistics(7, rows, 'main', None, rows, 2)
+        self.assertTrue(stat['cost_lower_bound'])
+        self.assertEqual(bs.config_cost_text(stat), '≥0.060（¥0.400）')
+        unknown = record(7, 3, 0.5, cost_usd=None, cost_cny=None, cost_lower_bound=True)
+        self.assertEqual(bs.cost_text(unknown), '未知')
+        usd = record(13, 1, 0.5, cost_lower_bound=True)
+        self.assertEqual(bs.cost_text(usd), '≥' + bs.usd(0.5))
+
+    def test_reconciliation_table_reports_deviation_and_ratio(self):
+        window = {'balance': [10.0, 6.0], 'balance_difference': 4.0, 'instances': 3, 'instances_without_cost': 0,
+                  'token_sum': 3.8, 'deviation': 0.2, 'deviation_ratio': 0.05}
+        text = '\n'.join(bs.reconciliation_lines({**window, 'by_date': {'2026-10-21': window}}))
+        self.assertIn('| 全部 | 10.00 → 6.00 | ¥4.00 | 3 | 0 | ¥3.8000 | ¥0.2000 | 5.00% |', text)
+        self.assertIn('| 2026-10-21 |', text)
+        self.assertEqual(bs.reconciliation_lines(None), [])
 
     def test_anthropic_without_cost_is_unknown(self):
         self.assertEqual(bs.cost_text(record(13, 1, 0.5, cost_usd=None)), '未知')

@@ -229,17 +229,33 @@ def cost(record):
 
 
 def cost_cny(record):
-    """DeepSeek: the per-token cost in CNY (not converted to USD: no exchange rate in the plan); others none."""
+    """DeepSeek: the per-token cost in CNY, shown beside the USD figure; others none."""
     return record.get('cost_cny') if vendor(record) == 'deepseek' else None
+
+
+FLOOR = '≥'  # prefix of a cost that is a lower bound (a reminder interrupt abandoned requests: plan 14.4)
+
+
+def both_currencies(dollars, yuan):
+    """DeepSeek cost: USD by the official USD / CNY price ratio (user 2026-10-21), the CNY figure in brackets."""
+    if dollars is None:
+        return '未知'
+    return usd(dollars) + ('' if yuan is None else f'（¥{usd(yuan)}）')
 
 
 def cost_text(record):
     if vendor(record) == 'openai':
         return '只报 token'
-    if vendor(record) == 'deepseek':
-        value = cost_cny(record)
-        return '未知' if value is None else '¥' + usd(value)
-    return usd(cost(record))
+    text = both_currencies(cost(record), cost_cny(record)) if vendor(record) == 'deepseek' else usd(cost(record))
+    return FLOOR + text if record.get('cost_lower_bound') and text != '未知' else text
+
+
+def config_cost_text(c):
+    if c['vendor'] == 'openai':
+        return '只报 token'
+    text = (both_currencies(c['cost_usd_total'], c['cost_cny_total']) if c['vendor'] == 'deepseek'
+            else usd(c['cost_usd_total']))
+    return FLOOR + text if c['cost_lower_bound'] and text != '未知' else text
 
 
 def total(values):
@@ -281,6 +297,7 @@ def statistics(config, rows, kind, label, records_in_cell, n_valid):
             'token_sources': sorted({r['token_source'] for r in rows if r['token_source']}),
             'tool_calls_mean': mean_of('tool_calls'),
             'cost_usd_total': summed, 'cost_usd_mean': None if summed is None else summed / len(rows),
+            'cost_lower_bound': any(r.get('cost_lower_bound') for r in rows),
             'cost_cny_total': summed_cny, 'cost_cny_mean': None if summed_cny is None else summed_cny / len(rows),
             'anthropic_quota_percent': (summed * QUOTA_PER_USD if CONFIGS[config]['vendor'] == 'anthropic'
                                         and summed is not None else None),
@@ -395,7 +412,7 @@ def markdown(summary):
         lines += ['**未计分完**：有主统计实例还没有最终分数，相关比较标"未计分完"。', '']
     for scenario, result in summary['scenarios'].items():
         lines += [f'## {scenario}', '', '### 配置', '',
-                  '| 配置 | 行 | 有效 | 选入 n | 已计分 | 无效 | 均值 ± SD | SE | 95% 区间 | rawScore | f | 修复 | 耗时（分钟） | 占时限 | 未缓存 | 缓存 | 输出 | token 来源 | 工具调用 | 费用（美元；DeepSeek 为人民币 ¥） | 周额度 | 模型 ID | service tier |',
+                  '| 配置 | 行 | 有效 | 选入 n | 已计分 | 无效 | 均值 ± SD | SE | 95% 区间 | rawScore | f | 修复 | 耗时（分钟） | 占时限 | 未缓存 | 缓存 | 输出 | token 来源 | 工具调用 | 费用（美元；DeepSeek 括号内为人民币 ¥） | 周额度 | 模型 ID | service tier |',
                   '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|']
         for c in result['configs']:
             t = c['tokens_mean']
@@ -410,9 +427,7 @@ def markdown(summary):
                 minutes(c['seconds_mean']), fmt(c['time_share_mean'], 2), count(t['uncached_input']),
                 count(t['cached_input']), count(t['output']), '、'.join(c['token_sources']) or '未知',
                 fmt(c['tool_calls_mean'], 1),
-                ('只报 token' if c['vendor'] == 'openai' else
-                 '未知' if c['cost_cny_total'] is None else '¥' + usd(c['cost_cny_total'])) if c['vendor'] in (
-                    'openai', 'deepseek') else usd(c['cost_usd_total']),
+                config_cost_text(c),
                 '' if c['anthropic_quota_percent'] is None else fmt(c['anthropic_quota_percent'], 2) + '%',
                 '、'.join(c['model_ids']) or '未知', '、'.join(c['service_tiers']) or '未知']) + ' |')
         lines += ['', '### 预登记比较', '', '| 组 | 前者 | 后者 | n | 差值 | SE | t | 自由度 | p | Holm p | 结论 |',
@@ -426,7 +441,7 @@ def markdown(summary):
                 fmt(r['t'], 2), fmt(r['df'], 1), fmt(r['p'], 4), fmt(r['p_holm'], 4), r['verdict']]) + ' |')
         speeds = any(r.get('speeds') for r in result['instances'])
         head = ['配置', '实例', '补充', '有效', '序', '主统计', '分数', 'rawScore', 'f', '修复', '耗时（分钟）', '占时限',
-                '未缓存', '缓存', '输出', '工具调用', '费用（美元；DeepSeek 为人民币 ¥）', '模型 ID', 'service tier']
+                '未缓存', '缓存', '输出', '工具调用', '费用（美元；DeepSeek 括号内为人民币 ¥）', '模型 ID', 'service tier']
         if speeds:
             head += ['引擎输入 tok/s', '引擎输出 tok/s', '任务平均输入 tok/s', '任务平均输出 tok/s']
         lines += ['', '### 逐实例', '', '| ' + ' | '.join(head) + ' |', '|' + '---|' * len(head)]
@@ -445,13 +460,36 @@ def markdown(summary):
                 row += [fmt((r.get('speeds') or {}).get(k), 1) for k in SPEEDS]
             lines.append('| ' + ' | '.join(row) + ' |')
         lines.append('')
+    lines += reconciliation_lines(summary.get('deepseek_reconciliation'))
     return '\n'.join(lines)
+
+
+def reconciliation_lines(rec):
+    """DeepSeek batch reconciliation (plan 14.4): balance difference against the per-token sum, report only."""
+    if not rec:
+        return []
+    lines = ['## DeepSeek 批次对账', '',
+             '余额差取自 schedule.jsonl 每次启动前读到的余额（只用已落盘记录，不调余额接口），窗口两端都是没有实例在跑的读数；'
+             '计价合计是窗口内启动并结束的实例按请求时刻计的人民币。偏差 = 余额差 − 计价合计，只报告，不调整任何实例的费用'
+             '（计划 14.4 没有规定处理）；窗口内实例之外的花费（定价核对、探测）也落在偏差里，被弃请求的 token 不进计价合计。',
+             '', '| 窗口 | 余额（起 → 止） | 余额差 | 实例数 | 无费用 | 计价合计 | 偏差 | 偏差占余额差 |',
+             '|---|---|---|---|---|---|---|---|']
+
+    def row(name, w):
+        ratio = '未知' if w['deviation_ratio'] is None else f"{w['deviation_ratio'] * 100:.2f}%"
+        return (f"| {name} | {w['balance'][0]:.2f} → {w['balance'][1]:.2f} | ¥{w['balance_difference']:.2f} | "
+                f"{w['instances']} | {w['instances_without_cost']} | ¥{w['token_sum']:.4f} | "
+                f"¥{w['deviation']:.4f} | {ratio} |")
+
+    lines.append(row('全部', rec))
+    lines += [row(day, w) for day, w in rec['by_date'].items()]
+    return lines + ['']
 
 
 SUMMARY_RECORD_FIELDS = ('id', 'arm', 'scenario', 'config', 'supplementary_label', 'attempt', 'started', 'valid',
                          'validity', 'valid_rank', 'first_n', 'main_statistic', 'cell_pooled', 'in_main',
                          'score_status', 'score', 'raw_score', 'format_penalty', 'repairs', 'seconds',
-                         'time_limit_seconds', 'tokens', 'token_source', 'tool_calls', 'cost_usd', 'cost_cny', 'cost_basis',
+                         'time_limit_seconds', 'tokens', 'token_source', 'tool_calls', 'cost_usd', 'cost_cny', 'cost_basis', 'cost_lower_bound',
                          'model_ids', 'service_tiers', 'speeds')
 
 
@@ -462,6 +500,18 @@ def compact(summary):
         out['scenarios'][name] = dict(result, instances=[{k: r.get(k) for k in SUMMARY_RECORD_FIELDS}
                                                          for r in result['instances']])
     return out
+
+
+def deepseek_reconciliation(records, data_root=None):
+    """bench_validity.deepseek_batch_reconciliation over the arm's schedule.jsonl with the records' per-token costs;
+    None when the arm has no schedule or no records."""
+    from tools.reviewer import bench_records, bench_validity
+    root = Path(data_root or bench_records.ROOT) / bench_records.LAYOUT['deepseek-codex'][0]
+    costs = {'/'.join(Path(r['dir']).parts[-2:]): r['cost_cny'] for r in records
+             if r['arm'].startswith('deepseek') and r.get('cost_cny') is not None}
+    if not costs or not (root / 'schedule.jsonl').is_file():
+        return None
+    return bench_validity.deepseek_batch_reconciliation(root, costs)
 
 
 def load_records(records_path=None, data_root=None):
@@ -475,6 +525,7 @@ def write(out, records_path=None, data_root=None, score_root=None, phase=1):
     records = load_records(records_path, data_root)
     attach_scores(records, score_root)
     summary = summarize(records, phase)
+    summary['deepseek_reconciliation'] = deepseek_reconciliation(records, data_root)
     out = Path(out)
     out.mkdir(parents=True, exist_ok=False)
     (out / 'summary.json').write_text(json.dumps(compact(summary), ensure_ascii=False, indent=1) + '\n')
