@@ -847,7 +847,7 @@
    "family": "anthropic",
    "model": "haiku",
    "expected": "not-matched",
-   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/cs-checks.mjs; node on a read-only copy of the first-batch view): rescheduleReservation accepts a 300-minute window (expectation true: the defect exists); applyTransition(confirm) grows the input history from 1 to 2 (the finding describes this other, real defect, which is problem 2 of the key); finding text has none of 240/duration/too long/exceedsMaxDuration/snap; first-batch blind Opus high cs-1-044 decided not-matched, consistent",
+   "confirmed_by": "Main executable check 10-21 (worker, benchmarks/multi-model-v1/anchors/checks/cs-checks.mjs; node on a read-only copy of the first-batch view): rescheduleReservation accepts a 300-minute window (expectation true: the defect exists); applyTransition(confirm) grows the input history from 1 to 2 (the finding describes this other, real defect, which is problem 2 of the key); finding text has none of 240/duration/too long/exceedsMaxDuration/snap; first-batch blind Opus high cs-1-044 decided not-matched, consistent",
    "origin": {
     "record": "anthropic/code-spec-v5/haiku-medium-a10",
     "stable_id": "code-spec-reviewer:default:scope-1:problem-3:CODE-SPEC-FINDINGS:finding-1"
@@ -884,7 +884,7 @@
    "family": "anthropic",
    "model": "haiku",
    "expected": "matched",
-   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/cs-checks.mjs; node on a read-only copy of the first-batch view): quoteField('a\"b\"c') returns \"a\"\"b\"c\" (only the first quote doubled, as the expectation says); the finding cites csv-format.mjs:7 (association line) and names the missing g flag; first-batch blind Opus high cs-8-064 decided matched, consistent",
+   "confirmed_by": "Main executable check 10-21 (worker, benchmarks/multi-model-v1/anchors/checks/cs-checks.mjs; node on a read-only copy of the first-batch view): quoteField('a\"b\"c') returns \"a\"\"b\"c\" (only the first quote doubled, as the expectation says); the finding cites csv-format.mjs:7 (association line) and names the missing g flag; first-batch blind Opus high cs-8-064 decided matched, consistent",
    "origin": {
     "record": "anthropic/code-spec-v5/haiku-high-a2",
     "stable_id": "code-spec-reviewer:default:scope-1:problem-7:CODE-SPEC-FINDINGS:finding-8"
@@ -916,7 +916,7 @@
    "family": "anthropic",
    "model": "sonnet",
    "expected": "not-matched",
-   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/cs-checks.mjs; node on a read-only copy of the first-batch view): createPaymentIntent on a late invoice gives fee 0, amount = total (expectation true); paymentStatus with a captured 500 intent reports paid 0 (the finding describes this other defect, netPaid gets the invoice object); finding text has no issuedAt, fee, intentRequest or newIntent; first-batch blind Opus high cs-4-027 decided not-matched, consistent",
+   "confirmed_by": "Main executable check 10-21 (worker, benchmarks/multi-model-v1/anchors/checks/cs-checks.mjs; node on a read-only copy of the first-batch view): createPaymentIntent on a late invoice gives fee 0, amount = total (expectation true); paymentStatus with a captured 500 intent reports paid 0 (the finding describes this other defect, netPaid gets the invoice object); finding text has no issuedAt, fee, intentRequest or newIntent; first-batch blind Opus high cs-4-027 decided not-matched, consistent",
    "origin": {
     "record": "anthropic/code-spec-v5/sonnet-high-a5",
     "stable_id": "code-spec-reviewer:default:scope-1:problem-10:CODE-SPEC-FINDINGS:finding-8"
@@ -955,7 +955,7 @@
    "family": "anthropic",
    "model": "sonnet",
    "expected": "matched",
-   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/cs-checks.mjs; node on a read-only copy of the first-batch view): hasEnded({endAt: at+30s}, at) is true, +60s false (expectation true); the finding cites closures.mjs:26 (association line) and names the whole-minute truncation of minutesBetween; first-batch blind Opus high cs-11-121 decided matched, consistent",
+   "confirmed_by": "Main executable check 10-21 (worker, benchmarks/multi-model-v1/anchors/checks/cs-checks.mjs; node on a read-only copy of the first-batch view): hasEnded({endAt: at+30s}, at) is true, +60s false (expectation true); the finding cites closures.mjs:26 (association line) and names the whole-minute truncation of minutesBetween; first-batch blind Opus high cs-11-121 decided matched, consistent",
    "origin": {
     "record": "anthropic/code-spec-v5/sonnet-high-a5",
     "stable_id": "code-spec-reviewer:default:scope-1:problem-11:CODE-SPEC-FINDINGS:finding-16"
@@ -991,7 +991,7 @@
    "family": "strata",
    "model": "strata-q3",
    "expected": "not-matched",
-   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/cs-checks.mjs; node on a read-only copy of the first-batch view): withdrawEntry of a waiting entry starting in 30 min throws too late to withdraw (expectation true); acceptOffer of an offered entry with expiresAt passed is accepted (the finding describes this other defect); finding text has none of waiting/withdraw/60/cutoff; first-batch blind Opus high cs-4-098 decided not-matched, consistent",
+   "confirmed_by": "Main executable check 10-21 (worker, benchmarks/multi-model-v1/anchors/checks/cs-checks.mjs; node on a read-only copy of the first-batch view): withdrawEntry of a waiting entry starting in 30 min throws too late to withdraw (expectation true); acceptOffer of an offered entry with expiresAt passed is accepted (the finding describes this other defect); finding text has none of waiting/withdraw/60/cutoff; first-batch blind Opus high cs-4-098 decided not-matched, consistent",
    "origin": {
     "record": "strata-claude/code-spec-v5/strata-low-a2",
     "stable_id": "code-spec-reviewer:default:scope-1:problem-12:CODE-SPEC-FINDINGS:finding-7"
@@ -1033,7 +1033,7 @@
    "family": "strata",
    "model": "strata-q3",
    "expected": "not-matched",
-   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/cs-checks.mjs; node on a read-only copy of the first-batch view): applyTransition(confirm) grows the input history from 1 to 2 (expectation true); rescheduleReservation accepts a 300-minute window (the finding describes this other, real defect, problem 3 of the key); its evidence range transitions.mjs:3-20 covers the association line 17, but the text names only the missing duration check and has none of history/mutat/modif/shared/shallow/push; first-batch blind Opus high cs-2-046 decided not-matched, consistent",
+   "confirmed_by": "Main executable check 10-21 (worker, benchmarks/multi-model-v1/anchors/checks/cs-checks.mjs; node on a read-only copy of the first-batch view): applyTransition(confirm) grows the input history from 1 to 2 (expectation true); rescheduleReservation accepts a 300-minute window (the finding describes this other, real defect, problem 3 of the key); its evidence range transitions.mjs:3-20 covers the association line 17, but the text names only the missing duration check and has none of history/mutat/modif/shared/shallow/push; first-batch blind Opus high cs-2-046 decided not-matched, consistent",
    "origin": {
     "record": "strata-codex/code-spec-v5/codex-strata-medium-a2",
     "stable_id": "code-spec-reviewer:default:scope-1:problem-2:CODE-SPEC-FINDINGS:finding-2"

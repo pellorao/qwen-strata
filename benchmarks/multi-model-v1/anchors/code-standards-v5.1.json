@@ -189,7 +189,7 @@
    "family": "strata",
    "model": "strata-q3",
    "expected": "matched",
-   "confirmed_by": "blind Opus worker, Code Standards v5 formal Q3 pool pool-all c202 (260 items, controls 12/12); case 14 is unchanged in v5.1；更正（Main 10-21）：原定 not-matched 有误，改为 matched。可执行检查（.tmp/adj-review-1021-cstd-sr/checks/cstd-check.mjs）确认 catering-store.mjs:12 是 src/ 中唯一的 class，其余 store 都是工厂，finding 单独引用 writing.md:111 讲了这一缺陷；按 rulings「一条 finding 讲了两个缺陷」判对上，CStd v5.1 第一批 24 个池一致判 matched",
+   "confirmed_by": "blind Opus worker, Code Standards v5 formal Q3 pool pool-all c202 (260 items, controls 12/12); case 14 is unchanged in v5.1；更正（Main 10-21）：原定 not-matched 有误，改为 matched。可执行检查（benchmarks/multi-model-v1/anchors/checks/cstd-check.mjs）确认 catering-store.mjs:12 是 src/ 中唯一的 class，其余 store 都是工厂，finding 单独引用 writing.md:111 讲了这一缺陷；按 rulings「一条 finding 讲了两个缺陷」判对上，CStd v5.1 第一批 24 个池一致判 matched",
    "origin": {
     "run": "q3-1",
     "candidateId": "code-standards-reviewer:default-a23c6bde-fdee-4940-a625-1eb5ae937a37-instance-1:scope-1:problem-14:CODE-STANDARDS-FINDINGS:finding-6"

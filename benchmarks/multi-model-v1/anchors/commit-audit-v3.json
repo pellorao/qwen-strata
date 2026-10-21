@@ -973,7 +973,7 @@
    "family": "openai",
    "model": "gpt-6-luna",
    "expected": "not-matched",
-   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/ca-checks.mjs; node on a read-only copy of the first-batch view): canPlanRoute of a suspended actor with an active routes:plan claim is true (expectation true); the finding only says the policy was not in the evidence and has none of suspend/claim/scope/effectiveScopes; brief 01:51 requires naming the retained active-claim scopes; first-batch blind Opus high ca-21-062 decided not-matched, consistent",
+   "confirmed_by": "Main executable check 10-21 (worker, benchmarks/multi-model-v1/anchors/checks/ca-checks.mjs; node on a read-only copy of the first-batch view): canPlanRoute of a suspended actor with an active routes:plan claim is true (expectation true); the finding only says the policy was not in the evidence and has none of suspend/claim/scope/effectiveScopes; brief 01:51 requires naming the retained active-claim scopes; first-batch blind Opus high ca-21-062 decided not-matched, consistent",
    "origin": {
     "record": "openai/commit-audit-v3/luna-low-a1",
     "stable_id": "commit-audit-reviewer:default:scope-1:problem-14:COMMIT-AUDIT-GATE-1:finding-12"
@@ -1010,7 +1010,7 @@
    "family": "openai",
    "model": "gpt-6.1-sol",
    "expected": "matched",
-   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/ca-checks.mjs; node on a read-only copy of the first-batch view): nextRetryDelay(0, 0) is 250 (backoff) and nextRetryDelay(0, 1) is 1000 (expectation true); the finding names retryAfter 0 falling back to backoff, the brief spec:75 wording; first-batch blind Opus high ca-7-099 decided matched, consistent",
+   "confirmed_by": "Main executable check 10-21 (worker, benchmarks/multi-model-v1/anchors/checks/ca-checks.mjs; node on a read-only copy of the first-batch view): nextRetryDelay(0, 0) is 250 (backoff) and nextRetryDelay(0, 1) is 1000 (expectation true); the finding names retryAfter 0 falling back to backoff, the brief spec:75 wording; first-batch blind Opus high ca-7-099 decided matched, consistent",
    "origin": {
     "record": "openai/commit-audit-v3/sol-low-a2",
     "stable_id": "commit-audit-reviewer:default:scope-2:problem-20:COMMIT-AUDIT-GATE-2:finding-20"
@@ -1055,7 +1055,7 @@
    "family": "anthropic",
    "model": "sonnet",
    "expected": "matched",
-   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/ca-checks.mjs; node on a read-only copy of the first-batch view): pendingStops([delivered, handedOver, queued]) returns handedOver and queued (expectation true; dispatch-policy rule 31); the finding names handedOver and rule 31, the brief 01:32 wording; first-batch blind Opus high ca-8-066 decided matched, consistent",
+   "confirmed_by": "Main executable check 10-21 (worker, benchmarks/multi-model-v1/anchors/checks/ca-checks.mjs; node on a read-only copy of the first-batch view): pendingStops([delivered, handedOver, queued]) returns handedOver and queued (expectation true; dispatch-policy rule 31); the finding names handedOver and rule 31, the brief 01:32 wording; first-batch blind Opus high ca-8-066 decided matched, consistent",
    "origin": {
     "record": "anthropic/commit-audit-v3/sonnet-high-a3",
     "stable_id": "commit-audit-reviewer:default:scope-1:problem-9:COMMIT-AUDIT-GATE-1:finding-10"
@@ -1092,7 +1092,7 @@
    "family": "anthropic",
    "model": "haiku",
    "expected": "matched",
-   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/ca-checks.mjs; node on a read-only copy of the first-batch view): publishManifest with an entry for which manifestEntryIsValid is false returns ok true and stores the manifest (expectation true); the finding names the async callback, truthy promises and checks.every(Boolean); first-batch blind Opus high ca-19-005 decided matched, consistent",
+   "confirmed_by": "Main executable check 10-21 (worker, benchmarks/multi-model-v1/anchors/checks/ca-checks.mjs; node on a read-only copy of the first-batch view): publishManifest with an entry for which manifestEntryIsValid is false returns ok true and stores the manifest (expectation true); the finding names the async callback, truthy promises and checks.every(Boolean); first-batch blind Opus high ca-19-005 decided matched, consistent",
    "origin": {
     "record": "anthropic/commit-audit-v3/haiku-medium-a3",
     "stable_id": "commit-audit-reviewer:default:scope-1:problem-18:COMMIT-AUDIT-GATE-1:finding-18"
@@ -1130,7 +1130,7 @@
    "family": "strata",
    "model": "strata-q3",
    "expected": "not-matched",
-   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/ca-checks.mjs; node on a read-only copy of the first-batch view): authorizeRouteBatch is true when the first route fails and false when only the second fails (expectation true, finding claim false: it says a later failure is accepted); finding text has no findIndex or index 0; first-batch blind Opus high ca-17-068 decided not-matched, consistent",
+   "confirmed_by": "Main executable check 10-21 (worker, benchmarks/multi-model-v1/anchors/checks/ca-checks.mjs; node on a read-only copy of the first-batch view): authorizeRouteBatch is true when the first route fails and false when only the second fails (expectation true, finding claim false: it says a later failure is accepted); finding text has no findIndex or index 0; first-batch blind Opus high ca-17-068 decided not-matched, consistent",
    "origin": {
     "record": "strata-claude/commit-audit-v3/strata-high-a2",
     "stable_id": "commit-audit-reviewer:default:scope-2:problem-13:COMMIT-AUDIT-GATE-2:finding-10"
@@ -1168,7 +1168,7 @@
    "family": "strata",
    "model": "strata-q3",
    "expected": "not-matched",
-   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/ca-checks.mjs; node on a read-only copy of the first-batch view): with a store whose get returns a copy, publishWithAnnouncement after a send failure leaves the manifest stored and calls only store.remove, never removeTemporary (expectation true, finding claim false: it says removeTemporary is called); finding text has no get or copy; brief 02:22 requires naming the get copy; first-batch blind Opus high ca-35-033 decided not-matched, consistent",
+   "confirmed_by": "Main executable check 10-21 (worker, benchmarks/multi-model-v1/anchors/checks/ca-checks.mjs; node on a read-only copy of the first-batch view): with a store whose get returns a copy, publishWithAnnouncement after a send failure leaves the manifest stored and calls only store.remove, never removeTemporary (expectation true, finding claim false: it says removeTemporary is called); finding text has no get or copy; brief 02:22 requires naming the get copy; first-batch blind Opus high ca-35-033 decided not-matched, consistent",
    "origin": {
     "record": "strata-codex/commit-audit-v3/codex-strata-high-a5",
     "stable_id": "commit-audit-reviewer:default:scope-1:problem-15:COMMIT-AUDIT-GATE-1:finding-14"
