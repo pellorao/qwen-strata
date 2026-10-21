@@ -20,8 +20,11 @@ Input: a normalized instance record (tools.reviewer.bench_records) and its froze
   4. format penalty f (format_penalty.score_repetitions; r also counts the record's final_status_format_errors, 1 for a
      B-class instance whose last final message is not ARW's status form, user 2026-10-20) and the overall merge (user 2026-10-20, reviewer-suite
      「整体罚分只扣一次」; plan §14.1 L445, L453-457):
-        final = max(0, scoreBeforePenalty) x (1 - max(0.1 if paused, f, 0.1 if ARW cut))
-     scoreBeforePenalty is the repetition score before ARW's 0.9 cut; the cut (a report diagnostic outside the
+        final = s - d x |s|, s = scoreBeforePenalty, d = max(0.1 if paused, f, 0.1 if ARW cut)
+     (r8.4, user 2026-10-21: s is no longer cut at 0 and d takes d of its size, so a negative score falls too).
+     score_r83 and final_r83 give the r8.3 values of the same instance for the sensitivity table (plan §14.1):
+     max(0, s) and max(0, s) x (1 - d), bit for bit what r8.3 scored, since r8.4 changes only negative scores.
+     scoreBeforePenalty is the repetition score before ARW's residual cut; the cut (a report diagnostic outside the
      project's REPORT_DIAGNOSTIC_TREATMENT, scoring-k.patch) joins the same max, so no overall penalty multiplies
      another. A paused instance loses 0.1 once, however many pauses it had (plan L457). The pause count is the
      record's (recorded or rebuilt per arm, bench_records pause_basis); a record without a basis (pause_known false)
@@ -55,6 +58,9 @@ ROOT = bench_records.ROOT
 DEFAULT_ROOT = ROOT / '.tmp/bench-score'
 PAUSE_CUT = 0.1
 ARW_CUT = 0.1
+# Final score of an instance with no handoff at all, the same as ARW's model failure (scoring-k.patch
+# MODEL_FAILURE_FAILS_CLEAN_CASES: true -1, false 0). r8.4: -1 or 0 awaits the user's decision (2026-10-21); change both.
+MODEL_FAILURE_FINAL = -1.0
 # scoring-k.patch REPORT_DIAGNOSTIC_TREATMENT: codes handled by the project (format penalty, record only, or inside a
 # case). Any other report diagnostic keeps ARW's 0.9 cut of the repetition.
 TREATED_DIAGNOSTICS = {
@@ -340,10 +346,23 @@ def stored_choice(store, candidate, scenario):
     return stored['decision'], stored['reason'], stored.get('source', 'store')
 
 
+def deduct(score, deduction):
+    """r8.4 (user 2026-10-21): a deduction takes d of the score's size, s - d|s| (scoring-k.patch deductScore); written
+    per sign so a score >= 0 gets exactly the r8.3 value s x (1 - d)."""
+    return score * (1 - deduction) if score >= 0 else score * (1 + deduction)
+
+
 def merge(score_before_penalty, f, paused, arw_cut):
-    """User 2026-10-20: one overall deduction, the largest of pause (0.1 once), format f and ARW's residual cut."""
+    """User 2026-10-20: one overall deduction, the largest of pause (0.1 once), format f and ARW's residual cut;
+    r8.4: applied as s - d|s| to the uncut score."""
     deduction = max(PAUSE_CUT if paused else 0.0, f, ARW_CUT if arw_cut else 0.0)
-    return deduction, max(0.0, score_before_penalty) * (1 - deduction)
+    return deduction, deduct(score_before_penalty, deduction)
+
+
+def r83(score_before_penalty, deduction):
+    """The r8.3 score and final of the same instance (score cut at 0, deduction multiplied), for the sensitivity table."""
+    score = max(0.0, score_before_penalty)
+    return score, score * (1 - deduction)
 
 
 def repetition_score(up, repairs, registry=None, final_status_errors=0):
@@ -356,7 +375,7 @@ def repetition_score(up, repairs, registry=None, final_status_errors=0):
     codes = [d.get('code') for d in rep.get('reportDiagnostics') or []]
     cut_codes = sorted({c for c in codes if c not in TREATED_DIAGNOSTICS})
     before = rep['scoreBeforePenalty']
-    expected = before * 0.9 if cut_codes else before
+    expected = deduct(before, ARW_CUT) if cut_codes else before
     if abs(rep['score'] - expected) > 1e-9:
         raise ValueError(f"ARW score {rep['score']} does not match scoreBeforePenalty {before} with cut codes {cut_codes}")
     return {'scoreBeforePenalty': before, 'arw_score': rep['score'], 'rawScore': rep.get('rawScore'),
@@ -449,7 +468,7 @@ def score_instance(record, work, provisional=None, enumerate_only=False, scorer=
             'main_statistic': record.get('main_statistic'), 'seconds': record.get('seconds'),
             'seconds_adjustment': record.get('seconds_adjustment')}
     if not upstream_input['artifacts']:
-        result = {**base, 'status': 'no-report', 'final': 0.0}
+        result = {**base, 'status': 'no-report', 'final': MODEL_FAILURE_FINAL, 'score_r83': 0.0, 'final_r83': 0.0}
         save(work / 'score.json', result)
         return result
     input_path = work / 'score-input.json'
@@ -492,15 +511,17 @@ def score_instance(record, work, provisional=None, enumerate_only=False, scorer=
         raise ValueError(f"{record['id']}: record without final_status_format_errors (rebuild it with bench_records)")
     scored = repetition_score(up, repairs, final_status_errors=record['final_status_format_errors'])
     deduction, final = merge(scored['scoreBeforePenalty'], scored['f'], pause['paused'], scored['arw_cut'])
+    score_r83, final_r83 = r83(scored['scoreBeforePenalty'], deduction)
     sources = {}
     for d in used.values():
         sources[d['source']] = sources.get(d['source'], 0) + 1
     result = {**base, 'status': 'provisional' if any(d['source'] == 'provisional' for d in used.values()) else 'final',
               'provisional_bound': provisional, **pause, **scored, 'overall_deduction': deduction, 'final': final,
+              'score_r83': score_r83, 'final_r83': final_r83,
               'decisions': len(used), 'decision_sources': sources, 'stale_decisions': sorted(set(stale)),
               'upstream_status': up.get('status'), 'final_status_basis': record.get('final_status_basis'),
               'template_findings': template_findings(seen.values(), {d['stable_id']: d for d in used.values()}),
-              'rule': 'final = max(0, scoreBeforePenalty) x (1 - max(0.1 if paused, f, 0.1 if ARW cut))'}
+              'rule': 'final = s - d x |s|, s = scoreBeforePenalty, d = max(0.1 if paused, f, 0.1 if ARW cut) (r8.4)'}
     save(work / 'score.json', result)
     return result
 

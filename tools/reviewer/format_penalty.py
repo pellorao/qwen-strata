@@ -1,7 +1,8 @@
 """Benchmark format penalty of a scored repetition (project scoring upgrade r7, user 2026-10-15).
 
 Replaces the flat x0.9 for format errors, which are errors of the whole report (user 2026-10-15). For each repetition:
-  p = r / T, f = 0.1 * min(1, p / (2 * pBase)), final = max(0, raw) * (1 - f)
+  p = r / T, f = 0.1 * min(1, p / (2 * pBase)), final = raw - f * |raw| (r8.4, user 2026-10-21: raw is no longer cut
+  at 0 and f takes f of its size, so a negative score falls too)
 r counts every format error in scorer units (so `a:1,5` is two): the repairable ones found by
 `repair_reviewer_report` (from the repair record; a Commit Audit row moved to the requirement line it quotes counts once; a locator converted from a spilled tool output counts once per
 locator part), those left in the scored report (`unrepairableFormatErrors` of
@@ -118,7 +119,8 @@ def penalty(r, t, p_base):
 
 
 def final_score(raw, f):
-    return max(0.0, raw) * (1 - f)
+    # raw - f|raw|, per sign so raw >= 0 keeps exactly the r8.3 value raw x (1 - f).
+    return raw * (1 - f) if raw >= 0 else raw * (1 + f)
 
 
 def instance_errors(instance, repairs):

@@ -18,6 +18,11 @@ directory, per scenario:
 - the per-instance table, invalid instances included and marked (measurement rule).
 No ratios, combined scores or ranks (D7).
 
+Scoring r8.4 (user 2026-10-21) no longer cuts scores at 0, so each cell also gives its negative instances, minimum and
+median, and every score keeps its r8.3 counterpart (bench_score final_r83: cut at 0, deduction multiplied) for the
+sensitivity table of plan §14.1: the r8.3 cell mean and, per comparison, the r8.3 Holm p and verdict, marked where the
+verdict differs. A score taken from the record itself carries its own score_r83 or none.
+
 Scoring phases (plan §14.1, user 2026-10-21): phase 1 uses only the preregistered instances, the main statistic of
 bench_validity.rank_cells (cells not merged: the first 5 valid by start time; merged cells: every valid one). Phase 2
 adds the Strata extra instances: a Strata cell's main statistic is its valid instances up to rank 10 (the extra-run
@@ -137,6 +142,20 @@ def sd(values):
     return math.sqrt(sum((v - m) ** 2 for v in values) / (len(values) - 1))
 
 
+def median(values):
+    if not values:
+        return None
+    ordered = sorted(values)
+    middle = len(ordered) // 2
+    return ordered[middle] if len(ordered) % 2 else (ordered[middle - 1] + ordered[middle]) / 2
+
+
+def r83_scores(rows):
+    """The r8.3 scores of scored rows, or None when any of them lacks one."""
+    values = [r.get('score_r83') for r in rows if r['score'] is not None]
+    return None if any(v is None for v in values) else values
+
+
 def welch(a, b):
     """Welch t test; identical-valued sides (SE 0) give p 1 for equal means and 0 otherwise."""
     if len(a) < 2 or len(b) < 2:
@@ -193,6 +212,7 @@ def attach_scores(records, score_root):
             r['raw_score'] = result.get('rawScore')
             r['format_penalty'] = result.get('f')
             r['repairs'] = result.get('rRepairable')
+            r['score_r83'] = result.get('final_r83')
     return records
 
 
@@ -284,6 +304,9 @@ def statistics(config, rows, kind, label, records_in_cell, n_valid):
             'invalid': sum(1 for r in records_in_cell if not r['valid']),
             'ids': [r['id'] for r in rows], 'mean': mean(scores), 'sd': s, 'se': se,
             'ci95': None if half is None else [mean(scores) - half, mean(scores) + half],
+            'n_negative': sum(1 for v in scores if v < 0), 'min': min(scores) if scores else None,
+            'median': median(scores),
+            'mean_r83': mean(r83_scores(scored)) if scored and r83_scores(scored) is not None else None,
             'raw_score_mean': mean([r['raw_score'] for r in scored]) if scored and all(
                 r['raw_score'] is not None for r in scored) else None,
             'format_penalty_mean': mean([r['format_penalty'] for r in scored]) if scored and all(
@@ -339,15 +362,26 @@ def scenario_summary(records, phase):
         a, b = samples.get(first, []), samples.get(second, [])
         complete = bool(a) and bool(b) and all(r['score'] is not None for r in a + b)
         test = welch([r['score'] for r in a], [r['score'] for r in b]) if complete else None
+        old_a, old_b = (r83_scores(a), r83_scores(b)) if complete else (None, None)
+        old = welch(old_a, old_b) if old_a is not None and old_b is not None else None
         tests.append({'group': group_name, 'first': first, 'second': second, 'n_first': len(a), 'n_second': len(b),
                       'scored_first': sum(r['score'] is not None for r in a),
                       'scored_second': sum(r['score'] is not None for r in b), 'complete': complete,
-                      **(test or {'d': None, 'se': None, 't': None, 'df': None, 'p': None})})
+                      **(test or {'d': None, 'se': None, 't': None, 'df': None, 'p': None}),
+                      'r83_known': old_a is not None and old_b is not None,
+                      'd_r83': (old or {}).get('d'), 'p_r83': (old or {}).get('p')})
     adjusted = holm([1.0 if t['p'] is None else t['p'] for t in tests])
-    for t, p in zip(tests, adjusted):
+    adjusted_r83 = holm([1.0 if t['p_r83'] is None else t['p_r83'] for t in tests])
+    verdict = lambda complete, d, p, p_holm: ('未计分完' if not complete else '未分出' if p is None or p_holm >= ALPHA
+                                              else '高于' if d > 0 else '低于')
+    known = all(t['r83_known'] for t in tests if t['complete'])
+    for t, p, p_old in zip(tests, adjusted, adjusted_r83):
         t['p_holm'] = p
-        t['verdict'] = ('未计分完' if not t['complete'] else '未分出' if t['p'] is None or p >= ALPHA
-                        else '高于' if t['d'] > 0 else '低于')
+        t['verdict'] = verdict(t['complete'], t['d'], t['p'], p)
+        # r8.3 Holm over the same family; unknown when any complete comparison lacks r8.3 scores.
+        t['p_holm_r83'] = p_old if known else None
+        t['verdict_r83'] = verdict(t['complete'], t['d_r83'], t['p_r83'], p_old) if known else None
+        t['verdict_changed'] = None if t['verdict_r83'] is None else t['verdict'] != t['verdict_r83']
     for r in records:
         r['in_main'] = in_main(r, phase)
     return {'configs': rows, 'comparisons': tests,
@@ -412,8 +446,8 @@ def markdown(summary):
         lines += ['**未计分完**：有主统计实例还没有最终分数，相关比较标"未计分完"。', '']
     for scenario, result in summary['scenarios'].items():
         lines += [f'## {scenario}', '', '### 配置', '',
-                  '| 配置 | 行 | 有效 | 选入 n | 已计分 | 无效 | 均值 ± SD | SE | 95% 区间 | rawScore | f | 修复 | 耗时（分钟） | 占时限 | 未缓存 | 缓存 | 输出 | token 来源 | 工具调用 | 费用（美元；DeepSeek 括号内为人民币 ¥） | 周额度 | 模型 ID | service tier |',
-                  '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|']
+                  '| 配置 | 行 | 有效 | 选入 n | 已计分 | 无效 | 均值 ± SD | SE | 95% 区间 | 负分数 | 最小 | 中位数 | r8.3 均值 | rawScore | f | 修复 | 耗时（分钟） | 占时限 | 未缓存 | 缓存 | 输出 | token 来源 | 工具调用 | 费用（美元；DeepSeek 括号内为人民币 ¥） | 周额度 | 模型 ID | service tier |',
+                  '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|']
         for c in result['configs']:
             t = c['tokens_mean']
             ci = '未知' if c['ci95'] is None else f"{fmt(c['ci95'][0])}–{fmt(c['ci95'][1])}"
@@ -423,24 +457,28 @@ def markdown(summary):
             lines.append('| ' + ' | '.join([
                 label(c['config']), kind, str(c['n_valid']), str(c['n_selected']), str(c['n']),
                 str(c['invalid']) if c['kind'] in ('main', 'supplementary') else '', f"{fmt(c['mean'])} ± {fmt(c['sd'])}",
-                fmt(c['se']), ci, fmt(c['raw_score_mean']), fmt(c['format_penalty_mean']), count(c['repairs_total']),
+                fmt(c['se']), ci, str(c['n_negative']), fmt(c['min']), fmt(c['median']), fmt(c['mean_r83']),
+                fmt(c['raw_score_mean']), fmt(c['format_penalty_mean']), count(c['repairs_total']),
                 minutes(c['seconds_mean']), fmt(c['time_share_mean'], 2), count(t['uncached_input']),
                 count(t['cached_input']), count(t['output']), '、'.join(c['token_sources']) or '未知',
                 fmt(c['tool_calls_mean'], 1),
                 config_cost_text(c),
                 '' if c['anthropic_quota_percent'] is None else fmt(c['anthropic_quota_percent'], 2) + '%',
                 '、'.join(c['model_ids']) or '未知', '、'.join(c['service_tiers']) or '未知']) + ' |')
-        lines += ['', '### 预登记比较', '', '| 组 | 前者 | 后者 | n | 差值 | SE | t | 自由度 | p | Holm p | 结论 |',
-                  '|---|---|---|---|---|---|---|---|---|---|---|']
+        lines += ['', '### 预登记比较', '', 'r8.3 列：同一批实例按 r8.3（截到 0、整体扣减相乘）计分的对照（plan §14.1）。', '',
+                  '| 组 | 前者 | 后者 | n | 差值 | SE | t | 自由度 | p | Holm p | 结论 | r8.3 差值 | r8.3 Holm p | r8.3 结论 | 结论改变 |',
+                  '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|']
         for r in result['comparisons']:
             n = f"{r['n_first']} / {r['n_second']}"
             if not r['complete']:
                 n += f"（已计分 {r['scored_first']} / {r['scored_second']}）"
             lines.append('| ' + ' | '.join([
                 r['group'], label(r['first']), label(r['second']), n, fmt(r['d']), fmt(r['se']),
-                fmt(r['t'], 2), fmt(r['df'], 1), fmt(r['p'], 4), fmt(r['p_holm'], 4), r['verdict']]) + ' |')
+                fmt(r['t'], 2), fmt(r['df'], 1), fmt(r['p'], 4), fmt(r['p_holm'], 4), r['verdict'],
+                fmt(r['d_r83']), fmt(r['p_holm_r83'], 4), r['verdict_r83'] or '未知',
+                '未知' if r['verdict_changed'] is None else '是' if r['verdict_changed'] else '否']) + ' |')
         speeds = any(r.get('speeds') for r in result['instances'])
-        head = ['配置', '实例', '补充', '有效', '序', '主统计', '分数', 'rawScore', 'f', '修复', '耗时（分钟）', '占时限',
+        head = ['配置', '实例', '补充', '有效', '序', '主统计', '分数', 'r8.3 分数', 'rawScore', 'f', '修复', '耗时（分钟）', '占时限',
                 '未缓存', '缓存', '输出', '工具调用', '费用（美元；DeepSeek 括号内为人民币 ¥）', '模型 ID', 'service tier']
         if speeds:
             head += ['引擎输入 tok/s', '引擎输出 tok/s', '任务平均输入 tok/s', '任务平均输出 tok/s']
@@ -451,7 +489,8 @@ def markdown(summary):
             score = fmt(r['score']) if r['score'] is not None or not r['valid'] else (r.get('score_status') or 'unscored')
             row = [label(r['config']), r['id'].split('/')[-1], r.get('supplementary_label') or '',
                    '是' if r['valid'] else '否', '' if r['valid_rank'] is None else str(r['valid_rank']),
-                   '是' if r['in_main'] else '', score, fmt(r['raw_score']), fmt(r['format_penalty']),
+                   '是' if r['in_main'] else '', score, fmt(r.get('score_r83')) if r['score'] is not None else '',
+                   fmt(r['raw_score']), fmt(r['format_penalty']),
                    count(r['repairs']), minutes(r['seconds']), fmt(share, 2),
                    *(count(r['tokens'][k]) for k in TOKEN_CLASSES), count(r['tool_calls']),
                    cost_text(r),
