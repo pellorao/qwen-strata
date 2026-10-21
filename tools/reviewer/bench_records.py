@@ -426,7 +426,37 @@ def summary_fields(record):
                        for c in ('uncached_input', 'cached_input', 'output')},
             'token_source': None if not known else ('engine log' if record['model_family'] == 'strata' else 'API usage (relay)'),
             'tool_calls': sum(calls) if handoffs and None not in calls else None,
-            'cost_usd': None, 'model_ids': models, 'service_tiers': tiers}
+            'cost_usd': handoff_cost_usd(record), 'cost_cny': None, 'cost_basis': None,
+            'model_ids': models, 'service_tiers': tiers}
+
+
+def handoff_cost_usd(record):
+    """Claude Code result total_cost_usd summed over the handoffs; None unless every handoff has one (a segment killed at
+    the hard limit has no result event: ruling 2026-10-21, no relay or balance source for the Anthropic plan, so
+    unknown, never guessed). DeepSeek runs through Claude Code report Claude prices, so they are not used."""
+    if record['arm'] not in ('anthropic', 'strata-claude'):
+        return None
+    rejudged = ((record.get('validity') or {}).get('rejudge') or {}).get('handoffs') or []
+    if any(h.get('segments_without_result') for h in rejudged):
+        return None  # the cost of the killed segment is missing: what remains is a lower bound
+    costs = [h.get('cost_usd') for h in record['handoffs']]
+    return sum(costs) if costs and None not in costs else None
+
+
+def deepseek_cost(record, event, folder=None):
+    """(CNY, basis) of a DeepSeek instance from its schedule.jsonl done event (plan 14.4: per-token cost, each request
+    at its own peak / off-peak price; `cny` is the instance-start-priced figure of older events); (None, why) without
+    one or without tokens. Balance differences are for batch totals (plan 14.4) and need the account readings, so they
+    are only used through bench_validity.deepseek_balance_cost on request."""
+    if not event or not sum(event.get('tokens') or [0]):
+        if folder is not None and (folder.parent.parent / 'schedule.jsonl').is_file():
+            balance = bench_validity.deepseek_balance_cost(folder.parent.name, folder.name, root=folder.parent.parent)
+            if balance:
+                return balance['cost'], f"balance difference over window {balance['window']} (bench_validity)"
+        return None, 'no done event with tokens in schedule.jsonl, no balance window'
+    if event.get('cny_request_time') is not None:
+        return event['cny_request_time'], 'schedule.jsonl cny_request_time (per request, CNY)'
+    return event.get('cny'), 'schedule.jsonl cny (priced at instance start, CNY)'
 
 
 FINAL_STATUS_FORMS = ('ready', 'incomplete')
@@ -462,10 +492,15 @@ def scene_records(arm, scenario, scene):
     if not scene.is_dir():
         return []
     done = {}
-    if arm == 'strata-codex' and (scene / 'schedule.jsonl').is_file():
-        for line in (scene / 'schedule.jsonl').read_text().splitlines():
+    if arm.startswith('deepseek'):
+        # One schedule.jsonl for all scenes of the round, in the directory above the scene directories.
+        schedule, scen = scene.parent / 'schedule.jsonl', scene.name
+    else:
+        schedule, scen = scene / 'schedule.jsonl', None
+    if (arm == 'strata-codex' or scen) and schedule.is_file():
+        for line in schedule.read_text().splitlines():
             event = json.loads(line)
-            if event.get('event') == 'done':
+            if event.get('event') == 'done' and event.get('scen', scen) == scen:
                 done[event['out']] = event
     out = []
     for folder in sorted(p for p in scene.iterdir() if p.is_dir() and arm_instance(arm, p.name)):
@@ -491,6 +526,10 @@ def instance_record(arm, scenario, folder, done=None):
     bench_validity.apply(record, folder, load(folder / 'instance.json'))
     record.update(SCORE_FIELDS)
     record.update(summary_fields(record))
+    if arm.startswith('deepseek'):
+        record['cost_cny'], record['cost_basis'] = deepseek_cost(record, (done or {}).get(folder.name), folder)
+    elif record['cost_usd'] is None and arm in ('anthropic', 'strata-claude'):
+        record['cost_basis'] = 'unknown: a segment has no result event (killed at the hard limit); no relay or balance source'
     final_status_error(record)
     return record
 

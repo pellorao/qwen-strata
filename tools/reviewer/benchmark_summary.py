@@ -228,6 +228,20 @@ def cost(record):
     return record['cost_usd']
 
 
+def cost_cny(record):
+    """DeepSeek: the per-token cost in CNY (not converted to USD: no exchange rate in the plan); others none."""
+    return record.get('cost_cny') if vendor(record) == 'deepseek' else None
+
+
+def cost_text(record):
+    if vendor(record) == 'openai':
+        return '只报 token'
+    if vendor(record) == 'deepseek':
+        value = cost_cny(record)
+        return '未知' if value is None else '¥' + usd(value)
+    return usd(cost(record))
+
+
 def total(values):
     """Sum when every value is known; otherwise unknown (no zero filling)."""
     return None if not values or any(v is None for v in values) else sum(values)
@@ -248,6 +262,7 @@ def statistics(config, rows, kind, label, records_in_cell, n_valid):
     shares = [r['seconds'] / r['time_limit_seconds'] for r in rows
               if r['seconds'] is not None and r['time_limit_seconds']]
     summed = total([cost(r) for r in rows])
+    summed_cny = total([cost_cny(r) for r in rows]) if CONFIGS[config]['vendor'] == 'deepseek' else None
     return {'config': config, **CONFIGS[config], 'kind': kind, 'label': label, 'n_valid': n_valid,
             'n_selected': len(rows), 'n': n, 'complete': n == len(rows),
             'invalid': sum(1 for r in records_in_cell if not r['valid']),
@@ -266,6 +281,7 @@ def statistics(config, rows, kind, label, records_in_cell, n_valid):
             'token_sources': sorted({r['token_source'] for r in rows if r['token_source']}),
             'tool_calls_mean': mean_of('tool_calls'),
             'cost_usd_total': summed, 'cost_usd_mean': None if summed is None else summed / len(rows),
+            'cost_cny_total': summed_cny, 'cost_cny_mean': None if summed_cny is None else summed_cny / len(rows),
             'anthropic_quota_percent': (summed * QUOTA_PER_USD if CONFIGS[config]['vendor'] == 'anthropic'
                                         and summed is not None else None),
             'model_ids': sorted({m for r in rows for m in r['model_ids']}),
@@ -379,7 +395,7 @@ def markdown(summary):
         lines += ['**未计分完**：有主统计实例还没有最终分数，相关比较标"未计分完"。', '']
     for scenario, result in summary['scenarios'].items():
         lines += [f'## {scenario}', '', '### 配置', '',
-                  '| 配置 | 行 | 有效 | 选入 n | 已计分 | 无效 | 均值 ± SD | SE | 95% 区间 | rawScore | f | 修复 | 耗时（分钟） | 占时限 | 未缓存 | 缓存 | 输出 | token 来源 | 工具调用 | 费用（美元） | 周额度 | 模型 ID | service tier |',
+                  '| 配置 | 行 | 有效 | 选入 n | 已计分 | 无效 | 均值 ± SD | SE | 95% 区间 | rawScore | f | 修复 | 耗时（分钟） | 占时限 | 未缓存 | 缓存 | 输出 | token 来源 | 工具调用 | 费用（美元；DeepSeek 为人民币 ¥） | 周额度 | 模型 ID | service tier |',
                   '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|']
         for c in result['configs']:
             t = c['tokens_mean']
@@ -394,7 +410,9 @@ def markdown(summary):
                 minutes(c['seconds_mean']), fmt(c['time_share_mean'], 2), count(t['uncached_input']),
                 count(t['cached_input']), count(t['output']), '、'.join(c['token_sources']) or '未知',
                 fmt(c['tool_calls_mean'], 1),
-                '只报 token' if c['vendor'] == 'openai' else usd(c['cost_usd_total']),
+                ('只报 token' if c['vendor'] == 'openai' else
+                 '未知' if c['cost_cny_total'] is None else '¥' + usd(c['cost_cny_total'])) if c['vendor'] in (
+                    'openai', 'deepseek') else usd(c['cost_usd_total']),
                 '' if c['anthropic_quota_percent'] is None else fmt(c['anthropic_quota_percent'], 2) + '%',
                 '、'.join(c['model_ids']) or '未知', '、'.join(c['service_tiers']) or '未知']) + ' |')
         lines += ['', '### 预登记比较', '', '| 组 | 前者 | 后者 | n | 差值 | SE | t | 自由度 | p | Holm p | 结论 |',
@@ -408,7 +426,7 @@ def markdown(summary):
                 fmt(r['t'], 2), fmt(r['df'], 1), fmt(r['p'], 4), fmt(r['p_holm'], 4), r['verdict']]) + ' |')
         speeds = any(r.get('speeds') for r in result['instances'])
         head = ['配置', '实例', '补充', '有效', '序', '主统计', '分数', 'rawScore', 'f', '修复', '耗时（分钟）', '占时限',
-                '未缓存', '缓存', '输出', '工具调用', '费用（美元）', '模型 ID', 'service tier']
+                '未缓存', '缓存', '输出', '工具调用', '费用（美元；DeepSeek 为人民币 ¥）', '模型 ID', 'service tier']
         if speeds:
             head += ['引擎输入 tok/s', '引擎输出 tok/s', '任务平均输入 tok/s', '任务平均输出 tok/s']
         lines += ['', '### 逐实例', '', '| ' + ' | '.join(head) + ' |', '|' + '---|' * len(head)]
@@ -421,7 +439,7 @@ def markdown(summary):
                    '是' if r['in_main'] else '', score, fmt(r['raw_score']), fmt(r['format_penalty']),
                    count(r['repairs']), minutes(r['seconds']), fmt(share, 2),
                    *(count(r['tokens'][k]) for k in TOKEN_CLASSES), count(r['tool_calls']),
-                   '只报 token' if vendor(r) == 'openai' else usd(cost(r)),
+                   cost_text(r),
                    '、'.join(r['model_ids']) or '未知', '、'.join(tiers(r)) or '未知']
             if speeds:
                 row += [fmt((r.get('speeds') or {}).get(k), 1) for k in SPEEDS]
@@ -433,8 +451,8 @@ def markdown(summary):
 SUMMARY_RECORD_FIELDS = ('id', 'arm', 'scenario', 'config', 'supplementary_label', 'attempt', 'started', 'valid',
                          'validity', 'valid_rank', 'first_n', 'main_statistic', 'cell_pooled', 'in_main',
                          'score_status', 'score', 'raw_score', 'format_penalty', 'repairs', 'seconds',
-                         'time_limit_seconds', 'tokens', 'token_source', 'tool_calls', 'cost_usd', 'model_ids',
-                         'service_tiers', 'speeds')
+                         'time_limit_seconds', 'tokens', 'token_source', 'tool_calls', 'cost_usd', 'cost_cny', 'cost_basis',
+                         'model_ids', 'service_tiers', 'speeds')
 
 
 def compact(summary):

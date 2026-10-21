@@ -92,6 +92,22 @@ class DesignTest(unittest.TestCase):
         self.assertFalse([p for p in pairs if bs.CONFIGS[p[1]]['vendor'] == 'strata' and p[2] in (9, 24)])
 
 
+class CostTest(unittest.TestCase):
+    def test_deepseek_cost_is_cny_and_unknown_stays_unknown(self):
+        rows = [record(7, i, 0.5, cost_usd=None, cost_cny=0.2) for i in (1, 2)]
+        stat = bs.statistics(7, rows, 'main', None, rows, 2)
+        self.assertAlmostEqual(stat['cost_cny_total'], 0.4)
+        self.assertIsNone(stat['cost_usd_total'])
+        self.assertEqual(bs.cost_text(rows[0]), '¥0.200')
+        rows.append(record(7, 3, 0.5, cost_usd=None, cost_cny=None))
+        stat = bs.statistics(7, rows, 'main', None, rows, 3)
+        self.assertIsNone(stat['cost_cny_total'])
+        self.assertEqual(bs.cost_text(rows[2]), '未知')
+
+    def test_anthropic_without_cost_is_unknown(self):
+        self.assertEqual(bs.cost_text(record(13, 1, 0.5, cost_usd=None)), '未知')
+
+
 class SelectionTest(unittest.TestCase):
     def test_merged_cell_uses_every_valid_instance_with_a_consistency_row(self):
         records = [r for r in full_design() if r['config'] != 8]

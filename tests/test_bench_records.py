@@ -195,5 +195,24 @@ class ScenarioRepositoriesTest(unittest.TestCase):
             self.assertEqual(sorted(old), wanted[:2])
 
 
+class CostTest(unittest.TestCase):
+    def test_claude_cost_sums_handoffs_and_killed_segment_is_unknown(self):
+        record = {'arm': 'anthropic', 'handoffs': [{'cost_usd': 0.25}, {'cost_usd': 0.5}], 'validity': {}}
+        self.assertEqual(bench_records.handoff_cost_usd(record), 0.75)
+        record['handoffs'][1]['cost_usd'] = None
+        self.assertIsNone(bench_records.handoff_cost_usd(record))
+        record['handoffs'][1]['cost_usd'] = 0.5
+        record['validity'] = {'rejudge': {'handoffs': [{'segments_without_result': 1}]}}
+        self.assertIsNone(bench_records.handoff_cost_usd(record))
+        self.assertIsNone(bench_records.handoff_cost_usd({**record, 'arm': 'deepseek-claude', 'validity': {}}))
+
+    def test_deepseek_cost_prefers_request_time_price(self):
+        event = {'tokens': [1, 2, 3], 'cny': 0.3, 'cny_request_time': 0.2}
+        self.assertEqual(bench_records.deepseek_cost({}, event)[0], 0.2)
+        self.assertEqual(bench_records.deepseek_cost({}, {'tokens': [1], 'cny': 0.3})[0], 0.3)
+        self.assertIsNone(bench_records.deepseek_cost({}, {'tokens': [0], 'cny': 0.3})[0])
+        self.assertIsNone(bench_records.deepseek_cost({}, None)[0])
+
+
 if __name__ == '__main__':
     unittest.main()
