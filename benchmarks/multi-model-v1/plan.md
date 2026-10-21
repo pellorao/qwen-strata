@@ -594,6 +594,8 @@
   - **尝试上限 13**：原上限是每格 8 次，即 5 个有效外留 3 次余量。按这个上限，加测最多只能凑到 8 个有效，所以改为每格 13 次，余量同样是 3 次。两个调度器只新增 `--max-attempts` 参数，默认仍为 8：`run_strata.py` sha256 `85aa023359cba3e67f3e98442323e8926970188a706f0a6e27c516443b5bb15f` → `ef8e26c960f7edb198a6b2a956138fc4221508c88d52149a3f95df04f2f399bf`；`run_codex_strata.py` `96b1b04bb1f568288362b306cf1a7d2c170b56f7a06e63868eb20c5c4e118134` → `b560c411bfcb9dba72dc57bb87dd4a6ea27664425fbf3c3998171acfa5722e2a`。冻结副本存为同目录 `run_strata-frozen-85aa0233.py`、`run_codex_strata-frozen-96b1b04b.py`。
   - **主表不变**：主表只用预登记的前 5 个有效实例（按开始顺序），第 6–10 个只进补充分析。已跑实例不受影响。
 
+- 2026-10-21，CStd（code-standards-v5.1）和 SR（spec-readiness-v4.3）盲裁池上限改为 210 项（`blind_pool build --max 210`），偏离 §6.2「每池最多 150 项」，Main 决定。原因：两个场景都是约 105 个实例报同一缺陷，最大期望句组 CStd 146 项、SR 184 项（次大 182），超过 150 项池扣掉控制项后的容量（CStd 124、SR 129），build 拒绝。「一组不跨池」和每池门槛（锚点 ≥ 90%、合成项全对）不变。先例：CStd v5 的 pool-all（260 项）和 SR v4.2 的 post2（282 项）都由 Opus high 一次裁完，控制项 12/12。CS、CA 仍为 150。
+
 ### 14.2 #10–12（Codex 上的 Strata）补冻结（2026-10-19）
 
 §14 为 #10–12 设的条件都已在 Codex 0.163.0 上满足，按 §14 以单独 commit 补冻结。
