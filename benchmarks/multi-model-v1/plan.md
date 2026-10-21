@@ -98,7 +98,7 @@
   - 所有凭据变量（`DEEPSEEK_API_KEY`、`BENCHMARK_OPENAI_API_KEY`、`STRATA_API_KEY`、`STRATA_REMOTE_PASSWORD`），以及名字形如 `*_API_KEY`、`*_TOKEN`、`*_SECRET` 的任何变量，在每个 Codex 臂（包括 Strata 臂）的命令环境里一律排除；ARW daemon 的环境也去掉本次 provider 以外的这类变量，`STRATA_*` 除外（Strata 路径要用 `STRATA_API_KEY`）（`providers.shell_exclude`、`process_environment`）。通配排除防止以后换变量名时漏掉（用户 2026-10-19 把 DeepSeek key 设为 `DEEPSEEK_API_KEY`）。Claude Code 臂本来就只给最小环境，DeepSeek key 只作为 `ANTHROPIC_AUTH_TOKEN` 交给 Claude Code 进程。审查前的 ChatGPT mock 门显示，全局设置的 DeepSeek key 在 OpenAI 臂的命令环境里可见（`shell_env_key: VISIBLE`）；修复后用 DeepSeek 变量名作 canary 重跑，结果为 `absent`（`.tmp/bench-final-1019/codex-chatgpt-mock-m1`）。
   - 需要恢复的运行（`recovery-required.json`）不归还登录，因为恢复还要用它；恢复完成后由恢复步骤调用 `release_login`。
 - **API 模型的 catalog**：开跑前把 Codex 0.163.0 内置 catalog（与 0.162.0 逐字节相同）中 `gpt-6.1-sol`、`gpt-6-luna` 的条目，以及 DeepSeek 条目（按 ARW `deepseek.md` 写），存为 `benchmarks/multi-model-v1/catalogs/` 下的冻结文件并记 SHA。注意 catalog 里 luna 的默认档可能是 priority，`serviceTier` 显式写 default。
-- **排程**：同一场景内，配置按块交替，每轮反转顺序；Strata 的同一配置连跑，换配置时冷加载并预热（测量规则）。付费模型固定 5 次；Strata 在 GPU 空闲时加测到 10 次，目标次数事先定为 10，主表只用预登记的前 5 次。
+- **排程**：同一场景内，配置按块交替，每轮反转顺序；Strata 的同一配置连跑，换配置时冷加载并预热（测量规则）。付费模型固定 5 次；Strata 在 GPU 空闲时加测到 10 次，目标次数事先定为 10。加测和预登记的前 5 次地位相同，全部有效实例进主统计和比较；前 5 次另作一致性行（用户 2026-10-21）。
 
 ## 4. 混杂与适用范围
 
@@ -130,7 +130,7 @@
   - 费用：Anthropic 按 API 等价美元并折算周额度；DeepSeek 按开跑当日的官方单价；OpenAI 只报 token；Strata 按测量规则的等效费用公式；
   - 实际返回的模型 ID 和 service tier。
 - 逐实例表固定保留（测量规则）。不给比值、综合分和排名（D7）。
-- 文字比较只用预登记的一组：同一 harness、同一强度下，Strata 对其他每个配置；DeepSeek 和 Strata 各自的 Codex 对 Claude Code。2026-10-21 DeepSeek 改为 low / high / max 后，每个场景的族为 25 个比较：Codex 8 个（GPT 2 × 3，DeepSeek low、high），Claude Code 11 个（Anthropic 3 × 3，DeepSeek low、high），harness 6 个（Strata 三档，DeepSeek low / high / max）。Strata 没有 max，DeepSeek 没有 medium，所以这两档不和 Strata 配对。每个场景是一个校正族，Holm 校正，双侧 α = 0.05，Welch t 检验用 Welch–Satterthwaite 自由度；Strata 只用预登记的前 5 次。校正后显著才写"高于 / 低于"，其余写"未分出"。n = 5 对 5 时能分辨的差约 0.3（审查估算），报告写明这一点。表中全部数字照常给出。
+- 文字比较只用预登记的一组：同一 harness、同一强度下，Strata 对其他每个配置；DeepSeek 和 Strata 各自的 Codex 对 Claude Code。2026-10-21 DeepSeek 改为 low / high / max 后，每个场景的族为 25 个比较：Codex 8 个（GPT 2 × 3，DeepSeek low、high），Claude Code 11 个（Anthropic 3 × 3，DeepSeek low、high），harness 6 个（Strata 三档，DeepSeek low / high / max）。Strata 没有 max，DeepSeek 没有 medium，所以这两档不和 Strata 配对。每个场景是一个校正族，Holm 校正，双侧 α = 0.05，Welch t 检验用 Welch–Satterthwaite 自由度；Strata 用全部有效实例，含加测（用户 2026-10-21）。校正后显著才写"高于 / 低于"，其余写"未分出"。n = 5 对 5 时能分辨的差约 0.3（审查估算），报告写明这一点。表中全部数字照常给出。
 - 墙钟耗时按阶段报告（门与探针、每个场景批次、盲裁、会话检查、计分），用于下次 benchmark 的排期。
 - 实例无效、重跑和会话检查按测量规则与 reviewer-suite「会话检查」执行。会话检查交便宜模型（D9，reviewer-suite「会话检查」已写入例外）：它读过滤后的 `actions.md` 和 `flagged.md`（`inspect_session` 已对凭据值打码），被标记项和它判为可疑的实例再由 Main 复核。
 
@@ -592,7 +592,7 @@
 - 2026-10-21 JST 09:14，Strata 空闲加测到 10（§3 排程；#10–12 和 #25–27，24 格各补 5 个有效；运行计划见 `.tmp/bench-strata-1019/progress.md`，链 `chain7.sh`）。两处偏离，Main 同意：
   - **冷加载、不预热**：沿用冻结代码 strata_run 的做法，每个实例单独冷加载，不预热（同本节 2026-10-19 22:05 条）。§3 说的"同配置连跑、换配置时冷加载并预热"不适用于这次加测。档序按块交替，与第一轮相反。
   - **尝试上限 13**：原上限是每格 8 次，即 5 个有效外留 3 次余量。按这个上限，加测最多只能凑到 8 个有效，所以改为每格 13 次，余量同样是 3 次。两个调度器只新增 `--max-attempts` 参数，默认仍为 8：`run_strata.py` sha256 `85aa023359cba3e67f3e98442323e8926970188a706f0a6e27c516443b5bb15f` → `ef8e26c960f7edb198a6b2a956138fc4221508c88d52149a3f95df04f2f399bf`；`run_codex_strata.py` `96b1b04bb1f568288362b306cf1a7d2c170b56f7a06e63868eb20c5c4e118134` → `b560c411bfcb9dba72dc57bb87dd4a6ea27664425fbf3c3998171acfa5722e2a`。冻结副本存为同目录 `run_strata-frozen-85aa0233.py`、`run_codex_strata-frozen-96b1b04b.py`。
-  - **主表不变**：主表只用预登记的前 5 个有效实例（按开始顺序），第 6–10 个只进补充分析。已跑实例不受影响。
+  - ~~主表不变：主表只用预登记的前 5 个有效实例~~ 2026-10-21 用户改定：加测实例与前 5 个地位相同，全部有效实例进主统计和比较，按开始顺序的前 5 个作一致性行。改定时加测结果还没看过。加测截止按事先定的条件：每格满 10 个有效，或 benchmark 进入正式计分时为止，与分数无关；不满 10 的格照实际 n 计。
 
 - 2026-10-21，CStd（code-standards-v5.1）和 SR（spec-readiness-v4.3）盲裁池上限改为 210 项（`blind_pool build --max 210`），偏离 §6.2「每池最多 150 项」，Main 决定。原因：两个场景都是约 105 个实例报同一缺陷，最大期望句组 CStd 146 项、SR 184 项（次大 182），超过 150 项池扣掉控制项后的容量（CStd 124、SR 129），build 拒绝。「一组不跨池」和每池门槛（锚点 ≥ 90%、合成项全对）不变。先例：CStd v5 的 pool-all（260 项）和 SR v4.2 的 post2（282 项）都由 Opus high 一次裁完，控制项 12/12。CS、CA 仍为 150。
 
