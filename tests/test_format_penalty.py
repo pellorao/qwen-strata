@@ -33,6 +33,7 @@ class FormatPenaltyTests(unittest.TestCase):
         changes = {'details': [short('`a.mjs:3`'), short('`a.mjs:3,7-9`'), {'kind': 'markdown-preamble', 'before': ['# T\n']}]}
         self.assertEqual(repairable_count(changes), 4)
         self.assertEqual(repairable_count({'details': []}), 0)
+        self.assertEqual(repairable_count({'details': [{'kind': 'requirement-line'}, {'kind': 'requirement-line'}]}), 2)
         spill = {'kind': 'spill-locator', 'before': '`a.mjs:90,95-99`', 'converted': [{'before': 'a.mjs:90'}, {'before': '95-99'}]}
         self.assertEqual(repairable_count({'details': [spill]}), 2)
         with self.assertRaises(ValueError):

@@ -10,6 +10,13 @@ JSONL reports (Commit Audit; `lines` is an array of positive integers or
 [start, end] closed ranges):
   (a) a scalar `lines` value n becomes [n]. A top-level [a, b] is two lines
       by definition and is left as written.
+  (e) a row whose `source` line does not hold the requirement it quotes, while the quoted `requirement` text matches
+      exactly one other requirement line of the same file in the Commit Audit request (user 2026-10-21; e.g. a report
+      whose row numbers are shifted by one): the row is moved to that line. A text matches a line when every
+      backquoted span of the text is in the line and at least 80% of the text's other words (articles and
+      prepositions ignored, plural -s dropped) are in the line; no match, several matches, or a target line another
+      row ends up on as well leaves the row as written. Each moved row is one format error. Rows of gate 2 (spec
+      lines are free) are never moved.
 
 Markdown reports (Code Spec, Code Standards; user 2026-10-12):
   (b) everything before the first finding (a line starting with `1. ` style
@@ -77,7 +84,66 @@ def check_only_lines_changed(original, normalized, changes):
                 f'lines change at row {row} is not before -> [before]'
 
 
-def normalize(rows):
+STOPWORDS = frozenset('a an the to of in on at or and is are be by for with under that it its their as if from'.split())
+SPAN = re.compile(r'`([^`]+)`')
+WORD = re.compile(r'[a-z0-9]+')
+
+
+def requirement_words(text):
+    """(backquoted spans, other content words) of a requirement text."""
+    spans = frozenset(SPAN.findall(text))
+    words = {w[:-1] if len(w) > 3 and w.endswith('s') else w
+             for w in WORD.findall(SPAN.sub(' ', text).lower()) if w not in STOPWORDS}
+    return spans, frozenset(words)
+
+
+def text_matches(quoted, line_text, threshold=0.8):
+    spans, words = requirement_words(quoted)
+    line_spans, line_words = requirement_words(line_text)
+    if not spans <= line_spans or not (spans or words):
+        return False
+    return not words or len(words & line_words) / len(words) >= threshold
+
+
+def requirement_moves(rows, requirements):
+    """{row number: (before line, after line, text)} of the rows whose quoted requirement belongs to exactly one other
+    requirement line of their file. requirements maps file -> {line: text} (gate-1 requirement lines)."""
+    moves = {}
+    for number, row in enumerate(rows, 1):
+        source, quoted = row.get('source'), row.get('requirement')
+        if not (isinstance(source, dict) and is_int(source.get('line')) and isinstance(quoted, str)):
+            continue
+        lines = requirements.get(source.get('filePath'))
+        if not lines or source['line'] not in lines or text_matches(quoted, lines[source['line']]):
+            continue
+        hits = [line for line, text in lines.items() if line != source['line'] and text_matches(quoted, text)]
+        if len(hits) == 1:
+            moves[number] = (source['line'], hits[0], quoted)
+    # A target another row also ends on (moved or staying) is not unique: drop those moves until stable.
+    while True:
+        end = {}
+        for number, row in enumerate(rows, 1):
+            source = row.get('source')
+            if isinstance(source, dict):
+                line = moves[number][1] if number in moves else source.get('line')
+                end.setdefault((source.get('filePath'), line), []).append(number)
+        bad = [n for n, (_, after, _) in moves.items() if len(end[(rows[n - 1]['source']['filePath'], after)]) > 1]
+        if not bad:
+            return moves
+        for n in bad:
+            del moves[n]
+
+
+def check_only_source_lines_changed(original, normalized, moves):
+    for number, (before, after) in enumerate(zip(original, normalized), 1):
+        if number in moves:
+            assert before['source']['line'] == moves[number][0] and after['source']['line'] == moves[number][1], \
+                f'source line change at row {number} is not the recorded one'
+            after = {**after, 'source': {**after['source'], 'line': before['source']['line']}}
+        assert after == before, f'requirement move changed more than source.line at row {number}'
+
+
+def normalize(rows, requirements=None):
     """Return the normalized copy and the list of changes."""
     original = rows
     rows = copy.deepcopy(rows)
@@ -88,6 +154,13 @@ def normalize(rows):
                             'before': item['lines'], 'after': [item['lines']]})
             item['lines'] = [item['lines']]
     check_only_lines_changed(original, rows, changes)
+    moves = requirement_moves(rows, requirements) if requirements else {}
+    unmoved = copy.deepcopy(rows)
+    for number, (before, after, quoted) in sorted(moves.items()):
+        changes.append({'kind': 'requirement-line', 'row': number, 'filePath': rows[number - 1]['source']['filePath'],
+                        'before': before, 'after': after, 'requirement': quoted})
+        rows[number - 1]['source']['line'] = after
+    check_only_source_lines_changed(unmoved, rows, moves)
     return rows, changes
 
 
@@ -274,6 +347,26 @@ def staged_sources(root, texts=None):
     return {path: len(text.splitlines()) for path, text in (texts if texts is not None else staged_texts(root)).items()}
 
 
+def request_requirements(report, scenario_root):
+    """File -> {line: text} of the gate-1 requirement lines of the Commit Audit request next to the report
+    (reports/review.jsonl beside request.json); None when there is no such request or scenario."""
+    request = Path(report).parent.parent / 'request.json'
+    if scenario_root is None or not request.is_file():
+        return None
+    try:
+        gate1 = json.loads(request.read_text(encoding='utf-8')).get('gate1') or []
+    except ValueError:
+        return None
+    texts = staged_texts(scenario_root)
+    out = {}
+    for issue in gate1:
+        for item in issue.get('requirements') or []:
+            lines = texts.get(item.get('filePath'), '').split('\n')
+            if is_int(item.get('line')) and 1 <= item['line'] <= len(lines):
+                out.setdefault(item['filePath'], {})[item['line']] = lines[item['line'] - 1]
+    return out
+
+
 def summary(changes):
     counts = {}
     for change in changes:
@@ -300,7 +393,7 @@ def main():
         output = normalized
     else:
         rows = [json.loads(line) for line in raw.decode('utf-8').splitlines() if line.strip()]
-        normalized, changes = normalize(rows)
+        normalized, changes = normalize(rows, request_requirements(args.report, args.scenario_root))
         output = ''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in normalized)
     record = {'original': str(args.report), 'original_sha256': hashlib.sha256(raw).hexdigest(),
               **({'spills': [{'path': str(p), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()} for p in args.spill]}
