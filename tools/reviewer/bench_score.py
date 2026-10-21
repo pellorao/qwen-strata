@@ -59,8 +59,8 @@ DEFAULT_ROOT = ROOT / '.tmp/bench-score'
 PAUSE_CUT = 0.1
 ARW_CUT = 0.1
 # Final score of an instance with no handoff at all, the same as ARW's model failure (scoring-k.patch
-# MODEL_FAILURE_FAILS_CLEAN_CASES: true -1, false 0). r8.4: -1 or 0 awaits the user's decision (2026-10-21); change both.
-MODEL_FAILURE_FINAL = -1.0
+# MODEL_FAILURE_FAILS_CLEAN_CASES: true -1, false 0). r8.4: 0, as reporting nothing (user 2026-10-21); change both.
+MODEL_FAILURE_FINAL = 0.0
 # scoring-k.patch REPORT_DIAGNOSTIC_TREATMENT: codes handled by the project (format penalty, record only, or inside a
 # case). Any other report diagnostic keeps ARW's 0.9 cut of the repetition.
 TREATED_DIAGNOSTICS = {

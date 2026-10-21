@@ -75,7 +75,7 @@ REPEATS = JUDGMENT / 'repeats.json'
 FIXTURES = 'tests/fixtures/reviewer-capability'
 SCORING_UPGRADE = {
     'file': 'scoring-k.patch',
-    'sha256': '6e693fe3b9b243d7a40626c1de36ba19e1107b5cfa4216703c0223ca5550aed4',
+    'sha256': 'b0f1929f776f196425cdef320adf77f0daae3372c017312b1ae676a1019cabe0',
     # Members no scenario patch touches: (ARW original, upgraded).
     'members': {
         'lib/release/reviewer-capability-scoring.mjs': (
@@ -86,7 +86,7 @@ SCORING_UPGRADE = {
             '1c93cfd4ca65f6bb6d9bf0348f41d44a6317533dea077b32a43feca2ce9e155f'),
         'docs/agents/reviewer-capability-scoring.md': (
             '8dac785a4dc2eee70949fd02a212b65959039c256fa87f6a3e86c105ec011769',
-            'bb4f3e90b5d299d1b83d582211bef6fb9fc7599f2c6f70453f2ee22c6240570a'),
+            'f70a1ce2960ab55a00f047486e46a8245630fe6f9e99d52d55b1abd10494f6e3'),
         'docs/agents/reviewer-capability-scenarios.md': (
             '5fe9b4e5511416a4af636baa67b812bf46f627710b75b1285e6c49758fdb909b',
             '3f444bc68cb9ed8cf3f2e004da5b14a328d0fef2469cd1158c6ed04932b2b859'),
