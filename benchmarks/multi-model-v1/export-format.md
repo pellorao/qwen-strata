@@ -57,7 +57,7 @@ python3 -m tools.reviewer.benchmark_export --summary <summary.json> --out <file>
 | `negativeKSum` | Σk，答案键全部反例的 k 之和（负半轴的分母） |
 | `timeLimit.rule` | `reading-volume`：CS、CStd 按各配置自己的速度算 T，到 T 硬中断，实例的 T 在 `time.timeLimitSeconds`；`arw`：SR、CA 用 ARW 原版，55 分钟提醒、60 分钟中断，`timeLimitSeconds` 为 null |
 
-Σk 取自 plan §14.1 r8.4 条；P 由同一条给出的 P/Σk 比值反推（CS 20、CStd 26、SR 23、CA 29），比值四舍五入到两位后只有这一组整数解。
+P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全部反例的 k 之和（noOther 按 0.25，合并用例计一次）。两者（CS 20 / 7.25、CStd 26 / 16.25、SR 23 / 14.75、CA 29 / 12.5）已从冻结答案键重算确认：答案键由 ARW 快照叠加 arw-patches/ 重建，sha256 与 judgment/registry.json 登记一致（10-22）。
 
 ## configs
 
