@@ -14,11 +14,11 @@ import re
 import subprocess
 import sys
 
-from tools.ops.deployment_source import load_condition, model_configuration
+from tools.ops.deployment_source import load_condition, model_configuration, source_bytes
 from tools.reviewer.native_cli_binding import CODEX
 
 ROOT = Path(__file__).resolve().parents[2]
-CATALOG = ROOT / 'config/model-catalog.json'
+CATALOG = 'config/model-catalog.json'
 MEASUREMENT_NOTE = 'benchmarks/reviewer-suite-v1/measurement-note.txt'
 # Scenario versions whose handoff needs its own measurement note: (reviewer, source manifest file) -> (plain note,
 # time-limit template). Commit Audit v2 and v3 declare merged issue/spec requirements, which the note explains (user 2026-10-17).
@@ -178,7 +178,7 @@ def selection(plan, condition, context_window=None, folder=None, time_limit_seco
     if sha(codex) != fixed['native_cli_sha256']:
         raise ValueError('Native CLI differs from the frozen plan')
     return {'model': plan['model'], 'effort': fixed['effort'], 'model_owner': 'arw', 'engine_overrides': {},
-            'startup_instructions': True, 'project_compaction_instructions': False,
+            'startup_instructions': True, 'project_compaction_instructions': True,
             'generation_policy': 'first-delivery-only', 'loop_prevention_instructions': False,
             'archive_http': True, 'automatic_continuation': False,
             'native_cli': {'executable': str(CODEX), 'version': fixed['codex'], 'sha256': sha(codex)},
@@ -219,6 +219,15 @@ def preflight(plan, folder):
                    cwd=ROOT, check=True)
 
 
+def host_catalog(host, folder, condition=None):
+    """The model catalog as this host's installation holds it (only the served model, its default tier); the
+    project catalog lists every quantization, which the host no longer publishes."""
+    raw = source_bytes(CATALOG, host, condition=condition)
+    path = folder / 'host-model-catalog.json'
+    path.write_bytes(raw)
+    return path, sha(raw)
+
+
 def run(plan_path, dimension_id, out, limit=None):
     from tools.ops.deploy import deploy
     from tools.ops.measurement_host import MeasurementHost
@@ -246,12 +255,13 @@ def run(plan_path, dimension_id, out, limit=None):
         if 'expert_profile_sha256' in dimension['conditions'][name] and \
                 host.profile_sha256(plan['model']) != dimension['conditions'][name]['expert_profile_sha256']:
             raise RuntimeError(name + ': installed expert profile differs from the frozen one')
+        catalog, catalog_sha = host_catalog(plan['host'], folder, condition)
         offset, service_offset = host.log_offset(plan['model']), host.log_offset()
         started = datetime.now().isoformat(timespec='seconds')
         measured = subprocess.run(
             [sys.executable, '-m', 'tools.reviewer.arw_measure', '--host', plan['host'], '--out', str(folder / 'run'),
              '--selection', str(folder / 'preflight/selection.json'), '--preparation', str(folder / 'preparation.json'),
-             '--catalog', str(CATALOG), '--limit', str(dimension.get('instances_per_slot', 1))],
+             '--catalog', str(catalog), '--limit', str(dimension.get('instances_per_slot', 1))],
             cwd=ROOT, env=dict(os.environ, CODEX_THREAD_ID=plan['codex_thread_id']))
         log = host.log_bytes_since(plan['model'], offset).decode(errors='replace')
         (folder / 'engine-log-since-deploy.txt').write_text(log)
@@ -262,7 +272,8 @@ def run(plan_path, dimension_id, out, limit=None):
         effect = verify_effect(log, environment, condition, host.configuration(plan['model']), checks, service_log)
         records.append({'slot': slot, 'condition': name, 'condition_sha256': digest, 'folder': str(folder),
                         'started': started, 'arw_measure_exit': measured.returncode,
-                        'model_configuration_sha256': deployed['model_configuration_sha256'], 'effect': effect})
+                        'model_configuration_sha256': deployed['model_configuration_sha256'],
+                        'catalog_sha256': catalog_sha, 'effect': effect})
         save(progress, records)
         if measured.returncode or not effect['ok']:
             raise RuntimeError(f'Slot {slot + 1} ({name}) needs review: exit {measured.returncode}, {effect["problems"]}')

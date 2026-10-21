@@ -4,10 +4,12 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.tuning.arw_dimension import (MEASUREMENT_NOTE, extract_agent_config, flag_values, load_plan, plain_note,
-                                        required_scenario_note, sha, time_limited_note, verify_effect)
+                                        required_scenario_note, selection, sha, time_limited_note, verify_effect)
+from tools.tuning import arw_dimension
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / 'benchmarks/resource-calibration-v1/iq3_xxs-arw-dims5-7/plan.json'
@@ -157,5 +159,52 @@ class EffectTests(unittest.TestCase):
                       {'measurement_note_template': {'path': plain}}):
             with self.subTest(fixed=fixed), self.assertRaisesRegex(ValueError, 'needs the measurement note'):
                 required_scenario_note({'arw_source_manifest': manifest, **fixed}, 'commit-audit-reviewer')
+
+class SelectionTests(unittest.TestCase):
+    def test_strata_selection_loads_the_project_compaction_prompt(self):
+        # Hard constraint 3: every Strata run gets the project compaction prompt (it was False from d6b09c9 on).
+        with tempfile.TemporaryDirectory() as tmp:
+            codex = Path(tmp) / 'codex'
+            codex.write_bytes(b'cli')
+            plan = {'model': 'IQ3_XXS', 'reviewer': 'code-spec-reviewer',
+                    'fixed_conditions': {'native_cli_sha256': sha(b'cli'), 'effort': 'medium', 'codex': '0.0',
+                                         'arw_source_manifest': 'manifest.json'}}
+            with mock.patch.object(arw_dimension, 'CODEX', codex), \
+                    mock.patch.object(arw_dimension, 'plain_note', return_value={'path': 'note'}):
+                chosen = selection(plan, {})
+        self.assertTrue(chosen['startup_instructions'])
+        self.assertTrue(chosen['project_compaction_instructions'])
+
+    def test_host_catalog_is_rendered_for_the_host_and_condition(self):
+        condition = {'model_overrides': {'spec': '4'}}
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.object(arw_dimension, 'source_bytes', return_value=b'{}\n') as rendered:
+            path, digest = arw_dimension.host_catalog('rtx3080ti', Path(tmp), condition)
+            self.assertEqual((path.name, path.read_bytes(), digest), ('host-model-catalog.json', b'{}\n', sha(b'{}\n')))
+        rendered.assert_called_once_with('config/model-catalog.json', 'rtx3080ti', condition=condition)
+
+    def test_run_passes_the_host_catalog_to_arw_measure(self):
+        plan, dimensions, _ = load_plan(PLAN)
+        name = dimensions['spec']['schedule'][0]
+        host = mock.MagicMock()
+        host.log_bytes_since.return_value = b''
+        calls = []
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.object(arw_dimension, 'source_bytes', return_value=b'{"models": []}\n') as rendered, \
+                mock.patch.object(arw_dimension, 'prepare'), mock.patch.object(arw_dimension, 'preflight'), \
+                mock.patch.object(arw_dimension, 'verify_effect', return_value={'ok': True, 'problems': []}), \
+                mock.patch('tools.ops.deploy.deploy', return_value={'model_configuration_sha256': 'x'}), \
+                mock.patch('tools.ops.measurement_host.MeasurementHost', return_value=host), \
+                mock.patch.object(arw_dimension.subprocess, 'run',
+                                  side_effect=lambda cmd, **kw: calls.append(cmd) or mock.Mock(returncode=0)):
+            out = Path(tmp) / 'out'
+            (out / f'01-{name}').mkdir(parents=True)
+            records = arw_dimension.run(PLAN, 'spec', out, limit=1)
+            catalog = calls[0][calls[0].index('--catalog') + 1]
+            self.assertEqual(Path(catalog), out / f'01-{name}' / 'host-model-catalog.json')
+            self.assertEqual(Path(catalog).read_bytes(), b'{"models": []}\n')
+        self.assertEqual(rendered.call_args.args[:2], ('config/model-catalog.json', plan['host']))
+        self.assertEqual(records[0]['catalog_sha256'], sha(b'{"models": []}\n'))
+
 
 if __name__ == '__main__':unittest.main()
