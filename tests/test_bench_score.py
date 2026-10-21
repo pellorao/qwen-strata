@@ -374,7 +374,7 @@ class SpillScoringEndToEndTest(unittest.TestCase):
 class ModelFailureEndToEndTest(unittest.TestCase):
     """r8.4 on the four frozen answer keys of the benchmark: the negative-score denominator kCleanWeight (every clean
     case's k, no-other cases at 0.25, a merged case once, the Spec Readiness pair added up) and the model failure score
-    (every clean case failed: -1 while MODEL_FAILURE_FAILS_CLEAN_CASES is true), through a fresh zero-model preparation
+    (no clean case failed: 0, the same as reporting nothing, user 2026-10-21), through a fresh zero-model preparation
     and the frozen ARW scorer."""
 
     # Plan: (Σk of the clean cases, handoffs). Commit Audit v3: 50 clean cases with 18 merged pairs -> 50 units at 0.25.
@@ -403,10 +403,10 @@ class ModelFailureEndToEndTest(unittest.TestCase):
                     self.assertEqual((seen, pending), ({}, []))
                     [rep] = [rep for result in up['results'] for rep in result['repetitions']]
                     self.assertAlmostEqual(rep['kCleanWeight'], clean_weight)
-                    self.assertAlmostEqual(rep['kFailedCleanWeight'], clean_weight)
+                    self.assertEqual(rep['kFailedCleanWeight'], 0)
                     self.assertEqual(rep['kEarnedProblemPoints'], 0)
                     self.assertAlmostEqual(rep['scoreBeforePenalty'], bench_score.MODEL_FAILURE_FINAL)
-                    self.assertEqual(rep['rawScore'], -clean_weight / rep['kProblemWeight'])
+                    self.assertEqual(rep['rawScore'], 0)
         finally:
             if old is None:
                 os.environ.pop('CODEX_THREAD_ID', None)
