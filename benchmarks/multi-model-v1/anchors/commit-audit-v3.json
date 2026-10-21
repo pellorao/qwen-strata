@@ -1,7 +1,7 @@
 {
  "scenario": "commit-audit-v3",
  "answer_key_sha256": "81796f467cc54bde5c1c1f1dbe9a9e1819eca11fbeae59bb650c95b5aff00108",
- "note": "Controls of the Commit Audit v3 blind pools (plan §6.2). Anchors: association decisions on which two blind Opus high adjudicators agree (original pools p1-p4 and the second-adjudicator pool r1, anchors 38/38 and synthetic 11/11; reports/v0.1.45/commit-audit-v3/data/adjudication), rebuilt from the run candidates with the requirementSource of their scored review row. Finding-kind r1 anchors are not anchors here (finding controls are synthetic). Synthetic: the 11 r1 synthetic items in the current item format, a matched finding per family shown as a finding candidate of its requirement row, and OpenAI-style mismatch, finding-problem and false-fact items plus Anthropic and Strata false facts on satisfied requirement rows. No OpenAI anchor yet (first benchmark batch, plan item 6).",
+ "note": "Controls of the Commit Audit v3 blind pools (plan §6.2). Anchors: association decisions on which two blind Opus high adjudicators agree (original pools p1-p4 and the second-adjudicator pool r1, anchors 38/38 and synthetic 11/11; reports/v0.1.45/commit-audit-v3/data/adjudication), rebuilt from the run candidates with the requirementSource of their scored review row. Finding-kind r1 anchors are not anchors here (finding controls are synthetic). Synthetic: the 11 r1 synthetic items in the current item format, a matched finding per family shown as a finding candidate of its requirement row, and OpenAI-style mismatch, finding-problem and false-fact items plus Anthropic and Strata false facts on satisfied requirement rows. a24-a29 (10-21): first-batch decisions (OpenAI, Sonnet, Haiku, Strata) confirmed by Main executable checks (plan §6.2 pick rule). No Opus, Sonnet or Haiku not-matched anchor: the first batch has no such decision.",
  "anchors": [
   {
    "id": "a01",
@@ -965,6 +965,250 @@
      "filePath": ".scratch/0001-dispatch-control/spec.md",
      "line": 59,
      "requirement": "Retry-count parsing accepts exactly the valid retry counts and rejects every other value."
+    }
+   }
+  },
+  {
+   "id": "a24",
+   "family": "openai",
+   "model": "gpt-6-luna",
+   "expected": "not-matched",
+   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/ca-checks.mjs; node on a read-only copy of the first-batch view): canPlanRoute of a suspended actor with an active routes:plan claim is true (expectation true); the finding only says the policy was not in the evidence and has none of suspend/claim/scope/effectiveScopes; brief 01:51 requires naming the retained active-claim scopes; first-batch blind Opus high ca-21-062 decided not-matched, consistent",
+   "origin": {
+    "record": "openai/commit-audit-v3/luna-low-a1",
+    "stable_id": "commit-audit-reviewer:default:scope-1:problem-14:COMMIT-AUDIT-GATE-1:finding-12"
+   },
+   "item": {
+    "kind": "association",
+    "check": "COMMIT-AUDIT-GATE-1",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "`effectiveScopes` drops only the actor's own scopes when it is suspended and still adds active-claim scopes, so a suspended actor with an active `routes:plan` claim can plan.",
+    "finding": "The staged evidence requires semantic validation against the referenced governance policy or adapter contract, which was not included in the authorized Gate 2 document set.",
+    "result": "uncertain",
+    "evidence": [
+     {
+      "filePath": "src/dispatch/access.mjs",
+      "line": 3
+     },
+     {
+      "filePath": "src/dispatch/access.mjs",
+      "line": 5
+     }
+    ],
+    "requirementSource": {
+     "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+     "line": 51,
+     "requirement": "Under `docs/dispatch/dispatch-policy.md`, `canPlanRoute` refuses every suspended actor."
+    }
+   }
+  },
+  {
+   "id": "a25",
+   "family": "openai",
+   "model": "gpt-6.1-sol",
+   "expected": "matched",
+   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/ca-checks.mjs; node on a read-only copy of the first-batch view): nextRetryDelay(0, 0) is 250 (backoff) and nextRetryDelay(0, 1) is 1000 (expectation true); the finding names retryAfter 0 falling back to backoff, the brief spec:75 wording; first-batch blind Opus high ca-7-099 decided matched, consistent",
+   "origin": {
+    "record": "openai/commit-audit-v3/sol-low-a2",
+    "stable_id": "commit-audit-reviewer:default:scope-2:problem-20:COMMIT-AUDIT-GATE-2:finding-20"
+   },
+   "item": {
+    "kind": "association",
+    "check": "COMMIT-AUDIT-GATE-2",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "A server-provided `retryAfter` of 0 is falsy, so `nextRetryDelay` uses the computed backoff instead of the server delay.",
+    "finding": "A finite numeric retryAfter of 0 uses backoff instead of the server delay; truthy nonnumeric values also bypass the finite numeric requirement.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/dispatch/retry.mjs",
+      "line": 8
+     },
+     {
+      "filePath": "src/dispatch/retry.mjs",
+      "line": 18
+     },
+     {
+      "filePath": "src/dispatch/retry.mjs",
+      "line": 22
+     },
+     {
+      "filePath": "src/dispatch/retry.mjs",
+      "line": 24
+     }
+    ],
+    "requirementSource": {
+     "filePath": ".scratch/0001-dispatch-control/spec.md",
+     "line": 75,
+     "requirement": "Under `docs/dispatch/dispatch-policy.md`, the next retry delay follows the Retry timing rules whenever the server provides `retryAfter`."
+    }
+   }
+  },
+  {
+   "id": "a26",
+   "family": "anthropic",
+   "model": "sonnet",
+   "expected": "matched",
+   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/ca-checks.mjs; node on a read-only copy of the first-batch view): pendingStops([delivered, handedOver, queued]) returns handedOver and queued (expectation true; dispatch-policy rule 31); the finding names handedOver and rule 31, the brief 01:32 wording; first-batch blind Opus high ca-8-066 decided matched, consistent",
+   "origin": {
+    "record": "anthropic/commit-audit-v3/sonnet-high-a3",
+    "stable_id": "commit-audit-reviewer:default:scope-1:problem-9:COMMIT-AUDIT-GATE-1:finding-10"
+   },
+   "item": {
+    "kind": "association",
+    "check": "COMMIT-AUDIT-GATE-1",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "`pendingStops` drops only stops whose `state` is `delivered`, so a stop whose `state` is `handedOver`, which rule 31 makes a delivered stop, is still returned.",
+    "finding": "pendingStops filters only state === \"delivered\"; a delivered stop also includes state \"handedOver\" (Terms rule 31), so handed-over stops are wrongly returned as pending.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "docs/dispatch/dispatch-policy.md",
+      "line": 64
+     },
+     {
+      "filePath": "src/dispatch/executor.mjs",
+      "line": 19
+     }
+    ],
+    "requirementSource": {
+     "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+     "line": 32,
+     "requirement": "pendingStops returns every stop except the delivered stops"
+    }
+   }
+  },
+  {
+   "id": "a27",
+   "family": "anthropic",
+   "model": "haiku",
+   "expected": "matched",
+   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/ca-checks.mjs; node on a read-only copy of the first-batch view): publishManifest with an entry for which manifestEntryIsValid is false returns ok true and stores the manifest (expectation true); the finding names the async callback, truthy promises and checks.every(Boolean); first-batch blind Opus high ca-19-005 decided matched, consistent",
+   "origin": {
+    "record": "anthropic/commit-audit-v3/haiku-medium-a3",
+    "stable_id": "commit-audit-reviewer:default:scope-1:problem-18:COMMIT-AUDIT-GATE-1:finding-18"
+   },
+   "item": {
+    "kind": "association",
+    "check": "COMMIT-AUDIT-GATE-1",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "`publishManifest` maps entries through an async callback, and every resulting promise is truthy, so a manifest with invalid entries is stored.",
+    "finding": "checks is an array of Promises produced by an async arrow function. Promise objects are always truthy, so checks.every(Boolean) is always true and publishManifest stores invalid manifests.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/dispatch/manifest.mjs",
+      "line": 22
+     },
+     {
+      "filePath": "src/dispatch/publisher.mjs",
+      "lineEnd": 7,
+      "lineStart": 4
+     }
+    ],
+    "requirementSource": {
+     "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+     "line": 39,
+     "requirement": "publishManifest stores the manifest only when every entry is valid."
+    }
+   }
+  },
+  {
+   "id": "a28",
+   "family": "strata",
+   "model": "strata-q3",
+   "expected": "not-matched",
+   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/ca-checks.mjs; node on a read-only copy of the first-batch view): authorizeRouteBatch is true when the first route fails and false when only the second fails (expectation true, finding claim false: it says a later failure is accepted); finding text has no findIndex or index 0; first-batch blind Opus high ca-17-068 decided not-matched, consistent",
+   "origin": {
+    "record": "strata-claude/commit-audit-v3/strata-high-a2",
+    "stable_id": "commit-audit-reviewer:default:scope-2:problem-13:COMMIT-AUDIT-GATE-2:finding-10"
+   },
+   "item": {
+    "kind": "association",
+    "check": "COMMIT-AUDIT-GATE-2",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "`authorizeRouteBatch` accepts the batch when `findIndex` returns 0, so a batch whose first route fails depot ownership is authorized.",
+    "finding": "authorizeRouteBatch returns `firstRejected <= 0`, so a batch whose first route passes ownership but a later route fails depot ownership is accepted (probe batchBadSecond=true), failing to reject the batch when any route fails.",
+    "result": "gap",
+    "evidence": [
+     {
+      "command": "node probe.mjs",
+      "exitCode": 0
+     },
+     {
+      "filePath": "src/dispatch/access.mjs",
+      "lineEnd": 10,
+      "lineStart": 7
+     }
+    ],
+    "requirementSource": {
+     "filePath": ".scratch/0001-dispatch-control/spec.md",
+     "line": 52,
+     "requirement": "Batch authorization rejects the batch when any route fails depot ownership."
+    }
+   }
+  },
+  {
+   "id": "a29",
+   "family": "strata",
+   "model": "strata-q3",
+   "expected": "not-matched",
+   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/ca-checks.mjs; node on a read-only copy of the first-batch view): with a store whose get returns a copy, publishWithAnnouncement after a send failure leaves the manifest stored and calls only store.remove, never removeTemporary (expectation true, finding claim false: it says removeTemporary is called); finding text has no get or copy; brief 02:22 requires naming the get copy; first-batch blind Opus high ca-35-033 decided not-matched, consistent",
+   "origin": {
+    "record": "strata-codex/commit-audit-v3/codex-strata-high-a5",
+    "stable_id": "commit-audit-reviewer:default:scope-1:problem-15:COMMIT-AUDIT-GATE-1:finding-14"
+   },
+   "item": {
+    "kind": "association",
+    "check": "COMMIT-AUDIT-GATE-1",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "`handleAnnouncementFailure` removes the copy returned by `store.get`, and `store.remove` removes only the exact stored object, so the stored manifest is not removed.",
+    "finding": "The announcement failure path reaches handleAnnouncementFailure, which removes the manifest with store.removeTemporary(). The Plan Store Contract defines removeTemporary as deleting temporary bytes, while the Manifest Store Contract requires store.remove(storedObject) to remove a stored manifest, so the stored manifest is not removed when announcement delivery fails.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "docs/dispatch/storage-contract.md",
+      "line": 7
+     },
+     {
+      "filePath": "docs/dispatch/storage-contract.md",
+      "line": 14
+     },
+     {
+      "filePath": "src/dispatch/manifest.mjs",
+      "line": 32
+     },
+     {
+      "filePath": "src/dispatch/publisher.mjs",
+      "line": 10
+     },
+     {
+      "filePath": "src/dispatch/publisher.mjs",
+      "line": 13
+     }
+    ],
+    "requirementSource": {
+     "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+     "line": 22,
+     "requirement": "publishWithAnnouncement removes the stored manifest when announcement delivery fails."
     }
    }
   }

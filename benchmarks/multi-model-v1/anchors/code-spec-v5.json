@@ -1,7 +1,7 @@
 {
  "scenario": "code-spec-v5",
  "answer_key_sha256": "32bafcb591cd3629f0456963f227ced2ff0b332a956c0efe7b72567c5e4471c6",
- "note": "Controls of the Code Spec v5 blind pools (plan §6.2). Anchors: association decisions of blind Opus high in a same-version pool (formal v5 pools, native v5 candidates only; pilot pool 2026-10-20). Synthetic: mismatch (a matched finding under another expectation), finding-problem (a matched finding shown as a finding candidate), false-fact and registered-decoy written per report family style. No Sonnet or Haiku anchor yet.",
+ "note": "Controls of the Code Spec v5 blind pools (plan §6.2). Anchors: association decisions of blind Opus high in a same-version pool (formal v5 pools, native v5 candidates only; pilot pool 2026-10-20). Synthetic: mismatch (a matched finding under another expectation), finding-problem (a matched finding shown as a finding candidate), false-fact and registered-decoy written per report family style. a19-a24 (10-21): first-batch decisions (Haiku, Sonnet, Strata) confirmed by Main executable checks (plan §6.2 pick rule). No Opus not-matched anchor: the first batch has no Opus not-matched decision.",
  "anchors": [
   {
    "id": "a01",
@@ -838,6 +838,226 @@
      {
       "filePath": "governing-spec.md",
       "line": 241
+     }
+    ]
+   }
+  },
+  {
+   "id": "a19",
+   "family": "anthropic",
+   "model": "haiku",
+   "expected": "not-matched",
+   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/cs-checks.mjs; node on a read-only copy of the first-batch view): rescheduleReservation accepts a 300-minute window (expectation true: the defect exists); applyTransition(confirm) grows the input history from 1 to 2 (the finding describes this other, real defect, which is problem 2 of the key); finding text has none of 240/duration/too long/exceedsMaxDuration/snap; first-batch blind Opus high cs-1-044 decided not-matched, consistent",
+   "origin": {
+    "record": "anthropic/code-spec-v5/haiku-medium-a10",
+    "stable_id": "code-spec-reviewer:default:scope-1:problem-3:CODE-SPEC-FINDINGS:finding-1"
+   },
+   "item": {
+    "kind": "association",
+    "check": "CODE-SPEC-FINDINGS",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "rescheduleReservation never applies the 240-minute duration limit to the snapped new window.",
+    "finding": "- `src/reservations/transitions.mjs:17`, `src/reservations/reservation-service.mjs:55-62`: `applyTransition` builds `next` with a shallow copy `{...record, state}` and then calls `next.history.push(...)`, which mutates the `history` array shared with the reservation object the caller passed in. `confirmReservation`, `cancelReservation` and `rescheduleReservation` all pass their input through this path, so the caller's original reservation gains a history entry. Governing spec `governing-spec.md:8` says \"Operations never modify a reservation object they receive; they return new records.\" Fix: build the new history as a copy, e.g. `history: [...record.history, {state: rule.to, at}]`.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/reservations/transitions.mjs",
+      "line": 17
+     },
+     {
+      "filePath": "src/reservations/reservation-service.mjs",
+      "lineEnd": 62,
+      "lineStart": 55
+     },
+     {
+      "filePath": "governing-spec.md",
+      "line": 8
+     }
+    ]
+   }
+  },
+  {
+   "id": "a20",
+   "family": "anthropic",
+   "model": "haiku",
+   "expected": "matched",
+   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/cs-checks.mjs; node on a read-only copy of the first-batch view): quoteField('a\"b\"c') returns \"a\"\"b\"c\" (only the first quote doubled, as the expectation says); the finding cites csv-format.mjs:7 (association line) and names the missing g flag; first-batch blind Opus high cs-8-064 decided matched, consistent",
+   "origin": {
+    "record": "anthropic/code-spec-v5/haiku-high-a2",
+    "stable_id": "code-spec-reviewer:default:scope-1:problem-7:CODE-SPEC-FINDINGS:finding-8"
+   },
+   "item": {
+    "kind": "association",
+    "check": "CODE-SPEC-FINDINGS",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "quoteField doubles inner double quotes with /\"/ without the g flag, so replace doubles only the first one and a field with two or more double quotes is written as malformed CSV (the field a\"b\"c is written as \"a\"\"b\"c\" instead of \"a\"\"b\"\"c\").",
+    "finding": "- CSV quoting doubles only the first inner double quote. `src/exports/csv-format.mjs:7` uses `text.replace(/\"/, '\"\"')`, which has no `g` flag. Governing spec `governing-spec.md:241` says a field containing a double quote is wrapped in double quotes \"with inner double quotes doubled\". Failing case: a `text` value `say \"hi\" now` is written as `\"say \"\"hi\" now\"`, which is malformed CSV because the second inner quote is not doubled. Fix: use `text.replace(/\"/g, '\"\"')`.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/exports/csv-format.mjs",
+      "line": 7
+     },
+     {
+      "filePath": "governing-spec.md",
+      "line": 241
+     }
+    ]
+   }
+  },
+  {
+   "id": "a21",
+   "family": "anthropic",
+   "model": "sonnet",
+   "expected": "not-matched",
+   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/cs-checks.mjs; node on a read-only copy of the first-batch view): createPaymentIntent on a late invoice gives fee 0, amount = total (expectation true); paymentStatus with a captured 500 intent reports paid 0 (the finding describes this other defect, netPaid gets the invoice object); finding text has no issuedAt, fee, intentRequest or newIntent; first-batch blind Opus high cs-4-027 decided not-matched, consistent",
+   "origin": {
+    "record": "anthropic/code-spec-v5/sonnet-high-a5",
+    "stable_id": "code-spec-reviewer:default:scope-1:problem-10:CODE-SPEC-FINDINGS:finding-8"
+   },
+   "item": {
+    "kind": "association",
+    "check": "CODE-SPEC-FINDINGS",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "intentRequest rebuilds the request from a fixed list of invoice fields that leaves out issuedAt, so newIntent, which computes the fee with lateFee(prepared.total, prepared.issuedAt, at), gets a due instant of NaN and an intent created while its invoice is late has a fee of 0 and an amount equal to the total.",
+    "finding": "- `src/payments/payment-service.mjs:8-10,49-54`: `paymentStatus` always reports `paid` as 0.\n  - Spec evidence: Time limits and expiry: \"A payment status reports `dueAt`, `late` and `paid`, the sum of `captured` minus `refunded` over its `captured` and `refunded` intents.\"\n  - Implementation evidence: `netPaid(intents, invoiceId)` filters on `intent.invoiceId === invoiceId` (`src/payments/payment-policy.mjs:53-55`). `paymentStatus` passes the whole `current` object as `invoiceId`.\n  - Impact: no intent matches an object, so `paid` is always 0.\n  - Fix: pass `current.id`.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/payments/payment-service.mjs",
+      "lineEnd": 10,
+      "lineStart": 8
+     },
+     {
+      "filePath": "src/payments/payment-service.mjs",
+      "lineEnd": 54,
+      "lineStart": 49
+     },
+     {
+      "filePath": "src/payments/payment-policy.mjs",
+      "lineEnd": 55,
+      "lineStart": 53
+     }
+    ]
+   }
+  },
+  {
+   "id": "a22",
+   "family": "anthropic",
+   "model": "sonnet",
+   "expected": "matched",
+   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/cs-checks.mjs; node on a read-only copy of the first-batch view): hasEnded({endAt: at+30s}, at) is true, +60s false (expectation true); the finding cites closures.mjs:26 (association line) and names the whole-minute truncation of minutesBetween; first-batch blind Opus high cs-11-121 decided matched, consistent",
+   "origin": {
+    "record": "anthropic/code-spec-v5/sonnet-high-a5",
+    "stable_id": "code-spec-reviewer:default:scope-1:problem-11:CODE-SPEC-FINDINGS:finding-16"
+   },
+   "item": {
+    "kind": "association",
+    "check": "CODE-SPEC-FINDINGS",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "hasEnded compares minutesBetween(at, endAt), whole minutes truncated toward zero, with 0, so a closure with less than one minute left (for example 30 seconds) counts as ended: adding it is rejected and it is left out of the upcoming closures.",
+    "finding": "- `src/schedules/closures.mjs:26`, used at `src/schedules/front-desk-service.mjs:31,56`: `hasEnded` treats a closure that ends less than a minute from now as already ended.\n  - Spec evidence: Time limits and expiry: \"A closure whose `endAt` is not later than `now()` is rejected.\" Upcoming desk closures are \"active closures whose `endAt` is later than `now()`\".\n  - Implementation evidence: `hasEnded` returns `minutesBetween(at, closure.endAt) <= 0`, and `minutesBetween` truncates to whole minutes. An `endAt` 30 seconds after `now()` yields 0, so `hasEnded` is true.\n  - Impact: `addClosure` rejects a valid closure whose `endAt` is later than `now()`, and `upcomingClosures` omits closures that end within the next minute.\n  - Fix: compare instants directly, `closure.endAt <= at`.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/schedules/closures.mjs",
+      "line": 26
+     },
+     {
+      "filePath": "src/schedules/front-desk-service.mjs",
+      "line": 31
+     },
+     {
+      "filePath": "src/schedules/front-desk-service.mjs",
+      "line": 56
+     }
+    ]
+   }
+  },
+  {
+   "id": "a23",
+   "family": "strata",
+   "model": "strata-q3",
+   "expected": "not-matched",
+   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/cs-checks.mjs; node on a read-only copy of the first-batch view): withdrawEntry of a waiting entry starting in 30 min throws too late to withdraw (expectation true); acceptOffer of an offered entry with expiresAt passed is accepted (the finding describes this other defect); finding text has none of waiting/withdraw/60/cutoff; first-batch blind Opus high cs-4-098 decided not-matched, consistent",
+   "origin": {
+    "record": "strata-claude/code-spec-v5/strata-low-a2",
+    "stable_id": "code-spec-reviewer:default:scope-1:problem-12:CODE-SPEC-FINDINGS:finding-7"
+   },
+   "item": {
+    "kind": "association",
+    "check": "CODE-SPEC-FINDINGS",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "The single withdraw rule for waiting and offered entries carries the 60-minute cutoff, so a waiting entry whose startAt is less than 60 minutes from now cannot be withdrawn, although the limit applies only to offered entries.",
+    "finding": "7. `- src/waitlist/waitlist-service.mjs:58-61` (with `src/waitlist/queue.mjs:13`, `src/waitlist/entry-states.mjs:7,17-25`)\n   - Governing requirement: `governing-spec.md` Waitlist: \"Only a nonexpired `offered` entry may be accepted; acceptance sets `accepted` and `acceptedAt` and books nothing.\" Time limits and expiry: \"A waitlist offer is expired when `now()` is equal to or later than its `expiresAt`.\"\n   - Implementation evidence: `acceptOffer` runs `const next = moveEntry(entry, 'accept', at); if (isLapsing(next, at)) throw new Error('offer has expired');`. `moveEntry` for `accept` returns `{...entry, state: 'accepted', acceptedAt: at}` (rule `{action: 'accept', from: ['offered'], to: 'accepted', stamp: 'acceptedAt'}`), and `isLapsing` is `(entry, at) => entry.state === 'offered' && isExpired(entry, at)`.\n   - Problem: The expiry guard is evaluated on the post-transition record, whose `state` is already `accepted`, so `isLapsing(next, at)` is always false and the guard can never fire. The pre-transition `entry` (still `offered`) is never checked for expiry.\n   - Impact: An offer whose `expiresAt` has passed (state still `offered` because no opening has lapsed it yet) is accepted: `acceptOffer` saves the entry as `accepted` with `acceptedAt` instead of rejecting it, so expired offers remain acceptable and the member-limit accounting in `src/waitlist/queue.mjs` (`isActive`/`isLiveOffer`) no longer sees them.\n   - Fix: Check expiry on the entry before transitioning, for example `if (isExpired(entry, at)) throw new Error('offer has expired');` (or `if (!isLiveOffer(entry, at)) throw ...`) before calling `moveEntry(entry, 'accept', at)`.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "- src/waitlist/waitlist-service.mjs",
+      "lineEnd": 61,
+      "lineStart": 58
+     },
+     {
+      "filePath": "src/waitlist/queue.mjs",
+      "line": 13
+     },
+     {
+      "filePath": "src/waitlist/entry-states.mjs",
+      "line": 7
+     },
+     {
+      "filePath": "src/waitlist/entry-states.mjs",
+      "lineEnd": 25,
+      "lineStart": 17
+     }
+    ]
+   }
+  },
+  {
+   "id": "a24",
+   "family": "strata",
+   "model": "strata-q3",
+   "expected": "not-matched",
+   "confirmed_by": "Main executable check 10-21 (worker, .tmp/anchor-check-1021/scripts/cs-checks.mjs; node on a read-only copy of the first-batch view): applyTransition(confirm) grows the input history from 1 to 2 (expectation true); rescheduleReservation accepts a 300-minute window (the finding describes this other, real defect, problem 3 of the key); its evidence range transitions.mjs:3-20 covers the association line 17, but the text names only the missing duration check and has none of history/mutat/modif/shared/shallow/push; first-batch blind Opus high cs-2-046 decided not-matched, consistent",
+   "origin": {
+    "record": "strata-codex/code-spec-v5/codex-strata-medium-a2",
+    "stable_id": "code-spec-reviewer:default:scope-1:problem-2:CODE-SPEC-FINDINGS:finding-2"
+   },
+   "item": {
+    "kind": "association",
+    "check": "CODE-SPEC-FINDINGS",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "applyTransition copies the record with a shallow spread and then pushes onto next.history, which is the same array as the received record's history, so confirm, cancel and reschedule modify the reservation object they receive.",
+    "finding": "2. `src/reservations/reservation-service.mjs:53-69`\n   - Evidence: `rescheduleReservation` validates only `if (endAt <= startAt)` (line 54), snaps the window (line 56) and checks `isRoomAvailable` (line 57). `exceedsMaxDuration` is imported (line 4) and used only in `createReservation` (line 14); no duration check appears anywhere in the reschedule path or in `applyTransition` (`src/reservations/transitions.mjs:3-20`).\n   - Governing requirement: Rescheduling, `governing-spec.md`: \"It is then snapped, and the snapped window must satisfy the duration limit and be available.\" Slots, `governing-spec.md`: \"A snapped window lasts at most 240 minutes.\"\n   - Problem and impact: a reschedule to a window longer than 240 snapped minutes is accepted, priced by `price(room, window)` and saved, so a reservation can end up occupying the room and being billed for a window that creation would reject.\n   - Fix: after `snapWindow`, call `if (exceedsMaxDuration(window)) throw new Error('reservation is too long');` before the availability check and the save.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/reservations/reservation-service.mjs",
+      "lineEnd": 69,
+      "lineStart": 53
+     },
+     {
+      "filePath": "src/reservations/transitions.mjs",
+      "lineEnd": 20,
+      "lineStart": 3
      }
     ]
    }
