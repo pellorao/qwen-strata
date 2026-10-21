@@ -66,7 +66,7 @@
     - 0.162.0 → 0.163.0 的相关变化（release notes 与零模型核对，2026-10-19）：内置 catalog（`debug models --bundled`）逐字节相同；原生压缩提示仍为 `ab0c334d…`；mock 门请求里模型可见的工具和输入（路径归一化后）与 0.162.0 相同，rollout 的 `session_meta.runtime_workspace_roots` 结构不变（ARW 补丁 `codex-0.162-workspace-roots.patch` 仍适用）。新默认开的特性：`cli_daybreak`（eligible OpenAI 账号的 background turns 用 Daybreak）、`api_key_cyber_access_programs`、`code_mode_interrupt`；命令环境新增 `CODEX_THREAD_ID`、`CODEX_TOOL_CALL_ID`（关联用，非凭据）；冷 resume 恢复线程自有的权限快照；Guardian Decisions 在默认 openai provider 下可回退到 `OPENAI_API_KEY`（ARW daemon 环境已去掉 `OPENAI_*`）；`async_compaction` 新增但默认关。
 - **场景与评分**：
   - 场景版本：Code Spec v5（修订 38）、Code Standards v5.1（修订 25）、Spec Readiness v4.3（修订 46）、Commit Audit v3（修订 24），各自的冻结源 manifest 见 [versions.md](../reviewer-suite-v1/versions.md)。
-  - 评分用 r8.3，格式罚基准用 `format-baseline.json` 的现行登记。测量说明（`measurement-note*.txt`）的 SHA 写进绑定。
+  - 评分用 r8.4（2026-10-21 由 r8.3 改定，见 §14.1 评分 r8.4 条；冻结时为 r8.3），格式罚基准用 `format-baseline.json` 的现行登记。测量说明（`measurement-note*.txt`）的 SHA 写进绑定。
   - 计分只经 `arw_native.mjs` / `single_scenario_score`。全部跑完后按最终规则统一重评一次。
 - **时限**：
   - Spec Readiness 和 Commit Audit 用 ARW 原版：55 分钟提醒，60 分钟中断。
@@ -597,10 +597,10 @@
 - 2026-10-21，CStd（code-standards-v5.1）和 SR（spec-readiness-v4.3）盲裁池上限改为 210 项（`blind_pool build --max 210`），偏离 §6.2「每池最多 150 项」，Main 决定。原因：两个场景都是约 105 个实例报同一缺陷，最大期望句组 CStd 146 项、SR 184 项（次大 182），超过 150 项池扣掉控制项后的容量（CStd 124、SR 129），build 拒绝。「一组不跨池」和每池门槛（锚点 ≥ 90%、合成项全对）不变。先例：CStd v5 的 pool-all（260 项）和 SR v4.2 的 post2（282 项）都由 Opus high 一次裁完，控制项 12/12。CS、CA 仍为 150。
 
 - 2026-10-21，计分改为评分 r8.4（用户决定，独立审查结论"有条件实施"，条件已落实）：
-  - **改了什么**：取消分数截到 [0, 1] 的下限，零点仍是"什么都不报"。N = Σ正例得分 − Σ失败反例 k（含额外失败）；N ≥ 0 时分数 = N ÷ 正例数，与 r8.3 逐位相同；N < 0 时分数 = N ÷ Σk，Σk 为答案键全部反例的 k 之和（合并用例计一次，noOther 按 0.25；SR 两个子场景先求和），四个场景依次为 CS 7.25、CStd 16.25、SR 14.75、CA 12.5。不设下限，额外失败只在分子里扣，可以低于 −1。整体扣减（max(暂停 0.1, 格式罚 f, ARW 残余 0.1)）由 s ×(1 − d) 改为 s − d·|s|，ARW 内部的 0.9 折减同样改，正分逐位相同；上文 L466–470、S2 里的"×0.9"按此读。模型失误（没有报告）得 0，与什么都不报相同（用户 2026-10-21 定：0，与什么都不报相同；理由：负分表示浪费审核时间，没有报告就没有这种浪费）；第一阶段没有这种实例。
+  - **改了什么**：取消分数截到 [0, 1] 的下限，零点仍是"什么都不报"。N = Σ正例得分 − Σ失败反例 k（含额外失败）；N ≥ 0 时分数 = N ÷ 正例数，与 r8.3 逐位相同；N < 0 时分数 = N ÷ Σk，Σk 为答案键全部反例的 k 之和（合并用例计一次，noOther 按 0.25；SR 两个子场景先求和），四个场景依次为 CS 7.25、CStd 16.25、SR 14.75、CA 12.5。不设下限，额外失败只在分子里扣，可以低于 −1。整体扣减（max(暂停 0.1, 格式罚 f, ARW 残余 0.1)）由 s ×(1 − d) 改为 s − d·|s|，ARW 内部的 0.9 折减同样改，正分逐位相同；上文 L466–470、S2 里的"×0.9"按此读。模型失误（没有报告）得 0，与什么都不报相同（用户 2026-10-21 定：0，与什么都不报相同；理由：负分表示浪费审核时间，没有报告就没有这种浪费）；写这一条时认为第一阶段没有这种实例，最终计分登记了 9 个，都在 DeepSeek（见本节末 2026-10-22 汇总表）。
   - **何时、看过什么**：决定于 2026-10-21，此前已看过 CS/CA 的暂定分和 419 个实例的不截断分布（`.tmp/unclipped-1021/`），属于看过暂定分后改规则，在此披露。
   - **理由**：效度。截断让"全部行报空话"和"只在问题行报空话"同分，都在 0 处垫底，乱报没有代价。0 处连续，分母每场景固定，单实例内分数仍是 N 的单调函数，没有新捷径。0 两侧斜率不同（P/Σk：CS 2.76、CA 2.32、CStd 1.60、SR 1.56），正负两侧单位不同，0 附近的分散会变大（例：luna-high CA 的 SD 由 0.263 升到 0.628），报告写明。
-  - **影响范围**：第一阶段（非 DeepSeek 的 419 个实例）只有 8 个实例的原始分为负，全在 CA 的 3 个 luna 配置（gpt-6-luna low 4、medium 3、high 1），都没有整体扣减；其余实例新旧分数逐位相同。
+  - **影响范围**：决定时看的是非 DeepSeek 的 419 个实例，记为 8 个负分、都没有整体扣减。按第一阶段最终数据（557 个实例，含 DeepSeek 138 个；2026-10-22 计分）更正：9 个实例的最终分为负，全在 CA 的 3 个 luna 配置（gpt-6-luna low 5、medium 3、high 1），DeepSeek 没有负分；其中 luna-low-a7 有整体扣减（格式罚 f = 0.1，修复 16 处，即按「CA 要求行号整体错位」改挂的 16 行）。其余实例新旧分数逐位相同。
   - **执行**：全部实例按 r8.4 统一重评后再出报告（测量规则「规则在测量中途变化时……统一重评」）；报告给 r8.3 对照的敏感性表（`benchmark_summary` 的 r8.3 均值、r8.3 Holm p 与结论列），并标出预登记比较的 Holm 结论是否改变。旧分可由 `rawScore`、P、Σk 和 `overall_deduction` 复原，`bench_score` 另存 `score_r83`、`final_r83`。
 
 - 2026-10-21，DeepSeek 桥接批盲裁（L587 的桥接批）与 L587 的三处不同，Main 决定：
@@ -608,6 +608,25 @@
   - **并入 luna-low-a7 的 5 个候选**：该实例的 CA 要求行号整体错位，按[裁决先例](../../benchmarks/reviewer-suite-v1/rulings.md)改挂后新形成 5 个候选（决定库按指纹判旧决定作废），随桥接批一起裁。
   - **锚点集与第一批不同**：CS 加 a19–a24、CA 加 a24–a29、CStd 加 a24，CStd a06 按歧义清单 C1 改为 matched；锚点仍取自已定决定，对裁决者隐藏来源与原判。
   - **结果**：42 个池全部一次通过，锚点 504/504，合成项全对，费用 $53.14。判 supported 的 27 项和有争议的 unsupported 93 项另交 Opus 复核。
+
+- 2026-10-22，看过暂定分之后定下的口径汇总（补披露，第一阶段计分前独立审查问题 D）。下表逐条列出 10-20 起在已有部分分数或裁决之后定下、影响第一阶段计分的口径。"当时已有的分数"一列只写能从 plan、rulings.md 和 git log 核实的事实：CS/CA 第一批盲裁 10-20 夜间开始（本节 2026-10-20 提前盲裁条）；DeepSeek 臂的候选到 10-21 20:22 才开始桥接批盲裁，此前没有 DeepSeek 分数；CS/CA 暂定分首次查看的具体时刻未核实，只知道 10-21 r8.4 决定之前已看过（本节 r8.4 条）。决定者按提交说明和 rulings.md 的状态记。
+
+| 口径 | 日期与提交 | 当时已有的分数 | 决定者 | 影响的 family / 实例 |
+|---|---|---|---|---|
+| 引用 Claude Code 落盘文件行号的可换算定位计格式错误（spill 修复） | 10-20 19:15（154d9ff，规则）；20:19 只取会话里被工具引用过的落盘文件（eedeccb） | 已有 OpenAI SR 边跑边计的暂定下界分（全为 0，本节 2026-10-20 SR 条）；在 CS/CA 第一批盲裁之前；与 CS 试点 2 个实例分数的先后未核实 | 用户（规则）；只取被引用文件为 Main | 只涉及 Claude Code 路径（Anthropic、DeepSeek-CC、Strata-CC）；修复的实例数未核实 |
+| B 类：报告已写完、最终状态消息不合规、未经接续修正，按已交付计分并计 1 处格式错误 | 10-20 21:13（c5cea18，规则）；21:26 实现（9cfff4a） | 同上一行 | 用户 | Anthropic CA 21 个、CS sonnet-high-a2，Strata-CC CA strata-low-a5（本节 2026-10-20 Claude Code 接续条）；DeepSeek 臂的同类实例数未核实 |
+| CA 只说"违背 / 未满足"、不讲机制的 finding 判 unsupported | 10-21 09:06 暂行（95c9d0c）；20:18 用户确认（e24350e） | 已有 CS/CA 第一批盲裁决定；是否已看过暂定分未核实 | Main 暂行，经独立审查后用户定 | 22 条由 supported 改判（歧义清单 B2）；所属 family 未核实 |
+| 模板式通用 finding 原样贴在多行判没有对上 | 10-21 09:12（ceb9a28） | 同上一行 | 用户 | 未核实（003147d 只标出、不改判） |
+| 答案键里的缺陷挂在别的位置判 supported | 10-21 09:12 先定 CA 判 unsupported（ceb9a28）；18:06 推翻，统一判 supported（7142442，经独立审查） | 同上一行 | 用户 | CA 4 条、SR 42 条，另 sr-1-206（歧义清单 B1）；所属 family 未核实 |
+| 一条 finding 讲两个缺陷，讲到本行缺陷的行判对上 | 10-21 10:26 暂行（71f9ad8）；10:31 用户定（f221474） | 同上一行 | Main 暂行，用户复核同意 | 未核实；CStd 锚点 a06 按此改为 matched（歧义清单 C1） |
+| 新代码照搬仓库已有的重复实现算本次变更的问题，判 supported | 10-21 18:02（336c28b） | 同上一行 | 用户 | 第一批 CStd 6 条（歧义清单 B4，family 未核实）；桥接批复核另按此改判 DeepSeek 2 条（ds-cstd-5-114、5-193） |
+| CA 要求行号整体错位，原文唯一定位时改挂并计格式错误 | 10-21 18:33（7e34771，先例）；18:56 实现（2d394e5） | 同上一行 | 用户 | OpenAI luna-low-a7 改挂 16 行；另 ca-14-134、ca-14-136，所属 family 未核实。DeepSeek 第 2 关错位（N1）不在本条范围，待用户定 |
+| 上游断流、harness 透明重试判有效 | 10-21 09:18（434a1f4） | DeepSeek 分数尚未产生；其他臂同上一行 | 用户（决定 B） | DeepSeek-Codex SR codex-high-a1、codex-max-a3、codex-max-a4；OpenAI、Strata-Codex 没有这类实例（§14.4） |
+| 拿到 HTTP 状态前的短暂传输错误（BrokenPipe 等）判有效 | 10-21 15:02 暂行（d4de7d2，plan 15:04 24ce2e6 写"暂定"）；15:24 用户定（b473d62） | DeepSeek 分数尚未产生 | Main 依决定 B 的理由扩展，用户确认 | DeepSeek-Codex SR codex-high-a4 |
+| Claude Code 到硬时限被强杀、没有 result 事件判有效 | 10-21 09:06（95c9d0c，规则：plan 规定到硬时限停止有效） | DeepSeek 分数尚未产生 | 规则应用（Main） | DeepSeek-CC CS cc-max-a4 由无效重判为有效（它的报告为空，后登记为模型失误）；Anthropic 3 个触到硬时限的实例原判已有效 |
+| 评分 r8.4（取消 0 处截断，模型失误记 0） | 10-21 22:34（fdc58fc）；23:05 模型失误记 0（a721637） | 已看过 CS/CA 暂定分和 419 个实例的不截断分布 | 用户 | 见上文 r8.4 条 |
+| markdown 报告首个条目之后从第 0 列起的非条目行由修复器删除，每份报告计 1 处 r | 10-22 01:13（613066e）；01:15 规则文字（d75b07e） | 第一阶段正式计分已出结果，CStd cc-low-a4 修复器修不过 | Main（提交说明和规则文字都没有用户决定的记录） | 只影响 DeepSeek-CC CStd cc-low-a4（r = 6、T = 29，f 封顶 0.1） |
+| 9 个模型失误登记（`model-failures.json`），空报告按 ARW modelFailure 计分 | 10-22 01:13（613066e），登记确认人 Main 10-22 | 同上一行 | Main 确认；依据本节 F4（Claude Code 模型侧错误停为 model_error，按已写出的报告计分）和 r8.4 模型失误记 0（用户） | 只有 DeepSeek：SR cc 7 个 AP 子场景（32000 输出上限）、SR codex-high-a4 AP（硬时限内无报告）、CS cc-max-a4（强杀、空报告） |
 
 ### 14.2 #10–12（Codex 上的 Strata）补冻结（2026-10-19）
 
@@ -747,7 +766,7 @@ DeepSeek 臂 worker 跑完探针 P1–P4 和第 1 轮（6 配置 × 4 场景各 
   - 重跑与主统计：因误判引出的补跑算重跑，没有合并的格按开始顺序取前 5 个有效实例。
   - 新绑定：`steer.py` `415dc480…9526` → `c0afbe8f3f811f00be9747efdd0c3733b8681042e447db998ec9dbf49d8b1b12`（冻结版另存为 `steer-frozen-415dc480.py`），`schedule.py` 不变。
   - 生效：调度器在没有实例运行时停下（JST 09:21），重判后从磁盘重建状态重启，重判前的判定备份在 `rejudge-1021/`。
-- **偏离：断流豁免扩展到"拿到 HTTP 状态之前的短暂失败"（2026-10-21，Main 依用户决定 B 的理由扩展，裁决先例见 `rulings.md`，暂定、待用户复核）**。
+- **偏离：断流豁免扩展到"拿到 HTTP 状态之前的短暂失败"（2026-10-21，Main 依用户决定 B 的理由扩展，15:04 写入时为暂定；同日 15:24 改为用户定（rulings.md，b473d62），见 `rulings.md`「还没拿到 HTTP 状态就断开的传输错误」）**。
   - 判据：`stream_cut.py` 新增 `pre_status` 情形（sha256 `11df0b4019fab09083139e0b028d85fff3fb8259104b67eef4900caf07d38675`），同时满足：
     - 没有 HTTP 状态，失败持续不超过 `PRE_STATUS_MAX` = 5 s；
     - 下一个同路径请求在 5 s 内开始，并以 200 completed 结束；
