@@ -3,7 +3,7 @@
 Replaces the flat x0.9 for format errors, which are errors of the whole report (user 2026-10-15). For each repetition:
   p = r / T, f = 0.1 * min(1, p / (2 * pBase)), final = max(0, raw) * (1 - f)
 r counts every format error in scorer units (so `a:1,5` is two): the repairable ones found by
-`repair_reviewer_report` (from the repair record; a locator converted from a spilled tool output counts once per
+`repair_reviewer_report` (from the repair record; a Commit Audit row moved to the requirement line it quotes counts once; a locator converted from a spilled tool output counts once per
 locator part), those left in the scored report (`unrepairableFormatErrors` of
 the upgraded scorer: report lines that are not findings, invalid JSON lines, rows that cannot be assigned to a
 requirement) and the line ranges the scorer cut back to the end of their file (`overrunLocators`). T is the number of
@@ -43,7 +43,7 @@ def repairable_count(changes):
         elif change['kind'] == 'spill-locator':
             # Every converted comma part is one locator the scorer reads.
             count += len(change['converted'])
-        elif change['kind'] in ('markdown-preamble', 'scalar-lines'):
+        elif change['kind'] in ('markdown-preamble', 'scalar-lines', 'requirement-line'):
             count += 1
         else:
             raise ValueError(f"unknown repair kind {change['kind']}")

@@ -253,6 +253,14 @@ def place_reports(record, prepared, work):
             shutil.copyfile(repaired, corrected)
             entry = {'instanceId': fresh['instanceId'], 'artifactPaths': None,
                      'formatCorrection': {'originalReportPath': str(target), 'correctedReportPath': str(corrected)}}
+            if all(c['kind'] == 'requirement-line' for c in change_record['details']):
+                # The ARW format-correction gate only accepts an original that fails in syntax; a row shift keeps the
+                # report syntactically valid, so the corrected copy replaces the fresh copy at the prepared reportPath
+                # and is scored as the report itself (the bound original is untouched; the repair record still counts
+                # the moves in r; the diagnostics are all project-treated, so no residual cut changes).
+                shutil.copyfile(repaired, target)
+                corrected.unlink()
+                entry = {'instanceId': fresh['instanceId'], 'artifactPaths': [str(target)]}
             repairs[fresh['instanceId']] = change_record
         else:
             repairs[fresh['instanceId']] = None

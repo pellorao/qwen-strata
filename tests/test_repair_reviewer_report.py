@@ -1,6 +1,6 @@
 import unittest
 
-from tools.reviewer.repair_reviewer_report import (check_only_lines_changed, check_only_markdown_changes, normalize,
+from tools.reviewer.repair_reviewer_report import (check_only_lines_changed, check_only_markdown_changes, normalize, text_matches,
                                                    normalize_markdown, spill_map)
 
 
@@ -203,3 +203,59 @@ class SpillLocatorTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+F = '.scratch/x/issues/01.md'
+KEY = {F: {7: 'Connect dispatch planning and execution.',
+           19: '- [x] Under `docs/p.md`, `nextRetryDelay` applies the Retry timing rules to every server-provided `retryAfter`',
+           20: '- [x] `canPlanRoute` treats an actor holding `routes:admin` as owning every depot.',
+           21: '- [x] `canPlanRoute` refuses every suspended actor.',
+           22: '- [x] `renameTemp` renames the temporary bytes after they are durable.',
+           23: '- [x] `renameTemp` renames the temporary bytes after they are logged.'}}
+
+
+def row(line, requirement, file=F):
+    return {'source': {'filePath': file, 'line': line}, 'requirement': requirement, 'result': 'satisfied',
+            'evidence': [{'filePath': 'a.mjs', 'lines': [1]}]}
+
+
+class RequirementLineTest(unittest.TestCase):
+    def test_unique_text_moves_the_row_and_counts_one_change(self):
+        original = [row(7, '`nextRetryDelay` applies Retry timing rules to every server-provided `retryAfter`.'),
+                    row(19, '`canPlanRoute` treats an actor holding `routes:admin` as owning every depot.')]
+        rows, changes = normalize(original, KEY)
+        self.assertEqual([r['source']['line'] for r in rows], [19, 20])
+        self.assertEqual([(c['kind'], c['row'], c['before'], c['after']) for c in changes],
+                         [('requirement-line', 1, 7, 19), ('requirement-line', 2, 19, 20)])
+        self.assertEqual(original[0]['source']['line'], 7)
+
+    def test_ambiguous_text_stays(self):
+        original = [row(7, '`renameTemp` renames the temporary bytes after they are durable or logged.')]
+        rows, changes = normalize(original, KEY)
+        self.assertEqual((rows, changes), (original, []))
+
+    def test_text_that_fits_its_own_line_stays(self):
+        original = [row(21, '`canPlanRoute` refuses every suspended actor.'),
+                    row(20, '`canPlanRoute` treats an actor holding `routes:admin` as owning every depot')]
+        rows, changes = normalize(original, KEY)
+        self.assertEqual((rows, changes), (original, []))
+
+    def test_no_match_or_unlisted_line_or_other_file_stays(self):
+        original = [row(7, '`unknownFn` does something else entirely.'), row(5, '`canPlanRoute` refuses every suspended actor.'),
+                    row(7, '`canPlanRoute` refuses every suspended actor.', file='other.md')]
+        rows, changes = normalize(original, KEY)
+        self.assertEqual((rows, changes), (original, []))
+
+    def test_move_onto_a_line_another_row_keeps_is_dropped(self):
+        original = [row(7, '`canPlanRoute` refuses every suspended actor.'),
+                    row(21, '`canPlanRoute` refuses every suspended actor.')]
+        rows, changes = normalize(original, KEY)
+        self.assertEqual((rows, changes), (original, []))
+
+    def test_text_matching(self):
+        self.assertTrue(text_matches('`f` returns the stops.', '- [x] `f` returns every one of the stops'))
+        self.assertFalse(text_matches('`g` returns the stops.', '`f` returns the stops'))
+
+    def test_without_requirements_nothing_moves(self):
+        original = [row(7, '`canPlanRoute` refuses every suspended actor.')]
+        self.assertEqual(normalize(original)[1], [])
