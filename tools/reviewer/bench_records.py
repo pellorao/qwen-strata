@@ -29,6 +29,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from tools.reviewer import bench_validity
@@ -278,8 +279,21 @@ def openai_record(arm, scenario, folder):
     return record
 
 
+API_TOKEN_ARMS = ('anthropic', 'deepseek-claude')  # plan 5: Claude Code tokens come from the stream result usage
+
+
+def usage_tokens(usage):
+    """The three token classes from Claude Code result usage, as schedule.jsonl counts them for DeepSeek and as the
+    OpenAI arm splits input: uncached input = input_tokens + cache_creation_input_tokens (a cache write is input the
+    cache did not hold), cached input = cache_read_input_tokens, output = output_tokens. None without usage."""
+    if not isinstance(usage, dict):
+        return None
+    return {'uncached_input': (usage.get('input_tokens') or 0) + (usage.get('cache_creation_input_tokens') or 0),
+            'cached_input': usage.get('cache_read_input_tokens') or 0, 'output': usage.get('output_tokens') or 0}
+
+
 def claude_record(arm, scenario, folder):
-    from tools.reviewer.claude_headless import stream_summary
+    from tools.reviewer.claude_headless import segment_streams, stream_summary
     record = base(arm, scenario, folder)
     instance = load(folder / 'instance.json')
     void = void_marker(folder, instance)
@@ -301,11 +315,18 @@ def claude_record(arm, scenario, folder):
         path, ok = report_location(h.get('report_sha256'), out / 'outputs' / staged if staged else None)
         result = load(out / 'result.json') or {}
         summary = result.get('summary') or {}
+        # Recounted from the kept streams, never from the archived summary (before 2026-10-20 it holds only the last
+        # result; strata-1019 ca-r2 strata-medium-a2 h0 is such a summary).
+        files = [f for f in segment_streams(out) if f.is_file()]
+        recount = stream_summary(files) if files else {}
+        usage = recount.get('usage') if recount.get('result_event') else None
         continuation = h.get('continuation') or {}
         handoffs.append({'k': k, 'instanceId': h['instanceId'], 'sub_scenario': sub_scenario(h['instanceId']),
                          'report': path, 'report_ok': ok, 'report_exists': h.get('report_exists'),
                          'report_sha256': h.get('report_sha256'), 'seconds': h.get('wall_seconds'),
-                         'tokens': h.get('engine_tokens'), 'api_usage': summary.get('usage'),
+                         'tokens': usage_tokens(usage) if arm in API_TOKEN_ARMS else h.get('engine_tokens'),
+                         'tokens_lower_bound': bool(usage) and recount.get('usage_bound') == 'lower',
+                         'api_usage': usage,
                          'cost_usd': summary.get('total_cost_usd'), 'tool_calls': None,
                          'session': continuation.get('session_id'), 'pause_events': continuation.get('arw_pause_events'),
                          'sandbox_failures': sandbox, 'sandbox_source': sandbox_source,
@@ -424,7 +445,10 @@ def summary_fields(record):
             'seconds': sum(seconds) if handoffs and None not in seconds else None,
             'tokens': {c: (sum(t.get(c) or 0 for t in tokens) if known else None)
                        for c in ('uncached_input', 'cached_input', 'output')},
-            'token_source': None if not known else ('engine log' if record['model_family'] == 'strata' else 'API usage (relay)'),
+            'token_source': None if not known else (
+                'engine log' if record['model_family'] == 'strata' else
+                'Claude Code stream result usage' if record['arm'] in API_TOKEN_ARMS else 'API usage (relay)')
+            + (' (lower bound: a segment without result)' if known and any(h.get('tokens_lower_bound') for h in handoffs) else ''),
             'tool_calls': sum(calls) if handoffs and None not in calls else None,
             'cost_usd': handoff_cost_usd(record), 'cost_cny': None, 'cost_basis': None,
             'model_ids': models, 'service_tiers': tiers}
@@ -443,11 +467,62 @@ def handoff_cost_usd(record):
     return sum(costs) if costs and None not in costs else None
 
 
+# DeepSeek flash prices, CNY per 1M tokens: (cache hit, miss, output); peak = Beijing weekdays 9-12 and 14-18 (plan 14.4;
+# the same table and rule as schedule.py of the run).
+DEEPSEEK_PRICE = {'offpeak': (0.02, 1.0, 4.0), 'peak': (0.04, 2.0, 8.0)}
+# The same table in USD, DeepSeek-V4.1-Flash-1017 (deepseek-flash), official English pricing page of api-docs.deepseek.com
+# (local snapshot .tmp/bench-deepseek-1020/docs/pricing-en.html, sha256 b856a6e93fa4793ecc8f3fd03a01bb7d8f7572f78a4739da8ce6dbdb09328d66,
+# fetched 2026-10-20 and read 2026-10-21). Every item is exactly 0.15 USD per CNY, peak and off-peak alike, so the
+# conversion by price ratio (user 2026-10-21, not a market exchange rate) is one number whatever the token mix.
+DEEPSEEK_PRICE_USD = {'offpeak': (0.003, 0.15, 0.6), 'peak': (0.006, 0.3, 1.2)}
+BEIJING = timezone(timedelta(hours=8))
+
+
+def deepseek_period(ts):
+    bj = datetime.fromtimestamp(ts, BEIJING)
+    return 'peak' if bj.weekday() < 5 and (9 <= bj.hour < 12 or 14 <= bj.hour < 18) else 'offpeak'
+
+
+def deepseek_price_cost(hit, miss, output, period, prices=DEEPSEEK_PRICE):
+    p = prices[period]
+    return (hit * p[0] + miss * p[1] + output * p[2]) / 1e6
+
+
+def request_time_cost(folder, event, prices=DEEPSEEK_PRICE):
+    """Plan 14.4 per-request-time CNY of a DeepSeek instance (schedule.py request_cost): a Codex instance reprices every
+    request of its relay log at the request's own start time; a Claude Code instance only has stream-result totals, so
+    it is priced at its start time, the whole instance at the peak price when it crosses a price boundary. None when
+    the inputs are missing."""
+    tokens = event.get('tokens') or [0]
+    if not sum(tokens):
+        return None
+    if event.get('cfg', '').startswith('codex'):
+        files = sorted((Path(folder) / 'run/relay').glob('*.jsonl')) if folder is not None else []
+        if not files:
+            return None
+        total = 0.0
+        for f in files:
+            for line in f.read_text().splitlines():
+                row = json.loads(line)
+                u = row.get('usage') or {}
+                cached = (u.get('input_tokens_details') or {}).get('cached_tokens') or 0
+                total += deepseek_price_cost(cached, (u.get('input_tokens') or 0) - cached,
+                                             u.get('output_tokens') or 0, deepseek_period(row['started_at']), prices)
+        return total
+    if event.get('wall') is None:
+        return None
+    end = bench_validity.stamp(event['t'])
+    start = end - event['wall']
+    period = 'peak' if deepseek_period(start) != deepseek_period(end) else deepseek_period(start)
+    return deepseek_price_cost(*tokens, period, prices)
+
+
 def deepseek_cost(record, event, folder=None):
     """(CNY, basis) of a DeepSeek instance from its schedule.jsonl done event (plan 14.4: per-token cost, each request
-    at its own peak / off-peak price; `cny` is the instance-start-priced figure of older events); (None, why) without
-    one or without tokens. Balance differences are for batch totals (plan 14.4) and need the account readings, so they
-    are only used through bench_validity.deepseek_balance_cost on request."""
+    at its own peak / off-peak price). Older events only carry `cny`, priced at the instance start; those are repriced
+    per request from the relay log (request_time_cost) and keep the old figure, named so, when that is impossible.
+    (None, why) without an event or tokens, except a balance difference where the arm has a schedule. Batch totals by
+    balance difference: bench_validity.deepseek_batch_reconciliation."""
     if not event or not sum(event.get('tokens') or [0]):
         if folder is not None and (folder.parent.parent / 'schedule.jsonl').is_file():
             balance = bench_validity.deepseek_balance_cost(folder.parent.name, folder.name, root=folder.parent.parent)
@@ -456,7 +531,49 @@ def deepseek_cost(record, event, folder=None):
         return None, 'no done event with tokens in schedule.jsonl, no balance window'
     if event.get('cny_request_time') is not None:
         return event['cny_request_time'], 'schedule.jsonl cny_request_time (per request, CNY)'
-    return event.get('cny'), 'schedule.jsonl cny (priced at instance start, CNY)'
+    recomputed = request_time_cost(folder, event)
+    if recomputed is not None:
+        how = ('relay log, each request at its own start time' if event.get('cfg', '').startswith('codex') else
+               'stream-result totals at instance start, the whole instance at peak price across a boundary')
+        return round(recomputed, 4), f'recomputed from {how} (CNY); schedule.jsonl cny was priced at instance start'
+    return event.get('cny'), 'schedule.jsonl cny (priced at instance start, CNY; no per-request record to reprice)'
+
+
+def usd_per_cny(tokens):
+    """USD/CNY ratio of the official price items weighted by a token mix (cache hit, miss, output) at off-peak prices
+    (peak is the same ratio); None for an empty mix."""
+    cny = deepseek_price_cost(*tokens, 'offpeak')
+    return deepseek_price_cost(*tokens, 'offpeak', DEEPSEEK_PRICE_USD) / cny if cny else None
+
+
+def deepseek_usd(cny, event, folder=None, arm_tokens=None):
+    """(USD, basis) next to the CNY figure (user 2026-10-21: one unit across arms, by the official USD / CNY price
+    ratio, never a market rate). An instance that can be priced by token takes the USD table at the same per-request
+    periods as the CNY; otherwise its CNY total is scaled by the ratio of its own tokens, or by the ratio weighted by the
+    token mix of the whole arm (`arm_tokens`) when it has none; nothing without a CNY figure."""
+    if cny is None:
+        return None, 'unknown: no CNY cost'
+    tokens = (event or {}).get('tokens') or [0]
+    if sum(tokens):
+        priced = request_time_cost(folder, event, DEEPSEEK_PRICE_USD)
+        if priced is not None:
+            return round(priced, 6), 'USD from the official USD price table, each request at its own period'
+        ratio = usd_per_cny(tokens)
+        if ratio is not None:
+            return round(cny * ratio, 6), 'CNY x USD/CNY official price ratio of the instance tokens'
+    ratio = usd_per_cny(arm_tokens) if arm_tokens and sum(arm_tokens) else None
+    if ratio is None:
+        return None, 'unknown: no token mix for the price ratio'
+    return round(cny * ratio, 6), 'CNY x USD/CNY official price ratio weighted by the token mix of the whole DeepSeek arm'
+
+
+def cost_lower_bound(record, event):
+    """True when the cost is a floor: a reminder interrupt abandons a request whose tokens never reach the relay usage
+    (plan 14.4 'offpeak low' note). The rejudge list when classified, else abandoned_requests of the done event."""
+    rejudge = (record.get('validity') or {}).get('rejudge') or {}
+    if rejudge.get('applied'):
+        return bool(rejudge.get('reminder_interrupts'))
+    return bool((event or {}).get('abandoned_requests'))
 
 
 FINAL_STATUS_FORMS = ('ready', 'incomplete')
@@ -491,20 +608,23 @@ def scene_records(arm, scenario, scene):
     scene = Path(scene)
     if not scene.is_dir():
         return []
-    done = {}
+    done, arm_tokens = {}, None
     if arm.startswith('deepseek'):
         # One schedule.jsonl for all scenes of the round, in the directory above the scene directories.
         schedule, scen = scene.parent / 'schedule.jsonl', scene.name
     else:
         schedule, scen = scene / 'schedule.jsonl', None
     if (arm == 'strata-codex' or scen) and schedule.is_file():
+        arm_tokens = [0, 0, 0]
         for line in schedule.read_text().splitlines():
             event = json.loads(line)
             if event.get('event') == 'done' and event.get('scen', scen) == scen:
                 done[event['out']] = event
+            if scen and event.get('event') == 'done' and len(event.get('tokens') or []) == 3:
+                arm_tokens = [a + b for a, b in zip(arm_tokens, event['tokens'])]  # the token mix of the whole arm
     out = []
     for folder in sorted(p for p in scene.iterdir() if p.is_dir() and arm_instance(arm, p.name)):
-        out.append(instance_record(arm, scenario, folder, done))
+        out.append(instance_record(arm, scenario, folder, done, arm_tokens))
     # Plan §3, §14.1 L256, §14.4 and ruling 2026-10-21: not merged cells take their first 5 valid instances by start
     # time for the main statistic; merged cells (DeepSeek C') take every valid one.
     return bench_validity.rank_cells(out)
@@ -515,7 +635,7 @@ def arm_instance(arm, name):
     return bool(match) and match.group('model') in (ARM_MODELS.get(arm) or MODELS)
 
 
-def instance_record(arm, scenario, folder, done=None):
+def instance_record(arm, scenario, folder, done=None, arm_tokens=None):
     """The normalized record of one instance directory, validity rejudged (bench_validity) before the summary fields."""
     if arm in ('openai', 'deepseek-codex'):
         record = openai_record(arm, scenario, folder)
@@ -527,9 +647,14 @@ def instance_record(arm, scenario, folder, done=None):
     record.update(SCORE_FIELDS)
     record.update(summary_fields(record))
     if arm.startswith('deepseek'):
-        record['cost_cny'], record['cost_basis'] = deepseek_cost(record, (done or {}).get(folder.name), folder)
+        event = (done or {}).get(folder.name)
+        record['cost_cny'], record['cost_basis'] = deepseek_cost(record, event, folder)
+        record['cost_usd'], usd_basis = deepseek_usd(record['cost_cny'], event, folder, arm_tokens)
+        record['cost_basis'] += '; ' + usd_basis
     elif record['cost_usd'] is None and arm in ('anthropic', 'strata-claude'):
         record['cost_basis'] = 'unknown: a segment has no result event (killed at the hard limit); no relay or balance source'
+    has_cost = record.get('cost_usd') is not None or record.get('cost_cny') is not None
+    record['cost_lower_bound'] = has_cost and cost_lower_bound(record, (done or {}).get(folder.name))
     final_status_error(record)
     return record
 

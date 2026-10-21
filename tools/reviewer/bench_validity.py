@@ -20,7 +20,7 @@ Verdict precedence: void and no-record stay; a Main reclassification (`reclassif
 the classification. A rejudged invalid instance names the failing checks.
 """
 import json
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from tools.reviewer import reminder_interrupt, stream_cut
@@ -352,6 +352,60 @@ def deepseek_balance_cost(scene_name, instance_name, root=None):
     out = balance_cost(readings, runs, target)
     return out and {**out, 'currency': 'CNY', 'basis': 'balance read before each launch (schedule.jsonl), minus '
                                                         'the per-request cost of the other instances in the window'}
+
+
+def _quiet_readings(runs, readings):
+    """Readings taken while no run was in progress (a run without end is in progress for ever after its start)."""
+    return sorted(r for r in readings if not any(s < r[0] < e for s, e, _ in runs.values()))
+
+
+def _window_total(runs, quiet_pair):
+    (t0, b0), (t1, b1) = quiet_pair
+    inside = {n: v for n, v in runs.items() if v[0] >= t0 and v[1] <= t1}
+    known = [v[2] for v in inside.values() if v[2] is not None]
+    token_sum = round(sum(known), 4)
+    balance = round(b0 - b1, 4)
+    deviation = round(balance - token_sum, 4)
+    return {'window': [t0, t1], 'balance': [b0, b1], 'balance_difference': balance, 'instances': len(inside),
+            'instances_without_cost': len(inside) - len(known), 'token_sum': token_sum, 'deviation': deviation,
+            'deviation_ratio': round(deviation / balance, 4) if balance else None}
+
+
+def deepseek_batch_reconciliation(root, costs=None):
+    """Plan 14.4 L707: the DeepSeek batch total by balance difference against the per-token sum, report only (the plan
+    sets no adjustment). Uses the balance read before each launch in schedule.jsonl (no balance API call). The window
+    runs from the first to the last reading taken while no instance was running, so a half-run instance never leaks
+    into the difference; the sum covers the instances launched and done inside it. `costs` {'scen/out': CNY} overrides
+    the event cost (the per-request recomputation of bench_records); an instance with no cost is counted, not guessed.
+    Also one window per Beijing date. Whatever is spent in the window outside the instances (pricing checks, probes)
+    lands in the deviation. None without two quiet readings."""
+    root = Path(root or Path(__file__).resolve().parents[2] / '.tmp/bench-deepseek-1020/r1')
+    costs = costs or {}
+    starts, runs, readings = {}, {}, []
+    for line in (root / 'schedule.jsonl').read_text().splitlines():
+        e = json.loads(line)
+        key = f"{e.get('scen')}/{e.get('out')}"
+        if e.get('event') == 'launch':
+            starts[key] = stamp(e['t'])
+            runs[key] = (starts[key], float('inf'), None)
+            if e.get('balance') is not None:
+                readings.append((starts[key], e['balance']))
+        elif e.get('event') == 'done' and key in starts:
+            known = costs.get(key)
+            if known is None and sum(e.get('tokens') or [0]):
+                known = e.get('cny_request_time', e.get('cny'))
+            runs[key] = (starts[key], stamp(e['t']), known)
+    quiet = _quiet_readings(runs, readings)
+    if len(quiet) < 2:
+        return None
+    zone = timezone(timedelta(hours=8))
+    days = {}
+    for r in quiet:
+        days.setdefault(datetime.fromtimestamp(r[0], zone).date().isoformat(), []).append(r)
+    return {**_window_total(runs, (quiet[0], quiet[-1])), 'currency': 'CNY',
+            'by_date': {d: _window_total(runs, (v[0], v[-1])) for d, v in sorted(days.items()) if len(v) > 1},
+            'basis': 'balance read before each launch (schedule.jsonl) at quiet readings, against the per-token sum; '
+                     'report only (plan 14.4 sets no adjustment)'}
 
 
 def main():

@@ -179,5 +179,44 @@ class ValidityTest(unittest.TestCase):
         self.assertIsNone(bench_validity.balance_cost(readings, {**runs, 'a': (1, 12, None)}, 't'))
 
 
+class BatchReconciliationTest(unittest.TestCase):
+    def schedule(self, events):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        (Path(tmp.name) / 'schedule.jsonl').write_text(''.join(json.dumps(e) + '\n' for e in events))
+        return Path(tmp.name)
+
+    @staticmethod
+    def at(minute):
+        return f'2026-10-21T22:{minute:02d}:00+0900'
+
+    def test_window_runs_between_quiet_readings_and_reports_the_deviation(self):
+        def started(out, minute, balance):
+            return {'event': 'launch', 'scen': 'cs', 'out': out, 'balance': balance, 't': self.at(minute)}
+
+        def finished(out, minute, cny):
+            return {'event': 'done', 'scen': 'cs', 'out': out, 'tokens': [1, 1, 1], 'cny_request_time': cny,
+                    't': self.at(minute)}
+        events = [started('a', 0, 10.0), started('b', 5, 9.0), finished('a', 10, 1.0), finished('b', 20, 1.0),
+                  started('c', 25, 7.9), finished('c', 30, 0.5), started('d', 35, 7.4), started('e', 36, 7.4)]
+        rec = bench_validity.deepseek_batch_reconciliation(self.schedule(events), costs={'cs/b': 1.1})
+        # b's launch reading is taken while a runs; d's while nothing runs; e's while d (still running) does
+        self.assertEqual(rec['balance'], [10.0, 7.4])
+        self.assertEqual(rec['instances'], 3)
+        self.assertEqual(rec['instances_without_cost'], 0)
+        self.assertAlmostEqual(rec['token_sum'], 1.0 + 1.1 + 0.5)
+        self.assertAlmostEqual(rec['balance_difference'], 2.6)
+        self.assertAlmostEqual(rec['deviation'], 0.0)
+        self.assertEqual(list(rec['by_date']), ['2026-10-21'])
+
+    def test_missing_cost_is_counted_not_guessed_and_one_reading_gives_none(self):
+        events = [{'event': 'launch', 'scen': 's', 'out': 'a', 'balance': 5.0, 't': self.at(0)},
+                  {'event': 'done', 'scen': 's', 'out': 'a', 'tokens': [0], 't': self.at(5)},
+                  {'event': 'launch', 'scen': 's', 'out': 'b', 'balance': 4.0, 't': self.at(6)}]
+        rec = bench_validity.deepseek_batch_reconciliation(self.schedule(events))
+        self.assertEqual((rec['instances'], rec['instances_without_cost'], rec['token_sum']), (1, 1, 0.0))
+        self.assertIsNone(bench_validity.deepseek_batch_reconciliation(self.schedule(events[:1])))
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -2,10 +2,12 @@ import hashlib
 import json
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from tools.reviewer import bench_records
 
+BJ = timezone(timedelta(hours=8))
 IID = 'default-42b4f896-1071-4617-bcba-e1110a1fc457-instance-1'
 
 
@@ -118,6 +120,31 @@ class RecordsTest(unittest.TestCase):
             write(d / 'run/machine.jsonl', ''.join(json.dumps(line) + '\n' for line in machine))
         return d
 
+    def test_claude_code_tokens_come_from_the_recounted_stream_usage(self):
+        def result(usage):
+            return json.dumps({'type': 'result', 'is_error': False, 'result': 'x', 'duration_ms': 1, 'num_turns': 1,
+                               'total_cost_usd': 0.5, 'usage': usage}) + '\n'
+        d = self.scene / 'opus-low-a1'
+        write(d / 'h0/stream.jsonl', result({'input_tokens': 10, 'cache_creation_input_tokens': 5,
+                                             'cache_read_input_tokens': 100, 'output_tokens': 7}))
+        write(d / 'h0/stream-1.jsonl', result({'input_tokens': 1, 'cache_creation_input_tokens': 0,
+                                               'cache_read_input_tokens': 200, 'output_tokens': 3}))
+        # the archived summary holds the last result only (made before the 2026-10-20 fix): it must not be used
+        write(d / 'h0/result.json', {'summary': {'usage': {'input_tokens': 1, 'output_tokens': 3}, 'total_cost_usd': 0.5}})
+        write(d / 'instance.json', {'handoffs': [{'instanceId': IID, 'checks': {'valid': True, 'sandbox_failures': 0},
+                                                  'engine_tokens': {'uncached_input': 999, 'cached_input': 999, 'output': 999}}]})
+        for arm, wanted in (('anthropic', (16, 300, 10)), ('strata-claude', (999, 999, 999))):
+            r = bench_records.scene_records(arm, 'code-spec-v5', self.scene)[0]
+            self.assertEqual(tuple(r['tokens'][c] for c in ('uncached_input', 'cached_input', 'output')), wanted)
+        r = bench_records.scene_records('anthropic', 'code-spec-v5', self.scene)[0]
+        self.assertEqual(r['token_source'], 'Claude Code stream result usage')
+        # a handoff with no result event has unknown tokens, not zero
+        write(d / 'h0/stream.jsonl', '')
+        write(d / 'h0/stream-1.jsonl', '')
+        r = bench_records.scene_records('anthropic', 'code-spec-v5', self.scene)[0]
+        self.assertIsNone(r['tokens']['output'])
+        self.assertEqual(bench_records.usage_tokens(None), None)
+
     def test_openai_pauses_rebuilt_from_the_flag_and_the_machine_log(self):
         notice = lambda mid: {'ok': True, 'result': {'notifications': [
             {'type': 'message', 'messageId': mid, 'text': bench_records.ARW_PAUSE_PREFIX + '10 turns.'}]}}
@@ -212,6 +239,68 @@ class CostTest(unittest.TestCase):
         self.assertEqual(bench_records.deepseek_cost({}, {'tokens': [1], 'cny': 0.3})[0], 0.3)
         self.assertIsNone(bench_records.deepseek_cost({}, {'tokens': [0], 'cny': 0.3})[0])
         self.assertIsNone(bench_records.deepseek_cost({}, None)[0])
+
+    def test_old_event_is_repriced_per_request_from_the_relay_log(self):
+        peak = datetime(2026, 10, 21, 10, 0, tzinfo=BJ).timestamp()
+        off = datetime(2026, 10, 21, 21, 0, tzinfo=BJ).timestamp()
+        usage = {'input_tokens': 2000000, 'input_tokens_details': {'cached_tokens': 1000000}, 'output_tokens': 100000}
+        with tempfile.TemporaryDirectory() as tmp:
+            relay = Path(tmp) / 'run/relay/relay.jsonl'
+            write(relay, ''.join(json.dumps({'started_at': t, 'usage': usage}) + '\n' for t in (peak, off)) +
+                  json.dumps({'started_at': off, 'usage': None}) + '\n')
+            event = {'cfg': 'codex-low', 'tokens': [2000000, 2000000, 200000], 'cny': 9.0}
+            # peak: 1M x 0.04 + 1M x 2 + 0.1M x 8; off-peak: 1M x 0.02 + 1M x 1 + 0.1M x 4
+            wanted = 0.04 + 2.0 + 0.8 + 0.02 + 1.0 + 0.4
+            self.assertAlmostEqual(bench_records.request_time_cost(Path(tmp), event), wanted)
+            cny, basis = bench_records.deepseek_cost({}, event, Path(tmp))
+            self.assertEqual(cny, round(wanted, 4))
+            self.assertIn('relay log', basis)
+
+    def test_old_claude_code_event_is_priced_at_start_and_at_peak_across_a_boundary(self):
+        end = datetime(2026, 10, 21, 20, 0, tzinfo=BJ)
+        event = {'cfg': 'cc-low', 'tokens': [1000000, 1000000, 1000000], 'cny': 9.0, 'wall': 600,
+                 't': end.isoformat(), 'abandoned_requests': 0}
+        self.assertAlmostEqual(bench_records.request_time_cost(None, event), 0.02 + 1.0 + 4.0)
+        crossing = dict(event, t=datetime(2026, 10, 21, 18, 5, tzinfo=BJ).isoformat())  # start 17:55, peak to off-peak
+        self.assertAlmostEqual(bench_records.request_time_cost(None, crossing), 0.04 + 2.0 + 8.0)
+
+    def test_old_event_without_relay_keeps_the_old_figure_and_says_so(self):
+        event = {'cfg': 'codex-low', 'tokens': [1, 2, 3], 'cny': 0.3}
+        cny, basis = bench_records.deepseek_cost({}, event, Path('/nonexistent/x/y'))
+        self.assertEqual(cny, 0.3)
+        self.assertIn('priced at instance start', basis)
+
+    def test_cost_lower_bound_follows_reminder_interrupts(self):
+        classified = {'validity': {'rejudge': {'applied': True, 'reminder_interrupts': [{'row': 3}]}}}
+        self.assertTrue(bench_records.cost_lower_bound(classified, {}))
+        self.assertFalse(bench_records.cost_lower_bound({'validity': {'rejudge': {'applied': True, 'reminder_interrupts': []}}},
+                                                        {'abandoned_requests': 2}))
+        self.assertTrue(bench_records.cost_lower_bound({'validity': {}}, {'abandoned_requests': 2}))
+        self.assertFalse(bench_records.cost_lower_bound({'validity': {}}, None))
+
+    def test_usd_follows_the_official_price_ratio_not_a_market_rate(self):
+        for mix in ([5, 0, 0], [0, 5, 0], [0, 0, 5], [1000000, 20000, 3000]):
+            self.assertAlmostEqual(bench_records.usd_per_cny(mix), 0.15)
+        self.assertIsNone(bench_records.usd_per_cny([0, 0, 0]))
+        peak = datetime(2026, 10, 21, 10, 0, tzinfo=BJ).timestamp()
+        usage = {'input_tokens': 2000000, 'input_tokens_details': {'cached_tokens': 1000000}, 'output_tokens': 100000}
+        with tempfile.TemporaryDirectory() as tmp:
+            write(Path(tmp) / 'run/relay/relay.jsonl', json.dumps({'started_at': peak, 'usage': usage}) + '\n')
+            event = {'cfg': 'codex-low', 'tokens': [1000000, 1000000, 100000], 'cny': 9.0}
+            usd, basis = bench_records.deepseek_usd(2.84, event, Path(tmp))
+            self.assertAlmostEqual(usd, 0.006 + 0.3 + 0.12)  # peak table: 1M x 0.006 + 1M x 0.3 + 0.1M x 1.2
+            self.assertIn('USD price table', basis)
+
+    def test_usd_without_a_relay_scales_the_cny_total(self):
+        event = {'cfg': 'cc-low', 'tokens': [1000000, 1000000, 1000000]}  # no wall: cannot be priced by request
+        usd, basis = bench_records.deepseek_usd(10.0, event)
+        self.assertAlmostEqual(usd, 1.5)
+        self.assertIn('instance tokens', basis)
+        usd, basis = bench_records.deepseek_usd(2.0, {'tokens': [0]}, arm_tokens=[3, 2, 1])
+        self.assertAlmostEqual(usd, 0.3)
+        self.assertIn('whole DeepSeek arm', basis)
+        self.assertIsNone(bench_records.deepseek_usd(2.0, None)[0])
+        self.assertIsNone(bench_records.deepseek_usd(None, event)[0])
 
 
 if __name__ == '__main__':
