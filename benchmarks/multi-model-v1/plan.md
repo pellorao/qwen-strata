@@ -604,7 +604,7 @@
   - **执行**：全部实例按 r8.4 统一重评后再出报告（测量规则「规则在测量中途变化时……统一重评」）；报告给 r8.3 对照的敏感性表（`benchmark_summary` 的 r8.3 均值、r8.3 Holm p 与结论列），并标出预登记比较的 Holm 结论是否改变。旧分可由 `rawScore`、P、Σk 和 `overall_deduction` 复原，`bench_score` 另存 `score_r83`、`final_r83`。
 
 - 2026-10-21，DeepSeek 桥接批盲裁（L587 的桥接批）与 L587 的三处不同，Main 决定：
-  - **范围扩到四个场景**：L587 只写了 CS/CA，因为当时 CStd/SR 的第一批盲裁还没开始；桥接批开裁时 CStd/SR 的第一批已经裁完，DeepSeek 在这两个场景的候选同样只能另批裁，所以一并放进桥接批，用各场景同一冻结 brief。
+  - **范围扩到四个场景**：L587 只写了 CS/CA；DeepSeek 在 CStd/SR 的候选同样没进第一批，一并放进桥接批，用各场景同一冻结 brief。
   - **并入 luna-low-a7 的 5 个候选**：该实例的 CA 要求行号整体错位，按[裁决先例](../../benchmarks/reviewer-suite-v1/rulings.md)改挂后新形成 5 个候选（决定库按指纹判旧决定作废），随桥接批一起裁。
   - **锚点集与第一批不同**：CS 加 a19–a24、CA 加 a24–a29、CStd 加 a24，CStd a06 按歧义清单 C1 改为 matched；锚点仍取自已定决定，对裁决者隐藏来源与原判。
   - **结果**：42 个池全部一次通过，锚点 504/504，合成项全对，费用 $53.14。判 supported 的 27 项和有争议的 unsupported 93 项另交 Opus 复核。
