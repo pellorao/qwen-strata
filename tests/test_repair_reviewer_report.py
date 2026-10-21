@@ -1,7 +1,11 @@
+import json
+import subprocess
+import tempfile
 import unittest
+from pathlib import Path
 
 from tools.reviewer.repair_reviewer_report import (check_only_lines_changed, check_only_markdown_changes, normalize, text_matches,
-                                                   normalize_markdown, spill_map)
+                                                   normalize_markdown, request_requirements, spill_map)
 
 
 def report(*lines):
@@ -287,3 +291,56 @@ class RequirementLineTest(unittest.TestCase):
     def test_without_requirements_nothing_moves(self):
         original = [row(7, '`canPlanRoute` refuses every suspended actor.')]
         self.assertEqual(normalize(original)[1], [])
+
+
+SPEC = '.scratch/x/spec.md'
+SPEC_TEXT = ('# Spec\n\n## Requirements\n\n- Stop ordering uses descending priority followed by ascending sequence.\n'
+             '- Window membership includes both the declared start and end hour.\n'
+             '- Schedule offsets pass through without coercion.\n')
+
+
+class Gate2RequirementLineTest(unittest.TestCase):
+    """Gate-2 rows (spec lines are free) move like gate-1 rows, against every line of the spec (user 2026-10-22)."""
+
+    def requirements(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / 'repo'
+            (repo / '.scratch/x/issues').mkdir(parents=True)
+            (repo / SPEC).write_text(SPEC_TEXT)
+            (repo / F).write_text('\n'.join(['# Issue', '', 'Connect dispatch planning.', '',
+                                             '- [x] `canPlanRoute` refuses every suspended actor.']) + '\n')
+            for args in (['init', '-q'], ['add', '-A']):
+                subprocess.run(['git', *args], cwd=repo, check=True, capture_output=True)
+            work = Path(tmp) / 'cap'
+            (work / 'reports').mkdir(parents=True)
+            (work / 'request.json').write_text(json.dumps({
+                'gate1': [{'issueId': 'i1', 'requirements': [{'filePath': F, 'line': 5}]}],
+                'gate2': [{'documents': [SPEC], 'minimumSourceLines': [{'count': 3, 'filePath': SPEC}]}]}))
+            return request_requirements(work / 'reports/review.jsonl', repo)
+
+    def test_request_gives_gate1_lines_and_whole_gate2_documents(self):
+        requirements = self.requirements()
+        self.assertEqual(requirements[F], {5: '- [x] `canPlanRoute` refuses every suspended actor.'})
+        self.assertEqual(sorted(requirements[SPEC]), list(range(1, 9)))
+        self.assertEqual(requirements[SPEC][6], '- Window membership includes both the declared start and end hour.')
+
+    def test_shifted_spec_rows_move_and_evidence_lines_stay(self):
+        def spec_row(line, text):
+            return {'source': {'filePath': SPEC, 'line': line}, 'requirement': text, 'result': 'uncertain',
+                    'evidence': [{'filePath': SPEC, 'lines': [line]}], 'finding': 'outside the authorized issues'}
+        original = [spec_row(4, 'Stop ordering uses descending priority followed by ascending sequence.'),
+                    spec_row(5, 'Window membership includes both the declared start and end hour.'),
+                    spec_row(7, 'Schedule offsets pass through without coercion.')]
+        rows, changes = normalize(original, self.requirements())
+        self.assertEqual([r['source']['line'] for r in rows], [5, 6, 7])
+        self.assertEqual([(c['kind'], c['row'], c['before'], c['after']) for c in changes],
+                         [('requirement-line', 1, 4, 5), ('requirement-line', 2, 5, 6)])
+        # Evidence lines are scored locators: never moved, even when they cite the same shifted line.
+        self.assertEqual([r['evidence'] for r in rows], [r['evidence'] for r in original])
+
+    def test_spec_text_on_several_lines_stays(self):
+        requirements = {SPEC: {1: 'Offsets pass through without coercion.', 2: 'Offsets pass through without coercion.',
+                               3: 'Something else.'}}
+        original = [{'source': {'filePath': SPEC, 'line': 3}, 'requirement': 'Offsets pass through without coercion.',
+                     'result': 'satisfied', 'evidence': []}]
+        self.assertEqual(normalize(original, requirements), (original, []))
