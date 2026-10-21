@@ -13,6 +13,7 @@
 | A3 | CA `dispatch-policy.md:52-54`（规则 26、27），需求行 `spec:71` / `02:46` | 规则 26"带有限 `retryAfter` 的失败也是 transient"与规则 27"`transient: false` 永不 transient"哪个优先 | 经核对不是歧义：政策文档头写明"同节内后一条覆盖前一条"，规则 27 在 26 之后，所以规则 27 优先，与答案键一致（10-21）。ca-2-143 没有写出 `transient: false`，按 brief:46 不匹配问题用例，维持 supported | 1 条 | 文档头的覆盖规则离规则 26、27 太远，容易漏看；规则 26 直接加"除非标为 `transient: false`" |
 | A4 | SR `promotion-recovery.md:65`、`:85` | recoverPromotion 拒绝调用方自报，与别处状态读取要求是否矛盾 | 判 unsupported，复核同意但认为较难 | 6 条 | 待确认是否真有歧义；改成一处写清来源要求 |
 | A5（待核） | SR `promotion-runtime.md:11`、`:15`、`:45`、`:97` 与 Acceptance criteria | request binding、`retentionDays`、ADR 0004/0005、测试分支等，多个模型反复提出同类 finding | 都判 unsupported，复核全部同意 | 83 条（RM 21、AP 62） | 只是推测：逐类确认后，在规格里对常见误报加一句明确排除 |
+| A6（待核） | CA 规则 24（"Redaction removes credentials at every depth of the redacted value"），需求行 `02:23`、`spec:12` | "redacted value" 指整个事件还是只指 auth 字段：顶层 token/password 算不算未脱敏 | 需求行只写 auth 内的凭据，判 unsupported（第二阶段复核 10-22） | 2 条（p2-ca-14-120、14-146） | 规则 24 写明脱敏范围 |
 
 ## (b) brief 与评分措辞
 
