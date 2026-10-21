@@ -79,7 +79,7 @@ def claude_handoff(checks, result, streams):
     without = summary.get('segments_without_result') or 0
     original = checks.get('valid') is True
     basis = {'original_valid': original, 'hard_limit': killed, 'segments_without_result': without}
-    if without or checks.get('server_web_requests') is None:
+    if killed or without or checks.get('server_web_requests') is None:
         basis['stream_server_tool_uses'] = server_tool_uses(streams)
     if original:
         if basis.get('stream_server_tool_uses'):
@@ -196,7 +196,8 @@ def codex_rejudge(folder, instance):
 def apply(record, folder, instance):
     """Rejudge a bench_records record in place (read-only on disk). Returns the record."""
     status = record['validity']['status']
-    before = {'valid': record['valid'], 'status': status, 'source': record['validity'].get('source')}
+    before = {'valid': record['valid'], 'status': status, 'source': record['validity'].get('source'),
+              'reasons': record['validity'].get('reasons')}
     record['validity_before_rejudge'] = before
     record['seconds_adjustment'] = None
     if status in ('void', 'no-record', 'running'):
@@ -214,11 +215,15 @@ def apply(record, folder, instance):
         for v, h in zip(verdicts, record['handoffs']):
             h['tokens_known'] = v['tokens_known']
             h['cost_basis'] = v['cost_basis']
+        if fault:
+            return record
+        if not valid:  # the rejudge's failing checks (the earlier list named every false check)
+            record['validity']['reasons'] = [f"h{v['k']}: {', '.join(v.get('failed') or [v.get('rule', '')])}"
+                                             for v in verdicts if not v['valid']]
         if valid != record['valid']:
             record['valid'] = valid
             record['validity'].update(status='valid' if valid else 'invalid',
-                                      reasons=[] if valid else [f"h{v['k']}: {', '.join(v.get('failed') or [v.get('rule', '')])}"
-                                                                for v in verdicts if not v['valid']],
+                                      reasons=[] if valid else record['validity']['reasons'],
                                       source='bench_validity rejudge (Claude Code hard limit, ruling 2026-10-21)')
         return record
     verdict = codex_rejudge(folder, instance)
@@ -238,6 +243,8 @@ def apply(record, folder, instance):
     if status != 'invalid' and status != 'valid':
         return record
     reclassified = before['source'] == 'instance.json reclassified'
+    if not reclassified and not verdict['valid']:
+        record['validity']['reasons'] = verdict['failed']
     if reclassified or verdict['valid'] == record['valid']:
         if reclassified and verdict['valid'] != record['valid']:
             record['validity']['rejudge']['note'] = 'Main reclassification kept; the mechanical rejudge differs'
@@ -349,8 +356,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--out', type=Path, required=True, help='JSON result (validity / time changes, first-5 sets)')
     parser.add_argument('--records', type=Path, help='also write the rejudged records (JSON Lines)')
+    parser.add_argument('--data-root', type=Path, help='checkout holding .tmp (default: this one)')
     args = parser.parse_args()
-    records = bench_records.all_records()
+    records = bench_records.all_records(data_root=args.data_root)
     changed, timed = [], []
     for r in records:
         before = r['validity_before_rejudge']
@@ -359,7 +367,8 @@ def main():
                                                               'source': r['validity'].get('source')},
                    'rejudge': r['validity'].get('rejudge'), 'started': r.get('started')}
             if r['arm'] == 'deepseek-claude':
-                row['cost_balance_difference'] = deepseek_balance_cost(*r['dir'].split('/')[-2:])
+                row['cost_balance_difference'] = deepseek_balance_cost(
+                    *r['dir'].split('/')[-2:], root=Path(args.data_root or bench_records.ROOT) / bench_records.LAYOUT[r['arm']][0])
             changed.append(row)
         if r.get('seconds_adjustment'):
             timed.append({'id': r['id'], 'valid': r['valid'], 'seconds_adjustment': r['seconds_adjustment'],

@@ -490,11 +490,12 @@ def config_notes(records):
             for (arm, scenario, label), by in sorted(groups.items()) if len(by) > 1]
 
 
-def all_records(layout=LAYOUT):
+def all_records(layout=LAYOUT, data_root=None):
+    """Every record of the layout; data_root is the checkout holding .tmp (default: this one)."""
     out = []
     for arm, (root, scenes) in layout.items():
         for scenario, name in scenes.items():
-            out += scene_records(arm, scenario, ROOT / root / name)
+            out += scene_records(arm, scenario, Path(data_root or ROOT) / root / name)
     return out
 
 
