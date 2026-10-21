@@ -53,7 +53,7 @@ rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），只对外提
 
 ## 主线
 
-- [ ] **多模型 benchmark**：四个 reviewer 场景都已冻结并测完（评分 r8 起的 Q3/Opus：Code Spec v5 0.733（×5，r8 重算）、Code Standards v5.1 0.936（×10，r8 重算；区分度不足的末版）、Spec Readiness v4.3 0.584（×5）、Commit Audit v3 0.730（×5，r8.3）），benchmark 前置工作完成；用户决定已齐，代码适配完成，定稿方案待独立审查后冻结（[运行计划](benchmarks/multi-model-v1/plan.md)、[待办](docs/plan.md#多模型-benchmark用户-2026-10-17)）。
+- [ ] **多模型 benchmark**：四个 reviewer 场景都已冻结并测完（评分 r8 起的 Q3/Opus：Code Spec v5 0.733（×5，r8 重算）、Code Standards v5.1 0.936（×10，r8 重算；区分度不足的末版）、Spec Readiness v4.3 0.584（×5）、Commit Audit v3 0.730（×5，r8.3）），benchmark 前置工作完成；四个臂已跑完；第一阶段（预登记实例）已出报告，第二阶段（Strata 加测进主统计）进行中（[运行计划](benchmarks/multi-model-v1/plan.md)、[第一阶段报告](reports/v0.1.45/multi-model-benchmark/phase1/summary.md)、[待办](docs/plan.md#多模型-benchmark用户-2026-10-17)）。
 - [ ] **rtx4070tis 恢复后**：核对实际状态、补同步部署，再决定 ARW 安全恢复和 Spec Readiness 十二实例。
 
 ## 进展
@@ -73,3 +73,4 @@ rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），只对外提
 
 - 2026-10-18 Commit Audit v3 修订号 24 冻结（按难度因素加难，(a) 已确认、(b) 判为无效构造；新题型命中率 14/21 压在 2/3 线上，比值 0.735；Main 与独立审查一致：有条件冻结，条件已落实，用户已知悉）。同日**定版**：Q3 ×5 0.616 / Opus medium ×3 0.843，Q3/Opus 0.730（×10 为 0.706），第二裁决者复评 38/38 一致、11/11 负例识别；区分度主要来自非因素题，(b) 无效；独立意见有条件定版，条件已满足，用户已知悉（[报告](reports/v0.1.45/commit-audit-v3/summary.md)）：[v3 变更说明](benchmarks/reviewer-suite-v1/commit-audit-v3.md#审计校准与冻结2026-10-18)、[设计说明](benchmarks/reviewer-suite-v1/commit-audit-v3-design.md#11-方向停止条件与核对冻结前2026-10-18)、[versions](benchmarks/reviewer-suite-v1/versions.md)。
 - 2026-10-19 benchmark 前置：catalog 窗口改取部署档位、去掉写死的窗口与阈值、qwen-agent 统一用默认档，部署到 rtx3080ti，隔离冒烟通过；安全门零模型探针修好（[报告](reports/v0.1.45/context-tier-unify/summary.md)）。安全门按新源重跑通过（[报告](reports/v0.1.45/safety-gate-env-fix/summary.md)）。Sonnet 盲裁试点通过三条通过线（[报告](reports/v0.1.45/sonnet-adjudication-pilot/summary.md)），用户当时决定 benchmark 盲裁仍用 Opus，后按 20% 规则暂定改为双裁（见现行决定）。
+- 2026-10-22 多模型 benchmark 第一阶段报告：557 个预登记实例按评分 r8.4 正式计分、会话检查全部完成；100 个预登记比较里低于 21、高于 10、未分出 69，r8.3 对照只改变 1 个结论，A1、A2 敏感性不改结论（[报告](reports/v0.1.45/multi-model-benchmark/phase1/summary.md)）。
