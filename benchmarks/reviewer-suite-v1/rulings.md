@@ -8,11 +8,11 @@
 
 - **场景原文有歧义（用户定，2026-10-20）**：Main 先用可执行检查复核有争议的 unsupported 项。文本确实两可的，在报告里列为已知歧义，并给出两种读法下的分数。决定库只存一种主读法。benchmark 结束后修改题目，消除歧义。
 - **CS v5 `governing-spec.md:160`，空白的目录 locale 键是否归为 `en`（用户定，2026-10-20；属于上一条）**：原文是 "Catalog locale keys and a member's `locale` are trimmed and lowercased, a missing or blank locale being `en`."。主读法是不归，相关 finding 判 unsupported。依据：后半句的单数 locale 对应成员的 locale，目录键在全句都用复数 keys；"missing" 只能用在成员身上；brief 规定判断不了时选 unsupported。报告同时给出判为 supported 时的分数。这条歧义 10-14 试点时就已出现（OpenAI finding-14），10-21 的第一批盲裁中又出现了 13 条。
-- **CA 只说"实现违背 / 未满足"、不讲机制的 finding（暂行，2026-10-21）**：判 unsupported。依据：R3b 给出的四种去向里只剩这一种；冻结的 workflow:30 要求写出可采取行动的问题说明；Role:44 规定重复的通用问题不能替代语义判断。判 supported 会留下捷径：模型在每条问题行写一句"违背"，就不会受罚。
+- **CA 只说"实现违背 / 未满足"、不讲机制的 finding（暂行，2026-10-21）**：判 unsupported。依据：R3b 给出的四种去向里只剩这一种；冻结的 workflow:30 要求写出可采取行动的问题说明；Role:44 规定重复的通用问题不能替代语义判断。判 supported 会留下捷径：模型在每条问题行写一句"违背"，就不会受罚。这类 finding 没写出机制，不属于下下条"挂在别的位置的真缺陷"。
 - **finding 挂在已满足的要求行上，内容讲的却是相邻行的缺陷（规则 r8.1）**：判为所挂那一行的误报（`false-positive:clean-N`，取该项可选值里的 N），不得改挂到别的行。r8.3 也不允许跨行给分。
-- **finding 挂在有缺陷的问题行上，内容讲的却是答案键里另一行的缺陷（用户定，2026-10-21）**：判 unsupported。依据是 r7：supported 只用于答案键外的缺陷，CA brief 那句"有依据但不对应列出的问题用例"是对 r7 的转述，以 r7 为准。另一行的缺陷由那一行自己判，这里不再给免罚；这与 r8.1（满足行上的同类情况判误报）一致。如果讲的是答案键外的真实缺陷，仍判 supported（如 ca-56-102）。
+- **答案键里的缺陷挂在了别的位置（用户定，2026-10-21；推翻同日为 CA 定的"判 unsupported"）**：finding 讲的缺陷属实、写出了机制，在答案键里，但不在所挂位置（SR 的检查、CA 的要求行）的 `problemOptions` 里，判 `supported`（不得分也不扣分）。所有场景通用。依据：r7 的 `unsupported` 指无依据；r8.3 把可选项收窄到同一位置后，"答案键外"按"不对应列出的问题用例"读，即 CA brief:21、SR brief:21/30 原文；缺陷在正确位置漏报已按漏报扣过，重复报的按上游原文"不再接受第二项干净用例惩罚"，再记失败干净用例就是同一错误扣两次。例外照旧：挂在已满足行上按 r8.1 判误报；只说"违背"的按上上条、模板句按下一条判 unsupported；原文照贴的副本按下下条判。CS、CStd 只有一个范围、一个检查，答案键内的缺陷总在 `problemOptions` 里，不会出现这种情形。经独立审查确认（10-21）。
 - **模板式的通用 finding 原样贴在多行上（用户定，2026-10-21）**：例子是"…contract does not establish the needed callback, unknown-address, or measurement-unit semantics"。即使碰巧说中某一行的答案，也判为没有对上（association 判 not-matched，finding 判 unsupported）。依据：Role:44 规定重复的通用问题不能替代实际的语义判断；否则模型把一句宽泛的话贴满所有行就能得分。
-- **一条 finding 讲了两个缺陷，原样贴在几行上（用户定，2026-10-21）**：例如 "The admin check ignores active claims, and suspended actors can still receive active claim scopes."。它不属于模板式通用 finding，因为写出了具体机制。哪一行的缺陷在文中被讲到，那一行就判对上；文中没讲到的行仍按上一条或 r8.1 处理。这不算跨行给分：每行得分靠的都是本行自己的缺陷。
+- **一条 finding 讲了两个缺陷，原样贴在几行上（用户定，2026-10-21）**：例如 "The admin check ignores active claims, and suspended actors can still receive active claim scopes."。它不属于模板式通用 finding，因为写出了具体机制。哪一行的缺陷在文中被讲到，那一行就判对上；文中没讲到的行仍按上一条（判 unsupported）或 r8.1 处理，不适用"挂在别的位置"那条。这不算跨行给分：每行得分靠的都是本行自己的缺陷。
 - **新代码照搬仓库里已有多份的重复实现（用户定，2026-10-21）**：例如 CStd 的 catering 手写第 4 份状态表推进，或又一份 store 写队列和 requestKey 扫描。这算本次变更的问题，finding 判 `supported`。依据是 Role 的两条要求：检查"当前变更是否重复实现了仓库其他位置已有的相同逻辑"；通用功能放入公共模块，"不以已有多个调用方为前提"。违背了就是违背了，与仓库以前怎么写无关。brief 中性规则排除的"只存在于未改动文件的既有问题"，只指重复完全在未改动文件里的情形。修法与某个干净用例相反的，仍按该条处理。
 
 ## 盲裁流程
