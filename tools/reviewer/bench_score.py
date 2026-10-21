@@ -111,19 +111,11 @@ def find_record(record_id, records=None):
     arm, scenario, name = record_id.split('/')
     root, scenes = bench_records.LAYOUT[arm]
     scene = ROOT / root / scenes[scenario]
-    folder = scene / name
-    if arm == 'openai':
-        record = bench_records.openai_record(arm, scenario, folder)
-    elif arm == 'strata-codex':
-        done = {}
-        for line in (scene / 'schedule.jsonl').read_text().splitlines():
-            event = json.loads(line)
-            if event.get('event') == 'done':
-                done[event['out']] = event
-        record = bench_records.strata_codex_record(arm, scenario, folder, done)
-    else:
-        record = bench_records.claude_record(arm, scenario, folder)
-    return record
+    # The whole scene, so the record carries its cell rank (first 5 valid by start time) besides the rejudged validity.
+    for record in bench_records.scene_records(arm, scenario, scene):
+        if record['id'] == record_id:
+            return record
+    raise ValueError(f'{record_id}: no such instance directory in {scene}')
 
 
 # ---- preparation checks -------------------------------------------------------------------------------------------
@@ -432,6 +424,8 @@ def annotate(candidate, scenario, upstream_input, cache):
 
 
 def score_instance(record, work, provisional=None, enumerate_only=False, scorer=None):
+    if 'validity_before_rejudge' not in record:
+        raise ValueError(f"{record['id']}: record without the validity rejudge (rebuild it with bench_records)")
     if not record['valid']:
         raise ValueError(f"{record['id']}: not a valid instance ({record['validity']})")
     work = Path(work)
@@ -442,7 +436,10 @@ def score_instance(record, work, provisional=None, enumerate_only=False, scorer=
     checks = check_preparation(record, prepared)
     upstream_input, repairs, rows = place_reports(record, prepared, work)
     base = {'id': record['id'], 'arm': record['arm'], 'scenario': record['scenario'], 'config': record['config'],
-            'time_limit_seconds': record['time_limit_seconds'], 'checks': checks, 'handoffs': rows}
+            'time_limit_seconds': record['time_limit_seconds'], 'checks': checks, 'handoffs': rows,
+            'validity_source': record['validity'].get('source'), 'valid_rank': record.get('valid_rank'),
+            'main_statistic': record.get('main_statistic'), 'seconds': record.get('seconds'),
+            'seconds_adjustment': record.get('seconds_adjustment')}
     if not upstream_input['artifacts']:
         result = {**base, 'status': 'no-report', 'final': 0.0}
         save(work / 'score.json', result)
@@ -494,9 +491,60 @@ def score_instance(record, work, provisional=None, enumerate_only=False, scorer=
               'provisional_bound': provisional, **pause, **scored, 'overall_deduction': deduction, 'final': final,
               'decisions': len(used), 'decision_sources': sources, 'stale_decisions': sorted(set(stale)),
               'upstream_status': up.get('status'), 'final_status_basis': record.get('final_status_basis'),
+              'template_findings': template_findings(seen.values(), {d['stable_id']: d for d in used.values()}),
               'rule': 'final = max(0, scoreBeforePenalty) x (1 - max(0.1 if paused, f, 0.1 if ARW cut))'}
     save(work / 'score.json', result)
     return result
+
+
+# ---- template-style findings (ruling 2026-10-21) ------------------------------------------------------------------
+
+TEMPLATE_ROWS = 3
+TEMPLATE_RATIO = 0.9
+
+
+def normalized_finding(text):
+    text = re.sub(r'`[^`]*`', '`x`', str(text).lower())
+    text = re.sub(r'[\w./-]+:\d+(?:[-,]\d+)*', 'loc', text)
+    return re.sub(r'\s+', ' ', re.sub(r'\d+', '0', text)).strip()
+
+
+def template_findings(candidates, decisions):
+    """Clusters of the same or near-identical finding text on >= TEMPLATE_ROWS findings of one instance, with the
+    candidates of each cluster that a decision credits (association matched, finding problem-N). Only a flag: the
+    ruling (a generic template pasted on many rows is not matched, even where it happens to fit) needs Main's judgment
+    of whether the text is generic, so the credited candidates of a generic cluster are corrected by blind_pool
+    override, never here."""
+    import difflib
+    findings = {}
+    for c in candidates:
+        if c.get('finding') is not None:
+            key = (c.get('check') or c.get('problemScope'), c.get('findingIndex'))
+            findings.setdefault(c['instanceId'], {})[key] = c['finding']
+    out = []
+    for iid, texts in sorted(findings.items()):
+        groups = []
+        for key, text in texts.items():
+            n = normalized_finding(text)
+            group = next((g for g in groups if g['norm'] == n
+                          or difflib.SequenceMatcher(None, g['norm'], n).ratio() >= TEMPLATE_RATIO), None)
+            if group is None:
+                groups.append({'norm': n, 'text': text, 'keys': [key]})
+            else:
+                group['keys'].append(key)
+        for g in groups:
+            if len(g['keys']) < TEMPLATE_ROWS:
+                continue
+            keys = set(g['keys'])
+            credited = []
+            for c in candidates:
+                if c['instanceId'] != iid or (c.get('check') or c.get('problemScope'), c.get('findingIndex')) not in keys:
+                    continue
+                d = decisions.get(stable_id(c['candidateId']))
+                if d and (d['decision'] == 'matched' or d['decision'].startswith('problem-')):
+                    credited.append({'stable_id': d['stable_id'], 'decision': d['decision'], 'source': d['source']})
+            out.append({'instanceId': iid, 'findings': len(keys), 'text': g['text'], 'credited': credited})
+    return out
 
 
 def main():

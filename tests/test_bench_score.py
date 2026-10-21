@@ -14,6 +14,26 @@ SR = ('spec-readiness-reviewer:artifact-promotion-6ccd5ad3-55e9-477f-93b4-0e9e0c
       'MODULE-DESIGN-APPLICABILITY:finding-1')
 
 
+class TemplateFindingsTest(unittest.TestCase):
+    def test_near_identical_text_on_three_findings_is_flagged_with_its_credited_candidates(self):
+        iid = 'default-819ae2b0-e494-4642-97c2-fd7ba85d8536-instance-1'
+        text = 'The applicable adapter contract needed to establish this behavior is not present (`{}`).'
+        cands = [{'candidateId': f'r:{iid}:scope-1:unassociated:G1:finding-{i}', 'instanceId': iid, 'check': 'G1',
+                  'findingIndex': i, 'finding': text.format(name), 'kind': 'finding'}
+                 for i, name in enumerate(('a', 'bb', 'c'))]
+        cands.append({'candidateId': f'r:{iid}:scope-1:unassociated:G1:finding-9', 'instanceId': iid, 'check': 'G1',
+                      'findingIndex': 9, 'finding': 'Line 12 rejects a total equal to the limit.', 'kind': 'finding'})
+        decisions = {'r:default:scope-1:unassociated:G1:finding-1': {'stable_id': 'r:default:scope-1:unassociated:G1:finding-1',
+                                                             'decision': 'problem-6', 'source': 'pool x'},
+                     'r:default:scope-1:unassociated:G1:finding-2': {'stable_id': 'r:default:scope-1:unassociated:G1:finding-2',
+                                                             'decision': 'unsupported', 'source': 'pool x'}}
+        out = bench_score.template_findings(cands, decisions)
+        self.assertEqual(len(out), 1)
+        self.assertEqual(out[0]['findings'], 3)
+        self.assertEqual([c['decision'] for c in out[0]['credited']], ['problem-6'])
+        self.assertEqual(bench_score.template_findings(cands[:2] + cands[3:], decisions), [])
+
+
 class StableIdTest(unittest.TestCase):
     def test_preparation_uuid_and_instance_number_are_dropped(self):
         self.assertEqual(bench_score.stable_id(CID), 'code-spec-reviewer:default:scope-1:problem-14:CODE-SPEC-FINDINGS:finding-9')

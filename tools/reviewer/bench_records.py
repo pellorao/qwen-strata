@@ -30,6 +30,8 @@ import re
 import sys
 from pathlib import Path
 
+from tools.reviewer import bench_validity
+
 ROOT = Path(__file__).resolve().parents[2]
 PLANS = ROOT / 'benchmarks/multi-model-v1/scenarios'
 SCENARIOS = ('commit-audit-v3', 'code-spec-v5', 'code-standards-v5.1', 'spec-readiness-v4.3')
@@ -43,14 +45,26 @@ LAYOUT = {
                                                  'code-standards-v5.1': 'cstd-r2', 'spec-readiness-v4.3': 'sr-r2'}),
     'strata-codex': ('.tmp/bench-strata-1019', {'commit-audit-v3': 'ca-codex', 'code-spec-v5': 'cs-codex',
                                                 'code-standards-v5.1': 'cstd-codex', 'spec-readiness-v4.3': 'sr-codex'}),
+    # Both DeepSeek harnesses share one scene directory; the directory model key (codex-, cc-) tells them apart.
+    'deepseek-codex': ('.tmp/bench-deepseek-1020/r1', {'commit-audit-v3': 'ca', 'code-spec-v5': 'cs',
+                                                       'code-standards-v5.1': 'cstd', 'spec-readiness-v4.3': 'sr'}),
+    'deepseek-claude': ('.tmp/bench-deepseek-1020/r1', {'commit-audit-v3': 'ca', 'code-spec-v5': 'cs',
+                                                        'code-standards-v5.1': 'cstd', 'spec-readiness-v4.3': 'sr'}),
 }
-HARNESS = {'openai': 'codex', 'strata-codex': 'codex', 'anthropic': 'claude-code', 'strata-claude': 'claude-code'}
+HARNESS = {'openai': 'codex', 'strata-codex': 'codex', 'anthropic': 'claude-code', 'strata-claude': 'claude-code',
+           'deepseek-codex': 'codex', 'deepseek-claude': 'claude-code'}
+# Arm -> the directory model keys of its instances (None: every key of MODELS).
+ARM_MODELS = {'deepseek-codex': ('codex',), 'deepseek-claude': ('cc',)}
 # Directory model key -> (plan §2 first configuration of its low/medium/high row, model family, report style family).
 MODELS = {'sol': (1, 'gpt-6.1-sol', 'openai'), 'luna': (4, 'gpt-6-luna', 'openai'),
           'codex-strata': (10, 'strata', 'strata'), 'opus': (13, 'opus', 'anthropic'),
-          'sonnet': (16, 'sonnet', 'anthropic'), 'haiku': (19, 'haiku', 'anthropic'), 'strata': (25, 'strata', 'strata')}
+          'sonnet': (16, 'sonnet', 'anthropic'), 'haiku': (19, 'haiku', 'anthropic'), 'strata': (25, 'strata', 'strata'),
+          'codex': (7, 'deepseek-flash', 'deepseek'), 'cc': (22, 'deepseek-flash', 'deepseek')}
 EFFORTS = ('low', 'medium', 'high')
-DIR_NAME = re.compile(r'^(?P<model>[a-z-]+?)-(?P<effort>low|medium|high)-a(?P<attempt>\d+)$')
+# Plan §2 / §14.4 (user 2026-10-21): DeepSeek rows are low / high / max; a medium instance takes the configuration of
+# its effective effort (high) and is either pooled into it (C') or a supplementary row (instance.json fields).
+MODEL_EFFORTS = {'codex': ('low', 'high', 'max'), 'cc': ('low', 'high', 'max')}
+DIR_NAME = re.compile(r'^(?P<model>[a-z-]+?)-(?P<effort>low|medium|high|max)-a(?P<attempt>\d+)$')
 SUB_SCENARIO = re.compile(r'^(.+)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-instance-\d+$')
 PREPARED = 'prep/arw/.tmp/codex/*/_reviewer-cap/runs/*/prepared.json'
 SCORE_FIELDS = {'score': None, 'raw_score': None, 'format_penalty': None, 'repairs': None}
@@ -161,10 +175,18 @@ def base(arm, scenario, folder):
         raise ValueError(f'{folder}: not an instance directory name')
     first, family, style = MODELS[match.group('model')]
     effort = match.group('effort')
+    instance = load(folder / 'instance.json') or {}
+    effective = instance.get('effective_effort') or effort
+    efforts = MODEL_EFFORTS.get(match.group('model'), EFFORTS)
+    if effective not in efforts:
+        raise ValueError(f'{folder}: effort {effective} is not a configuration of {family}')
     plan = PLANS / f'{scenario}.json'
     record = {'id': f'{arm}/{scenario}/{folder.name}', 'arm': arm, 'harness': HARNESS[arm],
               'model_family': family, 'style_family': style, 'effort': effort,
-              'config': first + EFFORTS.index(effort), 'config_label': f'{family}-{effort}', 'scenario': scenario,
+              'requested_effort': instance.get('requested_effort', effort), 'effective_effort': effective,
+              'pooled': bool(instance.get('pooled')), 'supplementary': bool(instance.get('supplementary')),
+              'supplementary_label': instance.get('supplementary_label') if instance.get('supplementary') else None,
+              'config': first + efforts.index(effective), 'config_label': f'{family}-{effective}', 'scenario': scenario,
               'plan': str(plan.relative_to(ROOT)), 'plan_sha256_now': sha256_file(plan),
               'attempt': int(match.group('attempt')), 'dir': str(folder.relative_to(ROOT)) if folder.is_relative_to(ROOT) else str(folder)}
     prep = load(folder / 'prep/preparation.json') or {}
@@ -283,7 +305,8 @@ def claude_record(arm, scenario, folder):
         if any(h['sandbox_failures'] for h in handoffs):
             record['validity']['status'] = 'harness-fault'
     instance = instance or {}
-    record['started'] = None
+    starts = [(load(folder / f'h{k}/result.json') or {}).get('started_at') for k in range(len(handoffs))]
+    record['started'] = min((s for s in starts if s), default=None)
     record['time_limit_seconds'], record['time_limit_source'] = time_limit(folder)
     continued = [('continuation' in h) for h in instance.get('handoffs') or []]
     record['harness_generation'] = ('execute_continued' if continued and all(continued) else
@@ -427,24 +450,31 @@ def scene_records(arm, scenario, scene):
             if event.get('event') == 'done':
                 done[event['out']] = event
     out = []
-    for folder in sorted(p for p in scene.iterdir() if p.is_dir() and DIR_NAME.match(p.name)):
-        if arm == 'openai':
-            record = openai_record(arm, scenario, folder)
-        elif arm == 'strata-codex':
-            record = strata_codex_record(arm, scenario, folder, done)
-        else:
-            record = claude_record(arm, scenario, folder)
-        record.update(SCORE_FIELDS)
-        record.update(summary_fields(record))
-        final_status_error(record)
-        out.append(record)
-    # Plan §3: Strata's first 5 valid instances are preregistered; rank the valid ones by attempt number.
-    ranked = sorted((r for r in out if r['valid']), key=lambda r: (r['config'], r['attempt']))
-    counts = {}
-    for r in ranked:
-        counts[r['config']] = counts.get(r['config'], 0) + 1
-        r['valid_rank'] = counts[r['config']]
-    return out
+    for folder in sorted(p for p in scene.iterdir() if p.is_dir() and arm_instance(arm, p.name)):
+        out.append(instance_record(arm, scenario, folder, done))
+    # Plan §3, §14.1 L256, §14.4 and ruling 2026-10-21: not merged cells take their first 5 valid instances by start
+    # time for the main statistic; merged cells (DeepSeek C') take every valid one.
+    return bench_validity.rank_cells(out)
+
+
+def arm_instance(arm, name):
+    match = DIR_NAME.match(name)
+    return bool(match) and match.group('model') in (ARM_MODELS.get(arm) or MODELS)
+
+
+def instance_record(arm, scenario, folder, done=None):
+    """The normalized record of one instance directory, validity rejudged (bench_validity) before the summary fields."""
+    if arm in ('openai', 'deepseek-codex'):
+        record = openai_record(arm, scenario, folder)
+    elif arm == 'strata-codex':
+        record = strata_codex_record(arm, scenario, folder, done or {})
+    else:
+        record = claude_record(arm, scenario, folder)
+    bench_validity.apply(record, folder, load(folder / 'instance.json'))
+    record.update(SCORE_FIELDS)
+    record.update(summary_fields(record))
+    final_status_error(record)
+    return record
 
 
 def config_notes(records):
@@ -460,11 +490,12 @@ def config_notes(records):
             for (arm, scenario, label), by in sorted(groups.items()) if len(by) > 1]
 
 
-def all_records(layout=LAYOUT):
+def all_records(layout=LAYOUT, data_root=None):
+    """Every record of the layout; data_root is the checkout holding .tmp (default: this one)."""
     out = []
     for arm, (root, scenes) in layout.items():
         for scenario, name in scenes.items():
-            out += scene_records(arm, scenario, ROOT / root / name)
+            out += scene_records(arm, scenario, Path(data_root or ROOT) / root / name)
     return out
 
 
