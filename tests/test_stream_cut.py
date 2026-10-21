@@ -46,7 +46,7 @@ class StreamCut(unittest.TestCase):
 
     def test_transparent_retry_exempted(self):
         r = self.check(rows())
-        self.assertEqual([x['row'] for x in r['stream_cut_retries']], [28])
+        self.assertEqual([(x['row'], x['kind']) for x in r['stream_cut_retries']], [(28, 'after_200')])
         self.assertEqual(r['stream_cut_retries'][0]['excluded_seconds'], 8.458)
         self.assertEqual(r['rejected'], [])
 
@@ -58,10 +58,27 @@ class StreamCut(unittest.TestCase):
         self.assertEqual(r['stream_cut_retries'], [])
         self.assertEqual(r['rejected'][0]['written'], ['event_msg/item_completed', 'response_item/reasoning'])
 
-    def test_no_http_status_counts(self):
-        # RemoteDisconnected before any status (SR codex-low-a1 n571): not a cut after 200
-        r = self.check(rows((1, 'status', None), (1, 'transport_error', 'RemoteDisconnected')))
-        self.assertEqual((r['stream_cut_retries'], r['rejected']), ([], []))
+    def test_long_failure_before_status_counts(self):
+        # RemoteDisconnected after 35.5 s without a status (SR codex-low-a1 n571), URLError hanging 900 s (codex-low-a5 n94)
+        for err, secs in (('RemoteDisconnected', 35.5), ('URLError', 900.2)):
+            r = self.check(rows((1, 'status', None), (1, 'transport_error', err), (1, 'ended_at', CUT['started_at'] + secs),
+                                (2, 'started_at', CUT['started_at'] + secs + 0.2)))
+            self.assertEqual((r['stream_cut_retries'], r['rejected']), ([], []))
+
+    def test_short_failure_before_status_exempted(self):
+        # SR codex-high-a4 n767: BrokenPipeError with no status after 1.31 s, resent 0.22 s later and completed
+        r = self.check(rows((1, 'status', None), (1, 'transport_error', 'BrokenPipeError'),
+                            (1, 'ended_at', CUT['started_at'] + 1.31), (2, 'started_at', CUT['started_at'] + 1.53)), LINES[:2])
+        self.assertEqual([(x['row'], x['kind']) for x in r['stream_cut_retries']], [(28, 'pre_status')])
+        self.assertEqual(r['stream_cut_retries'][0]['excluded_seconds'], 1.53)
+
+    def test_failure_before_status_at_threshold(self):
+        ok = self.check(rows((1, 'status', None), (1, 'ended_at', CUT['started_at'] + 5.0),
+                             (2, 'started_at', CUT['started_at'] + 5.2)), LINES[:2])
+        self.assertEqual(len(ok['stream_cut_retries']), 1)
+        late = self.check(rows((1, 'status', None), (1, 'ended_at', CUT['started_at'] + 5.1),
+                               (2, 'started_at', CUT['started_at'] + 5.3)), LINES[:2])
+        self.assertEqual(late['stream_cut_retries'], [])
 
     def test_client_side_errors_left_to_reminder_classifier(self):
         for err in ('BrokenPipeError', 'ConnectionResetError'):

@@ -734,3 +734,15 @@ DeepSeek 臂 worker 跑完探针 P1–P4 和第 1 轮（6 配置 × 4 场景各 
   - 重跑与主统计：因误判引出的补跑算重跑，没有合并的格按开始顺序取前 5 个有效实例。
   - 新绑定：`steer.py` `415dc480…9526` → `c0afbe8f3f811f00be9747efdd0c3733b8681042e447db998ec9dbf49d8b1b12`（冻结版另存为 `steer-frozen-415dc480.py`），`schedule.py` 不变。
   - 生效：调度器在没有实例运行时停下（JST 09:21），重判后从磁盘重建状态重启，重判前的判定备份在 `rejudge-1021/`。
+- **偏离：断流豁免扩展到"拿到 HTTP 状态之前的短暂失败"（2026-10-21，Main 依用户决定 B 的理由扩展，裁决先例见 `rulings.md`，暂定、待用户复核）**。
+  - 判据：`stream_cut.py` 新增 `pre_status` 情形（sha256 `11df0b4019fab09083139e0b028d85fff3fb8259104b67eef4900caf07d38675`），同时满足：
+    - 没有 HTTP 状态，失败持续不超过 `PRE_STATUS_MAX` = 5 s；
+    - 下一个同路径请求在 5 s 内开始，并以 200 completed 结束；
+    - rollout 里没有写入。
+  - 更长的挂起不豁免，例如 codex-low-a5 的 n94 URLError 挂起 900 s，占去硬时限的四分之一，改变了做题条件。
+  - 计分：失败那次请求的时间和 token 不计，同 B。
+  - `steer.py` 修正：一致性条件从"runner 计数等于分类器看到的错误行数"改为"不大于"。分类器看全部 relay 行，runner 只看各 handoff 的时间窗，中断丢弃的那一行可能刚好落在窗外（codex-high-a4 n904）；改后要求分类器看到的每个错误行都有解释。
+  - 新绑定：`steer.py` `c0afbe8f…1b12` → `b7451beb15e1861efded67939d148e215cd66d228b92b822c1d9dbbb316f2af7`。
+  - 重判结果：全部 DeepSeek Codex 实例里只有 SR codex-high-a4 改判有效，`validity_source` 注明 pre-status 扩展。codex-low-a5、codex-low-a1 仍无效。重判前的文件备份在 `rejudge-1021b/`。
+  - 调度器：在空闲点停下后重启，SR 剩余队列为 codex-low、cc-high、codex-max、cc-max，原排的 codex-high 补跑取消。
+  - 敏感性行：评分时另列一行，含因传输错误判无效的实例。

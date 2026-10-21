@@ -3,8 +3,10 @@
 A cut is the server's fault and the retry only reconnects; when the model saw the same input the instance stays valid.
 A relay error row is a `stream_cut_retry` (not a relay error) when all hold:
 
- (a) status 200 and an upstream-side transport error (not BrokenPipeError / ConnectionResetError, which are the
-     client dropping the stream and belong to tools.reviewer.reminder_interrupt);
+ (a) either status 200 and an upstream-side transport error (not BrokenPipeError / ConnectionResetError, which are the
+     client dropping the stream and belong to tools.reviewer.reminder_interrupt), or a transport failure before any
+     HTTP status that lasted at most PRE_STATUS_MAX seconds (`kind` 'pre_status'; ruling extension 2026-10-21,
+     provisional: a longer hang eats into the time limit and changes the task conditions, so it stays an error);
  (b) the cut stream wrote nothing into the rollout: between the row's start and the retry's start the rollouts have no
      entry other than an event_msg token_count (no response_item, user message, turn_context or item event);
  (c) the next /responses request starts within NEXT_WITHIN seconds of the row's end and is 200 completed.
@@ -20,6 +22,7 @@ from pathlib import Path
 from tools.reviewer.reminder_interrupt import CLIENT_ERRORS, error_rows
 
 NEXT_WITHIN = 5.0
+PRE_STATUS_MAX = 5.0
 ALLOWED = {('event_msg', 'token_count')}
 
 
@@ -41,11 +44,17 @@ def classify(rows, entries, skip=()):
     for row in error_rows(rows):
         if row.get('n') in skip:
             continue
-        if row.get('status') != 200 or not row.get('transport_error') or row['transport_error'] in CLIENT_ERRORS:  # (a)
+        if not row.get('transport_error'):
+            continue
+        if row.get('status') == 200 and row['transport_error'] not in CLIENT_ERRORS:  # (a)
+            kind = 'after_200'
+        elif row.get('status') is None and row['ended_at'] - row['started_at'] <= PRE_STATUS_MAX:
+            kind = 'pre_status'
+        else:
             continue
         nxt = next((o for o in rows if o['started_at'] > row['started_at'] and o is not row
                     and o.get('path') == row.get('path')), None)
-        info = {'row': row.get('n'), 'error': row['transport_error'], 'next_row': nxt and nxt.get('n')}
+        info = {'row': row.get('n'), 'kind': kind, 'error': row['transport_error'], 'next_row': nxt and nxt.get('n')}
         if not (nxt and 0 <= nxt['started_at'] - row['ended_at'] <= NEXT_WITHIN and nxt.get('status') == 200
                 and nxt.get('response_status') == 'completed'):  # (c)
             rejected.append({**info, 'reason': 'no prompt 200 completed retry'})
