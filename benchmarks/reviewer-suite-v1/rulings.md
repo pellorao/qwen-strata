@@ -12,6 +12,7 @@
 - **finding 挂在已满足的要求行上，内容讲的却是相邻行的缺陷（规则 r8.1）**：判为所挂那一行的误报（`false-positive:clean-N`，取该项可选值里的 N），不得改挂到别的行。r8.3 也不允许跨行给分。
 - **finding 挂在有缺陷的问题行上，内容讲的却是答案键里另一行的缺陷（用户定，2026-10-21）**：判 unsupported。依据是 r7：supported 只用于答案键外的缺陷，CA brief 那句"有依据但不对应列出的问题用例"是对 r7 的转述，以 r7 为准。另一行的缺陷由那一行自己判，这里不再给免罚；这与 r8.1（满足行上的同类情况判误报）一致。如果讲的是答案键外的真实缺陷，仍判 supported（如 ca-56-102）。
 - **模板式的通用 finding 原样贴在多行上（用户定，2026-10-21）**：例子是"…contract does not establish the needed callback, unknown-address, or measurement-unit semantics"。即使碰巧说中某一行的答案，也判为没有对上（association 判 not-matched，finding 判 unsupported）。依据：Role:44 规定重复的通用问题不能替代实际的语义判断；否则模型把一句宽泛的话贴满所有行就能得分。
+- **一条 finding 讲了两个缺陷，原样贴在几行上（暂行，2026-10-21）**：例如 "The admin check ignores active claims, and suspended actors can still receive active claim scopes."。它不属于模板式通用 finding，因为写出了具体机制。哪一行的缺陷在文中被讲到，那一行就判对上；文中没讲到的行仍按上一条或 r8.1 处理。这不算跨行给分：每行得分靠的都是本行自己的缺陷。
 
 ## 盲裁流程
 
