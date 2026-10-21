@@ -721,3 +721,16 @@ DeepSeek 臂 worker 跑完探针 P1–P4 和第 1 轮（6 配置 × 4 场景各 
   - max 的 T（P4，冻结测法，测于 10-21 04:38–04:42，与其他档不同时刻）：CS codex-max 406、cc-max 376 s；CStd codex-max 350、cc-max 362 s。同类按 low / high / max 比较，都在 3 倍以内。
   - 排程：档位 low / high / max；CS/CStd 的启动截止提前量改为本场景最大 T 加 2 分钟、向上取整（9 分钟），SR/CA 仍为 60 分钟。max 的速率代理以同 harness 的 high a1 为参照，标为跨档参照。S6 不满足时，若有实例在跑就等它们结束后单路重试，没有实例在跑时才停。SR 开始前按实际 S6 留底重算预算；不够时先补满 SR 的 low、high，max 排后，到底时停下报缺口，不超出余额。SR 可能跨几个低谷时段（北京 12–13 时、18 时以后）。
   - 新绑定（sha256，`.tmp/bench-deepseek-1020/`）：`schedule.py` `6439dca8e2cd692782bc8d46fe9bad54d0f810e91fb31ef8df0b1e7f295b0235`（冻结版另存为 `schedule-frozen-f63169ed.py`）、`run_codex_one.py` `4a05cda64ce59baeb5747cc4c98dcaa007ef69f8d952a1372071cf5d84c6ca6b`、`cc_one.py` `73a56e2bd19ee9a1ed8510dad32017848551f11ba120111069b808971cea22a1`。两个 runner 只在 effort 选项里加了 max。
+- **偏离：上游断流后 harness 透明重试的实例判有效（2026-10-21，用户决定 B；裁决先例见 `benchmarks/reviewer-suite-v1/rulings.md`，434a1f4）**。
+  - 判据：共享分类器 `tools/reviewer/stream_cut.py`（sha256 `da4f4b99b5037e2801f753f613622853f73bcb68fe3e3dcf1c0d6b246ae6b6b0`，测试 `tests/test_stream_cut.py`）。一个 relay 错误行不算 relay 错误，须同时满足：
+    - 状态 200 后出现上游侧传输错误（BrokenPipe 和 ConnectionReset 是客户端放弃请求，归 reminder_interrupt 判）；
+    - 从该请求开始到重发开始，rollout 里除 token_count 外没有新增条目；
+    - 下一个同路径请求在 5 s 内开始，并以 200 completed 结束；
+    - 其他检查都通过。
+  - 限制：relay 不保存请求体，"重发同一请求"由历史未变推断。
+  - 已跑实例：重判后 SR codex-high-a1、codex-max-a3、codex-max-a4 有效，`validity_source` 记 "stream-cut retry (user 10-21)"，原值保留在 `valid_runner` 和 `valid_without_stream_cut`。codex-low-a1 仍无效：断开的流已有 reasoning 条目写进 rollout。
+  - 其他臂：OpenAI #1–6、Strata #10–12 没有这类实例，无需重判。
+  - 计分：断开请求从开始到重发开始的时间（`excluded_seconds`）不计入工作时间，它的 token 也不计；费用按已完成请求逐个计价。
+  - 重跑与主统计：因误判引出的补跑算重跑，没有合并的格按开始顺序取前 5 个有效实例。
+  - 新绑定：`steer.py` `415dc480…9526` → `c0afbe8f3f811f00be9747efdd0c3733b8681042e447db998ec9dbf49d8b1b12`（冻结版另存为 `steer-frozen-415dc480.py`），`schedule.py` 不变。
+  - 生效：调度器在没有实例运行时停下（JST 09:21），重判后从磁盘重建状态重启，重判前的判定备份在 `rejudge-1021/`。
