@@ -143,3 +143,7 @@
 
 - 2026-10-13 00:15:57 用 `python3 -m tools.ops.deploy --host rtx3080ti` 恢复默认部署：condition null，23 个文件读回校验通过。
 - `/health`：lease free，model null（模型已停，key 已归还）。
+
+## 更正与补记（2026-10-21）
+
+- spec-cause-investigation：更正（2026-10-21）：IQ3_XXS 与 Q2_0 两组都只接入了原生压缩提示 `ab0c334d…`，缺工程压缩提示 `3856cb62…`（d6b09c9 起写死 False）。压缩分别为 4 次和 5 次，两组同条件，比较仍然成立；未重跑。

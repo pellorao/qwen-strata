@@ -384,3 +384,7 @@ MD-RATIONALE#3 在 v3.1 中已有命中（Q3 1/10），不再属于本节。
 | SEAMS#1 | `specs/promotion-recovery.md:59` | 首句改为"restore 失败时 Seam 返回的 `recoveryState` 精确为 `{status: "failed", …}`"，其余不变；成功仍只写语义 | 消除"内部结果属于谁"的歧义，使缺陷可以唯一推出；clean C3 仍然成立 |
 
 v4 改夹具，要按既定流程做两阶段审计加盲答，再跑 Opus ×3 和 Q3。分数只与 v4 比较。
+
+## 更正与补记（2026-10-21）
+
+- spec-readiness-v3：更正（2026-10-21）：只接入了原生压缩提示 `ab0c334d…`，缺工程压缩提示 `3856cb62…`（d6b09c9 起写死 False）。共压缩 3 次；v3 已被后续版本取代，未重跑。

@@ -285,3 +285,7 @@ Haiku-high 机械区间（只用于 p基准和参考，不计入比值；上界 
 - Haiku 报告与修复记录随 p基准存档在 `benchmarks/reviewer-suite-v1/format-baseline/commit-audit-v2/`。
 
 明细：`summary.json`（逐实例速度、token、工具调用，40 个问题用例与干净用例的命中与均分；`extra10` 为加测到 10 次的逐实例、汇总与逐用例命中）。
+
+## 更正与补记（2026-10-21）
+
+- 更正（2026-10-21）：本次 Strata 运行只接入了原生压缩提示 `ab0c334d…`，缺工程压缩提示 `3856cb62…`（硬约束 3；d6b09c9 起 `arw_dimension.selection()` 写死 False）。所有实例都没有发生压缩，压缩提示没有起作用，结论不受影响。

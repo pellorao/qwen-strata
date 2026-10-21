@@ -103,3 +103,7 @@ Spec Readiness 子场景分（扣罚前）：
 ## 收尾状态
 
 前端 lease 为 free，启动提示 SHA `1cae169a…`。默认部署回读结果 `source_sha_verified=True`。没有残留的 ARW 或 Codex 进程。
+
+## 更正与补记（2026-10-21）
+
+- v0.1.42 f6-benchmark：更正（2026-10-21）：本次 Strata 运行经 `arw_dimension prepare` 准备，只接入了原生压缩提示 `ab0c334d…`，缺工程压缩提示 `3856cb62…`（硬约束 3；原因是 d6b09c9 起 `selection()` 写死 False）。Spec Readiness 实例发生过压缩，压缩后的行为未使用工程压缩提示，相关结论按此理解；未重跑。

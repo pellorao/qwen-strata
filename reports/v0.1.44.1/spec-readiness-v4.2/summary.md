@@ -128,3 +128,7 @@ Haiku-high 机械区间（只用于 p基准，不计入 Q3/Opus 比值）：
 - 可选（v4.2 冻结后不改，留给下一版）：把 brief m2 推广为通用规则（答案键内的缺陷报在没有其 placement 的检查下判 supported）；给 MODULES#0 加 DATA-FLOW placement。
 
 明细：`summary.json`（含逐实例四种速度与 23 个用例的命中和 Q3 均分）。
+
+## 更正与补记（2026-10-21）
+
+- 更正（2026-10-21）：本次 Strata 运行只接入了原生压缩提示 `ab0c334d…`，缺工程压缩提示 `3856cb62…`（硬约束 3；d6b09c9 起 `arw_dimension.selection()` 写死 False）。所有实例都没有发生压缩，压缩提示没有起作用，结论不受影响。
