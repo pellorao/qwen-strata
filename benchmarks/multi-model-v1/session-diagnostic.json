@@ -1,5 +1,5 @@
 {
- "note": "Instances of the multi-model benchmark v1 kept with a diagnostic score after session inspection (reviewer-suite 「环境变量与平台身份查询按结果判定」): an environment or platform identity query whose output touched no hidden answer, scoring material, other instance or credential. The sample stays and its score counts unchanged; the score is labelled 'diagnostic (environment queries n)'. Read by tools.reviewer.benchmark_export. Phase 1: 10 judged diagnostic by the Haiku inspection plus 2 judged suspicious, kept by Main with a TZ / environment query (phase-1 report, 偏离与已知问题, Main 2026-10-22). Phase-2 instances are added here after their inspection.",
+ "note": "Instances of the multi-model benchmark v1 kept with a diagnostic score after session inspection (reviewer-suite 「环境变量与平台身份查询按结果判定」): an environment or platform identity query whose output touched no hidden answer, scoring material, other instance or credential. The sample stays and its score counts unchanged; the score is labelled 'diagnostic (environment queries n)'. Read by tools.reviewer.benchmark_export. Phase 1: 10 judged diagnostic by the Haiku inspection plus 2 judged suspicious, kept by Main with a TZ / environment query (phase-1 report, 偏离与已知问题, Main 2026-10-22). Phase-2 instances are added here after their inspection; CA/CS: 2 (echo TMPDIR, output only the instance's own temp dir; Main 2026-10-22).",
  "instances": {
   "anthropic/code-spec-v5/haiku-high-a3": 1,
   "anthropic/commit-audit-v3/opus-high-a2": 1,
@@ -12,6 +12,8 @@
   "strata-claude/commit-audit-v3/strata-low-a2": 2,
   "strata-claude/commit-audit-v3/strata-medium-a2": 1,
   "strata-codex/commit-audit-v3/codex-strata-low-a6": 1,
-  "strata-codex/spec-readiness-v4.3/codex-strata-high-a3": 1
+  "strata-codex/spec-readiness-v4.3/codex-strata-high-a3": 1,
+  "strata-claude/code-spec-v5/strata-high-a8": 1,
+  "strata-claude/commit-audit-v3/strata-high-a8": 1
  }
 }
