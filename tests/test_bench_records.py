@@ -175,5 +175,25 @@ class RecordsTest(unittest.TestCase):
         self.assertFalse(r['codex-strata-low-a2']['pause_known'])
 
 
+class ScenarioRepositoriesTest(unittest.TestCase):
+    def test_marker_finds_every_layout_and_its_report_directories(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            runs = Path(tmp) / 'arw/.tmp/codex/sid/_reviewer-cap/runs/r1'
+            wanted = [runs / 'ca/1', runs / 'ca/2', runs / 'sr/artifact-promotion/1', runs / 'sr/runtime-migration/3']
+            for repo in wanted:
+                write(repo / '.prepared', 'x')
+                write(repo / '.tmp/codex/s/i/reports/report.md', 'r')
+                write(repo / 'nested/.prepared', 'not a repository: below a found one')
+            (runs / 'sr/empty-handoff').mkdir(parents=True)
+            write(runs / 'ca/stray/AGENTS.md', 'no marker')
+            repos = bench_records.scenario_repositories(Path(tmp))
+            self.assertEqual(repos, sorted(wanted))
+            self.assertEqual(bench_records.report_directories(repos),
+                             sorted(r / '.tmp/codex/s/i/reports' for r in wanted))
+            # the old fixed-depth glob saw only the shallow layout
+            old = [d for d in Path(tmp).glob('arw/.tmp/codex/*/_reviewer-cap/runs/*/*/*') if (d / '.tmp').is_dir()]
+            self.assertEqual(sorted(old), wanted[:2])
+
+
 if __name__ == '__main__':
     unittest.main()
