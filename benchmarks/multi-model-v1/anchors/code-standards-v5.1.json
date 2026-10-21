@@ -1001,6 +1001,39 @@
      }
     ]
    }
+  },
+  {
+   "id": "a24",
+   "family": "strata",
+   "model": "strata-q3",
+   "expected": "not-matched",
+   "confirmed_by": "Main 10-21 复核 (adj-review-1021-cstd-sr review.md 锚点 a06 节): 对端写的是 invoice-terms lateFee 与服务费公式，全文无 roundedTax（机械检查），期望句 share 等同 roundedTax 未被写出，CStd-brief:29；a06 的 not-matched 已被可执行检查 checks/cstd-check.mjs 推翻",
+   "origin": {
+    "record": "strata-codex/code-standards-v5.1/codex-strata-high-a1",
+    "stable_id": "code-standards-reviewer:default:scope-1:problem-19:CODE-STANDARDS-FINDINGS:finding-24"
+   },
+   "item": {
+    "kind": "association",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax.",
+    "finding": "- Percentage arithmetic written twice in one module and a third time in the platform.\n  - Evidence: `src/catering/catering-pricing.mjs:9-12` `share(amount, basisPoints)` divides by `1e4` and rounds with `Math.round`, and line 16 computes the service charge with a second inline formula `Math.ceil((subtotal * CATERING.serviceChargePercent) / 100)`. `src/platform/invoice-terms.mjs:8` holds a third variant, `Math.floor((total * PAYMENT_TERMS.lateFeePercent) / 100)`.\n  - Design smell: `Duplicated Code` for a mechanism that is not tied to catering semantics. `docs/agents/writing.md` (Common capabilities) places such capability in a public module, and `src/platform/amounts.mjs` already owns amount summation.\n  - Problem and impact: one concept, applying a rate to an integer amount, exists with three roundings and no stated reason, so a change to amount rounding has to be found and applied in three places. The two formulas in `orderCharge` also take rates in different units, basis points for the tax and whole percent for the service charge, so `CATERING.serviceChargePercent` cannot express a rate such as 12.5 and the service charge and the tax of the same order are rounded by different rules.\n  - Fix: add one helper to `src/platform/amounts.mjs` that takes the amount, the rate and the rounding, express both catering rates in the same unit, and use the helper for the service charge, the tax and the billing late fee.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/catering/catering-pricing.mjs",
+      "lineEnd": 12,
+      "lineStart": 9
+     },
+     {
+      "filePath": "src/platform/invoice-terms.mjs",
+      "line": 8
+     }
+    ]
+   }
   }
  ],
  "synthetic": [
