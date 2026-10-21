@@ -111,19 +111,11 @@ def find_record(record_id, records=None):
     arm, scenario, name = record_id.split('/')
     root, scenes = bench_records.LAYOUT[arm]
     scene = ROOT / root / scenes[scenario]
-    folder = scene / name
-    if arm == 'openai':
-        record = bench_records.openai_record(arm, scenario, folder)
-    elif arm == 'strata-codex':
-        done = {}
-        for line in (scene / 'schedule.jsonl').read_text().splitlines():
-            event = json.loads(line)
-            if event.get('event') == 'done':
-                done[event['out']] = event
-        record = bench_records.strata_codex_record(arm, scenario, folder, done)
-    else:
-        record = bench_records.claude_record(arm, scenario, folder)
-    return record
+    # The whole scene, so the record carries its cell rank (first 5 valid by start time) besides the rejudged validity.
+    for record in bench_records.scene_records(arm, scenario, scene):
+        if record['id'] == record_id:
+            return record
+    raise ValueError(f'{record_id}: no such instance directory in {scene}')
 
 
 # ---- preparation checks -------------------------------------------------------------------------------------------
@@ -432,6 +424,8 @@ def annotate(candidate, scenario, upstream_input, cache):
 
 
 def score_instance(record, work, provisional=None, enumerate_only=False, scorer=None):
+    if 'validity_before_rejudge' not in record:
+        raise ValueError(f"{record['id']}: record without the validity rejudge (rebuild it with bench_records)")
     if not record['valid']:
         raise ValueError(f"{record['id']}: not a valid instance ({record['validity']})")
     work = Path(work)
@@ -442,7 +436,10 @@ def score_instance(record, work, provisional=None, enumerate_only=False, scorer=
     checks = check_preparation(record, prepared)
     upstream_input, repairs, rows = place_reports(record, prepared, work)
     base = {'id': record['id'], 'arm': record['arm'], 'scenario': record['scenario'], 'config': record['config'],
-            'time_limit_seconds': record['time_limit_seconds'], 'checks': checks, 'handoffs': rows}
+            'time_limit_seconds': record['time_limit_seconds'], 'checks': checks, 'handoffs': rows,
+            'validity_source': record['validity'].get('source'), 'valid_rank': record.get('valid_rank'),
+            'main_statistic': record.get('main_statistic'), 'seconds': record.get('seconds'),
+            'seconds_adjustment': record.get('seconds_adjustment')}
     if not upstream_input['artifacts']:
         result = {**base, 'status': 'no-report', 'final': 0.0}
         save(work / 'score.json', result)
