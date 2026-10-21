@@ -26,6 +26,7 @@ records carry harness_generation; config_notes names a configuration that mixes 
 import argparse
 import hashlib
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -120,6 +121,23 @@ def report_location(expected_sha, *candidates):
                     return str(one), True
                 found = found or str(one)
     return found, False
+
+
+def scenario_repositories(copy):
+    """The scenario repository copies of an ARW prep (copy holds arw/), found by ARW's `.prepared` marker instead of a
+    fixed depth: most scenarios sit at runs/<run>/<scenario>/<rep>, Spec Readiness one level deeper at
+    runs/<run>/sr/<handoff>/<rep>, which the old `runs/*/*/*` glob missed. Nothing below a found repository is searched."""
+    found = []
+    for folder, dirs, files in os.walk(Path(copy) / 'arw/.tmp/codex'):
+        if '.prepared' in files:
+            found.append(Path(folder))
+            dirs[:] = []
+    return sorted(found)
+
+
+def report_directories(repositories):
+    """The bound report directories (.tmp/codex/<session>/<id>/reports) of scenario repository copies."""
+    return sorted(r for d in repositories for r in Path(d).glob('.tmp/codex/*/*/reports'))
 
 
 def tree_differences(recorded, fresh):

@@ -564,12 +564,29 @@ def strata_live(out, model, effort, home, config_dir, host):
 
 def session(out, backend, model, effort, repeat_id, base, project_dir, live=False, limit=LIMIT, claude=ch.CLAUDE, label=None,
             startup=True, subset=None, host=None, fx=None):
-    """One gate session with the runner's exact command and settings shape."""
+    """One gate session with the runner's exact command and settings shape. The fixture's canaries are removed however
+    the session ends: a failure before judging (environment, lease, Claude Code, the judgment itself) also releases
+    them and removes what write probes got through, after listing it in unjudged-writes.json."""
     out.mkdir(parents=True)
     # A live Anthropic gate uses the real configuration directory (the login); every other backend gets a fresh one.
     fx = fx or fixture(f'gate-{repeat_id}-{time.time_ns()}', base, project_dir,
                        fresh_config=not (live and backend == 'anthropic'))
-    server = serve(None if live else out / 'requests')
+    state = {}
+    try:
+        return run_session(out, fx, state, backend, model, effort, live, limit, claude, label, startup, subset, host)
+    finally:
+        if 'server' in state and not state.get('stopped'):
+            state['server'].shutdown()
+        release(fx)  # idempotent: the normal path has released already
+        if not state.get('judged'):
+            written = [str(path) for path in shared_write_targets(fx) if path.is_file() and not path.is_symlink()]
+            if written:
+                save(out / 'unjudged-writes.json', written)
+            remove_written(fx)
+
+
+def run_session(out, fx, state, backend, model, effort, live, limit, claude, label, startup, subset, host):
+    server = state['server'] = serve(None if live else out / 'requests')
     stop = {}
     script = lambda: probes(fx, stop.get('pid', 0), server.server_address[1], subset)
     if not live:
@@ -621,6 +638,7 @@ def session(out, backend, model, effort, repeat_id, base, project_dir, live=Fals
             result = ch.execute(out, prompt, argv, env, fx['work'], limit, started, on_start)
     finally:
         server.shutdown()
+        state['stopped'] = True
         release(fx)
     result.update(engine)
     if live and backend != 'strata':  # Strata tokens come from the engine log, not the Anthropic quota ledger
@@ -636,6 +654,7 @@ def session(out, backend, model, effort, repeat_id, base, project_dir, live=Fals
     record['completed'] = result['exit'] == 0 and not result['hard_interrupt'] and record['summary'].get('result_event')
     record['pass'] = bool(record['completed'] and record['isolation']['pass']
                           and all(r['pass'] for r in record['probes'].values()))
+    state['judged'] = True
     remove_written(fx)
     record['session_files'] = ch.keep_session_files(fx['work'], fx['config'] or Path.home() / '.claude', out)
     save(out / 'gate.json', record)
