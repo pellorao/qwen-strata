@@ -470,9 +470,9 @@ def handoff_cost_usd(record):
 # DeepSeek flash prices, CNY per 1M tokens: (cache hit, miss, output); peak = Beijing weekdays 9-12 and 14-18 (plan 14.4;
 # the same table and rule as schedule.py of the run).
 DEEPSEEK_PRICE = {'offpeak': (0.02, 1.0, 4.0), 'peak': (0.04, 2.0, 8.0)}
-# The same table in USD, DeepSeek-V4.1-Flash-1017 (deepseek-flash), official English pricing page of api-docs.deepseek.com
-# (local snapshot .tmp/bench-deepseek-1020/docs/pricing-en.html, sha256 b856a6e93fa4793ecc8f3fd03a01bb7d8f7572f78a4739da8ce6dbdb09328d66,
-# fetched 2026-10-20 and read 2026-10-21). Every item is exactly 0.15 USD per CNY, peak and off-peak alike, so the
+# The same table in USD, DeepSeek-V4.1-Flash-1017 (deepseek-flash), official English pricing page
+# https://api-docs.deepseek.com/quick_start/pricing (page sha256 b856a6e93fa4793ecc8f3fd03a01bb7d8f7572f78a4739da8ce6dbdb09328d66,
+# fetched 2026-10-20). Every item is exactly 0.15 USD per CNY, peak and off-peak alike, so the
 # conversion by price ratio (user 2026-10-21, not a market exchange rate) is one number whatever the token mix.
 DEEPSEEK_PRICE_USD = {'offpeak': (0.003, 0.15, 0.6), 'peak': (0.006, 0.3, 1.2)}
 BEIJING = timezone(timedelta(hours=8))
