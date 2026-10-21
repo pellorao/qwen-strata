@@ -327,7 +327,10 @@ def claude_record(arm, scenario, folder):
                          'tokens': usage_tokens(usage) if arm in API_TOKEN_ARMS else h.get('engine_tokens'),
                          'tokens_lower_bound': bool(usage) and recount.get('usage_bound') == 'lower',
                          'api_usage': usage,
-                         'cost_usd': summary.get('total_cost_usd'), 'tool_calls': None,
+                         'cost_usd': summary.get('total_cost_usd'), 'tool_calls': claude_tool_calls(files),
+                         'api_seconds': (recount['duration_api_ms'] / 1000 if recount.get('duration_api_ms') is not None
+                                         and not recount.get('segments_without_result') else None),
+                         **engine_stage_seconds(result.get('engine_requests') if arm == 'strata-claude' else None),
                          'session': continuation.get('session_id'), 'pause_events': continuation.get('arw_pause_events'),
                          'sandbox_failures': sandbox, 'sandbox_source': sandbox_source,
                          'continuation_stop': checks.get('continuation_stop'),
@@ -417,7 +420,8 @@ def strata_codex_record(arm, scenario, folder, done):
         path, ok = report_location(r.get('report_sha256'), r.get('report'), *reports)
         handoffs.append({'k': k, 'instanceId': r['instanceId'], 'sub_scenario': sub_scenario(r['instanceId']),
                          'report': path, 'report_ok': ok, 'report_sha256': r.get('report_sha256'),
-                         'seconds': r.get('review_work_seconds'), 'tokens': r.get('engine_tokens'), 'tool_calls': None,
+                         'seconds': r.get('review_work_seconds'), 'tokens': r.get('engine_tokens'),
+                         'tool_calls': root_rollout_tool_calls(r), **engine_stage_seconds(r.get('engine_requests')),
                          'thread_id': (r.get('runtime_result') or {}).get('threadId'),
                          'pause_events': r.get('arw_pause_events'),
                          'final_status': ((r.get('runtime_result') or {}).get('completion') or {}).get('status'),
@@ -427,6 +431,133 @@ def strata_codex_record(arm, scenario, folder, done):
     manifest = load(folder / 'scenario-copies.json')
     record['repository_manifest'] = {'kind': 'scenario-copies.json', 'entries': len(manifest)} if manifest else None
     return record
+
+
+def claude_tool_calls(files):
+    """Tool calls of a Claude Code handoff from its kept segment streams: distinct tool_use blocks of the main session's
+    assistant messages (stream-json repeats an assistant message once per content block, so a block counts once by id;
+    a subagent's messages, parent_tool_use_id set, are left out). None without a stream."""
+    if not files:
+        return None
+    seen = set()
+    for stream in files:
+        for number, line in enumerate(Path(stream).read_text(errors='replace').splitlines()):
+            if '"tool_use"' not in line:
+                continue
+            try:
+                event = json.loads(line)
+            except ValueError:
+                continue
+            if event.get('type') != 'assistant' or event.get('parent_tool_use_id'):
+                continue
+            content = (event.get('message') or {}).get('content')
+            for i, block in enumerate(content if isinstance(content, list) else []):
+                if isinstance(block, dict) and block.get('type') == 'tool_use':
+                    seen.add(block.get('id') or (str(stream), number, i))
+    return len(seen)
+
+
+ROLLOUT_TOOL_TYPES = ('function_call', 'custom_tool_call', 'web_search_call', 'tool_search_call')  # as run_one counts
+
+
+def rollout_tool_calls(path):
+    """Tool call items of one Codex rollout (the OpenAI arm's run_one count: function, custom-tool, web-search and
+    tool-search calls; a code-mode exec counts once). None without the rollout."""
+    path = Path(path) if path else None
+    if path is None or not path.is_file():
+        return None
+    calls = 0
+    for line in path.read_text(errors='replace').splitlines():
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        payload = event.get('payload') or {}
+        calls += event.get('type') == 'response_item' and payload.get('type') in ROLLOUT_TOOL_TYPES
+    return calls
+
+
+def root_rollout_tool_calls(result):
+    """Tool calls of the root Reviewer thread of an ARW results.json entry (guardian threads left out), from its
+    rollout in cost.histories."""
+    root = (result.get('runtime_result') or {}).get('threadId')
+    path = next((h.get('path') for h in (result.get('cost') or {}).get('histories') or [] if h.get('thread_id') == root),
+                None)
+    return rollout_tool_calls(path) if root else None
+
+
+def engine_stage_seconds(requests):
+    """Read and generated tokens of a handoff's engine log requests with their input-processing and decode seconds
+    (tools.metrics.strata_tokens records); all None without requests."""
+    if not requests:
+        return {'engine_read': None, 'engine_generated': None, 'engine_input_seconds': None, 'engine_decode_seconds': None}
+    from tools.metrics.strata_tokens import engine_rates, sum_engine_tokens
+    tokens, rates = sum_engine_tokens(requests), engine_rates(requests)
+    return {'engine_read': tokens['uncached_input'], 'engine_generated': tokens['output'],
+            'engine_input_seconds': rates['engine_input_seconds'], 'engine_decode_seconds': rates['engine_decode_seconds']}
+
+
+def relay_output_seconds(folder):
+    """(output tokens, request seconds, requests) over the relay log of a Codex API instance: every request whose
+    reply carries usage, timed from its arrival at the relay to the end of the streamed reply. None without a log."""
+    files = sorted((Path(folder) / 'run/relay').glob('*.jsonl'))
+    if not files:
+        return None
+    output, seconds, requests = 0, 0.0, 0
+    for f in files:
+        for line in f.read_text(errors='replace').splitlines():
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            usage = row.get('usage') or {}
+            if usage.get('output_tokens') is None or row.get('ended_at') is None or row.get('started_at') is None:
+                continue
+            output += usage['output_tokens']
+            seconds += row['ended_at'] - row['started_at']
+            requests += 1
+    return (output, seconds, requests) if requests else None
+
+
+def ratio(amount, seconds):
+    return amount / seconds if amount is not None and seconds else None
+
+
+def speed_fields(record, folder=None):
+    """The four speeds of the measurement rule (token/s) with their basis. User-perceived (task_input, task_output):
+    uncached input and output over the instance's work seconds, every arm. Model direct (engine_input, engine_output):
+    Strata from the engine log stages (read / input-processing seconds, generated / decode seconds); API models have
+    no input-processing time, so engine_input is unknown, and engine_output is a lower bound (time to first token and
+    input processing included): Claude Code output tokens over the result events' duration_api_ms, Codex the relay's
+    output tokens over its request durations. Unknown where a part is missing, never zero."""
+    handoffs, tokens, seconds = record['handoffs'], record.get('tokens') or {}, record.get('seconds')
+    lower = bool(record.get('token_source') and 'lower bound' in record['token_source'])
+    speeds = {'task_input': ratio(tokens.get('uncached_input'), seconds), 'task_output': ratio(tokens.get('output'), seconds),
+              'engine_input': None, 'engine_output': None}
+    basis = {'task': (f"{record.get('token_source') or 'unknown tokens'} over the instance work seconds"
+                      + (' (lower bound: tokens are)' if lower else ''))}
+    bounds = ['task_input', 'task_output'] if lower else []
+
+    def summed(key):
+        values = [h.get(key) for h in handoffs]
+        return sum(values) if handoffs and None not in values else None
+    if record['model_family'] == 'strata':
+        speeds['engine_input'] = ratio(summed('engine_read'), summed('engine_input_seconds'))
+        speeds['engine_output'] = ratio(summed('engine_generated'), summed('engine_decode_seconds'))
+        basis['engine'] = 'engine log requests: read / input-processing seconds, generated / decode seconds'
+    elif record['harness'] == 'claude-code':
+        speeds['engine_output'] = ratio(tokens.get('output'), summed('api_seconds'))
+        basis['engine'] = ('API model: input unknown (no input-processing time); output = stream result output tokens / '
+                           'duration_api_ms, a lower bound (first-token latency and input processing included)')
+        bounds.append('engine_output')
+    else:
+        relay = relay_output_seconds(folder or ROOT / record['dir'])
+        speeds['engine_output'] = ratio(relay[0], relay[1]) if relay else None
+        basis['engine'] = ('API model: input unknown (no input-processing time); output = relay output tokens / request '
+                           'seconds, a lower bound (first-token latency and input processing included)'
+                           + (f', {relay[2]} requests' if relay else ', no relay log'))
+        bounds.append('engine_output')
+    return {'speeds': speeds, 'speed_basis': basis, 'speed_lower_bounds': [k for k in bounds if speeds[k] is not None]}
 
 
 def summary_fields(record):
@@ -646,6 +777,7 @@ def instance_record(arm, scenario, folder, done=None, arm_tokens=None):
     bench_validity.apply(record, folder, load(folder / 'instance.json'))
     record.update(SCORE_FIELDS)
     record.update(summary_fields(record))
+    record.update(speed_fields(record, folder))
     if arm.startswith('deepseek'):
         event = (done or {}).get(folder.name)
         record['cost_cny'], record['cost_basis'] = deepseek_cost(record, event, folder)

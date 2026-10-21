@@ -145,6 +145,72 @@ class RecordsTest(unittest.TestCase):
         self.assertIsNone(r['tokens']['output'])
         self.assertEqual(bench_records.usage_tokens(None), None)
 
+    def test_claude_code_tool_calls_and_speeds(self):
+        use = lambda mid, tid, parent=None: json.dumps({'type': 'assistant', 'parent_tool_use_id': parent, 'message': {
+            'id': mid, 'content': [{'type': 'tool_use', 'id': tid, 'name': 'Read', 'input': {}}]}}) + '\n'
+        result = lambda api: json.dumps({'type': 'result', 'is_error': False, 'result': 'x', 'duration_ms': 1,
+                                         'duration_api_ms': api, 'num_turns': 1, 'usage': {
+                                             'input_tokens': 10, 'cache_creation_input_tokens': 10,
+                                             'cache_read_input_tokens': 100, 'output_tokens': 100}}) + '\n'
+        d = self.scene / 'opus-low-a1'
+        # t1 twice (a message repeated per block), t3 a subagent's call; the continued segment adds t4
+        write(d / 'h0/stream.jsonl', use('m1', 't1') + use('m1', 't1') + use('m2', 't2') + use('m3', 't3', 'p')
+              + result(4000))
+        write(d / 'h0/stream-1.jsonl', use('m4', 't4') + result(1000))
+        write(d / 'h0/result.json', {'engine_requests': [
+            {'input': 1100, 'cached': 100, 'uncached': 1000, 'prompt_ms': 500.0, 'output': 80, 'decode_ms': 1000.0}]})
+        write(d / 'instance.json', {'handoffs': [{'instanceId': IID, 'wall_seconds': 20,
+                                                  'checks': {'valid': True, 'sandbox_failures': 0},
+                                                  'engine_tokens': {'uncached_input': 1000, 'cached_input': 100,
+                                                                    'output': 80}}]})
+        r = bench_records.scene_records('anthropic', 'code-spec-v5', self.scene)[0]
+        self.assertEqual(r['tool_calls'], 3)
+        # tokens 40 uncached / 200 output over 20 s; output over 5 s of API time, a lower bound; no input speed
+        self.assertEqual(r['speeds'], {'task_input': 2.0, 'task_output': 10.0, 'engine_input': None, 'engine_output': 40.0})
+        self.assertEqual(r['speed_lower_bounds'], ['engine_output'])
+        import shutil
+        shutil.copytree(d, self.scene / 'strata-low-a1')
+        s = bench_records.instance_record('strata-claude', 'code-spec-v5', self.scene / 'strata-low-a1')
+        self.assertEqual(s['speeds'], {'task_input': 50.0, 'task_output': 4.0, 'engine_input': 2000.0, 'engine_output': 80.0})
+        self.assertEqual(s['speed_lower_bounds'], [])
+        # a segment without result: API time unknown, so the output speed is unknown, not a guess
+        write(d / 'h0/stream-1.jsonl', use('m4', 't4'))
+        r = bench_records.scene_records('anthropic', 'code-spec-v5', self.scene)[0]
+        self.assertIsNone(r['speeds']['engine_output'])
+        self.assertEqual(r['speed_lower_bounds'], ['task_input', 'task_output'])
+
+    def test_codex_tool_calls_and_speeds(self):
+        rollout = write(self.scene / 'rollout.jsonl', ''.join(json.dumps(e) + '\n' for e in [
+            {'type': 'response_item', 'payload': {'type': 'function_call'}},
+            {'type': 'response_item', 'payload': {'type': 'custom_tool_call'}},
+            {'type': 'response_item', 'payload': {'type': 'message'}}]))
+        write(self.scene / 'schedule.jsonl', json.dumps({'event': 'done', 'out': 'codex-strata-low-a1', 'kind': 'valid'}) + '\n')
+        d = self.scene / 'codex-strata-low-a1'
+        write(d / 'run/results.json', [{'instanceId': IID, 'report_sha256': self.sha, 'review_work_seconds': 10,
+                                        'arw_pause_events': [], 'continue_count': 0,
+                                        'engine_tokens': {'uncached_input': 500, 'cached_input': 0, 'output': 50},
+                                        'runtime_result': {'threadId': 'root'},
+                                        'cost': {'histories': [{'thread_id': 'g', 'path': str(rollout)},
+                                                               {'thread_id': 'root', 'path': str(rollout)}]},
+                                        'engine_requests': [{'uncached': 500, 'cached': 0, 'output': 50,
+                                                             'prompt_ms': 250.0, 'decode_ms': 500.0}]}])
+        r = bench_records.scene_records('strata-codex', 'commit-audit-v3', self.scene)[0]
+        self.assertEqual(r['tool_calls'], 2)
+        self.assertEqual(r['speeds'], {'task_input': 50.0, 'task_output': 5.0, 'engine_input': 2000.0, 'engine_output': 100.0})
+        o = self.scene / 'sol-low-a1'
+        write(o / 'instance.json', {'valid': True, 'handoffs': [
+            {'instanceId': IID, 'reviewer_active_seconds': 10, 'tool_calls': 4,
+             'tokens': {'uncached_input': 100, 'cached_input': 0, 'output': 60}}]})
+        write(o / 'run/relay/relay.jsonl', ''.join(json.dumps(x) + '\n' for x in [
+            {'started_at': 0, 'ended_at': 0, 'status': 426},
+            {'started_at': 1, 'ended_at': 3, 'usage': {'output_tokens': 40}},
+            {'started_at': 4, 'ended_at': 5, 'usage': {'output_tokens': 20}}]))
+        r = bench_records.instance_record('openai', 'code-spec-v5', o)
+        self.assertEqual(r['speeds'], {'task_input': 10.0, 'task_output': 6.0, 'engine_input': None, 'engine_output': 20.0})
+        self.assertIn('2 requests', r['speed_basis']['engine'])
+        (o / 'run/relay/relay.jsonl').unlink()
+        self.assertIsNone(bench_records.instance_record('openai', 'code-spec-v5', o)['speeds']['engine_output'])
+
     def test_openai_pauses_rebuilt_from_the_flag_and_the_machine_log(self):
         notice = lambda mid: {'ok': True, 'result': {'notifications': [
             {'type': 'message', 'messageId': mid, 'text': bench_records.ARW_PAUSE_PREFIX + '10 turns.'}]}}

@@ -242,6 +242,17 @@ class RunnerBuildersTest(unittest.TestCase):
         self.assertEqual((s['usage']['output_tokens'], s['usage']['input_tokens']), (85502, 53747))
         self.assertEqual((s['total_cost_usd'], s['usage_bound']), (3.5645, 'complete'))
 
+    def test_stream_summary_api_time_runs_on_across_resume(self):
+        # bench-anthropic-1019 cs-r1 haiku-low-a7/h0 (2.1.303): each resumed segment's duration_api_ms is the session
+        # total so far, so the last one is the API time; a series that falls back is per result and summed.
+        streams = []
+        for i, (api, wall) in enumerate(((54060, 56375), (91527, 39471), (185543, 97557))):
+            streams.append(self.base / f'seg-{i}.jsonl')
+            streams[-1].write_text(json.dumps({'type': 'result', 'subtype': 'success', 'num_turns': 1, 'duration_ms': wall,
+                                               'duration_api_ms': api, 'usage': {'output_tokens': 1}}) + '\n')
+        s = ch.stream_summary(streams)
+        self.assertEqual((s['duration_api_ms'], s['duration_ms']), (185543, 193403))
+
     def test_stream_summary_counts_sandbox_setup_failures(self):
         # 2026-10-20: every Bash call failed at sandbox setup (bwrap argument limit); a command's own error does not count.
         limit = ('Sandbox profile has 9672 bwrap arguments and bwrap accepts at most 9000 (about 3000 mounts); '

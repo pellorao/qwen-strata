@@ -404,8 +404,9 @@ def add_usage(total, usage):
 
 def stream_summary(stream):
     """All result events of one or more stream-json files (a continued run's segments, in order). Claude Code 2.1.303
-    reports `usage`, `num_turns` and the durations per result, while `modelUsage` and `total_cost_usd` run on across
-    the session, also over --resume (mock 2026-10-20): the former are summed, the latter taken from the last result.
+    reports `usage`, `num_turns` and `duration_ms` per result, while `modelUsage`, `total_cost_usd` and
+    `duration_api_ms` run on across the session, also over --resume (mock 2026-10-20; duration_api_ms in the benchmark
+    streams, 2026-10-22): the former are summed, the latter taken from the last result.
     (Before 2026-10-20 only the last result was read, which undercounts any stream with more than one.)
     A segment without a result event (killed at the hard limit) leaves its usage and time out: the sums are then lower
     bounds (`segments_without_result`, `usage_bound`). A total_cost_usd that falls between segments is not cumulative,
@@ -466,12 +467,20 @@ def stream_summary(stream):
     def total(key):
         values = [r.get(key) for r in results]
         return None if any(v is None for v in values) else sum(values)
+
+    def session_total(key):
+        # duration_api_ms runs on across --resume like total_cost_usd (2.1.303: strata-1019 haiku-low-a7, 46
+        # segments, each value the previous plus the segment's API time), so a non-decreasing series is cumulative
+        values = [r.get(key) for r in results]
+        if any(v is None for v in values):
+            return None
+        return values[-1] if all(b >= a for a, b in zip(values, values[1:])) else sum(values)
     server_tools = usage.get('server_tool_use') or {}
     searches = (server_tools.get('web_search_requests') or 0) + (server_tools.get('web_fetch_requests') or 0)
     return {'result_event': True, 'init': init, 'subtype': last.get('subtype'),
             'is_error': any(bool(r.get('is_error')) for r in results), 'error_kind': error_kind(last),
             'duration_ms': total('duration_ms'),
-            'duration_api_ms': total('duration_api_ms'), 'num_turns': total('num_turns'),
+            'duration_api_ms': session_total('duration_api_ms'), 'num_turns': total('num_turns'),
             'total_cost_usd': cost, 'usage': usage, 'modelUsage': last.get('modelUsage'),
             'result_events': len(results), 'segments': len(streams), 'segments_without_result': without,
             'usage_bound': 'lower' if without else 'complete', 'service_tiers': tiers,

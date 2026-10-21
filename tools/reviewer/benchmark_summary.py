@@ -319,6 +319,9 @@ def statistics(config, rows, kind, label, records_in_cell, n_valid):
                             for k in TOKEN_CLASSES},
             'token_sources': sorted({r['token_source'] for r in rows if r['token_source']}),
             'tool_calls_mean': mean_of('tool_calls'),
+            'speeds_mean': {k: (mean([r['speeds'][k] for r in rows]) if rows and all(
+                (r.get('speeds') or {}).get(k) is not None for r in rows) else None) for k in SPEEDS},
+            'speeds_lower_bound': sorted({k for r in rows for k in r.get('speed_lower_bounds') or []}),
             'cost_usd_total': summed, 'cost_usd_mean': None if summed is None else summed / len(rows),
             'cost_lower_bound': any(r.get('cost_lower_bound') for r in rows),
             'cost_cny_total': summed_cny, 'cost_cny_mean': None if summed_cny is None else summed_cny / len(rows),
@@ -482,7 +485,10 @@ def markdown(summary):
                 '未缓存', '缓存', '输出', '工具调用', '费用（美元；DeepSeek 括号内为人民币 ¥）', '模型 ID', 'service tier']
         if speeds:
             head += ['引擎输入 tok/s', '引擎输出 tok/s', '任务平均输入 tok/s', '任务平均输出 tok/s']
-        lines += ['', '### 逐实例', '', '| ' + ' | '.join(head) + ' |', '|' + '---|' * len(head)]
+        note = (['速度：引擎输入、引擎输出是模型直接速度，任务平均输入、输出是用户感知速度（未缓存输入、输出 ÷ 工作秒数）。'
+                 'API 模型分不出输入处理时间，引擎输入记未知；引擎输出按 API 请求时间算，含首 token 延迟和输入处理，'
+                 '是下限（≥）。', ''] if speeds else [])
+        lines += ['', '### 逐实例', '', *note, '| ' + ' | '.join(head) + ' |', '|' + '---|' * len(head)]
         for r in result['instances']:
             share = (r['seconds'] / r['time_limit_seconds']
                      if r['seconds'] is not None and r['time_limit_seconds'] else None)
@@ -496,11 +502,17 @@ def markdown(summary):
                    cost_text(r),
                    '、'.join(r['model_ids']) or '未知', '、'.join(tiers(r)) or '未知']
             if speeds:
-                row += [fmt((r.get('speeds') or {}).get(k), 1) for k in SPEEDS]
+                row += [speed_text((r.get('speeds') or {}).get(k), k in (r.get('speed_lower_bounds') or []))
+                        for k in SPEEDS]
             lines.append('| ' + ' | '.join(row) + ' |')
         lines.append('')
     lines += reconciliation_lines(summary.get('deepseek_reconciliation'))
     return '\n'.join(lines)
+
+
+def speed_text(value, lower):
+    """A speed (token/s, one decimal); a lower bound is marked with ≥, an unknown one says so."""
+    return '未知' if value is None else ('≥' if lower else '') + fmt(value, 1)
 
 
 def reconciliation_lines(rec):
@@ -529,7 +541,7 @@ SUMMARY_RECORD_FIELDS = ('id', 'arm', 'scenario', 'config', 'supplementary_label
                          'validity', 'valid_rank', 'first_n', 'main_statistic', 'cell_pooled', 'in_main',
                          'score_status', 'score', 'raw_score', 'format_penalty', 'repairs', 'seconds',
                          'time_limit_seconds', 'tokens', 'token_source', 'tool_calls', 'cost_usd', 'cost_cny', 'cost_basis', 'cost_lower_bound',
-                         'model_ids', 'service_tiers', 'speeds')
+                         'model_ids', 'service_tiers', 'speeds', 'speed_basis', 'speed_lower_bounds')
 
 
 def compact(summary):

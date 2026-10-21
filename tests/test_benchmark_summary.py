@@ -336,6 +336,14 @@ class SummaryTest(unittest.TestCase):
         text = bs.markdown(bs.summarize(records))
         self.assertIn('引擎输出 tok/s', text)
         self.assertIn('70.2', text)
+        lower = ranked([record(13, i, 0.5, speeds={'engine_input': None, 'engine_output': 40.0, 'task_input': 5.0,
+                                                   'task_output': 1.0}, speed_lower_bounds=['engine_output'])
+                        for i in range(1, 3)])
+        summary = bs.summarize(lower)
+        cell = summary['scenarios'][SCENARIO]['configs'][0]
+        self.assertEqual((cell['speeds_mean']['engine_output'], cell['speeds_mean']['engine_input']), (40.0, None))
+        self.assertEqual(cell['speeds_lower_bound'], ['engine_output'])
+        self.assertIn('| 未知 | ≥40.0 | 5.0 | 1.0 |', bs.markdown(summary))
         self.assertEqual(bs.usd(0.0001), '<0.001')
         self.assertEqual(bs.usd(0.0), '0.000')
         with self.assertRaises(ValueError):
