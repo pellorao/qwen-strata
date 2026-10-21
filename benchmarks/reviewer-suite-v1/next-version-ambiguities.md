@@ -19,7 +19,7 @@
 | 编号 | 场景与位置 | 问题 | 现行处理 | 影响 | 改写方向 |
 |---|---|---|---|---|---|
 | B1 | 四份 brief 第 21 行，SR brief 第 30 行 | CS、CStd 写"答案键外的成立缺陷"，CA 写"不对应任何列出的问题用例"，SR 另有明文：答案键内缺陷挂在别处判 supported | rulings「答案键里的缺陷挂在了别的位置」（用户定 10-21，经独立审查）：统一判 supported | CA 4 条、SR 42 条（另 sr-1-206） | 四份 brief 统一一句；写明已满足行按 r8.1 判误报的例外；CStd brief:31、:33"修法与干净用例相反、未被提名判 unsupported"注明为何方向不同 |
-| B2 | CA brief 第 21 行 | 只说"违背 / 未满足"、不讲机制的 finding 算什么，brief 没写 | rulings「CA 只说违背」（**暂行** 10-21，待用户复核）：判 unsupported | 22 条由 supported 改判，另 22 条原本就是 unsupported | brief 明写 finding 须写出具体机制，否则判 unsupported |
+| B2 | CA brief 第 21 行 | 只说"违背 / 未满足"、不讲机制的 finding 算什么，brief 没写 | rulings「CA 只说违背」（用户定 10-21）：判 unsupported | 22 条由 supported 改判，另 22 条原本就是 unsupported | brief 明写 finding 须写出具体机制，否则判 unsupported |
 | B3 | CA brief 第 21 行（r8.1） | finding 落在已满足行、讲的却是相邻行的真缺陷：判误报还是 supported，池间不一致 | rulings「挂在已满足的要求行上」（规则 r8.1）：判所挂行误报 | 25 条，含孪生 clean 行 02:30 与 spec:45 | brief 写明决策树（先看挂载行是否满足）；孪生行在 brief 里点名 |
 | B4 | CStd brief 第 33 行（中性规则） | "只存在于未改动文件的既有问题"是否包括新代码照搬已有多份的同构机制 | rulings「新代码照搬仓库里已有多份的重复实现」（用户定 10-21）：算本次变更的问题，判 supported | 6 条 | 改写为"重复完全在未改动文件里的情形"，并补一句照搬算本次变更的问题 |
 | B5 | SR brief 第 27、29、40 行（m1） | :40 只写了 RM"委托给未选 Interfaces 节"一种；依据其他未选节的类推是否同判 | 判 unsupported；RM、AP 按 :27 独立判定 | RM 类推 11 条、委托 12 条，AP 未选节 27 条 | :40 扩写为"依据未选节的 finding 一律 unsupported" |
@@ -35,4 +35,3 @@
 ## 未决事项
 
 - A2、A3 在本次计分中还没有统一判法，第一阶段正式计分前处理（按 rulings「场景原文有歧义」：可执行检查，确属两可的列为已知歧义并给两种读法下的分数）。
-- B2 是暂行判法，待用户复核。
