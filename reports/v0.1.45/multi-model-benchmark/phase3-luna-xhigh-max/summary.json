@@ -1,0 +1,1401 @@
+{
+ "scoring": "r8.4",
+ "rulings_sha256_prefix": "e1e73dcb",
+ "records": "score/records.jsonl",
+ "score_root": "score/work",
+ "cost_note": "OpenAI（ChatGPT 套餐）只报 token，不报费用（plan §5）",
+ "rows": [
+  {
+   "id": "openai/code-spec-v5/luna-max-a1",
+   "scenario": "CS",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a1",
+   "status": "final",
+   "final": 0.6997315163436445,
+   "scoreBeforePenalty": 0.6997315163436445,
+   "rawScore": 0.6997315163436445,
+   "f": 0.0,
+   "r": 0,
+   "T": 58,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 5.0,
+   "tokens": {
+    "uncached_input": 120440,
+    "cached_input": 1229312,
+    "output": 34252
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 15,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 16
+   },
+   "valid_rank": 1
+  },
+  {
+   "id": "openai/code-spec-v5/luna-max-a2",
+   "scenario": "CS",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a2",
+   "status": "final",
+   "final": 0.7580980079853535,
+   "scoreBeforePenalty": 0.7580980079853535,
+   "rawScore": 0.7580980079853535,
+   "f": 0.0,
+   "r": 0,
+   "T": 53,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 7.2,
+   "tokens": {
+    "uncached_input": 162596,
+    "cached_input": 3279232,
+    "output": 35474
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 36,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 37,
+    "not-returned": 1
+   },
+   "valid_rank": 2
+  },
+  {
+   "id": "openai/code-spec-v5/luna-max-a3",
+   "scenario": "CS",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a3",
+   "status": "final",
+   "final": 0.6278327899811172,
+   "scoreBeforePenalty": 0.6278327899811172,
+   "rawScore": 0.6278327899811172,
+   "f": 0.0,
+   "r": 0,
+   "T": 44,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 6.8,
+   "tokens": {
+    "uncached_input": 155819,
+    "cached_input": 3999616,
+    "output": 38955
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 43,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 44
+   },
+   "valid_rank": 3
+  },
+  {
+   "id": "openai/code-spec-v5/luna-max-a4",
+   "scenario": "CS",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a4",
+   "status": "final",
+   "final": 0.7340572211399377,
+   "scoreBeforePenalty": 0.7340572211399377,
+   "rawScore": 0.7340572211399377,
+   "f": 0.0,
+   "r": 0,
+   "T": 58,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 6.4,
+   "tokens": {
+    "uncached_input": 154329,
+    "cached_input": 2189184,
+    "output": 37325
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 24,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 25
+   },
+   "valid_rank": 4
+  },
+  {
+   "id": "openai/code-spec-v5/luna-max-a5",
+   "scenario": "CS",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a5",
+   "status": "final",
+   "final": 0.599511496532948,
+   "scoreBeforePenalty": 0.599511496532948,
+   "rawScore": 0.599511496532948,
+   "f": 0.0,
+   "r": 0,
+   "T": 46,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 6.5,
+   "tokens": {
+    "uncached_input": 141886,
+    "cached_input": 2974464,
+    "output": 41168
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 31,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 32
+   },
+   "valid_rank": 5
+  },
+  {
+   "id": "openai/code-spec-v5/luna-xhigh-a1",
+   "scenario": "CS",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a1",
+   "status": "final",
+   "final": 0.6909154699499127,
+   "scoreBeforePenalty": 0.6909154699499127,
+   "rawScore": 0.6909154699499127,
+   "f": 0.0,
+   "r": 0,
+   "T": 52,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 4.3,
+   "tokens": {
+    "uncached_input": 231236,
+    "cached_input": 1709440,
+    "output": 27806
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 21,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 22
+   },
+   "valid_rank": 1
+  },
+  {
+   "id": "openai/code-spec-v5/luna-xhigh-a2",
+   "scenario": "CS",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a2",
+   "status": "final",
+   "final": 0.7074579293061766,
+   "scoreBeforePenalty": 0.7074579293061766,
+   "rawScore": 0.7074579293061766,
+   "f": 0.0,
+   "r": 0,
+   "T": 51,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 2.4,
+   "tokens": {
+    "uncached_input": 117190,
+    "cached_input": 1003008,
+    "output": 14103
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 13,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 14
+   },
+   "valid_rank": 2
+  },
+  {
+   "id": "openai/code-spec-v5/luna-xhigh-a3",
+   "scenario": "CS",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a3",
+   "status": "final",
+   "final": 0.5803214151830521,
+   "scoreBeforePenalty": 0.5961005473179387,
+   "rawScore": 0.5961005473179387,
+   "f": 0.02647058823529412,
+   "r": 1,
+   "T": 51,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.02647058823529412,
+   "report_diagnostic_codes": [
+    "review-evidence-overrun"
+   ],
+   "minutes": 6.2,
+   "tokens": {
+    "uncached_input": 137826,
+    "cached_input": 2605824,
+    "output": 32895
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 29,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 30,
+    "not-returned": 1
+   },
+   "valid_rank": 3
+  },
+  {
+   "id": "openai/code-spec-v5/luna-xhigh-a4",
+   "scenario": "CS",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a4",
+   "status": "final",
+   "final": 0.6198577478890573,
+   "scoreBeforePenalty": 0.6198577478890573,
+   "rawScore": 0.6198577478890573,
+   "f": 0.0,
+   "r": 0,
+   "T": 53,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [
+    "review-evidence-invalid"
+   ],
+   "minutes": 6.7,
+   "tokens": {
+    "uncached_input": 202901,
+    "cached_input": 1868160,
+    "output": 40045
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 23,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 25,
+    "not-returned": 1
+   },
+   "valid_rank": 4
+  },
+  {
+   "id": "openai/code-spec-v5/luna-xhigh-a5",
+   "scenario": "CS",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a5",
+   "status": "final",
+   "final": 0.652081977620629,
+   "scoreBeforePenalty": 0.652081977620629,
+   "rawScore": 0.652081977620629,
+   "f": 0.0,
+   "r": 0,
+   "T": 45,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 3.8,
+   "tokens": {
+    "uncached_input": 136417,
+    "cached_input": 1200512,
+    "output": 25034
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 15,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 16
+   },
+   "valid_rank": 5
+  },
+  {
+   "id": "openai/code-standards-v5.1/luna-max-a1",
+   "scenario": "CStd",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a1",
+   "status": "final",
+   "final": 0.7126861474372788,
+   "scoreBeforePenalty": 0.7126861474372788,
+   "rawScore": 0.7126861474372788,
+   "f": 0.0,
+   "r": 0,
+   "T": 35,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 6.0,
+   "tokens": {
+    "uncached_input": 124453,
+    "cached_input": 1113728,
+    "output": 34162
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 18,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 19,
+    "not-returned": 1
+   },
+   "valid_rank": 1
+  },
+  {
+   "id": "openai/code-standards-v5.1/luna-max-a2",
+   "scenario": "CStd",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a2",
+   "status": "final",
+   "final": 0.6343303692285593,
+   "scoreBeforePenalty": 0.6343303692285593,
+   "rawScore": 0.6343303692285593,
+   "f": 0.0,
+   "r": 0,
+   "T": 32,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 4.7,
+   "tokens": {
+    "uncached_input": 85413,
+    "cached_input": 1103360,
+    "output": 30293
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 19,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 20
+   },
+   "valid_rank": 2
+  },
+  {
+   "id": "openai/code-standards-v5.1/luna-max-a3",
+   "scenario": "CStd",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a3",
+   "status": "final",
+   "final": 0.5751096000530391,
+   "scoreBeforePenalty": 0.5751096000530391,
+   "rawScore": 0.5751096000530391,
+   "f": 0.0,
+   "r": 0,
+   "T": 28,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 5.2,
+   "tokens": {
+    "uncached_input": 93028,
+    "cached_input": 989184,
+    "output": 36972
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 14,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 15
+   },
+   "valid_rank": 3
+  },
+  {
+   "id": "openai/code-standards-v5.1/luna-max-a5",
+   "scenario": "CStd",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a5",
+   "status": "final",
+   "final": 0.5916266639343563,
+   "scoreBeforePenalty": 0.5916266639343563,
+   "rawScore": 0.5916266639343563,
+   "f": 0.0,
+   "r": 0,
+   "T": 47,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 5.2,
+   "tokens": {
+    "uncached_input": 96297,
+    "cached_input": 751616,
+    "output": 37380
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 12,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 13
+   },
+   "valid_rank": 4
+  },
+  {
+   "id": "openai/code-standards-v5.1/luna-max-a7",
+   "scenario": "CStd",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a7",
+   "status": "final",
+   "final": 0.5605926957657728,
+   "scoreBeforePenalty": 0.6228807730730809,
+   "rawScore": 0.6228807730730809,
+   "f": 0.1,
+   "r": 8,
+   "T": 34,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.1,
+   "report_diagnostic_codes": [
+    "review-evidence-invalid"
+   ],
+   "minutes": 4.9,
+   "tokens": {
+    "uncached_input": 109667,
+    "cached_input": 894464,
+    "output": 34726
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 12,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 13
+   },
+   "valid_rank": 5
+  },
+  {
+   "id": "openai/code-standards-v5.1/luna-xhigh-a1",
+   "scenario": "CStd",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a1",
+   "status": "final",
+   "final": 0.7066347742252719,
+   "scoreBeforePenalty": 0.7066347742252719,
+   "rawScore": 0.7066347742252719,
+   "f": 0.0,
+   "r": 0,
+   "T": 39,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 4.7,
+   "tokens": {
+    "uncached_input": 100731,
+    "cached_input": 1182208,
+    "output": 31853
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 17,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 18
+   },
+   "valid_rank": 1
+  },
+  {
+   "id": "openai/code-standards-v5.1/luna-xhigh-a2",
+   "scenario": "CStd",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a2",
+   "status": "final",
+   "final": 0.586713349496155,
+   "scoreBeforePenalty": 0.586713349496155,
+   "rawScore": 0.586713349496155,
+   "f": 0.0,
+   "r": 0,
+   "T": 31,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 3.9,
+   "tokens": {
+    "uncached_input": 77940,
+    "cached_input": 597248,
+    "output": 26429
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 12,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 13
+   },
+   "valid_rank": 2
+  },
+  {
+   "id": "openai/code-standards-v5.1/luna-xhigh-a3",
+   "scenario": "CStd",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a3",
+   "status": "final",
+   "final": 0.5907685732673825,
+   "scoreBeforePenalty": 0.5907685732673825,
+   "rawScore": 0.5907685732673825,
+   "f": 0.0,
+   "r": 0,
+   "T": 32,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 4.9,
+   "tokens": {
+    "uncached_input": 85496,
+    "cached_input": 794112,
+    "output": 30780
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 14,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 15,
+    "not-returned": 1
+   },
+   "valid_rank": 3
+  },
+  {
+   "id": "openai/code-standards-v5.1/luna-xhigh-a4",
+   "scenario": "CStd",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a4",
+   "status": "final",
+   "final": 0.7010153182664496,
+   "scoreBeforePenalty": 0.7010153182664496,
+   "rawScore": 0.7010153182664496,
+   "f": 0.0,
+   "r": 0,
+   "T": 35,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 4.6,
+   "tokens": {
+    "uncached_input": 90999,
+    "cached_input": 834304,
+    "output": 32044
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 13,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 14
+   },
+   "valid_rank": 4
+  },
+  {
+   "id": "openai/code-standards-v5.1/luna-xhigh-a5",
+   "scenario": "CStd",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a5",
+   "status": "final",
+   "final": 0.6403256748279375,
+   "scoreBeforePenalty": 0.6403256748279375,
+   "rawScore": 0.6403256748279375,
+   "f": 0.0,
+   "r": 0,
+   "T": 53,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 5.0,
+   "tokens": {
+    "uncached_input": 90916,
+    "cached_input": 936064,
+    "output": 32738
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 16,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 17,
+    "not-returned": 1
+   },
+   "valid_rank": 5
+  },
+  {
+   "id": "openai/commit-audit-v3/luna-max-a1",
+   "scenario": "CA",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a1",
+   "status": "final",
+   "final": 0.790625374670497,
+   "scoreBeforePenalty": 0.790625374670497,
+   "rawScore": 0.790625374670497,
+   "f": 0.0,
+   "r": 0,
+   "T": 241,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [
+    "requirement-coverage-invalid"
+   ],
+   "minutes": 6.1,
+   "tokens": {
+    "uncached_input": 110017,
+    "cached_input": 667264,
+    "output": 47187
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 11,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 12
+   },
+   "valid_rank": 1
+  },
+  {
+   "id": "openai/commit-audit-v3/luna-max-a2",
+   "scenario": "CA",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a2",
+   "status": "final",
+   "final": 0.6312464842659188,
+   "scoreBeforePenalty": 0.6998010706294316,
+   "rawScore": 0.6998010706294316,
+   "f": 0.09796296296296296,
+   "r": 4,
+   "T": 216,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.09796296296296296,
+   "report_diagnostic_codes": [
+    "requirement-coverage-invalid",
+    "requirement-source-invalid"
+   ],
+   "minutes": 6.4,
+   "tokens": {
+    "uncached_input": 100324,
+    "cached_input": 754688,
+    "output": 49531
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 13,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 14
+   },
+   "valid_rank": 2
+  },
+  {
+   "id": "openai/commit-audit-v3/luna-max-a3",
+   "scenario": "CA",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a3",
+   "status": "final",
+   "final": 0.8587421525676665,
+   "scoreBeforePenalty": 0.8587421525676665,
+   "rawScore": 0.8587421525676665,
+   "f": 0.0,
+   "r": 0,
+   "T": 199,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 8.0,
+   "tokens": {
+    "uncached_input": 112195,
+    "cached_input": 904960,
+    "output": 62864
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 12,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 14
+   },
+   "valid_rank": 3
+  },
+  {
+   "id": "openai/commit-audit-v3/luna-max-a4",
+   "scenario": "CA",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a4",
+   "status": "final",
+   "final": 0.8681603539542806,
+   "scoreBeforePenalty": 0.8681603539542806,
+   "rawScore": 0.8681603539542806,
+   "f": 0.0,
+   "r": 0,
+   "T": 190,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 8.7,
+   "tokens": {
+    "uncached_input": 137329,
+    "cached_input": 1537792,
+    "output": 66773
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 17,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 19
+   },
+   "valid_rank": 4
+  },
+  {
+   "id": "openai/commit-audit-v3/luna-max-a5",
+   "scenario": "CA",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a5",
+   "status": "final",
+   "final": 0.8271157295187949,
+   "scoreBeforePenalty": 0.8271157295187949,
+   "rawScore": 0.8271157295187949,
+   "f": 0.0,
+   "r": 0,
+   "T": 197,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 7.5,
+   "tokens": {
+    "uncached_input": 151652,
+    "cached_input": 1105152,
+    "output": 60741
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 15,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 16
+   },
+   "valid_rank": 5
+  },
+  {
+   "id": "openai/commit-audit-v3/luna-xhigh-a1",
+   "scenario": "CA",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a1",
+   "status": "final",
+   "final": 0.8604511888399173,
+   "scoreBeforePenalty": 0.8604511888399173,
+   "rawScore": 0.8604511888399173,
+   "f": 0.0,
+   "r": 0,
+   "T": 226,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 7.0,
+   "tokens": {
+    "uncached_input": 118352,
+    "cached_input": 828800,
+    "output": 55643
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 12,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 14
+   },
+   "valid_rank": 1
+  },
+  {
+   "id": "openai/commit-audit-v3/luna-xhigh-a2",
+   "scenario": "CA",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a2",
+   "status": "final",
+   "final": 0.8290329008406435,
+   "scoreBeforePenalty": 0.8290329008406435,
+   "rawScore": 0.8290329008406435,
+   "f": 0.0,
+   "r": 0,
+   "T": 183,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 10.0,
+   "tokens": {
+    "uncached_input": 133034,
+    "cached_input": 2070912,
+    "output": 78729
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 22,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 25
+   },
+   "valid_rank": 2
+  },
+  {
+   "id": "openai/commit-audit-v3/luna-xhigh-a3",
+   "scenario": "CA",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a3",
+   "status": "final",
+   "final": 0.809806366633468,
+   "scoreBeforePenalty": 0.809806366633468,
+   "rawScore": 0.809806366633468,
+   "f": 0.0,
+   "r": 0,
+   "T": 187,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 8.5,
+   "tokens": {
+    "uncached_input": 120095,
+    "cached_input": 1156480,
+    "output": 52437
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 15,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 16
+   },
+   "valid_rank": 3
+  },
+  {
+   "id": "openai/commit-audit-v3/luna-xhigh-a4",
+   "scenario": "CA",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a4",
+   "status": "final",
+   "final": 0.8578698560660954,
+   "scoreBeforePenalty": 0.8578698560660954,
+   "rawScore": 0.8578698560660954,
+   "f": 0.0,
+   "r": 0,
+   "T": 181,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 7.6,
+   "tokens": {
+    "uncached_input": 190645,
+    "cached_input": 1426560,
+    "output": 59697
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 20,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 21
+   },
+   "valid_rank": 4
+  },
+  {
+   "id": "openai/commit-audit-v3/luna-xhigh-a5",
+   "scenario": "CA",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a5",
+   "status": "final",
+   "final": -0.18201153199741443,
+   "scoreBeforePenalty": -0.16546502908855856,
+   "rawScore": -0.07132113322782697,
+   "f": 0.0,
+   "r": 0,
+   "T": 97,
+   "paused": true,
+   "pause_count": 146,
+   "arw_cut": false,
+   "overall_deduction": 0.1,
+   "report_diagnostic_codes": [
+    "requirement-coverage-invalid",
+    "requirement-missing"
+   ],
+   "minutes": 60.0,
+   "tokens": {
+    "uncached_input": 499290,
+    "cached_input": 64167552,
+    "output": 101998
+   },
+   "token_source": "API usage (relay.jsonl 直接求和：762 个 completed 请求，3 个无 usage 的被打断/中断请求不计；下界)",
+   "tool_calls": 24,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 762,
+    "not-returned": 1
+   },
+   "valid_rank": 5
+  },
+  {
+   "id": "openai/spec-readiness-v4.3/luna-max-a1",
+   "scenario": "SR",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a1",
+   "status": "final",
+   "final": 0.6516164497622299,
+   "scoreBeforePenalty": 0.6516164497622299,
+   "rawScore": 0.6516164497622299,
+   "f": 0.0,
+   "r": 0,
+   "T": 110,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 28.6,
+   "tokens": {
+    "uncached_input": 394397,
+    "cached_input": 5842048,
+    "output": 204963
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 55,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 57
+   },
+   "valid_rank": 1
+  },
+  {
+   "id": "openai/spec-readiness-v4.3/luna-max-a2",
+   "scenario": "SR",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a2",
+   "status": "final",
+   "final": 0.5750624355079867,
+   "scoreBeforePenalty": 0.5750624355079867,
+   "rawScore": 0.5750624355079867,
+   "f": 0.0,
+   "r": 0,
+   "T": 179,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [
+    "review-evidence-invalid"
+   ],
+   "minutes": 26.1,
+   "tokens": {
+    "uncached_input": 357386,
+    "cached_input": 5448320,
+    "output": 184961
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 47,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 49
+   },
+   "valid_rank": 2
+  },
+  {
+   "id": "openai/spec-readiness-v4.3/luna-max-a3",
+   "scenario": "SR",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a3",
+   "status": "final",
+   "final": 0.4097918862220922,
+   "scoreBeforePenalty": 0.4097918862220922,
+   "rawScore": 0.4097918862220922,
+   "f": 0.0,
+   "r": 0,
+   "T": 112,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [
+    "review-evidence-invalid"
+   ],
+   "minutes": 17.9,
+   "tokens": {
+    "uncached_input": 293054,
+    "cached_input": 3698176,
+    "output": 131850
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 46,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 48
+   },
+   "valid_rank": 3
+  },
+  {
+   "id": "openai/spec-readiness-v4.3/luna-max-a4",
+   "scenario": "SR",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a4",
+   "status": "final",
+   "final": 0.5333223937188133,
+   "scoreBeforePenalty": 0.592580437465348,
+   "rawScore": 0.592580437465348,
+   "f": 0.0,
+   "r": 0,
+   "T": 227,
+   "paused": true,
+   "pause_count": 6,
+   "arw_cut": false,
+   "overall_deduction": 0.1,
+   "report_diagnostic_codes": [],
+   "minutes": 35.3,
+   "tokens": {
+    "uncached_input": 495323,
+    "cached_input": 14157568,
+    "output": 237985
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 96,
+   "cost_usd": null,
+   "model_ids": [
+    "codex-auto-review",
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 140
+   },
+   "valid_rank": 4
+  },
+  {
+   "id": "openai/spec-readiness-v4.3/luna-max-a5",
+   "scenario": "SR",
+   "config": "gpt-6-luna-max",
+   "instance": "luna-max-a5",
+   "status": "final",
+   "final": 0.7111440349931399,
+   "scoreBeforePenalty": 0.7111440349931399,
+   "rawScore": 0.7111440349931399,
+   "f": 0.0,
+   "r": 0,
+   "T": 117,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 18.7,
+   "tokens": {
+    "uncached_input": 293573,
+    "cached_input": 2580736,
+    "output": 141316
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 34,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 36
+   },
+   "valid_rank": 5
+  },
+  {
+   "id": "openai/spec-readiness-v4.3/luna-xhigh-a1",
+   "scenario": "SR",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a1",
+   "status": "final",
+   "final": 0.4437675850719329,
+   "scoreBeforePenalty": 0.4437675850719329,
+   "rawScore": 0.4437675850719329,
+   "f": 0.0,
+   "r": 0,
+   "T": 90,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [
+    "review-evidence-invalid"
+   ],
+   "minutes": 24.8,
+   "tokens": {
+    "uncached_input": 371136,
+    "cached_input": 6993408,
+    "output": 178190
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 65,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 67
+   },
+   "valid_rank": 1
+  },
+  {
+   "id": "openai/spec-readiness-v4.3/luna-xhigh-a2",
+   "scenario": "SR",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a2",
+   "status": "final",
+   "final": 0.5329914047305352,
+   "scoreBeforePenalty": 0.5329914047305352,
+   "rawScore": 0.5329914047305352,
+   "f": 0.0,
+   "r": 0,
+   "T": 122,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [
+    "review-evidence-invalid"
+   ],
+   "minutes": 22.6,
+   "tokens": {
+    "uncached_input": 341803,
+    "cached_input": 7629312,
+    "output": 163310
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 74,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 76
+   },
+   "valid_rank": 2
+  },
+  {
+   "id": "openai/spec-readiness-v4.3/luna-xhigh-a3",
+   "scenario": "SR",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a3",
+   "status": "final",
+   "final": 0.5288424634676004,
+   "scoreBeforePenalty": 0.5422039171399785,
+   "rawScore": 0.5422039171399785,
+   "f": 0.024642857142857143,
+   "r": 1,
+   "T": 84,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.024642857142857143,
+   "report_diagnostic_codes": [
+    "review-format-invalid"
+   ],
+   "minutes": 13.6,
+   "tokens": {
+    "uncached_input": 263019,
+    "cached_input": 3203840,
+    "output": 97195
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 37,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 39
+   },
+   "valid_rank": 3
+  },
+  {
+   "id": "openai/spec-readiness-v4.3/luna-xhigh-a4",
+   "scenario": "SR",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a4",
+   "status": "final",
+   "final": 0.5854464376203505,
+   "scoreBeforePenalty": 0.5854464376203505,
+   "rawScore": 0.5854464376203505,
+   "f": 0.0,
+   "r": 0,
+   "T": 79,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 15.2,
+   "tokens": {
+    "uncached_input": 293653,
+    "cached_input": 3947904,
+    "output": 110163
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 45,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 47
+   },
+   "valid_rank": 4
+  },
+  {
+   "id": "openai/spec-readiness-v4.3/luna-xhigh-a5",
+   "scenario": "SR",
+   "config": "gpt-6-luna-xhigh",
+   "instance": "luna-xhigh-a5",
+   "status": "final",
+   "final": 0.6262575906168585,
+   "scoreBeforePenalty": 0.6262575906168585,
+   "rawScore": 0.6262575906168585,
+   "f": 0.0,
+   "r": 0,
+   "T": 186,
+   "paused": false,
+   "pause_count": 0,
+   "arw_cut": false,
+   "overall_deduction": 0.0,
+   "report_diagnostic_codes": [],
+   "minutes": 23.9,
+   "tokens": {
+    "uncached_input": 362763,
+    "cached_input": 6190848,
+    "output": 176710
+   },
+   "token_source": "API usage (relay)",
+   "tool_calls": 58,
+   "cost_usd": null,
+   "model_ids": [
+    "gpt-6-luna"
+   ],
+   "service_tiers": {
+    "default": 61
+   },
+   "valid_rank": 5
+  }
+ ]
+}
