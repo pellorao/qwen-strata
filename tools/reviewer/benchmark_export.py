@@ -197,10 +197,13 @@ def caveats():
         ('time-limits', 'Code Spec 与 Code Standards 的时限按各配置自己的速度算，API 模型的速度含网络和首 token 延迟。',
          "Code Spec and Code Standards limits follow each configuration's own speed; API model speeds include "
          'network and first-token latency.'),
-        ('speeds', 'API 模型分不出输入处理时间：引擎输入速度未知，引擎输出速度按 API 请求时间算，是下限。Codex 的 code mode 一次 exec 记 1 次工具调用，gpt-6.1-sol / gpt-6-luna 的工具调用数与其他臂不完全同义。',
+        ('speeds', 'API 模型分不出输入处理时间：引擎输入速度未知，引擎输出速度按 API 请求时间算，是下限。多个实例的速度按总 token ÷ 总耗时汇总，不取各实例速度的算术平均（用户 2026-10-22）；Codex 上 API 模型的引擎输出按 relay 日志的 output token ÷ 请求秒数计算，这两个数没有保存、原始日志已删除，所以只有逐实例值，汇总记未知（待用户确认）。Codex 的 code mode 一次 exec 记 1 次工具调用，gpt-6.1-sol / gpt-6-luna 的工具调用数与其他臂不完全同义。',
          'API models give no input-processing time: engine input speed is unknown and engine output speed, timed by '
-         'API request, is a lower bound. A Codex code-mode exec counts as one tool call, so gpt-6.1-sol / gpt-6-luna '
-         'tool-call counts are not fully comparable with other arms.'),
+         'API request, is a lower bound. Speeds over several instances pool as total tokens / total seconds, never the '
+         'arithmetic mean of instance speeds (user 2026-10-22); the engine output of API models on Codex is relay '
+         'output tokens / request seconds, neither of which was kept (the raw logs are deleted), so it is given per '
+         'instance only and its pooled value is unknown (pending the user). A Codex code-mode exec counts as one tool '
+         'call, so gpt-6.1-sol / gpt-6-luna tool-call counts are not fully comparable with other arms.'),
         ('unknown-not-zero', 'null 表示未知或不适用，不是 0。',
          'null means unknown or not applicable, never zero.'),
         ('resolution', '每格预登记 5 个实例；5 对 5 时能分辨的分差约 0.3。',

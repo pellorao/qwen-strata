@@ -524,16 +524,18 @@ def ratio(amount, seconds):
 
 
 def speed_fields(record, folder=None):
-    """The four speeds of the measurement rule (token/s) with their basis. User-perceived (task_input, task_output):
-    uncached input and output over the instance's work seconds, every arm. Model direct (engine_input, engine_output):
-    Strata from the engine log stages (read / input-processing seconds, generated / decode seconds); API models have
-    no input-processing time, so engine_input is unknown, and engine_output is a lower bound (time to first token and
-    input processing included): Claude Code output tokens over the result events' duration_api_ms, Codex the relay's
-    output tokens over its request durations. Unknown where a part is missing, never zero."""
+    """The four speeds of the measurement rule (token/s) with their basis and parts. User-perceived (task_input,
+    task_output): uncached input and output over the instance's work seconds, every arm. Model direct (engine_input,
+    engine_output): Strata from the engine log stages (read / input-processing seconds, generated / decode seconds); API
+    models have no input-processing time, so engine_input is unknown, and engine_output is a lower bound (time to first
+    token and input processing included): Claude Code output tokens over the result events' duration_api_ms, Codex the
+    relay's output tokens over its request durations. Unknown where a part is missing, never zero. speed_parts keeps
+    each speed's numerator and denominator ({'tokens', 'seconds'}, None when unknown) so that several instances pool
+    as total tokens / total seconds (benchmark_summary.pooled_speeds, user 2026-10-22)."""
     handoffs, tokens, seconds = record['handoffs'], record.get('tokens') or {}, record.get('seconds')
     lower = bool(record.get('token_source') and 'lower bound' in record['token_source'])
-    speeds = {'task_input': ratio(tokens.get('uncached_input'), seconds), 'task_output': ratio(tokens.get('output'), seconds),
-              'engine_input': None, 'engine_output': None}
+    parts = {'task_input': (tokens.get('uncached_input'), seconds), 'task_output': (tokens.get('output'), seconds),
+             'engine_input': (None, None), 'engine_output': (None, None)}
     basis = {'task': (f"{record.get('token_source') or 'unknown tokens'} over the instance work seconds"
                       + (' (lower bound: tokens are)' if lower else ''))}
     bounds = ['task_input', 'task_output'] if lower else []
@@ -542,22 +544,25 @@ def speed_fields(record, folder=None):
         values = [h.get(key) for h in handoffs]
         return sum(values) if handoffs and None not in values else None
     if record['model_family'] == 'strata':
-        speeds['engine_input'] = ratio(summed('engine_read'), summed('engine_input_seconds'))
-        speeds['engine_output'] = ratio(summed('engine_generated'), summed('engine_decode_seconds'))
+        parts['engine_input'] = (summed('engine_read'), summed('engine_input_seconds'))
+        parts['engine_output'] = (summed('engine_generated'), summed('engine_decode_seconds'))
         basis['engine'] = 'engine log requests: read / input-processing seconds, generated / decode seconds'
     elif record['harness'] == 'claude-code':
-        speeds['engine_output'] = ratio(tokens.get('output'), summed('api_seconds'))
+        parts['engine_output'] = (tokens.get('output'), summed('api_seconds'))
         basis['engine'] = ('API model: input unknown (no input-processing time); output = stream result output tokens / '
                            'duration_api_ms, a lower bound (first-token latency and input processing included)')
         bounds.append('engine_output')
     else:
         relay = relay_output_seconds(folder or ROOT / record['dir'])
-        speeds['engine_output'] = ratio(relay[0], relay[1]) if relay else None
+        parts['engine_output'] = (relay[0], relay[1]) if relay else (None, None)
         basis['engine'] = ('API model: input unknown (no input-processing time); output = relay output tokens / request '
                            'seconds, a lower bound (first-token latency and input processing included)'
                            + (f', {relay[2]} requests' if relay else ', no relay log'))
         bounds.append('engine_output')
-    return {'speeds': speeds, 'speed_basis': basis, 'speed_lower_bounds': [k for k in bounds if speeds[k] is not None]}
+    speeds = {k: ratio(*v) for k, v in parts.items()}
+    speed_parts = {k: ({'tokens': v[0], 'seconds': v[1]} if speeds[k] is not None else None) for k, v in parts.items()}
+    return {'speeds': speeds, 'speed_parts': speed_parts, 'speed_basis': basis,
+            'speed_lower_bounds': [k for k in bounds if speeds[k] is not None]}
 
 
 def summary_fields(record):

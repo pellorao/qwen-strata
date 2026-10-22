@@ -330,20 +330,64 @@ class SummaryTest(unittest.TestCase):
         for line in text.splitlines():
             self.assertFalse(line.startswith(' |'))
 
+    def test_pooled_speeds_are_total_tokens_over_total_seconds(self):
+        # Two instances with different speeds and durations: task input 100 / 10 s = 10 and 900 / 30 s = 30 tok/s pool
+        # to 1000 / 40 = 25, not the arithmetic mean 20.
+        a = record(13, 1, 0.5, seconds=10.0, tokens={'uncached_input': 100, 'cached_input': 0, 'output': 50},
+                   speeds={'task_input': 10.0, 'task_output': 5.0, 'engine_input': None, 'engine_output': 25.0},
+                   handoffs=[{'api_seconds': 2.0}], speed_lower_bounds=['engine_output'])
+        b = record(13, 2, 0.5, seconds=30.0, tokens={'uncached_input': 900, 'cached_input': 0, 'output': 60},
+                   speeds={'task_input': 30.0, 'task_output': 2.0, 'engine_input': None, 'engine_output': 6.0},
+                   handoffs=[{'api_seconds': 10.0}], speed_lower_bounds=['engine_output'])
+        cell = bs.summarize(ranked([a, b]))['scenarios'][SCENARIO]['configs'][0]
+        self.assertEqual(cell['speeds_mean'], {'engine_input': None, 'engine_output': 110 / 12, 'task_input': 1000 / 40,
+                                               'task_output': 110 / 40})
+        self.assertNotEqual(cell['speeds_mean']['task_input'], (10.0 + 30.0) / 2)
+        self.assertEqual(cell['speed_totals']['task_input'], {'tokens': 1000, 'seconds': 40.0})
+        self.assertEqual(cell['speeds_lower_bound'], ['engine_output'])
+        # Strata parts from the handoff engine stages; one unknown part makes the row unknown.
+        s1 = record(10, 1, 0.5, seconds=10.0, speeds={'task_input': 100.0, 'task_output': 30.0, 'engine_input': 500.0,
+                                                      'engine_output': 50.0},
+                    handoff_metrics=[{'engine_read': 1000, 'engine_input_seconds': 2.0, 'engine_generated': 300,
+                                      'engine_decode_seconds': 6.0}])
+        s2 = record(10, 2, 0.5, seconds=20.0, speeds={'task_input': 50.0, 'task_output': 15.0, 'engine_input': 100.0,
+                                                      'engine_output': 75.0},
+                    handoff_metrics=[{'engine_read': 1000, 'engine_input_seconds': 10.0, 'engine_generated': 300,
+                                      'engine_decode_seconds': 4.0}])
+        self.assertEqual(bs.pooled_speeds([s1, s2]), {'engine_input': 2000 / 12, 'engine_output': 60.0,
+                                                      'task_input': 2000 / 30, 'task_output': 600 / 30})
+        s2['speeds']['engine_input'] = None
+        self.assertIsNone(bs.pooled_speeds([s1, s2])['engine_input'])
+        # Codex API engine output without stored relay parts: unknown (option (a), pending the user).
+        c = record(1, 1, 0.5, seconds=10.0, speeds={'task_input': 100.0, 'task_output': 30.0, 'engine_input': None,
+                                                    'engine_output': 40.0})
+        self.assertIsNone(bs.speed_parts(c)['engine_output'])
+        self.assertIsNone(bs.pooled_speeds([c])['engine_output'])
+        self.assertEqual(bs.pooled_speeds([c])['task_output'], 30.0)
+        # A rebuilt part has to reproduce the recorded speed.
+        with self.assertRaises(ValueError):
+            bs.speed_parts(dict(c, speeds=dict(c['speeds'], task_output=31.0)))
+
     def test_speeds_column_and_rejections(self):
+        parts = lambda **v: {k: {'tokens': t, 'seconds': sec} for k, (t, sec) in v.items()}
         records = ranked([record(10, i, 0.5, speeds={'engine_input': 900.0, 'engine_output': 70.2, 'task_input': 5.0,
-                                                     'task_output': 1.1}) for i in range(1, 3)])
+                                                     'task_output': 1.1},
+                                 speed_parts=parts(engine_input=(900, 1), engine_output=(702, 10), task_input=(50, 10),
+                                                   task_output=(11, 10))) for i in range(1, 3)])
         text = bs.markdown(bs.summarize(records))
         self.assertIn('引擎输出 tok/s', text)
         self.assertIn('70.2', text)
         lower = ranked([record(13, i, 0.5, speeds={'engine_input': None, 'engine_output': 40.0, 'task_input': 5.0,
-                                                   'task_output': 1.0}, speed_lower_bounds=['engine_output'])
+                                                   'task_output': 1.0}, speed_lower_bounds=['engine_output'],
+                               speed_parts={**parts(engine_output=(400, 10), task_input=(50, 10), task_output=(10, 10)),
+                                            'engine_input': None})
                         for i in range(1, 3)])
         summary = bs.summarize(lower)
         cell = summary['scenarios'][SCENARIO]['configs'][0]
         self.assertEqual((cell['speeds_mean']['engine_output'], cell['speeds_mean']['engine_input']), (40.0, None))
         self.assertEqual(cell['speeds_lower_bound'], ['engine_output'])
         self.assertIn('| 未知 | ≥40.0 | 5.0 | 1.0 |', bs.markdown(summary))
+        self.assertIn('总 token ÷ 总耗时', bs.markdown(summary))
         self.assertEqual(bs.usd(0.0001), '<0.001')
         self.assertEqual(bs.usd(0.0), '0.000')
         with self.assertRaises(ValueError):

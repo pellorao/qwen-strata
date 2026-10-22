@@ -62,6 +62,11 @@ PHASES = (1, 2)
 ALPHA = 0.05
 QUOTA_PER_USD = 0.086  # % of the Anthropic weekly quota per API-equivalent USD (estimate.sh calibration)
 SCORED_STATUSES = ('final', 'no-report')  # bench_score statuses with a final score
+SPEED_POOL_NOTE = ('速度汇总口径（用户 2026-10-22）：多个实例的速度（summary.json 各行的 speeds_mean）是总 token ÷ 总耗时'
+                   '（各实例 speed_parts 的分子之和 ÷ 分母之和，speed_totals 给出两者），不是各实例速度的算术平均；'
+                   '任一实例该项未知，汇总即未知；任一实例该项是下限，汇总也是下限。Codex 上的 API 模型（gpt-6.1-sol、'
+                   'gpt-6-luna、DeepSeek）的引擎输出按 relay 日志的 output token ÷ 请求秒数计算，v1 的记录没有保存这两个数，'
+                   '原始 relay 日志已删除，所以这一项汇总记为未知（待用户确认），逐实例值照旧。')
 
 
 def comparisons():
@@ -288,6 +293,72 @@ def total(values):
     return None if not values or any(v is None for v in values) else sum(values)
 
 
+# ---- speeds -------------------------------------------------------------------------------------------------------
+
+CLAUDE_API_ARMS = ('anthropic', 'deepseek-claude')
+
+
+def codex_relay_parts(record):
+    """engine_output parts of a Codex API instance (openai, deepseek-codex) whose record predates speed_parts. Its
+    numerator is the relay log's output tokens (requests with usage and start/end times), which need not equal the
+    instance's output tokens, and neither that sum nor the request seconds were stored; the relay logs of the v1
+    benchmark are deleted. So the part is unknown (option (a), 2026-10-22, pending the user's confirmation) and every
+    row holding such an instance has an unknown pooled engine_output. Option (b) would return
+    {'tokens': output, 'seconds': output / engine_output}, an approximation."""
+    return None
+
+
+def speed_parts(record):
+    """Numerator and denominator of each speed ({'tokens', 'seconds'}, None when the speed is unknown): the record's own
+    speed_parts (bench_records.speed_fields) or, for a record without them, rebuilt from the fields the speed was
+    computed from (tokens and work seconds; Strata handoff engine read / generated and their seconds; Claude Code API
+    output tokens and handoff api_seconds; Codex API: codex_relay_parts). A rebuilt part must reproduce the recorded
+    speed, otherwise ValueError."""
+    if record.get('speed_parts') is not None:
+        return record['speed_parts']
+    speeds, tokens = record.get('speeds') or {}, record.get('tokens') or {}
+    handoffs = record.get('handoffs') or record.get('handoff_metrics') or []
+    arm = record.get('arm') or ''
+
+    def summed(key):
+        values = [h.get(key) for h in handoffs]
+        return sum(values) if handoffs and None not in values else None
+
+    def part(k, amount, seconds):
+        if speeds.get(k) is None:
+            return None
+        if amount is None or not seconds or not math.isclose(amount / seconds, speeds[k], rel_tol=1e-12):
+            raise ValueError(f"{record.get('id')}: {k} parts {amount} / {seconds} do not give {speeds[k]}")
+        return {'tokens': amount, 'seconds': seconds}
+    out = {'task_input': part('task_input', tokens.get('uncached_input'), record.get('seconds')),
+           'task_output': part('task_output', tokens.get('output'), record.get('seconds')),
+           'engine_input': None, 'engine_output': None}
+    if arm.startswith('strata'):
+        out['engine_input'] = part('engine_input', summed('engine_read'), summed('engine_input_seconds'))
+        out['engine_output'] = part('engine_output', summed('engine_generated'), summed('engine_decode_seconds'))
+    elif arm in CLAUDE_API_ARMS:
+        out['engine_output'] = part('engine_output', tokens.get('output'), summed('api_seconds'))
+    elif speeds.get('engine_output') is not None:
+        out['engine_output'] = codex_relay_parts(record)
+    return out
+
+
+def speed_totals(rows):
+    """Per speed, the summed tokens and seconds over rows when every row has the part; otherwise None."""
+    out = {}
+    for k in SPEEDS:
+        parts = [speed_parts(r)[k] for r in rows]
+        out[k] = ({'tokens': sum(p['tokens'] for p in parts), 'seconds': sum(p['seconds'] for p in parts)}
+                  if rows and None not in parts else None)
+    return out
+
+
+def pooled_speeds(rows):
+    """Pooled throughput per speed (user 2026-10-22): total tokens / total seconds over rows, never the arithmetic
+    mean of the instance speeds. Unknown (None) when any row's part is unknown (no zero filling, as before)."""
+    return {k: (t['tokens'] / t['seconds'] if t and t['seconds'] else None) for k, t in speed_totals(rows).items()}
+
+
 # ---- statistics ---------------------------------------------------------------------------------------------------
 
 def statistics(config, rows, kind, label, records_in_cell, n_valid):
@@ -324,8 +395,10 @@ def statistics(config, rows, kind, label, records_in_cell, n_valid):
                             for k in TOKEN_CLASSES},
             'token_sources': sorted({r['token_source'] for r in rows if r['token_source']}),
             'tool_calls_mean': mean_of('tool_calls'),
-            'speeds_mean': {k: (mean([r['speeds'][k] for r in rows]) if rows and all(
-                (r.get('speeds') or {}).get(k) is not None for r in rows) else None) for k in SPEEDS},
+            # Pooled throughput (user 2026-10-22): total tokens / total seconds over the row's instances, not the
+            # arithmetic mean of their speeds; the name speeds_mean is kept for the readers.
+            'speeds_mean': pooled_speeds(rows),
+            'speed_totals': speed_totals(rows),
             'speeds_lower_bound': sorted({k for r in rows for k in r.get('speed_lower_bounds') or []}),
             'cost_usd_total': summed, 'cost_usd_mean': None if summed is None else summed / len(rows),
             'cost_lower_bound': any(r.get('cost_lower_bound') for r in rows),
@@ -492,7 +565,7 @@ def markdown(summary):
             head += ['引擎输入 tok/s', '引擎输出 tok/s', '任务平均输入 tok/s', '任务平均输出 tok/s']
         note = (['速度：引擎输入、引擎输出是模型直接速度，任务平均输入、输出是用户感知速度（未缓存输入、输出 ÷ 工作秒数）。'
                  'API 模型分不出输入处理时间，引擎输入记未知；引擎输出按 API 请求时间算，含首 token 延迟和输入处理，'
-                 '是下限（≥）。', ''] if speeds else [])
+                 '是下限（≥）。', '', SPEED_POOL_NOTE, ''] if speeds else [])
         lines += ['', '### 逐实例', '', *note, '| ' + ' | '.join(head) + ' |', '|' + '---|' * len(head)]
         for r in result['instances']:
             share = (r['seconds'] / r['time_limit_seconds']
@@ -546,7 +619,7 @@ SUMMARY_RECORD_FIELDS = ('id', 'arm', 'scenario', 'config', 'supplementary_label
                          'validity', 'valid_rank', 'first_n', 'main_statistic', 'cell_pooled', 'in_main',
                          'score_status', 'score', 'raw_score', 'format_penalty', 'repairs', 'seconds',
                          'time_limit_seconds', 'tokens', 'token_source', 'tool_calls', 'cost_usd', 'cost_cny', 'cost_basis', 'cost_lower_bound',
-                         'model_ids', 'service_tiers', 'speeds', 'speed_basis', 'speed_lower_bounds',
+                         'model_ids', 'service_tiers', 'speeds', 'speed_parts', 'speed_basis', 'speed_lower_bounds',
                          # Fields for tools.reviewer.benchmark_export (scoring details, pauses, effort, handoffs).
                          'score_r83', 'score_before_penalty', 'overall_deduction', 'model_failure_handoffs',
                          'requested_effort', 'effective_effort', 'pooled', 'pause_known', 'pause_count',
@@ -605,6 +678,7 @@ def compact(summary):
         for r in result['instances']:
             row = {k: r.get(k) for k in SUMMARY_RECORD_FIELDS}
             row['handoff_metrics'] = handoff_metrics(r)
+            row['speed_parts'] = speed_parts(r)
             row['harness_reported_cost_usd'] = harness_reported_cost(r)
             rows.append(row)
         out['scenarios'][name] = dict(result, instances=rows)

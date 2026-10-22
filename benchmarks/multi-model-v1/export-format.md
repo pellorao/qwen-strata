@@ -129,7 +129,8 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 
 - n = 已计分实例数；均值；SD 用 n − 1；SE = SD ÷ √n；95% 区间 = 均值 ± t(0.975, n − 1) × SE（t 分布，n < 2 时未知）；中位数（偶数个取中间两数的平均）；最小值；负分实例数。
 - r8.3 均值 = `scoreR83` 的均值；`rawScore`、f 的均值只在已计分实例都有值时给出；修复总数只在行完整时给出。
-- 耗时、三类 token、工具调用、四项速度都是样本内各实例的算术平均，任一实例缺值即为未知（不补 0）；速度有任一实例是下限，均值就标下限。占时限 = 各实例 `durationSeconds ÷ timeLimitSeconds` 的平均（ARW 时限场景没有）。
+- 耗时、三类 token、工具调用是样本内各实例的算术平均，任一实例缺值即为未知（不补 0）。
+- 四项速度按总 token ÷ 总耗时汇总（用户 2026-10-22），不取各实例速度的算术平均；任一实例该项缺值即为未知，任一实例是下限，汇总就标下限。各项的分子与分母都取自实例层：任务平均输入 = Σ`tokens.uncachedInput` ÷ Σ`time.durationSeconds`，任务平均输出 = Σ`tokens.output` ÷ Σ`time.durationSeconds`；Strata 的引擎输入 = Σ`handoffs[].engine.read` ÷ Σ`handoffs[].engine.inputSeconds`，引擎输出 = Σ`handoffs[].engine.generated` ÷ Σ`handoffs[].engine.decodeSeconds`；Claude Code 上 API 模型的引擎输出 = Σ`tokens.output` ÷ Σ`handoffs[].apiSeconds`。Codex 上 API 模型（gpt-6.1-sol、gpt-6-luna、DeepSeek）的引擎输出分子是 relay 日志里带 usage 的请求的 output token、分母是这些请求的时长，两者都没有保存、原始 relay 日志已删除，所以只有逐实例的 `speeds.engineOutput`，汇总记未知（待用户确认）。占时限 = 各实例 `durationSeconds ÷ timeLimitSeconds` 的平均（ARW 时限场景没有）。
 - 无效数 = 格内 `valid` 为 false 的实例数（所有尝试，不限阶段）。
 - 费用：DeepSeek、Anthropic 取 `cost.usd` 之和（任一未知即未知），均值 = 总和 ÷ 样本数；DeepSeek 另有人民币。OpenAI 只报 token。Strata 在报告里用 `meta.reportConversions` 的等效费用公式按实例的三类 token 计算（只作比较代理）。Anthropic 周额度 = 美元总和 × 0.086（%）。任一实例 `cost.lowerBound` 为 true 时总和是下限。
 - 模型 ID、service tier = 样本内各实例取值的并集。
@@ -144,7 +145,7 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 ### 报告里的其他数
 
 - 逐实例表按 (配置号, 补充标签, `startedAt`, id) 排序，没有开始时刻的无效实例排在前面。费用一列：第一阶段报告的逐实例表里 Strata 的"费用"是 Claude Code 报的 `harnessReportedCostUsd`（Strata-Codex 为未知），不是等效费用（第一阶段报告已加更正）；第二阶段报告起与配置表一致，Strata 为按实例三类 token 算的等效费用（`meta.reportConversions`）。
-- 速度与用时的两轮拆分（第二阶段报告）：Strata 两臂进主统计的有效实例按 `stage` 和 `parallelWindow` 分三组：第一轮（`preregistered`）、加测（`extra` 且 `parallelWindow` 为 null）、加测并行（`extra` 且不为 null）；各组的速度、耗时取算术平均，SD 用 n − 1。
+- 速度与用时的两轮拆分（第二阶段报告）：Strata 两臂进主统计的有效实例按 `stage` 和 `parallelWindow` 分三组：第一轮（`preregistered`）、加测（`extra` 且 `parallelWindow` 为 null）、加测并行（`extra` 且不为 null）；各组的速度按总 token ÷ 总耗时（同上），耗时取算术平均；按臂合并的表另给实例速度的 SD（n − 1）和范围。
 - 墙钟表：按 (臂, 场景, 是否 `extra`) 分组，只用有 `startedAt` 的实例；首个开始 = 最早的 `startedAt`；末个结束 = 各实例 `startedAt + durationSeconds` 的最大值（缺耗时按 0）；时刻按 JST 显示到分钟（截断）。"实例数（含无效）"是组内有开始时刻的实例数；加测表的"有效实例"是组内有效实例数。
 - 第一阶段实例数 = `stage` 为 `preregistered` 的有效实例数（557）。
 
@@ -186,4 +187,4 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 
 ## 检查结果（第二阶段，2026-10-22）
 
-用只读第二阶段导出文件、不导入本工程代码的重算脚本（`python3 -I`，自带 t 分布、Welch、Holm），从实例层重算后与第二阶段 `summary.json` 逐项比对：主统计行、补充行和一致性行（26 行，含 CA 的 2 个 DeepSeek 合并格）的 n、均值、SD、SE、95% 区间、中位数、最小值、负分数、r8.3 均值、rawScore 与 f 均值、耗时、三类 token、工具调用、四项速度和 Strata 等效费用；100 个比较的配对、d、SE、df、p、Holm p、判定和 r8.3 的 Holm p 与判定；A6 变体（按 overrides 覆盖后）的 d、Holm p 和判定；按 `stage` 与 `parallelWindow` 拆分的 Strata 引擎输出速度（n、均值、SD、最小、最大）与报告一致。浮点允许 1e-9 相对误差。结果为 4149 / 4149 项一致。
+用只读第二阶段导出文件、不导入本工程代码的重算脚本（`python3 -I`，自带 t 分布、Welch、Holm），从实例层重算后与第二阶段 `summary.json` 逐项比对：主统计行、补充行和一致性行（26 行，含 CA 的 2 个 DeepSeek 合并格）的 n、均值、SD、SE、95% 区间、中位数、最小值、负分数、r8.3 均值、rawScore 与 f 均值、耗时、三类 token、工具调用、四项速度和 Strata 等效费用；100 个比较的配对、d、SE、df、p、Holm p、判定和 r8.3 的 Holm p 与判定；A6 变体（按 overrides 覆盖后）的 d、Holm p 和判定；按 `stage` 与 `parallelWindow` 拆分的 Strata 引擎输出速度（n、均值、SD、最小、最大）与报告一致。浮点允许 1e-9 相对误差。结果为 4149 / 4149 项一致。10-22 速度汇总改为总 token ÷ 总耗时后，用同样不导入工程代码的脚本按上文的分子分母从实例层重算 108 个主统计行的四项速度，432 / 432 项与 summary.json 一致（Codex 上 API 模型的引擎输出两边都是未知）。

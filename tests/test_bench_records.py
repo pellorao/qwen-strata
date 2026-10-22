@@ -173,6 +173,7 @@ class RecordsTest(unittest.TestCase):
         s = bench_records.instance_record('strata-claude', 'code-spec-v5', self.scene / 'strata-low-a1')
         self.assertEqual(s['speeds'], {'task_input': 50.0, 'task_output': 4.0, 'engine_input': 2000.0, 'engine_output': 80.0})
         self.assertEqual(s['speed_lower_bounds'], [])
+        self.assertEqual(s['speed_parts']['engine_input'], {'tokens': 1000, 'seconds': 0.5})
         # a segment without result: API time unknown, so the output speed is unknown, not a guess
         write(d / 'h0/stream-1.jsonl', use('m4', 't4'))
         r = bench_records.scene_records('anthropic', 'code-spec-v5', self.scene)[0]
@@ -208,8 +209,13 @@ class RecordsTest(unittest.TestCase):
         r = bench_records.instance_record('openai', 'code-spec-v5', o)
         self.assertEqual(r['speeds'], {'task_input': 10.0, 'task_output': 6.0, 'engine_input': None, 'engine_output': 20.0})
         self.assertIn('2 requests', r['speed_basis']['engine'])
+        # numerator and denominator kept for pooling: relay output 60 over request seconds 3
+        self.assertEqual(r['speed_parts'], {'task_input': {'tokens': 100, 'seconds': 10}, 'task_output': {'tokens': 60, 'seconds': 10},
+                                            'engine_input': None, 'engine_output': {'tokens': 60, 'seconds': 3}})
         (o / 'run/relay/relay.jsonl').unlink()
-        self.assertIsNone(bench_records.instance_record('openai', 'code-spec-v5', o)['speeds']['engine_output'])
+        r = bench_records.instance_record('openai', 'code-spec-v5', o)
+        self.assertIsNone(r['speeds']['engine_output'])
+        self.assertIsNone(r['speed_parts']['engine_output'])
 
     def test_openai_pauses_rebuilt_from_the_flag_and_the_machine_log(self):
         notice = lambda mid: {'ok': True, 'result': {'notifications': [
