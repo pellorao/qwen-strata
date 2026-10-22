@@ -56,6 +56,7 @@
 - [ ] **方案设计**（开跑前，按 AGENTS.md 硬约束 1 处理测量设计部分）：用户决定已齐（2026-10-19 三轮答复），定稿见[运行计划](../benchmarks/multi-model-v1/plan.md)：27 个配置 × 4 场景 × 5 次，基础提示只给 Strata，搜索全部关闭，OpenAI 用 ChatGPT 套餐登录，DeepSeek 用 `DEEPSEEK_API_KEY`（用户 10-19 设在 `~/.profile`）。代码适配已完成（ChatGPT 登录链接、relay 记录实际 service tier、两个 harness 关闭搜索、Claude Code 的 DeepSeek backend）。盲裁维持单名 Opus（用户 2026-10-19）。阶段 0 进展（2026-10-19）：三份盲裁 brief 已冻结；G7 deny-read 已实施；benchmark 专用 Codex 与 Claude Code 副本已装、compact probe 通过；API 臂压缩提示无残留已核实；G8 Strata live 冒烟通过；汇总层已实现。剩余：冻结 API catalog、汇总适配层、冻结计划（状态见运行计划 §9）。
 - [ ] **执行与报告**：按场景分批运行。报告给出每个模型的均值 ± 标准差、耗时、token、工具调用数，以及每次的费用。
 - [ ] **benchmark 结束后：Claude Code 路径的提醒改用高优先级消息**（用户 2026-10-20）：ARW 提醒在 Codex 上是高优先级消息，会立即打断当前生成，确保模型在超时之前收到；Claude Code 路径现在经 PostToolUse hook，要等工具调用结束才送达。先查 Claude Code 无头模式能否中途打断并插入消息（如 stream-json 输入的 interrupt 加新的 user 消息，未核实），再实现并做对照；同时检查 relay 和各臂判定，别把这类主动打断记成故障。
+- [ ] **下一版：输出上限重试改进**（用户 2026-10-22）：`src/output_limit.py` 现在只重试 1 次，重试只追加一条通知。strata-codex CStd low-a9 两次都在写同一个 exec_command 时撞 8192，推理 token 都是 2065（输入只多了通知的 95 token），说明通知没有改变模型的做法，多重试几次也不会有效。候选做法：重试时降低 `max_output_tokens`，或者把通知放到更显眼的位置，或者两者结合。改动属于部署设计，先过独立审查，再用撞上限的 mock 和实例对照验证；不追溯本次 benchmark。
 
 ## 采样与窗口重新测量（用户 2026-10-12）
 
