@@ -3,12 +3,12 @@
   "benchmarkName": "Reviewer Model Benchmark",
   "benchmarkVersion": "2.0",
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T03:14:00+00:00",
+  "generatedAt": "2026-10-22T09:28:08+00:00",
   "source": {
    "project": "qwen_strata",
-   "commit": "7a3534ea8c5e4a17875bff3ec9cb39bdfbdf38f7",
-   "treeDirty": false,
-   "summarySha256": "423e2fb83485885a620c1b5ce7000c542db793d76b88c8448ef8a18719596ea1"
+   "commit": "8d1da8006e878f224e6b1bac485b7663b9323e37",
+   "treeDirty": true,
+   "summarySha256": "33062d7836bc98e9d71d843789a8cc0892ac12b5092c37e7004b5944829ee288"
   },
   "scoring": {
    "version": "r8.4",
@@ -23,7 +23,7 @@
    "en": "Phase 2: the planned full-sample analysis; Strata cells use every valid instance (up to 10), other configurations as in phase 1.",
    "phase1": {
     "summaryMd": "reports/v0.1.45/multi-model-benchmark/phase1/summary.md",
-    "summaryMdSha256": "aac41dd2b1bdaee476ca9cdfcac51f419f169d082ec32e307a27402f61f04743",
+    "summaryMdSha256": "982c21d881a4b5b476c46503c09f6eba3c5e1f65a7c95d08ceb19dc45347c03c",
     "summaryJson": "reports/v0.1.45/multi-model-benchmark/phase1/summary.json",
     "summaryJsonSha256": "47500e75334396c4d286ec7d8b86561db2350243885c64925414985c1a99cd6c",
     "zh": "用 selection.mainStatistic 可重算第一阶段全部统计；第一阶段敏感性变体只适用于第一阶段实例集，见第一阶段报告，本文件不带。",
@@ -85139,8 +85139,8 @@
   },
   {
    "id": "speeds",
-   "zh": "API 模型分不出输入处理时间：引擎输入速度未知，引擎输出速度按 API 请求时间算，是下限。Codex 的 code mode 一次 exec 记 1 次工具调用，gpt-6.1-sol / gpt-6-luna 的工具调用数与其他臂不完全同义。",
-   "en": "API models give no input-processing time: engine input speed is unknown and engine output speed, timed by API request, is a lower bound. A Codex code-mode exec counts as one tool call, so gpt-6.1-sol / gpt-6-luna tool-call counts are not fully comparable with other arms."
+   "zh": "API 模型分不出输入处理时间：引擎输入速度未知，引擎输出速度按 API 请求时间算，是下限。多个实例的速度按总 token ÷ 总耗时汇总，不取各实例速度的算术平均（用户 2026-10-22）；Codex 上 API 模型的引擎输出按 relay 日志的 output token ÷ 请求秒数计算，这两个数没有保存、原始日志已删除，所以只有逐实例值，汇总记未知（待用户确认）。Codex 的 code mode 一次 exec 记 1 次工具调用，gpt-6.1-sol / gpt-6-luna 的工具调用数与其他臂不完全同义。",
+   "en": "API models give no input-processing time: engine input speed is unknown and engine output speed, timed by API request, is a lower bound. Speeds over several instances pool as total tokens / total seconds, never the arithmetic mean of instance speeds (user 2026-10-22); the engine output of API models on Codex is relay output tokens / request seconds, neither of which was kept (the raw logs are deleted), so it is given per instance only and its pooled value is unknown (pending the user). A Codex code-mode exec counts as one tool call, so gpt-6.1-sol / gpt-6-luna tool-call counts are not fully comparable with other arms."
   },
   {
    "id": "unknown-not-zero",
