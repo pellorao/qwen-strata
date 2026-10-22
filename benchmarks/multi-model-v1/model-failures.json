@@ -72,6 +72,14 @@
    "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
    "basis": "Claude Code was killed at the hard limit (376 s; h0/result.json continuation.stop hard_limit, exit 143; valid by ruling 2026-10-21) with the report file empty (0 bytes): no report delivered within the hard limit is a model failure of the whole instance (Main 2026-10-22; r8.4: 0, as reporting nothing).",
    "confirmed": "Main 2026-10-22"
+  },
+  {
+   "record": "strata-codex/code-standards-v5.1/codex-strata-low-a9",
+   "k": 0,
+   "sub_scenario": "default",
+   "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "basis": "The model put the whole report into one exec_command call and hit the low-effort max_output_tokens 8192 twice (output-limit.log 01:01:32 discarded and retried with the server notice; 01:03:14 returned as is, no retries left), the frontend retry working as deployed 10-20 (output_limit.py sha 8f61d9d0, a fixed condition of the Strata Codex arm). Codex received response.incomplete (max_output_tokens) and ended the turn (run/results.json turnError); the bound report is the 0-byte placeholder. Plan §14.1 F4 / validity rule: incomplete is a model-side outcome, scored from the report written; nothing was written, so r8.4 scores it as reporting nothing. Provisional (Main 2026-10-22 on independent review; pending user review).",
+   "confirmed": "Main 2026-10-22 (provisional)"
   }
  ]
 }

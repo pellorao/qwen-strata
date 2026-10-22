@@ -627,6 +627,7 @@
 | 评分 r8.4（取消 0 处截断，模型失误记 0） | 10-21 22:34（fdc58fc）；23:05 模型失误记 0（a721637） | 已看过 CS/CA 暂定分和 419 个实例的不截断分布 | 用户 | 见上文 r8.4 条 |
 | markdown 报告首个条目之后从第 0 列起的非条目行由修复器删除，每份报告计 1 处 r | 10-22 01:13（613066e）；01:15 规则文字（d75b07e） | 第一阶段正式计分已出结果，CStd cc-low-a4 修复器修不过 | Main（提交说明和规则文字都没有用户决定的记录） | 只影响 DeepSeek-CC CStd cc-low-a4（r = 6、T = 29，f 封顶 0.1） |
 | 9 个模型失误登记（`model-failures.json`），空报告按 ARW modelFailure 计分 | 10-22 01:13（613066e），登记确认人 Main 10-22 | 同上一行 | Main 确认；依据本节 F4（Claude Code 模型侧错误停为 model_error，按已写出的报告计分）和 r8.4 模型失误记 0（用户） | 只有 DeepSeek：SR cc 7 个 AP 子场景（32000 输出上限）、SR codex-high-a4 AP（硬时限内无报告）、CS cc-max-a4（强杀、空报告） |
+| Strata Codex 前端重试后仍撞输出上限、空报告记模型失误（0 分） | 10-22 09:2x 暂行（rulings「格式错误与有效性」），待用户复核 | 已看过第二阶段 CA/CS 分数，CStd 本格分数未出 | Main 依独立 Opus 意见（用户 30 分钟未答复） | 只有 strata-codex CStd low-a9（第一条 Strata 模型失误） |
 
 ### 14.2 #10–12（Codex 上的 Strata）补冻结（2026-10-19）
 
