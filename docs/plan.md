@@ -57,6 +57,7 @@
 - [ ] **执行与报告**：按场景分批运行。报告给出每个模型的均值 ± 标准差、耗时、token、工具调用数，以及每次的费用。
 - [ ] **benchmark 结束后：Claude Code 路径的提醒改用高优先级消息**（用户 2026-10-20）：ARW 提醒在 Codex 上是高优先级消息，会立即打断当前生成，确保模型在超时之前收到；Claude Code 路径现在经 PostToolUse hook，要等工具调用结束才送达。先查 Claude Code 无头模式能否中途打断并插入消息（如 stream-json 输入的 interrupt 加新的 user 消息，未核实），再实现并做对照；同时检查 relay 和各臂判定，别把这类主动打断记成故障。
 - [ ] **下一版：输出上限重试改进**（用户 2026-10-22）：`src/output_limit.py` 现在只重试 1 次，重试只追加一条通知。strata-codex CStd low-a9 两次都在写同一个 exec_command 时撞 8192，推理 token 都是 2065（输入只多了通知的 95 token），说明通知没有改变模型的做法，多重试几次也不会有效。候选做法：重试时降低 `max_output_tokens`，或者把通知放到更显眼的位置，或者两者结合。改动属于部署设计，先过独立审查，再用撞上限的 mock 和实例对照验证；不追溯本次 benchmark。
+- [ ] **多模型 benchmark 报告的速度汇总口径修正**（用户 2026-10-22，外部页面工程发现）：配置表四项速度现在是各实例速度的算术平均（`tools/reviewer/benchmark_summary.py:327`），应改为总 token ÷ 总耗时。已核实（.tmp/speed-pooled-1022/report-summary.md）：task 两项、Strata 引擎两项、Claude Code API 臂引擎输出都能从第二阶段 summary 的实例层数据精确汇总；第一阶段的 676 个实例都在第二阶段 summary 中，字段逐项相同，可据此重算，只替换速度字段。Codex API 臂（openai、deepseek-codex）引擎输出（下限）的分子分母没存、原始 relay 日志已删，汇总口径待用户定（状态页 decide）。步骤：bench_records 存每实例分子分母，benchmark_summary 改 Σ/Σ；补测试、measurement.md 汇总口径、导出白名单与 export-format；重生成两份报告与导出并各加更正说明；核对除速度外逐项不变。预计约 1.5 小时。
 
 ## 采样与窗口重新测量（用户 2026-10-12）
 
