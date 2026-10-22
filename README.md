@@ -11,7 +11,7 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 | `rtx3080ti` | RTX 3080 Ti 12GB，i9-13900 | 可用；本工程所在机 |
 | `rtx4070tis` | RTX 4070 Ti SUPER | 离线，短期不启用；原 Spec Readiness 主线在这台 |
 
-rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），只对外提供 IQ3_XXS，参数沿用 v0.1.42 调参结果（未在新版上重测）；Q2_0、IQ2_XS 权重保留，默认不运行、不测试。rtx4070tis 离线，仍为 v0.1.40.2，对外模型暂定 IQ3_XXS（占位），恢复后核实并同步。
+rtx3080ti 安装 Strata v0.2.2（引擎 0.1.47，2026-10-22，通过短检查），只对外提供 IQ3_XXS，参数沿用 v0.1.42 调参结果（未在新版上重测）；Q2_0、IQ2_XS 权重保留，默认不运行、不测试。rtx4070tis 离线，仍为 v0.1.40.2，对外模型暂定 IQ3_XXS（占位），恢复后核实并同步。
 
 ## 文档
 
@@ -31,6 +31,7 @@ rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），只对外提
 
 只收对整个工程有影响的决定，每条一行：结论、日期、依据（用户决定的出处，或含 Main 与独立 agent 双方意见的报告）。单个场景或单项测量内部的决定留在各自报告里；被取代的决定移到 [work-history](docs/work-history.md)。agent 的工作规则在 [AGENTS.md](AGENTS.md)。
 
+- Strata 0.2.x 不用官方安装程序和 `install.ps1`，继续“标签源码 ZIP + 预编译引擎（cuda13 tar.gz）”，由 `upgrade_release` 核验 feed 与引擎清单的 Ed25519 签名；0.2.2 起工具调用解析与 sm_86 解码开关表行为有变，此后的测量不与 0.1.45 结果直接比较（2026-10-22，Main 与独立审查一致）：[升级报告](reports/v0.2.2/upgrade.md)。
 - 每台机器只对外提供一个模型：rtx3080ti 为 IQ3_XXS（8 维调参结果为默认值，2026-10-11），Q2_0、IQ2_XS 权重保留，默认不再运行或测试，除非用户提出专门针对它们的任务（走部署 `--condition`，结束后普通部署恢复）；维护基线 = 本机唯一对外模型 + 部署默认值，不再单独成文件（B1）（2026-10-19，用户决定 + 独立审查，rtx3080ti 已部署，安全门按新源重跑通过）：[报告](reports/v0.1.45/single-model/summary.md)、[历史工作](docs/work-history.md#每台机器只对外一个模型维护基线退役2026-10-19)、[调参手册](docs/host-tuning.md#iq3_xxs)。
 - IQ3_XXS 默认档改为 206584／150000（2026-10-14）：经过见[历史工作](docs/work-history.md)「自主模式（2026-10-14 01:58 起，已结束）」。
 - 思考上限三档 low 2048／8192、medium 4096／16384、high 8192／24576，guardian 512／1024（2026-10-12，回滚方案 A）：[历史工作](docs/work-history.md)「Spec Readiness 思考上限诊断」。
@@ -76,3 +77,4 @@ rtx3080ti 安装 Strata v0.1.45（2026-10-18，通过短检查），只对外提
 - 2026-10-19 benchmark 前置：catalog 窗口改取部署档位、去掉写死的窗口与阈值、qwen-agent 统一用默认档，部署到 rtx3080ti，隔离冒烟通过；安全门零模型探针修好（[报告](reports/v0.1.45/context-tier-unify/summary.md)）。安全门按新源重跑通过（[报告](reports/v0.1.45/safety-gate-env-fix/summary.md)）。Sonnet 盲裁试点通过三条通过线（[报告](reports/v0.1.45/sonnet-adjudication-pilot/summary.md)），用户当时决定 benchmark 盲裁仍用 Opus，后按 20% 规则暂定改为双裁（见现行决定）。
 - 2026-10-22 多模型 benchmark 第一阶段报告：557 个预登记实例按评分 r8.4 正式计分、会话检查全部完成；100 个预登记比较里低于 21、高于 10、未分出 69，r8.3 对照只改变 1 个结论，A1、A2 敏感性不改结论（[报告](reports/v0.1.45/multi-model-benchmark/phase1/summary.md)）。
 - 2026-10-22 多模型 benchmark 第二阶段报告：Strata 两臂各格加到 10 个有效实例并进主统计（120 个加测实例另批盲裁、复核和会话检查）；100 个比较里低于 34、高于 13、未分出 53，相对第一阶段改变 16 个，都是从未分出变为有结论，没有反向变化；A6 变体与 r8.3 对照都不改结论；同时生成 Reviewer Model Benchmark v2.0 用的公开结果文件（[报告](reports/v0.1.45/multi-model-benchmark/phase2/summary.md)）。
+- 2026-10-22 rtx3080ti 升级到 Strata v0.2.2（引擎 0.1.47），短检查通过（C1–C3、X1–X2，引擎输出 105.9 tok/s）；greedy 对比本来就不可复现，长提示一问 0.2.2 四次一致答错，只作记录；引擎新提示 `--pool-workers 15`，未验证（[升级报告](reports/v0.2.2/upgrade.md)）。

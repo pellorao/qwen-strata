@@ -11,6 +11,9 @@ __pycache__/
 *.safetensors
 *.whl
 *.zip
+*.tar.gz
+# Downloaded releases (sources and SHA in docs/downloads.md)
+/artifacts/
 *.exe
 *.dll
 *.log

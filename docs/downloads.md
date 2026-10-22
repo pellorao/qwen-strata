@@ -1,16 +1,24 @@
 # 下载与恢复清单
 
-rtx3080ti 已于 2026-10-18 安装 v0.1.45，见[升级报告](../reports/v0.1.45/upgrade.md)；rtx4070tis 离线，仍为 v0.1.40.2，恢复后待同步。单个不超过200MB的文件可由助手下载；超过200MB的模型等由用户下载，来源与校验由工程维护。以下链接供恢复及后续升级核对。`artifacts/` 只保留最新版和前一个版本（前一版用于无法修复时回退）；更早的版本只保留下面的来源、大小和 SHA，需要时重新下载核对（用户 2026-10-14）。
+rtx3080ti 已于 2026-10-22 安装 v0.2.2（引擎 0.1.47），见[升级报告](../reports/v0.2.2/upgrade.md)；rtx4070tis 离线，仍为 v0.1.40.2，恢复后待同步。单个不超过1GB的文件可由助手下载；超过1GB的模型等由用户下载，来源与校验由工程维护。以下链接供恢复及后续升级核对。`artifacts/` 只保留最新版和前一个版本（前一版用于无法修复时回退）；更早的版本只保留下面的来源、大小和 SHA，需要时重新下载核对（用户 2026-10-14）。
 
 探索下载的候选模型、分词器和配套文件统一放工程`.tmp/`；仅在确认需要采用后才进入`artifacts/`。工程长期保留公共来源、固定版本、大小、SHA及必要结果，临时缓存位置不表示已采用或已部署；清空临时目录后重新下载／准备。此规则同时适用于助手和提供给用户的探索下载路径。
 
-## Strata v0.1.45（rtx3080ti 已安装）
+## Strata v0.2.2（rtx3080ti 已安装）
+
+2026-10-22 核对官方发布，附注标签 `v0.2.2`（标签对象 `e6fff4ad`）指向提交 `011c9e600a93bbc9fd451c563501b5831c32bbca`。从 0.2.0 起发布版本与引擎版本分开：发布 0.2.2，引擎 0.1.47（CMake `VERSION 0.1.47`，build_id `76f90e58436d+cuda13.0`）。由升级 worker 下载。
+
+- 引擎：[strata-engine-0.1.47-windows-x86_64-cuda-cuda13.tar.gz](https://github.com/Niko1221/Strata/releases/download/v0.2.2/strata-engine-0.1.47-windows-x86_64-cuda-cuda13.tar.gz)，580428476 字节，官方 SHA256 `59833d875b2f3807791533f5dd077a0cb0ed08d4c1cab3136ad2ceb165871cd1`，与 API digest、`SHA256SUMS.txt` 和 [strata-feed.json](https://github.com/Niko1221/Strata/releases/download/v0.2.2/strata-feed.json)（11744 字节，SHA256 `fbf4acaa462f8010f8280425b96ed4ed9825ac428828b4d6de74f1d28f9d3a18`，Ed25519 签名已用固定公钥 `5d1bc23abbeffd0d` 核验，引擎清单签名同样通过；feed 与 `.sig` 存于 `artifacts/strata/0.2.2/`）一致。包内无顶层目录，7 个普通文件：`strata.exe`、`strata_kq.dll`、`strata-vision.exe`、`cublas64_13.dll`、`cublasLt64_13.dll`、`BUILD.json`、`engine-component.json`；清单 SHA `95eb1eef404859e3afae56811cccb3da27bbab6b589e276fe4e4e701dfbe9427` 等于 feed 的 `manifest_sha256`，逐文件大小和 SHA 与清单一致，合计 876210108 字节。不含 cudart DLL（feed 备注写 "cudart and cublas bundled"，实际只带 cublas/cublasLt）。同一发布的 cuda12（experimental）、hip 引擎包，以及 app 安装程序（`.exe`）和 Terminal（`install.ps1`）都不用：后两者另建 `%LOCALAPPDATA%\Strata`、Documents 等目录并改 PATH。
+- 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.2.zip)，31785221 字节，本地 SHA256 `8dbfa60f9c013e28a3f1ce578cbdac79f2cb442b40d590b526753765d027a54b`（顶层目录 `Strata-0.2.2/`，ZIP 注释为标签提交；GitHub 归档没有官方摘要）。`AGENTS.md`（SHA256 `15194f49…de58`）和 `requirements.txt`（`d30c7dd2…a314`，只把 cmake、ninja 移到 `requirements-build.txt`）有变化；0.1.45 有而本版没有的源码路径只有 `docker-entrypoint.sh`。
+- 工程文件为 `artifacts/strata/0.2.2/engine.tar.gz` 和 `artifacts/strata/0.2.2/source.zip`，版本清单见[制品清单](../config/artifacts/strata-v0.2.2.json)，`strata-release.json` 已指向本版。2026-10-22 安装到 rtx3080ti 并通过短检查。
+
+## Strata v0.1.45（rtx3080ti 曾安装）
 
 2026-10-18 核对官方最新发布，标签提交 `477ac13cbe8e582c20484871ce459d20d82df09d`（附注标签对象 `b39442e6`）。由升级 worker 下载。
 
 - 引擎：[strata-windows-x64.zip](https://github.com/Niko1221/Strata/releases/download/v0.1.45/strata-windows-x64.zip)，165243142 字节，官方 SHA256 `a1d4cafb8319c253f3010ff118dbd5ed07c232056b939ac7735819559f3b859e`，已核对一致（发布附带的 SHA256.txt 与 API digest）。包内仍是 `strata.exe`、`strata_kq.dll`、`strata-vision.exe`、`BUILD.json`。同一发布的 `-cuda12` 和 `-hip` 包不用。
 - 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.1.45.zip)，23208999 字节，本地 SHA256 `8d90ac92dae659390783a6c9da20bd4204cbfa0349f45fcbedb690c41495c17f`（顶层目录 `Strata-0.1.45/`，ZIP 注释为标签提交；GitHub 归档没有官方摘要）。
-- 已采用：工程文件为 `artifacts/strata/0.1.45/engine.zip` 和 `artifacts/strata/0.1.45/source.zip`，版本清单见[制品清单](../config/artifacts/strata-v0.1.45.json)，`strata-release.json` 已指向本版。v0.1.44.1 的制品保留在 `artifacts/strata/0.1.44.1/`，供回退。
+- 已采用：工程文件为 `artifacts/strata/0.1.45/engine.zip` 和 `artifacts/strata/0.1.45/source.zip`，版本清单见[制品清单](../config/artifacts/strata-v0.1.45.json)，2026-10-22 起由 v0.2.2 取代，制品保留供回退。
 
 ## Strata v0.1.44.1（rtx3080ti 曾安装）
 
@@ -18,7 +26,7 @@ rtx3080ti 已于 2026-10-18 安装 v0.1.45，见[升级报告](../reports/v0.1.4
 
 - 引擎：[strata-windows-x64.zip](https://github.com/Niko1221/Strata/releases/download/v0.1.44.1/strata-windows-x64.zip)，155480443 字节，官方 SHA256 `a29bda047f440e6d2ce1649306c3a7047ba35df5a032097c7509d4494fa2b448`，已核对一致。包内新增 `strata_kq.dll`（K-quant 预填核，只在模型含这些格式时加载）。同一发布的 `-cuda12` 和 `-hip` 包不用。
 - 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.1.44.1.zip)，22629639 字节，本地 SHA256 `22be94124b4d37dc2ff76e742c49498a3e5f31873ed916a636b2a31707d09b31`（顶层目录 `Strata-0.1.44.1/`，ZIP 注释为标签提交；GitHub 归档没有官方摘要）。
-- 已采用：工程文件为 `artifacts/strata/0.1.44.1/engine.zip` 和 `artifacts/strata/0.1.44.1/source.zip`，版本清单见[制品清单](../config/artifacts/strata-v0.1.44.1.json)，2026-10-18 起由 v0.1.45 取代，制品保留供回退。
+- 已采用：工程文件为 `artifacts/strata/0.1.44.1/engine.zip` 和 `artifacts/strata/0.1.44.1/source.zip`，版本清单见[制品清单](../config/artifacts/strata-v0.1.44.1.json)，2026-10-18 起由 v0.1.45 取代；按保留规则（只留最新版和前一版）文件待删除，来源与 SHA 保留在此。
 
 ## Strata v0.1.43.1（rtx3080ti 曾安装）
 

@@ -56,7 +56,7 @@ python3 -m tools.ops.deploy --host rtx3080ti
 ## 升级 Strata
 
 ```bash
-python3 -m tools.ops.upgrade_release --host rtx3080ti --metadata <发布元数据> --source <源码 ZIP> --engine <引擎 ZIP> --output <回执>
+python3 -m tools.ops.upgrade_release --host rtx3080ti --metadata <发布元数据> --source <标签源码 ZIP> --engine <引擎 tar.gz> --feed <strata-feed.json，.sig 放同目录> --output <回执>
 ```
 
 与部署相同：先经前端租约关闭前端，替换期间没有任何调用方能启动模型；完成后重新启动前端。`--rollback <备份目录>` 回滚。校验内容和周期流程见[安装与维护](installation.md#升级部署与恢复)。
