@@ -85,5 +85,16 @@ class ClaudeScenarioTest(unittest.TestCase):
         self.assertFalse(cs.checks(result, 'qwen3.8-flash-next-iq3_xxs', True)['valid'])
 
 
+    def test_command_line_backends(self):
+        base = ['--plan', 'p.json', '--out', 'o', '--model', 'deepseek-flash', '--effort', 'high', '--label', 'l',
+                '--claude', 'c']
+        args = cs.arguments(base + ['--backend', 'deepseek'])
+        self.assertEqual((args.backend, args.host), ('deepseek', None))
+        self.assertEqual(cs.arguments(base).backend, 'anthropic')
+        self.assertEqual(cs.arguments(base + ['--backend', 'strata', '--host', 'rtx3080ti']).host, 'rtx3080ti')
+        for bad in (['--backend', 'strata'], ['--backend', 'openai']):
+            with self.assertRaises(SystemExit):
+                cs.arguments(base + bad)
+
 if __name__ == '__main__':
     unittest.main()

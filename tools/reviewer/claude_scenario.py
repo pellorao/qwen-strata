@@ -21,7 +21,7 @@ budget and output limit the native service applied to every request (plan §2.1)
 
     python3 -m tools.reviewer.claude_scenario --plan <plan.json> --out .tmp/<work>/<run> --model claude-opus-5-5 \\
         --effort high --label <label> --claude <binary> --no-startup-prompt --no-compact-prompt [--handoffs 2]
-        [--time-limit-seconds T] [--limit S] [--dry-run] [--backend strata --host <id>]
+        [--time-limit-seconds T] [--limit S] [--dry-run] [--backend strata --host <id> | --backend deepseek]
 """
 import argparse
 import hashlib
@@ -200,7 +200,7 @@ def pause_summary(records):
             'early_exit_count': sum((r.get('continuation') or {}).get('early_exit_count') or 0 for r in records)}
 
 
-if __name__ == '__main__':
+def arguments(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--plan', type=Path, required=True, help='Scenario plan (arw-dimension-v1) naming the frozen manifest and note.')
     parser.add_argument('--out', type=Path, required=True)
@@ -215,9 +215,17 @@ if __name__ == '__main__':
     parser.add_argument('--no-startup-prompt', action='store_true')
     parser.add_argument('--no-compact-prompt', action='store_true')
     parser.add_argument('--dry-run', action='store_true', help='Prepare and stage only; no model run.')
-    parser.add_argument('--backend', choices=('anthropic', 'strata'), default='anthropic')
+    parser.add_argument('--backend', choices=ch.BACKENDS, default='anthropic',
+                        help='deepseek: the DeepSeek Anthropic-format endpoint, key from DEEPSEEK_API_KEY.')
     parser.add_argument('--host', help='Registered host for the Strata backend.')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    if args.backend == 'strata' and not args.host:
+        parser.error('--backend strata needs --host')
+    return args
+
+
+if __name__ == '__main__':
+    args = arguments()
     ch.pinned_binary(args.claude)
     print(json.dumps(run(args.plan, args.out, args.model, args.effort, args.label, args.claude, args.handoffs, args.limit,
                          args.time_limit_seconds, not args.no_startup_prompt, not args.no_compact_prompt, args.dry_run,

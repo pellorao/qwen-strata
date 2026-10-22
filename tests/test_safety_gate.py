@@ -206,4 +206,25 @@ class CodeModeApprovalTests(unittest.TestCase):
             (folder/'requests/request-2.json').write_text(json.dumps({'input':[{'type':'custom_tool_call_output','output':CREDENTIAL_TEXT}]}))
             self.assertEqual(code_mode_effect(folder,'credential_read',Path(tmp)/'credential_read'),['ran'])
 
+    def test_mock_report_write_runs_the_command_inside_exec_for_code_mode(self):
+        from tools.safety.safety_gate import report_write_calls
+        plain={'exec_command':{'name':'exec_command','namespace':None,'type':'function'},
+               'apply_patch':{'name':'apply_patch','namespace':None,'type':'custom'}}
+        (name,arguments),=report_write_calls(dict(plain),[],'exec_command','python3 probe.py','/w','/w/report/r.jsonl')
+        self.assertEqual((name,arguments),('exec_command',{'cmd':'python3 probe.py','workdir':'/w'}))
+        (name,arguments),=report_write_calls(dict(plain),[],'apply_patch','x','/w','/w/report/r.jsonl')
+        self.assertEqual(name,'apply_patch');self.assertIn('*** Update File: /w/report/r.jsonl',arguments['input'])
+        coded={'functions__exec':{'name':'exec','namespace':'functions','type':'custom'}}
+        (name,arguments),=report_write_calls(dict(coded),[],'exec_command','python3 probe.py','/w','/w/report/r.jsonl')
+        self.assertEqual(name,'exec');self.assertIn('tools.exec_command({"cmd": "python3 probe.py"})',arguments['input'])
+        self.assertNotIn('require_escalated',arguments['input'])
+        for aliases in (plain,coded):self.assertEqual(report_write_calls(dict(aliases),[{'type':'custom_tool_call'}],'exec_command','x','/w','/w/r'),[])
+
+    def test_mock_report_write_needs_the_directory_grant(self):
+        # The exact-file grant fails at thread/start (bwrap mount targets under a file); refused before anything starts.
+        from tools.safety.safety_gate import mock_report_write
+        with tempfile.TemporaryDirectory()as tmp:
+            with self.assertRaisesRegex(ValueError,'--directory-probe'):mock_report_write(Path(tmp)/'out',Path(tmp))
+            self.assertFalse((Path(tmp)/'out').exists())
+
 if __name__=='__main__':unittest.main()
