@@ -344,3 +344,16 @@ class Gate2RequirementLineTest(unittest.TestCase):
         original = [{'source': {'filePath': SPEC, 'line': 3}, 'requirement': 'Offsets pass through without coercion.',
                      'result': 'satisfied', 'evidence': []}]
         self.assertEqual(normalize(original, requirements), (original, []))
+
+
+class UnparseableJsonlTest(unittest.TestCase):
+    def test_a_row_that_is_not_json_leaves_the_report_unrepaired(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            (tmp / 'draft.jsonl').write_text('{"result":"gap","finding":"x"}\n{"finding":"a "b" c"}\n')
+            out = subprocess.run(['python3', '-m', 'tools.reviewer.repair_reviewer_report', '--report', str(tmp / 'draft.jsonl'),
+                                  '--out', str(tmp / 'out.jsonl')], check=True, capture_output=True, text=True)
+            self.assertEqual(json.loads(out.stdout), {'changes': {}, 'normalized': None})
+            self.assertFalse((tmp / 'out.jsonl').exists())
+            record = json.loads((tmp / 'out.jsonl.changes.json').read_text())
+            self.assertIn('unparseable', record['diagnostics'])

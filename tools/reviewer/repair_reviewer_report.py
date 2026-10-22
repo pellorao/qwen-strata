@@ -429,14 +429,21 @@ def main():
                                                  diagnostics)
         output = normalized
     else:
-        rows = [json.loads(line) for line in raw.decode('utf-8').splitlines() if line.strip()]
-        normalized, changes = normalize(rows, request_requirements(args.report, args.scenario_root))
-        output = ''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in normalized)
+        try:
+            rows = [json.loads(line) for line in raw.decode('utf-8').splitlines() if line.strip()]
+        except json.JSONDecodeError as error:
+            # a row that is not JSON has no single meaning to repair: the report is scored by ARW as written
+            rows, diagnostics['unparseable'] = None, str(error)
+        if rows is None:
+            changes, output = [], None
+        else:
+            normalized, changes = normalize(rows, request_requirements(args.report, args.scenario_root))
+            output = ''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in normalized)
     record = {'original': str(args.report), 'original_sha256': hashlib.sha256(raw).hexdigest(),
               **({'spills': [{'path': str(p), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()} for p in args.spill]}
                  if args.spill else {}),
               'changes': summary(changes), 'details': changes,
-              **({'diagnostics': diagnostics} if args.spill else {})}
+              **({'diagnostics': diagnostics} if args.spill or diagnostics else {})}
     args.out.parent.mkdir(parents=True, exist_ok=True)
     if changes:
         args.out.write_text(output, encoding='utf-8')
