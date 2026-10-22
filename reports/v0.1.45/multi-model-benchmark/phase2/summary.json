@@ -55,13 +55,17 @@
      "tool_calls_mean": 14.4,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 48.28554380735745,
       "task_input": 844.8706923301977,
       "task_output": 48.06297081083637
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 32527,
+       "seconds": 673.638473033905,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 571773,
        "seconds": 676.758
@@ -85,6 +89,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -134,13 +141,17 @@
      "tool_calls_mean": 14.8,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 48.15740653202248,
       "task_input": 670.9777090094249,
       "task_output": 47.89776898775801
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 40057,
+       "seconds": 831.7931318283081,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 561140,
        "seconds": 836.3019999999999
@@ -164,6 +175,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -213,13 +227,17 @@
      "tool_calls_mean": 16.2,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 49.52403841578391,
       "task_input": 409.56306220427405,
       "task_output": 49.33289425793369
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 71159,
+       "seconds": 1436.857782125473,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 590764,
        "seconds": 1442.425
@@ -243,6 +261,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -292,13 +313,17 @@
      "tool_calls_mean": 13.8,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 72.3509046801301,
       "task_input": 1613.3101837896927,
       "task_output": 69.7862284329447
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 17364,
+       "seconds": 239.99699902534485,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 401419,
        "seconds": 248.817
@@ -322,6 +347,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -371,13 +399,17 @@
      "tool_calls_mean": 15.8,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 78.18188468754664,
       "task_input": 1205.376177371216,
       "task_output": 77.14584729197699
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 27864,
+       "seconds": 356.3996968269348,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 435365,
        "seconds": 361.186
@@ -401,6 +433,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -450,13 +485,17 @@
      "tool_calls_mean": 15.8,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 95.5841354272048,
       "task_input": 1002.8301114937484,
       "task_output": 95.12670420314325
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 51158,
+       "seconds": 535.2143404483795,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 539310,
        "seconds": 537.788
@@ -480,6 +519,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -529,13 +571,17 @@
      "tool_calls_mean": 27.4,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 168.96170852904592,
       "task_input": 528.8718227787731,
       "task_output": 161.31142729612893
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 131910,
+       "seconds": 780.7094349861145,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 432477,
        "seconds": 817.735
@@ -560,6 +606,9 @@
      "service_tiers": [
       "default",
       "not-returned"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -609,13 +658,17 @@
      "tool_calls_mean": 35.2,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 173.06154687329115,
       "task_input": 440.6711541175532,
       "task_output": 168.3775840169844
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 164646,
+       "seconds": 951.3725202083588,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 430905,
        "seconds": 977.838
@@ -640,6 +693,9 @@
      "service_tiers": [
       "default",
       "not-returned"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -689,13 +745,17 @@
      "tool_calls_mean": 27.0,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 171.18773481397517,
       "task_input": 579.9745574819176,
       "task_output": 166.93635735833968
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 114823,
+       "seconds": 670.7431471347809,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 398921,
        "seconds": 687.825
@@ -720,6 +780,9 @@
      "service_tiers": [
       "default",
       "not-returned"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -774,13 +837,17 @@
      "tool_calls_mean": 31.1,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 172.28672752895716,
       "task_input": 498.1956133983885,
       "task_output": 167.7824385845156
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 279469,
+       "seconds": 1622.1156673431396,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 829826,
        "seconds": 1665.663
@@ -805,6 +872,9 @@
      "service_tiers": [
       "default",
       "not-returned"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -854,13 +924,17 @@
      "tool_calls_mean": 39.0,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 194.88975698534745,
       "task_input": 454.6078737261752,
       "task_output": 181.80911236457283
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 185884,
+       "seconds": 953.790506362915,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 464797,
        "seconds": 1022.413
@@ -885,6 +959,9 @@
      "service_tiers": [
       "default",
       "not-returned"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -969,7 +1046,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 10,
@@ -1048,7 +1126,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 11,
@@ -1132,7 +1211,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 11,
@@ -1211,7 +1291,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 12,
@@ -1295,7 +1376,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 12,
@@ -1374,7 +1456,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 13,
@@ -1456,7 +1539,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 14,
@@ -1538,7 +1622,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 15,
@@ -1620,7 +1705,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 16,
@@ -1702,7 +1788,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 17,
@@ -1784,7 +1871,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 18,
@@ -1866,7 +1954,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 19,
@@ -1948,7 +2037,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 20,
@@ -2030,7 +2120,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 21,
@@ -2112,7 +2203,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 22,
@@ -2194,7 +2286,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 23,
@@ -2276,7 +2369,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 23,
@@ -2358,7 +2452,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 23,
@@ -2445,7 +2540,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 24,
@@ -2518,7 +2614,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 25,
@@ -2606,7 +2703,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 25,
@@ -2689,7 +2787,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 26,
@@ -2777,7 +2876,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 26,
@@ -2860,7 +2960,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 27,
@@ -2948,7 +3049,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 27,
@@ -3031,7 +3133,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     }
    ],
    "comparisons": [
@@ -3688,7 +3791,11 @@
        "seconds": 153.536
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 7016,
+       "seconds": 152.67814922332764,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -3811,7 +3918,11 @@
        "seconds": 98.712
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 5127,
+       "seconds": 97.67340970039368,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -3934,7 +4045,11 @@
        "seconds": 113.258
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 5242,
+       "seconds": 112.1177191734314,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -4057,7 +4172,11 @@
        "seconds": 141.262
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 7121,
+       "seconds": 140.8682839870453,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -4180,7 +4299,11 @@
        "seconds": 169.99
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8021,
+       "seconds": 170.30091094970703,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -4380,7 +4503,11 @@
        "seconds": 163.626
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8188,
+       "seconds": 163.27921557426453,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -4503,7 +4630,11 @@
        "seconds": 128.48
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 5850,
+       "seconds": 126.66517066955566,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -4626,7 +4757,11 @@
        "seconds": 173.259
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 7920,
+       "seconds": 171.84727096557617,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -4749,7 +4884,11 @@
        "seconds": 187.404
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8961,
+       "seconds": 186.7966284751892,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -4872,7 +5011,11 @@
        "seconds": 183.533
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 9138,
+       "seconds": 183.20484614372253,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -4995,7 +5138,11 @@
        "seconds": 298.164
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 15105,
+       "seconds": 296.86037611961365,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -5118,7 +5265,11 @@
        "seconds": 330.666
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 15635,
+       "seconds": 329.7919170856476,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -5241,7 +5392,11 @@
        "seconds": 252.889
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 12495,
+       "seconds": 251.1455545425415,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -5364,7 +5519,11 @@
        "seconds": 300.789
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 15064,
+       "seconds": 300.2184422016144,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -5487,7 +5646,11 @@
        "seconds": 259.917
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 12860,
+       "seconds": 258.8414921760559,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -5610,7 +5773,11 @@
        "seconds": 54.322
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 3546,
+       "seconds": 52.33177995681763,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -5733,7 +5900,11 @@
        "seconds": 82.374
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 6454,
+       "seconds": 80.94746851921082,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -5856,7 +6027,11 @@
        "seconds": 35.08
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 2448,
+       "seconds": 33.96912336349487,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -5979,7 +6154,11 @@
        "seconds": 36.342
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 2374,
+       "seconds": 35.8447368144989,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -6102,7 +6281,11 @@
        "seconds": 40.699
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 2542,
+       "seconds": 36.90389037132263,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -6225,7 +6408,11 @@
        "seconds": 47.046
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 3566,
+       "seconds": 44.79426121711731,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -6348,7 +6535,11 @@
        "seconds": 44.779
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 3208,
+       "seconds": 44.1363549232483,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -6471,7 +6662,11 @@
        "seconds": 59.903
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 4558,
+       "seconds": 58.98759889602661,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -6594,7 +6789,11 @@
        "seconds": 119.715
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 9676,
+       "seconds": 119.37039470672607,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -6717,7 +6916,11 @@
        "seconds": 89.743
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 6856,
+       "seconds": 89.11108708381653,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -6840,7 +7043,11 @@
        "seconds": 146.229
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 15397,
+       "seconds": 145.20216631889343,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -6963,7 +7170,11 @@
        "seconds": 60.674
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 5646,
+       "seconds": 59.794384717941284,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -7086,7 +7297,11 @@
        "seconds": 129.437
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 10446,
+       "seconds": 129.38535380363464,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -7209,7 +7424,11 @@
        "seconds": 135.642
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 13625,
+       "seconds": 135.38119101524353,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -7332,7 +7551,11 @@
        "seconds": 65.806
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 6044,
+       "seconds": 65.45124459266663,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -7465,7 +7688,11 @@
        "seconds": 172.541
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 25866,
+       "seconds": 161.18188309669495,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -7598,7 +7825,11 @@
        "seconds": 183.586
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 27897,
+       "seconds": 172.03387904167175,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -7731,7 +7962,11 @@
        "seconds": 169.85
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 28353,
+       "seconds": 158.95256876945496,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -7854,7 +8089,11 @@
        "seconds": 123.063
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 21387,
+       "seconds": 122.14700484275818,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -7987,7 +8226,11 @@
        "seconds": 168.695
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 28407,
+       "seconds": 166.39409923553467,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -8120,7 +8363,11 @@
        "seconds": 214.012
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 32965,
+       "seconds": 202.59868979454038,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -8243,7 +8490,11 @@
        "seconds": 207.65
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 33221,
+       "seconds": 205.2287356853485,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -8366,7 +8617,11 @@
        "seconds": 147.832
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 27571,
+       "seconds": 147.2963569164276,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -8489,7 +8744,11 @@
        "seconds": 194.194
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 32512,
+       "seconds": 193.24204874038696,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -8622,7 +8881,11 @@
        "seconds": 214.15
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 38377,
+       "seconds": 203.00668907165527,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -8745,7 +9008,11 @@
        "seconds": 58.862
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 9045,
+       "seconds": 58.90515232086182,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -8878,7 +9145,11 @@
        "seconds": 197.679
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 34568,
+       "seconds": 193.40922236442566,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -9001,7 +9272,11 @@
        "seconds": 158.254
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 26173,
+       "seconds": 157.59110140800476,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -9134,7 +9409,11 @@
        "seconds": 181.112
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 29644,
+       "seconds": 170.0874547958374,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -9257,7 +9536,11 @@
        "seconds": 91.918
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 15393,
+       "seconds": 90.75021624565125,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -9390,7 +9673,11 @@
        "seconds": 212.665
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 36826,
+       "seconds": 174.71414732933044,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -9513,7 +9800,11 @@
        "seconds": 150.385
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 29362,
+       "seconds": 149.11041522026062,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -9646,7 +9937,11 @@
        "seconds": 213.064
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 40346,
+       "seconds": 208.66520404815674,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -9779,7 +10074,11 @@
        "seconds": 224.789
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 40378,
+       "seconds": 215.87348413467407,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -9912,7 +10211,11 @@
        "seconds": 221.51
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 38972,
+       "seconds": 205.42725563049316,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -26810,13 +27113,17 @@
      "tool_calls_mean": 10.6,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 44.784484140837584,
       "task_input": 618.20991254484,
       "task_output": 44.36696893635344
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 30809,
+       "seconds": 687.9391510486603,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 429293,
        "seconds": 694.413
@@ -26840,6 +27147,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -26889,13 +27199,17 @@
      "tool_calls_mean": 11.4,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 44.49601917398151,
       "task_input": 453.55244962237015,
       "task_output": 44.121183810708686
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 38159,
+       "seconds": 857.5823345184326,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 392263,
        "seconds": 864.8679999999999
@@ -26919,6 +27233,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -26968,13 +27285,17 @@
      "tool_calls_mean": 13.4,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 44.984360169988406,
       "task_input": 354.25927324229514,
       "task_output": 44.600761717385495
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 63202,
+       "seconds": 1404.977191209793,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 502007,
        "seconds": 1417.061
@@ -26998,6 +27319,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -27047,13 +27371,17 @@
      "tool_calls_mean": 9.0,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 66.45645845014101,
       "task_input": 1381.2547350193008,
       "task_output": 65.0095602294455
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 12614,
+       "seconds": 189.80848956108093,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 268009,
        "seconds": 194.03300000000002
@@ -27077,6 +27405,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -27126,13 +27457,17 @@
      "tool_calls_mean": 9.4,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 79.12842273904748,
       "task_input": 1064.7645103038851,
       "task_output": 77.81196475210999
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 20080,
+       "seconds": 253.7646942138672,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 274771,
        "seconds": 258.058
@@ -27156,6 +27491,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -27205,13 +27543,17 @@
      "tool_calls_mean": 8.8,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 92.18019304214928,
       "task_input": 707.8435467509994,
       "task_output": 91.87352069534778
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 36953,
+       "seconds": 400.8778760433197,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 284706,
        "seconds": 402.216
@@ -27235,6 +27577,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -27284,13 +27629,17 @@
      "tool_calls_mean": 34.8,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 191.39325489234372,
       "task_input": 410.09225945207135,
       "task_output": 189.1988770744977
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 112954,
+       "seconds": 590.167088508606,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 244830,
        "seconds": 597.012
@@ -27314,6 +27663,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -27363,13 +27715,17 @@
      "tool_calls_mean": 33.8,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 165.360367801387,
       "task_input": 322.67464978386545,
       "task_output": 160.60541933605518
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 119153,
+       "seconds": 720.5656445026398,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 239392,
        "seconds": 741.899
@@ -27394,6 +27750,9 @@
      "service_tiers": [
       "default",
       "not-returned"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -27443,13 +27802,17 @@
      "tool_calls_mean": 43.4,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 202.70992124293113,
       "task_input": 347.4405451250963,
       "task_output": 196.199515382884
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 156031,
+       "seconds": 769.7255222797394,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 276308,
        "seconds": 795.267
@@ -27474,6 +27837,9 @@
      "service_tiers": [
       "default",
       "not-returned"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -27558,7 +27924,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 10,
@@ -27637,7 +28004,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 11,
@@ -27721,7 +28089,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 11,
@@ -27800,7 +28169,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 12,
@@ -27884,7 +28254,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 12,
@@ -27963,7 +28334,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 13,
@@ -28045,7 +28417,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 14,
@@ -28127,7 +28500,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 15,
@@ -28209,7 +28583,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 16,
@@ -28291,7 +28666,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 17,
@@ -28373,7 +28749,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 18,
@@ -28455,7 +28832,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 19,
@@ -28537,7 +28915,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 20,
@@ -28619,7 +28998,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 21,
@@ -28701,7 +29081,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 22,
@@ -28783,7 +29164,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 23,
@@ -28865,7 +29247,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 23,
@@ -28940,7 +29323,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 23,
@@ -29023,7 +29407,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 24,
@@ -29105,7 +29490,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 25,
@@ -29193,7 +29579,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 25,
@@ -29276,7 +29663,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 26,
@@ -29364,7 +29752,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 26,
@@ -29447,7 +29836,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 27,
@@ -29535,7 +29925,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 27,
@@ -29618,7 +30009,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     }
    ],
    "comparisons": [
@@ -30275,7 +30667,11 @@
        "seconds": 117.85
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 5725,
+       "seconds": 117.80722069740295,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -30398,7 +30794,11 @@
        "seconds": 108.988
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 4860,
+       "seconds": 108.19085693359375,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -30521,7 +30921,11 @@
        "seconds": 152.884
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 6410,
+       "seconds": 151.93792271614075,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -30644,7 +31048,11 @@
        "seconds": 181.917
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8108,
+       "seconds": 181.06130456924438,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -30767,7 +31175,11 @@
        "seconds": 132.774
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 5706,
+       "seconds": 128.94184613227844,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -30890,7 +31302,11 @@
        "seconds": 167.557
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8008,
+       "seconds": 166.94169282913208,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -31013,7 +31429,11 @@
        "seconds": 167.011
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 7041,
+       "seconds": 164.92055296897888,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -31136,7 +31556,11 @@
        "seconds": 154.386
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 6825,
+       "seconds": 153.21432089805603,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -31259,7 +31683,11 @@
        "seconds": 174.78
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 7946,
+       "seconds": 173.67328214645386,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -31382,7 +31810,11 @@
        "seconds": 201.134
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8339,
+       "seconds": 198.83248567581177,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -31505,7 +31937,11 @@
        "seconds": 326.973
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 14484,
+       "seconds": 324.49251556396484,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -31628,7 +32064,11 @@
        "seconds": 285.54
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 13353,
+       "seconds": 283.57985520362854,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -31751,7 +32191,11 @@
        "seconds": 229.032
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 9911,
+       "seconds": 226.9518699645996,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -31874,7 +32318,11 @@
        "seconds": 297.979
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 13509,
+       "seconds": 296.64054012298584,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -31997,7 +32445,11 @@
        "seconds": 277.537
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 11945,
+       "seconds": 273.31241035461426,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -32120,7 +32572,11 @@
        "seconds": 44.981
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 2667,
+       "seconds": 44.75220322608948,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -32243,7 +32699,11 @@
        "seconds": 34.218
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 1995,
+       "seconds": 33.1235089302063,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -32366,7 +32826,11 @@
        "seconds": 33.041
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 2238,
+       "seconds": 32.688701152801514,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -32489,7 +32953,11 @@
        "seconds": 58.03
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 3986,
+       "seconds": 56.1926589012146,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -32612,7 +33080,11 @@
        "seconds": 23.763
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 1728,
+       "seconds": 23.051417350769043,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -32831,7 +33303,11 @@
        "seconds": 46.363
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 4116,
+       "seconds": 45.35887265205383,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -32954,7 +33430,11 @@
        "seconds": 29.715
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 2248,
+       "seconds": 29.116844177246094,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -33077,7 +33557,11 @@
        "seconds": 98.106
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 7302,
+       "seconds": 96.95098686218262,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -33200,7 +33684,11 @@
        "seconds": 51.491
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 4242,
+       "seconds": 50.62497568130493,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -33323,7 +33811,11 @@
        "seconds": 32.383
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 2172,
+       "seconds": 31.71301484107971,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -33446,7 +33938,11 @@
        "seconds": 88.057
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 9474,
+       "seconds": 87.12451100349426,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -33569,7 +34065,11 @@
        "seconds": 91.497
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8390,
+       "seconds": 90.56262063980103,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -33692,7 +34192,11 @@
        "seconds": 94.709
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8680,
+       "seconds": 92.9541425704956,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -33815,7 +34319,11 @@
        "seconds": 64.155
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 5708,
+       "seconds": 63.466283559799194,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -33938,7 +34446,11 @@
        "seconds": 63.798
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 4701,
+       "seconds": 66.77031826972961,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -34061,7 +34573,11 @@
        "seconds": 110.812
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 18614,
+       "seconds": 110.30815243721008,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -34184,7 +34700,11 @@
        "seconds": 129.546
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 25595,
+       "seconds": 128.09313654899597,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -34307,7 +34827,11 @@
        "seconds": 107.651
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 21269,
+       "seconds": 106.35396552085876,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -34430,7 +34954,11 @@
        "seconds": 96.616
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 18214,
+       "seconds": 95.59586381912231,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -34553,7 +35081,11 @@
        "seconds": 152.387
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 29262,
+       "seconds": 149.81597018241882,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -34686,7 +35218,11 @@
        "seconds": 174.07
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 24700,
+       "seconds": 170.9507541656494,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -34809,7 +35345,11 @@
        "seconds": 121.659
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 20340,
+       "seconds": 120.63414120674133,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -34942,7 +35482,11 @@
        "seconds": 180.275
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 29494,
+       "seconds": 175.9630970954895,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -35075,7 +35619,11 @@
        "seconds": 179.51
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 27874,
+       "seconds": 167.9990258216858,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -35198,7 +35746,11 @@
        "seconds": 86.385
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 16745,
+       "seconds": 85.01862621307373,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -35321,7 +35873,11 @@
        "seconds": 141.979
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 29685,
+       "seconds": 140.21395802497864,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -35444,7 +36000,11 @@
        "seconds": 132.731
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 28618,
+       "seconds": 130.92610812187195,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -35567,7 +36127,11 @@
        "seconds": 154.087
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 30042,
+       "seconds": 153.13755464553833,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -35700,7 +36264,11 @@
        "seconds": 180.868
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 31784,
+       "seconds": 168.1608922481537,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -35833,7 +36401,11 @@
        "seconds": 185.602
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 35902,
+       "seconds": 177.28700923919678,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -52569,13 +53141,17 @@
      "tool_calls_mean": 6.6,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 64.81291574230464,
       "task_input": 708.4576985301115,
       "task_output": 64.12269545883187
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 29647,
+       "seconds": 457.4242596626282,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 327554,
        "seconds": 462.348
@@ -52599,6 +53175,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -52648,13 +53227,17 @@
      "tool_calls_mean": 7.4,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 64.2407757231665,
       "task_input": 548.5399516313399,
       "task_output": 64.20549557525125
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 37858,
+       "seconds": 589.314178943634,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 323440,
        "seconds": 589.638
@@ -52678,6 +53261,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -52727,13 +53313,17 @@
      "tool_calls_mean": 8.6,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 59.554403126421164,
       "task_input": 401.48291506783505,
       "task_output": 59.39512492537502
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 51436,
+       "seconds": 863.680891752243,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 347683,
        "seconds": 865.9970000000001
@@ -52757,6 +53347,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -52806,13 +53399,17 @@
      "tool_calls_mean": 12.4,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 101.38650485414115,
       "task_input": 698.3186450046578,
       "task_output": 100.64542874909762
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 42243,
+       "seconds": 416.65308475494385,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 293099,
        "seconds": 419.721
@@ -52836,6 +53433,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -52885,13 +53485,17 @@
      "tool_calls_mean": 18.4,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 105.44096802808336,
       "task_input": 466.8863439930856,
       "task_output": 105.14731954878887
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 75913,
+       "seconds": 719.957350730896,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 337077,
        "seconds": 721.968
@@ -52915,6 +53519,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -52964,13 +53571,17 @@
      "tool_calls_mean": 19.4,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 112.38149241549634,
       "task_input": 360.86330542301164,
       "task_output": 111.72719971938903
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 130914,
+       "seconds": 1164.9071140289307,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 422834,
        "seconds": 1171.729
@@ -52994,6 +53605,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -53043,13 +53657,17 @@
      "tool_calls_mean": 61.6,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 207.46419409195943,
       "task_input": 208.644399982833,
       "task_output": 205.78119028593267
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 302073,
+       "seconds": 1456.0247435569763,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 306276,
        "seconds": 1467.933
@@ -53073,6 +53691,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -53125,13 +53746,17 @@
      "tool_calls_mean": 64.0,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 215.6145912375987,
       "task_input": 194.99238686887145,
       "task_output": 214.1701687069858
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 527469,
+       "seconds": 2446.3511350154877,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 480237,
        "seconds": 2462.85
@@ -53155,6 +53780,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -53204,13 +53832,17 @@
      "tool_calls_mean": 54.0,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 209.69769356974706,
       "task_input": 186.0419548863252,
       "task_output": 208.46222813340538
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 315981,
+       "seconds": 1506.8406076431274,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 281997,
        "seconds": 1515.771
@@ -53234,6 +53866,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -53283,13 +53918,17 @@
      "tool_calls_mean": 72.0,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 220.11533607761726,
       "task_input": 158.37265872376366,
       "task_output": 185.93160663211123
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 416500,
+       "seconds": 1892.1898283958435,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 354766,
        "seconds": 2240.071
@@ -53313,6 +53952,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -53397,7 +54039,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 10,
@@ -53476,7 +54119,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 11,
@@ -53560,7 +54204,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 11,
@@ -53639,7 +54284,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 12,
@@ -53723,7 +54369,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 12,
@@ -53802,7 +54449,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 13,
@@ -53884,7 +54532,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 14,
@@ -53966,7 +54615,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 15,
@@ -54048,7 +54698,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 16,
@@ -54130,7 +54781,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 17,
@@ -54212,7 +54864,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 18,
@@ -54294,7 +54947,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 19,
@@ -54376,7 +55030,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 20,
@@ -54458,7 +55113,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 21,
@@ -54540,7 +55196,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 22,
@@ -54622,7 +55279,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 23,
@@ -54707,7 +55365,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 23,
@@ -54789,7 +55448,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 24,
@@ -54871,7 +55531,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 25,
@@ -54959,7 +55620,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 25,
@@ -55042,7 +55704,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 26,
@@ -55130,7 +55793,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 26,
@@ -55213,7 +55877,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 27,
@@ -55301,7 +55966,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 27,
@@ -55384,7 +56050,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     }
    ],
    "comparisons": [
@@ -56042,7 +56709,11 @@
        "seconds": 110.401
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 7755,
+       "seconds": 109.72854256629942,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -56165,7 +56836,11 @@
        "seconds": 128.472
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8145,
+       "seconds": 126.6944544315338,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -56288,7 +56963,11 @@
        "seconds": 83.321
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 5128,
+       "seconds": 82.142982006073,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -56411,7 +57090,11 @@
        "seconds": 72.212
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 4478,
+       "seconds": 71.30579423904419,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -56534,7 +57217,11 @@
        "seconds": 67.942
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 4141,
+       "seconds": 67.55248641967773,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -56658,7 +57345,11 @@
        "seconds": 90.317
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 5355,
+       "seconds": 90.01818513870239,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -56781,7 +57472,11 @@
        "seconds": 137.745
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8348,
+       "seconds": 138.9714765548706,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -56904,7 +57599,11 @@
        "seconds": 134.324
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 9217,
+       "seconds": 134.138498544693,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -57027,7 +57726,11 @@
        "seconds": 87.493
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 5549,
+       "seconds": 87.02912259101868,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -57150,7 +57853,11 @@
        "seconds": 139.759
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 9389,
+       "seconds": 139.1568961143494,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -57274,7 +57981,11 @@
        "seconds": 151.348
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 9030,
+       "seconds": 150.68417191505432,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -57397,7 +58108,11 @@
        "seconds": 151.297
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8906,
+       "seconds": 150.87932753562927,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -57520,7 +58235,11 @@
        "seconds": 239.211
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 13837,
+       "seconds": 238.28790283203125,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -57643,7 +58362,11 @@
        "seconds": 131.088
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 7853,
+       "seconds": 131.1451861858368,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -57766,7 +58489,11 @@
        "seconds": 193.053
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 11810,
+       "seconds": 192.6843032836914,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -57890,7 +58617,11 @@
        "seconds": 59.062
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 5761,
+       "seconds": 58.96257472038269,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -58013,7 +58744,11 @@
        "seconds": 108.567
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 12517,
+       "seconds": 108.48680019378662,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -58136,7 +58871,11 @@
        "seconds": 74.18
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 7462,
+       "seconds": 71.53297185897827,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -58259,7 +58998,11 @@
        "seconds": 96.481
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8908,
+       "seconds": 97.12304663658142,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -58382,7 +59125,11 @@
        "seconds": 81.431
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 7595,
+       "seconds": 80.54769134521484,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -58663,7 +59410,11 @@
        "seconds": 156.83
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 17387,
+       "seconds": 156.09348917007446,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -58786,7 +59537,11 @@
        "seconds": 76.329
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 7040,
+       "seconds": 75.80121564865112,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -58909,7 +59664,11 @@
        "seconds": 239.213
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 25952,
+       "seconds": 239.48826694488525,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -59032,7 +59791,11 @@
        "seconds": 113.5
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 10839,
+       "seconds": 113.16708040237427,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -59155,7 +59918,11 @@
        "seconds": 136.096
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 14695,
+       "seconds": 135.4072985649109,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -59278,7 +60045,11 @@
        "seconds": 162.886
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 13197,
+       "seconds": 135.6165292263031,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -59478,7 +60249,11 @@
        "seconds": 374.112
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 42927,
+       "seconds": 371.68037128448486,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -59601,7 +60376,11 @@
        "seconds": 128.877
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 15008,
+       "seconds": 128.36342072486877,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -59724,7 +60503,11 @@
        "seconds": 152.38
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 16835,
+       "seconds": 151.3506326675415,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -59847,7 +60630,11 @@
        "seconds": 282.208
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 32623,
+       "seconds": 281.4858968257904,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -59970,7 +60757,11 @@
        "seconds": 234.152
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 23521,
+       "seconds": 232.02679252624512,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -60330,7 +61121,11 @@
        "seconds": 298.527
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 31328,
+       "seconds": 268.15659070014954,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -60530,7 +61325,11 @@
        "seconds": 418.952
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 78575,
+       "seconds": 416.31199407577515,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -60653,7 +61452,11 @@
        "seconds": 284.078
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 58783,
+       "seconds": 281.83723187446594,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -60776,7 +61579,11 @@
        "seconds": 243.018
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 50019,
+       "seconds": 240.57541179656982,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -60899,7 +61706,11 @@
        "seconds": 226.305
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 51693,
+       "seconds": 224.25388431549072,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -61022,7 +61833,11 @@
        "seconds": 295.58
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 63003,
+       "seconds": 293.0462214946747,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -61145,7 +61960,11 @@
        "seconds": 396.974
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 77931,
+       "seconds": 394.64712047576904,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -61268,7 +62087,11 @@
        "seconds": 252.664
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 49581,
+       "seconds": 251.38652849197385,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -61391,7 +62214,11 @@
        "seconds": 272.579
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 58375,
+       "seconds": 271.28639364242554,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -61514,7 +62341,11 @@
        "seconds": 322.583
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 67161,
+       "seconds": 320.38932490348816,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -61637,7 +62468,11 @@
        "seconds": 270.971
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 62933,
+       "seconds": 269.1312401294708,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -61760,7 +62595,11 @@
        "seconds": 296.357
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 66475,
+       "seconds": 294.13013887405396,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -61883,7 +62722,11 @@
        "seconds": 359.876
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 80927,
+       "seconds": 357.05497431755066,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -62006,7 +62849,11 @@
        "seconds": 290.846
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 64086,
+       "seconds": 288.3254141807556,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -62129,7 +62976,11 @@
        "seconds": 387.806
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 83689,
+       "seconds": 385.65837121009827,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -62252,7 +63103,11 @@
        "seconds": 315.171
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 71159,
+       "seconds": 312.1157228946686,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -62375,7 +63230,11 @@
        "seconds": 338.509
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 73489,
+       "seconds": 335.81260919570923,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -62498,7 +63357,11 @@
        "seconds": 387.231
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 86327,
+       "seconds": 383.07751870155334,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -62621,7 +63484,11 @@
        "seconds": 811.354
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 101836,
+       "seconds": 475.5256063938141,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -78281,13 +79148,17 @@
      "tool_calls_mean": 24.8,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 31.08110956911817,
       "task_input": 481.8703645349225,
       "task_output": 30.574003277980257
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 46281,
+       "seconds": 1489.0395047538543,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 729425,
        "seconds": 1513.737
@@ -78311,6 +79182,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -78360,13 +79234,17 @@
      "tool_calls_mean": 28.4,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 32.27616033636164,
       "task_input": 420.0901269436478,
       "task_output": 32.03564605482468
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 58891,
+       "seconds": 1824.5974547863007,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 772250,
        "seconds": 1838.296
@@ -78390,6 +79268,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -78439,13 +79320,17 @@
      "tool_calls_mean": 39.8,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 32.364273910135815,
       "task_input": 269.42609301227424,
       "task_output": 32.152669441875
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 102680,
+       "seconds": 3172.634130001068,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 860416,
        "seconds": 3193.514
@@ -78469,6 +79354,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -78518,13 +79406,17 @@
      "tool_calls_mean": 27.6,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 58.57216652310239,
       "task_input": 871.640843837535,
       "task_output": 58.07072829131653
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 53072,
+       "seconds": 906.0959010124207,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 796610,
        "seconds": 913.92
@@ -78548,6 +79440,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -78597,13 +79492,17 @@
      "tool_calls_mean": 21.4,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 62.31891894747926,
       "task_input": 766.0069492277786,
       "task_output": 61.379743154092246
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 56140,
+       "seconds": 900.8500299453735,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 700616,
        "seconds": 914.6339999999999
@@ -78627,6 +79526,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -78676,13 +79578,17 @@
      "tool_calls_mean": 24.4,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 73.81834528827127,
       "task_input": 570.5309648138208,
       "task_output": 72.95670696173643
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 101657,
+       "seconds": 1377.1237976551056,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 794971,
        "seconds": 1393.388
@@ -78706,6 +79612,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -78755,13 +79664,17 @@
      "tool_calls_mean": 98.6,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 179.86076441856846,
       "task_input": 218.9997887223207,
       "task_output": 161.6723137060559
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 540240,
+       "seconds": 3003.6567549705505,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 731804,
        "seconds": 3341.574
@@ -78785,6 +79698,9 @@
      ],
      "service_tiers": [
       "default"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -78859,7 +79775,8 @@
      "service_tiers": [
       "default",
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 9,
@@ -78908,13 +79825,17 @@
      "tool_calls_mean": 97.6,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": 188.45424737168466,
       "task_input": 213.5695834613836,
       "task_output": 187.4358130022595
      },
      "speed_totals": {
       "engine_input": null,
-      "engine_output": null,
+      "engine_output": {
+       "tokens": 699559,
+       "seconds": 3712.089325428009,
+       "approximate": true
+      },
       "task_input": {
        "tokens": 797097,
        "seconds": 3732.259
@@ -78939,6 +79860,9 @@
      "service_tiers": [
       "default",
       "not-returned"
+     ],
+     "speeds_approximate": [
+      "engine_output"
      ]
     },
     {
@@ -79023,7 +79947,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 10,
@@ -79102,7 +80027,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 11,
@@ -79186,7 +80112,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 11,
@@ -79265,7 +80192,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 12,
@@ -79349,7 +80277,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 12,
@@ -79428,7 +80357,8 @@
      "cost_cny_mean": null,
      "anthropic_quota_percent": null,
      "model_ids": [],
-     "service_tiers": []
+     "service_tiers": [],
+     "speeds_approximate": []
     },
     {
      "config": 13,
@@ -79510,7 +80440,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 14,
@@ -79592,7 +80523,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 15,
@@ -79674,7 +80606,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 16,
@@ -79756,7 +80689,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 17,
@@ -79838,7 +80772,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 18,
@@ -79920,7 +80855,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 19,
@@ -80002,7 +80938,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 20,
@@ -80084,7 +81021,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 21,
@@ -80166,7 +81104,8 @@
      ],
      "service_tiers": [
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 22,
@@ -80249,7 +81188,8 @@
      "service_tiers": [
       "not-returned",
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 23,
@@ -80332,7 +81272,8 @@
      "service_tiers": [
       "not-returned",
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 24,
@@ -80415,7 +81356,8 @@
      "service_tiers": [
       "not-returned",
       "standard"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 25,
@@ -80503,7 +81445,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 25,
@@ -80586,7 +81529,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 26,
@@ -80674,7 +81618,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 26,
@@ -80757,7 +81702,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 27,
@@ -80845,7 +81791,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     },
     {
      "config": 27,
@@ -80928,7 +81875,8 @@
      ],
      "service_tiers": [
       "not-returned"
-     ]
+     ],
+     "speeds_approximate": []
     }
    ],
    "comparisons": [
@@ -81589,7 +82537,11 @@
        "seconds": 202.011
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8077,
+       "seconds": 200.61732244491577,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -81738,7 +82690,11 @@
        "seconds": 224.735
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 7991,
+       "seconds": 221.1984930038452,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -81887,7 +82843,11 @@
        "seconds": 334.91
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 9873,
+       "seconds": 328.8448071353699,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -82036,7 +82996,11 @@
        "seconds": 305.85699999999997
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 9119,
+       "seconds": 294.590389251709,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -82185,7 +83149,11 @@
        "seconds": 446.224
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 11221,
+       "seconds": 443.7884929180145,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -82334,7 +83302,11 @@
        "seconds": 290.681
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 11504,
+       "seconds": 287.8539936542511,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -82483,7 +83455,11 @@
        "seconds": 286.074
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 10504,
+       "seconds": 283.80630254745483,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -82632,7 +83608,11 @@
        "seconds": 424.088
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 12906,
+       "seconds": 422.4356257915497,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -82781,7 +83761,11 @@
        "seconds": 360.01800000000003
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 10616,
+       "seconds": 357.0319278240204,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -82930,7 +83914,11 @@
        "seconds": 477.435
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 13361,
+       "seconds": 473.4696049690247,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -83158,7 +84146,11 @@
        "seconds": 474.96999999999997
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 18782,
+       "seconds": 468.89465522766113,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -83307,7 +84299,11 @@
        "seconds": 534.413
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 18928,
+       "seconds": 529.7388498783112,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -83456,7 +84452,11 @@
        "seconds": 530.4780000000001
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 17134,
+       "seconds": 528.2036874294281,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -83605,7 +84605,11 @@
        "seconds": 966.149
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 29020,
+       "seconds": 961.139812707901,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -83754,7 +84758,11 @@
        "seconds": 687.504
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 18816,
+       "seconds": 684.6571247577667,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -83982,7 +84990,11 @@
        "seconds": 153.68099999999998
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 11020,
+       "seconds": 155.20533800125122,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -84131,7 +85143,11 @@
        "seconds": 191.902
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 11882,
+       "seconds": 190.96595573425293,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -84280,7 +85296,11 @@
        "seconds": 173.489
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 11487,
+       "seconds": 171.6057605743408,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -84429,7 +85449,11 @@
        "seconds": 155.20299999999997
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8118,
+       "seconds": 151.37937307357788,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -84578,7 +85602,11 @@
        "seconds": 239.645
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 10565,
+       "seconds": 236.9394736289978,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -84806,7 +85834,11 @@
        "seconds": 104.929
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8499,
+       "seconds": 99.23385071754456,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -84955,7 +85987,11 @@
        "seconds": 118.563
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 8651,
+       "seconds": 117.54436135292055,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -85104,7 +86140,11 @@
        "seconds": 272.06399999999996
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 18160,
+       "seconds": 269.6782474517822,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -85253,7 +86293,11 @@
        "seconds": 147.86
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 7328,
+       "seconds": 145.31235098838806,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -85402,7 +86446,11 @@
        "seconds": 271.21799999999996
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 13502,
+       "seconds": 269.08121943473816,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -85551,7 +86599,11 @@
        "seconds": 218.094
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 18495,
+       "seconds": 215.59473824501035,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -85700,7 +86752,11 @@
        "seconds": 210.889
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 18852,
+       "seconds": 209.48780059814456,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -85849,7 +86905,11 @@
        "seconds": 290.512
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 19753,
+       "seconds": 292.03945326805115,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -85998,7 +87058,11 @@
        "seconds": 313.735
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 18924,
+       "seconds": 303.97795820236206,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -86147,7 +87211,11 @@
        "seconds": 360.158
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 25633,
+       "seconds": 356.0238473415375,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -86292,7 +87360,11 @@
        "seconds": 271.043
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 17185,
+       "seconds": 257.8995690345764,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -86441,7 +87513,11 @@
        "seconds": 574.506
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 92226,
+       "seconds": 571.0650498867035,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -86590,7 +87666,11 @@
        "seconds": 613.233
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 118726,
+       "seconds": 607.8733096122742,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -86739,7 +87819,11 @@
        "seconds": 599.448
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 110172,
+       "seconds": 594.5375044345856,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -86888,7 +87972,11 @@
        "seconds": 908.2180000000001
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 109412,
+       "seconds": 587.2437858581543,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -87037,7 +88125,11 @@
        "seconds": 646.169
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 109704,
+       "seconds": 642.937105178833,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -87494,7 +88586,11 @@
        "seconds": 578.565
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 99840,
+       "seconds": 575.4541401863098,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -87655,7 +88751,11 @@
        "seconds": 749.782
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 125681,
+       "seconds": 747.1862373352051,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -87806,7 +88906,11 @@
        "seconds": 565.7470000000001
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 101233,
+       "seconds": 563.0194315910339,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -87955,7 +89059,11 @@
        "seconds": 648.552
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 128829,
+       "seconds": 644.4306344985962,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -88278,7 +89386,11 @@
        "seconds": 759.271
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 142619,
+       "seconds": 754.0717086791992,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -88427,7 +89539,11 @@
        "seconds": 782.665
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 149319,
+       "seconds": 779.0681662559509,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -88588,7 +89704,11 @@
        "seconds": 657.585
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 128560,
+       "seconds": 654.5705542564392,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -88751,7 +89871,11 @@
        "seconds": 760.845
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 146685,
+       "seconds": 756.5168190002441,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",
@@ -88902,7 +90026,11 @@
        "seconds": 771.893
       },
       "engine_input": null,
-      "engine_output": null
+      "engine_output": {
+       "tokens": 132376,
+       "seconds": 767.8620772361755,
+       "approximate": true
+      }
      },
      "speed_basis": {
       "task": "API usage (relay) over the instance work seconds",

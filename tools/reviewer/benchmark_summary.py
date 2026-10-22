@@ -65,8 +65,9 @@ SCORED_STATUSES = ('final', 'no-report')  # bench_score statuses with a final sc
 SPEED_POOL_NOTE = ('速度汇总口径（用户 2026-10-22）：多个实例的速度（summary.json 各行的 speeds_mean）是总 token ÷ 总耗时'
                    '（各实例 speed_parts 的分子之和 ÷ 分母之和，speed_totals 给出两者），不是各实例速度的算术平均；'
                    '任一实例该项未知，汇总即未知；任一实例该项是下限，汇总也是下限。Codex 上的 API 模型（gpt-6.1-sol、'
-                   'gpt-6-luna、DeepSeek）的引擎输出按 relay 日志的 output token ÷ 请求秒数计算，v1 的记录没有保存这两个数，'
-                   '原始 relay 日志已删除，所以这一项汇总记为未知（待用户确认），逐实例值照旧。')
+                   'gpt-6-luna、DeepSeek）的引擎输出按 relay 日志的 output token ÷ 请求秒数计算，v1 的记录没有保存请求秒数，'
+                   '原始 relay 日志已删除，所以这一项按用户 10-22 的选择近似汇总：分子取实例的输出 token（同样来自 relay usage），'
+                   '分母取 输出 token ÷ 逐实例引擎输出速度 反推的请求秒数；汇总标为近似（speeds_approximate，表中写"≥≈"），仍是下限。')
 
 
 def comparisons():
@@ -299,13 +300,15 @@ CLAUDE_API_ARMS = ('anthropic', 'deepseek-claude')
 
 
 def codex_relay_parts(record):
-    """engine_output parts of a Codex API instance (openai, deepseek-codex) whose record predates speed_parts. Its
-    numerator is the relay log's output tokens (requests with usage and start/end times), which need not equal the
-    instance's output tokens, and neither that sum nor the request seconds were stored; the relay logs of the v1
-    benchmark are deleted. So the part is unknown (option (a), 2026-10-22, pending the user's confirmation) and every
-    row holding such an instance has an unknown pooled engine_output. Option (b) would return
-    {'tokens': output, 'seconds': output / engine_output}, an approximation."""
-    return None
+    """engine_output parts of a Codex API instance (openai, deepseek-codex) whose record predates the stored relay
+    parts. The exact numerator (the relay log's output tokens over requests with usage and start/end times) and the
+    request seconds were not stored and the v1 relay logs are deleted, so the part is approximated (option (b), user
+    2026-10-22): the instance's output tokens, which come from the same relay usage, over output / engine_output, the
+    request seconds that would give the recorded speed. Marked approximate; still a lower bound like the speed."""
+    output, speed = (record.get('tokens') or {}).get('output'), (record.get('speeds') or {}).get('engine_output')
+    if not output or not speed:
+        return None
+    return {'tokens': output, 'seconds': output / speed, 'approximate': True}
 
 
 def speed_parts(record):
@@ -314,11 +317,15 @@ def speed_parts(record):
     computed from (tokens and work seconds; Strata handoff engine read / generated and their seconds; Claude Code API
     output tokens and handoff api_seconds; Codex API: codex_relay_parts). A rebuilt part must reproduce the recorded
     speed, otherwise ValueError."""
-    if record.get('speed_parts') is not None:
-        return record['speed_parts']
     speeds, tokens = record.get('speeds') or {}, record.get('tokens') or {}
-    handoffs = record.get('handoffs') or record.get('handoff_metrics') or []
     arm = record.get('arm') or ''
+    codex_api = not arm.startswith('strata') and arm not in CLAUDE_API_ARMS
+    if record.get('speed_parts') is not None:
+        stored = record['speed_parts']
+        if codex_api and stored.get('engine_output') is None and speeds.get('engine_output') is not None:
+            stored = dict(stored, engine_output=codex_relay_parts(record))
+        return stored
+    handoffs = record.get('handoffs') or record.get('handoff_metrics') or []
 
     def summed(key):
         values = [h.get(key) for h in handoffs]
@@ -348,7 +355,8 @@ def speed_totals(rows):
     out = {}
     for k in SPEEDS:
         parts = [speed_parts(r)[k] for r in rows]
-        out[k] = ({'tokens': sum(p['tokens'] for p in parts), 'seconds': sum(p['seconds'] for p in parts)}
+        out[k] = ({'tokens': sum(p['tokens'] for p in parts), 'seconds': sum(p['seconds'] for p in parts),
+                   **({'approximate': True} if any(p.get('approximate') for p in parts) else {})}
                   if rows and None not in parts else None)
     return out
 
@@ -400,6 +408,7 @@ def statistics(config, rows, kind, label, records_in_cell, n_valid):
             'speeds_mean': pooled_speeds(rows),
             'speed_totals': speed_totals(rows),
             'speeds_lower_bound': sorted({k for r in rows for k in r.get('speed_lower_bounds') or []}),
+            'speeds_approximate': sorted(k for k, v in speed_totals(rows).items() if v and v.get('approximate')),
             'cost_usd_total': summed, 'cost_usd_mean': None if summed is None else summed / len(rows),
             'cost_lower_bound': any(r.get('cost_lower_bound') for r in rows),
             'cost_cny_total': summed_cny, 'cost_cny_mean': None if summed_cny is None else summed_cny / len(rows),

@@ -358,12 +358,18 @@ class SummaryTest(unittest.TestCase):
                                                       'task_input': 2000 / 30, 'task_output': 600 / 30})
         s2['speeds']['engine_input'] = None
         self.assertIsNone(bs.pooled_speeds([s1, s2])['engine_input'])
-        # Codex API engine output without stored relay parts: unknown (option (a), pending the user).
+        # Codex API engine output without stored relay parts: approximated as output / (output / speed) and marked
+        # (option (b), user 2026-10-22), also when the record's stored speed_parts left it unknown.
         c = record(1, 1, 0.5, seconds=10.0, speeds={'task_input': 100.0, 'task_output': 30.0, 'engine_input': None,
                                                     'engine_output': 40.0})
-        self.assertIsNone(bs.speed_parts(c)['engine_output'])
-        self.assertIsNone(bs.pooled_speeds([c])['engine_output'])
+        self.assertEqual(bs.speed_parts(c)['engine_output'], {'tokens': 300, 'seconds': 7.5, 'approximate': True})
+        stored = dict(c, speed_parts={**bs.speed_parts(c), 'engine_output': None})
+        self.assertEqual(bs.speed_parts(stored)['engine_output'], {'tokens': 300, 'seconds': 7.5, 'approximate': True})
+        c2 = dict(c, tokens=dict(c['tokens'], output=100), speeds=dict(c['speeds'], engine_output=20.0, task_output=10.0))
+        self.assertEqual(bs.pooled_speeds([c, c2])['engine_output'], 400 / 12.5)
+        self.assertEqual(bs.speed_totals([c, c2])['engine_output'], {'tokens': 400, 'seconds': 12.5, 'approximate': True})
         self.assertEqual(bs.pooled_speeds([c])['task_output'], 30.0)
+        self.assertNotIn('approximate', bs.speed_totals([c])['task_output'])
         # A rebuilt part has to reproduce the recorded speed.
         with self.assertRaises(ValueError):
             bs.speed_parts(dict(c, speeds=dict(c['speeds'], task_output=31.0)))
