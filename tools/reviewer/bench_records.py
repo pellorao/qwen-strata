@@ -66,7 +66,10 @@ EFFORTS = ('low', 'medium', 'high')
 # Plan §2 / §14.4 (user 2026-10-21): DeepSeek rows are low / high / max; a medium instance takes the configuration of
 # its effective effort (high) and is either pooled into it (C') or a supplementary row (instance.json fields).
 MODEL_EFFORTS = {'codex': ('low', 'high', 'max'), 'cc': ('low', 'high', 'max')}
-DIR_NAME = re.compile(r'^(?P<model>[a-z-]+?)-(?P<effort>low|medium|high|max)-a(?P<attempt>\d+)$')
+# Phase-3 supplement (user 2026-10-22, docs/plan.md 9a): gpt-6-luna xhigh / max on Codex, outside the 27 configurations
+# of plan §2 and numbered after them; reported per instance only, never in a comparison.
+EXTRA_CONFIGS = {('luna', 'xhigh'): 28, ('luna', 'max'): 29}
+DIR_NAME = re.compile(r'^(?P<model>[a-z-]+?)-(?P<effort>low|medium|high|xhigh|max)-a(?P<attempt>\d+)$')
 SUB_SCENARIO = re.compile(r'^(.+)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-instance-\d+$')
 PREPARED = 'prep/arw/.tmp/codex/*/_reviewer-cap/runs/*/prepared.json'
 SCORE_FIELDS = {'score': None, 'raw_score': None, 'format_penalty': None, 'repairs': None}
@@ -197,7 +200,8 @@ def base(arm, scenario, folder):
     instance = load(folder / 'instance.json') or {}
     effective = instance.get('effective_effort') or effort
     efforts = MODEL_EFFORTS.get(match.group('model'), EFFORTS)
-    if effective not in efforts:
+    config = EXTRA_CONFIGS.get((match.group('model'), effective))
+    if config is None and effective not in efforts:
         raise ValueError(f'{folder}: effort {effective} is not a configuration of {family}')
     plan = PLANS / f'{scenario}.json'
     record = {'id': f'{arm}/{scenario}/{folder.name}', 'arm': arm, 'harness': HARNESS[arm],
@@ -205,7 +209,7 @@ def base(arm, scenario, folder):
               'requested_effort': instance.get('requested_effort', effort), 'effective_effort': effective,
               'pooled': bool(instance.get('pooled')), 'supplementary': bool(instance.get('supplementary')),
               'supplementary_label': instance.get('supplementary_label') if instance.get('supplementary') else None,
-              'config': first + efforts.index(effective), 'config_label': f'{family}-{effective}', 'scenario': scenario,
+              'config': config or first + efforts.index(effective), 'config_label': f'{family}-{effective}', 'scenario': scenario,
               'plan': str(plan.relative_to(ROOT)), 'plan_sha256_now': sha256_file(plan),
               'attempt': int(match.group('attempt')), 'dir': str(folder.relative_to(ROOT)) if folder.is_relative_to(ROOT) else str(folder)}
     prep = load(folder / 'prep/preparation.json') or {}

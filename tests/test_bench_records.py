@@ -53,6 +53,15 @@ class RecordsTest(unittest.TestCase):
         self.assertEqual(records['luna-low-a2']['validity']['status'], 'no-record')
         self.assertIsNone(records['luna-low-a1']['score'])
 
+    def test_luna_xhigh_and_max_supplement_configurations(self):
+        for name in ('luna-xhigh-a1', 'luna-max-a3'):
+            write(self.scene / name / 'instance.json', {'valid': False, 'handoffs': []})
+        records = {r['id'].rsplit('/', 1)[1]: r for r in bench_records.scene_records('openai', 'commit-audit-v3', self.scene)}
+        self.assertEqual((records['luna-xhigh-a1']['config'], records['luna-xhigh-a1']['config_label']), (28, 'gpt-6-luna-xhigh'))
+        self.assertEqual((records['luna-max-a3']['config'], records['luna-max-a3']['attempt']), (29, 3))
+        with self.assertRaises(ValueError):  # xhigh is no configuration of any other model
+            bench_records.base('openai', 'commit-audit-v3', self.scene / 'sol-xhigh-a1')
+
     def test_claude_layout_of_the_old_harness_and_with_a_sandbox_fault(self):
         d = self.scene / 'opus-low-a1'
         write(d / 'h0/outputs/.tmp/reports/review-result.md', self.report)

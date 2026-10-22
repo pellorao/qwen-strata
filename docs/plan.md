@@ -14,6 +14,7 @@
 6. ~~评分规则遗留~~：两项核实已完成（r7 已实现，69969fa 补测试）；Sonnet 盲裁试点通过（[报告](../reports/v0.1.45/sonnet-adjudication-pilot/summary.md)），但用户 2026-10-19 决定 benchmark 仍用 Opus 裁决（质量优先）。本项完成。
 7. ~~多模型 benchmark 方案设计~~、8. ~~执行与报告~~：2026-10-22 两阶段报告发布，见 work-history。
 9. ~~Strata 升级到 v0.2.2~~：2026-10-22 完成，短检查通过（[报告](../reports/v0.2.2/upgrade.md)）。遗留（都是速度类或需改部署集合，按需在后续调参时做）：0.2.2 引擎建议 `--pool-workers 15`（现 23）；`STRATA_SM86_PERF` 加进 `src/model_process.py` 白名单后做开关 A/B；长提示第 1 问的版本差异来源。安装后再详细检查 0.2.x 新功能有没有能替代或改进本工程适配的部分；新模型暂不考虑（用户 2026-10-22）。
+9a. **gpt-6-luna xhigh / max 补测**（用户 2026-10-22）：每格 5 次，四场景共 40 个实例，条件与 v1 相同；第三阶段补充报告，不做比较，只列每个实例的结果。用户借出 ChatGPT 登录后当晚跑完（用户当天用完后通知）。最多 3 个实例并行（用户 2026-10-22；v1 的 OpenAI 臂也是共用一个 CODEX_HOME 并行，条件不变），场景之间不并行。先做零模型准备。
 10. **电源计划对照**（升级后；需要用户切换电源计划，或事先讲好由我切）。
 11. ~~零模型 mock 门回归~~：2026-10-22 修好（91bed4d），根因是调用缺 `--directory-probe`；`claude_scenario --backend` 已加 deepseek。
 12. **Claude Code 路径的提醒改用高优先级消息**：见「多模型 benchmark」。
@@ -62,12 +63,16 @@
 - [x] **方案设计**（开跑前，按 AGENTS.md 硬约束 1 处理测量设计部分）：用户决定已齐（2026-10-19 三轮答复），定稿见[运行计划](../benchmarks/multi-model-v1/plan.md)：27 个配置 × 4 场景 × 5 次，基础提示只给 Strata，搜索全部关闭，OpenAI 用 ChatGPT 套餐登录，DeepSeek 用 `DEEPSEEK_API_KEY`（用户 10-19 设在 `~/.profile`）。代码适配已完成（ChatGPT 登录链接、relay 记录实际 service tier、两个 harness 关闭搜索、Claude Code 的 DeepSeek backend）。盲裁维持单名 Opus（用户 2026-10-19）。阶段 0 进展（2026-10-19）：三份盲裁 brief 已冻结；G7 deny-read 已实施；benchmark 专用 Codex 与 Claude Code 副本已装、compact probe 通过；API 臂压缩提示无残留已核实；G8 Strata live 冒烟通过；汇总层已实现。剩余：冻结 API catalog、汇总适配层、冻结计划（状态见运行计划 §9）。
 - [x] **执行与报告**：按场景分批运行。报告给出每个模型的均值 ± 标准差、耗时、token、工具调用数，以及每次的费用。
 - [ ] **benchmark 结束后：Claude Code 路径的提醒改用高优先级消息**（用户 2026-10-20）：ARW 提醒在 Codex 上是高优先级消息，会立即打断当前生成，确保模型在超时之前收到；Claude Code 路径现在经 PostToolUse hook，要等工具调用结束才送达。先查 Claude Code 无头模式能否中途打断并插入消息（如 stream-json 输入的 interrupt 加新的 user 消息，未核实），再实现并做对照；同时检查 relay 和各臂判定，别把这类主动打断记成故障。
+  - 2026-10-22 实验完成（`.tmp/cc-priority-1022/report.md`）：stream-json 输入写 `priority:"now"` 可在 0.1 s 内打断生成；工具执行中改为先 `control_request interrupt` 再写消息；Strata 端 cancel 与计量正常，`--resume` 可续。下一步按报告方案实现（`claude_headless` 改 stream-json 输入、判定放行 `aborted_*`、版本改 2.1.308 重跑 mock 门），再做 1 个真实对照。
 - [ ] **下一版：输出上限重试改进**（用户 2026-10-22）：`src/output_limit.py` 现在只重试 1 次，重试只追加一条通知。strata-codex CStd low-a9 两次都在写同一个 exec_command 时撞 8192，推理 token 都是 2065（输入只多了通知的 95 token），说明通知没有改变模型的做法，多重试几次也不会有效。候选做法：重试时降低 `max_output_tokens`，或者把通知放到更显眼的位置，或者两者结合。改动属于部署设计，先过独立审查，再用撞上限的 mock 和实例对照验证；不追溯本次 benchmark。
 - [ ] **下一版 benchmark：对齐各 harness 的窗口与压缩点，并逐实例记录压缩次数**（用户 2026-10-22）：v1 的 DeepSeek 在 Codex 上用 1048576 窗口、实际不压缩，在 Claude Code 上没设 `CLAUDE_CODE_MAX_CONTEXT_TOKENS`、约 162K 压缩（plan §4 第 7 条）。下一版按测量规则「跨 harness 设置尽量一致」逐项对齐（窗口、压缩点、强度、输出上限），保留的差异写明理由；开跑前用 mock 门抓请求核对两边实际生效的压缩点；bench_records 增加每实例压缩次数（Codex rollout 的压缩事件、Claude Code stream 的 compact_boundary），并进 summary 与导出。
 
 ## 采样与窗口重新测量（用户 2026-10-12）
 
 采样和窗口两个影响输出的维度，原结论（greedy、156584）在 ARW 上分不出高下，暂时维持现值；需另行设计答案可机械判定、低波动的专用负载，按「评分口径」的分阶段判定重新测量（负载设计属测量设计，按 AGENTS.md 硬约束 1 处理）。
+- 设计 v2（`.tmp/load-design-1022/draft-v2.md`）用户决定（2026-10-22）：
+  - 先做窗口维（206584 vs 156584），按 v2 §2 设计；打分统一：5 个检查点等权；平手按总工作时间（含压缩）选（用户 2026-10-22 确认）。其余 U 项按 v2 推荐。
+  - 采样维改用 ARW（用户 2026-10-22：专用题与 ARW 都难分辨时，用一直维护、更贴近使用的 ARW）。场景选 code-spec-v5（CS）、Codex、IQ3_XXS high：第二阶段 10 次 SD 0.029（低于调参门槛 0.068，其余三场景 0.05–0.15），实例约 9.3 分钟。因此沿用现行规则（双侧、δ=0.05、3/5/7/9/11），不必改判定；按 SD≈0.03 估计 d≈0 时约第 2–3 轮可判等效。前提：0.2.2 上和 card/t06 采样下 SD 要复核（第 1 轮后看实测 SD，若明显变大再交用户）；评分沿用 benchmark 的 rulings 与盲裁（含付费模型费用）；循环率从 ARW 会话统计，按 v2 §1.4 的 G/T/R。
 - [ ] 采样负载设计（同时测循环率）。模型卡（huggingface.co/Qwen/Qwen3.8-Flash-Next，2026-10-12 查）：思考模式推荐 temperature 1.0、top_p 0.95、top_k 20、min_p 0、presence_penalty 0；agent 编程评测用 temp 1.0、top_p 0.95；未提 greedy；重复时可调 presence_penalty 0–2。原生上下文 262,144。
 - [ ] 试跑结束后：调参驱动实现加载后预热、分数类参数同条件连跑、速度类参数按块交替（AA BB BB AA）与运行顺序趋势检查、各实例 reused 比例核对（规则见 measurement.md「预热与连跑」，bcceb93）。
 - [ ] 窗口负载设计（跨压缩阈值的长上下文任务，压缩前后事实保持可机械判定）。
