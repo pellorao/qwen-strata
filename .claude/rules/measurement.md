@@ -13,6 +13,7 @@ paths:
 - 记录版本、全部参数、执行顺序、缓存冷暖、加载耗时；复用旧结果必须满足冻结输入、评分和固定条件完全相同。
 - **空闲时加测**（用户 2026-10-13）：GPU 空闲（租约空闲、无其他排队测量）时，可以给测量提前加测，把有效实例数提高到 10 次或更多，以降低评分随机性。加测不得拖慢其他工作：后续步骤（评估、判定、下一项工作）按原定次数照常进行，加测与之并行，结果出来后再补进报告。目标次数在看到加测结果之前定好并写进计划，不按中途结果决定停不停；报告同时给出原定次数和全部次数的结果。加测优先级最低（用户 2026-10-21）：不占 Anthropic agent 名额，由运行脚本自己跑，Main 的定时检查看状态，不为它单开或保留监督 agent；真实工作需要 GPU 或名额时，加测在当前实例结束后让出。
 - Claude Code 测试隔离（用户 2026-10-14）：在测试里用 `qwen-agent` 启动 Claude Code（升级短检查、冒烟检查、测量）时，必须在隔离环境运行，不让它接触额外的规则或配置。具体做法：`CLAUDE_CONFIG_DIR` 指向全新的临时目录，只放测试需要的设置；工作目录放在工程目录外；不加载用户 `~/.claude` 下的 CLAUDE.md、settings、hooks、skills 和 memory。只换 `CLAUDE_CONFIG_DIR` 不够：工作目录在 `/home/pello` 之下时，Claude Code 会把祖先目录的 `/home/pello/.claude/CLAUDE.md` 当项目说明加载，所以要同时加 `--setting-sources user`（user 即全新的 `CLAUDE_CONFIG_DIR`），或把工作目录放在 `/home/pello` 之外（v0.1.45 升级时用假服务器证实，2026-10-18）。`qwen-agent` 自己带的设置（审批、压缩提示 hook）照常传入。从 agent 会话里启动时，用 `env -i` 只给最小环境（PATH、HOME、LANG、`CLAUDE_CONFIG_DIR` 等测试需要的变量），不把父会话的变量和用户的第三方 key 传下去；`qwen-agent` 自身也会去掉父会话的 `CLAUDE*` 变量。剩余途径：同用户进程能读祖先进程的 `/proc/<pid>/environ`，环境变量层面清不掉，只能靠沙箱（2026-10-19）。用真实配置目录运行的 Anthropic 模型 headless（Opus、Haiku 的参考运行和盲答）不适用 `user`：那样会加载真实的 `~/.claude/settings.json`，包括 hook 和权限，所以改用 `--setting-sources ""`，不加载任何设置源（与 v2 相同，2026-10-18）。日常使用不隔离。
+- 跨 harness 比较时，各 harness 的设置尽量一致（窗口、压缩点、强度对应、输出上限、提示接入等）；“各用原生设置”不是目标。只有理由充分时才保留差异（比如某个 harness 更适合某个配置），理由写进计划，开跑前用零模型方式核对两边实际生效的值（用户 2026-10-22）。
 - 主板 BIOS 升级（7E13v1C）和 CPU 功耗档 Intel Default Settings 前后的速度不直接比较。
 
 ## 原则

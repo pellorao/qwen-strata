@@ -31,6 +31,7 @@
 **适用范围**：
 
 - 第一阶段报告的全部适用范围照旧成立：单机单量化（rtx3080ti、IQ3_XXS，参数来自 v0.1.42 调参）；plan §4 的 14 条混杂；分数尺度是 r8.4（不在 0 处截断，正负两侧单位不同）；不给比值、综合分和排名（D7）。
+- DeepSeek 两个 harness 的窗口与压缩点不同（plan §4 第 7 条，10-22 补写明）：Codex 上用官方 catalog 的 1048576 窗口、auto_compact 未设，实际不压缩；Claude Code 上没有设 `CLAUDE_CODE_MAX_CONTEXT_TOKENS`，按未知模型的默认窗口约在 162K 时压缩（冻结审查实测 SR cc-high-a1 压缩过一次）。这项差异在第 1 轮之后才发现，为保持各轮条件一致没有改。实例记录没有存压缩次数，原始会话已清理，所以不知道 Claude Code 上有多少 DeepSeek 实例压缩过；涉及 DeepSeek Codex 与 Claude Code 对照的结论含这项差异，长会话场景受影响的可能更大。下一版对齐两边窗口与压缩点，并逐实例记录压缩次数。
 - 加测的运行条件与第一轮相同（plan §14.1 2026-10-21 09:14 条）：同一 Strata 0.1.45、同一部署、同一提示 sha 和固定条件；每个实例单独冷加载、不预热（与第一轮相同）；档序按块交替、与第一轮相反；每格尝试上限 13。加测在第一轮之后约 1–2 天进行（10-21 09:14 – 10-22 10:23），Strata 是本地固定版本，服务端漂移只涉及对手侧（plan §4 第 9 条），对手实例没有重跑。
 - Strata Claude Code 臂两轮的 harness 代不同：第一轮 CS、CA 各 15 个和 CStd 5 个是 `execute_continued`（早退接续，plan §14.1 2026-10-20 条）之前的旧代，其余（第一轮 CStd 10 个、SR 15 个，加测全部 60 个）是新代（CA / 加测 / execute_continued 15；CA / 第一轮 / before execute_continued 15；CS / 加测 / execute_continued 15；CS / 第一轮 / before execute_continued 15；CStd / 加测 / execute_continued 15；CStd / 第一轮 / before execute_continued 5；CStd / 第一轮 / execute_continued 10；SR / 加测 / execute_continued 15；SR / 第一轮 / execute_continued 15）。加测 60 个实例都没有触发接续或暂停（continue=0 60、pauses=0 60），所以这一差别在加测里没有实际作用；旧代实例的暂停数按构造为 0（第一阶段已说明）。
 - 会话检查（D9）已完成：120 个加测实例全部有效，4 个记诊断分（环境查询，`echo $TMPDIR` 一类，只输出本实例临时目录），计分不变。

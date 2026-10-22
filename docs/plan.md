@@ -57,6 +57,7 @@
 - [ ] **执行与报告**：按场景分批运行。报告给出每个模型的均值 ± 标准差、耗时、token、工具调用数，以及每次的费用。
 - [ ] **benchmark 结束后：Claude Code 路径的提醒改用高优先级消息**（用户 2026-10-20）：ARW 提醒在 Codex 上是高优先级消息，会立即打断当前生成，确保模型在超时之前收到；Claude Code 路径现在经 PostToolUse hook，要等工具调用结束才送达。先查 Claude Code 无头模式能否中途打断并插入消息（如 stream-json 输入的 interrupt 加新的 user 消息，未核实），再实现并做对照；同时检查 relay 和各臂判定，别把这类主动打断记成故障。
 - [ ] **下一版：输出上限重试改进**（用户 2026-10-22）：`src/output_limit.py` 现在只重试 1 次，重试只追加一条通知。strata-codex CStd low-a9 两次都在写同一个 exec_command 时撞 8192，推理 token 都是 2065（输入只多了通知的 95 token），说明通知没有改变模型的做法，多重试几次也不会有效。候选做法：重试时降低 `max_output_tokens`，或者把通知放到更显眼的位置，或者两者结合。改动属于部署设计，先过独立审查，再用撞上限的 mock 和实例对照验证；不追溯本次 benchmark。
+- [ ] **下一版 benchmark：对齐各 harness 的窗口与压缩点，并逐实例记录压缩次数**（用户 2026-10-22）：v1 的 DeepSeek 在 Codex 上用 1048576 窗口、实际不压缩，在 Claude Code 上没设 `CLAUDE_CODE_MAX_CONTEXT_TOKENS`、约 162K 压缩（plan §4 第 7 条）。下一版按测量规则「跨 harness 设置尽量一致」逐项对齐（窗口、压缩点、强度、输出上限），保留的差异写明理由；开跑前用 mock 门抓请求核对两边实际生效的压缩点；bench_records 增加每实例压缩次数（Codex rollout 的压缩事件、Claude Code stream 的 compact_boundary），并进 summary 与导出。
 
 ## 采样与窗口重新测量（用户 2026-10-12）
 
