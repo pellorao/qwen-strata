@@ -3,11 +3,11 @@
   "benchmarkName": "Reviewer Model Benchmark",
   "benchmarkVersion": "2.0",
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T09:28:08+00:00",
+  "generatedAt": "2026-10-22T09:29:14+00:00",
   "source": {
    "project": "qwen_strata",
-   "commit": "8d1da8006e878f224e6b1bac485b7663b9323e37",
-   "treeDirty": true,
+   "commit": "9c68c7e0451f9574cf2053937a7aa766a5540b2f",
+   "treeDirty": false,
    "summarySha256": "33062d7836bc98e9d71d843789a8cc0892ac12b5092c37e7004b5944829ee288"
   },
   "scoring": {
