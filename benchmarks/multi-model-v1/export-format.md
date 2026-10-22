@@ -17,7 +17,7 @@ python3 -m tools.reviewer.benchmark_export --summary <summary.json> --out <file>
 
 - `--summary` 是 `benchmark_summary` 用当前代码生成的 `summary.json`。导出要用到 `handoff_metrics`、`score_r83`、`model_failure_handoffs` 等扩展字段，所以旧版 summary 要先用同一份 records 和计分根重新生成。
 - `--variant` 是同一批实例在另一计分根上生成的 summary，只有计分字段可以不同（有效性、排名、选取、配置不同时报错）。可用的 id 见下文「敏感性变体」。
-- `--diagnostic` 是会话检查后记诊断分的实例清单（`session-diagnostic.json`，实例 id → 环境查询次数）。第二阶段的实例检查完后要补进这个文件。
+- `--diagnostic` 是会话检查后记诊断分的实例清单（`session-diagnostic.json`，实例 id → 环境查询次数）。第二阶段的 4 个已补入（共 16 个）。
 - **发布安全自检**：输出前扫描整份结果的所有键和字符串，发现 IPv4/IPv6、localhost、本机路径（`/home`、`/mnt`、`/var`、`/tmp` 等，`~/`，Windows 盘符，`\\wsl`）、当前用户名、邮箱、UUID、请求或消息 id（`req_`、`msg_`、`toolu_`、`chatcmpl` 等）、密钥形态（`sk-`、Bearer、JWT、PEM）、`api_key=` 一类赋值、私有文件名（`private.toml`、`.state/`、`.credentials`、`.env`）、白名单之外的 URL，或者禁用键名（report、findings、answer、expected、decisions、session、thread、instanceId、dir、path、prompt 等），就报错退出，什么都不写。字段一律按白名单逐个复制，不整体搬运记录。
 
 ## 顶层结构
@@ -41,7 +41,8 @@ python3 -m tools.reviewer.benchmark_export --summary <summary.json> --out <file>
 - `benchmarkName` 固定为 "Reviewer Model Benchmark"，`benchmarkVersion` 为 "2.0"，`schemaVersion` 是本格式的版本号（当前为 1，字段改名或删除时加 1）。
 - `generatedAt`：生成时刻（UTC）。`source`：`commit`（本工程 HEAD）、`treeDirty`（已跟踪文件是否有未提交改动）、`summarySha256`（输入 summary.json 的 sha256）。
 - `scoring`：计分版本 r8.4 及说明。N = Σ正例得分 − Σ失败反例 k；N ≥ 0 时分数 = N ÷ P，N < 0 时分数 = N ÷ Σk；整体扣减 d = max(暂停 0.1, 格式罚 f, ARW 残余 0.1) 只扣一次，最终分 = s − d·|s|；模型失误（没有报告）记 0。
-- `phase`：`number`（1 或 2）、`complete`（主统计实例是否都已计分）、`final`（第一阶段恒为 false；第二阶段计分完成后为 true）。
+- `phase`：`number`（1 或 2）、`complete`（主统计实例是否都已计分）、`final`（第一阶段恒为 false；第二阶段计分完成后为 true）。第二阶段文件另有 `phase1`：已发布的第一阶段报告与 summary.json 的路径（相对工程根）和 sha256（`summaryMd`、`summaryMdSha256`、`summaryJson`、`summaryJsonSha256`），并说明用 `selection.mainStatistic` 可重算第一阶段全部统计，第一阶段敏感性变体只适用于第一阶段实例集，不在第二阶段文件里。
+- `parallelWindows`：Strata 加测期间同一主机上另有计算进程（nice 19）运行的时段 W1–W5，每项 `id`、`start`、`end`（UTC）和说明；实例的 `parallelWindow` 据此标记（见 instances）。
 - `statistics`：`alpha` 0.05、`holmFamilySize` 25、`preregisteredN` 5、`strataExtraTarget` 10。
 - `userDecisions`：上文两条用户决定。
 - `reportConversions`：本工程报告用的两个换算常数，都不是费用：Strata 的测量规则等效费用（每百万 token 的美元数：未缓存 0.15、缓存 0.016、输出 0.47），以及 Anthropic 周额度百分比 = API 等价美元 × 0.086。
@@ -96,6 +97,7 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 | `cost` | 只对 Anthropic 和 DeepSeek：`usd`、`cny`（只有 DeepSeek）、`lowerBound`（有被提醒中断丢弃的请求未计入）、`basis`。其余臂为 null |
 | `harnessReportedCostUsd` | Claude Code 三个臂各段 `total_cost_usd` 之和（按 Anthropic 价目，非 Anthropic 后端不能当费用）；Codex 臂为 null |
 | `modelIdsReturned`、`serviceTiers` | 实际返回的模型 ID；service tier → 请求数（按记录顺序） |
+| `parallelWindow` | 实例与 `meta.parallelWindows` 的关系：`{kind, windows}`，`kind` 为 `start`（`startedAt` 落在某时段内）或 `overlap`（开始于时段外，但 `startedAt` 到 `startedAt + durationSeconds` 与某时段重叠），`windows` 为时段 id；都不沾为 null。只影响速度和用时的解读，不影响分数 |
 | `handoffs` | 每个根线程一项：`subScenario`、`durationSeconds`、`tokens`、`tokensLowerBound`、`cacheWriteInput`、`toolCalls`、`apiSeconds`、`engine`（Strata 的 read、generated、输入处理秒数、解码秒数）、`modelFailure`、`finalStatus`（ARW 完成状态或 Claude Code 结果形式：`ready`、`incomplete`、`not-arw-form`）、`continuationStop`（Claude Code 接续循环停止原因：`delivered`、`model_error`、`hard_limit`）、`harnessReportedCostUsd` |
 
 `scoring`：
@@ -141,7 +143,8 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 
 ### 报告里的其他数
 
-- 逐实例表按 (配置号, 补充标签, `startedAt`, id) 排序，没有开始时刻的无效实例排在前面。报告逐实例表里 Strata 的"费用"一列是 Claude Code 报的 `harnessReportedCostUsd`（Strata-Codex 为未知），不是等效费用；配置表里的 Strata 费用才是等效费用。
+- 逐实例表按 (配置号, 补充标签, `startedAt`, id) 排序，没有开始时刻的无效实例排在前面。费用一列：第一阶段报告的逐实例表里 Strata 的"费用"是 Claude Code 报的 `harnessReportedCostUsd`（Strata-Codex 为未知），不是等效费用（第一阶段报告已加更正）；第二阶段报告起与配置表一致，Strata 为按实例三类 token 算的等效费用（`meta.reportConversions`）。
+- 速度与用时的两轮拆分（第二阶段报告）：Strata 两臂进主统计的有效实例按 `stage` 和 `parallelWindow` 分三组：第一轮（`preregistered`）、加测（`extra` 且 `parallelWindow` 为 null）、加测并行（`extra` 且不为 null）；各组的速度、耗时取算术平均，SD 用 n − 1。
 - 墙钟表：按 (臂, 场景, 是否 `extra`) 分组，只用有 `startedAt` 的实例；首个开始 = 最早的 `startedAt`；末个结束 = 各实例 `startedAt + durationSeconds` 的最大值（缺耗时按 0）；时刻按 JST 显示到分钟（截断）。"实例数（含无效）"是组内有开始时刻的实例数；加测表的"有效实例"是组内有效实例数。
 - 第一阶段实例数 = `stage` 为 `preregistered` 的有效实例数（557）。
 
@@ -156,6 +159,9 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 | `preGap` | 补裁缺口前（9 个实例未计分完） | — |
 | `gapsLower`、`gapsUpper` | 缺口下界 / 上界 | `preGap` |
 | `preLineShift` | 缺口补裁后、CA 第 2 关行号修复（N1）前 | `preGap`；本文件（正式）以它为基准 |
+| `A6` | 歧义清单 A6 另一读法（CA 规则 24 "redacted value" 指整个事件；只动 CA 的第二阶段加测实例） | `formal` |
+
+第二阶段文件只带 `A6`。`A1`、`A2E_*` 和缺口、行号相关的变体只适用于第一阶段实例集，在第一阶段文件和报告里；第二阶段加测实例中没有 A1、A2 同类 finding（按 finding 原文和决定理由逐条查过），所以第二阶段没有对应变体。
 
 `preGap`、`gapsLower`、`gapsUpper`、`preLineShift` 的汇总在记录 `score_r83` 之前生成，overrides 里没有 `scoreR83`，这四个变体的 r8.3 列不可重算（报告也没有用到）。
 
@@ -177,3 +183,7 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 用一个只读导出文件、不导入本工程代码的重算脚本（`python3 -I`，自带 t 分布、Welch、Holm），从实例层重算后逐项比对：正式 `summary.json` 的全部配置行和比较、每个实例字段，7 个变体汇总（A1、A2 min、A2 full 全部字段；其余四个比对计分字段和比较），报告的全部表格（4 个场景的配置表、比较表、逐实例表，r8.3 表，负分表，两张墙钟表）逐格比对显示值，以及报告正文里的数（结论分布与按对手归并、|d| 区间个数、N1、A1 / A2 / 缺口各项、诊断分、模型失误、缺数据实例等）。浮点允许 1e-9 相对误差。结果为 87952 / 87952 项一致。
 
 比对中发现报告正文一处有误：敏感性一节写"A2 min 只动 luna-high-a10……它不在主统计，p 不变"，而 summary.json 和 A2 min 变体汇总都表明 luna-high-a10 是 CA 配置 6（Codex gpt-6-luna high）的 validRank 5，在主统计；A2 min 使 CA 12 对 6 的未校正 p 由 0.1341 变为 0.1350，Holm p 仍为 1，结论不变。检查脚本按汇总的实际值核对。另外，报告墙钟一节写"末个结束 = 最晚的开始 + 该实例工作秒数"，表中的数实际是各实例"开始 + 工作秒数"的最大值（上文按实际算法写）。
+
+## 检查结果（第二阶段，2026-10-22）
+
+用只读第二阶段导出文件、不导入本工程代码的重算脚本（`python3 -I`，自带 t 分布、Welch、Holm），从实例层重算后与第二阶段 `summary.json` 逐项比对：主统计行、补充行和一致性行（26 行，含 CA 的 2 个 DeepSeek 合并格）的 n、均值、SD、SE、95% 区间、中位数、最小值、负分数、r8.3 均值、rawScore 与 f 均值、耗时、三类 token、工具调用、四项速度和 Strata 等效费用；100 个比较的配对、d、SE、df、p、Holm p、判定和 r8.3 的 Holm p 与判定；A6 变体（按 overrides 覆盖后）的 d、Holm p 和判定；按 `stage` 与 `parallelWindow` 拆分的 Strata 引擎输出速度（n、均值、SD、最小、最大）与报告一致。浮点允许 1e-9 相对误差。结果为 4149 / 4149 项一致。

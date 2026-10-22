@@ -42,6 +42,22 @@ DIAGNOSTIC = ROOT / 'benchmarks/multi-model-v1/session-diagnostic.json'
 # Report conversions that are not costs (benchmark_summary): the measurement-rule equivalent cost of Strata and the
 # Anthropic weekly-quota share per API-equivalent USD.
 STRATA_EQUIVALENT_USD_PER_M = {'uncachedInput': 0.15, 'cachedInput': 0.016, 'output': 0.47}
+# Phase 1 as published, pointed to from the phase-2 file (paths relative to the project root).
+PHASE1_SUMMARY_MD = 'reports/v0.1.45/multi-model-benchmark/phase1/summary.md'
+PHASE1_SUMMARY_JSON = 'reports/v0.1.45/multi-model-benchmark/phase1/summary.json'
+# Periods (UTC) when other compute (nice 19) ran on the Strata host beside the phase-2 extra runs: id, start, end, zh, en.
+PARALLEL_WINDOWS = [
+    ('W1', '2026-10-21T16:50:00+00:00', '2026-10-21T17:30:00+00:00', '第一阶段补数据 worker 计算（nice 19，1–2 进程）',
+     'phase-1 data-completion worker (nice 19, 1-2 processes)'),
+    ('W2', '2026-10-21T17:20:00+00:00', '2026-10-21T17:59:59+00:00',
+     '第一阶段全量重算（nice 19，并发 ≤2；运行记录为 02:2x–02:5x JST，按整段取）',
+     'phase-1 full rescoring (nice 19, at most 2 at once; logged as 02:2x-02:5x JST, taken whole)'),
+    ('W3', '2026-10-21T22:41:00+00:00', '2026-10-21T22:42:59+00:00', '第二阶段 CStd 枚举与计分（nice 19，并发 ≤2）',
+     'phase-2 CStd enumeration and scoring (nice 19, at most 2 at once)'),
+    ('W4', '2026-10-21T23:37:00+00:00', '2026-10-21T23:38:59+00:00', '第二阶段 CStd 枚举与计分（nice 19，并发 ≤2）',
+     'phase-2 CStd enumeration and scoring (nice 19, at most 2 at once)'),
+    ('W5', '2026-10-22T00:31:43+00:00', '2026-10-22T00:35:02+00:00', 'SR 计分准备：建 record、枚举、manifest、扫描（nice 19）',
+     'SR scoring preparation: records, enumeration, manifest, scan (nice 19)')]
 
 SCENARIOS = {
     # id: reviewer, version, revision, sub-scenarios, P (positive cases), sum k of negatives, time-limit rule, texts
@@ -85,6 +101,9 @@ VARIANTS = {
                 'reading forces).'),
     'A2E_full': ('formal', '歧义清单 A2 的另一读法（full）：同上，所有可按该读法改判的 finding 都改。',
                  'Ambiguity list A2 (full): every finding the reading can change.'),
+    'A6': ('formal', '歧义清单 A6 的另一读法：Commit Audit 规则 24 的"redacted value"指整个事件，相关 2 条 finding 判 supported（只动 CA，第二阶段加测实例）。',
+           'Ambiguity list A6, alternative reading of Commit Audit rule 24 ("redacted value" as the whole event): '
+           'the 2 affected findings judged supported (Commit Audit only, phase-2 extra instances).'),
     'preGap': (None, '补裁缺口前的计分（9 个实例当时待裁、未计分完）；历史状态。',
                'Scoring before the gap adjudication (9 instances pending, unscored); historical state.'),
     'gapsLower': ('preGap', '缺口下界：待裁候选全部按 not-matched / unsupported 暂定。',
@@ -321,6 +340,21 @@ def instance(row, phase, diagnostic):
     }
 
 
+def parallel_window(row):
+    """{'kind': 'start' | 'overlap', 'windows': [...]} when the instance started in, or only ran during, a
+    PARALLEL_WINDOWS period (startedAt + work seconds); None otherwise."""
+    if row.get('started') is None:
+        return None
+    start, end = row['started'], row['started'] + (row.get('seconds') or 0)
+    spans = [(n, datetime.fromisoformat(a).timestamp(), datetime.fromisoformat(b).timestamp())
+             for n, a, b, _, _ in PARALLEL_WINDOWS]
+    began = [n for n, a, b in spans if a <= start <= b]
+    if began:
+        return {'kind': 'start', 'windows': began}
+    ran = [n for n, a, b in spans if start < b and end > a]
+    return {'kind': 'overlap', 'windows': ran} if ran else None
+
+
 def instances(summary, diagnostic):
     out = []
     for scenario, result in summary['scenarios'].items():
@@ -332,6 +366,7 @@ def instances(summary, diagnostic):
         for r in rows:
             item = instance(r, summary['phase'], diagnostic)
             item['selection']['stage'] = stage(r, fifth)
+            item['parallelWindow'] = parallel_window(r)
             out.append(item)
     return out
 
@@ -481,10 +516,25 @@ def build(summary, summary_sha, variant_paths=(), diagnostic=None, generated=Non
             'phase': {'number': summary['phase'], 'complete': summary['complete'],
                       'final': False if summary['phase'] == 1 else summary['complete'],
                       'zh': ('第一阶段：只用预登记实例（Strata 每格前 5 个有效实例）；第二阶段（Strata 加测到 10 个进主统计）完成后另出正式文件。'
-                             if summary['phase'] == 1 else '第二阶段：Strata 各格取全部有效实例（至多 10 个）。'),
+                             if summary['phase'] == 1 else '第二阶段：按计划的全样本分析，Strata 各格取全部有效实例（至多 10 个），其余配置同第一阶段。'),
                       'en': ('Phase 1: preregistered instances only (first 5 valid per Strata cell); the formal file '
                              'follows phase 2 (Strata extra instances up to 10 in the main statistic).'
-                             if summary['phase'] == 1 else 'Phase 2: Strata cells use every valid instance (up to 10).')},
+                             if summary['phase'] == 1 else 'Phase 2: the planned full-sample analysis; Strata cells use '
+                             'every valid instance (up to 10), other configurations as in phase 1.'),
+                      **({} if summary['phase'] == 1 else {'phase1': {
+                          'summaryMd': PHASE1_SUMMARY_MD, 'summaryMdSha256': sha256(ROOT / PHASE1_SUMMARY_MD),
+                          'summaryJson': PHASE1_SUMMARY_JSON, 'summaryJsonSha256': sha256(ROOT / PHASE1_SUMMARY_JSON),
+                          'zh': '用 selection.mainStatistic 可重算第一阶段全部统计；第一阶段敏感性变体只适用于第一阶段实例集，见第一阶段报告，本文件不带。',
+                          'en': 'selection.mainStatistic recomputes every phase-1 statistic; the phase-1 sensitivity '
+                                'variants apply to the phase-1 instance set only and are in the phase-1 report, not '
+                                'in this file.'}})},
+            'parallelWindows': {
+                'zh': 'Strata 加测期间，同一台主机上另有计算进程（nice 19）运行的时段。实例的 parallelWindow 标出开始于某时段（start）或运行中与某时段重叠（overlap）；时段只可能影响速度和用时，不影响分数。',
+                'en': 'Periods when other compute (nice 19) ran on the Strata host during the extra runs. An '
+                      "instance's parallelWindow marks a start in a period (start) or a run during one (overlap); a "
+                      'period can only affect speed and duration, not scores.',
+                'windows': [{'id': n, 'start': a, 'end': b, 'zh': zh, 'en': en}
+                            for n, a, b, zh, en in PARALLEL_WINDOWS]},
             'statistics': {'alpha': summary['alpha'], 'holmFamilySize': summary['holm_family_size'],
                            'preregisteredN': summary['preregistered_n'], 'strataExtraTarget': summary['strata_phase2_max']},
             'userDecisions': [
