@@ -15,7 +15,7 @@
 7. ~~多模型 benchmark 方案设计~~、8. ~~执行与报告~~：2026-10-22 两阶段报告发布，见 work-history。
 9. **Strata 升级到 v0.2.2**（benchmark 结束后，10-22 每日检查发现）：0.1.x → 0.2.x 大版本，发布包从 zip 改为安装程序；先分析发布说明与安装方式、写升级方案并过独立审查，再安装和短检查（strata-upgrade 流程）。放在其他测量之前，后续测量都在新版本上做。
 10. **电源计划对照**（升级后；需要用户切换电源计划，或事先讲好由我切）。
-11. **零模型 mock 门回归**（`thread/start -32603`）与 `claude_scenario --backend deepseek`。
+11. ~~零模型 mock 门回归~~：2026-10-22 修好（91bed4d），根因是调用缺 `--directory-probe`；`claude_scenario --backend` 已加 deepseek。
 12. **Claude Code 路径的提醒改用高优先级消息**：见「多模型 benchmark」。
 13. **采样与窗口重新测量**：负载设计，见同名一节。
 14. **v5 题库**：用户 2026-10-13 暂停，何时恢复由用户定。
