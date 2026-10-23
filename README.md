@@ -51,6 +51,7 @@ rtx3080ti 安装 Strata v0.2.2（引擎 0.1.47，2026-10-22，通过短检查）
 - 多模型 benchmark 的 DeepSeek 改测 low / high / max；已跑的 medium 按方案 C′ 部分并入 high，其余作补充行，Holm 族改为每场景 25 个比较（2026-10-21，用户决定改档，Main 经独立审查定并入方案，待用户复核）：[计划 §14.4](benchmarks/multi-model-v1/plan.md)。
 - 多模型 benchmark 的有效性判据：时限提醒或中断送达时正在进行的请求，它的 relay 错误不算错误，实例有效；只此一条（2026-10-23 用户定，取代 10-20 Main 定的 7 条）：[计划 §14 M2](benchmarks/multi-model-v1/plan.md)。
 - 多跑的有效实例只要不是按分数加跑，全部进最终实例集合，不截取前 n 个（2026-10-23 用户定，第三阶段起）：[测量规则](.claude/rules/measurement.md)。
+- Codex、Claude Code 等 harness 不长期钉旧版：每项工作开始时用当时的最新版，工作期间固定，换版先重跑 mock 门（2026-10-23，用户定）：[测量规则](.claude/rules/measurement.md)。
 - rtx3080ti 一直用平衡电源计划：高性能的 Strata 速度差不到 1%（2026-10-23）：[报告](reports/v0.2.2/power-plan/summary.md)。
 - 多模型 benchmark（2026-10-19，用户决定；方案定稿待冻结，[计划](benchmarks/multi-model-v1/plan.md)）：27 个配置（Codex：gpt-6.1-sol、gpt-6-luna、deepseek-flash、Strata；Claude Code：Opus、Sonnet、Haiku、deepseek-flash、Strata；均 low／medium／high）× 4 场景 × 5 次；只报分场景原始分，不算比值和综合分；两份基础提示只给 Strata（硬约束 3 例外）；搜索全部关闭（2026-10-11 搜索规则在 benchmark 期间豁免）；service tier 一律 default 并记录实际返回值；OpenAI 用 ChatGPT 套餐登录、只报 token。盲裁维持单名 Opus 全量裁（加锚点和合成负例）：按用户的 20% 规则盲裁占 benchmark 的 Anthropic 总消耗中值约 24%，但双裁只省约 $55–58，用户按例外处理、质量优先（2026-10-19，用户决定；计划 §6），"盲裁用 Opus，不用 Sonnet"继续有效。
 - 跨 harness 比较以设置一致为目标，不以“各用原生设置”为目标；保留差异须有充分理由并写进计划（2026-10-22，用户决定）：[测量规则](.claude/rules/measurement.md)。
