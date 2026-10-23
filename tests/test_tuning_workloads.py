@@ -626,6 +626,15 @@ class CodexWorkloadTest(unittest.TestCase):
         self.assertEqual(codex_workload.next_round(['b', 'a'], 2, ['a', 'b'], True), ['a', 'a', 'b', 'b'])
         self.assertEqual(codex_workload.next_round(['b'], 1, ['a', 'b'], True), ['b', 'b'])
 
+    def test_over_verified_requests_are_listed_by_kind(self):
+        from unittest import mock
+        rows = [{'input': 150000, 'output': 19}, {'input': 152545, 'output': 19}, {'input': 150935, 'output': 5325},
+                {'input': 156029, 'output': 600}]
+        with mock.patch('tools.metrics.strata_tokens.parse_engine_log', return_value=rows):
+            result = codex_workload.over_verified_requests('log', 151000)
+        self.assertEqual(result['max_request_input'], 156029)
+        self.assertEqual([r['kind'] for r in result['over_verified']], ['ack', 'questions'])
+
     def test_override_tables_are_toml(self):
         self.assertEqual(codex_workload.toml_value({':minimal': 'read', 'x': ['a']}), '{":minimal" = "read", "x" = ["a"]}')
 

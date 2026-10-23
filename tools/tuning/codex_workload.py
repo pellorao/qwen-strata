@@ -752,8 +752,28 @@ def run_claude_window(plan, data, name, out, seconds_limit=None, mock_base=None)
               'turns_done': len(result.get('turns', [])), 'turns_planned': len(data['sequence']),
               'hard_interrupt': result.get('hard_interrupt'), 'engine_tokens': result.get('engine_tokens'),
               'effect_problems': window_effect(spec, analysis)}
+    log = folder / 'engine-request-log.txt'
+    if log.exists():
+        record.update(over_verified_requests(log.read_text(), plan.get('verified_prompt_tokens')))
     save(folder / 'window-result.json', record)
     return record
+
+
+def request_kind(output_tokens):
+    """Rough kind of a window-workload request by its output: an ACK (a few tokens), a checkpoint's answers
+    (hundreds) or a compaction summary (thousands)."""
+    return 'ack' if output_tokens < 200 else 'questions' if output_tokens < 2000 else 'compaction'
+
+
+def over_verified_requests(log, verified):
+    """Largest request input of an engine log and the requests above the verified prompt length (recorded only;
+    the Claude Code mechanism check never fails on it)."""
+    from tools.metrics.strata_tokens import parse_engine_log
+    requests = parse_engine_log(log)
+    over = [{'input': r['input'], 'output': r['output'], 'kind': request_kind(r['output'])}
+            for r in requests if verified and r['input'] > verified]
+    return {'max_request_input': max((r['input'] for r in requests), default=None), 'requests': len(requests),
+            'over_verified': over}
 
 
 def cleanup_instance(here):
