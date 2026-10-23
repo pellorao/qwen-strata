@@ -448,25 +448,51 @@ class SandboxProbeTest(unittest.TestCase):
 class WindowBankTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.workload = window_bank.build(5)
+        cls.workload = window_bank.build(5)  # chars/2.4 estimate instead of the tokenizer
+        cls.frozen = json.loads((Path(__file__).resolve().parents[1] /
+                                 'benchmarks/window-load-v1/window-v2-seed1.json').read_text())
 
-    def test_self_check_and_sizes(self):
-        self.assertTrue(window_bank.self_check(self.workload)['ok'])
-        l130, l180 = self.workload['lengths']['L130'], self.workload['lengths']['L180']
-        self.assertGreater(l130['tokens']['estimated_context_before_questions'], 110000)
-        self.assertLess(l130['tokens']['estimated_context_before_questions'], 140000)
-        self.assertGreater(l180['tokens']['estimated_context_before_questions'], 160000)
-        self.assertGreaterEqual(len(l130['questions']), 30)
+    def test_self_check_and_composition(self):
+        for workload in (self.workload, self.frozen):
+            check = window_bank.self_check(workload)
+            self.assertTrue(check['ok'], check)
+            self.assertEqual(len(workload['questions']), 60)
+            for n in range(1, 6):
+                kinds = [q['type'] for q in workload['questions'] if q['checkpoint'] == n]
+                self.assertEqual(len(kinds), 12)
+        self.assertEqual(self.frozen['schema'], window_bank.SCHEMA)
 
-    def test_stale_answer_is_wrong(self):
-        length = self.workload['lengths']['L130']
-        updated = next(q for q in length['questions'] if q['kind'] != 'static')
-        reply = f'{updated["id"]}: definitely-not-{updated["answer"]}\nQ99: x'
-        result = window_bank.score(length, [reply])
+    def test_each_fact_asked_once_and_never_mentioned_after(self):
+        seen = set()
+        for q in self.frozen['questions']:
+            key = (q['record'], q['field'])
+            self.assertNotIn(key, seen)
+            seen.add(key)
+
+    def test_stale_answer_is_wrong_and_formatting_is_tolerated(self):
+        updated = next(q for q in self.frozen['questions'] if q.get('stale_values'))
+        reply = f'{updated["id"]}: {updated["stale_values"][0]}\nQ99: x'
+        result = window_bank.score(self.frozen, [reply])
         self.assertEqual(result['correct'], 0)
-        self.assertEqual(result['wrong_on_updated'], 1)
-        good = window_bank.score(length, [f'**{updated["id"]}:** `{updated["answer"].upper()}`'])
+        self.assertEqual(result['stale_answers'], 1)
+        good = window_bank.score(self.frozen, [f'**{updated["id"]}:** `{str(updated["answer"]).upper()}`'])
         self.assertEqual(good['correct'], 1)
+
+    def test_timeline_split_and_equal_weights_give_raw_accuracy(self):
+        w = self.frozen
+        labels = [x['label'] for x in w['sequence']]
+        replies, timeline = [], []
+        for n in range(1, 6):
+            qs = [q for q in w['questions'] if q['checkpoint'] == n]
+            replies.append('\n'.join(f'{q["id"]}: {q["answer"] if i % 3 else "wrong"}' for i, q in enumerate(qs)))
+            here = labels.index(f'questions {n}')
+            timeline.append({'raw': labels[max(0, here - 12):here + 1], 'compactions_after': [labels[here - 13]],
+                             'context_tokens': 90000 + 20000 * n})
+        result = window_bank.score(w, replies, timeline)
+        self.assertAlmostEqual(result['score'], result['raw_score'])
+        self.assertEqual(sum(c['n'] for c in result['C1'].values()) + sum(c['n'] for c in result['C2'].values()), 60)
+        self.assertAlmostEqual(result['in_text_share'], sum(c['n'] for c in result['C1'].values()) / 60)
+        self.assertEqual(set(result['C1']) - {'<100K', '100-150K', '>=150K'}, set())
 
 
 def rollout_lines(events):
@@ -543,20 +569,35 @@ class CodexWorkloadTest(unittest.TestCase):
             Path(f.name).unlink()
 
     def test_session_analysis(self):
+        summary = 'Another language model started to solve this problem: summary'
         result = self.analyse([user('<environment_context>x</environment_context>'),
                                user('This is a long-context recall test.'), assistant('ACK 00'),
                                user('Batch 01/02. New records:'), assistant('ACK 01'),
-                               {'type': 'compacted', 'payload': {}},
+                               assistant(summary),  # the compaction summary, recorded inside the running turn
+                               {'type': 'compacted', 'payload': {'message': summary, 'replacement_history': [
+                                   user('Batch 01/02. New records:')['payload'], user(summary)['payload']]}},
                                user('Batch 02/02. New records:'), assistant('ACK 02'),
-                               user('Questions about the current state'), call('ls'), call('ls'), call('ls'),
-                               assistant('Q01: a\nQ02: b')])
-        self.assertEqual(result['compactions'], [{'after_user_turn': 'batch 01'}])
-        self.assertEqual([r['turn'] for r in result['replies']], ['opening', 'batch 01', 'batch 02', 'questions'])
+                               user('Checkpoint 1 of 5. Questions about the current state'), call('ls'), call('ls'),
+                               call('ls'), assistant('Q01: a\nQ02: b')])
+        self.assertEqual(result['compactions'], [{'after_user_turn': 'batch 01', 'kept_raw': ['batch 01']}])
+        self.assertEqual([r['turn'] for r in result['replies']], ['opening', 'batch 01', 'batch 02', 'questions 1'])
+        self.assertEqual(result['replies'][1]['text'], 'ACK 01')
+        self.assertEqual(codex_workload.ack_problems(result), [])
         self.assertEqual(result['replies'][-1]['text'], 'Q01: a\nQ02: b')
+        self.assertEqual(result['timeline'][0]['raw'], ['batch 01', 'batch 02', 'questions 1'])
+        self.assertEqual(result['timeline'][0]['compactions_after'], ['batch 01'])
         self.assertEqual(result['loop']['longest_identical_call_run'], 3)
-        spec = {'context_window': 206584}
-        self.assertIn('L130 at 206584 compacted 1 times', codex_workload.window_effect(spec, 'L130', result))
-        self.assertTrue(any('tool calls' in p for p in codex_workload.window_effect(spec, 'L180', result)))
+        self.assertIn('206584 compacted 1 times, fewer than 2',
+                      codex_workload.window_effect({'context_window': 206584}, result, {206584: 2}))
+        self.assertIn('156584 compacted 1 times, fewer than 2',
+                      codex_workload.window_effect({'context_window': 156584}, result))
+        self.assertTrue(any('tool calls' in p for p in codex_workload.window_effect({'context_window': 206584}, result)))
+
+    def test_ack_reply_kept_when_no_summary_message_precedes_compaction(self):
+        result = self.analyse([user('Batch 01/02. New records:'), assistant('ACK 01'),
+                               {'type': 'compacted', 'payload': {'message': 'other', 'replacement_history': []}},
+                               user('Batch 02/02. New records:'), assistant('ACK 02')])
+        self.assertEqual([r['text'] for r in result['replies']], ['ACK 01', 'ACK 02'])
 
     def test_escapes(self):
         calls = [{'arguments': json.dumps({'cmd': 'cat /w/problems/P01.md'})},
@@ -579,6 +620,11 @@ class CodexWorkloadTest(unittest.TestCase):
     def test_next_round_mirrors_and_alternates(self):
         self.assertEqual(codex_workload.next_round(['a', 'b', 'c'], 1), ['a', 'b', 'c', 'c', 'b', 'a'])
         self.assertEqual(codex_workload.next_round(['a', 'b'], 2), ['b', 'a', 'a', 'b'])
+
+    def test_window_rounds_group_conditions_and_reverse_order(self):
+        self.assertEqual(codex_workload.next_round(['a', 'b'], 1, ['a', 'b'], True), ['b', 'b', 'a', 'a'])
+        self.assertEqual(codex_workload.next_round(['b', 'a'], 2, ['a', 'b'], True), ['a', 'a', 'b', 'b'])
+        self.assertEqual(codex_workload.next_round(['b'], 1, ['a', 'b'], True), ['b', 'b'])
 
     def test_override_tables_are_toml(self):
         self.assertEqual(codex_workload.toml_value({':minimal': 'read', 'x': ['a']}), '{":minimal" = "read", "x" = ["a"]}')
@@ -815,9 +861,9 @@ class CodexWorkloadTest(unittest.TestCase):
         self.assertEqual(seen, [('/strata/v1/status', 'Bearer lease-key')] * 3)
 
     def test_frozen_plans_check_without_model(self):
-        folder = Path(__file__).resolve().parents[1] / 'benchmarks/tuning-workloads-v1'
-        for name in ('window-plan.json', 'sampling-pilot-plan.json'):
-            plan, data, conditions = codex_workload.load_plan(folder / name)
+        root = Path(__file__).resolve().parents[1] / 'benchmarks'
+        for name in ('window-load-v1/pilot-plan.json', 'tuning-workloads-v1/sampling-pilot-plan.json'):
+            plan, data, conditions = codex_workload.load_plan(root / name)
             authorization = plan.get('authorization', {})
             if authorization.get('approved') is True:  # only with a recorded user approval
                 self.assertEqual(authorization.get('approved_by'), 'user')

@@ -213,6 +213,35 @@ class RunnerBuildersTest(unittest.TestCase):
         stop = json.loads((out / 'deadline-handoff.json').read_text())['interrupt']
         self.assertEqual((stop['status'], stop.get('group_stopped')), ('unknown', True))  # never answered
 
+    def test_turns_are_sent_one_after_another_and_analysed(self):
+        out = self.base / 'turns'
+        out.mkdir()
+        # a fake `claude -p` stream: replay each message, compact before the third turn, reply, then a result
+        fake = (
+            'import json,sys\n'
+            'n=0\n'
+            'for line in sys.stdin:\n'
+            '    m=json.loads(line); n+=1; text=m["message"]["content"]\n'
+            '    if n==3: print(json.dumps({"type":"system","subtype":"compact_boundary"}),flush=True)\n'
+            '    print(json.dumps({"type":"user","isReplay":True,"uuid":m["uuid"],"message":m["message"]}),flush=True)\n'
+            '    print(json.dumps({"type":"assistant","message":{"content":[{"type":"text","text":"R:"+text}]}}),flush=True)\n'
+            '    print(json.dumps({"type":"result","subtype":"success","usage":{"input_tokens":n*10,'
+            '"cache_read_input_tokens":5}}),flush=True)\n')
+        argv = [sys.executable, '-c', fake]
+        messages = ['Batch 01/03. x', 'Batch 02/03. y', 'Checkpoint 1 of 1. q']
+        result = ch.run_turns(out, messages, argv, {'PATH': os.environ['PATH']}, self.work, ch.Deadline(out, 60))
+        self.assertEqual((result['exit'], result['hard_interrupt'], len(result['turns'])), (0, False, 3))
+        self.assertTrue(all(t['ended_at'] for t in result['turns']))
+        from tools.tuning.codex_workload import turn_label
+        analysis = ch.conversation_analysis(out / 'stream.jsonl', turn_label)
+        self.assertEqual([r['turn'] for r in analysis['replies']], ['batch 01', 'batch 02', 'questions 1'])
+        self.assertEqual(analysis['replies'][2]['text'], 'R:Checkpoint 1 of 1. q')
+        self.assertEqual(analysis['replies'][2]['context_tokens'], 35)
+        self.assertEqual(analysis['compactions'][0]['after_user_turn'], 'batch 02')
+        self.assertEqual(analysis['replies'][2]['raw'], ['questions 1'])
+        self.assertEqual(analysis['replies'][2]['compactions_after'], ['batch 02'])
+        self.assertEqual(analysis['tool_calls'], 0)
+
     def test_command_reads_stream_json_input_and_replays_it(self):
         argv = ch.command('anthropic', 'opus', 'high', self.work, ['report'], {'s': 1})
         i = argv.index('--input-format')

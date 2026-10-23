@@ -14,6 +14,11 @@ per-item correctness, time and tokens.
     python3 -m tools.tuning.codex_workload check --plan PLAN
     python3 -m tools.tuning.codex_workload run --plan PLAN --out DIR [--limit N] [--groups 7-10]
     python3 -m tools.tuning.codex_workload decide --out DIR
+    python3 -m tools.tuning.codex_workload claude-window --plan PLAN --out DIR --condition NAME
+
+The window workload (v2, benchmarks/window-load-v1) runs in blocks instead: the consecutive instances of one condition
+share one lease, one load and one unscored warm-up conversation (`run_window_block`); `claude-window` is the pilot's
+Claude Code mechanism check.
 """
 import argparse
 from collections import Counter
@@ -63,7 +68,9 @@ def load_plan(path):
     names = set(plan['conditions'])
     data = json.loads(raw)
     if plan.get('pilot'):
-        if plan['workload'] != 'sampling' or len(names) != 1 or plan['first_round'] != list(names):
+        if plan['workload'] == 'window' and sorted(plan['first_round']) != sorted(names):
+            raise ValueError('A window pilot runs each condition once')
+        if plan['workload'] == 'sampling' and (len(names) != 1 or plan['first_round'] != list(names)):
             raise ValueError('A pilot runs one sampling condition once')
     elif len(names) not in staged_decision.FINAL_BOUNDS or set(plan['first_round']) != names or \
             any(plan['first_round'].count(n) != staged_decision.SIZES[0] for n in names):
@@ -75,10 +82,12 @@ def load_plan(path):
         if not isinstance(size, int) or size <= 0 or not isinstance(per_tier, (int, float)) or per_tier <= 0 or \
                 {'instance_seconds_limit', 'item_seconds_limit', 'session_token_budget'} & set(plan):
             raise ValueError('A sampling plan sets group_size and group_seconds_per_tier (one limit per group)')
-    elif not isinstance(plan.get('instance_seconds_limit'), (int, float)) or plan['instance_seconds_limit'] <= 0:
-        raise ValueError('A window plan sets instance_seconds_limit')
-    if plan['workload'] == 'window' and plan['length'] not in data['lengths']:
-        raise ValueError('A window plan runs exactly one frozen length per instance')
+    elif any(not isinstance(plan.get(k), (int, float)) or plan[k] <= 0 for k in (
+            'instance_seconds_limit', 'warmup_batches', 'warmup_seconds_limit', 'verified_prompt_tokens')):
+        raise ValueError('A window plan sets instance_seconds_limit, warmup_batches, warmup_seconds_limit and '
+                         'verified_prompt_tokens')
+    if plan['workload'] == 'window' and data.get('schema') != window_bank.SCHEMA:
+        raise ValueError('A window plan runs the window workload v2 (one conversation with five checkpoints)')
     conditions = {}
     for name, spec in plan['conditions'].items():
         window = spec['context_window']
@@ -97,10 +106,17 @@ def load_plan(path):
     return plan, data, conditions
 
 
-def next_round(sampled, round_number):
-    """+2 instances for each candidate still sampled, mirrored (a b c c b a), direction alternating per round."""
-    order = list(sampled) if round_number % 2 else list(reversed(sampled))
-    return order + order[::-1]
+def next_round(sampled, round_number, conditions=None, grouped=False):
+    """+2 instances for each candidate still sampled.  Sampling: mirrored (a b c c b a), direction alternating per
+    round.  `grouped` (window, design v2 U13): the same condition back to back (one load per condition and round),
+    the condition order reversed every round: round 1 a a a b b b, round 2 b b a a, round 3 a a b b.
+    `round_number` is the number of decisions taken; `conditions` fixes the grouped base order (the plan's)."""
+    if not grouped:
+        order = list(sampled) if round_number % 2 else list(reversed(sampled))
+        return order + order[::-1]
+    base = [c for c in (conditions or sampled) if c in sampled]
+    order = base if round_number % 2 == 0 else base[::-1]
+    return [c for c in order for _ in range(2)]
 
 
 def isolation(workload, folder):
@@ -228,8 +244,26 @@ def rollout(home, timed_out=False):
     return files[0]
 
 
+def turn_label(text):
+    """The workload turn a user message is: opening, batch NN, questions N (window v2), else 'task'; None for
+    harness context (environment, AGENTS.md) and compaction summaries."""
+    if text.startswith('<') or text.startswith('# AGENTS.md'):
+        return None
+    batch = re.match(r'Batch (\d+)/', text)
+    checkpoint = re.match(r'Checkpoint (\d+) of ', text)
+    if text.startswith('This is a long-context'):
+        return 'opening'
+    return f'batch {batch.group(1)}' if batch else f'questions {checkpoint.group(1)}' if checkpoint else 'task'
+
+
+def message_text(payload):
+    return ''.join(c.get('text', '') for c in payload.get('content', []) if isinstance(c, dict))
+
+
 def analyse_session(path):
-    """Compactions (with the batch they follow), tool calls, repetition and the assistant's final reply per turn.
+    """Compactions (with the turn they follow and the turns kept raw), tool calls, repetition, the assistant's final
+    reply per turn, and per question turn the window timeline: which turns were still raw context when it was
+    answered, after which turns compactions happened, and the input of its last request (`window_bank.score`).
     A rollout cut by a forced stop may end in a partial line, which is skipped."""
     events = []
     for line in (Path(path).read_text().splitlines() if path else []):
@@ -238,25 +272,48 @@ def analyse_session(path):
         except ValueError:
             continue
     calls, replies, compactions, last_user = [], [], [], None
-    current = None
+    current, raw, timeline, summary_candidate = None, [], [], False
     for e in events:
         p = e.get('payload') or {}
         if e.get('type') == 'compacted':
-            compactions.append({'after_user_turn': last_user})
+            # Codex records the compaction's own summary as an assistant message just before this event (inside the
+            # turn that was running); it is not that turn's reply.
+            history = [message_text(x) for x in p.get('replacement_history') or [] if isinstance(x, dict)]
+            last_text = current['texts'][-1] if current is not None and current['texts'] else None
+            if summary_candidate and last_text and (last_text.strip() == (p.get('message') or '').strip()
+                                                    or any(last_text.strip() in h for h in history)):
+                current['texts'].pop()
+                current['text'] = current['texts'][-1] if current['texts'] else None
+            summary_candidate = False
+            kept = [turn_label(message_text(x)) for x in p.get('replacement_history') or []
+                    if isinstance(x, dict) and x.get('type') == 'message' and x.get('role') == 'user']
+            raw = [k for k in kept if k and k != 'task']
+            compactions.append({'after_user_turn': last_user, 'kept_raw': list(raw)})
+        if e.get('type') == 'event_msg' and p.get('type') == 'token_count' and p.get('info') and current is not None:
+            current['input_tokens'] = p['info']['last_token_usage'].get('input_tokens')
         if e.get('type') != 'response_item':
             continue
         if p.get('type') == 'message' and p.get('role') == 'user':
-            text = ''.join(c.get('text', '') for c in p.get('content', []))
-            if text.startswith('<') or text.startswith('# AGENTS.md'):
+            label = turn_label(message_text(p))
+            if label is None:
                 continue
-            batch = re.match(r'Batch (\d+)/', text)
-            last_user = ('opening' if text.startswith('This is a long-context') else f'batch {batch.group(1)}'
-                         if batch else 'questions' if text.startswith('Questions about') else 'task')
-            current = {'turn': last_user, 'text': None}
+            last_user = label
+            raw.append(label)
+            current = {'turn': label, 'text': None, 'texts': [], 'input_tokens': None}
+            summary_candidate = False
             replies.append(current)
+            if label.startswith('questions '):
+                timeline.append({'label': label, 'point': current, 'raw': list(raw),
+                                 'compactions_after': [c['after_user_turn'] for c in compactions]})
         elif p.get('type') == 'message' and p.get('role') == 'assistant' and current is not None:
-            current['text'] = ''.join(c.get('text', '') for c in p.get('content', []))
+            current['text'] = message_text(p)
+            current['texts'].append(current['text'])
+            summary_candidate = True
+            if current['turn'].startswith('questions '):
+                timeline[-1]['raw'] = list(raw)
+                timeline[-1]['compactions_after'] = [c['after_user_turn'] for c in compactions]
         elif p.get('type') in ('function_call', 'custom_tool_call', 'local_shell_call'):
+            summary_candidate = False
             calls.append({'name': p.get('name') or p.get('type'),
                           'arguments': p.get('arguments') or p.get('input') or json.dumps(p.get('action'))})
     signature = [(c['name'], c['arguments']) for c in calls]
@@ -268,12 +325,15 @@ def analyse_session(path):
     texts = [r['text'] for r in replies if r['text']]
     repeated_lines = max((max(Counter(l for l in t.splitlines() if l.strip()).values(), default=0) for t in texts),
                          default=0)
+    points = [{'label': t['label'], 'raw': t.get('raw', []), 'compactions_after': t.get('compactions_after', []),
+               'context_tokens': t['point']['input_tokens'], 'answered': t['point']['text'] is not None}
+              for t in timeline]
     return {'compactions': compactions, 'tool_calls': len(calls), 'calls': calls,
             'loop': {'longest_identical_call_run': longest,
                      'calls_repeated_3_or_more': sum(v for v in repeated.values() if v >= 3),
                      'duplicate_replies': len(texts) - len(set(texts)),
                      'max_repeated_line_in_a_reply': repeated_lines},
-            'replies': replies}
+            'replies': replies, 'timeline': points}
 
 
 ROOT_DIRECTORIES = {'bin', 'boot', 'dev', 'etc', 'home', 'lib', 'lib64', 'media', 'mnt', 'opt', 'proc', 'root',
@@ -306,18 +366,28 @@ def escapes(calls, workspace):
     return flagged
 
 
-def window_effect(spec, length, analysis):
-    """Did compaction happen where this window condition must make it happen, and nowhere else?"""
+def window_effect(spec, analysis, minimum_compactions=None):
+    """Did compaction happen as this window condition must make it happen (design §2.3: 156584 at least twice,
+    206584 at least once over the whole conversation), and no tool call at all (a recall session uses none)?"""
     problems, count, tier = [], len(analysis['compactions']), spec['context_window']
-    if length == 'L130' and tier == 156584 and count < 1:
-        problems.append('L130 at 156584 did not compact')
-    if length == 'L130' and tier == 206584 and count:
-        problems.append(f'L130 at 206584 compacted {count} times')
-    if length == 'L180' and count < 1:
-        problems.append(f'L180 at {tier} did not compact')
+    needed = (minimum_compactions or {156584: 2, 206584: 1})[tier]
+    if count < needed:
+        problems.append(f'{tier} compacted {count} times, fewer than {needed}')
     if analysis['tool_calls']:
         problems.append(f'{analysis["tool_calls"]} tool calls in a conversation-only recall session')
     return problems
+
+
+def ack_problems(analysis):
+    """Batch turns whose reply is not exactly `ACK nn` for that batch (recorded, not an invalidity)."""
+    bad = []
+    for r in analysis['replies']:
+        if r['turn'].startswith('batch ') or r['turn'] == 'opening':
+            want = '00' if r['turn'] == 'opening' else r['turn'].split()[1]
+            match = window_bank.ACK.match(r['text'] or '')
+            if not match or match.group(1) != want:
+                bad.append({'turn': r['turn'], 'reply': (r['text'] or '')[:200]})
+    return bad
 
 
 def context_tokens(path):
@@ -434,46 +504,63 @@ def run_sampling(plan, data, spec, folder, args_for, key, mark, settle, gate=lam
             'compacted_attempts': sum(not r['valid'] for r in runs)}
 
 
+def run_conversation(plan, sequence, folder, args_for, key, settle, seconds_limit, mark=None):
+    """One Codex thread over `sequence` (opening, batches, question turns), one `codex exec` (resume) per turn.
+    The limit covers the whole conversation and each turn gets what is left; at the limit the turn is killed,
+    `settle()` waits for Strata to go idle, and no further turn is sent (unanswered questions score zero)."""
+    workspace, home = folder / 'workspace', folder / 'codex-home'
+    workspace.mkdir(parents=True)
+    home.mkdir()
+    subprocess.run(['git', 'init', '-q'], cwd=workspace, check=True)
+    log, thread, turns, timed_out = folder / 'codex.jsonl', None, [], False
+    deadline = time.monotonic() + seconds_limit
+    log_start = mark() if mark else None
+    for item in sequence:
+        left = deadline - time.monotonic()
+        if left <= 0:
+            timed_out = True
+            break
+        code, started, seconds = codex_exec(args_for(folder), workspace, home, key, item['text'], log, left,
+                                            resume=thread)
+        thread = thread or started
+        turns.append({'turn': item['label'], 'exit': code, 'seconds': seconds})
+        if code == 'timeout':
+            timed_out = True
+            turns[-1]['engine_idle_after_seconds'] = settle()
+        if code != 0:
+            break
+    log_end = mark() if mark else None
+    path = rollout(home, timed_out)
+    analysis = analyse_session(path)
+    save(folder / 'session-analysis.json', analysis)
+    return {'thread': thread, 'turns': turns, 'turns_planned': len(sequence), 'timed_out': timed_out,
+            'work_seconds': sum(t['seconds'] for t in turns), 'log_bytes': [log_start, log_end],
+            'rollout': str(path) if path else None}, analysis
+
+
 def run_window(plan, data, spec, folder, args_for, key, mark, settle):
-    """One conversation of the plan's single length: opening, record batches, question turns, in one thread.
-    The instance limit covers the whole conversation; each turn gets what is left.  At the limit the turn is killed,
-    `settle()` waits for Strata to go idle, no further turn is sent and unanswered questions score zero."""
-    results = {}
-    deadline = time.monotonic() + plan['instance_seconds_limit']
-    for name in [plan['length']]:
-        length = data['lengths'][name]
-        here = folder / name
-        workspace, home = here / 'workspace', here / 'codex-home'
-        workspace.mkdir(parents=True)
-        home.mkdir()
-        subprocess.run(['git', 'init', '-q'], cwd=workspace, check=True)
-        log, thread, turns, timed_out = here / 'codex.jsonl', None, [], False
-        prompts = [length['opening'], *length['turns'], *length['question_turns']]
-        for prompt in prompts:
-            left = deadline - time.monotonic()
-            if left <= 0:
-                timed_out = True
-                break
-            code, started, seconds = codex_exec(args_for(here), workspace, home, key, prompt, log, left,
-                                                resume=thread)
-            thread = thread or started
-            turns.append({'exit': code, 'seconds': seconds})
-            if code == 'timeout':
-                timed_out = True
-                turns[-1]['engine_idle_after_seconds'] = settle()
-            if code != 0:
-                break
-        analysis = analyse_session(rollout(home, timed_out))
-        save(here / 'session-analysis.json', analysis)
-        answers = [r['text'] for r in analysis['replies'] if r['turn'] == 'questions']
-        scored = window_bank.score(length, answers)
-        results[name] = {'score': scored['score'], 'by_group': scored['by_group'], 'rows': scored['rows'],
-                         'thread': thread, 'turns': turns, 'turns_planned': len(prompts), 'timed_out': timed_out,
-                         'compactions': analysis['compactions'],
-                         'tool_calls': analysis['tool_calls'], 'loop': analysis['loop'],
-                         'effect_problems': window_effect(spec, name, analysis)}
-    rows = [r for v in results.values() for r in v['rows']]
-    return {'score': sum(r['correct'] for r in rows) / len(rows), 'lengths': results}
+    """One scored instance: the whole v2 conversation; scored with its own measured timeline (window_bank.score)."""
+    session, analysis = run_conversation(plan, data['sequence'], folder, args_for, key, settle,
+                                         plan['instance_seconds_limit'], mark)
+    replies = [r['text'] for r in analysis['replies'] if r['turn'].startswith('questions ')]
+    timeline = complete_timeline(analysis['timeline'], len(data['checkpoint_positions']))
+    scored = window_bank.score(data, replies, timeline)
+    acks = ack_problems(analysis)
+    return {**session, 'score': scored['score'], 'raw_score': scored['raw_score'], 'scoring': scored,
+            'compactions': analysis['compactions'], 'tool_calls': analysis['tool_calls'], 'loop': analysis['loop'],
+            'ack_problems': len(acks), 'ack_examples': acks[:5],
+            'effect_problems': window_effect(spec, analysis) + (
+                [] if session['timed_out'] or len(replies) == len(data['checkpoint_positions'])
+                else [f'{len(replies)} question turns answered of {len(data["checkpoint_positions"])}'])}
+
+
+def complete_timeline(points, checkpoints):
+    """Checkpoints never reached (hard limit) still score zero; they count as not in raw text, context unknown."""
+    points = list(points)
+    for n in range(len(points) + 1, checkpoints + 1):
+        points.append({'label': f'questions {n}', 'raw': [], 'compactions_after': [], 'context_tokens': None,
+                       'answered': False, 'reached': False})
+    return points
 
 
 def loaded_startup_sha():
@@ -520,6 +607,7 @@ def session_records(log, sessions, offset):
 
 
 def run_instance(plan, data, conditions, name, folder):
+    """One sampling instance, one cold start (the window workload runs in blocks: run_window_block)."""
     from tools.ops.measurement_host import MeasurementHost
     from tools.reviewer.arw_measure import stop_and_capture_engine_log
     from tools.metrics.strata_tokens import engine_rates, sum_engine_tokens
@@ -541,13 +629,12 @@ def run_instance(plan, data, conditions, name, folder):
             health = state.get('native_health') or {}
             save(folder / 'start.json', {'status': state.get('status'), 'load_seconds': load, 'native_health': health})
             args_for = lambda here: codex_overrides(plan, spec, here, owner.model_base + '/v1')
-            runner = run_sampling if plan['workload'] == 'sampling' else run_window
-            extra = {'gate': lambda: wait_for_free_commit(host.free_commit_gib, plan.get('min_free_commit_gib',
-                                                                                          MIN_FREE_COMMIT_GIB))
-                     } if runner is run_sampling else {}
+            gate = lambda: wait_for_free_commit(host.free_commit_gib, plan.get('min_free_commit_gib',
+                                                                               MIN_FREE_COMMIT_GIB))
             began = time.monotonic()
-            record.update(runner(plan, data, spec, folder, args_for, owner.key, lambda: host.log_offset(plan['model']),
-                                 lambda: wait_engine_idle(owner.model_base, owner.key), **extra))
+            record.update(run_sampling(plan, data, spec, folder, args_for, owner.key,
+                                       lambda: host.log_offset(plan['model']),
+                                       lambda: wait_engine_idle(owner.model_base, owner.key), gate))
             record['session_seconds'] = time.monotonic() - began
         finally:
             stopped, requests, tokens = stop_and_capture_engine_log(owner, host.installation, plan['model'], offset,
@@ -561,18 +648,122 @@ def run_instance(plan, data, conditions, name, folder):
     for window, records in zip(windows, session_records(log, windows, offset)):
         window.update(tokens=sum_engine_tokens(records), **engine_rates(records))
     problems, effect = engine_effect(log, health, spec, condition, host.configuration(plan['model']), service_log)
-    sessions = [r for r in record.get('groups', []) if r['valid']] or list(record.get('lengths', {}).values())
+    sessions = [r for r in record.get('groups', []) if r['valid']]
     problems += [p for s in sessions for p in s['effect_problems']]
     # The sandbox already blocks every path outside the workspace (sandbox_probe); flagged calls are judged by
     # outcome in the session inspection: only a call that actually saw outside content invalidates the instance.
     record['escapes_for_review'] = sum(s.get('escapes', 0) for s in sessions)
-    if plan['workload'] == 'window' and spec['context_window'] == 206584 and \
-            (record['max_request_input'] or 0) > plan['verified_prompt_tokens']:
-        problems.append(f'a request input of {record["max_request_input"]} exceeds the verified '
-                        f'{plan["verified_prompt_tokens"]}')
     record['effect'] = {'ok': not problems, 'problems': problems, 'engine': effect}
     save(folder / 'result.json', record)
     return record
+
+
+def run_window_block(plan, data, name, slots, out):
+    """The window instances of one condition back to back under one lease and one load (measurement rule 预热与连跑):
+    start the model on the condition's tier -> verify it -> an unscored warm-up conversation (the opening and the
+    first `warmup_batches` batches of the same workload, its own thread) -> each scored instance in a fresh thread ->
+    stop the model and capture the engine log, split into per-instance windows.  Returns the instance records."""
+    from tools.ops.measurement_host import MeasurementHost
+    from tools.reviewer.arw_measure import stop_and_capture_engine_log
+    from tools.metrics.strata_tokens import engine_rates, sum_engine_tokens, task_rates
+    spec = plan['conditions'][name]
+    folder = out / ('block-' + '-'.join(f'{s:02d}' for s in slots) + '-' + name)
+    folder.mkdir(parents=True)
+    host = MeasurementHost(plan['host'])
+    save(folder / 'sources.json', host.verify_sources())
+    owner = host.controller(folder / 'controller')
+    records, block = [], {'condition': name, 'slots': slots, 'started': datetime.now().isoformat(timespec='seconds')}
+    with owner:
+        offset, service_offset = host.log_offset(plan['model']), host.log_offset()
+        save(folder / 'log-offsets.json', {'engine_log': offset, 'service_log': service_offset})
+        try:
+            state, load = owner.start(model=plan['model'], context_window=spec['context_window'])
+            health = state.get('native_health') or {}
+            block.update(status=state.get('status'), load_seconds=load, native_health=health)
+            save(folder / 'start.json', block)
+            args_for = lambda here: codex_overrides(plan, spec, here, owner.model_base + '/v1')
+            mark = lambda: host.log_offset(plan['model'])
+            settle = lambda: wait_engine_idle(owner.model_base, owner.key)
+            warm = data['sequence'][:1 + plan['warmup_batches']]
+            block['warmup'], _ = run_conversation(plan, warm, folder / 'warmup', args_for, owner.key, settle,
+                                                  plan['warmup_seconds_limit'], mark)
+            cleanup_instance(folder / 'warmup')
+            save(folder / 'start.json', block)
+            for slot in slots:
+                here = folder / f'{slot:02d}-{name}'
+                record = {'slot': slot, 'condition': name, 'block': folder.name,
+                          'started': datetime.now().isoformat(timespec='seconds')}
+                record.update(run_window(plan, data, spec, here, args_for, owner.key, mark, settle))
+                save(here / 'instance.json', record)  # on disk at once; tokens are added after the block
+                records.append(record)
+                cleanup_instance(here)
+        finally:
+            stopped, requests, tokens = stop_and_capture_engine_log(owner, host.installation, plan['model'], offset,
+                                                                    folder, host)
+            block.update(stop=stopped.get('status'), tokens=tokens,
+                         max_request_input=max((r['input'] for r in requests), default=None))
+            save(folder / 'start.json', block)
+    log = (folder / 'engine-request-log.txt').read_text()
+    service_log = host.log_bytes_since(None, service_offset).decode(errors='replace')
+    (folder / 'service-log-since-start.txt').write_text(service_log)
+    sessions = [block['warmup'], *records]
+    for session, own in zip(sessions, session_records(log, sessions, offset)):
+        session.update(tokens=sum_engine_tokens(own), requests=len(own), **engine_rates(own),
+                       max_request_input=max((r['input'] for r in own), default=None))
+        if session is not block['warmup']:
+            session.update(task_rates(session['tokens'], session['work_seconds']),
+                           reused_share=(session['tokens']['cached_input'] / (session['tokens']['cached_input']
+                                         + session['tokens']['uncached_input'])) if session['tokens'] else None)
+    engine_problems, effect = engine_effect(log, block.get('native_health') or {}, spec, None,
+                                            host.configuration(plan['model']), service_log)
+    block['engine_effect'] = {'problems': engine_problems, 'engine': effect}
+    save(folder / 'start.json', block)
+    for record in records:
+        problems = engine_problems + record['effect_problems']
+        if spec['context_window'] == 206584 and (record['max_request_input'] or 0) > plan['verified_prompt_tokens']:
+            problems.append(f'a request input of {record["max_request_input"]} exceeds the verified '
+                            f'{plan["verified_prompt_tokens"]}')
+        record['effect'] = {'ok': not problems, 'problems': problems}
+        save(folder / f'{record["slot"]:02d}-{name}' / 'instance.json', record)
+    return records
+
+
+def run_claude_window(plan, data, name, out, seconds_limit=None, mock_base=None):
+    """Claude Code mechanism check of the window workload (design §2.4: pilot only, one per tier, not judged):
+    the same conversation through tools.reviewer.claude_headless.run_conversation on this condition's tier, then
+    compaction positions, ACK compliance, parsed answers and the model-dependent split, as for Codex."""
+    from tools.reviewer import claude_headless
+    spec = plan['conditions'][name]
+    folder = out / f'claude-{name}'
+    result = claude_headless.run_conversation(
+        folder, [s['text'] for s in data['sequence']], 'qwen3.8-flash-next-' + plan['model'].lower(),
+        plan['fixed_conditions']['effort'], plan['host'], spec['context_window'],
+        seconds_limit or plan['instance_seconds_limit'], label=f'window-{name}', mock_base=mock_base)
+    analysis = claude_headless.conversation_analysis(folder / 'stream.jsonl', turn_label)
+    replies = [r['text'] for r in analysis['replies'] if r['turn'].startswith('questions ')]
+    points = [{'label': r['turn'], 'raw': r['raw'], 'compactions_after': r['compactions_after'],
+               'context_tokens': r['context_tokens'], 'answered': r['result'] is not None}
+              for r in analysis['replies'] if r['turn'].startswith('questions ')]
+    scored = window_bank.score(data, replies, complete_timeline(points, len(data['checkpoint_positions'])))
+    acks = ack_problems(analysis)
+    record = {'condition': name, 'harness': 'claude-code', 'score': scored['score'], 'raw_score': scored['raw_score'],
+              'scoring': scored, 'compactions': analysis['compactions'], 'tool_calls': analysis['tool_calls'],
+              'ack_problems': len(acks), 'ack_examples': acks[:5], 'work_seconds': result.get('work_seconds'),
+              'turns_done': len(result.get('turns', [])), 'turns_planned': len(data['sequence']),
+              'hard_interrupt': result.get('hard_interrupt'), 'engine_tokens': result.get('engine_tokens'),
+              'effect_problems': window_effect(spec, analysis)}
+    save(folder / 'window-result.json', record)
+    return record
+
+
+def cleanup_instance(here):
+    """Measurement rule 存放: drop the empty recall workspace and the scratch CODEX_HOME material that is not the
+    session record (the rollout and session analysis stay)."""
+    import shutil
+    shutil.rmtree(here / 'workspace', ignore_errors=True)
+    for child in (here / 'codex-home').iterdir() if (here / 'codex-home').exists() else []:
+        if child.name != 'sessions':
+            shutil.rmtree(child, ignore_errors=True) if child.is_dir() else child.unlink(missing_ok=True)
 
 
 def parse_groups(text):
@@ -605,6 +796,8 @@ def run(plan_path, out, limit=None, only_groups=None):
         raise ValueError('Recorded instances differ from the recorded schedule')
     if done and not done[-1]['effect_ok']:
         raise RuntimeError('The last instance failed its effect check; assess the impact before continuing')
+    if plan['workload'] == 'window':
+        return run_window_blocks(plan, data, out, progress, progress_path, limit)
     for slot in range(len(done), len(order))[:limit]:
         name = order[slot]
         record = run_instance(plan, data, conditions, name, out / f'{slot + 1:02d}-{name}')
@@ -613,6 +806,29 @@ def run(plan_path, out, limit=None, only_groups=None):
         save(progress_path, progress)
         if not record['effect']['ok']:
             raise RuntimeError(f'Instance {slot + 1} ({name}) failed its effect check: {record["effect"]["problems"]}')
+    return progress
+
+
+def run_window_blocks(plan, data, out, progress, progress_path, limit=None):
+    """Pending window slots in blocks of consecutive same-condition slots (one lease and load per block)."""
+    order, done = progress['order'], progress['instances']
+    pending = list(range(len(done), len(order)))[:limit]
+    while pending:
+        name = order[pending[0]]
+        slots = []
+        while pending and order[pending[0]] == name:
+            slots.append(pending.pop(0) + 1)
+        records = run_window_block(plan, data, name, slots, out)
+        for record in records:
+            done.append({'slot': record['slot'], 'condition': name, 'score': record['score'],
+                         'raw_score': record['raw_score'], 'work_seconds': record['work_seconds'],
+                         'effect_ok': record['effect']['ok'],
+                         'folder': f'{record["block"]}/{record["slot"]:02d}-{name}'})
+        save(progress_path, progress)
+        failed = [r for r in records if not r['effect']['ok']]
+        if failed:
+            raise RuntimeError(f'Instances {[r["slot"] for r in failed]} failed their effect check: '
+                               f'{[r["effect"]["problems"] for r in failed]}')
     return progress
 
 
@@ -632,7 +848,8 @@ def decide(out, plan_path):
     result['tie_group'] = [result['leader'], *progress['tied']] if result['decision'] == 'equivalent' else None
     progress['decisions'].append(result)
     if result['decision'] == 'continue':
-        progress['order'] += next_round(result['sampled_next'], len(progress['decisions']))
+        progress['order'] += next_round(result['sampled_next'], len(progress['decisions']), list(plan['conditions']),
+                                        plan['workload'] == 'window')
     save(progress_path, progress)
     return result
 
@@ -650,7 +867,8 @@ def check(plan_path):
     return {'workload': plan['workload'], 'input_sha256': plan['input']['sha256'], 'self_check': own,
             'sandbox_probe': {'ok': isolated['ok'], 'problems': isolated['problems'], 'folder': str(folder)},
             'first_round': plan['first_round'],
-            'second_round_if_all_open': next_round(list(plan['conditions']), 1),
+            'second_round_if_all_open': next_round(list(plan['conditions']), 1, list(plan['conditions']),
+                                                   plan['workload'] == 'window'),
             'conditions': {n: {'context_window': plan['conditions'][n]['context_window'],
                                'deployment_condition_sha256': conditions[n][1]} for n in plan['conditions']}}
 
@@ -658,17 +876,28 @@ def check(plan_path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest='command', required=True)
-    for command in ('check', 'run', 'decide'):
+    for command in ('check', 'run', 'decide', 'claude-window'):
         p = sub.add_parser(command)
         p.add_argument('--plan', type=Path, required=True)
         if command != 'check':
             p.add_argument('--out', type=Path, required=True)
+        if command == 'claude-window':
+            p.add_argument('--condition', required=True)
         if command == 'run':
             p.add_argument('--limit', type=int)
             p.add_argument('--groups', type=parse_groups, help="sampling recovery: run only these groups, e.g. 7-10")
     args = parser.parse_args()
     if args.command == 'check':
         result = check(args.plan)
+    elif args.command == 'claude-window':
+        plan, data, _ = load_plan(args.plan)
+        if (plan.get('authorization') or {}).get('approved') is not True:
+            raise ValueError('This plan is not approved for model runs')
+        from tools.reviewer.claude_headless import pinned_binary
+        pinned_binary()
+        result = run_claude_window(plan, data, args.condition, Path(args.out).resolve())
+        result = {k: v for k, v in result.items() if k != 'scoring'} | {
+            'C1': result['scoring'].get('C1'), 'C2': result['scoring'].get('C2')}
     elif args.command == 'run':
         result = run(args.plan, args.out, args.limit, args.groups)
     else:

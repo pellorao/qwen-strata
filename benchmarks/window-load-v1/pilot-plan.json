@@ -1,0 +1,43 @@
+{
+ "schema": "codex-workload-v1",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "workload": "window",
+ "input": {
+  "path": "benchmarks/window-load-v1/window-v2-seed1.json",
+  "sha256": "560a1c6489643432c92772453ac92771a106d6f9a87bfa67d161bef56ac3c63f"
+ },
+ "fixed_conditions": {
+  "strata": "0.2.2",
+  "codex": "0.164.0",
+  "native_cli_sha256": "b93f6811d3f653f0fb83be4050d857fb9abbb111dfa2ce160563327daff7f306",
+  "effort": "high"
+ },
+ "verified_prompt_tokens": 151000,
+ "warmup_batches": 4,
+ "warmup_seconds_limit": 900,
+ "conditions": {
+  "window-206584": {
+   "context_window": 206584,
+   "threshold": 150000
+  },
+  "window-156584": {
+   "context_window": 156584,
+   "threshold": 100000
+  }
+ },
+ "authorization": {
+  "approved": true,
+  "approved_by": "user",
+  "date": "2026-10-22",
+  "scope": "docs/plan.md「采样与窗口重新测量」：先做窗口维（206584 vs 156584），按设计 v2 §2；试跑后达到进入正式条件即接着正式测量（Main 2026-10-24 交办）"
+ },
+ "status": "pilot",
+ "pilot": true,
+ "instance_seconds_limit": 3600,
+ "first_round": [
+  "window-206584",
+  "window-156584"
+ ],
+ "note": "试跑：Codex 每档 1 次（先 206584 后 156584，各一次加载与预热），另由 claude-window 每档 1 次只核对机制。硬时限 3600 秒（设计 U10）。"
+}

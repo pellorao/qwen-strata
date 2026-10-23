@@ -446,6 +446,148 @@ def drive(process, stream_file, stream_name, first_message, deadline, clock=time
         'stream') == stream_name
 
 
+def drive_turns(process, stream_file, stream_name, messages, deadline, clock=time.time):
+    """Multi-turn conversation in one `claude -p` stream-json process: each message is written once the previous
+    one's turn is over (its replay followed by a result); stdin closes after the last turn; the hard stop at the limit
+    ends it (no further message is sent).  Returns (exit code, hard-stopped, per-turn send and end times)."""
+    session = Session(process, stream_file, clock)
+    turns, pending = [], list(messages)
+
+    def send():
+        text = pending.pop(0)
+        session.say(text)
+        turns.append({'sent_at': clock(), 'ended_at': None})
+
+    try:
+        send()
+    except OSError:
+        session.close()
+    while True:
+        if process.poll() is not None:
+            break
+        if deadline.hard_due(clock()):
+            hard_stop(session, deadline, stream_name)
+            break
+        if not session.closed and session.turn_over():
+            turns[-1]['ended_at'] = clock()
+            if pending:
+                try:
+                    send()
+                except OSError:
+                    session.close()
+            else:
+                session.close()
+        time.sleep(POLL)
+    session.reader.join(timeout=10)
+    session.close()
+    hard = deadline.value['interrupt'] is not None
+    return process.wait(), hard, turns
+
+
+def run_turns(out, messages, argv, env, work, deadline, clock=time.time):
+    """One process, the messages one turn after another (window workload v2 on Claude Code); the clock starts with
+    the first message."""
+    stream, errors = out / 'stream.jsonl', out / 'stream.err'
+    with stream.open('wb') as stdout, errors.open('wb') as stderr:
+        begun = clock()
+        deadline.begin(begun)
+        process = subprocess.Popen(argv, cwd=work, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                   stderr=stderr, start_new_session=True)
+        code, timed_out, turns = drive_turns(process, stdout, stream.name, messages, deadline, clock)
+        ended = clock()
+    return {'exit': code, 'hard_interrupt': timed_out, 'started_at': begun, 'ended_at': ended,
+            'wall_seconds': ended - begun, 'pid': process.pid, 'turns': turns, 'turns_planned': len(messages),
+            'work_seconds': sum((t['ended_at'] or ended) - t['sent_at'] for t in turns)}
+
+
+def conversation_analysis(stream, label=lambda text: text):
+    """Per user turn of a run_turns stream: its label (`label(text)`, None to skip), the assistant's text, the
+    context its last request carried (input + cache read + cache creation of the turn's result usage) and, for the
+    window timeline, which turns were raw context when it was answered.  A compact_boundary drops everything before
+    it except the turn in flight (Claude Code keeps no raw messages, only the summary)."""
+    replies, compactions, raw, current, calls = [], [], [], None, 0
+    for line in Path(stream).read_text(errors='replace').splitlines():
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(event, dict):
+            continue
+        kind, message = event.get('type'), event.get('message')
+        if kind == 'system' and event.get('subtype') == 'compact_boundary':
+            pending = current['turn'] if current is not None and current['result'] is None else None
+            compactions.append({'after_user_turn': raw[-1] if raw else None, 'during_turn': pending,
+                                'metadata': event.get('compact_metadata')})
+            raw = [pending] if pending else []
+            if current is not None:
+                current['compactions_after'] = [c['after_user_turn'] for c in compactions]
+        elif kind == 'user' and event.get('isReplay') and isinstance(message, dict):
+            content = message.get('content')
+            text = content if isinstance(content, str) else ''.join(
+                b.get('text', '') for b in content or [] if isinstance(b, dict))
+            name = label(text)
+            if name is None:
+                continue
+            raw.append(name)
+            current = {'turn': name, 'text': '', 'result': None, 'context_tokens': None, 'raw': list(raw),
+                       'compactions_after': [c['after_user_turn'] for c in compactions]}
+            replies.append(current)
+        elif kind == 'assistant' and isinstance(message, dict) and current is not None \
+                and not event.get('parent_tool_use_id'):
+            for block in message.get('content') or []:
+                if isinstance(block, dict) and block.get('type') == 'text':
+                    current['text'] += block.get('text', '')
+                elif isinstance(block, dict) and block.get('type') == 'tool_use':
+                    calls += 1
+        elif kind == 'result' and current is not None and current['result'] is None:
+            usage = event.get('usage') or {}
+            current['result'] = event.get('subtype')
+            current['context_tokens'] = sum(usage.get(k) or 0 for k in (
+                'input_tokens', 'cache_read_input_tokens', 'cache_creation_input_tokens')) or None
+            current['raw'] = list(raw)
+    return {'replies': replies, 'compactions': compactions, 'tool_calls': calls}
+
+
+def run_conversation(out, messages, model, effort, host, context_window, limit, label='window', run_id=None,
+                     base=WORK_BASE, claude=CLAUDE, mock_base=None):
+    """A multi-turn Strata conversation through Claude Code (window workload v2 mechanism check): the run() setup
+    (isolated working directory, fresh configuration directory, minimal environment, project compact prompt hook)
+    with `messages` sent one turn after another on the `context_window` tier.  `mock_base` (no-model precheck,
+    tools.tuning.sandbox_probe): the same command and environment pointed at a loopback fake server, no lease."""
+    out = Path(out).resolve()
+    out.mkdir(parents=True, exist_ok=False)
+    run_id = run_id or out.name + '-' + str(time.time_ns())
+    work = workspace(run_id, base)
+    session_settings = settings(work, [], session_hooks(True))
+    argv = command('strata', model, effort, work, [], session_settings, TOOLS, True, claude)
+    save(out / 'settings.json', session_settings)
+    save(out / 'command.json', argv)
+    binding = {'backend': 'strata', 'model': model, 'effort': effort, 'label': label, 'work': str(work),
+               'limit_seconds': limit, 'tools': TOOLS, 'turns': len(messages),
+               'messages_sha256': hashlib.sha256(json.dumps(messages).encode()).hexdigest(),
+               'compact_prompt_sha256': hashlib.sha256(COMPACT.read_bytes()).hexdigest(), 'claude': binary(claude)}
+    deadline = Deadline(out, limit, None, run_id=run_id)
+    if mock_base:
+        from tools.ops.deployment_source import published_tier, served_model
+        tier = published_tier(host, served_model(host), context_window)
+        home, config_dir = work.parent / 'home', work.parent / 'claude-config'
+        home.mkdir()
+        config_dir.mkdir()
+        env = environment('strata', effort, home, config_dir, strata_environment(mock_base, 'fake-loopback', model,
+                                                                                  effort, tier), tmp=run_tmp(work))
+        save(out / 'binding.json', dict(binding, context_tier=tier, mock_base=mock_base))
+        result = run_turns(out, messages, argv, env, work, deadline)
+    else:
+        result = strata_run(out, None, argv, model, effort, work, limit, None, binding, True, host, deadline=deadline,
+                            context_window=context_window, messages=messages)
+    result['summary'] = stream_summary([out / 'stream.jsonl'])
+    result['session_files'] = keep_session_files(work, config_root('strata', work), out)
+    result['run_tmp_removed'] = remove_run_tmp(work)
+    shutil.rmtree(work.parent, ignore_errors=True)  # the run root: work, home, claude-config (history kept above)
+    save(out / 'result.json', result)
+    return result
+
+
 def outside_grants(folder, targets):
     """Every existing entry under `folder` that is neither a grant nor inside one; an ancestor of a grant (such as the
     scenario root's `.tmp` above a nested report directory) is walked instead of left writable."""
@@ -1099,8 +1241,10 @@ def run_segments(out, prompt_text, argv, env, work, limit, started_file, report,
 
 
 def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file, binding, startup, host, report=None,
-               deadline=None):
-    """Lease, cold start with installation defaults on the published tier, the same command, engine-log tokens."""
+               deadline=None, context_window=None, messages=None):
+    """Lease, cold start with installation defaults on the published tier (the default one, or `context_window`),
+    the same command, engine-log tokens.  `messages` runs a multi-turn conversation instead of one prompt
+    (run_turns)."""
     from tools.ops.measurement_host import MeasurementHost
     from tools.ops.deployment_source import published_tier, served_model
     from tools.metrics.prompt_policy import verify_loaded_startup
@@ -1110,7 +1254,7 @@ def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file,
     quantization = served_model(host)
     if model != 'qwen3.8-flash-next-' + quantization.lower():
         raise ValueError('The Strata arm names the served model, ' + 'qwen3.8-flash-next-' + quantization.lower())
-    tier = published_tier(host, quantization)
+    tier = published_tier(host, quantization, context_window)
     measurement_host = MeasurementHost(host)
     home, config_dir = work.parent / 'home', work.parent / 'claude-config'
     home.mkdir()
@@ -1134,7 +1278,10 @@ def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file,
             env = environment('strata', effort, home, config_dir, strata, tmp=run_tmp(work))
             save(out / 'environment-names.json', sorted(env))
             save(out / 'binding.json', binding)
-            result = run_segments(out, prompt_text, argv, env, work, limit, started_file, report, deadline)
+            if messages is not None:
+                result = run_turns(out, messages, argv, env, work, deadline or Deadline(out, limit))
+            else:
+                result = run_segments(out, prompt_text, argv, env, work, limit, started_file, report, deadline)
         finally:
             stopped, stages, tokens = stop_and_capture_engine_log(owner, measurement_host.installation, quantization,
                                                                   offset, out, measurement_host)
