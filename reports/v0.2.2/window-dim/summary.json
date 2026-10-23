@@ -1,0 +1,384 @@
+{
+ "dimension": "window 206584 vs 156584",
+ "host": "rtx3080ti",
+ "quant": "IQ3_XXS",
+ "date": "2026-10-24",
+ "workload": "benchmarks/window-load-v1/window-v2-seed1.json (seed1)",
+ "status": "closed on pilot, keep 206584 for now; final decision waits for long-context validation 100K/125K controls; pending user review",
+ "conclusion": "负载对模型侧成分不敏感、区分不了；按平手规则看工作时间，206584 更短（n=1，方向一致，可由压缩次数解释）；M 同样偏向 206584，单列，不作依据",
+ "scope": [
+  "Codex 0.164.0 (Claude Code 2.1.309 also run)",
+  "seed1, one instance per tier per harness",
+  "max request about 156K",
+  "does not cover same-label interference",
+  "does not cover 160-190K"
+ ],
+ "classification_fix": {
+  "commit": "2a5d510",
+  "issue": "Codex truncates oldest kept user message on compaction; Q34 (HM-1269) wrongly counted in-text in codex-206584",
+  "after_fix": "C1 all correct in all 4 instances; Q34 moves to C2-B"
+ },
+ "prompt_sha": {
+  "startup_source": "5f9efc02",
+  "startup_loaded": "1cae169a",
+  "compact": "3856cb62"
+ },
+ "instances": {
+  "codex-206584": {
+   "harness": "codex 0.164.0",
+   "window": 206584,
+   "work_seconds": 503,
+   "tokens": {
+    "read": 690798,
+    "reused": 4232855,
+    "generated": 14823
+   },
+   "speeds": {
+    "engine_input": 2340,
+    "engine_output": 117.5,
+    "task_input": 1375,
+    "task_output": 29.5
+   },
+   "max_request_input": 156029,
+   "over_151k": {
+    "ack": 2,
+    "compaction": 2,
+    "questions": 0
+   },
+   "tool_calls": 0,
+   "ack_problems": 0,
+   "E": 0.883,
+   "per_checkpoint": [
+    12,
+    9,
+    10,
+    11,
+    11
+   ],
+   "C1": {
+    "100-150K": {
+     "accuracy": 1.0,
+     "n": 29
+    },
+    "<100K": {
+     "accuracy": 1.0,
+     "n": 16
+    }
+   },
+   "C2": {
+    "B": {
+     "accuracy": 0.0,
+     "n": 7
+    },
+    "K-marked": {
+     "accuracy": 1.0,
+     "n": 4
+    },
+    "K-unmarked": {
+     "accuracy": 1.0,
+     "n": 4
+    }
+   },
+   "M": 0.75,
+   "compactions": [
+    "batch 23",
+    "batch 40"
+   ],
+   "context_at_questions": [
+    114525,
+    59594,
+    104558,
+    149409,
+    85768
+   ],
+   "misses": [
+    "Q13",
+    "Q18",
+    "Q19",
+    "Q34",
+    "Q36",
+    "Q40",
+    "Q55"
+   ]
+  },
+  "codex-156584": {
+   "harness": "codex 0.164.0",
+   "window": 156584,
+   "work_seconds": 697,
+   "tokens": {
+    "read": 858601,
+    "reused": 3153662,
+    "generated": 30230
+   },
+   "speeds": {
+    "engine_input": 2409,
+    "engine_output": 118.3,
+    "task_input": 1232,
+    "task_output": 43.4
+   },
+   "max_request_input": 104402,
+   "over_151k": {
+    "ack": 0,
+    "compaction": 0,
+    "questions": 0
+   },
+   "tool_calls": 0,
+   "ack_problems": 3,
+   "ack_note": "batch 09/34/35 empty ACK replies",
+   "E": 0.817,
+   "per_checkpoint": [
+    9,
+    9,
+    10,
+    10,
+    11
+   ],
+   "C1": {
+    "<100K": {
+     "accuracy": 1.0,
+     "n": 35
+    }
+   },
+   "C2": {
+    "B": {
+     "accuracy": 0.0,
+     "n": 11
+    },
+    "K-marked": {
+     "accuracy": 1.0,
+     "n": 6
+    },
+    "K-unmarked": {
+     "accuracy": 1.0,
+     "n": 6
+    },
+    "U": {
+     "accuracy": 1.0,
+     "n": 2
+    }
+   },
+   "M": 0.583,
+   "compactions": [
+    "batch 15",
+    "batch 24",
+    "questions 3",
+    "batch 40"
+   ],
+   "context_at_questions": [
+    58975,
+    54079,
+    98458,
+    92617,
+    86676
+   ],
+   "misses": [
+    "Q04",
+    "Q07",
+    "Q12",
+    "Q13",
+    "Q18",
+    "Q19",
+    "Q34",
+    "Q36",
+    "Q40",
+    "Q48",
+    "Q55"
+   ]
+  },
+  "claude-206584": {
+   "harness": "claude-code 2.1.309",
+   "window": 206584,
+   "work_seconds": 260.8,
+   "tokens": {
+    "read": 304470,
+    "reused": 4239969,
+    "generated": 12736
+   },
+   "speeds": {
+    "engine_input": 2110,
+    "engine_output": 115.2,
+    "task_input": 1167,
+    "task_output": 48.8
+   },
+   "max_request_input": 151547,
+   "over_151k": {
+    "ack": 0,
+    "compaction": 1,
+    "questions": 0
+   },
+   "tool_calls": 0,
+   "ack_problems": 0,
+   "E": 0.833,
+   "per_checkpoint": [
+    12,
+    7,
+    9,
+    11,
+    11
+   ],
+   "C1": {
+    "100-150K": {
+     "accuracy": 1.0,
+     "n": 28
+    },
+    "<100K": {
+     "accuracy": 1.0,
+     "n": 7
+    }
+   },
+   "C2": {
+    "B": {
+     "accuracy": 0.0,
+     "n": 10
+    },
+    "K-marked": {
+     "accuracy": 1.0,
+     "n": 6
+    },
+    "K-unmarked": {
+     "accuracy": 1.0,
+     "n": 6
+    },
+    "U": {
+     "accuracy": 1.0,
+     "n": 3
+    }
+   },
+   "M": 0.583,
+   "compactions": [
+    [
+     "batch 25",
+     "batch 25",
+     152948
+    ]
+   ],
+   "context_at_questions": [
+    108065,
+    17578,
+    61179,
+    102928,
+    144667
+   ],
+   "misses": [
+    "Q13",
+    "Q17",
+    "Q18",
+    "Q19",
+    "Q24",
+    "Q32",
+    "Q34",
+    "Q36",
+    "Q40",
+    "Q55"
+   ]
+  },
+  "claude-156584": {
+   "harness": "claude-code 2.1.309",
+   "window": 156584,
+   "work_seconds": 451.0,
+   "tokens": {
+    "read": 324659,
+    "reused": 2717955,
+    "generated": 34889
+   },
+   "speeds": {
+    "engine_input": 2194,
+    "engine_output": 117.5,
+    "task_input": 720,
+    "task_output": 77.4
+   },
+   "max_request_input": 98768,
+   "over_151k": {
+    "ack": 0,
+    "compaction": 0,
+    "questions": 0
+   },
+   "tool_calls": 0,
+   "ack_problems": 0,
+   "E": 0.583,
+   "per_checkpoint": [
+    5,
+    9,
+    7,
+    9,
+    5
+   ],
+   "C1": {
+    "<100K": {
+     "accuracy": 1.0,
+     "n": 18
+    }
+   },
+   "C2": {
+    "B": {
+     "accuracy": 0.0,
+     "n": 25
+    },
+    "K-marked": {
+     "accuracy": 1.0,
+     "n": 7
+    },
+    "K-unmarked": {
+     "accuracy": 1.0,
+     "n": 6
+    },
+    "U": {
+     "accuracy": 1.0,
+     "n": 4
+    }
+   },
+   "M": 0.3,
+   "compactions": [
+    [
+     "batch 16",
+     "batch 16",
+     99368
+    ],
+    [
+     "batch 30",
+     "batch 30",
+     100179
+    ],
+    [
+     "batch 44",
+     "batch 44",
+     99577
+    ]
+   ],
+   "context_at_questions": [
+    22446,
+    72746,
+    30346,
+    72325,
+    31715
+   ],
+   "misses": [
+    "Q01",
+    "Q04",
+    "Q05",
+    "Q06",
+    "Q07",
+    "Q08",
+    "Q12",
+    "Q13",
+    "Q18",
+    "Q19",
+    "Q25",
+    "Q26",
+    "Q32",
+    "Q34",
+    "Q36",
+    "Q40",
+    "Q44",
+    "Q48",
+    "Q50",
+    "Q51",
+    "Q53",
+    "Q55",
+    "Q57",
+    "Q58",
+    "Q59"
+   ]
+  }
+ }
+}
