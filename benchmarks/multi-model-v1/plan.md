@@ -680,7 +680,7 @@
     - 运行状态：未完成、非零退出、要求恢复；
     - 返回内容：tier 不在 {default, standard, 未返回}；返回模型既不匹配绑定（§2 规则），也不是 codex-auto-review，或者没有一个匹配绑定；rollout 里 `web_search_call` > 0；启动提示未关闭；
     - 错误（M2）：relay 有 HTTP ≥ 400 或传输错误（提醒中断除外，见下）；撞额度，即 relay 状态码为 429，或 rollout 错误事件的 `codex_error_info` 含 usage_limit、rate_limit、quota，不再对日志做子串匹配。
-    - 提醒中断（Main 2026-10-20，Opus high 独立审查后决定）：ARW 发时限提醒或硬截止中断时，Codex 会放弃正在接收的流并立即重发，relay 写回时记一次传输错误。一行 relay 错误同时满足下列各条时记为 `reminder_interrupt`，不计入 `relay_errors`：(a) BrokenPipeError 或 ConnectionResetError，且 status 200；(b) 本实例 deadline JSON 的 reminder（或 interrupt）status 为 accepted；(c) 这个请求在提醒发出时正在进行：started_at < attempted_at ≤ ended_at，且 ended_at 不晚于 attempted_at + 30 s（Codex 要等到这个请求的第一个流事件才放弃它，请求还在预填充时会晚于 1 s；2026-10-20 CStd codex-medium-a1 实测 1.49 s，原先的 +1.0 s 窗口过窄，按此放宽）；(d) 每次提醒最多豁免 1 行；(e) 下一个 /responses 请求在 attempted_at 之后、且在该行 ended_at 前后 1 s 内开始，200 completed（硬截止不要求）；(f) 其他检查都通过；(g) rollout 有 messageId 等于 reminder.receipt.messageId 的 user 消息。被放弃请求的 token 不在 relay usage 里，所以逐实例费用偏低（记被弃请求数）；批次与合计以余额差为准（2026-10-21 改为只指批次与合计，见 §14.4）。适用所有经 relay 的臂；此前只有 DeepSeek CS codex-low a1–a3 符合，改判有效并全部保留（3 次尝试、3 个有效）；OpenAI 臂作废的 3 例是真实上游 URLError，不受影响。Strata-Codex 不走 relay，同类中断检不出来，记为检测不对称；Claude Code 的提醒走 PostToolUse hook，没有这个效应。
+    - 提醒中断（Main 2026-10-20 定 7 条判据；2026-10-23 用户改为一条）：ARW 发时限提醒或硬截止中断时，Codex 会放弃正在接收的流并立即重发，relay 写回时记一次传输错误。判据（用户 2026-10-23）：提醒或中断送达（deadline JSON 的 status 为 accepted）时正在进行的请求（started_at < attempted_at ≤ ended_at），它的错误行记为 `reminder_interrupt`，不计入 `relay_errors`；其他错误照常。被放弃请求的结果到不了模型，所以不再检查它的其他方面。原 7 条判据里的旁证条件（结束时刻窗口、下一个请求的开始时刻、rollout 中的 messageId 等）全部取消：relay 要到下次写数据才发现客户端断开，结束时刻会比重发晚几秒，CStd luna-max-a4、a6 因此被误判无效。被放弃请求的 token 不在 relay usage 里，所以逐实例费用偏低（记被弃请求数）；批次与合计以余额差为准（2026-10-21 改为只指批次与合计，见 §14.4）。适用所有经 relay 的臂；此前只有 DeepSeek CS codex-low a1–a3 符合，改判有效并全部保留（3 次尝试、3 个有效）；OpenAI 臂作废的 3 例是真实上游 URLError，不受影响。Strata-Codex 不走 relay，同类中断检不出来，记为检测不对称；Claude Code 的提醒走 PostToolUse hook，没有这个效应。
     - 到硬时限停止的实例有效。每格最多尝试 8 次，无效实例排到队尾重跑。撞额度的实例不计入尝试次数，并停止全部新实例（S6）。ARW 早退暂停（S2）的那一格直接停下交用户，不重跑（M2）。
   - 额度（M1）：调度器每轮循环从共享 sessions 读最新的 `token_count.rate_limits`。
     - 周窗口 `used_percent` 达到上限就不启动新实例。上限交用户定（R2），答复前临时取 60%（开跑时 36%）；CA 第一轮外推的结果如果更紧，就取外推值，写进 `usage_cap.txt`。
@@ -764,7 +764,7 @@ DeepSeek 臂 worker 跑完探针 P1–P4 和第 1 轮（6 配置 × 4 场景各 
   - 已跑实例：重判后 SR codex-high-a1、codex-max-a3、codex-max-a4 有效，`validity_source` 记 "stream-cut retry (user 10-21)"，原值保留在 `valid_runner` 和 `valid_without_stream_cut`。codex-low-a1 仍无效：断开的流已有 reasoning 条目写进 rollout。
   - 其他臂：OpenAI #1–6、Strata #10–12 没有这类实例，无需重判。
   - 计分：断开请求从开始到重发开始的时间（`excluded_seconds`）不计入工作时间，它的 token 也不计；费用按已完成请求逐个计价。
-  - 重跑与主统计：因误判引出的补跑算重跑，没有合并的格按开始顺序取前 5 个有效实例。
+  - 重跑与主统计：因误判引出的补跑算重跑，没有合并的格按开始顺序取前 5 个有效实例。（2026-10-23 用户改定：多跑的有效实例只要不是按分数加跑，全部计入，第三阶段起适用；见测量规则「失败与重跑」。）
   - 新绑定：`steer.py` `415dc480…9526` → `c0afbe8f3f811f00be9747efdd0c3733b8681042e447db998ec9dbf49d8b1b12`（冻结版另存为 `steer-frozen-415dc480.py`），`schedule.py` 不变。
   - 生效：调度器在没有实例运行时停下（JST 09:21），重判后从磁盘重建状态重启，重判前的判定备份在 `rejudge-1021/`。
 - **偏离：断流豁免扩展到"拿到 HTTP 状态之前的短暂失败"（2026-10-21，Main 依用户决定 B 的理由扩展，15:04 写入时为暂定；同日 15:24 改为用户定（rulings.md，b473d62），见 `rulings.md`「还没拿到 HTTP 状态就断开的传输错误」）**。

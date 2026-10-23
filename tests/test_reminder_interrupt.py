@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.reminder_interrupt import classify, classify_instance, deadline_events, error_side, rollout_message_ids
+from tools.reviewer.reminder_interrupt import classify, classify_instance, deadline_events, error_side
 
 # Shapes of DeepSeek CS codex-low-a1 (2026-10-20): the reminder steer at attempted_at, the abandoned stream's
 # BrokenPipeError 0.106 s later, the resent request starting before it ended.
@@ -32,8 +32,9 @@ def rows(*changes):
 
 
 class ReminderInterrupt(unittest.TestCase):
-    def check(self, rs, records=(DEADLINE,), ids=(MID,)):
-        return classify(rs, deadline_events(list(records)), set(ids))
+    """Rule (user 2026-10-23): a delivered reminder / interrupt exempts the error of every request in flight then."""
+    def check(self, rs, records=(DEADLINE,)):
+        return classify(rs, deadline_events(list(records)))
 
     def test_reminder_interrupt_exempted(self):
         r = self.check(rows())
@@ -41,61 +42,37 @@ class ReminderInterrupt(unittest.TestCase):
         self.assertEqual(r['reminder_interrupts'][0]['row'], 12)
         self.assertEqual(r['reminder_interrupts'][0]['ended_minus_attempted'], 0.106)
 
-    def test_connection_reset_exempted(self):
-        self.assertEqual(self.check(rows((1, 'transport_error', 'ConnectionResetError')))['relay_errors'], 0)
-
-    def test_upstream_urlerror_counts(self):
-        self.assertEqual(self.check(rows((1, 'transport_error', 'URLError')))['relay_errors'], 1)
-
-    def test_error_side_field_decides_and_old_rows_fall_back(self):
-        # new rows: the relay says which side failed, whatever the exception name
-        self.assertEqual(self.check(rows((1, 'transport_error', 'OSError'), (1, 'error_side', 'client')))['relay_errors'], 0)
-        self.assertEqual(self.check(rows((1, 'error_side', 'upstream')))['relay_errors'], 1)  # upstream reset
-        self.assertEqual(self.check(rows((1, 'error_side', 'client')))['relay_errors'], 0)
-        # old rows without the field: judged by the exception name as before
-        self.assertEqual([error_side(r) for r in (BROKEN, {'transport_error': 'URLError'}, {'status': 502}, {'status': 200})],
-                         ['client', 'upstream', 'upstream', None])
-
-    def test_far_from_attempted_at_counts(self):
-        self.assertEqual(self.check(rows((1, 'ended_at', AT + 31), (2, 'started_at', AT + 30.9)))['relay_errors'], 1)
-        self.assertEqual(self.check(rows((1, 'ended_at', AT - 0.5)))['relay_errors'], 1)
-
-    def test_request_in_prefill_exempted(self):
-        # CStd codex-medium-a1: sent 0.08 s before the reminder, dropped at its first stream event 1.49 s after it
-        r = self.check(rows((1, 'started_at', AT - 0.077), (1, 'ended_at', AT + 1.487), (2, 'started_at', AT + 1.451)))
+    def test_late_relay_end_exempted(self):
+        # CStd luna-max-a4: the relay noticed the dropped client 3.79 s after the reminder, the resend began at +0.05 s
+        r = self.check(rows((1, 'ended_at', AT + 3.79), (2, 'started_at', AT + 0.05)))
         self.assertEqual(r['relay_errors'], 0)
 
-    def test_row_started_after_reminder_counts(self):
+    def test_any_error_of_the_in_flight_request_exempted(self):
+        for change in ((1, 'transport_error', 'URLError'), (1, 'status', 502)):
+            self.assertEqual(self.check(rows(change))['relay_errors'], 0)
+
+    def test_request_not_in_flight_counts(self):
+        self.assertEqual(self.check(rows((1, 'ended_at', AT - 0.5)))['relay_errors'], 1)
         self.assertEqual(self.check(rows((1, 'started_at', AT + 0.05)))['relay_errors'], 1)
 
-    def test_next_request_before_reminder_counts(self):
-        self.assertEqual(self.check(rows((2, 'started_at', AT - 0.05)))['relay_errors'], 1)
+    def test_later_error_counts(self):
+        later = dict(BROKEN, n=14, started_at=AT + 60, ended_at=AT + 70)
+        r = self.check(rows() + [later])
+        self.assertEqual((r['errors'], r['relay_errors']), (2, 1))
 
-    def test_status_not_200_counts(self):
-        self.assertEqual(self.check(rows((1, 'status', 502)))['relay_errors'], 1)
-
-    def test_next_request_failing_counts(self):
-        self.assertEqual(self.check(rows((2, 'response_status', 'failed')))['relay_errors'], 1)
-        self.assertEqual(self.check(rows((2, 'status', 500)))['relay_errors'], 2)
-        self.assertEqual(self.check(rows((2, 'started_at', BROKEN['ended_at'] + 1.5)))['relay_errors'], 1)
-        self.assertEqual(self.check(rows()[:2])['relay_errors'], 1)
-
-    def test_second_row_for_one_reminder_counts(self):
-        second = dict(BROKEN, n=14, started_at=BROKEN['started_at'] + 1, ended_at=AT + 0.15)
-        r = self.check(rows() + [second])
-        self.assertEqual((r['errors'], r['relay_errors'], len(r['reminder_interrupts'])), (2, 1, 1))
-
-    def test_reminder_not_accepted_counts(self):
+    def test_reminder_not_delivered_counts(self):
         rec = copy.deepcopy(DEADLINE)
         rec['reminder']['status'] = 'failed'
         self.assertEqual(self.check(rows(), [rec])['relay_errors'], 1)
 
-    def test_message_not_in_rollout_counts(self):
-        self.assertEqual(self.check(rows(), ids=())['relay_errors'], 1)
-
-    def test_hard_stop_interrupt_needs_no_next_request(self):
+    def test_hard_stop_interrupt_exempted(self):
         rec = dict(DEADLINE, reminder=None, interrupt={'attempted_at': AT, 'status': 'accepted'})
-        self.assertEqual(self.check(rows()[:2], [rec], ids=())['relay_errors'], 0)
+        self.assertEqual(self.check(rows()[:2], [rec])['relay_errors'], 0)
+
+    def test_error_side(self):
+        self.assertEqual([error_side(r) for r in (BROKEN, {'transport_error': 'URLError'}, {'status': 502}, {'status': 200},
+                                                  dict(BROKEN, error_side='upstream'))],
+                         ['client', 'upstream', 'upstream', None, 'upstream'])
 
     def test_websocket_refusal_not_an_error(self):
         ws = {'n': 1, 'started_at': 1, 'ended_at': 1, 'status': 426, 'websocket_refused': True}
@@ -108,12 +85,7 @@ class ReminderInterrupt(unittest.TestCase):
             (run / 'relay/relay.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in rows()))
             (run / 'inst-1').mkdir()
             (run / 'inst-1/deadline-x.json').write_text(json.dumps(DEADLINE))
-            session = Path(d) / 'rollout.jsonl'
-            msg = {'type': 'response_item', 'payload': {'type': 'message', 'role': 'user', 'content': [
-                {'type': 'input_text', 'text': f'ARW messageId: {MID}\n\n请立即整理已经取得的审查结果'}]}}
-            session.write_text(json.dumps(msg) + '\n' + json.dumps({'type': 'event_msg', 'payload': {}}) + '\n')
-            self.assertEqual(rollout_message_ids(session.read_text().splitlines()), {MID})
-            self.assertEqual(classify_instance(run, [str(session)])['relay_errors'], 0)
+            self.assertEqual(classify_instance(run)['relay_errors'], 0)
 
 
 if __name__ == '__main__':

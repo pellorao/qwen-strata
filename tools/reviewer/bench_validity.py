@@ -159,7 +159,7 @@ def codex_rejudge(folder, instance):
     if not (run / 'relay').is_dir() or not instance:
         return None
     sessions = [h.get('session') for h in instance.get('handoffs') or []]
-    ri = reminder_interrupt.classify_instance(run, sessions)
+    ri = reminder_interrupt.classify_instance(run)
     exempt = ri['reminder_interrupts']
     sc = stream_cut.classify_instance(run, sessions, skip={x['row'] for x in exempt})
     cuts = sc['stream_cut_retries']
