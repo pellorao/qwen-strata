@@ -38,6 +38,14 @@ class LauncherTests(unittest.TestCase):
         self.assertEqual(env['CLAUDE_CODE_EFFORT_LEVEL'], 'high')
         self.assertEqual(env['CLAUDE_CODE_MAX_CONTEXT_TOKENS'], '206584')
 
+    def test_claude_tool_search_is_off_whatever_the_caller_sets(self):
+        """Strata implements neither defer_loading nor tool_reference, so every tool must be sent inline."""
+        _, own = agent.claude(Fake(), 'qwen3.8-flash-next-iq3_xxs', 'high', DEFAULT, [])
+        self.assertEqual(own['ENABLE_TOOL_SEARCH'], 'false')
+        for value in ('true', 'auto', '1'):
+            env = agent.child_environment({'PATH': '/bin', 'ENABLE_TOOL_SEARCH': value}, own)
+            self.assertEqual(env['ENABLE_TOOL_SEARCH'], 'false')
+
     def test_codex_uses_strata_provider_and_key_variable(self):
         command, env = agent.codex(Fake(), 'qwen3.8-flash-next-iq3_xxs', 'medium', DEFAULT, ['exec', 'hi'])
         config = dict(command[i + 1].split('=', 1) for i in range(1, len(command) - 2, 2) if command[i] == '-c')

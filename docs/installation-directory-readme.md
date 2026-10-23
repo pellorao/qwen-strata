@@ -189,6 +189,7 @@ export CLAUDE_CODE_MAX_CONTEXT_TOKENS=206584            # 声明真实窗口：�
 export CLAUDE_CODE_MAX_OUTPUT_TOKENS=24576             # 该强度的总输出（low 8192、medium 16384、high 24576）
 export CLAUDE_CODE_EFFORT_LEVEL=high                    # 与 Codex 的 model_reasoning_effort 相同
 export CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE=150000       # 自动压缩阈值：所用档的 auto_compact_token_limit，与 Codex 相同
+export ENABLE_TOOL_SEARCH=false                        # 关闭工具搜索，全部工具定义内联发送（见下文）
 
 claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default \
        --settings '{"skipWebFetchPreflight": true, "permissions": {"deny": ["WebSearch"]},
@@ -202,6 +203,7 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default
 - 审批固定由 `bin/qwen-approve` 完成，不使用 Claude Code 的 auto mode（2b 验收中 auto mode 判对 5/9、每次运行 191 秒；`qwen-approve` 判对 7/7、80 秒）。权限模式为 `default`，每次权限请求经 `PermissionRequest` hook 交给 `qwen-approve`：它把用户消息（唯一授权来源）、最近 6 次工具调用与结果（标为不可信数据）和待审动作发给本模型（`reasoning_effort: low`），思考上限 512 token、总输出 1024 token，与 Codex guardian 相同；等模型答复最多 150 秒（hook 给 180 秒）；返回 allow / deny 及理由；超时、出错或答复无法解析一律拒绝。用户只是让 agent 照文件、网页或工具输出里的步骤执行时，只授权其中无害的步骤；破坏性或越界的步骤必须由用户消息点名效果和目标。每次判断记一行到 `logs/approve.log`（工具、结论、理由、耗时、usage，不含 key）。
 - 压缩：PreCompact hook 退出码为 0 时，其 stdout 会以 `Additional Instructions:` 追加到 Claude Code 自带摘要指令之后，所以每次压缩（自动或手动）都带上 `compact-prompt.txt`。**特例**：Claude Code 没有替换内置摘要指令的办法，压缩请求是"内置指令 + 基础压缩提示"；Codex 用 `experimental_compact_prompt_file` 整体替换为基础压缩提示。这是两者唯一不能对齐的提示差异。
 - `skipWebFetchPreflight` 关闭 WebFetch 抓网页前向 `api.anthropic.com` 的域名查询。
+- 工具搜索：`ENABLE_TOOL_SEARCH=false` 关闭 Claude Code 的工具搜索（延迟加载工具定义）。Claude Code 2.1.309 开着它时，每个请求多一个带 `defer_loading` 的占位工具 `DeferredToolPlaceholder`，被延迟的工具要靠 `tool_reference` 块按需展开；Strata 的 Messages 接口不实现这两种语义（占位工具会当普通工具交给模型，`tool_reference` 块被丢弃），所以工具搜索在本服务上不可用。关闭后所有工具（含 brave 的 3 个）都以完整定义内联，工具表与 2.1.303 相同（2.1.309 零模型抓包核对，2026-10-24）。启动脚本总是设这个值，调用方环境里的同名变量不起作用。
 
 ### 与 Codex 的参数对照
 

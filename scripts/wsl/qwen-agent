@@ -122,6 +122,10 @@ def claude(frontend, model, effort, tier, arguments):
         # Compact at Codex's threshold.  Claude Code compacts only at its blocking limit (window - 20000 - 3000:
         # 183584 for 206584, 133584 for 156584) and ignores CLAUDE_AUTOCOMPACT_PCT_OVERRIDE; this sets that limit.
         'CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE': str(tier['auto_compact_token_limit']),
+        # Tool search sends a defer_loading placeholder tool and expands deferred tools through tool_reference blocks;
+        # Strata implements neither (it hands the placeholder to the model and drops tool_reference), so every tool
+        # goes inline, as in Claude Code 2.1.303.  Set here, so a caller's value never reaches the agent.
+        'ENABLE_TOOL_SEARCH': 'false',
     }
     return ['claude', *options, *arguments], environment
 
