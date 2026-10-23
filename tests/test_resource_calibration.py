@@ -133,6 +133,10 @@ class LongContextWorkloadTests(unittest.TestCase):
         def put(rid,**fields):recs.setdefault(rid,{}).update(fields)
         body=workload['shared_prefix'].split('BEGIN RECORDS\n')[1].split('\nEND RECORDS')[0].splitlines()
         for line in body:
+            if m:=re.match(r'UPDATE label=(\S+) region=(\w+) (\w+)=(\d+)$',line):
+                [d.__setitem__(m[3],int(m[4]))for d in recs.values()if d.get('label')==m[1]and d.get('region')==m[2]];continue
+            if m:=re.match(r'Correction: the record labelled (\S+) in the (\w+) region now has (\w+) (\d+)\.$',line):
+                [d.__setitem__(m[3],int(m[4]))for d in recs.values()if d.get('label')==m[1]and d.get('region')==m[2]];continue
             if line.startswith('{"update"'):
                 d=json.loads(line);rid=d.pop('update');recs[rid].update(d);continue
             if m:=re.match(r'UPDATE id=(R\d+) (\w+)=(\d+)$',line):recs[m[1]][m[2]]=int(m[3]);continue
@@ -146,7 +150,7 @@ class LongContextWorkloadTests(unittest.TestCase):
                 put(d['id'],**d);continue
             if line.startswith('Record '):
                 m=re.match(r'Record (R\d+), labelled (\S+), is in the (\w+) region\. Its capacity is (\d+), (\d+) units are used and (\d+) are held in reserve\.(?: It links to record (R\d+)\.)?$',line)
-                put(m[1],region=m[3],capacity=int(m[4]),used=int(m[5]),reserve=int(m[6]),**({'link':m[7]}if m[7]else{}));continue
+                put(m[1],label=m[2],region=m[3],capacity=int(m[4]),used=int(m[5]),reserve=int(m[6]),**({'link':m[7]}if m[7]else{}));continue
             tokens=dict(t.split('=',1)for t in line.replace('INFO dispatch ','').split())
             d={field_names.get(k,k):int(v)if v.isdigit()else v for k,v in tokens.items()}
             d['link']=d.pop('next',d.get('link'))
@@ -159,6 +163,10 @@ class LongContextWorkloadTests(unittest.TestCase):
                 if text.startswith('What is the current'):a=recs[ids[0]][re.match(r'What is the current (\w+)',text)[1]]
                 elif text.startswith('What is the capacity of record') and (' plus ' in text or ' minus ' in text):
                     x,y=recs[ids[0]]['capacity'],recs[ids[1]]['capacity'];a=x+y if ' plus ' in text else x-y
+                elif text.startswith('Find the record'):
+                    label,region,what=re.match(r'Find the record with label (\S+) and region (\w+)\. What is its (\w+)\?',text).groups()
+                    hit=[r for r,d in recs.items()if d['label']==label and d['region']==region];assert len(hit)==1
+                    a=hit[0]if what=='ID' else recs[hit[0]]['capacity']
                 elif text.startswith('What is the'):a=recs[ids[0]][re.match(r'What is the (\w+)',text)[1]]
                 elif text.startswith('Give the'):
                     f1,f2=re.match(r'Give the (\w+) of record R\d+ and the (\w+)',text).groups();a=f'{recs[ids[0]][f1]},{recs[ids[1]][f2]}'
@@ -170,16 +178,16 @@ class LongContextWorkloadTests(unittest.TestCase):
 
     def test_version3_answers_match_an_independent_solver(self):
         for seed in (1,2):
-            workload=calibration_workload.build(900,3,seed=seed,questions=120,batch=8)
-            self.assertEqual(self.solve_v3(workload),[r['a']for c in workload['cases']for r in c['expected']])
+            workload=calibration_workload.build(900,3,seed=seed,questions=120,batch=8,find_share=0.2,both_fields=0.5,twin_update_share=0.8,label_update_share=0.5)
+            self.assertEqual([str(a)for a in self.solve_v3(workload)],[r['a']for c in workload['cases']for r in c['expected']])
 
     def test_version3_is_deterministic_and_seeded(self):
         a=calibration_workload.build(600,3,seed=5,questions=16);b=calibration_workload.build(600,3,seed=5,questions=16)
         self.assertEqual(a,b)
         self.assertNotEqual(a['shared_prefix'],calibration_workload.build(600,3,seed=6,questions=16)['shared_prefix'])
-        for other in ('twin_rate','update_rate','near_share','combo_share'):
+        for other in ('twin_rate','update_rate','near_share','combo_share','twin_update_share','both_fields','label_update_share'):
             self.assertNotEqual(a['shared_prefix']+json.dumps(a['cases']),
-                                (lambda w:w['shared_prefix']+json.dumps(w['cases']))(calibration_workload.build(600,3,seed=5,questions=16,**{other:0.02})))
+                                (lambda w:w['shared_prefix']+json.dumps(w['cases']))(calibration_workload.build(600,3,seed=5,questions=16,**{other:0.6})))
 
     def test_version3_mixes_formats_types_twins_and_positions(self):
         workload=calibration_workload.build(1500,3,seed=3,questions=200,batch=10)
@@ -187,7 +195,7 @@ class LongContextWorkloadTests(unittest.TestCase):
         for marker in ('{"id"','| R','id=R','Record R','INFO dispatch','{"update"','UPDATE id=','Correction:','WARN dispatch'):
             self.assertIn(marker,prefix)
         items=[i for c in workload['cases']for i in c['items']]
-        self.assertEqual({i['type']for i in items},{'retrieve','latest','join','jump','compare','arith'})
+        self.assertEqual({i['type']for i in items},{'retrieve','latest','join','jump','compare','arith','find'})
         self.assertEqual(sorted({int(i['pos']*9.999)for i in items}),list(range(10)))
         self.assertTrue(any(i['near']for i in items) and not all(i['near']for i in items))
         for case in workload['cases']:
@@ -197,6 +205,15 @@ class LongContextWorkloadTests(unittest.TestCase):
         twins=[t for c in workload['cases']for q,t in zip(c['items'],c['alternatives']['twin'])if t]
         self.assertTrue(twins)
         self.assertEqual(len({c['expected'][0]['id']for c in workload['cases']}),1)
+
+    def test_version3_answers_are_strings_and_lenient_scoring_ignores_quoting(self):
+        workload=calibration_workload.build(900,3,seed=4,questions=16)
+        case=workload['cases'][0];self.assertTrue(case['lenient'])
+        self.assertTrue(all(isinstance(r['a'],str)for r in case['expected']))
+        said=[{'id':r['id'],'a':int(r['a'])if r['a'].lstrip('-').isdigit()else r['a']}for r in case['expected']]
+        reply={'choices':[{'finish_reason':'stop','message':{'content':json.dumps(said)}}]}
+        self.assertTrue(inspect_reply(reply,case['expected'],case['alternatives'],True)['pass'])
+        self.assertFalse(inspect_reply(reply,case['expected'],case['alternatives'])['pass'])
 
     def test_version3_rejects_unknown_knobs_and_partial_batches(self):
         with self.assertRaises(ValueError):calibration_workload.build(600,3,bogus=1)

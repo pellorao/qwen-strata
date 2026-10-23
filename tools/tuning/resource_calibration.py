@@ -38,7 +38,13 @@ def classify_rows(value, expected, alternatives):
     return out
 
 
-def inspect_reply(response, expected, alternatives=None):
+def lenient_rows(value):
+    """Answers compared as written text: a bare number and its quoted form are the same answer (format, not memory)."""
+    plain=lambda v:str(v).strip()if isinstance(v,(int,str))and not isinstance(v,bool)else v
+    return [dict(r,a=plain(r['a']))if isinstance(r,dict)and 'a' in r else r for r in value]if isinstance(value,list)else value
+
+
+def inspect_reply(response, expected, alternatives=None, lenient=False):
     """Distinguish incomplete delivery from a complete but wrong answer."""
     choice=response['choices'][0];message=choice['message'];text=message.get('content') or ''
     strict_json=True
@@ -52,6 +58,7 @@ def inspect_reply(response, expected, alternatives=None):
             try:candidate,_=decoder.raw_decode(text[match.start():])
             except ValueError:continue
             if isinstance(candidate,list) and len(candidate)>=len(expected):value=candidate;break
+    if lenient:value=lenient_rows(value)
     refusal=bool(message.get('refusal'))
     complete=isinstance(value,list) and len(value)>=len(expected)
     # A complete wrapped array is a format failure, not permission to ask for a better answer.
@@ -234,7 +241,7 @@ def disk_read_delta(before,after):
     return {k:after[k]-before[k]if known(k)else None for k in('system_read_bytes','process_read_bytes')}
 
 
-def logical_request(owner,body,expected,folder,limit,alternatives=None):
+def logical_request(owner,body,expected,folder,limit,alternatives=None,lenient=False):
     folder.mkdir();started=time.monotonic();row={'started_at':time.time(),'calls':0,'pass':False,'complete':False}
     body=copy.deepcopy(body)
     while time.monotonic()-started<limit:
@@ -251,7 +258,7 @@ def logical_request(owner,body,expected,folder,limit,alternatives=None):
                 row['timeout']=True;break
             raise
         save(folder/f'response-{row["calls"]}.json',reply)
-        inspection=inspect_reply(reply,expected,alternatives);save(folder/f'inspection-{row["calls"]}.json',{k:v for k,v in inspection.items()if k!='text'})
+        inspection=inspect_reply(reply,expected,alternatives,lenient);save(folder/f'inspection-{row["calls"]}.json',{k:v for k,v in inspection.items()if k!='text'})
         row.update({k:v for k,v in inspection.items()if k!='text'})
         if inspection['complete'] or inspection['refusal']:break
         # Normal early completion without the assigned delivery: same source/history and remaining work budget.
@@ -337,7 +344,7 @@ def run_case(host,plan,workload,job,folder):
                     save(folder/f'request-{number}-engine-offset.json',{'offset':request_offset})
                     print(json.dumps({'instance':label,'request':case['id'],'event':'started'}),flush=True)
                     result=logical_request(owner,body,case['expected'],folder/f'request-{number}',plan['per_logical_request_work_seconds_limit'],
-                                           case.get('alternatives'))
+                                           case.get('alternatives'),case.get('lenient',False))
                     if plan.get('disk_io'):result['disk_reads']=disk_read_delta(before,disk_reads(host))
                     row['requests'].append(dict(result,id=case['id']));save(folder/'partial.json',row)
                     if plan.get('capture_each_request'):
