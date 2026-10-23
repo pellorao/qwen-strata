@@ -20,7 +20,25 @@ def digest(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
-def inspect_reply(response, expected):
+def classify_rows(value, expected, alternatives):
+    """Per expected row: ok, missing, or the named alternative (e.g. same-label) whose row explains every wrong field.
+
+    A row whose wrong fields no single alternative explains is 'other'; the plan decides what 'other' means per case.
+    """
+    rows=value if isinstance(value,list) else []
+    out=[]
+    for n,want in enumerate(expected):
+        got=rows[n] if n<len(rows) else None
+        if not isinstance(got,dict) or got.get('id')!=want.get('id'):out.append('missing');continue
+        wrong=[k for k in want if k not in got or json.dumps(got[k])!=json.dumps(want[k])]
+        if not wrong and set(got)==set(want):out.append('ok');continue
+        named=next((name for name,table in alternatives.items() for alt in table[n]
+                    if wrong and all(k in got and json.dumps(got[k])==json.dumps(alt[k]) for k in wrong)),None)
+        out.append(named or 'other')
+    return out
+
+
+def inspect_reply(response, expected, alternatives=None):
     """Distinguish incomplete delivery from a complete but wrong answer."""
     choice=response['choices'][0];message=choice['message'];text=message.get('content') or ''
     strict_json=True
@@ -39,9 +57,13 @@ def inspect_reply(response, expected):
     # A complete wrapped array is a format failure, not permission to ask for a better answer.
     if isinstance(value,dict):complete=any(isinstance(v,list) and len(v)>=len(expected) for v in value.values())
     canonical=lambda v:json.dumps(v,sort_keys=True,separators=(',',':'),ensure_ascii=False)
-    return {'complete':complete,'pass':strict_json and complete and canonical(value)==canonical(expected),
+    result={'complete':complete,'pass':strict_json and complete and canonical(value)==canonical(expected),
             'refusal':refusal,'finish_reason':choice.get('finish_reason'),
             'output_rows':len(value) if isinstance(value,list) else None,'text':text}
+    if alternatives is not None:
+        result['row_classes']=classify_rows(value,expected,alternatives)
+        if len(value or [])!=len(expected) and isinstance(value,list):result['extra_rows']=len(value)-len(expected)
+    return result
 
 
 def frozen_inputs(plan_path,workload_path):
@@ -69,6 +91,9 @@ def frozen_inputs(plan_path,workload_path):
             raise ValueError('Frozen request changed')
         if digest(json.dumps(case['expected'],sort_keys=True,separators=(',',':')).encode())!=binding['expected_sha256']:
             raise ValueError('Frozen expected values changed')
+        if ('alternatives' in case or 'alternatives_sha256' in binding) and digest(json.dumps(
+                case.get('alternatives'),sort_keys=True,separators=(',',':')).encode())!=binding.get('alternatives_sha256'):
+            raise ValueError('Frozen alternative rows changed')
     return plan,workload
 
 
@@ -79,7 +104,9 @@ def experiment_schedule(plan):
     if plan.get('schema')=='conditions-v2':
         # Each condition names its own engine overrides (null drops a template flag) and environment.
         conditions={c['id']:c for c in plan['conditions']}
-        if len(conditions)<2 or len(conditions)!=len(plan['conditions']):raise ValueError('Unapproved conditions')
+        # A context-length validation runs the deployed default alone; comparisons need two or more conditions.
+        if len(conditions)<(1 if dimension=='context-length' else 2) or len(conditions)!=len(plan['conditions']):
+            raise ValueError('Unapproved conditions')
         for c in conditions.values():
             if set(c)-{'id','overrides','environment'} or not c.get('overrides') and not c.get('environment'):
                 raise ValueError('Condition must change an engine override or environment value')
@@ -190,7 +217,7 @@ def disk_read_delta(before,after):
     return {k:after[k]-before[k]if known(k)else None for k in('system_read_bytes','process_read_bytes')}
 
 
-def logical_request(owner,body,expected,folder,limit):
+def logical_request(owner,body,expected,folder,limit,alternatives=None):
     folder.mkdir();started=time.monotonic();row={'started_at':time.time(),'calls':0,'pass':False,'complete':False}
     body=copy.deepcopy(body)
     while time.monotonic()-started<limit:
@@ -207,7 +234,7 @@ def logical_request(owner,body,expected,folder,limit):
                 row['timeout']=True;break
             raise
         save(folder/f'response-{row["calls"]}.json',reply)
-        inspection=inspect_reply(reply,expected);save(folder/f'inspection-{row["calls"]}.json',{k:v for k,v in inspection.items()if k!='text'})
+        inspection=inspect_reply(reply,expected,alternatives);save(folder/f'inspection-{row["calls"]}.json',{k:v for k,v in inspection.items()if k!='text'})
         row.update({k:v for k,v in inspection.items()if k!='text'})
         if inspection['complete'] or inspection['refusal']:break
         # Normal early completion without the assigned delivery: same source/history and remaining work budget.
@@ -230,7 +257,9 @@ def run_case(host,plan,workload,job,folder):
     save(folder/'start-options.json',options)
     owner=host.controller(folder/'controller');offset=None;stopped=None;telemetry=None
     try:
+        row['stage']='acquire'
         with owner:
+            row['stage']='run'
             if owner.call('/model/status')['status']!='stopped':raise RuntimeError('Model was not stopped')
             offset=log_offset(host.installation,model,host);save(folder/'engine-offset.json',{'offset':offset})
             try:
@@ -290,7 +319,8 @@ def run_case(host,plan,workload,job,folder):
                     if plan.get('disk_io'):before=disk_reads(host)
                     save(folder/f'request-{number}-engine-offset.json',{'offset':request_offset})
                     print(json.dumps({'instance':label,'request':case['id'],'event':'started'}),flush=True)
-                    result=logical_request(owner,body,case['expected'],folder/f'request-{number}',plan['per_logical_request_work_seconds_limit'])
+                    result=logical_request(owner,body,case['expected'],folder/f'request-{number}',plan['per_logical_request_work_seconds_limit'],
+                                           case.get('alternatives'))
                     if plan.get('disk_io'):result['disk_reads']=disk_read_delta(before,disk_reads(host))
                     row['requests'].append(dict(result,id=case['id']));save(folder/'partial.json',row)
                     if plan.get('capture_each_request'):
@@ -319,9 +349,21 @@ def run_case(host,plan,workload,job,folder):
         row['status']='closed-valid-observation'
     except Exception as error:
         row['error_type']=type(error).__name__;row['status']='infrastructure-error-needs-impact-assessment'
+        if row['stage']=='acquire' and getattr(error,'code',None)==409:row['status']='lease-held-by-another-caller'
         # Never print credential-bearing transport errors. Preserve the lease file on unconfirmed cleanup.
         row['ownership_returned']=not owner.credential.exists()
     row['ended_at']=time.time();save(folder/'result.json',row);return row
+
+
+def wait_for_free_lease(host,progress,progress_path,poll=30):
+    """Never preempt: wait while another caller holds the lease (instances return it between each other)."""
+    from tools.ops.controller_client import Controller
+    probe=Controller(host.installation,progress_path.parent/'lease-probe',base_url=host.deployment['frontend_url'])
+    while probe.call('/health',timeout=60)['lease']!='free':
+        if progress.get('status')!='waiting-for-lease':
+            progress['status']='waiting-for-lease';progress['waiting_since']=time.time();save(progress_path,progress)
+        time.sleep(poll)
+    progress.pop('waiting_since',None)
 
 
 def run(plan_path,workload_path,out,resume=False):
@@ -333,9 +375,14 @@ def run(plan_path,workload_path,out,resume=False):
     for job in experiment_schedule(plan):
         label=job['label']
         if any(r['label']==label and r['status']=='closed-valid-observation'for r in progress['rows']):continue
-        attempts=sum(r['label']==label for r in progress['attempts'])+1;folder=out/f'{label}-attempt-{attempts}'
-        progress['active_instance']=label;progress['status']='running';save(progress_path,progress)
-        row=run_case(host,plan,workload,job,folder);row['attempt_directory']=folder.name
+        while True:
+            attempts=sum(r['label']==label for r in progress['attempts'])+1;folder=out/f'{label}-attempt-{attempts}'
+            wait_for_free_lease(host,progress,progress_path)
+            progress['active_instance']=label;progress['status']='running';save(progress_path,progress)
+            row=run_case(host,plan,workload,job,folder);row['attempt_directory']=folder.name
+            if row['status']!='lease-held-by-another-caller':break
+            # Taken between our health check and acquire: nothing ran; wait again without counting an observation.
+            progress.setdefault('lease_waits',[]).append({'label':label,'directory':folder.name,'at':time.time()})
         progress['attempts'].append(row)
         if row['status']=='closed-valid-observation':progress['rows'].append(row)
         else:

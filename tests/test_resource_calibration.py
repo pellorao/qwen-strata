@@ -1,11 +1,13 @@
 import sys,json,unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-import importlib.util,tempfile
-from tools.tuning.resource_calibration import inspect_reply, experiment_schedule, frozen_inputs, load_facts, kv_facts, disk_read_delta
+import importlib.util,tempfile,hashlib
+from tools.tuning.resource_calibration import inspect_reply, classify_rows, experiment_schedule, frozen_inputs, load_facts, kv_facts, disk_read_delta
 ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('ple_workload',ROOT/'benchmarks/resource-calibration-v1/ple_workload.py')
 ple_workload=importlib.util.module_from_spec(spec);spec.loader.exec_module(ple_workload)
+spec=importlib.util.spec_from_file_location('calibration_workload',ROOT/'benchmarks/resource-calibration-v1/workload.py')
+calibration_workload=importlib.util.module_from_spec(spec);spec.loader.exec_module(calibration_workload)
 FAKE_VOCAB={'Ġ'+''.join(chr(97+(i//26**k)%26)for k in range(4))+'q':i for i in range(26000)}
 
 class ResourceCalibrationTests(unittest.TestCase):
@@ -87,6 +89,68 @@ class ResourceCalibrationTests(unittest.TestCase):
         expected=[{'id':'a'}]
         result=inspect_reply(self.reply('```json\n'+json.dumps(expected)+'\n```',True),expected)
         self.assertTrue(result['complete']);self.assertFalse(result['pass'])
+
+    def test_context_length_validation_may_run_one_default_condition(self):
+        plan={'host':'rtx3080ti','candidate_dimension':'context-length','schema':'conditions-v2',
+              'conditions':[{'id':'default-160k','overrides':{'max-context':206584}}],
+              'schedule':[{'condition':'default-160k','repetition':r}for r in(1,2,3)]}
+        self.assertEqual([j['label']for j in experiment_schedule(plan)],['default-160k-r1','default-160k-r2','default-160k-r3'])
+        plan['candidate_dimension']='pcie-frac'
+        with self.assertRaises(ValueError):experiment_schedule(plan)
+
+
+class LongContextWorkloadTests(unittest.TestCase):
+    def test_version1_is_unchanged_for_frozen_plans(self):
+        plan=json.loads((ROOT/'benchmarks/resource-calibration-v1/iq3_xxs-night-2026-10-12/kv-long/plan-150k.json').read_text())
+        workload=calibration_workload.build(3609)
+        for case,binding in zip(workload['cases'],plan['workload']['case_bindings']):
+            text=workload['shared_prefix']+case['question']
+            self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),binding['user_text_sha256'])
+            self.assertNotIn('alternatives',case)
+
+    def test_version2_asks_distinguishable_same_label_pairs(self):
+        workload=calibration_workload.build(3754,2);first=workload['cases'][0]
+        ids=[r['id']for r in first['expected']];self.assertEqual(len(set(ids)),28)
+        self.assertEqual(ids[0],'R00999');self.assertEqual(ids[14],'R01999')
+        labels={json.loads(line)['id']:json.loads(line)['label']for line in workload['shared_prefix'].splitlines()if line.startswith('{')}
+        for a,b in zip(ids[:14],ids[14:]):self.assertEqual(labels[a],labels[b])
+        for want,alts in zip(first['expected'],first['alternatives']['same-label']):
+            self.assertTrue(alts)
+            for alt in alts:self.assertNotEqual({k:v for k,v in alt.items()if k!='id'},{k:v for k,v in want.items()if k!='id'})
+
+    def test_version2_does_not_clamp_available(self):
+        workload=calibration_workload.build(3754,2)
+        for case in workload['cases'][1:]:
+            self.assertIn('do not clamp',case['question'])
+        self.assertTrue(any(r['available']<0 for r in workload['cases'][2]['expected']))
+
+    def test_rows_name_same_label_confusion_and_other_errors(self):
+        expected=[{'id':'R1','v':1},{'id':'R2','v':2},{'id':'R3','v':3},{'id':'R4','v':4}]
+        alts={'same-label':[[{'id':'R1','v':9}],[{'id':'R2','v':8}],[],[]]}
+        got=[{'id':'R1','v':9},{'id':'R2','v':5},{'id':'R3','v':3}]
+        self.assertEqual(classify_rows(got,expected,alts),['same-label','other','ok','missing'])
+        reply={'choices':[{'finish_reason':'stop','message':{'content':json.dumps(got)}}]}
+        self.assertEqual(inspect_reply(reply,expected,alts)['row_classes'][0],'same-label')
+
+    def test_alternatives_are_bound_by_the_plan(self):
+        workload=calibration_workload.build(2000,2)
+        digest=lambda v:hashlib.sha256(v.encode()).hexdigest()
+        bindings=[{'id':c['id'],'user_text_sha256':digest(workload['shared_prefix']+c['question']),
+                   'expected_sha256':digest(json.dumps(c['expected'],sort_keys=True,separators=(',',':'))),
+                   'alternatives_sha256':digest(json.dumps(c['alternatives'],sort_keys=True,separators=(',',':')))}
+                  for c in workload['cases']]
+        plan={'host':'rtx3080ti','candidate_dimension':'context-length','schema':'conditions-v2',
+              'authorization':{'approved':True},'baseline':{'start_options':{'model':'IQ3_XXS'}},
+              'conditions':[{'id':'d','overrides':{'max-context':206584}}],
+              'schedule':[{'condition':'d','repetition':r}for r in(1,2,3)],'model_instances':3,'logical_requests':9,
+              'source_sha256':{},'workload':{'case_bindings':bindings}}
+        with tempfile.TemporaryDirectory()as folder:
+            paths=[Path(folder)/'plan.json',Path(folder)/'workload.json']
+            paths[0].write_text(json.dumps(plan));paths[1].write_text(json.dumps(workload))
+            frozen_inputs(*paths)
+            workload['cases'][0]['alternatives']['same-label'][0]=[]
+            paths[1].write_text(json.dumps(workload))
+            with self.assertRaises(ValueError):frozen_inputs(*paths)
 
 
 class PleReadPathTests(unittest.TestCase):
