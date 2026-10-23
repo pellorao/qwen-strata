@@ -1,6 +1,8 @@
 """Public result file of the multi-model benchmark v1 for the Reviewer Model Benchmark page (v2.0).
 
-Input: a benchmark_summary summary.json (phase 1 or 2), optional sensitivity-variant summaries of the same instances
+Input: a benchmark_summary summary.json (phase 1, 2 or 3; it must carry the benchmark_summary `generator` marker or be
+a published summary listed in LEGACY_SUMMARIES, and every instance must have its work seconds, speeds and speed_parts),
+optional sensitivity-variant summaries of the same instances
 (each a benchmark_summary run over another score root), and the session-check diagnostic list. Output: one JSON file with
 per-instance detail only (user 2026-10-22): no aggregate statistics and no comparison results, but every field and
 design rule needed to recompute them (which instances enter a cell, the 25 preregistered pairs per scenario, alpha, Holm
@@ -42,9 +44,16 @@ DIAGNOSTIC = ROOT / 'benchmarks/multi-model-v1/session-diagnostic.json'
 # Report conversions that are not costs (benchmark_summary): the measurement-rule equivalent cost of Strata and the
 # Anthropic weekly-quota share per API-equivalent USD.
 STRATA_EQUIVALENT_USD_PER_M = {'uncachedInput': 0.15, 'cachedInput': 0.016, 'output': 0.47}
-# Phase 1 as published, pointed to from the phase-2 file (paths relative to the project root).
+# Published reports pointed to from later files (paths relative to the project root).
 PHASE1_SUMMARY_MD = 'reports/v0.1.45/multi-model-benchmark/phase1/summary.md'
 PHASE1_SUMMARY_JSON = 'reports/v0.1.45/multi-model-benchmark/phase1/summary.json'
+PHASE2_SUMMARY_MD = 'reports/v0.1.45/multi-model-benchmark/phase2/summary.md'
+PHASE2_SUMMARY_JSON = 'reports/v0.1.45/multi-model-benchmark/phase2/summary.json'
+# Published summaries written before the generator marker (user 2026-10-23), accepted by sha256 only: the phase-2
+# summary.json (benchmark_summary output with speeds_approximate filled in place; regenerating it gives the same
+# content with that key in another position, so the committed file is kept). The phase-1 summary.json has no
+# per-instance speed_parts and is not exportable.
+LEGACY_SUMMARIES = {'df67a68e7a7f06f3258bebfc2d44a47a1fc7ac1a711964ee4f74f8efda4fff51': 2}
 # Periods (UTC) when other compute (nice 19) ran on the Strata host beside the phase-2 extra runs: id, start, end, zh, en.
 PARALLEL_WINDOWS = [
     ('W1', '2026-10-21T16:50:00+00:00', '2026-10-21T17:30:00+00:00', '第一阶段补数据 worker 计算（nice 19，1–2 进程）',
@@ -163,7 +172,20 @@ COST_BASIS = {
 }
 
 
-def caveats():
+PHASE3_CAVEAT = (
+    'phase3-supplement',
+    '第三阶段只是补充（用户 2026-10-22）：gpt-6-luna xhigh（配置 28）、max（配置 29）在 Codex 上 4 个场景各取前 5 个有效实例，'
+    '只给逐实例结果，不进预登记比较和 Holm 族，本工程也不拿它与其他配置比较。运行于 2026-10-23（JST 02:20–07:12），'
+    '借用 ChatGPT 登录，条件与 v1 相同（同一 Codex 副本、场景冻结源、harness 补丁、搜索关闭、凭据 deny-read）；'
+    '与前两阶段相隔一天，服务端模型或路由可能已有变化。',
+    'Phase 3 is a supplement only (user 2026-10-22): gpt-6-luna xhigh (configuration 28) and max (29) on Codex, the first '
+    '5 valid instances in each of the 4 scenarios, per-instance results only, never in a preregistered comparison or the '
+    'Holm family, and not compared with other configurations by this project. Run on 2026-10-23 (JST 02:20-07:12) on a '
+    'borrowed ChatGPT login under the v1 conditions (same Codex copy, frozen scenario sources, harness patches, search '
+    'off, credential deny-read); a day after the first two phases, so the served model or routing may have changed.')
+
+
+def caveats(phase=2):
     """Limitations, zh / en. D7 is stated as this project's own rule, not a restriction on the reader (user 10-22)."""
     items = [
         ('d7', '本工程的报告只给分场景结果，不算综合分、不排名（D7）。本文件只提供实例数据，不含任何权重或综合分。',
@@ -213,6 +235,8 @@ def caveats():
          'Strata results hold for one host and one quantization only (rtx3080ti, IQ3_XXS, parameters from the '
          'v0.1.42 tuning).'),
     ]
+    if phase >= 3:
+        items.append(PHASE3_CAVEAT)
     return [{'id': i, 'zh': zh, 'en': en} for i, zh, en in items]
 
 
@@ -261,16 +285,18 @@ def sha256(path):
 def stage(row, first_started):
     """preregistered: part of the preregistered design (the first 5 valid by start, their invalid predecessors,
     DeepSeek pooled cells); extra: Strata extra instances (plan §3, phase 2): valid rank above 5, or invalid and started
-    after the 5th valid instance of the cell; surplus: any other valid instance beyond the first 5, never in a main
+    after the 5th valid instance of the cell; phase3: the same design cut (first 5 valid and the invalid ones) in a
+    phase-3 supplement configuration; surplus: any other valid instance beyond the first 5, never in a main
     statistic."""
     strata = bs.CONFIGS[row['config']]['vendor'] == 'strata'
+    designed = 'phase3' if row['config'] in bs.PHASE3_CONFIGS else 'preregistered'
     if row['valid']:
         if row['first_n'] or row['cell_pooled']:
-            return 'preregistered'
+            return designed
         return 'extra' if strata else 'surplus'
     fifth = first_started.get((row['config'], row.get('supplementary_label') or ''))
     late = fifth is not None and row['started'] is not None and row['started'] > fifth
-    return 'extra' if strata and late else 'preregistered'
+    return 'extra' if strata and late else designed
 
 
 def instance(row, phase, diagnostic):
@@ -376,7 +402,8 @@ def instances(summary, diagnostic):
 
 
 def configs(summary):
-    """Descriptive configuration table: the 27 of plan §2 plus the supplementary DeepSeek medium-requested cells."""
+    """Descriptive configuration table: the 27 of plan §2 plus the supplementary DeepSeek medium-requested cells, and in
+    a phase-3 file the supplement configurations 28 / 29 (kind phase3, never in a comparison)."""
     observed = {}
     supplementary = set()
     for result in summary['scenarios'].values():
@@ -386,6 +413,8 @@ def configs(summary):
                 supplementary.add(r['config'])
     out = []
     for number, c in sorted(bs.CONFIGS.items()):
+        if number in bs.PHASE3_CONFIGS and summary['phase'] < 3:
+            continue
         for supp in ([False, True] if number in supplementary else [False]):
             arm = ARMS[c['harness'], c['vendor']]
             out.append({
@@ -397,10 +426,11 @@ def configs(summary):
                 'modelIdsReturned': sorted(observed.get(number, ())),
                 'vendor': c['vendor'], 'vendorName': VENDOR_NAMES[c['vendor']],
                 'effort': 'medium' if supp else c['effort'], 'effectiveEffort': c['effort'],
-                'kind': 'supplementary' if supp else 'main', 'local': c['vendor'] == 'strata',
+                'kind': ('supplementary' if supp else 'phase3' if number in bs.PHASE3_CONFIGS else 'main'),
+                'local': c['vendor'] == 'strata',
                 'arm': arm, 'tokenSource': TOKEN_SOURCE[arm], 'durationBasis': c['harness'],
                 'costBasis': c['vendor'] if c['vendor'] in COST_BASIS else None,
-                'inComparisons': not supp})
+                'inComparisons': not supp and number in bs.PREREGISTERED_CONFIGS})
     return out
 
 
@@ -430,11 +460,16 @@ def selection_rules(summary):
         'phase': summary['phase'], 'preregisteredN': summary['preregistered_n'],
         'strataExtraTarget': summary['strata_phase2_max'],
         'zh': ('有效实例按开始时刻排序得到 validRank。phase 1：未合并的格取 validRank ≤ 5（firstN）；DeepSeek 合并格（cellPooled，'
-               'medium 请求并入 high）取全部有效实例。phase 2：Strata 的格取 validRank ≤ 10，其余同 phase 1。inMain 是本文件阶段的结果；'
+               'medium 请求并入 high）取全部有效实例。phase 2：Strata 的格取 validRank ≤ 10，其余同 phase 1。'
+               + ('phase 3：同 phase 2，另加补充配置 28、29（gpt-6-luna xhigh、max），各格取 validRank ≤ 5，只给实例、不进比较。'
+                  if summary['phase'] >= 3 else '') + 'inMain 是本文件阶段的结果；'
                '主统计多于前 5 个的格另有一致性行（firstN 为 true 的实例）。'),
         'en': ('Valid instances ordered by start give validRank. Phase 1: cells not pooled take validRank <= 5 (firstN); '
                'pooled DeepSeek cells (cellPooled, medium requests pooled into high) take every valid instance. '
-               'Phase 2: Strata cells take validRank <= 10, others as in phase 1. inMain is the result for the phase '
+               'Phase 2: Strata cells take validRank <= 10, others as in phase 1. '
+               + ('Phase 3: as phase 2, plus the supplement configurations 28 / 29 (gpt-6-luna xhigh / max), '
+                  'validRank <= 5 per cell, instances only and never in a comparison. ' if summary['phase'] >= 3 else '')
+               + 'inMain is the result for the phase '
                'of this file; a cell whose main statistic holds more than its first 5 also has a consistency row '
                '(the instances with firstN true).')}
 
@@ -482,13 +517,17 @@ def environment():
 
 def variants(paths, base_rows):
     """Per variant: the instances whose scoring fields differ from this file's (the rest are identical)."""
-    base = {r['id']: r for result in base_rows['scenarios'].values() for r in result['instances']}
+    every = {r['id']: r for result in base_rows['scenarios'].values() for r in result['instances']}
     out = []
     for name, path in paths:
         if name not in VARIANTS:
             raise ValueError(f'Unknown sensitivity variant {name} (known: {", ".join(VARIANTS)})')
         data = json.loads(Path(path).read_text())
         rows = {r['id']: r for result in data['scenarios'].values() for r in result['instances']}
+        base = every
+        if base_rows['phase'] >= 3 and data.get('phase', 0) < 3:
+            # A phase-2 variant in the phase-3 file: the supplement instances are not part of it.
+            base = {i: r for i, r in every.items() if r['config'] not in bs.PHASE3_CONFIGS}
         if set(rows) != set(base):
             raise ValueError(f'Variant {name}: instance set differs from the summary')
         for key in ('valid', 'in_main', 'valid_rank', 'first_n', 'config', 'supplementary_label'):
@@ -504,6 +543,63 @@ def variants(paths, base_rows):
     return out
 
 
+def published(md, js):
+    return {'summaryMd': md, 'summaryMdSha256': sha256(ROOT / md), 'summaryJson': js, 'summaryJsonSha256': sha256(ROOT / js)}
+
+
+def phase_meta(summary):
+    phase = summary['phase']
+    texts = {
+        1: ('第一阶段：只用预登记实例（Strata 每格前 5 个有效实例）；第二阶段（Strata 加测到 10 个进主统计）完成后另出正式文件。',
+            'Phase 1: preregistered instances only (first 5 valid per Strata cell); the formal file follows phase 2 '
+            '(Strata extra instances up to 10 in the main statistic).'),
+        2: ('第二阶段：按计划的全样本分析，Strata 各格取全部有效实例（至多 10 个），其余配置同第一阶段。',
+            'Phase 2: the planned full-sample analysis; Strata cells use every valid instance (up to 10), other '
+            'configurations as in phase 1.'),
+        3: ('第三阶段补充（三阶段合一）：第二阶段的全部实例与选取不变，另加 gpt-6-luna xhigh（配置 28）、max（配置 29）的补充实例'
+            '（Codex，每格前 5 个有效实例，stage 为 phase3）；补充配置不进任何比较，见 caveats 的 phase3-supplement。',
+            'Phase 3 supplement (all three phases in one file): every phase-2 instance and selection unchanged, plus the '
+            'gpt-6-luna xhigh (configuration 28) and max (29) supplement instances (Codex, first 5 valid per cell, stage '
+            'phase3); the supplement configurations never enter a comparison, see the phase3-supplement caveat.')}
+    out = {'number': phase, 'complete': summary['complete'], 'final': False if phase == 1 else summary['complete'],
+           'zh': texts[phase][0], 'en': texts[phase][1]}
+    if phase >= 2:
+        out['phase1'] = {**published(PHASE1_SUMMARY_MD, PHASE1_SUMMARY_JSON),
+                         'zh': '用 selection.mainStatistic 可重算第一阶段全部统计；第一阶段敏感性变体只适用于第一阶段实例集，见第一阶段报告，本文件不带。',
+                         'en': 'selection.mainStatistic recomputes every phase-1 statistic; the phase-1 sensitivity '
+                               'variants apply to the phase-1 instance set only and are in the phase-1 report, not '
+                               'in this file.'}
+    if phase >= 3:
+        out['phase2'] = {**published(PHASE2_SUMMARY_MD, PHASE2_SUMMARY_JSON),
+                         'zh': '去掉 configNumber 28、29 的实例即为第二阶段文件的实例集；inMain 与第二阶段相同。',
+                         'en': 'Without the configNumber 28 / 29 instances this is the phase-2 instance set; inMain as in '
+                               'phase 2.'}
+    return out
+
+
+def check_source(summary, summary_sha):
+    """Refuse a summary that benchmark_summary did not write (user 2026-10-23): it must carry the generator marker
+    of its phase, or be a published legacy summary by sha256; every instance must have work seconds (valid ones a
+    number) and speeds / speed_parts with the four speeds, as benchmark_summary writes them."""
+    marker = summary.get('generator') or {}
+    if marker:
+        if marker.get('tool') != bs.GENERATOR or marker.get('phase') != summary.get('phase') or not marker.get('sha256'):
+            raise ValueError(f'summary generator marker is not benchmark_summary of phase {summary.get("phase")}: {marker}')
+    elif LEGACY_SUMMARIES.get(summary_sha) != summary.get('phase'):
+        raise ValueError('summary.json lacks the benchmark_summary generator marker (regenerate it with '
+                         'tools.reviewer.benchmark_summary; hand-written summaries are not exported)')
+    problems = []
+    for result in summary['scenarios'].values():
+        for r in result['instances']:
+            if 'seconds' not in r or (r.get('valid') and not isinstance(r['seconds'], (int, float))):
+                problems.append(f"{r.get('id')}: no work seconds")
+            for key in ('speeds', 'speed_parts'):
+                if not isinstance(r.get(key), dict) or set(r[key]) != set(bs.SPEEDS):
+                    problems.append(f"{r.get('id')}: {key} lacks the four speeds")
+    if problems:
+        raise ValueError(f'{len(problems)} instance(s) without the benchmark_summary fields: ' + '; '.join(problems[:10]))
+
+
 def build(summary, summary_sha, variant_paths=(), diagnostic=None, generated=None):
     diagnostic = diagnostic or {}
     commit, dirty = git_commit()
@@ -517,21 +613,7 @@ def build(summary, summary_sha, variant_paths=(), diagnostic=None, generated=Non
                         'en': 'Scoring r8.4: k-tier scoring without the cut at 0 (N / P for N >= 0, N / sum k for N < 0); '
                               'one overall deduction d = max(pause 0.1, format penalty f, ARW residual 0.1): '
                               'final = s - d |s|; a model failure scores 0.'},
-            'phase': {'number': summary['phase'], 'complete': summary['complete'],
-                      'final': False if summary['phase'] == 1 else summary['complete'],
-                      'zh': ('第一阶段：只用预登记实例（Strata 每格前 5 个有效实例）；第二阶段（Strata 加测到 10 个进主统计）完成后另出正式文件。'
-                             if summary['phase'] == 1 else '第二阶段：按计划的全样本分析，Strata 各格取全部有效实例（至多 10 个），其余配置同第一阶段。'),
-                      'en': ('Phase 1: preregistered instances only (first 5 valid per Strata cell); the formal file '
-                             'follows phase 2 (Strata extra instances up to 10 in the main statistic).'
-                             if summary['phase'] == 1 else 'Phase 2: the planned full-sample analysis; Strata cells use '
-                             'every valid instance (up to 10), other configurations as in phase 1.'),
-                      **({} if summary['phase'] == 1 else {'phase1': {
-                          'summaryMd': PHASE1_SUMMARY_MD, 'summaryMdSha256': sha256(ROOT / PHASE1_SUMMARY_MD),
-                          'summaryJson': PHASE1_SUMMARY_JSON, 'summaryJsonSha256': sha256(ROOT / PHASE1_SUMMARY_JSON),
-                          'zh': '用 selection.mainStatistic 可重算第一阶段全部统计；第一阶段敏感性变体只适用于第一阶段实例集，见第一阶段报告，本文件不带。',
-                          'en': 'selection.mainStatistic recomputes every phase-1 statistic; the phase-1 sensitivity '
-                                'variants apply to the phase-1 instance set only and are in the phase-1 report, not '
-                                'in this file.'}})},
+            'phase': phase_meta(summary),
             'parallelWindows': {
                 'zh': 'Strata 加测期间，同一台主机上另有计算进程（nice 19）运行的时段。实例的 parallelWindow 标出开始于某时段（start）或运行中与某时段重叠（overlap）；时段只可能影响速度和用时，不影响分数。',
                 'en': 'Periods when other compute (nice 19) ran on the Strata host during the extra runs. An '
@@ -568,7 +650,7 @@ def build(summary, summary_sha, variant_paths=(), diagnostic=None, generated=Non
         'comparisonDesign': comparison_design(summary),
         'instances': instances(summary, diagnostic),
         'sensitivityVariants': variants(variant_paths, summary),
-        'caveats': caveats(),
+        'caveats': caveats(summary['phase']),
     }
 
 
@@ -631,6 +713,7 @@ def safety_hits(value, users=None):
 
 def write(summary_path, out, variant_paths=(), diagnostic_path=DIAGNOSTIC):
     summary = json.loads(Path(summary_path).read_text())
+    check_source(summary, sha256(summary_path))
     diagnostic = json.loads(Path(diagnostic_path).read_text())['instances'] if diagnostic_path else {}
     result = build(summary, sha256(summary_path), variant_paths, diagnostic)
     hits = safety_hits(result)

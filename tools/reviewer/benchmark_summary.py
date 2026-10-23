@@ -28,29 +28,33 @@ bench_validity.rank_cells (cells not merged: the first 5 valid by start time; me
 adds the Strata extra instances: a Strata cell's main statistic is its valid instances up to rank 10 (the extra-run
 target), with the first 5 as a consistency row; a cell with fewer uses its actual n.
 
-    python3 -m tools.reviewer.benchmark_summary --data-root <checkout> --out <fresh dir> [--phase 1|2]
-        [--records records.jsonl] [--score-root <dir>]
+Phase 3 (user 2026-10-22): phase 2 unchanged plus the supplement configurations 28 / 29 (gpt-6-luna xhigh / max on
+Codex, PHASE3_CONFIGS): their rows (kind phase3, first 5 valid by start time) and instances only, never in a comparison
+or the Holm family. Configurations come from tools.reviewer.bench_records.CONFIG_TABLE; a record outside it stops the
+summary. summary.json carries a `generator` marker (tool, its sha256, phase) that benchmark_export requires.
+
+    python3 -m tools.reviewer.benchmark_summary --data-root <checkout> --out <fresh dir> [--phase 1|2|3]
+        [--records records.jsonl ...] [--score-root <dir> ...] [--reconciliation-from <summary.json>]
 """
 import argparse
+import hashlib
 import json
 import math
 from pathlib import Path
 
 from tools.metrics.measurement_format import equivalent_cost_usd, minutes
+from tools.reviewer.bench_records import CONFIG_TABLE
 
-EFFORTS = ('low', 'medium', 'high')
-DEEPSEEK_EFFORTS = ('low', 'high', 'max')  # plan §2, user 2026-10-21
-# Plan §2 rows: (first configuration, harness, model, vendor, efforts); configuration = first + effort index, the same
-# numbering as tools.reviewer.bench_records (MODELS, MODEL_EFFORTS).
-CONFIG_ROWS = [(1, 'codex', 'gpt-6.1-sol', 'openai', EFFORTS), (4, 'codex', 'gpt-6-luna', 'openai', EFFORTS),
-               (7, 'codex', 'deepseek-flash', 'deepseek', DEEPSEEK_EFFORTS),
-               (10, 'codex', 'strata-iq3_xxs', 'strata', EFFORTS),
-               (13, 'claude-code', 'opus', 'anthropic', EFFORTS), (16, 'claude-code', 'sonnet', 'anthropic', EFFORTS),
-               (19, 'claude-code', 'haiku', 'anthropic', EFFORTS),
-               (22, 'claude-code', 'deepseek-flash', 'deepseek', DEEPSEEK_EFFORTS),
-               (25, 'claude-code', 'strata-iq3_xxs', 'strata', EFFORTS)]
+# Configurations from the one table of tools.reviewer.bench_records (user 2026-10-23: no copy of it here). Rows of plan
+# §2 have kind main; PHASE3_CONFIGS are the phase-3 supplement (gpt-6-luna xhigh / max), only in phase 3, never in a
+# comparison or the Holm family.
+CONFIG_ROWS = [(first, harness, model, vendor, efforts)
+               for first, _, harness, _, model, vendor, efforts, _ in CONFIG_TABLE]
 CONFIGS = {first + i: {'harness': h, 'model': m, 'vendor': v, 'effort': e}
            for first, h, m, v, efforts in CONFIG_ROWS for i, e in enumerate(efforts)}
+PHASE3_CONFIGS = frozenset(first + i for first, _, _, _, _, _, efforts, kind in CONFIG_TABLE if kind == 'phase3'
+                           for i in range(len(efforts)))
+PREREGISTERED_CONFIGS = frozenset(CONFIGS) - PHASE3_CONFIGS
 RECORD_FIELDS = ('id', 'scenario', 'config', 'valid', 'valid_rank', 'main_statistic', 'first_n', 'score', 'raw_score',
                  'format_penalty', 'repairs', 'seconds', 'time_limit_seconds', 'tokens', 'token_source', 'tool_calls',
                  'cost_usd', 'model_ids', 'service_tiers')
@@ -58,7 +62,8 @@ TOKEN_CLASSES = ('uncached_input', 'cached_input', 'output')
 SPEEDS = ('engine_input', 'engine_output', 'task_input', 'task_output')
 PREREGISTERED_N = 5      # first 5 valid by start time (plan §3, §14.1)
 STRATA_PHASE2_MAX = 10   # Strata extra-run target per cell (plan §14.1, 2026-10-21 09:14)
-PHASES = (1, 2)
+PHASES = (1, 2, 3)
+GENERATOR = 'tools.reviewer.benchmark_summary'  # summary.json source marker, required by benchmark_export
 ALPHA = 0.05
 QUOTA_PER_USD = 0.086  # % of the Anthropic weekly quota per API-equivalent USD (estimate.sh calibration)
 SCORED_STATUSES = ('final', 'no-report')  # bench_score statuses with a final score
@@ -77,15 +82,16 @@ def comparisons():
     paired with Strata); then, for the two models on both harnesses (DeepSeek, Strata), Codex against Claude Code at
     each of their efforts (6: Strata low/medium/high, DeepSeek low/high/max)."""
     pairs = []
+    configs = {c: x for c, x in CONFIGS.items() if c in PREREGISTERED_CONFIGS}  # the phase-3 supplement never pairs
     for harness in ('codex', 'claude-code'):
-        strata = [c for c, x in CONFIGS.items() if x['harness'] == harness and x['vendor'] == 'strata']
+        strata = [c for c, x in configs.items() if x['harness'] == harness and x['vendor'] == 'strata']
         for s in strata:
-            pairs += [(harness, s, c) for c, x in CONFIGS.items() if x['harness'] == harness
-                      and x['vendor'] != 'strata' and x['effort'] == CONFIGS[s]['effort']]
+            pairs += [(harness, s, c) for c, x in configs.items() if x['harness'] == harness
+                      and x['vendor'] != 'strata' and x['effort'] == configs[s]['effort']]
     for vendor in ('strata', 'deepseek'):
-        for c, x in CONFIGS.items():
+        for c, x in configs.items():
             if x['harness'] == 'codex' and x['vendor'] == vendor:
-                other = [d for d, y in CONFIGS.items() if y['harness'] == 'claude-code' and y['vendor'] == vendor
+                other = [d for d, y in configs.items() if y['harness'] == 'claude-code' and y['vendor'] == vendor
                          and y['effort'] == x['effort']]
                 pairs += [('harness', c, d) for d in other]
     return pairs
@@ -186,12 +192,17 @@ def holm(ps):
 
 # ---- records ------------------------------------------------------------------------------------------------------
 
-def validate(record):
+def validate(record, phase=3):
+    """Fail fast (user 2026-10-23): a record outside the configuration table, or a phase-3 supplement record in phase
+    1 or 2, stops the summary instead of being dropped."""
     missing = [f for f in RECORD_FIELDS if f not in record]
     if missing:
         raise ValueError(f'Record {record.get("id")} lacks {missing} (build it with tools.reviewer.bench_records)')
     if record['config'] not in CONFIGS:
-        raise ValueError('Unknown configuration ' + repr(record['config']))
+        raise ValueError(f'{record.get("id")}: configuration {record["config"]!r} is not in '
+                         'tools.reviewer.bench_records.CONFIG_TABLE')
+    if record['config'] in PHASE3_CONFIGS and phase < 3:
+        raise ValueError(f'{record["id"]}: configuration {record["config"]} is the phase-3 supplement (use --phase 3)')
     if set(record['tokens']) != set(TOKEN_CLASSES):
         raise ValueError('Tokens must state ' + ', '.join(TOKEN_CLASSES))
     if record['valid'] and record['valid_rank'] is None:
@@ -200,8 +211,18 @@ def validate(record):
         raise ValueError(f'{record["id"]}: an invalid instance with a score')
 
 
+def score_file(score_roots, record_id):
+    """<root>/<record id>/score.json in the one score root that holds it; None in none, ValueError in several."""
+    roots = [score_roots] if isinstance(score_roots, (str, Path)) else list(score_roots or [])
+    found = [Path(root) / record_id / 'score.json' for root in roots if (Path(root) / record_id / 'score.json').is_file()]
+    if len(found) > 1:
+        raise ValueError(f'{record_id}: score.json in several score roots: {[str(f) for f in found]}')
+    return found[0] if found else None
+
+
 def attach_scores(records, score_root):
-    """Fill the score fields of valid records from bench_score's score.json; the score status goes in score_status."""
+    """Fill the score fields of valid records from bench_score's score.json (one root, or a list of roots of which at
+    most one may hold a record's score); the score status goes in score_status."""
     for r in records:
         if not r['valid']:
             r['score_status'] = None
@@ -209,8 +230,8 @@ def attach_scores(records, score_root):
         if r['score'] is not None:
             r.setdefault('score_status', 'record')
             continue
-        path = Path(score_root) / r['id'] / 'score.json' if score_root else None
-        result = json.loads(path.read_text()) if path and path.is_file() else None
+        path = score_file(score_root, r['id'])
+        result = json.loads(path.read_text()) if path else None
         status = (result or {}).get('status') or 'unscored'
         r['score_status'] = status
         if status in SCORED_STATUSES:
@@ -235,7 +256,7 @@ def in_main(record, phase):
     """Whether a record is in its cell's main statistic in this scoring phase (rank from bench_validity)."""
     if not record['valid']:
         return False
-    if phase == 2 and vendor(record) == 'strata':
+    if phase >= 2 and vendor(record) == 'strata':
         return record['valid_rank'] <= STRATA_PHASE2_MAX
     return bool(record['main_statistic'])
 
@@ -431,11 +452,11 @@ def scenario_summary(records, phase):
         valid = by_start([r for r in group if r['valid']])
         main = [r for r in valid if in_main(r, phase)]
         first = [r for r in valid if r['first_n']]
-        kind = 'supplementary' if supplementary else 'main'
+        kind = 'supplementary' if supplementary else 'phase3' if config in PHASE3_CONFIGS else 'main'
         rows.append(statistics(config, main, kind, supplementary, group, len(valid)))
         if {r['id'] for r in first} != {r['id'] for r in main}:
             rows.append(statistics(config, first, 'consistency', supplementary or '', group, len(valid)))
-        if not supplementary:
+        if kind == 'main':
             samples[config] = main
     # Plan §14.4: each supplementary cell also gets a descriptive high+medium row (its own main statistic with the
     # main statistic of the high cell it was requested beside); never in a comparison.
@@ -444,7 +465,7 @@ def scenario_summary(records, phase):
             extra = [r for r in by_start([r for r in group if r['valid']]) if in_main(r, phase)]
             rows.append(statistics(config, samples.get(config, []) + extra, 'sensitivity',
                                    f'high+medium 合并（描述性，{supplementary}）', [], len(samples.get(config, []) + extra)))
-    order = {'main': 0, 'consistency': 1, 'supplementary': 2, 'sensitivity': 3}
+    order = {'main': 0, 'phase3': 0, 'consistency': 1, 'supplementary': 2, 'sensitivity': 3}
     rows.sort(key=lambda c: (c['config'], order[c['kind']], c['label']))
 
     tests = []
@@ -483,13 +504,13 @@ def summarize(records, phase=1):
     if phase not in PHASES:
         raise ValueError(f'phase must be one of {PHASES}')
     for record in records:
-        validate(record)
+        validate(record, phase)
     ids = [r['id'] for r in records]
     if len(ids) != len(set(ids)):
         raise ValueError('Duplicate record id')
     scenarios = sorted({r['scenario'] for r in records})
     out = {s: scenario_summary([r for r in records if r['scenario'] == s], phase) for s in scenarios}
-    complete = all(c['complete'] for s in out.values() for c in s['configs'] if c['kind'] == 'main')
+    complete = all(c['complete'] for s in out.values() for c in s['configs'] if c['kind'] in ('main', 'phase3'))
     return {'phase': phase, 'alpha': ALPHA, 'holm_family_size': len(comparisons()),
             'preregistered_n': PREREGISTERED_N, 'strata_phase2_max': STRATA_PHASE2_MAX, 'complete': complete,
             'scenarios': out}
@@ -517,14 +538,20 @@ def label(config):
     return f"{config} {c['harness']} {c['model']} {c['effort']}"
 
 
-KIND_LABEL = {'main': '主统计', 'consistency': '一致性行（前 5）', 'supplementary': '补充行', 'sensitivity': '敏感性行'}
+KIND_LABEL = {'main': '主统计', 'consistency': '一致性行（前 5）', 'supplementary': '补充行', 'sensitivity': '敏感性行',
+              'phase3': '第三阶段补充（不比较）'}
 
 
 def phase_text(summary):
     if summary['phase'] == 1:
         return ('第一阶段：只用预登记实例（未合并的格取按开始时刻的前 5 个有效实例，DeepSeek 合并格取全部有效实例）。')
-    return (f"第二阶段：Strata 各格取全部有效实例（至多 {summary['strata_phase2_max']} 个，不足按实际 n），"
+    text = (f"第二阶段：Strata 各格取全部有效实例（至多 {summary['strata_phase2_max']} 个，不足按实际 n），"
             '其余同第一阶段。')
+    if summary['phase'] == 2:
+        return text
+    return ('第三阶段补充：第二阶段的全部实例与统计不变，另加 gpt-6-luna xhigh（配置 28）、max（配置 29）'
+            '两个补充配置（Codex，按开始时刻的前 5 个有效实例）；它们只给配置行和逐实例结果，不进预登记比较和 Holm 族。'
+            + text)
 
 
 def markdown(summary):
@@ -707,17 +734,31 @@ def deepseek_reconciliation(records, data_root=None):
 
 
 def load_records(records_path=None, data_root=None):
+    """Records from one JSON Lines file or a list of them (phase 3: the phase-2 records plus the supplement), or built
+    from the run directories."""
     if records_path:
-        return [json.loads(line) for line in Path(records_path).read_text().splitlines() if line.strip()]
+        paths = [records_path] if isinstance(records_path, (str, Path)) else list(records_path)
+        return [json.loads(line) for p in paths for line in Path(p).read_text().splitlines() if line.strip()]
     from tools.reviewer import bench_records
     return bench_records.all_records(data_root=data_root)
 
 
-def write(out, records_path=None, data_root=None, score_root=None, phase=1):
+def generator(phase):
+    """The source marker of summary.json (user 2026-10-23: summaries come from this tool only; benchmark_export
+    refuses a summary without it)."""
+    return {'tool': GENERATOR, 'sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), 'phase': phase}
+
+
+def write(out, records_path=None, data_root=None, score_root=None, phase=1, reconciliation_from=None):
+    """reconciliation_from: a published summary.json whose deepseek_reconciliation is kept when the DeepSeek
+    schedule.jsonl it was computed from is gone (the phase-2 and phase-3 summaries read records.jsonl)."""
     records = load_records(records_path, data_root)
     attach_scores(records, score_root)
     summary = summarize(records, phase)
     summary['deepseek_reconciliation'] = deepseek_reconciliation(records, data_root)
+    if reconciliation_from and summary['deepseek_reconciliation'] is None:
+        summary['deepseek_reconciliation'] = json.loads(Path(reconciliation_from).read_text())['deepseek_reconciliation']
+    summary['generator'] = generator(phase)
     out = Path(out)
     out.mkdir(parents=True, exist_ok=False)
     (out / 'summary.json').write_text(json.dumps(compact(summary), ensure_ascii=False, indent=1) + '\n')
@@ -728,14 +769,20 @@ def write(out, records_path=None, data_root=None, score_root=None, phase=1):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--data-root', type=Path, help='checkout holding .tmp (default: this one)')
-    parser.add_argument('--records', type=Path, help='bench_records JSON Lines instead of reading the run directories')
-    parser.add_argument('--score-root', type=Path, help='bench_score work root (default: <data root>/.tmp/bench-score)')
+    parser.add_argument('--records', type=Path, action='append',
+                        help='bench_records JSON Lines instead of reading the run directories; repeatable (phase 3: '
+                             'the phase-2 records, then the supplement records)')
+    parser.add_argument('--score-root', type=Path, action='append',
+                        help='bench_score work root (default: <data root>/.tmp/bench-score); repeatable, a record\'s '
+                             'score.json may be in one root only')
+    parser.add_argument('--reconciliation-from', type=Path,
+                        help='summary.json whose deepseek_reconciliation is kept when it cannot be recomputed')
     parser.add_argument('--phase', type=int, choices=PHASES, default=1, help='scoring phase (plan §14.1; default 1)')
     parser.add_argument('--out', type=Path, required=True, help='fresh output directory')
     args = parser.parse_args()
     if args.score_root is None:
         from tools.reviewer import bench_records
-        args.score_root = Path(args.data_root or bench_records.ROOT) / '.tmp/bench-score'
-    result = write(args.out, args.records, args.data_root, args.score_root, args.phase)
+        args.score_root = [Path(args.data_root or bench_records.ROOT) / '.tmp/bench-score']
+    result = write(args.out, args.records, args.data_root, args.score_root, args.phase, args.reconciliation_from)
     print(json.dumps({s: {'instances': len(v['instances']), 'comparisons': len(v['comparisons'])}
                       for s, v in result['scenarios'].items()}))

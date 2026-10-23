@@ -226,6 +226,32 @@ class RecordsTest(unittest.TestCase):
         self.assertIsNone(r['speeds']['engine_output'])
         self.assertIsNone(r['speed_parts']['engine_output'])
 
+    def test_codex_api_tokens_lost_at_a_hard_interrupt_come_from_the_relay_as_a_lower_bound(self):
+        o = self.scene / 'luna-xhigh-a5'
+        write(o / 'instance.json', {'valid': True, 'handoffs': [
+            {'instanceId': IID, 'reviewer_active_seconds': 100, 'tool_calls': 4, 'tokens': None}]})
+        rows = [{'method': 'GET', 'started_at': 0, 'ended_at': 0, 'status': 426, 'websocket_refused': True},
+                {'method': 'POST', 'started_at': 1, 'ended_at': 3,
+                 'usage': {'input_tokens': 500, 'input_tokens_details': {'cached_tokens': 400}, 'output_tokens': 40}},
+                {'method': 'POST', 'started_at': 4, 'ended_at': 5,
+                 'usage': {'input_tokens': 300, 'output_tokens': 10}},
+                {'method': 'POST', 'started_at': 6, 'ended_at': 7, 'status': 200}]  # cut by the interrupt
+        write(o / 'run/relay/relay.jsonl', ''.join(json.dumps(x) + '\n' for x in rows))
+        r = bench_records.instance_record('openai', 'commit-audit-v3', o)
+        self.assertEqual(r['tokens'], {'uncached_input': 400, 'cached_input': 400, 'output': 50})
+        self.assertEqual(r['token_source'], 'API usage (relay log sum, 2 requests; lower bound: 1 request(s) without usage)')
+        self.assertEqual(r['speeds']['task_output'], 0.5)
+        self.assertEqual(sorted(r['speed_lower_bounds']), ['engine_output', 'task_input', 'task_output'])
+        write(o / 'run/relay/relay.jsonl', ''.join(json.dumps(x) + '\n' for x in rows[:3]))
+        self.assertEqual(bench_records.instance_record('openai', 'commit-audit-v3', o)['token_source'],
+                         'API usage (relay log sum, 2 requests)')
+        # Tokens the handoffs do carry are kept, whatever the relay says.
+        write(o / 'instance.json', {'valid': True, 'handoffs': [
+            {'instanceId': IID, 'reviewer_active_seconds': 100, 'tokens': {'uncached_input': 1, 'cached_input': 2,
+                                                                         'output': 3}}]})
+        r = bench_records.instance_record('openai', 'commit-audit-v3', o)
+        self.assertEqual((r['tokens']['output'], r['token_source']), (3, 'API usage (relay)'))
+
     def test_openai_pauses_rebuilt_from_the_flag_and_the_machine_log(self):
         notice = lambda mid: {'ok': True, 'result': {'notifications': [
             {'type': 'message', 'messageId': mid, 'text': bench_records.ARW_PAUSE_PREFIX + '10 turns.'}]}}

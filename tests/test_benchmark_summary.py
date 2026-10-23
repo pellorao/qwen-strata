@@ -33,8 +33,8 @@ def ranked(records):
 
 
 def full_design(score=lambda config, attempt: 0.5 + 0.01 * attempt):
-    """Every configuration of the scenario with 5 valid instances."""
-    return [record(config, i, score(config, i)) for config in bs.CONFIGS for i in range(1, 6)]
+    """Every preregistered configuration of the scenario with 5 valid instances."""
+    return [record(config, i, score(config, i)) for config in sorted(bs.PREREGISTERED_CONFIGS) for i in range(1, 6)]
 
 
 class StatisticsTest(unittest.TestCase):
@@ -62,8 +62,44 @@ class DesignTest(unittest.TestCase):
         for key, (first, _, _) in bench_records.MODELS.items():
             for i, effort in enumerate(bench_records.MODEL_EFFORTS.get(key, bench_records.EFFORTS)):
                 self.assertEqual(bs.CONFIGS[first + i]['effort'], effort, key)
-        self.assertEqual(len(bs.CONFIGS), 27)
+        self.assertEqual(len(bs.PREREGISTERED_CONFIGS), 27)
+        self.assertEqual(sorted(bs.PHASE3_CONFIGS), [28, 29])
         self.assertEqual([bs.CONFIGS[c]['effort'] for c in (7, 8, 9, 22, 23, 24)], ['low', 'high', 'max'] * 2)
+
+    def test_every_configuration_bench_records_numbers_is_in_the_summary_table(self):
+        """One table (user 2026-10-23): every number bench_records can give a record is a summary configuration with
+        the same harness, model and effort."""
+        produced = {}
+        for key, (first, family, vendor) in bench_records.MODELS.items():
+            for i, effort in enumerate(bench_records.MODEL_EFFORTS.get(key, bench_records.EFFORTS)):
+                produced[first + i] = (vendor, effort)
+        for (key, effort), number in bench_records.EXTRA_CONFIGS.items():
+            produced[number] = (bench_records.MODELS[key][2], effort)
+        self.assertEqual(set(produced), set(bs.CONFIGS))
+        for number, (vendor, effort) in produced.items():
+            self.assertEqual((bs.CONFIGS[number]['vendor'], bs.CONFIGS[number]['effort']), (vendor, effort), number)
+        self.assertEqual(bs.CONFIGS[28], {'harness': 'codex', 'model': 'gpt-6-luna', 'vendor': 'openai', 'effort': 'xhigh'})
+        self.assertEqual(bs.CONFIGS[29]['effort'], 'max')
+
+    def test_a_configuration_outside_the_table_stops_the_summary(self):
+        records = ranked(full_design() + [dict(record(4, 9, 0.5), config=30, id='openai/x/gpt-6-luna-ultra-a1')])
+        with self.assertRaisesRegex(ValueError, 'not in tools.reviewer.bench_records.CONFIG_TABLE'):
+            bs.summarize(records, 3)
+
+    def test_phase3_supplement_is_tabled_never_compared_and_only_in_phase_3(self):
+        base = ranked(full_design())
+        extra = ranked([record(c, i, 0.9) for c in (28, 29) for i in range(1, 7)])
+        with self.assertRaisesRegex(ValueError, 'phase-3 supplement'):
+            bs.summarize(base + extra, 2)
+        three, two = bs.summarize(base + extra, 3), bs.summarize(ranked(full_design()), 2)
+        rows = three['scenarios'][SCENARIO]['configs']
+        supplement = [c for c in rows if c['config'] in (28, 29)]
+        self.assertEqual([(c['config'], c['kind'], c['n']) for c in supplement], [(28, 'phase3', 5), (29, 'phase3', 5)])
+        self.assertEqual(three['scenarios'][SCENARIO]['comparisons'], two['scenarios'][SCENARIO]['comparisons'])
+        self.assertEqual([c for c in rows if c['config'] not in (28, 29)], two['scenarios'][SCENARIO]['configs'])
+        self.assertEqual(three['holm_family_size'], 25)
+        surplus = [r for r in three['scenarios'][SCENARIO]['instances'] if r['config'] == 28 and r['attempt'] == 6]
+        self.assertFalse(surplus[0]['in_main'])
 
     def test_family_is_the_25_preregistered_pairs(self):
         """Plan §5 (2026-10-21): Codex 8, Claude Code 11, harness 6."""
@@ -312,6 +348,19 @@ class SummaryTest(unittest.TestCase):
         self.assertAlmostEqual(cell['mean'], 0.5)
         self.assertEqual(cell['repairs_total'], 2)
 
+    def test_scores_from_several_roots_but_never_two_for_one_record(self):
+        records = ranked([record(1, 1, None), record(1, 2, None)])
+        with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:
+            for root, r in ((a, records[0]), (b, records[1])):
+                (Path(root) / r['id']).mkdir(parents=True)
+                (Path(root) / r['id'] / 'score.json').write_text(json.dumps({'status': 'final', 'final': 0.3}))
+            bs.attach_scores(records, [a, b])
+            self.assertEqual([r['score'] for r in records], [0.3, 0.3])
+            (Path(a) / records[1]['id']).mkdir(parents=True)
+            (Path(a) / records[1]['id'] / 'score.json').write_text('{}')
+            with self.assertRaisesRegex(ValueError, 'several score roots'):
+                bs.attach_scores(ranked([record(1, 2, None)]), [a, b])
+
     def test_markdown_and_json_outputs(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / 'records.jsonl'
@@ -327,6 +376,9 @@ class SummaryTest(unittest.TestCase):
         self.assertNotIn('引擎输出 tok/s', text)
         self.assertEqual(data['holm_family_size'], 25)
         self.assertEqual(data['phase'], 2)
+        self.assertEqual(data['generator']['tool'], 'tools.reviewer.benchmark_summary')
+        self.assertEqual(data['generator']['phase'], 2)
+        self.assertEqual(len(data['generator']['sha256']), 64)
         for line in text.splitlines():
             self.assertFalse(line.startswith(' |'))
 
@@ -400,14 +452,14 @@ class SummaryTest(unittest.TestCase):
             bs.summarize(records + [records[0]])
         with self.assertRaises(ValueError):
             bad = record(1, 1, 0.5)
-            bad['config'] = 28
+            bad['config'] = 30
             bs.summarize(ranked([bad]))
         with self.assertRaises(ValueError):
             bs.summarize(ranked([record(1, 1, 0.5, tokens={'output': 1})]))
         with self.assertRaises(ValueError):
             bs.summarize([record(1, 1, 0.5)])  # not ranked by bench_validity
         with self.assertRaises(ValueError):
-            bs.summarize(records, phase=3)
+            bs.summarize(records, phase=4)
 
 
 if __name__ == '__main__':

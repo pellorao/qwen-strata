@@ -16,6 +16,15 @@ python3 -m tools.reviewer.benchmark_export --summary <summary.json> --out <file>
 ```
 
 - `--summary` 是 `benchmark_summary` 用当前代码生成的 `summary.json`。导出要用到 `handoff_metrics`、`score_r83`、`model_failure_handoffs` 等扩展字段，所以旧版 summary 要先用同一份 records 和计分根重新生成。
+- **只接受工具生成的 summary**（用户 2026-10-23）：summary.json 必须带 `benchmark_summary` 写入的 `generator`（`tool`、该工具文件的 sha256、`phase`，phase 与 summary 一致），否则报错退出；唯一例外是 `LEGACY_SUMMARIES` 按 sha256 列出的已发布文件（第二阶段 `summary.json`，`df67a68e…`：它是工具输出加就地补算的 `speeds_approximate`，重新生成内容相同、只差键的位置，所以保留已提交文件）。每个实例还必须有工作秒数（有效实例为数字）和含四项速度的 `speeds`、`speed_parts`，缺一个就报错。第一阶段 `summary.json` 没有逐实例 `speed_parts`，不能再导出；它的实例都在第二、三阶段文件里。
+- 配置编号只有一个来源：`tools/reviewer/bench_records.py` 的 `CONFIG_TABLE`，`benchmark_summary` 和本导出都从它派生；记录的配置号不在表里时 `benchmark_summary` 报错退出。
+- 第三阶段（三阶段合一的文件）：
+  ```
+  python3 -m tools.reviewer.benchmark_summary --phase 3 --records <第二阶段 records.jsonl> --records <补充 records.jsonl> \
+      --score-root <第二阶段计分根> --score-root <补充计分根> --reconciliation-from <第二阶段 summary.json> --out <新目录>
+  python3 -m tools.reviewer.benchmark_export --summary <该目录>/summary.json --variant A6=<A6 summary.json> --out <file>
+  ```
+  一个记录的 score.json 只能出现在一个计分根里，否则报错。`--reconciliation-from` 在 DeepSeek 的 schedule.jsonl 已删除时沿用已发布的对账结果。第二阶段的 A6 变体在第三阶段文件里照样可用（比对时不含补充实例）。
 - `--variant` 是同一批实例在另一计分根上生成的 summary，只有计分字段可以不同（有效性、排名、选取、配置不同时报错）。可用的 id 见下文「敏感性变体」。
 - `--diagnostic` 是会话检查后记诊断分的实例清单（`session-diagnostic.json`，实例 id → 环境查询次数）。第二阶段的 4 个已补入（共 16 个）。
 - **发布安全自检**：输出前扫描整份结果的所有键和字符串，发现 IPv4/IPv6、localhost、本机路径（`/home`、`/mnt`、`/var`、`/tmp` 等，`~/`，Windows 盘符，`\\wsl`）、当前用户名、邮箱、UUID、请求或消息 id（`req_`、`msg_`、`toolu_`、`chatcmpl` 等）、密钥形态（`sk-`、Bearer、JWT、PEM）、`api_key=` 一类赋值、私有文件名（`private.toml`、`.state/`、`.credentials`、`.env`）、白名单之外的 URL，或者禁用键名（report、findings、answer、expected、decisions、session、thread、instanceId、dir、path、prompt 等），就报错退出，什么都不写。字段一律按白名单逐个复制，不整体搬运记录。
@@ -27,10 +36,10 @@ python3 -m tools.reviewer.benchmark_export --summary <summary.json> --out <file>
 | `meta` | 名称、版本、生成信息、计分版本、阶段、统计常数、用户决定、单位、报告换算常数 |
 | `scenarios` | 4 个场景：reviewerId、版本、修订号、子场景、P、Σk、说明、时限规则 |
 | `environment` | harness 版本与设置、Strata 主机与模型参数、DeepSeek / OpenAI / Anthropic 的接入方式、耗时与费用口径 |
-| `configs` | 29 个配置（27 个预登记配置，加 2 个 DeepSeek medium 请求补充配置），只有描述性字段 |
+| `configs` | 29 个配置（27 个预登记配置，加 2 个 DeepSeek medium 请求补充配置）；第三阶段文件另有配置 28、29（共 31 个），只有描述性字段 |
 | `selection` | 实例选取规则（validRank、前 N、合并格、阶段） |
 | `comparisonDesign` | 比较设计：25 对、Welch、Holm、α、判定规则、未计分完的处理 |
-| `instances` | 全部实例（含无效、未进主统计和第二阶段加测） |
+| `instances` | 全部实例（含无效、未进主统计、第二阶段加测和第三阶段补充） |
 | `sensitivityVariants` | 敏感性变体：与本文件分数不同的实例及其计分字段 |
 | `caveats` | 局限说明（中英文） |
 
@@ -41,7 +50,7 @@ python3 -m tools.reviewer.benchmark_export --summary <summary.json> --out <file>
 - `benchmarkName` 固定为 "Reviewer Model Benchmark"，`benchmarkVersion` 为 "2.0"，`schemaVersion` 是本格式的版本号（当前为 1，字段改名或删除时加 1）。
 - `generatedAt`：生成时刻（UTC）。`source`：`commit`（本工程 HEAD）、`treeDirty`（已跟踪文件是否有未提交改动）、`summarySha256`（输入 summary.json 的 sha256）。
 - `scoring`：计分版本 r8.4 及说明。N = Σ正例得分 − Σ失败反例 k；N ≥ 0 时分数 = N ÷ P，N < 0 时分数 = N ÷ Σk；整体扣减 d = max(暂停 0.1, 格式罚 f, ARW 残余 0.1) 只扣一次，最终分 = s − d·|s|；模型失误（没有报告）记 0。
-- `phase`：`number`（1 或 2）、`complete`（主统计实例是否都已计分）、`final`（第一阶段恒为 false；第二阶段计分完成后为 true）。第二阶段文件另有 `phase1`：已发布的第一阶段报告与 summary.json 的路径（相对工程根）和 sha256（`summaryMd`、`summaryMdSha256`、`summaryJson`、`summaryJsonSha256`），并说明用 `selection.mainStatistic` 可重算第一阶段全部统计，第一阶段敏感性变体只适用于第一阶段实例集，不在第二阶段文件里。
+- `phase`：`number`（1、2 或 3）、`complete`（主统计实例和第三阶段补充实例是否都已计分）、`final`（第一阶段恒为 false；第二、三阶段计分完成后为 true）。第三阶段文件另有 `phase2`：已发布的第二阶段报告与 summary.json 的路径和 sha256，并说明去掉配置 28、29 的实例即为第二阶段实例集。第二阶段文件另有 `phase1`：已发布的第一阶段报告与 summary.json 的路径（相对工程根）和 sha256（`summaryMd`、`summaryMdSha256`、`summaryJson`、`summaryJsonSha256`），并说明用 `selection.mainStatistic` 可重算第一阶段全部统计，第一阶段敏感性变体只适用于第一阶段实例集，不在第二阶段文件里。
 - `parallelWindows`：Strata 加测期间同一主机上另有计算进程（nice 19）运行的时段 W1–W5，每项 `id`、`start`、`end`（UTC）和说明；实例的 `parallelWindow` 据此标记（见 instances）。
 - `statistics`：`alpha` 0.05、`holmFamilySize` 25、`preregisteredN` 5、`strataExtraTarget` 10。
 - `userDecisions`：上文两条用户决定。
@@ -67,14 +76,14 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 | 字段 | 含义 |
 |---|---|
 | `key` | `<harness>/<model>/<effort>`，例如 `codex/gpt-6.1-sol/low`；补充配置为 `.../medium`（如 `codex/deepseek-flash/medium`） |
-| `configNumber` | plan §2 的配置号 1–27；补充配置与它所在的 high 配置同号 |
+| `configNumber` | plan §2 的配置号 1–27；补充配置与它所在的 high 配置同号；第三阶段补充为 28（`codex/gpt-6-luna/xhigh`）、29（`codex/gpt-6-luna/max`） |
 | `harness`、`harnessName`、`harnessVersion` | `codex` / `claude-code`，显示名，版本（Codex 0.163.0、Claude Code 2.1.303） |
 | `model`、`modelName`、`modelId`、`modelIdsReturned` | 本工程的模型名，显示名，Strata 的固定模型 ID，以及该配置实例实际返回过的模型 ID |
 | `vendor`、`vendorName`、`local` | `openai` / `deepseek` / `strata` / `anthropic`；`local` 只对 Strata 为 true |
 | `effort`、`effectiveEffort` | 请求的强度与实际生效的强度（DeepSeek medium 请求在端点映射为 high） |
-| `kind` | `main`（预登记配置）或 `supplementary`（DeepSeek medium 请求、时限 T 与 high 不同的补充配置） |
+| `kind` | `main`（预登记配置）、`supplementary`（DeepSeek medium 请求、时限 T 与 high 不同的补充配置）或 `phase3`（第三阶段补充配置 28、29） |
 | `arm`、`tokenSource`、`durationBasis`、`costBasis` | 臂名；token、耗时、费用的口径（口径文字在 `environment`） |
-| `inComparisons` | 是否参加预登记比较（补充配置为 false） |
+| `inComparisons` | 是否参加预登记比较（补充配置和第三阶段配置为 false） |
 
 ## instances
 
@@ -90,7 +99,7 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 | `selection` | `validRank`（格内有效实例按开始时刻的序号，无效为 null）、`firstN`（validRank ≤ 5）、`mainStatistic`（第一阶段是否进主统计）、`cellPooled`（所在格是否是 DeepSeek 合并格）、`inMain`（本文件阶段是否进主统计）、`stage`（见下） |
 | `scoring` | 见下 |
 | `time` | `durationSeconds`（工作秒数，口径见 `environment.durationBasis`）、`timeLimitSeconds`（T，ARW 时限场景为 null）、`durationAdjustmentSeconds`（重判扣除的秒数） |
-| `tokens` | `uncachedInput`、`cachedInput`、`output`；Claude Code 的 Anthropic 和 DeepSeek 臂另有 `cacheWriteInput`、`cacheWrite1h`、`cacheWrite5m`（缓存写入已包含在 `uncachedInput` 里，单列只为按价目计费）；`source`；`lowerBound`（有段没有 result，是下限） |
+| `tokens` | `uncachedInput`、`cachedInput`、`output`；Claude Code 的 Anthropic 和 DeepSeek 臂另有 `cacheWriteInput`、`cacheWrite1h`、`cacheWrite5m`（缓存写入已包含在 `uncachedInput` 里，单列只为按价目计费）；`source`；`lowerBound`（是下限：Claude Code 有段没有 result；或 Codex API 臂 ARW 在硬中断时没留下 token，改用 relay 日志求和，而有被中断、没有 usage 的请求，`source` 写明请求数，如第三阶段 CA luna-xhigh-a5） |
 | `speeds` | `engineInput`、`engineOutput`（模型直接速度）、`taskInput`、`taskOutput`（用户感知速度 = 未缓存输入、输出 ÷ 工作秒数）；`lowerBounds` 列出是下限的项；`basis` 为口径文字。API 模型的 `engineInput` 恒为 null |
 | `toolCalls` | 工具调用数（Codex 从 rollout 根线程计，不含 guardian；Claude Code 从主会话 tool_use 计） |
 | `pauses` | `known`、`count`（暂停次数）、`continueCount`（Claude Code 早退接续次数） |
@@ -111,7 +120,7 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 | `modelFailureSubScenarios` | 记为模型失误的子场景 |
 | `diagnosticEnvironmentQueries` | 诊断分实例的环境查询次数，其余为 null |
 
-`stage`：`preregistered` 是预登记设计内的实例（格内前 5 个有效实例、它们之前的无效实例、DeepSeek 合并格的全部实例）；`extra` 是 Strata 加测（validRank > 5 的有效实例，或开始于第 5 个有效实例之后的无效实例）；`surplus` 是其他配置多出的有效实例（validRank > 5），不进任何主统计。
+`stage`：`preregistered` 是预登记设计内的实例（格内前 5 个有效实例、它们之前的无效实例、DeepSeek 合并格的全部实例）；`extra` 是 Strata 加测（validRank > 5 的有效实例，或开始于第 5 个有效实例之后的无效实例）；`phase3` 是第三阶段补充配置里同样取法的实例（前 5 个有效实例和全部无效实例）；`surplus` 是其他配置多出的有效实例（validRank > 5），不进任何主统计（第三阶段并行运行多出的有效实例也是 surplus，未计分）。
 
 ## 重算规则
 
@@ -120,7 +129,7 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 ### 实例选取
 
 - 格 = 场景内的 (`configNumber`, `supplementaryNote`)。格内有效实例按 `validRank` 排序。
-- 主统计样本：第一阶段取 `valid` 且 `selection.mainStatistic` 为 true 的实例，即未合并的格取 validRank ≤ 5，DeepSeek 合并格取全部有效实例。第二阶段的 Strata 格取 validRank ≤ `strataExtraTarget`（10），其余同第一阶段。本文件阶段的结果就是 `selection.inMain`。
+- 主统计样本：第一阶段取 `valid` 且 `selection.mainStatistic` 为 true 的实例，即未合并的格取 validRank ≤ 5，DeepSeek 合并格取全部有效实例。第二阶段的 Strata 格取 validRank ≤ `strataExtraTarget`（10），其余同第一阶段。第三阶段同第二阶段，补充配置 28、29 的格取 validRank ≤ 5，只算配置行，不进比较。本文件阶段的结果就是 `selection.inMain`。
 - 一致性行：主统计的实例集合与 `firstN` 为 true 的集合不同时，另用 `firstN` 实例算一行。
 - 补充配置自己算一行（主统计规则同上），不进比较；另有一行描述性的"high + medium 合并"行，样本是同号 high 格的主统计实例加补充格的主统计实例，这一行的"有效"为样本数，"无效"为 0。
 - 只用已计分实例（`score` 非 null）算分数统计；格内有未计分实例时该行不完整（`complete` 为 false）。
@@ -130,7 +139,7 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 - n = 已计分实例数；均值；SD 用 n − 1；SE = SD ÷ √n；95% 区间 = 均值 ± t(0.975, n − 1) × SE（t 分布，n < 2 时未知）；中位数（偶数个取中间两数的平均）；最小值；负分实例数。
 - r8.3 均值 = `scoreR83` 的均值；`rawScore`、f 的均值只在已计分实例都有值时给出；修复总数只在行完整时给出。
 - 耗时、三类 token、工具调用是样本内各实例的算术平均，任一实例缺值即为未知（不补 0）。
-- 四项速度按总 token ÷ 总耗时汇总（用户 2026-10-22），不取各实例速度的算术平均；任一实例该项缺值即为未知，任一实例是下限，汇总就标下限。各项的分子与分母都取自实例层：任务平均输入 = Σ`tokens.uncachedInput` ÷ Σ`time.durationSeconds`，任务平均输出 = Σ`tokens.output` ÷ Σ`time.durationSeconds`；Strata 的引擎输入 = Σ`handoffs[].engine.read` ÷ Σ`handoffs[].engine.inputSeconds`，引擎输出 = Σ`handoffs[].engine.generated` ÷ Σ`handoffs[].engine.decodeSeconds`；Claude Code 上 API 模型的引擎输出 = Σ`tokens.output` ÷ Σ`handoffs[].apiSeconds`。Codex 上 API 模型（gpt-6.1-sol、gpt-6-luna、DeepSeek）的引擎输出分子是 relay 日志里带 usage 的请求的 output token、分母是这些请求的时长，请求时长没有保存、原始 relay 日志已删除，所以汇总按用户 2026-10-22 的选择取近似值：Σ`tokens.output` ÷ Σ(`tokens.output` ÷ `speeds.engineOutput`)，即用逐实例速度反推请求时长；实例的输出 token 同样来自 relay usage，但可能与只算带起止时刻请求的分子略有出入，所以标近似，仍是下限。占时限 = 各实例 `durationSeconds ÷ timeLimitSeconds` 的平均（ARW 时限场景没有）。
+- 四项速度按总 token ÷ 总耗时汇总（用户 2026-10-22），不取各实例速度的算术平均；任一实例该项缺值即为未知，任一实例是下限，汇总就标下限。各项的分子与分母都取自实例层：任务平均输入 = Σ`tokens.uncachedInput` ÷ Σ`time.durationSeconds`，任务平均输出 = Σ`tokens.output` ÷ Σ`time.durationSeconds`；Strata 的引擎输入 = Σ`handoffs[].engine.read` ÷ Σ`handoffs[].engine.inputSeconds`，引擎输出 = Σ`handoffs[].engine.generated` ÷ Σ`handoffs[].engine.decodeSeconds`；Claude Code 上 API 模型的引擎输出 = Σ`tokens.output` ÷ Σ`handoffs[].apiSeconds`。Codex 上 API 模型（gpt-6.1-sol、gpt-6-luna、DeepSeek）的引擎输出分子是 relay 日志里带 usage 的请求的 output token、分母是这些请求的时长，请求时长没有保存、原始 relay 日志已删除，所以汇总按用户 2026-10-22 的选择取近似值：Σ`tokens.output` ÷ Σ(`tokens.output` ÷ `speeds.engineOutput`)，即用逐实例速度反推请求时长；实例的输出 token 同样来自 relay usage，但可能与只算带起止时刻请求的分子略有出入，所以标近似，仍是下限。第三阶段补充的记录保存了 relay 的分子分母（`summary.json` 的 `speed_parts`），汇总是精确值；这些实例的 relay 输出 token 与 `tokens.output` 相等，所以用同一近似公式从本文件重算得到同一结果。占时限 = 各实例 `durationSeconds ÷ timeLimitSeconds` 的平均（ARW 时限场景没有）。
 - 无效数 = 格内 `valid` 为 false 的实例数（所有尝试，不限阶段）。
 - 费用：DeepSeek、Anthropic 取 `cost.usd` 之和（任一未知即未知），均值 = 总和 ÷ 样本数；DeepSeek 另有人民币。OpenAI 只报 token。Strata 在报告里用 `meta.reportConversions` 的等效费用公式按实例的三类 token 计算（只作比较代理）。Anthropic 周额度 = 美元总和 × 0.086（%）。任一实例 `cost.lowerBound` 为 true 时总和是下限。
 - 模型 ID、service tier = 样本内各实例取值的并集。
@@ -162,7 +171,7 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 | `preLineShift` | 缺口补裁后、CA 第 2 关行号修复（N1）前 | `preGap`；本文件（正式）以它为基准 |
 | `A6` | 歧义清单 A6 另一读法（CA 规则 24 "redacted value" 指整个事件；只动 CA 的第二阶段加测实例） | `formal` |
 
-第二阶段文件只带 `A6`。`A1`、`A2E_*` 和缺口、行号相关的变体只适用于第一阶段实例集，在第一阶段文件和报告里；第二阶段加测实例中没有 A1、A2 同类 finding（按 finding 原文和决定理由逐条查过），所以第二阶段没有对应变体。
+第二阶段文件和第三阶段文件只带 `A6`（第三阶段补充实例不在其中）。`A1`、`A2E_*` 和缺口、行号相关的变体只适用于第一阶段实例集，在第一阶段文件和报告里；第二阶段加测实例中没有 A1、A2 同类 finding（按 finding 原文和决定理由逐条查过），所以第二阶段没有对应变体。
 
 `preGap`、`gapsLower`、`gapsUpper`、`preLineShift` 的汇总在记录 `score_r83` 之前生成，overrides 里没有 `scoreR83`，这四个变体的 r8.3 列不可重算（报告也没有用到）。
 
@@ -188,3 +197,7 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 ## 检查结果（第二阶段，2026-10-22）
 
 用只读第二阶段导出文件、不导入本工程代码的重算脚本（`python3 -I`，自带 t 分布、Welch、Holm），从实例层重算后与第二阶段 `summary.json` 逐项比对：主统计行、补充行和一致性行（26 行，含 CA 的 2 个 DeepSeek 合并格）的 n、均值、SD、SE、95% 区间、中位数、最小值、负分数、r8.3 均值、rawScore 与 f 均值、耗时、三类 token、工具调用、四项速度和 Strata 等效费用；100 个比较的配对、d、SE、df、p、Holm p、判定和 r8.3 的 Holm p 与判定；A6 变体（按 overrides 覆盖后）的 d、Holm p 和判定；按 `stage` 与 `parallelWindow` 拆分的 Strata 引擎输出速度（n、均值、SD、最小、最大）与报告一致。浮点允许 1e-9 相对误差。结果为 4149 / 4149 项一致。10-22 速度汇总改为总 token ÷ 总耗时后，用同样不导入工程代码的脚本按上文的分子分母从实例层重算 108 个主统计行的四项速度，432 / 432 项与 summary.json 一致（Codex 上 API 模型的引擎输出按上文的近似口径重算）。
+
+## 检查结果（第三阶段，2026-10-23）
+
+三阶段合一文件 `reports/v0.1.45/multi-model-benchmark/benchmark-results.json` 由上文第三阶段命令生成：其中第二阶段的 725 个实例与 `phase2/benchmark-results.json` 逐字段相同，configs 的 29 个配置、comparisonDesign、A6 变体也相同；不同的只有 meta（generatedAt、source、phase）、selection 说明、caveats（多 `phase3-supplement`）、多出的配置 28、29 和 51 个补充实例（40 个计分、9 个 surplus 未计分、2 个无效）。40 个计分实例的分数、罚前分、f 与第三阶段报告一致；耗时为记录里的工作秒数。

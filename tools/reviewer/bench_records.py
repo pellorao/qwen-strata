@@ -57,18 +57,34 @@ HARNESS = {'openai': 'codex', 'strata-codex': 'codex', 'anthropic': 'claude-code
            'deepseek-codex': 'codex', 'deepseek-claude': 'claude-code'}
 # Arm -> the directory model keys of its instances (None: every key of MODELS).
 ARM_MODELS = {'deepseek-codex': ('codex',), 'deepseek-claude': ('cc',)}
-# Directory model key -> (plan §2 first configuration of its low/medium/high row, model family, report style family).
-MODELS = {'sol': (1, 'gpt-6.1-sol', 'openai'), 'luna': (4, 'gpt-6-luna', 'openai'),
-          'codex-strata': (10, 'strata', 'strata'), 'opus': (13, 'opus', 'anthropic'),
-          'sonnet': (16, 'sonnet', 'anthropic'), 'haiku': (19, 'haiku', 'anthropic'), 'strata': (25, 'strata', 'strata'),
-          'codex': (7, 'deepseek-flash', 'deepseek'), 'cc': (22, 'deepseek-flash', 'deepseek')}
 EFFORTS = ('low', 'medium', 'high')
-# Plan §2 / §14.4 (user 2026-10-21): DeepSeek rows are low / high / max; a medium instance takes the configuration of
-# its effective effort (high) and is either pooled into it (C') or a supplementary row (instance.json fields).
-MODEL_EFFORTS = {'codex': ('low', 'high', 'max'), 'cc': ('low', 'high', 'max')}
-# Phase-3 supplement (user 2026-10-22, docs/plan.md 9a): gpt-6-luna xhigh / max on Codex, outside the 27 configurations
-# of plan §2 and numbered after them; reported per instance only, never in a comparison.
-EXTRA_CONFIGS = {('luna', 'xhigh'): 28, ('luna', 'max'): 29}
+DEEPSEEK_EFFORTS = ('low', 'high', 'max')
+# The one configuration table of the benchmark (user 2026-10-23: bench_records, benchmark_summary and benchmark_export
+# all read it, none keeps its own copy). Rows: (first configuration, directory model key, harness, model family,
+# summary model name, vendor, efforts, kind); configuration = first + effort index.
+# - kind 'main': the 27 configurations of plan §2. DeepSeek rows are low / high / max (plan §2 / §14.4, user
+#   2026-10-21); a medium instance takes the configuration of its effective effort (high) and is either pooled into it
+#   (C') or a supplementary row (instance.json fields).
+# - kind 'phase3': the phase-3 supplement (user 2026-10-22, docs/plan.md 9a): gpt-6-luna xhigh / max on Codex,
+#   numbered after the 27; reported per instance only, never in a comparison.
+CONFIG_TABLE = [
+    (1, 'sol', 'codex', 'gpt-6.1-sol', 'gpt-6.1-sol', 'openai', EFFORTS, 'main'),
+    (4, 'luna', 'codex', 'gpt-6-luna', 'gpt-6-luna', 'openai', EFFORTS, 'main'),
+    (7, 'codex', 'codex', 'deepseek-flash', 'deepseek-flash', 'deepseek', DEEPSEEK_EFFORTS, 'main'),
+    (10, 'codex-strata', 'codex', 'strata', 'strata-iq3_xxs', 'strata', EFFORTS, 'main'),
+    (13, 'opus', 'claude-code', 'opus', 'opus', 'anthropic', EFFORTS, 'main'),
+    (16, 'sonnet', 'claude-code', 'sonnet', 'sonnet', 'anthropic', EFFORTS, 'main'),
+    (19, 'haiku', 'claude-code', 'haiku', 'haiku', 'anthropic', EFFORTS, 'main'),
+    (22, 'cc', 'claude-code', 'deepseek-flash', 'deepseek-flash', 'deepseek', DEEPSEEK_EFFORTS, 'main'),
+    (25, 'strata', 'claude-code', 'strata', 'strata-iq3_xxs', 'strata', EFFORTS, 'main'),
+    (28, 'luna', 'codex', 'gpt-6-luna', 'gpt-6-luna', 'openai', ('xhigh', 'max'), 'phase3'),
+]
+# Directory model key -> (first configuration of its main row, model family, report style family = vendor).
+MODELS = {key: (first, family, vendor) for first, key, _, family, _, vendor, _, kind in CONFIG_TABLE if kind == 'main'}
+MODEL_EFFORTS = {key: efforts for _, key, _, _, _, _, efforts, kind in CONFIG_TABLE if kind == 'main'}
+# (directory model key, effort) -> configuration outside the main rows.
+EXTRA_CONFIGS = {(key, e): first + i for first, key, _, _, _, _, efforts, kind in CONFIG_TABLE if kind != 'main'
+                 for i, e in enumerate(efforts)}
 DIR_NAME = re.compile(r'^(?P<model>[a-z-]+?)-(?P<effort>low|medium|high|xhigh|max)-a(?P<attempt>\d+)$')
 SUB_SCENARIO = re.compile(r'^(.+)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-instance-\d+$')
 PREPARED = 'prep/arw/.tmp/codex/*/_reviewer-cap/runs/*/prepared.json'
@@ -523,6 +539,43 @@ def relay_output_seconds(folder):
     return (output, seconds, requests) if requests else None
 
 
+def relay_tokens(folder):
+    """(tokens, requests with usage, POST requests without usage) summed over the relay log of a Codex API instance, in
+    the classes of the instance record (uncached input = input - cached); None without a log or any usage. The relay
+    sums equal the ARW handoff tokens wherever both exist (luna xhigh / max supplement, 50 of 50)."""
+    files = sorted((Path(folder) / 'run/relay').glob('*.jsonl'))
+    out, used, missing = {'uncached_input': 0, 'cached_input': 0, 'output': 0}, 0, 0
+    for f in files:
+        for line in f.read_text(errors='replace').splitlines():
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            usage = row.get('usage') or {}
+            if usage.get('input_tokens') is None or usage.get('output_tokens') is None:
+                missing += row.get('method') == 'POST'
+                continue
+            cached = (usage.get('input_tokens_details') or {}).get('cached_tokens') or 0
+            out['uncached_input'] += usage['input_tokens'] - cached
+            out['cached_input'] += cached
+            out['output'] += usage['output_tokens']
+            used += 1
+    return (out, used, missing) if used else None
+
+
+def relay_token_fallback(record, folder):
+    """A Codex API record whose handoffs carry no tokens (ARW lost them at a hard interrupt) takes the relay log sums;
+    POST requests without usage (cut by the interrupt) make them a lower bound, stated in token_source."""
+    if record['arm'] not in ('openai', 'deepseek-codex') or any(v is not None for v in record['tokens'].values()):
+        return
+    relay = relay_tokens(folder)
+    if relay is None:
+        return
+    record['tokens'] = relay[0]
+    record['token_source'] = (f'API usage (relay log sum, {relay[1]} requests'
+                              + (f'; lower bound: {relay[2]} request(s) without usage)' if relay[2] else ')'))
+
+
 def ratio(amount, seconds):
     return amount / seconds if amount is not None and seconds else None
 
@@ -786,6 +839,7 @@ def instance_record(arm, scenario, folder, done=None, arm_tokens=None):
     bench_validity.apply(record, folder, load(folder / 'instance.json'))
     record.update(SCORE_FIELDS)
     record.update(summary_fields(record))
+    relay_token_fallback(record, folder)
     record.update(speed_fields(record, folder))
     if arm.startswith('deepseek'):
         event = (done or {}).get(folder.name)

@@ -36,8 +36,19 @@ def synthetic_summary():
     records = ranked(records)
     for r in records:
         r['score_status'] = 'final' if r['valid'] else None
+        r['speeds'] = dict.fromkeys(bs.SPEEDS)  # bench_records always states the four speeds
         r['model_failure_handoffs'] = [0] if r['id'].endswith('deepseek-flash-low-a1') and r['arm'] == 'deepseek-codex' else []
-    return bs.compact(bs.summarize(records))
+    return dict(bs.compact(bs.summarize(records)), generator=bs.generator(1))
+
+
+def phase3_summary():
+    records = full_design() + [record(c, i, 0.9 if i < 6 else None) for c in (28, 29) for i in range(1, 7)]
+    records.append(record(29, 7, None, valid=False, started=2500.0))
+    records = ranked(records)
+    for r in records:
+        r['score_status'] = 'final' if r['score'] is not None else None
+        r['speeds'] = dict.fromkeys(bs.SPEEDS)
+    return dict(bs.compact(bs.summarize(records, 3)), generator=bs.generator(3))
 
 
 class SafetyTest(unittest.TestCase):
@@ -83,6 +94,52 @@ class SafetyTest(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 be.write(src, out, diagnostic_path=None)
             self.assertFalse(out.exists())
+
+
+class SourceTest(unittest.TestCase):
+    """User 2026-10-23: only benchmark_summary output is exported."""
+
+    def test_summary_without_the_generator_marker_is_refused(self):
+        summary = synthetic_summary()
+        be.check_source(summary, 'sha')
+        with self.assertRaisesRegex(ValueError, 'generator marker'):
+            be.check_source({k: v for k, v in summary.items() if k != 'generator'}, 'sha')
+        with self.assertRaisesRegex(ValueError, 'generator marker'):
+            be.check_source(dict(summary, generator=dict(summary['generator'], phase=2)), 'sha')
+        legacy = dict({k: v for k, v in summary.items() if k != 'generator'}, phase=2)
+        be.check_source(legacy, next(iter(be.LEGACY_SUMMARIES)))
+
+    def test_instances_without_seconds_or_speed_parts_are_refused(self):
+        for key in ('seconds', 'speed_parts', 'speeds'):
+            with self.subTest(key=key):
+                summary = json.loads(json.dumps(synthetic_summary()))
+                first = summary['scenarios'][SCENARIO]['instances'][0]
+                if key == 'seconds':
+                    first['seconds'] = None
+                else:
+                    first.pop(key)
+                with self.assertRaisesRegex(ValueError, 'benchmark_summary fields'):
+                    be.check_source(summary, 'sha')
+
+
+class Phase3Test(unittest.TestCase):
+    def test_supplement_configs_stages_and_caveat(self):
+        result = be.build(phase3_summary(), 'sha', generated='2026-10-23T00:00:00+00:00')
+        configs = {c['configNumber']: c for c in result['configs'] if c['configNumber'] in (28, 29)}
+        self.assertEqual({n: (c['key'], c['kind'], c['inComparisons']) for n, c in configs.items()},
+                         {28: ('codex/gpt-6-luna/xhigh', 'phase3', False), 29: ('codex/gpt-6-luna/max', 'phase3', False)})
+        stages = {i['id'].split('/')[-1]: i['selection']['stage'] for i in result['instances'] if i['configNumber'] == 29}
+        self.assertEqual(stages, {**{f'gpt-6-luna-max-a{i}': 'phase3' for i in range(1, 8) if i != 6},
+                                  'gpt-6-luna-max-a6': 'surplus'})
+        self.assertEqual(len(result['comparisonDesign']['pairs']), 25)
+        self.assertNotIn(28, {n for p in result['comparisonDesign']['pairs'] for n in (p['firstNumber'], p['secondNumber'])})
+        self.assertEqual(result['meta']['phase']['number'], 3)
+        self.assertIn('phase2', result['meta']['phase'])
+        self.assertIn('phase3-supplement', [c['id'] for c in result['caveats']])
+        self.assertEqual(be.safety_hits(result), [])
+        two = be.build(synthetic_summary(), 'sha')
+        self.assertFalse([c for c in two['configs'] if c['configNumber'] in (28, 29)])
+        self.assertNotIn('phase3-supplement', [c['id'] for c in two['caveats']])
 
 
 class BuildTest(unittest.TestCase):
