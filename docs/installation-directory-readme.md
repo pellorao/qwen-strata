@@ -165,7 +165,7 @@ key 通过 `env_key` 指定的环境变量只提供给该 harness。请求重试
 
 `config/model-catalog.json` 只描述本机对外模型的事实：模型名、推理档位、窗口（本机该模型的默认档，即 `config/deployment.json` 中 `context_tiers` 的第一档）、只接收文本、可使用网页搜索工具，以及 `auto_review_model_override` 指向自身。基础指令与消息结构取自所装 Codex 版本自带的 luna 模型条目，不额外限制工作内容；只读、可写范围等约束由各场景的提示词和沙箱权限决定。该文件对应 Codex 0.162.0，升级 Codex 后由维护工程重新生成。
 
-原生 Responses 支持 function、namespace、custom 工具、`additional_tools`、客户端 `tool_search` 和推理内容回放。网页搜索由前端托管，见下文。
+原生 Responses 支持 function、namespace、custom 工具、`additional_tools` 和推理内容回放，不支持客户端 `tool_search`：安装的 `model-catalog.json` 已设 `supports_search_tool = false`，Codex 因此把 MCP 工具内联在工具表里，而不是藏在 `tool_search` 后面。网页搜索由前端托管，见下文。
 
 ## 网页搜索
 

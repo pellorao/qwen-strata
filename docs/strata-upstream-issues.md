@@ -53,10 +53,11 @@
 - **工程的缓解**（2026-10-20，用户决定在服务端通用处理，经独立审查）：前端 `src/output_limit.py` 只对流式 Responses 回答处理：撞到输出上限时不把截断的回答交给调用方，在内部带一条服务端自动通知重试一次，调用方看到的是正常完成的响应；判定只看协议的输出上限信号。Messages 不处理：Claude Code 已能自行恢复，且在 Anthropic 流里重试要重开已出现的内容块编号，不符合协议。细节见调用手册「撞到输出上限时的内部重试」。
 - **可以给上游的建议**：Codex 可以像其他工具失败一样，把 `max_output_tokens` 截断的调用作为失败结果交回模型并继续回合，而不是结束回合；Strata 可以考虑让 custom 工具的输入也逐段发出，截断时至少保留已生成的部分。
 
-## 5. Messages 接口不实现 `defer_loading` / `tool_reference` 语义，Claude Code 工具搜索不可用（已在调用方关闭）
+## 5. 不实现延迟工具加载：Claude Code `defer_loading` / `tool_reference`、Codex `tool_search`，工具搜索不可用（已在调用方关闭）
 
 - **环境**：rtx3080ti，Strata v0.2.2（引擎 0.1.47）原生服务 `runtime/Strata/serve/frontend.py`；Claude Code 2.1.309 经 `/strata/v1/messages`。
 - **现象**：Claude Code 2.1.309 默认开着工具搜索：请求里带 `ToolSearch` 工具和一个 `defer_loading: true` 的占位工具 `DeferredToolPlaceholder`（"never call this tool"），其余内置工具（Cron*、EnterWorktree/ExitWorktree、NotebookEdit、SendMessage、TaskStop、WebFetch）和 MCP 工具（brave 的 3 个）不发 schema，只在 system 角色消息里列出名字，要模型先调用 `ToolSearch`、由返回的 `tool_reference` 块展开定义（零模型抓包，2026-10-24）。
 - **Strata 侧相关点**：`serve/frontend.py` 转换工具表时只取 `name`、`description`、`input_schema`（633–634 行），不看 `defer_loading`，占位工具作为普通工具交给模型；`tool_reference` 块属于不读取的内容块，被静默丢弃（`_check_parts`，202–224 行）。所以 `ToolSearch` 的结果到不了模型，延迟工具实际无法调用。
 - **工程的处理**（2026-10-24，经独立审查）：`qwen-agent` 设 `ENABLE_TOOL_SEARCH=false`，所有工具以完整定义内联，与 Claude Code 2.1.303 相同（测量 runner `tools/reviewer/claude_headless.py` 同样设置）。前端不按工具名或 `defer_loading` 丢弃工具：前者是专门逻辑，后者会藏掉真实工具。
-- **可以给上游的建议**：Messages 接口实现延迟加载：`defer_loading` 的工具不进模型的工具表，`tool_reference` 块展开为对应工具的定义；或至少在收到这两种内容时给出明确的不支持提示，而不是静默丢弃。
+- **Codex 侧同类机制**（2026-10-24，Codex 0.164.0 零模型抓包）：模型 catalog 的 `supports_search_tool: true` 时，Codex 把 MCP 工具延迟，请求里只有 `{"type":"tool_search","execution":"client"}`。Responses 接口 `serve/responses.py` 把 `tool_search` 归入托管工具丢弃（`HOSTED_TOOLS`），收到 `tool_search_call` 输入回 400，所以 MCP 工具到不了模型。Codex 没有 config 键或命令行开关，只有 catalog 字段。工程处理：`tools/ops/model_catalog.py` 的 `FACTS` 设 `supports_search_tool: False`，MCP 工具以 namespace 内联；无 MCP 时请求不变。ARW benchmark 的冻结 catalog 不改。`incremental_tools`、`skill_search` 对请求无影响。
+- **可以给上游的建议**：Messages 接口实现延迟加载：`defer_loading` 的工具不进模型的工具表，`tool_reference` 块展开为对应工具的定义；或至少在收到这两种内容时给出明确的不支持提示，而不是静默丢弃；Responses 接口同理，实现客户端 `tool_search` 或在 Codex 能感知的 catalog 里声明不支持。

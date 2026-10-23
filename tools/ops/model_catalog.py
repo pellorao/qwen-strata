@@ -25,7 +25,9 @@ FACTS = {
     'visibility': 'list', 'supported_in_api': True, 'availability_nux': None, 'upgrade': None,
     'additional_speed_tiers': [], 'service_tiers': [],
     'input_modalities': ['text'], 'supports_image_detail_original': False,
-    'supports_search_tool': True, 'web_search_tool_type': 'text',
+    # Strata drops tool_search (hosted tool) and answers tool_search_call input with 400: with it on, Codex hides MCP
+    # tools behind it and the model never sees them. Off, MCP tools are sent inline (docs/strata-upstream-issues.md §5).
+    'supports_search_tool': False, 'web_search_tool_type': 'text',
     'effective_context_window_percent': 100,
     'default_reasoning_level': DEFAULT_EFFORT, 'supports_reasoning_effort_updates': True,
     'supported_reasoning_levels': [{'effort': e, 'description': 'Strata frontend budget preset; see installation manual.'}

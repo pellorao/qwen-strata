@@ -100,7 +100,7 @@
    "input_modalities": [
     "text"
    ],
-   "supports_search_tool": true,
+   "supports_search_tool": false,
    "supports_experimental_context": false,
    "use_responses_lite": false,
    "supports_reasoning_effort_updates": true,
@@ -211,7 +211,7 @@
    "input_modalities": [
     "text"
    ],
-   "supports_search_tool": true,
+   "supports_search_tool": false,
    "supports_experimental_context": false,
    "use_responses_lite": false,
    "supports_reasoning_effort_updates": true,
@@ -322,7 +322,7 @@
    "input_modalities": [
     "text"
    ],
-   "supports_search_tool": true,
+   "supports_search_tool": false,
    "supports_experimental_context": false,
    "use_responses_lite": false,
    "supports_reasoning_effort_updates": true,
