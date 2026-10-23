@@ -118,6 +118,111 @@ class LongContextWorkloadTests(unittest.TestCase):
             self.assertTrue(alts)
             for alt in alts:self.assertNotEqual({k:v for k,v in alt.items()if k!='id'},{k:v for k,v in want.items()if k!='id'})
 
+    def test_version2_is_unchanged_for_frozen_plans(self):
+        plan=json.loads((ROOT/'benchmarks/resource-calibration-v1/iq3_xxs-longctx-2026-10-24/plan-150k.json').read_text())
+        workload=calibration_workload.build(plan['workload']['record_count'],2)
+        for case,binding in zip(workload['cases'],plan['workload']['case_bindings']):
+            self.assertEqual(hashlib.sha256((workload['shared_prefix']+case['question']).encode()).hexdigest(),binding['user_text_sha256'])
+            self.assertEqual(hashlib.sha256(json.dumps(case['alternatives'],sort_keys=True,separators=(',',':')).encode()).hexdigest(),binding['alternatives_sha256'])
+
+    @staticmethod
+    def solve_v3(workload):
+        """Independent solver: parse every record and update format, then answer each question from its text."""
+        import re
+        recs={};field_names={'cap':'capacity','area':'region','rsv':'reserve'}
+        def put(rid,**fields):recs.setdefault(rid,{}).update(fields)
+        body=workload['shared_prefix'].split('BEGIN RECORDS\n')[1].split('\nEND RECORDS')[0].splitlines()
+        for line in body:
+            if line.startswith('{"update"'):
+                d=json.loads(line);rid=d.pop('update');recs[rid].update(d);continue
+            if m:=re.match(r'UPDATE id=(R\d+) (\w+)=(\d+)$',line):recs[m[1]][m[2]]=int(m[3]);continue
+            if m:=re.match(r'Correction: record (R\d+) now has (\w+) (\d+)\.$',line):recs[m[1]][m[2]]=int(m[3]);continue
+            if m:=re.match(r'WARN dispatch id=(R\d+) set (\w+)=(\d+)$',line):recs[m[1]][field_names.get(m[2],m[2])]=int(m[3]);continue
+            if line.startswith('{'):
+                d=json.loads(line);put(d['id'],**d);continue
+            if line.startswith('|'):
+                cells=[c.strip() for c in line.strip('|').split('|')];d={'id':cells[0]}
+                for c in cells[1:]:name,val=c.split(' ',1);d[name]=int(val)if val.isdigit()else val
+                put(d['id'],**d);continue
+            if line.startswith('Record '):
+                m=re.match(r'Record (R\d+), labelled (\S+), is in the (\w+) region\. Its capacity is (\d+), (\d+) units are used and (\d+) are held in reserve\.(?: It links to record (R\d+)\.)?$',line)
+                put(m[1],region=m[3],capacity=int(m[4]),used=int(m[5]),reserve=int(m[6]),**({'link':m[7]}if m[7]else{}));continue
+            tokens=dict(t.split('=',1)for t in line.replace('INFO dispatch ','').split())
+            d={field_names.get(k,k):int(v)if v.isdigit()else v for k,v in tokens.items()}
+            d['link']=d.pop('next',d.get('link'))
+            if d['link'] is None:del d['link']
+            put(d['id'],**d)
+        answers=[]
+        for case in workload['cases']:
+            for n,line in enumerate(case['question'].splitlines()[1:],1):
+                text=line.split('. ',1)[1];ids=re.findall(r'R\d+',text)
+                if text.startswith('What is the current'):a=recs[ids[0]][re.match(r'What is the current (\w+)',text)[1]]
+                elif text.startswith('What is the capacity of record') and (' plus ' in text or ' minus ' in text):
+                    x,y=recs[ids[0]]['capacity'],recs[ids[1]]['capacity'];a=x+y if ' plus ' in text else x-y
+                elif text.startswith('What is the'):a=recs[ids[0]][re.match(r'What is the (\w+)',text)[1]]
+                elif text.startswith('Give the'):
+                    f1,f2=re.match(r'Give the (\w+) of record R\d+ and the (\w+)',text).groups();a=f'{recs[ids[0]][f1]},{recs[ids[1]][f2]}'
+                elif text.startswith('Which of'):
+                    best=max(ids,key=lambda r:recs[r]['capacity']);a=f"{best},{recs[best]['capacity']}"
+                else:a=recs[recs[ids[0]]['link']][re.search(r'What is the (\w+) of the record',text)[1]]
+                answers.append(a)
+        return answers
+
+    def test_version3_answers_match_an_independent_solver(self):
+        for seed in (1,2):
+            workload=calibration_workload.build(900,3,seed=seed,questions=120,batch=8)
+            self.assertEqual(self.solve_v3(workload),[r['a']for c in workload['cases']for r in c['expected']])
+
+    def test_version3_is_deterministic_and_seeded(self):
+        a=calibration_workload.build(600,3,seed=5,questions=16);b=calibration_workload.build(600,3,seed=5,questions=16)
+        self.assertEqual(a,b)
+        self.assertNotEqual(a['shared_prefix'],calibration_workload.build(600,3,seed=6,questions=16)['shared_prefix'])
+        for other in ('twin_rate','update_rate','near_share','combo_share'):
+            self.assertNotEqual(a['shared_prefix']+json.dumps(a['cases']),
+                                (lambda w:w['shared_prefix']+json.dumps(w['cases']))(calibration_workload.build(600,3,seed=5,questions=16,**{other:0.02})))
+
+    def test_version3_mixes_formats_types_twins_and_positions(self):
+        workload=calibration_workload.build(1500,3,seed=3,questions=200,batch=10)
+        prefix=workload['shared_prefix']
+        for marker in ('{"id"','| R','id=R','Record R','INFO dispatch','{"update"','UPDATE id=','Correction:','WARN dispatch'):
+            self.assertIn(marker,prefix)
+        items=[i for c in workload['cases']for i in c['items']]
+        self.assertEqual({i['type']for i in items},{'retrieve','latest','join','jump','compare','arith'})
+        self.assertEqual(sorted({int(i['pos']*9.999)for i in items}),list(range(10)))
+        self.assertTrue(any(i['near']for i in items) and not all(i['near']for i in items))
+        for case in workload['cases']:
+            self.assertEqual(len(case['expected']),10);self.assertEqual(len(case['alternatives']['twin']),10)
+            for want,alts in zip(case['expected'],[a for a in case['alternatives']['twin']]):
+                for alt in alts:self.assertNotEqual(alt['a'],want['a'])
+        twins=[t for c in workload['cases']for q,t in zip(c['items'],c['alternatives']['twin'])if t]
+        self.assertTrue(twins)
+        self.assertEqual(len({c['expected'][0]['id']for c in workload['cases']}),1)
+
+    def test_version3_rejects_unknown_knobs_and_partial_batches(self):
+        with self.assertRaises(ValueError):calibration_workload.build(600,3,bogus=1)
+        with self.assertRaises(ValueError):calibration_workload.build(600,3,questions=15,batch=8)
+
+    def test_per_repetition_prefixes_are_bound_and_counted(self):
+        w=[calibration_workload.build(400,3,seed=s,questions=16)for s in (1,2)]
+        workload={'schema_version':3,'repetitions':{'len-r1':{'shared_prefix':w[0]['shared_prefix'],'cases':w[0]['cases']},
+                                                    'len-r2':{'shared_prefix':w[1]['shared_prefix'],'cases':w[1]['cases']}}}
+        digest=lambda t:hashlib.sha256(t.encode()).hexdigest()
+        canon=lambda v:digest(json.dumps(v,sort_keys=True,separators=(',',':')))
+        plan={'authorization':{'approved':True},'baseline':{'start_options':{'model':'IQ3_XXS'}},'host':'rtx3080ti',
+              'candidate_dimension':'context-length','schema':'conditions-v2','conditions':[{'id':'len','overrides':{'max-context':206584}}],
+              'repetitions_per_condition':2,'schedule':[{'condition':'len','repetition':r}for r in (1,2)],'model_instances':2,
+              'logical_requests':4,'source_sha256':{},
+              'workload':{'case_bindings':{k:[{'id':c['id'],'user_text_sha256':digest(rep['shared_prefix']+c['question']),
+                                              'expected_sha256':canon(c['expected']),'alternatives_sha256':canon(c['alternatives'])}
+                                             for c in rep['cases']]for k,rep in workload['repetitions'].items()}}}
+        with tempfile.TemporaryDirectory()as folder:
+            paths=[Path(folder)/'plan.json',Path(folder)/'workload.json']
+            paths[0].write_text(json.dumps(plan));paths[1].write_text(json.dumps(workload))
+            frozen_inputs(*paths)
+            plan['workload']['file_sha256']=digest(paths[1].read_text());paths[0].write_text(json.dumps(plan));frozen_inputs(*paths)
+            plan['logical_requests']=3;paths[0].write_text(json.dumps(plan))
+            with self.assertRaises(ValueError):frozen_inputs(*paths)
+
     def test_version2_does_not_clamp_available(self):
         workload=calibration_workload.build(3754,2)
         for case in workload['cases'][1:]:

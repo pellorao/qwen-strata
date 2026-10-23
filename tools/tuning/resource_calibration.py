@@ -66,6 +66,21 @@ def inspect_reply(response, expected, alternatives=None):
     return result
 
 
+def job_cases(workload,job):
+    """The cases one instance runs: its own repetition (keyed by label, else by number) or the shared list."""
+    if 'repetitions' not in workload:return workload['cases']
+    reps=workload['repetitions']
+    key=job['label'] if job['label'] in reps else str(job['repetition'])
+    if key not in reps:raise ValueError('Frozen request changed: repetition '+key+' is missing')
+    return reps[key]['cases']
+
+
+def case_text(workload,key,case):
+    """User text of a case: its own, or the repetition's (else the workload's) shared prefix plus its question."""
+    rep=workload.get('repetitions',{}).get(key,{})
+    return case.get('user_text',rep.get('shared_prefix',workload.get('shared_prefix',''))+case.get('question',''))
+
+
 def frozen_inputs(plan_path,workload_path):
     plan=json.loads(Path(plan_path).read_text());workload=json.loads(Path(workload_path).read_text())
     if not (plan.get('authorization') or {}).get('approved') and (plan.get('authorization') or {}).get('user_response')!='agree':
@@ -75,18 +90,20 @@ def frozen_inputs(plan_path,workload_path):
     if not isinstance(plan.get('baseline',{}).get('start_options',{}).get('model'),str):
         raise ValueError('The plan baseline names its model explicitly')
     schedule=experiment_schedule(plan)
-    if len(schedule)!=plan['model_instances'] or len(schedule)*(0 if plan.get('probe_only')else 3)!=plan['logical_requests']:
+    if len(schedule)!=plan['model_instances'] or sum(0 if plan.get('probe_only')else len(job_cases(workload,j))for j in schedule)!=plan['logical_requests']:
         raise ValueError('Requested execution count differs from the approved work')
     for path,sha in plan['source_sha256'].items():
         if digest((ROOT/path).read_bytes())!=sha:raise ValueError('Frozen source changed: '+path)
+    if 'file_sha256' in plan['workload'] and digest(Path(workload_path).read_bytes())!=plan['workload']['file_sha256']:
+        raise ValueError('Frozen workload file changed')
     if 'repetitions' in workload:
         # Per-repetition text: bind every repetition's cases; a missing or extra repetition is a changed input.
         bound=plan['workload']['case_bindings']
         if set(workload['repetitions'])!=set(bound):raise ValueError('Frozen request changed')
-        pairs=[pair for r in bound for pair in zip(workload['repetitions'][r]['cases'],bound[r],strict=True)]
-    else:pairs=zip(workload['cases'],plan['workload']['case_bindings'],strict=True)
-    for case,binding in pairs:
-        text=case.get('user_text',workload.get('shared_prefix','')+case.get('question',''))
+        pairs=[(r,case,binding)for r in bound for case,binding in zip(workload['repetitions'][r]['cases'],bound[r],strict=True)]
+    else:pairs=[(None,case,binding)for case,binding in zip(workload['cases'],plan['workload']['case_bindings'],strict=True)]
+    for key,case,binding in pairs:
+        text=case_text(workload,key,case)
         if case['id']!=binding['id'] or digest(text.encode())!=binding['user_text_sha256']:
             raise ValueError('Frozen request changed')
         if digest(json.dumps(case['expected'],sort_keys=True,separators=(',',':')).encode())!=binding['expected_sha256']:
@@ -310,10 +327,10 @@ def run_case(host,plan,workload,job,folder):
                 if plan.get('telemetry',{}).get('interval_seconds')==1:
                     from tools.metrics.host_telemetry import start
                     telemetry=start(host,folder)
-                cases=workload['repetitions'][str(job['repetition'])]['cases']if 'repetitions' in workload else workload['cases']
+                cases=job_cases(workload,job);text_key=job['label']if job['label']in workload.get('repetitions',{})else str(job['repetition'])
                 for number,case in enumerate([]if plan.get('probe_only')else cases,1):
                     body=copy.deepcopy(plan['baseline']['request_options']['chat'])
-                    body['messages']=[{'role':'user','content':case.get('user_text',workload.get('shared_prefix','')+case.get('question',''))}]
+                    body['messages']=[{'role':'user','content':case_text(workload,text_key,case)}]
                     if plan.get('stream_chat'):body['stream']=True
                     request_offset=log_offset(host.installation,model,host)
                     if plan.get('disk_io'):before=disk_reads(host)
@@ -345,7 +362,7 @@ def run_case(host,plan,workload,job,folder):
                     row['telemetry']=finish(host,telemetry,folder)
         row['ownership_returned']=True
         row['pass']=(row.get('load_facts')is not None if plan.get('probe_only')else
-                     len(row['requests'])==3 and all(r['pass']for r in row['requests']) and row['tokens'] is not None)
+                     len(row['requests'])==len(cases) and (workload.get('schema_version')==3 or all(r['pass']for r in row['requests'])) and row['tokens'] is not None)
         row['status']='closed-valid-observation'
     except Exception as error:
         row['error_type']=type(error).__name__;row['status']='infrastructure-error-needs-impact-assessment'
