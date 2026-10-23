@@ -12,7 +12,8 @@ Each handoff runs with ARW's early-exit continuation (claude_headless.execute_co
 gets `continuation` and instance.json the Codex path's `arw_pause_events`, `continue_count` (plus `early_exit_count`).
 Each handoff's record gets `checks`: the returned model IDs against the bound ID (plan §2 match rule; a safeguards
 refusal fallback to another model fails it), service tiers (S5), server web requests, startup prompt off, and a normal
-end (a stop at the hard limit stays valid; an API or transport error does not). With `--time-limit-seconds T` the
+end (a stop at the hard limit stays valid; an API or transport error does not; the turn a delivered reminder or
+interrupt cut short is ours, not an error: `reminder_interrupts`). With `--time-limit-seconds T` the
 hard stop is T and the reminder comes at ARW's lead before it.
 `--backend strata --host <id>` runs the served model through claude_headless's Strata arm (lease, cold start with the
 installation defaults, engine-log tokens; the startup prompt by the service, the compact prompt by PreCompact): its
@@ -109,6 +110,9 @@ def checks(result, model, startup, report_dir=None, strata=None, binding=None):
     out['unexpected_changes'] = [f for f in result.get('changed_files') or []
                                  if not (report_dir and f.startswith(report_dir + '/')) and not HARNESS_STUBS.fullmatch(f)]
     out['error_kind'] = summary.get('error_kind')
+    # A turn our reminder or hard-stop interrupt cut short is never an API fault (user 2026-10-20 / 2026-10-23, rulings
+    # 「提醒和中断打断生成」): stream_summary already leaves it out of is_error and error_kind; listed for the record.
+    out['reminder_interrupts'] = len(summary.get('reminder_interrupts') or [])
     # A run left undelivered without a session id to resume is a harness fault (no continuation possible): invalid.
     out['continuation_stop'] = (result.get('continuation') or {}).get('stop')
     out['ended_normally'] = (out['continuation_stop'] != 'no_session'

@@ -40,7 +40,7 @@ class RunnerBuildersTest(unittest.TestCase):
             ch.copy_inputs(self.work, [(source / 'view.md', '../escape.md')])
 
     def test_settings_and_tool_grants_follow_the_write_grant(self):
-        hooks, flag = ch.session_hooks(self.base, self.base / 'started', 5)
+        hooks = ch.session_hooks()
         s = ch.settings(self.work, ['report'], hooks)
         fs = s['sandbox']['filesystem']
         tmp = self.work.resolve().parent / 'tmp'
@@ -115,10 +115,10 @@ class RunnerBuildersTest(unittest.TestCase):
                 ch.command('deepseek', bad, 'high', self.work, ['report'], s)
 
     def test_compact_prompt_hook_is_optional(self):
-        hooks, _ = ch.session_hooks(self.base, self.base / 'started', 10)
+        hooks = ch.session_hooks()
         self.assertIn('PreCompact', hooks)
-        hooks, _ = ch.session_hooks(self.base, self.base / 'started', 10, compact=False)
-        self.assertEqual(sorted(hooks), ['PostToolUse'])
+        hooks = ch.session_hooks(compact=False)
+        self.assertEqual(hooks, {})
         with self.assertRaises(ValueError):
             ch.run(self.base / 'r', self.base / 'p.md', 'strata', 'qwen3.8-flash-next-iq3_xxs', 'high', 'x', compact=False,
                    base=self.base / 'w', record=False)
@@ -185,30 +185,38 @@ class RunnerBuildersTest(unittest.TestCase):
         self.assertEqual(env['CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE'], '150000')
         self.assertNotIn('PermissionRequest', json.dumps(env))
 
-    def test_reminder_hook_fires_once_after_the_time(self):
-        started = self.base / 'started'
-        started.write_text(repr(0.0))
-        hook, flag = ch.reminder_hook(self.base, started, 1)
-        run = lambda: subprocess.run(hook['command'].split(), capture_output=True, text=True).stdout
-        first = json.loads(run())
-        self.assertEqual(first['hookSpecificOutput']['hookEventName'], 'PostToolUse')
-        self.assertEqual(first['hookSpecificOutput']['additionalContext'], ch.REMINDER)
-        self.assertTrue(flag.exists())
-        self.assertEqual(run(), '')
+    def test_reminder_time_follows_arw_lead(self):
         self.assertEqual(ch.reminder_time(3600), 3300)
         self.assertEqual(ch.reminder_time(400), 200)
+        self.assertNotIn('PostToolUse', json.dumps(ch.session_hooks()))  # the reminder is a priority message now
 
     def test_execute_stops_the_group_at_the_limit_and_records_changes(self):
         out = self.base / 'out'
         out.mkdir()
+        # a process that ignores the hard-limit interrupt: stdin closes, the group is stopped after the grace
         argv = [sys.executable, '-c', 'import sys,time;sys.stdin.read();open("report/r.md","w").write("x");time.sleep(30)']
         seen = {}
-        result = ch.execute(out, 'p', argv, {'PATH': os.environ['PATH']}, self.work, limit=2,
-                            on_start=lambda process, text: seen.setdefault('pid', process.pid) and text + 'q')
+        grace, ch.HARD_GRACE = ch.HARD_GRACE, 1
+        try:
+            result = ch.execute(out, 'p', argv, {'PATH': os.environ['PATH']}, self.work, limit=2,
+                                on_start=lambda process, text: seen.setdefault('pid', process.pid) and text + 'q')
+        finally:
+            ch.HARD_GRACE = grace
         self.assertTrue(result['hard_interrupt'])
+        self.assertLess(result['wall_seconds'], 10)
         self.assertEqual(result['changed_files'], ['report/r.md'])
         self.assertEqual((out / 'prompt-sent.md').read_text(), 'pq')
         self.assertEqual(seen['pid'], result['pid'])
+        stop = json.loads((out / 'deadline-handoff.json').read_text())['interrupt']
+        self.assertEqual((stop['status'], stop.get('group_stopped')), ('unknown', True))  # never answered
+
+    def test_command_reads_stream_json_input_and_replays_it(self):
+        argv = ch.command('anthropic', 'opus', 'high', self.work, ['report'], {'s': 1})
+        i = argv.index('--input-format')
+        self.assertEqual(argv[i:i + 3], ['--input-format', 'stream-json', '--replay-user-messages'])
+        message = ch.user_message('hello', 'now')
+        self.assertEqual((message['message'], message['priority'], 'origin' in message),
+                         ({'role': 'user', 'content': 'hello'}, 'now', False))
 
     def test_stream_summary_reads_init_and_result(self):
         stream = self.base / 's.jsonl'

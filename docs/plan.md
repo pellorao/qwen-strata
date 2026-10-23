@@ -16,7 +16,7 @@
 9. ~~Strata 升级到 v0.2.2~~：2026-10-22 完成，短检查通过（[报告](../reports/v0.2.2/upgrade.md)）。遗留（都是速度类或需改部署集合，按需在后续调参时做）：0.2.2 引擎建议 `--pool-workers 15`（现 23）；`STRATA_SM86_PERF` 加进 `src/model_process.py` 白名单后做开关 A/B；长提示第 1 问的版本差异来源。安装后再详细检查 0.2.x 新功能有没有能替代或改进本工程适配的部分；新模型暂不考虑（用户 2026-10-22）。
 10. **电源计划对照**（升级后）：用户 2026-10-23 授权由运行脚本切换电源计划（`powercfg /setactive`），只限这次对照测量的脚本使用，测完（含失败、中断）一律切回平衡并核对；其他场合仍不切换。在平衡和高性能两种计划下按块交替跑 Strata 速度测量（同主机、同 IQ3_XXS、同负载）。
 11. ~~零模型 mock 门回归~~：2026-10-22 修好（91bed4d），根因是调用缺 `--directory-probe`；`claude_scenario --backend` 已加 deepseek。
-12. **Claude Code 路径的提醒改用高优先级消息**：见「多模型 benchmark」。
+12. ~~Claude Code 路径的提醒改用高优先级消息~~：2026-10-23 实现，见「多模型 benchmark」。
 13. **采样与窗口重新测量**：负载设计，见同名一节。
 14. **rtx4070tis 上线**（用户 2026-10-22 提出，不急，排在 13 之后）：用户准备让它恢复运行，只有 GPU 不同（4070 Ti SUPER 16GB，sm_89）。开始前先请用户定：对外量化（建议沿用 IQ3_XXS，IQ3_S 以后单独立项）；影响输出的参数（采样、窗口）是否沿用 3080 Ti 结论（建议沿用，只重测与硬件相关的维度）；直接装当时的最新版，不补中间版本。步骤：用户开机并提供连接方式 → 核对实际文件、版本、驱动（cuda13 引擎要求 ≥580.65）、权重、BIOS 微码（14900K 的 Vmin Shift）→ 系统环境对齐 3080 Ti（计划任务 Normal 优先级、锁页内存、页面文件 32768，需要 UAC）→ 补全 `config/deployments/rtx4070tis.json`（地址、端口、context_tiers）→ 用 upgrade_release 或重建安装 0.2.x（注意 `install_offline` 按发布版本拼引擎目录的已知限制）→ 部署（带上离线期间的全部改动）→ 安全门、compact probe、短检查 → 按[调参手册](host-tuning.md)「每机执行方法」对 IQ3_XXS 独立调参：16GB 显存下 prefill 16384、kv-resident 32768、显存预留、专家缓存都要重新测；sm_86 专用的解码开关表不适用；可顺带对照 256584 档在非 int8 KV 下的 200K 检索错误（见「其他未解决问题」）。原「顺序」第 6 条并入本项。
 15. **v5 题库**：用户 2026-10-13 暂停，何时恢复由用户定。
@@ -61,8 +61,9 @@
 
 - [x] **方案设计**（开跑前，按 AGENTS.md 硬约束 1 处理测量设计部分）：用户决定已齐（2026-10-19 三轮答复），定稿见[运行计划](../benchmarks/multi-model-v1/plan.md)：27 个配置 × 4 场景 × 5 次，基础提示只给 Strata，搜索全部关闭，OpenAI 用 ChatGPT 套餐登录，DeepSeek 用 `DEEPSEEK_API_KEY`（用户 10-19 设在 `~/.profile`）。代码适配已完成（ChatGPT 登录链接、relay 记录实际 service tier、两个 harness 关闭搜索、Claude Code 的 DeepSeek backend）。盲裁维持单名 Opus（用户 2026-10-19）。阶段 0 进展（2026-10-19）：三份盲裁 brief 已冻结；G7 deny-read 已实施；benchmark 专用 Codex 与 Claude Code 副本已装、compact probe 通过；API 臂压缩提示无残留已核实；G8 Strata live 冒烟通过；汇总层已实现。剩余：冻结 API catalog、汇总适配层、冻结计划（状态见运行计划 §9）。
 - [x] **执行与报告**：按场景分批运行。报告给出每个模型的均值 ± 标准差、耗时、token、工具调用数，以及每次的费用。
-- [ ] **benchmark 结束后：Claude Code 路径的提醒改用高优先级消息**（用户 2026-10-20）：ARW 提醒在 Codex 上是高优先级消息，会立即打断当前生成，确保模型在超时之前收到；Claude Code 路径现在经 PostToolUse hook，要等工具调用结束才送达。先查 Claude Code 无头模式能否中途打断并插入消息（如 stream-json 输入的 interrupt 加新的 user 消息，未核实），再实现并做对照；同时检查 relay 和各臂判定，别把这类主动打断记成故障。
+- [x] **benchmark 结束后：Claude Code 路径的提醒改用高优先级消息**（用户 2026-10-20）：ARW 提醒在 Codex 上是高优先级消息，会立即打断当前生成，确保模型在超时之前收到；Claude Code 路径现在经 PostToolUse hook，要等工具调用结束才送达。先查 Claude Code 无头模式能否中途打断并插入消息（如 stream-json 输入的 interrupt 加新的 user 消息，未核实），再实现并做对照；同时检查 relay 和各臂判定，别把这类主动打断记成故障。
   - 2026-10-22 实验完成（`.tmp/cc-priority-1022/report.md`）：stream-json 输入写 `priority:"now"` 可在 0.1 s 内打断生成；工具执行中改为先 `control_request interrupt` 再写消息；Strata 端 cancel 与计量正常，`--resume` 可续。下一步按报告方案实现（`claude_headless` 改 stream-json 输入、判定放行 `aborted_*`、版本改 2.1.308 重跑 mock 门），再做 1 个真实对照。
+  - 2026-10-23 实现：`claude_headless` 改 stream-json 输入（stdin 保持打开），提醒写 `priority:"now"`，工具执行中先 `control_request interrupt`，硬截止 interrupt 后关 stdin、宽限 20 s 再结束进程组，记录写 `deadline-handoff.json`；`reminder_interrupt.stream_exempt` 只放行送达时正在进行的那一轮的 aborted 结果。版本仍用 2.1.303（兼容性已核实，不改版本）。全量单测、5 组 mock 门通过；Strata 实测 2 个实例（长 Bash 中、生成中各 1 次）送达正常，被打断后会话继续、引擎 cancel 与计量一致。
 - [ ] **下一版：输出上限重试改进**（用户 2026-10-22）：`src/output_limit.py` 现在只重试 1 次，重试只追加一条通知。strata-codex CStd low-a9 两次都在写同一个 exec_command 时撞 8192，推理 token 都是 2065（输入只多了通知的 95 token），说明通知没有改变模型的做法，多重试几次也不会有效。候选做法：重试时降低 `max_output_tokens`，或者把通知放到更显眼的位置，或者两者结合。改动属于部署设计，先过独立审查，再用撞上限的 mock 和实例对照验证；不追溯本次 benchmark。
 - [ ] **下一版 benchmark：对齐各 harness 的窗口与压缩点，并逐实例记录压缩次数**（用户 2026-10-22）：v1 的 DeepSeek 在 Codex 上用 1048576 窗口、实际不压缩，在 Claude Code 上没设 `CLAUDE_CODE_MAX_CONTEXT_TOKENS`、约 162K 压缩（plan §4 第 7 条）。下一版按测量规则「跨 harness 设置尽量一致」逐项对齐（窗口、压缩点、强度、输出上限），保留的差异写明理由；开跑前用 mock 门抓请求核对两边实际生效的压缩点；bench_records 增加每实例压缩次数（Codex rollout 的压缩事件、Claude Code stream 的 compact_boundary），并进 summary 与导出。
 

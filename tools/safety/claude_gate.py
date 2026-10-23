@@ -595,9 +595,9 @@ def run_session(out, fx, state, backend, model, effort, live, limit, claude, lab
     control.mkdir()
     started = control / 'started-at.txt'
     # The scenario runs' shape (2026-10-20): session persistence for the continuation, and the reminder with the hard
-    # limit (review_deadlines.reminder_message).
-    hooks, flag = ch.session_hooks(control, started, 0, hard=limit)
-    session_settings = ch.settings(fx['work'], [WRITE], hooks)
+    # limit (review_deadlines.reminder_message), delivered as a priority "now" message right at the start (2026-10-23).
+    deadline = ch.Deadline(out, limit, 0, scenario=True)
+    session_settings = ch.settings(fx['work'], [WRITE], ch.session_hooks())
     argv = ch.command(backend, model, effort, fx['work'], [WRITE], session_settings, startup=startup, claude=claude,
                       persist=True)
     local = f'http://127.0.0.1:{server.server_address[1]}'
@@ -632,10 +632,10 @@ def run_session(out, fx, state, backend, model, effort, live, limit, claude, lab
         if strata is not None:
             with strata as (env, engine):
                 save(out / 'environment-names.json', sorted(env))
-                result = ch.execute(out, prompt, argv, env, fx['work'], limit, started, on_start)
+                result = ch.execute(out, prompt, argv, env, fx['work'], limit, started, on_start, deadline)
         else:
             save(out / 'environment-names.json', sorted(env))
-            result = ch.execute(out, prompt, argv, env, fx['work'], limit, started, on_start)
+            result = ch.execute(out, prompt, argv, env, fx['work'], limit, started, on_start, deadline)
     finally:
         server.shutdown()
         state['stopped'] = True
@@ -649,7 +649,7 @@ def run_session(out, fx, state, backend, model, effort, live, limit, claude, lab
               'probes': judge_probes(fx, final, calls, server.network),
               'isolation': judge_isolation(fx, server.requests, init, backend, startup, reminder=not live),
               'startup_prompt': startup, 'subset': subset,
-              'reminder_hook': json.loads(flag.read_text()) if flag.exists() else None,
+              'reminder': deadline.value['reminder'],
               'summary': ch.stream_summary(out / 'stream.jsonl'), 'work': str(fx['work'])}
     record['completed'] = result['exit'] == 0 and not result['hard_interrupt'] and record['summary'].get('result_event')
     record['pass'] = bool(record['completed'] and record['isolation']['pass']

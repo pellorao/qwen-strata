@@ -86,6 +86,7 @@ paths:
 ## 执行
 - 时限按累计工作时间计：初审 55 分钟提醒、60 分钟中断；同线程后续沟通 10 分钟提醒、15 分钟中断。提醒和中断使用原版 ARW 接口。
 - 提醒和中断是高优先级消息，目的是让模型在超时之前确实收到：harness 为送达它而打断当前生成（如 Codex 放弃正在接收的流、带着消息重发）是预期行为，不是故障。relay、代理和有效性检查都要把这种主动打断和真实传输错误分开，不能因此判失败或作废（用户 2026-10-20）；benchmark 的机械判据见 [benchmark 计划 §14 M2](../../benchmarks/multi-model-v1/plan.md)。
+- Claude Code 路径没有 ARW 运行层，提醒和中断由 `tools.reviewer.claude_headless` 以同样的高优先级送达（2026-10-23 起；之前经 PostToolUse hook，要等工具调用结束）：`claude -p` 用 stream-json 输入，运行期间 stdin 保持打开；到提醒时刻写一条 `priority:"now"` 的用户消息，打断正在进行的生成并带着它发出下一次请求；工具正在执行时先发 `control_request interrupt` 取消工具，再写这条消息。到硬截止发 interrupt 并关闭 stdin，宽限期后仍未退出才结束进程组。送达记录按 ARW ReviewDeadline 的形状写进 `deadline-handoff.json`（attempted_at、status、receipt）。被打断的那一轮以 `aborted_streaming` / `aborted_tools` 结束（常带 `error_during_execution`），按下条判据不算 API 故障：`reminder_interrupt.stream_exempt` 只放行送达时正在进行的那一轮。
 - 能力验证和 benchmark 中，早停接续使用 ARW 原版运行层的接续机制（用户 2026-10-11：最大限度还原 ARW，便于与 ARW 自己的结果直接对比）。到达原版 10 / 5 次早退暂停点时按「早退暂停（S2）」处理：harness 以用户身份答复"继续"，实例照常跑完。Claude Code 路径没有 ARW 运行层，由 `tools.reviewer.claude_headless.execute_continued` 在 harness 里模拟：交付判定、三种接续指令原文、10 / +5 暂停点和截止规则都照冻结 ARW，在同一会话里 `--resume` 发出（用户 2026-10-20）。
 - 能力验证和 benchmark 由 ARW 自己的 Strata provider 持有独占并启动模型（打了本工程接口补丁的 ARW，`selection.model_owner = "arw"`），引擎参数用安装目录的每机每量化默认值。每批开跑前 `arw_measure` 经租约停掉常驻模型，批从冷加载开始；实例之间不停模型，只允许 Strata 精确前缀缓存的复用，不复用上一个实例的上下文；token 按派发时刻切分的引擎日志段计算（用户 2026-10-11）。
 - 测量交接末尾追加冻结的测量说明（不发送中途消息、不需要运行标识、禁止查询环境变量和平台身份），记录 SHA；只追加，不改原版交接和 Role。

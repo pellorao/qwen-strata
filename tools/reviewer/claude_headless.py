@@ -20,12 +20,20 @@ Isolation (measurement rule "Claude Code 测试隔离"):
   search rule, user 2026-10-19); tools.safety.claude_gate checks that no request offers a search tool;
 - CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 keeps the backend key out of command environments: without it the mock gate saw
   ANTHROPIC_AUTH_TOKEN in the shell (2026-10-19).
-`--safe-mode` is not used: it also disables the hooks that carry the time reminder and the project compact prompt;
+`--safe-mode` is not used: it also disables the PreCompact hook that carries the project compact prompt;
 tools.safety.claude_gate checks that the real configuration's CLAUDE.md, hooks and skills still stay out.
 
-Time limit as ARW (tools.reviewer.review_deadlines): a PostToolUse hook adds the original reminder once the run has
-worked REMINDER seconds, and the process group is stopped at the hard limit. The reminder can only arrive after a
-tool call. At the end `~/.claude/statusline/estimate.sh --add-stream <stream> <label> --effort <level>` records the run.
+Time limit as ARW (tools.reviewer.review_deadlines), delivered as high-priority messages (user 2026-10-20, as Codex):
+Claude Code reads stream-json input (`--input-format stream-json --replay-user-messages`) and stdin stays open while a
+turn runs. At the reminder time the harness writes the reminder as a user message with `priority: "now"` (no origin),
+which aborts the generation in flight and starts the next request with it; when a tool is executing it first sends
+`control_request interrupt` (the tool is cancelled), then the message (cc-priority-1022: 0.02-0.08 s during generation,
+0.5 s during a long Bash, against the tool's remaining time without the interrupt). At the hard limit it sends the
+interrupt and closes stdin, and stops the process group only after a grace period. Both are recorded in
+`deadline-handoff.json` in ReviewDeadline's shape (attempted_at, status, receipt: the replayed message uuid or the
+control response). The turn they cut short ends in an aborted result (`aborted_streaming` / `aborted_tools`, often
+`error_during_execution`); tools.reviewer.reminder_interrupt.stream_exempt makes it ours, not an API fault.
+At the end `~/.claude/statusline/estimate.sh --add-stream <stream> <label> --effort <level>` records the run.
 
 Early-exit continuation as ARW's Reviewer runtime (`report=`, the scenario runs; user 2026-10-20, Codex parity): a
 normally ended turn without full delivery (final message exactly {"status":"ready"} and a non-empty readable bound
@@ -51,9 +59,12 @@ import shutil
 import signal
 import subprocess
 import sys
+import threading
 import time
+import uuid
 
-from tools.reviewer.review_deadlines import LIMITS, REMINDER
+from tools.reviewer.review_deadlines import LIMITS, REMINDER, reminder_message, save as save_atomic
+from tools.reviewer import reminder_interrupt
 from tools.reviewer.wsl_client import ROOT, save
 
 sys.path.append(str(ROOT / 'src'))
@@ -90,6 +101,9 @@ SETTINGS_ARGUMENT_LIMIT = 120000
 # lib/background-agent/manager.mjs noteEarlyExit nextEarlyExitNotificationCount = count + 5).
 EARLY_EXIT_PAUSE_AT, EARLY_EXIT_PAUSE_STEP = 10, 5
 CONTINUE_MESSAGE = '继续'  # the user's answer at a pause, as tools.reviewer.arw_measure.ARW_CONTINUE_MESSAGE
+INTERRUPT_WAIT = 10  # seconds to wait for the interrupted turn's result before the reminder message is written
+HARD_GRACE = 20  # seconds after the hard-limit interrupt before the process group is stopped
+POLL = 0.1
 
 
 # Each denied path costs bwrap about three arguments and bwrap takes at most 9000: with 2136 /tmp entries every Bash
@@ -176,44 +190,255 @@ def write_targets(work, writes):
     return targets
 
 
-def reminder_hook(control, started_file, after=REMINDER_AFTER, text=REMINDER, hard=None):
-    """PostToolUse hook: once the run has worked `after` seconds, add the ARW reminder to the model context, once.
-    With `hard` (the hard limit in seconds; the scenario runs) the text is the Codex API path's
-    (review_deadlines.reminder_message, wall-clock basis): the lead rewritten when it is not 5 minutes and the remaining
-    seconds at the moment the hook fires (parity review F10, 2026-10-20). Without it the fixed text, as before."""
-    script = control / 'deadline-reminder.py'
-    flag = control / 'reminder-sent.json'
-    if hard is None:
-        message = f' print(json.dumps({{"hookSpecificOutput":{{"hookEventName":"PostToolUse","additionalContext":{text!r}}}}},ensure_ascii=False))\n'
-        head = ''
-    else:
-        head = f'sys.path.insert(0,{str(ROOT)!r})\nfrom tools.reviewer.review_deadlines import reminder_message\n'
-        message = (f' text=reminder_message({after!r},{hard!r},max(0,int({hard!r}-(time.time()-started))),started+{hard!r})\n'
-                   ' flag.write_text(json.dumps({"sent_at":time.time(),"elapsed":time.time()-started,"text":text},ensure_ascii=False))\n'
-                   ' print(json.dumps({"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":text}},ensure_ascii=False))\n')
-    script.write_text(
-        'import json,sys,time\nfrom pathlib import Path\n' + head +
-        f'started=float(Path({str(started_file)!r}).read_text());flag=Path({str(flag)!r})\n'
-        f'if time.time()-started>={after!r} and not flag.exists():\n'
-        ' flag.write_text(json.dumps({"sent_at":time.time(),"elapsed":time.time()-started}))\n' + message)
-    return {'type': 'command', 'command': f'{sys.executable} {script}'}, flag
-
-
 def reminder_time(limit):
     """ARW's lead before the hard limit (300 s of 3600); half the limit when the limit is shorter than two leads."""
     lead = HARD_LIMIT - REMINDER_AFTER
     return limit - lead if limit >= 2 * lead else limit / 2
 
 
-def session_hooks(control, started_file, reminder_after, compact=True, hard=None):
-    """The time reminder after tool calls, and the project compact prompt appended to Claude Code's own summary
-    instructions, never replacing them (as qwen-agent does). compact=False leaves Claude Code's own compaction
-    unchanged (multi-model benchmark: the project prompts go to Strata only, user 2026-10-19)."""
-    hook, flag = reminder_hook(control, started_file, reminder_after, hard=hard)
-    hooks = {'PostToolUse': [{'matcher': '*', 'hooks': [hook]}]}
-    if compact:
-        hooks['PreCompact'] = [{'hooks': [{'type': 'command', 'command': f'cat {COMPACT}'}]}]
-    return hooks, flag
+def session_hooks(compact=True):
+    """The project compact prompt appended to Claude Code's own summary instructions, never replacing them (as
+    qwen-agent does). compact=False leaves Claude Code's own compaction unchanged (multi-model benchmark: the project
+    prompts go to Strata only, user 2026-10-19). The time reminder is no hook any more: Deadline delivers it."""
+    return {'PreCompact': [{'hooks': [{'type': 'command', 'command': f'cat {COMPACT}'}]}]} if compact else {}
+
+
+class Deadline:
+    """One run's reminder and hard stop, in review_deadlines.ReviewDeadline's record shape (`out/deadline-handoff.json`).
+
+    `reminder_after` None: no reminder (hard stop only). `scenario` True: the Codex API path's text
+    (review_deadlines.reminder_message, wall-clock basis: the lead rewritten when it is not 5 minutes and the remaining
+    seconds when it is sent; parity review F10, 2026-10-20); otherwise the fixed text. Times count from the first
+    segment's start (begin()), so continuation segments keep the instance's clock."""
+
+    def __init__(self, out, limit, reminder_after=None, scenario=False, run_id=None):
+        self.path = Path(out) / 'deadline-handoff.json'
+        self.limit, self.after, self.scenario = limit, reminder_after, scenario
+        self.value = {'runId': run_id or Path(out).name, 'messageId': 'handoff', 'phase': 'initial', 'started_at': None,
+                      'start_source': 'claude_headless first segment start', 'reminder_at': None,
+                      'hard_deadline_at': None, 'reminder': None, 'interrupt': None,
+                      'time_basis': 'wall clock from the first segment start', 'reminder_after_seconds': reminder_after,
+                      'interrupt_after_seconds': limit, 'delivery': 'claude stream-json priority now'}
+
+    def begin(self, started):
+        if self.value['started_at'] is None:
+            self.value.update(started_at=started, hard_deadline_at=started + self.limit,
+                              reminder_at=None if self.after is None else started + self.after)
+            self.save()
+
+    def save(self):
+        save_atomic(self.path, self.value)
+
+    def reminder_due(self, now):
+        return self.after is not None and self.value['reminder'] is None and now >= self.value['reminder_at']
+
+    def hard_due(self, now):
+        return now >= self.value['hard_deadline_at']
+
+    def text(self, now):
+        if not self.scenario:
+            return REMINDER
+        hard_at = self.value['hard_deadline_at']
+        return reminder_message(self.after, self.limit, max(0, int(hard_at - now)), hard_at)
+
+
+def user_message(text, priority=None):
+    """One stream-json input line: a user message with its own uuid (replayed back as the delivery receipt)."""
+    message = {'type': 'user', 'message': {'role': 'user', 'content': text}, 'parent_tool_use_id': None,
+               'session_id': '', 'uuid': str(uuid.uuid4())}
+    if priority:
+        message['priority'] = priority
+    return message
+
+
+class Session:
+    """A running `claude -p --input-format stream-json` process: stdout teed to the stream file and followed (tools
+    in flight, results, replayed message uuids, control responses), stdin kept open until the last message's turn has
+    ended."""
+
+    def __init__(self, process, stream_file, clock=time.time):
+        self.process, self.clock = process, clock
+        self.lock, self.lines, self.tools, self.results = threading.Lock(), 0, set(), []
+        self.replayed, self.responses, self.written, self.closed = {}, {}, [], False
+        self.reader = threading.Thread(target=self.read, args=(stream_file,), daemon=True)
+        self.reader.start()
+
+    def read(self, stream_file):
+        for raw in self.process.stdout:
+            with self.lock:
+                stream_file.write(raw)
+                stream_file.flush()
+                line = self.lines
+                self.lines += 1
+                try:
+                    event = json.loads(raw)
+                except ValueError:
+                    continue
+                if not isinstance(event, dict):
+                    continue
+                kind, message = event.get('type'), event.get('message')
+                blocks = message.get('content') if isinstance(message, dict) else None
+                blocks = blocks if isinstance(blocks, list) else []
+                if kind == 'assistant' and not event.get('parent_tool_use_id'):
+                    self.tools |= {b.get('id') for b in blocks if isinstance(b, dict) and b.get('type') == 'tool_use'}
+                elif kind == 'user':
+                    self.tools -= {b.get('tool_use_id') for b in blocks if isinstance(b, dict)
+                                   and b.get('type') == 'tool_result'}
+                    if event.get('isReplay') and event.get('uuid'):
+                        self.replayed.setdefault(event['uuid'], (line, self.clock()))
+                elif kind == 'result':
+                    self.results.append((line, event))
+                elif kind == 'control_response':
+                    response = event.get('response') or {}
+                    self.responses.setdefault(response.get('request_id'), (line, self.clock(), response))
+
+    def send(self, value):
+        """Write one input line; returns the stream line count at that moment (the in-flight position)."""
+        with self.lock:
+            at = self.lines
+            self.process.stdin.write((json.dumps(value, ensure_ascii=False) + '\n').encode())
+            self.process.stdin.flush()
+        return at
+
+    def say(self, text, priority=None):
+        message = user_message(text, priority)
+        at = self.send(message)
+        self.written.append(message['uuid'])
+        return message['uuid'], at
+
+    def interrupt(self):
+        request = 'req_' + uuid.uuid4().hex[:12]
+        return request, self.send({'type': 'control_request', 'request_id': request, 'request': {'subtype': 'interrupt'}})
+
+    def close(self):
+        if not self.closed:
+            self.closed = True
+            try:
+                self.process.stdin.close()
+            except OSError:
+                pass
+
+    def turn_over(self):
+        """The last written message replayed and a result after that replay: nothing more will run. Only the last
+        one counts: a message that arrives before the one ahead of it was dequeued is merged into the same request, and
+        the earlier message is then never replayed (mock gate 2026-10-23, reminder at 0 s)."""
+        with self.lock:
+            if not self.written or self.written[-1] not in self.replayed:
+                return False
+            last = self.replayed[self.written[-1]][0]
+            return any(line > last for line, _ in self.results)
+
+    def tool_running(self):
+        with self.lock:
+            return bool(self.tools)
+
+    def wait_for(self, condition, seconds):
+        end = time.time() + seconds
+        while time.time() < end and self.process.poll() is None:
+            with self.lock:
+                if condition():
+                    return True
+            time.sleep(POLL / 2)
+        with self.lock:
+            return condition()
+
+
+def deliver_reminder(session, deadline, stream_name):
+    """priority "now"; with a tool executing, `control_request interrupt` first and the message after the cut turn's
+    result (cc-priority-1022 scheme 1). Intent is recorded before sending, the receipt when the message is replayed."""
+    now = session.clock()
+    text = deadline.text(now)
+    record = deadline.value['reminder'] = {'attempted_at': now, 'operation': 'send_message', 'status': 'unknown',
+                                           'message': text, 'stream': stream_name}
+    deadline.save()
+    if session.tool_running():
+        request, at = session.interrupt()
+        record.update(method='interrupt+now', stream_line=at, interrupt_request={'request_id': request})
+        deadline.save()
+        got = session.wait_for(lambda: request in session.responses and any(
+            line >= at for line, _ in session.results), INTERRUPT_WAIT)
+        line, when, response = session.responses.get(request, (None, None, {}))
+        record['interrupt_request'].update(response_subtype=response.get('subtype'), response_at=when,
+                                           turn_result_seen=got)
+        if response.get('subtype') == 'success':
+            record['status'] = 'interrupt accepted'  # the cut turn is ours already; the message follows
+        message, _ = session.say(text, 'now')
+    else:
+        message, at = session.say(text, 'now')
+        record.update(method='now', stream_line=at)
+    record['receipt'] = {'messageId': message, 'deliveryStatus': None}
+    deadline.save()
+
+
+def note_receipt(session, deadline):
+    record = deadline.value['reminder']
+    if record and record.get('receipt') and record['receipt']['deliveryStatus'] is None:
+        with session.lock:
+            replay = session.replayed.get(record['receipt']['messageId'])
+        if replay:
+            record['receipt'].update(deliveryStatus='accepted', replayed_at=replay[1])
+            record['status'] = 'accepted'
+            deadline.save()
+
+
+def hard_stop(session, deadline, stream_name):
+    """ARW's interrupt at the hard limit: control_request interrupt, stdin closed, the group stopped after HARD_GRACE."""
+    now = session.clock()
+    record = deadline.value['interrupt'] = {'attempted_at': now, 'operation': 'interrupt_agent', 'status': 'unknown',
+                                            'stream': stream_name}
+    deadline.save()
+    try:
+        request, at = session.interrupt()
+        record.update(stream_line=at, receipt={'request_id': request})
+    except OSError as error:
+        record['error'] = str(error)
+        request = None
+    session.close()
+    deadline.save()
+    try:
+        session.process.wait(timeout=HARD_GRACE)
+    except subprocess.TimeoutExpired:
+        record['group_stopped'] = True
+    stop_group(session.process)  # also any leftover command of the session (a hard stop leaves nothing running)
+    session.reader.join(timeout=5)
+    line, when, response = session.responses.get(request, (None, None, {}))
+    if response.get('subtype') == 'success':
+        record.update(status='accepted')
+        record['receipt'].update(accepted=True, response_at=when)
+    deadline.save()
+
+
+def drive(process, stream_file, stream_name, first_message, deadline, clock=time.time):
+    """Write the segment's message and follow the session to its end: the reminder when due while a turn runs, stdin
+    closed once the last message's turn is over, the hard stop at the limit. Returns (exit code, hard-stopped)."""
+    session = Session(process, stream_file, clock)
+    try:
+        session.say(first_message)
+    except OSError:
+        session.close()
+    while True:
+        if process.poll() is not None:
+            break
+        now = clock()
+        note_receipt(session, deadline)
+        if deadline.hard_due(now):
+            hard_stop(session, deadline, stream_name)
+            break
+        if not session.closed:
+            if session.turn_over():
+                session.close()
+            elif deadline.reminder_due(now):
+                try:
+                    deliver_reminder(session, deadline, stream_name)
+                except OSError as error:
+                    deadline.value['reminder']['error'] = str(error)
+                    deadline.save()
+        time.sleep(POLL)
+    session.reader.join(timeout=10)
+    note_receipt(session, deadline)
+    session.close()
+    return process.wait(), deadline.value['interrupt'] is not None and deadline.value['interrupt'].get(
+        'stream') == stream_name
 
 
 def outside_grants(folder, targets):
@@ -296,6 +521,7 @@ def command(backend, model, effort, work, writes, session_settings, tools=TOOLS,
             '--disable-slash-commands', '--setting-sources', '', '--settings', settings_argument(session_settings),
             '--tools', tools, '--disallowedTools', DISALLOWED, '--permission-mode', 'dontAsk', '--permission-prompts', 'none',
             '--allowedTools', allowed_tools(work, writes),
+            '--input-format', 'stream-json', '--replay-user-messages',
             '--output-format', 'stream-json', '--verbose', *([] if persist else ['--no-session-persistence'])]
     if backend != 'strata' and startup:
         argv += ['--append-system-prompt', startup_text()[0]]
@@ -410,22 +636,26 @@ def stream_summary(stream):
     (Before 2026-10-20 only the last result was read, which undercounts any stream with more than one.)
     A segment without a result event (killed at the hard limit) leaves its usage and time out: the sums are then lower
     bounds (`segments_without_result`, `usage_bound`). A total_cost_usd that falls between segments is not cumulative,
-    so it is summed instead."""
+    so it is summed instead. The result of a turn that a delivered reminder or interrupt cut short (user 2026-10-20 /
+    2026-10-23, reminder_interrupt.stream_exempt) never counts as an error (`reminder_interrupts`); an aborted turn's
+    streaming result carries no usage, so its tokens make the sums lower bounds too."""
     streams = [stream] if isinstance(stream, (str, Path)) else list(stream)
     lines, per_stream = [], [0] * len(streams)
     for index, one in enumerate(streams):
         try:
-            lines += [(index, line) for line in Path(one).read_text(errors='replace').splitlines()]
+            lines += [(index, number, line) for number, line in enumerate(Path(one).read_text(errors='replace').splitlines())]
         except OSError:
             pass
-    results = []
+    results, numbered = [], [[] for _ in streams]
     sandbox_failures = 0
     init = None
     tiers, seen = {}, set()
-    for index, line in lines:
+    for index, number, line in lines:
         try:
             event = json.loads(line)
         except ValueError:
+            continue
+        if not isinstance(event, dict):
             continue
         message = event.get('message') if event.get('type') == 'assistant' else None
         usage = message.get('usage') if isinstance(message, dict) else None
@@ -444,8 +674,15 @@ def stream_summary(stream):
             init = {k: event.get(k) for k in ('model', 'tools', 'mcp_servers', 'permissionMode', 'claude_code_version')}
         if event.get('type') == 'result':
             results.append(event)
+            numbered[index].append((number, event))
             per_stream[index] += 1
     without = sum(1 for n in per_stream if n == 0)
+    # The turn a delivered reminder / interrupt cut short is ours, not a fault (reminder_interrupt.stream_exempt).
+    cut = []
+    for index, one in enumerate(streams):
+        exempt = reminder_interrupt.stream_exempt(one, numbered[index]) if numbered[index] else {}
+        cut += [event for line, event in numbered[index] if line in exempt]
+    cut_ids = {id(e) for e in cut}
     if not results:
         return {'result_event': False, 'init': init, 'service_tiers': tiers, 'sandbox_failures': sandbox_failures,
                 'segments': len(streams), 'segments_without_result': without}
@@ -477,13 +714,21 @@ def stream_summary(stream):
         return values[-1] if all(b >= a for a, b in zip(values, values[1:])) else sum(values)
     server_tools = usage.get('server_tool_use') or {}
     searches = (server_tools.get('web_search_requests') or 0) + (server_tools.get('web_fetch_requests') or 0)
+    judged = [r for r in results if id(r) not in cut_ids]
+    # A turn whose stream was aborted reports zero usage (cc-priority-1022, mock and Strata d1): the tokens of its
+    # requests are missing from the sums. aborted_tools keeps the usage of its completed requests (nothing in flight).
+    aborted = sum(1 for r in results if r.get('terminal_reason') == 'aborted_streaming')
     return {'result_event': True, 'init': init, 'subtype': last.get('subtype'),
-            'is_error': any(bool(r.get('is_error')) for r in results), 'error_kind': error_kind(last),
+            'is_error': any(bool(r.get('is_error')) for r in judged),
+            'error_kind': error_kind(last) if id(last) not in cut_ids else None,
+            'reminder_interrupts': [{'subtype': r.get('subtype'), 'is_error': r.get('is_error'),
+                                     'terminal_reason': r.get('terminal_reason')} for r in cut],
+            'aborted_results': aborted,
             'duration_ms': total('duration_ms'),
             'duration_api_ms': session_total('duration_api_ms'), 'num_turns': total('num_turns'),
             'total_cost_usd': cost, 'usage': usage, 'modelUsage': last.get('modelUsage'),
             'result_events': len(results), 'segments': len(streams), 'segments_without_result': without,
-            'usage_bound': 'lower' if without else 'complete', 'service_tiers': tiers,
+            'usage_bound': 'lower' if without or aborted else 'complete', 'service_tiers': tiers,
             'server_web_requests': searches, 'sandbox_failures': sandbox_failures,
             'token_source': 'Claude Code stream-json result usage (API usage; engine log for the Strata arm)'}
 
@@ -500,35 +745,41 @@ def stop_group(process, grace=20):
         process.wait()
 
 
-def execute(out, prompt_text, argv, env, work, limit=HARD_LIMIT, started_file=None, on_start=None):
-    """Run once with the prompt on stdin; stop the whole process group at the hard limit."""
-    stream, errors = out / 'stream.jsonl', out / 'stream.err'
+def run_segment(out, k, message, argv, env, work, deadline, on_start=None, clock=time.time):
+    """One `claude -p` process (segment k: stream.jsonl and prompt-sent.md, else stream-k.jsonl and prompt-sent-k.md)
+    driven to its end. `on_start(process, message)` may rewrite the message once the process exists."""
+    suffix = '' if k == 0 else f'-{k}'
+    stream, errors = out / f'stream{suffix}.jsonl', out / f'stream{suffix}.err'
+    with stream.open('wb') as stdout, errors.open('wb') as stderr:
+        begun = clock()
+        deadline.begin(begun)
+        process = subprocess.Popen(argv, cwd=work, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                   stderr=stderr, start_new_session=True)
+        if on_start:
+            message = on_start(process, message)
+        (out / f'prompt-sent{suffix}.md').write_text(message)
+        code, timed_out = drive(process, stdout, stream.name, message, deadline, clock)
+        ended = clock()
+    return {'exit': code, 'hard_interrupt': timed_out, 'started_at': begun, 'ended_at': ended,
+            'wall_seconds': ended - begun, 'pid': process.pid}
+
+
+def execute(out, prompt_text, argv, env, work, limit=HARD_LIMIT, started_file=None, on_start=None, deadline=None,
+            clock=time.time):
+    """Run once with the prompt as the first stream-json message; the reminder and the hard stop as `deadline` says
+    (hard stop only without one)."""
+    deadline = deadline or Deadline(out, limit)
     before = file_hashes(work)
     save(out / 'files-before.json', before)
-    with stream.open('wb') as stdout, errors.open('wb') as stderr:
-        started = time.time()
-        if started_file:
-            Path(started_file).write_text(repr(started))
-        process = subprocess.Popen(argv, cwd=work, env=env, stdin=subprocess.PIPE, stdout=stdout, stderr=stderr,
-                                   start_new_session=True)
-        if on_start:
-            prompt_text = on_start(process, prompt_text)
-        (out / 'prompt-sent.md').write_text(prompt_text)
-        process.stdin.write(prompt_text.encode())
-        process.stdin.close()
-        timed_out = False
-        try:
-            code = process.wait(timeout=limit)
-        except subprocess.TimeoutExpired:
-            timed_out = True
-            stop_group(process)
-            code = process.returncode
-        ended = time.time()
+    started = clock()
+    if started_file:
+        Path(started_file).write_text(repr(started))
+    deadline.begin(started)
+    result = run_segment(out, 0, prompt_text, argv, env, work, deadline, on_start, clock)
     after = file_hashes(work)
     save(out / 'files-after.json', after)
     changed = sorted(k for k in set(before) | set(after) if before.get(k) != after.get(k))
-    return {'exit': code, 'hard_interrupt': timed_out, 'started_at': started, 'ended_at': ended,
-            'wall_seconds': ended - started, 'pid': process.pid, 'changed_files': changed}
+    return {**result, 'started_at': started, 'wall_seconds': result['ended_at'] - started, 'changed_files': changed}
 
 
 # ARW's continuation instructions, verbatim from the frozen snapshot 760007c, lib/reviewer-runtime/reviewer-runtime.mjs
@@ -625,12 +876,13 @@ def segment_end(stream):
 
 
 def execute_continued(out, prompt_text, argv, env, work, report, limit=HARD_LIMIT, started_file=None, on_start=None,
-                      clock=time.time):
+                      clock=time.time, deadline=None):
     """execute(), then ARW's continuation in the same session until full delivery, a run that cannot continue, or the
     hard limit counted from the first segment's start. Segment 0 is exactly execute(); segment i writes stream-i.jsonl,
-    stream-i.err and prompt-sent-i.md. The reminder hook keeps reading the first start, so it fires on the instance's
-    elapsed time (unchanged logic)."""
-    first = execute(out, prompt_text, argv, env, work, limit, started_file, on_start)
+    stream-i.err and prompt-sent-i.md. One `deadline` spans all segments: the reminder comes on the instance's elapsed
+    time in whichever segment is running, the hard stop at the limit."""
+    deadline = deadline or Deadline(out, limit)
+    first = execute(out, prompt_text, argv, env, work, limit, started_file, on_start, deadline)
     started, before = first['started_at'], json.loads((out / 'files-before.json').read_text())
     segments = [{'index': 0, 'stream': 'stream.jsonl', 'message': 'handoff', **{k: first[k] for k in (
         'exit', 'hard_interrupt', 'started_at', 'ended_at', 'wall_seconds', 'pid')}}]
@@ -676,25 +928,8 @@ def execute_continued(out, prompt_text, argv, env, work, report, limit=HARD_LIMI
             stop = 'deadline_between_segments'
             break
         k = len(segments)
-        stream, errors = out / f'stream-{k}.jsonl', out / f'stream-{k}.err'
-        (out / f'prompt-sent-{k}.md').write_text(message)
-        with stream.open('wb') as stdout, errors.open('wb') as stderr:
-            begun = clock()
-            process = subprocess.Popen([*argv, '--resume', session], cwd=work, env=env, stdin=subprocess.PIPE,
-                                       stdout=stdout, stderr=stderr, start_new_session=True)
-            process.stdin.write(message.encode())
-            process.stdin.close()
-            timed_out = False
-            try:
-                code = process.wait(timeout=remaining)
-            except subprocess.TimeoutExpired:
-                timed_out = True
-                stop_group(process)
-                code = process.returncode
-            ended = clock()
-        last = {'exit': code, 'hard_interrupt': timed_out, 'started_at': begun, 'ended_at': ended,
-                'wall_seconds': ended - begun, 'pid': process.pid}
-        segments.append({'index': k, 'stream': stream.name, 'message': kind, 'session': session, **last})
+        last = run_segment(out, k, message, [*argv, '--resume', session], env, work, deadline, clock=clock)
+        segments.append({'index': k, 'stream': f'stream-{k}.jsonl', 'message': kind, 'session': session, **last})
     after = file_hashes(work)
     save(out / 'files-after.json', after)
     changed = sorted(k for k in set(before) | set(after) if before.get(k) != after.get(k))
@@ -800,8 +1035,8 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
         (work / name).mkdir(parents=True, exist_ok=True)
     started_file = control / 'started-at.txt'
     reminder_after = reminder_time(limit) if reminder_after is None else reminder_after
-    hooks, flag = session_hooks(control, started_file, reminder_after, compact, hard=limit if report else None)
-    session_settings = settings(work, writes, hooks)
+    deadline = Deadline(out, limit, reminder_after, scenario=bool(report), run_id=run_id)
+    session_settings = settings(work, writes, session_hooks(compact))
     prompt_text = Path(prompt).read_text()
     argv = command(backend, model, effort, work, writes, session_settings, tools, startup, claude, persist=bool(report))
     save(out / 'settings.json', session_settings)
@@ -826,11 +1061,12 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
             binding['endpoint'] = DEEPSEEK_BASE
         save(out / 'environment-names.json', sorted(env))
         save(out / 'binding.json', binding)
-        result = run_segments(out, prompt_text, argv, env, work, limit, started_file, report)
+        result = run_segments(out, prompt_text, argv, env, work, limit, started_file, report, deadline)
     else:
         result = strata_run(out, prompt_text, argv, model, effort, work, limit, started_file, binding, startup, host,
-                            report)
-    result['reminder'] = json.loads(flag.read_text()) if flag.exists() else None
+                            report, deadline)
+    result['reminder'] = deadline.value['reminder']
+    result['interrupt'] = deadline.value['interrupt']
     streams = segment_streams(out)
     result['summary'] = stream_summary(streams)
     for name in writes:
@@ -845,13 +1081,14 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
     return result
 
 
-def run_segments(out, prompt_text, argv, env, work, limit, started_file, report):
+def run_segments(out, prompt_text, argv, env, work, limit, started_file, report, deadline=None):
     if report:
-        return execute_continued(out, prompt_text, argv, env, work, report, limit, started_file)
-    return execute(out, prompt_text, argv, env, work, limit, started_file)
+        return execute_continued(out, prompt_text, argv, env, work, report, limit, started_file, deadline=deadline)
+    return execute(out, prompt_text, argv, env, work, limit, started_file, deadline=deadline)
 
 
-def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file, binding, startup, host, report=None):
+def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file, binding, startup, host, report=None,
+               deadline=None):
     """Lease, cold start with installation defaults on the published tier, the same command, engine-log tokens."""
     from tools.ops.measurement_host import MeasurementHost
     from tools.ops.deployment_source import published_tier, served_model
@@ -886,7 +1123,7 @@ def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file,
             env = environment('strata', effort, home, config_dir, strata, tmp=run_tmp(work))
             save(out / 'environment-names.json', sorted(env))
             save(out / 'binding.json', binding)
-            result = run_segments(out, prompt_text, argv, env, work, limit, started_file, report)
+            result = run_segments(out, prompt_text, argv, env, work, limit, started_file, report, deadline)
         finally:
             stopped, stages, tokens = stop_and_capture_engine_log(owner, measurement_host.installation, quantization,
                                                                   offset, out, measurement_host)

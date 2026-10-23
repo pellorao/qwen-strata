@@ -293,7 +293,7 @@ def inspect_claude(stream, root, allow=()):
     allow = [os.path.normpath(a) for a in allow]
     norm = lambda s: UUID.sub('<UUID>', s.replace(root, '<ROOT>'))
     startup, actions, messages, compactions, outputs = {}, [], [], 0, {}
-    results, session_id, first = [], None, None
+    results, session_id, first, replays = [], None, None, {}
     for i, raw in enumerate(lines):
         try:
             e = json.loads(raw)
@@ -307,6 +307,15 @@ def inspect_claude(stream, root, allow=()):
         kind = e.get('type')
         if kind == 'harness_continuation':
             messages.append({'event': i, 'role': 'harness', 'text': f"continuation ({e['segment']}): {e['text']}"})
+            continue
+        if kind == 'user' and e.get('isReplay'):
+            # stream-json input echoes every message the harness wrote (2026-10-23): a segment's first is its prompt
+            # (the handoff, or the continuation listed above); later ones are the harness's priority messages.
+            replays[segment_of[i]] = replays.get(segment_of[i], 0) + 1
+            content = (e.get('message') or {}).get('content')
+            if replays[segment_of[i]] > 1:
+                messages.append({'event': i, 'role': 'harness', 'text': 'priority message: '
+                                 + (content if isinstance(content, str) else json.dumps(content, ensure_ascii=False))})
             continue
         if kind == 'system' and e.get('subtype') == 'init':
             if session_id is not None:

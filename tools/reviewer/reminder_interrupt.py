@@ -9,7 +9,12 @@ client only at its next write, so the row's ended_at may lag the resend by secon
 The abandoned request's tokens are not in the relay usage, so cost goes by the account's balance delta.
 
 `errors` counts error rows as api_relay.tier_summary does (a transport error or status >= 400; the WebSocket refusal is
-not an error), so `relay_errors = len(errors) - len(reminder_interrupts)`."""
+not an error), so `relay_errors = len(errors) - len(reminder_interrupts)`.
+
+The Claude Code path (tools.reviewer.claude_headless, priority "now" messages and control_request interrupt) applies the
+same one rule to its stream: the result event of the turn in flight when a reminder / interrupt was delivered (the first
+result after the stream position at which it was written) is the interrupt's, whatever its subtype (`aborted_streaming`
+/ `aborted_tools`, often `error_during_execution`); every other result is judged as before (stream_exempt)."""
 import json
 from pathlib import Path
 
@@ -64,3 +69,32 @@ def classify_instance(run_dir):
     rows = [json.loads(line) for f in sorted((run_dir / 'relay').glob('*.jsonl')) for line in f.read_text().splitlines()]
     records = [json.loads(f.read_text()) for f in sorted(run_dir.glob('*/deadline-*.json'))]
     return classify(rows, deadline_events(records))
+
+
+def delivered(event):
+    """A Claude Code deadline event that reached the session: the reminder replayed back (status accepted), or the
+    interrupt sent before it or at the hard stop answered with a successful control response."""
+    return (event.get('status') == 'accepted'
+            or ((event.get('interrupt_request') or {}).get('response_subtype') == 'success'))
+
+
+def stream_exempt(stream, results):
+    """{line: event kind} of the `results` ((line number, result event) of one stream-json file) that a delivered
+    reminder / interrupt cut short: per event, the first result at or after the line count when it was written. The
+    events are the claude_headless deadline records (deadline-*.json) beside the stream that name this stream."""
+    stream = Path(stream)
+    exempt = {}
+    for path in sorted(stream.parent.glob('deadline-*.json')):
+        try:
+            record = json.loads(path.read_text())
+        except (OSError, ValueError):
+            continue
+        for kind in ('reminder', 'interrupt'):
+            event = record.get(kind) if isinstance(record, dict) else None
+            if (not isinstance(event, dict) or event.get('stream') != stream.name or event.get('stream_line') is None
+                    or not delivered(event)):
+                continue
+            cut = next((line for line, _ in sorted(results, key=lambda r: r[0]) if line >= event['stream_line']), None)
+            if cut is not None:
+                exempt.setdefault(cut, kind)
+    return exempt

@@ -13,37 +13,95 @@ from pathlib import Path
 
 from tools.reviewer import claude_headless as ch
 from tools.reviewer import claude_scenario as cs
+from tools.reviewer.review_deadlines import REMINDER
 
 FAKE = r'''
-import json, os, sys, time
+import json, os, queue, sys, threading, time
 from pathlib import Path
 if '--version' in sys.argv:
     print('2.1.303 (Claude Code)'); sys.exit(0)
+# stream-json input as Claude Code reads it: one JSON line per user message or control request, stdin open meanwhile.
 script = json.loads(Path(os.environ['FAKE_SCRIPT']).read_text())
 state = Path(os.environ['FAKE_STATE'])
 n = int(state.read_text()) if state.exists() else 0
 state.write_text(str(n + 1))
-prompt = sys.stdin.read()
+lines = queue.Queue()
+def feed():
+    for raw in sys.stdin:
+        lines.put(json.loads(raw))
+    lines.put(None)
+threading.Thread(target=feed, daemon=True).start()
+emit = lambda e: print(json.dumps(e), flush=True)
+first = lines.get()
+prompt = first['message']['content']
 resume = sys.argv[sys.argv.index('--resume') + 1] if '--resume' in sys.argv else None
-with open(os.environ['FAKE_LOG'], 'a') as log:
-    log.write(json.dumps({'n': n, 'argv': sys.argv[1:], 'stdin': prompt, 'resume': resume}) + '\n')
+log = lambda **kw: open(os.environ['FAKE_LOG'], 'a').write(json.dumps(kw) + '\n')
+log(n=n, argv=sys.argv[1:], stdin=prompt, resume=resume)
 if n and resume != 'sid-1':
     sys.exit(3)
 step = script[min(n, len(script) - 1)]
-print(json.dumps({'type': 'system', 'subtype': 'init', 'session_id': 'sid-1', 'model': 'm'}), flush=True)
+def result(text, **fields):
+    emit({'type': 'result', 'subtype': 'success', 'is_error': False, 'result': text, 'terminal_reason': 'completed',
+          'session_id': 'sid-1', 'num_turns': 2, 'duration_ms': 10, 'duration_api_ms': 5,
+          'usage': {'input_tokens': 100, 'output_tokens': 7, 'cache_read_input_tokens': 1000,
+                    'server_tool_use': {'web_search_requests': 0}, 'service_tier': 'standard'},
+          'total_cost_usd': 0.5 * (n + 1), 'modelUsage': {'m': {'inputTokens': 100 * (n + 1), 'costUSD': 0.5 * (n + 1)}},
+          **fields})
+replay = lambda m: emit({'type': 'user', 'isReplay': True, 'uuid': m['uuid'], 'message': m['message']})
+emit({'type': 'system', 'subtype': 'init', 'session_id': 'sid-1', 'model': 'm'})
+replay(first)
 if 'write' in step:
     target = Path(os.environ['FAKE_REPORT'])
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(bytes.fromhex(step['write']) if step.get('hex') else step['write'].encode())
-time.sleep(step.get('sleep', 0))
-print(json.dumps({'type': 'assistant', 'message': {'id': f'msg{n}', 'usage': {'service_tier': 'standard'}}}), flush=True)
-print(json.dumps({'type': 'result', 'subtype': 'success', 'is_error': False, 'result': step['result'],
-                  'session_id': 'sid-1', 'num_turns': 2, 'duration_ms': 10, 'duration_api_ms': 5,
-                  'usage': {'input_tokens': 100, 'output_tokens': 7, 'cache_read_input_tokens': 1000,
-                            'server_tool_use': {'web_search_requests': 0}, 'service_tier': 'standard'},
-                  'total_cost_usd': 0.5 * (n + 1), 'modelUsage': {'m': {'inputTokens': 100 * (n + 1),
-                                                                         'costUSD': 0.5 * (n + 1)}},
-                  **step.get('fields', {})}), flush=True)
+if step.get('tool'):
+    emit({'type': 'assistant', 'message': {'id': f'tu{n}', 'content': [{'type': 'tool_use', 'id': 'toolu_1', 'name': 'Bash'}]}})
+pending, aborted, closed = [], None, False
+end = time.time() + step.get('sleep', 0)
+while time.time() < end:
+    try:
+        m = lines.get(timeout=0.02)
+    except queue.Empty:
+        continue
+    if m is None:
+        closed = True
+        continue
+    log(n=n, input=m)
+    if m['type'] == 'control_request':
+        emit({'type': 'control_response', 'response': {'subtype': 'success', 'request_id': m['request_id']}})
+        if step.get('ignore_interrupt'):
+            continue
+        aborted = 'aborted_tools' if step.get('tool') else 'aborted_streaming'
+        break
+    pending.append(m)
+    if m.get('priority') == 'now' and not step.get('tool'):
+        aborted = 'aborted_streaming'  # generation is cut at once; a running tool is waited for
+        break
+if aborted:
+    if step.get('tool'):
+        emit({'type': 'user', 'message': {'content': [{'type': 'tool_result', 'tool_use_id': 'toolu_1', 'is_error': True,
+                                                       'content': 'rejected'}]}})
+    emit({'type': 'result', 'subtype': 'error_during_execution', 'is_error': True, 'terminal_reason': aborted,
+          'session_id': 'sid-1', 'num_turns': 1, 'duration_ms': 5, 'duration_api_ms': 5,
+          'usage': {'input_tokens': 0, 'output_tokens': 0}, 'total_cost_usd': 0.5 * (n + 1) - 0.25})
+else:
+    if step.get('tool'):
+        emit({'type': 'user', 'message': {'content': [{'type': 'tool_result', 'tool_use_id': 'toolu_1', 'content': 'ok'}]}})
+    if not pending:
+        emit({'type': 'assistant', 'message': {'id': f'msg{n}', 'usage': {'service_tier': 'standard'}}})
+        result(step['result'], **step.get('fields', {}))
+for m in pending:  # each queued message starts the next turn
+    replay(m)
+    emit({'type': 'assistant', 'message': {'id': f'msg{n}', 'usage': {'service_tier': 'standard'}}})
+    result(step['result'], **step.get('fields', {}))
+while not closed:
+    m = lines.get()
+    if m is None:
+        break
+    log(n=n, input=m)
+    if m['type'] == 'user':
+        replay(m)
+        result(step['result'])
 sys.exit(step.get('exit', 0))
 '''
 READY = '{"status":"ready"}'
@@ -73,10 +131,14 @@ class ContinuationTest(unittest.TestCase):
     def calls(self):
         return [json.loads(line) for line in self.log.read_text().splitlines()]
 
-    def run_script(self, script, limit=60, clock=time.time):
+    def run_script(self, script, limit=60, clock=time.time, reminder_after=None):
         argv = [sys.executable, str(self.fake), '-p', '--settings', '{"same": true}']
+        self.deadline = ch.Deadline(self.out, limit, reminder_after, scenario=True)
         return ch.execute_continued(self.out, 'the handoff\n', argv, self.env(script), self.work, REPORT, limit,
-                                    self.base / 'started-at.txt', clock=clock)
+                                    self.base / 'started-at.txt', clock=clock, deadline=self.deadline)
+
+    def inputs(self):
+        return [call['input'] for call in self.calls() if 'input' in call]
 
     def test_first_delivery_runs_once_as_before(self):
         result = self.run_script([{'write': '- finding\n', 'result': READY}])
@@ -142,16 +204,110 @@ class ContinuationTest(unittest.TestCase):
         result = self.run_script(script, limit=3)
         c = result['continuation']
         self.assertEqual((c['stop'], result['hard_interrupt'], c['early_exit_count']), ('hard_limit', True, 1))
-        self.assertLess(time.time() - started, 25)  # the limit counts from the first segment's start
-        self.assertLess(result['wall_seconds'], 15)
-        # F-B/F-C: the killed last segment has no result; accounting uses the one before, sums are lower bounds
+        self.assertLess(time.time() - started, 15)  # the limit counts from the first segment's start
+        self.assertLess(result['wall_seconds'], 10)
+        # ARW's interrupt at the hard limit: control_request interrupt, answered, the cut turn's result kept
+        self.assertEqual([m['type'] for m in self.inputs()], ['control_request'])
+        stop = json.loads((self.out / 'deadline-handoff.json').read_text())['interrupt']
+        self.assertEqual((stop['operation'], stop['status'], stop['stream'], stop['receipt']['accepted']),
+                         ('interrupt_agent', 'accepted', 'stream-1.jsonl', True))
         streams = ch.segment_streams(self.out)
-        self.assertEqual(ch.accounting_stream(streams), self.out / 'stream.jsonl')
+        self.assertEqual(ch.accounting_stream(streams), self.out / 'stream-1.jsonl')
         summary = ch.stream_summary(streams)
-        self.assertEqual((summary['segments'], summary['segments_without_result'], summary['usage_bound'],
-                          summary['total_cost_usd']), (2, 1, 'lower', 0.5))
-        self.assertTrue(cs.checks({'summary': {**summary, 'modelUsage': {'m': {}}}, 'exit': -9, 'hard_interrupt': True,
+        self.assertEqual((summary['segments'], summary['segments_without_result'], summary['usage_bound']),
+                         (2, 0, 'lower'))  # the aborted stream's usage is missing
+        self.assertEqual((summary['is_error'], summary['error_kind'], len(summary['reminder_interrupts'])),
+                         (False, None, 1))  # the cut turn is ours, not an API fault
+        self.assertTrue(cs.checks({'summary': {**summary, 'modelUsage': {'m': {}}}, 'exit': 0, 'hard_interrupt': True,
                                    'continuation': c}, 'm', False)['ended_normally'])
+
+    def test_reminder_during_generation_is_a_priority_message_that_cuts_the_turn(self):
+        started = time.time()
+        result = self.run_script([{'sleep': 20, 'write': '- f\n', 'result': READY}], reminder_after=1)
+        self.assertLess(time.time() - started, 10)  # not after the 20 s generation
+        self.assertEqual(result['continuation']['stop'], 'delivered')
+        [message] = self.inputs()
+        self.assertEqual((message['type'], message['priority'], 'origin' in message), ('user', 'now', False))
+        reminder = json.loads((self.out / 'deadline-handoff.json').read_text())['reminder']
+        self.assertEqual((reminder['method'], reminder['status'], reminder['stream'], reminder['operation']),
+                         ('now', 'accepted', 'stream.jsonl', 'send_message'))
+        self.assertEqual(reminder['receipt'], {'messageId': message['uuid'], 'deliveryStatus': 'accepted',
+                                               'replayed_at': reminder['receipt']['replayed_at']})
+        self.assertLess(reminder['receipt']['replayed_at'] - reminder['attempted_at'], 2)
+        self.assertEqual(message['message']['content'], reminder['message'])
+        self.assertTrue(reminder['message'].startswith(REMINDER.replace('最多5分钟', '最多59秒') + ' 硬截止为'))
+        summary = ch.stream_summary(ch.segment_streams(self.out))
+        self.assertEqual((summary['is_error'], summary['error_kind'], summary['result_events']), (False, None, 2))
+        self.assertEqual(summary['reminder_interrupts'], [{'subtype': 'error_during_execution', 'is_error': True,
+                                                           'terminal_reason': 'aborted_streaming'}])
+        checks = cs.checks({'summary': {**summary, 'modelUsage': {'m': {}}, 'init': {'model': 'm'}}, 'exit': 0,
+                            'continuation': result['continuation']}, 'm', False)
+        self.assertEqual((checks['completed'], checks['ended_normally'], checks['reminder_interrupts']), (True, True, 1))
+        from tools.reviewer.inspect_session import inspect_claude
+        harness = [m['text'] for m in inspect_claude(self.out / 'stream.jsonl', str(self.work))['messages']
+                   if m['role'] == 'harness']
+        self.assertEqual(harness, ['priority message: ' + reminder['message']])  # the handoff's echo is not listed
+
+    def test_reminder_during_a_tool_interrupts_first(self):
+        started = time.time()
+        result = self.run_script([{'tool': True, 'sleep': 20, 'write': '- f\n', 'result': READY}], reminder_after=1)
+        self.assertLess(time.time() - started, 10)  # not after the tool's remaining time
+        self.assertEqual(result['continuation']['stop'], 'delivered')
+        interrupt, message = self.inputs()
+        self.assertEqual((interrupt['type'], interrupt['request']['subtype']), ('control_request', 'interrupt'))
+        self.assertEqual((message['type'], message['priority']), ('user', 'now'))
+        reminder = json.loads((self.out / 'deadline-handoff.json').read_text())['reminder']
+        self.assertEqual((reminder['method'], reminder['status'], reminder['interrupt_request']['response_subtype'],
+                          reminder['interrupt_request']['turn_result_seen']), ('interrupt+now', 'accepted', 'success', True))
+        summary = ch.stream_summary(ch.segment_streams(self.out))
+        self.assertEqual((summary['is_error'], [r['terminal_reason'] for r in summary['reminder_interrupts']],
+                          summary['usage_bound']), (False, ['aborted_tools'], 'complete'))
+
+    def test_reminder_in_a_continued_segment_names_that_segment(self):
+        result = self.run_script([{'result': INCOMPLETE}, {'sleep': 20, 'write': '- f\n', 'result': READY}],
+                                 reminder_after=1)
+        self.assertEqual((result['continuation']['stop'], len(result['continuation']['segments'])), ('delivered', 2))
+        reminder = json.loads((self.out / 'deadline-handoff.json').read_text())['reminder']
+        self.assertEqual((reminder['stream'], reminder['status']), ('stream-1.jsonl', 'accepted'))
+        summary = ch.stream_summary(ch.segment_streams(self.out))
+        self.assertEqual((summary['is_error'], len(summary['reminder_interrupts'])), (False, 1))
+
+    def test_turn_is_over_after_the_last_message_is_answered(self):
+        import threading
+        session = object.__new__(ch.Session)
+        session.lock, session.written, session.replayed, session.results = threading.Lock(), ['a', 'b'], {}, []
+        self.assertFalse(session.turn_over())
+        session.results.append((3, {}))  # the turn 'b' cut short
+        session.replayed['b'] = (5, 0.0)  # 'a' arrived merged with 'b' and is never replayed (mock gate, reminder at 0)
+        self.assertFalse(session.turn_over())
+        session.results.append((9, {}))
+        self.assertTrue(session.turn_over())
+
+    def test_only_the_turn_in_flight_at_delivery_is_exempt(self):
+        from tools.reviewer import reminder_interrupt as ri
+        events = [{'type': 'result', 'subtype': 'error_during_execution', 'is_error': True, 'terminal_reason': 'api_error',
+                   'result': 'API Error: 500'},
+                  {'type': 'user', 'isReplay': True, 'uuid': 'u'},
+                  {'type': 'result', 'subtype': 'error_during_execution', 'is_error': True,
+                   'terminal_reason': 'aborted_streaming'},
+                  {'type': 'result', 'subtype': 'success', 'is_error': False, 'terminal_reason': 'completed', 'result': READY}]
+        stream = self.out / 'stream.jsonl'
+        stream.write_text('\n'.join(json.dumps(e) for e in events) + '\n')
+        record = lambda **kw: (self.out / 'deadline-handoff.json').write_text(json.dumps(
+            {'reminder': {'attempted_at': 1, 'stream': 'stream.jsonl', 'stream_line': 1, **kw}, 'interrupt': None}))
+        results = [(i, e) for i, e in enumerate(events) if e['type'] == 'result']
+        record(status='accepted')
+        self.assertEqual(ri.stream_exempt(stream, results), {2: 'reminder'})  # the earlier error stays an error
+        summary = ch.stream_summary(stream)
+        self.assertEqual((summary['is_error'], summary['error_kind'], len(summary['reminder_interrupts'])), (True, None, 1))
+        record(status='unknown')  # never delivered: nothing is ours
+        self.assertEqual(ri.stream_exempt(stream, results), {})
+        record(status='unknown', interrupt_request={'response_subtype': 'success'})  # the interrupt itself landed
+        self.assertEqual(ri.stream_exempt(stream, results), {2: 'reminder'})
+        (self.out / 'deadline-handoff.json').write_text(json.dumps({'reminder': {
+            'stream': 'stream-1.jsonl', 'stream_line': 1, 'status': 'accepted'}}))
+        self.assertEqual(ri.stream_exempt(stream, results), {})  # another segment's event
+        self.assertEqual(ch.stream_summary(stream)['error_kind'], None)  # the last result is a success either way
 
     def test_killed_segment_work_time_is_its_timestamp_span(self):
         from tools.reviewer.inspect_session import inspect_claude
@@ -193,7 +349,7 @@ class ContinuationTest(unittest.TestCase):
         from unittest import mock
         seen = {}
 
-        def segments(out, prompt_text, argv, env, work, limit, started_file, report):
+        def segments(out, prompt_text, argv, env, work, limit, started_file, report, deadline=None):
             config = self.base / 'cfg'
             (config / 'projects' / ch.project_slug(work)).mkdir(parents=True)
             (Path(work).parent / 'tmp/leftover.txt').write_text('x')
@@ -235,7 +391,7 @@ class ContinuationTest(unittest.TestCase):
     def test_abnormal_end_does_not_continue(self):
         script = [{'result': INCOMPLETE}]
         env = self.env(script)
-        argv = [sys.executable, '-c', 'import sys; sys.stdin.read(); sys.exit(1)']
+        argv = [sys.executable, '-c', 'import sys; sys.stdin.readline(); sys.exit(1)']
         result = ch.execute_continued(self.out, 'h', argv, env, self.work, REPORT, 30)
         self.assertEqual(result['continuation']['stop'], 'abnormal_end')
 
@@ -305,23 +461,18 @@ class ContinuationTest(unittest.TestCase):
         self.assertNotIn('--no-session-persistence', ch.command(*common, startup=False, persist=True))
 
     def test_scenario_reminder_rewrites_the_lead_and_gives_the_remaining_seconds(self):
-        import subprocess
-        from tools.reviewer.review_deadlines import REMINDER
-        started = self.base / 'started'
-        started.write_text(repr(time.time() - 300))  # T = 540 s: reminder at T/2 = 270 s, lead 270 s
-        hook, flag = ch.reminder_hook(self.base, started, ch.reminder_time(540), hard=540)
-        out = json.loads(subprocess.run(hook['command'].split(), capture_output=True, text=True).stdout)
-        text = out['hookSpecificOutput']['additionalContext']
+        deadline = ch.Deadline(self.out, 540, ch.reminder_time(540), scenario=True)  # reminder at T/2, lead 270 s
+        now = time.time()
+        deadline.begin(now - 300)
+        text = deadline.text(now)
         self.assertTrue(text.startswith(REMINDER.replace('最多5分钟', '最多270秒') + ' 硬截止为'), text)
-        remaining = int(text.split('当前剩余')[1].split('秒')[0])
-        self.assertTrue(235 <= remaining <= 240, remaining)
-        self.assertEqual(json.loads(flag.read_text())['text'], text)
-        started.write_text(repr(time.time() - 3400))
-        flag.unlink()
-        hook, _ = ch.reminder_hook(self.base, started, 3300, hard=3600)  # a 5-minute lead keeps the original text
-        text = json.loads(subprocess.run(hook['command'].split(), capture_output=True, text=True).stdout)[
-            'hookSpecificOutput']['additionalContext']
-        self.assertTrue(text.startswith(REMINDER + ' 硬截止为'))
+        self.assertEqual(int(text.split('当前剩余')[1].split('秒')[0]), 240)
+        self.assertTrue(deadline.reminder_due(now) and not deadline.hard_due(now))
+        deadline = ch.Deadline(self.out, 3600, 3300, scenario=True)  # a 5-minute lead keeps the original text
+        deadline.begin(now - 3400)
+        self.assertTrue(deadline.text(now).startswith(REMINDER + ' 硬截止为'))
+        self.assertEqual(ch.Deadline(self.out, 3600, 3300).text(now), REMINDER)  # not a scenario run: the fixed text
+        self.assertFalse(ch.Deadline(self.out, 10).reminder_due(now))  # no reminder without a time
 
     def test_scenario_record_carries_the_instance_pause_events(self):
         result = {'continuation': {'stop': 'delivered', 'delivered': True, 'early_exit_count': 10, 'continue_count': 1,

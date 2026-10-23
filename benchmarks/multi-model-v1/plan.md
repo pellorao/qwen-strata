@@ -117,7 +117,7 @@
 11. **IQ3_XXS 参数来自 v0.1.42 调参**：benchmark 就在当前版本上跑。Haiku 的订阅额度扣减比例未核对，首次 Haiku 运行时记录前后用量。
 12. **盲裁方式**（§6）：单名 Opus 盲裁，与场景标定同一模型（见第 1 条）。
 13. **两个 harness 的读取范围不同**：Claude Code 的工具和 Bash 沙箱只能读工作目录；Codex `:read-only` 能读宿主文件（G7 只去掉凭据路径）。
-14. **时限提醒的送达优先级不同**（2026-10-20）：Codex 路径由 ARW 以高优先级消息送达，立即打断正在进行的生成，确保模型在超时之前收到（设计如此）；Claude Code 路径经 PostToolUse hook 注入，要等下一次工具调用结束才送达，可能更晚。benchmark 期间不改，结束后让 Claude Code 路径也改用高优先级送达（见 docs/plan.md 待办）。
+14. **时限提醒的送达优先级不同**（2026-10-20）：Codex 路径由 ARW 以高优先级消息送达，立即打断正在进行的生成，确保模型在超时之前收到（设计如此）；Claude Code 路径经 PostToolUse hook 注入，要等下一次工具调用结束才送达，可能更晚。benchmark 期间不改，结束后让 Claude Code 路径也改用高优先级送达（见 docs/plan.md 待办）。2026-10-23 已改（见 reviewer-suite 规则「执行」）；v1 的 Claude Code 结果都是 hook 送达，与之后的结果比较时要注明。
 
 ## 5. 统计口径
 
