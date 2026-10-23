@@ -1,0 +1,3599 @@
+{
+ "measurement": "power-plan A/B (Balanced 381b4222… vs High performance 8c5e7fda…)",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "strata": "0.2.2 (011c9e60, engine 0.1.47)",
+ "order": "ABBA BAAB ABBA",
+ "date": "2026-10-23",
+ "blocks": [
+  {
+   "block": 1,
+   "plan": "A",
+   "guid": "381b4222-f694-41f0-9685-ff5bb260df2e",
+   "started_at": 1792728246.6698468,
+   "scheme_line": "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)",
+   "switched_at": 1792728247.2972314,
+   "load_seconds": 26.16214591700009,
+   "model_pid": null,
+   "engine_args": "C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\engine\\strata.exe --serve --pack C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\packs\\iq3_xxs --native C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00001-of-00002.gguf --ple-gguf C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00002-of-00002.gguf --expert-profile C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\data\\expert-profile.bin --expert-cache auto --prefill 8192 --spec 4 --mtp C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\mtp\\rt --max-context 206584 --kv int8 --kv-resident 20480 --spec-min-p 0.9 --pool-workers 23 --vram-reserve-mib 512 --pool-affinity all --conversation-cache-mib 8192 --conversation-cache-slots 4 --conversation-cache-min-free-mib 5120 --ple-io direct\r",
+   "telemetry_pid": 15748,
+   "requests": [
+    {
+     "started_at": 1792728336.737222,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.842155843,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "166fa4da2870093949e6e3ca44077173eaf890b06e5d91d9952b0d0957de5616"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792728376.4786868,
+     "work_seconds": 39.74146649700015,
+     "phase": "warmup",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33322,
+       "cached": 0,
+       "uncached": 33322,
+       "prompt_ms": 12775.0,
+       "output": 3517,
+       "decode_ms": 26917.0,
+       "log_line": 17
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33322,
+      "cached_input": 0,
+      "output": 3517
+     },
+     "engine_input_seconds": 12.775,
+     "engine_decode_seconds": 26.917,
+     "engine_input_tokens_per_second": 2608.375733855186,
+     "engine_output_tokens_per_second": 130.6609206077943,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792728376.5042307,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.1762736890013912,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "0ecd6314de9e88061ff101476c0f80d1cbecc071df5704c9ba77cb5af65fe00e"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792728395.307733,
+     "work_seconds": 18.80350397499933,
+     "phase": "warmup",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33330,
+       "cached": 32768,
+       "uncached": 562,
+       "prompt_ms": 1124.0,
+       "output": 2248,
+       "decode_ms": 17636.0,
+       "log_line": 3
+      }
+     ],
+     "tokens": {
+      "uncached_input": 562,
+      "cached_input": 32768,
+      "output": 2248
+     },
+     "engine_input_seconds": 1.124,
+     "engine_decode_seconds": 17.636,
+     "engine_input_tokens_per_second": 499.99999999999994,
+     "engine_output_tokens_per_second": 127.46654570197325,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792728395.3409193,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.259931377000612,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "75746193984750d59a26b64d6bc4df841ab613eeeafa55156ff1570c26c32353"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792728432.108892,
+     "work_seconds": 36.76797376200011,
+     "phase": "warmup",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33519,
+       "cached": 32768,
+       "uncached": 751,
+       "prompt_ms": 1207.0,
+       "output": 4328,
+       "decode_ms": 35516.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 751,
+      "cached_input": 32768,
+      "output": 4328
+     },
+     "engine_input_seconds": 1.207,
+     "engine_decode_seconds": 35.516,
+     "engine_input_tokens_per_second": 622.2038111019056,
+     "engine_output_tokens_per_second": 121.86056988399595,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792728432.141178,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.889365742998052,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "df74d56b6fc498a2467819991b5a39ff3d75b25421989c1b5710b515d97f9ff8"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792728470.6281815,
+     "work_seconds": 38.48701476699898,
+     "phase": "measured",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33309,
+       "cached": 0,
+       "uncached": 33309,
+       "prompt_ms": 12836.0,
+       "output": 3269,
+       "decode_ms": 25606.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33309,
+      "cached_input": 0,
+      "output": 3269
+     },
+     "engine_input_seconds": 12.836,
+     "engine_decode_seconds": 25.606,
+     "engine_input_tokens_per_second": 2594.9672795263323,
+     "engine_output_tokens_per_second": 127.66539092400218,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792728470.6614528,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.1851031210007932,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "f49b51e1692c30198b192f7cee51df1a994c0bf708ade9a87f2be7b589ff6d03"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792728499.7956855,
+     "work_seconds": 29.134233945998858,
+     "phase": "measured",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33317,
+       "cached": 32768,
+       "uncached": 549,
+       "prompt_ms": 1129.0,
+       "output": 3550,
+       "decode_ms": 27955.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 549,
+      "cached_input": 32768,
+      "output": 3550
+     },
+     "engine_input_seconds": 1.129,
+     "engine_decode_seconds": 27.955,
+     "engine_input_tokens_per_second": 486.2710363153233,
+     "engine_output_tokens_per_second": 126.98980504382044,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792728499.8264284,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2882283870003448,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "177c651d4190705bead92f041ab21bfa3b887339a384a1897834673ac9ac06a5"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792728541.2609997,
+     "work_seconds": 41.434572812000624,
+     "phase": "measured",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33506,
+       "cached": 32768,
+       "uncached": 738,
+       "prompt_ms": 1241.0,
+       "output": 4642,
+       "decode_ms": 40158.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 738,
+      "cached_input": 32768,
+      "output": 4642
+     },
+     "engine_input_seconds": 1.241,
+     "engine_decode_seconds": 40.158,
+     "engine_input_tokens_per_second": 594.6817082997582,
+     "engine_output_tokens_per_second": 115.59340604611783,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    }
+   ],
+   "telemetry": {
+    "sampler_stopped": true,
+    "samples": 203,
+    "raw_sha256": "6a154871a847c775e9edf4155b48ae7d16e015d5380b4fd1d85a5e55e3b06d50",
+    "interval_seconds": 1,
+    "max_gpu_temperature_c": 73,
+    "min_sm_clock_mhz": 210,
+    "throttle_reasons_seen": [
+     "gpu_idle",
+     "sw_power_cap"
+    ]
+   },
+   "stop": "stopped",
+   "block_tokens": {
+    "uncached_input": 69231,
+    "cached_input": 131072,
+    "output": 21554
+   },
+   "block_stages": 6,
+   "scheme_after": "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)",
+   "ended_at": 1792728549.0963714
+  },
+  {
+   "block": 2,
+   "plan": "B",
+   "guid": "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c",
+   "started_at": 1792728549.0969398,
+   "scheme_line": "电源方案 GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (高性能)",
+   "switched_at": 1792728549.7093515,
+   "load_seconds": 26.05709535400092,
+   "model_pid": null,
+   "engine_args": "C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\engine\\strata.exe --serve --pack C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\packs\\iq3_xxs --native C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00001-of-00002.gguf --ple-gguf C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00002-of-00002.gguf --expert-profile C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\data\\expert-profile.bin --expert-cache auto --prefill 8192 --spec 4 --mtp C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\mtp\\rt --max-context 206584 --kv int8 --kv-resident 20480 --spec-min-p 0.9 --pool-workers 23 --vram-reserve-mib 512 --pool-affinity all --conversation-cache-mib 8192 --conversation-cache-slots 4 --conversation-cache-min-free-mib 5120 --ple-io direct\r",
+   "telemetry_pid": 14656,
+   "requests": [
+    {
+     "started_at": 1792728639.0038192,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 13.032609775002129,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "96200cfbc746b33cffd0a056dffd945b388ef6378bc7cb0e29d5ed7eeb945354"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792728679.9811215,
+     "work_seconds": 40.97730400299952,
+     "phase": "warmup",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33322,
+       "cached": 0,
+       "uncached": 33322,
+       "prompt_ms": 12971.0,
+       "output": 3581,
+       "decode_ms": 27967.0,
+       "log_line": 17
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33322,
+      "cached_input": 0,
+      "output": 3581
+     },
+     "engine_input_seconds": 12.971,
+     "engine_decode_seconds": 27.967,
+     "engine_input_tokens_per_second": 2568.9615295659546,
+     "engine_output_tokens_per_second": 128.04376586691458,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792728680.0149903,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.1974749099990731,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "d8305649173f2c2fde51c43c1a62325e94fa0aaec2498a8f05fdfd8032bd4995"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792728699.056776,
+     "work_seconds": 19.041786960000536,
+     "phase": "warmup",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33330,
+       "cached": 32768,
+       "uncached": 562,
+       "prompt_ms": 1147.0,
+       "output": 2272,
+       "decode_ms": 17854.0,
+       "log_line": 3
+      }
+     ],
+     "tokens": {
+      "uncached_input": 562,
+      "cached_input": 32768,
+      "output": 2272
+     },
+     "engine_input_seconds": 1.147,
+     "engine_decode_seconds": 17.854,
+     "engine_input_tokens_per_second": 489.9738448125545,
+     "engine_output_tokens_per_second": 127.2543967738322,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792728699.08546,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2436719140005152,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "069012fcffe446e3ed17225dd54956c556547d6d9f28887813fa9f63915e8d51"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792728725.5857074,
+     "work_seconds": 26.500249124999755,
+     "phase": "warmup",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33519,
+       "cached": 32768,
+       "uncached": 751,
+       "prompt_ms": 1203.0,
+       "output": 3111,
+       "decode_ms": 25265.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 751,
+      "cached_input": 32768,
+      "output": 3111
+     },
+     "engine_input_seconds": 1.203,
+     "engine_decode_seconds": 25.265,
+     "engine_input_tokens_per_second": 624.2726517040732,
+     "engine_output_tokens_per_second": 123.13477142291707,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792728725.6172621,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.928079878998687,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "78bac4cb3e38cb30f1f9c7d47dbef8dd9fad815995a7a08c4470bfc793eb3da6"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792728769.5784068,
+     "work_seconds": 43.96114614900034,
+     "phase": "measured",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33309,
+       "cached": 0,
+       "uncached": 33309,
+       "prompt_ms": 12887.0,
+       "output": 3951,
+       "decode_ms": 31040.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33309,
+      "cached_input": 0,
+      "output": 3951
+     },
+     "engine_input_seconds": 12.887,
+     "engine_decode_seconds": 31.04,
+     "engine_input_tokens_per_second": 2584.697757429968,
+     "engine_output_tokens_per_second": 127.28737113402062,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792728769.6113226,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2346620620010071,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "706ab53d0a3bc8116640076d05b5df34af5519f57f4eddca4e24dbd2d3123343"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792728790.1896052,
+     "work_seconds": 20.578283886999998,
+     "phase": "measured",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33317,
+       "cached": 32768,
+       "uncached": 549,
+       "prompt_ms": 1172.0,
+       "output": 2373,
+       "decode_ms": 19353.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 549,
+      "cached_input": 32768,
+      "output": 2373
+     },
+     "engine_input_seconds": 1.172,
+     "engine_decode_seconds": 19.353,
+     "engine_input_tokens_per_second": 468.43003412969284,
+     "engine_output_tokens_per_second": 122.61664858161524,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792728790.2223496,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2991545730001235,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "e3f0f0a23ab7e9385c479d76796ad9a8bb41ed040ffea9045a55b8489e18d87c"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792728829.6094859,
+     "work_seconds": 39.38713765200009,
+     "phase": "measured",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33506,
+       "cached": 32768,
+       "uncached": 738,
+       "prompt_ms": 1254.0,
+       "output": 4381,
+       "decode_ms": 38095.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 738,
+      "cached_input": 32768,
+      "output": 4381
+     },
+     "engine_input_seconds": 1.254,
+     "engine_decode_seconds": 38.095,
+     "engine_input_tokens_per_second": 588.5167464114833,
+     "engine_output_tokens_per_second": 115.00196876230477,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    }
+   ],
+   "telemetry": {
+    "sampler_stopped": true,
+    "samples": 190,
+    "raw_sha256": "6b3fceb19e5c3e1b910e23cc3ebce21d694abecbe462a6adb720ccd38e7a5248",
+    "interval_seconds": 1,
+    "max_gpu_temperature_c": 74,
+    "min_sm_clock_mhz": 210,
+    "throttle_reasons_seen": [
+     "gpu_idle",
+     "sw_power_cap"
+    ]
+   },
+   "stop": "stopped",
+   "block_tokens": {
+    "uncached_input": 69231,
+    "cached_input": 131072,
+    "output": 19669
+   },
+   "block_stages": 6,
+   "scheme_after": "电源方案 GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (高性能)",
+   "ended_at": 1792728838.127934
+  },
+  {
+   "block": 3,
+   "plan": "B",
+   "guid": "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c",
+   "started_at": 1792728838.12868,
+   "scheme_line": "电源方案 GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (高性能)",
+   "switched_at": 1792728838.7849016,
+   "load_seconds": 26.525034498999958,
+   "model_pid": null,
+   "engine_args": "C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\engine\\strata.exe --serve --pack C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\packs\\iq3_xxs --native C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00001-of-00002.gguf --ple-gguf C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00002-of-00002.gguf --expert-profile C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\data\\expert-profile.bin --expert-cache auto --prefill 8192 --spec 4 --mtp C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\mtp\\rt --max-context 206584 --kv int8 --kv-resident 20480 --spec-min-p 0.9 --pool-workers 23 --vram-reserve-mib 512 --pool-affinity all --conversation-cache-mib 8192 --conversation-cache-slots 4 --conversation-cache-min-free-mib 5120 --ple-io direct\r",
+   "telemetry_pid": 12628,
+   "requests": [
+    {
+     "started_at": 1792728928.5374095,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.960435629998756,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "093abb2d812a4efdd21f8ebe074f2709ebe205f7a1065e89cdeccd3f20c0fd73"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792728964.6108787,
+     "work_seconds": 36.07347094999932,
+     "phase": "warmup",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33322,
+       "cached": 0,
+       "uncached": 33322,
+       "prompt_ms": 12897.0,
+       "output": 2950,
+       "decode_ms": 23132.0,
+       "log_line": 17
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33322,
+      "cached_input": 0,
+      "output": 2950
+     },
+     "engine_input_seconds": 12.897,
+     "engine_decode_seconds": 23.132,
+     "engine_input_tokens_per_second": 2583.701636039389,
+     "engine_output_tokens_per_second": 127.5289642054297,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792728964.6452496,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2124112689998583,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "f7861225d34a4f1c950bb39fa97e0118731825c3801b7dcf8250f6e1da1d1485"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792728984.3184624,
+     "work_seconds": 19.673214619000646,
+     "phase": "warmup",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33330,
+       "cached": 32768,
+       "uncached": 562,
+       "prompt_ms": 1165.0,
+       "output": 2291,
+       "decode_ms": 18470.0,
+       "log_line": 3
+      }
+     ],
+     "tokens": {
+      "uncached_input": 562,
+      "cached_input": 32768,
+      "output": 2291
+     },
+     "engine_input_seconds": 1.165,
+     "engine_decode_seconds": 18.47,
+     "engine_input_tokens_per_second": 482.4034334763948,
+     "engine_output_tokens_per_second": 124.03898213318897,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792728984.351792,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2483411170014733,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "c5497c15657ae068c9d3f5d296426a73a5c74f2d9712300d522a5b62e9ba8170"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729023.8168113,
+     "work_seconds": 39.46502045700072,
+     "phase": "warmup",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33519,
+       "cached": 32768,
+       "uncached": 751,
+       "prompt_ms": 1208.0,
+       "output": 4437,
+       "decode_ms": 38225.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 751,
+      "cached_input": 32768,
+      "output": 4437
+     },
+     "engine_input_seconds": 1.208,
+     "engine_decode_seconds": 38.225,
+     "engine_input_tokens_per_second": 621.6887417218543,
+     "engine_output_tokens_per_second": 116.07586657946369,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729023.849966,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.985065545999532,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "d7f909b84fc9b2711257f74e672cc56b37a977beb3ae7508d9da51327d55a86f"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729066.827481,
+     "work_seconds": 42.977516520999416,
+     "phase": "measured",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33309,
+       "cached": 0,
+       "uncached": 33309,
+       "prompt_ms": 12941.0,
+       "output": 3788,
+       "decode_ms": 30000.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33309,
+      "cached_input": 0,
+      "output": 3788
+     },
+     "engine_input_seconds": 12.941,
+     "engine_decode_seconds": 30.0,
+     "engine_input_tokens_per_second": 2573.912371532339,
+     "engine_output_tokens_per_second": 126.26666666666667,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729066.861307,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.1936864990002505,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "f29ec2169974ae3846b84552dcf61dc839f61636c10fb652de020253b0e39543"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729093.917736,
+     "work_seconds": 27.05643033100023,
+     "phase": "measured",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33317,
+       "cached": 32768,
+       "uncached": 549,
+       "prompt_ms": 1145.0,
+       "output": 3168,
+       "decode_ms": 25873.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 549,
+      "cached_input": 32768,
+      "output": 3168
+     },
+     "engine_input_seconds": 1.145,
+     "engine_decode_seconds": 25.873,
+     "engine_input_tokens_per_second": 479.47598253275106,
+     "engine_output_tokens_per_second": 122.44424689831098,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729093.9478376,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2933647600002587,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "54f36dc8e05189f6be8e4dead8a2d91f1597c650c65b6e3dbe5dcaed113a6708"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729130.4160376,
+     "work_seconds": 36.46820148000006,
+     "phase": "measured",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33506,
+       "cached": 32768,
+       "uncached": 738,
+       "prompt_ms": 1253.0,
+       "output": 4117,
+       "decode_ms": 35181.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 738,
+      "cached_input": 32768,
+      "output": 4117
+     },
+     "engine_input_seconds": 1.253,
+     "engine_decode_seconds": 35.181,
+     "engine_input_tokens_per_second": 588.9864325618516,
+     "engine_output_tokens_per_second": 117.02339330888833,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    }
+   ],
+   "telemetry": {
+    "sampler_stopped": true,
+    "samples": 201,
+    "raw_sha256": "e605a17e77671436ca291a076c4950ce7d632210fe7b5b48b0de6289584c2a7b",
+    "interval_seconds": 1,
+    "max_gpu_temperature_c": 74,
+    "min_sm_clock_mhz": 210,
+    "throttle_reasons_seen": [
+     "gpu_idle",
+     "sw_power_cap"
+    ]
+   },
+   "stop": "stopped",
+   "block_tokens": {
+    "uncached_input": 69231,
+    "cached_input": 131072,
+    "output": 20751
+   },
+   "block_stages": 6,
+   "scheme_after": "电源方案 GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (高性能)",
+   "ended_at": 1792729138.772361
+  },
+  {
+   "block": 4,
+   "plan": "A",
+   "guid": "381b4222-f694-41f0-9685-ff5bb260df2e",
+   "started_at": 1792729138.7732778,
+   "scheme_line": "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)",
+   "switched_at": 1792729139.7364466,
+   "load_seconds": 26.15508839799986,
+   "model_pid": null,
+   "engine_args": "C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\engine\\strata.exe --serve --pack C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\packs\\iq3_xxs --native C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00001-of-00002.gguf --ple-gguf C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00002-of-00002.gguf --expert-profile C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\data\\expert-profile.bin --expert-cache auto --prefill 8192 --spec 4 --mtp C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\mtp\\rt --max-context 206584 --kv int8 --kv-resident 20480 --spec-min-p 0.9 --pool-workers 23 --vram-reserve-mib 512 --pool-affinity all --conversation-cache-mib 8192 --conversation-cache-slots 4 --conversation-cache-min-free-mib 5120 --ple-io direct\r",
+   "telemetry_pid": 17264,
+   "requests": [
+    {
+     "started_at": 1792729229.150191,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 13.10465681200003,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "900c2bf20bbdf870647d979085aabf47d880bb9c40c5fc854817b583f604dfd2"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729265.919229,
+     "work_seconds": 36.76903998600028,
+     "phase": "warmup",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33322,
+       "cached": 0,
+       "uncached": 33322,
+       "prompt_ms": 13045.0,
+       "output": 3181,
+       "decode_ms": 23684.0,
+       "log_line": 15
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33322,
+      "cached_input": 0,
+      "output": 3181
+     },
+     "engine_input_seconds": 13.045,
+     "engine_decode_seconds": 23.684,
+     "engine_input_tokens_per_second": 2554.3886546569565,
+     "engine_output_tokens_per_second": 134.31008275629117,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729265.9518695,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.1920547810004791,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "c4d7c5de05dfbdb31ea9e1bccb7afd8d0968ca086dd636d009f7b79f1ed23088"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729284.6834028,
+     "work_seconds": 18.731534964001185,
+     "phase": "warmup",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33330,
+       "cached": 32768,
+       "uncached": 562,
+       "prompt_ms": 1131.0,
+       "output": 2202,
+       "decode_ms": 17549.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 562,
+      "cached_input": 32768,
+      "output": 2202
+     },
+     "engine_input_seconds": 1.131,
+     "engine_decode_seconds": 17.549,
+     "engine_input_tokens_per_second": 496.9053934571176,
+     "engine_output_tokens_per_second": 125.47723517009517,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729284.7183454,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2678170679992036,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "eaaa242a327e6427b5da98a2c26b055e5bfe7386725ab4bc3a10ebb7bd4c6b35"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729324.7546682,
+     "work_seconds": 40.03632451200065,
+     "phase": "warmup",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33519,
+       "cached": 32768,
+       "uncached": 751,
+       "prompt_ms": 1206.0,
+       "output": 4485,
+       "decode_ms": 38777.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 751,
+      "cached_input": 32768,
+      "output": 4485
+     },
+     "engine_input_seconds": 1.206,
+     "engine_decode_seconds": 38.777,
+     "engine_input_tokens_per_second": 622.7197346600332,
+     "engine_output_tokens_per_second": 115.66134564303582,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729324.7794268,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.955094783999812,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "3b9b83a1d80c9b764e49e24c2695366abd9eb4030f331fce4ad5bf66f8577fcc"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729361.469744,
+     "work_seconds": 36.69031835399983,
+     "phase": "measured",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33309,
+       "cached": 0,
+       "uncached": 33309,
+       "prompt_ms": 12894.0,
+       "output": 3031,
+       "decode_ms": 23742.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33309,
+      "cached_input": 0,
+      "output": 3031
+     },
+     "engine_input_seconds": 12.894,
+     "engine_decode_seconds": 23.742,
+     "engine_input_tokens_per_second": 2583.294555607259,
+     "engine_output_tokens_per_second": 127.6640552607194,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729361.5031767,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.1971166160001303,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "b78d6b78b2104057d8b80d16a8fc8b2e4fdbfb4a517ae2dce86b0b599ea7cbc0"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729388.6948702,
+     "work_seconds": 27.19169476999923,
+     "phase": "measured",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33317,
+       "cached": 32768,
+       "uncached": 549,
+       "prompt_ms": 1145.0,
+       "output": 3130,
+       "decode_ms": 26003.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 549,
+      "cached_input": 32768,
+      "output": 3130
+     },
+     "engine_input_seconds": 1.145,
+     "engine_decode_seconds": 26.003,
+     "engine_input_tokens_per_second": 479.47598253275106,
+     "engine_output_tokens_per_second": 120.37072645463985,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729388.728437,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2917237170004228,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "dc45a6eb823b764ada99a7329eccc7392033cd42a25b412533c2aa79e2fb6efe"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729427.6292837,
+     "work_seconds": 38.900848486999166,
+     "phase": "measured",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33506,
+       "cached": 32768,
+       "uncached": 738,
+       "prompt_ms": 1251.0,
+       "output": 4531,
+       "decode_ms": 37616.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 738,
+      "cached_input": 32768,
+      "output": 4531
+     },
+     "engine_input_seconds": 1.251,
+     "engine_decode_seconds": 37.616,
+     "engine_input_tokens_per_second": 589.9280575539569,
+     "engine_output_tokens_per_second": 120.45406210123352,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    }
+   ],
+   "telemetry": {
+    "sampler_stopped": true,
+    "samples": 197,
+    "raw_sha256": "1958ef31e9b6ef2e72c985f49c0c3b0ac471f89831a6d3ec4adee0b171fc6d12",
+    "interval_seconds": 1,
+    "max_gpu_temperature_c": 74,
+    "min_sm_clock_mhz": 240,
+    "throttle_reasons_seen": [
+     "gpu_idle",
+     "sw_power_cap"
+    ]
+   },
+   "stop": "stopped",
+   "block_tokens": {
+    "uncached_input": 69231,
+    "cached_input": 131072,
+    "output": 20560
+   },
+   "block_stages": 6,
+   "scheme_after": "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)",
+   "ended_at": 1792729435.4004688
+  },
+  {
+   "block": 5,
+   "plan": "B",
+   "guid": "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c",
+   "started_at": 1792729435.4013772,
+   "scheme_line": "电源方案 GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (高性能)",
+   "switched_at": 1792729436.0055912,
+   "load_seconds": 26.540967368000565,
+   "model_pid": null,
+   "engine_args": "C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\engine\\strata.exe --serve --pack C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\packs\\iq3_xxs --native C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00001-of-00002.gguf --ple-gguf C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00002-of-00002.gguf --expert-profile C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\data\\expert-profile.bin --expert-cache auto --prefill 8192 --spec 4 --mtp C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\mtp\\rt --max-context 206584 --kv int8 --kv-resident 20480 --spec-min-p 0.9 --pool-workers 23 --vram-reserve-mib 512 --pool-affinity all --conversation-cache-mib 8192 --conversation-cache-slots 4 --conversation-cache-min-free-mib 5120 --ple-io direct\r",
+   "telemetry_pid": 8880,
+   "requests": [
+    {
+     "started_at": 1792729525.769777,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.878617510999902,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "40144f62a0428691623492668fb9c803093601c157ce6d7ee848e824aab8776f"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729562.4060798,
+     "work_seconds": 36.6363046309998,
+     "phase": "warmup",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33322,
+       "cached": 0,
+       "uncached": 33322,
+       "prompt_ms": 12813.0,
+       "output": 3146,
+       "decode_ms": 23775.0,
+       "log_line": 17
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33322,
+      "cached_input": 0,
+      "output": 3146
+     },
+     "engine_input_seconds": 12.813,
+     "engine_decode_seconds": 23.775,
+     "engine_input_tokens_per_second": 2600.639975025365,
+     "engine_output_tokens_per_second": 132.32386961093587,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729562.4371982,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.1880860119999852,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "38d7ba2a8b7fb29a22b892de9df099cd66737c5540bd476058aed88ca66d4bef"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729582.1955082,
+     "work_seconds": 19.758311645000504,
+     "phase": "warmup",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33330,
+       "cached": 32768,
+       "uncached": 562,
+       "prompt_ms": 1139.0,
+       "output": 2341,
+       "decode_ms": 18583.0,
+       "log_line": 3
+      }
+     ],
+     "tokens": {
+      "uncached_input": 562,
+      "cached_input": 32768,
+      "output": 2341
+     },
+     "engine_input_seconds": 1.139,
+     "engine_decode_seconds": 18.583,
+     "engine_input_tokens_per_second": 493.41527655838456,
+     "engine_output_tokens_per_second": 125.97535381800571,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729582.2296996,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.256318363999526,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "d9d29d07da53ecf4a4a8a19b66ef85447ab213f21ecce5673d701e5e75c7826a"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729623.721216,
+     "work_seconds": 41.49151806499867,
+     "phase": "warmup",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33519,
+       "cached": 32768,
+       "uncached": 751,
+       "prompt_ms": 1206.0,
+       "output": 4645,
+       "decode_ms": 40244.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 751,
+      "cached_input": 32768,
+      "output": 4645
+     },
+     "engine_input_seconds": 1.206,
+     "engine_decode_seconds": 40.244,
+     "engine_input_tokens_per_second": 622.7197346600332,
+     "engine_output_tokens_per_second": 115.42093231289137,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729623.7534008,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.949824286000876,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "24fe19b3d73a648907b4c05ebdbffa1ccd4bdd5a3ed45ce8547809e2f708596b"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729664.784692,
+     "work_seconds": 41.03129260900096,
+     "phase": "measured",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33309,
+       "cached": 0,
+       "uncached": 33309,
+       "prompt_ms": 12891.0,
+       "output": 3658,
+       "decode_ms": 28089.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33309,
+      "cached_input": 0,
+      "output": 3658
+     },
+     "engine_input_seconds": 12.891,
+     "engine_decode_seconds": 28.089,
+     "engine_input_tokens_per_second": 2583.895741214801,
+     "engine_output_tokens_per_second": 130.22891523372138,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729664.8185027,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.1934405990014056,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "9dae664fb2af1fef3aa7cd1ebfa0cd5ff4a2cff3de5dc68178a94e433ef35030"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729684.536057,
+     "work_seconds": 19.71755619400028,
+     "phase": "measured",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33317,
+       "cached": 32768,
+       "uncached": 549,
+       "prompt_ms": 1145.0,
+       "output": 2330,
+       "decode_ms": 18532.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 549,
+      "cached_input": 32768,
+      "output": 2330
+     },
+     "engine_input_seconds": 1.145,
+     "engine_decode_seconds": 18.532,
+     "engine_input_tokens_per_second": 479.47598253275106,
+     "engine_output_tokens_per_second": 125.72846967407727,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729684.5677202,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2932986470004835,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "ace68baafc26e36d57acb64cb2e21a2b38756f65dc8a16293f66204ecdad5e1d"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729722.2630281,
+     "work_seconds": 37.695309404998625,
+     "phase": "measured",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33506,
+       "cached": 32768,
+       "uncached": 738,
+       "prompt_ms": 1239.0,
+       "output": 4271,
+       "decode_ms": 36411.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 738,
+      "cached_input": 32768,
+      "output": 4271
+     },
+     "engine_input_seconds": 1.239,
+     "engine_decode_seconds": 36.411,
+     "engine_input_tokens_per_second": 595.6416464891041,
+     "engine_output_tokens_per_second": 117.29971711845322,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    }
+   ],
+   "telemetry": {
+    "sampler_stopped": true,
+    "samples": 196,
+    "raw_sha256": "432dc3d48a11b715e8d25b7a2f6ca0cf14c03daa501adeddf317d58c9d261a6c",
+    "interval_seconds": 1,
+    "max_gpu_temperature_c": 74,
+    "min_sm_clock_mhz": 210,
+    "throttle_reasons_seen": [
+     "gpu_idle",
+     "sw_power_cap"
+    ]
+   },
+   "stop": "stopped",
+   "block_tokens": {
+    "uncached_input": 69231,
+    "cached_input": 131072,
+    "output": 20391
+   },
+   "block_stages": 6,
+   "scheme_after": "电源方案 GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (高性能)",
+   "ended_at": 1792729730.83215
+  },
+  {
+   "block": 6,
+   "plan": "A",
+   "guid": "381b4222-f694-41f0-9685-ff5bb260df2e",
+   "started_at": 1792729730.8349385,
+   "scheme_line": "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)",
+   "switched_at": 1792729731.5750072,
+   "load_seconds": 26.713770271000612,
+   "model_pid": null,
+   "engine_args": "C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\engine\\strata.exe --serve --pack C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\packs\\iq3_xxs --native C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00001-of-00002.gguf --ple-gguf C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00002-of-00002.gguf --expert-profile C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\data\\expert-profile.bin --expert-cache auto --prefill 8192 --spec 4 --mtp C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\mtp\\rt --max-context 206584 --kv int8 --kv-resident 20480 --spec-min-p 0.9 --pool-workers 23 --vram-reserve-mib 512 --pool-affinity all --conversation-cache-mib 8192 --conversation-cache-slots 4 --conversation-cache-min-free-mib 5120 --ple-io direct\r",
+   "telemetry_pid": 11412,
+   "requests": [
+    {
+     "started_at": 1792729821.5700915,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 13.097615088001476,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "12ed6ceac55c1fa3fc7d61602817ca2dbf734e2f3f5cb937c5b66cc40752bedc"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729857.7498765,
+     "work_seconds": 36.17978633599887,
+     "phase": "warmup",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33322,
+       "cached": 0,
+       "uncached": 33322,
+       "prompt_ms": 13048.0,
+       "output": 2954,
+       "decode_ms": 23102.0,
+       "log_line": 17
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33322,
+      "cached_input": 0,
+      "output": 2954
+     },
+     "engine_input_seconds": 13.048,
+     "engine_decode_seconds": 23.102,
+     "engine_input_tokens_per_second": 2553.8013488657266,
+     "engine_output_tokens_per_second": 127.86771708077222,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729857.7850227,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.184374447000664,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "ae733997ec8898ab16ed6aef257c1640bdfc673ed7aa81340d340aa59c8894dd"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729877.772857,
+     "work_seconds": 19.987835411999185,
+     "phase": "warmup",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33330,
+       "cached": 32768,
+       "uncached": 562,
+       "prompt_ms": 1137.0,
+       "output": 2293,
+       "decode_ms": 18815.0,
+       "log_line": 3
+      }
+     ],
+     "tokens": {
+      "uncached_input": 562,
+      "cached_input": 32768,
+      "output": 2293
+     },
+     "engine_input_seconds": 1.137,
+     "engine_decode_seconds": 18.815,
+     "engine_input_tokens_per_second": 494.28320140721195,
+     "engine_output_tokens_per_second": 121.87084772787668,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729877.7971637,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2628650810002,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "88f0895fc80bf8ab4e1fcc21f8d46ed28d4d7da3d6d3fe15e8d810f8c810d069"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729921.0482342,
+     "work_seconds": 43.25107194100019,
+     "phase": "warmup",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33519,
+       "cached": 32768,
+       "uncached": 751,
+       "prompt_ms": 1222.0,
+       "output": 4808,
+       "decode_ms": 41996.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 751,
+      "cached_input": 32768,
+      "output": 4808
+     },
+     "engine_input_seconds": 1.222,
+     "engine_decode_seconds": 41.996,
+     "engine_input_tokens_per_second": 614.5662847790508,
+     "engine_output_tokens_per_second": 114.48709400895322,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729921.0772798,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.961013023001215,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "61977ed215467fcf1b8781d880efb01506e42cc53030bedc7516327ec6a9a3f8"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729963.6999974,
+     "work_seconds": 42.622719181999855,
+     "phase": "measured",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33309,
+       "cached": 0,
+       "uncached": 33309,
+       "prompt_ms": 12915.0,
+       "output": 3754,
+       "decode_ms": 29667.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33309,
+      "cached_input": 0,
+      "output": 3754
+     },
+     "engine_input_seconds": 12.915,
+     "engine_decode_seconds": 29.667,
+     "engine_input_tokens_per_second": 2579.0940766550525,
+     "engine_output_tokens_per_second": 126.5379040684936,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729963.7306218,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.1862219490012649,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "5bf50718f5f8c9306784b3a82f764744a8e49f8920e1e521995e66e6a3831c24"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792729982.754498,
+     "work_seconds": 19.02387778299999,
+     "phase": "measured",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33317,
+       "cached": 32768,
+       "uncached": 549,
+       "prompt_ms": 1144.0,
+       "output": 2249,
+       "decode_ms": 17848.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 549,
+      "cached_input": 32768,
+      "output": 2249
+     },
+     "engine_input_seconds": 1.144,
+     "engine_decode_seconds": 17.848,
+     "engine_input_tokens_per_second": 479.8951048951049,
+     "engine_output_tokens_per_second": 126.00851636037652,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792729982.775423,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2775159600005281,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "90ecba8ce85dd68a5984c5d8ba5364fe0bdd2c8b559bc9584ea0ed8ed8688e42"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730017.249833,
+     "work_seconds": 34.47441182500006,
+     "phase": "measured",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33506,
+       "cached": 32768,
+       "uncached": 738,
+       "prompt_ms": 1228.0,
+       "output": 3923,
+       "decode_ms": 33204.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 738,
+      "cached_input": 32768,
+      "output": 3923
+     },
+     "engine_input_seconds": 1.228,
+     "engine_decode_seconds": 33.204,
+     "engine_input_tokens_per_second": 600.9771986970684,
+     "engine_output_tokens_per_second": 118.14841585351162,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    }
+   ],
+   "telemetry": {
+    "sampler_stopped": true,
+    "samples": 195,
+    "raw_sha256": "4c01be73aec7a7c437809ab8dc599b2263cf29bb9bf29028106e4203e1e0fb6b",
+    "interval_seconds": 1,
+    "max_gpu_temperature_c": 74,
+    "min_sm_clock_mhz": 255,
+    "throttle_reasons_seen": [
+     "gpu_idle",
+     "sw_power_cap"
+    ]
+   },
+   "stop": "stopped",
+   "block_tokens": {
+    "uncached_input": 69231,
+    "cached_input": 131072,
+    "output": 19981
+   },
+   "block_stages": 6,
+   "scheme_after": "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)",
+   "ended_at": 1792730025.6995323
+  },
+  {
+   "block": 7,
+   "plan": "A",
+   "guid": "381b4222-f694-41f0-9685-ff5bb260df2e",
+   "started_at": 1792730025.7005243,
+   "scheme_line": "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)",
+   "switched_at": 1792730026.2858987,
+   "load_seconds": 26.714737143000093,
+   "model_pid": null,
+   "engine_args": "C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\engine\\strata.exe --serve --pack C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\packs\\iq3_xxs --native C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00001-of-00002.gguf --ple-gguf C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00002-of-00002.gguf --expert-profile C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\data\\expert-profile.bin --expert-cache auto --prefill 8192 --spec 4 --mtp C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\mtp\\rt --max-context 206584 --kv int8 --kv-resident 20480 --spec-min-p 0.9 --pool-workers 23 --vram-reserve-mib 512 --pool-affinity all --conversation-cache-mib 8192 --conversation-cache-slots 4 --conversation-cache-min-free-mib 5120 --ple-io direct\r",
+   "telemetry_pid": 3056,
+   "requests": [
+    {
+     "started_at": 1792730116.2726204,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.99363316400013,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "ab2288df5c07818d525f721c6c75d1cc935e37796752349a53870e793b3c2bc7"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730154.1052089,
+     "work_seconds": 37.83258994599964,
+     "phase": "warmup",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33322,
+       "cached": 0,
+       "uncached": 33322,
+       "prompt_ms": 12945.0,
+       "output": 3248,
+       "decode_ms": 24857.0,
+       "log_line": 17
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33322,
+      "cached_input": 0,
+      "output": 3248
+     },
+     "engine_input_seconds": 12.945,
+     "engine_decode_seconds": 24.857,
+     "engine_input_tokens_per_second": 2574.121282348397,
+     "engine_output_tokens_per_second": 130.66741762883694,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730154.133492,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.190468693001094,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "3a777a128e16c643cf4516b0ce9f36e7a77b450d47bc5d7009c8dafde5817824"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730181.124824,
+     "work_seconds": 26.991333457999644,
+     "phase": "warmup",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33330,
+       "cached": 32768,
+       "uncached": 562,
+       "prompt_ms": 1142.0,
+       "output": 3179,
+       "decode_ms": 25808.0,
+       "log_line": 3
+      }
+     ],
+     "tokens": {
+      "uncached_input": 562,
+      "cached_input": 32768,
+      "output": 3179
+     },
+     "engine_input_seconds": 1.142,
+     "engine_decode_seconds": 25.808,
+     "engine_input_tokens_per_second": 492.11908931698775,
+     "engine_output_tokens_per_second": 123.1788592684439,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730181.155651,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.278749223001796,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "2b0443c793eaf11251cf258b15a23d1ece6abc3f9e3951ac839cfddd1002bc1c"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730212.1552353,
+     "work_seconds": 30.99958557699938,
+     "phase": "warmup",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33519,
+       "cached": 32768,
+       "uncached": 751,
+       "prompt_ms": 1228.0,
+       "output": 3611,
+       "decode_ms": 29729.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 751,
+      "cached_input": 32768,
+      "output": 3611
+     },
+     "engine_input_seconds": 1.228,
+     "engine_decode_seconds": 29.729,
+     "engine_input_tokens_per_second": 611.5635179153095,
+     "engine_output_tokens_per_second": 121.46389047731172,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730212.1774101,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.938614893999329,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "a49772674687fade294d7a747212992b5971b71a03328fcf7237083eeffd67bc"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730252.1466718,
+     "work_seconds": 39.96926361499936,
+     "phase": "measured",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33309,
+       "cached": 0,
+       "uncached": 33309,
+       "prompt_ms": 12889.0,
+       "output": 3552,
+       "decode_ms": 27039.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33309,
+      "cached_input": 0,
+      "output": 3552
+     },
+     "engine_input_seconds": 12.889,
+     "engine_decode_seconds": 27.039,
+     "engine_input_tokens_per_second": 2584.296687097525,
+     "engine_output_tokens_per_second": 131.36580494840786,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730252.1800852,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2076669649995893,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "240c215e577bf8cde3ce59a9e6a39caa2b8a04f6a377812b3370e99a1efa7930"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730268.1305692,
+     "work_seconds": 15.950485232999199,
+     "phase": "measured",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33317,
+       "cached": 32768,
+       "uncached": 549,
+       "prompt_ms": 1159.0,
+       "output": 1863,
+       "decode_ms": 14757.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 549,
+      "cached_input": 32768,
+      "output": 1863
+     },
+     "engine_input_seconds": 1.159,
+     "engine_decode_seconds": 14.757,
+     "engine_input_tokens_per_second": 473.6842105263158,
+     "engine_output_tokens_per_second": 126.24517178288271,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730268.1639273,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2806070030001138,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "d9446d43fa0db20a3a134ad4501886ad65f4609037c5413aa25ae3888f4081b4"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730305.4978642,
+     "work_seconds": 37.33393857599913,
+     "phase": "measured",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33506,
+       "cached": 32768,
+       "uncached": 738,
+       "prompt_ms": 1235.0,
+       "output": 4139,
+       "decode_ms": 36061.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 738,
+      "cached_input": 32768,
+      "output": 4139
+     },
+     "engine_input_seconds": 1.235,
+     "engine_decode_seconds": 36.061,
+     "engine_input_tokens_per_second": 597.5708502024291,
+     "engine_output_tokens_per_second": 114.77773772219295,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    }
+   ],
+   "telemetry": {
+    "sampler_stopped": true,
+    "samples": 188,
+    "raw_sha256": "cff6f90dc7758645b7dc25c489528fac7a9fb58736e17c88629b10fc4caa1410",
+    "interval_seconds": 1,
+    "max_gpu_temperature_c": 74,
+    "min_sm_clock_mhz": 210,
+    "throttle_reasons_seen": [
+     "gpu_idle",
+     "sw_power_cap"
+    ]
+   },
+   "stop": "stopped",
+   "block_tokens": {
+    "uncached_input": 69231,
+    "cached_input": 131072,
+    "output": 19592
+   },
+   "block_stages": 6,
+   "scheme_after": "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)",
+   "ended_at": 1792730313.407197
+  },
+  {
+   "block": 8,
+   "plan": "B",
+   "guid": "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c",
+   "started_at": 1792730313.4082975,
+   "scheme_line": "电源方案 GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (高性能)",
+   "switched_at": 1792730314.0007498,
+   "load_seconds": 26.595614755000497,
+   "model_pid": null,
+   "engine_args": "C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\engine\\strata.exe --serve --pack C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\packs\\iq3_xxs --native C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00001-of-00002.gguf --ple-gguf C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00002-of-00002.gguf --expert-profile C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\data\\expert-profile.bin --expert-cache auto --prefill 8192 --spec 4 --mtp C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\mtp\\rt --max-context 206584 --kv int8 --kv-resident 20480 --spec-min-p 0.9 --pool-workers 23 --vram-reserve-mib 512 --pool-affinity all --conversation-cache-mib 8192 --conversation-cache-slots 4 --conversation-cache-min-free-mib 5120 --ple-io direct\r",
+   "telemetry_pid": 16352,
+   "requests": [
+    {
+     "started_at": 1792730403.8231096,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.978811693999887,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "b3dd8effc0bfd847995e54c4152185dd956feaa41a8e2d87d54294deaeaaaddf"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730442.271618,
+     "work_seconds": 38.44851007100078,
+     "phase": "warmup",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33322,
+       "cached": 0,
+       "uncached": 33322,
+       "prompt_ms": 12929.0,
+       "output": 3409,
+       "decode_ms": 25488.0,
+       "log_line": 17
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33322,
+      "cached_input": 0,
+      "output": 3409
+     },
+     "engine_input_seconds": 12.929,
+     "engine_decode_seconds": 25.488,
+     "engine_input_tokens_per_second": 2577.306829607858,
+     "engine_output_tokens_per_second": 133.74921531701193,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730442.303832,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2143888409973442,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "b6833351042b0d35dec516d8e31a235390641920f5fc116d8f8fe73461910c87"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730464.1405728,
+     "work_seconds": 21.836742257999504,
+     "phase": "warmup",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33330,
+       "cached": 32768,
+       "uncached": 562,
+       "prompt_ms": 1154.0,
+       "output": 2479,
+       "decode_ms": 20632.0,
+       "log_line": 3
+      }
+     ],
+     "tokens": {
+      "uncached_input": 562,
+      "cached_input": 32768,
+      "output": 2479
+     },
+     "engine_input_seconds": 1.154,
+     "engine_decode_seconds": 20.632,
+     "engine_input_tokens_per_second": 487.00173310225307,
+     "engine_output_tokens_per_second": 120.15316013958898,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730464.172489,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2464140390002285,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "c710666c488993934639bff4b00bac6f996d975f2f2819490f83d27d29667669"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730497.9524121,
+     "work_seconds": 33.77992489100143,
+     "phase": "warmup",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33519,
+       "cached": 32768,
+       "uncached": 751,
+       "prompt_ms": 1197.0,
+       "output": 3813,
+       "decode_ms": 32541.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 751,
+      "cached_input": 32768,
+      "output": 3813
+     },
+     "engine_input_seconds": 1.197,
+     "engine_decode_seconds": 32.541,
+     "engine_input_tokens_per_second": 627.4018379281537,
+     "engine_output_tokens_per_second": 117.17525583110539,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730497.9816375,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.942263462999108,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "9a62d7060ba7966ed464b617239d1e2f075378e0fff7fecb54b24cc53f6f29e5"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730539.515609,
+     "work_seconds": 41.53397325700098,
+     "phase": "measured",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33309,
+       "cached": 0,
+       "uncached": 33309,
+       "prompt_ms": 12893.0,
+       "output": 3683,
+       "decode_ms": 28597.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33309,
+      "cached_input": 0,
+      "output": 3683
+     },
+     "engine_input_seconds": 12.893,
+     "engine_decode_seconds": 28.597,
+     "engine_input_tokens_per_second": 2583.494919723881,
+     "engine_output_tokens_per_second": 128.78973318879602,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730539.5456312,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.1951419329998316,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "a09246814af5f58540964fe91b3b49d5e4d34ea1a96671dfc1e78082e424b92a"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730558.042752,
+     "work_seconds": 18.497122357999615,
+     "phase": "measured",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33317,
+       "cached": 32768,
+       "uncached": 549,
+       "prompt_ms": 1133.0,
+       "output": 2230,
+       "decode_ms": 17311.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 549,
+      "cached_input": 32768,
+      "output": 2230
+     },
+     "engine_input_seconds": 1.133,
+     "engine_decode_seconds": 17.311,
+     "engine_input_tokens_per_second": 484.55428067078554,
+     "engine_output_tokens_per_second": 128.8198255444515,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730558.0740635,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2737830110017967,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "6edc613a8430487404c36487421d83574059704a3a0738f04aec07f8463672fe"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730595.1566887,
+     "work_seconds": 37.082626680999965,
+     "phase": "measured",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33506,
+       "cached": 32768,
+       "uncached": 738,
+       "prompt_ms": 1232.0,
+       "output": 3952,
+       "decode_ms": 35817.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 738,
+      "cached_input": 32768,
+      "output": 3952
+     },
+     "engine_input_seconds": 1.232,
+     "engine_decode_seconds": 35.817,
+     "engine_input_tokens_per_second": 599.025974025974,
+     "engine_output_tokens_per_second": 110.33866599659379,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    }
+   ],
+   "telemetry": {
+    "sampler_stopped": true,
+    "samples": 190,
+    "raw_sha256": "d78767391058b5dbdc2b397abccf8b1e1d4a980c0adc086d238ab6624b71caaf",
+    "interval_seconds": 1,
+    "max_gpu_temperature_c": 74,
+    "min_sm_clock_mhz": 210,
+    "throttle_reasons_seen": [
+     "gpu_idle",
+     "sw_power_cap"
+    ]
+   },
+   "stop": "stopped",
+   "block_tokens": {
+    "uncached_input": 69231,
+    "cached_input": 131072,
+    "output": 19566
+   },
+   "block_stages": 6,
+   "scheme_after": "电源方案 GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (高性能)",
+   "ended_at": 1792730602.85786
+  },
+  {
+   "block": 9,
+   "plan": "A",
+   "guid": "381b4222-f694-41f0-9685-ff5bb260df2e",
+   "started_at": 1792730602.8591633,
+   "scheme_line": "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)",
+   "switched_at": 1792730603.5860574,
+   "load_seconds": 26.678846553000767,
+   "model_pid": null,
+   "engine_args": "C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\engine\\strata.exe --serve --pack C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\packs\\iq3_xxs --native C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00001-of-00002.gguf --ple-gguf C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00002-of-00002.gguf --expert-profile C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\data\\expert-profile.bin --expert-cache auto --prefill 8192 --spec 4 --mtp C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\mtp\\rt --max-context 206584 --kv int8 --kv-resident 20480 --spec-min-p 0.9 --pool-workers 23 --vram-reserve-mib 512 --pool-affinity all --conversation-cache-mib 8192 --conversation-cache-slots 4 --conversation-cache-min-free-mib 5120 --ple-io direct\r",
+   "telemetry_pid": 16332,
+   "requests": [
+    {
+     "started_at": 1792730693.520979,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 13.34995436400095,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "6c4f2a94eab6b582ced00f7e9aa8e62c87ce272ec30c37dc1996973d7e434ecc"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730733.5467367,
+     "work_seconds": 40.02575963600066,
+     "phase": "warmup",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33322,
+       "cached": 0,
+       "uncached": 33322,
+       "prompt_ms": 13302.0,
+       "output": 3519,
+       "decode_ms": 26694.0,
+       "log_line": 17
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33322,
+      "cached_input": 0,
+      "output": 3519
+     },
+     "engine_input_seconds": 13.302,
+     "engine_decode_seconds": 26.694,
+     "engine_input_tokens_per_second": 2505.03683656593,
+     "engine_output_tokens_per_second": 131.8273769386379,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730733.5800643,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.1839631860002555,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "778e0c66678ad7e306de1f2d881ccc9b07a606d884d3b7ba2820b98e7b6473d2"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730753.059569,
+     "work_seconds": 19.479506088999187,
+     "phase": "warmup",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33330,
+       "cached": 32768,
+       "uncached": 562,
+       "prompt_ms": 1133.0,
+       "output": 2305,
+       "decode_ms": 18308.0,
+       "log_line": 3
+      }
+     ],
+     "tokens": {
+      "uncached_input": 562,
+      "cached_input": 32768,
+      "output": 2305
+     },
+     "engine_input_seconds": 1.133,
+     "engine_decode_seconds": 18.308,
+     "engine_input_tokens_per_second": 496.02824360105916,
+     "engine_output_tokens_per_second": 125.90124535722089,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730753.081861,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.269712695000635,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "488837705e599874427587e0fb94890a7383697f81da2d097c0672c5a0701dc4"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730804.5746977,
+     "work_seconds": 51.49283811499845,
+     "phase": "warmup",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33519,
+       "cached": 32768,
+       "uncached": 751,
+       "prompt_ms": 1223.0,
+       "output": 5480,
+       "decode_ms": 50231.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 751,
+      "cached_input": 32768,
+      "output": 5480
+     },
+     "engine_input_seconds": 1.223,
+     "engine_decode_seconds": 50.231,
+     "engine_input_tokens_per_second": 614.0637775960752,
+     "engine_output_tokens_per_second": 109.09597658816269,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730804.6073818,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.891979051000817,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "05c97127bc61346a92735c19b9965ea043529b444fd75f775718de4c4d256e6d"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730840.3329697,
+     "work_seconds": 35.725589521000074,
+     "phase": "measured",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33309,
+       "cached": 0,
+       "uncached": 33309,
+       "prompt_ms": 12833.0,
+       "output": 2906,
+       "decode_ms": 22846.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33309,
+      "cached_input": 0,
+      "output": 2906
+     },
+     "engine_input_seconds": 12.833,
+     "engine_decode_seconds": 22.846,
+     "engine_input_tokens_per_second": 2595.5739110106756,
+     "engine_output_tokens_per_second": 127.19950976100849,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730840.369837,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.1933468639981584,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "bf08b3a275749d60f73036b22719b17d5427c8226446fc0548facff3a23062fe"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730867.2225132,
+     "work_seconds": 26.852677439999752,
+     "phase": "measured",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33317,
+       "cached": 32768,
+       "uncached": 549,
+       "prompt_ms": 1150.0,
+       "output": 3142,
+       "decode_ms": 25669.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 549,
+      "cached_input": 32768,
+      "output": 3142
+     },
+     "engine_input_seconds": 1.15,
+     "engine_decode_seconds": 25.669,
+     "engine_input_tokens_per_second": 477.3913043478261,
+     "engine_output_tokens_per_second": 122.40445673769916,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792730867.2561338,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2901164050017542,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "a6d43c2a1fd42cd3afbe1695a8979f6316d2679d94e8523edd3f32101b49acee"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792730901.4976075,
+     "work_seconds": 34.24147522800013,
+     "phase": "measured",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33506,
+       "cached": 32768,
+       "uncached": 738,
+       "prompt_ms": 1237.0,
+       "output": 3792,
+       "decode_ms": 32961.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 738,
+      "cached_input": 32768,
+      "output": 3792
+     },
+     "engine_input_seconds": 1.237,
+     "engine_decode_seconds": 32.961,
+     "engine_input_tokens_per_second": 596.6046887631366,
+     "engine_output_tokens_per_second": 115.0450532447438,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    }
+   ],
+   "telemetry": {
+    "sampler_stopped": true,
+    "samples": 207,
+    "raw_sha256": "cefc7eb63731c5f6a01da84595f193be809432efc91ce6e3116b701e01f8e0bb",
+    "interval_seconds": 1,
+    "max_gpu_temperature_c": 77,
+    "min_sm_clock_mhz": 210,
+    "throttle_reasons_seen": [
+     "gpu_idle",
+     "sw_power_cap",
+     "sw_thermal"
+    ]
+   },
+   "stop": "stopped",
+   "block_tokens": {
+    "uncached_input": 69231,
+    "cached_input": 131072,
+    "output": 21144
+   },
+   "block_stages": 6,
+   "scheme_after": "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)",
+   "ended_at": 1792730909.7485456
+  },
+  {
+   "block": 10,
+   "plan": "B",
+   "guid": "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c",
+   "started_at": 1792730909.7513976,
+   "scheme_line": "电源方案 GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (高性能)",
+   "switched_at": 1792730910.3553932,
+   "load_seconds": 26.5744957349998,
+   "model_pid": null,
+   "engine_args": "C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\engine\\strata.exe --serve --pack C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\packs\\iq3_xxs --native C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00001-of-00002.gguf --ple-gguf C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00002-of-00002.gguf --expert-profile C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\data\\expert-profile.bin --expert-cache auto --prefill 8192 --spec 4 --mtp C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\mtp\\rt --max-context 206584 --kv int8 --kv-resident 20480 --spec-min-p 0.9 --pool-workers 23 --vram-reserve-mib 512 --pool-affinity all --conversation-cache-mib 8192 --conversation-cache-slots 4 --conversation-cache-min-free-mib 5120 --ple-io direct\r",
+   "telemetry_pid": 6992,
+   "requests": [
+    {
+     "started_at": 1792731000.156066,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 13.141207339000175,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "d8c5cdf7a5b88a0374fc79b62c969f5bd04a4e1649553edca9d7b4920a5e6aa1"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731040.6027973,
+     "work_seconds": 40.446732713999154,
+     "phase": "warmup",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33323,
+       "cached": 0,
+       "uncached": 33323,
+       "prompt_ms": 13085.0,
+       "output": 3605,
+       "decode_ms": 27325.0,
+       "log_line": 17
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33323,
+      "cached_input": 0,
+      "output": 3605
+     },
+     "engine_input_seconds": 13.085,
+     "engine_decode_seconds": 27.325,
+     "engine_input_tokens_per_second": 2546.6564768819258,
+     "engine_output_tokens_per_second": 131.93046660567248,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731040.6353142,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.191260379000596,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "cd77edf6cdbee1b6c1bd92974dde6dd76f08c696a03d50a3cb4d956b2ca4136c"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731072.632027,
+     "work_seconds": 31.99671414399927,
+     "phase": "warmup",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33331,
+       "cached": 32768,
+       "uncached": 563,
+       "prompt_ms": 1139.0,
+       "output": 3891,
+       "decode_ms": 30815.0,
+       "log_line": 3
+      }
+     ],
+     "tokens": {
+      "uncached_input": 563,
+      "cached_input": 32768,
+      "output": 3891
+     },
+     "engine_input_seconds": 1.139,
+     "engine_decode_seconds": 30.815,
+     "engine_input_tokens_per_second": 494.2932396839333,
+     "engine_output_tokens_per_second": 126.26967386013305,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731072.6646173,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2590716180002346,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "e05d14b5ec96f5da5a4c985ccf17d3b50982e2418090dde1a795f345edd4c617"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731113.8692336,
+     "work_seconds": 41.20461808999971,
+     "phase": "warmup",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33520,
+       "cached": 32768,
+       "uncached": 752,
+       "prompt_ms": 1215.0,
+       "output": 4424,
+       "decode_ms": 39954.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 752,
+      "cached_input": 32768,
+      "output": 4424
+     },
+     "engine_input_seconds": 1.215,
+     "engine_decode_seconds": 39.954,
+     "engine_input_tokens_per_second": 618.9300411522634,
+     "engine_output_tokens_per_second": 110.72733643690243,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731113.902658,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.982568536001054,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "2780a3b98edc248f9a721adb7d5d42f35f6308379ce8240360dadea45555077c"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731154.3179147,
+     "work_seconds": 40.4152583970008,
+     "phase": "measured",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33309,
+       "cached": 0,
+       "uncached": 33309,
+       "prompt_ms": 12936.0,
+       "output": 3554,
+       "decode_ms": 27440.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33309,
+      "cached_input": 0,
+      "output": 3554
+     },
+     "engine_input_seconds": 12.936,
+     "engine_decode_seconds": 27.44,
+     "engine_input_tokens_per_second": 2574.9072356215215,
+     "engine_output_tokens_per_second": 129.51895043731778,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731154.3504295,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2010972829993989,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "1db2d47578e6bf72bacb51cc8633ae90c8a1193979fbf7fb58fd2b535dc04338"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731178.9537945,
+     "work_seconds": 24.603366573999665,
+     "phase": "measured",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33317,
+       "cached": 32768,
+       "uncached": 549,
+       "prompt_ms": 1161.0,
+       "output": 2916,
+       "decode_ms": 23409.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 549,
+      "cached_input": 32768,
+      "output": 2916
+     },
+     "engine_input_seconds": 1.161,
+     "engine_decode_seconds": 23.409,
+     "engine_input_tokens_per_second": 472.86821705426354,
+     "engine_output_tokens_per_second": 124.56747404844292,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731178.9831142,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.3450565069997538,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "de2b02bb58febafdcd85ee632b2fa196dd3bf436bf842fdc41ccc0ded94ce954"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731217.754976,
+     "work_seconds": 38.771863145999305,
+     "phase": "measured",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33506,
+       "cached": 32768,
+       "uncached": 738,
+       "prompt_ms": 1292.0,
+       "output": 4274,
+       "decode_ms": 37433.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 738,
+      "cached_input": 32768,
+      "output": 4274
+     },
+     "engine_input_seconds": 1.292,
+     "engine_decode_seconds": 37.433,
+     "engine_input_tokens_per_second": 571.2074303405573,
+     "engine_output_tokens_per_second": 114.17733016322497,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    }
+   ],
+   "telemetry": {
+    "sampler_stopped": true,
+    "samples": 216,
+    "raw_sha256": "0a203489dd60e0a98412930ecb3fab7dd90d0bd4df432e2423333969a71f7e0c",
+    "interval_seconds": 1,
+    "max_gpu_temperature_c": 74,
+    "min_sm_clock_mhz": 210,
+    "throttle_reasons_seen": [
+     "gpu_idle",
+     "sw_power_cap"
+    ]
+   },
+   "stop": "stopped",
+   "block_tokens": {
+    "uncached_input": 69234,
+    "cached_input": 131072,
+    "output": 22664
+   },
+   "block_stages": 6,
+   "scheme_after": "电源方案 GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (高性能)",
+   "ended_at": 1792731225.4651697
+  },
+  {
+   "block": 11,
+   "plan": "B",
+   "guid": "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c",
+   "started_at": 1792731225.4677465,
+   "scheme_line": "电源方案 GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (高性能)",
+   "switched_at": 1792731226.1282594,
+   "load_seconds": 26.548264602999552,
+   "model_pid": null,
+   "engine_args": "C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\engine\\strata.exe --serve --pack C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\packs\\iq3_xxs --native C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00001-of-00002.gguf --ple-gguf C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00002-of-00002.gguf --expert-profile C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\data\\expert-profile.bin --expert-cache auto --prefill 8192 --spec 4 --mtp C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\mtp\\rt --max-context 206584 --kv int8 --kv-resident 20480 --spec-min-p 0.9 --pool-workers 23 --vram-reserve-mib 512 --pool-affinity all --conversation-cache-mib 8192 --conversation-cache-slots 4 --conversation-cache-min-free-mib 5120 --ple-io direct\r",
+   "telemetry_pid": 18964,
+   "requests": [
+    {
+     "started_at": 1792731315.9045038,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 13.133054060001086,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "c2d23ff9587f3dede4f1be1591913d5b8343220ef6c92839f06efc6c4c062b12"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731352.2400334,
+     "work_seconds": 36.335531316000925,
+     "phase": "warmup",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33323,
+       "cached": 0,
+       "uncached": 33323,
+       "prompt_ms": 13078.0,
+       "output": 3137,
+       "decode_ms": 23225.0,
+       "log_line": 15
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33323,
+      "cached_input": 0,
+      "output": 3137
+     },
+     "engine_input_seconds": 13.078,
+     "engine_decode_seconds": 23.225,
+     "engine_input_tokens_per_second": 2548.019574858541,
+     "engine_output_tokens_per_second": 135.06996770721204,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731352.270852,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2421802360004222,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "3f6a3d20eb24bf990c84faa3e9f157df30af3b1a25dc6c546048f008152740e8"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731379.965391,
+     "work_seconds": 27.69454018000033,
+     "phase": "warmup",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33331,
+       "cached": 32768,
+       "uncached": 563,
+       "prompt_ms": 1176.0,
+       "output": 3234,
+       "decode_ms": 26459.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 563,
+      "cached_input": 32768,
+      "output": 3234
+     },
+     "engine_input_seconds": 1.176,
+     "engine_decode_seconds": 26.459,
+     "engine_input_tokens_per_second": 478.74149659863946,
+     "engine_output_tokens_per_second": 122.22684152840243,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731379.994885,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.258903232999728,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "93676e1f9f1bef1f2e961a24d926905f4f5655fee00843c8bba5c50fadf3fa9f"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731434.7379053,
+     "work_seconds": 54.7430216949997,
+     "phase": "warmup",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33520,
+       "cached": 32768,
+       "uncached": 752,
+       "prompt_ms": 1218.0,
+       "output": 5985,
+       "decode_ms": 53490.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 752,
+      "cached_input": 32768,
+      "output": 5985
+     },
+     "engine_input_seconds": 1.218,
+     "engine_decode_seconds": 53.49,
+     "engine_input_tokens_per_second": 617.4055829228244,
+     "engine_output_tokens_per_second": 111.89007291082444,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731434.7608705,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 13.006689236999591,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "f044458b4cc6e8769fd09d557569b046e9eab8af8d3af81a6af95eed7635c3b5"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731476.4167645,
+     "work_seconds": 41.65589575700142,
+     "phase": "measured",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33309,
+       "cached": 0,
+       "uncached": 33309,
+       "prompt_ms": 12959.0,
+       "output": 3662,
+       "decode_ms": 28652.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33309,
+      "cached_input": 0,
+      "output": 3662
+     },
+     "engine_input_seconds": 12.959,
+     "engine_decode_seconds": 28.652,
+     "engine_input_tokens_per_second": 2570.3372173778844,
+     "engine_output_tokens_per_second": 127.80957699288007,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731476.4456217,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.1891836279992276,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "d0bb2ac830b38c71b75964e082939682e4116d81aaa6837f56ac3b52a27a63b9"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731502.195024,
+     "work_seconds": 25.74940367400086,
+     "phase": "measured",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33317,
+       "cached": 32768,
+       "uncached": 549,
+       "prompt_ms": 1148.0,
+       "output": 2998,
+       "decode_ms": 24565.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 549,
+      "cached_input": 32768,
+      "output": 2998
+     },
+     "engine_input_seconds": 1.148,
+     "engine_decode_seconds": 24.565,
+     "engine_input_tokens_per_second": 478.2229965156795,
+     "engine_output_tokens_per_second": 122.0435579075921,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731502.2256675,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.310941804002141,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "2f9b0cdffceb903f40cc5e4d9fa2f75bb0ce94027cb2993fca4e666f73892a8a"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731533.8432062,
+     "work_seconds": 31.61754042100074,
+     "phase": "measured",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33506,
+       "cached": 32768,
+       "uncached": 738,
+       "prompt_ms": 1256.0,
+       "output": 3575,
+       "decode_ms": 30315.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 738,
+      "cached_input": 32768,
+      "output": 3575
+     },
+     "engine_input_seconds": 1.256,
+     "engine_decode_seconds": 30.315,
+     "engine_input_tokens_per_second": 587.5796178343949,
+     "engine_output_tokens_per_second": 117.92841827478145,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    }
+   ],
+   "telemetry": {
+    "sampler_stopped": true,
+    "samples": 217,
+    "raw_sha256": "f793ca25c5a389f16c3e39c813b4e95821687460193ed5a293fe590954d60a8d",
+    "interval_seconds": 1,
+    "max_gpu_temperature_c": 74,
+    "min_sm_clock_mhz": 210,
+    "throttle_reasons_seen": [
+     "gpu_idle",
+     "sw_power_cap"
+    ]
+   },
+   "stop": "stopped",
+   "block_tokens": {
+    "uncached_input": 69234,
+    "cached_input": 131072,
+    "output": 22591
+   },
+   "block_stages": 6,
+   "scheme_after": "电源方案 GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (高性能)",
+   "ended_at": 1792731542.3301096
+  },
+  {
+   "block": 12,
+   "plan": "A",
+   "guid": "381b4222-f694-41f0-9685-ff5bb260df2e",
+   "started_at": 1792731542.3321779,
+   "scheme_line": "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)",
+   "switched_at": 1792731543.0675225,
+   "load_seconds": 26.681948011000713,
+   "model_pid": null,
+   "engine_args": "C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\engine\\strata.exe --serve --pack C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\packs\\iq3_xxs --native C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00001-of-00002.gguf --ple-gguf C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\models\\IQ3_XXS\\Qwen3.8-Flash-Next-GSQ-RCO-IQ3_XXS-00002-of-00002.gguf --expert-profile C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\runtime\\Strata\\data\\expert-profile.bin --expert-cache auto --prefill 8192 --spec 4 --mtp C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next\\data\\mtp\\rt --max-context 206584 --kv int8 --kv-resident 20480 --spec-min-p 0.9 --pool-workers 23 --vram-reserve-mib 512 --pool-affinity all --conversation-cache-mib 8192 --conversation-cache-slots 4 --conversation-cache-min-free-mib 5120 --ple-io direct\r",
+   "telemetry_pid": 10208,
+   "requests": [
+    {
+     "started_at": 1792731633.0126767,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.943411627999012,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "43ec06b849bfcd06bc667a59ea4544d140a4982c5a4c079e8d209a0e69543b82"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731670.8539557,
+     "work_seconds": 37.84128134399907,
+     "phase": "warmup",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33323,
+       "cached": 0,
+       "uncached": 33323,
+       "prompt_ms": 12890.0,
+       "output": 3271,
+       "decode_ms": 24919.0,
+       "log_line": 14
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33323,
+      "cached_input": 0,
+      "output": 3271
+     },
+     "engine_input_seconds": 12.89,
+     "engine_decode_seconds": 24.919,
+     "engine_input_tokens_per_second": 2585.182311869666,
+     "engine_output_tokens_per_second": 131.26529957060876,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731670.882015,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2205423600007634,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "3791a1133fd1c4151258329cca4396308e8f8f1c9b273501761189d5f331d2b9"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731690.8798978,
+     "work_seconds": 19.997884632999558,
+     "phase": "warmup",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33331,
+       "cached": 32768,
+       "uncached": 563,
+       "prompt_ms": 1165.0,
+       "output": 2353,
+       "decode_ms": 18788.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 563,
+      "cached_input": 32768,
+      "output": 2353
+     },
+     "engine_input_seconds": 1.165,
+     "engine_decode_seconds": 18.788,
+     "engine_input_tokens_per_second": 483.26180257510725,
+     "engine_output_tokens_per_second": 125.23951458377688,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731690.9077666,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2495402969998395,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "560732eb151a396013fd0270925a0ba6414a4ad308aee162828d3fbe57918a52"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731724.738555,
+     "work_seconds": 33.830789921999894,
+     "phase": "warmup",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33520,
+       "cached": 32768,
+       "uncached": 752,
+       "prompt_ms": 1209.0,
+       "output": 4000,
+       "decode_ms": 32588.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 752,
+      "cached_input": 32768,
+      "output": 4000
+     },
+     "engine_input_seconds": 1.209,
+     "engine_decode_seconds": 32.588,
+     "engine_input_tokens_per_second": 622.0016542597187,
+     "engine_output_tokens_per_second": 122.74456855284153,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731724.7697647,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 12.963250147000508,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "1d713959e39c4bca56dfbf218e2b8147857956b7b2890647aeb756261bb9b51f"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731763.0583105,
+     "work_seconds": 38.28854782500093,
+     "phase": "measured",
+     "id": "initial-extraction",
+     "stages": [
+      {
+       "input": 33309,
+       "cached": 0,
+       "uncached": 33309,
+       "prompt_ms": 12922.0,
+       "output": 3310,
+       "decode_ms": 25335.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 33309,
+      "cached_input": 0,
+      "output": 3310
+     },
+     "engine_input_seconds": 12.922,
+     "engine_decode_seconds": 25.335,
+     "engine_input_tokens_per_second": 2577.6969509363876,
+     "engine_output_tokens_per_second": 130.64929938819813,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731763.0937955,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.1913367359993572,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "7231ff9f17197a06ba34973e3a5bfb60389a790915ded4f86ccabe6a6e52b5a5"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731793.3823783,
+     "work_seconds": 30.28858473499895,
+     "phase": "measured",
+     "id": "cached-calculation",
+     "stages": [
+      {
+       "input": 33317,
+       "cached": 32768,
+       "uncached": 549,
+       "prompt_ms": 1140.0,
+       "output": 3585,
+       "decode_ms": 29106.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 549,
+      "cached_input": 32768,
+      "output": 3585
+     },
+     "engine_input_seconds": 1.14,
+     "engine_decode_seconds": 29.106,
+     "engine_input_tokens_per_second": 481.5789473684211,
+     "engine_output_tokens_per_second": 123.17048031333745,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    },
+    {
+     "started_at": 1792731793.4151802,
+     "calls": 1,
+     "pass": true,
+     "complete": true,
+     "stream_timings": [
+      {
+       "first_model_text_delta_seconds": 1.2978883700016013,
+       "first_delta_timing_basis": "Observed nonempty reasoning/content SSE delta; network delivery included, not exact engine first-token time.",
+       "stream_done": true,
+       "finish_reason": "stop",
+       "sse_sha256": "3703152f01f8efe0b3867d3591c2f1bb321fcf05fe3f948bbb16f1ed9ec78fbf"
+      }
+     ],
+     "refusal": false,
+     "finish_reason": "stop",
+     "output_rows": 28,
+     "ended_at": 1792731828.5703673,
+     "work_seconds": 35.155188782999176,
+     "phase": "measured",
+     "id": "cached-update",
+     "stages": [
+      {
+       "input": 33506,
+       "cached": 32768,
+       "uncached": 738,
+       "prompt_ms": 1257.0,
+       "output": 3948,
+       "decode_ms": 33865.0,
+       "log_line": 2
+      }
+     ],
+     "tokens": {
+      "uncached_input": 738,
+      "cached_input": 32768,
+      "output": 3948
+     },
+     "engine_input_seconds": 1.257,
+     "engine_decode_seconds": 33.865,
+     "engine_input_tokens_per_second": 587.1121718377088,
+     "engine_output_tokens_per_second": 116.58054038092425,
+     "unit": "token/s",
+     "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+    }
+   ],
+   "telemetry": {
+    "sampler_stopped": true,
+    "samples": 195,
+    "raw_sha256": "2e8898c4349f318dce5c64adf75869921f7a5300a79de43bc5d86c022b1ef857",
+    "interval_seconds": 1,
+    "max_gpu_temperature_c": 74,
+    "min_sm_clock_mhz": 210,
+    "throttle_reasons_seen": [
+     "gpu_idle",
+     "sw_power_cap"
+    ]
+   },
+   "stop": "stopped",
+   "block_tokens": {
+    "uncached_input": 69234,
+    "cached_input": 131072,
+    "output": 20467
+   },
+   "block_stages": 6,
+   "scheme_after": "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)",
+   "ended_at": 1792731837.1673408
+  }
+ ]
+}
