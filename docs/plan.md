@@ -17,7 +17,7 @@
 10. ~~电源计划对照~~：2026-10-23 完成，两种计划速度差不到 1%（噪声量级），一直用平衡（[报告](../reports/v0.2.2/power-plan/summary.md)）。
 11. ~~零模型 mock 门回归~~：2026-10-22 修好（91bed4d），根因是调用缺 `--directory-probe`；`claude_scenario --backend` 已加 deepseek。
 12. ~~Claude Code 路径的提醒改用高优先级消息~~：2026-10-23 实现，见「多模型 benchmark」。
-13. **采样与窗口重新测量**：负载设计，见同名一节。开始前先把工具里写死的 harness 版本（`claude_headless.CLAUDE_VERSION` 2.1.303、`native_cli_binding` 的 Codex 0.163.0 副本）改为单一配置点并换成当时最新版，在新版上重跑 mock 门、compact probe 和第 12 项的高优先级送达实测（用户 2026-10-23：benchmark 之后的工作都用当时最新版）；benchmark v1 的导出常量保持原值。
+13. **采样与窗口重新测量**：负载设计，见同名一节。前置的 harness 换版已完成（2026-10-24）：版本改由 `tools/reviewer/harness_pins.py` 一处配置，换到 Codex 0.164.0、Claude Code 2.1.309 的 benchmark 副本；单测、两侧 mock 门、compact probe 和第 12 项的 Strata 送达实测 2 例都通过；2.1.309 的工具搜索占位工具由 runner 设 `ENABLE_TOOL_SEARCH=false` 去掉（`qwen-agent` 日常路径未改，待定）。开跑时若已有更新版本，按测量规则再换。
 14. **rtx4070tis 上线**（用户 2026-10-22 提出，不急，排在 13 之后）：用户准备让它恢复运行，只有 GPU 不同（4070 Ti SUPER 16GB，sm_89）。开始前先请用户定：对外量化（建议沿用 IQ3_XXS，IQ3_S 以后单独立项）；影响输出的参数（采样、窗口）是否沿用 3080 Ti 结论（建议沿用，只重测与硬件相关的维度）；直接装当时的最新版，不补中间版本。步骤：用户开机并提供连接方式 → 核对实际文件、版本、驱动（cuda13 引擎要求 ≥580.65）、权重、BIOS 微码（14900K 的 Vmin Shift）→ 系统环境对齐 3080 Ti（计划任务 Normal 优先级、锁页内存、页面文件 32768，需要 UAC）→ 补全 `config/deployments/rtx4070tis.json`（地址、端口、context_tiers）→ 用 upgrade_release 或重建安装 0.2.x（注意 `install_offline` 按发布版本拼引擎目录的已知限制）→ 部署（带上离线期间的全部改动）→ 安全门、compact probe、短检查 → 按[调参手册](host-tuning.md)「每机执行方法」对 IQ3_XXS 独立调参：16GB 显存下 prefill 16384、kv-resident 32768、显存预留、专家缓存都要重新测；sm_86 专用的解码开关表不适用；可顺带对照 256584 档在非 int8 KV 下的 200K 检索错误（见「其他未解决问题」）。原「顺序」第 6 条并入本项。
 15. **v5 题库**：用户 2026-10-13 暂停，何时恢复由用户定。
 
