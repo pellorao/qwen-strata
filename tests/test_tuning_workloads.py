@@ -494,6 +494,17 @@ class WindowBankTest(unittest.TestCase):
         stale = window_bank.summary_retention(w, after, ' '.join(updated['stale_values']))
         self.assertFalse(next(r for r in stale['rows'] if r['id'] == updated['id'])['kept'])
 
+    def test_fact_in_text_needs_the_current_value_line(self):
+        b = {'type': 'B', 'record': 'HM-1269', 'field': 'qty', 'answer': '57'}
+        k = {'type': 'K', 'record': 'K02', 'field': 'audit ticket', 'answer': 'VEGI-7359'}
+        self.assertTrue(window_bank.fact_in_text(b, ['x\nHM-1269 | owner=A B | site=S-1 | qty=57 | status=open | tag=t']))
+        self.assertTrue(window_bank.fact_in_text(b, ['UPDATE HM-1269 qty=57']))
+        self.assertFalse(window_bank.fact_in_text(b, ['UPDATE HM-1269 qty=570', 'UPDATE XHM-1269 qty=57']))
+        self.assertFalse(window_bank.fact_in_text(b, ['HM-1269 | owner=A B | site=S-1 | q']))  # truncated
+        self.assertTrue(window_bank.fact_in_text(k, ['K02 | audit ticket = VEGI-7359 [mark]']))
+        self.assertTrue(window_bank.fact_in_text(k, ['UPDATE K02 = VEGI-7359']))
+        self.assertFalse(window_bank.fact_in_text(k, ['K02 | audit ticket = VEGI-73590']))
+
     def test_timeline_split_and_equal_weights_give_raw_accuracy(self):
         w = self.frozen
         labels = [x['label'] for x in w['sequence']]
@@ -576,11 +587,11 @@ class CodexWorkloadTest(unittest.TestCase):
         self.assertEqual(codex_workload.loaded_startup_sha(), codex_workload.sha(startup_prompt_bytes(raw, False)))
         self.assertNotEqual(codex_workload.loaded_startup_sha(), codex_workload.sha(raw))
 
-    def analyse(self, events):
+    def analyse(self, events, in_text=None):
         with tempfile.NamedTemporaryFile('w', suffix='.jsonl', delete=False) as f:
             f.write(rollout_lines(events))
         try:
-            return codex_workload.analyse_session(f.name)
+            return codex_workload.analyse_session(f.name, in_text)
         finally:
             Path(f.name).unlink()
 
@@ -609,6 +620,21 @@ class CodexWorkloadTest(unittest.TestCase):
         self.assertIn('156584 compacted 1 times, fewer than 2',
                       codex_workload.window_effect({'context_window': 156584}, result))
         self.assertTrue(any('tool calls' in p for p in codex_workload.window_effect({'context_window': 206584}, result)))
+
+    def test_in_text_follows_the_truncated_kept_text(self):
+        full = 'Batch 01/02. New records:\nAA-1111 | owner=x | site=y | qty=5 | status=open | tag=t\nBB-2222 | qty=7'
+        cut = 'Batch 01/02. New records:\nAA-1111 | own'  # Codex shortened the oldest kept message
+        summary = 'Another language model started to solve this problem: summary'
+        events = [user(full), assistant('ACK 01'),
+                  {'type': 'compacted', 'payload': {'message': summary, 'replacement_history': [
+                      user(cut)['payload'], user(summary)['payload']]}},
+                  user('Checkpoint 1 of 5. Questions'), assistant('Q01: 5')]
+        qs = [{'id': 'Q01', 'checkpoint': 1, 'type': 'B', 'record': 'AA-1111', 'field': 'qty', 'answer': '5'}]
+        result = self.analyse(events, window_bank.finder({'questions': qs}))
+        self.assertEqual(result['timeline'][0]['raw'], ['batch 01', 'questions 1'])
+        self.assertEqual(result['timeline'][0]['in_text_ids'], [])
+        result = self.analyse(events[:2] + events[3:], window_bank.finder({'questions': qs}))
+        self.assertEqual(result['timeline'][0]['in_text_ids'], ['Q01'])
 
     def test_ack_reply_kept_when_no_summary_message_precedes_compaction(self):
         result = self.analyse([user('Batch 01/02. New records:'), assistant('ACK 01'),

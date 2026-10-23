@@ -260,7 +260,7 @@ def message_text(payload):
     return ''.join(c.get('text', '') for c in payload.get('content', []) if isinstance(c, dict))
 
 
-def analyse_session(path):
+def analyse_session(path, in_text=None):
     """Compactions (with the turn they follow and the turns kept raw), tool calls, repetition, the assistant's final
     reply per turn, and per question turn the window timeline: which turns were still raw context when it was
     answered, after which turns compactions happened, and the input of its last request (`window_bank.score`).
@@ -273,6 +273,13 @@ def analyse_session(path):
             continue
     calls, replies, compactions, last_user = [], [], [], None
     current, raw, timeline, summary_candidate, compacted_in_turn = None, [], [], False, False
+    texts = {}  # raw label -> the text Codex still holds for it (the oldest kept message may be truncated)
+
+    def mark_raw(point):
+        point['raw'] = list(raw)
+        point['compactions_after'] = [c['after_user_turn'] for c in compactions]
+        if in_text:
+            point['in_text_ids'] = in_text(point['label'], [texts[k] for k in raw if k in texts])
     for e in events:
         p = e.get('payload') or {}
         if e.get('type') == 'compacted':
@@ -288,6 +295,9 @@ def analyse_session(path):
             kept = [turn_label(message_text(x)) for x in p.get('replacement_history') or []
                     if isinstance(x, dict) and x.get('type') == 'message' and x.get('role') == 'user']
             raw = [k for k in kept if k and k != 'task']
+            texts = {turn_label(t): t for t in (message_text(x) for x in p.get('replacement_history') or []
+                                                 if isinstance(x, dict) and x.get('type') == 'message'
+                                                 and x.get('role') == 'user') if turn_label(t) not in (None, 'task')}
             summary = p.get('message') or next((h for h in history if turn_label(h) == 'task'), None)
             compactions.append({'after_user_turn': last_user, 'kept_raw': list(raw), 'summary': summary})
             compacted_in_turn = True
@@ -302,19 +312,19 @@ def analyse_session(path):
                 continue
             last_user = label
             raw.append(label)
+            texts[label] = message_text(p)
             current = {'turn': label, 'text': None, 'texts': [], 'input_tokens': None}
             summary_candidate = compacted_in_turn = False
             replies.append(current)
             if label.startswith('questions '):
-                timeline.append({'label': label, 'point': current, 'raw': list(raw),
-                                 'compactions_after': [c['after_user_turn'] for c in compactions]})
+                timeline.append({'label': label, 'point': current})
+                mark_raw(timeline[-1])
         elif p.get('type') == 'message' and p.get('role') == 'assistant' and current is not None:
             current['text'] = message_text(p)
             current['texts'].append(current['text'])
             summary_candidate = True
-            if current['turn'].startswith('questions '):
-                timeline[-1]['raw'] = list(raw)
-                timeline[-1]['compactions_after'] = [c['after_user_turn'] for c in compactions]
+            if current['turn'].startswith('questions ') and not compacted_in_turn:
+                mark_raw(timeline[-1])
         elif p.get('type') in ('function_call', 'custom_tool_call', 'local_shell_call'):
             summary_candidate = False
             calls.append({'name': p.get('name') or p.get('type'),
@@ -329,7 +339,8 @@ def analyse_session(path):
     repeated_lines = max((max(Counter(l for l in t.splitlines() if l.strip()).values(), default=0) for t in texts),
                          default=0)
     points = [{'label': t['label'], 'raw': t.get('raw', []), 'compactions_after': t.get('compactions_after', []),
-               'context_tokens': t['point']['input_tokens'], 'answered': t['point']['text'] is not None}
+               'context_tokens': t['point']['input_tokens'], 'answered': t['point']['text'] is not None,
+               **({'in_text_ids': t['in_text_ids']} if 'in_text_ids' in t else {})}
               for t in timeline]
     return {'compactions': compactions, 'tool_calls': len(calls), 'calls': calls,
             'loop': {'longest_identical_call_run': longest,
@@ -507,7 +518,7 @@ def run_sampling(plan, data, spec, folder, args_for, key, mark, settle, gate=lam
             'compacted_attempts': sum(not r['valid'] for r in runs)}
 
 
-def run_conversation(plan, sequence, folder, args_for, key, settle, seconds_limit, mark=None):
+def run_conversation(plan, sequence, folder, args_for, key, settle, seconds_limit, mark=None, in_text=None):
     """One Codex thread over `sequence` (opening, batches, question turns), one `codex exec` (resume) per turn.
     The limit covers the whole conversation and each turn gets what is left; at the limit the turn is killed,
     `settle()` waits for Strata to go idle, and no further turn is sent (unanswered questions score zero)."""
@@ -534,7 +545,7 @@ def run_conversation(plan, sequence, folder, args_for, key, settle, seconds_limi
             break
     log_end = mark() if mark else None
     path = rollout(home, timed_out)
-    analysis = analyse_session(path)
+    analysis = analyse_session(path, in_text)
     save(folder / 'session-analysis.json', analysis)
     return {'thread': thread, 'turns': turns, 'turns_planned': len(sequence), 'timed_out': timed_out,
             'work_seconds': sum(t['seconds'] for t in turns), 'log_bytes': [log_start, log_end],
@@ -544,7 +555,7 @@ def run_conversation(plan, sequence, folder, args_for, key, settle, seconds_limi
 def run_window(plan, data, spec, folder, args_for, key, mark, settle):
     """One scored instance: the whole v2 conversation; scored with its own measured timeline (window_bank.score)."""
     session, analysis = run_conversation(plan, data['sequence'], folder, args_for, key, settle,
-                                         plan['instance_seconds_limit'], mark)
+                                         plan['instance_seconds_limit'], mark, window_bank.finder(data))
     replies = [r['text'] for r in analysis['replies'] if r['turn'].startswith('questions ')]
     timeline = complete_timeline(analysis['timeline'], len(data['checkpoint_positions']))
     scored = window_bank.score(data, replies, timeline)
@@ -742,10 +753,12 @@ def run_claude_window(plan, data, name, out, seconds_limit=None, mock_base=None)
         folder, [s['text'] for s in data['sequence']], 'qwen3.8-flash-next-' + plan['model'].lower(),
         plan['fixed_conditions']['effort'], plan['host'], spec['context_window'],
         seconds_limit or plan['instance_seconds_limit'], label=f'window-{name}', mock_base=mock_base)
-    analysis = claude_headless.conversation_analysis(folder / 'stream.jsonl', turn_label)
+    analysis = claude_headless.conversation_analysis(folder / 'stream.jsonl', turn_label,
+                                                     window_bank.finder(data))
     replies = [r['text'] for r in analysis['replies'] if r['turn'].startswith('questions ')]
     points = [{'label': r['turn'], 'raw': r['raw'], 'compactions_after': r['compactions_after'],
-               'context_tokens': r['context_tokens'], 'answered': r['result'] is not None}
+               'context_tokens': r['context_tokens'], 'answered': r['result'] is not None,
+               'in_text_ids': r.get('in_text_ids')}
               for r in analysis['replies'] if r['turn'].startswith('questions ')]
     scored = window_bank.score(data, replies, complete_timeline(points, len(data['checkpoint_positions'])))
     acks = ack_problems(analysis)

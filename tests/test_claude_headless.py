@@ -233,12 +233,14 @@ class RunnerBuildersTest(unittest.TestCase):
         self.assertEqual((result['exit'], result['hard_interrupt'], len(result['turns'])), (0, False, 3))
         self.assertTrue(all(t['ended_at'] for t in result['turns']))
         from tools.tuning.codex_workload import turn_label
-        analysis = ch.conversation_analysis(out / 'stream.jsonl', turn_label)
+        analysis = ch.conversation_analysis(out / 'stream.jsonl', turn_label,
+                                            lambda label, texts: [t[:5] for t in texts if label == 'questions 1'])
         self.assertEqual([r['turn'] for r in analysis['replies']], ['batch 01', 'batch 02', 'questions 1'])
         self.assertEqual(analysis['replies'][2]['text'], 'R:Checkpoint 1 of 1. q')
         self.assertEqual(analysis['replies'][2]['context_tokens'], 35)
         self.assertEqual(analysis['compactions'][0]['after_user_turn'], 'batch 02')
         self.assertEqual(analysis['replies'][2]['raw'], ['questions 1'])
+        self.assertEqual(analysis['replies'][2]['in_text_ids'], ['Check'])  # only the turn kept after compaction
         self.assertEqual(analysis['replies'][2]['compactions_after'], ['batch 02'])
         self.assertEqual(analysis['tool_calls'], 0)
 

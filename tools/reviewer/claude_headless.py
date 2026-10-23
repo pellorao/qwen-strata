@@ -500,12 +500,17 @@ def run_turns(out, messages, argv, env, work, deadline, clock=time.time):
             'work_seconds': sum((t['ended_at'] or ended) - t['sent_at'] for t in turns)}
 
 
-def conversation_analysis(stream, label=lambda text: text):
+def conversation_analysis(stream, label=lambda text: text, in_text=None):
     """Per user turn of a run_turns stream: its label (`label(text)`, None to skip), the assistant's text, the
     context its last request carried (input + cache read + cache creation of the turn's result usage) and, for the
     window timeline, which turns were raw context when it was answered.  A compact_boundary drops everything before
     it except the turn in flight (Claude Code keeps no raw messages, only the summary)."""
-    replies, compactions, raw, current, calls = [], [], [], None, 0
+    replies, compactions, raw, current, calls, texts = [], [], [], None, 0, {}
+
+    def mark(point):
+        point['raw'] = list(raw)
+        if in_text:  # which facts are really in the raw text (`in_text(label, texts)`, window_bank.finder)
+            point['in_text_ids'] = in_text(point['turn'], [texts[k] for k in raw if k in texts])
     for line in Path(stream).read_text(errors='replace').splitlines():
         try:
             event = json.loads(line)
@@ -519,6 +524,7 @@ def conversation_analysis(stream, label=lambda text: text):
             compactions.append({'after_user_turn': raw[-1] if raw else None, 'during_turn': pending,
                                 'metadata': event.get('compact_metadata'), 'summary': None})
             raw = [pending] if pending else []
+            texts = {k: v for k, v in texts.items() if k in raw}
             if current is not None:
                 current['compactions_after'] = [c['after_user_turn'] for c in compactions]
         elif kind == 'user' and not event.get('isReplay') and isinstance(message, dict) and compactions \
@@ -536,8 +542,10 @@ def conversation_analysis(stream, label=lambda text: text):
             if name is None:
                 continue
             raw.append(name)
-            current = {'turn': name, 'text': '', 'result': None, 'context_tokens': None, 'raw': list(raw),
+            texts[name] = text
+            current = {'turn': name, 'text': '', 'result': None, 'context_tokens': None,
                        'compactions_after': [c['after_user_turn'] for c in compactions]}
+            mark(current)
             replies.append(current)
         elif kind == 'assistant' and isinstance(message, dict) and current is not None \
                 and not event.get('parent_tool_use_id'):
@@ -551,7 +559,7 @@ def conversation_analysis(stream, label=lambda text: text):
             current['result'] = event.get('subtype')
             current['context_tokens'] = sum(usage.get(k) or 0 for k in (
                 'input_tokens', 'cache_read_input_tokens', 'cache_creation_input_tokens')) or None
-            current['raw'] = list(raw)
+            mark(current)
     return {'replies': replies, 'compactions': compactions, 'tool_calls': calls}
 
 

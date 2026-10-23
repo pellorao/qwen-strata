@@ -345,6 +345,24 @@ def category(q):
     return 'K-marked' if q['type'] == 'K' and q['marked'] else 'K-unmarked' if q['type'] == 'K' else q['type']
 
 
+def fact_in_text(q, texts):
+    """Is the line carrying question `q`'s current value present in any of `texts` (raw context of a request)?
+    Records: `ID | ... field=value` or `UPDATE ID field=value`; key facts: `Kxx | name = value` or
+    `UPDATE Kxx = value`.  Identifiers and values are unique, so a whole-word match of both on one line is the fact."""
+    ident = re.compile(r'(?<![\w-])' + re.escape(q['record']) + r'(?![\w-])')
+    value = f'= {q["answer"]}' if q['type'] == 'K' else f'{q["field"]}={q["answer"]}'
+    tail = re.compile(re.escape(value) + r'(?![\w-])')
+    return any(ident.search(line) and tail.search(line) for t in texts for line in t.splitlines())
+
+
+def finder(workload):
+    """in_text callback for the session analyses: the ids of a checkpoint's questions whose fact is in the texts."""
+    by_label = {}
+    for q in workload['questions']:
+        by_label.setdefault(f'questions {q["checkpoint"]}', []).append(q)
+    return lambda label, texts: [q['id'] for q in by_label.get(label, []) if fact_in_text(q, texts)]
+
+
 def score(workload, replies, timeline=None, weights=None):
     """Score the 60 questions; with `timeline` (per checkpoint: raw labels, compactions before the turn and the
     context the turn's request carried) split them into the model-dependent components of design §2.2:
@@ -368,7 +386,10 @@ def score(workload, replies, timeline=None, weights=None):
     turn = {x['label']: i for i, x in enumerate(workload['sequence'])}
     for r in rows:
         point = timeline[r['checkpoint'] - 1]
-        r['in_text'] = r['source'] in point['raw']
+        # By record when the analysis checked the request's own text (Codex truncates the oldest kept message, so a
+        # kept turn need not still hold the record); by source turn otherwise.
+        r['in_text'] = r['id'] in point['in_text_ids'] if point.get('in_text_ids') is not None \
+            else r['source'] in point['raw']
         r['context_tokens'] = point.get('context_tokens')
         r['bin'] = band(point['context_tokens'], CONTEXT_BINS) if point.get('context_tokens') is not None else None
         r['compactions_since_source'] = sum(1 for c in point['compactions_after'] if turn[c] >= turn[r['source']])
