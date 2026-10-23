@@ -79,6 +79,10 @@ CONFIG_TABLE = [
     (25, 'strata', 'claude-code', 'strata', 'strata-iq3_xxs', 'strata', EFFORTS, 'main'),
     (28, 'luna', 'codex', 'gpt-6-luna', 'gpt-6-luna', 'openai', ('xhigh', 'max'), 'phase3'),
 ]
+# Configurations of the phase-3 supplement: every valid instance counts, no first-5 cut (measurement rule 失败与重跑,
+# user 2026-10-23: extra runs not triggered by scores count the same as preregistered ones).
+PHASE3_CONFIGS = frozenset(first + i for first, _, _, _, _, _, efforts, kind in CONFIG_TABLE if kind == 'phase3'
+                           for i in range(len(efforts)))
 # Directory model key -> (first configuration of its main row, model family, report style family = vendor).
 MODELS = {key: (first, family, vendor) for first, key, _, family, _, vendor, _, kind in CONFIG_TABLE if kind == 'main'}
 MODEL_EFFORTS = {key: efforts for _, key, _, _, _, _, efforts, kind in CONFIG_TABLE if kind == 'main'}
@@ -819,8 +823,9 @@ def scene_records(arm, scenario, scene):
     for folder in sorted(p for p in scene.iterdir() if p.is_dir() and arm_instance(arm, p.name)):
         out.append(instance_record(arm, scenario, folder, done, arm_tokens))
     # Plan §3, §14.1 L256, §14.4 and ruling 2026-10-21: not merged cells take their first 5 valid instances by start
-    # time for the main statistic; merged cells (DeepSeek C') take every valid one.
-    return bench_validity.rank_cells(out)
+    # time for the main statistic; merged cells (DeepSeek C') take every valid one; so do the phase-3 supplement cells
+    # (user 2026-10-23).
+    return bench_validity.rank_cells(out, whole_configs=PHASE3_CONFIGS)
 
 
 def arm_instance(arm, name):

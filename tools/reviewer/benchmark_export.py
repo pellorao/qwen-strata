@@ -174,12 +174,14 @@ COST_BASIS = {
 
 PHASE3_CAVEAT = (
     'phase3-supplement',
-    '第三阶段只是补充（用户 2026-10-22）：gpt-6-luna xhigh（配置 28）、max（配置 29）在 Codex 上 4 个场景各取前 5 个有效实例，'
-    '只给逐实例结果，不进预登记比较和 Holm 族，本工程也不拿它与其他配置比较。运行于 2026-10-23（JST 02:20–07:12），'
+    '第三阶段只是补充（用户 2026-10-22）：gpt-6-luna xhigh（配置 28）、max（配置 29）在 Codex 上 4 个场景各格取全部有效实例'
+    '（不截取前 5 个：并行调度多出的有效实例不是因分数加跑，与预登记实例效力相同，用户 2026-10-23），只给逐实例结果，不进预登记比较和 Holm 族，本工程也不拿它与其他配置比较。运行于 2026-10-23（JST 02:20–07:12），'
     '借用 ChatGPT 登录，条件与 v1 相同（同一 Codex 副本、场景冻结源、harness 补丁、搜索关闭、凭据 deny-read）；'
     '与前两阶段相隔一天，服务端模型或路由可能已有变化。',
-    'Phase 3 is a supplement only (user 2026-10-22): gpt-6-luna xhigh (configuration 28) and max (29) on Codex, the first '
-    '5 valid instances in each of the 4 scenarios, per-instance results only, never in a preregistered comparison or the '
+    'Phase 3 is a supplement only (user 2026-10-22): gpt-6-luna xhigh (configuration 28) and max (29) on Codex, every '
+    'valid instance of each cell in the 4 scenarios (no first-5 cut: the valid instances that parallel scheduling added '
+    'were not run because of scores and count the same as preregistered ones, user 2026-10-23), per-instance results '
+    'only, never in a preregistered comparison or the '
     'Holm family, and not compared with other configurations by this project. Run on 2026-10-23 (JST 02:20-07:12) on a '
     'borrowed ChatGPT login under the v1 conditions (same Codex copy, frozen scenario sources, harness patches, search '
     'off, credential deny-read); a day after the first two phases, so the served model or routing may have changed.')
@@ -285,11 +287,13 @@ def sha256(path):
 def stage(row, first_started):
     """preregistered: part of the preregistered design (the first 5 valid by start, their invalid predecessors,
     DeepSeek pooled cells); extra: Strata extra instances (plan §3, phase 2): valid rank above 5, or invalid and started
-    after the 5th valid instance of the cell; phase3: the same design cut (first 5 valid and the invalid ones) in a
-    phase-3 supplement configuration; surplus: any other valid instance beyond the first 5, never in a main
-    statistic."""
+    after the 5th valid instance of the cell; phase3: every instance of a phase-3 supplement configuration (all valid
+    ones in the main statistic, no first-5 cut, user 2026-10-23); surplus: any other valid instance beyond the first 5,
+    never in a main statistic."""
+    if row['config'] in bs.PHASE3_CONFIGS:
+        return 'phase3'
     strata = bs.CONFIGS[row['config']]['vendor'] == 'strata'
-    designed = 'phase3' if row['config'] in bs.PHASE3_CONFIGS else 'preregistered'
+    designed = 'preregistered'
     if row['valid']:
         if row['first_n'] or row['cell_pooled']:
             return designed
@@ -461,14 +465,16 @@ def selection_rules(summary):
         'strataExtraTarget': summary['strata_phase2_max'],
         'zh': ('有效实例按开始时刻排序得到 validRank。phase 1：未合并的格取 validRank ≤ 5（firstN）；DeepSeek 合并格（cellPooled，'
                'medium 请求并入 high）取全部有效实例。phase 2：Strata 的格取 validRank ≤ 10，其余同 phase 1。'
-               + ('phase 3：同 phase 2，另加补充配置 28、29（gpt-6-luna xhigh、max），各格取 validRank ≤ 5，只给实例、不进比较。'
+               + ('phase 3：同 phase 2，另加补充配置 28、29（gpt-6-luna xhigh、max），各格取全部有效实例（mainStatistic 为 true，'
+                  '不截取前 5 个，用户 2026-10-23），只给实例、不进比较，也没有一致性行。'
                   if summary['phase'] >= 3 else '') + 'inMain 是本文件阶段的结果；'
                '主统计多于前 5 个的格另有一致性行（firstN 为 true 的实例）。'),
         'en': ('Valid instances ordered by start give validRank. Phase 1: cells not pooled take validRank <= 5 (firstN); '
                'pooled DeepSeek cells (cellPooled, medium requests pooled into high) take every valid instance. '
                'Phase 2: Strata cells take validRank <= 10, others as in phase 1. '
-               + ('Phase 3: as phase 2, plus the supplement configurations 28 / 29 (gpt-6-luna xhigh / max), '
-                  'validRank <= 5 per cell, instances only and never in a comparison. ' if summary['phase'] >= 3 else '')
+               + ('Phase 3: as phase 2, plus the supplement configurations 28 / 29 (gpt-6-luna xhigh / max), every '
+                  'valid instance per cell (mainStatistic true, no first-5 cut, user 2026-10-23), instances only, never '
+                  'in a comparison and without a consistency row. ' if summary['phase'] >= 3 else '')
                + 'inMain is the result for the phase '
                'of this file; a cell whose main statistic holds more than its first 5 also has a consistency row '
                '(the instances with firstN true).')}
@@ -557,10 +563,10 @@ def phase_meta(summary):
             'Phase 2: the planned full-sample analysis; Strata cells use every valid instance (up to 10), other '
             'configurations as in phase 1.'),
         3: ('第三阶段补充（三阶段合一）：第二阶段的全部实例与选取不变，另加 gpt-6-luna xhigh（配置 28）、max（配置 29）的补充实例'
-            '（Codex，每格前 5 个有效实例，stage 为 phase3）；补充配置不进任何比较，见 caveats 的 phase3-supplement。',
+            '（Codex，每格全部有效实例、不截取前 5 个，stage 为 phase3）；补充配置不进任何比较，见 caveats 的 phase3-supplement。',
             'Phase 3 supplement (all three phases in one file): every phase-2 instance and selection unchanged, plus the '
-            'gpt-6-luna xhigh (configuration 28) and max (29) supplement instances (Codex, first 5 valid per cell, stage '
-            'phase3); the supplement configurations never enter a comparison, see the phase3-supplement caveat.')}
+            'gpt-6-luna xhigh (configuration 28) and max (29) supplement instances (Codex, every valid instance per cell, no '
+            'first-5 cut, stage phase3); the supplement configurations never enter a comparison, see the phase3-supplement caveat.')}
     out = {'number': phase, 'complete': summary['complete'], 'final': False if phase == 1 else summary['complete'],
            'zh': texts[phase][0], 'en': texts[phase][1]}
     if phase >= 2:

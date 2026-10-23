@@ -259,11 +259,13 @@ def apply(record, folder, instance):
 
 # ---- cells and the main statistic ---------------------------------------------------------------------------------
 
-def rank_cells(records, main_n=5):
+def rank_cells(records, main_n=5, whole_configs=()):
     """Per cell (arm, scenario, config, supplementary label): valid instances ranked by start time (attempt number
     when the start is unknown). Not merged cells: the first main_n valid ones form the main statistic (later ones,
     reruns included, are supplementary rows). Merged cells (DeepSeek C': medium pooled into high): every valid
-    instance is in the main statistic, the first main_n form the consistency row."""
+    instance is in the main statistic, the first main_n form the consistency row. Cells of whole_configs (the phase-3
+    supplement, measurement rule 失败与重跑, user 2026-10-23): every valid instance is in the main statistic, with no
+    first-main_n cut; first_n stays the plain fact valid_rank <= main_n."""
     cells, pooled_keys = {}, set()
     for r in records:
         r['valid_rank'] = r['main_statistic'] = r['first_n'] = None
@@ -277,7 +279,7 @@ def rank_cells(records, main_n=5):
         for i, r in enumerate(group, 1):
             r['valid_rank'] = i
             r['first_n'] = i <= main_n
-            r['main_statistic'] = pooled or i <= main_n
+            r['main_statistic'] = pooled or key[2] in whole_configs or i <= main_n
             r['cell'] = '/'.join(str(x) for x in key)
             r['cell_pooled'] = pooled
     return records

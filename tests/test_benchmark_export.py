@@ -129,8 +129,13 @@ class Phase3Test(unittest.TestCase):
         self.assertEqual({n: (c['key'], c['kind'], c['inComparisons']) for n, c in configs.items()},
                          {28: ('codex/gpt-6-luna/xhigh', 'phase3', False), 29: ('codex/gpt-6-luna/max', 'phase3', False)})
         stages = {i['id'].split('/')[-1]: i['selection']['stage'] for i in result['instances'] if i['configNumber'] == 29}
-        self.assertEqual(stages, {**{f'gpt-6-luna-max-a{i}': 'phase3' for i in range(1, 8) if i != 6},
-                                  'gpt-6-luna-max-a6': 'surplus'})
+        # No surplus in the supplement: every valid instance is in, invalid ones are phase3 too (user 2026-10-23).
+        self.assertEqual(stages, {f'gpt-6-luna-max-a{i}': 'phase3' for i in range(1, 8)})
+        sel = {i['id'].split('/')[-1]: i['selection'] for i in result['instances'] if i['configNumber'] == 29}
+        self.assertTrue(sel['gpt-6-luna-max-a6']['inMain'] and sel['gpt-6-luna-max-a6']['mainStatistic'])
+        self.assertFalse(sel['gpt-6-luna-max-a6']['firstN'])
+        self.assertFalse(sel['gpt-6-luna-max-a7']['inMain'])
+        self.assertFalse(result['meta']['phase']['complete'])  # a6 is valid and unscored, so it now counts
         self.assertEqual(len(result['comparisonDesign']['pairs']), 25)
         self.assertNotIn(28, {n for p in result['comparisonDesign']['pairs'] for n in (p['firstNumber'], p['secondNumber'])})
         self.assertEqual(result['meta']['phase']['number'], 3)

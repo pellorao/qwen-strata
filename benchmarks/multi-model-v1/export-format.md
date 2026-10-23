@@ -96,7 +96,7 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 | `requestedEffort`、`effectiveEffort`、`pooledIntoHigh` | 请求与生效的强度；DeepSeek medium 请求的实例并入 high 格时为 true |
 | `startedAt` | 开始时刻（首个请求进入模型）。无效实例可以为 null |
 | `validity` | `valid`、`status`（`valid`、`invalid`、`no-record`、`void` 等）、`notes`（判定理由）、`reminderInterrupts`、`streamCutRetries`（重判时处理的提醒中断和断流重试次数） |
-| `selection` | `validRank`（格内有效实例按开始时刻的序号，无效为 null）、`firstN`（validRank ≤ 5）、`mainStatistic`（第一阶段是否进主统计）、`cellPooled`（所在格是否是 DeepSeek 合并格）、`inMain`（本文件阶段是否进主统计）、`stage`（见下） |
+| `selection` | `validRank`（格内有效实例按开始时刻的序号，无效为 null）、`firstN`（validRank ≤ 5）、`mainStatistic`（第一阶段是否进主统计；第三阶段补充配置 28、29 没有第一阶段，为 true 表示进它们自己的主统计，即全部有效实例）、`cellPooled`（所在格是否是 DeepSeek 合并格）、`inMain`（本文件阶段是否进主统计）、`stage`（见下） |
 | `scoring` | 见下 |
 | `time` | `durationSeconds`（工作秒数，口径见 `environment.durationBasis`）、`timeLimitSeconds`（T，ARW 时限场景为 null）、`durationAdjustmentSeconds`（重判扣除的秒数） |
 | `tokens` | `uncachedInput`、`cachedInput`、`output`；Claude Code 的 Anthropic 和 DeepSeek 臂另有 `cacheWriteInput`、`cacheWrite1h`、`cacheWrite5m`（缓存写入已包含在 `uncachedInput` 里，单列只为按价目计费）；`source`；`lowerBound`（是下限：Claude Code 有段没有 result；或 Codex API 臂 ARW 在硬中断时没留下 token，改用 relay 日志求和，而有被中断、没有 usage 的请求，`source` 写明请求数，如第三阶段 CA luna-xhigh-a5） |
@@ -120,7 +120,7 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 | `modelFailureSubScenarios` | 记为模型失误的子场景 |
 | `diagnosticEnvironmentQueries` | 诊断分实例的环境查询次数，其余为 null |
 
-`stage`：`preregistered` 是预登记设计内的实例（格内前 5 个有效实例、它们之前的无效实例、DeepSeek 合并格的全部实例）；`extra` 是 Strata 加测（validRank > 5 的有效实例，或开始于第 5 个有效实例之后的无效实例）；`phase3` 是第三阶段补充配置里同样取法的实例（前 5 个有效实例和全部无效实例）；`surplus` 是其他配置多出的有效实例（validRank > 5），不进任何主统计（第三阶段并行运行多出的有效实例也是 surplus，未计分）。
+`stage`：`preregistered` 是预登记设计内的实例（格内前 5 个有效实例、它们之前的无效实例、DeepSeek 合并格的全部实例）；`extra` 是 Strata 加测（validRank > 5 的有效实例，或开始于第 5 个有效实例之后的无效实例）；`phase3` 是第三阶段补充配置 28、29 的全部实例（有效的全部进主统计，不截取前 5 个；无效的也标 `phase3`）；`surplus` 是其他配置多出的有效实例（validRank > 5），不进任何主统计。第三阶段补充配置没有 surplus（用户 2026-10-23，测量规则「失败与重跑」：并行调度多出的有效实例不是因分数加跑，与预登记实例效力相同）；10-23 之前生成的第三阶段文件曾把这 9 个实例记为 surplus、未计分。
 
 ## 重算规则
 
@@ -129,8 +129,8 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 ### 实例选取
 
 - 格 = 场景内的 (`configNumber`, `supplementaryNote`)。格内有效实例按 `validRank` 排序。
-- 主统计样本：第一阶段取 `valid` 且 `selection.mainStatistic` 为 true 的实例，即未合并的格取 validRank ≤ 5，DeepSeek 合并格取全部有效实例。第二阶段的 Strata 格取 validRank ≤ `strataExtraTarget`（10），其余同第一阶段。第三阶段同第二阶段，补充配置 28、29 的格取 validRank ≤ 5，只算配置行，不进比较。本文件阶段的结果就是 `selection.inMain`。
-- 一致性行：主统计的实例集合与 `firstN` 为 true 的集合不同时，另用 `firstN` 实例算一行。
+- 主统计样本：第一阶段取 `valid` 且 `selection.mainStatistic` 为 true 的实例，即未合并的格取 validRank ≤ 5，DeepSeek 合并格取全部有效实例。第二阶段的 Strata 格取 validRank ≤ `strataExtraTarget`（10），其余同第一阶段。第三阶段同第二阶段，补充配置 28、29 的格取全部有效实例（`mainStatistic` 为 true，不截取前 5 个，用户 2026-10-23），只算配置行，不进比较。本文件阶段的结果就是 `selection.inMain`。
+- 一致性行：主统计的实例集合与 `firstN` 为 true 的集合不同时，另用 `firstN` 实例算一行。第三阶段补充配置 28、29 不给一致性行：前 5 个在那里没有特殊地位。
 - 补充配置自己算一行（主统计规则同上），不进比较；另有一行描述性的"high + medium 合并"行，样本是同号 high 格的主统计实例加补充格的主统计实例，这一行的"有效"为样本数，"无效"为 0。
 - 只用已计分实例（`score` 非 null）算分数统计；格内有未计分实例时该行不完整（`complete` 为 false）。
 
@@ -201,3 +201,5 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 ## 检查结果（第三阶段，2026-10-23）
 
 三阶段合一文件 `reports/v0.1.45/multi-model-benchmark/benchmark-results.json` 由上文第三阶段命令生成：其中第二阶段的 725 个实例与 `phase2/benchmark-results.json` 逐字段相同，configs 的 29 个配置、comparisonDesign、A6 变体也相同；不同的只有 meta（generatedAt、source、phase）、selection 说明、caveats（多 `phase3-supplement`）、多出的配置 28、29 和 51 个补充实例（40 个计分、9 个 surplus 未计分、2 个无效）。40 个计分实例的分数、罚前分、f 与第三阶段报告一致；耗时为记录里的工作秒数。
+
+10-23 改为全部有效实例后重新生成（提醒中断判据改为一条，CStd luna-max-a4、a6 转为有效；补充配置不截取前 5 个）：51 个补充实例全部有效、全部计分、`stage` 都是 `phase3`、都进 `inMain`，每格 n 为 5–8；与改前的文件相比，第二阶段 725 个实例、configs、comparisonDesign、A6 变体逐字段相同，改动只在这 13 个补充实例（11 个新计分实例的 selection 与 scoring，以及 CStd luna-max-a5、a7 的 validRank 和 a7 的 firstN）、selection 说明、phase 说明与 `phase3-supplement` caveat；原先计分的 40 个实例分数不变。

@@ -29,7 +29,7 @@ def record(config, attempt, score, valid=True, started=None, name=None, scenario
 
 
 def ranked(records):
-    return bench_validity.rank_cells(records)
+    return bench_validity.rank_cells(records, whole_configs=bench_records.PHASE3_CONFIGS)
 
 
 def full_design(score=lambda config, attempt: 0.5 + 0.01 * attempt):
@@ -94,12 +94,27 @@ class DesignTest(unittest.TestCase):
         three, two = bs.summarize(base + extra, 3), bs.summarize(ranked(full_design()), 2)
         rows = three['scenarios'][SCENARIO]['configs']
         supplement = [c for c in rows if c['config'] in (28, 29)]
-        self.assertEqual([(c['config'], c['kind'], c['n']) for c in supplement], [(28, 'phase3', 5), (29, 'phase3', 5)])
+        # Every valid instance, no first-5 cut and no consistency row (user 2026-10-23).
+        self.assertEqual([(c['config'], c['kind'], c['n']) for c in supplement], [(28, 'phase3', 6), (29, 'phase3', 6)])
         self.assertEqual(three['scenarios'][SCENARIO]['comparisons'], two['scenarios'][SCENARIO]['comparisons'])
         self.assertEqual([c for c in rows if c['config'] not in (28, 29)], two['scenarios'][SCENARIO]['configs'])
         self.assertEqual(three['holm_family_size'], 25)
-        surplus = [r for r in three['scenarios'][SCENARIO]['instances'] if r['config'] == 28 and r['attempt'] == 6]
-        self.assertFalse(surplus[0]['in_main'])
+        sixth = [r for r in three['scenarios'][SCENARIO]['instances'] if r['config'] == 28 and r['attempt'] == 6]
+        self.assertTrue(sixth[0]['in_main'])
+        self.assertFalse(sixth[0]['first_n'])  # still the plain fact valid_rank <= 5
+
+    def test_phase3_records_ranked_with_the_first_5_cut_are_refused(self):
+        stale = bench_validity.rank_cells(full_design() + [record(28, i, 0.9) for i in range(1, 7)])
+        with self.assertRaisesRegex(ValueError, 'rebuild them'):
+            bs.summarize(stale, 3)
+
+    def test_phase_1_and_2_keep_the_first_5_cut(self):
+        # whole_configs touches only the phase-3 supplement: a luna high cell with 7 valid keeps 5 in the main statistic.
+        records = ranked(full_design() + [record(6, i, 0.5) for i in (6, 7)])
+        for phase in (1, 2):
+            rows = [c for c in bs.summarize([dict(r) for r in records], phase)['scenarios'][SCENARIO]['configs']
+                    if c['config'] == 6]
+            self.assertEqual([(c['kind'], c['n']) for c in rows], [('main', 5)])
 
     def test_family_is_the_25_preregistered_pairs(self):
         """Plan §5 (2026-10-21): Codex 8, Claude Code 11, harness 6."""

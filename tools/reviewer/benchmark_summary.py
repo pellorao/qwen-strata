@@ -10,7 +10,7 @@ directory, per scenario:
   SE and t 95% interval, raw score, format penalty and repairs, minutes and share of the time limit, the three token
   classes and their source, tool calls, cost, returned model IDs and service tiers;
 - a consistency row (the first 5 valid by start time) for every cell whose main statistic holds more: merged DeepSeek
-  cells (C', plan §14.4) and, in phase 2, Strata cells with extra instances;
+  cells (C', plan §14.4) and, in phase 2, Strata cells with extra instances (never for the phase-3 supplement);
 - supplementary rows (DeepSeek medium not merged, `supplementary_label`) and their descriptive high+medium row; they
   never enter a comparison;
 - the 25 preregistered comparisons (plan §5): Welch t with Welch-Satterthwaite df, Holm within the scenario,
@@ -29,8 +29,10 @@ adds the Strata extra instances: a Strata cell's main statistic is its valid ins
 target), with the first 5 as a consistency row; a cell with fewer uses its actual n.
 
 Phase 3 (user 2026-10-22): phase 2 unchanged plus the supplement configurations 28 / 29 (gpt-6-luna xhigh / max on
-Codex, PHASE3_CONFIGS): their rows (kind phase3, first 5 valid by start time) and instances only, never in a comparison
-or the Holm family. Configurations come from tools.reviewer.bench_records.CONFIG_TABLE; a record outside it stops the
+Codex, PHASE3_CONFIGS): their rows (kind phase3) and instances only, never in a comparison or the Holm family. A
+supplement row takes every valid instance of its cell, with no first-5 cut and no consistency row (measurement rule
+失败与重跑, user 2026-10-23: extra runs not triggered by scores count the same as preregistered ones); records ranked
+before that rule are refused. Configurations come from tools.reviewer.bench_records.CONFIG_TABLE; a record outside it stops the
 summary. summary.json carries a `generator` marker (tool, its sha256, phase) that benchmark_export requires.
 
     python3 -m tools.reviewer.benchmark_summary --data-root <checkout> --out <fresh dir> [--phase 1|2|3]
@@ -43,7 +45,7 @@ import math
 from pathlib import Path
 
 from tools.metrics.measurement_format import equivalent_cost_usd, minutes
-from tools.reviewer.bench_records import CONFIG_TABLE
+from tools.reviewer.bench_records import CONFIG_TABLE, PHASE3_CONFIGS
 
 # Configurations from the one table of tools.reviewer.bench_records (user 2026-10-23: no copy of it here). Rows of plan
 # §2 have kind main; PHASE3_CONFIGS are the phase-3 supplement (gpt-6-luna xhigh / max), only in phase 3, never in a
@@ -52,8 +54,6 @@ CONFIG_ROWS = [(first, harness, model, vendor, efforts)
                for first, _, harness, _, model, vendor, efforts, _ in CONFIG_TABLE]
 CONFIGS = {first + i: {'harness': h, 'model': m, 'vendor': v, 'effort': e}
            for first, h, m, v, efforts in CONFIG_ROWS for i, e in enumerate(efforts)}
-PHASE3_CONFIGS = frozenset(first + i for first, _, _, _, _, _, efforts, kind in CONFIG_TABLE if kind == 'phase3'
-                           for i in range(len(efforts)))
 PREREGISTERED_CONFIGS = frozenset(CONFIGS) - PHASE3_CONFIGS
 RECORD_FIELDS = ('id', 'scenario', 'config', 'valid', 'valid_rank', 'main_statistic', 'first_n', 'score', 'raw_score',
                  'format_penalty', 'repairs', 'seconds', 'time_limit_seconds', 'tokens', 'token_source', 'tool_calls',
@@ -207,6 +207,9 @@ def validate(record, phase=3):
         raise ValueError('Tokens must state ' + ', '.join(TOKEN_CLASSES))
     if record['valid'] and record['valid_rank'] is None:
         raise ValueError(f'{record["id"]}: a valid instance without valid_rank (bench_validity.rank_cells)')
+    if record['config'] in PHASE3_CONFIGS and record['valid'] and not record['main_statistic']:
+        raise ValueError(f'{record["id"]}: a valid phase-3 supplement instance outside the main statistic (records '
+                         'ranked with the first-5 cut; rebuild them with tools.reviewer.bench_records)')
     if not record['valid'] and record['score'] is not None:
         raise ValueError(f'{record["id"]}: an invalid instance with a score')
 
@@ -454,7 +457,7 @@ def scenario_summary(records, phase):
         first = [r for r in valid if r['first_n']]
         kind = 'supplementary' if supplementary else 'phase3' if config in PHASE3_CONFIGS else 'main'
         rows.append(statistics(config, main, kind, supplementary, group, len(valid)))
-        if {r['id'] for r in first} != {r['id'] for r in main}:
+        if kind != 'phase3' and {r['id'] for r in first} != {r['id'] for r in main}:
             rows.append(statistics(config, first, 'consistency', supplementary or '', group, len(valid)))
         if kind == 'main':
             samples[config] = main
@@ -550,14 +553,16 @@ def phase_text(summary):
     if summary['phase'] == 2:
         return text
     return ('第三阶段补充：第二阶段的全部实例与统计不变，另加 gpt-6-luna xhigh（配置 28）、max（配置 29）'
-            '两个补充配置（Codex，按开始时刻的前 5 个有效实例）；它们只给配置行和逐实例结果，不进预登记比较和 Holm 族。'
+            '两个补充配置（Codex，各格取全部有效实例，不截取前 5 个，也没有一致性行：用户 2026-10-23，非因分数加跑的有效实例'
+            '与预登记实例效力相同）；它们只给配置行和逐实例结果，不进预登记比较和 Holm 族。'
             + text)
 
 
 def markdown(summary):
     lines = ['# 多模型 benchmark v1 汇总', '', phase_text(summary), '',
              f"每个场景 {summary['holm_family_size']} 个预登记比较，Holm 校正，双侧 α = {summary['alpha']}，"
-             'Welch t 检验（Welch–Satterthwaite 自由度）。主统计多于前 5 个的格另给一致性行（按开始时刻的前 5 个）；'
+             'Welch t 检验（Welch–Satterthwaite 自由度）。主统计多于前 5 个的格另给一致性行（按开始时刻的前 5 个'
+             + ('；第三阶段补充配置不给' if summary['phase'] >= 3 else '') + '）；'
              '补充行和敏感性行不进比较。不给比值、综合分和排名。', '']
     if not summary['complete']:
         lines += ['**未计分完**：有主统计实例还没有最终分数，相关比较标"未计分完"。', '']

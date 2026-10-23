@@ -161,6 +161,19 @@ class ValidityTest(unittest.TestCase):
         self.assertFalse(by['q5']['first_n'])
         self.assertTrue(by['p1']['first_n'])
 
+    def test_whole_configs_keep_every_valid_instance(self):
+        recs = [{'id': f'w{i}', 'arm': 'x', 'scenario': 's', 'config': 28, 'attempt': i, 'started': i,
+                 'valid': i != 2} for i in range(1, 9)]
+        recs += [{'id': f'o{i}', 'arm': 'x', 'scenario': 's', 'config': 1, 'attempt': i, 'started': i, 'valid': True}
+                 for i in range(1, 8)]
+        bench_validity.rank_cells(recs, whole_configs={28})
+        by = {r['id']: r for r in recs}
+        self.assertTrue(all(r['main_statistic'] for r in recs if r['config'] == 28 and r['valid']))
+        self.assertEqual([r['id'] for r in recs if r['config'] == 28 and r['first_n']], ['w1', 'w3', 'w4', 'w5', 'w6'])
+        self.assertEqual(by['w8']['valid_rank'], 7)
+        self.assertEqual([r['id'] for r in recs if r['config'] == 1 and r['main_statistic']], [f'o{i}' for i in range(1, 6)])
+        self.assertIsNone(by['w2']['main_statistic'])
+
     def test_merged_cell_stays_merged_when_its_pooled_runs_are_invalid(self):
         recs = [{'id': 'm1', 'arm': 'x', 'scenario': 's', 'config': 2, 'attempt': 1, 'started': 1, 'valid': False,
                  'pooled': True}]
