@@ -1,24 +1,16 @@
-"""Run the sampling or window tuning workload through native Codex, one cold start per instance.
+"""Run the window tuning workload (v2, benchmarks/window-load-v1) through native Codex.
 
-Each instance: (sampling) deploy the condition over the host default -> take the lease -> start the model with the
-instance's context tier -> verify the loaded startup prompt and engine window -> run the Codex sessions -> stop the
-model, capture the engine log -> score, analyse the sessions and check the condition took effect.  The staged
-decision (tools.tuning.staged_decision) decides whether another round of +2 instances per condition is needed.
-
-Every tool command runs in a native Codex permission profile that sees only the session's workspace (`isolation`,
-verified without a model by tools.tuning.sandbox_probe, which `check` runs).  Sampling runs the set in mixed groups
-(directions and tiers dealt across groups by the frozen set's order), one fresh Codex session and one hard limit per
-group (`run_sampling`).  A sampling plan with `"pilot": true` runs one instance of one condition to measure Qwen's
-per-item correctness, time and tokens.
+The consecutive instances of one condition share one lease, one load and one unscored warm-up conversation
+(`run_window_block`); each scored instance is the whole conversation in a fresh Codex thread (`run_window`).  The
+staged decision (tools.tuning.staged_decision) decides whether another round of +2 instances per condition is needed.
+Every tool command runs in a native Codex permission profile that only reads the session's workspace (`isolation`,
+verified without a model by tools.tuning.sandbox_probe, which `check` runs).  `claude-window` is the pilot's Claude
+Code mechanism check.
 
     python3 -m tools.tuning.codex_workload check --plan PLAN
-    python3 -m tools.tuning.codex_workload run --plan PLAN --out DIR [--limit N] [--groups 7-10]
+    python3 -m tools.tuning.codex_workload run --plan PLAN --out DIR [--limit N]
     python3 -m tools.tuning.codex_workload decide --out DIR
     python3 -m tools.tuning.codex_workload claude-window --plan PLAN --out DIR --condition NAME
-
-The window workload (v2, benchmarks/window-load-v1) runs in blocks instead: the consecutive instances of one condition
-share one lease, one load and one unscored warm-up conversation (`run_window_block`); `claude-window` is the pilot's
-Claude Code mechanism check.
 """
 import argparse
 from collections import Counter
@@ -32,7 +24,7 @@ import signal
 import subprocess
 import time
 
-from tools.tuning import sampling_bank, staged_decision, window_bank
+from tools.tuning import staged_decision, window_bank
 from tools.reviewer.native_cli_binding import CODEX, CODEX_VENDOR
 from tools.reviewer.providers import CREDENTIAL_PATTERNS, CREDENTIAL_VARIABLES
 
@@ -42,10 +34,6 @@ STARTUP = ROOT / 'config/prompts/startup-instructions.txt'
 TIERS = {156584: 100000, 206584: 150000}
 KILL_GRACE_SECONDS = 5          # SIGTERM to the session's process group, then SIGKILL
 ENGINE_IDLE_LIMIT_SECONDS = 120  # a cancelled request must leave Strata idle within this
-GROUP_ATTEMPTS = 2              # a compacted sampling group is invalid and rerun once in a fresh session
-MIN_FREE_COMMIT_GIB = 8         # default plan `min_free_commit_gib`: a group starts only with this much Windows commit
-COMMIT_POLL_SECONDS = 30        # below it the group waits, rechecking this often
-COMMIT_WAIT_LIMIT_SECONDS = 600  # and the instance fails after this long (exhausted commit crashed WSL, 2026-10-12)
 
 
 def sha(raw):
@@ -57,79 +45,56 @@ def save(path, value):
 
 
 def load_plan(path):
-    """Plan with its frozen input and condition files; refuse anything that changed since it was frozen."""
-    path = Path(path)
-    plan = json.loads(path.read_text())
-    if plan.get('schema') != 'codex-workload-v1' or plan['workload'] not in ('sampling', 'window'):
-        raise ValueError('Not a Codex workload plan')
+    """Plan with its frozen input; refuse anything that changed since it was frozen."""
+    plan = json.loads(Path(path).read_text())
+    if plan.get('schema') != 'codex-workload-v1' or plan.get('workload') != 'window':
+        raise ValueError('Not a Codex window workload plan')
     raw = (ROOT / plan['input']['path']).read_bytes()
     if sha(raw) != plan['input']['sha256']:
         raise ValueError('Frozen workload input changed')
     names = set(plan['conditions'])
     data = json.loads(raw)
     if plan.get('pilot'):
-        if plan['workload'] == 'window' and sorted(plan['first_round']) != sorted(names):
+        if sorted(plan['first_round']) != sorted(names):
             raise ValueError('A window pilot runs each condition once')
-        if plan['workload'] == 'sampling' and (len(names) != 1 or plan['first_round'] != list(names)):
-            raise ValueError('A pilot runs one sampling condition once')
     elif len(names) not in staged_decision.FINAL_BOUNDS or set(plan['first_round']) != names or \
             any(plan['first_round'].count(n) != staged_decision.SIZES[0] for n in names):
         raise ValueError('First round must run each of the 2-6 conditions three times')
-    if plan['workload'] == 'sampling' and not plan.get('pilot') and sampling_bank.points_of(data) is None:
-        raise ValueError('A tuning sampling set must carry per-item points')
-    if plan['workload'] == 'sampling':
-        size, per_tier = plan.get('group_size'), plan.get('group_seconds_per_tier')
-        if not isinstance(size, int) or size <= 0 or not isinstance(per_tier, (int, float)) or per_tier <= 0 or \
-                {'instance_seconds_limit', 'item_seconds_limit', 'session_token_budget'} & set(plan):
-            raise ValueError('A sampling plan sets group_size and group_seconds_per_tier (one limit per group)')
-    elif any(not isinstance(plan.get(k), (int, float)) or plan[k] <= 0 for k in (
+    if any(not isinstance(plan.get(k), (int, float)) or plan[k] <= 0 for k in (
             'instance_seconds_limit', 'warmup_batches', 'warmup_seconds_limit', 'verified_prompt_tokens')):
         raise ValueError('A window plan sets instance_seconds_limit, warmup_batches, warmup_seconds_limit and '
                          'verified_prompt_tokens')
-    if plan['workload'] == 'window' and data.get('schema') != window_bank.SCHEMA:
+    if data.get('schema') != window_bank.SCHEMA:
         raise ValueError('A window plan runs the window workload v2 (one conversation with five checkpoints)')
-    conditions = {}
     for name, spec in plan['conditions'].items():
         window = spec['context_window']
         if window not in TIERS or spec['threshold'] != TIERS[window]:
             raise ValueError(name + ': context tier and threshold disagree')
-        if plan['workload'] == 'window' and spec.get('deployment_condition'):
-            raise ValueError('Window conditions change only the tier, never the deployment')
         if spec.get('deployment_condition'):
-            from tools.ops.deployment_source import load_condition
-            condition, digest = load_condition(path.parent / spec['deployment_condition'])
-            if digest != spec['deployment_condition_sha256'] or condition.get('model') != plan['model']:
-                raise ValueError(name + ': condition file differs from the frozen plan')
-            conditions[name] = (condition, digest)
-        else:
-            conditions[name] = (None, None)
-    return plan, data, conditions
+            raise ValueError('Window conditions change only the tier, never the deployment')
+    return plan, data
 
 
-def next_round(sampled, round_number, conditions=None, grouped=False):
-    """+2 instances for each candidate still sampled.  Sampling: mirrored (a b c c b a), direction alternating per
-    round.  `grouped` (window, design v2 U13): the same condition back to back (one load per condition and round),
-    the condition order reversed every round: round 1 a a a b b b, round 2 b b a a, round 3 a a b b.
-    `round_number` is the number of decisions taken; `conditions` fixes the grouped base order (the plan's)."""
-    if not grouped:
-        order = list(sampled) if round_number % 2 else list(reversed(sampled))
-        return order + order[::-1]
+def next_round(sampled, round_number, conditions=None):
+    """+2 instances for each candidate still sampled (design v2 U13): the same condition back to back (one load per
+    condition and round), the condition order reversed every round: round 1 a a a b b b, round 2 b b a a, round 3
+    a a b b.  `round_number` is the number of decisions taken; `conditions` fixes the base order (the plan's)."""
     base = [c for c in (conditions or sampled) if c in sampled]
     order = base if round_number % 2 == 0 else base[::-1]
     return [c for c in order for _ in range(2)]
 
 
-def isolation(workload, folder):
+def isolation(folder):
     """Native Codex permission profile: tool commands see only the system minimum, the Codex binary (the sandbox
-    helper re-executes it) and this session's workspace, never the bank, the project, CODEX_HOME or /tmp.  Sampling
-    may write its workspace; window recall only reads.  The provider key is kept out of the shell environment.
+    helper re-executes it) and this session's workspace (read only: window recall needs no files), never the
+    workload, the project, CODEX_HOME or /tmp.  The provider key is kept out of the shell environment.
     Codex would otherwise add its own CODEX_HOME (the live rollout we analyse) as readable, so it is denied.
     Verified without a model by tools.tuning.sandbox_probe."""
     workspace = str((Path(folder) / 'workspace').resolve())
     return {'default_permissions': 'tuning_workspace',
             'permissions.tuning_workspace.filesystem': {
                 ':minimal': 'read', str(CODEX_VENDOR): 'read',
-                workspace: 'write' if workload == 'sampling' else 'read',
+                workspace: 'read',
                 str((Path(folder) / 'codex-home').resolve()): 'none'},
             'shell_environment_policy.exclude': ['STRATA_*', 'CODEX_*', *CREDENTIAL_VARIABLES, *CREDENTIAL_PATTERNS],
             'shell_environment_policy.set': {'TMPDIR': workspace}}
@@ -157,7 +122,7 @@ def codex_overrides(plan, spec, folder, base_url):
               'model_providers.qwen_strata.supports_websockets': False,
               'model_providers.qwen_strata.request_max_retries': 0,
               'model_providers.qwen_strata.stream_max_retries': 0,
-              **isolation(plan['workload'], folder)}
+              **isolation(folder)}
     values = compaction_config(values, folder / 'prompt-policy')
     args = []
     for key, value in values.items():
@@ -350,36 +315,6 @@ def analyse_session(path, in_text=None):
             'replies': replies, 'timeline': points}
 
 
-ROOT_DIRECTORIES = {'bin', 'boot', 'dev', 'etc', 'home', 'lib', 'lib64', 'media', 'mnt', 'opt', 'proc', 'root',
-                    'run', 'sbin', 'srv', 'sys', 'tmp', 'usr', 'var'}
-
-
-def path_arguments(text):
-    """Path-shaped words of a tool call: absolute paths under a real root directory, `~` paths and parent steps.
-    Code and sed scripts in the same call (`a // b`, `/1000`, `s/x/y/g`) are not paths and are not returned."""
-    words = re.findall(r'[^\s\'"`;|&<>(){}\[\],=:]+', text.replace('\\n', ' ').replace('\\t', ' '))
-    found = []
-    for word in words:
-        if word.startswith('/') and word.split('/')[1] in ROOT_DIRECTORIES or word == '~' or word.startswith('~/'):
-            found.append(word)
-        elif word == '..' or word.startswith('../') or '/../' in word or word.endswith('/..'):
-            found.append(word)
-    return found
-
-
-def escapes(calls, workspace):
-    """Tool calls naming a path outside the workspace, a parent directory step, or Codex session material."""
-    workspace, flagged = str(Path(workspace).resolve()), []
-    for c in calls:
-        text = str(c['arguments'])
-        outside = [p for p in path_arguments(text)
-                   if not (p.startswith('/') and (p == workspace or p.startswith(workspace + '/')))
-                   and p not in ('/dev/null', '/tmp') and not p.startswith(('/usr/', '/bin/'))]
-        if outside or 'CODEX_HOME' in text:
-            flagged.append({'call': c, 'outside': outside})
-    return flagged
-
-
 def window_effect(spec, analysis, minimum_compactions=None):
     """Did compaction happen as this window condition must make it happen (design §2.3: 156584 at least twice,
     206584 at least once over the whole conversation), and no tool call at all (a recall session uses none)?"""
@@ -402,120 +337,6 @@ def ack_problems(analysis):
             if not match or match.group(1) != want:
                 bad.append({'turn': r['turn'], 'reply': (r['text'] or '')[:200]})
     return bad
-
-
-def context_tokens(path):
-    """Context size after the last request of a rollout (input plus output of that request); 0 before any."""
-    size = 0
-    for line in (Path(path).read_text().splitlines() if path else []):
-        try:
-            e = json.loads(line)
-        except ValueError:
-            continue
-        info = (e.get('payload') or {}).get('info') if e.get('type') == 'event_msg' else None
-        if (e.get('payload') or {}).get('type') == 'token_count' and info:
-            size = info['last_token_usage']['total_tokens']
-    return size
-
-
-def groups(items, size):
-    """The set's fixed groups: consecutive runs in set order (`sampling_bank.chunks`).  A frozen set lists its items
-    in mixed group order (`sampling_bank.grouped` with the same size), so every group mixes directions and tiers and
-    cannot be solved by one generic program; the model may still work on a group's items in any order."""
-    return sampling_bank.chunks(items, size)
-
-
-def group_seconds_limit(group, per_tier):
-    """Hard limit of a group: the sum of its items' tiers times `group_seconds_per_tier`."""
-    return sum(x['tier'] for x in group) * per_tier
-
-
-def group_prompt(group, limit):
-    numbers = ', '.join(x['number'] for x in group)
-    return (f'Read README.md first and follow it. Solve problems {numbers} (problems/<P>.md), in any order. Together '
-            f'they have a hard limit of {round(limit / 60, 1):g} minutes: write each answer or solution as soon as it '
-            'is done. End your turn when all of them are written.')
-
-
-def approximate_seconds(part, workspace, started, seconds):
-    """Per item: gap between consecutive result writes; the group time left after the last write is shared by the
-    items with nothing written (the model may work on several items at once, so this is only approximate)."""
-    gaps = sampling_bank.write_intervals(part, workspace, started)
-    missing = [x['id'] for x in part['items'] if x['id'] not in gaps]
-    left = max(0.0, seconds - sum(gaps.values()))
-    return {**gaps, **{i: left / len(missing) for i in missing}}, set(missing)
-
-
-def wait_for_free_commit(read, minimum_gib, log=print, sleep=time.sleep, clock=time.monotonic):
-    """Block while Windows' free commit (`read()`, GiB) is below `minimum_gib`, logging each recheck; give up with an
-    error after COMMIT_WAIT_LIMIT_SECONDS.  Returns the seconds waited, which a group's time leaves out."""
-    began = clock()
-    while (free := read()) < minimum_gib:
-        waited = clock() - began
-        if waited >= COMMIT_WAIT_LIMIT_SECONDS:
-            raise RuntimeError(f'Windows free commit stayed below {minimum_gib} GiB for {waited:.0f} s '
-                               f'(now {free:.1f} GiB)')
-        log(f'{datetime.now():%H:%M:%S} Windows free commit {free:.1f} GiB < {minimum_gib} GiB; '
-            f'waiting {waited:.0f} s so far')
-        sleep(COMMIT_POLL_SECONDS)
-    return clock() - began
-
-
-def run_sampling(plan, data, spec, folder, args_for, key, mark, settle, gate=lambda: 0.0):
-    """The set in mixed groups of at most `group_size` items (`groups`), each in a fresh Codex session whose
-    workspace holds only that group; the model reads and answers them in any order, together if it likes.  A group's hard limit is the sum of its tiers times
-    `group_seconds_per_tier`: at the limit the session is killed, `settle()` waits until Strata has cancelled the
-    generation, and the group is scored on what it wrote.  Group time is exact and `mark()` around the session
-    attributes its engine tokens; per-item time is approximate (write intervals).  A compacted group is invalid and
-    rerun in a fresh session; if every attempt compacts the instance fails its effect check.  `gate()` runs before
-    each attempt, outside its time (the free commit wait)."""
-    rows, runs = [], []
-    only = plan.get('only_groups')  # recovery: run just these group numbers (numbering of the full set kept)
-    for g, group in enumerate(groups(data['items'], plan['group_size']), 1):
-        if only and g not in only:
-            continue
-        part, limit = {**data, 'items': group}, group_seconds_limit(group, plan['group_seconds_per_tier'])
-        for attempt in range(1, GROUP_ATTEMPTS + 1):
-            here = folder / f'group-{g:02d}-{attempt}'
-            workspace, home = here / 'workspace', here / 'codex-home'
-            home.mkdir(parents=True)
-            sampling_bank.export(part, workspace)
-            subprocess.run(['git', 'init', '-q'], cwd=workspace, check=True)
-            waited = gate()
-            log_start, started = mark(), time.time()
-            code, thread, seconds = codex_exec(args_for(here), workspace, home, key, group_prompt(group, limit),
-                                               here / 'codex.jsonl', limit)
-            timed_out = code == 'timeout'
-            idle_seconds = settle() if timed_out else None
-            log_end = mark()
-            path = rollout(home, timed_out)
-            analysis = analyse_session(path)
-            analysis['escapes'] = escapes(analysis['calls'], workspace)
-            save(here / 'session-analysis.json', analysis)
-            run = {'group': g, 'attempt': attempt, 'items': [x['number'] for x in group], 'thread': thread,
-                   'exit': code, 'seconds': seconds, 'commit_wait_seconds': waited, 'limit_seconds': limit, 'timed_out': timed_out,
-                   'engine_idle_after_seconds': idle_seconds, 'log_bytes': [log_start, log_end],
-                   'context_after': context_tokens(path), 'compactions': len(analysis['compactions']),
-                   'valid': not analysis['compactions'], 'escapes': len(analysis['escapes']),
-                   'tool_calls': analysis['tool_calls'], 'loop': analysis['loop'], 'effect_problems': []}
-            runs.append(run)
-            # On disk at once, so a run that dies (2026-10-12: WSL lost its memory) still attributes this group's tokens.
-            save(here / 'group.json', run)
-            if run['valid']:
-                break
-        if not run['valid']:
-            run['valid'] = True  # the attempt that counts; its compaction fails the instance's effect check
-            run['effect_problems'] = [f'group {g} compacted in all {GROUP_ATTEMPTS} attempts']
-        result = sampling_bank.score(part, workspace)
-        approx, unwritten = approximate_seconds(part, workspace, started, seconds)
-        run.update(score=result['score'], correct=result['correct'])
-        save(here / 'group.json', run)
-        rows += [{**r, 'group': g, 'approx_seconds': approx[r['id']], 'approx_from_remainder': r['id'] in unwritten,
-                  'group_timed_out': timed_out} for r in result['rows']]
-    valid = [r for r in runs if r['valid']]
-    return {**sampling_bank.weighted(rows), 'clustered': sampling_bank.cluster_se(rows), 'items': rows, 'groups': runs,
-            'timed_out_groups': sum(r['timed_out'] for r in valid), 'answered': sum(r['answered'] for r in rows),
-            'compacted_attempts': sum(not r['valid'] for r in runs)}
 
 
 def run_conversation(plan, sequence, folder, args_for, key, settle, seconds_limit, mark=None, in_text=None):
@@ -586,8 +407,8 @@ def loaded_startup_sha():
     return sha(startup_prompt_bytes(STARTUP.read_bytes(), False))
 
 
-def engine_effect(log, health, spec, condition, configuration, service_log=''):
-    """Engine window, startup prompt and (sampling) deployed request defaults as the engine actually ran them."""
+def engine_effect(log, health, spec, configuration, service_log=''):
+    """Engine window and startup prompt as the engine actually ran them."""
     from tools.metrics.prompt_policy import verify_loaded_startup
     from tools.tuning.arw_dimension import verify_effect
     problems = []
@@ -598,12 +419,12 @@ def engine_effect(log, health, spec, condition, configuration, service_log=''):
     if health.get('max_context') not in (None, spec['context_window']):
         problems.append(f'native health reports max_context {health.get("max_context")}')
     checks = {'context_window': spec['context_window'], **spec.get('checks', {})}
-    effect = verify_effect(log, [], condition or {}, configuration, checks, service_log)
+    effect = verify_effect(log, [], {}, configuration, checks, service_log)
     return problems + effect['problems'], effect
 
 
 def session_records(log, sessions, offset):
-    """Engine token records per window (sampling group).  The log is parsed whole, then each record goes to the one whose byte
+    """Engine token records per session window.  The log is parsed whole, then each record goes to the one whose byte
     window holds the start of its line: an offset taken while a line was being written must not split the record."""
     from tools.metrics.strata_tokens import parse_engine_log
     starts, position = [], 0
@@ -619,58 +440,6 @@ def session_records(log, sessions, offset):
                 grouped[i].append(r)
                 break
     return grouped
-
-
-def run_instance(plan, data, conditions, name, folder):
-    """One sampling instance, one cold start (the window workload runs in blocks: run_window_block)."""
-    from tools.ops.measurement_host import MeasurementHost
-    from tools.reviewer.arw_measure import stop_and_capture_engine_log
-    from tools.metrics.strata_tokens import engine_rates, sum_engine_tokens
-    spec, (condition, digest) = plan['conditions'][name], conditions[name]
-    folder.mkdir(parents=True)
-    if condition is not None:
-        from tools.ops.deploy import deploy
-        save(folder / 'deploy.json', deploy(plan['host'], condition=(condition, digest)))
-    host = MeasurementHost(plan['host'], condition=condition)
-    save(folder / 'sources.json', host.verify_sources())
-    owner = host.controller(folder / 'controller')
-    record = {'condition': name, 'condition_sha256': digest, 'started': datetime.now().isoformat(timespec='seconds')}
-    with owner:
-        offset, service_offset = host.log_offset(plan['model']), host.log_offset()
-        # The windows in each group.json are byte offsets into these logs; kept for a run that never reaches its result.
-        save(folder / 'log-offsets.json', {'engine_log': offset, 'service_log': service_offset})
-        try:
-            state, load = owner.start(model=plan['model'], context_window=spec['context_window'])
-            health = state.get('native_health') or {}
-            save(folder / 'start.json', {'status': state.get('status'), 'load_seconds': load, 'native_health': health})
-            args_for = lambda here: codex_overrides(plan, spec, here, owner.model_base + '/v1')
-            gate = lambda: wait_for_free_commit(host.free_commit_gib, plan.get('min_free_commit_gib',
-                                                                               MIN_FREE_COMMIT_GIB))
-            began = time.monotonic()
-            record.update(run_sampling(plan, data, spec, folder, args_for, owner.key,
-                                       lambda: host.log_offset(plan['model']),
-                                       lambda: wait_engine_idle(owner.model_base, owner.key), gate))
-            record['session_seconds'] = time.monotonic() - began
-        finally:
-            stopped, requests, tokens = stop_and_capture_engine_log(owner, host.installation, plan['model'], offset,
-                                                                    folder, host)
-            record.update(stop=stopped.get('status'), tokens=tokens, **engine_rates(requests),
-                          max_request_input=max((r['input'] for r in requests), default=None))
-    log = (folder / 'engine-request-log.txt').read_text()
-    service_log = host.log_bytes_since(None, service_offset).decode(errors='replace')  # the sampling trace lives here
-    (folder / 'service-log-since-start.txt').write_text(service_log)
-    windows = record.get('groups', [])  # sampling: every group attempt has its own engine log window
-    for window, records in zip(windows, session_records(log, windows, offset)):
-        window.update(tokens=sum_engine_tokens(records), **engine_rates(records))
-    problems, effect = engine_effect(log, health, spec, condition, host.configuration(plan['model']), service_log)
-    sessions = [r for r in record.get('groups', []) if r['valid']]
-    problems += [p for s in sessions for p in s['effect_problems']]
-    # The sandbox already blocks every path outside the workspace (sandbox_probe); flagged calls are judged by
-    # outcome in the session inspection: only a call that actually saw outside content invalidates the instance.
-    record['escapes_for_review'] = sum(s.get('escapes', 0) for s in sessions)
-    record['effect'] = {'ok': not problems, 'problems': problems, 'engine': effect}
-    save(folder / 'result.json', record)
-    return record
 
 
 def run_window_block(plan, data, name, slots, out):
@@ -731,7 +500,7 @@ def run_window_block(plan, data, name, slots, out):
             session.update(task_rates(session['tokens'], session['work_seconds']),
                            reused_share=(session['tokens']['cached_input'] / (session['tokens']['cached_input']
                                          + session['tokens']['uncached_input'])) if session['tokens'] else None)
-    engine_problems, effect = engine_effect(log, block.get('native_health') or {}, spec, None,
+    engine_problems, effect = engine_effect(log, block.get('native_health') or {}, spec,
                                             host.configuration(plan['model']), service_log)
     block['engine_effect'] = {'problems': engine_problems, 'engine': effect}
     save(folder / 'start.json', block)
@@ -830,24 +599,9 @@ def cleanup_instance(here):
             shutil.rmtree(child, ignore_errors=True) if child.is_dir() else child.unlink(missing_ok=True)
 
 
-def parse_groups(text):
-    """'7-10' or '2,5,7-9' -> sorted group numbers."""
-    numbers = set()
-    for part in text.split(','):
-        first, _, last = part.partition('-')
-        numbers.update(range(int(first), int(last or first) + 1))
-    return sorted(numbers)
-
-
-def run(plan_path, out, limit=None, only_groups=None):
-    """Run the scheduled instances not yet done; stop at the end of the round so the staged decision can be taken.
-    `only_groups` (sampling, recovery after an interrupted instance): run just those groups, into a fresh `out`;
-    the result covers those groups only and is merged with the interrupted instance's finished groups by hand."""
-    plan, data, conditions = load_plan(plan_path)
-    if only_groups:
-        if plan['workload'] != 'sampling':
-            raise ValueError('--groups applies to the sampling workload only')
-        plan = {**plan, 'only_groups': only_groups}
+def run(plan_path, out, limit=None):
+    """Run the scheduled instances not yet done; stop at the end of the round so the staged decision can be taken."""
+    plan, data = load_plan(plan_path)
     if (plan.get('authorization') or {}).get('approved') is not True:
         raise ValueError('This plan is not approved for model runs')
     out = Path(out).resolve()
@@ -860,17 +614,7 @@ def run(plan_path, out, limit=None, only_groups=None):
         raise ValueError('Recorded instances differ from the recorded schedule')
     if done and not done[-1]['effect_ok']:
         raise RuntimeError('The last instance failed its effect check; assess the impact before continuing')
-    if plan['workload'] == 'window':
-        return run_window_blocks(plan, data, out, progress, progress_path, limit)
-    for slot in range(len(done), len(order))[:limit]:
-        name = order[slot]
-        record = run_instance(plan, data, conditions, name, out / f'{slot + 1:02d}-{name}')
-        done.append({'slot': slot + 1, 'condition': name, 'score': record.get('score'),
-                     'effect_ok': record['effect']['ok'], 'folder': f'{slot + 1:02d}-{name}'})
-        save(progress_path, progress)
-        if not record['effect']['ok']:
-            raise RuntimeError(f'Instance {slot + 1} ({name}) failed its effect check: {record["effect"]["problems"]}')
-    return progress
+    return run_window_blocks(plan, data, out, progress, progress_path, limit)
 
 
 def run_window_blocks(plan, data, out, progress, progress_path, limit=None):
@@ -898,9 +642,9 @@ def run_window_blocks(plan, data, out, progress, progress_path, limit=None):
 
 def decide(out, plan_path):
     """Staged decision over the candidates still sampled; on 'continue' the next round (+2 each) is scheduled."""
-    plan, _, _ = load_plan(plan_path)
+    plan, _ = load_plan(plan_path)
     if plan.get('pilot'):
-        raise ValueError('A pilot is a measurement of item cost, not a decision')
+        raise ValueError('A pilot checks the mechanism, it takes no decision')
     progress_path = Path(out) / 'progress.json'
     progress = json.loads(progress_path.read_text())
     if len(progress['instances']) != len(progress['order']):
@@ -912,29 +656,26 @@ def decide(out, plan_path):
     result['tie_group'] = [result['leader'], *progress['tied']] if result['decision'] == 'equivalent' else None
     progress['decisions'].append(result)
     if result['decision'] == 'continue':
-        progress['order'] += next_round(result['sampled_next'], len(progress['decisions']), list(plan['conditions']),
-                                        plan['workload'] == 'window')
+        progress['order'] += next_round(result['sampled_next'], len(progress['decisions']), list(plan['conditions']))
     save(progress_path, progress)
     return result
 
 
 def check(plan_path):
-    """No-model review of a plan: frozen input, conditions, schedule, Codex binary and per-workload self check."""
-    plan, data, conditions = load_plan(plan_path)
+    """No-model review of a plan: frozen input, conditions, schedule, Codex binary, workload self check, sandbox."""
+    plan, data = load_plan(plan_path)
     codex = CODEX.read_bytes()
     if sha(codex) != plan['fixed_conditions']['native_cli_sha256']:
         raise ValueError('Native Codex binary differs from the frozen plan')
-    own = sampling_bank.self_check(data) if plan['workload'] == 'sampling' else window_bank.self_check(data)
+    own = window_bank.self_check(data)
     from tools.tuning.sandbox_probe import probe
     folder = ROOT / '.tmp/sandbox-probe' / datetime.now().strftime('%Y%m%d-%H%M%S')
-    isolated = probe(folder, plan['workload'])
+    isolated = probe(folder)
     return {'workload': plan['workload'], 'input_sha256': plan['input']['sha256'], 'self_check': own,
             'sandbox_probe': {'ok': isolated['ok'], 'problems': isolated['problems'], 'folder': str(folder)},
             'first_round': plan['first_round'],
-            'second_round_if_all_open': next_round(list(plan['conditions']), 1, list(plan['conditions']),
-                                                   plan['workload'] == 'window'),
-            'conditions': {n: {'context_window': plan['conditions'][n]['context_window'],
-                               'deployment_condition_sha256': conditions[n][1]} for n in plan['conditions']}}
+            'second_round_if_all_open': next_round(list(plan['conditions']), 1, list(plan['conditions'])),
+            'conditions': {n: {'context_window': plan['conditions'][n]['context_window']} for n in plan['conditions']}}
 
 
 def main():
@@ -949,12 +690,11 @@ def main():
             p.add_argument('--condition', required=True)
         if command == 'run':
             p.add_argument('--limit', type=int)
-            p.add_argument('--groups', type=parse_groups, help="sampling recovery: run only these groups, e.g. 7-10")
     args = parser.parse_args()
     if args.command == 'check':
         result = check(args.plan)
     elif args.command == 'claude-window':
-        plan, data, _ = load_plan(args.plan)
+        plan, data = load_plan(args.plan)
         if (plan.get('authorization') or {}).get('approved') is not True:
             raise ValueError('This plan is not approved for model runs')
         from tools.reviewer.claude_headless import pinned_binary
@@ -963,7 +703,7 @@ def main():
         result = {k: v for k, v in result.items() if k != 'scoring'} | {
             'C1': result['scoring'].get('C1'), 'C2': result['scoring'].get('C2')}
     elif args.command == 'run':
-        result = run(args.plan, args.out, args.limit, args.groups)
+        result = run(args.plan, args.out, args.limit)
     else:
         result = decide(args.out, args.plan)
     print(json.dumps(result, ensure_ascii=False, indent=2))

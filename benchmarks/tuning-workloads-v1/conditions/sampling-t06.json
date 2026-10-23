@@ -1,1 +1,0 @@
-{"id": "sampling-t06", "model": "IQ3_XXS", "model_environment": {"STRATA_BATCH_TRACE": 1}, "request_defaults": {"temperature": 0.6, "top_p": 0.95, "top_k": 20}}

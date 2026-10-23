@@ -1,9 +1,9 @@
 """No-model check that a tuning Codex session can read only its own workspace.
 
 A loopback mock plays the model: it asks the real native Codex, configured exactly as a workload session
-(`codex_workload.codex_overrides`), to run shell probes that try to read the answer bank, the project, the session's
+(`codex_workload.codex_overrides`), to run shell probes that try to read the workload, the project, the session's
 own CODEX_HOME, other instance material and the provider key, once in the sandbox and once asking for escalation.
-Inside the workspace, reading, writing and running Python must still work.
+Inside the workspace, reading and running Python must still work; writing must not (window recall only reads).
 
     python3 -m tools.tuning.sandbox_probe --out DIR
     python3 -m tools.tuning.sandbox_probe --out DIR --window-replay WORKLOAD [--tier 156584] [--claude]
@@ -23,8 +23,7 @@ KEY = 'probe-key-not-a-secret'
 
 def targets(here):
     """(name, path, kind) the session must not see; `here` is the session folder holding workspace and CODEX_HOME."""
-    bank = ROOT / 'benchmarks/tuning-workloads-v1'
-    return [('answer-bank', bank / 'sampling/set-draft.json', 'file'),
+    return [('workload', ROOT / 'benchmarks/window-load-v1/window-v2-seed1.json', 'file'),
             ('benchmarks-dir', ROOT / 'benchmarks', 'dir'),
             ('project-file', ROOT / 'AGENTS.md', 'file'),
             ('codex-home', here / 'codex-home', 'dir'),
@@ -81,11 +80,13 @@ def verdict(text):
     lines = {l.split(' ')[0]: l.split(' ')[1] for l in str(text).splitlines() if l.count(' ') == 1}
     readable = [name for name, *_ in targets(Path('.'))] + ['provider-key']
     problems = [n + ' readable' for n in readable if lines.get(n) != 'BLOCKED']
-    problems += [n + ' failed' for n in ('workspace-read', 'workspace-write', 'python') if lines.get(n) != 'OK']
+    problems += [n + ' failed' for n in ('workspace-read', 'python') if lines.get(n) != 'OK']
+    if lines.get('workspace-write') == 'OK':
+        problems.append('workspace is writable')
     return problems
 
 
-def probe(out, workload='sampling'):
+def probe(out):
     """Run both probes (sandboxed, then escalation requested) through the real Codex session setup."""
     from tools.tuning import codex_workload
     out = Path(out).resolve()
@@ -103,7 +104,7 @@ def probe(out, workload='sampling'):
                     'justification': 'Probe: read files outside the workspace.'}]
     threading.Thread(target=server.serve_forever, daemon=True).start()
     try:
-        plan = {'model': 'IQ3_XXS', 'workload': workload, 'fixed_conditions': {'effort': 'high'}}
+        plan = {'model': 'IQ3_XXS', 'workload': 'window', 'fixed_conditions': {'effort': 'high'}}
         spec = {'context_window': 156584, 'threshold': 100000}
         args = codex_workload.codex_overrides(plan, spec, here, f'http://127.0.0.1:{server.server_port}/v1')
         code, _, seconds = codex_workload.codex_exec(args, workspace, home, KEY, 'Run the probe.',
@@ -113,11 +114,6 @@ def probe(out, workload='sampling'):
     results = [{'probe': p, 'output': o, 'problems': verdict(o)}
                for p, o in zip(('sandboxed', 'escalation-requested'), server.outputs)]
     problems = [] if len(results) == 2 else [f'only {len(results)} of 2 probes returned output']
-    if workload == 'window':
-        for r in results:
-            r['problems'] = [p for p in r['problems'] if p != 'workspace-write failed']
-            if 'workspace-write OK' in str(r['output']):
-                r['problems'].append('window workspace is writable')
     problems += [f'{r["probe"]}: {p}' for r in results for p in r['problems']]
     result = {'ok': not problems and code == 0, 'exit': code, 'seconds': round(seconds, 1), 'problems': problems,
               'results': results, 'mock_requests': len(server.requests), 'real_model_requests': 0}
@@ -333,7 +329,6 @@ def claude_window_replay(out, workload_path, tier=156584, base_tokens=12000):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--out', type=Path, required=True)
-    parser.add_argument('--workload', choices=('sampling', 'window'), default='sampling')
     parser.add_argument('--window-replay', type=Path, metavar='WORKLOAD', help='run window_replay on this workload')
     parser.add_argument('--tier', type=int, default=156584)
     parser.add_argument('--claude', action='store_true', help='--window-replay through Claude Code')
@@ -343,7 +338,7 @@ def main():
     elif args.window_replay:
         print(json.dumps(window_replay(args.out, args.window_replay, args.tier), ensure_ascii=False, indent=2))
     else:
-        print(json.dumps(probe(args.out, args.workload), ensure_ascii=False, indent=2))
+        print(json.dumps(probe(args.out), ensure_ascii=False, indent=2))
 
 
 if __name__ == '__main__':

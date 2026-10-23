@@ -70,5 +70,4 @@ python3 -m tools.ops.upgrade_release --host rtx3080ti --metadata <发布元数�
   - 它停模型、还 key、删除 key 文件，全程不打印 key；
   - 如果前端已不接受这个 key（租约已被别人持有，或已经归还），它不做任何改动，报告后以状态 1 退出，不抢占。
 - 找不到 key 文件时，只能重启前端，这会停止正在运行的模型。
-- 采样驱动在每组开始前读取 Windows 剩余提交内存（`Win32_OperatingSystem.FreeVirtualMemory`）。低于计划参数 `min_free_commit_gib`（默认 8）时暂停，每 30 秒重查一次；暂停超过 10 分钟按故障中止，停模型、还 key。2026-10-12 的 WSL 崩溃就是提交内存耗尽造成的。
 - 模型停止失败：前端返回 503；按日志排查后重启前端。
