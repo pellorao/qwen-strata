@@ -399,6 +399,57 @@ def score(workload, replies, timeline=None, weights=None):
     return result
 
 
+def state_through(workload, label):
+    """(key values, record fields) as replayed through the sequence turn `label` (inclusive)."""
+    state, keys = {}, {}
+    for s in workload['sequence']:
+        if s['kind'] != 'questions':
+            for line in s['text'].splitlines():
+                if s['kind'] == 'opening' and re.match(r'K\d{2} \| ', line):
+                    ident, rest = line.split(' | ', 1)
+                    keys[ident] = rest.split(' = ', 1)[1].replace(' ' + MARK, '')
+                elif ' | owner=' in line:
+                    ident, *pairs = line.split(' | ')
+                    state[ident] = dict(p.split('=', 1) for p in pairs)
+                elif re.match(r'UPDATE K\d{2} = ', line):
+                    ident, value = line[len('UPDATE '):].split(' = ', 1)
+                    keys[ident] = value.replace(' ' + MARK, '')
+                elif line.startswith('UPDATE '):
+                    _, ident, pair = line.split(' ', 2)
+                    field, value = pair.split('=', 1)
+                    state[ident][field] = value
+        if s['label'] == label:
+            break
+    return keys, state
+
+
+def summary_retention(workload, after_label, summary):
+    """Zero-cost diagnostic of one compaction summary: of the K and U facts still to be asked after the compaction
+    at `after_label`, which current values (as replayed through that turn) appear in the summary text, and of all
+    16 key facts' current values (marked and unmarked)."""
+    keys, state = state_through(workload, after_label)
+    order = {x['label']: i for i, x in enumerate(workload['sequence'])}
+    at = order[after_label]
+    text = normalize(summary or '')
+    pending = [q for q in workload['questions'] if q['type'] in ('K', 'U')
+               and order[f'questions {q["checkpoint"]}'] > at and order.get(q['source'], 0) <= at]
+    rows = []
+    for q in pending:
+        value = keys.get(q['record']) if q['type'] == 'K' else state.get(q['record'], {}).get(q['field'])
+        rows.append({'id': q['id'], 'type': q['type'], 'marked': q.get('marked'), 'value': value,
+                     'kept': value is not None and normalize(str(value)) in text})
+    marked = {k['id']: k['marked'] for k in workload['keys']}
+    all_keys = {i: normalize(str(v)) in text for i, v in keys.items()}
+    return {'after_user_turn': after_label, 'summary_chars': len(summary or ''),
+            'pending_K_kept': sum(r['kept'] for r in rows if r['type'] == 'K'),
+            'pending_K': sum(r['type'] == 'K' for r in rows),
+            'pending_U_kept': sum(r['kept'] for r in rows if r['type'] == 'U'),
+            'pending_U': sum(r['type'] == 'U' for r in rows),
+            'all_K_marked_kept': sum(v for i, v in all_keys.items() if marked.get(i)),
+            'all_K_unmarked_kept': sum(v for i, v in all_keys.items() if not marked.get(i)),
+            'rows': rows}
+
+
 def self_check(workload):
     """No-model precheck: answers equal the replayed state, every fact asked once and never mentioned after it is
     asked, checkpoint composition, positions near the targets, and a scorer that separates perfect from empty."""

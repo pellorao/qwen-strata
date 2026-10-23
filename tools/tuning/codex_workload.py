@@ -272,7 +272,7 @@ def analyse_session(path):
         except ValueError:
             continue
     calls, replies, compactions, last_user = [], [], [], None
-    current, raw, timeline, summary_candidate = None, [], [], False
+    current, raw, timeline, summary_candidate, compacted_in_turn = None, [], [], False, False
     for e in events:
         p = e.get('payload') or {}
         if e.get('type') == 'compacted':
@@ -288,8 +288,11 @@ def analyse_session(path):
             kept = [turn_label(message_text(x)) for x in p.get('replacement_history') or []
                     if isinstance(x, dict) and x.get('type') == 'message' and x.get('role') == 'user']
             raw = [k for k in kept if k and k != 'task']
-            compactions.append({'after_user_turn': last_user, 'kept_raw': list(raw)})
-        if e.get('type') == 'event_msg' and p.get('type') == 'token_count' and p.get('info') and current is not None:
+            summary = p.get('message') or next((h for h in history if turn_label(h) == 'task'), None)
+            compactions.append({'after_user_turn': last_user, 'kept_raw': list(raw), 'summary': summary})
+            compacted_in_turn = True
+        if e.get('type') == 'event_msg' and p.get('type') == 'token_count' and p.get('info') and current is not None \
+                and not compacted_in_turn:  # the turn's own last request, not the compaction's reset count
             current['input_tokens'] = p['info']['last_token_usage'].get('input_tokens')
         if e.get('type') != 'response_item':
             continue
@@ -300,7 +303,7 @@ def analyse_session(path):
             last_user = label
             raw.append(label)
             current = {'turn': label, 'text': None, 'texts': [], 'input_tokens': None}
-            summary_candidate = False
+            summary_candidate = compacted_in_turn = False
             replies.append(current)
             if label.startswith('questions '):
                 timeline.append({'label': label, 'point': current, 'raw': list(raw),
@@ -549,6 +552,7 @@ def run_window(plan, data, spec, folder, args_for, key, mark, settle):
     return {**session, 'score': scored['score'], 'raw_score': scored['raw_score'], 'scoring': scored,
             'compactions': analysis['compactions'], 'tool_calls': analysis['tool_calls'], 'loop': analysis['loop'],
             'ack_problems': len(acks), 'ack_examples': acks[:5],
+            'summary_retention': retention(data, analysis['compactions']),
             'effect_problems': window_effect(spec, analysis) + (
                 [] if session['timed_out'] or len(replies) == len(data['checkpoint_positions'])
                 else [f'{len(replies)} question turns answered of {len(data["checkpoint_positions"])}'])}
@@ -711,6 +715,8 @@ def run_window_block(plan, data, name, slots, out):
         session.update(tokens=sum_engine_tokens(own), requests=len(own), **engine_rates(own),
                        max_request_input=max((r['input'] for r in own), default=None))
         if session is not block['warmup']:
+            session.update(over_verified_record(own, plan['verified_prompt_tokens'], session['scoring']))
+        if session is not block['warmup']:
             session.update(task_rates(session['tokens'], session['work_seconds']),
                            reused_share=(session['tokens']['cached_input'] / (session['tokens']['cached_input']
                                          + session['tokens']['uncached_input'])) if session['tokens'] else None)
@@ -720,9 +726,6 @@ def run_window_block(plan, data, name, slots, out):
     save(folder / 'start.json', block)
     for record in records:
         problems = engine_problems + record['effect_problems']
-        if spec['context_window'] == 206584 and (record['max_request_input'] or 0) > plan['verified_prompt_tokens']:
-            problems.append(f'a request input of {record["max_request_input"]} exceeds the verified '
-                            f'{plan["verified_prompt_tokens"]}')
         record['effect'] = {'ok': not problems, 'problems': problems}
         save(folder / f'{record["slot"]:02d}-{name}' / 'instance.json', record)
     return records
@@ -749,6 +752,7 @@ def run_claude_window(plan, data, name, out, seconds_limit=None, mock_base=None)
     record = {'condition': name, 'harness': 'claude-code', 'score': scored['score'], 'raw_score': scored['raw_score'],
               'scoring': scored, 'compactions': analysis['compactions'], 'tool_calls': analysis['tool_calls'],
               'ack_problems': len(acks), 'ack_examples': acks[:5], 'work_seconds': result.get('work_seconds'),
+              'summary_retention': retention(data, analysis['compactions']),
               'turns_done': len(result.get('turns', [])), 'turns_planned': len(data['sequence']),
               'hard_interrupt': result.get('hard_interrupt'), 'engine_tokens': result.get('engine_tokens'),
               'effect_problems': window_effect(spec, analysis)}
@@ -763,6 +767,33 @@ def request_kind(output_tokens):
     """Rough kind of a window-workload request by its output: an ACK (a few tokens), a checkpoint's answers
     (hundreds) or a compaction summary (thousands)."""
     return 'ack' if output_tokens < 200 else 'questions' if output_tokens < 2000 else 'compaction'
+
+
+def retention(data, compactions):
+    """summary_retention for every compaction with a summary.  A Claude Code compaction that ran before a turn's
+    request (`during_turn`) summarised the turns before it; a Codex one, the turn it followed."""
+    labels = [x['label'] for x in data['sequence']]
+    rows = []
+    for c in compactions:
+        after = c['after_user_turn']
+        if c.get('during_turn') and after in labels:
+            after = labels[labels.index(after) - 1]
+        if after in labels and c.get('summary'):
+            row = window_bank.summary_retention(data, after, c['summary'])
+            row.pop('rows')
+            rows.append(row)
+    return rows
+
+
+def over_verified_record(records, verified, scoring):
+    """Requests above the verified prompt length, recorded only (design §3, decision A 2026-10-24): the largest
+    input, how many, of which kind, and which scored outputs depend on them: compaction summaries made from an
+    over-length request, and answers given at >=150K."""
+    over = [{'input': r['input'], 'output': r['output'], 'kind': request_kind(r['output'])}
+            for r in records if r['input'] > verified]
+    return {'over_verified': over, 'over_verified_count': len(over),
+            'over_verified_summaries': sum(r['kind'] == 'compaction' for r in over),
+            'answers_at_150k_or_more': sum(1 for r in scoring.get('rows', []) if r.get('bin') == '>=150K')}
 
 
 def over_verified_requests(log, verified):

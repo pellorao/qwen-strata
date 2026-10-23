@@ -517,10 +517,17 @@ def conversation_analysis(stream, label=lambda text: text):
         if kind == 'system' and event.get('subtype') == 'compact_boundary':
             pending = current['turn'] if current is not None and current['result'] is None else None
             compactions.append({'after_user_turn': raw[-1] if raw else None, 'during_turn': pending,
-                                'metadata': event.get('compact_metadata')})
+                                'metadata': event.get('compact_metadata'), 'summary': None})
             raw = [pending] if pending else []
             if current is not None:
                 current['compactions_after'] = [c['after_user_turn'] for c in compactions]
+        elif kind == 'user' and not event.get('isReplay') and isinstance(message, dict) and compactions \
+                and compactions[-1].get('summary') is None:
+            content = message.get('content')
+            text = content if isinstance(content, str) else ''.join(
+                b.get('text', '') for b in content or [] if isinstance(b, dict))
+            if text.startswith('This session is being continued'):
+                compactions[-1]['summary'] = text
         elif kind == 'user' and event.get('isReplay') and isinstance(message, dict):
             content = message.get('content')
             text = content if isinstance(content, str) else ''.join(

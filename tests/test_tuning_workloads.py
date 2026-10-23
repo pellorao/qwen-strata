@@ -478,6 +478,22 @@ class WindowBankTest(unittest.TestCase):
         good = window_bank.score(self.frozen, [f'**{updated["id"]}:** `{str(updated["answer"]).upper()}`'])
         self.assertEqual(good['correct'], 1)
 
+    def test_summary_retention_checks_current_values_of_pending_facts(self):
+        w = self.frozen
+        after = 'batch 30'  # after the K updates (batch 21)
+        keys, state = window_bank.state_through(w, after)
+        everything = ' '.join(f'{k}={v}' for k, v in keys.items()) + ' ' + ' '.join(
+            f'{r}:{f}={v}' for r, fields in state.items() for f, v in fields.items())
+        full = window_bank.summary_retention(w, after, everything)
+        self.assertEqual((full['pending_K_kept'], full['pending_U_kept']), (full['pending_K'], full['pending_U']))
+        self.assertGreater(full['pending_K'], 0)
+        self.assertEqual(full['all_K_marked_kept'] + full['all_K_unmarked_kept'], 16)
+        empty = window_bank.summary_retention(w, after, 'nothing kept')
+        self.assertEqual((empty['pending_K_kept'], empty['all_K_marked_kept']), (0, 0))
+        updated = next(q for q in w['questions'] if q['type'] == 'K' and q['updated'] and q['checkpoint'] >= 4)
+        stale = window_bank.summary_retention(w, after, ' '.join(updated['stale_values']))
+        self.assertFalse(next(r for r in stale['rows'] if r['id'] == updated['id'])['kept'])
+
     def test_timeline_split_and_equal_weights_give_raw_accuracy(self):
         w = self.frozen
         labels = [x['label'] for x in w['sequence']]
@@ -579,7 +595,8 @@ class CodexWorkloadTest(unittest.TestCase):
                                user('Batch 02/02. New records:'), assistant('ACK 02'),
                                user('Checkpoint 1 of 5. Questions about the current state'), call('ls'), call('ls'),
                                call('ls'), assistant('Q01: a\nQ02: b')])
-        self.assertEqual(result['compactions'], [{'after_user_turn': 'batch 01', 'kept_raw': ['batch 01']}])
+        self.assertEqual(result['compactions'], [{'after_user_turn': 'batch 01', 'kept_raw': ['batch 01'],
+                                                  'summary': summary}])
         self.assertEqual([r['turn'] for r in result['replies']], ['opening', 'batch 01', 'batch 02', 'questions 1'])
         self.assertEqual(result['replies'][1]['text'], 'ACK 01')
         self.assertEqual(codex_workload.ack_problems(result), [])
