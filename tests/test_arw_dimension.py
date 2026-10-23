@@ -169,7 +169,7 @@ class SelectionTests(unittest.TestCase):
             plan = {'model': 'IQ3_XXS', 'reviewer': 'code-spec-reviewer',
                     'fixed_conditions': {'native_cli_sha256': sha(b'cli'), 'effort': 'medium', 'codex': '0.0',
                                          'arw_source_manifest': 'manifest.json'}}
-            with mock.patch.object(arw_dimension, 'CODEX', codex), \
+            with mock.patch.object(arw_dimension, 'codex_binary', return_value=codex), \
                     mock.patch.object(arw_dimension, 'plain_note', return_value={'path': 'note'}):
                 chosen = selection(plan, {})
         self.assertTrue(chosen['startup_instructions'])

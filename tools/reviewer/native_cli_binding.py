@@ -3,15 +3,11 @@ import hashlib
 from pathlib import Path
 import subprocess
 
-# The native Codex binary of the read-only benchmark copy (multi-model benchmark plan §3: Codex 0.163.0, npm registry
-# tarballs, off PATH; the user's daily install updates itself and is not used). Gates and ARW runs (native_cli)
-# execute it directly, and its sandbox helper re-executes it, so a restricted permission profile must keep this
-# directory readable.
-CODEX_VERSION = '0.163.0'
-CODEX_SHA256 = '399ff69c431c066e40de318fba45c2b07f45a76b19939d247ee4828fc70c4215'
-CODEX_VENDOR = (Path.home() / '.local/share/qwen-bench' / ('codex-' + CODEX_VERSION)
-                / 'node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor')
-CODEX = CODEX_VENDOR / 'x86_64-unknown-linux-musl/bin/codex'
+from tools.reviewer.harness_pins import CODEX, CODEX_SHA256, CODEX_VENDOR, CODEX_VERSION  # noqa: F401 (re-exported)
+
+# The native Codex binary of the read-only benchmark copy named in tools.reviewer.harness_pins (off PATH; the user's
+# daily install updates itself and is not used). Gates and ARW runs (native_cli) execute it directly, and its sandbox
+# helper re-executes it, so a restricted permission profile must keep this directory readable.
 
 
 def pinned_codex():
@@ -37,5 +33,5 @@ def verify_native_cli(binding):
 
 def selection_native_cli(binding):
     """A selection's explicit binding, or the pinned benchmark copy: ARW's own default (`codex` on PATH) is the user's
-    self-updating install, which since 0.163.0 lives under the deny-read ~/.codex."""
+    self-updating install, which since Codex 0.163.0 lives under the deny-read ~/.codex."""
     return verify_native_cli(binding) if binding is not None else pinned_codex()

@@ -65,6 +65,7 @@ import uuid
 
 from tools.reviewer.review_deadlines import LIMITS, REMINDER, reminder_message, save as save_atomic
 from tools.reviewer import reminder_interrupt
+from tools.reviewer.harness_pins import CLAUDE as CLAUDE_COPY, CLAUDE_SHA256, CLAUDE_VERSION
 from tools.reviewer.wsl_client import ROOT, save
 
 sys.path.append(str(ROOT / 'src'))
@@ -76,8 +77,12 @@ TOOLS = 'Read,Write,Edit,Glob,Grep,Bash'  # no web tools: search stays a separat
 DISALLOWED = 'WebSearch,WebFetch'  # denied as well, whatever --tools lists (benchmark: search off, user 2026-10-19)
 REMINDER_AFTER, HARD_LIMIT = LIMITS['initial']  # 3300 s, 3600 s
 ESTIMATE = Path.home() / '.claude/statusline/estimate.sh'
-CLAUDE = 'claude'
-CLAUDE_VERSION = '2.1.303'  # the version every gate and mock check was run on; the CLIs refuse any other
+# The benchmark copy named in tools.reviewer.harness_pins; the CLIs refuse any other SHA or version (pinned_binary).
+# Version notes below name the version an observation was made on. On 2.1.309 (2026-10-24) the mock gates
+# (tools.safety.claude_gate, all backends, --pair) passed with the same deny lists and per-run TMPDIR, stream-json
+# priority "now" and control_request interrupt behaved as on 2.1.303 (zero-model and Strata), and total_cost_usd still
+# accumulates across --resume; the only new request content was the tool-search placeholder (ENABLE_TOOL_SEARCH below).
+CLAUDE = str(CLAUDE_COPY)
 AGENT = ROOT / 'scripts/wsl/qwen-agent'
 # Named directories, not top-level ones: Claude Code 2.1.303 left /home readable to sandboxed commands with denyRead
 # ["/home"], while /home/pello was denied (tools.safety.claude_gate, 2026-10-19). The working directory is re-opened
@@ -555,7 +560,11 @@ def environment(backend, effort, home=None, config_dir=None, strata=None, tmp=No
         raise ValueError('Every run has its own TMPDIR beside its working directory (run_tmp)')
     env = {'PATH': os.environ.get('PATH', '/usr/bin:/bin'), 'LANG': 'C.UTF-8', 'TERM': 'dumb',
            'DISABLE_AUTOUPDATER': '1', 'CLAUDE_CODE_EFFORT_LEVEL': effort, 'CLAUDE_CODE_SUBPROCESS_ENV_SCRUB': '1',
-           'CLAUDE_CODE_TMPDIR': str(tmp), 'TMPDIR': str(tmp)}
+           'CLAUDE_CODE_TMPDIR': str(tmp), 'TMPDIR': str(tmp),
+           # Claude Code 2.1.309 (not 2.1.303) adds a deferred `DeferredToolPlaceholder` tool ("never call this tool",
+           # defer_loading) to every request for its tool search; turned off, the advertised tools are again exactly
+           # --tools, as tools.safety.claude_gate requires (mock 2026-10-24: only the tool list changes).
+           'ENABLE_TOOL_SEARCH': 'false'}
     if backend == 'anthropic':
         # A synthetic HOME (anthropic_home) whose only content links the real configuration directory, which supplies
         # the subscription login; --setting-sources "" keeps its settings, hooks and CLAUDE.md out (verified by
@@ -1009,11 +1018,13 @@ def binary(claude=CLAUDE):
     return {'path': str(path), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'version': version}
 
 
-def pinned_binary(claude=CLAUDE, expected=CLAUDE_VERSION):
-    """The CLI entry points run only the gated version; an auto-update would otherwise change the harness unseen."""
+def pinned_binary(claude=CLAUDE, expected=CLAUDE_VERSION, sha256=CLAUDE_SHA256):
+    """The CLI entry points run only the pinned copy (SHA, then version); an auto-update would otherwise change the
+    harness unseen."""
     found = binary(claude)
-    if found['version'].split()[0:1] != [expected]:
-        raise SystemExit(f"Claude Code {found['version']!r} at {found['path']} is not the gated {expected}")
+    if found['sha256'] != sha256 or found['version'].split()[0:1] != [expected]:
+        raise SystemExit(f"Claude Code {found['version']!r} at {found['path']} (sha256 {found['sha256'][:12]}…) is not "
+                         f"the pinned {expected} ({sha256[:12]}…; tools.reviewer.harness_pins)")
     return found
 
 
@@ -1167,7 +1178,7 @@ if __name__ == '__main__':
                         help='API backends only: no project compact prompt (multi-model benchmark).')
     parser.add_argument('--tools', default=TOOLS)
     parser.add_argument('--host', help='Registered host for the Strata backend.')
-    parser.add_argument('--claude', default=CLAUDE, help=f'Claude Code binary; must report version {CLAUDE_VERSION}.')
+    parser.add_argument('--claude', default=CLAUDE, help=f'Claude Code binary; must be the pinned copy ({CLAUDE_VERSION}).')
     args = parser.parse_args()
     pinned_binary(args.claude)
     print(json.dumps(run(args.out, args.prompt, args.backend, args.model, args.effort, args.label, args.copy, args.write,

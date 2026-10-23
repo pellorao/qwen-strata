@@ -37,11 +37,10 @@ class NativeCliBindingTests(unittest.TestCase):
                 run.assert_called_once_with([str(path), '--version'], text=True, timeout=20)
 
     def test_unbound_selection_runs_the_pinned_benchmark_copy(self):
-        self.assertEqual(CODEX_VERSION, '0.163.0')
-        self.assertIn('/.local/share/qwen-bench/codex-0.163.0/', str(CODEX))
+        self.assertIn(f'/.local/share/qwen-bench/codex-{CODEX_VERSION}/', str(CODEX))
         with patch('tools.reviewer.native_cli_binding.verify_native_cli', side_effect=lambda b: b) as verify:
             self.assertEqual(selection_native_cli(None),
-                             {'executable': str(CODEX), 'version': '0.163.0', 'sha256': CODEX_SHA256})
+                             {'executable': str(CODEX), 'version': CODEX_VERSION, 'sha256': CODEX_SHA256})
             self.assertEqual(selection_native_cli({'executable': '/x'}), {'executable': '/x'})
             self.assertEqual(verify.call_count, 2)
 

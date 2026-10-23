@@ -211,7 +211,8 @@ def arguments(argv=None):
     parser.add_argument('--model', required=True, help='Concrete model ID (plan §2: aliases resolved before the run).')
     parser.add_argument('--effort', choices=('low', 'medium', 'high'), required=True)
     parser.add_argument('--label', required=True)
-    parser.add_argument('--claude', required=True, help=f'The benchmark Claude Code binary ({ch.CLAUDE_VERSION}).')
+    parser.add_argument('--claude', default=ch.CLAUDE,
+                        help=f'The pinned Claude Code benchmark copy ({ch.CLAUDE_VERSION}; tools.reviewer.harness_pins).')
     parser.add_argument('--handoffs', type=int, default=1)
     parser.add_argument('--limit', type=int, default=ch.HARD_LIMIT, help='Hard limit per handoff in seconds (ARW 3600).')
     parser.add_argument('--time-limit-seconds', type=int,

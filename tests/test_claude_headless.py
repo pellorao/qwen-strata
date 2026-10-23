@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import subprocess
@@ -123,18 +124,18 @@ class RunnerBuildersTest(unittest.TestCase):
             ch.run(self.base / 'r', self.base / 'p.md', 'strata', 'qwen3.8-flash-next-iq3_xxs', 'high', 'x', compact=False,
                    base=self.base / 'w', record=False)
 
-    def test_cli_runs_only_the_gated_binary_and_records_its_hash(self):
+    def test_cli_runs_only_the_pinned_binary_and_records_its_hash(self):
         fake = self.base / 'claude'
-        for version, ok in (('2.1.303 (Claude Code)', True), ('2.1.304 (Claude Code)', False)):
-            fake.write_text(f'#!/bin/sh\necho "{version}"\n')
-            fake.chmod(0o755)
-            if ok:
-                found = ch.pinned_binary(str(fake))
-                self.assertEqual((found['path'], found['version']), (str(fake.resolve()), version))
-                self.assertEqual(len(found['sha256']), 64)
-            else:
-                with self.assertRaises(SystemExit):
-                    ch.pinned_binary(str(fake))
+        fake.write_text('#!/bin/sh\necho "9.9.9 (Claude Code)"\n')
+        fake.chmod(0o755)
+        digest = hashlib.sha256(fake.read_bytes()).hexdigest()
+        found = ch.pinned_binary(str(fake), '9.9.9', digest)
+        self.assertEqual((found['path'], found['version'], found['sha256']),
+                         (str(fake.resolve()), '9.9.9 (Claude Code)', digest))
+        for expected, sha in (('9.9.8', digest), ('9.9.9', '0' * 64)):  # another version, or the same one rebuilt
+            with self.assertRaises(SystemExit):
+                ch.pinned_binary(str(fake), expected, sha)
+        self.assertIn(f'/.local/share/qwen-bench/claude-code-{ch.CLAUDE_VERSION}/', ch.CLAUDE)
 
     def test_deepseek_environment_names_the_model_everywhere(self):
         env = ch.environment('deepseek', 'medium', self.base / 'h', self.base / 'c',
@@ -156,8 +157,10 @@ class RunnerBuildersTest(unittest.TestCase):
         finally:
             del os.environ['QWEN_TEST_PARENT_SECRET']
         self.assertEqual(sorted(env), ['CLAUDE_CODE_EFFORT_LEVEL', 'CLAUDE_CODE_SUBPROCESS_ENV_SCRUB', 'CLAUDE_CODE_TMPDIR',
-                                       'DISABLE_AUTOUPDATER', 'HOME', 'LANG', 'PATH', 'TERM', 'TMPDIR'])
+                                       'DISABLE_AUTOUPDATER', 'ENABLE_TOOL_SEARCH', 'HOME', 'LANG', 'PATH', 'TERM',
+                                       'TMPDIR'])
         self.assertEqual(env['CLAUDE_CODE_SUBPROCESS_ENV_SCRUB'], '1')
+        self.assertEqual(env['ENABLE_TOOL_SEARCH'], 'false')  # no DeferredToolPlaceholder (2.1.309)
         self.assertEqual((env['TMPDIR'], env['CLAUDE_CODE_TMPDIR']), (str(tmp), str(tmp)))
         for shared in (None, '/tmp', f'/tmp/claude-{os.getuid()}', f'/tmp/claude-{os.getuid()}/x'):
             with self.assertRaisesRegex(ValueError, 'TMPDIR'):  # no run falls back to the shared temporary directory

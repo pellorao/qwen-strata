@@ -1,5 +1,5 @@
 """Output-limit retry end to end: the real frontend Handler between a scripted engine (Strata v0.1.45 fixture streams)
-and the real Codex 0.163.0 (benchmark copy).  No model is used."""
+and the real Codex (pinned benchmark copy, tools.reviewer.harness_pins).  No model is used."""
 from http.server import BaseHTTPRequestHandler
 import json
 import os
@@ -97,7 +97,7 @@ class EndToEnd(unittest.TestCase):
                 self.assertEqual(len(self.engine.seen), 1)
                 connection.close()
 
-    @unittest.skipUnless(CODEX.is_file(), 'Codex 0.163.0 benchmark copy not installed')
+    @unittest.skipUnless(CODEX.is_file(), 'pinned Codex benchmark copy not installed')
     def test_codex_continues_its_turn_and_never_sees_the_cut_off_call(self):
         self.engine.script = ['responses-limit-custom', 'responses-retry-ok', 'responses-text']
         (self.folder / 'ws').mkdir()

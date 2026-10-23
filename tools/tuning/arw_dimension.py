@@ -15,7 +15,7 @@ import subprocess
 import sys
 
 from tools.ops.deployment_source import load_condition, model_configuration, source_bytes
-from tools.reviewer.native_cli_binding import CODEX
+from tools.reviewer.harness_pins import codex_binary
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG = 'config/model-catalog.json'
@@ -166,8 +166,13 @@ def required_scenario_note(fixed, reviewer):
 
 
 def selection(plan, condition, context_window=None, folder=None, time_limit_seconds=None, reviewer=None):
-    codex = CODEX.read_bytes()
+    """The plan binds its own Codex version (`codex`, `native_cli_sha256`): the benchmark copy of that version, so a
+    frozen plan keeps the harness it was frozen with after harness_pins moves on (measurement rule "harness 版本")."""
     fixed = plan['fixed_conditions']
+    executable = codex_binary(fixed['codex'])
+    if not executable.is_file():
+        raise ValueError(f"The plan's Codex {fixed['codex']} benchmark copy is missing: {executable}")
+    codex = executable.read_bytes()
     required_scenario_note(fixed, reviewer or plan.get('reviewer'))
     if 'measurement_note_template' in fixed:
         note, limit = time_limited_note(fixed, folder, time_limit_seconds)
@@ -181,7 +186,7 @@ def selection(plan, condition, context_window=None, folder=None, time_limit_seco
             'startup_instructions': True, 'project_compaction_instructions': True,
             'generation_policy': 'first-delivery-only', 'loop_prevention_instructions': False,
             'archive_http': True, 'automatic_continuation': False,
-            'native_cli': {'executable': str(CODEX), 'version': fixed['codex'], 'sha256': sha(codex)},
+            'native_cli': {'executable': str(executable), 'version': fixed['codex'], 'sha256': sha(codex)},
             'loop_reminder': 'off', 'measurement_note': note, **limit,
             'deployment_condition': condition,
             # a published context tier the caller selects; omitted, ARW starts the installation default tier

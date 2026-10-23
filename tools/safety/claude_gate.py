@@ -734,7 +734,7 @@ if __name__ == '__main__':
     parser.add_argument('--subset', choices=('full', 'smoke', 'transcript'), default='full')
     parser.add_argument('--label', help='Quota ledger label for a live gate (estimate.sh --add-stream).')
     parser.add_argument('--pair', action='store_true', help='Mock: run sessions two at a time against each other\'s TMPDIR.')
-    parser.add_argument('--claude', default=ch.CLAUDE, help=f'Claude Code binary; must report version {ch.CLAUDE_VERSION}.')
+    parser.add_argument('--claude', default=ch.CLAUDE, help=f'Claude Code binary; must be the pinned copy ({ch.CLAUDE_VERSION}).')
     args = parser.parse_args()
     found = ch.pinned_binary(args.claude)
     if not args.live and os.environ.get(NETNS_FLAG) != '1':
