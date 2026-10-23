@@ -3145,8 +3145,8 @@
      "kind": "phase3",
      "label": "",
      "n_valid": 8,
-     "n_selected": 5,
-     "n": 5,
+     "n_selected": 8,
+     "n": 8,
      "complete": true,
      "invalid": 0,
      "ids": [
@@ -3154,52 +3154,55 @@
       "openai/code-spec-v5/luna-xhigh-a2",
       "openai/code-spec-v5/luna-xhigh-a3",
       "openai/code-spec-v5/luna-xhigh-a4",
-      "openai/code-spec-v5/luna-xhigh-a5"
+      "openai/code-spec-v5/luna-xhigh-a5",
+      "openai/code-spec-v5/luna-xhigh-a6",
+      "openai/code-spec-v5/luna-xhigh-a7",
+      "openai/code-spec-v5/luna-xhigh-a8"
      ],
-     "mean": 0.6501269079897656,
-     "sd": 0.0518251964984492,
-     "se": 0.023176932463563296,
+     "mean": 0.6661550431463618,
+     "sd": 0.055248212812101856,
+     "se": 0.01953319296393736,
      "ci95": [
-      0.5857774272978055,
-      0.7144763886817257
+      0.6199663813527939,
+      0.7123437049399296
      ],
      "n_negative": 0,
      "min": 0.5803214151830521,
-     "median": 0.652081977620629,
-     "mean_r83": 0.6501269079897656,
-     "raw_score_mean": 0.6532827344167429,
-     "format_penalty_mean": 0.005294117647058824,
+     "median": 0.6714987237852709,
+     "mean_r83": 0.6661550431463618,
+     "raw_score_mean": 0.6681274346632226,
+     "format_penalty_mean": 0.003308823529411765,
      "repairs_total": 0,
-     "seconds_mean": 281.3688,
-     "time_share_mean": 0.4348822256568779,
+     "seconds_mean": 303.06975,
+     "time_share_mean": 0.46842310664605874,
      "tokens_mean": {
-      "uncached_input": 165114.0,
-      "cached_input": 1677388.8,
-      "output": 27976.6
+      "uncached_input": 162188.875,
+      "cached_input": 1840608.0,
+      "output": 30382.875
      },
      "token_sources": [
       "API usage (relay)"
      ],
-     "tool_calls_mean": 20.2,
+     "tool_calls_mean": 20.625,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": 101.72239865661219,
-      "task_input": 586.8241254893933,
-      "task_output": 99.43035617310804
+      "engine_output": 102.16958827905161,
+      "task_input": 535.1536238770118,
+      "task_output": 100.25043739931155
      },
      "speed_totals": {
       "engine_input": null,
       "engine_output": {
-       "tokens": 139883,
-       "seconds": 1375.1445291042328
+       "tokens": 243063,
+       "seconds": 2379.0151658058167
       },
       "task_input": {
-       "tokens": 825570,
-       "seconds": 1406.844
+       "tokens": 1297511,
+       "seconds": 2424.558
       },
       "task_output": {
-       "tokens": 139883,
-       "seconds": 1406.844
+       "tokens": 243063,
+       "seconds": 2424.558
       }
      },
      "speeds_lower_bound": [
@@ -3229,8 +3232,8 @@
      "kind": "phase3",
      "label": "",
      "n_valid": 6,
-     "n_selected": 5,
-     "n": 5,
+     "n_selected": 6,
+     "n": 6,
      "complete": true,
      "invalid": 0,
      "ids": [
@@ -3238,52 +3241,53 @@
       "openai/code-spec-v5/luna-max-a2",
       "openai/code-spec-v5/luna-max-a3",
       "openai/code-spec-v5/luna-max-a4",
-      "openai/code-spec-v5/luna-max-a5"
+      "openai/code-spec-v5/luna-max-a5",
+      "openai/code-spec-v5/luna-max-a6"
      ],
-     "mean": 0.6838462063966002,
-     "sd": 0.06807471119873665,
-     "se": 0.030443936357808267,
+     "mean": 0.6852802386053428,
+     "sd": 0.06098911160270649,
+     "se": 0.024898700548714677,
      "ci95": [
-      0.5993202883130104,
-      0.76837212448019
+      0.621276091243869,
+      0.7492843859668167
      ],
      "n_negative": 0,
      "min": 0.599511496532948,
-     "median": 0.6997315163436445,
-     "mean_r83": 0.6838462063966002,
-     "raw_score_mean": 0.6838462063966002,
+     "median": 0.6960909579963501,
+     "mean_r83": 0.6852802386053428,
+     "raw_score_mean": 0.6852802386053428,
      "format_penalty_mean": 0.0,
      "repairs_total": 0,
-     "seconds_mean": 383.1644,
-     "time_share_mean": 0.5321727777777777,
+     "seconds_mean": 384.042,
+     "time_share_mean": 0.5333916666666666,
      "tokens_mean": {
-      "uncached_input": 147014.0,
-      "cached_input": 2734361.6,
-      "output": 37434.8
+      "uncached_input": 151817.33333333334,
+      "cached_input": 2677589.3333333335,
+      "output": 38725.833333333336
      },
      "token_sources": [
       "API usage (relay)"
      ],
-     "tool_calls_mean": 29.8,
+     "tool_calls_mean": 28.5,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": 98.70979000063862,
-      "task_input": 383.68387042219996,
-      "task_output": 97.69905554900194
+      "engine_output": 101.75452967665146,
+      "task_input": 395.3144013762384,
+      "task_output": 100.83749520451757
      },
      "speed_totals": {
       "engine_input": null,
       "engine_output": {
-       "tokens": 187174,
-       "seconds": 1896.2050268650055
+       "tokens": 232355,
+       "seconds": 2283.48556804657
       },
       "task_input": {
-       "tokens": 735070,
-       "seconds": 1915.8220000000001
+       "tokens": 910904,
+       "seconds": 2304.252
       },
       "task_output": {
-       "tokens": 187174,
-       "seconds": 1915.8220000000001
+       "tokens": 232355,
+       "seconds": 2304.252
       }
      },
      "speeds_lower_bound": [
@@ -27907,14 +27911,14 @@
      },
      "valid_rank": 6,
      "first_n": false,
-     "main_statistic": false,
+     "main_statistic": true,
      "cell_pooled": false,
-     "in_main": false,
-     "score_status": "unscored",
-     "score": null,
-     "raw_score": null,
-     "format_penalty": null,
-     "repairs": null,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.7369967520898335,
+     "raw_score": 0.7369967520898335,
+     "format_penalty": 0.0,
+     "repairs": 0,
      "seconds": 370.807,
      "time_limit_seconds": 647,
      "tokens": {
@@ -27963,10 +27967,10 @@
      "speed_lower_bounds": [
       "engine_output"
      ],
-     "score_r83": null,
-     "score_before_penalty": null,
-     "overall_deduction": null,
-     "model_failure_handoffs": null,
+     "score_r83": 0.7369967520898335,
+     "score_before_penalty": 0.7369967520898335,
+     "overall_deduction": 0.0,
+     "model_failure_handoffs": [],
      "requested_effort": "xhigh",
      "effective_effort": "xhigh",
      "pooled": false,
@@ -28038,14 +28042,14 @@
      },
      "valid_rank": 7,
      "first_n": false,
-     "main_statistic": false,
+     "main_statistic": true,
      "cell_pooled": false,
-     "in_main": false,
-     "score_status": "unscored",
-     "score": null,
-     "raw_score": null,
-     "format_penalty": null,
-     "repairs": null,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.7170477015379124,
+     "raw_score": 0.7170477015379124,
+     "format_penalty": 0.0,
+     "repairs": 0,
      "seconds": 354.236,
      "time_limit_seconds": 647,
      "tokens": {
@@ -28094,10 +28098,10 @@
      "speed_lower_bounds": [
       "engine_output"
      ],
-     "score_r83": null,
-     "score_before_penalty": null,
-     "overall_deduction": null,
-     "model_failure_handoffs": null,
+     "score_r83": 0.7170477015379124,
+     "score_before_penalty": 0.7170477015379124,
+     "overall_deduction": 0.0,
+     "model_failure_handoffs": [],
      "requested_effort": "xhigh",
      "effective_effort": "xhigh",
      "pooled": false,
@@ -28165,14 +28169,14 @@
      },
      "valid_rank": 8,
      "first_n": false,
-     "main_statistic": false,
+     "main_statistic": true,
      "cell_pooled": false,
-     "in_main": false,
-     "score_status": "unscored",
-     "score": null,
-     "raw_score": null,
-     "format_penalty": null,
-     "repairs": null,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.6245613515943202,
+     "raw_score": 0.6245613515943202,
+     "format_penalty": 0.0,
+     "repairs": 0,
      "seconds": 292.671,
      "time_limit_seconds": 647,
      "tokens": {
@@ -28220,10 +28224,10 @@
      "speed_lower_bounds": [
       "engine_output"
      ],
-     "score_r83": null,
-     "score_before_penalty": null,
-     "overall_deduction": null,
-     "model_failure_handoffs": null,
+     "score_r83": 0.6245613515943202,
+     "score_before_penalty": 0.6245613515943202,
+     "overall_deduction": 0.0,
+     "model_failure_handoffs": [],
      "requested_effort": "xhigh",
      "effective_effort": "xhigh",
      "pooled": false,
@@ -28926,14 +28930,14 @@
      },
      "valid_rank": 6,
      "first_n": false,
-     "main_statistic": false,
+     "main_statistic": true,
      "cell_pooled": false,
-     "in_main": false,
-     "score_status": "unscored",
-     "score": null,
-     "raw_score": null,
-     "format_penalty": null,
-     "repairs": null,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.6924503996490557,
+     "raw_score": 0.6924503996490557,
+     "format_penalty": 0.0,
+     "repairs": 0,
      "seconds": 388.43,
      "time_limit_seconds": 720,
      "tokens": {
@@ -28981,10 +28985,10 @@
      "speed_lower_bounds": [
       "engine_output"
      ],
-     "score_r83": null,
-     "score_before_penalty": null,
-     "overall_deduction": null,
-     "model_failure_handoffs": null,
+     "score_r83": 0.6924503996490557,
+     "score_before_penalty": 0.6924503996490557,
+     "overall_deduction": 0.0,
+     "model_failure_handoffs": [],
      "requested_effort": "max",
      "effective_effort": "max",
      "pooled": false,
@@ -31978,8 +31982,8 @@
      "kind": "phase3",
      "label": "",
      "n_valid": 8,
-     "n_selected": 5,
-     "n": 5,
+     "n_selected": 8,
+     "n": 8,
      "complete": true,
      "invalid": 0,
      "ids": [
@@ -31987,52 +31991,55 @@
       "openai/code-standards-v5.1/luna-xhigh-a2",
       "openai/code-standards-v5.1/luna-xhigh-a3",
       "openai/code-standards-v5.1/luna-xhigh-a4",
-      "openai/code-standards-v5.1/luna-xhigh-a5"
+      "openai/code-standards-v5.1/luna-xhigh-a5",
+      "openai/code-standards-v5.1/luna-xhigh-a6",
+      "openai/code-standards-v5.1/luna-xhigh-a7",
+      "openai/code-standards-v5.1/luna-xhigh-a8"
      ],
-     "mean": 0.6450915380166393,
-     "sd": 0.057655767201721116,
-     "se": 0.02578444295159025,
+     "mean": 0.637243111408909,
+     "sd": 0.05475872378181832,
+     "se": 0.0193601324576224,
      "ci95": [
-      0.5735024475934449,
-      0.7166806284398337
+      0.5914636726855664,
+      0.6830225501322515
      ],
      "n_negative": 0,
      "min": 0.586713349496155,
-     "median": 0.6403256748279375,
-     "mean_r83": 0.6450915380166393,
-     "raw_score_mean": 0.6450915380166393,
-     "format_penalty_mean": 0.0,
-     "repairs_total": 0,
-     "seconds_mean": 276.8848,
-     "time_share_mean": 0.4832195462478185,
+     "median": 0.6165041432343359,
+     "mean_r83": 0.637243111408909,
+     "raw_score_mean": 0.6399169370675235,
+     "format_penalty_mean": 0.004448075526506899,
+     "repairs_total": 2,
+     "seconds_mean": 289.724375,
+     "time_share_mean": 0.5056271815008726,
      "tokens_mean": {
-      "uncached_input": 89216.4,
-      "cached_input": 868787.2,
-      "output": 30768.8
+      "uncached_input": 95555.125,
+      "cached_input": 832688.0,
+      "output": 31689.625
      },
      "token_sources": [
       "API usage (relay)"
      ],
-     "tool_calls_mean": 14.4,
+     "tool_calls_mean": 13.625,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": 111.69620615732231,
-      "task_input": 322.21487058877915,
-      "task_output": 111.1249154883186
+      "engine_output": 109.86163436481564,
+      "task_input": 329.8138963972223,
+      "task_output": 109.37852571085881
      },
      "speed_totals": {
       "engine_input": null,
       "engine_output": {
-       "tokens": 153844,
-       "seconds": 1377.3431103229523
+       "tokens": 253517,
+       "seconds": 2307.6026628017426
       },
       "task_input": {
-       "tokens": 446082,
-       "seconds": 1384.424
+       "tokens": 764441,
+       "seconds": 2317.795
       },
       "task_output": {
-       "tokens": 153844,
-       "seconds": 1384.424
+       "tokens": 253517,
+       "seconds": 2317.795
       }
      },
      "speeds_lower_bound": [
@@ -32061,62 +32068,65 @@
      "effort": "max",
      "kind": "phase3",
      "label": "",
-     "n_valid": 6,
-     "n_selected": 5,
-     "n": 5,
+     "n_valid": 8,
+     "n_selected": 8,
+     "n": 8,
      "complete": true,
-     "invalid": 2,
+     "invalid": 0,
      "ids": [
       "openai/code-standards-v5.1/luna-max-a1",
       "openai/code-standards-v5.1/luna-max-a2",
       "openai/code-standards-v5.1/luna-max-a3",
+      "openai/code-standards-v5.1/luna-max-a4",
       "openai/code-standards-v5.1/luna-max-a5",
-      "openai/code-standards-v5.1/luna-max-a7"
+      "openai/code-standards-v5.1/luna-max-a6",
+      "openai/code-standards-v5.1/luna-max-a7",
+      "openai/code-standards-v5.1/luna-max-a8"
      ],
-     "mean": 0.6148690952838012,
-     "sd": 0.06126555413980266,
-     "se": 0.02739878874715848,
+     "mean": 0.5857133143833674,
+     "sd": 0.14640875613400572,
+     "se": 0.051763312143721485,
      "ci95": [
-      0.5387978623784047,
-      0.6909403281891977
+      0.46331253114555626,
+      0.7081140976211785
      ],
      "n_negative": 0,
-     "min": 0.5605926957657728,
-     "median": 0.5916266639343563,
-     "mean_r83": 0.6148690952838012,
-     "raw_score_mean": 0.6273267107452629,
-     "format_penalty_mean": 0.02,
-     "repairs_total": 8,
-     "seconds_mean": 312.5682,
-     "time_share_mean": 0.4861091757387247,
+     "min": 0.2526910997499233,
+     "median": 0.6129785165814579,
+     "mean_r83": 0.5857133143833674,
+     "raw_score_mean": 0.5967878869446952,
+     "format_penalty_mean": 0.016944444444444446,
+     "repairs_total": 10,
+     "seconds_mean": 316.994125,
+     "time_share_mean": 0.49299241835147745,
      "tokens_mean": {
-      "uncached_input": 101771.6,
-      "cached_input": 970470.4,
-      "output": 34706.6
+      "uncached_input": 100300.875,
+      "cached_input": 1004384.0,
+      "output": 35264.125
      },
      "token_sources": [
       "API usage (relay)"
      ],
-     "tool_calls_mean": 15.0,
+     "tool_calls_mean": 15.5,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": 112.63005536510119,
-      "task_input": 325.59806147906284,
-      "task_output": 111.03688730971353
+      "engine_output": 114.65486000214304,
+      "task_input": 316.4124098514444,
+      "task_output": 111.24535825387932
      },
      "speed_totals": {
       "engine_input": null,
       "engine_output": {
-       "tokens": 173533,
-       "seconds": 1540.734393119812
+       "tokens": 282113,
+       "seconds": 2460.5411405563354
       },
       "task_input": {
-       "tokens": 508858,
-       "seconds": 1562.841
+       "tokens": 802407,
+       "seconds": 2535.953
       },
       "task_output": {
-       "tokens": 173533,
-       "seconds": 1562.841
+       "tokens": 282113,
+       "seconds": 2535.953
       }
      },
      "speeds_lower_bound": [
@@ -55892,14 +55902,14 @@
      },
      "valid_rank": 6,
      "first_n": false,
-     "main_statistic": false,
+     "main_statistic": true,
      "cell_pooled": false,
-     "in_main": false,
-     "score_status": "unscored",
-     "score": null,
-     "raw_score": null,
-     "format_penalty": null,
-     "repairs": null,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.5880124827099857,
+     "raw_score": 0.5983544107978498,
+     "format_penalty": 0.01728395061728395,
+     "repairs": 1,
      "seconds": 306.846,
      "time_limit_seconds": 573,
      "tokens": {
@@ -55948,10 +55958,10 @@
      "speed_lower_bounds": [
       "engine_output"
      ],
-     "score_r83": null,
-     "score_before_penalty": null,
-     "overall_deduction": null,
-     "model_failure_handoffs": null,
+     "score_r83": 0.5880124827099857,
+     "score_before_penalty": 0.5983544107978498,
+     "overall_deduction": 0.01728395061728395,
+     "model_failure_handoffs": [],
      "requested_effort": "xhigh",
      "effective_effort": "xhigh",
      "pooled": false,
@@ -56019,14 +56029,14 @@
      },
      "valid_rank": 7,
      "first_n": false,
-     "main_statistic": false,
+     "main_statistic": true,
      "cell_pooled": false,
-     "in_main": false,
-     "score_status": "unscored",
-     "score": null,
-     "raw_score": null,
-     "format_penalty": null,
-     "repairs": null,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.5926826116407343,
+     "raw_score": 0.6037312888217866,
+     "format_penalty": 0.018300653594771243,
+     "repairs": 1,
      "seconds": 277.033,
      "time_limit_seconds": 573,
      "tokens": {
@@ -56074,10 +56084,10 @@
      "speed_lower_bounds": [
       "engine_output"
      ],
-     "score_r83": null,
-     "score_before_penalty": null,
-     "overall_deduction": null,
-     "model_failure_handoffs": null,
+     "score_r83": 0.5926826116407343,
+     "score_before_penalty": 0.6037312888217866,
+     "overall_deduction": 0.018300653594771243,
+     "model_failure_handoffs": [],
      "requested_effort": "xhigh",
      "effective_effort": "xhigh",
      "pooled": false,
@@ -56149,14 +56159,14 @@
      },
      "valid_rank": 8,
      "first_n": false,
-     "main_statistic": false,
+     "main_statistic": true,
      "cell_pooled": false,
-     "in_main": false,
-     "score_status": "unscored",
-     "score": null,
-     "raw_score": null,
-     "format_penalty": null,
-     "repairs": null,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.6917921068373557,
+     "raw_score": 0.6917921068373557,
+     "format_penalty": 0.0,
+     "repairs": 0,
      "seconds": 349.492,
      "time_limit_seconds": 573,
      "tokens": {
@@ -56205,10 +56215,10 @@
      "speed_lower_bounds": [
       "engine_output"
      ],
-     "score_r83": null,
-     "score_before_penalty": null,
-     "overall_deduction": null,
-     "model_failure_handoffs": null,
+     "score_r83": 0.6917921068373557,
+     "score_before_penalty": 0.6917921068373557,
+     "overall_deduction": 0.0,
+     "model_failure_handoffs": [],
      "requested_effort": "xhigh",
      "effective_effort": "xhigh",
      "pooled": false,
@@ -56627,6 +56637,137 @@
      ]
     },
     {
+     "id": "openai/code-standards-v5.1/luna-max-a4",
+     "arm": "openai",
+     "scenario": "code-standards-v5.1",
+     "config": 29,
+     "supplementary_label": null,
+     "attempt": 4,
+     "started": 1792692974.8769047,
+     "valid": true,
+     "validity": {
+      "status": "valid",
+      "reasons": [],
+      "source": "bench_validity rejudge (reminder interrupt / stream-cut retry)",
+      "rejudge": {
+       "applied": true,
+       "rule": "reminder interrupt + stream-cut retry (rulings 2026-10-20, 2026-10-21)",
+       "errors": 1,
+       "reminder_interrupts": [
+        {
+         "event": "reminder",
+         "attempted_at": 1792693326.3224208,
+         "row": 16,
+         "error": "BrokenPipeError",
+         "ended_minus_attempted": 3.791,
+         "receipt_messageId": "5f195ed1-5aaa-4a23-af23-840b0b72504d"
+        }
+       ],
+       "stream_cut_retries": [],
+       "stream_cut_rejected": [],
+       "relay_errors_after": 0,
+       "failed": [],
+       "valid": true,
+       "excluded_seconds": {}
+      }
+     },
+     "valid_rank": 4,
+     "first_n": true,
+     "main_statistic": true,
+     "cell_pooled": false,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.7136181488474098,
+     "raw_score": 0.7399266520307245,
+     "format_penalty": 0.035555555555555556,
+     "repairs": 2,
+     "seconds": 367.664,
+     "time_limit_seconds": 643,
+     "tokens": {
+      "uncached_input": 105678,
+      "cached_input": 952960,
+      "output": 40465
+     },
+     "token_source": "API usage (relay)",
+     "tool_calls": 14,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gpt-6-luna"
+     ],
+     "service_tiers": {
+      "default": 15,
+      "not-returned": 1
+     },
+     "speeds": {
+      "task_input": 287.43091518342834,
+      "task_output": 110.05972844771313,
+      "engine_input": null,
+      "engine_output": 120.15667039754499
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 105678,
+       "seconds": 367.664
+      },
+      "task_output": {
+       "tokens": 40465,
+       "seconds": 367.664
+      },
+      "engine_input": null,
+      "engine_output": {
+       "tokens": 40465,
+       "seconds": 336.768652677536
+      }
+     },
+     "speed_basis": {
+      "task": "API usage (relay) over the instance work seconds",
+      "engine": "API model: input unknown (no input-processing time); output = relay output tokens / request seconds, a lower bound (first-token latency and input processing included), 15 requests"
+     },
+     "speed_lower_bounds": [
+      "engine_output"
+     ],
+     "score_r83": 0.7136181488474098,
+     "score_before_penalty": 0.7399266520307245,
+     "overall_deduction": 0.035555555555555556,
+     "model_failure_handoffs": [],
+     "requested_effort": "max",
+     "effective_effort": "max",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 367.664,
+       "tokens": {
+        "uncached_input": 105678,
+        "cached_input": 952960,
+        "output": 40465
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 14,
+       "api_seconds": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": "ready",
+       "continuation_stop": null,
+       "harness_reported_cost_usd": null
+      }
+     ]
+    },
+    {
      "id": "openai/code-standards-v5.1/luna-max-a5",
      "arm": "openai",
      "scenario": "code-standards-v5.1",
@@ -56657,7 +56798,7 @@
        "excluded_seconds": {}
       }
      },
-     "valid_rank": 4,
+     "valid_rank": 5,
      "first_n": true,
      "main_statistic": true,
      "cell_pooled": false,
@@ -56753,6 +56894,137 @@
      ]
     },
     {
+     "id": "openai/code-standards-v5.1/luna-max-a6",
+     "arm": "openai",
+     "scenario": "code-standards-v5.1",
+     "config": 29,
+     "supplementary_label": null,
+     "attempt": 6,
+     "started": 1792693575.8665986,
+     "valid": true,
+     "validity": {
+      "status": "valid",
+      "reasons": [],
+      "source": "bench_validity rejudge (reminder interrupt / stream-cut retry)",
+      "rejudge": {
+       "applied": true,
+       "rule": "reminder interrupt + stream-cut retry (rulings 2026-10-20, 2026-10-21)",
+       "errors": 1,
+       "reminder_interrupts": [
+        {
+         "event": "reminder",
+         "attempted_at": 1792693929.4479673,
+         "row": 19,
+         "error": "BrokenPipeError",
+         "ended_minus_attempted": 1.824,
+         "receipt_messageId": "b0229d9c-ecb5-4f6b-b49b-1e5eb5cf8ee9"
+        }
+       ],
+       "stream_cut_retries": [],
+       "stream_cut_rejected": [],
+       "relay_errors_after": 0,
+       "failed": [],
+       "valid": true,
+       "excluded_seconds": {}
+      }
+     },
+     "valid_rank": 6,
+     "first_n": false,
+     "main_statistic": true,
+     "cell_pooled": false,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.6450517900505994,
+     "raw_score": 0.6450517900505994,
+     "format_penalty": 0.0,
+     "repairs": 0,
+     "seconds": 361.467,
+     "time_limit_seconds": 643,
+     "tokens": {
+      "uncached_input": 108404,
+      "cached_input": 1194368,
+      "output": 40306
+     },
+     "token_source": "API usage (relay)",
+     "tool_calls": 17,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gpt-6-luna"
+     ],
+     "service_tiers": {
+      "default": 18,
+      "not-returned": 1
+     },
+     "speeds": {
+      "task_input": 299.90012919574957,
+      "task_output": 111.50672122213093,
+      "engine_input": null,
+      "engine_output": 118.40914802057596
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 108404,
+       "seconds": 361.467
+      },
+      "task_output": {
+       "tokens": 40306,
+       "seconds": 361.467
+      },
+      "engine_input": null,
+      "engine_output": {
+       "tokens": 40306,
+       "seconds": 340.3959970474243
+      }
+     },
+     "speed_basis": {
+      "task": "API usage (relay) over the instance work seconds",
+      "engine": "API model: input unknown (no input-processing time); output = relay output tokens / request seconds, a lower bound (first-token latency and input processing included), 18 requests"
+     },
+     "speed_lower_bounds": [
+      "engine_output"
+     ],
+     "score_r83": 0.6450517900505994,
+     "score_before_penalty": 0.6450517900505994,
+     "overall_deduction": 0.0,
+     "model_failure_handoffs": [],
+     "requested_effort": "max",
+     "effective_effort": "max",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 361.467,
+       "tokens": {
+        "uncached_input": 108404,
+        "cached_input": 1194368,
+        "output": 40306
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 17,
+       "api_seconds": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": "ready",
+       "continuation_stop": null,
+       "harness_reported_cost_usd": null
+      }
+     ]
+    },
+    {
      "id": "openai/code-standards-v5.1/luna-max-a7",
      "arm": "openai",
      "scenario": "code-standards-v5.1",
@@ -56783,8 +57055,8 @@
        "excluded_seconds": {}
       }
      },
-     "valid_rank": 5,
-     "first_n": true,
+     "valid_rank": 7,
+     "first_n": false,
      "main_statistic": true,
      "cell_pooled": false,
      "in_main": true,
@@ -56909,16 +57181,16 @@
        "excluded_seconds": {}
       }
      },
-     "valid_rank": 6,
+     "valid_rank": 8,
      "first_n": false,
-     "main_statistic": false,
+     "main_statistic": true,
      "cell_pooled": false,
-     "in_main": false,
-     "score_status": "unscored",
-     "score": null,
-     "raw_score": null,
-     "format_penalty": null,
-     "repairs": null,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.2526910997499233,
+     "raw_score": 0.2526910997499233,
+     "format_penalty": 0.0,
+     "repairs": 0,
      "seconds": 243.981,
      "time_limit_seconds": 643,
      "tokens": {
@@ -56966,10 +57238,10 @@
      "speed_lower_bounds": [
       "engine_output"
      ],
-     "score_r83": null,
-     "score_before_penalty": null,
-     "overall_deduction": null,
-     "model_failure_handoffs": null,
+     "score_r83": 0.2526910997499233,
+     "score_before_penalty": 0.2526910997499233,
+     "overall_deduction": 0.0,
+     "model_failure_handoffs": [],
      "requested_effort": "max",
      "effective_effort": "max",
      "pooled": false,
@@ -56992,258 +57264,6 @@
        "tokens_lower_bound": false,
        "cache_write": null,
        "tool_calls": 18,
-       "api_seconds": null,
-       "engine_read": null,
-       "engine_generated": null,
-       "engine_input_seconds": null,
-       "engine_decode_seconds": null,
-       "model_failure": false,
-       "final_status": "ready",
-       "continuation_stop": null,
-       "harness_reported_cost_usd": null
-      }
-     ]
-    },
-    {
-     "id": "openai/code-standards-v5.1/luna-max-a4",
-     "arm": "openai",
-     "scenario": "code-standards-v5.1",
-     "config": 29,
-     "supplementary_label": null,
-     "attempt": 4,
-     "started": 1792692974.8769047,
-     "valid": false,
-     "validity": {
-      "status": "invalid",
-      "reasons": [
-       "relay errors 1 (not reminder interrupts or stream-cut retries)"
-      ],
-      "source": "instance.json valid",
-      "rejudge": {
-       "applied": true,
-       "rule": "reminder interrupt + stream-cut retry (rulings 2026-10-20, 2026-10-21)",
-       "errors": 1,
-       "reminder_interrupts": [],
-       "stream_cut_retries": [],
-       "stream_cut_rejected": [],
-       "relay_errors_after": 1,
-       "failed": [
-        "relay errors 1 (not reminder interrupts or stream-cut retries)"
-       ],
-       "valid": false,
-       "excluded_seconds": {}
-      }
-     },
-     "valid_rank": null,
-     "first_n": null,
-     "main_statistic": null,
-     "cell_pooled": null,
-     "in_main": false,
-     "score_status": null,
-     "score": null,
-     "raw_score": null,
-     "format_penalty": null,
-     "repairs": null,
-     "seconds": 367.664,
-     "time_limit_seconds": 643,
-     "tokens": {
-      "uncached_input": 105678,
-      "cached_input": 952960,
-      "output": 40465
-     },
-     "token_source": "API usage (relay)",
-     "tool_calls": 14,
-     "cost_usd": null,
-     "cost_cny": null,
-     "cost_basis": null,
-     "cost_lower_bound": false,
-     "model_ids": [
-      "gpt-6-luna"
-     ],
-     "service_tiers": {
-      "default": 15,
-      "not-returned": 1
-     },
-     "speeds": {
-      "task_input": 287.43091518342834,
-      "task_output": 110.05972844771313,
-      "engine_input": null,
-      "engine_output": 120.15667039754499
-     },
-     "speed_parts": {
-      "task_input": {
-       "tokens": 105678,
-       "seconds": 367.664
-      },
-      "task_output": {
-       "tokens": 40465,
-       "seconds": 367.664
-      },
-      "engine_input": null,
-      "engine_output": {
-       "tokens": 40465,
-       "seconds": 336.768652677536
-      }
-     },
-     "speed_basis": {
-      "task": "API usage (relay) over the instance work seconds",
-      "engine": "API model: input unknown (no input-processing time); output = relay output tokens / request seconds, a lower bound (first-token latency and input processing included), 15 requests"
-     },
-     "speed_lower_bounds": [
-      "engine_output"
-     ],
-     "score_r83": null,
-     "score_before_penalty": null,
-     "overall_deduction": null,
-     "model_failure_handoffs": null,
-     "requested_effort": "max",
-     "effective_effort": "max",
-     "pooled": false,
-     "pause_known": true,
-     "pause_count": 0,
-     "continue_count": 0,
-     "seconds_adjustment": null,
-     "harness_generation": null,
-     "harness_reported_cost_usd": null,
-     "handoff_metrics": [
-      {
-       "k": 0,
-       "sub_scenario": "default",
-       "seconds": 367.664,
-       "tokens": {
-        "uncached_input": 105678,
-        "cached_input": 952960,
-        "output": 40465
-       },
-       "tokens_lower_bound": false,
-       "cache_write": null,
-       "tool_calls": 14,
-       "api_seconds": null,
-       "engine_read": null,
-       "engine_generated": null,
-       "engine_input_seconds": null,
-       "engine_decode_seconds": null,
-       "model_failure": false,
-       "final_status": "ready",
-       "continuation_stop": null,
-       "harness_reported_cost_usd": null
-      }
-     ]
-    },
-    {
-     "id": "openai/code-standards-v5.1/luna-max-a6",
-     "arm": "openai",
-     "scenario": "code-standards-v5.1",
-     "config": 29,
-     "supplementary_label": null,
-     "attempt": 6,
-     "started": 1792693575.8665986,
-     "valid": false,
-     "validity": {
-      "status": "invalid",
-      "reasons": [
-       "relay errors 1 (not reminder interrupts or stream-cut retries)"
-      ],
-      "source": "instance.json valid",
-      "rejudge": {
-       "applied": true,
-       "rule": "reminder interrupt + stream-cut retry (rulings 2026-10-20, 2026-10-21)",
-       "errors": 1,
-       "reminder_interrupts": [],
-       "stream_cut_retries": [],
-       "stream_cut_rejected": [],
-       "relay_errors_after": 1,
-       "failed": [
-        "relay errors 1 (not reminder interrupts or stream-cut retries)"
-       ],
-       "valid": false,
-       "excluded_seconds": {}
-      }
-     },
-     "valid_rank": null,
-     "first_n": null,
-     "main_statistic": null,
-     "cell_pooled": null,
-     "in_main": false,
-     "score_status": null,
-     "score": null,
-     "raw_score": null,
-     "format_penalty": null,
-     "repairs": null,
-     "seconds": 361.467,
-     "time_limit_seconds": 643,
-     "tokens": {
-      "uncached_input": 108404,
-      "cached_input": 1194368,
-      "output": 40306
-     },
-     "token_source": "API usage (relay)",
-     "tool_calls": 17,
-     "cost_usd": null,
-     "cost_cny": null,
-     "cost_basis": null,
-     "cost_lower_bound": false,
-     "model_ids": [
-      "gpt-6-luna"
-     ],
-     "service_tiers": {
-      "default": 18,
-      "not-returned": 1
-     },
-     "speeds": {
-      "task_input": 299.90012919574957,
-      "task_output": 111.50672122213093,
-      "engine_input": null,
-      "engine_output": 118.40914802057596
-     },
-     "speed_parts": {
-      "task_input": {
-       "tokens": 108404,
-       "seconds": 361.467
-      },
-      "task_output": {
-       "tokens": 40306,
-       "seconds": 361.467
-      },
-      "engine_input": null,
-      "engine_output": {
-       "tokens": 40306,
-       "seconds": 340.3959970474243
-      }
-     },
-     "speed_basis": {
-      "task": "API usage (relay) over the instance work seconds",
-      "engine": "API model: input unknown (no input-processing time); output = relay output tokens / request seconds, a lower bound (first-token latency and input processing included), 18 requests"
-     },
-     "speed_lower_bounds": [
-      "engine_output"
-     ],
-     "score_r83": null,
-     "score_before_penalty": null,
-     "overall_deduction": null,
-     "model_failure_handoffs": null,
-     "requested_effort": "max",
-     "effective_effort": "max",
-     "pooled": false,
-     "pause_known": true,
-     "pause_count": 0,
-     "continue_count": 0,
-     "seconds_adjustment": null,
-     "harness_generation": null,
-     "harness_reported_cost_usd": null,
-     "handoff_metrics": [
-      {
-       "k": 0,
-       "sub_scenario": "default",
-       "seconds": 361.467,
-       "tokens": {
-        "uncached_input": 108404,
-        "cached_input": 1194368,
-        "output": 40306
-       },
-       "tokens_lower_bound": false,
-       "cache_write": null,
-       "tool_calls": 17,
        "api_seconds": null,
        "engine_read": null,
        "engine_generated": null,
@@ -60228,8 +60248,8 @@
      "kind": "phase3",
      "label": "",
      "n_valid": 6,
-     "n_selected": 5,
-     "n": 5,
+     "n_selected": 6,
+     "n": 6,
      "complete": true,
      "invalid": 0,
      "ids": [
@@ -60237,53 +60257,54 @@
       "openai/commit-audit-v3/luna-xhigh-a2",
       "openai/commit-audit-v3/luna-xhigh-a3",
       "openai/commit-audit-v3/luna-xhigh-a4",
-      "openai/commit-audit-v3/luna-xhigh-a5"
+      "openai/commit-audit-v3/luna-xhigh-a5",
+      "openai/commit-audit-v3/luna-xhigh-a6"
      ],
-     "mean": 0.635029756076542,
-     "sd": 0.4572234362721702,
-     "se": 0.2044765368821231,
+     "mean": 0.6717959673516409,
+     "sd": 0.4187518863126187,
+     "se": 0.17095474171564454,
      "ci95": [
-      0.06731187612237577,
-      1.2027476360307081
+      0.23234281358150766,
+      1.1112491211217743
      ],
      "n_negative": 1,
      "min": -0.18201153199741443,
-     "median": 0.8290329008406435,
-     "mean_r83": 0.6714320624760248,
-     "raw_score_mean": 0.6571678358304595,
+     "median": 0.8423299622838897,
+     "mean_r83": 0.7021312226845433,
+     "raw_score_mean": 0.6902443671465722,
      "format_penalty_mean": 0.0,
      "repairs_total": 0,
-     "seconds_mean": 1117.7234,
+     "seconds_mean": 1001.6123333333334,
      "time_share_mean": null,
      "tokens_mean": {
-      "uncached_input": 212283.2,
-      "cached_input": 13930060.8,
-      "output": 69700.8
+      "uncached_input": 195388.0,
+      "cached_input": 11877120.0,
+      "output": 66394.5
      },
      "token_sources": [
       "API usage (relay log sum, 762 requests; lower bound: 1 request(s) without usage)",
       "API usage (relay)"
      ],
-     "tool_calls_mean": 18.6,
+     "tool_calls_mean": 19.333333333333332,
      "speeds_mean": {
       "engine_input": null,
-      "engine_output": 62.25930906712585,
-      "task_input": 189.92462714836245,
-      "task_output": 62.35961419435255
+      "engine_output": 66.20112478856885,
+      "task_input": 195.0734765313393,
+      "task_output": 66.28762225704756
      },
      "speed_totals": {
       "engine_input": null,
       "engine_output": {
-       "tokens": 348504,
-       "seconds": 5597.620744943619
+       "tokens": 398367,
+       "seconds": 6017.526156425476
       },
       "task_input": {
-       "tokens": 1061416,
-       "seconds": 5588.617
+       "tokens": 1172328,
+       "seconds": 6009.674
       },
       "task_output": {
-       "tokens": 348504,
-       "seconds": 5588.617
+       "tokens": 398367,
+       "seconds": 6009.674
       }
      },
      "speeds_lower_bound": [
@@ -84099,14 +84120,14 @@
      },
      "valid_rank": 6,
      "first_n": false,
-     "main_statistic": false,
+     "main_statistic": true,
      "cell_pooled": false,
-     "in_main": false,
-     "score_status": "unscored",
-     "score": null,
-     "raw_score": null,
-     "format_penalty": null,
-     "repairs": null,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.8556270237271358,
+     "raw_score": 0.8556270237271358,
+     "format_penalty": 0.0,
+     "repairs": 0,
      "seconds": 421.057,
      "time_limit_seconds": null,
      "tokens": {
@@ -84154,10 +84175,10 @@
      "speed_lower_bounds": [
       "engine_output"
      ],
-     "score_r83": null,
-     "score_before_penalty": null,
-     "overall_deduction": null,
-     "model_failure_handoffs": null,
+     "score_r83": 0.8556270237271358,
+     "score_before_penalty": 0.8556270237271358,
+     "overall_deduction": 0.0,
+     "model_failure_handoffs": [],
      "requested_effort": "xhigh",
      "effective_effort": "xhigh",
      "pooled": false,
@@ -116169,7 +116190,7 @@
  },
  "generator": {
   "tool": "tools.reviewer.benchmark_summary",
-  "sha256": "b8bb2450f69818c4fc363c94835cc3be032f06ab3903b69810e6e62dc8894429",
+  "sha256": "0e7330e94f35dc9331f7720a1eda4352248dc98a2bdfa7ed6bcaa3a1e43bf1bd",
   "phase": 3
  }
 }

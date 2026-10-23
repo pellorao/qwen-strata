@@ -1,20 +1,20 @@
 # 多模型 benchmark v1 第三阶段补充：gpt-6-luna xhigh / max
 
-**结论**：gpt-6-luna 的 xhigh（配置 28）和 max（配置 29）在 4 个场景各跑 5 个有效实例，共 40 个，全部最终计分（评分 r8.4，rulings e1e73dcb）。按用户要求（2026-10-22），本报告只列每个实例的结果，不与其他配置比较，也不做统计检验。
+**结论**：gpt-6-luna 的 xhigh（配置 28）和 max（配置 29）在 4 个场景共有 51 个有效实例，每格 5–8 个，全部最终计分（评分 r8.4，rulings e1e73dcb）。按用户要求（2026-10-22），本报告只列每个实例的结果，不与其他配置比较，也不做统计检验。
 
 ## 条件
 
 - 与 v1 相同：Codex `399ff69c…4215`、catalog `40484beb…`、各场景冻结 plan、harness 补丁、`arw_measure` `1735b7be`；运行脚本存档在 `benchmarks/multi-model-v1/runners/luna-xhigh-1022/`。不经过 Strata，与 Strata 版本无关。
 - 运行时间 2026-10-23 02:20–07:12，借用 ChatGPT 登录，最多 3 个实例并行，场景依次进行：CS → CStd → CA → SR。用完已归还登录。周用量最高 2%。
-- 有效性按 v1 规则判定，包括计分时的重判：提醒中断、客户端放弃的流不算错误。
-  - CS、CStd 的 xhigh 在运行时有多个实例被判作废，原因是 BrokenPipe。计分时重判，这些实例大多恢复为有效。
-  - 最终只有 CStd luna-max-a4、a6 无效，原因是不在提醒时刻的客户端放弃流。
-  - 每格取按开始顺序的前 5 个有效实例，所以 CStd max 用的是 a1、a2、a3、a5、a7。
-- 盲裁按 §6.2，由单名 Opus high 进行。
-  - 共 16 池，第一次全部通过：锚点一致率都是 1.0，合成负例全部识别正确。
-  - 写入 1950 条决定，费用 $20.13。
-  - 复核清单 114 条，改判 2 条，都在 CStd，按 rulings「新代码照搬仓库里已有多份的重复实现」：luna-max-a2 finding-15、luna-xhigh-a1 finding-20，从 unsupported 改为 supported。
-- 会话检查按 D9：40 个实例中脚本标出 6 个可疑，Main 侧逐个复核后都判有效。原因是拼错路径、ENOENT、git EPERM 这类无害情况，没有违规。
+- 有效性按 v1 规则判定，包括计分时的重判。提醒中断按 10-23 用户定的一条判据：提醒或中断送达时正在进行的请求，其错误行不算 relay 错误（取代原先的 7 条判据）。
+  - CS、CStd 的 xhigh 在运行时有多个实例被判作废，原因是 BrokenPipe；计分时重判，全部恢复为有效。
+  - CStd luna-max-a4、a6 在旧判据下无效：relay 要到下次写数据才发现客户端断开，记下的结束时刻比重发晚，不满足旧判据的时间窗。按新判据，它们的错误行是提醒送达时正在进行的请求（结束时刻在送达尝试后 3.8 秒、1.8 秒），所以有效。51 个实例全部有效。
+- 实例集合：每格取全部有效实例，不截取前 5 个（用户 2026-10-23，测量规则「失败与重跑」）。多出的实例来自并行调度，不是因为已有分数差才加跑，所以和预登记的实例效力相同；第三阶段没有 surplus，也没有一致性行。每格 n：CS xhigh 8、max 6；CStd xhigh 8、max 8；CA xhigh 6、max 5；SR xhigh 5、max 5。
+- 盲裁按 §6.2，由单名 Opus high 进行，分两批：先裁每格前 5 个（40 个实例），规则改变后再裁其余 11 个，流程、brief、view 和提示相同。
+  - 共 20 池（16 + 4），第一次全部通过：锚点一致率都是 1.0，合成负例全部识别正确。
+  - 写入 2388 条决定（1950 + 438），费用 $24.61（$20.13 + $4.48）。
+  - 复核清单 122 条（114 + 8），改判 4 条，都在 CStd，都是又一份 store 写队列，按 rulings「新代码照搬仓库里已有多份的重复实现」从 unsupported 改为 supported：luna-max-a2 finding-15、luna-xhigh-a1 finding-20、luna-max-a6 finding-13、luna-xhigh-a8 finding-22。
+- 会话检查按 D9：51 个实例中脚本标出 7 个可疑，Main 侧逐个复核后都判有效。原因是拼错路径、ENOENT、git EPERM、未执行的路径常量这类无害情况，没有违规。
 
 ## 异常与说明
 
@@ -24,25 +24,25 @@
   - 60 分钟时被 ARW 截断，报告只有 Gate 1；暂停扣 0.1。
   - 记录里没有 token 数。token 由 bench_records 从 relay 日志求和（762 个请求），为下界：其中 1 个被中断的请求没有 usage。
 - **SR luna-max-a4**：有 6 次早退暂停，扣 0.1。
-- **格式罚**：CStd max-a7（f 0.1）、CA max-a2（f 0.098）、CS xhigh-a3（f 0.026）、SR xhigh-a3（f 0.025）。
+- **CStd luna-max-a8**：得分 0.253，是同格最低。它只用了时限的 38%（4.1 分钟），报告只有 20 个定位，没有罚分。
+- **格式罚**：CStd max-a7（f 0.1）、CA max-a2（f 0.098）、CStd max-a4（f 0.036）、CS xhigh-a3（f 0.026）、SR xhigh-a3（f 0.025）、CStd xhigh-a7（f 0.018）、CStd xhigh-a6（f 0.017）。
   - SR xhigh-a3 的 h0 报告第 5 行不是合法 JSON，引号没有转义。修复工具原先遇到这种行会崩溃，改为不修复、交 ARW 按原样计分（e2c5fdd）。ARW 判 `review-format-invalid`，r 计 1。
 - 无 ARW 截断扣分。
 
 ## 数据
 
-- `summary.json`：由 `benchmark_summary --phase 3` 生成，含第二阶段全部实例和本补充的完整精度数据；三阶段合一的公开结果文件是 [`../benchmark-results.json`](../benchmark-results.json)。
-- 配置 28/29 另有 9 个有效但未计分的实例（并行时多出的，按第二阶段先例记为 surplus，不进统计）：CA xhigh-a6，CS max-a6、xhigh-a6/a7/a8，CStd max-a8、xhigh-a6/a7/a8。
-- 运行明细、决定库和复核明细在 `.tmp/luna-xhigh-1022/`。这些是可删的运行明细，删除后只能凭本报告和 `summary.json` 查看结果，无法重放盲裁。
+- `summary.json`：由 `benchmark_summary --phase 3` 生成，含第二阶段全部实例和本补充的完整精度数据；三阶段合一的公开结果文件是 [`../benchmark-results.json`](../benchmark-results.json)。10-23 改为全部有效实例后，两份文件都已用工具链重新生成；第二阶段的实例与统计不变。
+- 运行明细、决定库和复核明细在 `.tmp/luna-xhigh-1022/`（第二批在 `score2/`、`adjud2/`）。这些是可删的运行明细，删除后只能凭本报告和 `summary.json` 查看结果，无法重放盲裁。
 
 ---
 
 以下为 `benchmark_summary` 生成的完整汇总（第二阶段全部配置不变，配置 28/29 为第三阶段补充行；逐实例表在各场景末尾）。
 
-## 多模型 benchmark v1 汇总
+# 多模型 benchmark v1 汇总
 
-第三阶段补充：第二阶段的全部实例与统计不变，另加 gpt-6-luna xhigh（配置 28）、max（配置 29）两个补充配置（Codex，按开始时刻的前 5 个有效实例）；它们只给配置行和逐实例结果，不进预登记比较和 Holm 族。第二阶段：Strata 各格取全部有效实例（至多 10 个，不足按实际 n），其余同第一阶段。
+第三阶段补充：第二阶段的全部实例与统计不变，另加 gpt-6-luna xhigh（配置 28）、max（配置 29）两个补充配置（Codex，各格取全部有效实例，不截取前 5 个，也没有一致性行：用户 2026-10-23，非因分数加跑的有效实例与预登记实例效力相同）；它们只给配置行和逐实例结果，不进预登记比较和 Holm 族。第二阶段：Strata 各格取全部有效实例（至多 10 个，不足按实际 n），其余同第一阶段。
 
-每个场景 25 个预登记比较，Holm 校正，双侧 α = 0.05，Welch t 检验（Welch–Satterthwaite 自由度）。主统计多于前 5 个的格另给一致性行（按开始时刻的前 5 个）；补充行和敏感性行不进比较。不给比值、综合分和排名。
+每个场景 25 个预登记比较，Holm 校正，双侧 α = 0.05，Welch t 检验（Welch–Satterthwaite 自由度）。主统计多于前 5 个的格另给一致性行（按开始时刻的前 5 个；第三阶段补充配置不给）；补充行和敏感性行不进比较。不给比值、综合分和排名。
 
 ## code-spec-v5
 
@@ -87,8 +87,8 @@
 | 26 claude-code strata-iq3_xxs medium | 一致性行（前 5） | 10 | 5 | 5 |  | 0.480 ± 0.064 | 0.029 | 0.401–0.560 | 0 | 0.388 | 0.479 | 0.480 | 0.489 | 0.020 | 24 | 8.8 | 0.59 | 88,314 | 1,826,317 | 39,751 | engine log | 56.0 | 0.306 |  | qwen3.8-flash-next-iq3_xxs | not-returned |
 | 27 claude-code strata-iq3_xxs high | 主统计 | 10 | 10 | 10 | 0 | 0.464 ± 0.033 | 0.011 | 0.440–0.488 | 0 | 0.392 | 0.470 | 0.464 | 0.466 | 0.003 | 0 | 9.8 | 0.65 | 78,962 | 1,422,505 | 45,103 | engine log | 32.5 | 0.558 |  | qwen3.8-flash-next-iq3_xxs | not-returned |
 | 27 claude-code strata-iq3_xxs high | 一致性行（前 5） | 10 | 5 | 5 |  | 0.460 ± 0.048 | 0.022 | 0.400–0.520 | 0 | 0.392 | 0.463 | 0.460 | 0.463 | 0.006 | 0 | 10.1 | 0.67 | 77,847 | 1,452,332 | 46,232 | engine log | 25.6 | 0.283 |  | qwen3.8-flash-next-iq3_xxs | not-returned |
-| 28 codex gpt-6-luna xhigh | 第三阶段补充（不比较） | 8 | 5 | 5 |  | 0.650 ± 0.052 | 0.023 | 0.586–0.714 | 0 | 0.580 | 0.652 | 0.650 | 0.653 | 0.005 | 0 | 4.7 | 0.43 | 165,114 | 1,677,389 | 27,977 | API usage (relay) | 20.2 | 只报 token |  | gpt-6-luna | default、not-returned |
-| 29 codex gpt-6-luna max | 第三阶段补充（不比较） | 6 | 5 | 5 |  | 0.684 ± 0.068 | 0.030 | 0.599–0.768 | 0 | 0.600 | 0.700 | 0.684 | 0.684 | 0.000 | 0 | 6.4 | 0.53 | 147,014 | 2,734,362 | 37,435 | API usage (relay) | 29.8 | 只报 token |  | gpt-6-luna | default、not-returned |
+| 28 codex gpt-6-luna xhigh | 第三阶段补充（不比较） | 8 | 8 | 8 |  | 0.666 ± 0.055 | 0.020 | 0.620–0.712 | 0 | 0.580 | 0.671 | 0.666 | 0.668 | 0.003 | 0 | 5.1 | 0.47 | 162,189 | 1,840,608 | 30,383 | API usage (relay) | 20.6 | 只报 token |  | gpt-6-luna | default、not-returned |
+| 29 codex gpt-6-luna max | 第三阶段补充（不比较） | 6 | 6 | 6 |  | 0.685 ± 0.061 | 0.025 | 0.621–0.749 | 0 | 0.600 | 0.696 | 0.685 | 0.685 | 0.000 | 0 | 6.4 | 0.53 | 151,817 | 2,677,589 | 38,726 | API usage (relay) | 28.5 | 只报 token |  | gpt-6-luna | default、not-returned |
 
 ### 预登记比较
 
@@ -323,15 +323,15 @@ r8.3 列：同一批实例按 r8.3（截到 0、整体扣减相乘）计分的�
 | 28 codex gpt-6-luna xhigh | luna-xhigh-a3 |  | 是 | 3 | 是 | 0.580 | 0.580 | 0.596 | 0.026 | 0 | 6.2 | 0.58 | 137,826 | 2,605,824 | 32,895 | 29 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥90.5 | 368.8 | 88.0 |
 | 28 codex gpt-6-luna xhigh | luna-xhigh-a4 |  | 是 | 4 | 是 | 0.620 | 0.620 | 0.620 | 0.000 | 0 | 6.7 | 0.62 | 202,901 | 1,868,160 | 40,045 | 23 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥105.7 | 506.5 | 100.0 |
 | 28 codex gpt-6-luna xhigh | luna-xhigh-a5 |  | 是 | 5 | 是 | 0.652 | 0.652 | 0.652 | 0.000 | 0 | 3.8 | 0.35 | 136,417 | 1,200,512 | 25,034 | 15 | 只报 token | gpt-6-luna | default | 未知 | ≥109.6 | 594.9 | 109.2 |
-| 28 codex gpt-6-luna xhigh | luna-xhigh-a6 |  | 是 | 6 |  | unscored |  | 未知 | 未知 | 未知 | 6.2 | 0.57 | 160,443 | 2,208,384 | 35,427 | 22 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥96.0 | 432.7 | 95.5 |
-| 28 codex gpt-6-luna xhigh | luna-xhigh-a7 |  | 是 | 7 |  | unscored |  | 未知 | 未知 | 未知 | 5.9 | 0.55 | 156,327 | 2,236,928 | 36,015 | 21 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥104.9 | 441.3 | 101.7 |
-| 28 codex gpt-6-luna xhigh | luna-xhigh-a8 |  | 是 | 8 |  | unscored |  | 未知 | 未知 | 未知 | 4.9 | 0.45 | 155,171 | 1,892,608 | 31,738 | 21 | 只报 token | gpt-6-luna | default | 未知 | ≥108.8 | 530.2 | 108.4 |
+| 28 codex gpt-6-luna xhigh | luna-xhigh-a6 |  | 是 | 6 | 是 | 0.737 | 0.737 | 0.737 | 0.000 | 0 | 6.2 | 0.57 | 160,443 | 2,208,384 | 35,427 | 22 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥96.0 | 432.7 | 95.5 |
+| 28 codex gpt-6-luna xhigh | luna-xhigh-a7 |  | 是 | 7 | 是 | 0.717 | 0.717 | 0.717 | 0.000 | 0 | 5.9 | 0.55 | 156,327 | 2,236,928 | 36,015 | 21 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥104.9 | 441.3 | 101.7 |
+| 28 codex gpt-6-luna xhigh | luna-xhigh-a8 |  | 是 | 8 | 是 | 0.625 | 0.625 | 0.625 | 0.000 | 0 | 4.9 | 0.45 | 155,171 | 1,892,608 | 31,738 | 21 | 只报 token | gpt-6-luna | default | 未知 | ≥108.8 | 530.2 | 108.4 |
 | 29 codex gpt-6-luna max | luna-max-a1 |  | 是 | 1 | 是 | 0.700 | 0.700 | 0.700 | 0.000 | 0 | 5.0 | 0.41 | 120,440 | 1,229,312 | 34,252 | 15 | 只报 token | gpt-6-luna | default | 未知 | ≥115.1 | 404.4 | 115.0 |
 | 29 codex gpt-6-luna max | luna-max-a2 |  | 是 | 2 | 是 | 0.758 | 0.758 | 0.758 | 0.000 | 0 | 7.2 | 0.60 | 162,596 | 3,279,232 | 35,474 | 36 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥85.7 | 374.6 | 81.7 |
 | 29 codex gpt-6-luna max | luna-max-a3 |  | 是 | 3 | 是 | 0.628 | 0.628 | 0.628 | 0.000 | 0 | 6.8 | 0.57 | 155,819 | 3,999,616 | 38,955 | 43 | 只报 token | gpt-6-luna | default | 未知 | ≥94.8 | 379.9 | 95.0 |
 | 29 codex gpt-6-luna max | luna-max-a4 |  | 是 | 4 | 是 | 0.734 | 0.734 | 0.734 | 0.000 | 0 | 6.4 | 0.53 | 154,329 | 2,189,184 | 37,325 | 24 | 只报 token | gpt-6-luna | default | 未知 | ≥96.9 | 400.8 | 96.9 |
 | 29 codex gpt-6-luna max | luna-max-a5 |  | 是 | 5 | 是 | 0.600 | 0.600 | 0.600 | 0.000 | 0 | 6.5 | 0.54 | 141,886 | 2,974,464 | 41,168 | 31 | 只报 token | gpt-6-luna | default | 未知 | ≥105.9 | 365.0 | 105.9 |
-| 29 codex gpt-6-luna max | luna-max-a6 |  | 是 | 6 |  | unscored |  | 未知 | 未知 | 未知 | 6.5 | 0.54 | 175,834 | 2,393,728 | 45,181 | 22 | 只报 token | gpt-6-luna | default | 未知 | ≥116.7 | 452.7 | 116.3 |
+| 29 codex gpt-6-luna max | luna-max-a6 |  | 是 | 6 | 是 | 0.692 | 0.692 | 0.692 | 0.000 | 0 | 6.5 | 0.54 | 175,834 | 2,393,728 | 45,181 | 22 | 只报 token | gpt-6-luna | default | 未知 | ≥116.7 | 452.7 | 116.3 |
 
 ## code-standards-v5.1
 
@@ -374,8 +374,8 @@ r8.3 列：同一批实例按 r8.3（截到 0、整体扣减相乘）计分的�
 | 26 claude-code strata-iq3_xxs medium | 一致性行（前 5） | 10 | 5 | 5 |  | 0.706 ± 0.052 | 0.023 | 0.642–0.770 | 0 | 0.661 | 0.690 | 0.706 | 0.770 | 0.081 | 84 | 6.9 | 0.47 | 49,224 | 1,043,134 | 32,368 | engine log | 29.6 | 0.196 |  | qwen3.8-flash-next-iq3_xxs | not-returned |
 | 27 claude-code strata-iq3_xxs high | 主统计 | 10 | 10 | 10 | 5 | 0.704 ± 0.081 | 0.025 | 0.646–0.761 | 0 | 0.566 | 0.693 | 0.704 | 0.740 | 0.050 | 66 | 8.6 | 0.57 | 58,123 | 1,124,519 | 41,190 | engine log | 29.0 | 0.461 |  | qwen3.8-flash-next-iq3_xxs | not-returned |
 | 27 claude-code strata-iq3_xxs high | 一致性行（前 5） | 10 | 5 | 5 |  | 0.718 ± 0.067 | 0.030 | 0.635–0.801 | 0 | 0.682 | 0.690 | 0.718 | 0.757 | 0.051 | 31 | 9.2 | 0.62 | 57,419 | 1,161,646 | 43,895 | engine log | 30.6 | 0.239 |  | qwen3.8-flash-next-iq3_xxs | not-returned |
-| 28 codex gpt-6-luna xhigh | 第三阶段补充（不比较） | 8 | 5 | 5 |  | 0.645 ± 0.058 | 0.026 | 0.574–0.717 | 0 | 0.587 | 0.640 | 0.645 | 0.645 | 0.000 | 0 | 4.6 | 0.48 | 89,216 | 868,787 | 30,769 | API usage (relay) | 14.4 | 只报 token |  | gpt-6-luna | default、not-returned |
-| 29 codex gpt-6-luna max | 第三阶段补充（不比较） | 6 | 5 | 5 |  | 0.615 ± 0.061 | 0.027 | 0.539–0.691 | 0 | 0.561 | 0.592 | 0.615 | 0.627 | 0.020 | 8 | 5.2 | 0.49 | 101,772 | 970,470 | 34,707 | API usage (relay) | 15.0 | 只报 token |  | gpt-6-luna | default、not-returned |
+| 28 codex gpt-6-luna xhigh | 第三阶段补充（不比较） | 8 | 8 | 8 |  | 0.637 ± 0.055 | 0.019 | 0.591–0.683 | 0 | 0.587 | 0.617 | 0.637 | 0.640 | 0.004 | 2 | 4.8 | 0.51 | 95,555 | 832,688 | 31,690 | API usage (relay) | 13.6 | 只报 token |  | gpt-6-luna | default、not-returned |
+| 29 codex gpt-6-luna max | 第三阶段补充（不比较） | 8 | 8 | 8 |  | 0.586 ± 0.146 | 0.052 | 0.463–0.708 | 0 | 0.253 | 0.613 | 0.586 | 0.597 | 0.017 | 10 | 5.3 | 0.49 | 100,301 | 1,004,384 | 35,264 | API usage (relay) | 15.5 | 只报 token |  | gpt-6-luna | default、not-returned |
 
 ### 预登记比较
 
@@ -603,17 +603,17 @@ r8.3 列：同一批实例按 r8.3（截到 0、整体扣减相乘）计分的�
 | 28 codex gpt-6-luna xhigh | luna-xhigh-a3 |  | 是 | 3 | 是 | 0.591 | 0.591 | 0.591 | 0.000 | 0 | 4.9 | 0.52 | 85,496 | 794,112 | 30,780 | 14 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥105.1 | 289.3 | 104.1 |
 | 28 codex gpt-6-luna xhigh | luna-xhigh-a4 |  | 是 | 4 | 是 | 0.701 | 0.701 | 0.701 | 0.000 | 0 | 4.6 | 0.48 | 90,999 | 834,304 | 32,044 | 13 | 只报 token | gpt-6-luna | default | 未知 | ≥116.1 | 328.4 | 115.6 |
 | 28 codex gpt-6-luna xhigh | luna-xhigh-a5 |  | 是 | 5 | 是 | 0.640 | 0.640 | 0.640 | 0.000 | 0 | 5.0 | 0.52 | 90,916 | 936,064 | 32,738 | 16 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥111.0 | 305.7 | 110.1 |
-| 28 codex gpt-6-luna xhigh | luna-xhigh-a6 |  | 是 | 6 |  | unscored |  | 未知 | 未知 | 未知 | 5.1 | 0.54 | 82,296 | 810,368 | 32,336 | 13 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥105.5 | 268.2 | 105.4 |
-| 28 codex gpt-6-luna xhigh | luna-xhigh-a7 |  | 是 | 7 |  | unscored |  | 未知 | 未知 | 未知 | 4.6 | 0.48 | 94,891 | 684,544 | 31,877 | 11 | 只报 token | gpt-6-luna | default | 未知 | ≥115.3 | 342.5 | 115.1 |
-| 28 codex gpt-6-luna xhigh | luna-xhigh-a8 |  | 是 | 8 |  | unscored |  | 未知 | 未知 | 未知 | 5.8 | 0.61 | 141,172 | 822,656 | 35,460 | 13 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥102.1 | 403.9 | 101.5 |
+| 28 codex gpt-6-luna xhigh | luna-xhigh-a6 |  | 是 | 6 | 是 | 0.588 | 0.588 | 0.598 | 0.017 | 1 | 5.1 | 0.54 | 82,296 | 810,368 | 32,336 | 13 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥105.5 | 268.2 | 105.4 |
+| 28 codex gpt-6-luna xhigh | luna-xhigh-a7 |  | 是 | 7 | 是 | 0.593 | 0.593 | 0.604 | 0.018 | 1 | 4.6 | 0.48 | 94,891 | 684,544 | 31,877 | 11 | 只报 token | gpt-6-luna | default | 未知 | ≥115.3 | 342.5 | 115.1 |
+| 28 codex gpt-6-luna xhigh | luna-xhigh-a8 |  | 是 | 8 | 是 | 0.692 | 0.692 | 0.692 | 0.000 | 0 | 5.8 | 0.61 | 141,172 | 822,656 | 35,460 | 13 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥102.1 | 403.9 | 101.5 |
 | 29 codex gpt-6-luna max | luna-max-a1 |  | 是 | 1 | 是 | 0.713 | 0.713 | 0.713 | 0.000 | 0 | 6.0 | 0.56 | 124,453 | 1,113,728 | 34,162 | 18 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥100.1 | 343.7 | 94.3 |
 | 29 codex gpt-6-luna max | luna-max-a2 |  | 是 | 2 | 是 | 0.634 | 0.634 | 0.634 | 0.000 | 0 | 4.7 | 0.44 | 85,413 | 1,103,360 | 30,293 | 19 | 只报 token | gpt-6-luna | default | 未知 | ≥107.1 | 303.0 | 107.5 |
 | 29 codex gpt-6-luna max | luna-max-a3 |  | 是 | 3 | 是 | 0.575 | 0.575 | 0.575 | 0.000 | 0 | 5.2 | 0.48 | 93,028 | 989,184 | 36,972 | 14 | 只报 token | gpt-6-luna | default | 未知 | ≥118.9 | 298.4 | 118.6 |
-| 29 codex gpt-6-luna max | luna-max-a5 |  | 是 | 4 | 是 | 0.592 | 0.592 | 0.592 | 0.000 | 0 | 5.2 | 0.49 | 96,297 | 751,616 | 37,380 | 12 | 只报 token | gpt-6-luna | default | 未知 | ≥119.8 | 308.1 | 119.6 |
-| 29 codex gpt-6-luna max | luna-max-a7 |  | 是 | 5 | 是 | 0.561 | 0.561 | 0.623 | 0.100 | 8 | 4.9 | 0.46 | 109,667 | 894,464 | 34,726 | 12 | 只报 token | gpt-6-luna | default | 未知 | ≥118.2 | 372.3 | 117.9 |
-| 29 codex gpt-6-luna max | luna-max-a8 |  | 是 | 6 |  | unscored |  | 未知 | 未知 | 未知 | 4.1 | 0.38 | 79,467 | 1,035,392 | 27,809 | 18 | 只报 token | gpt-6-luna | default | 未知 | ≥114.6 | 325.7 | 114.0 |
-| 29 codex gpt-6-luna max | luna-max-a4 |  | 否 |  |  | 未知 |  | 未知 | 未知 | 未知 | 6.1 | 0.57 | 105,678 | 952,960 | 40,465 | 14 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥120.2 | 287.4 | 110.1 |
-| 29 codex gpt-6-luna max | luna-max-a6 |  | 否 |  |  | 未知 |  | 未知 | 未知 | 未知 | 6.0 | 0.56 | 108,404 | 1,194,368 | 40,306 | 17 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥118.4 | 299.9 | 111.5 |
+| 29 codex gpt-6-luna max | luna-max-a4 |  | 是 | 4 | 是 | 0.714 | 0.714 | 0.740 | 0.036 | 2 | 6.1 | 0.57 | 105,678 | 952,960 | 40,465 | 14 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥120.2 | 287.4 | 110.1 |
+| 29 codex gpt-6-luna max | luna-max-a5 |  | 是 | 5 | 是 | 0.592 | 0.592 | 0.592 | 0.000 | 0 | 5.2 | 0.49 | 96,297 | 751,616 | 37,380 | 12 | 只报 token | gpt-6-luna | default | 未知 | ≥119.8 | 308.1 | 119.6 |
+| 29 codex gpt-6-luna max | luna-max-a6 |  | 是 | 6 | 是 | 0.645 | 0.645 | 0.645 | 0.000 | 0 | 6.0 | 0.56 | 108,404 | 1,194,368 | 40,306 | 17 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥118.4 | 299.9 | 111.5 |
+| 29 codex gpt-6-luna max | luna-max-a7 |  | 是 | 7 | 是 | 0.561 | 0.561 | 0.623 | 0.100 | 8 | 4.9 | 0.46 | 109,667 | 894,464 | 34,726 | 12 | 只报 token | gpt-6-luna | default | 未知 | ≥118.2 | 372.3 | 117.9 |
+| 29 codex gpt-6-luna max | luna-max-a8 |  | 是 | 8 | 是 | 0.253 | 0.253 | 0.253 | 0.000 | 0 | 4.1 | 0.38 | 79,467 | 1,035,392 | 27,809 | 18 | 只报 token | gpt-6-luna | default | 未知 | ≥114.6 | 325.7 | 114.0 |
 
 ## commit-audit-v3
 
@@ -656,7 +656,7 @@ r8.3 列：同一批实例按 r8.3（截到 0、整体扣减相乘）计分的�
 | 26 claude-code strata-iq3_xxs medium | 一致性行（前 5） | 10 | 5 | 5 |  | 0.526 ± 0.080 | 0.036 | 0.427–0.625 | 0 | 0.394 | 0.555 | 0.526 | 0.532 | 0.011 | 0 | 16.1 | 未知 | 71,517 | 2,185,275 | 71,277 | engine log | 41.8 | 0.396 |  | qwen3.8-flash-next-iq3_xxs | not-returned |
 | 27 claude-code strata-iq3_xxs high | 主统计 | 10 | 10 | 10 | 0 | 0.590 ± 0.144 | 0.045 | 0.487–0.693 | 0 | 0.441 | 0.565 | 0.590 | 0.596 | 0.010 | 81 | 15.0 | 未知 | 64,347 | 2,191,137 | 75,569 | engine log | 39.4 | 0.802 |  | qwen3.8-flash-next-iq3_xxs | not-returned |
 | 27 claude-code strata-iq3_xxs high | 一致性行（前 5） | 10 | 5 | 5 |  | 0.601 ± 0.149 | 0.066 | 0.417–0.786 | 0 | 0.441 | 0.568 | 0.601 | 0.601 | 0.000 | 0 | 13.7 | 未知 | 59,736 | 2,324,608 | 71,029 | engine log | 43.6 | 0.398 |  | qwen3.8-flash-next-iq3_xxs | not-returned |
-| 28 codex gpt-6-luna xhigh | 第三阶段补充（不比较） | 6 | 5 | 5 |  | 0.635 ± 0.457 | 0.204 | 0.067–1.203 | 1 | -0.182 | 0.829 | 0.671 | 0.657 | 0.000 | 0 | 18.6 | 未知 | 212,283 | 13,930,061 | 69,701 | API usage (relay log sum, 762 requests; lower bound: 1 request(s) without usage)、API usage (relay) | 18.6 | 只报 token |  | gpt-6-luna | default、not-returned |
+| 28 codex gpt-6-luna xhigh | 第三阶段补充（不比较） | 6 | 6 | 6 |  | 0.672 ± 0.419 | 0.171 | 0.232–1.111 | 1 | -0.182 | 0.842 | 0.702 | 0.690 | 0.000 | 0 | 16.7 | 未知 | 195,388 | 11,877,120 | 66,394 | API usage (relay log sum, 762 requests; lower bound: 1 request(s) without usage)、API usage (relay) | 19.3 | 只报 token |  | gpt-6-luna | default、not-returned |
 | 29 codex gpt-6-luna max | 第三阶段补充（不比较） | 5 | 5 | 5 |  | 0.795 ± 0.097 | 0.043 | 0.675–0.915 | 0 | 0.631 | 0.827 | 0.795 | 0.809 | 0.020 | 4 | 7.3 | 未知 | 122,303 | 993,971 | 57,419 | API usage (relay) | 13.6 | 只报 token |  | gpt-6-luna | default |
 
 ### 预登记比较
@@ -888,7 +888,7 @@ r8.3 列：同一批实例按 r8.3（截到 0、整体扣减相乘）计分的�
 | 28 codex gpt-6-luna xhigh | luna-xhigh-a3 |  | 是 | 3 | 是 | 0.810 | 0.810 | 0.810 | 0.000 | 0 | 8.5 | 未知 | 120,095 | 1,156,480 | 52,437 | 15 | 只报 token | gpt-6-luna | default | 未知 | ≥102.6 | 234.5 | 102.4 |
 | 28 codex gpt-6-luna xhigh | luna-xhigh-a4 |  | 是 | 4 | 是 | 0.858 | 0.858 | 0.858 | 0.000 | 0 | 7.6 | 未知 | 190,645 | 1,426,560 | 59,697 | 20 | 只报 token | gpt-6-luna | default | 未知 | ≥130.9 | 416.4 | 130.4 |
 | 28 codex gpt-6-luna xhigh | luna-xhigh-a5 |  | 是 | 5 | 是 | -0.182 | 0.000 | -0.071 | 0.000 | 0 | 60.0 | 未知 | 499,290 | 64,167,552 | 101,998 | 24 | 只报 token | gpt-6-luna | default、not-returned | 未知 | ≥28.2 | ≥138.7 | ≥28.3 |
-| 28 codex gpt-6-luna xhigh | luna-xhigh-a6 |  | 是 | 6 |  | unscored |  | 未知 | 未知 | 未知 | 7.0 | 未知 | 110,912 | 1,612,416 | 49,863 | 23 | 只报 token | gpt-6-luna | default | 未知 | ≥118.7 | 263.4 | 118.4 |
+| 28 codex gpt-6-luna xhigh | luna-xhigh-a6 |  | 是 | 6 | 是 | 0.856 | 0.856 | 0.856 | 0.000 | 0 | 7.0 | 未知 | 110,912 | 1,612,416 | 49,863 | 23 | 只报 token | gpt-6-luna | default | 未知 | ≥118.7 | 263.4 | 118.4 |
 | 29 codex gpt-6-luna max | luna-max-a1 |  | 是 | 1 | 是 | 0.791 | 0.791 | 0.791 | 0.000 | 0 | 6.1 | 未知 | 110,017 | 667,264 | 47,187 | 11 | 只报 token | gpt-6-luna | default | 未知 | ≥129.2 | 300.2 | 128.8 |
 | 29 codex gpt-6-luna max | luna-max-a2 |  | 是 | 2 | 是 | 0.631 | 0.631 | 0.700 | 0.098 | 4 | 6.4 | 未知 | 100,324 | 754,688 | 49,531 | 13 | 只报 token | gpt-6-luna | default | 未知 | ≥129.3 | 261.4 | 129.1 |
 | 29 codex gpt-6-luna max | luna-max-a3 |  | 是 | 3 | 是 | 0.859 | 0.859 | 0.859 | 0.000 | 0 | 8.0 | 未知 | 112,195 | 904,960 | 62,864 | 12 | 只报 token | gpt-6-luna | default | 未知 | ≥131.0 | 233.2 | 130.6 |
