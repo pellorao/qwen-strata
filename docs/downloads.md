@@ -27,7 +27,7 @@ rtx3080ti 已于 2026-10-24 安装 v0.2.4（Qwen 引擎 0.1.48），见[升级�
 
 - 引擎：[strata-windows-x64.zip](https://github.com/Niko1221/Strata/releases/download/v0.1.45/strata-windows-x64.zip)，165243142 字节，官方 SHA256 `a1d4cafb8319c253f3010ff118dbd5ed07c232056b939ac7735819559f3b859e`，已核对一致（发布附带的 SHA256.txt 与 API digest）。包内仍是 `strata.exe`、`strata_kq.dll`、`strata-vision.exe`、`BUILD.json`。同一发布的 `-cuda12` 和 `-hip` 包不用。
 - 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.1.45.zip)，23208999 字节，本地 SHA256 `8d90ac92dae659390783a6c9da20bd4204cbfa0349f45fcbedb690c41495c17f`（顶层目录 `Strata-0.1.45/`，ZIP 注释为标签提交；GitHub 归档没有官方摘要）。
-- 已采用：工程文件为 `artifacts/strata/0.1.45/engine.zip` 和 `artifacts/strata/0.1.45/source.zip`，版本清单见[制品清单](../config/artifacts/strata-v0.1.45.json)，2026-10-22 起由 v0.2.2 取代，制品保留供回退。
+- 曾采用：工程文件 `artifacts/strata/0.1.45/` 已于 2026-10-24 删除（只保留最新版和前一版），版本清单见[制品清单](../config/artifacts/strata-v0.1.45.json)；需要时按上面的链接重新下载并核对 SHA。
 
 ## Strata v0.1.44.1（rtx3080ti 曾安装）
 
@@ -35,7 +35,7 @@ rtx3080ti 已于 2026-10-24 安装 v0.2.4（Qwen 引擎 0.1.48），见[升级�
 
 - 引擎：[strata-windows-x64.zip](https://github.com/Niko1221/Strata/releases/download/v0.1.44.1/strata-windows-x64.zip)，155480443 字节，官方 SHA256 `a29bda047f440e6d2ce1649306c3a7047ba35df5a032097c7509d4494fa2b448`，已核对一致。包内新增 `strata_kq.dll`（K-quant 预填核，只在模型含这些格式时加载）。同一发布的 `-cuda12` 和 `-hip` 包不用。
 - 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.1.44.1.zip)，22629639 字节，本地 SHA256 `22be94124b4d37dc2ff76e742c49498a3e5f31873ed916a636b2a31707d09b31`（顶层目录 `Strata-0.1.44.1/`，ZIP 注释为标签提交；GitHub 归档没有官方摘要）。
-- 已采用：工程文件为 `artifacts/strata/0.1.44.1/engine.zip` 和 `artifacts/strata/0.1.44.1/source.zip`，版本清单见[制品清单](../config/artifacts/strata-v0.1.44.1.json)，2026-10-18 起由 v0.1.45 取代；按保留规则（只留最新版和前一版）文件待删除，来源与 SHA 保留在此。
+- 曾采用：工程文件 `artifacts/strata/0.1.44.1/` 已于 2026-10-24 删除（只保留最新版和前一版），版本清单见[制品清单](../config/artifacts/strata-v0.1.44.1.json)；需要时按上面的链接重新下载并核对 SHA。
 
 ## Strata v0.1.43.1（rtx3080ti 曾安装）
 

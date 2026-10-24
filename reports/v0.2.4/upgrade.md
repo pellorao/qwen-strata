@@ -113,7 +113,7 @@
 - 偏离 1：为安装补了 `source_cmake_version`（见上）。
 - 偏离 2：短检查比 0.2.2 多跑了一遍（第 2 遍）、加了一次 greedy，原因是 C1 第 1 遍偏慢。
 - 偏离 3：驱动脚本 `greedy.py` 开头加了一步"若模型在运行先停掉"，因为第 1 遍短检查后模型还驻留着。
-- 旧制品清理没做：worker 想删 `artifacts/strata/0.1.45/`（约 188 MB）、`artifacts/strata/0.1.44.1/`（约 178 MB）以及旧升级备份 `release-backup-20261018-114848-289807`、`release-backup-20261022-205620-310129`，命令被自动模式分类器拒绝，没有绕过，交用户决定。0.2.2 制品（前一版）保留，回退用。
+- 旧制品清理：worker 的删除命令被自动模式分类器拒绝，没有绕过；Main 按部署规则「备份与保留」（用户 2026-10-14）核对清单后删除了 `artifacts/strata/0.1.45/`、`artifacts/strata/0.1.44.1/` 和旧升级备份 `release-backup-20261018-114848-289807`、`release-backup-20261022-205620-310129`，来源与 SHA 留在 `docs/downloads.md`。0.2.2 制品（前一版）保留，回退用。
 - `requirements.txt` 新增的 `truststore==0.10.5` 没有装进 `.venv`（我们只用 certifi 回退路径，启动日志无异常）。
 - cublas／cudart 实际加载路径仍没实测（同 0.2.2，需要提权读进程模块）。
 - `--pool-workers 15` 对比 23 仍未验证（速度类参数，要按块交替测）。
