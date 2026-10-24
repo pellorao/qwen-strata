@@ -148,6 +148,18 @@ class Phase3Test(unittest.TestCase):
         self.assertNotIn('phase3-supplement', [c['id'] for c in two['caveats']])
 
 
+class SuiteTest(unittest.TestCase):
+    def test_comparison_design_follows_the_summary_suite(self):
+        v1 = synthetic_summary()
+        self.assertEqual(be.comparison_design(v1)['familySize'], 25)
+        v2 = dict(v1, suite='v2')
+        design = be.comparison_design(v2)
+        self.assertEqual(design['familySize'], 47)
+        self.assertIn('47 comparisons', design['correction'])
+        self.assertEqual(len({(p['firstNumber'], p['secondNumber']) for p in design['pairs']}), 47)
+        self.assertIn('25 comparisons', be.comparison_design(v1)['correction'])
+
+
 class BuildTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

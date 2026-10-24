@@ -1,8 +1,7 @@
 diff --git a/lib/release/reviewer-capability-scoring.mjs b/lib/release/reviewer-capability-scoring.mjs
-index 1fb2d81..6796aa5 100644
 --- a/lib/release/reviewer-capability-scoring.mjs
 +++ b/lib/release/reviewer-capability-scoring.mjs
-@@ -346,8 +346,15 @@ const scoreScopes = (/** @type {{actualFindings: ActualFinding[], cleanObservati
+@@ -346,8 +346,15 @@
      const clean = [];
      /** @type {number[][]} */
      const falseFindings = [];
@@ -18,7 +17,7 @@ index 1fb2d81..6796aa5 100644
          const scoped = [...outcomes].filter(([index]) => actualFindings[index]?.check === expectedScope.scope).map(([, outcome]) => outcome);
          // A finding without its decision yet is scored by its mechanical result while adjudication is pending, as
          // adjudicated findings are (R3b, once each): its nominated clean cases fail, or, without a nomination, it
-@@ -388,7 +395,7 @@ const scoreScopes = (/** @type {{actualFindings: ActualFinding[], cleanObservati
+@@ -388,7 +395,7 @@
              totalProblemCases: expectedScope.problemCases.length,
          };
      });
@@ -27,23 +26,20 @@ index 1fb2d81..6796aa5 100644
  };
  
  const scoreExpectedScopes = (/** @type {{adjudicationDecisions?: Map<string, string>, checks: ReviewCheck[], cleanObservationScores?: Map<string, Map<number, number>>, evidenceMatcher: EvidenceMatcher, expected: ExpectedFixture, instanceId: string, locatorCount: number, overrunLocators: number, reportedFailedCleanCases: number, reviewerId: string}} */ {
-@@ -454,7 +461,14 @@ const scoreExpectedScopes = (/** @type {{adjudicationDecisions?: Map<string, str
+@@ -454,7 +461,11 @@
      // k x (1 - its score) at k 0.25 and k when its score is 0 at k >= 1; a clean case of a missing check scores 0.
      const {caseK: kOf, caseShare: shareOf} = reviewerCapabilityVerificationCore;
      const cleanByCase = expected.scopes.flatMap((scope, scopeIndex) => scope.cleanCases.map((cleanCase, cleanCaseIndex) => ({
 -        cleanCase, points: scoped.clean[scopeIndex][cleanCaseIndex]})));
 +        cleanCase, neutral: scoped.neutral[scopeIndex][cleanCaseIndex], points: scoped.clean[scopeIndex][cleanCaseIndex]})));
 +    // Project scoring upgrade r8.5: a clean case of a missing check neither passes nor fails; it keeps its k in
-+    // kCleanWeight. A merged case with one neutral side is not defined and fails loudly.
-+    for (const group of Map.groupBy(cleanByCase.filter(entry => entry.cleanCase.merge !== undefined), entry => entry.cleanCase.merge).values()) {
-+        if (new Set(group.map(entry => entry.neutral)).size > 1) {
-+            throw new Error(`Reviewer capability merged case ${group[0].cleanCase.merge} has one side in a missing check (undefined under r8.5).`);
-+        }
-+    }
++    // kCleanWeight. A merged case takes the larger failed weight of its two sides (r8.2), so with one side in a missing
++    // check it counts as the side that is present (a false positive there still fails it); it is neutral only when both
++    // sides are in missing checks.
      /** @type {Record<string, {clean: number, problem: number}>} */
      const kTiers = {};
      const tier = (/** @type {FixtureCase} */ fixtureCase, /** @type {'clean' | 'problem'} */ kind) => {
-@@ -470,8 +484,8 @@ const scoreExpectedScopes = (/** @type {{adjudicationDecisions?: Map<string, str
+@@ -470,8 +481,8 @@
              .map(group => ({fixtureCase: group[0].fixtureCase, value: pick(group.map(entry => entry.value))})));
      const problemUnits = once(problemCases.map((entry, index) => ({fixtureCase: entry.problemCase,
          value: kOf(entry.problemCase) < 1 ? problemScores[index] : associationsByCase[index].length > 0 ? 1 : 0})), values => Math.min(...values));
@@ -54,21 +50,21 @@ index 1fb2d81..6796aa5 100644
      problemUnits.forEach(unit => tier(unit.fixtureCase, 'problem'));
      cleanUnits.forEach(unit => tier(unit.fixtureCase, 'clean'));
      const counts = {
-@@ -504,6 +518,9 @@ const scoreExpectedScopes = (/** @type {{adjudicationDecisions?: Map<string, str
+@@ -504,6 +515,10 @@
          totalCleanCases: expected.cleanCount,
          totalProblemCases: expected.problemCount,
          ...counts,
 +        // r8.5: answer-key checks absent from the report, and the clean cases they leave neutral.
 +        missingChecks: scoped.missingChecks,
-+        neutralCleanCases: cleanByCase.filter(entry => entry.neutral).length,
++        neutralCleanCases: [...Map.groupBy(cleanByCase, (entry, index) => entry.cleanCase.merge ?? index).values()]
++            .filter(group => group.every(entry => entry.neutral)).length,
          ...reviewerCapabilityVerificationCore.kScore(counts),
          ...(expected.judgmentBinding === undefined ? {} : {judgmentBinding: expected.judgmentBinding}),
          // One Spec Readiness scenario alone may hold an unbalanced part of a balanced tier.
 diff --git a/lib/release/reviewer-capability-verification.mjs b/lib/release/reviewer-capability-verification.mjs
-index bdb6774..44f1175 100644
 --- a/lib/release/reviewer-capability-verification.mjs
 +++ b/lib/release/reviewer-capability-verification.mjs
-@@ -90,6 +90,11 @@ const combineScenarios = results => {
+@@ -90,6 +90,11 @@
      // r8.2: cases counted once as part of a merged case (absent from results scored before r8.2).
      const kMergedCases = results.reduce((total, result) => total
          + Number(/** @type {{kMergedCases?: number}} */ (/** @type {unknown} */ (result)).kMergedCases ?? 0), 0);
@@ -80,7 +76,7 @@ index bdb6774..44f1175 100644
      const unbalanced = unbalancedKTiers(kTiers);
      if (unbalanced.length > 0) {
          throw new Error(`Reviewer capability k ${unbalanced.join(', ')} problem and clean cases are unbalanced in one scoring unit.`);
-@@ -113,6 +118,8 @@ const combineScenarios = results => {
+@@ -113,6 +118,8 @@
          totalProblemCases,
          ...counts,
          kMergedCases,
@@ -90,15 +86,14 @@ index bdb6774..44f1175 100644
          ...(bindings.length === 1 && bindings[0] !== 'null' ? {judgmentBinding: JSON.parse(bindings[0])} : {}),
      };
 diff --git a/docs/agents/reviewer-capability-scoring.md b/docs/agents/reviewer-capability-scoring.md
-index bad4677..152472b 100644
 --- a/docs/agents/reviewer-capability-scoring.md
 +++ b/docs/agents/reviewer-capability-scoring.md
-@@ -22,7 +22,7 @@ Commit Audit 的正式报告仍须为每项独立要求提供一条记录. 能
+@@ -22,7 +22,7 @@
  
  对每次重复, 报告 `fullProblemCases`, `earnedProblemPoints`, `totalProblemCases`, `earnedCleanPoints`, `passedCleanCases` 和 `totalCleanCases`. 计算 `problemDetectionRate = earnedProblemPoints / totalProblemCases` 和 `cleanAcceptanceRate = earnedCleanPoints / totalCleanCases`. 使用 `score = 5 * problemDetectionRate * cleanAcceptanceRate / (4 * cleanAcceptanceRate + problemDetectionRate)` 组合两者. 任一比率为 0 时该重复分数为 0. 该 F2 分数更重视问题发现率, 同时惩罚误报. `fullProblemCases` 和 `passedCleanCases` 只计算分数精确为 `1` 的用例, 这两个计数都不驱动比率.
  
 -本工程计分升级 r8 (按 k 分档的统一计分, 取代两类计分): 每个用例有权重 `k`, 表示答错一个干净用例相对漏报一个问题的代价. 默认 `k = 0.25`: 结论能对照 Input 原文简单核实的用例, 漏报的代价是误报的 4 倍, 误报会被 main agent 核实排除. 难以核实且答错与答对影响相当的用例 `k = 1`, 难以核实且误报影响更大的用例 `k = 4`; 同一题型的问题用例与干净用例同档. `k` 写在答案键用例的 `k` 字段, 或由登记表把每个已知答案键 (Reviewer 与 `expected.json` sha256) 对应到一个覆盖文件, `in-key` (标记直接写在答案键中) 或 `all-B` (全部按默认档); 加载答案键时按范围, 种类, 序号和 `expectation` 原文叠加覆盖文件 (覆盖文件用例未写 `k` 时按 1). 两类计分的判断题标记 `judgment: true` 按 `k = 1` 读取. 答案键未登记, 未登记为 `in-key` 的答案键自带标记, 覆盖文件对不上, 或某个 `k >= 1` 档的问题用例数不等于 `k` 乘干净用例数时报错; `k = 4` 档干净用例的误报须两名裁决者一致确认, 在双裁实现之前, 标记 `k = 4` 的答案键或覆盖文件一律报错; 结果中的 `judgmentBinding` 写明登记方式和答案键 sha256, 用覆盖文件时另写其文件名及 sha256. 问题用例在 `k = 0.25` 档得上述部分分数 `c`, 在 `k >= 1` 档存在关联即得 1 (r7, R6: 不要求证据分), 否则 0. 干净用例 (含 `no other supported finding` 用例) 只有所属检查存在时才可能通过; `k = 0.25` 档失败部分 `1 - 干净分` 乘 `k` 计入失败权重, `k >= 1` 档干净分为 0 时计入 `k`, 干净分大于 0 (如 Commit Audit 的部分证据观察分) 即算通过. `no other supported finding` 用例与 `extraFailedCleanCases` 一律按 `k = 0.25`. 令 `kProblemWeight` 为问题用例数, `kEarnedProblemPoints` 为问题得分之和, `kFailedCleanWeight` 为失败权重之和, 令 `N = kEarnedProblemPoints - kFailedCleanWeight`, 计算 `rawScore = N / kProblemWeight`. 本工程计分升级 r8.4 (取消截断, 用户 2026-10-21): `N >= 0` 时重复分数 `score = N / kProblemWeight` (与 r8.3 相同); `N < 0` 时 `score = N / kCleanWeight`, `kCleanWeight` 为答案键全部干净用例 (含 `no other supported finding` 用例) 的 `k` 之和, 合并用例只计一次. 什么都不报得 0, 全对得 1, 答案键内干净用例全部失败得 -1; `extraFailedCleanCases` 只计入 `N`, 不计入 `kCleanWeight`, 所以分数可以低于 -1. `kTiers` 按档给出 `k >= 1` 档的问题与干净用例份额. Spec Readiness 同序两个场景的计数 (含 `kCleanWeight`) 先合并再计算; 两个场景不出同一道题 (`no other supported finding` 用例除外, 各计一次). 每个计分单位中每个 `k >= 1` 档的问题份额必须等于 `k` 乘干净份额, Spec Readiness 单个场景的诊断分只给出警告 `kWarning`. 合并时任一结果缺少或只有部分 `k` 计数即报错, 不按默认档回退. 本工程计分升级 r8.2 (合并用例): 答案键可以把有意保留的同一道题的两问 (例如 Commit Audit 中 issue 与 spec 重复的同一要求) 显式声明为合并用例, 两个用例写同一个 `merge` 名称; 一个合并用例恰好是两个不同范围中种类, `k` 和 (问题用例的) `result` 都相同的用例, 否则报错. 两个用例各自照常评分 (`caseScores` 仍逐个列出), 但在计数中只算一次, 取较低分: 问题用例取两者得分的较小者, 只计一份 `kProblemWeight`; 干净用例取两者失败权重的较大者, 只计一次. `kTiers` 同样每个合并用例只计一次, `kMergedCases` 给出被合并掉的用例数. 未声明的重复不合并. 整体折减 `d` 按 `score - d * |score|` 作用在上述分数上 (r8.4), 负分同样降低. 模型失误实例的问题用例全部漏报, 干净用例全部失败, 按上述计数 (合并用例只计一次) 分数为 0 (r8.4, 用户 2026-10-21 定: 与什么都不报相同, 负分表示浪费审核时间, 没有报告就没有这种浪费; `MODEL_FAILURE_FAILS_CLEAN_CASES = true` 时为 -1). 原有 `problemDetectionRate` 和 `cleanAcceptanceRate` 仍按全部用例计算, 只作明细.
-+本工程计分升级 r8 (按 k 分档的统一计分, 取代两类计分): 每个用例有权重 `k`, 表示答错一个干净用例相对漏报一个问题的代价. 默认 `k = 0.25`: 结论能对照 Input 原文简单核实的用例, 漏报的代价是误报的 4 倍, 误报会被 main agent 核实排除. 难以核实且答错与答对影响相当的用例 `k = 1`, 难以核实且误报影响更大的用例 `k = 4`; 同一题型的问题用例与干净用例同档. `k` 写在答案键用例的 `k` 字段, 或由登记表把每个已知答案键 (Reviewer 与 `expected.json` sha256) 对应到一个覆盖文件, `in-key` (标记直接写在答案键中) 或 `all-B` (全部按默认档); 加载答案键时按范围, 种类, 序号和 `expectation` 原文叠加覆盖文件 (覆盖文件用例未写 `k` 时按 1). 两类计分的判断题标记 `judgment: true` 按 `k = 1` 读取. 答案键未登记, 未登记为 `in-key` 的答案键自带标记, 覆盖文件对不上, 或某个 `k >= 1` 档的问题用例数不等于 `k` 乘干净用例数时报错; `k = 4` 档干净用例的误报须两名裁决者一致确认, 在双裁实现之前, 标记 `k = 4` 的答案键或覆盖文件一律报错; 结果中的 `judgmentBinding` 写明登记方式和答案键 sha256, 用覆盖文件时另写其文件名及 sha256. 问题用例在 `k = 0.25` 档得上述部分分数 `c`, 在 `k >= 1` 档存在关联即得 1 (r7, R6: 不要求证据分), 否则 0. 干净用例 (含 `no other supported finding` 用例) 只有所属检查存在时才可能通过; `k = 0.25` 档失败部分 `1 - 干净分` 乘 `k` 计入失败权重, `k >= 1` 档干净分为 0 时计入 `k`, 干净分大于 0 (如 Commit Audit 的部分证据观察分) 即算通过. `no other supported finding` 用例与 `extraFailedCleanCases` 一律按 `k = 0.25`. 令 `kProblemWeight` 为问题用例数, `kEarnedProblemPoints` 为问题得分之和, `kFailedCleanWeight` 为失败权重之和, 令 `N = kEarnedProblemPoints - kFailedCleanWeight`, 计算 `rawScore = N / kProblemWeight`. 本工程计分升级 r8.4 (取消截断, 用户 2026-10-21): `N >= 0` 时重复分数 `score = N / kProblemWeight` (与 r8.3 相同); `N < 0` 时 `score = N / kCleanWeight`, `kCleanWeight` 为答案键全部干净用例 (含 `no other supported finding` 用例) 的 `k` 之和, 合并用例只计一次. 什么都不报得 0, 全对得 1, 答案键内干净用例全部失败得 -1; `extraFailedCleanCases` 只计入 `N`, 不计入 `kCleanWeight`, 所以分数可以低于 -1. `kTiers` 按档给出 `k >= 1` 档的问题与干净用例份额. Spec Readiness 同序两个场景的计数 (含 `kCleanWeight`) 先合并再计算; 两个场景不出同一道题 (`no other supported finding` 用例除外, 各计一次). 每个计分单位中每个 `k >= 1` 档的问题份额必须等于 `k` 乘干净份额, Spec Readiness 单个场景的诊断分只给出警告 `kWarning`. 合并时任一结果缺少或只有部分 `k` 计数即报错, 不按默认档回退. 本工程计分升级 r8.2 (合并用例): 答案键可以把有意保留的同一道题的两问 (例如 Commit Audit 中 issue 与 spec 重复的同一要求) 显式声明为合并用例, 两个用例写同一个 `merge` 名称; 一个合并用例恰好是两个不同范围中种类, `k` 和 (问题用例的) `result` 都相同的用例, 否则报错. 两个用例各自照常评分 (`caseScores` 仍逐个列出), 但在计数中只算一次, 取较低分: 问题用例取两者得分的较小者, 只计一份 `kProblemWeight`; 干净用例取两者失败权重的较大者, 只计一次. `kTiers` 同样每个合并用例只计一次, `kMergedCases` 给出被合并掉的用例数. 未声明的重复不合并. 整体折减 `d` 按 `score - d * |score|` 作用在上述分数上 (r8.4), 负分同样降低. 模型失误实例的问题用例全部漏报, 干净用例全部失败, 按上述计数 (合并用例只计一次) 分数为 0 (r8.4, 用户 2026-10-21 定: 与什么都不报相同, 负分表示浪费审核时间, 没有报告就没有这种浪费; `MODEL_FAILURE_FAILS_CLEAN_CASES = true` 时为 -1). 原有 `problemDetectionRate` 和 `cleanAcceptanceRate` 仍按全部用例计算, 只作明细. 本工程计分升级 r8.5 (缺检查中性, 只用于 multi-model benchmark v2, 用户 2026-10-24): 报告缺少答案键中某个检查时, 该检查的干净用例 (含 `no other supported finding` 用例) 既不通过也不失败, 不计入 `kFailedCleanWeight`, 仍计入 `kCleanWeight`; 该检查的问题用例照常记漏报. 结果的 `missingChecks` 给出缺少的检查数, `neutralCleanCases` 给出因此不计的干净用例数, Spec Readiness 两个场景相加. 合并用例一侧所在检查缺失时未定义, 报错. 越过停止点后被忽略的检查不在答案键计分范围内, 不按缺检查处理. 模型失误实例仍按上述模型失误规则计分.
++本工程计分升级 r8 (按 k 分档的统一计分, 取代两类计分): 每个用例有权重 `k`, 表示答错一个干净用例相对漏报一个问题的代价. 默认 `k = 0.25`: 结论能对照 Input 原文简单核实的用例, 漏报的代价是误报的 4 倍, 误报会被 main agent 核实排除. 难以核实且答错与答对影响相当的用例 `k = 1`, 难以核实且误报影响更大的用例 `k = 4`; 同一题型的问题用例与干净用例同档. `k` 写在答案键用例的 `k` 字段, 或由登记表把每个已知答案键 (Reviewer 与 `expected.json` sha256) 对应到一个覆盖文件, `in-key` (标记直接写在答案键中) 或 `all-B` (全部按默认档); 加载答案键时按范围, 种类, 序号和 `expectation` 原文叠加覆盖文件 (覆盖文件用例未写 `k` 时按 1). 两类计分的判断题标记 `judgment: true` 按 `k = 1` 读取. 答案键未登记, 未登记为 `in-key` 的答案键自带标记, 覆盖文件对不上, 或某个 `k >= 1` 档的问题用例数不等于 `k` 乘干净用例数时报错; `k = 4` 档干净用例的误报须两名裁决者一致确认, 在双裁实现之前, 标记 `k = 4` 的答案键或覆盖文件一律报错; 结果中的 `judgmentBinding` 写明登记方式和答案键 sha256, 用覆盖文件时另写其文件名及 sha256. 问题用例在 `k = 0.25` 档得上述部分分数 `c`, 在 `k >= 1` 档存在关联即得 1 (r7, R6: 不要求证据分), 否则 0. 干净用例 (含 `no other supported finding` 用例) 只有所属检查存在时才可能通过; `k = 0.25` 档失败部分 `1 - 干净分` 乘 `k` 计入失败权重, `k >= 1` 档干净分为 0 时计入 `k`, 干净分大于 0 (如 Commit Audit 的部分证据观察分) 即算通过. `no other supported finding` 用例与 `extraFailedCleanCases` 一律按 `k = 0.25`. 令 `kProblemWeight` 为问题用例数, `kEarnedProblemPoints` 为问题得分之和, `kFailedCleanWeight` 为失败权重之和, 令 `N = kEarnedProblemPoints - kFailedCleanWeight`, 计算 `rawScore = N / kProblemWeight`. 本工程计分升级 r8.4 (取消截断, 用户 2026-10-21): `N >= 0` 时重复分数 `score = N / kProblemWeight` (与 r8.3 相同); `N < 0` 时 `score = N / kCleanWeight`, `kCleanWeight` 为答案键全部干净用例 (含 `no other supported finding` 用例) 的 `k` 之和, 合并用例只计一次. 什么都不报得 0, 全对得 1, 答案键内干净用例全部失败得 -1; `extraFailedCleanCases` 只计入 `N`, 不计入 `kCleanWeight`, 所以分数可以低于 -1. `kTiers` 按档给出 `k >= 1` 档的问题与干净用例份额. Spec Readiness 同序两个场景的计数 (含 `kCleanWeight`) 先合并再计算; 两个场景不出同一道题 (`no other supported finding` 用例除外, 各计一次). 每个计分单位中每个 `k >= 1` 档的问题份额必须等于 `k` 乘干净份额, Spec Readiness 单个场景的诊断分只给出警告 `kWarning`. 合并时任一结果缺少或只有部分 `k` 计数即报错, 不按默认档回退. 本工程计分升级 r8.2 (合并用例): 答案键可以把有意保留的同一道题的两问 (例如 Commit Audit 中 issue 与 spec 重复的同一要求) 显式声明为合并用例, 两个用例写同一个 `merge` 名称; 一个合并用例恰好是两个不同范围中种类, `k` 和 (问题用例的) `result` 都相同的用例, 否则报错. 两个用例各自照常评分 (`caseScores` 仍逐个列出), 但在计数中只算一次, 取较低分: 问题用例取两者得分的较小者, 只计一份 `kProblemWeight`; 干净用例取两者失败权重的较大者, 只计一次. `kTiers` 同样每个合并用例只计一次, `kMergedCases` 给出被合并掉的用例数. 未声明的重复不合并. 整体折减 `d` 按 `score - d * |score|` 作用在上述分数上 (r8.4), 负分同样降低. 模型失误实例的问题用例全部漏报, 干净用例全部失败, 按上述计数 (合并用例只计一次) 分数为 0 (r8.4, 用户 2026-10-21 定: 与什么都不报相同, 负分表示浪费审核时间, 没有报告就没有这种浪费; `MODEL_FAILURE_FAILS_CLEAN_CASES = true` 时为 -1). 原有 `problemDetectionRate` 和 `cleanAcceptanceRate` 仍按全部用例计算, 只作明细. 本工程计分升级 r8.5 (缺检查中性, 只用于 multi-model benchmark v2, 用户 2026-10-24): 报告缺少答案键中某个检查时, 该检查的干净用例 (含 `no other supported finding` 用例) 既不通过也不失败, 不计入 `kFailedCleanWeight`, 仍计入 `kCleanWeight`; 该检查的问题用例照常记漏报. 结果的 `missingChecks` 给出缺少的检查数, `neutralCleanCases` 给出因此不计的干净用例数, Spec Readiness 两个场景相加. 合并用例一侧所在检查缺失时, 该侧的失败权重为 0, 合并单位按 r8.2 取两侧较大者, 即按存在的一侧计分 (该侧的误报仍失败); 只有两侧所在检查都缺失时合并单位才中性, `neutralCleanCases` 按合并单位计数 (合并用例两侧都缺失只计 1). 越过停止点后被忽略的检查不在答案键计分范围内, 不按缺检查处理. 模型失误实例仍按上述模型失误规则计分.
  
  每个 Reviewer 的 `repetitionScores` 保存 3 个折减前重复分数, 其算术平均值是折减前分数 `scoreBeforePenalty`. 对每次重复, 该重复任一实例存在表示格式错误, 错误的来源或证据引用, 缺失要求, 重复或拆分要求记录, 或违反适用检查停止规则时, 把该重复的原始分数乘以 `0.9`. 同一重复内多项错误或多类错误只折减一次, 没有这些错误时保留原分数. 本工程计分升级 r8.4: 这一折减改为减去分数绝对值的 `0.1` (`score - 0.1 * |score|`), 正分与乘以 `0.9` 相同, 负分同样降低. 本工程计分升级 r7: 报告错误按归属处理, 不再触发这一折减, 只记录. 格式错误 (`review-format-invalid`, `review-json-invalid`, `review-utf8-invalid`, 无法归到 requirement 的无效行 `review-row-unattributed`) 是整份报告的问题, 由本工程在 ARW 之外按比例折减: 可机械修复的按修复记录计数, 其余由实例的 `unrepairableFormatErrors` 计数. 起点在文件内, 终点越过文件末尾的行范围截到文件末尾后计分, 计为一处可修复格式错误 (实例的 `overrunLocators`). 证据定位无效 (`review-evidence-invalid`, `evidence-locator-invalid`) 只使该定位不提供证据. 缺失, 重复, 冲突或无效的 requirement 行 (`requirement-missing`, `requirement-coverage-invalid`, `requirement-duplicate`, `requirement-conflicting`, `review-row-invalid`, `requirement-row-invalid`) 在所属用例内失分. 请求范围以外的每条 requirement 行 (`requirement-source-unexpected`, `requirement-source-invalid`) 按无依据 finding 记一个失败干净用例. 越过停止点 (`requirement-scope-continuation`) 算停止规则一题答错, 在该场景记一个失败干净用例 (`k = 0.25`); 停止点之后的检查 (前两项需求范围检查以外) 及其报告行的诊断一律忽略, 不计分, 不扣分, 不计入定位数和格式错误. 只有未列出的错误仍按上述规则折减. 每个实例另报告 `locatorCount`, 即计分器读到的定位数 (含 Commit Audit 已满足 requirement 的证据). 普通漏报, 误报及证据覆盖不足按逐用例规则失分, 不仅因判断错误而额外触发折减. Spec Readiness 同序两个场景先合并用例计算重复分数, 再对该重复最多折减一次. `finalRepetitionScores` 保存 3 个已调整分数, 其算术平均值 `score` 是唯一权威分数. 能力通过只要求 `score >= 0.75`; 单次重复, 问题发现率和干净接受率没有独立门槛.
  

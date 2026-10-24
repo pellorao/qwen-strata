@@ -21,7 +21,7 @@ def post(base, body):
         return reply.read().decode()
 
 
-def fake_claude(compacts_above):
+def fake_claude(compacts_above, follow_env=False):
     """Stands in for `claude -p`: reports what the server claims and compacts when the claim exceeds the limit."""
     state = {'claimed': None}
 
@@ -31,17 +31,22 @@ def fake_claude(compacts_above):
         base = kwargs['env']['ANTHROPIC_BASE_URL']
         mid = command[-1].startswith('Read')
         if '--continue' not in command:
-            first = {'model': MODEL, 'stream': False, 'messages': [{'role': 'user', 'content': 'hi'}],
+            first = {'model': MODEL, 'stream': False, 'max_tokens': int(kwargs['env'].get('CLAUDE_CODE_MAX_OUTPUT_TOKENS', 32000)),
+                     'messages': [{'role': 'user', 'content': 'hi'}],
                      **({'tools': [{'name': 'Read'}]} if mid else {})}
             reply = json.loads(post(base, first))
             state['claimed'] = reply['usage']['input_tokens']
             if not mid:
                 return subprocess.CompletedProcess(command, 0, 'OK.\n', '')
-        if state['claimed'] > compacts_above:
+        env = kwargs['env']
+        limit = (int(env.get('CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE') or int(env['CLAUDE_CODE_MAX_CONTEXT_TOKENS']) - 23000)
+                 if follow_env else compacts_above)
+        if state['claimed'] > limit:
             summary = json.loads(post(base, {'model': MODEL, 'stream': False, 'messages': [
                 {'role': 'user', 'content': probe.MARKER + ', paying close attention.'}]}))
             assert 'summary' in summary['content'][0]['text']
-        post(base, {'model': MODEL, 'stream': True, 'messages': [{'role': 'user', 'content': 'go on'}]})
+        post(base, {'model': MODEL, 'stream': True, 'max_tokens': int(env.get('CLAUDE_CODE_MAX_OUTPUT_TOKENS', 32000)),
+                    'messages': [{'role': 'user', 'content': 'go on'}]})
         return subprocess.CompletedProcess(command, 0, 'OK.\n', '')
     return run
 
@@ -105,6 +110,63 @@ class VerdictTests(unittest.TestCase):
         summary = self.grid(183584)
         self.assertFalse(summary['pass'])
         self.assertEqual({c['claimed'] for c in summary['cells'] if not c['ok']}, {150100})
+
+
+class DeepSeekPlanTests(unittest.TestCase):
+    def plan(self, tmp, **limits):
+        values = {'CLAUDE_CODE_MAX_CONTEXT_TOKENS': 1048576, 'CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE': None,
+                  'CLAUDE_CODE_MAX_OUTPUT_TOKENS': None, **limits}
+        path = Path(tmp) / 'plan.json'
+        path.write_text(json.dumps({'fixed_conditions': {'deepseek_claude_environment': values}}))
+        return path
+
+    def test_null_limits_are_reported_as_pending_never_defaulted(self):
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(probe.subprocess, 'run', side_effect=AssertionError):
+            summary = probe.run_deepseek_plan(Path(tmp) / 'out', self.plan(tmp, CLAUDE_CODE_MAX_OUTPUT_TOKENS=32000),
+                                              claude='claude', log=lambda _: None)
+            saved = json.loads((Path(tmp) / 'out/summary.json').read_text())
+        self.assertFalse(summary['pass'])
+        self.assertEqual(saved['pending'], ['CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE'])
+        self.assertIn('待 F5 填值', saved['note'])
+
+    def test_the_plans_environment_reaches_claude_code_and_both_points_are_checked(self):
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(probe.subprocess, 'run', fake_claude(0, follow_env=True)):
+            plan = self.plan(tmp, CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE=1040000, CLAUDE_CODE_MAX_OUTPUT_TOKENS=32000)
+            summary = probe.run_deepseek_plan(Path(tmp) / 'out', plan, claude='claude', log=lambda _: None)
+        self.assertTrue(summary['pass'])
+        self.assertEqual(summary['max_tokens_seen'], [32000])
+        self.assertEqual(summary['fallback_point'], 1025576)
+        override = summary['passes']['override']['cells']
+        fallback = summary['passes']['fallback']['cells']
+        self.assertEqual(sorted({c['claimed'] for c in override}), [1039900, 1040100])
+        self.assertEqual(sorted({c['claimed'] for c in fallback}), [1025476, 1025676])
+
+    def test_an_output_limit_other_than_the_plans_fails(self):
+        # The plan says 32000 but the (fake) Claude Code sends 8000: F8 must fail the probe.
+        inner = fake_claude(0, follow_env=True)
+
+        def fake(command, **kwargs):
+            if 'env' in kwargs:
+                kwargs['env'] = dict(kwargs['env'], CLAUDE_CODE_MAX_OUTPUT_TOKENS='8000')
+            return inner(command, **kwargs)
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(probe.subprocess, 'run', fake):
+            plan = self.plan(tmp, CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE=1040000, CLAUDE_CODE_MAX_OUTPUT_TOKENS=32000)
+            summary = probe.run_deepseek_plan(Path(tmp) / 'out', plan, claude='claude', log=lambda _: None)
+        self.assertEqual(summary['max_tokens_seen'], [8000])
+        self.assertFalse(summary['output_limit_ok'])
+        self.assertFalse(summary['pass'])
+
+    def test_a_wrong_override_value_fails_the_probe(self):
+        # Claude Code ignoring the override (compacting at the fallback) must not pass.
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(probe.subprocess, 'run', fake_claude(1025576)):
+            plan = self.plan(tmp, CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE=1040000, CLAUDE_CODE_MAX_OUTPUT_TOKENS=32000)
+            summary = probe.run_deepseek_plan(Path(tmp) / 'out', plan, claude='claude', log=lambda _: None)
+        self.assertFalse(summary['pass'])
+
+    def test_the_repo_plans_are_pending_until_f5(self):
+        for name in ('code-spec-v5.1', 'spec-readiness-v4.4'):
+            _, pending = probe.deepseek_plan_limits(probe.ROOT / f'benchmarks/multi-model-v2/scenarios/{name}.json')
+            self.assertIn('CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE', pending, name)
 
 
 if __name__ == '__main__':

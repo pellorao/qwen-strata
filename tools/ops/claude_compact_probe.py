@@ -12,6 +12,12 @@ threshold runs without compaction, every size above it compacts and then continu
 
     python3 -m tools.ops.claude_compact_probe --out .tmp/<work>/compact-probe [--repeat 3]
 
+`--plan <scenario plan>` probes the DeepSeek arm instead (multi-model v2 plan §5.3, F6): the environment is the plan's
+`fixed_conditions.deepseek_claude_environment` through `claude_headless.deepseek_environment`, the grid is the plan's
+`CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` ±100 and, as a second pass, the fallback `window - 23000` ±100 with the
+override removed (the point Claude Code uses when the variable is unset). While any of the three variables is still
+null the probe does not guess a default: it reports "待 F5 填值", writes a summary with `pending` and exits 2.
+
 Isolation (measurement rule "Claude Code 测试隔离"): fresh HOME and CLAUDE_CONFIG_DIR per run,
 `--setting-sources user`, `--strict-mcp-config`, and a throwaway working directory outside the home directory.
 """
@@ -129,6 +135,24 @@ class Handler(BaseHTTPRequestHandler):
         self.close_connection = True
 
 
+def deepseek_plan_limits(plan_path):
+    """The three DeepSeek-arm variables a scenario plan fixes, and the names still null (None when the plan has none)."""
+    limits = json.loads(Path(plan_path).read_text())['fixed_conditions'].get('deepseek_claude_environment')
+    if limits is None:
+        raise ValueError(f'{plan_path} fixes no deepseek_claude_environment')
+    return limits, sorted(name for name, value in limits.items() if value is None)
+
+
+def deepseek_env_for(limits, model):
+    """Environment builder of the DeepSeek arm: the plan's limits (the override dropped on request), fake key and endpoint."""
+    from tools.reviewer import claude_headless as ch
+
+    def build(base, blocking_override=True):
+        wanted = {k: v for k, v in limits.items() if blocking_override or k != 'CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE'}
+        return ch.deepseek_environment(model, 'fake-loopback', base=base, limits=wanted)
+    return build
+
+
 def agent_environment(base, model, effort, tier, blocking_override=True):
     """The variables qwen-agent itself gives Claude Code, pointed at `base` with a fake key."""
     agent = SourceFileLoader('qwen_agent', str(AGENT)).load_module()
@@ -139,7 +163,7 @@ def agent_environment(base, model, effort, tier, blocking_override=True):
     return environment
 
 
-def probe(folder, cwd, model, effort, tier, claimed, mid_turn=False, blocking_override=True, claude='claude'):
+def probe(folder, cwd, model, effort, tier, claimed, mid_turn=False, blocking_override=True, claude='claude', env_for=None):
     """One claimed size, one way in. Writes request-N.json and result.json under `folder`."""
     folder, cwd = Path(folder), Path(cwd)
     folder.mkdir(parents=True)
@@ -152,7 +176,8 @@ def probe(folder, cwd, model, effort, tier, claimed, mid_turn=False, blocking_ov
     config.mkdir()
     env = {'PATH': os.environ['PATH'], 'HOME': str(home), 'LANG': 'C.UTF-8', 'TERM': 'dumb',
            'CLAUDE_CONFIG_DIR': str(config), 'DISABLE_AUTOUPDATER': '1',
-           **agent_environment(f'http://127.0.0.1:{server.server_port}', model, effort, tier, blocking_override)}
+           **(env_for(f'http://127.0.0.1:{server.server_port}', blocking_override) if env_for else
+              agent_environment(f'http://127.0.0.1:{server.server_port}', model, effort, tier, blocking_override))}
     base = [claude, '--setting-sources', 'user', '--strict-mcp-config', '--permission-mode', 'default', '-p']
     turns = ((('turn1', [], 'Read note.txt and say OK.'),) if mid_turn else
              (('turn1', [], 'Say OK.'), ('turn2', ['--continue'], 'Say OK again.')))
@@ -178,6 +203,9 @@ def probe(folder, cwd, model, effort, tier, claimed, mid_turn=False, blocking_ov
               'compacted': compacted, 'expected_compaction': claimed > limit,
               'continued': first is not None and any(not r['compaction'] for r in after[first + 1:]),
               'main_requests_after': sum(not r['compaction'] for r in after),
+              # max_tokens of the main (non-summary) requests: the output limit Claude Code really sends (F8).
+              'max_tokens': sorted({r['max_tokens'] for run in runs for r in run['requests'] if not r['compaction']},
+                                   key=str),
               'exits': [run['exit'] for run in runs], 'runs': runs}
     result['ok'] = (all(code == 0 for code in result['exits']) and compacted == result['expected_compaction']
                     and (not compacted or result['continued']))
@@ -191,7 +219,8 @@ def cell_name(window, limit, claimed, mid_turn, blocking_override, repeat):
 
 
 def run(out, host=None, model='IQ3_XXS', effort='high', claimed=None, ways=('two-turn', 'mid-turn'),
-        repeat=1, blocking_override=True, tier=None, claude=None, log=lambda line: print(line, flush=True)):
+        repeat=1, blocking_override=True, tier=None, claude=None, log=lambda line: print(line, flush=True),
+        env_for=None, slug=None):
     out, host = Path(out), host or current_host()
     tier = tier or published_tier(host, model)
     claude = claude or shutil.which('claude')
@@ -200,7 +229,7 @@ def run(out, host=None, model='IQ3_XXS', effort='high', claimed=None, ways=('two
     if claimed is None:
         point = tier['auto_compact_token_limit'] if blocking_override else blocking_limit(tier['context_window'])
         claimed = [point - STEP, point + STEP]
-    slug = 'qwen3.8-flash-next-' + MODELS[model]
+    slug = slug or 'qwen3.8-flash-next-' + MODELS[model]
     cells = []
     for r in range(1, repeat + 1):
         for way in ways:
@@ -209,16 +238,48 @@ def run(out, host=None, model='IQ3_XXS', effort='high', claimed=None, ways=('two
                                          way == 'mid-turn', blocking_override, r)
                 # Outside the home directory, so no ancestor CLAUDE.md is picked up; removed after the run.
                 with tempfile.TemporaryDirectory(prefix='claude-compact-probe-', dir='/tmp') as cwd:
-                    result = probe(folder, cwd, slug, effort, tier, size, way == 'mid-turn', blocking_override, claude)
+                    result = probe(folder, cwd, slug, effort, tier, size, way == 'mid-turn', blocking_override, claude, env_for)
                 cells.append({'cell': folder.name, 'way': way, 'repeat': r,
-                              **{k: result[k] for k in ('claimed', 'effective_limit', 'expected_compaction', 'compacted',
+                              **{k: result[k] for k in ('claimed', 'max_tokens', 'effective_limit', 'expected_compaction', 'compacted',
                                                          'continued', 'exits', 'ok')}})
                 log(json.dumps(cells[-1]))
     summary = {'host': host, 'model': model, 'effort': effort, 'tier': tier, 'blocking_override': blocking_override,
                'claude_version': result['claude_version'], 'agent_environment': {
-                   k: v for k, v in agent_environment('http://127.0.0.1:0', slug, effort, tier, blocking_override).items()
+                   k: v for k, v in (env_for('http://127.0.0.1:0', blocking_override) if env_for else
+                                     agent_environment('http://127.0.0.1:0', slug, effort, tier, blocking_override)).items()
                    if k.startswith('CLAUDE_CODE_')},
                'cells': cells, 'pass': all(c['ok'] for c in cells)}
+    (out / 'summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=1) + '\n')
+    return summary
+
+
+PENDING_NOTE = '待 F5 填值：{names} 仍为 null，探针不用默认值代替'
+
+
+def run_deepseek_plan(out, plan_path, model='deepseek-v4-flash', effort='high', repeat=1, claude=None,
+                      log=lambda line: print(line, flush=True)):
+    """Probe the DeepSeek arm of a v2 scenario plan: override pass, then the unset-override fallback pass."""
+    out = Path(out)
+    limits, pending = deepseek_plan_limits(plan_path)
+    if pending:
+        out.mkdir(parents=True)
+        summary = {'plan': str(plan_path), 'pending': pending, 'note': PENDING_NOTE.format(names='、'.join(pending)),
+                   'pass': False}
+        (out / 'summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=1) + '\n')
+        return summary
+    window, override = limits['CLAUDE_CODE_MAX_CONTEXT_TOKENS'], limits['CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE']
+    tier = {'context_window': window, 'auto_compact_token_limit': override}
+    env_for = deepseek_env_for(limits, model)
+    passes = {name: run(out / name, 'plan', 'IQ3_XXS', effort, None, ('two-turn', 'mid-turn'), repeat, with_override, tier,
+                        claude, log, env_for, model)
+              for name, with_override in (('override', True), ('fallback', False))}
+    seen = sorted({m for v in passes.values() for c in v['cells'] for m in c['max_tokens']}, key=str)
+    expected = limits['CLAUDE_CODE_MAX_OUTPUT_TOKENS']
+    summary = {'plan': str(plan_path), 'pending': [], 'limits': limits, 'fallback_point': blocking_limit(window),
+               'passes': {k: {'pass': v['pass'], 'cells': v['cells']} for k, v in passes.items()},
+               'max_tokens_seen': seen, 'output_limit_ok': seen == [expected],
+               'claude_version': passes['override']['claude_version'],
+               'pass': all(v['pass'] for v in passes.values()) and seen == [expected]}
     (out / 'summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=1) + '\n')
     return summary
 
@@ -236,11 +297,17 @@ def main():
     p.add_argument('--limit', type=int)
     p.add_argument('--no-blocking-override', action='store_true', help="drop qwen-agent's compaction override")
     p.add_argument('--claude', help='Claude Code binary to probe (default: claude on PATH), e.g. the benchmark copy')
+    p.add_argument('--plan', type=Path, help='probe the DeepSeek arm of this v2 scenario plan instead of qwen-agent\'s tier')
+    p.add_argument('--deepseek-model', default='deepseek-v4-flash')
     a = p.parse_args()
     if a.out.exists():
         p.error(f'{a.out} exists')
     if (a.window is None) != (a.limit is None):
         p.error('--window and --limit go together')
+    if a.plan:
+        summary = run_deepseek_plan(a.out, a.plan, a.deepseek_model, a.effort, a.repeat, a.claude)
+        print(summary.get('note') or json.dumps({k: summary[k] for k in ('claude_version', 'limits', 'fallback_point', 'max_tokens_seen', 'pass')}))
+        raise SystemExit(0 if summary['pass'] else 2 if summary['pending'] else 1)
     tier = a.window and {'context_window': a.window, 'auto_compact_token_limit': a.limit}
     summary = run(a.out, a.host, a.model, a.effort, a.claimed, tuple(a.way or ('two-turn', 'mid-turn')), a.repeat,
                   not a.no_blocking_override, tier, a.claude)

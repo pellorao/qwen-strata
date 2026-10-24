@@ -28,8 +28,9 @@ def tool_aliases(request):
     return aliases
 
 
-def scripted_stream(emit, request, aliases, text=None, calls=()):
-    """Emit one complete response: `text`, or `calls` as [(alias, arguments)]."""
+def scripted_stream(emit, request, aliases, text=None, calls=(), claimed_input=0):
+    """Emit one complete response: `text`, or `calls` as [(alias, arguments)]. claimed_input: the input tokens its usage
+    reports (compaction probes drive Codex's token accounting with it; a real count is never implied)."""
     sequence = iter(range(1 << 30))
     response = {'id': 'resp_' + uuid.uuid4().hex, 'object': 'response', 'created_at': int(time.time()),
                 'status': 'in_progress', 'model': request.get('model'), 'output': [], 'usage': None}
@@ -58,7 +59,7 @@ def scripted_stream(emit, request, aliases, text=None, calls=()):
         event('response.output_item.added', output_index=index, item=item)
         event('response.output_item.done', output_index=index, item=item)
     response.update(status='completed', output=items, usage={
-        'input_tokens': 0, 'output_tokens': 0, 'total_tokens': 0,
+        'input_tokens': claimed_input, 'output_tokens': 0, 'total_tokens': claimed_input,
         'input_tokens_details': {'cached_tokens': 0}, 'output_tokens_details': {'reasoning_tokens': 0}})
     event('response.completed', response=response)
     return response

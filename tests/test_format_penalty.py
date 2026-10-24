@@ -8,7 +8,7 @@ import unittest
 
 from tools.reviewer.format_penalty import (ARCHIVE, REGISTRY, bootstrap_interval, final_score, penalty, pooled_baseline,
                                            registered_baseline, registered_entry, repairable_count, score_repetitions,
-                                           verify_archive)
+                                           suite_registry, verify_archive)
 
 ROOT = Path(__file__).resolve().parents[1]
 CS51 = ('code-standards-reviewer', '3950875c7c223af3beee58265c1fb9eb3ff48cf21cbd4b94ffa43a124a0d0b66')
@@ -161,6 +161,36 @@ class FormatPenaltyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'repairable count'):
             verify_archive(tampered)
         self.assertTrue((ARCHIVE / entry['archive'].removeprefix('format-baseline/')).is_dir())
+
+    def test_each_suite_has_its_own_registry_and_v1_is_unchanged(self):
+        self.assertEqual(suite_registry('v1'), REGISTRY)
+        self.assertNotEqual(suite_registry('v2'), REGISTRY)
+        self.assertIn('multi-model-v2', str(suite_registry('v2')))
+        with self.assertRaises(ValueError):
+            suite_registry('v3')
+        self.assertEqual(round(registered_baseline(*CS51, suite_registry('v1')), 9), round(registered_baseline(*CS51), 9))
+
+    def test_a_v2_relabelled_baseline_does_not_collide_with_v1_and_unchanged_keys_inherit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            v2 = Path(directory) / 'format-baseline.json'
+            relabelled = json.loads(json.dumps(registered_entry(*CS51)))
+            for run in relabelled['runs']:
+                run['r'] += 3
+                run['rRepairable'] += 3
+            relabelled['pBase'] = pooled_baseline([(run['r'], run['T']) for run in relabelled['runs']])['pBase']
+            # CS51 re-labelled in v2 on the same answer-key sha; SR41 unchanged, inherited from v1.
+            v2.write_text(json.dumps({CS51[0]: {CS51[1]: relabelled}, SR41[0]: {SR41[1]: {'inheritsFrom': 'v1'}}}))
+            self.assertGreater(registered_baseline(*CS51, v2), registered_baseline(*CS51))
+            self.assertEqual(registered_baseline(*CS51), registered_baseline(*CS51, REGISTRY))
+            self.assertEqual(registered_baseline(*SR41, v2), registered_baseline(*SR41))
+            # A v2 key that is neither re-labelled nor declared inherited is an error, never a silent v1 fallback.
+            v2.write_text(json.dumps({CS51[0]: {CS51[1]: relabelled}}))
+            with self.assertRaisesRegex(ValueError, 'is not registered'):
+                registered_baseline(*SR41, v2)
+            out = score_repetitions(upstream(CS51[0], instance('a'), score=0.8), {'a': None}, v2)[0]
+            base = score_repetitions(upstream(CS51[0], instance('a'), score=0.8), {'a': None})[0]
+            self.assertEqual(out['r'], base['r'])
+            self.assertGreaterEqual(base['f'], out['f'])
 
 
 if __name__ == '__main__':

@@ -17,8 +17,8 @@ takes f, the pause cut and that residual cut as one overall deduction, the large
 Every instance must declare its repair: a repair record, or explicitly none; an undeclared instance is an error,
 since a repaired copy carries no trace of its repair.
 
-pBase is registered per frozen answer key (reviewer and expected.json sha256) in
-benchmarks/reviewer-suite-v1/format-baseline.json: the pooled sum(r) / sum(T) of Haiku-high x5 on that
+pBase is registered per frozen answer key (reviewer and expected.json sha256) in the suite's registry
+(REGISTRIES: v1 benchmarks/reviewer-suite-v1/format-baseline.json, v2 benchmarks/multi-model-v2/format-baseline.json): the pooled sum(r) / sum(T) of Haiku-high x5 on that
 key, at least 2 errors per report (2 / mean T). An unregistered key is an error. Each registered run binds its
 archived reports and repair records (benchmarks/reviewer-suite-v1/format-baseline/) by sha256, so r, T and pBase can
 be recomputed after the run directories are gone.
@@ -29,7 +29,13 @@ import json
 from pathlib import Path
 import random
 
-REGISTRY = Path(__file__).resolve().parents[2] / 'benchmarks/reviewer-suite-v1/format-baseline.json'
+ROOT = Path(__file__).resolve().parents[2]
+# One registry per benchmark suite (tools.reviewer.bench_suite names the suites): v2 re-labels the scenarios whose wording
+# changed on answer keys v1 already registered, so a v2 baseline must never share v1's table. A v2 entry for a scenario
+# whose text did not change says {"inheritsFrom": "v1"} instead of copying the v1 baseline.
+REGISTRIES = {'v1': ROOT / 'benchmarks/reviewer-suite-v1/format-baseline.json',
+              'v2': ROOT / 'benchmarks/multi-model-v2/format-baseline.json'}
+REGISTRY = REGISTRIES['v1']
 ARCHIVE = REGISTRY.parent / 'format-baseline'
 CAP = 0.1
 
@@ -69,8 +75,16 @@ def bootstrap_interval(runs, resamples=10000, seed=0):
     return [values[int(0.05 * resamples)], values[int(0.95 * resamples) - 1]]
 
 
+def suite_registry(suite):
+    if suite not in REGISTRIES:
+        raise ValueError(f'unknown benchmark suite {suite!r}')
+    return REGISTRIES[suite]
+
+
 def registered_entry(reviewer, expected_sha256, registry=REGISTRY):
     entry = json.loads(Path(registry).read_text()).get(reviewer, {}).get(expected_sha256)
+    if isinstance(entry, dict) and entry.get('inheritsFrom') == 'v1':
+        entry = json.loads(REGISTRIES['v1'].read_text()).get(reviewer, {}).get(expected_sha256)
     if not isinstance(entry, dict) or not isinstance(entry.get('runs'), list):
         raise ValueError(f'format baseline of {reviewer} answer key {expected_sha256} is not registered')
     return entry
@@ -178,6 +192,7 @@ def main():
                         help='repair record of a repaired instance; repeat for each')
     parser.add_argument('--no-repair', action='append', default=[], metavar='INSTANCE_ID',
                         help='an instance scored from its original report; every instance needs --repair or --no-repair')
+    parser.add_argument('--suite', choices=sorted(REGISTRIES), default='v1', help='benchmark suite whose baselines apply')
     args = parser.parse_args()
     repairs = {instance: None for instance in args.no_repair}
     for item in args.repair:
@@ -186,7 +201,7 @@ def main():
             parser.error(f'instance {instance} is declared twice')
         repairs[instance] = json.loads(Path(path).read_text())
     try:
-        rows = score_repetitions(json.loads(args.upstream.read_text()), repairs)
+        rows = score_repetitions(json.loads(args.upstream.read_text()), repairs, suite_registry(args.suite))
     except ValueError as error:
         parser.error(str(error))
     print(json.dumps(rows, indent=1))
