@@ -12,8 +12,8 @@ BENCH = Path.home() / '.local/share/qwen-bench'
 
 CODEX_VERSION = '0.164.0'
 CODEX_SHA256 = 'b93f6811d3f653f0fb83be4050d857fb9abbb111dfa2ce160563327daff7f306'
-CLAUDE_VERSION = '2.1.309'
-CLAUDE_SHA256 = '4d704a8aecbe038affa3000f498ae17c1b4f753add8facb8764120affc99b658'
+CLAUDE_VERSION = '2.1.310'
+CLAUDE_SHA256 = 'b73676430af12f97316a798b8371f81d640f90a58bdcb8f3ce56a835bb47df56'
 
 
 def codex_vendor(version):
