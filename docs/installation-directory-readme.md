@@ -10,7 +10,7 @@
 
 | 主机 | 前端地址 |
 |---|---|
-| rtx3080ti | `http://192.168.60.212:8000` |
+| {{host}} | `{{base_url}}` |
 
 前端随 Windows 用户登录由计划任务 `QwenStrataFrontend` 启动，常驻运行，不需要调用方启动。只接受本机及本机各网卡所在子网（含 WSL 虚拟网卡）的客户端，其他地址返回 403。存在 HTTP 代理时，对该地址设置 `NO_PROXY` 或显式直连。
 
@@ -70,7 +70,7 @@
 `POST /model/start` 示例：
 
 ```json
-{"model": "IQ3_XXS", "context_window": 156584}
+{"model": "{{model}}", "context_window": {{example_context_window}}}
 ```
 
 | 字段 | 说明 |
@@ -82,11 +82,11 @@
 
 启动完成时前端核对实际加载的模型和上下文容量。换档位时，`/model/start` 会自动先停掉旧模型；"相同"按校验后的完整运行配置比较，包括部署后改动的安装预置。
 
-模型 ID 为 `qwen3.8-flash-next-` 加对外模型名的小写（如 IQ3_XXS 为 `qwen3.8-flash-next-iq3_xxs`）。
+模型 ID 为 `qwen3.8-flash-next-` 加对外模型名的小写（如 {{model}} 为 `{{model_slug}}`）。
 
 ### 安装预置
 
-rtx3080ti：对外模型为 IQ3_XXS，默认档是窗口 206584、自动压缩阈值 150000（2026-10-14 起），另有可选档窗口 156584、阈值 100000。206584 已在约 151K token 以内的长上下文检索负载上验证，同负载下与 156584 档速度相同；更长的提示在 200K 级检索中出现过系统性错误，256584 未发布。`config/model-catalog.json` 只列对外模型，窗口是它在本机的默认档；调用方仍需把自己 harness 的自动压缩阈值设为所用档的值（IQ3_XXS 默认档为 150000）。`bin/qwen-agent` 使用对外模型的默认档，即 `context_tiers` 的第一档（见[与 Codex 的参数对照](#与-codex-的参数对照)）。其余预置：high，思考 8192／总输出 24576，temperature 0、top_p 1、top_k 20、presence_penalty 0，CPU 辅助 auto。presence_penalty 0 是显式写的：Strata 0.2.x 会给请求和安装配置都没给的采样键补模型卡的值，思考关闭的请求会因此被加上 presence_penalty 1.5。这是维护起点，不是完整质量验收或最优参数的结论。服务不会替调用方压缩。
+{{host.presets}}
 
 ## 推理强度与输出
 
@@ -101,7 +101,7 @@ Responses 使用 `reasoning.effort` 和 `max_output_tokens`，Chat 使用 `reaso
 不提供 none 档：请求指定其他强度（包括 none）时返回 400。
 
 - Codex 的 guardian 审批请求有单独的默认值，与强度无关：思考 512、总输出 1024（安装预置，与 `bin/qwen-approve` 相同）。服务按 Codex 随请求发送的元数据识别它（`client_metadata["x-codex-turn-metadata"]` 中 `thread_source` 为 `guardian_review`），不看提示词内容。审批只需输出一段简短的 JSON 结论。Strata 为回答保留 min(max(512, 总输出/4), 总输出/2)，总输出 1024 时正好保留 512，思考可以用满 512。请求自己给了思考预算或输出上限时，以请求为准。Codex 对 guardian 请求发 `reasoning_effort: low`、不带输出上限和采样字段，`bin/qwen-approve` 显式发同样的值，所以两边审批参数相同。
-- 与该次运行默认强度相同的请求，使用默认值中的预算和输出上限（rtx3080ti 为 high，思考 8192／总输出 24576）。
+- 与该次运行默认强度相同的请求，使用默认值中的预算和输出上限（{{host}} 为 {{reasoning_effort}}，思考 {{reasoning_budget_tokens}}／总输出 {{max_tokens}}）。
 - 请求自己给了输出上限、没给思考预算时，思考预算不超过输出上限的一半。Strata 另外为回答至少保留输出上限的 1/4。
 - 上限不等于实际思考长度。请求给的输出上限超出窗口剩余空间时，缩短到剩余空间，不返回 400；输入本身超出窗口仍返回 400，不静默裁剪输入。
 - Messages 接口不补总输出（按 Anthropic 协议由调用方设置 `max_tokens`），只补思考上限，见下文 Claude Code 一节。
@@ -123,7 +123,7 @@ Responses 的**流式**请求，如果模型这一次输出撞到总输出上限
 `bin/qwen-agent` 完成整个生命周期：领取租约 → 启动模型 → 运行 Codex 或 Claude Code → 退出后归还租约（模型留给下一次复用）。只依赖本安装目录和 Python 3 标准库。
 
 ```bash
-qwen_install=/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next
+qwen_install={{installation_wsl}}
 python3 "$qwen_install/bin/qwen-agent" codex                       # 交互式 Codex，本机对外模型、high
 python3 "$qwen_install/bin/qwen-agent" --effort medium codex exec "任务描述"
 python3 "$qwen_install/bin/qwen-agent" claude                      # Claude Code
@@ -131,27 +131,27 @@ python3 "$qwen_install/bin/qwen-agent" claude                      # Claude Code
 
 - `--model` 可省略，默认即本机对外模型（`config/deployment.json` 的 `models`）；写其他量化时在领租约前报错退出。
 - 租约已被他人持有时立即退出，不排队、不抢占。
-- 加载耗时：rtx3080ti 上旧 Q2_0 约 20 秒，IQ3_XXS 未单独记录；相同参数复用已加载的模型时不再加载。Ctrl-C 交给 agent 处理；agent 退出、终端关闭或进程被终止时都会归还租约。归还失败时会提示重启前端任务。
+- 加载耗时：{{host.load_time}}；相同参数复用已加载的模型时不再加载。Ctrl-C 交给 agent 处理；agent 退出、终端关闭或进程被终止时都会归还租约。归还失败时会提示重启前端任务。
 - key 只放在 agent 进程的环境变量里，不写入文件或命令行参数。
 - 调用方环境中的 `ANTHROPIC_*`、`OPENAI_*`、`AI_AGENT` 和以 `CLAUDE` 开头的变量（`CLAUDE_CONFIG_DIR` 除外）不传给 agent，所以在 Claude Code 会话里启动时，agent 拿不到父会话的会话 id 和消息通道；需要的 Claude Code 定制写进 settings.json 的 `env`。
 - 脚本不修改调用方的 `~/.codex` 或 `~/.claude` 配置；所有设置都以命令行覆盖或环境变量传入。
 
 ## Codex 接入
 
-启动脚本传给 Codex 的设置如下（以 IQ3_XXS 默认档为例，窗口和阈值取所用量化在 `config/deployment.json` 中的第一档）；自行配置时照此设置：
+启动脚本传给 Codex 的设置如下（以 {{model}} 默认档为例，窗口和阈值取所用量化在 `config/deployment.json` 中的第一档）；自行配置时照此设置：
 
 ```toml
-model = "qwen3.8-flash-next-iq3_xxs"
+model = "{{model_slug}}"
 model_provider = "qwen_strata"
-model_catalog_json = "/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next/config/model-catalog.json"
-experimental_compact_prompt_file = "/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next/config/prompts/compact-prompt.txt"
-model_context_window = 206584
-model_auto_compact_token_limit = 150000
+model_catalog_json = "{{installation_wsl}}/config/model-catalog.json"
+experimental_compact_prompt_file = "{{installation_wsl}}/config/prompts/compact-prompt.txt"
+model_context_window = {{context_window}}
+model_auto_compact_token_limit = {{auto_compact_token_limit}}
 web_search = "live"
 
 [model_providers.qwen_strata]
 name = "Local Strata"
-base_url = "http://192.168.60.212:8000/strata/v1"
+base_url = "{{base_url}}/strata/v1"
 wire_api = "responses"
 env_key = "QWEN_STRATA_KEY"
 requires_openai_auth = false
@@ -179,17 +179,17 @@ key 通过 `env_key` 指定的环境变量只提供给该 harness。请求重试
 
 ## Claude Code 接入
 
-启动脚本传入的环境变量和参数（不修改 `~/.claude`；以 IQ3_XXS 默认档为例）：
+启动脚本传入的环境变量和参数（不修改 `~/.claude`；以 {{model}} 默认档为例）：
 
 ```bash
-export ANTHROPIC_BASE_URL=http://192.168.60.212:8000/strata
+export ANTHROPIC_BASE_URL={{base_url}}/strata
 export ANTHROPIC_AUTH_TOKEN=<key>
-export ANTHROPIC_MODEL=qwen3.8-flash-next-iq3_xxs        # OPUS / SONNET / HAIKU 默认模型也设为同一个
+export ANTHROPIC_MODEL={{model_slug}}        # OPUS / SONNET / HAIKU 默认模型也设为同一个
 export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
-export CLAUDE_CODE_MAX_CONTEXT_TOKENS=206584            # 声明真实窗口：所用档的 context_window
+export CLAUDE_CODE_MAX_CONTEXT_TOKENS={{context_window}}            # 声明真实窗口：所用档的 context_window
 export CLAUDE_CODE_MAX_OUTPUT_TOKENS=24576             # 该强度的总输出（low 8192、medium 16384、high 24576）
 export CLAUDE_CODE_EFFORT_LEVEL=high                    # 与 Codex 的 model_reasoning_effort 相同
-export CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE=150000       # 自动压缩阈值：所用档的 auto_compact_token_limit，与 Codex 相同
+export CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE={{auto_compact_token_limit}}       # 自动压缩阈值：所用档的 auto_compact_token_limit，与 Codex 相同
 export ENABLE_TOOL_SEARCH=false                        # 关闭工具搜索，全部工具定义内联发送（见下文）
 
 claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default \
@@ -200,7 +200,7 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default
 
 - 总输出按强度取上表的总输出（`bin/qwen-agent --effort` 同时决定强度和这个值），与前端为 Codex 补的值相同。Claude Code 每个请求都自带 `max_tokens`，前端不覆盖请求给出的值，所以总输出由这个环境变量决定，不要调大；剩余空间不够时服务把输出上限缩短到剩余空间，不返回 400。前端给 Messages 请求补思考硬上限：思考关闭（`thinking.type: disabled`）或请求自带 `reasoning_budget_tokens` 时不动；否则取推理强度对应的思考上限（high 为 8192，见上表），请求的 `thinking.budget_tokens` 更小时用它，再不超过 `max_tokens` 的一半。Claude Code 发 `thinking: adaptive`、`output_config.effort`（取 `CLAUDE_CODE_EFFORT_LEVEL`）和 `max_tokens`，所以思考上限与 Codex 同强度相同（high 为 8192），Strata 为回答保留其余空间。
 - 强度：`CLAUDE_CODE_EFFORT_LEVEL` 对整个会话生效；命令行 `--effort` 在第一次压缩后会失效，所以启动脚本用环境变量。
-- 自动压缩：Claude Code 不按 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 压缩，只在阻塞上限（窗口 − 20000 − 3000：206584 窗口为 183584，156584 窗口为 133584）压缩；`CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 把这个上限设为所用档的阈值，与 Codex 相同。Claude Code 2.1.303 假服务器核对（两回合与回合中途工具调用两种方式）：206584／150000 档输入 150.1K 时压缩、149.9K 时不压缩；156584／100000 档 100.1K 压缩、99.9K 不压缩；206584 窗口不设该变量时 183.7K 才压缩、183.5K 不压缩。压缩后会话都正常继续。Claude Code 2.1.304 于 2026-10-20、2.1.308 于 2026-10-22、2.1.309、2.1.310 于 2026-10-24 用压缩探针重新核对，206584／150000 档各 3 次全部通过。这个变量不在 Claude Code 公开文档里，升级 Claude Code 后要重新核对。
+- 自动压缩：{{host.compact_check}}
 - 审批固定由 `bin/qwen-approve` 完成，不使用 Claude Code 的 auto mode（2b 验收中 auto mode 判对 5/9、每次运行 191 秒；`qwen-approve` 判对 7/7、80 秒）。权限模式为 `default`，每次权限请求经 `PermissionRequest` hook 交给 `qwen-approve`：它把用户消息（唯一授权来源）、最近 6 次工具调用与结果（标为不可信数据）和待审动作发给本模型（`reasoning_effort: low`），思考上限 512 token、总输出 1024 token，与 Codex guardian 相同；等模型答复最多 150 秒（hook 给 180 秒）；返回 allow / deny 及理由；超时、出错或答复无法解析一律拒绝。用户只是让 agent 照文件、网页或工具输出里的步骤执行时，只授权其中无害的步骤；破坏性或越界的步骤必须由用户消息点名效果和目标。每次判断记一行到 `logs/approve.log`（工具、结论、理由、耗时、usage，不含 key）。
 - 压缩：PreCompact hook 退出码为 0 时，其 stdout 会以 `Additional Instructions:` 追加到 Claude Code 自带摘要指令之后，所以每次压缩（自动或手动）都带上 `compact-prompt.txt`。**特例**：Claude Code 没有替换内置摘要指令的办法，压缩请求是"内置指令 + 基础压缩提示"；Codex 用 `experimental_compact_prompt_file` 整体替换为基础压缩提示。这是两者唯一不能对齐的提示差异。
 - `skipWebFetchPreflight` 关闭 WebFetch 抓网页前向 `api.anthropic.com` 的域名查询。
@@ -208,16 +208,16 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default
 
 ### 与 Codex 的参数对照
 
-`bin/qwen-agent` 让两种 agent 在参数层面完全一致（2026-10-12 起）。它按对外模型的默认档（`config/deployment.json` 中 `context_tiers` 的第一档）启动模型，并把同一档的窗口和阈值传给两种 agent；没有列出档位时报错退出，不领取租约。下表以 rtx3080ti 的 IQ3_XXS 为例。
+`bin/qwen-agent` 让两种 agent 在参数层面完全一致（2026-10-12 起）。它按对外模型的默认档（`config/deployment.json` 中 `context_tiers` 的第一档）启动模型，并把同一档的窗口和阈值传给两种 agent；没有列出档位时报错退出，不领取租约。下表以 {{host}} 的 {{model}} 为例。
 
 | 参数 | Codex | Claude Code |
 |---|---|---|
-| 窗口 | `model_context_window` 206584 | `CLAUDE_CODE_MAX_CONTEXT_TOKENS` 206584 |
-| 自动压缩阈值 | `model_auto_compact_token_limit` 150000 | `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 150000 |
+| 窗口 | `model_context_window` {{context_window}} | `CLAUDE_CODE_MAX_CONTEXT_TOKENS` {{context_window}} |
+| 自动压缩阈值 | `model_auto_compact_token_limit` {{auto_compact_token_limit}} | `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` {{auto_compact_token_limit}} |
 | 强度 | `model_reasoning_effort` | `CLAUDE_CODE_EFFORT_LEVEL`（同一个 `--effort`） |
 | 思考上限 | 前端按强度补 2048／4096／8192 | 前端按强度补，同值 |
 | 总输出 | 前端按强度补 8192／16384／24576 | `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 同值 |
-| 采样 | 不发，用安装预置 temperature 0、top_p 1、top_k 20、presence_penalty 0 | 不发（已抓包核对），同预置 |
+| 采样 | 不发，用安装预置 {{sampling}} | 不发（已抓包核对），同预置 |
 | 审批参数 | guardian：low，思考 512／总输出 1024，不发采样 | `qwen-approve`：同值 |
 
 两者审批的参数相同，机制不同：
@@ -240,7 +240,7 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default
 
 ### 审批与主对话的缓存
 
-引擎单会话持有显存前缀缓存，审批请求会挤掉主对话的缓存。本机默认开启会话暂存（`conversation-cache-mib 8192`、`conversation-cache-slots 4`、`conversation-cache-min-free-mib 5120`）：切换时把会话暂存到内存，约 17K token 的主对话暂存约 0.1 秒、恢复约 0.03 秒；不暂存时每次审批后主对话要整段重读（17K 约 16 秒）。实测同一审批场景每次运行 69.0 → 46.2 秒。
+{{host.approval_cache}}
 
 ## Python 示例
 
@@ -250,7 +250,7 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default
 import json, os, urllib.request
 from pathlib import Path
 
-base = "http://192.168.60.212:8000"
+base = "{{base_url}}"
 opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 def request(path, body=None, key=None):

@@ -10,7 +10,9 @@ from unittest import mock
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.ops.deployment_source import (HOST_ENVIRONMENT, current_host, require_current_host,
                                          frontend_configuration, load_host, model_configuration, published_tier,
-                                         served_model, source_bytes)
+                                         served_model, source_bytes, render_manual, wsl_path, MANUAL, MANUAL_HOSTS)
+import hashlib
+import shutil
 
 
 class SourceRenderingTests(unittest.TestCase):
@@ -264,6 +266,65 @@ class CurrentHostTests(unittest.TestCase):
         self.assertEqual(require_current_host('rtx4070tis', self.root), 'rtx4070tis')
         with self.assertRaisesRegex(ValueError, 'not this machine'):
             require_current_host('rtx3080ti', self.root)
+
+
+REAL_ROOT = Path(__file__).resolve().parents[1]
+# SHA-256 of the README deployed on rtx3080ti when the manual became a host template (2026-10-24); the render must keep
+# it byte for byte. A deliberate manual change updates this pin together with the deployment.
+DEPLOYED_MANUAL_SHA256 = '315df23f08038392d2424e7548fdc4178d6199e24c941be185b4a42a3f7508b6'
+
+
+class ManualRenderingTests(unittest.TestCase):
+    """The caller manual is rendered per host from the template, the host file and the host's own paragraphs."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        (self.root/'docs').mkdir()
+        shutil.copytree(REAL_ROOT/'config/deployments', self.root/'config/deployments')
+        shutil.copyfile(REAL_ROOT/MANUAL, self.root/MANUAL)
+        shutil.copytree(REAL_ROOT/MANUAL_HOSTS, self.root/MANUAL_HOSTS)
+        (self.root/'project.private.toml').write_text(
+            "[hosts.rtx3080ti]\ninstallation_path = 'C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next'\n"
+            "[hosts.rtx4070tis]\ninstallation_path = 'C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next'\n",
+            encoding='utf-8')
+
+    def test_rtx3080ti_renders_the_deployed_manual(self):
+        rendered = render_manual('rtx3080ti', self.root).encode()
+        self.assertEqual(hashlib.sha256(rendered).hexdigest(), DEPLOYED_MANUAL_SHA256)
+        self.assertEqual(source_bytes(MANUAL, 'rtx3080ti', self.root), rendered)
+        self.assertNotIn(b'{{', rendered)
+
+    def test_values_follow_the_host_file(self):
+        path = self.root/'config/deployments/rtx3080ti.json'
+        value = json.loads(path.read_text(encoding='utf-8'))
+        value.update(listen_address='10.0.0.9', port=8123)
+        value['context_tiers']['IQ3_XXS'] = [{'context_window': 100000, 'auto_compact_token_limit': 70000}]
+        path.write_text(json.dumps(value), encoding='utf-8')
+        rendered = render_manual('rtx3080ti', self.root)
+        self.assertIn('base_url = "http://10.0.0.9:8123/strata/v1"', rendered)
+        self.assertIn('model_context_window = 100000\nmodel_auto_compact_token_limit = 70000', rendered)
+        self.assertNotIn('192.168.60.212', rendered.split('## 已观察到的执行异常')[0])
+
+    def test_host_without_its_data_or_paragraphs_is_refused(self):
+        with self.assertRaisesRegex(ValueError, 'lacks what the manual names: listen_address, port, context_tiers.IQ3_XXS'):
+            render_manual('rtx4070tis', self.root)
+        (self.root/MANUAL_HOSTS/'rtx3080ti.md').unlink()
+        with self.assertRaisesRegex(ValueError, 'no manual paragraphs'):
+            render_manual('rtx3080ti', self.root)
+
+    def test_unknown_placeholder_is_refused(self):
+        with (self.root/MANUAL).open('a', encoding='utf-8') as stream:
+            stream.write('{{host.unwritten}}\n')
+        with self.assertRaisesRegex(ValueError, 'host.unwritten'):
+            render_manual('rtx3080ti', self.root)
+
+    def test_wsl_path(self):
+        self.assertEqual(wsl_path('C:\\Users\\pello\\x y'), '/mnt/c/Users/pello/x y')
+        self.assertEqual(wsl_path('D:\\模型'), '/mnt/d/模型')
+        for bad in ('\\\\server\\share\\x', 'relative\\x', 'C:x'):
+            with self.assertRaises(ValueError):
+                wsl_path(bad)
 
 
 # Strata 0.2.4 serve/server.py MODEL_CARD_SAMPLING["qwen4exp"]: the keys it fills for a request when neither the request

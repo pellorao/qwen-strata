@@ -13,7 +13,7 @@ Isolation (measurement rule "Claude Code 测试隔离"):
   variables; the Strata arm also gets a fresh CLAUDE_CONFIG_DIR;
 - `--setting-sources ""`, `--restricted` (file tools confined to the working directory), `--strict-mcp-config`,
   `--disable-slash-commands`, `--permission-mode dontAsk`, `--permission-prompts none`, `--no-session-persistence`;
-- the working directory lives under WORK_BASE, outside /home/pello, so no ancestor CLAUDE.md applies;
+- the working directory lives under WORK_BASE, outside the home directory, so no ancestor CLAUDE.md applies;
 - the Bash sandbox reads only the working directory, writes only the granted paths and has no network; a new file at the
   top of the working directory stays writable (the sandbox always grants the working directory, see settings());
 - web tools are off twice: `--tools` lists none and `--disallowedTools WebSearch,WebFetch` denies them (benchmark
@@ -72,7 +72,7 @@ sys.path.append(str(ROOT / 'src'))
 from startup_instructions import startup_prompt_bytes
 
 # Tunables
-WORK_BASE = Path('/var/tmp/qwen-claude')  # isolated working directories, outside /home/pello
+WORK_BASE = Path('/var/tmp/qwen-claude')  # isolated working directories, outside the home directory
 TOOLS = 'Read,Write,Edit,Glob,Grep,Bash'  # no web tools: search stays a separate decision (D5)
 DISALLOWED = 'WebSearch,WebFetch'  # denied as well, whatever --tools lists (benchmark: search off, user 2026-10-19)
 REMINDER_AFTER, HARD_LIMIT = LIMITS['initial']  # 3300 s, 3600 s
@@ -85,7 +85,7 @@ ESTIMATE = Path.home() / '.claude/statusline/estimate.sh'
 CLAUDE = str(CLAUDE_COPY)
 AGENT = ROOT / 'scripts/wsl/qwen-agent'
 # Named directories, not top-level ones: Claude Code 2.1.303 left /home readable to sandboxed commands with denyRead
-# ["/home"], while /home/pello was denied (tools.safety.claude_gate, 2026-10-19). The working directory is re-opened
+# ["/home"], while the home directory itself (/home/pello on rtx3080ti) was denied (tools.safety.claude_gate, 2026-10-19). The working directory is re-opened
 # by allowRead inside WORK_BASE.
 # Claude Code's shared temporary directory (its default sandbox TMPDIR, also holding other sessions' task outputs and
 # scratchpads): every run gets its own TMPDIR instead (run_tmp), and sandboxed commands can neither read nor write the
@@ -143,11 +143,11 @@ MODEL_ENVIRONMENT_RECORDED = ('ANTHROPIC_MODEL', 'CLAUDE_CODE_MAX_CONTEXT_TOKENS
 
 
 def workspace(run_id, base=WORK_BASE):
-    """A fresh working directory outside /home/pello; its parent holds only this run."""
+    """A fresh working directory outside the home directory; its parent holds only this run."""
     root = Path(base) / run_id
     work = root / 'work'
-    if str(work.resolve()).startswith('/home/'):
-        raise ValueError('The isolated working directory must be outside /home')
+    if str(work.resolve()).startswith(('/home/', str(Path.home().resolve()) + '/')):
+        raise ValueError('The isolated working directory must be outside /home and the home directory')
     work.mkdir(parents=True, exist_ok=False)
     return work
 
@@ -674,7 +674,7 @@ def command(backend, model, effort, work, writes, session_settings, tools=TOOLS,
     so its API runs pass startup=False (--no-startup-prompt). persist=True drops --no-session-persistence so that an
     early exit can continue with --resume (scenario runs): the first request stays the same as without it (mock
     2026-10-20, only the run's own paths and ids differ), and the transcript lands in the configuration directory,
-    which sandboxed commands and the restricted file tools cannot read (/home/pello and WORK_BASE are denied).
+    which sandboxed commands and the restricted file tools cannot read (the home directory and WORK_BASE are denied).
     `system_prompt` (the scenario Role instructions, user 2026-10-20: Claude Code has no developer role, the system
     prompt is the matching place) goes into the same single --append-system-prompt, after the startup prompt."""
     if backend not in BACKENDS:

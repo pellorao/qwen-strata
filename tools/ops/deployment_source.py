@@ -24,6 +24,11 @@ CONDITION_REQUEST_DEFAULTS = {'temperature', 'top_p', 'top_k', 'min_p', 'presenc
 # The host this project copy runs on (one copy per machine, user 2026-10-24): the environment variable wins, else the
 # machine's own project.private.toml names it with a top-level `local_host`.
 HOST_ENVIRONMENT = 'QWEN_STRATA_HOST'
+# The caller manual: a template whose {{name}} values come from the host data and whose {{host.<section>}} paragraphs
+# (measured facts that hold for one host only) come from MANUAL_HOSTS/<host>.md.
+MANUAL = 'docs/installation-directory-readme.md'
+MANUAL_HOSTS = 'docs/installation-readme-hosts'
+MANUAL_SAMPLING = ('temperature', 'top_p', 'top_k', 'presence_penalty')
 
 
 def load_private(project=None):
@@ -156,6 +161,54 @@ def host_for_installation(installation, project=None):
     raise ValueError('Installation is not a registered local host')
 
 
+def wsl_path(windows):
+    """WSL form of an absolute drive path (C:\\a\\b -> /mnt/c/a/b), as wslpath writes it; no subprocess, so it renders anywhere."""
+    path = PureWindowsPath(windows)
+    if not re.fullmatch(r'[A-Za-z]:', path.drive) or not path.root:
+        raise ValueError('Needs an absolute Windows drive path')
+    return '/'.join(['/mnt', path.drive[0].lower(), *path.parts[1:]])
+
+
+def manual_sections(identifier, project=None):
+    """The host's manual paragraphs: each starts at a `<!-- name -->` line and runs to the next one."""
+    path = Path(project or ROOT) / MANUAL_HOSTS / (identifier + '.md')
+    if not path.is_file():
+        raise ValueError(f'{identifier} has no manual paragraphs: write {MANUAL_HOSTS}/{identifier}.md')
+    parts = re.split(r'^<!-- ([a-z_]+) -->$', path.read_text(encoding='utf-8'), flags=re.M)
+    names = parts[1::2]
+    if len(set(names)) != len(names):
+        raise ValueError(f'{path.name} repeats a section')
+    return {name: body.strip('\n') for name, body in zip(names, parts[2::2])}
+
+
+def render_manual(identifier, project=None):
+    """The installation README for this host: every placeholder resolved from its host data, none left over."""
+    host = load_host(identifier, project)
+    model = host['models'][0]
+    tiers, defaults = host['context_tiers'].get(model), host.get('installation_defaults', {})
+    missing = [k for k in ('listen_address', 'port') if not host.get(k)]
+    missing += [] if tiers else [f'context_tiers.{model}']
+    missing += [f'installation_defaults.{k}' for k in ('reasoning_effort', 'reasoning_budget_tokens', 'max_tokens',
+                                                       *MANUAL_SAMPLING) if k not in defaults]
+    if missing:
+        raise ValueError(f'{identifier} lacks what the manual names: ' + ', '.join(missing))
+    values = {'host': identifier, 'base_url': f'http://{host["listen_address"]}:{host["port"]}',
+              'installation_wsl': wsl_path(host['installation_root']), 'model': model,
+              'model_slug': 'qwen3.8-flash-next-' + model.lower(),
+              'context_window': tiers[0]['context_window'], 'auto_compact_token_limit': tiers[0]['auto_compact_token_limit'],
+              'example_context_window': tiers[-1]['context_window'],
+              **{k: defaults[k] for k in ('reasoning_effort', 'reasoning_budget_tokens', 'max_tokens')},
+              'sampling': '、'.join(f'{k} {defaults[k]:g}' for k in MANUAL_SAMPLING)}
+    values.update({'host.' + k: v for k, v in manual_sections(identifier, project).items()})
+    template = (Path(project or ROOT) / MANUAL).read_text(encoding='utf-8')
+    names = set(re.findall(r'\{\{([a-z_.]+)\}\}', template))
+    if names - set(values):
+        raise ValueError(f'The manual names values {identifier} does not provide: ' + ', '.join(sorted(names - set(values))))
+    if '{{' in re.sub(r'\{\{[a-z_.]+\}\}', '', template):
+        raise ValueError('Malformed manual placeholder')
+    return re.sub(r'\{\{([a-z_.]+)\}\}', lambda m: str(values[m.group(1)]), template)
+
+
 def load_condition(path):
     """A frozen condition file; its bytes' SHA binds the deployment to the plan."""
     raw = Path(path).read_bytes()
@@ -240,6 +293,8 @@ def source_bytes(relative, identifier, project=None, condition=None):
         return (json.dumps(model_configuration(model, identifier, project, condition), indent=2) + '\n').encode()
     if path.as_posix() == 'config/deployment.json':
         return (json.dumps(public_host(identifier, project, condition), indent=2) + '\n').encode()
+    if path.as_posix() == MANUAL:
+        return render_manual(identifier, project).encode()
     if path.as_posix() == 'config/frontend.json':
         return (json.dumps(frontend_configuration(identifier, project), indent=2) + '\n').encode()
     if path.as_posix() == 'config/model-catalog.json':
