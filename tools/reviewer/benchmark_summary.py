@@ -260,6 +260,8 @@ def attach_scores(records, score_root):
             r['score_r83'] = result.get('final_r83')
             r['score_before_penalty'] = result.get('scoreBeforePenalty')
             r['overall_deduction'] = result.get('overall_deduction')
+            # r8.5 (v2) only; absent from v1 score.json, so it stays None there.
+            r['missing_checks'] = result.get('missing_checks')
             # Handoffs scored as ARW's explicit modelFailure (no report, or an empty report Main confirmed).
             r['model_failure_handoffs'] = [h.get('k') for h in result.get('handoffs') or []
                                            if str(h.get('scored') or '').startswith('modelFailure')]
@@ -682,7 +684,7 @@ SUMMARY_RECORD_FIELDS = ('id', 'arm', 'scenario', 'config', 'supplementary_label
                          'time_limit_seconds', 'tokens', 'token_source', 'tool_calls', 'cost_usd', 'cost_cny', 'cost_basis', 'cost_lower_bound',
                          'model_ids', 'service_tiers', 'speeds', 'speed_parts', 'speed_basis', 'speed_lower_bounds',
                          # Fields for tools.reviewer.benchmark_export (scoring details, pauses, effort, handoffs).
-                         'score_r83', 'score_before_penalty', 'overall_deduction', 'model_failure_handoffs',
+                         'score_r83', 'score_before_penalty', 'overall_deduction', 'missing_checks', 'model_failure_handoffs',
                          'requested_effort', 'effective_effort', 'pooled', 'pause_known', 'pause_count',
                          'continue_count', 'seconds_adjustment', 'harness_generation', 'harness_reported_cost_usd',
                          'handoff_metrics',
