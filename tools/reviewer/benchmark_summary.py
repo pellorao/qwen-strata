@@ -665,7 +665,9 @@ SUMMARY_RECORD_FIELDS = ('id', 'arm', 'scenario', 'config', 'supplementary_label
                          'score_r83', 'score_before_penalty', 'overall_deduction', 'model_failure_handoffs',
                          'requested_effort', 'effective_effort', 'pooled', 'pause_known', 'pause_count',
                          'continue_count', 'seconds_adjustment', 'harness_generation', 'harness_reported_cost_usd',
-                         'handoff_metrics')
+                         'handoff_metrics',
+                         # Compactions per instance (null = unknown; records made before the field have none).
+                         'compactions', 'compactions_source')
 CLAUDE_USAGE_ARMS = ('anthropic', 'deepseek-claude', 'strata-claude')
 
 
@@ -691,6 +693,7 @@ def handoff_metrics(record):
                     'tokens_lower_bound': bool(h.get('tokens_lower_bound')),
                     'cache_write': cache_write(h.get('api_usage')) if api else None,
                     'tool_calls': h.get('tool_calls'), 'api_seconds': h.get('api_seconds'),
+                    'compactions': h.get('compactions'),
                     'engine_read': h.get('engine_read'), 'engine_generated': h.get('engine_generated'),
                     'engine_input_seconds': h.get('engine_input_seconds'),
                     'engine_decode_seconds': h.get('engine_decode_seconds'),

@@ -102,12 +102,13 @@ P 是答案键正例（problemCases）数，合并用例计一个；Σk 是全�
 | `tokens` | `uncachedInput`、`cachedInput`、`output`；Claude Code 的 Anthropic 和 DeepSeek 臂另有 `cacheWriteInput`、`cacheWrite1h`、`cacheWrite5m`（缓存写入已包含在 `uncachedInput` 里，单列只为按价目计费）；`source`；`lowerBound`（是下限：Claude Code 有段没有 result；或 Codex API 臂 ARW 在硬中断时没留下 token，改用 relay 日志求和，而有被中断、没有 usage 的请求，`source` 写明请求数，如第三阶段 CA luna-xhigh-a5） |
 | `speeds` | `engineInput`、`engineOutput`（模型直接速度）、`taskInput`、`taskOutput`（用户感知速度 = 未缓存输入、输出 ÷ 工作秒数）；`lowerBounds` 列出是下限的项；`basis` 为口径文字。API 模型的 `engineInput` 恒为 null |
 | `toolCalls` | 工具调用数（Codex 从 rollout 根线程计，不含 guardian；Claude Code 从主会话 tool_use 计） |
+| `compactions` | 上下文压缩次数（Codex 数根线程 rollout 的 `compacted` 事件，不含 guardian；Claude Code 数主会话 stream 的 `compact_boundary` 事件，按 uuid 去重）。任一根线程缺来源即为 null（未知，不记 0）；2026-10-24 之前生成的 summary 没有这一项，导出同样为 null |
 | `pauses` | `known`、`count`（暂停次数）、`continueCount`（Claude Code 早退接续次数） |
 | `cost` | 只对 Anthropic 和 DeepSeek：`usd`、`cny`（只有 DeepSeek）、`lowerBound`（有被提醒中断丢弃的请求未计入）、`basis`。其余臂为 null |
 | `harnessReportedCostUsd` | Claude Code 三个臂各段 `total_cost_usd` 之和（按 Anthropic 价目，非 Anthropic 后端不能当费用）；Codex 臂为 null |
 | `modelIdsReturned`、`serviceTiers` | 实际返回的模型 ID；service tier → 请求数（按记录顺序） |
 | `parallelWindow` | 实例与 `meta.parallelWindows` 的关系：`{kind, windows}`，`kind` 为 `start`（`startedAt` 落在某时段内）或 `overlap`（开始于时段外，但 `startedAt` 到 `startedAt + durationSeconds` 与某时段重叠），`windows` 为时段 id；都不沾为 null。只影响速度和用时的解读，不影响分数 |
-| `handoffs` | 每个根线程一项：`subScenario`、`durationSeconds`、`tokens`、`tokensLowerBound`、`cacheWriteInput`、`toolCalls`、`apiSeconds`、`engine`（Strata 的 read、generated、输入处理秒数、解码秒数）、`modelFailure`、`finalStatus`（ARW 完成状态或 Claude Code 结果形式：`ready`、`incomplete`、`not-arw-form`）、`continuationStop`（Claude Code 接续循环停止原因：`delivered`、`model_error`、`hard_limit`）、`harnessReportedCostUsd` |
+| `handoffs` | 每个根线程一项：`subScenario`、`durationSeconds`、`tokens`、`tokensLowerBound`、`cacheWriteInput`、`toolCalls`、`compactions`、`apiSeconds`、`engine`（Strata 的 read、generated、输入处理秒数、解码秒数）、`modelFailure`、`finalStatus`（ARW 完成状态或 Claude Code 结果形式：`ready`、`incomplete`、`not-arw-form`）、`continuationStop`（Claude Code 接续循环停止原因：`delivered`、`model_error`、`hard_limit`）、`harnessReportedCostUsd` |
 
 `scoring`：
 
