@@ -9,9 +9,9 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 | id | 硬件 | 状态 |
 |---|---|---|
 | `rtx3080ti` | RTX 3080 Ti 12GB，i9-13900 | 可用；本工程所在机 |
-| `rtx4070tis` | RTX 4070 Ti SUPER | 离线，短期不启用；原 Spec Readiness 主线在这台 |
+| `rtx4070tis` | RTX 4070 Ti SUPER | 离线；本地遗留做完后复制整个工程过去，用 Codex 就地运行，见[交接文档](docs/rtx4070tis-handoff.md) |
 
-rtx3080ti 安装 Strata v0.2.4（引擎 0.1.48，2026-10-24，通过短检查），只对外提供 IQ3_XXS，参数沿用 v0.1.42 调参结果（未在新版上重测）；Q2_0、IQ2_XS 权重保留，默认不运行、不测试。rtx4070tis 离线，仍为 v0.1.40.2，对外模型暂定 IQ3_XXS（占位），恢复后核实并同步。
+rtx3080ti 安装 Strata v0.2.4（引擎 0.1.48，2026-10-24，通过短检查），只对外提供 IQ3_XXS，参数沿用 v0.1.42 调参结果（未在新版上重测）；Q2_0、IQ2_XS 权重保留，默认不运行、不测试。rtx4070tis 离线，仍为 v0.1.40.2，上线步骤见[交接文档](docs/rtx4070tis-handoff.md)。
 
 ## 文档
 
@@ -45,7 +45,7 @@ rtx3080ti 安装 Strata v0.2.4（引擎 0.1.48，2026-10-24，通过短检查）
 - Reviewer 评分 r8.4：取消分数截到 0 的下限（N < 0 时按答案键全部反例的 k 之和归一，可低于 −1；原始分 ≥ 0 时与 r8.3 逐位相同），整体扣减改为 s − d·|s|；模型失误（没有报告）得 0，与什么都不报相同（用户 2026-10-21 定；负分表示浪费审核时间，没有报告就没有这种浪费）（2026-10-21，用户决定，独立审查有条件实施）：[benchmark 计划 §14.1](benchmarks/multi-model-v1/plan.md#141-冻结后的偏离)、[Reviewer 规则](.claude/rules/reviewer-suite.md)。
 - 出题原则：一道题只出一次；意外的重复改题，有意保留的重复在答案键里显式声明为合并用例、评分按声明合并，不靠计分端去重；报告凡给得分处同时给耗时，附 token 数和工具调用数，耗时不进分数（2026-10-16／17，用户决定）：[Reviewer 规则](.claude/rules/reviewer-suite.md)、[Commit Audit v2 变更说明](benchmarks/reviewer-suite-v1/commit-audit-v2.md)。
 - 场景能力判定用相对口径 Q3／Opus，目标 < 0.8（2026-10-13；2026-10-15 用户确认维持 Opus 参考）：[Reviewer 规则](.claude/rules/reviewer-suite.md)。
-- `qwen-agent` 改按所选量化的默认档启动，Codex 与 Claude Code 同值（IQ3_XXS 206584／150000）；Claude Code 的压缩点依赖未公开的 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`，版本变化后用 `tools.ops.claude_compact_probe` 重新核对（2026-10-19，Main 与独立审查一致，rtx3080ti 已部署，rtx4070tis 补档位后同步）：[报告](reports/v0.1.45/context-tier-unify/summary.md)。
+- `qwen-agent` 改按所选量化的默认档启动，Codex 与 Claude Code 同值（IQ3_XXS 206584／150000）；Claude Code 的压缩点依赖未公开的 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`，版本变化后用 `tools.ops.claude_compact_probe` 重新核对（2026-10-19，Main 与独立审查一致，rtx3080ti 已部署；rtx4070tis 随工程复制带上）：[报告](reports/v0.1.45/context-tier-unify/summary.md)。
 - 所有 Codex Reviewer 臂（含 Strata）对用户登录（`~/.claude/.credentials.json`、`~/.codex` 整个目录，含默认位置的 ChatGPT 登录）和 `project.private.toml` deny-read，偏离 reviewer-suite「不额外收紧」（2026-10-19，Main 按硬约束 4 决定，三种 mock 门用合成文件验证通过，待用户复核）：[ARW Reviewer 规则](.claude/rules/reviewer-suite.md#合同)、[benchmark 计划 §3](benchmarks/multi-model-v1/plan.md#3-固定条件)。
 - 报告写授权用专用父目录（目录里只有该报告），绕过 Codex 单文件写授权的 bwrap 故障；安全门与测量同一策略（2026-10-07，用户决定）：[ARW Reviewer 规则](.claude/rules/reviewer-suite.md#正式测量前的安全验收)。
 - 多模型 benchmark 的 DeepSeek 改测 low / high / max；已跑的 medium 按方案 C′ 部分并入 high，其余作补充行，Holm 族改为每场景 25 个比较（2026-10-21，用户决定改档，Main 经独立审查定并入方案，待用户复核）：[计划 §14.4](benchmarks/multi-model-v1/plan.md)。
@@ -62,7 +62,7 @@ rtx3080ti 安装 Strata v0.2.4（引擎 0.1.48，2026-10-24，通过短检查）
 ## 主线
 
 - [ ] **多模型 benchmark**：四个 reviewer 场景都已冻结并测完（评分 r8 起的 Q3/Opus：Code Spec v5 0.733（×5，r8 重算）、Code Standards v5.1 0.936（×10，r8 重算；区分度不足的末版）、Spec Readiness v4.3 0.584（×5）、Commit Audit v3 0.730（×5，r8.3）），benchmark 前置工作完成；四个臂已跑完；第一阶段（预登记实例）与第二阶段（Strata 加测进主统计，全样本）都已出报告，公开结果文件已生成（[运行计划](benchmarks/multi-model-v1/plan.md)、[第一阶段报告](reports/v0.1.45/multi-model-benchmark/phase1/summary.md)、[第二阶段报告](reports/v0.1.45/multi-model-benchmark/phase2/summary.md)、[待办](docs/plan.md#多模型-benchmark用户-2026-10-17)）。
-- [ ] **rtx4070tis 恢复后**：核对实际状态、补同步部署，再决定 ARW 安全恢复和 Spec Readiness 十二实例。
+- [ ] **rtx4070tis 上线**（排在 benchmark 遗留和本机遗留之后）：先做工程可移植化，再复制工程过去由那台机器就地运行，见[交接文档](docs/rtx4070tis-handoff.md)。
 
 ## 进展
 
