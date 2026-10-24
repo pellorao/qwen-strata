@@ -307,12 +307,14 @@ class Handler(BaseHTTPRequestHandler):
         raw = self.body() if self.command == 'POST' else None
         path = target.split('?', 1)[0]
         guarded = None  # a streamed answer that is retried inside when it ends at the output limit
+        own_limit = False  # the frontend, not the caller, set that answer's max_output_tokens
         if raw and path in GENERATION:
             body = json.loads(raw)
             if body.get('model', loaded) != loaded:
                 raise Refused(409, f'Requested model differs from the loaded model {loaded}.')
             body['model'] = loaded
             if path in ('/v1/chat/completions', '/v1/responses'):
+                own_limit = path == '/v1/responses' and body.get('max_output_tokens') is None
                 apply_reasoning_defaults(body, path, frontend.model.reasoning_defaults)
             elif path == '/v1/messages':
                 apply_messages_budget(body, frontend.model.reasoning_defaults)
@@ -353,7 +355,7 @@ class Handler(BaseHTTPRequestHandler):
             if guarded is not None and reply.status == 200 and 'text/event-stream' in (
                     reply.getheader('Content-Type') or ''):
                 output_limit.relay(guarded, reply, self.stream_out,
-                                   lambda retry: self.open_native(target, retry, headers), log)
+                                   lambda retry: self.open_native(target, retry, headers), log, own_limit)
                 return
             while chunk := reply.read1(65536):
                 self.wfile.write(chunk)

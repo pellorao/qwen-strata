@@ -12,6 +12,7 @@ import output_limit
 FIXTURES = Path(__file__).resolve().parent / 'fixtures/output_limit'
 UNCHANGED = ('responses-text', 'responses-calls', 'responses-unfinished-stop', 'responses-limit-after-call',
              'responses-keepalive', 'responses-failed')
+PINNED_NOTICE = 'cbf633a850f66fa69449db700d305c5b13eb143d5ad41067913d95854339a9cf'
 BODY = {'model': 'm', 'stream': True, 'max_output_tokens': 8192,
         'input': [{'type': 'message', 'role': 'user', 'content': 'write the report'}]}
 
@@ -44,7 +45,7 @@ def events(raw):
     return out
 
 
-def run(first, retries=(), size=65536, body=BODY):
+def run(first, retries=(), size=65536, body=BODY, own_limit=False):
     written, asked, logged = [], [], []
     replies = iter(retries)
 
@@ -55,7 +56,7 @@ def run(first, retries=(), size=65536, body=BODY):
             raise reply
         return Connection(), reply
 
-    output_limit.relay(body, Reply(first, size), written.append, open_upstream, logged.append)
+    output_limit.relay(body, Reply(first, size), written.append, open_upstream, logged.append, own_limit)
     return b''.join(written), asked, logged
 
 
@@ -131,8 +132,9 @@ class UnchangedTests(unittest.TestCase):
         self.assertFalse(output_limit.wanted('/v1/chat/completions', {'stream': True}))
 
     def test_notice_text_is_pinned_and_names_no_number(self):
-        self.assertEqual(hashlib.sha256(output_limit.NOTICE.encode()).hexdigest(), '82ab19ed6f2d5f698b8d491a3ce825703236c1da7b57ba30f7e2d10e7af40d31')
-        self.assertNotIn('{limit}', output_limit.NOTICE)
+        text = output_limit.NOTICE + output_limit.ROOM_RAISED + output_limit.ROOM_SAME
+        self.assertEqual(hashlib.sha256(text.encode()).hexdigest(), PINNED_NOTICE)
+        self.assertFalse(any(c.isdigit() for c in text))
 
 
 class RetryTests(unittest.TestCase):
@@ -159,7 +161,9 @@ class RetryTests(unittest.TestCase):
         self.assertEqual(retry['input'][1]['type'], 'reasoning')
         notice = retry['input'][-1]
         self.assertEqual((notice['type'], notice['role']), ('message', 'user'))
-        self.assertEqual(notice['content'][0]['text'], output_limit.NOTICE.format(what='a tool call (apply_patch)'))
+        self.assertEqual(notice['content'][0]['text'], output_limit.NOTICE.format(
+            what='a tool call (apply_patch)', room=output_limit.ROOM_SAME))
+        self.assertEqual(retry['max_output_tokens'], 8192)              # a limit the caller set is kept
         self.assertEqual(BODY['input'], [{'type': 'message', 'role': 'user', 'content': 'write the report'}])
         self.assertIn('max_output_tokens 8192', logged[0])
         self.assertIn('"output_tokens": 8192', logged[0])
@@ -186,6 +190,50 @@ class RetryTests(unittest.TestCase):
         stream = output_limit.Stream(dict(BODY, input='hi'))
         stream.cut = 'its answer'
         self.assertEqual([i['role'] for i in stream.retry_body()['input']], ['user', 'user'])
+
+
+class RetryLimitTests(unittest.TestCase):
+    """The retry's output limit: raised only when the frontend set it, the thinking budget untouched."""
+    BUDGETED = dict(BODY, reasoning_budget_tokens=2048)
+
+    def test_a_frontend_limit_is_doubled_and_the_notice_says_there_is_more_room(self):
+        out, asked, logged = run(fixture('responses-limit-function'), [Reply(fixture('responses-retry-ok'))],
+                                 body=self.BUDGETED, own_limit=True)
+        retry = asked[0]
+        self.assertEqual((retry['max_output_tokens'], retry['reasoning_budget_tokens']), (16384, 2048))
+        self.assertEqual(retry['input'][-1]['content'][0]['text'], output_limit.NOTICE.format(
+            what='a tool call (exec_command)', room=output_limit.ROOM_RAISED))
+        self.assertEqual(len(asked), 1)                                  # still a single retry
+        self.assertEqual(events(out)[-1][0], 'response.completed')
+        self.assertIn('max_output_tokens 16384 (limit set by the frontend)', logged[0])
+        self.assertEqual(self.BUDGETED['max_output_tokens'], 8192)       # the caller's body is not changed
+
+    def test_the_raised_limit_stops_at_the_cap(self):
+        for limit, retry in ((1024, 2048), (8192, 16384), (16384, 24576), (24576, 24576), (30000, 30000)):
+            with self.subTest(limit=limit):
+                stream = output_limit.Stream(dict(BODY, max_output_tokens=limit), own_limit=True)
+                stream.cut = 'its answer'
+                body = stream.retry_body()
+                self.assertEqual(body['max_output_tokens'], retry)
+                room = output_limit.ROOM_RAISED if retry > limit else output_limit.ROOM_SAME
+                self.assertIn(room, body['input'][-1]['content'][0]['text'])
+
+    def test_a_caller_limit_or_a_missing_limit_is_left_alone(self):
+        for body, own in ((BODY, False), ({k: v for k, v in BODY.items() if k != 'max_output_tokens'}, True)):
+            with self.subTest(own=own):
+                stream = output_limit.Stream(body, own_limit=own)
+                stream.cut = 'its answer'
+                retry = stream.retry_body()
+                self.assertEqual(retry.get('max_output_tokens'), body.get('max_output_tokens'))
+                self.assertIn(output_limit.ROOM_SAME, retry['input'][-1]['content'][0]['text'])
+
+    def test_a_retry_cut_off_again_is_returned_without_a_second_retry(self):
+        out, asked, logged = run(fixture('responses-limit-function'), [Reply(fixture('responses-limit-reasoning'))],
+                                 own_limit=True)
+        self.assertEqual(len(asked), 1)
+        self.assertEqual(events(out)[-1][0], 'response.incomplete')
+        self.assertIn('no retries left', logged[-1])
+        self.assertIn('attempt 2 reached max_output_tokens 16384 ', logged[-1])   # the retry's own limit
 
 
 if __name__ == '__main__':

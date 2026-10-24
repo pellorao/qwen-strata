@@ -104,7 +104,7 @@ class EndToEnd(unittest.TestCase):
         catalog = json.loads((ROOT / 'config/model-catalog.json').read_text())
         catalog['models'] = [m for m in catalog['models'] if m['slug'] == 'qwen3.8-flash-next-iq3_xxs']
         (self.folder / 'catalog.json').write_text(json.dumps(catalog))
-        config = {'model': 'qwen3.8-flash-next-iq3_xxs', 'model_provider': 'front',
+        config = {'model': 'qwen3.8-flash-next-iq3_xxs', 'model_provider': 'front', 'model_reasoning_effort': 'low',
                   'model_catalog_json': str(self.folder / 'catalog.json'), 'features.plugins': False,
                   'web_search': 'disabled', 'model_providers.front.name': 'frontend',
                   'model_providers.front.base_url': self.base + '/v1', 'model_providers.front.wire_api': 'responses',
@@ -124,7 +124,13 @@ class EndToEnd(unittest.TestCase):
         self.assertNotIn('error', [line['type'] for line in lines])
         self.assertEqual((self.folder / 'ws/a.txt').read_text(), 'hello\n')       # the retry's patch ran
         retry, after = self.engine.seen[1], self.engine.seen[2]
-        notice = frontend.output_limit.NOTICE.format(what='a tool call (apply_patch)')
+        first = self.engine.seen[0]
+        limit = first['max_output_tokens']                                     # set by the frontend: Codex sends none
+        self.assertEqual(retry['max_output_tokens'], min(2 * limit, frontend.output_limit.RETRY_LIMIT_CAP))
+        self.assertGreater(retry['max_output_tokens'], limit)
+        self.assertEqual(retry['reasoning_budget_tokens'], first['reasoning_budget_tokens'])
+        notice = frontend.output_limit.NOTICE.format(what='a tool call (apply_patch)',
+                                                     room=frontend.output_limit.ROOM_RAISED)
         self.assertEqual(retry['input'][-1]['content'][0]['text'], notice)
         history = json.dumps(after['input'])
         self.assertNotIn('call_c1', history)                                   # the cut-off call
