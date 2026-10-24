@@ -7,7 +7,7 @@ from pathlib import Path, PureWindowsPath
 import subprocess
 
 from tools.ops.controller_client import Controller
-from tools.ops.deployment_source import load_host, model_configuration, source_bytes
+from tools.ops.deployment_source import load_host, model_configuration, require_current_host, source_bytes
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -34,8 +34,10 @@ class MeasurementHost:
     condition = None
 
     def __init__(self, identifier, installation=None, condition=None):
-        """`condition` is the tuning condition deployed for this run; sources are checked with it overlaid."""
-        self.identifier, self.condition = identifier, condition
+        """`condition` is the tuning condition deployed for this run; sources are checked with it overlaid.
+        Only this machine's host: a measurement reaches the installation, logs and engine through the local Windows
+        side, so a run aimed at another host is refused rather than measuring the wrong machine."""
+        self.identifier, self.condition = require_current_host(identifier), condition
         self.deployment = load_host(identifier, condition=condition)
         self.windows_root = PureWindowsPath(self.deployment['installation_root'])
         self.installation = local_path(self.windows_root)
@@ -130,7 +132,7 @@ class MeasurementHost:
 def host_selection(source, identifier):
     """Freeze host hardware values before a run; never silently change them in run."""
     result = copy.deepcopy(source)
-    deployment = load_host(identifier)
+    deployment = load_host(require_current_host(identifier))
     if result.get('model_owner') != 'arw':
         # ARW-owned runs start the model with the installation defaults, recorded in the preflight receipt.
         result['engine_overrides'].update(deployment['engine_overrides'])

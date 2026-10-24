@@ -17,7 +17,7 @@ import time
 import urllib.error
 import urllib.request
 
-from tools.ops.deployment_source import MODELS, load_condition, load_host, load_private, source_bytes
+from tools.ops.deployment_source import MANUAL, MODELS, load_condition, load_host, load_private, source_bytes
 
 ROOT = Path(__file__).resolve().parents[2]
 TASK = 'QwenStrataFrontend'
@@ -28,7 +28,7 @@ FILES = {f'src/{name}': f'src/{name}' for name in (
 FILES.update({name: name for name in (
     'config/prompts/startup-instructions.txt', 'config/prompts/compact-prompt.txt', 'config/model-catalog.json',
     'config/deployment.json', 'config/frontend.json')})
-FILES['README.md'] = 'docs/installation-directory-readme.md'
+FILES['README.md'] = MANUAL  # rendered for the host (deployment_source.render_manual)
 FILES['maintenance/Install-Frontend.ps1'] = 'scripts/windows/Install-Frontend.ps1'
 FILES['bin/qwen-agent'] = 'scripts/wsl/qwen-agent'
 FILES['bin/qwen-approve'] = 'scripts/wsl/qwen-approve'

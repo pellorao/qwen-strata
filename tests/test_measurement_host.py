@@ -21,6 +21,31 @@ class MeasurementHostTests(unittest.TestCase):
                          'frontend_url':'http://192.168.0.4:8000'}
         return host
 
+    def test_another_machine_is_never_measured(self):
+        # The guard runs before any host data, installation path or frontend is touched.
+        from tools.ops.controller_client import Controller
+        with patch.dict('os.environ',{'QWEN_STRATA_HOST':'rtx3080ti'}),patch('tools.ops.measurement_host.load_host') as load:
+            with self.assertRaisesRegex(ValueError,'not this machine'):
+                MeasurementHost('rtx4070tis')
+            with self.assertRaisesRegex(ValueError,'not this machine'):
+                host_selection({'engine_overrides':{}},'rtx4070tis')
+            load.assert_not_called()
+            with tempfile.TemporaryDirectory() as directory,\
+                    patch('tools.ops.deployment_source.host_for_installation',return_value='rtx4070tis'),\
+                    patch('tools.ops.deployment_source.load_host') as remote_load,\
+                    self.assertRaisesRegex(ValueError,'not this machine'):
+                Controller(Path('/mnt/c/other'),Path(directory))
+            remote_load.assert_not_called()
+
+    def test_this_machine_is_measured(self):
+        deployment={'installation_root':'C:\\strata'}
+        with patch.dict('os.environ',{'QWEN_STRATA_HOST':'rtx3080ti'}),\
+                patch('tools.ops.measurement_host.load_host',return_value=deployment) as load,\
+                patch('tools.ops.measurement_host.local_path',return_value=Path('/mnt/c/strata')):
+            host=MeasurementHost('rtx3080ti')
+        load.assert_called_once_with('rtx3080ti',condition=None)
+        self.assertEqual(host.installation,Path('/mnt/c/strata'))
+
     def test_controller_uses_private_frontend_url_and_metadata_omits_it(self):
         host=self.remote()
         with patch('tools.ops.measurement_host.Controller') as controller:

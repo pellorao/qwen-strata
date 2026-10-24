@@ -94,8 +94,8 @@ def stage(handoff, prompt, work, stage_dir, system=None):
         text = text.replace(root, str(work))  # absolute paths first: the host-relative path is a suffix of them
         count = text.count(host)
         text = text.replace(host, relative)
-        if root in text or re.search(r'/home/pello', text):
-            raise ValueError('The prompt still names a path under /home')
+        if root in text or str(Path.home()) in text:
+            raise ValueError('The prompt still names a path under the home directory')
         return text, count
     prompt, hosts = rewrite(prompt)
     info = {'rewritten_requests': rewritten, 'host_relative_replaced': hosts, 'report': relative}

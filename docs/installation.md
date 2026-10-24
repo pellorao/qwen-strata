@@ -55,7 +55,7 @@ GGUF 第二分片可在整文件 SHA 一致后按各量化预期名称硬链接�
 
 服务文件和调用手册由`tools/ops/deploy.py`部署，流程见[前端运行与维护](frontend.md#部署)。服务部署不替换模型权重、MTP或私有依赖；模型配置由工程模板及每机配置生成并同步，不以安装配置作为模板。重新setup或恢复后核对生成配置和安装副本，不能假定setup保留调参。
 
-恢复链接和 18 个离线 wheel 的清单见[下载与恢复](downloads.md)。`tools/ops/install_offline.py` 是 Windows 离线安装辅助；执行前须核对其固定版本、目录和下载清单。旧v0.1.37一次性离线升级入口已退出长期工具，当前维护使用`tools/ops/upgrade_release.py`。含 Windows 进程 API 的安装/测量工具须使用 Windows 私有 Python，不能直接由 Linux Python 导入。
+恢复链接和 18 个离线 wheel 的清单见[下载与恢复](downloads.md)。`tools/ops/install_offline.py` 是 Windows 离线安装辅助：安装目录由所用 venv 推出，引擎用 `upgrade_release` 已装好的 `runtime/Strata/engine`（版本须等于 `installed-release.json` 的 `engine_version`）；执行前核对下载清单。旧v0.1.37一次性离线升级入口已退出长期工具，当前维护使用`tools/ops/upgrade_release.py`。含 Windows 进程 API 的安装/测量工具须使用 Windows 私有 Python，不能直接由 Linux Python 导入。
 
 单个下载文件不超过 200MB 时助手可下载；超过则提供链接、大小、保存路径及校验信息，由用户下载。不拆分文件绕过限制，不清理用户 Downloads。本次v0.1.40升级的引擎包已由助手下载并校验安装，见[下载清单](downloads.md#strata-v0140下载记录)。
 

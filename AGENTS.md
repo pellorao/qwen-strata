@@ -13,12 +13,12 @@
 
 ## 主机
 
+每台机器各有一份工程副本，只管本机。当前主机是 `project.private.toml` 顶层的 `local_host`（环境变量 `QWEN_STRATA_HOST` 可临时覆盖，`tools.ops.deployment_source.current_host`）；部署、升级和测量工具对其他主机一律拒绝。每机配置在 `config/deployments/<host>.json`，安装路径、前端地址与凭据在 `project.private.toml`，只由程序解析。
+
 | id | 状态 | 说明 |
 |---|---|---|
-| `rtx3080ti` | 可用，Claude 运行所在机 | 安装 `/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next`；前端常驻 `192.168.60.212:8000` |
-| `rtx4070tis` | 离线 | 不尝试连接；恢复后先核对实际文件、版本和服务状态，不沿用离线前的描述；离线期间的待同步项只记在 plan，汇报中不反复提醒（用户 2026-10-13） |
-
-主机连接与凭据在 `project.private.toml`，只由程序解析。
+| `rtx3080ti` | 可用 | 安装 `/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next`；前端常驻 `192.168.60.212:8000` |
+| `rtx4070tis` | 离线 | 恢复后先核对实际文件、版本和服务状态，不沿用离线前的描述；离线期间的待同步项只记在 plan，汇报中不反复提醒（用户 2026-10-13） |
 
 ## 硬约束
 
@@ -51,7 +51,7 @@
 
 ## 目录
 
-目录布局用 `ls` 查看。`docs/` 里 `arw-upstream-issues.md`、`strata-upstream-issues.md` 记 ARW 与 Strata 的上游缺陷，`installation-directory-readme.md` 是安装目录调用手册的源文件。`.tmp/` 是可随时删除的运行明细，长期文档不得依赖它。
+目录布局用 `ls` 查看。`docs/` 里 `arw-upstream-issues.md`、`strata-upstream-issues.md` 记 ARW 与 Strata 的上游缺陷，`installation-directory-readme.md` 是安装目录调用手册的模板，按主机渲染（本机段落在 `installation-readme-hosts/`）。`.tmp/` 是可随时删除的运行明细，长期文档不得依赖它。
 
 ## 命令
 

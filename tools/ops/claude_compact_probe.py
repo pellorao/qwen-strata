@@ -13,7 +13,7 @@ threshold runs without compaction, every size above it compacts and then continu
     python3 -m tools.ops.claude_compact_probe --out .tmp/<work>/compact-probe [--repeat 3]
 
 Isolation (measurement rule "Claude Code 测试隔离"): fresh HOME and CLAUDE_CONFIG_DIR per run,
-`--setting-sources user`, `--strict-mcp-config`, and a throwaway working directory outside /home/pello.
+`--setting-sources user`, `--strict-mcp-config`, and a throwaway working directory outside the home directory.
 """
 import argparse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -207,7 +207,7 @@ def run(out, host=None, model='IQ3_XXS', effort='high', claimed=None, ways=('two
             for size in claimed:
                 folder = out / cell_name(tier['context_window'], tier['auto_compact_token_limit'], size,
                                          way == 'mid-turn', blocking_override, r)
-                # Outside /home/pello, so no ancestor CLAUDE.md is picked up; removed after the run.
+                # Outside the home directory, so no ancestor CLAUDE.md is picked up; removed after the run.
                 with tempfile.TemporaryDirectory(prefix='claude-compact-probe-', dir='/tmp') as cwd:
                     result = probe(folder, cwd, slug, effort, tier, size, way == 'mid-turn', blocking_override, claude)
                 cells.append({'cell': folder.name, 'way': way, 'repeat': r,
