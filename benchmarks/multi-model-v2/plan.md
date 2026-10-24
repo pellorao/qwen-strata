@@ -4,7 +4,7 @@
 
 ## 1. 目的
 
-沿用 [v1 计划 §1](../multi-model-v1/plan.md#1-目的)的问题：Strata 作为 Codex / Claude Code 后端时的 reviewer 能力，与 OpenAI、DeepSeek、Anthropic 模型对照。v2 相对 v1 的改动只有三类：
+所有参与的模型（Strata、OpenAI、DeepSeek、Anthropic 等）在各自的 harness 上作为 reviewer 互相比较，地位相同；不以 Strata 为中心，不写成「Strata 与其他模型对照」（用户 2026-10-24）。v2 相对 v1 的改动只有三类：
 
 1. 修正 v1 盲裁中发现的场景文本歧义和 brief 措辞（[歧义清单](../reviewer-suite-v1/next-version-ambiguities.md)）。
 2. 对齐两个 harness 的窗口、压缩点、推理强度和输出上限（用户 2026-10-22，测量规则「跨 harness 比较」）。
@@ -158,13 +158,15 @@ harness 版本：v1 用 Codex 0.163.0、Claude Code 2.1.303；`tools/reviewer/ha
 
 Main 采纳审查的 5、6、8：审查核对了答案键的证据行和先例，起草者的顾虑在原文里不成立。
 
-### 9.1 审查新提出的待决事项（属测量设计，交用户定）
+### 9.1 审查新提出的事项（用户 2026-10-24 已定）
 
-| # | 事项 | 建议 |
+| # | 事项 | 用户决定 |
 |---|---|---|
-| 12 | B1 统一口径：(1) "修法与未提名干净用例相反判 unsupported"原本只在 CStd，v2 推广到了四个场景；(2) 只写了 rulings.md:14 的第 (1) 款，漏了第 (2)–(4) 款 | 推广到四个场景，同时补全第 (2)–(4) 款，避免诱导过度判 unsupported |
-| 13 | Codex 私有 scratch 补丁是否在 v2 的 Codex 各臂启用（已于 10-24 验证可启用，[报告](../../reports/v0.2.4/scratch-verify.md)） | 启用：v1 里 Codex 写 /tmp 被拒造成的干扰会消失；会改变 Codex 臂的条件，要在报告里披露 |
-| 14 | 运行设计：配置矩阵、每格 n、预登记比较与 Holm 族、额度和 GPU 预算、停止点 | 看到任何 v2 分数之前写定；Main 起草后交用户 |
+| 12 | B1 统一口径：「修法与未提名干净用例相反判 unsupported」从只用于 CStd 推广到四个场景；口径段只写了 rulings.md:14 第 (1) 款 | 推广；同时补全第 (2)–(4) 款（措辞个别写反、复现属实、意图错误判 supported），避免偏向判 unsupported |
+| 13 | v2 的 Codex 各臂启用私有 scratch（[验证报告](../../reports/v0.2.4/scratch-verify.md)） | 启用；报告里列为与 v1 的条件差异 |
+| 14 | 运行设计（配置矩阵、每格 n、预登记比较与多重比较校正、预算、停止点） | 默认沿用 v1，改动须有充分理由，例如 v2 改了规则 A，而规则 A 影响规则 B，所以 B 也要改；逐项写明改动和理由 |
+
+第 1–11 项用户看过完整说明，没有提出异议，按第 9 节执行。
 
 ### 9.2 冻结前补充检查（审查提出，Main 采纳）
 
