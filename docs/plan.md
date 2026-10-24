@@ -21,7 +21,7 @@
 14. **rtx4070tis 上线**（用户 2026-10-22 提出，不急，排在 13 之后）：用户准备让它恢复运行，只有 GPU 不同（4070 Ti SUPER 16GB，sm_89）。开始前先请用户定：对外量化（建议沿用 IQ3_XXS，IQ3_S 以后单独立项）；影响输出的参数（采样、窗口）是否沿用 3080 Ti 结论（建议沿用，只重测与硬件相关的维度）；直接装当时的最新版，不补中间版本。步骤：用户开机并提供连接方式 → 核对实际文件、版本、驱动（cuda13 引擎要求 ≥580.65）、权重、BIOS 微码（14900K 的 Vmin Shift）→ 系统环境对齐 3080 Ti（计划任务 Normal 优先级、锁页内存、页面文件 32768，需要 UAC）→ 补全 `config/deployments/rtx4070tis.json`（地址、端口、context_tiers）→ 用 upgrade_release 或重建安装 0.2.x（注意 `install_offline` 按发布版本拼引擎目录的已知限制）→ 部署（带上离线期间的全部改动）→ 安全门、compact probe、短检查 → 按[调参手册](host-tuning.md)「每机执行方法」对 IQ3_XXS 独立调参：16GB 显存下 prefill 16384、kv-resident 32768、显存预留、专家缓存都要重新测；sm_86 专用的解码开关表不适用；可顺带对照 256584 档在非 int8 KV 下的 200K 检索错误（见「其他未解决问题」）。原「顺序」第 6 条并入本项。
 15. ~~v5 题库~~：2026-10-24 用户关闭（采样维 10-22 已改用 ARW），见 work-history。
 
-下一版 benchmark 的改进（输出上限重试、harness 设置对齐、Role 说明、歧义题目、会话检查工具）在下一版 benchmark 立项时一起做，不单独排序。
+下一版 benchmark 的改进（输出上限重试、harness 设置对齐、Role 说明、歧义题目、会话检查工具）在下一版 benchmark 立项时一起做，不单独排序。已先做的部分（2026-10-24，b7a4f36 合入）：Claude Code 臂加 `claude_scenario --role-as-system`（Role 说明合进 `--append-system-prompt`，默认关，旧计划不变；mock 已核对请求形态，未用真实 ARW Role 全文测命令行长度）；会话检查对解析失败的 Bash 输入显示原文并标 `bash input not parsed`。歧义题目要改场景原文，会改变 v1 冻结的 SHA 绑定，留到新版目录建立时做。
 
 等外部条件、不参与排序：rtx4070tis 恢复后的各项，包括「顺序」第 6 条、「ARW 同步与 Spec 恢复」「升级后 Spec Readiness 配置比较」「上下文配置的测量与选择」。
 
