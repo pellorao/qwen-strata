@@ -42,3 +42,6 @@ worker（Opus high）报告，Main 整理存档。改动在分支 `worktree-agen
 ## 执行（Main）
 
 - 冲突已解决（两边都在 `tests/test_deployment_source.py` 末尾追加了内容，两段都保留），全套 763 项通过。部署和核对结果见下。
+- 22:18 部署到 rtx3080ti（备份 deploy-20261024-221811-639215），21 个文件回读 SHA 一致。安装目录 `config/iq3_xxs-prebuilt.json` 的 request_defaults 已含 `presence_penalty: 0.0`（model_process 启动时转成 Strata config 的 sampling 块）；安装目录 3 层内没有 `*.shared-settings.json`。
+- 冒烟检查还没跑：交给下一项加载模型的工作（SM86 开关 A/B）在开跑前先做。
+- rtx4070tis：只有调用手册源文件变了，随工程复制带上。
