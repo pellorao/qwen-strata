@@ -10,7 +10,7 @@
 - 工程可移植化：
   - 工程能识别当前主机，按主机选 `config/deployments/<host>.json`；
   - 代码里不再写死 rtx3080ti 的地址和安装路径；
-  - 两台机器之间的 git 同步方式已定；
+  - 两台机器之间的 git 同步方式已定（主仓库在 rtx3080ti Windows 侧，见下表 git 一行）；
   - 让 Codex 也能按本工程规则工作（见下节「与 Claude Code 管理方式的兼容」）。
 - 本文已按可移植化的结果改写，并删掉「状态：草案」。
 
@@ -29,7 +29,7 @@ rtx3080ti 上由 Claude Code 管理本工程，rtx4070tis 上用 Codex。同一�
 | 子 agent 与后台 | Agent、SendMessage、CronCreate、20 分钟检查 | Codex 没有对应工具。长任务改用分离进程（`setsid nohup`）加进度文件；规则里依赖这些工具的部分写出 Codex 的替代做法 |
 | 独立审查 | 不低于 Main 的独立 agent（Opus high） | 换成 Codex 能用的同级模型新开会话，只读；做法写进规则 |
 | 记忆 | `~/.claude/projects/.../memory/` | 不跟随复制；工程必需的事实已经在文档里，记忆里有工程相关内容的，交接前移进文档 |
-| git | 两台机器都提交到同一仓库 | 同步方式在可移植化阶段定，如各自分支、定期合并；避免两边同时改同一份文档 |
+| git | 主仓库是 rtx3080ti Windows 侧的 bare 仓库 `C:\Users\pello\repos\qwen_strata.git`（用户 2026-10-25：主仓库必须在 rtx3080ti）；rtx3080ti 的 WSL 工程是它的子仓库，`origin` 指向本地路径 | rtx4070tis 也是子仓库，经 SSH 连 rtx3080ti 的 Windows OpenSSH 推拉（`ssh://<用户>@<rtx3080ti>/C:/Users/pello/repos/qwen_strata.git`）；每台机器一个长期分支，避免两边同时改同一份共享文档 |
 
 原则：规则和流程的正文只留一份，放在工程里；两种 harness 各自只保留一层很薄的入口。
 
@@ -51,7 +51,8 @@ rtx3080ti 上由 Claude Code 管理本工程，rtx4070tis 上用 Codex。同一�
 
 每步先说清要做什么，取得同意后再开始：
 
-- 复制工程和私有配置。`project.private.toml`、安装目录的 `installation.private.toml` 不进 git，由用户自己放到位。`project.private.toml` 开头加一行顶层键 `local_host = "rtx4070tis"`，工程据此识别当前主机（`tools.ops.deployment_source.current_host`；环境变量 `QWEN_STRATA_HOST` 可临时覆盖）。
+- rtx3080ti 上启用 Windows OpenSSH 服务端（`sshd.exe` 已在系统里，需要启动服务并设为自动、放行防火墙，要 UAC），放入 rtx4070tis 的公钥；Git for Windows 已装。rtx4070tis 从主仓库 clone 工程，不要整目录复制。
+- 复制私有配置。`project.private.toml`、安装目录的 `installation.private.toml` 不进 git，由用户自己放到位。`project.private.toml` 开头加一行顶层键 `local_host = "rtx4070tis"`，工程据此识别当前主机（`tools.ops.deployment_source.current_host`；环境变量 `QWEN_STRATA_HOST` 可临时覆盖）。
 - 准备用户级配置 `~/.claude/`：CLAUDE.md、`docs/`、`status/`、`statusline/`、`hooks/`。具体做法按可移植化的决定。
 - 核对 BIOS 微码（14900K 的 Vmin Shift 修复）。
 - 系统设置需要 UAC 授权。
