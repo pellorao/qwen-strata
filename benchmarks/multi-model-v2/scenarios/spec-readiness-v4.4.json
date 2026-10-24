@@ -26,8 +26,8 @@
   "claude_role_as_system": true,
   "deepseek_claude_environment": {
    "CLAUDE_CODE_MAX_CONTEXT_TOKENS": 1048576,
-   "CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE": null,
-   "CLAUDE_CODE_MAX_OUTPUT_TOKENS": null
+   "CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE": 945000,
+   "CLAUDE_CODE_MAX_OUTPUT_TOKENS": 384000
   }
  },
  "codex_thread_id": "ecacfe6d-d91d-4b98-8333-6cac5eb42ab2",
