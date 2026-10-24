@@ -212,10 +212,23 @@ CLAUDE_KNOWN = set(CLAUDE_TARGETS) | {'TodoWrite'}
 CLAUDE_DENIED = re.compile(r'permission|haven.t granted|was blocked|not allowed|outside (?:of )?the (?:allowed )?working director', re.I)
 
 
+UNPARSED = '[输入解析失败] '
+
+
+def bash_unparsed(name, value):
+    """A Bash call whose input has no usable command string (input not an object, or no `command`): the model's call
+    could not be parsed, which is not an empty command."""
+    return name == 'Bash' and not (isinstance(value, dict) and isinstance(value.get('command'), str))
+
+
 def claude_text(name, value):
-    """The command or target that the action line shows; patterns go with their search path."""
+    """The command or target that the action line shows; patterns go with their search path. A Bash input that did
+    not parse shows its raw content under UNPARSED, never an empty command."""
+    if bash_unparsed(name, value):
+        raw = value if isinstance(value, str) else json.dumps(value, ensure_ascii=False)
+        return UNPARSED + raw
     if name == 'Bash':
-        return value.get('command', '')
+        return value['command']
     if name in ('Glob', 'Grep'):
         return ' '.join(str(x) for x in (value.get('path') or '', value.get('pattern', ''), value.get('glob') or '') if x)
     target = value.get(CLAUDE_TARGETS.get(name, ''), '')
@@ -349,9 +362,17 @@ def inspect_claude(stream, root, allow=()):
         for block in content:
             btype = block.get('type')
             if kind == 'assistant' and btype == 'tool_use':
-                name, value = block.get('name'), block.get('input') or {}
+                name, value = block.get('name'), block.get('input')
+                if not isinstance(value, str) and not value:
+                    value = {}
+                if not isinstance(value, (dict, str)):
+                    value = {'raw': value}
                 text = claude_text(name, value)
                 reasons = [] if name in CLAUDE_KNOWN else [f'unknown tool {name}']
+                if bash_unparsed(name, value):
+                    reasons.append('bash input not parsed')
+                if not isinstance(value, dict):
+                    value = {}
                 target = value.get(CLAUDE_TARGETS.get(name, ''), '') if name != 'Bash' else ''
                 if isinstance(target, str) and target.startswith('/') and not any(
                         inside(target, r) for r in (root, *allow)):

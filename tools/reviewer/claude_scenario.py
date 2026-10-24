@@ -4,6 +4,9 @@ ARW's own zero-model preparation (tools.tuning.arw_dimension.prepare, the frozen
 scenario plan) gives the handoffs; each of the first `--handoffs` handoffs (Spec Readiness: 2, RM then AP, each a fresh
 session as ARW's one-root-thread-per-instance rule) runs once through tools.reviewer.claude_headless.run:
 - the prompt is the bound Role instructions, the handoff and the measurement note, as the 2026-10-18 reference runs;
+  with `--role-as-system` (new plans; user 2026-10-20: Claude Code has no developer role, the system prompt is the
+  matching place, as Codex's developer instructions) the Role instructions go through `--append-system-prompt`
+  instead and the user message holds the handoff and the measurement note only; the default keeps the old shape;
 - the working directory is a copy of the scenario root (ARW's handoff `cwd`), outside /home; the scenario root path and
   the request files' absolute draft path are rewritten to the copy, Spec Readiness' host-relative draft path to the
   root-relative one;
@@ -42,14 +45,22 @@ HARNESS_STUBS = re.compile(r'(\.env(\.[a-z]+)*|\.gitmodules|\.npmrc|\.yarnrc(\.y
                            r'pnpm-lock\.yaml|yarn\.lock|\.git/(commondir|config\.worktree|info/exclude))')
 
 
-def prompt_text(handoff, note):
-    """Role instructions, handoff, then the frozen measurement note (appended only)."""
+def prompt_text(handoff, note, role_as_system=False):
+    """Role instructions, handoff, then the frozen measurement note (appended only). With `role_as_system` the prompt
+    is the handoff and the note only, the Role instructions being `role_text`."""
     raw = (ROOT / note['path']).read_bytes()
     if hashlib.sha256(raw).hexdigest() != note['sha256']:
         raise ValueError('Measurement note differs from its binding')
     body = handoff['input']['handoff'].rstrip('\n') + '\n\n' + raw.decode().strip()
+    if role_as_system:
+        return body + '\n'
     return ('# Bound Role instructions (system-level for this task)\n\n' + handoff['input']['instructions'].strip()
             + '\n\n# Handoff (the task)\n\n' + body + '\n')
+
+
+def role_text(handoff):
+    """The bound Role instructions as the system-prompt text (`--role-as-system`)."""
+    return '# Bound Role instructions\n\n' + handoff['input']['instructions'].strip()
 
 
 def host_relative(report, root):
@@ -58,8 +69,9 @@ def host_relative(report, root):
     return str(Path(report).relative_to(Path(*parts[:parts.index('arw') + 1])))
 
 
-def stage(handoff, prompt, work, stage_dir):
-    """A copy of the scenario root with the absolute paths pointed at the working directory; the rewritten prompt."""
+def stage(handoff, prompt, work, stage_dir, system=None):
+    """A copy of the scenario root with the absolute paths pointed at the working directory; the rewritten prompt.
+    A `system` text (the Role instructions) is rewritten the same way and returned as the info's `system`."""
     root, report = handoff['scenarioRoot'], handoff['input']['reportPath']
     shutil.copytree(root, stage_dir, symlinks=True)
     rewritten = []
@@ -69,16 +81,23 @@ def stage(handoff, prompt, work, stage_dir):
         if root in text:
             request.write_text(text.replace(root, str(work)))
             rewritten.append(str(request.relative_to(stage_dir)))
-    if prompt.count(root) < 1:
+    if (prompt + (system or '')).count(root) < 1:
         raise ValueError('The prompt does not name the scenario root')
     relative = str(Path(report).relative_to(root))
     host = host_relative(report, root)
-    prompt = prompt.replace(root, str(work))  # absolute paths first: the host-relative path is a suffix of them
-    hosts = prompt.count(host)
-    prompt = prompt.replace(host, relative)
-    if root in prompt or re.search(r'/home/pello', prompt):
-        raise ValueError('The prompt still names a path under /home')
-    return prompt, {'rewritten_requests': rewritten, 'host_relative_replaced': hosts, 'report': relative}
+    def rewrite(text):
+        text = text.replace(root, str(work))  # absolute paths first: the host-relative path is a suffix of them
+        count = text.count(host)
+        text = text.replace(host, relative)
+        if root in text or re.search(r'/home/pello', text):
+            raise ValueError('The prompt still names a path under /home')
+        return text, count
+    prompt, hosts = rewrite(prompt)
+    info = {'rewritten_requests': rewritten, 'host_relative_replaced': hosts, 'report': relative}
+    if system is not None:
+        info['system'], more = rewrite(system)
+        info['host_relative_replaced'] += more
+    return prompt, info
 
 
 def strata_expected(effort):
@@ -136,7 +155,7 @@ def checks(result, model, startup, report_dir=None, strata=None, binding=None):
 
 
 def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_LIMIT, time_limit=None,
-        startup=False, compact=False, dry_run=False, backend='anthropic', host=None):
+        startup=False, compact=False, dry_run=False, backend='anthropic', host=None, role_as_system=False):
     from tools.tuning.arw_dimension import load_plan, prepare
     if time_limit is not None:
         limit = time_limit  # the note's limit is the hard stop; the reminder follows ARW's lead (reminder_time)
@@ -152,18 +171,24 @@ def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_
         run_id = f'{out.name}-h{k}-{time.time_ns()}'
         work = ch.WORK_BASE / run_id / 'work'
         stage_dir = out / f'stage-h{k}'
-        prompt, staging = stage(handoff, prompt_text(handoff, note), str(work), stage_dir)
+        prompt, staging = stage(handoff, prompt_text(handoff, note, role_as_system), str(work), stage_dir,
+                                role_text(handoff) if role_as_system else None)
+        system = staging.pop('system', None)
         (out / f'prompt-h{k}.md').write_text(prompt)
+        if system is not None:
+            (out / f'system-h{k}.md').write_text(system)
         report_dir = str(Path(staging['report']).parent)
         copies = [(p, p.name) for p in sorted(stage_dir.iterdir())]
         record = {'k': k, 'instanceId': handoff['instanceId'], 'run_id': run_id, 'staging': staging,
-                  'prompt_sha256': hashlib.sha256(prompt.encode()).hexdigest(), 'measurement_note': note}
+                  'prompt_sha256': hashlib.sha256(prompt.encode()).hexdigest(), 'measurement_note': note,
+                  'role_as_system': role_as_system,
+                  'system_sha256': hashlib.sha256(system.encode()).hexdigest() if system else None}
         if dry_run:
             records.append(record)
             continue
         result = ch.run(out / f'h{k}', out / f'prompt-h{k}.md', backend, model, effort, f'{label} h{k}', copies,
                         [report_dir], limit, startup=startup, run_id=run_id, claude=claude, compact=compact, host=host,
-                        report=staging['report'])
+                        report=staging['report'], system_prompt=system)
         produced = out / f'h{k}' / 'outputs' / report_dir / Path(staging['report']).name
         if produced.exists():
             target = Path(handoff['input']['reportPath'])
@@ -223,6 +248,8 @@ def arguments(argv=None):
     parser.add_argument('--backend', choices=ch.BACKENDS, default='anthropic',
                         help='deepseek: the DeepSeek Anthropic-format endpoint, key from DEEPSEEK_API_KEY.')
     parser.add_argument('--host', help='Registered host for the Strata backend.')
+    parser.add_argument('--role-as-system', action='store_true',
+                        help='Role instructions through --append-system-prompt (new plans); default: in the user message.')
     args = parser.parse_args(argv)
     if args.backend == 'strata' and not args.host:
         parser.error('--backend strata needs --host')
@@ -234,5 +261,5 @@ if __name__ == '__main__':
     ch.pinned_binary(args.claude)
     print(json.dumps(run(args.plan, args.out, args.model, args.effort, args.label, args.claude, args.handoffs, args.limit,
                          args.time_limit_seconds, not args.no_startup_prompt, not args.no_compact_prompt, args.dry_run,
-                         args.backend, args.host),
+                         args.backend, args.host, args.role_as_system),
                      ensure_ascii=False))

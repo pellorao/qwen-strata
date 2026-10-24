@@ -668,13 +668,15 @@ def settings_argument(session_settings):
 
 
 def command(backend, model, effort, work, writes, session_settings, tools=TOOLS, startup=True, claude=CLAUDE,
-            persist=False):
+            persist=False, system_prompt=None):
     """The Claude Code command. All backends get the same flags; the startup prompt is appended here for API models
     and by the service for Strata, so each model sees it once (D4). The multi-model benchmark gives it only to Strata,
     so its API runs pass startup=False (--no-startup-prompt). persist=True drops --no-session-persistence so that an
     early exit can continue with --resume (scenario runs): the first request stays the same as without it (mock
     2026-10-20, only the run's own paths and ids differ), and the transcript lands in the configuration directory,
-    which sandboxed commands and the restricted file tools cannot read (/home/pello and WORK_BASE are denied)."""
+    which sandboxed commands and the restricted file tools cannot read (/home/pello and WORK_BASE are denied).
+    `system_prompt` (the scenario Role instructions, user 2026-10-20: Claude Code has no developer role, the system
+    prompt is the matching place) goes into the same single --append-system-prompt, after the startup prompt."""
     if backend not in BACKENDS:
         raise ValueError('Unknown backend')
     if backend == 'deepseek':
@@ -685,8 +687,11 @@ def command(backend, model, effort, work, writes, session_settings, tools=TOOLS,
             '--allowedTools', allowed_tools(work, writes),
             '--input-format', 'stream-json', '--replay-user-messages',
             '--output-format', 'stream-json', '--verbose', *([] if persist else ['--no-session-persistence'])]
-    if backend != 'strata' and startup:
-        argv += ['--append-system-prompt', startup_text()[0]]
+    parts = [startup_text()[0]] if backend != 'strata' and startup else []
+    if system_prompt:
+        parts.append(system_prompt.strip())
+    if parts:
+        argv += ['--append-system-prompt', '\n\n'.join(parts)]
     return argv
 
 
@@ -1187,8 +1192,8 @@ def pinned_binary(claude=CLAUDE, expected=CLAUDE_VERSION, sha256=CLAUDE_SHA256):
 
 def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=HARD_LIMIT, reminder_after=None,
         startup=True, tools=TOOLS, host=None, run_id=None, base=WORK_BASE, record=True, claude=CLAUDE, compact=True,
-        report=None):
-    """One run. `report` (the bound report, relative to the working directory) turns on ARW's early-exit
+        report=None, system_prompt=None):
+    """One run. `system_prompt`: command(). `report` (the bound report, relative to the working directory) turns on ARW's early-exit
     continuation (execute_continued) and session persistence; without it the run is the single `claude -p` as before."""
     if backend == 'strata' and not compact:
         raise ValueError('The Strata arm keeps the project compact prompt (hard constraint 3)')
@@ -1206,12 +1211,14 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
     deadline = Deadline(out, limit, reminder_after, scenario=bool(report), run_id=run_id)
     session_settings = settings(work, writes, session_hooks(compact))
     prompt_text = Path(prompt).read_text()
-    argv = command(backend, model, effort, work, writes, session_settings, tools, startup, claude, persist=bool(report))
+    argv = command(backend, model, effort, work, writes, session_settings, tools, startup, claude, persist=bool(report),
+                   system_prompt=system_prompt)
     save(out / 'settings.json', session_settings)
     save(out / 'command.json', [a if not a.startswith(startup_text()[0][:40]) else '<startup prompt>' for a in argv])
     binding = {'backend': backend, 'model': model, 'effort': effort, 'label': label, 'work': str(work),
                'writes': list(writes), 'limit_seconds': limit, 'reminder_after_seconds': reminder_after,
-               'tools': tools, 'prompt_sha256': hashlib.sha256(prompt_text.encode()).hexdigest(),
+               'tools': tools, 'system_prompt_sha256': hashlib.sha256(system_prompt.encode()).hexdigest() if system_prompt else None,
+               'prompt_sha256': hashlib.sha256(prompt_text.encode()).hexdigest(),
                'compact_prompt_sha256': hashlib.sha256(COMPACT.read_bytes()).hexdigest() if compact else None,
                'claude': binary(claude), 'continuation': {'report': report, 'pause_at': EARLY_EXIT_PAUSE_AT,
                                                           'pause_step': EARLY_EXIT_PAUSE_STEP} if report else None}

@@ -139,6 +139,18 @@ class InspectClaudeStreamTest(unittest.TestCase):
         path.write_text('\n'.join(json.dumps(e) for e in events) + '\n')
         return path
 
+    def test_unparsed_bash_input_is_shown_raw_not_as_empty_command(self):
+        from tools.reviewer.inspect_session import inspect_claude
+        def use(n, value):
+            return {'type': 'assistant', 'message': {'content': [{'type': 'tool_use', 'id': f't{n}', 'name': 'Bash', 'input': value}]}}
+        events = [{'type': 'system', 'subtype': 'init', 'session_id': 's1', 'cwd': ROOT},
+                  use(1, '{"command": "ls -la'), use(2, {}), use(3, {'cmd': 'ls'}), use(4, {'command': 'ls'})]
+        r = inspect_claude(self.stream(events), ROOT)
+        texts = [a['text'] for a in r['actions']]
+        self.assertEqual(texts, ['[输入解析失败] {"command": "ls -la', '[输入解析失败] {}', '[输入解析失败] {"cmd": "ls"}', 'ls'])
+        flagged = ['bash input not parsed' in a['reasons'] for a in r['actions']]
+        self.assertEqual(flagged, [True, True, True, False])
+
     def test_actions_flags_counts_and_work_time(self):
         from tools.reviewer.inspect_session import inspect_claude, render
         def use(n, name, value, at):

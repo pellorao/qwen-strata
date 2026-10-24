@@ -85,12 +85,32 @@ class ClaudeScenarioTest(unittest.TestCase):
         self.assertFalse(cs.checks(result, 'qwen3.8-flash-next-iq3_xxs', True)['valid'])
 
 
+    def test_role_as_system_splits_role_from_user_message(self):
+        note = self.base / 'note.md'
+        note.write_text('MEASURE NOTE\n')
+        import hashlib
+        binding = {'path': str(note), 'sha256': hashlib.sha256(note.read_bytes()).hexdigest()}
+        handoff = {**self.handoff, 'input': {**self.handoff['input'], 'instructions': f'ROLE in {self.root}\n',
+                                             'handoff': 'HANDOFF\n'}}
+        old = cs.prompt_text(handoff, binding)
+        self.assertIn('ROLE in', old)
+        new = cs.prompt_text(handoff, binding, role_as_system=True)
+        self.assertEqual(new, 'HANDOFF\n\nMEASURE NOTE\n')
+        self.assertNotIn('ROLE', new)
+        self.assertTrue(old.endswith('# Handoff (the task)\n\nHANDOFF\n\nMEASURE NOTE\n'))
+        work = '/var/tmp/qwen-claude/r/work'
+        prompt, info = cs.stage(handoff, f'cwd {self.root}', work, self.base / 'stage', cs.role_text(handoff))
+        self.assertEqual(info['system'], f'# Bound Role instructions\n\nROLE in {work}')
+        self.assertNotIn(str(self.root), info['system'])
+
     def test_command_line_backends(self):
         base = ['--plan', 'p.json', '--out', 'o', '--model', 'deepseek-flash', '--effort', 'high', '--label', 'l',
                 '--claude', 'c']
         args = cs.arguments(base + ['--backend', 'deepseek'])
         self.assertEqual((args.backend, args.host), ('deepseek', None))
         self.assertEqual(cs.arguments(base).backend, 'anthropic')
+        self.assertFalse(cs.arguments(base).role_as_system)
+        self.assertTrue(cs.arguments(base + ['--role-as-system']).role_as_system)
         self.assertEqual(cs.arguments(base + ['--backend', 'strata', '--host', 'rtx3080ti']).host, 'rtx3080ti')
         for bad in (['--backend', 'strata'], ['--backend', 'openai']):
             with self.assertRaises(SystemExit):

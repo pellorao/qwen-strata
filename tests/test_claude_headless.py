@@ -115,6 +115,16 @@ class RunnerBuildersTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 ch.command('deepseek', bad, 'high', self.work, ['report'], s)
 
+    def test_system_prompt_joins_the_one_append_flag(self):
+        s = ch.settings(self.work, ['report'], {})
+        only = ch.command('anthropic', 'opus', 'high', self.work, ['report'], s, startup=False, system_prompt='ROLE\n')
+        self.assertEqual(only[-2:], ['--append-system-prompt', 'ROLE'])
+        both = ch.command('anthropic', 'opus', 'high', self.work, ['report'], s, system_prompt='ROLE')
+        self.assertEqual(both.count('--append-system-prompt'), 1)
+        self.assertEqual(both[-1], ch.startup_text()[0] + '\n\nROLE')
+        strata = ch.command('strata', 'qwen3.8-flash-next-iq3_xxs', 'high', self.work, ['report'], s, system_prompt='ROLE')
+        self.assertEqual(strata[-2:], ['--append-system-prompt', 'ROLE'])
+
     def test_compact_prompt_hook_is_optional(self):
         hooks = ch.session_hooks()
         self.assertIn('PreCompact', hooks)
