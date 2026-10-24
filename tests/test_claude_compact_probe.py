@@ -168,7 +168,7 @@ class DeepSeekPlanTests(unittest.TestCase):
             limits, pending = probe.deepseek_plan_limits(probe.ROOT / f'benchmarks/multi-model-v2/scenarios/{name}.json')
             self.assertEqual(pending, [], name)
             self.assertEqual(limits['CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE'], 945000, name)
-            self.assertEqual(limits['CLAUDE_CODE_MAX_OUTPUT_TOKENS'], 384000, name)
+            self.assertEqual(limits['CLAUDE_CODE_MAX_OUTPUT_TOKENS'], 128000, name)
 
 
 if __name__ == '__main__':
