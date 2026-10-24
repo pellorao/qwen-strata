@@ -4,8 +4,10 @@ Each brief is checked against a copy materialized from its frozen source manifes
 the ARW Adjudication section is quoted verbatim, the cited answer-key SHA is the materialized key's, only the caller
 placeholders remain, the Role exists, the ARW decision block equals the frozen Commit Audit v3 brief's, and the
 scenario-specific facts the brief states (decoy lines, file names, scopes, quoted sections) hold in the fixture.
+--suite v2 checks the multi-model benchmark v2 draft briefs the same way against their own manifests, and also that
+the v2 common paragraph is word for word the same in all four briefs.
 
-  python3 -m tools.reviewer.check_briefs --work .tmp/<work>/arw
+  python3 -m tools.reviewer.check_briefs --work .tmp/<work>/arw [--suite v2]
 """
 import argparse
 import hashlib
@@ -19,18 +21,35 @@ ROOT = Path(__file__).resolve().parents[2]
 SUITE = ROOT / 'benchmarks/reviewer-suite-v1'
 MANIFESTS = SUITE / 'source-snapshots/current'
 FIXTURES = 'tests/fixtures/reviewer-capability'
-BRIEFS = {'code-spec-v5-brief.md': ('code-spec-v5', 'code-spec-reviewer'),
-          'code-standards-v5.1-brief.md': ('code-standards-v5.1', 'code-standards-reviewer'),
-          'spec-readiness-v4.3-brief.md': ('spec-readiness-v4.3', 'spec-readiness-reviewer')}
+V2 = ROOT / 'benchmarks/multi-model-v2'
+# suite -> brief path -> (source manifest, reviewer)
+SUITES = {
+    'v1': {SUITE / 'code-spec-v5-brief.md': (MANIFESTS / 'manifest-code-spec-v5.json', 'code-spec-reviewer'),
+           SUITE / 'code-standards-v5.1-brief.md': (MANIFESTS / 'manifest-code-standards-v5.1.json', 'code-standards-reviewer'),
+           SUITE / 'spec-readiness-v4.3-brief.md': (MANIFESTS / 'manifest-spec-readiness-v4.3.json', 'spec-readiness-reviewer')},
+    'v2': {V2 / 'briefs/code-spec-v5.1-brief.md': (V2 / 'scenarios/manifest-code-spec-v5.1.json', 'code-spec-reviewer'),
+           V2 / 'briefs/code-standards-v5.1-brief.md': (MANIFESTS / 'manifest-code-standards-v5.1.json', 'code-standards-reviewer'),
+           V2 / 'briefs/spec-readiness-v4.3-brief.md': (MANIFESTS / 'manifest-spec-readiness-v4.3.json', 'spec-readiness-reviewer'),
+           V2 / 'briefs/commit-audit-v3.1-brief.md': (V2 / 'scenarios/manifest-commit-audit-v3.1.json', 'commit-audit-reviewer')}}
+V2_COMMON = re.compile(r'^本工程补充（multi-model-v2 统一口径.*?\n\n', re.S | re.M)
 
 
-def materialized(work, version):
-    target = Path(work) / ('arw-' + version)
+def materialized(work, manifest):
+    target = Path(work) / ('arw-' + manifest.stem.removeprefix('manifest-'))
     if not target.exists():
-        subprocess.run([sys.executable, '-m', 'tools.reviewer.freeze_arw_source', '--manifest',
-                        str(MANIFESTS / f'manifest-{version}.json'), '--out', str(target)],
-                       cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
+        subprocess.run([sys.executable, '-m', 'tools.reviewer.freeze_arw_source', '--manifest', str(manifest),
+                        '--out', str(target)], cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
     return target
+
+
+def quoted_section(document, heading, text):
+    """The body of a design note's section (below its heading, up to the next heading of level 1–3, trimmed, one
+    final LF) and whether the brief quotes it verbatim together with its sha256."""
+    lines = document.read_text().splitlines(keepends=True)
+    start = next(i for i, l in enumerate(lines) if l.startswith(heading))
+    end = next(i for i in range(start + 1, len(lines)) if re.match(r'#{1,3} ', lines[i]))
+    body = ''.join(lines[start + 1:end]).strip() + '\n'
+    return body in text and hashlib.sha256(body.encode()).hexdigest() in text
 
 
 def line(path, number):
@@ -38,7 +57,7 @@ def line(path, number):
     return lines[number - 1] if 0 < number <= len(lines) else ''
 
 
-def check(work):
+def check(work, suite='v1'):
     results = []
 
     def chk(condition, message):
@@ -46,9 +65,14 @@ def check(work):
 
     frozen = (SUITE / 'commit-audit-v3-brief.md').read_text()
     block = re.search(r'^## 决定语义[^\n]*\n\n(.*?)^本工程补充（评分 r8\.1', frozen, re.S | re.M).group(1)
-    for brief, (version, reviewer) in BRIEFS.items():
-        text = (SUITE / brief).read_text()
-        arw = materialized(work, version)
+    briefs = SUITES[suite]
+    if suite == 'v2':
+        commons = {path.name: V2_COMMON.search(path.read_text()) for path in briefs}
+        chk(all(commons.values()) and len({m.group(0) for m in commons.values()}) == 1,
+            'v2: common paragraph identical in all briefs')
+    for path, (manifest, reviewer) in briefs.items():
+        brief, text = path.name, path.read_text()
+        arw = materialized(work, manifest)
         fixture = arw / FIXTURES / reviewer
         verification = (arw / 'docs/agents/reviewer-capability-verification.md').read_text().splitlines(keepends=True)
         start = verification.index('## Adjudication\n')
@@ -111,11 +135,8 @@ def check(work):
             chk('export const lineItemFor = ({buildingId, endAt, reservationId, roomId, startAt}, charge)' in item,
                 'CStd: lineItemFor builds reservation items without memberId')
         if reviewer == 'spec-readiness-reviewer':
-            design = (SUITE / 'spec-readiness-v4.md').read_text().splitlines(keepends=True)
-            start = next(i for i, l in enumerate(design) if l.startswith('### 裁决 brief（新用例）'))
-            end = next(i for i in range(start + 1, len(design)) if re.match(r'#{1,3} ', design[i]))
-            body = ''.join(design[start + 1:end]).strip() + '\n'
-            chk(body in text and hashlib.sha256(body.encode()).hexdigest() in text, 'SR: quoted v4 section verbatim with sha')
+            chk(quoted_section(SUITE / 'spec-readiness-v4.md', '### 裁决 brief（新用例）', text),
+                'SR: quoted v4 section verbatim with sha')
             override = json.loads((SUITE / 'judgment/spec-readiness-v4.2.json').read_text())
             chk(override['expectedSha256'] == digest, 'SR: k override binds the same key sha')
             role = (arw / 'docs/agents/roles/spec-readiness-reviewer.md').read_text()
@@ -129,14 +150,21 @@ def check(work):
             for scope in ('SPEC-READINESS-INPUTS', 'SPEC-READINESS-REQUIREMENTS'):
                 chk(scope in scopes and scope in text, f'SR: scope {scope} in key and brief')
             chk(len(scopes) - 2 == 9, 'SR: AP-only checks = 9')
+        if reviewer == 'commit-audit-reviewer':
+            chk(quoted_section(SUITE / 'commit-audit-v3.md', '## 裁决口径', text), 'CA: quoted v3 verdict section verbatim with sha')
+            chk([s['scope'] for s in key['scopes']] == ['COMMIT-AUDIT-GATE-1', 'COMMIT-AUDIT-GATE-2'], 'CA: two gates')
+            issue = scenario / 'candidate/.scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md'
+            chk('`orderManifestGroups`' in line(issue, 30) and '`orderManifestGroups`' in line(
+                scenario / 'base/.scratch/0001-dispatch-control/spec.md', 45), 'CA: twin clean lines 02:30 and spec:45')
     return results
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--work', type=Path, required=True, help='directory holding (or receiving) the materialized copies')
+    parser.add_argument('--suite', choices=sorted(SUITES), default='v1')
     args = parser.parse_args()
-    results = check(args.work)
+    results = check(args.work, args.suite)
     for ok, message in results:
         print(('OK  ' if ok else 'FAIL'), message)
     sys.exit(0 if all(ok for ok, _ in results) else 1)

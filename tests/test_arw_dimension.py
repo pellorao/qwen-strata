@@ -151,6 +151,12 @@ class EffectTests(unittest.TestCase):
         required_scenario_note({'arw_source_manifest': v3, 'measurement_note_path': plain}, 'commit-audit-reviewer')
         with self.assertRaisesRegex(ValueError, 'needs the measurement note'):
             required_scenario_note({'arw_source_manifest': v3}, 'commit-audit-reviewer')
+        # v3.1 (multi-model benchmark v2 draft) keeps the same note too.
+        v31 = 'benchmarks/multi-model-v2/scenarios/manifest-commit-audit-v3.1.json'
+        self.assertTrue((ROOT / v31).is_file())
+        required_scenario_note({'arw_source_manifest': v31, 'measurement_note_path': plain}, 'commit-audit-reviewer')
+        with self.assertRaisesRegex(ValueError, 'needs the measurement note'):
+            required_scenario_note({'arw_source_manifest': v31}, 'commit-audit-reviewer')
         # Other reviewers or manifests keep the common note.
         required_scenario_note({'arw_source_manifest': manifest}, 'code-spec-reviewer')
         required_scenario_note({'arw_source_manifest': manifest.replace('-commit-audit-v2', '')}, 'commit-audit-reviewer')
