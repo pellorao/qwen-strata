@@ -48,10 +48,15 @@ const pick = result => Object.fromEntries(['kProblemWeight', 'kEarnedProblemPoin
 const onlyA = run(scorerFor(), [alpha]);
 const none = run(scorerFor(), []);
 const both = run(scorerFor(), [alpha, {check: 'B', findings: [], result: 'pass'}]);
-let mergeError = null;
-try { run(scorerFor(true), [alpha]); } catch (error) { mergeError = error.message; }
+// Merged clean case m (beta part) sits in A and B. B is missing; A either reports a false positive on it or does not.
+const falseAlarm = {check: 'A', result: 'gap', findings: [{evidence: lines(1), finding: 'The alpha rule is violated.', result: 'gap'},
+    {evidence: lines(2), finding: 'The beta part is wrong.', result: 'gap'}]};
+const mergedOnlyA = run(scorerFor(true), [alpha]);
+const mergedFalseAlarm = run(scorerFor(true), [falseAlarm]);
+const mergedNone = run(scorerFor(true), []);
+const mergedBoth = run(scorerFor(true), [alpha, {check: 'B', findings: [], result: 'pass'}]);
 console.log(JSON.stringify({onlyA: pick(onlyA), none: pick(none), both: pick(both), pair: pick(core.combineScenarios([onlyA, none])),
-    mergeError, mergeBothPresent: pick(run(scorerFor(true), [alpha, {check: 'B', findings: [], result: 'pass'}]))}));
+    mergedOnlyA: pick(mergedOnlyA), mergedFalseAlarm: pick(mergedFalseAlarm), mergedNone: pick(mergedNone), mergedBoth: pick(mergedBoth)}));
 '''
 
 
@@ -128,10 +133,22 @@ class ScoringR85Tests(unittest.TestCase):
         self.assertEqual((self.new['pair']['missingChecks'], self.new['pair']['neutralCleanCases']), (3, 6))
         self.assertEqual(self.new['pair']['kCleanWeight'], 2)
 
-    def test_r8_5_merged_case_with_one_side_in_a_missing_check_is_an_error(self):
-        self.assertIn('undefined under r8.5', self.new['mergeError'])
-        self.assertIsNone(self.old['mergeError'])
-        self.assertEqual(self.new['mergeBothPresent']['missingChecks'], 0)
+    def test_r8_5_merged_case_with_one_side_missing_scores_as_the_present_side(self):
+        # B is missing, the merged beta case sits in A and B. Present side clean: nothing fails, only B's no-other is neutral.
+        only_a = self.new['mergedOnlyA']
+        self.assertEqual((only_a['kFailedCleanWeight'], only_a['kCleanWeight'], only_a['score']), (0, 0.75, 0.5))
+        self.assertEqual((only_a['missingChecks'], only_a['neutralCleanCases']), (1, 1))
+        # Present side reports a false positive on it: the merged unit fails at 0.25 (no error, no free pass).
+        false_alarm = self.new['mergedFalseAlarm']
+        self.assertEqual((false_alarm['kFailedCleanWeight'], false_alarm['score']), (0.25, 0.375))
+        self.assertEqual(false_alarm['neutralCleanCases'], 1)
+        # Both sides missing: the merged unit counts once as neutral, plus the two no-other cases.
+        none = self.new['mergedNone']
+        self.assertEqual((none['kFailedCleanWeight'], none['score'], none['neutralCleanCases']), (0, 0, 3))
+        # Every check present: unchanged by r8.5.
+        self.assertEqual((self.new['mergedBoth']['missingChecks'], self.new['mergedBoth']['neutralCleanCases']), (0, 0))
+        # r8.4 fails the missing side, so the merged unit fails there.
+        self.assertEqual(self.old['mergedOnlyA']['kFailedCleanWeight'], 0.5)
 
 
 if __name__ == '__main__':

@@ -116,6 +116,56 @@ class DesignTest(unittest.TestCase):
                     if c['config'] == 6]
             self.assertEqual([(c['kind'], c['n']) for c in rows], [('main', 5)])
 
+    def test_v2_family_is_the_47_same_harness_same_effort_pairs_and_v1_stays_25(self):
+        """Plan v2 §10 row 13: every two configurations of a harness and effort (Codex 15, Claude Code 26) plus the 6
+        harness pairs; v1 keeps its 25."""
+        pairs = bs.comparisons('v2')
+        self.assertEqual(len(pairs), 47)
+        self.assertEqual(len({(a, b) for _, a, b in pairs}), 47)
+        counts = {}
+        for g, _, _ in pairs:
+            counts[g] = counts.get(g, 0) + 1
+        self.assertEqual(counts, {'codex low': 6, 'codex medium': 3, 'codex high': 6, 'claude-code low': 10,
+                                  'claude-code medium': 6, 'claude-code high': 10, 'harness': 6})
+        for g, first, second in pairs:
+            a, b = bs.CONFIGS[first], bs.CONFIGS[second]
+            self.assertLess(first, second)
+            self.assertEqual(a['effort'], b['effort'])
+            if g == 'harness':
+                self.assertEqual((a['harness'], b['harness'], a['vendor']), ('codex', 'claude-code', b['vendor']))
+            else:
+                self.assertEqual((a['harness'], a['effort']), tuple(g.split()))
+                self.assertEqual(b['harness'], a['harness'])
+        self.assertEqual(sorted(p for p in pairs if p[0] == 'harness'),
+                         sorted(p for p in bs.comparisons() if p[0] == 'harness'))
+        self.assertEqual(len(bs.comparisons('v1')), 25)
+        self.assertEqual(bs.comparisons(), bs.comparisons('v1'))
+        with self.assertRaises(ValueError):
+            bs.comparisons('v3')
+
+    def test_v2_summary_has_47_comparisons_with_asymmetric_n_and_no_ranking(self):
+        """Strata alone has extra instances (phase 2): a pair of Strata (10) against sol (1) reads n 5 / 8 ... first is the
+        lower number, so (1, 10) shows 5 / 8; Holm family size is 47; the v1 summary is untouched."""
+        records = full_design() + [record(10, i, 0.7 + 0.01 * i, started=7000.0 + i) for i in (6, 7, 8)]
+        records = ranked(records)
+        for r in records:
+            r['score_status'] = 'final' if r['valid'] else None
+        summary = bs.summarize(records, 2, 'v2')
+        self.assertEqual((summary['suite'], summary['holm_family_size']), ('v2', 47))
+        result = summary['scenarios'][SCENARIO]
+        self.assertEqual(len(result['comparisons']), 47)
+        rows = {(r['first'], r['second']): r for r in result['comparisons']}
+        self.assertEqual((rows[(1, 10)]['n_first'], rows[(1, 10)]['n_second']), (5, 8))
+        self.assertEqual(rows[(1, 10)]['group'], 'codex low')
+        self.assertEqual(rows[(7, 10)]['group'], 'codex low')  # DeepSeek and Strata: both low, neither is the reference
+        self.assertTrue(all(0 <= r['p_holm'] <= 1 for r in rows.values()))
+        text = bs.markdown(summary)
+        self.assertIn('# 多模型 benchmark v2 汇总', text)
+        self.assertIn('每个场景 47 个预登记比较', text)
+        self.assertIn('codex low', text)
+        v1 = bs.summarize(records, 2)
+        self.assertEqual((v1['suite'], v1['holm_family_size'], len(v1['scenarios'][SCENARIO]['comparisons'])), ('v1', 25, 25))
+
     def test_family_is_the_25_preregistered_pairs(self):
         """Plan §5 (2026-10-21): Codex 8, Claude Code 11, harness 6."""
         pairs = bs.comparisons()

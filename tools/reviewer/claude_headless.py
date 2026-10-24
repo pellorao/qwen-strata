@@ -1204,10 +1204,11 @@ def pinned_binary(claude=CLAUDE, expected=CLAUDE_VERSION, sha256=CLAUDE_SHA256):
 
 def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=HARD_LIMIT, reminder_after=None,
         startup=True, tools=TOOLS, host=None, run_id=None, base=WORK_BASE, record=True, claude=CLAUDE, compact=True,
-        report=None, system_prompt=None, deepseek_limits=None):
+        report=None, system_prompt=None, deepseek_limits=None, deepseek_base=None):
     """One run. `system_prompt`: command(). `report` (the bound report, relative to the working directory) turns on ARW's early-exit
     continuation (execute_continued) and session persistence; without it the run is the single `claude -p` as before.
-    `deepseek_limits`: deepseek_environment() limits of the DeepSeek backend (recorded in binding.json)."""
+    `deepseek_limits`: deepseek_environment() limits of the DeepSeek backend (recorded in binding.json).
+    `deepseek_base`: another endpoint for the DeepSeek backend (zero-model gates point it at a loopback mock)."""
     if deepseek_limits and backend != 'deepseek':
         raise ValueError('deepseek_limits apply to the DeepSeek backend only')
     if backend == 'strata' and not compact:
@@ -1247,9 +1248,10 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
             home.mkdir()
             config_dir.mkdir()
             env = environment('deepseek', effort, home, config_dir,
-                              deepseek_environment(model, os.environ.get(DEEPSEEK_KEY), limits=deepseek_limits),
+                              deepseek_environment(model, os.environ.get(DEEPSEEK_KEY), deepseek_base or DEEPSEEK_BASE,
+                                                   limits=deepseek_limits),
                               tmp=run_tmp(work))
-            binding['endpoint'] = DEEPSEEK_BASE
+            binding['endpoint'] = deepseek_base or DEEPSEEK_BASE
             binding['deepseek_limits'] = dict(deepseek_limits or {})
         save(out / 'environment-names.json', sorted(env))
         save(out / 'binding.json', binding)

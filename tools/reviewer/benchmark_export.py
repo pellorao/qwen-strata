@@ -5,7 +5,7 @@ a published summary listed in LEGACY_SUMMARIES, and every instance must have its
 optional sensitivity-variant summaries of the same instances
 (each a benchmark_summary run over another score root), and the session-check diagnostic list. Output: one JSON file with
 per-instance detail only (user 2026-10-22): no aggregate statistics and no comparison results, but every field and
-design rule needed to recompute them (which instances enter a cell, the 25 preregistered pairs per scenario, alpha, Holm
+design rule needed to recompute them (which instances enter a cell, the preregistered pairs per scenario (25 in v1, 47 in v2), alpha, Holm
 family, the test). The format is documented in benchmarks/multi-model-v1/export-format.md.
 
 The file is published, so it carries no network detail beyond host names, no local paths, user names, session or
@@ -442,11 +442,11 @@ def configs(summary):
 
 def comparison_design(summary):
     pairs = [{'group': g, 'first': config_key(a), 'second': config_key(b), 'firstNumber': a, 'secondNumber': b}
-             for g, a, b in bs.comparisons()]
+             for g, a, b in bs.comparisons(summary.get('suite', 'v1'))]
     return {
         'familyPerScenario': True, 'familySize': len(pairs), 'alpha': bs.ALPHA, 'sides': 2,
         'test': 'Welch t test, Welch-Satterthwaite df',
-        'correction': 'Holm step-down within each scenario (25 comparisons)',
+        'correction': f'Holm step-down within each scenario ({len(pairs)} comparisons)',
         'sample': {'zh': '每个配置取 inMain 为 true 的实例（补充配置不参加）；d = 前者均值 − 后者均值。',
                    'en': 'Each configuration contributes its instances with inMain true (supplementary configurations '
                          'never take part); d = mean(first) - mean(second).'},

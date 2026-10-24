@@ -52,19 +52,23 @@ class MockResponses(BaseHTTPRequestHandler):
 
 
 class Client:
-    def __init__(self, folder, workspace, base_url, slug, tier):
+    def __init__(self, folder, workspace, base_url, slug, tier, catalog_path=None, extra_config=None, codex=None):
+        """tier: published window and compaction limit applied to the catalog entry and config; None keeps the entry as
+        given (catalog_path: another catalog file, e.g. the DeepSeek one) and sets no window or limit of its own.
+        extra_config: further config keys (dotted names) laid over the defaults; codex: another binary."""
         home = folder / 'codex-home'
         home.mkdir()
-        catalog = json.loads((ROOT / 'config/model-catalog.json').read_text())
+        catalog = json.loads((catalog_path or ROOT / 'config/model-catalog.json').read_text())
         catalog['models'] = [m for m in catalog['models'] if m['slug'] == slug]
         model = catalog['models'][0]
-        model.update(context_window=tier['context_window'], max_context_window=tier['context_window'])
+        if tier:
+            model.update(context_window=tier['context_window'], max_context_window=tier['context_window'])
         save(folder / 'catalog.json', catalog)
         config = {
             'model': model['slug'], 'model_provider': 'loopback_mock',
             'model_catalog_json': str(folder / 'catalog.json'),
-            'model_context_window': tier['context_window'],
-            'model_auto_compact_token_limit': tier['auto_compact_token_limit'],
+            **({'model_context_window': tier['context_window'],
+                'model_auto_compact_token_limit': tier['auto_compact_token_limit']} if tier else {}),
             'model_reasoning_effort': 'high', 'features.plugins': False,
             'model_providers.loopback_mock.name': 'Loopback mock, no inference',
             'model_providers.loopback_mock.base_url': base_url,
@@ -73,6 +77,7 @@ class Client:
             'model_providers.loopback_mock.supports_websockets': False,
             'model_providers.loopback_mock.request_max_retries': 0,
             'model_providers.loopback_mock.stream_max_retries': 0,
+            **(extra_config or {}),
         }
         overrides = []
         for key, value in config.items():
@@ -88,7 +93,7 @@ class Client:
         self.responses = queue.Queue()
         self.changed = threading.Condition()
         self.number = 0
-        self.proc = subprocess.Popen([str(CODEX), '--no-daemon', *overrides,
+        self.proc = subprocess.Popen([str(codex or CODEX), '--no-daemon', *overrides,
             'app-server'], cwd=workspace, env=env, stdin=subprocess.PIPE,
             stdout=subprocess.PIPE, stderr=self.stderr, start_new_session=True)
         self.reader = threading.Thread(target=self.read, daemon=True)

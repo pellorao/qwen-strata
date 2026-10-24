@@ -161,17 +161,17 @@ SCORING_VERSIONS = ('r8.4', 'r8.5')
 SCORING_OVERLAY = {
     'version': 'r8.5',
     'file': 'scoring-r8.5.patch',
-    'sha256': '149c083f7e521a7d055303c6bc8c53a54ed01686c75bc8f9039daa49db7bcda1',
+    'sha256': 'c40856cc5ce276e664701e09e988f5aa10635e6d76cdacade7c947ca2e2049f0',
     'members': {
         'lib/release/reviewer-capability-scoring.mjs': (
             'd70c6e6416396ecd92ec9201c2b953d62516e32705e5132616073fb6f8c468a9',
-            '2f7a7122aeab66aebc5302a844fc1fcf0bc89091ece1313c5ade36e73031eb3c'),
+            'a90a2b67d6db6f84130c915d7021aefe79624e4a2ef668617c9e6c385124e758'),
         'lib/release/reviewer-capability-verification.mjs': (
             '1c93cfd4ca65f6bb6d9bf0348f41d44a6317533dea077b32a43feca2ce9e155f',
             '3e15f002203365d2141111fe1a6fb221aa9d7ed4ff0004b990cd884491f25b63'),
         'docs/agents/reviewer-capability-scoring.md': (
             'f70a1ce2960ab55a00f047486e46a8245630fe6f9e99d52d55b1abd10494f6e3',
-            '5ff39c3a03f4dda96fa9a9de5473bd3ac29ff8cbc652214b66a35f12cd4b2979')}}
+            '846d6b46c9c186945789027ddaa5842dedeca6bf63e0cd49958fb0b6938a770e')}}
 
 
 def git_apply(patch, destination, *options, check=True):

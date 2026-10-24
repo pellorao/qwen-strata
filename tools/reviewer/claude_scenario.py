@@ -160,7 +160,8 @@ def checks(result, model, startup, report_dir=None, strata=None, binding=None):
 
 
 def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_LIMIT, time_limit=None,
-        startup=False, compact=False, dry_run=False, backend='anthropic', host=None, role_as_system=None):
+        startup=False, compact=False, dry_run=False, backend='anthropic', host=None, role_as_system=None,
+        deepseek_base=None):
     from tools.tuning.arw_dimension import load_plan, prepare
     if time_limit is not None:
         limit = time_limit  # the note's limit is the hard stop; the reminder follows ARW's lead (reminder_time)
@@ -195,7 +196,7 @@ def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_
             continue
         result = ch.run(out / f'h{k}', out / f'prompt-h{k}.md', backend, model, effort, f'{label} h{k}', copies,
                         [report_dir], limit, startup=startup, run_id=run_id, claude=claude, compact=compact, host=host,
-                        report=staging['report'], system_prompt=system, deepseek_limits=limits)
+                        report=staging['report'], system_prompt=system, deepseek_limits=limits, deepseek_base=deepseek_base)
         produced = out / f'h{k}' / 'outputs' / report_dir / Path(staging['report']).name
         if produced.exists():
             target = Path(handoff['input']['reportPath'])

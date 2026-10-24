@@ -417,9 +417,9 @@ def r83(score_before_penalty, deduction):
     return score, score * (1 - deduction)
 
 
-def repetition_score(up, repairs, registry=None, final_status_errors=0):
-    from tools.reviewer.format_penalty import REGISTRY, score_repetitions
-    rows = score_repetitions(up, repairs, registry or REGISTRY, extra_errors=final_status_errors)
+def repetition_score(up, repairs, registry=None, final_status_errors=0, suite='v1'):
+    from tools.reviewer.format_penalty import score_repetitions, suite_registry
+    rows = score_repetitions(up, repairs, registry or suite_registry(suite), extra_errors=final_status_errors)
     repetitions = [rep for result in up['results'] for rep in result.get('repetitions', [])]
     if len(rows) != 1 or len(repetitions) != 1:
         raise ValueError(f'expected one scored repetition, got {len(repetitions)}')
@@ -580,7 +580,8 @@ def score_instance(record, work, provisional=None, enumerate_only=False, scorer=
         return result
     if 'final_status_format_errors' not in record:
         raise ValueError(f"{record['id']}: record without final_status_format_errors (rebuild it with bench_records)")
-    scored = repetition_score(up, repairs, final_status_errors=record['final_status_format_errors'])
+    scored = repetition_score(up, repairs, final_status_errors=record['final_status_format_errors'],
+                              suite=record.get('suite', 'v1'))
     version = scoring_version(plan)
     check_scoring_version(version, scored)
     deduction, final = merge(scored['scoreBeforePenalty'], scored['f'], pause['paused'], scored['arw_cut'])

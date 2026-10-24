@@ -13,7 +13,7 @@ directory, per scenario:
   cells (C', plan §14.4) and, in phase 2, Strata cells with extra instances (never for the phase-3 supplement);
 - supplementary rows (DeepSeek medium not merged, `supplementary_label`) and their descriptive high+medium row; they
   never enter a comparison;
-- the 25 preregistered comparisons (plan §5): Welch t with Welch-Satterthwaite df, Holm within the scenario,
+- the preregistered comparisons (plan §5: 25 in v1; --suite v2: the 47 of benchmarks/multi-model-v2/plan.md §10 row 13): Welch t with Welch-Satterthwaite df, Holm within the scenario,
   two-sided alpha 0.05. A comparison without two fully scored sides of n >= 2 keeps its place in the family with p 1;
 - the per-instance table, invalid instances included and marked (measurement rule).
 No ratios, combined scores or ranks (D7).
@@ -75,7 +75,34 @@ SPEED_POOL_NOTE = ('速度汇总口径（用户 2026-10-22）：多个实例的�
                    '分母取 输出 token ÷ 逐实例引擎输出速度 反推的请求秒数；汇总标为近似（speeds_approximate，表中写"≥≈"），仍是下限。')
 
 
-def comparisons():
+SUITES = ('v1', 'v2')
+
+
+def comparisons(suite='v1'):
+    """The preregistered pairs per scenario of a suite: v1 the 25 below, v2 the 47 of comparisons_v2."""
+    if suite not in SUITES:
+        raise ValueError(f'suite must be one of {SUITES}')
+    return comparisons_v2() if suite == 'v2' else comparisons_v1()
+
+
+def comparisons_v2():
+    """The 47 preregistered pairs per scenario of v2 (benchmarks/multi-model-v2/plan.md §10 row 13): models are
+    equals, so within each harness and effort every two configurations are paired (Codex 15: low 6, medium 3, high 6;
+    Claude Code 26: low 10, medium 6, high 10; Strata has no max and DeepSeek no medium, so a max cell has one
+    configuration at most and pairs with none), then the 6 harness pairs of comparisons_v1 (Codex against Claude Code
+    for Strata at low / medium / high and DeepSeek at low / high / max). Group = '<harness> <effort>' or 'harness';
+    first < second by configuration number. The phase-3 supplement never pairs. Reported as a paired table, no
+    ranking."""
+    configs = {c: x for c, x in CONFIGS.items() if c in PREREGISTERED_CONFIGS}
+    pairs = []
+    for harness in ('codex', 'claude-code'):
+        for effort in ('low', 'medium', 'high', 'xhigh', 'max'):
+            cell = sorted(c for c, x in configs.items() if x['harness'] == harness and x['effort'] == effort)
+            pairs += [(f'{harness} {effort}', a, b) for i, a in enumerate(cell) for b in cell[i + 1:]]
+    return pairs + [p for p in comparisons_v1() if p[0] == 'harness']
+
+
+def comparisons_v1():
     """The 25 preregistered pairs per scenario (plan §5, 2026-10-21) as (group, first, second): within a harness,
     Strata against every other configuration of the same effort (Codex 8: GPT 2 x 3 and DeepSeek low, high; Claude
     Code 11: Anthropic 3 x 3 and DeepSeek low, high; Strata has no max and DeepSeek no medium, so those efforts are not
@@ -446,7 +473,7 @@ def by_start(rows):
     return sorted(rows, key=lambda r: r['valid_rank'])
 
 
-def scenario_summary(records, phase):
+def scenario_summary(records, phase, suite='v1'):
     cells = {}
     for r in records:
         cells.setdefault(cell_key(r), []).append(r)
@@ -472,7 +499,7 @@ def scenario_summary(records, phase):
     rows.sort(key=lambda c: (c['config'], order[c['kind']], c['label']))
 
     tests = []
-    for group_name, first, second in comparisons():
+    for group_name, first, second in comparisons(suite):
         a, b = samples.get(first, []), samples.get(second, [])
         complete = bool(a) and bool(b) and all(r['score'] is not None for r in a + b)
         test = welch([r['score'] for r in a], [r['score'] for r in b]) if complete else None
@@ -503,7 +530,7 @@ def scenario_summary(records, phase):
                                                         r['valid_rank'] or 99, r['id']))}
 
 
-def summarize(records, phase=1):
+def summarize(records, phase=1, suite='v1'):
     if phase not in PHASES:
         raise ValueError(f'phase must be one of {PHASES}')
     for record in records:
@@ -512,9 +539,9 @@ def summarize(records, phase=1):
     if len(ids) != len(set(ids)):
         raise ValueError('Duplicate record id')
     scenarios = sorted({r['scenario'] for r in records})
-    out = {s: scenario_summary([r for r in records if r['scenario'] == s], phase) for s in scenarios}
+    out = {s: scenario_summary([r for r in records if r['scenario'] == s], phase, suite) for s in scenarios}
     complete = all(c['complete'] for s in out.values() for c in s['configs'] if c['kind'] in ('main', 'phase3'))
-    return {'phase': phase, 'alpha': ALPHA, 'holm_family_size': len(comparisons()),
+    return {'phase': phase, 'suite': suite, 'alpha': ALPHA, 'holm_family_size': len(comparisons(suite)),
             'preregistered_n': PREREGISTERED_N, 'strata_phase2_max': STRATA_PHASE2_MAX, 'complete': complete,
             'scenarios': out}
 
@@ -559,7 +586,7 @@ def phase_text(summary):
 
 
 def markdown(summary):
-    lines = ['# 多模型 benchmark v1 汇总', '', phase_text(summary), '',
+    lines = [f"# 多模型 benchmark {summary.get('suite', 'v1')} 汇总", '', phase_text(summary), '',
              f"每个场景 {summary['holm_family_size']} 个预登记比较，Holm 校正，双侧 α = {summary['alpha']}，"
              'Welch t 检验（Welch–Satterthwaite 自由度）。主统计多于前 5 个的格另给一致性行（按开始时刻的前 5 个'
              + ('；第三阶段补充配置不给' if summary['phase'] >= 3 else '') + '）；'
@@ -757,12 +784,12 @@ def generator(phase):
     return {'tool': GENERATOR, 'sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), 'phase': phase}
 
 
-def write(out, records_path=None, data_root=None, score_root=None, phase=1, reconciliation_from=None):
+def write(out, records_path=None, data_root=None, score_root=None, phase=1, reconciliation_from=None, suite='v1'):
     """reconciliation_from: a published summary.json whose deepseek_reconciliation is kept when the DeepSeek
     schedule.jsonl it was computed from is gone (the phase-2 and phase-3 summaries read records.jsonl)."""
     records = load_records(records_path, data_root)
     attach_scores(records, score_root)
-    summary = summarize(records, phase)
+    summary = summarize(records, phase, suite)
     summary['deepseek_reconciliation'] = deepseek_reconciliation(records, data_root)
     if reconciliation_from and summary['deepseek_reconciliation'] is None:
         summary['deepseek_reconciliation'] = json.loads(Path(reconciliation_from).read_text())['deepseek_reconciliation']
@@ -786,11 +813,14 @@ if __name__ == '__main__':
     parser.add_argument('--reconciliation-from', type=Path,
                         help='summary.json whose deepseek_reconciliation is kept when it cannot be recomputed')
     parser.add_argument('--phase', type=int, choices=PHASES, default=1, help='scoring phase (plan §14.1; default 1)')
+    parser.add_argument('--suite', choices=SUITES, default='v1',
+                        help='comparison family: v1 (25 pairs, default) or v2 (47 pairs, same-harness same-effort '
+                             'pairs of all configurations plus the 6 harness pairs)')
     parser.add_argument('--out', type=Path, required=True, help='fresh output directory')
     args = parser.parse_args()
     if args.score_root is None:
         from tools.reviewer import bench_records
         args.score_root = [Path(args.data_root or bench_records.ROOT) / '.tmp/bench-score']
-    result = write(args.out, args.records, args.data_root, args.score_root, args.phase, args.reconciliation_from)
+    result = write(args.out, args.records, args.data_root, args.score_root, args.phase, args.reconciliation_from, args.suite)
     print(json.dumps({s: {'instances': len(v['instances']), 'comparisons': len(v['comparisons'])}
                       for s, v in result['scenarios'].items()}))
