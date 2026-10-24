@@ -156,6 +156,10 @@ installation_path='C:\\Strata'
         public = json.loads(source_bytes('config/deployment.json', 'tuned', self.root, condition))
         self.assertEqual(public['deployment_condition'], 'trial')
         self.assertNotIn('deployment_condition', json.loads(source_bytes('config/deployment.json', 'tuned', self.root)))
+        # STRATA_SM86_PERF=0 overlays the host environment and keeps the explicit ADAPT_LAG
+        off = model_configuration('IQ3_XXS', 'tuned', self.root,
+                                  {'id': 'sm86-perf-0', 'model': 'IQ3_XXS', 'model_environment': {'STRATA_SM86_PERF': 0}})
+        self.assertEqual(off['engine_environment'], {'STRATA_PREFILL_CPU_SHARE': 'auto', 'STRATA_ADAPT_LAG': 2, 'STRATA_SM86_PERF': 0})
         # An unserved quantization is not a condition model (multi-model conditions are not implemented)
         for bad in ({**condition, 'model': 'Q2_0'}, {**condition, 'model_environment': {'PATH': 'x'}},
                     {**condition, 'extra': 1}):

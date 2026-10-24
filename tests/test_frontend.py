@@ -297,6 +297,11 @@ class ConfigurationTests(unittest.TestCase):
         _, _, env, _ = model_process.configuration({'engine_environment': {'STRATA_ADAPT_LAG': 2}}, 8100)
         self.assertEqual(env['STRATA_ADAPT_LAG'], '2')
 
+    def test_sm86_perf_switch_environment(self):
+        options = {'engine_environment': {'STRATA_ADAPT_LAG': 2, 'STRATA_SM86_PERF': 0}}
+        _, _, env, _ = model_process.configuration(options, 8100)
+        self.assertEqual((env['STRATA_ADAPT_LAG'], env['STRATA_SM86_PERF']), ('2', '0'))
+
     def test_null_override_drops_template_flag(self):
         args = model_process.configuration({'engine_overrides': {'prefill': None}}, 8100)[1]['args']
         self.assertNotIn('--prefill', args)
