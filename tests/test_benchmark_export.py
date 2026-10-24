@@ -24,7 +24,8 @@ def synthetic_summary():
             r['handoffs'] = [handoff(api_usage={'cache_creation_input_tokens': 50,
                                                 'cache_creation': {'ephemeral_1h_input_tokens': 40,
                                                                    'ephemeral_5m_input_tokens': 10}},
-                                     cost_usd=0.5)]
+                                     cost_usd=0.5, compactions=2)]
+            r['compactions'] = 2
         elif r['arm'] == 'deepseek-claude':
             r['handoffs'] = [handoff(cost_usd=0.9)]  # Anthropic-priced harness figure: never a cost
             r['cost_cny'] = 0.2
@@ -185,6 +186,10 @@ class BuildTest(unittest.TestCase):
         self.assertIsNone(strata_cc['cost'])  # local model: no cost, only the harness figure
         self.assertEqual(strata_cc['harnessReportedCostUsd'], 2.0)
         self.assertIsNone(self.items[f'openai/{SCENARIO}/gpt-6.1-sol-low-a1']['cost'])
+        self.assertEqual((opus['compactions'], opus['handoffs'][0]['compactions']), (2, 2))
+        # records made before the field: unknown (null), never 0
+        self.assertIsNone(strata_cc['compactions'])
+        self.assertIsNone(strata_cc['handoffs'][0]['compactions'])
 
     def test_stages(self):
         stage = {i['id'].split('-')[-1]: i['selection']['stage'] for i in self.result['instances']

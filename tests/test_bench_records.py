@@ -309,6 +309,70 @@ class RecordsTest(unittest.TestCase):
         self.assertFalse(r['codex-strata-low-a2']['pause_known'])
 
 
+    # Event shapes from real runs (window-dim pilot 2026-10-24, trimmed): a Codex rollout line {"type": "compacted",
+    # "payload": {"message", "replacement_history", ...}} and a Claude Code stream line {"type": "system", "subtype":
+    # "compact_boundary", "uuid", "session_id", "compact_metadata": {"trigger", "pre_tokens", ...}}.
+    def test_codex_compactions_from_the_root_rollout(self):
+        compacted = lambda: json.dumps({'type': 'compacted', 'payload': {'message': 'summary', 'replacement_history': []}}) + '\n'
+        other = json.dumps({'type': 'response_item', 'payload': {'type': 'message', 'content': 'the word "compacted"'}}) + '\n'
+        root = write(self.scene / 'root.jsonl', compacted() + other + compacted())
+        guardian = write(self.scene / 'guardian.jsonl', compacted())
+        write(self.scene / 'schedule.jsonl', json.dumps({'event': 'done', 'out': 'codex-strata-low-a1', 'kind': 'valid'}) + '\n')
+        d = self.scene / 'codex-strata-low-a1'
+        entry = lambda path: {'instanceId': IID, 'report_sha256': self.sha, 'review_work_seconds': 10,
+                              'runtime_result': {'threadId': 'root'},
+                              'cost': {'histories': [{'thread_id': 'g', 'path': str(guardian)},
+                                                     {'thread_id': 'root', 'path': str(path)}]}}
+        write(d / 'run/results.json', [entry(root), entry(guardian)])
+        r = bench_records.scene_records('strata-codex', 'commit-audit-v3', self.scene)[0]
+        self.assertEqual([h['compactions'] for h in r['handoffs']], [2, 1])
+        self.assertEqual((r['compactions'], r['compactions_source']), (3, 'Codex root rollout compacted events'))
+        # one handoff without its rollout: unknown, never 0
+        write(d / 'run/results.json', [entry(root), entry(self.scene / 'gone.jsonl')])
+        r = bench_records.scene_records('strata-codex', 'commit-audit-v3', self.scene)[0]
+        self.assertEqual([h['compactions'] for h in r['handoffs']], [2, None])
+        self.assertIsNone(r['compactions'])
+        # OpenAI arm: the rollout recorded under the prep is read from the prep copy; else run_one's own count
+        o = self.scene / 'sol-low-a1'
+        write(o / 'prep/codex/rollout.jsonl', compacted())
+        write(o / 'prep-location.json', {'prep': '/nonexistent/prep-x', 'copied_to': str(o / 'prep')})
+        hand = {'instanceId': IID, 'reviewer_active_seconds': 10, 'session': '/nonexistent/prep-x/codex/rollout.jsonl',
+                'compactions': 5, 'tokens': {'uncached_input': 1, 'cached_input': 0, 'output': 1}}
+        write(o / 'instance.json', {'valid': True, 'handoffs': [hand]})
+        r = bench_records.instance_record('openai', 'code-spec-v5', o)
+        self.assertEqual((r['compactions'], r['handoffs'][0]['compactions_source']), (1, 'Codex root rollout compacted events'))
+        (o / 'prep/codex/rollout.jsonl').unlink()
+        r = bench_records.instance_record('openai', 'code-spec-v5', o)
+        self.assertEqual(r['compactions'], 5)
+        self.assertIn('run_one', r['compactions_source'])
+        hand.pop('compactions')
+        write(o / 'instance.json', {'valid': True, 'handoffs': [hand]})
+        r = bench_records.instance_record('openai', 'code-spec-v5', o)
+        self.assertIsNone(r['compactions'])
+        self.assertEqual(r['compactions_source'], 'no root rollout and no recorded count')
+
+    def test_claude_code_compactions_from_compact_boundary_events(self):
+        boundary = lambda uuid, parent=None: json.dumps({
+            'type': 'system', 'subtype': 'compact_boundary', 'uuid': uuid, 'session_id': 's', 'parent_tool_use_id': parent,
+            'compact_metadata': {'trigger': 'auto', 'pre_tokens': 99368, 'post_tokens': 7227}}) + '\n'
+        result = json.dumps({'type': 'result', 'is_error': False, 'result': 'x', 'duration_ms': 1, 'num_turns': 1,
+                             'usage': {'input_tokens': 1, 'output_tokens': 1}}) + '\n'
+        d = self.scene / 'opus-low-a1'
+        # b1 repeated, b3 a subagent's; the continued segment adds b4
+        write(d / 'h0/stream.jsonl', boundary('b1') + boundary('b1') + boundary('b2') + boundary('b3', 'p') + result)
+        write(d / 'h0/stream-1.jsonl', boundary('b4') + result)
+        write(d / 'h1/stream.jsonl', result)
+        write(d / 'instance.json', {'handoffs': [{'instanceId': IID, 'checks': {'valid': True, 'sandbox_failures': 0}},
+                                                 {'instanceId': IID, 'checks': {'valid': True, 'sandbox_failures': 0}}]})
+        r = bench_records.scene_records('anthropic', 'code-spec-v5', self.scene)[0]
+        self.assertEqual([h['compactions'] for h in r['handoffs']], [3, 0])
+        self.assertEqual((r['compactions'], r['compactions_source']), (3, 'Claude Code stream compact_boundary events'))
+        (d / 'h1/stream.jsonl').unlink()  # no stream: unknown, never 0
+        r = bench_records.scene_records('anthropic', 'code-spec-v5', self.scene)[0]
+        self.assertEqual([h['compactions'] for h in r['handoffs']], [3, None])
+        self.assertIsNone(r['compactions'])
+
+
 class ScenarioRepositoriesTest(unittest.TestCase):
     def test_marker_finds_every_layout_and_its_report_directories(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -13,6 +13,12 @@ are ARW's run/results.json. One record per instance directory, with the same fie
   identity (the plan's Main identity and the prep's); original_prepared; repository_check (what the Reviewer saw);
   plus the benchmark_summary fields, score fields left null until scored.
 
+Compactions (docs/plan.md, next benchmark, user 2026-10-22) are counted per handoff and summed per instance
+(`compactions`, None unless every handoff is known, never 0 for a missing source): Codex from the `compacted` events
+of the root Reviewer thread's rollout (guardian threads left out), else the count run_one recorded from that same
+rollout; Claude Code from the distinct `system` / `compact_boundary` events of the main session in the kept segment
+streams.
+
 Pauses (plan S2) of an instance without a recorded pause field are rebuilt mechanically, per arm, with the basis
 in pause_basis: OpenAI from instance.json `arw_pause` and the distinct ARW pause notices ("The Reviewer runtime paused
 this same task after ...") in run/machine.jsonl; Strata Codex from run/machine.jsonl; a Claude Code handoff of the
@@ -289,6 +295,9 @@ def openai_record(arm, scenario, folder):
         if location.get('prep') and str(h.get('report', '')).startswith(location['prep']):
             mapped = location['copied_to'] + h['report'][len(location['prep']):]
         path, ok = report_location(h.get('report_sha256'), (copies.get(iid) or {}).get('copy'), mapped, h.get('report'))
+        session = h.get('session')
+        moved = (location['copied_to'] + session[len(location['prep']):] if location.get('prep') and location.get('copied_to')
+                 and isinstance(session, str) and session.startswith(location['prep']) else None)
         handoffs.append({'k': k, 'instanceId': iid, 'sub_scenario': sub_scenario(iid), 'report': path, 'report_ok': ok,
                          'report_sha256': h.get('report_sha256'), 'seconds': h.get('reviewer_active_seconds'),
                          'tokens': h.get('tokens'), 'tool_calls': h.get('tool_calls'), 'thread_id': h.get('thread_id'),
@@ -297,7 +306,8 @@ def openai_record(arm, scenario, folder):
                          'service_tiers': (h.get('checks') or {}).get('service_tiers'),
                          'final_status': (h.get('checks') or {}).get('completion_status'),
                          'final_status_source': 'instance.json checks.completion_status (ARW completion: its final '
-                                                'status form by construction)'})
+                                                'status form by construction)',
+                         **codex_compactions(h.get('compactions'), moved, session)})
     record['handoffs'] = handoffs
     record['repository_manifest'] = {'kind': 'scenario-copies.json', 'entries': len(manifest)} if manifest else None
     return record
@@ -361,6 +371,8 @@ def claude_record(arm, scenario, folder):
                          'models_returned': checks.get('models_returned'), 'service_tiers': checks.get('service_tiers'),
                          'files_before': str(out / 'files-before.json') if (out / 'files-before.json').is_file() else None,
                          'spill_files': read_spills(out),
+                         'compactions': stream_compactions(files),
+                         'compactions_source': 'Claude Code stream compact_boundary events' if files else 'no stream',
                          **dict(zip(('final_status', 'final_status_source'), claude_final_status(out)))})
     if void is not None:
         record.update(validity('void', [void.get('reason')], 'void.json'))
@@ -450,7 +462,8 @@ def strata_codex_record(arm, scenario, folder, done):
                          'pause_events': r.get('arw_pause_events'),
                          'final_status': ((r.get('runtime_result') or {}).get('completion') or {}).get('status'),
                          'final_status_source': 'run/results.json runtime_result.completion (ARW completion: its final '
-                                                'status form by construction)'})
+                                                'status form by construction)',
+                         **codex_compactions(None, root_rollout_path(r))})
     record['handoffs'] = handoffs
     manifest = load(folder / 'scenario-copies.json')
     record['repository_manifest'] = {'kind': 'scenario-copies.json', 'entries': len(manifest)} if manifest else None
@@ -501,13 +514,73 @@ def rollout_tool_calls(path):
     return calls
 
 
+def root_rollout_path(result):
+    """The rollout of the root Reviewer thread of an ARW results.json entry (cost.histories), or None."""
+    root = (result.get('runtime_result') or {}).get('threadId')
+    if not root:
+        return None
+    return next((h.get('path') for h in (result.get('cost') or {}).get('histories') or [] if h.get('thread_id') == root),
+                None)
+
+
 def root_rollout_tool_calls(result):
     """Tool calls of the root Reviewer thread of an ARW results.json entry (guardian threads left out), from its
     rollout in cost.histories."""
-    root = (result.get('runtime_result') or {}).get('threadId')
-    path = next((h.get('path') for h in (result.get('cost') or {}).get('histories') or [] if h.get('thread_id') == root),
-                None)
-    return rollout_tool_calls(path) if root else None
+    path = root_rollout_path(result)
+    return rollout_tool_calls(path) if path else None
+
+
+def rollout_compactions(path):
+    """Compactions of one Codex rollout: its `compacted` lines (one per compaction, the line that carries the
+    replacement history; run_one counts the same). None without the rollout, or when a line naming `compacted` does
+    not parse (the count cannot be established)."""
+    path = Path(path) if path else None
+    if path is None or not path.is_file():
+        return None
+    count = 0
+    for line in path.read_text(errors='replace').splitlines():
+        if '"compacted"' not in line:
+            continue
+        try:
+            event = json.loads(line)
+        except ValueError:
+            return None
+        count += isinstance(event, dict) and event.get('type') == 'compacted'
+    return count
+
+
+def codex_compactions(recorded, *paths):
+    """(compactions, compactions_source) of a Codex handoff: recounted from the first root rollout found among
+    `paths`, else the count the runner recorded from that rollout, else unknown."""
+    for path in paths:
+        count = rollout_compactions(path)
+        if count is not None:
+            return {'compactions': count, 'compactions_source': 'Codex root rollout compacted events'}
+    if isinstance(recorded, int):
+        return {'compactions': recorded,
+                'compactions_source': 'instance.json handoff compactions (run_one, root rollout compacted events)'}
+    return {'compactions': None, 'compactions_source': 'no root rollout and no recorded count'}
+
+
+def stream_compactions(files):
+    """Compactions of a Claude Code handoff: distinct `system` / `compact_boundary` events (by uuid) of the main session
+    over its kept segment streams (a subagent's, parent_tool_use_id set, left out). None without a stream, or when a line
+    naming compact_boundary does not parse."""
+    if not files:
+        return None
+    seen = set()
+    for stream in files:
+        for number, line in enumerate(Path(stream).read_text(errors='replace').splitlines()):
+            if 'compact_boundary' not in line:
+                continue
+            try:
+                event = json.loads(line)
+            except ValueError:
+                return None
+            if (isinstance(event, dict) and event.get('type') == 'system' and event.get('subtype') == 'compact_boundary'
+                    and not event.get('parent_tool_use_id')):
+                seen.add(event.get('uuid') or (str(stream), number))
+    return len(seen)
 
 
 def engine_stage_seconds(requests):
@@ -633,6 +706,7 @@ def summary_fields(record):
     tokens = [h.get('tokens') for h in handoffs]
     known = handoffs and all(isinstance(t, dict) for t in tokens)
     calls = [h.get('tool_calls') for h in handoffs]
+    compactions = [h.get('compactions') for h in handoffs]
     models = sorted({m for h in handoffs for m in (h.get('models_returned') or [])})
     tiers = {}
     for h in handoffs:
@@ -647,6 +721,8 @@ def summary_fields(record):
                 'Claude Code stream result usage' if record['arm'] in API_TOKEN_ARMS else 'API usage (relay)')
             + (' (lower bound: a segment without result)' if known and any(h.get('tokens_lower_bound') for h in handoffs) else ''),
             'tool_calls': sum(calls) if handoffs and None not in calls else None,
+            'compactions': sum(compactions) if handoffs and None not in compactions else None,
+            'compactions_source': '; '.join(sorted({h.get('compactions_source') or 'unknown' for h in handoffs})) or None,
             'cost_usd': handoff_cost_usd(record), 'cost_cny': None, 'cost_basis': None,
             'model_ids': models, 'service_tiers': tiers}
 
