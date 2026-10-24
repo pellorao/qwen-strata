@@ -1,0 +1,88 @@
+{
+ "schema_version": 1,
+ "status": "installed-rtx3080ti-sha-verified",
+ "version": "0.2.4",
+ "commit": "96ca4383c7b05a8a3e6064c65d9e9977d4b3bb59",
+ "engine_version": "0.1.48",
+ "control_version": "0.1.49 (feed lists 0.1.49.1 after the 0.2.4.1 Terminal hotfix; the v0.2.4 tag is 0.1.49)",
+ "source": {
+  "project_file": "artifacts/strata/0.2.4/source.zip",
+  "bytes": 33002954,
+  "sha256": "d543da4aa06cb548ed177b8e96353112ee06b45c0d57a5fb9c4beee3ea3d8f0a",
+  "url": "https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.4.zip",
+  "archive": "tag archive, top directory Strata-0.2.4/, ZIP comment = commit; CMake VERSION 0.1.49 (engine package is 0.1.48, bound by metadata source_cmake_version)"
+ },
+ "engine": {
+  "project_file": "artifacts/strata/0.2.4/engine.tar.gz",
+  "bytes": 581299508,
+  "sha256": "1e1611b0977d984bd7d8e79591a1ba1a7e550a2f4a66bfa45744a77308a71b95",
+  "url": "https://github.com/Niko1221/Strata/releases/download/v0.2.4/strata-engine-0.1.48-windows-x86_64-cuda-cuda13.tar.gz",
+  "format": "tar.gz, flat (no top directory)",
+  "variant": "cuda13",
+  "build_id": "6f8800aefe27+cuda13.0",
+  "manifest_sha256": "1767034593452895ad32d9aaa66c611ee7bec0fe09194b0ae154df2de96e1a6f",
+  "installed_bytes": 878937056,
+  "min_driver": {
+   "nvidia": "580.65"
+  },
+  "archs": [
+   "sm_75",
+   "sm_86",
+   "sm_89",
+   "sm_120",
+   "compute_120"
+  ],
+  "manifest_signature_key_id": "5d1bc23abbeffd0d",
+  "manifest_signature_verified": true,
+  "note": "byte-identical to the v0.2.3 / v0.2.3.1 engine package (release notes: every engine package is still the 0.1.48 file)"
+ },
+ "feed": {
+  "url": "https://github.com/Niko1221/Strata/releases/download/v0.2.4/strata-feed.json",
+  "bytes": 14242,
+  "sha256": "9ece054762f0a4f55f252a733ddbe15f718ca8ca6a664b5faf454fc37ba012b8",
+  "signature_verified": true,
+  "project_file": "artifacts/strata/0.2.4/strata-feed.json",
+  "signature_file": "artifacts/strata/0.2.4/strata-feed.json.sig",
+  "signature_key_id": "5d1bc23abbeffd0d",
+  "generated_at": "2026-10-24T03:10:43Z",
+  "sequence": 111
+ },
+ "build": {
+  "version": "0.1.48",
+  "source": "f-023-rel",
+  "commit": "6f8800aefe27",
+  "archs": [
+   75,
+   86,
+   89,
+   120
+  ],
+  "ptx": true,
+  "cuda": "13.0",
+  "vision": "gpu-cuda13",
+  "portable": true,
+  "vision_archs": "75;86;89;120"
+ },
+ "instruction_dependency_comparison": {
+  "AGENTS.md": {
+   "unchanged": false,
+   "sha256": "685edaa9061b14b9373913fc44d8cbb3f878b7d93680424d84a776b732303bb5",
+   "change": "version line only (0.2.3, engine 0.1.48)"
+  },
+  "requirements.txt": {
+   "unchanged": false,
+   "sha256": "517d23bc6b9daeef506bdf712e68c4e8fcd2d67296a80ff6dd0743bb7a506506",
+   "change": "certifi 2026.10.19; truststore==0.10.5 added (not installed in the .venv; tls.install falls back to certifi)"
+  }
+ },
+ "previous_source_paths": [],
+ "currently_installed": {
+  "rtx3080ti": true,
+  "rtx4070tis": "pending-sync (offline)"
+ },
+ "installed_on_rtx3080ti": "2026-10-24",
+ "upstream_files_written": 479,
+ "unchanged_files": 4416,
+ "removed_upstream_files": [],
+ "backup_on_rtx3080ti": ".tmp/maintenance-backups/release-backup-20261024-125327-325162"
+}

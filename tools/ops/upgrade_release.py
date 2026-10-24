@@ -204,8 +204,11 @@ def upgrade(root, metadata, source, engine, feed, cuda_arch=89):
         changed.append(name)
         if reviewed.get(name) != hashlib.sha256(data).hexdigest():
             raise RuntimeError('Changed instructions/dependencies require review: ' + name)
-    # The release (tag) and engine versions differ since 0.2.0; CMake carries the engine version.
-    if not re.search(r'\bVERSION\s+' + re.escape(engine_version) + r'(?:\s|\)|$)',
+    # The release (tag) and engine versions differ since 0.2.0; CMake carries the engine version.  v0.2.4 ships the
+    # unchanged Qwen engine 0.1.48 while its source tree is already 0.1.49 (the DeepSeek engine): the metadata then names
+    # that CMake version explicitly (source_cmake_version), a reviewed deviation, never a default.
+    cmake_version = metadata.get('source_cmake_version', engine_version)
+    if not re.search(r'\bVERSION\s+' + re.escape(cmake_version) + r'(?:\s|\)|$)',
                      writes['runtime/Strata/CMakeLists.txt'][0].decode()):
         raise RuntimeError('Source version does not match the engine version')
     engine_digests, build, manifest = read_engine(engine, package, engine_version, cuda_arch)

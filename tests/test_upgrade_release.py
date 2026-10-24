@@ -194,6 +194,12 @@ class UpgradeTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError,'GPU architecture'):self.run_upgrade(cuda_arch=61)
         self.assert_untouched(before)
 
+    def test_source_cmake_version_may_be_bound_by_metadata(self):
+        self.write_source({'AGENTS.md':'Instructions','requirements.txt':'Dependencies','CMakeLists.txt':'VERSION 0.1.49'})
+        with self.assertRaisesRegex(RuntimeError,'engine version'):self.run_upgrade()
+        self.metadata['source_cmake_version']='0.1.49'
+        self.run_upgrade()
+
     def test_tag_archive_comment_must_bind_the_commit(self):
         before=self.snapshot()
         with zipfile.ZipFile(self.source,'a') as z:z.comment=b'other'
