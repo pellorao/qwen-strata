@@ -4,7 +4,7 @@
 
 ## 1. 目的
 
-所有参与的模型（Strata、OpenAI、DeepSeek、Anthropic 等）在各自的 harness 上作为 reviewer 互相比较，地位相同；不以 Strata 为中心，不写成「Strata 与其他模型对照」（用户 2026-10-24）。v2 相对 v1 的改动只有三类：
+所有参与的模型（Strata、OpenAI、DeepSeek、Anthropic 等）在各自的 harness 上作为 reviewer 被测量，地位相同；不以 Strata 为中心，不写成「Strata 与其他模型对照」（用户 2026-10-24）。benchmark 不做组间比较，只输出数据；比较由看结果页面的人自己做（用户 2026-10-25，第 10 节第 13 行）。v2 相对 v1 的改动只有三类：
 
 1. 修正 v1 盲裁中发现的场景文本歧义和 brief 措辞（[歧义清单](../reviewer-suite-v1/next-version-ambiguities.md)）。
 2. 对齐两个 harness 的窗口、压缩点、推理强度和输出上限（用户 2026-10-22，测量规则「跨 harness 比较」）。
@@ -145,7 +145,7 @@ harness 版本：v1 用 Codex 0.163.0、Claude Code 2.1.303；`tools/reviewer/ha
 ## 8. 实现待办（冻结前）
 
 - [x] 套件化（10-24）：新增 `tools/reviewer/bench_suite.py`（v1、v2 两个套件的场景、计划、brief、锚点、计分目录、模型失误表）；`bench_records`、`bench_score`、`blind_pool` 加 `--suite`，默认 v1，v1 的输出不变。v2 的 `bench_records` 运行目录布局（`LAYOUTS['v2']`）开跑时填。
-- [~] `benchmark_summary`、`benchmark_export` 的比较族已加 v2 路径（2026-10-25）：`benchmark_summary --suite v2`（`comparisons(suite)`）给每场景 47 个比较，组名为「harness 强度」或 `harness`，`holm_family_size` 随套件，summary.json 记 `suite`；`benchmark_export` 的比较设计随 summary 的套件。v1 默认路径不变，合成数据单测覆盖。仍待：配置表沿用 v1 的 27 个配置编号（v2 的配置集相同时可直接用），场景元数据（`benchmark_export.SCENARIOS`）和 v2 的公开文件还是 v1 内容，等 v2 运行目录布局和场景版本确定后改（F11）。
+- [~] `benchmark_summary --suite v2`、`benchmark_export` 的 v2 路径（2026-10-25，用户决定不做组间比较）：组内统计和逐实例表复用 v1 代码，`comparisons` 为空，summary.json 没有 `alpha`、`holm_family_size`，markdown 没有比较表，export 没有 `comparisonDesign`；v1 路径不变，合成数据单测覆盖三点（组内与 v1 同口径、无比较字段、v1 仍 25 个）。仍待：配置表沿用 v1 的 27 个配置编号（v2 的配置集相同时可直接用），场景元数据（`benchmark_export.SCENARIOS`）和 v2 的公开文件还是 v1 内容，等 v2 运行目录布局和场景版本确定后改（F11）。
 - [x] `format_penalty` 按套件取登记表（2026-10-25，F2）：`REGISTRIES = {v1, v2}`，v2 用 `benchmarks/multi-model-v2/format-baseline.json`（F3 重标时创建）；v2 登记里答案键不变的场景可写 `{"inheritsFrom": "v1"}`，不在 v2 登记里的键报错，不静默回落到 v1。v1 行为不变。
 - `tools/tuning/arw_dimension.py` 已为 CA v3.1 登记场景注释；CS v5.1、SR v4.4 沿用默认。
 - judgment 绑定：答案键 SHA 不变，现有登记自动适用，无需新增。
@@ -179,7 +179,7 @@ Main 采纳审查的 5、6、8：审查核对了答案键的证据行和先例�
 |---|---|---|
 | 12 | B1 统一口径：「修法与未提名干净用例相反判 unsupported」从只用于 CStd 推广到四个场景；口径段只写了 rulings.md:14 第 (1) 款 | 推广；同时补全第 (2)–(4) 款（措辞个别写反、复现属实、意图错误判 supported），避免偏向判 unsupported。**已落实**（见 4.2 B1） |
 | 13 | v2 的 Codex 各臂启用私有 scratch（[验证报告](../../reports/v0.2.4/scratch-verify.md)） | 启用；报告里列为与 v1 的条件差异 |
-| 14 | 运行设计（配置矩阵、每格 n、预登记比较与多重比较校正、预算、停止点） | 默认沿用 v1，改动须有充分理由，例如 v2 改了规则 A，而规则 A 影响规则 B，所以 B 也要改；逐项写明改动和理由 |
+| 14 | 运行设计（配置矩阵、每格 n、预算、停止点） | 默认沿用 v1，改动须有充分理由，例如 v2 改了规则 A，而规则 A 影响规则 B，所以 B 也要改；逐项写明改动和理由 |
 
 第 1–11 项用户看过完整说明，没有提出异议，按第 9 节执行。
 
@@ -207,7 +207,7 @@ Main 采纳审查的 5、6、8：审查核对了答案键的证据行和先例�
 | 10 | 停止点 | S1–S7 与完成条件（§10） | 沿用 |
 | 11 | 探针 | P0–P6（§8） | 沿用，按 v1 做法重跑 |
 | 12 | 安全验收 | 每种 harness 一次完整门，每个配置一次短冒烟（27 次）（§7） | 沿用 |
-| 13 | 统计与预登记比较 | 逐场景、逐配置报告 n、均值 ± SD、SE、95% 区间等；不给比值、综合分和排名；预登记族为「同一 harness、同一强度下 Strata 对其他每个配置」加两个 harness 之间的对照，每场景 25 个比较，Holm 校正，双侧 α = 0.05，Welch t 检验（§5） | **改**（2026-10-25，用户 30 分钟未答复，独立审查后 Main 决定，待用户复核，[审查](review-2026-10-25.md)）。因为 v2 的目的改为所有模型互相比较、地位相同（第 1 节），v1 以 Strata 为中心的族与之矛盾，所以族改为：同一 harness、同一强度下所有配置两两比较（Codex 15 个、Claude Code 26 个），加原有 6 个 harness 对照，每场景 47 个。Holm、双侧 α = 0.05、Welch（Welch–Satterthwaite 自由度）、按场景分族不受族成员变化影响，沿用。跟着改的：可分辨差按 m = 47 重估（约 0.33，v1 为约 0.3）；「Strata 用全部有效实例」改为「每个配置用全部有效实例（含加测），只有 Strata 有加测，n 不对称」；`benchmark_summary`、`benchmark_export` 的比较表随之改。报告保持配对表形式，不做字母分组之类近似排名的展示。GPT 与 Anthropic 模型不直接比较，用户 2026-10-25 确认不需要（按旧版只在同一 harness 内比较） |
+| 13 | 统计与预登记比较 | 逐场景、逐配置报告 n、均值 ± SD、SE、95% 区间等；不给比值、综合分和排名；预登记族为「同一 harness、同一强度下 Strata 对其他每个配置」加两个 harness 之间的对照，每场景 25 个比较，Holm 校正，双侧 α = 0.05，Welch t 检验（§5） | **改**（用户 2026-10-25）：v2 不做组间比较：没有预登记比较族、Holm、显著性检验、组间差值、「高于 / 低于 / 未分出」和排名。条件完全相同（同一场景、模型、harness、强度）的组内统计全部照旧，与 v1 同一份代码：n、均值、SD、SE、95% 区间、平均耗时、平均 token、速度（总 token ÷ 总耗时）等，选入统计的实例规则也沿用 v1；另给逐实例的详细结果。数据供外部工具做成图表页面，比较由看页面的人自己做。理由：用户重新定了 benchmark 的目的，所以 v1 的比较族不再适用（同日更早按「所有模型互相比较」设的 47 个比较族随之作废，[审查](review-2026-10-25.md)问题 1 已被取代）。跟着改的：可分辨差按比较族估计的部分不再需要，「Strata 用全部有效实例」与 n 不对称仍按 v1 规则，只是不再进比较；`benchmark_summary --suite v2`、`benchmark_export` 去掉比较部分 |
 | 14 | 盲裁 | 单名 Opus high，冻结 brief；每池最多 150 项（CStd、SR 210），每池 12 个锚点加全部合成项，门槛锚点一致率 ≥ 90% 且合成项全对；沿用已有决定只按内容指纹（§6.2，§14.1 10-21） | 裁决方式、池大小、锚点数、门槛沿用。**改**：因为 v2 改了四份 brief（第 4.2 节），而 v1 的决定和锚点是在旧 brief 下作出的，所以决定库按套件和 brief SHA 隔离，v1 决定不沿用到 v2，锚点注册表改为 `benchmarks/multi-model-v2/anchors/`，v1 锚点在 v2 brief 下逐个复核后才登记（第 9.2 节，第 11 节 F10） |
 | 15 | 评分 | r8.4，全部跑完后按最终规则统一重评（§3 场景与评分） | **改为 r8.5**：因为第 9 节第 1 项决定 SR 缺检查的反例记中性，所以评分版本从 r8.4 改为 r8.5（第 6.1 节）；统一重评沿用 |
 | 16 | 格式罚基准 | 按答案键 SHA 登记的 Haiku-high ×5 基准（§3） | **CS v5.1、CA v3.1、SR v4.4 重标**：因为第 9 节第 10 项定为重跑格式基准，SR v4.4 也改了场景措辞，同一理由适用，所以三个改过措辞的场景都重标；CStd v5.1 没改，沿用 v1 登记 |
@@ -239,7 +239,7 @@ Codex 臂另有两个 harness 补丁沿用 v1：`codex-0.163-synthetic-mount-tar
 | F8 | 输出上限核对 | mock 门抓取两边请求里的 `max_tokens` / `max_output_tokens`，与第 5.2 节一致才放行（第 5.3 节第 4 条）。依赖 F5、F6 填值 | 无 | 0 | 部分（2026-10-25）：Claude 一侧已核对，真实 Claude Code 请求的 `max_tokens` 等于 `CLAUDE_CODE_MAX_OUTPUT_TOKENS`（探针 `output_limit_ok`），值待 F5。**Codex 一侧的请求不带输出上限**：mock 门抓到 Strata 与 DeepSeek 两个案例的请求键都没有 `max_output_tokens`（请求键：client_metadata, include, input, model, parallel_tool_calls, prompt_cache_key, reasoning, store, stream, text, tool_choice, tools）。所以「Claude Code 输出上限设成与 Codex 实际请求相同的值」没有 Codex 的数可抄，Claude Code 的输出上限取值是 F5 的待决问题（交 Main 或用户） |
 | F9 | 真实 Role 到达假服务器 | 用 v2 计划的真实 Role（SR 36,656 字节）经 `claude_headless` 对假服务器跑一次，核对系统提示完整到达、追加顺序正确，绑定系统提示 SHA。`claude_gate` 目前不带 Role，需加一个选项或用 mock 服务器直接跑 `claude_headless.run` | 无 | 0 | 已做（2026-10-25）：新增 `tools/safety/claude_role_gate.py`，用不改动的 `claude_scenario.run`（后端 deepseek）、固定的 Claude Code 2.1.309、回环 Messages mock、假 key、只有回环的网络命名空间，对四个 v2 计划各跑一次（SR 两个交接），按 mock 收到的请求判定：Role 在每个主循环请求的 `system` 里恰好一次、在 Claude 自己的提示之后且是末尾、不在 messages 里；`system-h<k>.md` 的 sha256 等于绑定的 `system_sha256`；绑定的端点等于 mock 地址。四个计划全部通过（Role 27,861 / 29,540 / 30,172 / 36,656 字节，SR 两个交接是同一个 Role）。DeepSeek 上限仍为 null 的计划用占位上限，Role 检查与之无关。`claude_headless.run`、`claude_scenario.run` 加了 `deepseek_base` 参数（默认不变）。`tests/test_claude_role_gate.py` 3 个单测 |
 | F10 | 决定库隔离与锚点复核 | 隔离已由代码与单测保证（`tests/test_blind_pool.py`、`tests/test_bench_score.py`）；v1 锚点在 v2 brief 下逐个复核（Main 可执行检查，按 v1 §6.2 挑选规则），答案变了的替换，通过的用 `blind_pool anchor-add --suite v2` 登记到 `benchmarks/multi-model-v2/anchors/` | Main | Main 时间约 1 小时 | 隔离已做；锚点复核未做 |
-| F11 | 工具链的 v1 场景名 | `bench_records`、`bench_score`、`blind_pool` 已套件化；`benchmark_summary`、`benchmark_export` 待第 10 节第 13 项定下后改；v2 的 `bench_records` 运行目录布局和 `benchmarks/multi-model-v2/model-failures.json` 开跑后建立 | 无 | 0 | 部分（2026-10-25）：`benchmark_summary --suite v2`、`benchmark_export` 的 47 个比较已做并有合成数据单测（见第 8 节）；v2 的 `bench_records` 运行目录布局、`model-failures.json` 和 v2 场景元数据开跑后建立 |
+| F11 | 工具链的 v1 场景名 | `bench_records`、`bench_score`、`blind_pool` 已套件化；`benchmark_summary`、`benchmark_export` 按第 10 节第 13 项（不做比较）改；v2 的 `bench_records` 运行目录布局和 `benchmarks/multi-model-v2/model-failures.json` 开跑后建立 | 无 | 0 | 部分（2026-10-25）：`benchmark_summary --suite v2`、`benchmark_export` 的 v2 路径（组内统计照旧，不做组间比较）已做并有合成数据单测（见第 8 节）；v2 的 `bench_records` 运行目录布局、`model-failures.json` 和 v2 场景元数据开跑后建立 |
 | F12 | harness 换最新版后的零模型检查 | 冻结时两个 harness 同时取最新版写进 `harness_pins.py`，四个计划的 `codex`、`native_cli_sha256` 同步；重跑 F4 的 mock 门、`python3 -m tools.ops.claude_compact_probe --repeat 3`、`verify_codex_compact_prompt` | 无 | 0 | 未做（随冻结） |
 | F13 | 安全验收 | 按 v1 §7：Codex 完整门（Strata）、Claude Code 完整门（Haiku high ×3 加 Opus 抽查）、27 个配置短冒烟；Codex 臂的门带 scratch 补丁 | Strata、Haiku、Opus、DeepSeek、OpenAI | Anthropic 约 $10–20；Strata GPU 约 2 小时 | 未做 |
 | F14 | 输出上限重试改动 | 确认 `src/output_limit.py` 的重试改动是否已合入并部署，冻结时以部署版本为准 | 无 | 0 | 已核实（2026-10-25）：提交 1e0fd58 在 master（fc43611）上，`src/output_limit.py`、`src/frontend.py` 与 rtx3080ti 安装目录里的同名文件 sha256 相同（`4903c6ef…`、`475d3035…`）。范围：重试只作用于 Strata 前端上流式的 Responses 请求（Codex 臂），Claude Code 的 Messages 请求没有，DeepSeek 与 API 臂不经前端；所以 v2 里只影响 Strata 的 Codex 配置，是条件差异，报告里写明。冻结时再核一次安装目录 |
