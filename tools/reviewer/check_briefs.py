@@ -30,13 +30,21 @@ SUITES = {
            SUITE / 'spec-readiness-v4.3-brief.md': (MANIFESTS / 'manifest-spec-readiness-v4.3.json', 'spec-readiness-reviewer')},
     'v2': {V2 / 'briefs/code-spec-v5.1-brief.md': (V2 / 'scenarios/manifest-code-spec-v5.1.json', 'code-spec-reviewer'),
            V2 / 'briefs/code-standards-v5.1-brief.md': (MANIFESTS / 'manifest-code-standards-v5.1.json', 'code-standards-reviewer'),
-           V2 / 'briefs/spec-readiness-v4.4-brief.md': (V2 / 'scenarios/manifest-spec-readiness-v4.4.json', 'spec-readiness-reviewer'),
+           V2 / 'briefs/spec-readiness-v4.5-brief.md': (V2 / 'scenarios/manifest-spec-readiness-v4.5.json', 'spec-readiness-reviewer'),
            V2 / 'briefs/commit-audit-v3.1-brief.md': (V2 / 'scenarios/manifest-commit-audit-v3.1.json', 'commit-audit-reviewer')}}
 V2_COMMON = re.compile(r'^本工程补充（multi-model-v2 统一口径.*?\n\n', re.S | re.M)
-# Rulings the v2 common paragraph must carry (plan.md section 9, items 8 and 12): rulings.md "一条 finding 讲了两个缺陷"
-# and the four clauses of "finding 的机制写对了，但结论或例子与代码相反".
-V2_COMMON_RULINGS = ('其中一个与期望句是同一问题即 matched，其余缺陷不影响该关联', '与被审材料的实际行为相反',
-                     '只是个别措辞写反', '复现的情形实测属实', '错误意图当成正确要求')
+# Rulings the v2 common paragraph must carry (plan.md section 9, items 8 and 12; F1 audit M4, M5, S2): rulings.md
+# "一条 finding 讲了两个缺陷" (matched, and the uncovered positions are not "挂在别的位置"), the template rule, the four
+# clauses of "finding 的机制写对了，但结论或例子与代码相反" (clause 2 judged by the defect it states, as ds-ca-4-149), and
+# the unnominated-clean rule judged by the claimed problem, not by the proposed fix.
+V2_COMMON_RULINGS = ('其中一个与期望句是同一问题即 matched，其余缺陷不影响该关联', '关联候选判 `not-matched`，发现候选判 `unsupported`',
+                     '不适用上一条中"答案键里的缺陷挂在了别的位置"那一句', '与被审材料的实际行为相反',
+                     '只是个别措辞写反的，按所讲缺陷照常判', '复现的情形实测属实', '错误意图当成正确要求',
+                     'finding 主张的问题就是某个没有被提名的干净用例所描述的成立内容', '修法不作判据')
+# SR v4.4 / v4.5 wording the v2 SR brief explains (F1 audit A4, M2): line -> text, in both the RM and the full-review copy.
+V2_SR_WORDING = {('promotion-recovery.md', 65): '不由 promote 的 caller 自报替代',
+                 ('promotion-runtime.md', 11): 'Promotion 信任此前置条件, 不增加 public 参数或失败分支.',
+                 ('promotion-runtime.md', 45): '不增加公开参数或失败分支'}
 # A Role sentence a v2 brief quotes as `docs/agents/roles/<file>`:<line> 原文"…"、"…": each quote must be on that line.
 V2_ROLE_QUOTE = re.compile(r'`(docs/agents/roles/[^`]+)`:(\d+) 原文((?:"[^"]+"、?)+)')
 
@@ -166,6 +174,11 @@ def check(work, suite='v1'):
             for scope in ('SPEC-READINESS-INPUTS', 'SPEC-READINESS-REQUIREMENTS'):
                 chk(scope in scopes and scope in text, f'SR: scope {scope} in key and brief')
             chk(len(scopes) - 2 == 9, 'SR: AP-only checks = 9')
+            if suite == 'v2':
+                for (name, number), wording in V2_SR_WORDING.items():
+                    for view in ('candidate', 'full-review/candidate'):
+                        chk(wording in line(scenario / view / 'specs' / name, number),
+                            f'SR v2: {view} {name}:{number} holds "{wording}"')
         if reviewer == 'commit-audit-reviewer':
             chk(quoted_section(SUITE / 'commit-audit-v3.md', '## 裁决口径', text), 'CA: quoted v3 verdict section verbatim with sha')
             chk([s['scope'] for s in key['scopes']] == ['COMMIT-AUDIT-GATE-1', 'COMMIT-AUDIT-GATE-2'], 'CA: two gates')

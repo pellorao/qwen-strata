@@ -14,7 +14,7 @@ FIXTURES = Path('tests/fixtures/reviewer-capability')
 # v2 version -> (v1 version, reviewer)
 VERSIONS = {'code-spec-v5.1': ('code-spec-v5', 'code-spec-reviewer'),
             'commit-audit-v3.1': ('commit-audit-v3', 'commit-audit-reviewer'),
-            'spec-readiness-v4.4': ('spec-readiness-v4.3', 'spec-readiness-reviewer')}
+            'spec-readiness-v4.5': ('spec-readiness-v4.3', 'spec-readiness-reviewer')}
 
 
 def build(manifest_path, destination):
@@ -38,13 +38,16 @@ class MultiModelV2Tests(unittest.TestCase):
         cls.tmp.cleanup()
 
     def test_v2_patch_only_rewords_lines_and_keeps_the_answer_key(self):
-        """The v2 scenario = the frozen v1 manifest plus one patch; each changed file keeps its line count and the
-        answer key stays byte for byte the same, so the k registry, the format baseline and the brief citations bind."""
+        """The v2 scenario = the frozen v1 manifest plus the v2 patches (SR v4.5 stacks on v4.4); each changed file keeps
+        its line count and the answer key stays byte for byte the same, so the k registry, the format baseline and the
+        brief citations bind."""
         for new, (old, reviewer) in VERSIONS.items():
             with self.subTest(new):
                 v1 = json.loads((V1 / f'manifest-{old}.json').read_text())
                 v2 = build(V2 / f'manifest-{new}.json', self.work / new)
-                self.assertEqual(v2['patches'][:-1], v1['patches'])
+                v2_patches = v2['patches'][len(v1['patches']):]
+                self.assertEqual(v2['patches'][:len(v1['patches'])], v1['patches'])
+                self.assertTrue(v2_patches)
                 self.assertEqual({k: v for k, v in v2['snapshot'].items() if k != 'file'},
                                  {k: v for k, v in v1['snapshot'].items() if k != 'file'})
                 build(V1 / f'manifest-{old}.json', self.work / old)
@@ -52,7 +55,7 @@ class MultiModelV2Tests(unittest.TestCase):
                 self.assertEqual(before.keys(), after.keys())
                 changed = sorted(name for name in before if before[name] != after[name])
                 self.assertEqual(changed, sorted(Path(name).relative_to(FIXTURES / reviewer).as_posix()
-                                                 for name in v2['patches'][-1]['result']))
+                                                 for name in {n for entry in v2_patches for n in entry['result']}))
                 self.assertNotIn('expected.json', changed)
                 for name in changed:
                     self.assertEqual(before[name].count(b'\n'), after[name].count(b'\n'), name)

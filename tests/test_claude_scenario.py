@@ -138,7 +138,7 @@ class ClaudeScenarioTest(unittest.TestCase):
 
     def test_v2_plans_fix_role_scratch_scoring_and_the_deepseek_window(self):
         root = Path(__file__).resolve().parents[1] / 'benchmarks/multi-model-v2/scenarios'
-        names = ('code-spec-v5.1', 'code-standards-v5.1', 'commit-audit-v3.1', 'spec-readiness-v4.4')
+        names = ('code-spec-v5.1', 'code-standards-v5.1', 'commit-audit-v3.1', 'spec-readiness-v4.5')
         for name in names:
             fixed = json.loads((root / f'{name}.json').read_text())['fixed_conditions']
             self.assertIs(fixed['claude_role_as_system'], True, name)

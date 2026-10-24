@@ -1304,6 +1304,15 @@
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/promotion-recovery.md": "44891b2423e7b77e7aab9192911106ecc5eb3b2418340da9cd21a24062bee9ed",
         "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-recovery.md": "7e34c37a996f17bef08e07cb3b5765dd30894ea764112a9deb9c99518faff309"
       }
+    },
+    {
+      "file": "../../../multi-model-v2/scenarios/spec-readiness-v4.5.patch",
+      "sha256": "40ae22dca3dfc827f332dfd96b31aaf7192d233754834b0c18453f93d6cd8526",
+      "reason": "Multi-model benchmark v2 draft (F1 audit M2, benchmarks/multi-model-v2/audit-f1-2026-10-25.md; plan.md section 9 item 6), applied after spec-readiness-v4.4: promotion-runtime.md:11 says Promotion trusts the Readiness binding precondition and adds neither a public parameter nor a failure branch, as :45 already says for retentionDays, so a binding-mismatch result is an internal precondition and not an unlisted defect. RM and full-review copies. Line counts and the answer key are unchanged.",
+      "result": {
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/promotion-runtime.md": "c8e6d96249054569f3bb529053f9f4165a8fb6c751b849df7d3ad1c366116168",
+        "tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-runtime.md": "c8e6d96249054569f3bb529053f9f4165a8fb6c751b849df7d3ad1c366116168"
+      }
     }
   ]
 }

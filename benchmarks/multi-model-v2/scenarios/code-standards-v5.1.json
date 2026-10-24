@@ -1,6 +1,6 @@
 {
  "schema": "arw-dimension-v1",
- "status": "draft, not frozen (benchmarks/multi-model-v2/plan.md §11): codex / native_cli_sha256 are the harness_pins values of 2026-10-24 and are replaced by the then-latest at freeze; the two null DeepSeek limits are filled from the freeze checks (§11 F5, F6) and refuse a DeepSeek Claude Code run until then",
+ "status": "draft, not frozen (benchmarks/multi-model-v2/plan.md §11): codex / native_cli_sha256 are the harness_pins values of 2026-10-24 and are replaced by the then-latest at freeze; the DeepSeek Claude Code limits are the §11 F5 values (compaction 945000, output 128000), checked by F6 / F8",
  "host": "none (benchmark arms; model, effort and time limit given by the runner)",
  "model": "multi-model-benchmark-arm",
  "reviewer": "code-standards-reviewer",

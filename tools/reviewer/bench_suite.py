@@ -16,7 +16,7 @@ SUITES = {
            'score_root': ROOT / '.tmp/bench-score',
            'model_failures': ROOT / 'benchmarks/multi-model-v1/model-failures.json',
            'scoring': 'r8.4'},
-    'v2': {'scenarios': ('commit-audit-v3.1', 'code-spec-v5.1', 'code-standards-v5.1', 'spec-readiness-v4.4'),
+    'v2': {'scenarios': ('commit-audit-v3.1', 'code-spec-v5.1', 'code-standards-v5.1', 'spec-readiness-v4.5'),
            'plans': ROOT / 'benchmarks/multi-model-v2/scenarios',
            'briefs': ROOT / 'benchmarks/multi-model-v2/briefs',
            'anchors': ROOT / 'benchmarks/multi-model-v2/anchors',

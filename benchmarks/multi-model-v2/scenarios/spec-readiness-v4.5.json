@@ -1,6 +1,6 @@
 {
  "schema": "arw-dimension-v1",
- "status": "draft, not frozen (benchmarks/multi-model-v2/plan.md §11): codex / native_cli_sha256 are the harness_pins values of 2026-10-24 and are replaced by the then-latest at freeze; the two null DeepSeek limits are filled from the freeze checks (§11 F5, F6) and refuse a DeepSeek Claude Code run until then",
+ "status": "draft, not frozen (benchmarks/multi-model-v2/plan.md §11): codex / native_cli_sha256 are the harness_pins values of 2026-10-24 and are replaced by the then-latest at freeze; the DeepSeek Claude Code limits are the §11 F5 values (compaction 945000, output 128000), checked by F6 / F8",
  "host": "none (benchmark arms; model, effort and time limit given by the runner)",
  "model": "multi-model-benchmark-arm",
  "reviewer": "spec-readiness-reviewer",
@@ -14,8 +14,8 @@
   "codex": "0.164.0",
   "native_cli_sha256": "b93f6811d3f653f0fb83be4050d857fb9abbb111dfa2ce160563327daff7f306",
   "effort": "per configuration (claude_scenario --effort)",
-  "arw_source_manifest": "benchmarks/multi-model-v2/scenarios/manifest-spec-readiness-v4.4.json",
-  "arw_source_manifest_sha256": "a4bf7eab597e85b48d857de562a7d956d65441188f551c4fff4ddcedfb52c9a7",
+  "arw_source_manifest": "benchmarks/multi-model-v2/scenarios/manifest-spec-readiness-v4.5.json",
+  "arw_source_manifest_sha256": "5b9d3d62c5fc1a462af0f8e33a1faa9c28cd73858f17e83e8445c9d57069ccfe",
   "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
   "scoring": "r8.5",
   "codex_harness_patches": [

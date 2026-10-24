@@ -31,7 +31,7 @@ from tools.safety import claude_gate
 ROOT = Path(__file__).resolve().parents[2]
 SCENARIOS = ROOT / 'benchmarks/multi-model-v2/scenarios'
 # Plan -> handoffs to run (Spec Readiness has two different Roles, RM and AP; the others share one per plan).
-PLANS = {'commit-audit-v3.1': 1, 'code-spec-v5.1': 1, 'code-standards-v5.1': 1, 'spec-readiness-v4.4': 2}
+PLANS = {'commit-audit-v3.1': 1, 'code-spec-v5.1': 1, 'code-standards-v5.1': 1, 'spec-readiness-v4.5': 2}
 PLACEHOLDER = {'CLAUDE_CODE_MAX_CONTEXT_TOKENS': 1048576, 'CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE': 1040000,
                'CLAUDE_CODE_MAX_OUTPUT_TOKENS': 32000}
 MODEL = 'deepseek-v4-flash'
