@@ -267,6 +267,18 @@ class SummaryFieldsTest(unittest.TestCase):
             bs.attach_scores(records, folder)
         self.assertEqual(records[0]['model_failure_handoffs'], [0])
         self.assertEqual(records[0]['score_before_penalty'], 0.0)
+        self.assertIsNone(records[0]['missing_checks'])
+        self.assertIn('missing_checks', bs.SUMMARY_RECORD_FIELDS)
+
+    def test_attach_scores_copies_r8_5_missing_checks(self):
+        records = ranked([record(1, 1, None)])
+        with tempfile.TemporaryDirectory() as folder:
+            work = Path(folder) / records[0]['id']
+            work.mkdir(parents=True)
+            (work / 'score.json').write_text(json.dumps({'status': 'final', 'final': 0.5, 'missing_checks': 3,
+                                                         'handoffs': []}))
+            bs.attach_scores(records, folder)
+        self.assertEqual(records[0]['missing_checks'], 3)
 
 
 if __name__ == '__main__':

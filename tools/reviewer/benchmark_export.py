@@ -335,6 +335,8 @@ def instance(row, phase, diagnostic):
                     'score': row.get('score'), 'scoreR83': row.get('score_r83'), 'rawScore': row.get('raw_score'),
                     'scoreBeforePenalty': row.get('score_before_penalty'), 'formatPenalty': row.get('format_penalty'),
                     'repairs': row.get('repairs'), 'overallDeduction': row.get('overall_deduction'),
+                    # r8.5 (v2) only; left out when null so v1 files stay identical.
+                    **({'missingChecks': row['missing_checks']} if row.get('missing_checks') is not None else {}),
                     'modelFailureSubScenarios': [sub.get(k) for k in failed],
                     'diagnosticEnvironmentQueries': diagnostic.get(row['id'])},
         'time': {'durationSeconds': row.get('seconds'), 'timeLimitSeconds': row.get('time_limit_seconds'),
