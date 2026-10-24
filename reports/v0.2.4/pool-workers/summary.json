@@ -1,0 +1,69 @@
+{
+ "date": "2026-10-24",
+ "host": "rtx3080ti",
+ "quant": "IQ3_XXS",
+ "strata": "0.2.4",
+ "engine": "0.1.48",
+ "conditions": {
+  "A": "--pool-workers 23（现行）",
+  "B": "--pool-workers 15"
+ },
+ "blocks_run": "12 块 ABBA×3 + 4 块 BAAB，共 16 块，每块 3 个请求",
+ "all_correct": "48/48",
+ "combined": {
+  "A": {
+   "blocks": 8,
+   "engine_out": 121.31,
+   "engine_in": 2259.1,
+   "work_s": 800.7,
+   "generated": 82151,
+   "task_out": 102.6
+  },
+  "B": {
+   "blocks": 8,
+   "engine_out": 121.26,
+   "engine_in": 2238.6,
+   "work_s": 834.4,
+   "generated": 86077,
+   "task_out": 103.2
+  }
+ },
+ "pair_ratios_B_over_A": {
+  "engine_out": [
+   0.959,
+   0.997,
+   0.969,
+   0.955,
+   1.009,
+   1.047,
+   1.029,
+   1.025
+  ],
+  "engine_in": [
+   0.995,
+   0.996,
+   0.978,
+   0.99,
+   0.992,
+   0.994,
+   0.994,
+   0.99
+  ]
+ },
+ "summary": {
+  "engine_out": {
+   "median": 1.0028,
+   "mean": 0.9987,
+   "se": 0.0122,
+   "B_lt_A": "4/8"
+  },
+  "engine_in": {
+   "median": 0.9928,
+   "mean": 0.991,
+   "se": 0.002,
+   "B_lt_A": "8/8"
+  }
+ },
+ "threshold": "差异 ≥2% 且方向一致才改默认",
+ "decision": "维持 23"
+}
