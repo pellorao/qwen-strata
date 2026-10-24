@@ -962,5 +962,1914 @@
    }
   }
  ],
- "synthetic": []
+ "synthetic": [
+  {
+   "id": "s01",
+   "type": "mismatch",
+   "family": "strata",
+   "model": "strata-q3",
+   "expected": "not-matched",
+   "from": "formal pool-all c141 (case 10) under case 15",
+   "item": {
+    "kind": "association",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "findMenuItem in menu.mjs only forwards to requireMenuItem with the same arguments and hides no complexity (writing.md: no pure forwarding wrappers); catering-notices.mjs can call requireMenuItem directly.",
+    "finding": "3. `src/catering/menu.mjs:11`\n   - Violated instruction: `src/AGENTS.md` rule 3 \"Array and plain-object values exported directly from a module must be frozen before export.\"\n   - `export const DIETARY_TAGS = Object.keys(DIETARY_LABELS);` exports a mutable array. `DIETARY_LABELS` on line 4 is frozen, so the intent to freeze exported data is clear, and the other module-level collections in this change are frozen too (`src/catering/vendors.mjs:3`, `src/catering/kitchen-manifest.mjs:8,19`, `src/catering/catering-states.mjs:1`).\n   - Impact: `DIETARY_TAGS` is the authority for dietary validation and reporting (`src/catering/menu.mjs:16`, `src/catering/catering-statements.mjs:9`), so any caller that pushes or splices it changes which tags every feature accepts for the rest of the process.\n   - Fix: `export const DIETARY_TAGS = Object.freeze(Object.keys(DIETARY_LABELS));`.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/catering/menu.mjs",
+      "line": 11
+     },
+     {
+      "filePath": "src/catering/vendors.mjs",
+      "line": 3
+     },
+     {
+      "filePath": "src/catering/kitchen-manifest.mjs",
+      "line": 8
+     },
+     {
+      "filePath": "src/catering/kitchen-manifest.mjs",
+      "line": 19
+     },
+     {
+      "filePath": "src/catering/catering-states.mjs",
+      "line": 1
+     },
+     {
+      "filePath": "src/catering/menu.mjs",
+      "line": 16
+     },
+     {
+      "filePath": "src/catering/catering-statements.mjs",
+      "line": 9
+     }
+    ]
+   },
+   "confirmed_by": "v1 合成题 s01 在 v2 brief 与 code-standards-v5.1 场景文本下复核（F10，2026-10-25），期望 not-matched 不变"
+  },
+  {
+   "id": "s02",
+   "type": "mismatch",
+   "family": "anthropic",
+   "model": "opus",
+   "expected": "not-matched",
+   "from": "opus3 pool c017 (case 3, read and checked against case 3) under case 17",
+   "item": {
+    "kind": "association",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source).",
+    "finding": "- `src/catering/kitchen-manifest.mjs:1,46`: `kitchen-manifest.mjs` is a rule module (not `*-service.mjs`/`*-store.mjs`, not under `src/platform/`) but imports the Node.js built-in `node:crypto` to compute the manifest digest. This violates `src/AGENTS.md` rule 2 (only store and platform modules may import Node.js built-ins). Fix: move the SHA-256 digest computation into a platform module (for example a small `src/platform/digest.mjs` exporting a hex SHA-256 helper) and import that from the rule module, or compute the digest in the service/store layer.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/catering/kitchen-manifest.mjs",
+      "line": 1
+     },
+     {
+      "filePath": "src/catering/kitchen-manifest.mjs",
+      "line": 46
+     }
+    ]
+   },
+   "confirmed_by": "v1 合成题 s02 在 v2 brief 与 code-standards-v5.1 场景文本下复核（F10，2026-10-25），期望 not-matched 不变"
+  },
+  {
+   "id": "s03",
+   "type": "mismatch",
+   "family": "openai",
+   "model": null,
+   "expected": "not-matched",
+   "from": "written 2026-10-20 (OpenAI style; finding of case 11) under case 9",
+   "item": {
+    "kind": "association",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error.",
+    "finding": "- `src/catering/catering-service.mjs:31-37`: `notifyVendor` replaces the caught notifier error with `new Error(message, error)`. The second argument is the options object, so the original error is not kept as `cause`, contrary to `src/AGENTS.md` rule 4.2. Callers lose the reason the vendor was not notified. Pass `{cause: error}`.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/catering/catering-service.mjs",
+      "lineEnd": 37,
+      "lineStart": 31
+     }
+    ]
+   },
+   "confirmed_by": "v1 合成题 s03 在 v2 brief 与 code-standards-v5.1 场景文本下复核（F10，2026-10-25），期望 not-matched 不变"
+  },
+  {
+   "id": "s04",
+   "type": "finding-problem",
+   "family": "strata",
+   "model": "strata-q3",
+   "expected": "problem-16",
+   "from": "formal pool-all c152 (matched, case 16)",
+   "item": {
+    "kind": "finding",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "problem-1",
+     "problem-2",
+     "problem-3",
+     "problem-4",
+     "problem-5",
+     "problem-6",
+     "problem-7",
+     "problem-8",
+     "problem-9",
+     "problem-10",
+     "problem-11",
+     "problem-12",
+     "problem-13",
+     "problem-14",
+     "problem-15",
+     "problem-16",
+     "problem-17",
+     "problem-18",
+     "problem-19",
+     "problem-20",
+     "problem-21",
+     "problem-22",
+     "problem-23",
+     "problem-24",
+     "problem-25",
+     "problem-26"
+    ],
+    "expectation": null,
+    "finding": "17. `src/catering/catering-time.mjs:1`\n   - Design smell: `Middle Man`; violates `docs/agents/writing.md` \"不得创建只转发调用且没有隐藏任何复杂性的公共包装器\" (do not create a public wrapper that only forwards a call and hides no complexity).\n   - The whole module is `export {DAY, addMinutes} from '../platform/time.mjs';`. It adds no policy, no default, and no renaming. Its two consumers, `src/catering/catering-policy.mjs:4` and `src/catering/catering-service.mjs:11`, could import `../platform/time.mjs` directly, which `src/AGENTS.md` rule 7.1 already allows for a feature module.\n   - Impact: a reader of `catering-policy.mjs` cannot tell whether `addMinutes` is a catering rule or the platform clock helper, and the extra file becomes a place where a catering-specific time rule could be hidden later without any current need for it. `src/visitors/lobby-policy.mjs:3` and `src/payments/payment-policy.mjs:2` already import `../platform/time.mjs` directly, so this module is the only indirection of its kind.\n   - Fix: delete `src/catering/catering-time.mjs` and import `DAY` and `addMinutes` from `../platform/time.mjs` in both consumers.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/catering/catering-time.mjs",
+      "line": 1
+     },
+     {
+      "filePath": "src/catering/catering-policy.mjs",
+      "line": 4
+     },
+     {
+      "filePath": "src/catering/catering-service.mjs",
+      "line": 11
+     },
+     {
+      "filePath": "src/visitors/lobby-policy.mjs",
+      "line": 3
+     },
+     {
+      "filePath": "src/payments/payment-policy.mjs",
+      "line": 2
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "catering-states.mjs exports advanceOrder as a default export and catering-service.mjs imports it as one, violating the named-export rule."
+     },
+     {
+      "decision": "problem-2",
+      "expectation": "vendorNotice reads the clock with Date.now(); only service modules may read the current time, through the injected now function, and the notices module is a rule module."
+     },
+     {
+      "decision": "problem-3",
+      "expectation": "kitchen-manifest.mjs is a rule module but imports the Node.js built-in node:crypto; rule 2 allows built-in imports only in store and platform modules (the node: prefix alone is not enough)."
+     },
+     {
+      "decision": "problem-4",
+      "expectation": "loadMenu in menu.mjs, a rule module, catches the JSON parse error; rule 4.1 forbids catching in rule modules even when the replacement keeps the cause, and menuFor in the service already wraps menu failures."
+     },
+     {
+      "decision": "problem-5",
+      "expectation": "cancelOrder passes its whole argument object, including the injected now function, to cancellationFee in catering-pricing.mjs, a rule module, which calls context.now() (rule 6.1 and 6.2: rule modules take instants); cancelOrder thereby reads the clock twice in one call (rule 6.3)."
+     },
+     {
+      "decision": "problem-6",
+      "expectation": "upcomingOrders hands now to the private helper isUpcoming, whose returned predicate calls now() once per order; rule 6.3 allows one read per call and passing now on only to another exported service function."
+     },
+     {
+      "decision": "problem-7",
+      "expectation": "postponeOrder changes the record returned by store.find in place with Object.assign before validating it; rule 5 treats store records as caller-supplied, and a rejected postponement leaves the stored order already changed."
+     },
+     {
+      "decision": "problem-8",
+      "expectation": "catering-service.mjs imports isFrontDeskOpen from schedules/front-desk-service.mjs, a service module of another feature (rule 7.2); the rule module schedules/desk-policy.mjs (isDeskOpen) can be used with the injected desk store (moving the capability to platform under rule 7.4 is also an acceptable fix)."
+     },
+     {
+      "decision": "problem-9",
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error."
+     },
+     {
+      "decision": "problem-10",
+      "expectation": "DIETARY_TAGS is exported directly from menu.mjs as Object.keys(DIETARY_LABELS), a new array that is not frozen although DIETARY_LABELS is."
+     },
+     {
+      "decision": "problem-11",
+      "expectation": "notifyVendor replaces the caught notifier error with new Error(message, error); the caught error is passed as the options argument, not as {cause: error}, so the new error has no cause."
+     },
+     {
+      "decision": "problem-12",
+      "expectation": "kitchenManifests passes the caller's orders array to inDeliveryOrder, which sorts it in place with Array.prototype.sort, so the exported function reorders caller data (rule 5)."
+     },
+     {
+      "decision": "problem-13",
+      "expectation": "addLine copies the order with a shallow spread and then pushes into amended.lines, which is still the caller's order.lines array, mutating caller data."
+     },
+     {
+      "decision": "problem-14",
+      "expectation": "catering-store.mjs implements the store as a class although no external Interface requires one; repository stores are factory closures (writing.md: avoid class unless an external Interface requires it)."
+     },
+     {
+      "decision": "problem-15",
+      "expectation": "findMenuItem in menu.mjs only forwards to requireMenuItem with the same arguments and hides no complexity (writing.md: no pure forwarding wrappers); catering-notices.mjs can call requireMenuItem directly."
+     },
+     {
+      "decision": "problem-16",
+      "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity."
+     },
+     {
+      "decision": "problem-17",
+      "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source)."
+     },
+     {
+      "decision": "problem-18",
+      "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting."
+     },
+     {
+      "decision": "problem-19",
+      "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax."
+     },
+     {
+      "decision": "problem-20",
+      "expectation": "listOrders sorts by byDelivery, finds the first order after the cursor and slices page.limit orders; this is the same result as platform/listing.mjs pageOf with the predicate byDelivery(order, page.after) > 0, so it can be replaced by pageOf."
+     },
+     {
+      "decision": "problem-21",
+      "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended."
+     },
+     {
+      "decision": "problem-22",
+      "expectation": "fitsReservation recomputes the reservation building-access window, duplicating reservations/policy.mjs accessWindow and its SETTINGS (partySize > 8 is largeParty, 30 and 15 minutes early are largeAccessMinutes and accessMinutes, 15 minutes after is accessMinutes); it can be contains(accessWindow(reservation), deliveryWindow(order))."
+     },
+     {
+      "decision": "problem-23",
+      "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference."
+     },
+     {
+      "decision": "problem-24",
+      "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them."
+     },
+     {
+      "decision": "problem-25",
+      "expectation": "deliveredNotice in catering-notices.mjs sums line servings with its own reduce, the same fact that servingsOf in catering-statements.mjs computes; the notice can call servingsOf so the servings total keeps one authority."
+     },
+     {
+      "decision": "problem-26",
+      "expectation": "vendorStatement takes a withCanceled option that its only caller, vendorStatements, never passes; catering-statements.mjs is a rule module, not an entry point, so the option is machinery for an assumed future need (writing.md minimal sufficient contracts) and can be removed."
+     }
+    ],
+    "cleanTargets": []
+   },
+   "confirmed_by": "v1 合成题 s04 在 v2 brief 与 code-standards-v5.1 场景文本下复核（F10，2026-10-25），期望 problem-16 不变"
+  },
+  {
+   "id": "s05",
+   "type": "finding-problem",
+   "family": "anthropic",
+   "model": "opus",
+   "expected": "problem-11",
+   "from": "opus3 pool c037 (case 11, read and checked against case 11)",
+   "item": {
+    "kind": "finding",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "problem-1",
+     "problem-2",
+     "problem-3",
+     "problem-4",
+     "problem-5",
+     "problem-6",
+     "problem-7",
+     "problem-8",
+     "problem-9",
+     "problem-10",
+     "problem-11",
+     "problem-12",
+     "problem-13",
+     "problem-14",
+     "problem-15",
+     "problem-16",
+     "problem-17",
+     "problem-18",
+     "problem-19",
+     "problem-20",
+     "problem-21",
+     "problem-22",
+     "problem-23",
+     "problem-24",
+     "problem-25",
+     "problem-26"
+    ],
+    "expectation": null,
+    "finding": "- `src/catering/catering-service.mjs:31-37`: `notifyVendor` replaces the caught error with `new Error(\\`vendor of order ${order.id} was not notified\\`, error)`. The second argument is treated as an options object, so the original error is not recorded as `cause` (unless it happened to have a `cause` property of its own) and the vendor delivery failure reason is lost. This violates `src/AGENTS.md` rule 4.2. Fix: `throw new Error(..., {cause: error});`.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/catering/catering-service.mjs",
+      "lineEnd": 37,
+      "lineStart": 31
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "catering-states.mjs exports advanceOrder as a default export and catering-service.mjs imports it as one, violating the named-export rule."
+     },
+     {
+      "decision": "problem-2",
+      "expectation": "vendorNotice reads the clock with Date.now(); only service modules may read the current time, through the injected now function, and the notices module is a rule module."
+     },
+     {
+      "decision": "problem-3",
+      "expectation": "kitchen-manifest.mjs is a rule module but imports the Node.js built-in node:crypto; rule 2 allows built-in imports only in store and platform modules (the node: prefix alone is not enough)."
+     },
+     {
+      "decision": "problem-4",
+      "expectation": "loadMenu in menu.mjs, a rule module, catches the JSON parse error; rule 4.1 forbids catching in rule modules even when the replacement keeps the cause, and menuFor in the service already wraps menu failures."
+     },
+     {
+      "decision": "problem-5",
+      "expectation": "cancelOrder passes its whole argument object, including the injected now function, to cancellationFee in catering-pricing.mjs, a rule module, which calls context.now() (rule 6.1 and 6.2: rule modules take instants); cancelOrder thereby reads the clock twice in one call (rule 6.3)."
+     },
+     {
+      "decision": "problem-6",
+      "expectation": "upcomingOrders hands now to the private helper isUpcoming, whose returned predicate calls now() once per order; rule 6.3 allows one read per call and passing now on only to another exported service function."
+     },
+     {
+      "decision": "problem-7",
+      "expectation": "postponeOrder changes the record returned by store.find in place with Object.assign before validating it; rule 5 treats store records as caller-supplied, and a rejected postponement leaves the stored order already changed."
+     },
+     {
+      "decision": "problem-8",
+      "expectation": "catering-service.mjs imports isFrontDeskOpen from schedules/front-desk-service.mjs, a service module of another feature (rule 7.2); the rule module schedules/desk-policy.mjs (isDeskOpen) can be used with the injected desk store (moving the capability to platform under rule 7.4 is also an acceptable fix)."
+     },
+     {
+      "decision": "problem-9",
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error."
+     },
+     {
+      "decision": "problem-10",
+      "expectation": "DIETARY_TAGS is exported directly from menu.mjs as Object.keys(DIETARY_LABELS), a new array that is not frozen although DIETARY_LABELS is."
+     },
+     {
+      "decision": "problem-11",
+      "expectation": "notifyVendor replaces the caught notifier error with new Error(message, error); the caught error is passed as the options argument, not as {cause: error}, so the new error has no cause."
+     },
+     {
+      "decision": "problem-12",
+      "expectation": "kitchenManifests passes the caller's orders array to inDeliveryOrder, which sorts it in place with Array.prototype.sort, so the exported function reorders caller data (rule 5)."
+     },
+     {
+      "decision": "problem-13",
+      "expectation": "addLine copies the order with a shallow spread and then pushes into amended.lines, which is still the caller's order.lines array, mutating caller data."
+     },
+     {
+      "decision": "problem-14",
+      "expectation": "catering-store.mjs implements the store as a class although no external Interface requires one; repository stores are factory closures (writing.md: avoid class unless an external Interface requires it)."
+     },
+     {
+      "decision": "problem-15",
+      "expectation": "findMenuItem in menu.mjs only forwards to requireMenuItem with the same arguments and hides no complexity (writing.md: no pure forwarding wrappers); catering-notices.mjs can call requireMenuItem directly."
+     },
+     {
+      "decision": "problem-16",
+      "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity."
+     },
+     {
+      "decision": "problem-17",
+      "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source)."
+     },
+     {
+      "decision": "problem-18",
+      "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting."
+     },
+     {
+      "decision": "problem-19",
+      "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax."
+     },
+     {
+      "decision": "problem-20",
+      "expectation": "listOrders sorts by byDelivery, finds the first order after the cursor and slices page.limit orders; this is the same result as platform/listing.mjs pageOf with the predicate byDelivery(order, page.after) > 0, so it can be replaced by pageOf."
+     },
+     {
+      "decision": "problem-21",
+      "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended."
+     },
+     {
+      "decision": "problem-22",
+      "expectation": "fitsReservation recomputes the reservation building-access window, duplicating reservations/policy.mjs accessWindow and its SETTINGS (partySize > 8 is largeParty, 30 and 15 minutes early are largeAccessMinutes and accessMinutes, 15 minutes after is accessMinutes); it can be contains(accessWindow(reservation), deliveryWindow(order))."
+     },
+     {
+      "decision": "problem-23",
+      "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference."
+     },
+     {
+      "decision": "problem-24",
+      "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them."
+     },
+     {
+      "decision": "problem-25",
+      "expectation": "deliveredNotice in catering-notices.mjs sums line servings with its own reduce, the same fact that servingsOf in catering-statements.mjs computes; the notice can call servingsOf so the servings total keeps one authority."
+     },
+     {
+      "decision": "problem-26",
+      "expectation": "vendorStatement takes a withCanceled option that its only caller, vendorStatements, never passes; catering-statements.mjs is a rule module, not an entry point, so the option is machinery for an assumed future need (writing.md minimal sufficient contracts) and can be removed."
+     }
+    ],
+    "cleanTargets": []
+   },
+   "confirmed_by": "v1 合成题 s05 在 v2 brief 与 code-standards-v5.1 场景文本下复核（F10，2026-10-25），期望 problem-11 不变"
+  },
+  {
+   "id": "s06",
+   "type": "finding-problem",
+   "family": "openai",
+   "model": null,
+   "expected": "problem-4",
+   "from": "written 2026-10-20 (OpenAI style; content of formal c039, case 4)",
+   "item": {
+    "kind": "finding",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "problem-1",
+     "problem-2",
+     "problem-3",
+     "problem-4",
+     "problem-5",
+     "problem-6",
+     "problem-7",
+     "problem-8",
+     "problem-9",
+     "problem-10",
+     "problem-11",
+     "problem-12",
+     "problem-13",
+     "problem-14",
+     "problem-15",
+     "problem-16",
+     "problem-17",
+     "problem-18",
+     "problem-19",
+     "problem-20",
+     "problem-21",
+     "problem-22",
+     "problem-23",
+     "problem-24",
+     "problem-25",
+     "problem-26"
+    ],
+    "expectation": null,
+    "finding": "- `src/catering/menu.mjs:35-41`: `loadMenu` catches the `JSON.parse` failure and rethrows `new Error('menu feed is not valid JSON', {cause: error})`. `menu.mjs` is a rule module, and `src/AGENTS.md` rule 4.1 says rule modules must not catch errors but let them propagate. The service already wraps feed failures in `menuFor`, so this catch is both forbidden and redundant. Remove the `try`/`catch` and let the error reach the service.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/catering/menu.mjs",
+      "lineEnd": 41,
+      "lineStart": 35
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "catering-states.mjs exports advanceOrder as a default export and catering-service.mjs imports it as one, violating the named-export rule."
+     },
+     {
+      "decision": "problem-2",
+      "expectation": "vendorNotice reads the clock with Date.now(); only service modules may read the current time, through the injected now function, and the notices module is a rule module."
+     },
+     {
+      "decision": "problem-3",
+      "expectation": "kitchen-manifest.mjs is a rule module but imports the Node.js built-in node:crypto; rule 2 allows built-in imports only in store and platform modules (the node: prefix alone is not enough)."
+     },
+     {
+      "decision": "problem-4",
+      "expectation": "loadMenu in menu.mjs, a rule module, catches the JSON parse error; rule 4.1 forbids catching in rule modules even when the replacement keeps the cause, and menuFor in the service already wraps menu failures."
+     },
+     {
+      "decision": "problem-5",
+      "expectation": "cancelOrder passes its whole argument object, including the injected now function, to cancellationFee in catering-pricing.mjs, a rule module, which calls context.now() (rule 6.1 and 6.2: rule modules take instants); cancelOrder thereby reads the clock twice in one call (rule 6.3)."
+     },
+     {
+      "decision": "problem-6",
+      "expectation": "upcomingOrders hands now to the private helper isUpcoming, whose returned predicate calls now() once per order; rule 6.3 allows one read per call and passing now on only to another exported service function."
+     },
+     {
+      "decision": "problem-7",
+      "expectation": "postponeOrder changes the record returned by store.find in place with Object.assign before validating it; rule 5 treats store records as caller-supplied, and a rejected postponement leaves the stored order already changed."
+     },
+     {
+      "decision": "problem-8",
+      "expectation": "catering-service.mjs imports isFrontDeskOpen from schedules/front-desk-service.mjs, a service module of another feature (rule 7.2); the rule module schedules/desk-policy.mjs (isDeskOpen) can be used with the injected desk store (moving the capability to platform under rule 7.4 is also an acceptable fix)."
+     },
+     {
+      "decision": "problem-9",
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error."
+     },
+     {
+      "decision": "problem-10",
+      "expectation": "DIETARY_TAGS is exported directly from menu.mjs as Object.keys(DIETARY_LABELS), a new array that is not frozen although DIETARY_LABELS is."
+     },
+     {
+      "decision": "problem-11",
+      "expectation": "notifyVendor replaces the caught notifier error with new Error(message, error); the caught error is passed as the options argument, not as {cause: error}, so the new error has no cause."
+     },
+     {
+      "decision": "problem-12",
+      "expectation": "kitchenManifests passes the caller's orders array to inDeliveryOrder, which sorts it in place with Array.prototype.sort, so the exported function reorders caller data (rule 5)."
+     },
+     {
+      "decision": "problem-13",
+      "expectation": "addLine copies the order with a shallow spread and then pushes into amended.lines, which is still the caller's order.lines array, mutating caller data."
+     },
+     {
+      "decision": "problem-14",
+      "expectation": "catering-store.mjs implements the store as a class although no external Interface requires one; repository stores are factory closures (writing.md: avoid class unless an external Interface requires it)."
+     },
+     {
+      "decision": "problem-15",
+      "expectation": "findMenuItem in menu.mjs only forwards to requireMenuItem with the same arguments and hides no complexity (writing.md: no pure forwarding wrappers); catering-notices.mjs can call requireMenuItem directly."
+     },
+     {
+      "decision": "problem-16",
+      "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity."
+     },
+     {
+      "decision": "problem-17",
+      "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source)."
+     },
+     {
+      "decision": "problem-18",
+      "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting."
+     },
+     {
+      "decision": "problem-19",
+      "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax."
+     },
+     {
+      "decision": "problem-20",
+      "expectation": "listOrders sorts by byDelivery, finds the first order after the cursor and slices page.limit orders; this is the same result as platform/listing.mjs pageOf with the predicate byDelivery(order, page.after) > 0, so it can be replaced by pageOf."
+     },
+     {
+      "decision": "problem-21",
+      "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended."
+     },
+     {
+      "decision": "problem-22",
+      "expectation": "fitsReservation recomputes the reservation building-access window, duplicating reservations/policy.mjs accessWindow and its SETTINGS (partySize > 8 is largeParty, 30 and 15 minutes early are largeAccessMinutes and accessMinutes, 15 minutes after is accessMinutes); it can be contains(accessWindow(reservation), deliveryWindow(order))."
+     },
+     {
+      "decision": "problem-23",
+      "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference."
+     },
+     {
+      "decision": "problem-24",
+      "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them."
+     },
+     {
+      "decision": "problem-25",
+      "expectation": "deliveredNotice in catering-notices.mjs sums line servings with its own reduce, the same fact that servingsOf in catering-statements.mjs computes; the notice can call servingsOf so the servings total keeps one authority."
+     },
+     {
+      "decision": "problem-26",
+      "expectation": "vendorStatement takes a withCanceled option that its only caller, vendorStatements, never passes; catering-statements.mjs is a rule module, not an entry point, so the option is machinery for an assumed future need (writing.md minimal sufficient contracts) and can be removed."
+     }
+    ],
+    "cleanTargets": []
+   },
+   "confirmed_by": "v1 合成题 s06 在 v2 brief 与 code-standards-v5.1 场景文本下复核（F10，2026-10-25），期望 problem-4 不变"
+  },
+  {
+   "id": "s07",
+   "type": "false-fact",
+   "family": "anthropic",
+   "model": "opus",
+   "expected": "false-positive:clean-14",
+   "from": "written 2026-10-20 (Anthropic style)",
+   "item": {
+    "kind": "finding",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "false-positive:clean-14",
+     "problem-1",
+     "problem-2",
+     "problem-3",
+     "problem-4",
+     "problem-5",
+     "problem-6",
+     "problem-7",
+     "problem-8",
+     "problem-9",
+     "problem-10",
+     "problem-11",
+     "problem-12",
+     "problem-13",
+     "problem-14",
+     "problem-15",
+     "problem-16",
+     "problem-17",
+     "problem-18",
+     "problem-19",
+     "problem-20",
+     "problem-21",
+     "problem-22",
+     "problem-23",
+     "problem-24",
+     "problem-25",
+     "problem-26"
+    ],
+    "expectation": null,
+    "finding": "- `src/catering/menu.mjs:4-9` — `DIETARY_LABELS` is exported as a plain object literal without `Object.freeze`, so any importer can add or rewrite a dietary label that validation and statements rely on. This violates `src/AGENTS.md` rule 3 (values exported directly must be frozen). Fix: wrap the literal in `Object.freeze`.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/catering/menu.mjs",
+      "lineEnd": 9,
+      "lineStart": 4
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "catering-states.mjs exports advanceOrder as a default export and catering-service.mjs imports it as one, violating the named-export rule."
+     },
+     {
+      "decision": "problem-2",
+      "expectation": "vendorNotice reads the clock with Date.now(); only service modules may read the current time, through the injected now function, and the notices module is a rule module."
+     },
+     {
+      "decision": "problem-3",
+      "expectation": "kitchen-manifest.mjs is a rule module but imports the Node.js built-in node:crypto; rule 2 allows built-in imports only in store and platform modules (the node: prefix alone is not enough)."
+     },
+     {
+      "decision": "problem-4",
+      "expectation": "loadMenu in menu.mjs, a rule module, catches the JSON parse error; rule 4.1 forbids catching in rule modules even when the replacement keeps the cause, and menuFor in the service already wraps menu failures."
+     },
+     {
+      "decision": "problem-5",
+      "expectation": "cancelOrder passes its whole argument object, including the injected now function, to cancellationFee in catering-pricing.mjs, a rule module, which calls context.now() (rule 6.1 and 6.2: rule modules take instants); cancelOrder thereby reads the clock twice in one call (rule 6.3)."
+     },
+     {
+      "decision": "problem-6",
+      "expectation": "upcomingOrders hands now to the private helper isUpcoming, whose returned predicate calls now() once per order; rule 6.3 allows one read per call and passing now on only to another exported service function."
+     },
+     {
+      "decision": "problem-7",
+      "expectation": "postponeOrder changes the record returned by store.find in place with Object.assign before validating it; rule 5 treats store records as caller-supplied, and a rejected postponement leaves the stored order already changed."
+     },
+     {
+      "decision": "problem-8",
+      "expectation": "catering-service.mjs imports isFrontDeskOpen from schedules/front-desk-service.mjs, a service module of another feature (rule 7.2); the rule module schedules/desk-policy.mjs (isDeskOpen) can be used with the injected desk store (moving the capability to platform under rule 7.4 is also an acceptable fix)."
+     },
+     {
+      "decision": "problem-9",
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error."
+     },
+     {
+      "decision": "problem-10",
+      "expectation": "DIETARY_TAGS is exported directly from menu.mjs as Object.keys(DIETARY_LABELS), a new array that is not frozen although DIETARY_LABELS is."
+     },
+     {
+      "decision": "problem-11",
+      "expectation": "notifyVendor replaces the caught notifier error with new Error(message, error); the caught error is passed as the options argument, not as {cause: error}, so the new error has no cause."
+     },
+     {
+      "decision": "problem-12",
+      "expectation": "kitchenManifests passes the caller's orders array to inDeliveryOrder, which sorts it in place with Array.prototype.sort, so the exported function reorders caller data (rule 5)."
+     },
+     {
+      "decision": "problem-13",
+      "expectation": "addLine copies the order with a shallow spread and then pushes into amended.lines, which is still the caller's order.lines array, mutating caller data."
+     },
+     {
+      "decision": "problem-14",
+      "expectation": "catering-store.mjs implements the store as a class although no external Interface requires one; repository stores are factory closures (writing.md: avoid class unless an external Interface requires it)."
+     },
+     {
+      "decision": "problem-15",
+      "expectation": "findMenuItem in menu.mjs only forwards to requireMenuItem with the same arguments and hides no complexity (writing.md: no pure forwarding wrappers); catering-notices.mjs can call requireMenuItem directly."
+     },
+     {
+      "decision": "problem-16",
+      "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity."
+     },
+     {
+      "decision": "problem-17",
+      "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source)."
+     },
+     {
+      "decision": "problem-18",
+      "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting."
+     },
+     {
+      "decision": "problem-19",
+      "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax."
+     },
+     {
+      "decision": "problem-20",
+      "expectation": "listOrders sorts by byDelivery, finds the first order after the cursor and slices page.limit orders; this is the same result as platform/listing.mjs pageOf with the predicate byDelivery(order, page.after) > 0, so it can be replaced by pageOf."
+     },
+     {
+      "decision": "problem-21",
+      "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended."
+     },
+     {
+      "decision": "problem-22",
+      "expectation": "fitsReservation recomputes the reservation building-access window, duplicating reservations/policy.mjs accessWindow and its SETTINGS (partySize > 8 is largeParty, 30 and 15 minutes early are largeAccessMinutes and accessMinutes, 15 minutes after is accessMinutes); it can be contains(accessWindow(reservation), deliveryWindow(order))."
+     },
+     {
+      "decision": "problem-23",
+      "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference."
+     },
+     {
+      "decision": "problem-24",
+      "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them."
+     },
+     {
+      "decision": "problem-25",
+      "expectation": "deliveredNotice in catering-notices.mjs sums line servings with its own reduce, the same fact that servingsOf in catering-statements.mjs computes; the notice can call servingsOf so the servings total keeps one authority."
+     },
+     {
+      "decision": "problem-26",
+      "expectation": "vendorStatement takes a withCanceled option that its only caller, vendorStatements, never passes; catering-statements.mjs is a rule module, not an entry point, so the option is machinery for an assumed future need (writing.md minimal sufficient contracts) and can be removed."
+     }
+    ],
+    "cleanTargets": [
+     {
+      "cleanCaseIndex": 14,
+      "decision": "false-positive:clean-14",
+      "expectation": "DIETARY_LABELS is frozen before export."
+     }
+    ]
+   },
+   "confirmed_by": "v1 合成题 s07 在 v2 brief 与 code-standards-v5.1 场景文本下复核（F10，2026-10-25），期望 false-positive:clean-14 不变"
+  },
+  {
+   "id": "s08",
+   "type": "false-fact",
+   "family": "openai",
+   "model": null,
+   "expected": "false-positive:clean-19",
+   "from": "written 2026-10-20 (OpenAI style)",
+   "item": {
+    "kind": "finding",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "false-positive:clean-19",
+     "problem-1",
+     "problem-2",
+     "problem-3",
+     "problem-4",
+     "problem-5",
+     "problem-6",
+     "problem-7",
+     "problem-8",
+     "problem-9",
+     "problem-10",
+     "problem-11",
+     "problem-12",
+     "problem-13",
+     "problem-14",
+     "problem-15",
+     "problem-16",
+     "problem-17",
+     "problem-18",
+     "problem-19",
+     "problem-20",
+     "problem-21",
+     "problem-22",
+     "problem-23",
+     "problem-24",
+     "problem-25",
+     "problem-26"
+    ],
+    "expectation": null,
+    "finding": "- `src/catering/vendors.mjs:3-7`: `VENDORS` is frozen, but its vendor entries are plain objects that are exported without being frozen. `src/AGENTS.md` rule 3 requires exported array and object values to be frozen, so callers can change a vendor's contact address. Freeze each vendor entry.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/catering/vendors.mjs",
+      "lineEnd": 7,
+      "lineStart": 3
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "catering-states.mjs exports advanceOrder as a default export and catering-service.mjs imports it as one, violating the named-export rule."
+     },
+     {
+      "decision": "problem-2",
+      "expectation": "vendorNotice reads the clock with Date.now(); only service modules may read the current time, through the injected now function, and the notices module is a rule module."
+     },
+     {
+      "decision": "problem-3",
+      "expectation": "kitchen-manifest.mjs is a rule module but imports the Node.js built-in node:crypto; rule 2 allows built-in imports only in store and platform modules (the node: prefix alone is not enough)."
+     },
+     {
+      "decision": "problem-4",
+      "expectation": "loadMenu in menu.mjs, a rule module, catches the JSON parse error; rule 4.1 forbids catching in rule modules even when the replacement keeps the cause, and menuFor in the service already wraps menu failures."
+     },
+     {
+      "decision": "problem-5",
+      "expectation": "cancelOrder passes its whole argument object, including the injected now function, to cancellationFee in catering-pricing.mjs, a rule module, which calls context.now() (rule 6.1 and 6.2: rule modules take instants); cancelOrder thereby reads the clock twice in one call (rule 6.3)."
+     },
+     {
+      "decision": "problem-6",
+      "expectation": "upcomingOrders hands now to the private helper isUpcoming, whose returned predicate calls now() once per order; rule 6.3 allows one read per call and passing now on only to another exported service function."
+     },
+     {
+      "decision": "problem-7",
+      "expectation": "postponeOrder changes the record returned by store.find in place with Object.assign before validating it; rule 5 treats store records as caller-supplied, and a rejected postponement leaves the stored order already changed."
+     },
+     {
+      "decision": "problem-8",
+      "expectation": "catering-service.mjs imports isFrontDeskOpen from schedules/front-desk-service.mjs, a service module of another feature (rule 7.2); the rule module schedules/desk-policy.mjs (isDeskOpen) can be used with the injected desk store (moving the capability to platform under rule 7.4 is also an acceptable fix)."
+     },
+     {
+      "decision": "problem-9",
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error."
+     },
+     {
+      "decision": "problem-10",
+      "expectation": "DIETARY_TAGS is exported directly from menu.mjs as Object.keys(DIETARY_LABELS), a new array that is not frozen although DIETARY_LABELS is."
+     },
+     {
+      "decision": "problem-11",
+      "expectation": "notifyVendor replaces the caught notifier error with new Error(message, error); the caught error is passed as the options argument, not as {cause: error}, so the new error has no cause."
+     },
+     {
+      "decision": "problem-12",
+      "expectation": "kitchenManifests passes the caller's orders array to inDeliveryOrder, which sorts it in place with Array.prototype.sort, so the exported function reorders caller data (rule 5)."
+     },
+     {
+      "decision": "problem-13",
+      "expectation": "addLine copies the order with a shallow spread and then pushes into amended.lines, which is still the caller's order.lines array, mutating caller data."
+     },
+     {
+      "decision": "problem-14",
+      "expectation": "catering-store.mjs implements the store as a class although no external Interface requires one; repository stores are factory closures (writing.md: avoid class unless an external Interface requires it)."
+     },
+     {
+      "decision": "problem-15",
+      "expectation": "findMenuItem in menu.mjs only forwards to requireMenuItem with the same arguments and hides no complexity (writing.md: no pure forwarding wrappers); catering-notices.mjs can call requireMenuItem directly."
+     },
+     {
+      "decision": "problem-16",
+      "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity."
+     },
+     {
+      "decision": "problem-17",
+      "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source)."
+     },
+     {
+      "decision": "problem-18",
+      "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting."
+     },
+     {
+      "decision": "problem-19",
+      "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax."
+     },
+     {
+      "decision": "problem-20",
+      "expectation": "listOrders sorts by byDelivery, finds the first order after the cursor and slices page.limit orders; this is the same result as platform/listing.mjs pageOf with the predicate byDelivery(order, page.after) > 0, so it can be replaced by pageOf."
+     },
+     {
+      "decision": "problem-21",
+      "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended."
+     },
+     {
+      "decision": "problem-22",
+      "expectation": "fitsReservation recomputes the reservation building-access window, duplicating reservations/policy.mjs accessWindow and its SETTINGS (partySize > 8 is largeParty, 30 and 15 minutes early are largeAccessMinutes and accessMinutes, 15 minutes after is accessMinutes); it can be contains(accessWindow(reservation), deliveryWindow(order))."
+     },
+     {
+      "decision": "problem-23",
+      "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference."
+     },
+     {
+      "decision": "problem-24",
+      "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them."
+     },
+     {
+      "decision": "problem-25",
+      "expectation": "deliveredNotice in catering-notices.mjs sums line servings with its own reduce, the same fact that servingsOf in catering-statements.mjs computes; the notice can call servingsOf so the servings total keeps one authority."
+     },
+     {
+      "decision": "problem-26",
+      "expectation": "vendorStatement takes a withCanceled option that its only caller, vendorStatements, never passes; catering-statements.mjs is a rule module, not an entry point, so the option is machinery for an assumed future need (writing.md minimal sufficient contracts) and can be removed."
+     }
+    ],
+    "cleanTargets": [
+     {
+      "cleanCaseIndex": 19,
+      "decision": "false-positive:clean-19",
+      "expectation": "VENDORS and each vendor entry are frozen before export."
+     }
+    ]
+   },
+   "confirmed_by": "v1 合成题 s08 在 v2 brief 与 code-standards-v5.1 场景文本下复核（F10，2026-10-25），期望 false-positive:clean-19 不变"
+  },
+  {
+   "id": "s09",
+   "type": "false-fact",
+   "family": "strata",
+   "model": "strata-q3",
+   "expected": "false-positive:clean-16",
+   "from": "written 2026-10-20 (Strata style)",
+   "item": {
+    "kind": "finding",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "false-positive:clean-16",
+     "problem-1",
+     "problem-2",
+     "problem-3",
+     "problem-4",
+     "problem-5",
+     "problem-6",
+     "problem-7",
+     "problem-8",
+     "problem-9",
+     "problem-10",
+     "problem-11",
+     "problem-12",
+     "problem-13",
+     "problem-14",
+     "problem-15",
+     "problem-16",
+     "problem-17",
+     "problem-18",
+     "problem-19",
+     "problem-20",
+     "problem-21",
+     "problem-22",
+     "problem-23",
+     "problem-24",
+     "problem-25",
+     "problem-26"
+    ],
+    "expectation": null,
+    "finding": "1. `src/catering/catering-states.mjs:32` - `advanceOrder` mutates the caller's order history.\n   - Violated instruction: `src/AGENTS.md` rule 5 (do not change caller data in place).\n   - Evidence: the new state is appended with `order.history.push({state: rule.to, at})` before the spread copy is returned, so the history array of the order passed in grows too.\n   - Fix: build a new array with `[...order.history, {state: rule.to, at}]`.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/catering/catering-states.mjs",
+      "line": 32
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "catering-states.mjs exports advanceOrder as a default export and catering-service.mjs imports it as one, violating the named-export rule."
+     },
+     {
+      "decision": "problem-2",
+      "expectation": "vendorNotice reads the clock with Date.now(); only service modules may read the current time, through the injected now function, and the notices module is a rule module."
+     },
+     {
+      "decision": "problem-3",
+      "expectation": "kitchen-manifest.mjs is a rule module but imports the Node.js built-in node:crypto; rule 2 allows built-in imports only in store and platform modules (the node: prefix alone is not enough)."
+     },
+     {
+      "decision": "problem-4",
+      "expectation": "loadMenu in menu.mjs, a rule module, catches the JSON parse error; rule 4.1 forbids catching in rule modules even when the replacement keeps the cause, and menuFor in the service already wraps menu failures."
+     },
+     {
+      "decision": "problem-5",
+      "expectation": "cancelOrder passes its whole argument object, including the injected now function, to cancellationFee in catering-pricing.mjs, a rule module, which calls context.now() (rule 6.1 and 6.2: rule modules take instants); cancelOrder thereby reads the clock twice in one call (rule 6.3)."
+     },
+     {
+      "decision": "problem-6",
+      "expectation": "upcomingOrders hands now to the private helper isUpcoming, whose returned predicate calls now() once per order; rule 6.3 allows one read per call and passing now on only to another exported service function."
+     },
+     {
+      "decision": "problem-7",
+      "expectation": "postponeOrder changes the record returned by store.find in place with Object.assign before validating it; rule 5 treats store records as caller-supplied, and a rejected postponement leaves the stored order already changed."
+     },
+     {
+      "decision": "problem-8",
+      "expectation": "catering-service.mjs imports isFrontDeskOpen from schedules/front-desk-service.mjs, a service module of another feature (rule 7.2); the rule module schedules/desk-policy.mjs (isDeskOpen) can be used with the injected desk store (moving the capability to platform under rule 7.4 is also an acceptable fix)."
+     },
+     {
+      "decision": "problem-9",
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error."
+     },
+     {
+      "decision": "problem-10",
+      "expectation": "DIETARY_TAGS is exported directly from menu.mjs as Object.keys(DIETARY_LABELS), a new array that is not frozen although DIETARY_LABELS is."
+     },
+     {
+      "decision": "problem-11",
+      "expectation": "notifyVendor replaces the caught notifier error with new Error(message, error); the caught error is passed as the options argument, not as {cause: error}, so the new error has no cause."
+     },
+     {
+      "decision": "problem-12",
+      "expectation": "kitchenManifests passes the caller's orders array to inDeliveryOrder, which sorts it in place with Array.prototype.sort, so the exported function reorders caller data (rule 5)."
+     },
+     {
+      "decision": "problem-13",
+      "expectation": "addLine copies the order with a shallow spread and then pushes into amended.lines, which is still the caller's order.lines array, mutating caller data."
+     },
+     {
+      "decision": "problem-14",
+      "expectation": "catering-store.mjs implements the store as a class although no external Interface requires one; repository stores are factory closures (writing.md: avoid class unless an external Interface requires it)."
+     },
+     {
+      "decision": "problem-15",
+      "expectation": "findMenuItem in menu.mjs only forwards to requireMenuItem with the same arguments and hides no complexity (writing.md: no pure forwarding wrappers); catering-notices.mjs can call requireMenuItem directly."
+     },
+     {
+      "decision": "problem-16",
+      "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity."
+     },
+     {
+      "decision": "problem-17",
+      "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source)."
+     },
+     {
+      "decision": "problem-18",
+      "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting."
+     },
+     {
+      "decision": "problem-19",
+      "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax."
+     },
+     {
+      "decision": "problem-20",
+      "expectation": "listOrders sorts by byDelivery, finds the first order after the cursor and slices page.limit orders; this is the same result as platform/listing.mjs pageOf with the predicate byDelivery(order, page.after) > 0, so it can be replaced by pageOf."
+     },
+     {
+      "decision": "problem-21",
+      "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended."
+     },
+     {
+      "decision": "problem-22",
+      "expectation": "fitsReservation recomputes the reservation building-access window, duplicating reservations/policy.mjs accessWindow and its SETTINGS (partySize > 8 is largeParty, 30 and 15 minutes early are largeAccessMinutes and accessMinutes, 15 minutes after is accessMinutes); it can be contains(accessWindow(reservation), deliveryWindow(order))."
+     },
+     {
+      "decision": "problem-23",
+      "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference."
+     },
+     {
+      "decision": "problem-24",
+      "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them."
+     },
+     {
+      "decision": "problem-25",
+      "expectation": "deliveredNotice in catering-notices.mjs sums line servings with its own reduce, the same fact that servingsOf in catering-statements.mjs computes; the notice can call servingsOf so the servings total keeps one authority."
+     },
+     {
+      "decision": "problem-26",
+      "expectation": "vendorStatement takes a withCanceled option that its only caller, vendorStatements, never passes; catering-statements.mjs is a rule module, not an entry point, so the option is machinery for an assumed future need (writing.md minimal sufficient contracts) and can be removed."
+     }
+    ],
+    "cleanTargets": [
+     {
+      "cleanCaseIndex": 16,
+      "decision": "false-positive:clean-16",
+      "expectation": "advanceOrder builds a new history array instead of mutating the order history."
+     }
+    ]
+   },
+   "confirmed_by": "v1 合成题 s09 在 v2 brief 与 code-standards-v5.1 场景文本下复核（F10，2026-10-25），期望 false-positive:clean-16 不变"
+  },
+  {
+   "id": "s10",
+   "type": "registered-decoy",
+   "family": "anthropic",
+   "model": "opus",
+   "expected": "unsupported",
+   "from": "written 2026-10-20 (Anthropic style; memberId decoy of the brief)",
+   "item": {
+    "kind": "finding",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "problem-1",
+     "problem-2",
+     "problem-3",
+     "problem-4",
+     "problem-5",
+     "problem-6",
+     "problem-7",
+     "problem-8",
+     "problem-9",
+     "problem-10",
+     "problem-11",
+     "problem-12",
+     "problem-13",
+     "problem-14",
+     "problem-15",
+     "problem-16",
+     "problem-17",
+     "problem-18",
+     "problem-19",
+     "problem-20",
+     "problem-21",
+     "problem-22",
+     "problem-23",
+     "problem-24",
+     "problem-25",
+     "problem-26"
+    ],
+    "expectation": null,
+    "finding": "- `src/billing/line-items.mjs:32` — `buildLineItems` strips `memberId` from every extra charge (`({memberId, ...item}) => Object.freeze(item)`), so catering line items lose the member they belong to and no longer carry the same fields as the reservation line items. This is inconsistent data shaping in a modified billing module. Fix: keep `memberId` on the frozen item.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/billing/line-items.mjs",
+      "line": 32
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "catering-states.mjs exports advanceOrder as a default export and catering-service.mjs imports it as one, violating the named-export rule."
+     },
+     {
+      "decision": "problem-2",
+      "expectation": "vendorNotice reads the clock with Date.now(); only service modules may read the current time, through the injected now function, and the notices module is a rule module."
+     },
+     {
+      "decision": "problem-3",
+      "expectation": "kitchen-manifest.mjs is a rule module but imports the Node.js built-in node:crypto; rule 2 allows built-in imports only in store and platform modules (the node: prefix alone is not enough)."
+     },
+     {
+      "decision": "problem-4",
+      "expectation": "loadMenu in menu.mjs, a rule module, catches the JSON parse error; rule 4.1 forbids catching in rule modules even when the replacement keeps the cause, and menuFor in the service already wraps menu failures."
+     },
+     {
+      "decision": "problem-5",
+      "expectation": "cancelOrder passes its whole argument object, including the injected now function, to cancellationFee in catering-pricing.mjs, a rule module, which calls context.now() (rule 6.1 and 6.2: rule modules take instants); cancelOrder thereby reads the clock twice in one call (rule 6.3)."
+     },
+     {
+      "decision": "problem-6",
+      "expectation": "upcomingOrders hands now to the private helper isUpcoming, whose returned predicate calls now() once per order; rule 6.3 allows one read per call and passing now on only to another exported service function."
+     },
+     {
+      "decision": "problem-7",
+      "expectation": "postponeOrder changes the record returned by store.find in place with Object.assign before validating it; rule 5 treats store records as caller-supplied, and a rejected postponement leaves the stored order already changed."
+     },
+     {
+      "decision": "problem-8",
+      "expectation": "catering-service.mjs imports isFrontDeskOpen from schedules/front-desk-service.mjs, a service module of another feature (rule 7.2); the rule module schedules/desk-policy.mjs (isDeskOpen) can be used with the injected desk store (moving the capability to platform under rule 7.4 is also an acceptable fix)."
+     },
+     {
+      "decision": "problem-9",
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error."
+     },
+     {
+      "decision": "problem-10",
+      "expectation": "DIETARY_TAGS is exported directly from menu.mjs as Object.keys(DIETARY_LABELS), a new array that is not frozen although DIETARY_LABELS is."
+     },
+     {
+      "decision": "problem-11",
+      "expectation": "notifyVendor replaces the caught notifier error with new Error(message, error); the caught error is passed as the options argument, not as {cause: error}, so the new error has no cause."
+     },
+     {
+      "decision": "problem-12",
+      "expectation": "kitchenManifests passes the caller's orders array to inDeliveryOrder, which sorts it in place with Array.prototype.sort, so the exported function reorders caller data (rule 5)."
+     },
+     {
+      "decision": "problem-13",
+      "expectation": "addLine copies the order with a shallow spread and then pushes into amended.lines, which is still the caller's order.lines array, mutating caller data."
+     },
+     {
+      "decision": "problem-14",
+      "expectation": "catering-store.mjs implements the store as a class although no external Interface requires one; repository stores are factory closures (writing.md: avoid class unless an external Interface requires it)."
+     },
+     {
+      "decision": "problem-15",
+      "expectation": "findMenuItem in menu.mjs only forwards to requireMenuItem with the same arguments and hides no complexity (writing.md: no pure forwarding wrappers); catering-notices.mjs can call requireMenuItem directly."
+     },
+     {
+      "decision": "problem-16",
+      "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity."
+     },
+     {
+      "decision": "problem-17",
+      "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source)."
+     },
+     {
+      "decision": "problem-18",
+      "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting."
+     },
+     {
+      "decision": "problem-19",
+      "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax."
+     },
+     {
+      "decision": "problem-20",
+      "expectation": "listOrders sorts by byDelivery, finds the first order after the cursor and slices page.limit orders; this is the same result as platform/listing.mjs pageOf with the predicate byDelivery(order, page.after) > 0, so it can be replaced by pageOf."
+     },
+     {
+      "decision": "problem-21",
+      "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended."
+     },
+     {
+      "decision": "problem-22",
+      "expectation": "fitsReservation recomputes the reservation building-access window, duplicating reservations/policy.mjs accessWindow and its SETTINGS (partySize > 8 is largeParty, 30 and 15 minutes early are largeAccessMinutes and accessMinutes, 15 minutes after is accessMinutes); it can be contains(accessWindow(reservation), deliveryWindow(order))."
+     },
+     {
+      "decision": "problem-23",
+      "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference."
+     },
+     {
+      "decision": "problem-24",
+      "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them."
+     },
+     {
+      "decision": "problem-25",
+      "expectation": "deliveredNotice in catering-notices.mjs sums line servings with its own reduce, the same fact that servingsOf in catering-statements.mjs computes; the notice can call servingsOf so the servings total keeps one authority."
+     },
+     {
+      "decision": "problem-26",
+      "expectation": "vendorStatement takes a withCanceled option that its only caller, vendorStatements, never passes; catering-statements.mjs is a rule module, not an entry point, so the option is machinery for an assumed future need (writing.md minimal sufficient contracts) and can be removed."
+     }
+    ],
+    "cleanTargets": []
+   },
+   "confirmed_by": "v1 合成题 s10 在 v2 brief 与 code-standards-v5.1 场景文本下复核（F10，2026-10-25），期望 unsupported 不变"
+  },
+  {
+   "id": "s11",
+   "type": "registered-decoy",
+   "family": "openai",
+   "model": null,
+   "expected": "false-positive:clean-22",
+   "from": "written 2026-10-20 (OpenAI style; extraCharges decoy of the brief)",
+   "item": {
+    "kind": "finding",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "false-positive:clean-22",
+     "problem-1",
+     "problem-2",
+     "problem-3",
+     "problem-4",
+     "problem-5",
+     "problem-6",
+     "problem-7",
+     "problem-8",
+     "problem-9",
+     "problem-10",
+     "problem-11",
+     "problem-12",
+     "problem-13",
+     "problem-14",
+     "problem-15",
+     "problem-16",
+     "problem-17",
+     "problem-18",
+     "problem-19",
+     "problem-20",
+     "problem-21",
+     "problem-22",
+     "problem-23",
+     "problem-24",
+     "problem-25",
+     "problem-26"
+    ],
+    "expectation": null,
+    "finding": "- `src/billing/line-items.mjs:26`: The new `extraCharges` parameter of `buildLineItems` is a speculative option. Nothing in the change needs a generic extra-charge hook, which the Role lists as a speculative generality smell. Remove the parameter until a caller needs it.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/billing/line-items.mjs",
+      "line": 26
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "catering-states.mjs exports advanceOrder as a default export and catering-service.mjs imports it as one, violating the named-export rule."
+     },
+     {
+      "decision": "problem-2",
+      "expectation": "vendorNotice reads the clock with Date.now(); only service modules may read the current time, through the injected now function, and the notices module is a rule module."
+     },
+     {
+      "decision": "problem-3",
+      "expectation": "kitchen-manifest.mjs is a rule module but imports the Node.js built-in node:crypto; rule 2 allows built-in imports only in store and platform modules (the node: prefix alone is not enough)."
+     },
+     {
+      "decision": "problem-4",
+      "expectation": "loadMenu in menu.mjs, a rule module, catches the JSON parse error; rule 4.1 forbids catching in rule modules even when the replacement keeps the cause, and menuFor in the service already wraps menu failures."
+     },
+     {
+      "decision": "problem-5",
+      "expectation": "cancelOrder passes its whole argument object, including the injected now function, to cancellationFee in catering-pricing.mjs, a rule module, which calls context.now() (rule 6.1 and 6.2: rule modules take instants); cancelOrder thereby reads the clock twice in one call (rule 6.3)."
+     },
+     {
+      "decision": "problem-6",
+      "expectation": "upcomingOrders hands now to the private helper isUpcoming, whose returned predicate calls now() once per order; rule 6.3 allows one read per call and passing now on only to another exported service function."
+     },
+     {
+      "decision": "problem-7",
+      "expectation": "postponeOrder changes the record returned by store.find in place with Object.assign before validating it; rule 5 treats store records as caller-supplied, and a rejected postponement leaves the stored order already changed."
+     },
+     {
+      "decision": "problem-8",
+      "expectation": "catering-service.mjs imports isFrontDeskOpen from schedules/front-desk-service.mjs, a service module of another feature (rule 7.2); the rule module schedules/desk-policy.mjs (isDeskOpen) can be used with the injected desk store (moving the capability to platform under rule 7.4 is also an acceptable fix)."
+     },
+     {
+      "decision": "problem-9",
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error."
+     },
+     {
+      "decision": "problem-10",
+      "expectation": "DIETARY_TAGS is exported directly from menu.mjs as Object.keys(DIETARY_LABELS), a new array that is not frozen although DIETARY_LABELS is."
+     },
+     {
+      "decision": "problem-11",
+      "expectation": "notifyVendor replaces the caught notifier error with new Error(message, error); the caught error is passed as the options argument, not as {cause: error}, so the new error has no cause."
+     },
+     {
+      "decision": "problem-12",
+      "expectation": "kitchenManifests passes the caller's orders array to inDeliveryOrder, which sorts it in place with Array.prototype.sort, so the exported function reorders caller data (rule 5)."
+     },
+     {
+      "decision": "problem-13",
+      "expectation": "addLine copies the order with a shallow spread and then pushes into amended.lines, which is still the caller's order.lines array, mutating caller data."
+     },
+     {
+      "decision": "problem-14",
+      "expectation": "catering-store.mjs implements the store as a class although no external Interface requires one; repository stores are factory closures (writing.md: avoid class unless an external Interface requires it)."
+     },
+     {
+      "decision": "problem-15",
+      "expectation": "findMenuItem in menu.mjs only forwards to requireMenuItem with the same arguments and hides no complexity (writing.md: no pure forwarding wrappers); catering-notices.mjs can call requireMenuItem directly."
+     },
+     {
+      "decision": "problem-16",
+      "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity."
+     },
+     {
+      "decision": "problem-17",
+      "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source)."
+     },
+     {
+      "decision": "problem-18",
+      "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting."
+     },
+     {
+      "decision": "problem-19",
+      "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax."
+     },
+     {
+      "decision": "problem-20",
+      "expectation": "listOrders sorts by byDelivery, finds the first order after the cursor and slices page.limit orders; this is the same result as platform/listing.mjs pageOf with the predicate byDelivery(order, page.after) > 0, so it can be replaced by pageOf."
+     },
+     {
+      "decision": "problem-21",
+      "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended."
+     },
+     {
+      "decision": "problem-22",
+      "expectation": "fitsReservation recomputes the reservation building-access window, duplicating reservations/policy.mjs accessWindow and its SETTINGS (partySize > 8 is largeParty, 30 and 15 minutes early are largeAccessMinutes and accessMinutes, 15 minutes after is accessMinutes); it can be contains(accessWindow(reservation), deliveryWindow(order))."
+     },
+     {
+      "decision": "problem-23",
+      "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference."
+     },
+     {
+      "decision": "problem-24",
+      "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them."
+     },
+     {
+      "decision": "problem-25",
+      "expectation": "deliveredNotice in catering-notices.mjs sums line servings with its own reduce, the same fact that servingsOf in catering-statements.mjs computes; the notice can call servingsOf so the servings total keeps one authority."
+     },
+     {
+      "decision": "problem-26",
+      "expectation": "vendorStatement takes a withCanceled option that its only caller, vendorStatements, never passes; catering-statements.mjs is a rule module, not an entry point, so the option is machinery for an assumed future need (writing.md minimal sufficient contracts) and can be removed."
+     }
+    ],
+    "cleanTargets": [
+     {
+      "cleanCaseIndex": 22,
+      "decision": "false-positive:clean-22",
+      "expectation": "The new extraCharges parameter of buildLineItems is passed by its only caller, draftFor in invoice-service.mjs."
+     }
+    ]
+   },
+   "confirmed_by": "v1 合成题 s11 在 v2 brief 与 code-standards-v5.1 场景文本下复核（F10，2026-10-25），期望 false-positive:clean-22 不变"
+  },
+  {
+   "id": "s12",
+   "type": "unfounded",
+   "family": "anthropic",
+   "model": "opus",
+   "expected": "unsupported",
+   "from": "written 2026-10-20 (Anthropic style)",
+   "item": {
+    "kind": "finding",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "problem-1",
+     "problem-2",
+     "problem-3",
+     "problem-4",
+     "problem-5",
+     "problem-6",
+     "problem-7",
+     "problem-8",
+     "problem-9",
+     "problem-10",
+     "problem-11",
+     "problem-12",
+     "problem-13",
+     "problem-14",
+     "problem-15",
+     "problem-16",
+     "problem-17",
+     "problem-18",
+     "problem-19",
+     "problem-20",
+     "problem-21",
+     "problem-22",
+     "problem-23",
+     "problem-24",
+     "problem-25",
+     "problem-26"
+    ],
+    "expectation": null,
+    "finding": "- `src/catering/menu.mjs:31` — `prepareItem` stores the caller's `raw.dietary` array as `item.dietary` without copying or freezing it, so the frozen menu item still shares a mutable array with the feed. This violates `src/AGENTS.md` rule 3 for the exported menu. Fix: store `Object.freeze([...raw.dietary])`.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/catering/menu.mjs",
+      "line": 31
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "catering-states.mjs exports advanceOrder as a default export and catering-service.mjs imports it as one, violating the named-export rule."
+     },
+     {
+      "decision": "problem-2",
+      "expectation": "vendorNotice reads the clock with Date.now(); only service modules may read the current time, through the injected now function, and the notices module is a rule module."
+     },
+     {
+      "decision": "problem-3",
+      "expectation": "kitchen-manifest.mjs is a rule module but imports the Node.js built-in node:crypto; rule 2 allows built-in imports only in store and platform modules (the node: prefix alone is not enough)."
+     },
+     {
+      "decision": "problem-4",
+      "expectation": "loadMenu in menu.mjs, a rule module, catches the JSON parse error; rule 4.1 forbids catching in rule modules even when the replacement keeps the cause, and menuFor in the service already wraps menu failures."
+     },
+     {
+      "decision": "problem-5",
+      "expectation": "cancelOrder passes its whole argument object, including the injected now function, to cancellationFee in catering-pricing.mjs, a rule module, which calls context.now() (rule 6.1 and 6.2: rule modules take instants); cancelOrder thereby reads the clock twice in one call (rule 6.3)."
+     },
+     {
+      "decision": "problem-6",
+      "expectation": "upcomingOrders hands now to the private helper isUpcoming, whose returned predicate calls now() once per order; rule 6.3 allows one read per call and passing now on only to another exported service function."
+     },
+     {
+      "decision": "problem-7",
+      "expectation": "postponeOrder changes the record returned by store.find in place with Object.assign before validating it; rule 5 treats store records as caller-supplied, and a rejected postponement leaves the stored order already changed."
+     },
+     {
+      "decision": "problem-8",
+      "expectation": "catering-service.mjs imports isFrontDeskOpen from schedules/front-desk-service.mjs, a service module of another feature (rule 7.2); the rule module schedules/desk-policy.mjs (isDeskOpen) can be used with the injected desk store (moving the capability to platform under rule 7.4 is also an acceptable fix)."
+     },
+     {
+      "decision": "problem-9",
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error."
+     },
+     {
+      "decision": "problem-10",
+      "expectation": "DIETARY_TAGS is exported directly from menu.mjs as Object.keys(DIETARY_LABELS), a new array that is not frozen although DIETARY_LABELS is."
+     },
+     {
+      "decision": "problem-11",
+      "expectation": "notifyVendor replaces the caught notifier error with new Error(message, error); the caught error is passed as the options argument, not as {cause: error}, so the new error has no cause."
+     },
+     {
+      "decision": "problem-12",
+      "expectation": "kitchenManifests passes the caller's orders array to inDeliveryOrder, which sorts it in place with Array.prototype.sort, so the exported function reorders caller data (rule 5)."
+     },
+     {
+      "decision": "problem-13",
+      "expectation": "addLine copies the order with a shallow spread and then pushes into amended.lines, which is still the caller's order.lines array, mutating caller data."
+     },
+     {
+      "decision": "problem-14",
+      "expectation": "catering-store.mjs implements the store as a class although no external Interface requires one; repository stores are factory closures (writing.md: avoid class unless an external Interface requires it)."
+     },
+     {
+      "decision": "problem-15",
+      "expectation": "findMenuItem in menu.mjs only forwards to requireMenuItem with the same arguments and hides no complexity (writing.md: no pure forwarding wrappers); catering-notices.mjs can call requireMenuItem directly."
+     },
+     {
+      "decision": "problem-16",
+      "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity."
+     },
+     {
+      "decision": "problem-17",
+      "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source)."
+     },
+     {
+      "decision": "problem-18",
+      "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting."
+     },
+     {
+      "decision": "problem-19",
+      "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax."
+     },
+     {
+      "decision": "problem-20",
+      "expectation": "listOrders sorts by byDelivery, finds the first order after the cursor and slices page.limit orders; this is the same result as platform/listing.mjs pageOf with the predicate byDelivery(order, page.after) > 0, so it can be replaced by pageOf."
+     },
+     {
+      "decision": "problem-21",
+      "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended."
+     },
+     {
+      "decision": "problem-22",
+      "expectation": "fitsReservation recomputes the reservation building-access window, duplicating reservations/policy.mjs accessWindow and its SETTINGS (partySize > 8 is largeParty, 30 and 15 minutes early are largeAccessMinutes and accessMinutes, 15 minutes after is accessMinutes); it can be contains(accessWindow(reservation), deliveryWindow(order))."
+     },
+     {
+      "decision": "problem-23",
+      "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference."
+     },
+     {
+      "decision": "problem-24",
+      "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them."
+     },
+     {
+      "decision": "problem-25",
+      "expectation": "deliveredNotice in catering-notices.mjs sums line servings with its own reduce, the same fact that servingsOf in catering-statements.mjs computes; the notice can call servingsOf so the servings total keeps one authority."
+     },
+     {
+      "decision": "problem-26",
+      "expectation": "vendorStatement takes a withCanceled option that its only caller, vendorStatements, never passes; catering-statements.mjs is a rule module, not an entry point, so the option is machinery for an assumed future need (writing.md minimal sufficient contracts) and can be removed."
+     }
+    ],
+    "cleanTargets": []
+   },
+   "confirmed_by": "v1 合成题 s12 在 v2 brief 与 code-standards-v5.1 场景文本下复核（F10，2026-10-25），期望 unsupported 不变"
+  },
+  {
+   "id": "s13",
+   "type": "unfounded",
+   "family": "openai",
+   "model": null,
+   "expected": "unsupported",
+   "from": "written 2026-10-20 (OpenAI style)",
+   "item": {
+    "kind": "finding",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "problem-1",
+     "problem-2",
+     "problem-3",
+     "problem-4",
+     "problem-5",
+     "problem-6",
+     "problem-7",
+     "problem-8",
+     "problem-9",
+     "problem-10",
+     "problem-11",
+     "problem-12",
+     "problem-13",
+     "problem-14",
+     "problem-15",
+     "problem-16",
+     "problem-17",
+     "problem-18",
+     "problem-19",
+     "problem-20",
+     "problem-21",
+     "problem-22",
+     "problem-23",
+     "problem-24",
+     "problem-25",
+     "problem-26"
+    ],
+    "expectation": null,
+    "finding": "- `src/catering/menu.mjs:43`: `loadMenu` returns `items.map(prepareItem)` as a plain array, so the loaded menu can be changed by any caller. `src/AGENTS.md` rule 3 requires returned shared collections to be frozen like the other menu values. Freeze the returned list.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/catering/menu.mjs",
+      "line": 43
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "catering-states.mjs exports advanceOrder as a default export and catering-service.mjs imports it as one, violating the named-export rule."
+     },
+     {
+      "decision": "problem-2",
+      "expectation": "vendorNotice reads the clock with Date.now(); only service modules may read the current time, through the injected now function, and the notices module is a rule module."
+     },
+     {
+      "decision": "problem-3",
+      "expectation": "kitchen-manifest.mjs is a rule module but imports the Node.js built-in node:crypto; rule 2 allows built-in imports only in store and platform modules (the node: prefix alone is not enough)."
+     },
+     {
+      "decision": "problem-4",
+      "expectation": "loadMenu in menu.mjs, a rule module, catches the JSON parse error; rule 4.1 forbids catching in rule modules even when the replacement keeps the cause, and menuFor in the service already wraps menu failures."
+     },
+     {
+      "decision": "problem-5",
+      "expectation": "cancelOrder passes its whole argument object, including the injected now function, to cancellationFee in catering-pricing.mjs, a rule module, which calls context.now() (rule 6.1 and 6.2: rule modules take instants); cancelOrder thereby reads the clock twice in one call (rule 6.3)."
+     },
+     {
+      "decision": "problem-6",
+      "expectation": "upcomingOrders hands now to the private helper isUpcoming, whose returned predicate calls now() once per order; rule 6.3 allows one read per call and passing now on only to another exported service function."
+     },
+     {
+      "decision": "problem-7",
+      "expectation": "postponeOrder changes the record returned by store.find in place with Object.assign before validating it; rule 5 treats store records as caller-supplied, and a rejected postponement leaves the stored order already changed."
+     },
+     {
+      "decision": "problem-8",
+      "expectation": "catering-service.mjs imports isFrontDeskOpen from schedules/front-desk-service.mjs, a service module of another feature (rule 7.2); the rule module schedules/desk-policy.mjs (isDeskOpen) can be used with the injected desk store (moving the capability to platform under rule 7.4 is also an acceptable fix)."
+     },
+     {
+      "decision": "problem-9",
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error."
+     },
+     {
+      "decision": "problem-10",
+      "expectation": "DIETARY_TAGS is exported directly from menu.mjs as Object.keys(DIETARY_LABELS), a new array that is not frozen although DIETARY_LABELS is."
+     },
+     {
+      "decision": "problem-11",
+      "expectation": "notifyVendor replaces the caught notifier error with new Error(message, error); the caught error is passed as the options argument, not as {cause: error}, so the new error has no cause."
+     },
+     {
+      "decision": "problem-12",
+      "expectation": "kitchenManifests passes the caller's orders array to inDeliveryOrder, which sorts it in place with Array.prototype.sort, so the exported function reorders caller data (rule 5)."
+     },
+     {
+      "decision": "problem-13",
+      "expectation": "addLine copies the order with a shallow spread and then pushes into amended.lines, which is still the caller's order.lines array, mutating caller data."
+     },
+     {
+      "decision": "problem-14",
+      "expectation": "catering-store.mjs implements the store as a class although no external Interface requires one; repository stores are factory closures (writing.md: avoid class unless an external Interface requires it)."
+     },
+     {
+      "decision": "problem-15",
+      "expectation": "findMenuItem in menu.mjs only forwards to requireMenuItem with the same arguments and hides no complexity (writing.md: no pure forwarding wrappers); catering-notices.mjs can call requireMenuItem directly."
+     },
+     {
+      "decision": "problem-16",
+      "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity."
+     },
+     {
+      "decision": "problem-17",
+      "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source)."
+     },
+     {
+      "decision": "problem-18",
+      "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting."
+     },
+     {
+      "decision": "problem-19",
+      "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax."
+     },
+     {
+      "decision": "problem-20",
+      "expectation": "listOrders sorts by byDelivery, finds the first order after the cursor and slices page.limit orders; this is the same result as platform/listing.mjs pageOf with the predicate byDelivery(order, page.after) > 0, so it can be replaced by pageOf."
+     },
+     {
+      "decision": "problem-21",
+      "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended."
+     },
+     {
+      "decision": "problem-22",
+      "expectation": "fitsReservation recomputes the reservation building-access window, duplicating reservations/policy.mjs accessWindow and its SETTINGS (partySize > 8 is largeParty, 30 and 15 minutes early are largeAccessMinutes and accessMinutes, 15 minutes after is accessMinutes); it can be contains(accessWindow(reservation), deliveryWindow(order))."
+     },
+     {
+      "decision": "problem-23",
+      "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference."
+     },
+     {
+      "decision": "problem-24",
+      "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them."
+     },
+     {
+      "decision": "problem-25",
+      "expectation": "deliveredNotice in catering-notices.mjs sums line servings with its own reduce, the same fact that servingsOf in catering-statements.mjs computes; the notice can call servingsOf so the servings total keeps one authority."
+     },
+     {
+      "decision": "problem-26",
+      "expectation": "vendorStatement takes a withCanceled option that its only caller, vendorStatements, never passes; catering-statements.mjs is a rule module, not an entry point, so the option is machinery for an assumed future need (writing.md minimal sufficient contracts) and can be removed."
+     }
+    ],
+    "cleanTargets": []
+   },
+   "confirmed_by": "v1 合成题 s13 在 v2 brief 与 code-standards-v5.1 场景文本下复核（F10，2026-10-25），期望 unsupported 不变"
+  },
+  {
+   "id": "s14",
+   "type": "unfounded",
+   "family": "strata",
+   "model": "strata-q3",
+   "expected": "unsupported",
+   "from": "written 2026-10-20 (Strata style)",
+   "item": {
+    "kind": "finding",
+    "check": "CODE-STANDARDS-FINDINGS",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "problem-1",
+     "problem-2",
+     "problem-3",
+     "problem-4",
+     "problem-5",
+     "problem-6",
+     "problem-7",
+     "problem-8",
+     "problem-9",
+     "problem-10",
+     "problem-11",
+     "problem-12",
+     "problem-13",
+     "problem-14",
+     "problem-15",
+     "problem-16",
+     "problem-17",
+     "problem-18",
+     "problem-19",
+     "problem-20",
+     "problem-21",
+     "problem-22",
+     "problem-23",
+     "problem-24",
+     "problem-25",
+     "problem-26"
+    ],
+    "expectation": null,
+    "finding": "1. `src/catering/catering-states.mjs:4,27` - `canCancel` lets a delivered order be canceled.\n   - Violated instruction: `src/AGENTS.md` rule 5 and the catering state rules.\n   - Evidence: the `cancel` rule lists `from: ['placed', 'confirmed', 'delivered']`, and `canCancel` only looks the rule up, so a delivered order passes.\n   - Fix: drop `delivered` from the cancel rule.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "src/catering/catering-states.mjs",
+      "line": 4
+     },
+     {
+      "filePath": "src/catering/catering-states.mjs",
+      "line": 27
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "catering-states.mjs exports advanceOrder as a default export and catering-service.mjs imports it as one, violating the named-export rule."
+     },
+     {
+      "decision": "problem-2",
+      "expectation": "vendorNotice reads the clock with Date.now(); only service modules may read the current time, through the injected now function, and the notices module is a rule module."
+     },
+     {
+      "decision": "problem-3",
+      "expectation": "kitchen-manifest.mjs is a rule module but imports the Node.js built-in node:crypto; rule 2 allows built-in imports only in store and platform modules (the node: prefix alone is not enough)."
+     },
+     {
+      "decision": "problem-4",
+      "expectation": "loadMenu in menu.mjs, a rule module, catches the JSON parse error; rule 4.1 forbids catching in rule modules even when the replacement keeps the cause, and menuFor in the service already wraps menu failures."
+     },
+     {
+      "decision": "problem-5",
+      "expectation": "cancelOrder passes its whole argument object, including the injected now function, to cancellationFee in catering-pricing.mjs, a rule module, which calls context.now() (rule 6.1 and 6.2: rule modules take instants); cancelOrder thereby reads the clock twice in one call (rule 6.3)."
+     },
+     {
+      "decision": "problem-6",
+      "expectation": "upcomingOrders hands now to the private helper isUpcoming, whose returned predicate calls now() once per order; rule 6.3 allows one read per call and passing now on only to another exported service function."
+     },
+     {
+      "decision": "problem-7",
+      "expectation": "postponeOrder changes the record returned by store.find in place with Object.assign before validating it; rule 5 treats store records as caller-supplied, and a rejected postponement leaves the stored order already changed."
+     },
+     {
+      "decision": "problem-8",
+      "expectation": "catering-service.mjs imports isFrontDeskOpen from schedules/front-desk-service.mjs, a service module of another feature (rule 7.2); the rule module schedules/desk-policy.mjs (isDeskOpen) can be used with the injected desk store (moving the capability to platform under rule 7.4 is also an acceptable fix)."
+     },
+     {
+      "decision": "problem-9",
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error."
+     },
+     {
+      "decision": "problem-10",
+      "expectation": "DIETARY_TAGS is exported directly from menu.mjs as Object.keys(DIETARY_LABELS), a new array that is not frozen although DIETARY_LABELS is."
+     },
+     {
+      "decision": "problem-11",
+      "expectation": "notifyVendor replaces the caught notifier error with new Error(message, error); the caught error is passed as the options argument, not as {cause: error}, so the new error has no cause."
+     },
+     {
+      "decision": "problem-12",
+      "expectation": "kitchenManifests passes the caller's orders array to inDeliveryOrder, which sorts it in place with Array.prototype.sort, so the exported function reorders caller data (rule 5)."
+     },
+     {
+      "decision": "problem-13",
+      "expectation": "addLine copies the order with a shallow spread and then pushes into amended.lines, which is still the caller's order.lines array, mutating caller data."
+     },
+     {
+      "decision": "problem-14",
+      "expectation": "catering-store.mjs implements the store as a class although no external Interface requires one; repository stores are factory closures (writing.md: avoid class unless an external Interface requires it)."
+     },
+     {
+      "decision": "problem-15",
+      "expectation": "findMenuItem in menu.mjs only forwards to requireMenuItem with the same arguments and hides no complexity (writing.md: no pure forwarding wrappers); catering-notices.mjs can call requireMenuItem directly."
+     },
+     {
+      "decision": "problem-16",
+      "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity."
+     },
+     {
+      "decision": "problem-17",
+      "expectation": "kitchenFor in kitchen-manifest.mjs re-derives the vendor with a predicate table (halal first, then headcount >= 31) that is the same rule as vendorFor in vendors.mjs (halal, then headcount > LARGE_ORDER = 30); the two can be merged by grouping on the vendorId already stored on each order (single authoritative source)."
+     },
+     {
+      "decision": "problem-18",
+      "expectation": "confirmedNotice states a 14-day payment term that restates the repository payment terms (PAYMENT_TERMS.dueMinutes = 20160 minutes, used by invoice-terms dueAt) for the invoice that bills the catering charge; it should be derived from that setting."
+     },
+     {
+      "decision": "problem-19",
+      "expectation": "orderCharge rounds tax through the private helper share (Math.round of amount * basisPoints / 1e4), which equals billing/totals.mjs roundedTax (floor of taxable * basisPoints + BASIS / 2) for the non-negative amounts here; orderCharge can call roundedTax."
+     },
+     {
+      "decision": "problem-20",
+      "expectation": "listOrders sorts by byDelivery, finds the first order after the cursor and slices page.limit orders; this is the same result as platform/listing.mjs pageOf with the predicate byDelivery(order, page.after) > 0, so it can be replaced by pageOf."
+     },
+     {
+      "decision": "problem-21",
+      "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended."
+     },
+     {
+      "decision": "problem-22",
+      "expectation": "fitsReservation recomputes the reservation building-access window, duplicating reservations/policy.mjs accessWindow and its SETTINGS (partySize > 8 is largeParty, 30 and 15 minutes early are largeAccessMinutes and accessMinutes, 15 minutes after is accessMinutes); it can be contains(accessWindow(reservation), deliveryWindow(order))."
+     },
+     {
+      "decision": "problem-23",
+      "expectation": "deskDeliveries selects confirmed orders whose delivery window (deliverAt - deliveryLead to deliverAt) lies inside the day, the same selection rule that kitchenManifests applies with contains(period, deliveryWindow(order)), written out with a loop and inline arithmetic; the rule can live in one policy helper used by both, with the building filter as the only difference."
+     },
+     {
+      "decision": "problem-24",
+      "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them."
+     },
+     {
+      "decision": "problem-25",
+      "expectation": "deliveredNotice in catering-notices.mjs sums line servings with its own reduce, the same fact that servingsOf in catering-statements.mjs computes; the notice can call servingsOf so the servings total keeps one authority."
+     },
+     {
+      "decision": "problem-26",
+      "expectation": "vendorStatement takes a withCanceled option that its only caller, vendorStatements, never passes; catering-statements.mjs is a rule module, not an entry point, so the option is machinery for an assumed future need (writing.md minimal sufficient contracts) and can be removed."
+     }
+    ],
+    "cleanTargets": []
+   },
+   "confirmed_by": "v1 合成题 s14 在 v2 brief 与 code-standards-v5.1 场景文本下复核（F10，2026-10-25），期望 unsupported 不变"
+  }
+ ]
 }

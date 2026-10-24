@@ -1042,5 +1042,429 @@
    }
   }
  ],
- "synthetic": []
+ "synthetic": [
+  {
+   "id": "s01",
+   "type": "mismatch",
+   "family": "strata",
+   "model": "strata-q3",
+   "expected": "not-matched",
+   "from": "v4.2 pool b191 (matched, REQUIREMENTS problem 2) under problem 3",
+   "item": {
+    "kind": "association",
+    "scenario": "runtime-migration",
+    "check": "SPEC-READINESS-REQUIREMENTS",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "The subject adds image-preview cleanup that is not needed to implement this issue.",
+    "finding": "`specs/runtime-migration.md` states that the expected filesystem failure of `promote(inputPath)` is exactly `{recovered: false, failureCode, priorTrackedState, baselineStatus}`, while `specs/promotion-runtime.md` states that the same failure is `{recovered: false, failureCode, operation, priorTrackedState, baselineStatus}` and uses `operation` to identify which failure occurred. The two selected governing requirements give incompatible field sets for the same caller-visible failure, so the delivered failure contract is undetermined.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "specs/promotion-runtime.md",
+      "line": 41
+     },
+     {
+      "filePath": "specs/runtime-migration.md",
+      "line": 23
+     }
+    ]
+   },
+   "confirmed_by": "v1 合成题 s01 在 v2 brief 与 spec-readiness-v4.5 场景文本下复核（F10，2026-10-25），期望 not-matched 不变"
+  },
+  {
+   "id": "s02",
+   "type": "mismatch",
+   "family": "anthropic",
+   "model": "opus",
+   "expected": "not-matched",
+   "from": "v4.2 pool b247 (matched, INTERFACES problem 3) under problem 1",
+   "item": {
+    "kind": "association",
+    "scenario": "artifact-promotion",
+    "check": "MODULE-DESIGN-INTERFACES",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "Access Review Interface does not provide the verified-principal input required by its authentication boundary.",
+    "finding": "The rollback failure result `{recovered: false, failureCode, priorTrackedState, baselineStatus}` has a single `failureCode` field. The Recovery Storage Seam says Recovery keeps both the original commit failure and the restore failure (`restore-failed`) when forming that shape. Neither promotion-recovery nor promotion-runtime says which code `failureCode` carries on rollback failure, or whether the other code is exposed at all. The caller-visible value is therefore undefined.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "specs/promotion-recovery.md",
+      "line": 47
+     },
+     {
+      "filePath": "specs/promotion-recovery.md",
+      "line": 59
+     },
+     {
+      "filePath": "specs/promotion-runtime.md",
+      "line": 41
+     }
+    ]
+   },
+   "confirmed_by": "v1 合成题 s02 在 v2 brief 与 spec-readiness-v4.5 场景文本下复核（F10，2026-10-25），期望 not-matched 不变"
+  },
+  {
+   "id": "s03",
+   "type": "mismatch",
+   "family": "openai",
+   "model": null,
+   "expected": "not-matched",
+   "from": "written 2026-10-20 (OpenAI style; INPUTS problem 1) under REQUIREMENTS problem 4",
+   "item": {
+    "kind": "association",
+    "scenario": "runtime-migration",
+    "check": "SPEC-READINESS-REQUIREMENTS",
+    "allowedDecisions": [
+     "matched",
+     "not-matched"
+    ],
+    "expectation": "The conditional export-retention section applies only if the new reader-index target is a generated artifact; no supplied Input establishes whether docs/reference/validation-report.md is generated, so whether the section belongs to this issue cannot be determined.",
+    "finding": "The issue selects specs/request-consistency.md as a governing requirement, but the request supplies no Input snapshot for it. Its requirements therefore cannot be compared with the subject.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": ".scratch/0001-reviewer-capability/issues/01-review-readiness.md",
+      "line": 21
+     }
+    ]
+   },
+   "confirmed_by": "v1 合成题 s03 在 v2 brief 与 spec-readiness-v4.5 场景文本下复核（F10，2026-10-25），期望 not-matched 不变"
+  },
+  {
+   "id": "s04",
+   "type": "finding-problem",
+   "family": "strata",
+   "model": "strata-q3",
+   "expected": "problem-6",
+   "from": "v4.2 pool b184 (matched, INTERFACES problem 6)",
+   "item": {
+    "kind": "finding",
+    "scenario": "artifact-promotion",
+    "check": "MODULE-DESIGN-INTERFACES",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "problem-1",
+     "problem-2",
+     "problem-3",
+     "problem-4",
+     "problem-5",
+     "problem-6"
+    ],
+    "expectation": null,
+    "finding": "renderReport(source) declares source a required caller input but defines a result only for a missing source. For a non-string or empty source the caller-visible result is undefined, while the governing architecture invalid-input contract for the comparable caller path input covers missing, non-string and empty cases, and the Testing Decisions cover only the missing case. Implementers cannot decide whether those inputs are rejected, and the invalid-input contract of this Interface is not verifiable.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "architecture/05-validation-report.md",
+      "line": 37
+     },
+     {
+      "filePath": "specs/validation-report.md",
+      "line": 11
+     },
+     {
+      "filePath": "specs/validation-report.md",
+      "line": 104
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "Access Review Interface does not provide the verified-principal input required by its authentication boundary."
+     },
+     {
+      "decision": "problem-2",
+      "expectation": "Access Review and its Policy Evaluation Seam define allowed, denied and input-error results but no caller-visible result or common Adapter contract for Policy Adapter execution failure, although Testing Decisions require testing it. It may be reported under the Interface or the Seam."
+     },
+     {
+      "decision": "problem-3",
+      "expectation": "Rollback-failure result does not define whether failureCode identifies the commit or rollback failure."
+     },
+     {
+      "decision": "problem-4",
+      "expectation": "Recovery Testing Decisions omit the public lifecycle for rollback-failure results; Promotion Runtime tests rollback failure only through promote, not through the recoverPromotion public lifecycle that defines this result."
+     },
+     {
+      "decision": "problem-5",
+      "expectation": "The Malformed Artifact Interface returns unexpected-field for an extra field not allowed by the input schema, but neither it nor the Invalid Artifact Contract validation order it adopts gives unexpected-field a position, so the single first diagnostic is undefined when an extra field coexists with another invalid field or with further extra fields."
+     },
+     {
+      "decision": "problem-6",
+      "expectation": "renderReport requires source but defines neither its input type (the result for a non-string or empty source) nor how the artifact-read-failed diagnostic path is obtained from it."
+     }
+    ],
+    "cleanTargets": []
+   },
+   "confirmed_by": "v1 合成题 s04 在 v2 brief 与 spec-readiness-v4.5 场景文本下复核（F10，2026-10-25），期望 problem-6 不变"
+  },
+  {
+   "id": "s05",
+   "type": "finding-problem",
+   "family": "anthropic",
+   "model": "opus",
+   "expected": "problem-5",
+   "from": "v4.2 pool b092 (matched, INTERFACES problem 5)",
+   "item": {
+    "kind": "finding",
+    "scenario": "artifact-promotion",
+    "check": "MODULE-DESIGN-INTERFACES",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "problem-1",
+     "problem-2",
+     "problem-3",
+     "problem-4",
+     "problem-5",
+     "problem-6"
+    ],
+    "expectation": null,
+    "finding": "The Malformed Artifact Interface adds `unexpected-field` for any extra field and requires only the first invalid field in contract order. The referenced Invalid Artifact Contract order (UTF-8, JSON, root object, `requestId`, `checks`, then entry object, `check`, `result`, `finding`, uniqueness, order) never places an extra-field check, either at root level or for entry fields other than `finding`. When an extra field occurs together with another error, the reported diagnostic is undefined, and the multi-error first-error test cannot be specified.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "architecture/05-validation-report.md",
+      "line": 29
+     },
+     {
+      "filePath": "specs/validation-report.md",
+      "line": 45
+     },
+     {
+      "filePath": "specs/validation-report.md",
+      "line": 104
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "Access Review Interface does not provide the verified-principal input required by its authentication boundary."
+     },
+     {
+      "decision": "problem-2",
+      "expectation": "Access Review and its Policy Evaluation Seam define allowed, denied and input-error results but no caller-visible result or common Adapter contract for Policy Adapter execution failure, although Testing Decisions require testing it. It may be reported under the Interface or the Seam."
+     },
+     {
+      "decision": "problem-3",
+      "expectation": "Rollback-failure result does not define whether failureCode identifies the commit or rollback failure."
+     },
+     {
+      "decision": "problem-4",
+      "expectation": "Recovery Testing Decisions omit the public lifecycle for rollback-failure results; Promotion Runtime tests rollback failure only through promote, not through the recoverPromotion public lifecycle that defines this result."
+     },
+     {
+      "decision": "problem-5",
+      "expectation": "The Malformed Artifact Interface returns unexpected-field for an extra field not allowed by the input schema, but neither it nor the Invalid Artifact Contract validation order it adopts gives unexpected-field a position, so the single first diagnostic is undefined when an extra field coexists with another invalid field or with further extra fields."
+     },
+     {
+      "decision": "problem-6",
+      "expectation": "renderReport requires source but defines neither its input type (the result for a non-string or empty source) nor how the artifact-read-failed diagnostic path is obtained from it."
+     }
+    ],
+    "cleanTargets": []
+   },
+   "confirmed_by": "v1 合成题 s05 在 v2 brief 与 spec-readiness-v4.5 场景文本下复核（F10，2026-10-25），期望 problem-5 不变"
+  },
+  {
+   "id": "s06",
+   "type": "finding-problem",
+   "family": "openai",
+   "model": null,
+   "expected": "problem-3",
+   "from": "written 2026-10-20 (OpenAI style; content of b247, INTERFACES problem 3)",
+   "item": {
+    "kind": "finding",
+    "scenario": "artifact-promotion",
+    "check": "MODULE-DESIGN-INTERFACES",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "problem-1",
+     "problem-2",
+     "problem-3",
+     "problem-4",
+     "problem-5",
+     "problem-6"
+    ],
+    "expectation": null,
+    "finding": "The rollback-failure result has one failureCode, while Recovery keeps both the original commit failure and the restore failure. No Interface says which of the two codes failureCode carries, so callers cannot interpret a rollback failure.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "specs/promotion-recovery.md",
+      "line": 47
+     },
+     {
+      "filePath": "specs/promotion-recovery.md",
+      "line": 59
+     },
+     {
+      "filePath": "specs/promotion-runtime.md",
+      "line": 41
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "Access Review Interface does not provide the verified-principal input required by its authentication boundary."
+     },
+     {
+      "decision": "problem-2",
+      "expectation": "Access Review and its Policy Evaluation Seam define allowed, denied and input-error results but no caller-visible result or common Adapter contract for Policy Adapter execution failure, although Testing Decisions require testing it. It may be reported under the Interface or the Seam."
+     },
+     {
+      "decision": "problem-3",
+      "expectation": "Rollback-failure result does not define whether failureCode identifies the commit or rollback failure."
+     },
+     {
+      "decision": "problem-4",
+      "expectation": "Recovery Testing Decisions omit the public lifecycle for rollback-failure results; Promotion Runtime tests rollback failure only through promote, not through the recoverPromotion public lifecycle that defines this result."
+     },
+     {
+      "decision": "problem-5",
+      "expectation": "The Malformed Artifact Interface returns unexpected-field for an extra field not allowed by the input schema, but neither it nor the Invalid Artifact Contract validation order it adopts gives unexpected-field a position, so the single first diagnostic is undefined when an extra field coexists with another invalid field or with further extra fields."
+     },
+     {
+      "decision": "problem-6",
+      "expectation": "renderReport requires source but defines neither its input type (the result for a non-string or empty source) nor how the artifact-read-failed diagnostic path is obtained from it."
+     }
+    ],
+    "cleanTargets": []
+   },
+   "confirmed_by": "v1 合成题 s06 在 v2 brief 与 spec-readiness-v4.5 场景文本下复核（F10，2026-10-25），期望 problem-3 不变"
+  },
+  {
+   "id": "s07",
+   "type": "false-fact",
+   "family": "strata",
+   "model": "strata-q3",
+   "expected": "false-positive:clean-3",
+   "from": "written 2026-10-20 (Strata style)",
+   "item": {
+    "kind": "finding",
+    "scenario": "artifact-promotion",
+    "check": "SPEC-READINESS-ADR-EVALUATION",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "false-positive:clean-3",
+     "problem-1"
+    ],
+    "expectation": null,
+    "finding": "specs/reader-index.md concludes that the reader-index change needs no ADR, but replacing the stable target path that readers resolve changes a published authority decision, which the ADR rules require to be evaluated. The ADR Evaluation therefore skips a decision that needs an ADR.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "specs/reader-index.md",
+      "line": 13
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "The recovery ADR evaluation treats the new public recovery-result contract and failure lifecycle as covered by an existing rollback responsibility without evaluating that new decision."
+     }
+    ],
+    "cleanTargets": [
+     {
+      "cleanCaseIndex": 3,
+      "decision": "false-positive:clean-3",
+      "expectation": "The clean documentation-only change correctly concludes that no ADR is required."
+     }
+    ]
+   },
+   "confirmed_by": "v1 合成题 s07 在 v2 brief 与 spec-readiness-v4.5 场景文本下复核（F10，2026-10-25），期望 false-positive:clean-3 不变"
+  },
+  {
+   "id": "s08",
+   "type": "false-fact",
+   "family": "anthropic",
+   "model": "opus",
+   "expected": "false-positive:clean-1",
+   "from": "written 2026-10-20 (Anthropic style)",
+   "item": {
+    "kind": "finding",
+    "scenario": "artifact-promotion",
+    "check": "SPEC-READINESS-RATIONALE",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "false-positive:clean-1",
+     "problem-1"
+    ],
+    "expectation": null,
+    "finding": "The Validation Report Design Rationale states only the chosen design (central structured report generation). It names no rejected alternative and no accepted cost, so the full-form common rationale is incomplete.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "specs/validation-report.md",
+      "line": 23
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "The access-review common rationale selects re-evaluating policy on every protected read and states its latency cost, but omits the alternative (such as reusing an earlier decision) and its rejection reason."
+     }
+    ],
+    "cleanTargets": [
+     {
+      "cleanCaseIndex": 1,
+      "decision": "false-positive:clean-1",
+      "expectation": "The clean full-form common rationale includes an alternative, rejection reason, and accepted cost."
+     }
+    ]
+   },
+   "confirmed_by": "v1 合成题 s08 在 v2 brief 与 spec-readiness-v4.5 场景文本下复核（F10，2026-10-25），期望 false-positive:clean-1 不变"
+  },
+  {
+   "id": "s09",
+   "type": "false-fact",
+   "family": "openai",
+   "model": null,
+   "expected": "false-positive:clean-3",
+   "from": "written 2026-10-20 (OpenAI style)",
+   "item": {
+    "kind": "finding",
+    "scenario": "artifact-promotion",
+    "check": "MODULE-DESIGN-APPLICABILITY",
+    "allowedDecisions": [
+     "unsupported",
+     "supported",
+     "false-positive:clean-3",
+     "problem-1"
+    ],
+    "expectation": null,
+    "finding": "specs/reader-index.md omits Module Design, although it changes the reader Interface by replacing the target path. A caller-visible Interface change cannot skip Module Design.",
+    "result": "gap",
+    "evidence": [
+     {
+      "filePath": "specs/reader-index.md",
+      "line": 5
+     }
+    ],
+    "problemOptions": [
+     {
+      "decision": "problem-1",
+      "expectation": "The result-summary change alters a caller-visible Interface and therefore cannot use the Module Design exemption."
+     }
+    ],
+    "cleanTargets": [
+     {
+      "cleanCaseIndex": 3,
+      "decision": "false-positive:clean-3",
+      "expectation": "The documentation-only clean spec correctly omits Module Design."
+     }
+    ]
+   },
+   "confirmed_by": "v1 合成题 s09 在 v2 brief 与 spec-readiness-v4.5 场景文本下复核（F10，2026-10-25），期望 false-positive:clean-3 不变"
+  }
+ ]
 }
