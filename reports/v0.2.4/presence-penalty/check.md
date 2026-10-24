@@ -30,3 +30,15 @@ worker（Opus high）报告，Main 整理存档。改动在分支 `worktree-agen
 - 没有加载模型看采样 trace。
 - Claude Code 的手动 `/compact`、会话记忆、斜杠命令等辅助请求没有覆盖。
 - 没有核对安装目录里有没有 Chat 共享设置文件。
+
+## 独立审查（Opus high，2026-10-24）：有条件同意部署
+
+- 源码核对成立：思考开启的请求传给引擎的选项逐字节不变（`sampling_keys` 在值为 0 时不下发），guardian 和审批 hook 不受影响；只有思考关闭的请求从 1.5 变成 0。
+- 补充一条思考关闭路径：Messages 请求带 `output_config.effort` 为 none/minimal/off 时，Strata 也会关思考，前端不拦。现在没有发送方，本次修复同样覆盖它。
+- 单测的局限：`MODEL_CARD_KEYS` 是照 0.2.4 手抄的，升级后模型卡加键时测试不会报错。已在 strata-upgrade skill 的核对安装一步加上核对模型卡的要求。
+- 附带风险：安装目录里如果有 `*.shared-settings.json`（Chat 共享设置），它能覆盖 temperature/top_p/top_k，部署时要确认没有这个文件。
+- 部署条件：解决合并冲突后重跑全套测试；部署后回读 prebuilt 的 sampling 块；确认没有共享设置文件；冒烟检查。
+
+## 执行（Main）
+
+- 冲突已解决（两边都在 `tests/test_deployment_source.py` 末尾追加了内容，两段都保留），全套 763 项通过。部署和核对结果见下。

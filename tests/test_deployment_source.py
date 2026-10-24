@@ -67,6 +67,17 @@ installation_path='C:\\Strata'
         with self.assertRaisesRegex(ValueError, 'Guardian'):
             model_configuration('Q2_0', 'tuned', self.root)
 
+    def test_presence_penalty_is_an_installation_default(self):
+        self.host('tuned', engine_overrides={}, installation_defaults={
+            'reasoning_effort': 'high', 'temperature': 0.0, 'top_p': 1.0, 'top_k': 20, 'presence_penalty': 0.0})
+        self.assertEqual(model_configuration('Q2_0', 'tuned', self.root)['request_defaults'],
+                         {'reasoning_effort': 'high', 'temperature': 0.0, 'top_p': 1.0, 'top_k': 20,
+                          'presence_penalty': 0.0})
+        # The whitelist grows by this key only: other sampling keys still need a reason to become host defaults
+        self.host('tuned', engine_overrides={}, installation_defaults={'min_p': 0.0})
+        with self.assertRaisesRegex(ValueError, 'installation defaults'):
+            model_configuration('Q2_0', 'tuned', self.root)
+
     def test_context_tiers_need_a_compaction_limit_inside_the_window(self):
         self.host('tuned', engine_overrides={}, context_tiers={'Q2_0': [{'context_window': 65536, 'auto_compact_token_limit': 65536}]})
         with self.assertRaisesRegex(ValueError, 'context_tiers'):
@@ -253,6 +264,26 @@ class CurrentHostTests(unittest.TestCase):
         self.assertEqual(require_current_host('rtx4070tis', self.root), 'rtx4070tis')
         with self.assertRaisesRegex(ValueError, 'not this machine'):
             require_current_host('rtx3080ti', self.root)
+
+
+# Strata 0.2.4 serve/server.py MODEL_CARD_SAMPLING["qwen4exp"]: the keys it fills for a request when neither the request
+# nor the run config's sampling block names them (the thinking-off set adds presence_penalty 1.5).
+MODEL_CARD_KEYS = {'thinking': {'temperature', 'top_p', 'top_k'},
+                   'instruct': {'temperature', 'top_p', 'top_k', 'presence_penalty'}}
+
+
+class ProjectHostDefaultsTests(unittest.TestCase):
+    def test_hosts_with_sampling_defaults_pin_every_model_card_key(self):
+        """A host that sets its own sampling must set every key the model card would otherwise fill, or a
+        thinking-off request silently gets the card's value (presence_penalty 1.5 under greedy)."""
+        root = Path(__file__).resolve().parents[1]
+        for path in sorted((root/'config/deployments').glob('*.json')):
+            defaults = json.loads(path.read_text(encoding='utf-8')).get('installation_defaults', {})
+            if not {'temperature', 'top_p', 'top_k'} & set(defaults):
+                continue
+            for mode, keys in MODEL_CARD_KEYS.items():
+                with self.subTest(host=path.stem, mode=mode):
+                    self.assertLessEqual(keys, set(defaults))
 
 
 if __name__ == '__main__':unittest.main()

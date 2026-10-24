@@ -86,7 +86,7 @@
 
 ### 安装预置
 
-rtx3080ti：对外模型为 IQ3_XXS，默认档是窗口 206584、自动压缩阈值 150000（2026-10-14 起），另有可选档窗口 156584、阈值 100000。206584 已在约 151K token 以内的长上下文检索负载上验证，同负载下与 156584 档速度相同；更长的提示在 200K 级检索中出现过系统性错误，256584 未发布。`config/model-catalog.json` 只列对外模型，窗口是它在本机的默认档；调用方仍需把自己 harness 的自动压缩阈值设为所用档的值（IQ3_XXS 默认档为 150000）。`bin/qwen-agent` 使用对外模型的默认档，即 `context_tiers` 的第一档（见[与 Codex 的参数对照](#与-codex-的参数对照)）。其余预置：high，思考 8192／总输出 24576，temperature 0、top_p 1、top_k 20，CPU 辅助 auto。这是维护起点，不是完整质量验收或最优参数的结论。服务不会替调用方压缩。
+rtx3080ti：对外模型为 IQ3_XXS，默认档是窗口 206584、自动压缩阈值 150000（2026-10-14 起），另有可选档窗口 156584、阈值 100000。206584 已在约 151K token 以内的长上下文检索负载上验证，同负载下与 156584 档速度相同；更长的提示在 200K 级检索中出现过系统性错误，256584 未发布。`config/model-catalog.json` 只列对外模型，窗口是它在本机的默认档；调用方仍需把自己 harness 的自动压缩阈值设为所用档的值（IQ3_XXS 默认档为 150000）。`bin/qwen-agent` 使用对外模型的默认档，即 `context_tiers` 的第一档（见[与 Codex 的参数对照](#与-codex-的参数对照)）。其余预置：high，思考 8192／总输出 24576，temperature 0、top_p 1、top_k 20、presence_penalty 0，CPU 辅助 auto。presence_penalty 0 是显式写的：Strata 0.2.x 会给请求和安装配置都没给的采样键补模型卡的值，思考关闭的请求会因此被加上 presence_penalty 1.5。这是维护起点，不是完整质量验收或最优参数的结论。服务不会替调用方压缩。
 
 ## 推理强度与输出
 
@@ -217,7 +217,7 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default
 | 强度 | `model_reasoning_effort` | `CLAUDE_CODE_EFFORT_LEVEL`（同一个 `--effort`） |
 | 思考上限 | 前端按强度补 2048／4096／8192 | 前端按强度补，同值 |
 | 总输出 | 前端按强度补 8192／16384／24576 | `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 同值 |
-| 采样 | 不发，用安装预置 temperature 0、top_p 1、top_k 20 | 不发（已抓包核对），同预置 |
+| 采样 | 不发，用安装预置 temperature 0、top_p 1、top_k 20、presence_penalty 0 | 不发（已抓包核对），同预置 |
 | 审批参数 | guardian：low，思考 512／总输出 1024，不发采样 | `qwen-approve`：同值 |
 
 两者审批的参数相同，机制不同：
