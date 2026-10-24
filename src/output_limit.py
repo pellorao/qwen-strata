@@ -17,6 +17,13 @@ tool.  The frontend then asks the engine again: the same request, the items that
 message, which goes only to the engine (as loop_reminder does).  The retry's events follow on the same stream,
 renumbered as part of the first response.
 
+The retry also gets more room when the limit is the frontend's own default (the caller set none): max_output_tokens
+doubles, up to RETRY_LIMIT_CAP, and the thinking budget stays, so all the added room goes to the answer.  Why: a notice
+alone did not help (strata-codex CStd low-a9, 2026-10-22): the thinking ran to its budget in both attempts and, under
+greedy decoding, the retry again put the whole output into one tool call, which could not fit in the room left for
+the answer.  A lower limit would only cut sooner, since the model never sees the number.  A limit the caller set is
+kept: the retry then carries the notice only.
+
 No retry when an action item (anything but reasoning or a message) already completed in the answer: the caller may
 already be running it.  After MAX_RETRIES, when a retry cannot start, or on any unexpected error, the held frames go
 out as they came (the caller sees the limit as before).  Every limit hit is logged with the limit, the discarded
@@ -28,12 +35,16 @@ import json
 import time
 
 MAX_RETRIES = 1
+RETRY_LIMIT_FACTOR = 2     # a retry may write this many times the limit the frontend itself set (see the module doc)
+RETRY_LIMIT_CAP = 24576    # ... but no more than the largest total the service presets (high effort)
 PATH = '/v1/responses'
 NOTICE = ('[Output limit: automatic notice from the model service, not from the user]\n'
           'Your previous response reached the output limit and was cut off while writing {what}; the cut-off part '
-          'was discarded and was not run or saved. Respond to the last request again, keeping this response well '
-          'under the limit: shorten it, or if the output must be long, split it into several smaller steps (for '
-          'example several smaller tool calls).')
+          'was discarded and was not run or saved. Respond to the last request again. {room} shorten it, or if the '
+          'output must be long, split it into several smaller steps (for example several smaller tool calls) '
+          'instead of repeating the same single long one.')
+ROOM_RAISED = 'This response has more room than the previous one, but keep it as short as you can:'
+ROOM_SAME = 'Keep this response well under the limit:'
 PASSIVE_ITEMS = ('reasoning', 'message')
 
 
@@ -93,9 +104,10 @@ def describe(item):
 class Stream:
     """One caller stream across its attempts."""
 
-    def __init__(self, body):
+    def __init__(self, body, own_limit=False):
         self.body = body
-        self.limit = body.get('max_output_tokens')
+        self.limit = body.get('max_output_tokens')  # of the current attempt
+        self.own_limit = own_limit  # the limit is the frontend's default, not the caller's: a retry may raise it
         self.done = []            # completed passive items the caller has, in order
         self.acted = False        # an action item completed: no retry
         self.attempt = 0          # 0 = the caller's own request; then retries
@@ -177,21 +189,32 @@ class Stream:
         items = body.get('input')
         if isinstance(items, str):
             items = [{'type': 'message', 'role': 'user', 'content': [{'type': 'input_text', 'text': items}]}]
-        notice = NOTICE.format(what=self.cut)
+        limit = self.retry_limit()
+        notice = NOTICE.format(what=self.cut, room=ROOM_RAISED if limit != self.limit else ROOM_SAME)
         body['input'] = list(items or []) + copy.deepcopy(self.done) + [
             {'type': 'message', 'role': 'user', 'content': [{'type': 'input_text', 'text': notice}]}]
+        if limit is not None:
+            body['max_output_tokens'] = limit
         return body
+
+    def retry_limit(self):
+        """The retry's output limit: raised only when the frontend set the limit; the thinking budget stays."""
+        if self.own_limit and isinstance(self.limit, int) and not isinstance(self.limit, bool):
+            return max(self.limit, min(self.limit * RETRY_LIMIT_FACTOR, RETRY_LIMIT_CAP))
+        return self.limit
 
     def next_attempt(self):
         self.attempt += 1
+        self.limit = self.retry_limit()   # the limit this attempt runs under, for its log line
         self.offset, self.base, self.opening = self.items, copy.deepcopy(self.done), True
         self.held, self.limited, self.cut, self.usage, self.pending_item = [], False, None, None, None
 
 
-def relay(body, reply, write, open_upstream, log):
+def relay(body, reply, write, open_upstream, log, own_limit=False):
     """Stream `reply` to `write`, retrying inside when it ends at the output limit (see the module doc).
-    `open_upstream(body)` returns (connection, reply) for a retry; `log(text)` notes every limit hit."""
-    stream, connection, started = Stream(body), None, time.monotonic()
+    `open_upstream(body)` returns (connection, reply) for a retry; `log(text)` notes every limit hit; `own_limit`
+    says the frontend, not the caller, set the request's max_output_tokens."""
+    stream, connection, started = Stream(body, own_limit), None, time.monotonic()
     try:
         while True:
             for frame in frames(reply):
@@ -204,7 +227,8 @@ def relay(body, reply, write, open_upstream, log):
             retry = stream.attempt < MAX_RETRIES and not stream.acted
             log(f'output limit: {PATH} attempt {stream.attempt + 1} reached max_output_tokens {stream.limit} while '
                 f'writing {stream.cut} after {time.monotonic() - started:.1f} s, usage {json.dumps(stream.usage)}; '
-                + ('discarded, retrying with the notice' if retry else
+                + (f'discarded, retrying with the notice and max_output_tokens {stream.retry_limit()} '
+                   f'(limit set by the {"frontend" if stream.own_limit else "caller"})' if retry else
                    'returned as is (' + ('an action item already completed' if stream.acted else 'no retries left')
                    + ')'))
             if not retry:

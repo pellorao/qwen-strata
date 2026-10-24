@@ -50,7 +50,7 @@
 - **现象**：模型想用一次 `apply_patch` 写完整份报告，输出超过档位的单次输出上限（low 8192、medium 16384，前端按档位补的 `max_output_tokens`）。Strata 按 Responses 协议以 `response.incomplete`、`incomplete_details.reason = max_output_tokens` 结束，截断的调用 `status: incomplete`。Codex 0.163.0 把它当致命错误结束回合：`task_complete.error = "Incomplete response returned, reason: max_output_tokens"`。截断的调用在本地被判为 invalid patch，这条结果没有发回模型，模型没有机会重写，实例就此结束。
 - **Strata 侧相关点**：custom 工具（如 `apply_patch`）的输入只在调用结束时整段发出（`serve/responses.py` 的 `Assembler.feed`），所以截断时 `input` 为空，已生成的部分内容全部丢失；function 工具的参数是逐段发的，截断时是半截 JSON。
 - **mock 复现**（假引擎 + 真实 Codex 0.163.0，2026-10-20）：同一截断流原样返回时 Codex 报 `turn.failed`；只把结束事件换成 `response.completed` 时回合继续。Claude Code 2.1.304 走 Messages（`stop_reason: max_tokens`、半截 `tool_use`）不中断回合，工具返回 InputValidationError（提到可能是输出被截断），模型下一轮能看到；benchmark 的 Claude Code Strata 臂也有实例这样自己恢复。
-- **工程的缓解**（2026-10-20，用户决定在服务端通用处理，经独立审查）：前端 `src/output_limit.py` 只对流式 Responses 回答处理：撞到输出上限时不把截断的回答交给调用方，在内部带一条服务端自动通知重试一次，调用方看到的是正常完成的响应；判定只看协议的输出上限信号。Messages 不处理：Claude Code 已能自行恢复，且在 Anthropic 流里重试要重开已出现的内容块编号，不符合协议。细节见调用手册「撞到输出上限时的内部重试」。
+- **工程的缓解**（2026-10-20，用户决定在服务端通用处理，经独立审查）：前端 `src/output_limit.py` 只对流式 Responses 回答处理：撞到输出上限时不把截断的回答交给调用方，在内部带一条服务端自动通知重试一次，调用方看到的是正常完成的响应；判定只看协议的输出上限信号。下一版（分支待审，未部署）：上限是服务默认值时，重试上限加倍（最多 24576）、思考上限不变，起因是 strata-codex CStd low-a9 仅靠通知重试仍撞上限。Messages 不处理：Claude Code 已能自行恢复，且在 Anthropic 流里重试要重开已出现的内容块编号，不符合协议。细节见调用手册「撞到输出上限时的内部重试」。
 - **可以给上游的建议**：Codex 可以像其他工具失败一样，把 `max_output_tokens` 截断的调用作为失败结果交回模型并继续回合，而不是结束回合；Strata 可以考虑让 custom 工具的输入也逐段发出，截断时至少保留已生成的部分。
 
 ## 5. 不实现延迟工具加载：Claude Code `defer_loading` / `tool_reference`、Codex `tool_search`，工具搜索不可用（已在调用方关闭）
