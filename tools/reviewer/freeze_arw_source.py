@@ -6,6 +6,10 @@ compatibility patches listed in the manifest are applied after extraction and
 their results verified; a fresh freeze starts without them. The project's ARW scoring
 upgrade (evidence F2 instead of F3 and the k-weighted score, user 2026-10-14/16) is applied to every
 materialized copy after the manifest patches, and to an already materialized copy before it scores.
+That upgrade is r8.4 (scoring-k.patch). `--scoring r8.5` (multi-model v2 only, plan §6.1) adds the overlay
+benchmarks/multi-model-v2/arw-patches/scoring-r8.5.patch on top: clean cases of a missing check count as neutral and the
+score reports missingChecks / neutralCleanCases. A copy that carries the overlay keeps it when re-upgraded without a
+version and refuses an explicit r8.4; no version keeps r8.4, so every v1 path is unchanged.
 """
 import argparse
 import hashlib
@@ -70,6 +74,7 @@ def freeze(source, destination):
 
 PATCHES = Path(__file__).resolve().parents[2] / 'benchmarks/reviewer-suite-v1/arw-patches'
 JUDGMENT = Path(__file__).resolve().parents[2] / 'benchmarks/reviewer-suite-v1/judgment'
+V2_PATCHES = Path(__file__).resolve().parents[2] / 'benchmarks/multi-model-v2/arw-patches'
 # Answer keys allowed to repeat a question (check_repeats); not copied into ARW.
 REPEATS = JUDGMENT / 'repeats.json'
 FIXTURES = 'tests/fixtures/reviewer-capability'
@@ -149,6 +154,26 @@ SCORING_UPGRADE = {
             'superseded/scoring-f2-r6.patch', '25573a2edb6b4a23cf2ea00e0d9a3541e0b655bac163ad98d825147dd1969056')}}
 
 
+# Scoring versions a copy can carry. r8.4 is scoring-k.patch alone (every v1 result); r8.5 adds an overlay on top of
+# it: the clean cases of a check missing from a report are neutral and every result counts missingChecks (multi-model
+# benchmark v2 only, user 2026-10-24). Overlay members: (r8.4 upgraded, r8.5).
+SCORING_VERSIONS = ('r8.4', 'r8.5')
+SCORING_OVERLAY = {
+    'version': 'r8.5',
+    'file': 'scoring-r8.5.patch',
+    'sha256': '149c083f7e521a7d055303c6bc8c53a54ed01686c75bc8f9039daa49db7bcda1',
+    'members': {
+        'lib/release/reviewer-capability-scoring.mjs': (
+            'd70c6e6416396ecd92ec9201c2b953d62516e32705e5132616073fb6f8c468a9',
+            '2f7a7122aeab66aebc5302a844fc1fcf0bc89091ece1313c5ade36e73031eb3c'),
+        'lib/release/reviewer-capability-verification.mjs': (
+            '1c93cfd4ca65f6bb6d9bf0348f41d44a6317533dea077b32a43feca2ce9e155f',
+            '3e15f002203365d2141111fe1a6fb221aa9d7ed4ff0004b990cd884491f25b63'),
+        'docs/agents/reviewer-capability-scoring.md': (
+            'f70a1ce2960ab55a00f047486e46a8245630fe6f9e99d52d55b1abd10494f6e3',
+            '5ff39c3a03f4dda96fa9a9de5473bd3ac29ff8cbc652214b66a35f12cd4b2979')}}
+
+
 def git_apply(patch, destination, *options, check=True):
     # Stop repository discovery: inside an enclosing repository git apply resolves paths
     # against that repository and silently skips patches with git headers.
@@ -225,8 +250,8 @@ def apply_harness_patch(name, destination):
     return {'name': name, 'file': entry['file'], 'sha256': entry['sha256'], 'result': entry['result']}
 
 
-def pinned_patch(name, digest):
-    patch = PATCHES / name
+def pinned_patch(name, digest, directory=PATCHES):
+    patch = directory / name
     if sha(patch.read_bytes()) != digest:
         raise ValueError('Scoring upgrade patch differs: ' + name)
     return patch
@@ -407,11 +432,40 @@ def bind_judgment(destination):
     return bound
 
 
-def upgrade_scoring(destination):
+def upgrade_scoring(destination, version=None):
     """Bring a materialized copy to the project's scoring rule (evidence F2, the r7 adjudicated clean cases
     and the r8 k-weighted score, user 2026-10-14/16). Applies the upgrade once; a copy left by a superseded
-    draft is reverted first."""
+    draft is reverted first. version None keeps the version the copy carries (r8.4 for a fresh one); 'r8.5' adds the
+    v2 overlay; a copy carrying r8.5 is never taken back to r8.4."""
+    if version not in (None, *SCORING_VERSIONS):
+        raise ValueError(f'Unknown scoring version: {version}')
     destination = Path(destination)
+    overlay = SCORING_OVERLAY
+    overlay_patch = pinned_patch(overlay['file'], overlay['sha256'], V2_PATCHES)
+    members = SCORING_UPGRADE['members']
+    if all(sha((destination / name).read_bytes()) == new for name, (_, new) in overlay['members'].items()):
+        if version == 'r8.4':
+            raise ValueError('ARW copy carries scoring r8.5; re-materialize it for r8.4')
+        if not (all(sha((destination / name).read_bytes()) == new for name, (_, new) in members.items()
+                    if name not in overlay['members'])
+                and git_apply(pinned_patch(SCORING_UPGRADE['file'], SCORING_UPGRADE['sha256']), destination, '--reverse',
+                              '--check', '--include=' + SCORING_UPGRADE['patched_member'], check=False)
+                and git_apply(overlay_patch, destination, '--reverse', '--check', check=False)):
+            raise ValueError('ARW scoring r8.5 copy is incomplete; re-materialize the copy')
+        return {'applied': False, 'migrated_from': None, 'scoring_version': overlay['version'],
+                'judgment': bind_judgment(destination)}
+    result = upgrade_k(destination)
+    if version == overlay['version']:
+        git_apply(overlay_patch, destination)
+        for name, (_, new) in overlay['members'].items():
+            if sha((destination / name).read_bytes()) != new:
+                raise ValueError('ARW scoring r8.5 member differs: ' + name)
+        result['applied'] = True
+    return {**result, 'scoring_version': version or 'r8.4'}
+
+
+def upgrade_k(destination):
+    """The r8.4 upgrade (scoring-k.patch) of upgrade_scoring."""
     members = SCORING_UPGRADE['members']
     scoring_module = 'lib/release/reviewer-capability-scoring.mjs'
     migrated = None
@@ -437,7 +491,7 @@ def upgrade_scoring(destination):
     return {'applied': applied, 'migrated_from': migrated, 'judgment': bind_judgment(destination)}
 
 
-def materialize(manifest, archive_path, destination, patch_directory=None):
+def materialize(manifest, archive_path, destination, patch_directory=None, scoring=None):
     raw = archive_path.read_bytes()
     if sha(raw) != manifest['snapshot']['sha256']:
         raise ValueError('Frozen source archive differs')
@@ -468,7 +522,7 @@ def materialize(manifest, archive_path, destination, patch_directory=None):
         for name, expected in entry['result'].items():
             if sha((destination / name).read_bytes()) != expected:
                 raise ValueError('Patched member differs: ' + name)
-    upgrade_scoring(destination)
+    return upgrade_scoring(destination, scoring)
 
 
 if __name__ == '__main__':
@@ -479,9 +533,11 @@ if __name__ == '__main__':
     mode.add_argument('--upgrade-scoring', type=Path, metavar='ARW', help='upgrade an already materialized copy')
     parser.add_argument('--out', type=Path)
     parser.add_argument('--archive-directory', type=Path)
+    parser.add_argument('--scoring', choices=SCORING_VERSIONS,
+                        help='scoring version (default: r8.4 for a new copy, the version an existing copy carries)')
     args = parser.parse_args()
     if args.upgrade_scoring:
-        print(json.dumps({'scoring_upgrade': SCORING_UPGRADE['file'], **upgrade_scoring(args.upgrade_scoring)}))
+        print(json.dumps({'scoring_upgrade': SCORING_UPGRADE['file'], **upgrade_scoring(args.upgrade_scoring, args.scoring)}))
     elif args.out is None:
         parser.error('--out is required with --source or --manifest')
     elif args.source:
@@ -491,6 +547,7 @@ if __name__ == '__main__':
     else:
         result = json.loads(args.manifest.read_text())
         archive = (args.archive_directory or args.manifest.parent) / result['snapshot']['file']
-        materialize(result, archive, args.out)
-        print(json.dumps({'materialized_files': len(result['sha256']),
-                          'patches': [entry['file'] for entry in result.get('patches', [])] + [SCORING_UPGRADE['file']]}))
+        scoring = materialize(result, archive, args.out, scoring=args.scoring)['scoring_version']
+        print(json.dumps({'materialized_files': len(result['sha256']), 'scoring_version': scoring,
+                          'patches': [entry['file'] for entry in result.get('patches', [])] + [SCORING_UPGRADE['file']]
+                          + ([SCORING_OVERLAY['file']] if scoring == SCORING_OVERLAY['version'] else [])}))

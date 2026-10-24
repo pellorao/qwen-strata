@@ -1,0 +1,36 @@
+{
+ "schema": "arw-dimension-v1",
+ "status": "draft, not frozen (benchmarks/multi-model-v2/plan.md §11): codex / native_cli_sha256 are the harness_pins values of 2026-10-24 and are replaced by the then-latest at freeze; the two null DeepSeek limits are filled from the freeze checks (§11 F5, F6) and refuse a DeepSeek Claude Code run until then",
+ "host": "none (benchmark arms; model, effort and time limit given by the runner)",
+ "model": "multi-model-benchmark-arm",
+ "reviewer": "spec-readiness-reviewer",
+ "authorization": {
+  "approved": false,
+  "source": "多模型 benchmark v2 草案（benchmarks/multi-model-v2/plan.md），未冻结",
+  "scope": "只用于 ARW 零模型 prepare 与 mock 门；冻结前不用于模型运行"
+ },
+ "method": "Codex 臂：arw_dimension.prepare（codex_harness_patches）→ ARW runtime；Claude Code 臂：tools.reviewer.claude_scenario（claude_role_as_system、deepseek_claude_environment）",
+ "fixed_conditions": {
+  "codex": "0.164.0",
+  "native_cli_sha256": "b93f6811d3f653f0fb83be4050d857fb9abbb111dfa2ce160563327daff7f306",
+  "effort": "per configuration (claude_scenario --effort)",
+  "arw_source_manifest": "benchmarks/multi-model-v2/scenarios/manifest-spec-readiness-v4.4.json",
+  "arw_source_manifest_sha256": "a4bf7eab597e85b48d857de562a7d956d65441188f551c4fff4ddcedfb52c9a7",
+  "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
+  "scoring": "r8.5",
+  "codex_harness_patches": [
+   "codex-0.163-synthetic-mount-targets",
+   "strata-measurement-time-limit",
+   "reviewer-private-scratch"
+  ],
+  "claude_role_as_system": true,
+  "deepseek_claude_environment": {
+   "CLAUDE_CODE_MAX_CONTEXT_TOKENS": 1048576,
+   "CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE": null,
+   "CLAUDE_CODE_MAX_OUTPUT_TOKENS": null
+  }
+ },
+ "codex_thread_id": "ecacfe6d-d91d-4b98-8333-6cac5eb42ab2",
+ "dimensions": [],
+ "derived_from": "benchmarks/multi-model-v1/scenarios/spec-readiness-v4.3.json"
+}

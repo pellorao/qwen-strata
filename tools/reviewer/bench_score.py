@@ -41,7 +41,12 @@ not-matched gives every finding candidate) in <work>/candidates.json for the bli
 The last output line lists the instances whose preparation could be checked neither against an original
 prepared.json nor against a manifest of the repository the Reviewer saw.
 
-    python3 -m tools.reviewer.bench_score --id openai/code-spec-v5/sol-high-a1 [--root .tmp/bench-score]
+Suites (tools.reviewer.bench_suite): --suite v1 (default) is the v1 benchmark as before; --suite v2 takes the v2
+plans, briefs and score root, refuses decision stores of another suite, reuses a stored decision only when it was made
+under the current brief (sha256), and requires the plan's scoring version in the scorer output (v2 plans: r8.5, which
+adds missingChecks per handoff; result field scoring_version).
+
+    python3 -m tools.reviewer.bench_score --id openai/code-spec-v5/sol-high-a1 [--root .tmp/bench-score] [--suite v1]
         [--records records.jsonl] [--enumerate | --provisional lower|upper]
 """
 import argparse
@@ -54,11 +59,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-from tools.reviewer import bench_records
+from tools.reviewer import bench_records, bench_suite
 from tools.reviewer.blind_pool import fingerprint
 
 ROOT = bench_records.ROOT
-DEFAULT_ROOT = ROOT / '.tmp/bench-score'
+DEFAULT_ROOT = bench_suite.SUITES['v1']['score_root']
 PAUSE_CUT = 0.1
 ARW_CUT = 0.1
 # Final score of an instance with no handoff at all, the same as ARW's model failure (scoring-k.patch
@@ -100,9 +105,13 @@ def work_dir(root, record_id):
     return Path(root) / record_id
 
 
-def load_store(work):
+def load_store(work, suite='v1'):
+    """An instance's decision store; one written for another suite (no `suite`: v1) is refused (plan v2 §9.2)."""
     path = Path(work) / 'decisions.json'
-    return json.loads(path.read_text()) if path.is_file() else {'decisions': {}, 'history': []}
+    store = json.loads(path.read_text()) if path.is_file() else {'decisions': {}, 'history': []}
+    if path.is_file() and store.get('suite', 'v1') != suite:
+        raise ValueError(f"{path}: decisions of suite {store.get('suite', 'v1')}, not {suite}")
+    return store
 
 
 def save_store(work, store):
@@ -111,7 +120,7 @@ def save_store(work, store):
 
 # ---- record lookup ------------------------------------------------------------------------------------------------
 
-def find_record(record_id, records=None):
+def find_record(record_id, records=None, suite='v1'):
     if records:
         for line in Path(records).read_text().splitlines():
             record = json.loads(line)
@@ -119,10 +128,10 @@ def find_record(record_id, records=None):
                 return record
         raise ValueError(f'{record_id}: not in {records}')
     arm, scenario, name = record_id.split('/')
-    root, scenes = bench_records.LAYOUT[arm]
+    root, scenes = bench_records.LAYOUTS[suite][arm]
     scene = ROOT / root / scenes[scenario]
     # The whole scene, so the record carries its cell rank (first 5 valid by start time) besides the rejudged validity.
-    for record in bench_records.scene_records(arm, scenario, scene):
+    for record in bench_records.scene_records(arm, scenario, scene, suite):
         if record['id'] == record_id:
             return record
     raise ValueError(f'{record_id}: no such instance directory in {scene}')
@@ -247,9 +256,11 @@ def confirmed_failure_reason(record, handoff, entry):
     return f"Confirmed model failure ({entry['confirmed']}): {entry['basis']}"
 
 
-def place_reports(record, prepared, work, failures=MODEL_FAILURES):
-    """Copy each bound report to its fresh reportPath, repair a copy; the upstream input and the repair records."""
+def place_reports(record, prepared, work, failures=None):
+    """Copy each bound report to its fresh reportPath, repair a copy; the upstream input and the repair records.
+    failures: the confirmed model failures (default: the record suite's list, MODEL_FAILURES for v1)."""
     entries, repairs, rows = {}, {}, []
+    failures = failures or bench_suite.suite(record.get('suite', 'v1'))['model_failures']
     confirmed = confirmed_failures(record['id'], failures)
     if set(confirmed) - {h['k'] for h in record['handoffs']}:
         raise ValueError(f"{record['id']}: confirmed model failure of a handoff the record does not have")
@@ -373,13 +384,16 @@ def adjudicate(prepared, input_path, work, decide, rounds=10, scorer=None):
     raise ValueError(f'candidates still pending after {rounds} rounds')
 
 
-def stored_choice(store, candidate, scenario):
+def stored_choice(store, candidate, scenario, brief_sha256=None):
     """The stored (decision, reason, source) of a live candidate; None when nothing is stored, 'stale' when the stored
-    decision was made for other content (fingerprint differs), so the candidate is adjudicated again."""
+    decision was made for other content (fingerprint differs), so the candidate is adjudicated again. brief_sha256 (suites
+    after v1): the decision must also have been made under that brief."""
     stored = store.get(stable_id(candidate['candidateId']))
     if stored is None:
         return None
     if stored.get('fingerprint') != fingerprint(candidate, scenario):
+        return 'stale'
+    if brief_sha256 is not None and stored.get('brief_sha256') != brief_sha256:
         return 'stale'
     return stored['decision'], stored['reason'], stored.get('source', 'store')
 
@@ -421,8 +435,23 @@ def repetition_score(up, repairs, registry=None, final_status_errors=0):
             'r': row['r'], 'rRepairable': row['rRepairable'], 'rUnrepairable': row['rUnrepairable'],
             'rOverrun': row['rOverrun'], 'rFinalStatus': row['rFinalStatus'], 'T_locators': row['T'], 'p': row['p'],
             'f': row['f'],
+            # r8.5 (v2 only): answer-key checks missing from the reports and the clean cases they leave neutral; None
+            # under r8.4, which has no such count.
+            'missing_checks': rep.get('missingChecks'), 'neutral_clean_cases': rep.get('neutralCleanCases'),
             'per_handoff': {i['instanceId']: {'score': i.get('score'), 'rawScore': i.get('rawScore'),
-                                              'locatorCount': i.get('locatorCount')} for i in rep['instances']}}
+                                              'locatorCount': i.get('locatorCount'),
+                                              'missingChecks': i.get('missingChecks')} for i in rep['instances']}}
+
+
+def scoring_version(plan):
+    """Scoring version a frozen scenario plan selects (fixed_conditions.scoring; v1 plans have none: r8.4)."""
+    return plan['fixed_conditions'].get('scoring', 'r8.4')
+
+
+def check_scoring_version(version, scored):
+    """The copy must have scored with the plan's version: r8.5 results count missing checks, r8.4 results do not."""
+    if (version == 'r8.5') != (scored['missing_checks'] is not None):
+        raise ValueError(f'scored with another version than the plan\'s {version} (missingChecks {scored["missing_checks"]})')
 
 
 def pause_state(record):
@@ -506,7 +535,8 @@ def score_instance(record, work, provisional=None, enumerate_only=False, scorer=
             'main_statistic': record.get('main_statistic'), 'seconds': record.get('seconds'),
             'seconds_adjustment': record.get('seconds_adjustment')}
     if not upstream_input['artifacts']:
-        result = {**base, 'status': 'no-report', 'final': MODEL_FAILURE_FINAL, 'score_r83': 0.0, 'final_r83': 0.0}
+        result = {**base, 'status': 'no-report', 'final': MODEL_FAILURE_FINAL, 'score_r83': 0.0, 'final_r83': 0.0,
+                  'scoring_version': scoring_version(plan)}
         save(work / 'score.json', result)
         return result
     input_path = work / 'score-input.json'
@@ -520,11 +550,14 @@ def score_instance(record, work, provisional=None, enumerate_only=False, scorer=
         candidates = [{'stable_id': sid, 'record': record['id'], **live(c)} for sid, c in sorted(seen.items())]
         save(work / 'candidates.json', candidates)
         return {**base, 'status': 'enumerated', 'candidates': len(candidates)}
-    store = load_store(work)['decisions']
+    suite = record.get('suite', 'v1')
+    store = load_store(work, suite)['decisions']
+    # v1 keeps its decisions as they were made (no brief binding); later suites bind each decision to its brief.
+    brief = None if suite == 'v1' else sha256_file(bench_suite.brief_path(suite, record['scenario']))
     stale = []
 
     def decide(candidate):
-        choice = stored_choice(store, live(candidate), record['scenario'])
+        choice = stored_choice(store, live(candidate), record['scenario'], brief)
         if choice == 'stale':
             stale.append(stable_id(candidate['candidateId']))
         elif choice is not None:
@@ -548,6 +581,8 @@ def score_instance(record, work, provisional=None, enumerate_only=False, scorer=
     if 'final_status_format_errors' not in record:
         raise ValueError(f"{record['id']}: record without final_status_format_errors (rebuild it with bench_records)")
     scored = repetition_score(up, repairs, final_status_errors=record['final_status_format_errors'])
+    version = scoring_version(plan)
+    check_scoring_version(version, scored)
     deduction, final = merge(scored['scoreBeforePenalty'], scored['f'], pause['paused'], scored['arw_cut'])
     score_r83, final_r83 = r83(scored['scoreBeforePenalty'], deduction)
     sources = {}
@@ -559,7 +594,8 @@ def score_instance(record, work, provisional=None, enumerate_only=False, scorer=
               'decisions': len(used), 'decision_sources': sources, 'stale_decisions': sorted(set(stale)),
               'upstream_status': up.get('status'), 'final_status_basis': record.get('final_status_basis'),
               'template_findings': template_findings(seen.values(), {d['stable_id']: d for d in used.values()}),
-              'rule': 'final = s - d x |s|, s = scoreBeforePenalty, d = max(0.1 if paused, f, 0.1 if ARW cut) (r8.4)'}
+              'scoring_version': version,
+              'rule': f'final = s - d x |s|, s = scoreBeforePenalty, d = max(0.1 if paused, f, 0.1 if ARW cut) ({version})'}
     save(work / 'score.json', result)
     return result
 
@@ -617,16 +653,20 @@ def template_findings(candidates, decisions):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--id', action='append', required=True, help='record id arm/scenario/dir; repeatable')
-    parser.add_argument('--root', type=Path, default=DEFAULT_ROOT, help='score work root (<root>/<record id>/)')
+    parser.add_argument('--suite', choices=sorted(bench_suite.SUITES), default=bench_suite.DEFAULT)
+    parser.add_argument('--root', type=Path, help="score work root (<root>/<record id>/; default: the suite's)")
     parser.add_argument('--records', type=Path, help='bench_records JSON Lines (default: read the instance directory)')
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--enumerate', action='store_true', help='write the candidate superset only')
     mode.add_argument('--provisional', choices=sorted(BOUNDS), help='fill missing decisions with this bound')
     args = parser.parse_args()
+    root = args.root or bench_suite.SUITES[args.suite]['score_root']
     unverified = []
     for record_id in args.id:
-        record = find_record(record_id, args.records)
-        result = score_instance(record, work_dir(args.root, record_id), args.provisional, args.enumerate)
+        record = find_record(record_id, args.records, args.suite)
+        if record.get('suite', 'v1') != args.suite:
+            raise ValueError(f"{record_id}: a record of suite {record.get('suite', 'v1')}, not {args.suite}")
+        result = score_instance(record, work_dir(root, record_id), args.provisional, args.enumerate)
         if result['checks'].get('unverified'):
             unverified.append(record_id)
         print(json.dumps({k: result.get(k) for k in ('id', 'status', 'final', 'scoreBeforePenalty', 'f', 'paused',

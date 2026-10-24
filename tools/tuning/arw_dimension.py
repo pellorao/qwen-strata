@@ -202,11 +202,18 @@ def prepare(plan, condition, folder, reviewer=None, context_window=None, time_li
     """Fresh ARW batch for one slot; only its first handoff(s) run, the others stay deferred. harness_patches: names
     from freeze_arw_source.HARNESS_PATCHES applied to the materialized copy (recorded in harness-patches.json).
     preparations > 1: further ARW preparations in the same checkout (preparation-2.json, ...; one ARW preparation holds
-    three handoffs), so a block of more than three instances runs in one arw_measure batch."""
+    three handoffs), so a block of more than three instances runs in one arw_measure batch. The copy scores with the
+    plan's fixed_conditions.scoring (v1 plans have none: r8.4). A Codex batch of a plan that declares
+    codex_harness_patches must apply at least those (codex_harness_patches(plan)); a Claude Code batch applies none."""
+    declared = codex_harness_patches(plan)
+    if harness_patches and not set(declared) <= set(harness_patches):
+        raise ValueError(f'harness patches {list(harness_patches)} leave out the plan\'s {declared}')
     folder.mkdir(parents=True)
     arw = folder / 'arw'
+    scoring = plan['fixed_conditions'].get('scoring')
     subprocess.run([sys.executable, '-m', 'tools.reviewer.freeze_arw_source', '--manifest',
-                    plan['fixed_conditions']['arw_source_manifest'], '--out', str(arw)],
+                    plan['fixed_conditions']['arw_source_manifest'], '--out', str(arw)]
+                   + (['--scoring', scoring] if scoring else []),
                    cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
     if harness_patches:
         from tools.reviewer.freeze_arw_source import apply_harness_patch
@@ -227,6 +234,12 @@ def prepare(plan, condition, folder, reviewer=None, context_window=None, time_li
         save(folder / f'preparation{suffix}.json', prepared)
         ids += [h['instanceId'] for h in prepared['handoffs']]
     return ids
+
+
+def codex_harness_patches(plan):
+    """Harness patches the plan fixes for its Codex arms (multi-model v2: reviewer-private-scratch and the mount-target
+    patch); v1 plans fix none, their callers choose."""
+    return list(plan['fixed_conditions'].get('codex_harness_patches', []))
 
 
 def preflight(plan, folder):
@@ -345,7 +358,8 @@ def main():
     elif args.command == 'prepare':
         # a benchmark batch on the deployed default: fresh ARW preparation and preflight, no deployment
         plan, _, _ = load_plan(args.plan)
-        result = prepare(plan, None, args.out.resolve(), args.reviewer, args.context_window, args.time_limit_seconds)
+        result = prepare(plan, None, args.out.resolve(), args.reviewer, args.context_window, args.time_limit_seconds,
+                         codex_harness_patches(plan))
         preflight(plan, args.out.resolve())
     elif args.command == 'run':
         result = run(args.plan, args.dimension, args.out.resolve(), args.limit)

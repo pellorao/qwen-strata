@@ -36,6 +36,11 @@
         [--hard p001 p017] [--root .tmp/bench-score]
     python3 -m tools.reviewer.blind_pool override --record openai/code-spec-v5/sol-high-a1 --stable-id ID \\
         --decision supported --reason '...' [--root .tmp/bench-score]
+
+Suites (tools.reviewer.bench_suite, plan v2 §9.2): --suite (default v1) picks the anchor registry, the briefs and the
+score root. A key records its suite; a decision store records its suite (none: v1) and refuses decisions of another
+one. After v1 every stored decision also carries the sha256 of the brief it was made under, and a build only skips a
+candidate already decided under the current brief.
 """
 import argparse
 import hashlib
@@ -44,11 +49,11 @@ import random
 import re
 from pathlib import Path
 
-from tools.reviewer import bench_records
+from tools.reviewer import bench_records, bench_suite
 
 ROOT = bench_records.ROOT
-REGISTRY = ROOT / 'benchmarks/multi-model-v1/anchors'
-DEFAULT_ROOT = ROOT / '.tmp/bench-score'
+REGISTRY = bench_suite.SUITES['v1']['anchors']
+DEFAULT_ROOT = bench_suite.SUITES['v1']['score_root']
 MAX_ITEMS = 150
 ANCHORS_PER_POOL = 12  # plan §6.2: 10-15 anchors per pool
 DECISION = re.compile(r'^(matched|not-matched|unsupported|supported|problem-[1-9][0-9]*|false-positive:clean-[1-9][0-9]*)$')
@@ -61,7 +66,7 @@ FIELDS = ('kind', 'scenario', 'check', 'allowedDecisions', 'expectation', 'findi
 SUB_SCENARIOS = ('runtime-migration', 'artifact-promotion')
 HEDGES = re.compile(r'可能|似乎|不确定|难以|无法确定|或许|勉强|边界|倾向|存疑|不太|未必|大概')
 FAMILIES = ('openai', 'anthropic', 'strata')
-BRIEFS = ROOT / 'benchmarks/reviewer-suite-v1'
+BRIEFS = bench_suite.SUITES['v1']['briefs']
 # Caller-appended paragraph after the frozen brief body (user 2026-10-20; plan §14.1): report layout can show its family.
 FAIRNESS_NOTE = ('调用方附加说明（不属于冻结 brief，用户 2026-10-20 决定加入）：候选的写法可能让你看得出它来自哪类模型或哪次运行。'
                  '不要据此推断来源，也不要因来源调整判断；请只按上文口径和 view 中的证据，对每个候选公平判定。')
@@ -197,19 +202,31 @@ def chunks(groups, limit):
     return pools
 
 
-def stored(root, record_id):
-    """stable id -> fingerprint of the decisions an instance's store holds."""
+def stored(root, record_id, suite='v1', brief_sha256=None):
+    """stable id -> fingerprint of the decisions an instance's store holds (after v1: only those made under
+    brief_sha256)."""
     path = store_path(root, record_id)
     if not path.is_file():
         return {}
-    return {sid: d.get('fingerprint') for sid, d in load(path)['decisions'].items()}
+    store = load_store(path, suite)
+    return {sid: d.get('fingerprint') for sid, d in store['decisions'].items()
+            if suite == 'v1' or d.get('brief_sha256') == brief_sha256}
 
 
-def build(scenario, name, adj, keys, candidate_files, registry=REGISTRY, limit=MAX_ITEMS, seed=20261020,
-          anchor_count=ANCHORS_PER_POOL, root=None):
+def load_store(path, suite):
+    store = load(path)
+    if store.get('suite', 'v1') != suite:
+        raise ValueError(f"{path}: decisions of suite {store.get('suite', 'v1')}, not {suite}")
+    return store
+
+
+def build(scenario, name, adj, keys, candidate_files, registry=None, limit=MAX_ITEMS, seed=20261020,
+          anchor_count=ANCHORS_PER_POOL, root=None, suite='v1'):
     if Path(keys).resolve().is_relative_to(Path(adj).resolve()):
         raise ValueError('the key directory must not be under the adjudication directory')
-    reg, reg_sha = load_registry(scenario, registry)
+    bench_suite.check_scenario(suite, scenario)
+    brief = sha256_file(brief_path(scenario, suite))
+    reg, reg_sha = load_registry(scenario, registry or bench_suite.suite(suite)['anchors'])
     rnd = random.Random(seed)
     control_items = controls(reg, anchor_count, rnd)
     if not any(meta['expected'] == 'not-matched' for _, meta in control_items):
@@ -225,7 +242,7 @@ def build(scenario, name, adj, keys, candidate_files, registry=REGISTRY, limit=M
             mark = item_fingerprint(item)
             if root is not None:
                 if candidate['record'] not in stores:
-                    stores[candidate['record']] = stored(root, candidate['record'])
+                    stores[candidate['record']] = stored(root, candidate['record'], suite, brief)
                 if stores[candidate['record']].get(candidate['stable_id']) == mark:
                     skipped += 1  # already adjudicated with the same content: only what changed is adjudicated again
                     continue
@@ -266,7 +283,7 @@ def build(scenario, name, adj, keys, candidate_files, registry=REGISTRY, limit=M
         pool_path = Path(adj) / pool_name / f'pool-{pool_name}.json'
         save(pool_path, pool)
         key_path = Path(keys) / f'key-{pool_name}.json'
-        save(key_path, {'pool': pool_name, 'scenario': scenario, 'pool_path': str(pool_path),
+        save(key_path, {'pool': pool_name, 'suite': suite, 'scenario': scenario, 'pool_path': str(pool_path),
                         'pool_sha256': sha256_file(pool_path), 'registry_sha256': reg_sha, 'items': key})
         written.append({'pool': pool_name, 'adj': str(pool_path.parent), 'items': len(pool),
                         'real': len(pool) - len(control_items), 'controls': len(control_items),
@@ -276,8 +293,8 @@ def build(scenario, name, adj, keys, candidate_files, registry=REGISTRY, limit=M
 
 # ---- prompt -------------------------------------------------------------------------------------------------------
 
-def brief_path(scenario):
-    return BRIEFS / f'{scenario}-brief.md'
+def brief_path(scenario, suite='v1'):
+    return bench_suite.brief_path(suite, scenario)
 
 
 def views(scenario):
@@ -304,7 +321,7 @@ def prompt(key_path, adj_as=None):
     directory as `adj`); default the absolute path of <ADJ>."""
     key = load(key_path)
     adj = check_adj(key)
-    brief = brief_path(key['scenario'])
+    brief = brief_path(key['scenario'], key.get('suite', 'v1'))
     text = brief.read_text()
     for placeholder in ('<ADJ>', '<名>'):
         if placeholder not in text:
@@ -352,8 +369,12 @@ def agreement(rows, field='family'):
     return out
 
 
-def split(key_path, decisions_path, root=DEFAULT_ROOT, hard=(), accept_failed=False):
+def split(key_path, decisions_path, root=None, hard=(), accept_failed=False):
     key = load(key_path)
+    suite = key.get('suite', 'v1')
+    root = root or bench_suite.suite(suite)['score_root']
+    if suite != 'v1' and key.get('brief_sha256') != sha256_file(brief_path(key['scenario'], suite)):
+        raise ValueError(f"{key_path}: the pool's prompt was not made from the current {suite} brief (run prompt first)")
     pool = {item['id']: item for item in load(key['pool_path'])}
     if sha256_file(key['pool_path']) != key['pool_sha256']:
         raise ValueError('pool file differs from the one the key was written for')
@@ -387,7 +408,7 @@ def split(key_path, decisions_path, root=DEFAULT_ROOT, hard=(), accept_failed=Fa
     review = review_lists(real, pool, decisions, set(hard))
     verdict['review'] = {'supported': len(review['supported']), 'disputed_unsupported': len(review['disputed_unsupported'])}
     if passed or accept_failed:
-        written = write_stores(real, decisions, key['pool'], root, pool)
+        written = write_stores(real, decisions, key['pool'], root, pool, suite, key.get('brief_sha256'))
         verdict['written'] = written
     else:
         verdict['written'] = 0
@@ -426,19 +447,23 @@ def store_path(root, record_id):
     return Path(root) / record_id / 'decisions.json'
 
 
-def write_stores(real, decisions, pool_name, root, pool=None):
+def write_stores(real, decisions, pool_name, root, pool=None, suite='v1', brief_sha256=None):
     by_record = {}
     for r in real:
         by_record.setdefault(r['record'], []).append(r)
     for record_id, rows in by_record.items():
         path = store_path(root, record_id)
-        store = load(path) if path.is_file() else {'decisions': {}, 'history': []}
+        store = load_store(path, suite) if path.is_file() else {'decisions': {}, 'history': []}
+        if suite != 'v1':
+            store['suite'] = suite
         for r in rows:
             d = decisions[r['id']]
             if not r.get('fingerprint'):
                 raise ValueError(f"{r['id']}: key item without a fingerprint")
             new = {'decision': d['decision'], 'reason': d['reason'], 'source': f"pool {pool_name}:{r['id']}",
                    'kind': r['kind'], 'fingerprint': r['fingerprint']}
+            if suite != 'v1':
+                new['brief_sha256'] = brief_sha256
             if pool is not None:
                 new['allowedDecisions'] = pool[r['id']]['allowedDecisions']
             old = store['decisions'].get(r['stable_id'])
@@ -468,9 +493,10 @@ def allowed_decisions(root, record_id, stable_id, stored):
                      'with its fingerprint in pending.json or candidates.json); override refused')
 
 
-def override(record_id, stable_id, decision, reason, by='Main review', root=DEFAULT_ROOT):
+def override(record_id, stable_id, decision, reason, by='Main review', root=None, suite='v1'):
+    root = root or bench_suite.suite(suite)['score_root']
     path = store_path(root, record_id)
-    store = load(path)
+    store = load_store(path, suite)
     old = store['decisions'].get(stable_id)
     if old is None:
         raise ValueError(f'{record_id}: {stable_id} has no adjudicated decision to override')
@@ -483,14 +509,18 @@ def override(record_id, stable_id, decision, reason, by='Main review', root=DEFA
     if decision not in allowed:
         raise ValueError(f'{record_id}: {stable_id}: {decision!r} not in allowedDecisions {allowed}')
     new = {'decision': decision, 'reason': reason, 'source': f'override ({by})', 'kind': old.get('kind'),
-           'fingerprint': old.get('fingerprint'), 'allowedDecisions': allowed}
+           'fingerprint': old.get('fingerprint'), 'allowedDecisions': allowed,
+           **({'brief_sha256': old.get('brief_sha256')} if suite != 'v1' else {})}
     store['history'].append({'stable_id': stable_id, 'replaced': old, 'by': new['source']})
     store['decisions'][stable_id] = new
     save(path, store)
     return new
 
 
-def anchor_add(scenario, item, expected, family, confirmed_by, origin=None, registry=REGISTRY, anchor_id=None, model=None):
+def anchor_add(scenario, item, expected, family, confirmed_by, origin=None, registry=None, anchor_id=None, model=None,
+               suite='v1'):
+    bench_suite.check_scenario(suite, scenario)
+    registry = registry or bench_suite.suite(suite)['anchors']
     if item.get('kind', 'association') != 'association':
         raise ValueError('anchors are association decisions; finding-kind controls are synthetic (user 2026-10-20)')
     if expected not in ('matched', 'not-matched'):
@@ -515,12 +545,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest='command', required=True)
     b = sub.add_parser('build')
-    b.add_argument('--scenario', required=True, choices=bench_records.SCENARIOS)
+    b.add_argument('--suite', choices=sorted(bench_suite.SUITES), default=bench_suite.DEFAULT)
+    b.add_argument('--scenario', required=True, choices=bench_suite.all_scenarios())
     b.add_argument('--name', required=True)
     b.add_argument('--adj', type=Path, required=True, help='parent of the per-pool adjudication directories <ADJ>')
     b.add_argument('--keys', type=Path, required=True, help='hidden key directory (not under <ADJ>)')
     b.add_argument('--candidates', type=Path, nargs='+', required=True)
-    b.add_argument('--registry', type=Path, default=REGISTRY)
+    b.add_argument('--registry', type=Path, help="anchor registry (default: the suite's)")
     b.add_argument('--max', type=int, default=MAX_ITEMS)
     b.add_argument('--seed', type=int, default=20261020)
     b.add_argument('--anchors', type=int, default=ANCHORS_PER_POOL, help='anchors per pool (plan: 10-15)')
@@ -532,7 +563,7 @@ def main():
     s.add_argument('--key', type=Path, required=True)
     s.add_argument('--decisions', type=Path, required=True)
     s.add_argument('--hard', nargs='*', default=[], help="pool ids the adjudicator named as hardest")
-    s.add_argument('--root', type=Path, default=DEFAULT_ROOT)
+    s.add_argument('--root', type=Path, help="score root (default: the key suite's)")
     s.add_argument('--accept-failed', action='store_true', help='write decisions although the controls failed')
     o = sub.add_parser('override')
     o.add_argument('--record', required=True)
@@ -540,9 +571,11 @@ def main():
     o.add_argument('--decision', required=True)
     o.add_argument('--reason', required=True)
     o.add_argument('--by', default='Main review')
-    o.add_argument('--root', type=Path, default=DEFAULT_ROOT)
+    o.add_argument('--suite', choices=sorted(bench_suite.SUITES), default=bench_suite.DEFAULT)
+    o.add_argument('--root', type=Path, help="score root (default: the suite's)")
     a = sub.add_parser('anchor-add')
-    a.add_argument('--scenario', required=True, choices=bench_records.SCENARIOS)
+    a.add_argument('--suite', choices=sorted(bench_suite.SUITES), default=bench_suite.DEFAULT)
+    a.add_argument('--scenario', required=True, choices=bench_suite.all_scenarios())
     a.add_argument('--item', type=Path, required=True, help='JSON of the association item (pool item or candidate)')
     a.add_argument('--expected', required=True, choices=('matched', 'not-matched'))
     a.add_argument('--family', required=True, choices=FAMILIES)
@@ -550,11 +583,11 @@ def main():
     a.add_argument('--model', required=True, help='source model of the candidate (e.g. gpt-6.1-sol, opus, strata-q3)')
     a.add_argument('--origin-record', help='record id the candidate came from (arm/scenario/dir)')
     a.add_argument('--origin-stable-id', help='stable candidate id within that record')
-    a.add_argument('--registry', type=Path, default=REGISTRY)
+    a.add_argument('--registry', type=Path, help="anchor registry (default: the suite's)")
     args = parser.parse_args()
     if args.command == 'build':
         print(json.dumps(build(args.scenario, args.name, args.adj, args.keys, args.candidates, args.registry, args.max,
-                               args.seed, args.anchors, args.root), indent=1))
+                               args.seed, args.anchors, args.root, args.suite), indent=1))
     elif args.command == 'prompt':
         print(json.dumps(prompt(args.key, args.adj_as), ensure_ascii=False))
     elif args.command == 'split':
@@ -562,7 +595,7 @@ def main():
         print(json.dumps({**{k: verdict[k] for k in ('pool', 'passed', 'anchor_rate', 'synthetic_all_right', 'written',
                                                        'review')}, 'details': str(out)}, ensure_ascii=False))
     elif args.command == 'override':
-        print(json.dumps(override(args.record, args.stable_id, args.decision, args.reason, args.by, args.root),
+        print(json.dumps(override(args.record, args.stable_id, args.decision, args.reason, args.by, args.root, args.suite),
                          ensure_ascii=False))
     else:
         origin = ({'record': args.origin_record, 'stable_id': args.origin_stable_id}
@@ -570,7 +603,8 @@ def main():
         if origin and not (args.origin_record and args.origin_stable_id):
             parser.error('--origin-record and --origin-stable-id go together')
         print(json.dumps(anchor_add(args.scenario, load(args.item), args.expected, args.family, args.confirmed_by,
-                                    origin=origin, registry=args.registry, model=args.model), ensure_ascii=False))
+                                    origin=origin, registry=args.registry, model=args.model, suite=args.suite),
+                         ensure_ascii=False))
 
 
 if __name__ == '__main__':

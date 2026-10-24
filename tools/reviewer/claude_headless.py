@@ -704,12 +704,24 @@ def strata_environment(base, key, model, effort, tier):
     return agent.claude(frontend, model, effort, tier, [])[1]
 
 
-def deepseek_environment(model, key, base=DEEPSEEK_BASE):
-    """DeepSeek's Anthropic-format endpoint: the key as the bearer token, the model named in every model variable."""
+# Window, compaction point and output limit a scenario plan may fix for the DeepSeek arm (multi-model v2 §5.2: the same
+# 1M window as its Codex arm); v1 plans fix none, so Claude Code keeps its defaults there.
+DEEPSEEK_LIMIT_VARIABLES = ('CLAUDE_CODE_MAX_CONTEXT_TOKENS', 'CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE',
+                            'CLAUDE_CODE_MAX_OUTPUT_TOKENS')
+
+
+def deepseek_environment(model, key, base=DEEPSEEK_BASE, limits=None):
+    """DeepSeek's Anthropic-format endpoint: the key as the bearer token, the model named in every model variable.
+    `limits`: DEEPSEEK_LIMIT_VARIABLES values (positive integers) the plan fixes."""
     if not key:
         raise ValueError('The DeepSeek backend needs ' + DEEPSEEK_KEY)
+    limits = dict(limits or {})
+    if set(limits) - set(DEEPSEEK_LIMIT_VARIABLES) or any(
+            not isinstance(v, int) or isinstance(v, bool) or v <= 0 for v in limits.values()):
+        raise ValueError(f'DeepSeek limits must be positive integers of {DEEPSEEK_LIMIT_VARIABLES}: {limits}')
     return {'ANTHROPIC_BASE_URL': base, 'ANTHROPIC_AUTH_TOKEN': key, 'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC': '1',
-            **{name: deepseek_model(model) for name in DEEPSEEK_MODEL_VARIABLES}}
+            **{name: deepseek_model(model) for name in DEEPSEEK_MODEL_VARIABLES},
+            **{name: str(value) for name, value in limits.items()}}
 
 
 def environment(backend, effort, home=None, config_dir=None, strata=None, tmp=None):
@@ -1192,9 +1204,12 @@ def pinned_binary(claude=CLAUDE, expected=CLAUDE_VERSION, sha256=CLAUDE_SHA256):
 
 def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=HARD_LIMIT, reminder_after=None,
         startup=True, tools=TOOLS, host=None, run_id=None, base=WORK_BASE, record=True, claude=CLAUDE, compact=True,
-        report=None, system_prompt=None):
+        report=None, system_prompt=None, deepseek_limits=None):
     """One run. `system_prompt`: command(). `report` (the bound report, relative to the working directory) turns on ARW's early-exit
-    continuation (execute_continued) and session persistence; without it the run is the single `claude -p` as before."""
+    continuation (execute_continued) and session persistence; without it the run is the single `claude -p` as before.
+    `deepseek_limits`: deepseek_environment() limits of the DeepSeek backend (recorded in binding.json)."""
+    if deepseek_limits and backend != 'deepseek':
+        raise ValueError('deepseek_limits apply to the DeepSeek backend only')
     if backend == 'strata' and not compact:
         raise ValueError('The Strata arm keeps the project compact prompt (hard constraint 3)')
     out = Path(out).resolve()
@@ -1232,8 +1247,10 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
             home.mkdir()
             config_dir.mkdir()
             env = environment('deepseek', effort, home, config_dir,
-                              deepseek_environment(model, os.environ.get(DEEPSEEK_KEY)), tmp=run_tmp(work))
+                              deepseek_environment(model, os.environ.get(DEEPSEEK_KEY), limits=deepseek_limits),
+                              tmp=run_tmp(work))
             binding['endpoint'] = DEEPSEEK_BASE
+            binding['deepseek_limits'] = dict(deepseek_limits or {})
         save(out / 'environment-names.json', sorted(env))
         save(out / 'binding.json', binding)
         result = run_segments(out, prompt_text, argv, env, work, limit, started_file, report, deadline)

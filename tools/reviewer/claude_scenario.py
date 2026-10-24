@@ -6,7 +6,9 @@ session as ARW's one-root-thread-per-instance rule) runs once through tools.revi
 - the prompt is the bound Role instructions, the handoff and the measurement note, as the 2026-10-18 reference runs;
   with `--role-as-system` (new plans; user 2026-10-20: Claude Code has no developer role, the system prompt is the
   matching place, as Codex's developer instructions) the Role instructions go through `--append-system-prompt`
-  instead and the user message holds the handoff and the measurement note only; the default keeps the old shape;
+  instead and the user message holds the handoff and the measurement note only. The scenario plan's
+  fixed_conditions.claude_role_as_system decides it (multi-model v2: true, plan §5.4); plans without it (v1) keep the
+  old shape unless the flag is given, and a flag that contradicts the plan is refused;
 - the working directory is a copy of the scenario root (ARW's handoff `cwd`), outside /home; the scenario root path and
   the request files' absolute draft path are rewritten to the copy, Spec Readiness' host-relative draft path to the
   root-relative one;
@@ -22,6 +24,9 @@ hard stop is T and the reminder comes at ARW's lead before it.
 installation defaults, engine-log tokens; the startup prompt by the service, the compact prompt by PreCompact): its
 checks replace "startup prompt off" with the two prompt SHA-256 the run actually loaded (plan §14) and the thinking
 budget and output limit the native service applied to every request (plan §2.1).
+`--backend deepseek` takes the window, compaction point and output limit from the plan's
+fixed_conditions.deepseek_claude_environment when it has one (multi-model v2 §5.2); a value still null there (not yet
+measured at freeze) refuses the run.
 
     python3 -m tools.reviewer.claude_scenario --plan <plan.json> --out .tmp/<work>/<run> --model claude-opus-5-5 \\
         --effort high --label <label> --claude <binary> --no-startup-prompt --no-compact-prompt [--handoffs 2]
@@ -155,13 +160,15 @@ def checks(result, model, startup, report_dir=None, strata=None, binding=None):
 
 
 def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_LIMIT, time_limit=None,
-        startup=False, compact=False, dry_run=False, backend='anthropic', host=None, role_as_system=False):
+        startup=False, compact=False, dry_run=False, backend='anthropic', host=None, role_as_system=None):
     from tools.tuning.arw_dimension import load_plan, prepare
     if time_limit is not None:
         limit = time_limit  # the note's limit is the hard stop; the reminder follows ARW's lead (reminder_time)
+    plan = load_plan(Path(plan_path))[0]
+    role_as_system = plan_role_as_system(plan, role_as_system)
+    limits = plan_deepseek_limits(plan, backend)
     out = Path(out).resolve()
     out.mkdir(parents=True, exist_ok=False)
-    plan = load_plan(Path(plan_path))[0]
     prep = out / 'prep'
     prepare(plan, None, prep, time_limit_seconds=time_limit)
     prepared = json.loads((prep / 'preparation.json').read_text())
@@ -188,7 +195,7 @@ def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_
             continue
         result = ch.run(out / f'h{k}', out / f'prompt-h{k}.md', backend, model, effort, f'{label} h{k}', copies,
                         [report_dir], limit, startup=startup, run_id=run_id, claude=claude, compact=compact, host=host,
-                        report=staging['report'], system_prompt=system)
+                        report=staging['report'], system_prompt=system, deepseek_limits=limits)
         produced = out / f'h{k}' / 'outputs' / report_dir / Path(staging['report']).name
         if produced.exists():
             target = Path(handoff['input']['reportPath'])
@@ -210,6 +217,28 @@ def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_
     save(out / 'instance.json', {'plan': str(plan_path), 'model': model, 'effort': effort, 'label': label,
                                  'handoffs': records, 'dry_run': dry_run, **pause_summary(records)})
     return records
+
+
+def plan_role_as_system(plan, requested=None):
+    """Role placement: the plan's claude_role_as_system when it has one (a contradicting request is refused), else the
+    request (default False, the v1 shape)."""
+    fixed = plan['fixed_conditions']
+    if 'claude_role_as_system' not in fixed:
+        return bool(requested)
+    if requested is not None and requested != fixed['claude_role_as_system']:
+        raise ValueError(f"the plan fixes claude_role_as_system {fixed['claude_role_as_system']}")
+    return fixed['claude_role_as_system']
+
+
+def plan_deepseek_limits(plan, backend):
+    """The DeepSeek arm's Claude Code limits the plan fixes (None without them); a null value refuses the run."""
+    limits = plan['fixed_conditions'].get('deepseek_claude_environment')
+    if backend != 'deepseek' or limits is None:
+        return None
+    unset = sorted(name for name, value in limits.items() if value is None)
+    if unset:
+        raise ValueError(f'deepseek_claude_environment is not frozen yet: {unset} still null')
+    return limits
 
 
 def continuation_record(result):
@@ -248,8 +277,9 @@ def arguments(argv=None):
     parser.add_argument('--backend', choices=ch.BACKENDS, default='anthropic',
                         help='deepseek: the DeepSeek Anthropic-format endpoint, key from DEEPSEEK_API_KEY.')
     parser.add_argument('--host', help='Registered host for the Strata backend.')
-    parser.add_argument('--role-as-system', action='store_true',
-                        help='Role instructions through --append-system-prompt (new plans); default: in the user message.')
+    parser.add_argument('--role-as-system', action='store_const', const=True, default=None,
+                        help="Role instructions through --append-system-prompt; default: the plan's claude_role_as_system, "
+                             'else in the user message.')
     args = parser.parse_args(argv)
     if args.backend == 'strata' and not args.host:
         parser.error('--backend strata needs --host')
