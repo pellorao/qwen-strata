@@ -131,6 +131,18 @@ attempt('link_out',link_out,'UNEXPECTED-WRITE')
 # Informational: Codex keeps its protected names (.git, .codex, .agents, .aws) read-only at the top of a writable root.
 for name,target in (('git_init_sub',scratch/'repo'),('git_init_top',scratch)):
  done=subprocess.run(['git','init','-q',str(target)],capture_output=True);results[name]='ran' if done.returncode==0 else 'failed'
+# Regression probe (item 1, 2026-10-24): Codex's bwrap synthetic-mount registry follows TMPDIR into the scratch. Inside
+# the sandbox it is ro-bound, so the model must not be able to write into it or remove it, and it must stay a non-symlink
+# directory; a future Codex that let the model tamper with it would reopen the bwrap hazard. Absent (no registry this
+# command) is not a regression, so scratch_exposure only enforces safety when it is present.
+reg=scratch/('codex-bwrap-synthetic-mount-targets-%d'%os.getuid())
+if reg.exists():
+ results['registry_dir']=reg.is_dir()and not reg.is_symlink()
+ attempt('registry_write',lambda:(reg/'lock').write_text('BAD'),'UNEXPECTED-WRITE')
+ attempt('registry_rmdir',lambda:os.rmdir(reg),'UNEXPECTED-REMOVE')
+ results['registry_still_dir']=reg.exists()and reg.is_dir()and not reg.is_symlink()
+else:
+ results['registry']='absent'
 (scratch/'probe-scratch-result.json').write_text(json.dumps(results));print(json.dumps(results))
 '''
 SCRATCH_CLOSED=('sibling_read','sibling_list','root_list','sibling_write','sibling_new','root_new','link_out')
@@ -150,10 +162,15 @@ def scratch_exposure(scratch,report,sibling,outside):
  host={'script_output':(scratch/'probe-script.out').read_text().strip()if(scratch/'probe-script.out').exists()else None,
   'sibling_canary':(Path(sibling)/'canary.txt').read_text(),'sibling_entries':sorted(p.name for p in Path(sibling).iterdir()),
   'outside':Path(outside).read_text(),'root_entries':sorted(p.name for p in scratch.parent.iterdir())}
+ # Registry anti-tamper (item 1): enforced only when the registry is present; absent is not a regression.
+ registry_ok=(results.get('registry')=='absent')or(results.get('registry_dir')is True
+     and results.get('registry_write')=='denied'and results.get('registry_rmdir')=='denied'
+     and results.get('registry_still_dir')is True)
  ok=(results.get('tmpdir')=='expected'and results.get('script')=='ran'and host['script_output']=='SCRATCH-SCRIPT-RAN'
      and results.get('copy_modify_run')=='ran'and results.get('copy_output')=='COPY-RAN'and results.get('tempfile_in_scratch')is True
      and all(results.get(k)=='denied'for k in SCRATCH_CLOSED)and host['sibling_canary']=='SIBLING-SCRATCH-CANARY\n'
-     and host['sibling_entries']==['canary.txt']and host['outside']=='KEEP\n'and'probe-new.txt'not in host['root_entries']and not extra)
+     and host['sibling_entries']==['canary.txt']and host['outside']=='KEEP\n'and'probe-new.txt'not in host['root_entries']
+     and registry_ok and not extra)
  return {'ran':True,'scratch':str(scratch),'results':results,'host':host,'report_dir_extra':extra,'pass':ok}
 
 

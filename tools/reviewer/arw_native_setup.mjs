@@ -53,8 +53,27 @@ export async function createIsolatedNativeSessions(info) {
    env.CODEX_HOME=codexHome;return env;
   },
  });
- if(info.denyRead!==undefined)sessions.open=denyReadOpen(sessions.open.bind(sessions),info.denyRead);
+ const {reviewerNativeSettings}=await upstream('reviewer-runtime/reviewer-native-policy.mjs');
+ sessions.open=reviewerResumeOpen(sessions.open.bind(sessions),reviewerNativeSettings,info.denyRead);
  return {sessions,modelCatalog};
+}
+
+// ARW's paused-task restore (restorePausedTask) reopens the native session with the stored raw handoff settings, which
+// never passed through reviewerNativeSettings -- unlike spawn and followup, which both reapply it (upstream issue F,
+// 2026-10-24, docs/arw-upstream-issues.md). Without it a resumed Reviewer loses its permission profile, its private
+// scratch and TMPDIR (reviewer-private-scratch), and the deny-read of credentials (G7). Reapply reviewerNativeSettings
+// on any open whose settings carry no profile yet, so a resumed Reviewer gets the same profile, scratch and TMPDIR as
+// its first segment (both derive from the record's cwd and writePaths); an open that already carries the profile
+// (spawn, followup) is left unchanged. The deny-read layer, when set, goes on top afterwards.
+export function reviewerResumeOpen(open,reviewerNativeSettings,denyRead){
+ if(denyRead!==undefined)denyReadSettings({config:{default_permissions:'check','permissions.check.filesystem':{}}},denyRead);
+ return input=>{
+  let settings=input.settings;
+  if(!settings?.config?.default_permissions)
+   settings=reviewerNativeSettings(settings,{cwd:input.cwd,readPaths:input.readPaths??[],writePaths:input.writePaths??[]});
+  if(denyRead!==undefined)settings=denyReadSettings(settings,denyRead);
+  return open({...input,settings});
+ };
 }
 
 // G7 (benchmark plan §3): upstream's Reviewer profile extends :read-only, which can read the user's logins and the
@@ -73,9 +92,4 @@ export function denyReadSettings(settings,paths){
   denied[path]='none';
  }
  return {...settings,config:{...settings.config,[key]:denied}};
-}
-
-function denyReadOpen(open,paths){
- denyReadSettings({config:{default_permissions:'check','permissions.check.filesystem':{}}},paths);
- return input=>open({...input,settings:denyReadSettings(input.settings,paths)});
 }
