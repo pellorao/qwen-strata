@@ -1,0 +1,42 @@
+diff --git a/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/promotion-recovery.md b/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/promotion-recovery.md
+--- a/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/promotion-recovery.md
++++ b/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/candidate/specs/promotion-recovery.md
+@@ -62,7 +62,7 @@
+ 
+ #### Commit Failure Input
+ 
+-Promotion Module 把 `{artifact, priorTrackedState, failedCommitId, commitFailureCode}` 交给 Recovery Module. Artifact 是此前 validated canonical artifact; priorTrackedState 是失败尝试前的 identity, failedCommitId 是该尝试的 identity, commitFailureCode 是该尝试的原始 failure code. Recovery 按 Interfaces 的顺序验证该同一对象. 后两项随失败尝试记录取得, 不从 caller 自报替代.
++Promotion Module 把 `{artifact, priorTrackedState, failedCommitId, commitFailureCode}` 交给 Recovery Module. Artifact 是此前 validated canonical artifact; priorTrackedState 是失败尝试前的 identity, failedCommitId 是该尝试的 identity, commitFailureCode 是该尝试的原始 failure code. Recovery 按 Interfaces 的顺序验证该同一对象. 后两项随失败尝试记录取得, 不由 promote 的 caller 自报替代.
+ 
+ #### Rollback Command
+ 
+@@ -82,7 +82,7 @@
+ 
+ 选择失败前 tracked state 而不是 temporary baseline 作为权威, 优先保留已提交结果; 拒绝临时状态, 因为恢复尚未成功, 接受的限制是失败后不能把新候选当成结果. 选择保留 baseline 作为 recovery evidence 而不是失败时立即删除, 优先保留故障证据; 拒绝立即删除, 因为会失去恢复线索, 接受的成本是失败时保留临时数据.
+ 
+-选择由 Recovery Module 调用 Recovery Storage 而不是让 Adapter 编排 Module, 优先集中恢复 policy; 拒绝反向调用, 因为它会让 Adapter 拥有结果 policy, 接受的成本是一次明确结果转换. 选择经 Promotion 返回 caller 而不是 Recovery 直接返回 caller, 优先保持一个公开 promotion 响应; 拒绝直接返回, 因为会分裂 caller 的结果入口, 接受的成本是一次原样转交. 原始 commit failure code 和 failedCommitId 的来源备选是 Promotion 失败尝试记录或 caller 自报. 选择前者作为权威, 优先使 recovery 与实际失败尝试保持一致; 拒绝 caller 自报, 因为它可能把 recovery 绑定到另一尝试或错误原因, 接受的成本是 Promotion 必须保存并传递该记录. Artifact 选择 Readiness 已验证的同一对象而不是重新读取存储, 优先保证恢复对象与失败尝试一致; 拒绝重新读取, 因为存储内容可能已变化, 接受的成本是 Promotion 必须保留该对象.
++选择由 Recovery Module 调用 Recovery Storage 而不是让 Adapter 编排 Module, 优先集中恢复 policy; 拒绝反向调用, 因为它会让 Adapter 拥有结果 policy, 接受的成本是一次明确结果转换. 选择经 Promotion 返回 caller 而不是 Recovery 直接返回 caller, 优先保持一个公开 promotion 响应; 拒绝直接返回, 因为会分裂 caller 的结果入口, 接受的成本是一次原样转交. 原始 commit failure code 和 failedCommitId 的来源备选是 Promotion 失败尝试记录或 promote caller 自报. 选择前者作为权威, 优先使 recovery 与实际失败尝试保持一致; 拒绝 promote caller 自报, 因为它可能把 recovery 绑定到另一尝试或错误原因, 接受的成本是 Promotion 必须保存并传递该记录. Artifact 选择 Readiness 已验证的同一对象而不是重新读取存储, 优先保证恢复对象与失败尝试一致; 拒绝重新读取, 因为存储内容可能已变化, 接受的成本是 Promotion 必须保留该对象.
+ 
+ ### ADR Evaluation
+ 
+diff --git a/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-recovery.md b/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-recovery.md
+--- a/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-recovery.md
++++ b/tests/fixtures/reviewer-capability/spec-readiness-reviewer/scenario/full-review/candidate/specs/promotion-recovery.md
+@@ -62,7 +62,7 @@
+ 
+ #### Commit Failure Input
+ 
+-Promotion Module 把 `{artifact, priorTrackedState, failedCommitId, commitFailureCode}` 交给 Recovery Module. Artifact 是此前 validated canonical artifact; priorTrackedState 是失败尝试前的 identity, failedCommitId 是该尝试的 identity, commitFailureCode 是该尝试的原始 failure code. Recovery 按 Interfaces 的顺序验证该同一对象. 后两项随失败尝试记录取得, 不从 caller 自报替代.
++Promotion Module 把 `{artifact, priorTrackedState, failedCommitId, commitFailureCode}` 交给 Recovery Module. Artifact 是此前 validated canonical artifact; priorTrackedState 是失败尝试前的 identity, failedCommitId 是该尝试的 identity, commitFailureCode 是该尝试的原始 failure code. Recovery 按 Interfaces 的顺序验证该同一对象. 后两项随失败尝试记录取得, 不由 promote 的 caller 自报替代.
+ 
+ #### Rollback Command
+ 
+@@ -82,7 +82,7 @@
+ 
+ 选择失败前 tracked state 而不是 temporary baseline 作为权威, 优先保留已提交结果; 拒绝临时状态, 因为恢复尚未成功, 接受的限制是失败后不能把新候选当成结果. 选择保留 baseline 作为 recovery evidence 而不是失败时立即删除, 优先保留故障证据; 拒绝立即删除, 因为会失去恢复线索, 接受的成本是失败时保留临时数据.
+ 
+-选择由 Recovery Module 调用 Recovery Storage 而不是让 Adapter 编排 Module, 优先集中恢复 policy; 拒绝反向调用, 因为它会让 Adapter 拥有结果 policy, 接受的成本是一次明确结果转换. 选择经 Promotion 返回 caller 而不是 Recovery 直接返回 caller, 优先保持一个公开 promotion 响应; 拒绝直接返回, 因为会分裂 caller 的结果入口, 接受的成本是一次原样转交. 原始 commit failure code 和 failedCommitId 的来源备选是 Promotion 失败尝试记录或 caller 自报. 选择前者作为权威, 优先使 recovery 与实际失败尝试保持一致; 拒绝 caller 自报, 因为它可能把 recovery 绑定到另一尝试或错误原因, 接受的成本是 Promotion 必须保存并传递该记录. Artifact 选择 Readiness 已验证的同一对象而不是重新读取存储, 优先保证恢复对象与失败尝试一致; 拒绝重新读取, 因为存储内容可能已变化, 接受的成本是 Promotion 必须保留该对象.
++选择由 Recovery Module 调用 Recovery Storage 而不是让 Adapter 编排 Module, 优先集中恢复 policy; 拒绝反向调用, 因为它会让 Adapter 拥有结果 policy, 接受的成本是一次明确结果转换. 选择经 Promotion 返回 caller 而不是 Recovery 直接返回 caller, 优先保持一个公开 promotion 响应; 拒绝直接返回, 因为会分裂 caller 的结果入口, 接受的成本是一次原样转交. 原始 commit failure code 和 failedCommitId 的来源备选是 Promotion 失败尝试记录或 promote caller 自报. 选择前者作为权威, 优先使 recovery 与实际失败尝试保持一致; 拒绝 promote caller 自报, 因为它可能把 recovery 绑定到另一尝试或错误原因, 接受的成本是 Promotion 必须保存并传递该记录. Artifact 选择 Readiness 已验证的同一对象而不是重新读取存储, 优先保证恢复对象与失败尝试一致; 拒绝重新读取, 因为存储内容可能已变化, 接受的成本是 Promotion 必须保留该对象.
+ 
+ ### ADR Evaluation
+ 

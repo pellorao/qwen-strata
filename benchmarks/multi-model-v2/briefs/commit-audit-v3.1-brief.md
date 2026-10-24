@@ -19,8 +19,9 @@
 本工程计分升级 r7: 每个候选带 `kind` 与 `allowedDecisions`. 关联候选 (`kind: "association"`) 的决定仍为 `matched` 或 `not-matched`, 并附问题用例 `findingTerms` 作 `referenceTerms`, 仅供参考. 一个 finding 的全部关联候选都已决定且都不是 `matched`, 或它没有关联候选时, 形成发现候选 (`kind: "finding"`, `candidateId` 含 `unassociated`), 附被证据与概念规则提名的干净用例 (`cleanTargets`) 和本范围可补关联的问题用例 (`problemOptions`); 决定取 `problem-N` (补关联到第 N 个问题用例, 按该 finding 的证据计分), `false-positive:clean-N` (确认误报第 N 个干净用例, 只能选被提名的), `unsupported` 或 `supported`. 序号均从 1 起按范围内声明顺序计. 候选集合随关联决定变化, 所以验证器先按提供的决定重新计分, 再核对决定: 每个决定必须对应这次计分的一个候选且取允许值, 否则失败; 仍缺决定的候选以 `needs-adjudication` 返回, 补齐后把全部决定写入同一文件再次运行. 判断不了时, 关联候选选 `not-matched`, 发现候选选 `unsupported`.
 
 本工程补充（multi-model-v2 统一口径，四份 brief 逐字相同，`tools.reviewer.check_briefs --suite v2` 核对）：
+- `matched`：一条 finding 写出多个具体缺陷时，其中一个与期望句是同一问题即 matched，其余缺陷不影响该关联；发现候选选 `problem-N` 时同理（[裁决先例](../../reviewer-suite-v1/rulings.md)「一条 finding 讲了两个缺陷，原样贴在几行上」）。
 - `supported`：finding 有依据，但不对应本位置（finding 所在的检查或要求行）`problemOptions` 中任何列出的问题用例，不得分也不扣分。包括答案键外的成立缺陷，也包括答案键里的缺陷挂在了别的位置：同一缺陷在正确位置的漏报已按漏报计，不再扣第二次（[裁决先例](../../reviewer-suite-v1/rulings.md)「答案键里的缺陷挂在了别的位置」）。
-- `unsupported`：无依据，计一个失败干净用例。同一句通用 finding 原样贴在多个位置的，即使碰巧说中某处的答案也按无依据判；写出了两个具体缺陷的，文中讲到的那一处照常判，没讲到的各处按无依据判。主结论或复现例子与被审材料的实际行为相反（照它去修改不掉真缺陷）的，按无依据判。
+- `unsupported`：无依据，计一个失败干净用例。同一句通用 finding 原样贴在多个位置的，即使碰巧说中某处的答案也按无依据判；写出了两个具体缺陷的，文中讲到的那一处照常判，没讲到的各处按无依据判。主结论或复现例子与被审材料的实际行为相反（照它去修改不掉真缺陷）的，按无依据判。以下三种不按无依据判，判 `supported`（[裁决先例](../../reviewer-suite-v1/rulings.md)「finding 的机制写对了，但结论或例子与代码相反」第 (2)–(4) 款）：主结论和复现都成立，只是个别措辞写反的；机制说明自相矛盾，但复现的情形实测属实的，不对应该问题用例（缺陷存在，所以不算误报；所述原因与答案键要求的点相反，所以不算命中）；finding 指出的问题属实，但把答案键缺陷背后的错误意图当成正确要求的（照它修会坐实该缺陷），不对应该问题用例。
 - `false-positive:clean-N`：finding 把被提名的第 N 个干净用例所描述的成立内容当成了缺陷。finding 主张的修法与某个干净用例所描述的成立内容相反、而该干净用例没有被提名时，判 `unsupported`，不判 `supported`：它主张的问题本身不成立，与"缺陷属实、只是位置不对"的 `supported` 方向相反。
 - 判断不了时，关联候选选 `not-matched`，发现候选选 `unsupported`。
 

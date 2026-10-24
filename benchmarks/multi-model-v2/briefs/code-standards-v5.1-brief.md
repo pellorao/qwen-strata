@@ -21,8 +21,9 @@
 本工程补充（评分 r7、r8，冻结 ARW `docs/agents/reviewer-capability-scoring.md` 的升级说明）：`problem-N` 指 finding 与第 N 个问题用例的期望句表达同一缺陷（标准与关联候选相同），只是没有形成关联候选。
 
 本工程补充（multi-model-v2 统一口径，四份 brief 逐字相同，`tools.reviewer.check_briefs --suite v2` 核对）：
+- `matched`：一条 finding 写出多个具体缺陷时，其中一个与期望句是同一问题即 matched，其余缺陷不影响该关联；发现候选选 `problem-N` 时同理（[裁决先例](../../reviewer-suite-v1/rulings.md)「一条 finding 讲了两个缺陷，原样贴在几行上」）。
 - `supported`：finding 有依据，但不对应本位置（finding 所在的检查或要求行）`problemOptions` 中任何列出的问题用例，不得分也不扣分。包括答案键外的成立缺陷，也包括答案键里的缺陷挂在了别的位置：同一缺陷在正确位置的漏报已按漏报计，不再扣第二次（[裁决先例](../../reviewer-suite-v1/rulings.md)「答案键里的缺陷挂在了别的位置」）。
-- `unsupported`：无依据，计一个失败干净用例。同一句通用 finding 原样贴在多个位置的，即使碰巧说中某处的答案也按无依据判；写出了两个具体缺陷的，文中讲到的那一处照常判，没讲到的各处按无依据判。主结论或复现例子与被审材料的实际行为相反（照它去修改不掉真缺陷）的，按无依据判。
+- `unsupported`：无依据，计一个失败干净用例。同一句通用 finding 原样贴在多个位置的，即使碰巧说中某处的答案也按无依据判；写出了两个具体缺陷的，文中讲到的那一处照常判，没讲到的各处按无依据判。主结论或复现例子与被审材料的实际行为相反（照它去修改不掉真缺陷）的，按无依据判。以下三种不按无依据判，判 `supported`（[裁决先例](../../reviewer-suite-v1/rulings.md)「finding 的机制写对了，但结论或例子与代码相反」第 (2)–(4) 款）：主结论和复现都成立，只是个别措辞写反的；机制说明自相矛盾，但复现的情形实测属实的，不对应该问题用例（缺陷存在，所以不算误报；所述原因与答案键要求的点相反，所以不算命中）；finding 指出的问题属实，但把答案键缺陷背后的错误意图当成正确要求的（照它修会坐实该缺陷），不对应该问题用例。
 - `false-positive:clean-N`：finding 把被提名的第 N 个干净用例所描述的成立内容当成了缺陷。finding 主张的修法与某个干净用例所描述的成立内容相反、而该干净用例没有被提名时，判 `unsupported`，不判 `supported`：它主张的问题本身不成立，与"缺陷属实、只是位置不对"的 `supported` 方向相反。
 - 判断不了时，关联候选选 `not-matched`，发现候选选 `unsupported`。
 
@@ -31,12 +32,13 @@
 依据：`benchmarks/reviewer-suite-v1/code-standards-v5.md` §7–§10、冻结 Role `docs/agents/roles/code-standards-reviewer.md`、答案键（`expected.json` sha256 `3950875c7c223af3beee58265c1fb9eb3ff48cf21cbd4b94ffa43a124a0d0b66`）。
 
 - 本轴只审 Standards 问题：违反 `src/AGENTS.md` 的规则，或 Role 列出的实施质量问题（含重复代码、纯转发、投机选项等设计检查）。Role 规定不判断变更是否实现产品或 issue 要求，不添加 Spec 轴问题；关联实现只作为判断当前变更的证据，不把其中独立存在的历史问题扩展为本次 finding。
-- 问题用例的期望句描述一个真实问题。finding 与它表达同一个问题（同一对象、同一错误含义）才算 `matched`；同一文件或同一规则下的另一个问题不算。finding 的结果类别（gap/uncertain）与期望不同，但所说的缺陷相同时仍算匹配，结果分由评分规则处理；裁决者不因结果类别改判。
+- 问题用例的期望句描述一个真实问题。finding 与它表达同一个问题（同一对象、同一错误含义）才算 `matched`；只讲同一文件或同一规则下另一个问题的 finding 不算。finding 另外还写了别的缺陷，不影响已对上的那一个（见上文统一口径的 `matched` 一条）。finding 的结果类别（gap/uncertain）与期望不同，但所说的缺陷相同时仍算匹配，结果分由评分规则处理；裁决者不因结果类别改判。
 - 重复/近似代码类题（期望句说变更端与已有的另一处代码重复同一规则、常量或逻辑）：finding 只要指出变更端，并写出对端（符号名、文件基名或行号任一即可）且所说的对端与期望句一致，即可匹配；对端不必写行号（v5.1 改动一，用户 2026-10-15 确认）。只说变更端"可以抽取 helper"而没有指出对端的，不匹配。
 - 干净孪生：一部分干净用例的期望句说某处与仓库另一处看似相同、但规则或事实不同，不应合并（或不应复用）。finding 主张它们重复、要求合并或复用，即该干净用例的误报。
 - `extraCharges` 诱饵（答案键两个干净用例）：`buildLineItems` 的新参数 `extraCharges`（`src/billing/line-items.mjs:26`）由唯一调用方 `draftFor`（`src/billing/invoice-service.mjs`）传入；`previewInvoice`、`issueInvoice` 的 `extraCharges` 入口参数（`src/billing/invoice-service.mjs:22`、`src/billing/invoice-service.mjs:32`）与其他 service 入口一样由仓库外调用，餐饮入口 `memberInvoiceCharges`（`src/catering/catering-service.mjs:148`）用 `invoiceCharges`（`src/catering/catering-pricing.mjs:30`）构造这个输入。finding 主张 `extraCharges` 是投机选项、未被使用、没有调用方或应删除，即对应干净用例的误报：该干净用例在 `cleanTargets` 中被提名时判 `false-positive:clean-N`，未被提名时判 `unsupported`。
 - `memberId` 诱饵：`buildLineItems` 对 `extraCharges` 的每项去掉 `memberId`（`src/billing/line-items.mjs:32`）。`memberId` 只供 `isBilled` 按会员过滤，过滤后去掉，使附加项与经 `lineItemFor` 构造、同样不含 `memberId` 的预订行项字段一致；发票本身另记 `memberId`。finding 称这里丢失会员信息、行项不一致或应保留 `memberId`，没有依据，判 `unsupported`。
 - 中性规则（`code-standards-v5.md` §7）：被审变更范围内（`src/catering/` 的新文件，以及被修改的 3 个已有文件的全部内容）违反 `src/AGENTS.md` 或 Role 质量标准、核实成立而答案键没有的问题，判 `supported`，不算 `noOtherSupportedFinding` 失败，也不计分。重复完全在未改动文件里的情形（例如仓库已有的 `normalizeMemberId` 一类既有重复，本次变更没有再加一份），按 Role 不扩展为 finding，判 `unsupported`。新代码照搬仓库里已有多份的同构实现（例如 catering 又手写一份状态表推进，或又一份 store 写队列和 requestKey 扫描），算本次变更的问题：Role 要求检查当前变更是否重复实现了仓库其他位置已有的相同逻辑，且不以已有多个调用方为前提；有依据就判 `supported` 或对应的问题用例（[裁决先例](../../reviewer-suite-v1/rulings.md)「新代码照搬仓库里已有多份的重复实现」）。修法与某个干净用例所描述的成立做法相反的 finding，按上文统一口径的 `false-positive:clean-N` 一条判。Main 之后会用可执行检查复核 `supported`。
+- 只说违背（[裁决先例](../../reviewer-suite-v1/rulings.md)「CA 只说违背」按本场景 Role 推广，multi-model-v2 新增；只用于发现候选不对应任何问题用例、在 `supported` 与 `unsupported` 之间判定时）：finding 只说变更违反规则、不符合标准，或只给出设计异味的名称，没写出具体问题的，判 `unsupported`。违反 `src/AGENTS.md` 的，要指出变更中哪段代码以什么方式违反了哪条指令；设计异味要写出具体的维护负担或错误后果。依据：冻结 Role `docs/agents/roles/code-standards-reviewer.md`:48 原文"设计异味名称只提供检查方向"、"证明具体的维护负担或错误后果"。
 - 只依据规则、Role 与代码判断，不依据 finding 自称的严重程度或把握。
 
 ## 输出
