@@ -21,12 +21,14 @@ ROOT = Path(__file__).resolve().parents[2]
 CATALOG = 'config/model-catalog.json'
 MEASUREMENT_NOTE = 'benchmarks/reviewer-suite-v1/measurement-note.txt'
 # Scenario versions whose handoff needs its own measurement note: (reviewer, source manifest file) -> (plain note,
-# time-limit template). Commit Audit v2 and v3 declare merged issue/spec requirements, which the note explains (user 2026-10-17).
+# time-limit template). Commit Audit v2, v3 and v3.1 (multi-model benchmark v2 draft) declare merged issue/spec
+# requirements, which the note explains (user 2026-10-17).
 COMMIT_AUDIT_NOTES = ('benchmarks/reviewer-suite-v1/measurement-note-commit-audit.txt',
                       'benchmarks/reviewer-suite-v1/measurement-note-time-limit-commit-audit.txt')
 SCENARIO_NOTES = {
     ('commit-audit-reviewer', 'manifest-commit-audit-v2.json'): COMMIT_AUDIT_NOTES,
     ('commit-audit-reviewer', 'manifest-commit-audit-v3.json'): COMMIT_AUDIT_NOTES,
+    ('commit-audit-reviewer', 'manifest-commit-audit-v3.1.json'): COMMIT_AUDIT_NOTES,
 }
 
 

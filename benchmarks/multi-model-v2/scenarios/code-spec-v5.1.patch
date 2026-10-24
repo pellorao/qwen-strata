@@ -1,0 +1,12 @@
+diff --git a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md
+--- a/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md
++++ b/tests/fixtures/reviewer-capability/code-spec-reviewer/scenario/base/governing-spec.md
+@@ -157,7 +157,7 @@
+ 
+ - A template placeholder is `{{name}}`, `name` being a letter followed by letters, digits or underscores. Rendering replaces each with its value as a string and keeps other text; an undefined or null value rejects the message.
+ - A rendered value has `&`, `<`, `>`, `"` and `'` replaced by `&amp;`, `&lt;`, `&gt;`, `&quot;` and `&#39;`, and is not scanned for placeholders.
+-- Catalog locale keys and a member's `locale` are trimmed and lowercased, a missing or blank locale being `en`. A template comes from that locale, else its part before the first `-`, else `en`; the message records the locale used and is rejected when none has it.
++- Catalog locale keys are trimmed and lowercased; a blank catalog key stays blank. A member's `locale` is trimmed and lowercased, a missing or blank member locale being `en`. A template comes from that locale, else its part before the first `-`, else `en`; the message records the locale used and is rejected when none has it.
+ 
+ ## Request keys
+ 
