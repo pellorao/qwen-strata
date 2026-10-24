@@ -16,8 +16,8 @@ INSTALLATION_DEFAULTS = {'reasoning_effort', 'reasoning_budget_tokens', 'max_tok
                          'guardian_reasoning_budget_tokens', 'guardian_max_tokens',
                          'cpu_prefill_share', 'temperature', 'top_p', 'top_k'}
 CONDITION_FIELDS = {'id', 'model', 'model_overrides', 'model_environment', 'request_defaults'}
-# A tuning condition may vary only these request defaults, and only for its own model
-CONDITION_REQUEST_DEFAULTS = {'temperature', 'top_p', 'top_k'}
+# A tuning condition may vary only these request defaults (min_p, presence_penalty: sampling dimension, 2026-10-24), and only for its own model
+CONDITION_REQUEST_DEFAULTS = {'temperature', 'top_p', 'top_k', 'min_p', 'presence_penalty'}
 
 
 def load_private(project=None):

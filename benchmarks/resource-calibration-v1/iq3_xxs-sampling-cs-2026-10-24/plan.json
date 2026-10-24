@@ -1,0 +1,91 @@
+{
+ "schema": "arw-dimension-v1",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "reviewer": "code-spec-reviewer",
+ "authorization": {
+  "approved": true,
+  "source": "用户 2026-10-22 定采样维用 ARW code-spec-v5、Codex、high、沿用现行分阶段判定；用户 2026-10-11 授权多次 deploy --condition；本计划由 Opus 子 agent 按 docs/plan.md「采样与窗口重新测量」执行",
+  "scope": "rtx3080ti IQ3_XXS 采样维：greedy / card / t06，CS v5，Codex 0.164.0，high；分阶段 3/5/7/9/11；第 1 轮后看实测 SD，明显大于 0.029 停下交回"
+ },
+ "method": "arw_blocks（tools/tuning/arw_blocks.py）：每块 = 一个条件的一次部署冷加载 + 1 个不计分预热实例 + 若干计分实例连跑（同一批 arw_measure，实例间不停模型）；prepare 带 3 个 harness 补丁；评分走 bench_records→bench_score→blind_pool（Opus high 盲裁，≤2 路）→staged_decision。",
+ "fixed_conditions": {
+  "strata": "0.2.2",
+  "codex": "0.164.0",
+  "effort": "high",
+  "effort_reason": "与 ARW 原生 agent-cli 配置（model_reasoning_effort=\"high\"）及 F6 基线一致",
+  "context_window": 206584,
+  "auto_compact_token_limit": 150000,
+  "engine_defaults": "config/deployments/rtx3080ti.json 的安装默认值，条件只叠加 request_defaults（temperature/top_p/top_k/min_p/presence_penalty）与 STRATA_BATCH_TRACE=1",
+  "startup_instructions": "config/prompts/startup-instructions.txt（源 SHA 5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e，去掉防循环段），compact-prompt.txt（3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af）接入；开跑前核对已安装 SHA",
+  "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
+  "native_cli_sha256": "b93f6811d3f653f0fb83be4050d857fb9abbb111dfa2ce160563327daff7f306",
+  "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest-code-spec-v5.json",
+  "scenario": "Code Spec 正式场景 v5（SCENARIO_REVISIONS code-spec-reviewer 38；v4.7 的 20 题全部打散到 13 个模块：reservations 原样 3 题，12 个干草堆模块 17 题（rv3 搬家题 11 + 按对等推理放入 6），共用定义在 src/platform/；spec 各节按种子 20261014 穿插；20 问题 + 28 clean（reservations 4、干草堆每模块 2）+ noOtherSupportedFinding；B = 152,919 字节；code-spec-v3.patch 之后叠加 arw-patches/code-spec-v5.patch sha256 231fd10853c3eab9917c5d27565396b22a4549b16457fbb256c0ace983d85b1a，替代 code-spec-v4.patch）",
+  "scoring": "调参口径：取扣罚前分 scoreBeforePenalty（评分 r8.4），benchmark 的 rulings 与盲裁",
+  "measurement_note_template": {
+   "path": "benchmarks/reviewer-suite-v1/measurement-note-time-limit.txt",
+   "sha256": "4c7558c84ae9dbdb446261bfd197da0acaa52e299baa26edd9478b357f884a41"
+  },
+  "time_limit": {
+   "fixed_seconds": 916,
+   "source": "第二阶段 Strata Codex high 的 T（reports/v0.1.45/multi-model-benchmark/phase2，916 秒）；所有条件、所有实例用同一 T，不按批重测 P、G（避免 T 随条件变化混入比较）"
+  },
+  "criterion": "见 code-spec-v5.md §8：Q3 ×5 均分 / Opus ×3 均分 < 0.8 为成立，按 ARW 原版得分（命中加 clean）；clean 不另设误报判据（用户 2026-10-14），报告列出全部 clean 失败，以盲裁关联后的结果为准；独立 agent（不低于 Main）给意见后由 Main 判定",
+  "neutral_rule": "冻结后新代码（src/reservations 以外）上的发现：盲裁前先由独立裁决 agent 核实；核实为真缺陷的按中性处理（不计 noOtherSupportedFinding 失败，也不加分），修正留给下一版；不是真缺陷的按原版规则计为无依据发现",
+  "screening": "冻结前 Q3 trial ×1（均不计入正式结果）：修订 35 T 931 秒 13/20；修订 36 T 907 秒 15/20；修订 37 T 949 秒 15/20（snapEnd 靠捷径命中，不作冻结依据）；修订 38 T 932 秒 14/20（漏 P01、P09、P10、P13、P15、P17；14 条发现全部是植入缺陷，0 诊断、0 压缩，9.5 分钟）",
+  "opus_runner": "无头 claude -p（Claude Code 2.1.299，--model opus --effort high），隔离选项、Bash 沙箱设置模板与场景根文件清单比对见 code-spec-v5.md §2",
+  "harness_patches": [
+   "codex-0.163-synthetic-mount-targets",
+   "strata-measurement-time-limit",
+   "reviewer-private-scratch"
+  ],
+  "web_search": "disabled"
+ },
+ "codex_thread_id": "b7635f94-ad60-429b-98e7-3ee5c19ba2bb",
+ "dimensions": [
+  {
+   "order": 1,
+   "id": "sampling",
+   "default": "sampling-greedy",
+   "reviewer": "code-spec-reviewer",
+   "schedule_design": "第 1 轮 g g g c c c t t t（每块 1 预热 + 3 计分）；之后每轮反转块顺序（t,c,g → g,c,t …），每块 +2 计分，仅仍在采样的条件；排程由 arw_blocks 按 staged_decision 生成，写入进度，不改本文件",
+   "schedule": [
+    "sampling-greedy",
+    "sampling-greedy",
+    "sampling-greedy",
+    "sampling-card",
+    "sampling-card",
+    "sampling-card",
+    "sampling-t06",
+    "sampling-t06",
+    "sampling-t06"
+   ],
+   "conditions": {
+    "sampling-greedy": {
+     "log_present": [
+      "\\[native-sampling-trace\\]"
+     ],
+     "log_absent": []
+    },
+    "sampling-card": {
+     "log_present": [
+      "\\[native-sampling-trace\\]"
+     ],
+     "log_absent": []
+    },
+    "sampling-t06": {
+     "log_present": [
+      "\\[native-sampling-trace\\]"
+     ],
+     "log_absent": []
+    }
+   },
+   "warmup_per_block": 1,
+   "time_limit_seconds": 916,
+   "judgement": "沿用 measurement.md 评分口径：O'Brien-Fleming 边界 c_final(3)=2.6·sqrt(5/轮次)，δ=0.05，样本 3/5/7/9/11，tools.tuning.staged_decision.judge_many"
+  }
+ ],
+ "target_repetitions": 11,
+ "primary_repetitions": 3
+}

@@ -152,9 +152,10 @@ installation_path='C:\\Strata'
         self.iq3_template([])
         self.host('tuned', models=['IQ3_XXS'], engine_overrides={},
                   installation_defaults={'reasoning_effort': 'high', 'temperature': 0.0, 'top_p': 1.0, 'top_k': 20})
-        condition = {'id': 'sampling-t06', 'model': 'IQ3_XXS', 'request_defaults': {'temperature': 0.6, 'top_p': 0.95}}
+        condition = {'id': 'sampling-t06', 'model': 'IQ3_XXS', 'request_defaults': {'temperature': 0.6, 'top_p': 0.95, 'min_p': 0.0, 'presence_penalty': 0.0}}
         self.assertEqual(model_configuration('IQ3_XXS', 'tuned', self.root, condition)['request_defaults'],
-                         {'reasoning_effort': 'high', 'temperature': 0.6, 'top_p': 0.95, 'top_k': 20})
+                         {'reasoning_effort': 'high', 'temperature': 0.6, 'top_p': 0.95, 'top_k': 20,
+                          'min_p': 0.0, 'presence_penalty': 0.0})
         self.assertEqual(model_configuration('IQ3_XXS', 'tuned', self.root)['request_defaults']['temperature'], 0.0)
         for bad in ({'max_tokens': 1}, {'reasoning_effort': 'low'}, {'temperature': '0.6'}, []):
             with self.assertRaisesRegex(ValueError, 'deployment condition'):

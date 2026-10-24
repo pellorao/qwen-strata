@@ -188,14 +188,19 @@ def selection(plan, condition, context_window=None, folder=None, time_limit_seco
             'archive_http': True, 'automatic_continuation': False,
             'native_cli': {'executable': str(executable), 'version': fixed['codex'], 'sha256': sha(codex)},
             'loop_reminder': 'off', 'measurement_note': note, **limit,
+            # the multi-model benchmark disables Codex web search on every arm (D5); a plan may bind the same
+            **({'web_search': fixed['web_search']} if 'web_search' in fixed else {}),
             'deployment_condition': condition,
             # a published context tier the caller selects; omitted, ARW starts the installation default tier
             **({} if context_window is None else {'context_window': context_window})}
 
 
-def prepare(plan, condition, folder, reviewer=None, context_window=None, time_limit_seconds=None, harness_patches=()):
+def prepare(plan, condition, folder, reviewer=None, context_window=None, time_limit_seconds=None, harness_patches=(),
+            preparations=1):
     """Fresh ARW batch for one slot; only its first handoff(s) run, the others stay deferred. harness_patches: names
-    from freeze_arw_source.HARNESS_PATCHES applied to the materialized copy (recorded in harness-patches.json)."""
+    from freeze_arw_source.HARNESS_PATCHES applied to the materialized copy (recorded in harness-patches.json).
+    preparations > 1: further ARW preparations in the same checkout (preparation-2.json, ...; one ARW preparation holds
+    three handoffs), so a block of more than three instances runs in one arw_measure batch."""
     folder.mkdir(parents=True)
     arw = folder / 'arw'
     subprocess.run([sys.executable, '-m', 'tools.reviewer.freeze_arw_source', '--manifest',
@@ -208,14 +213,18 @@ def prepare(plan, condition, folder, reviewer=None, context_window=None, time_li
     save(folder / 'selection-source.json', selection(plan, condition, context_window, folder, time_limit_seconds, reviewer))
     subprocess.run(['git', 'init', '-q'], cwd=arw, check=True)
     env = dict(os.environ, CODEX_THREAD_ID=plan['codex_thread_id'])
-    with (folder / 'prepare.json').open('w') as out, (folder / 'prepare.err').open('w') as err:
-        subprocess.run(['node', 'scripts/reviewer-capability-conformance.mjs', 'prepare', '--reviewer', reviewer or plan['reviewer']],
-                       cwd=arw, env=env, stdout=out, stderr=err, check=True)
-    prepared = json.loads((folder / 'prepare.json').read_text())
-    prepared.update(repositoryRoot=str(arw.resolve()), programDirectory=str(arw.resolve()),
-                    identity={'platform': 'codex', 'sessionId': plan['codex_thread_id']})
-    save(folder / 'preparation.json', prepared)
-    return [h['instanceId'] for h in prepared['handoffs']]
+    ids = []
+    for number in range(1, preparations + 1):
+        suffix = '' if number == 1 else f'-{number}'
+        with (folder / f'prepare{suffix}.json').open('w') as out, (folder / f'prepare{suffix}.err').open('w') as err:
+            subprocess.run(['node', 'scripts/reviewer-capability-conformance.mjs', 'prepare', '--reviewer', reviewer or plan['reviewer']],
+                           cwd=arw, env=env, stdout=out, stderr=err, check=True)
+        prepared = json.loads((folder / f'prepare{suffix}.json').read_text())
+        prepared.update(repositoryRoot=str(arw.resolve()), programDirectory=str(arw.resolve()),
+                        identity={'platform': 'codex', 'sessionId': plan['codex_thread_id']})
+        save(folder / f'preparation{suffix}.json', prepared)
+        ids += [h['instanceId'] for h in prepared['handoffs']]
+    return ids
 
 
 def preflight(plan, folder):
