@@ -67,9 +67,9 @@ def guardian_request(body):
 
 
 def apply_messages_budget(body, defaults):
-    """Cap the thinking of a Messages request (Claude Code) as Chat and Responses are capped.  Strata reads
-    thinking.budget_tokens and output_config.effort only as an effort level, so the hard cap is its own
-    reasoning_budget_tokens.  A request that turns thinking off, or names its own budget, is left alone; a
+    """Cap the thinking of a Messages request (Claude Code) as Chat and Responses are capped.  Strata honours
+    thinking.budget_tokens as a real budget (since 0.1.45), but Claude Code sends thinking adaptive with no
+    budget, so the hard cap is Strata's own reasoning_budget_tokens.  A request that turns thinking off, or names its own budget, is left alone; a
     smaller budget_tokens is kept as the cap.  Messages always carry max_tokens, so the budget is at most half
     of it, and Strata keeps room for the answer (#984).  Claude Code sends thinking adaptive, effort high and
     max_tokens CLAUDE_CODE_MAX_OUTPUT_TOKENS (24576 in the manual's example), which gives high's 8192."""
