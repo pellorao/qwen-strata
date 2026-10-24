@@ -1,0 +1,651 @@
+{
+ "date": "2026-10-24",
+ "host": "rtx3080ti",
+ "quant": "IQ3_XXS",
+ "strata": "0.2.4",
+ "engine": "0.1.48",
+ "conditions": {
+  "A": "现行：sm_86 默认 8 个开关开启，STRATA_ADAPT_LAG=2 显式",
+  "B": "STRATA_SM86_PERF=0（ADAPT_LAG=2 保留）"
+ },
+ "plan": "benchmarks/resource-calibration-v1/iq3_xxs-sm86-perf-v024-2026-10-24/plan.json",
+ "schedule": "12 块 ABBA BAAB ABBA，每块 3 个正式请求",
+ "criterion": "引擎输出或输入差异 ≥2% 且方向一致",
+ "combined": {
+  "A": {
+   "read": 207576,
+   "reused": 393216,
+   "generated": 59682,
+   "engine_in": 2257.9,
+   "engine_out": 122.08,
+   "task_in": 356.9,
+   "task_out": 102.6,
+   "work_s": 581.5,
+   "correct": "18/18"
+  },
+  "B": {
+   "read": 207576,
+   "reused": 393216,
+   "generated": 62753,
+   "engine_in": 2250.0,
+   "engine_out": 107.96,
+   "task_in": 307.9,
+   "task_out": 93.1,
+   "work_s": 674.3,
+   "correct": "18/18"
+  }
+ },
+ "pair_ratios_B_over_A": {
+  "engine_out": [
+   0.9,
+   0.883,
+   0.876,
+   0.891,
+   0.884,
+   0.872
+  ],
+  "engine_in": [
+   0.976,
+   0.996,
+   1.001,
+   1.008,
+   1.001,
+   0.997
+  ],
+  "engine_out_median": 0.8835,
+  "engine_in_median": 0.9989999999999999
+ },
+ "decision": "维持现行（开关开启）",
+ "blocks": [
+  {
+   "block": 1,
+   "condition": "A",
+   "load_s": 26.145630068999935,
+   "read": 34596,
+   "reused": 65536,
+   "generated": 9143,
+   "engine_in": 2266.2,
+   "engine_out": 121.14,
+   "task_in": 380.7,
+   "task_out": 100.6,
+   "work_s": 90.9,
+   "correct": "3/3",
+   "min_request_out": 113.4,
+   "gpu_max_c": 71,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "requests": [
+    {
+     "read": 33309,
+     "reused": 0,
+     "generated": 2902,
+     "engine_in": 2595.8,
+     "engine_out": 127.23,
+     "work_s": 35.68,
+     "correct": true
+    },
+    {
+     "read": 549,
+     "reused": 32768,
+     "generated": 2283,
+     "engine_in": 456.0,
+     "engine_out": 128.56,
+     "work_s": 19.01,
+     "correct": true
+    },
+    {
+     "read": 738,
+     "reused": 32768,
+     "generated": 3958,
+     "engine_in": 600.0,
+     "engine_out": 113.38,
+     "work_s": 36.17,
+     "correct": true
+    }
+   ]
+  },
+  {
+   "block": 2,
+   "condition": "B",
+   "load_s": 26.627336074999903,
+   "read": 34596,
+   "reused": 65536,
+   "generated": 10728,
+   "engine_in": 2212.6,
+   "engine_out": 109.0,
+   "task_in": 303.0,
+   "task_out": 94.0,
+   "work_s": 114.2,
+   "correct": "3/3",
+   "min_request_out": 101.5,
+   "gpu_max_c": 73,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "requests": [
+    {
+     "read": 33309,
+     "reused": 0,
+     "generated": 4303,
+     "engine_in": 2578.1,
+     "engine_out": 117.56,
+     "work_s": 49.56,
+     "correct": true
+    },
+    {
+     "read": 549,
+     "reused": 32768,
+     "generated": 2279,
+     "engine_in": 376.8,
+     "engine_out": 108.75,
+     "work_s": 22.45,
+     "correct": true
+    },
+    {
+     "read": 738,
+     "reused": 32768,
+     "generated": 4146,
+     "engine_in": 586.2,
+     "engine_out": 101.47,
+     "work_s": 42.15,
+     "correct": true
+    }
+   ]
+  },
+  {
+   "block": 3,
+   "condition": "B",
+   "load_s": 26.148262439999826,
+   "read": 34596,
+   "reused": 65536,
+   "generated": 10080,
+   "engine_in": 2258.2,
+   "engine_out": 109.19,
+   "task_in": 321.0,
+   "task_out": 93.5,
+   "work_s": 107.8,
+   "correct": "3/3",
+   "min_request_out": 103.8,
+   "gpu_max_c": 74,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "requests": [
+    {
+     "read": 33309,
+     "reused": 0,
+     "generated": 3833,
+     "engine_in": 2577.3,
+     "engine_out": 114.84,
+     "work_s": 46.34,
+     "correct": true
+    },
+    {
+     "read": 549,
+     "reused": 32768,
+     "generated": 2269,
+     "engine_in": 482.4,
+     "engine_out": 110.1,
+     "work_s": 21.8,
+     "correct": true
+    },
+    {
+     "read": 738,
+     "reused": 32768,
+     "generated": 3978,
+     "engine_in": 586.6,
+     "engine_out": 103.78,
+     "work_s": 39.63,
+     "correct": true
+    }
+   ]
+  },
+  {
+   "block": 4,
+   "condition": "A",
+   "load_s": 26.645529944000373,
+   "read": 34596,
+   "reused": 65536,
+   "generated": 8677,
+   "engine_in": 2267.8,
+   "engine_out": 123.62,
+   "task_in": 404.3,
+   "task_out": 101.4,
+   "work_s": 85.6,
+   "correct": "3/3",
+   "min_request_out": 118.1,
+   "gpu_max_c": 77,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "requests": [
+    {
+     "read": 33309,
+     "reused": 0,
+     "generated": 3595,
+     "engine_in": 2594.0,
+     "engine_out": 127.04,
+     "work_s": 41.17,
+     "correct": true
+    },
+    {
+     "read": 549,
+     "reused": 32768,
+     "generated": 2276,
+     "engine_in": 479.1,
+     "engine_out": 125.51,
+     "work_s": 19.32,
+     "correct": true
+    },
+    {
+     "read": 738,
+     "reused": 32768,
+     "generated": 2806,
+     "engine_in": 582.0,
+     "engine_out": 118.11,
+     "work_s": 25.08,
+     "correct": true
+    }
+   ]
+  },
+  {
+   "block": 5,
+   "condition": "B",
+   "load_s": 26.65991434000034,
+   "read": 34596,
+   "reused": 65536,
+   "generated": 10280,
+   "engine_in": 2259.7,
+   "engine_out": 105.86,
+   "task_in": 307.4,
+   "task_out": 91.4,
+   "work_s": 112.5,
+   "correct": "3/3",
+   "min_request_out": 102.5,
+   "gpu_max_c": 74,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "requests": [
+    {
+     "read": 33309,
+     "reused": 0,
+     "generated": 2909,
+     "engine_in": 2575.9,
+     "engine_out": 111.1,
+     "work_s": 39.16,
+     "correct": true
+    },
+    {
+     "read": 549,
+     "reused": 32768,
+     "generated": 3185,
+     "engine_in": 482.4,
+     "engine_out": 105.88,
+     "work_s": 31.25,
+     "correct": true
+    },
+    {
+     "read": 738,
+     "reused": 32768,
+     "generated": 4186,
+     "engine_in": 594.7,
+     "engine_out": 102.49,
+     "work_s": 42.12,
+     "correct": true
+    }
+   ]
+  },
+  {
+   "block": 6,
+   "condition": "A",
+   "load_s": 26.556719941999745,
+   "read": 34596,
+   "reused": 65536,
+   "generated": 9382,
+   "engine_in": 2257.8,
+   "engine_out": 120.87,
+   "task_in": 371.8,
+   "task_out": 100.8,
+   "work_s": 93.1,
+   "correct": "3/3",
+   "min_request_out": 113.4,
+   "gpu_max_c": 74,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "requests": [
+    {
+     "read": 33309,
+     "reused": 0,
+     "generated": 2899,
+     "engine_in": 2577.3,
+     "engine_out": 127.71,
+     "work_s": 35.66,
+     "correct": true
+    },
+    {
+     "read": 549,
+     "reused": 32768,
+     "generated": 2796,
+     "engine_in": 481.2,
+     "engine_out": 124.83,
+     "work_s": 23.57,
+     "correct": true
+    },
+    {
+     "read": 738,
+     "reused": 32768,
+     "generated": 3687,
+     "engine_in": 586.6,
+     "engine_out": 113.37,
+     "work_s": 33.82,
+     "correct": true
+    }
+   ]
+  },
+  {
+   "block": 7,
+   "condition": "A",
+   "load_s": 26.179884943999696,
+   "read": 34596,
+   "reused": 65536,
+   "generated": 10944,
+   "engine_in": 2230.6,
+   "engine_out": 120.47,
+   "task_in": 324.9,
+   "task_out": 102.8,
+   "work_s": 106.5,
+   "correct": "3/3",
+   "min_request_out": 117.1,
+   "gpu_max_c": 75,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "requests": [
+    {
+     "read": 33309,
+     "reused": 0,
+     "generated": 3925,
+     "engine_in": 2547.5,
+     "engine_out": 124.9,
+     "work_s": 44.55,
+     "correct": true
+    },
+    {
+     "read": 549,
+     "reused": 32768,
+     "generated": 3138,
+     "engine_in": 459.0,
+     "engine_out": 117.13,
+     "work_s": 28.02,
+     "correct": true
+    },
+    {
+     "read": 738,
+     "reused": 32768,
+     "generated": 3881,
+     "engine_in": 595.6,
+     "engine_out": 118.94,
+     "work_s": 33.91,
+     "correct": true
+    }
+   ]
+  },
+  {
+   "block": 8,
+   "condition": "B",
+   "load_s": 26.66748401799987,
+   "read": 34596,
+   "reused": 65536,
+   "generated": 11712,
+   "engine_in": 2249.3,
+   "engine_out": 107.34,
+   "task_in": 277.6,
+   "task_out": 94.0,
+   "work_s": 124.6,
+   "correct": "3/3",
+   "min_request_out": 102.3,
+   "gpu_max_c": 75,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "requests": [
+    {
+     "read": 33309,
+     "reused": 0,
+     "generated": 3682,
+     "engine_in": 2578.3,
+     "engine_out": 112.57,
+     "work_s": 45.68,
+     "correct": true
+    },
+    {
+     "read": 549,
+     "reused": 32768,
+     "generated": 2997,
+     "engine_in": 463.7,
+     "engine_out": 110.21,
+     "work_s": 28.41,
+     "correct": true
+    },
+    {
+     "read": 738,
+     "reused": 32768,
+     "generated": 5033,
+     "engine_in": 577.5,
+     "engine_out": 102.27,
+     "work_s": 50.54,
+     "correct": true
+    }
+   ]
+  },
+  {
+   "block": 9,
+   "condition": "A",
+   "load_s": 26.66794416799985,
+   "read": 34596,
+   "reused": 65536,
+   "generated": 11004,
+   "engine_in": 2263.5,
+   "engine_out": 124.36,
+   "task_in": 333.1,
+   "task_out": 105.9,
+   "work_s": 103.9,
+   "correct": "3/3",
+   "min_request_out": 122.8,
+   "gpu_max_c": 74,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "requests": [
+    {
+     "read": 33309,
+     "reused": 0,
+     "generated": 3125,
+     "engine_in": 2582.3,
+     "engine_out": 126.9,
+     "work_s": 37.56,
+     "correct": true
+    },
+    {
+     "read": 549,
+     "reused": 32768,
+     "generated": 2317,
+     "engine_in": 485.8,
+     "engine_out": 124.68,
+     "work_s": 19.75,
+     "correct": true
+    },
+    {
+     "read": 738,
+     "reused": 32768,
+     "generated": 5562,
+     "engine_in": 588.0,
+     "engine_out": 122.84,
+     "work_s": 46.57,
+     "correct": true
+    }
+   ]
+  },
+  {
+   "block": 10,
+   "condition": "B",
+   "load_s": 26.711705143000017,
+   "read": 34596,
+   "reused": 65536,
+   "generated": 10304,
+   "engine_in": 2266.8,
+   "engine_out": 109.91,
+   "task_in": 317.0,
+   "task_out": 94.4,
+   "work_s": 109.1,
+   "correct": "3/3",
+   "min_request_out": 105.7,
+   "gpu_max_c": 74,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap",
+    "sw_thermal"
+   ],
+   "requests": [
+    {
+     "read": 33309,
+     "reused": 0,
+     "generated": 3532,
+     "engine_in": 2585.5,
+     "engine_out": 114.97,
+     "work_s": 43.64,
+     "correct": true
+    },
+    {
+     "read": 549,
+     "reused": 32768,
+     "generated": 2272,
+     "engine_in": 474.9,
+     "engine_out": 111.13,
+     "work_s": 21.64,
+     "correct": true
+    },
+    {
+     "read": 738,
+     "reused": 32768,
+     "generated": 4500,
+     "engine_in": 603.4,
+     "engine_out": 105.67,
+     "work_s": 43.85,
+     "correct": true
+    }
+   ]
+  },
+  {
+   "block": 11,
+   "condition": "B",
+   "load_s": 26.72426439100036,
+   "read": 34596,
+   "reused": 65536,
+   "generated": 9649,
+   "engine_in": 2254.3,
+   "engine_out": 106.53,
+   "task_in": 326.3,
+   "task_out": 91.0,
+   "work_s": 106.0,
+   "correct": "3/3",
+   "min_request_out": 101.6,
+   "gpu_max_c": 75,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap",
+    "sw_thermal"
+   ],
+   "requests": [
+    {
+     "read": 33309,
+     "reused": 0,
+     "generated": 3321,
+     "engine_in": 2583.7,
+     "engine_out": 109.33,
+     "work_s": 43.31,
+     "correct": true
+    },
+    {
+     "read": 549,
+     "reused": 32768,
+     "generated": 2224,
+     "engine_in": 457.5,
+     "engine_out": 112.2,
+     "work_s": 21.05,
+     "correct": true
+    },
+    {
+     "read": 738,
+     "reused": 32768,
+     "generated": 4104,
+     "engine_in": 588.0,
+     "engine_out": 101.64,
+     "work_s": 41.67,
+     "correct": true
+    }
+   ]
+  },
+  {
+   "block": 12,
+   "condition": "A",
+   "load_s": 26.762024486999508,
+   "read": 34596,
+   "reused": 65536,
+   "generated": 10532,
+   "engine_in": 2262.1,
+   "engine_out": 122.1,
+   "task_in": 340.2,
+   "task_out": 103.6,
+   "work_s": 101.7,
+   "correct": "3/3",
+   "min_request_out": 116.6,
+   "gpu_max_c": 74,
+   "throttle": [
+    "gpu_idle",
+    "sw_power_cap"
+   ],
+   "requests": [
+    {
+     "read": 33309,
+     "reused": 0,
+     "generated": 3563,
+     "engine_in": 2583.1,
+     "engine_out": 127.4,
+     "work_s": 40.91,
+     "correct": true
+    },
+    {
+     "read": 549,
+     "reused": 32768,
+     "generated": 2550,
+     "engine_in": 485.0,
+     "engine_out": 124.98,
+     "work_s": 21.58,
+     "correct": true
+    },
+    {
+     "read": 738,
+     "reused": 32768,
+     "generated": 4419,
+     "engine_in": 582.5,
+     "engine_out": 116.64,
+     "work_s": 39.19,
+     "correct": true
+    }
+   ]
+  }
+ ]
+}
