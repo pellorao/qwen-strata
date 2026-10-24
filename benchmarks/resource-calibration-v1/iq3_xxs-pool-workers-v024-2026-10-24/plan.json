@@ -1,0 +1,21 @@
+{
+ "schema": "speed-blocks-v1",
+ "status": "frozen",
+ "created_at": "2026-10-24",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "strata": "v0.2.4 (engine 0.1.48)",
+ "dimension": "pool-workers",
+ "conditions": {
+  "A": {"id": "default-23", "deploy": "plain deploy (pool-workers 23)"},
+  "B": {"id": "pool-workers-15", "deploy": "deploy --condition condition-pool-workers-15.json"}
+ },
+ "schedule": "ABBABAABABBA",
+ "workload": "benchmarks/resource-calibration-v1/workload.py build(787), three requests, cases SHA fixed in driver",
+ "per_block": "deploy on condition change, cold load, one unscored warm-up pass (marker header), measured three requests, stop",
+ "metric": "engine output tok/s (block-level and per-request B/A ratio on adjacent block pairs, median)",
+ "threshold": "B vs A: |median ratio - 1| >= 2% with >= 5/6 pairs in the same direction = meaningful; otherwise no meaningful difference",
+ "extension": "if the median ratio is within 1%-3% of 1 and pair directions are mixed (<5/6), add BAAB ABBA (4 blocks) once within a 2 h total budget",
+ "stop": "12 blocks (or extension) complete; restore plain deploy at any exit",
+ "driver": "benchmarks/resource-calibration-v1/iq3_xxs-pool-workers-v024-2026-10-24/run.py"
+}
