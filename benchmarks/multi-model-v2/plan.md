@@ -21,7 +21,7 @@
 | `scenarios/manifest-<版本>.json` | v2 场景清单：v1 清单 + 上面的补丁 |
 | `briefs/<版本>-brief.md` | 四份盲裁 brief 草案，由 v1 冻结件改出 |
 
-未改动的场景（Code Standards v5.1、Spec Readiness v4.3）直接用 v1 的冻结清单，不复制。
+未改动的场景（Code Standards v5.1）直接用 v1 的冻结清单，不复制。Spec Readiness 因 A4 出了 v4.4，与 CS、CA 一样建 v2 清单和补丁。
 
 ## 3. 场景的引用方式
 
@@ -46,17 +46,17 @@ v1 的场景是 ARW 源码快照 + 清单中的补丁序列（`tools.reviewer.fr
 | A1 | 已改（CS v5.1） | `governing-spec.md:160` 拆成两句："Catalog locale keys are trimmed and lowercased; a blank catalog key stays blank. A member's `locale` is trimmed and lowercased, a missing or blank member locale being `en`." CS brief 补一条说明这一行的读法 | 原句让"空白目录键归 `en`"成为可行读法；新句与代码（空白目录键保留为空）和 v1 裁决先例（不归 `en`）一致，答案键不变 |
 | A2 | 已改（CA v3.1） | issue 01 第 30 行（base 和 candidate 两份）"otherwise returns an error result" 改为 "otherwise returns a result whose `ok` is `false`" | v1 两种读法下代码行为相同，可执行检查定不了；新句按答案键的主读法写明形状 |
 | A3 | 不改，待用户决定 | — | 经核对不是歧义：政策文档头写明同节后一条覆盖前一条。改写规则 26 会去掉场景有意设计的"规则覆盖"难点，属于改场景难度，不是消歧 |
-| A4 | 不改，待用户决定 | — | `promotion-recovery.md:65`、`:85`（及 `:77`）是 MODULES#1 与 DEPENDENCIES-DATA-FLOW#0 问题用例的证据行，改写会动到正例本身；是否真有歧义需要 Opus 按场景流程审计后再定 |
+| A4 | 已改（SR v4.4，第 9 节第 5 项） | `promotion-recovery.md:65` 的"不从 caller 自报替代"改为"不由 promote 的 caller 自报替代"，`:85` 两处"caller 自报"改为"promote caller 自报"；RM 与 AP 两份 view 的该文件这两行相同，一并改。SR brief 的依据行注明 v4.4 只改这两行 | 独立审查核对：`:85` 不是任何用例的证据行，`:65` 作证据行时依赖的事实与"caller"指谁无关，答案键也没有针对这一读法的干净用例，所以改措辞不动正例；"caller"原有两种站得住的读法，参考模型 Opus-low 也误读。行数、答案键不变 |
 | A5 | 不改，待用户决定 | — | 清单本身标为推测；83 条同类 finding 要逐类确认是模型误读还是文本缺陷，需要数据复核，不能凭推测加排除句（加排除句还会降低难度） |
 | A6 | 已改（CA v3.1） | `dispatch-policy.md` 规则 24 改为 "Redaction removes credentials at every depth of the value being redacted, which is the value the citing requirement names." | 原句 "the redacted value" 可读成整个事件；新句写明范围由引用它的要求行决定（02:23、spec:12 写的是 auth 字段），与 v1 裁决一致 |
 
-核对：两个 v2 场景物化成功；ARW 的 `reviewer-capability-conformance` 测试在 v1、v2 副本上失败集合完全相同（各 45 通过 / 25 失败，均为 v1 已有）。ARW 零模型 `prepare` 本轮未跑（需要在副本里 `git init`，起草环境不允许），冻结前在 mock 门里补跑。
+核对：三个 v2 场景物化成功；ARW 的 `reviewer-capability-conformance` 测试在 v1、v2 副本上失败集合完全相同（各 45 通过 / 25 失败，均为 v1 已有；SR v4.4 于 10-24 补测，结果相同）。ARW 零模型 `prepare` 本轮未跑（需要在副本里 `git init`，起草环境不允许），冻结前在 mock 门里补跑。
 
 ### 4.2 brief 与评分措辞（b 组）
 
 | 项 | 处理 | 改了什么 | 理由 |
 |---|---|---|---|
-| B1 | 已改（四份 brief） | 四份 brief 加一段逐字相同的"multi-model-v2 统一口径"：`supported`（含答案键缺陷挂在别处，不再扣第二次）、`unsupported`（通用句贴多处、两缺陷 finding 未讲到的位置、结论与实际行为相反）、`false-positive:clean-N`（含"修法与未提名干净用例相反判 unsupported"及其与 supported 方向相反的理由）、判断不了时的默认选项。`check_briefs --suite v2` 核对四份逐字相同 | v1 四份措辞不一，SR 另有明文；统一写成裁决先例（用户定 10-21）的结论 |
+| B1 | 已改（四份 brief） | 四份 brief 加一段逐字相同的"multi-model-v2 统一口径"：`supported`（含答案键缺陷挂在别处，不再扣第二次）、`unsupported`（通用句贴多处、两缺陷 finding 未讲到的位置、结论与实际行为相反）、`false-positive:clean-N`（含"修法与未提名干净用例相反判 unsupported"及其与 supported 方向相反的理由）、判断不了时的默认选项。第 9 节第 12 项补全 [rulings.md](../reviewer-suite-v1/rulings.md):14 第 (2)–(4) 款：个别措辞写反、机制自相矛盾但复现属实、把答案键缺陷背后的错误意图当成正确要求，三种都判 `supported`（后两种不对应该问题用例）；第 8 项加 `matched` 一条：一条 finding 写出多个具体缺陷时，其中一个与期望句是同一问题即 matched，其余缺陷不影响该关联（rulings.md:16）。`check_briefs --suite v2` 核对四份逐字相同，并核对这些款项都在 | v1 四份措辞不一，SR 另有明文；统一写成裁决先例（用户定 10-21）的结论 |
 | B2 | 已改（CA brief） | CA 决策树第 3 步：只说"违背 / 未满足"、没写出代码错在哪的 finding 判 `unsupported` | 裁决先例「CA 只说违背」（用户定 10-21）；v1 brief 没写 |
 | B3 | 已改（CA brief） | CA 决策树第 1 步：先看挂载行，已满足行按 r8.1 判该行误报，即使讲的是相邻行的真缺陷；点名孪生干净行 02:30 / spec:45（`orderManifestGroups`）与相邻问题 01:38 | v1 池间不一致 25 条；r8.1 规则本身不变，只把判法写进 brief |
 | B4 | 已改（CStd brief） | 原第 33 行改为"重复完全在未改动文件里的情形"判 unsupported，另起一句：新代码照搬仓库已有多份的同构实现算本次变更的问题 | 裁决先例「新代码照搬仓库里已有多份的重复实现」（用户定 10-21） |
@@ -89,7 +89,7 @@ harness 版本：v1 用 Codex 0.163.0、Claude Code 2.1.303；`tools/reviewer/ha
 |---|---|---|
 | Strata 窗口 / 压缩点 | 两边维持 206584 / 150000（已对齐） | 无 |
 | Strata 推理强度、输出上限 | 维持三档映射（已对齐） | guardian 只在 Codex：Claude Code 没有对应的审批模型调用，属于 harness 结构差异 |
-| DeepSeek 窗口 / 压缩点 | 两边设成同一组值。候选：(a) 两边都用 1M、不压缩（Codex 现状，Claude Code 补 `CLAUDE_CODE_MAX_CONTEXT_TOKENS` 与 `BLOCKING_LIMIT_OVERRIDE`）；(b) 两边都用 Strata 的 206584 / 150000；见第 9 节 | 待用户决定。推荐 (a)：DeepSeek 的原生能力就是 1M 窗口，v1 场景单实例输入远低于 1M，(a) 等于两边都不压缩，最简单；(b) 让压缩成为 DeepSeek 两边共同的负担，但测的是被压低的配置 |
+| DeepSeek 窗口 / 压缩点 | 两边设成同一组值。候选：(a) 两边都用 1M、不压缩（Codex 现状，Claude Code 补 `CLAUDE_CODE_MAX_CONTEXT_TOKENS` 与 `BLOCKING_LIMIT_OVERRIDE`）；(b) 两边都用 206584 / 150000（与 Strata 的设置相同）；见第 9 节 | 待用户决定。推荐 (a)：DeepSeek 的原生能力就是 1M 窗口，v1 场景单实例输入远低于 1M，(a) 等于两边都不压缩，最简单；(b) 让压缩成为 DeepSeek 两边共同的负担，但测的是被压低的配置 |
 | DeepSeek 输出上限 | Claude Code 把 `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 设成与 Codex 目录相同的值（冻结前在 mock 门核对 Codex 实际请求里的 `max_tokens`） | v1 的 32000 上限造成 7 次模型失误，属 harness 设置而非模型能力；另一个 worker 正在改 `src/output_limit.py` 的重试处理，v2 冻结时以其合入后的版本为准，本稿不改它 |
 | OpenAI / Anthropic | 各只在一个 harness 上跑，没有跨 harness 对齐问题；用原生窗口、原生 effort 档位 | 保留原生：没有第二个 harness 可比，按提供方默认最能代表日常使用 |
 | Role 说明位置 | Claude Code 默认开启 `--role-as-system`，见 5.4 | — |
@@ -122,18 +122,19 @@ harness 版本：v1 用 Codex 0.163.0、Claude Code 2.1.303；`tools/reviewer/ha
 
 ## 7. 其他候选变更（只列出，未实施）
 
-1. 把 B2"只说违背判 unsupported"推广到 CS、CStd、SR 的 brief（v1 先例只针对 CA）。
-2. 新场景版本（CS v5.1、CA v3.1）是否要走完整场景流程（Opus 审计、参考基线、10 次组内 SD），还是因为只改措辞、答案键不变而走简化流程（Opus 审计改动行 + mock 门）。
+1. 把 B2"只说违背判 unsupported"推广到 CS、CStd、SR 的 brief（v1 先例只针对 CA）。已按第 9 节第 9 项落实。
+2. 新场景版本（CS v5.1、CA v3.1，以及后来的 SR v4.4）是否要走完整场景流程（Opus 审计、参考基线、10 次组内 SD），还是因为只改措辞、答案键不变而走简化流程（Opus 审计改动行 + mock 门）。
 3. 格式基准：答案键不变时按 SHA 自动沿用 v1 基准；措辞改动理论上不影响格式错误率，是否需要重标。
 4. Codex 臂是否加私有 scratch 补丁（v1 排除）；另一个 worker 在验证，结论出来后再定。
-5. 是否顺带处理 A3、A4、A5、B7、C1（第 4 节，均为待用户决定）。
+5. 是否顺带处理 A3、A4、A5、B7、C1（第 4 节）。已在第 9 节决定：A4 改，其余不改。
 
 ## 8. 实现待办（冻结前）
 
 - 工具链里写死的 v1 场景名（`bench_records` 的 `SCENARIOS`、`benchmark_export`、`blind_pool`）要改成按套件配置，v2 的场景名才能进统计和导出。`bench_records` 正由另一个 worker 修改，等它合入后再改。
-- `tools/tuning/arw_dimension.py` 已为 CA v3.1 登记场景注释；CS v5.1 沿用默认。
+- `tools/tuning/arw_dimension.py` 已为 CA v3.1 登记场景注释；CS v5.1、SR v4.4 沿用默认。
 - judgment 绑定：答案键 SHA 不变，现有登记自动适用，无需新增。
-- ARW 零模型 `prepare` 与 mock 门：两个新场景各跑一次（见 4.1）。
+- ARW 零模型 `prepare` 与 mock 门：三个新场景各跑一次（见 4.1）。
+- 第 10 项只写了 CS v5.1、CA v3.1 重跑格式基准；SR v4.4 也改了场景措辞，按同一理由应一并重跑，冻结前确认。
 - harness 换最新版后重跑零模型 mock 门、`claude_compact_probe`、Codex 压缩点检查（5.3）和安全验收。
 - 第 6 节如改评分，计分器实现、单测和 README「现行决定」同步更新。
 - 冻结时按 v1 §14 的做法记录全部 SHA 绑定。
@@ -148,11 +149,11 @@ harness 版本：v1 用 Codex 0.163.0、Claude Code 2.1.303；`tools/reviewer/ha
 | 2 | DeepSeek 窗口 | 两边都用 1M | 同意；冻结前核实端点上限 | **两边都用 1M、不压缩**；冻结前核实 Anthropic 格式端点的上下文和输出上限，并从 v1 记录确认 >200K 请求能被接受 |
 | 3 | `--role-as-system` | 开启 | 开启 | **开启**；mock 里用真实 Role 跑一次，核对追加顺序并绑定系统提示 SHA |
 | 4 | A3 | 不改 | 不改 | **不改** |
-| 5 | A4 | 先 Opus 审计 | v2 就改，只改措辞 | **v2 就改**：`:65` 改为"不由 promote 的 caller 自报替代"，`:85` 两处改为"promote caller 自报"；行数不变，纳入第 10 项审计 |
+| 5 | A4 | 先 Opus 审计 | v2 就改，只改措辞 | **v2 就改**：`:65` 改为"不由 promote 的 caller 自报替代"，`:85` 两处改为"promote caller 自报"；行数不变，纳入第 10 项审计。**已落实**（SR v4.4，见 4.1）；第 10 项审计未做 |
 | 6 | A5 | 先数据复核 | 不加排除句；只核对 binding 失配子类 | **不加排除句**；"binding 失配结果"子类交第 10 项审计判定，要在 brief 冻结前出结论 |
 | 7 | B7 | 不改 | 不改 | **不改** |
-| 8 | C1 | 拆分，交用户定档 | 不拆；改 brief | **不拆 P13**；统一口径加一句"一条 finding 写出多个具体缺陷时，其中一个与期望句是同一问题即 matched"（依据 rulings.md:16） |
-| 9 | B2 推广 | 推广 | 有条件推广 | **推广**，只用于发现候选的 unsupported 判定，按各场景 Role 原文措辞写 |
+| 8 | C1 | 拆分，交用户定档 | 不拆；改 brief | **不拆 P13**；统一口径加一句"一条 finding 写出多个具体缺陷时，其中一个与期望句是同一问题即 matched"（依据 rulings.md:16）。**已落实**：统一口径加 `matched` 一条；CS、CStd、SR brief 中"同一对象、同一错误含义才算 matched；同一 X 下的另一个问题不算"一句改为"只讲同一 X 下另一个问题的 finding 不算"，并注明 finding 另写的缺陷不影响已对上的那一个 |
+| 9 | B2 推广 | 推广 | 有条件推广 | **推广**，只用于发现候选的 unsupported 判定，按各场景 Role 原文措辞写。**已落实**：CS 按 Role:31（证明失败情境）、CStd 按 Role:48（设计异味名称只提供方向，要证明维护负担或错误后果）、SR 按 findings.md:15（解释具体缺陷、缺失内容或冲突合同；缺失类写明缺了什么即可）各加一条，`check_briefs` 核对引文在所引行 |
 | 10 | 场景流程 | 简化 | 简化，补三点 | **简化流程**，并做到三点：审计范围扩大到改动行、引用这些行的全部答案键用例、第 5、6 项改动；CS v5.1、CA v3.1 重跑 Haiku-high ×5 格式基准；ARW 零模型 prepare 和 mock 门跑通 |
 | 11 | harness 版本 | 取最新版 | 同意（测量规则本就要求） | **开始时两个 harness 同一时刻取最新版**，写进 harness_pins，换版后重跑 mock 门和 compact probe |
 
@@ -162,7 +163,7 @@ Main 采纳审查的 5、6、8：审查核对了答案键的证据行和先例�
 
 | # | 事项 | 用户决定 |
 |---|---|---|
-| 12 | B1 统一口径：「修法与未提名干净用例相反判 unsupported」从只用于 CStd 推广到四个场景；口径段只写了 rulings.md:14 第 (1) 款 | 推广；同时补全第 (2)–(4) 款（措辞个别写反、复现属实、意图错误判 supported），避免偏向判 unsupported |
+| 12 | B1 统一口径：「修法与未提名干净用例相反判 unsupported」从只用于 CStd 推广到四个场景；口径段只写了 rulings.md:14 第 (1) 款 | 推广；同时补全第 (2)–(4) 款（措辞个别写反、复现属实、意图错误判 supported），避免偏向判 unsupported。**已落实**（见 4.2 B1） |
 | 13 | v2 的 Codex 各臂启用私有 scratch（[验证报告](../../reports/v0.2.4/scratch-verify.md)） | 启用；报告里列为与 v1 的条件差异 |
 | 14 | 运行设计（配置矩阵、每格 n、预登记比较与多重比较校正、预算、停止点） | 默认沿用 v1，改动须有充分理由，例如 v2 改了规则 A，而规则 A 影响规则 B，所以 B 也要改；逐项写明改动和理由 |
 

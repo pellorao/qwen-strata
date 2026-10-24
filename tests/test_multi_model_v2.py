@@ -13,7 +13,8 @@ V2 = ROOT / 'benchmarks/multi-model-v2/scenarios'
 FIXTURES = Path('tests/fixtures/reviewer-capability')
 # v2 version -> (v1 version, reviewer)
 VERSIONS = {'code-spec-v5.1': ('code-spec-v5', 'code-spec-reviewer'),
-            'commit-audit-v3.1': ('commit-audit-v3', 'commit-audit-reviewer')}
+            'commit-audit-v3.1': ('commit-audit-v3', 'commit-audit-reviewer'),
+            'spec-readiness-v4.4': ('spec-readiness-v4.3', 'spec-readiness-reviewer')}
 
 
 def build(manifest_path, destination):
