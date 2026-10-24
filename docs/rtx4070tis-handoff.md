@@ -11,25 +11,25 @@
   - 工程能识别当前主机，按主机选 `config/deployments/<host>.json`；
   - 代码里不再写死 rtx3080ti 的地址和安装路径；
   - 两台机器之间的 git 同步方式已定（主仓库在 rtx3080ti Windows 侧，见下表 git 一行）；
-  - 让 Codex 也能按本工程规则工作（见下节「与 Claude Code 管理方式的兼容」）。
+  - 让 Codex 也能按本工程规则工作（见下节「与 Claude Code 管理方式的兼容」；工程侧已完成，2026-10-25）。
 - 本文已按可移植化的结果改写，并删掉「状态：草案」。
 
 ## 与 Claude Code 管理方式的兼容（新机用 Codex，用户 2026-10-24）
 
-rtx3080ti 上由 Claude Code 管理本工程，rtx4070tis 上用 Codex。同一个工程要让两种 agent 都能按同一套规则工作。可移植化阶段在 rtx3080ti 上逐项落实，下面先列出差异和打算：
+rtx3080ti 上由 Claude Code 管理本工程，rtx4070tis 上用 Codex。同一个工程要让两种 agent 都能按同一套规则工作，工程侧已在 rtx3080ti 上落实如下（2026-10-25）：
 
 | 方面 | Claude Code（rtx3080ti） | Codex（rtx4070tis）上的做法 |
 |---|---|---|
 | 工程指令 | `CLAUDE.md` 引用 `AGENTS.md` | Codex 原生读 `AGENTS.md`，内容通用，不用改 |
-| 专题规则 | `.claude/rules/` 按文件头 `paths` 自动加载 | Codex 不会自动加载。`AGENTS.md` 写明：动到对应路径前先手动读规则 |
-| 可重复流程 | `.claude/skills/` | 核实 Codex 的 skill 机制能不能直接指向同一份目录；不能就在 `AGENTS.md` 写明按路径读 SKILL.md，不复制第二份 |
-| 用户级规则 | `~/.claude/CLAUDE.md`、`~/.claude/docs/` | 工程用到的部分（汇报、状态页、额度、删除前核对等）在 Codex 的用户级指令里对应写一份，或者把工程必需的内容移进工程 |
-| 状态页、推送 | `~/.claude/status/status.py`、`~/.claude/hooks/stop-notify/push.sh` | 脚本本身与 harness 无关，复制后照用；会话结束的推送钩子按 Codex 的机制另接 |
-| 额度判定 | `~/.claude/statusline/estimate.sh` 估算 Anthropic 账号额度 | Codex 用的是 OpenAI 额度，两台机器不再共用 Claude 额度，原来担心的冲突大体消失；Codex 侧是否需要类似的判定另定 |
-| 子 agent 与后台 | Agent、SendMessage、CronCreate、20 分钟检查 | Codex 没有对应工具。长任务改用分离进程（`setsid nohup`）加进度文件；规则里依赖这些工具的部分写出 Codex 的替代做法 |
-| 独立审查 | 不低于 Main 的独立 agent（Opus high） | 换成 Codex 能用的同级模型新开会话，只读；做法写进规则 |
+| 专题规则 | `.claude/rules/` 按文件头 `paths` 自动加载 | Codex 不会自动加载。`AGENTS.md` 已写明：不按路径自动加载规则的 harness，动到表中路径之前先读对应规则 |
+| 可重复流程 | `.claude/skills/` | 工程根的符号链接 `.agents/skills -> ../.claude/skills`：Codex 扫描 `$REPO_ROOT/.agents/skills` 并跟随符号链接（[官方文档](https://learn.chatgpt.com/docs/build-skills)），不复制第二份。已用 Codex 0.164.0 的 `codex debug prompt-input`（不调用模型）核实：4 个 skill 全部列出，skill 根解析到 `.claude/skills` |
+| 用户级规则 | `~/.claude/CLAUDE.md`、`~/.claude/docs/` | 工程依赖的运行规则（状态页、推送、用户亲手操作、后台长任务、独立审查、额度）已移进 [agent-operations](agent-operations.md)，`AGENTS.md` 指向它；内容重叠时 Claude Code 以用户级为准。个人偏好不进工程，放 Codex 用户级指令 |
+| 状态页、推送 | `~/.claude/status/status.py`、`~/.claude/hooks/stop-notify/push.sh` | 脚本本身与 harness 无关，复制到同一路径后照用（见「需要用户动手的步骤」）；agent 按规则在回复前调用 `push.sh`。会话结束自动推送（Codex 的 `notify` 配置）可选，需要时另写适配脚本 |
+| 额度判定 | `~/.claude/statusline/estimate.sh` 估算 Anthropic 账号额度 | Codex 用 OpenAI 额度，`estimate.sh` 不适用；是否需要类似判定**待用户决定**，决定前 Codex 侧跳过（agent-operations「额度」） |
+| 子 agent 与后台 | Agent、SendMessage、CronCreate、20 分钟检查 | 长任务用分离进程（`setsid nohup`）加进度文件，至少每 20 分钟检查一次（agent-operations「后台长任务」） |
+| 独立审查 | 不低于 Main 的独立 agent（Opus high） | `codex exec --sandbox read-only` 新开会话，模型和推理强度不低于 Main（agent-operations「独立审查」） |
 | 记忆 | `~/.claude/projects/.../memory/` | 不跟随复制；工程必需的事实已经在文档里，记忆里有工程相关内容的，交接前移进文档 |
-| git | 主仓库是 rtx3080ti Windows 侧的 bare 仓库 `C:\Users\pello\repos\qwen_strata.git`（用户 2026-10-25：主仓库必须在 rtx3080ti）；rtx3080ti 的 WSL 工程是它的子仓库，`origin` 指向本地路径 | rtx4070tis 也是子仓库，经 SSH 连 rtx3080ti 的 Windows OpenSSH 推拉（`ssh://<用户>@<rtx3080ti>/C:/Users/pello/repos/qwen_strata.git`）；每台机器一个长期分支，避免两边同时改同一份共享文档 |
+| git | 主仓库是 rtx3080ti Windows 侧的 bare 仓库 `C:\Users\pello\repos\qwen_strata.git`（用户 2026-10-25：主仓库必须在 rtx3080ti）；rtx3080ti 的 WSL 工程是它的子仓库，`origin` 指向本地路径 | rtx4070tis 也是子仓库，经 SSH 连 rtx3080ti 的 Windows OpenSSH 推拉（`ssh://<用户>@<rtx3080ti>/C:/Users/pello/repos/qwen_strata.git`）；每台机器一个长期分支，避免两边同时改同一份共享文档。clone 到 WSL 文件系统，`.agents/skills` 符号链接才能保留 |
 
 原则：规则和流程的正文只留一份，放在工程里；两种 harness 各自只保留一层很薄的入口。
 
@@ -53,7 +53,11 @@ rtx3080ti 上由 Claude Code 管理本工程，rtx4070tis 上用 Codex。同一�
 
 - rtx3080ti 上启用 Windows OpenSSH 服务端（`sshd.exe` 已在系统里，需要启动服务并设为自动、放行防火墙，要 UAC），放入 rtx4070tis 的公钥；Git for Windows 已装。rtx4070tis 从主仓库 clone 工程，不要整目录复制。
 - 复制私有配置。`project.private.toml`、安装目录的 `installation.private.toml` 不进 git，由用户自己放到位。`project.private.toml` 开头加一行顶层键 `local_host = "rtx4070tis"`，工程据此识别当前主机（`tools.ops.deployment_source.current_host`；环境变量 `QWEN_STRATA_HOST` 可临时覆盖）。
-- 准备用户级配置 `~/.claude/`：CLAUDE.md、`docs/`、`status/`、`statusline/`、`hooks/`。具体做法按可移植化的决定。
+- 准备 Codex 侧的用户级配置。本机由 Codex 管理，不需要 `~/.claude/` 的 CLAUDE.md、`docs/`、`statusline/`：
+  - 从 rtx3080ti 复制 `~/.claude/status/status.py` 和 `~/.claude/hooks/stop-notify/` 到本机同一路径；其中 `ntfy-topic` 是私有文件，由用户自己放入。脚本需要 `python3`、`jq`、`curl`。
+  - 在 Codex 用户级指令 `~/.codex/AGENTS.md` 写个人偏好（对话和文档用简体中文、回复简短等），并加一行：在本工程工作时按 `docs/agent-operations.md` 执行运行规则。工程 `AGENTS.md` 已指向该文档，这一行只作保险。
+  - 决定 Codex 侧是否需要额度判定（上表「额度判定」）。
+  - 可选：在 `~/.codex/config.toml` 配 `notify`，会话结束时自动推送；需另写适配脚本调用 `push.sh`。
 - 核对 BIOS 微码（14900K 的 Vmin Shift 修复）。
 - 系统设置需要 UAC 授权。
 
