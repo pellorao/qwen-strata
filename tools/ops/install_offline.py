@@ -7,7 +7,8 @@ import runpy
 import socket
 import sys
 
-INSTALL = Path(r"C:\Users\Pello\AppData\Local\Programs\qwen-3.8-flash-next")
+# Run with <installation>\runtime\Strata\.venv\Scripts\python.exe; the installation is wherever that venv lives.
+INSTALL = Path(sys.prefix).resolve().parents[2]
 RUNTIME = INSTALL / "runtime" / "Strata"
 
 
@@ -19,7 +20,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", choices=["IQ2_XS", "Q2_0", "IQ3_XXS"], default="IQ3_XXS")
     args = parser.parse_args()
-    if Path(sys.prefix).resolve() != (RUNTIME / ".venv").resolve():
+    if Path(sys.prefix).resolve() != (RUNTIME / ".venv").resolve() or not (INSTALL / "config/installed-release.json").is_file():
         parser.error("Run with the installation's .venv/Scripts/python.exe")
     os.environ["PIP_NO_INDEX"] = "1"
     os.environ["PIP_FIND_LINKS"] = str(INSTALL / "downloads" / "wheels")

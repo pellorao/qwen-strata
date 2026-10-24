@@ -9,7 +9,7 @@ from tools.reviewer.arw_measure import local_review_catalog,api_review_catalog,s
 from tools.reviewer.providers import (CREDENTIAL_VARIABLES,credential_deny_paths,process_environment,shell_exclude,validate_api_selection,provider_config,service_tier,api_model,credential_present,
  link_login,release_login,web_search_mode,AUTH_FILE)
 from tools.ops.measurement_host import MeasurementHost
-from tools.ops.deployment_source import published_tier,served_model
+from tools.ops.deployment_source import current_host,published_tier,served_model
 from tools.metrics.prompt_policy import compaction_config,verify_loaded_startup
 from tools.safety.scripted_responses import scripted_stream,tool_aliases
 sys.path.append(str(ROOT/'src'))
@@ -509,7 +509,7 @@ def gate_environment(key_name,value,provider=None):
  env[key_name]=value;env[WILDCARD_CANARY]=value;return env
 
 
-def mock_report_write(out,source,write_tool='exec_command',legacy_landlock=False,directory_probe=False,model='IQ3_XXS',host_id='rtx3080ti',read_probe=False,api=None,web_search=None,codex_home=None,scratch_probe=False):
+def mock_report_write(out,source,write_tool='exec_command',legacy_landlock=False,directory_probe=False,model='IQ3_XXS',host_id=None,read_probe=False,api=None,web_search=None,codex_home=None,scratch_probe=False):
  """codex_home: a CODEX_HOME shared with other gate runs (user 2026-10-20); the first run links the synthetic login, no
  run releases it, and the read probe must find the shared home unreadable. scratch_probe: the source carries the ARW patch
  reviewer-private-scratch; SCRATCH_PROBE runs after the other probes beside a synthetic sibling scratch, and both
@@ -519,7 +519,7 @@ def mock_report_write(out,source,write_tool='exec_command',legacy_landlock=False
  # <report>/.git: Not a directory", while loading AGENTS.md); the approved grant is the report's dedicated directory.
  if not directory_probe:raise ValueError('The exact report-file grant cannot start a Codex thread (bwrap mount targets inside the writable root); pass --directory-probe, the approved dedicated report-directory grant')
  if api and write_tool!='exec_command'and catalog_tool_mode(api)=='code_mode_only':raise ValueError('A code-mode-only model reaches exec_command only inside exec; use the exec_command write')
- tier=None if api else published_tier(host_id,model)
+ host_id=host_id or current_host();tier=None if api else published_tier(host_id,model)
  out=Path(out).resolve();out.mkdir(parents=True,exist_ok=False);workspace=Path('/tmp')/('qwen-report-write-'+str(time.time_ns()));workspace.mkdir();report=workspace/'bound-report.jsonl';report.write_text('');(workspace/'AGENTS.md').write_text('This is a synthetic native permission diagnostic. Use only the exact bound report.\n')
  server=ThreadingHTTPServer(('127.0.0.1',0),Proxy);server.requests=[];server.out=out/'requests';server.live=False;server.mode='file-write';server.workspace=workspace;server.command='python3 -c '+shlex.quote('from pathlib import Path; Path('+repr(str(report))+').write_text("NATIVE-WRITE-OK\\n")')
  if directory_probe:
@@ -597,8 +597,8 @@ def guardian_decisions(folder):
  return result
 
 
-def mock_approval(out,source,model='IQ3_XXS',host_id='rtx3080ti'):
- tier=published_tier(host_id,model)
+def mock_approval(out,source,model='IQ3_XXS',host_id=None):
+ host_id=host_id or current_host();tier=published_tier(host_id,model)
  out=Path(out).resolve();out.mkdir(parents=True,exist_ok=False);cwd=Path('/tmp')/('qwen-approval-route-'+str(time.time_ns()));(cwd/'report').mkdir(parents=True);report=cwd/'report/bound-report.jsonl';report.write_text('')
  server=ThreadingHTTPServer(('127.0.0.1',0),Proxy);server.requests=[];server.out=out/'requests';server.live=False;server.mode='approval';server.target='read_status';thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start();catalog,session=gate_session(out,model,tier);fixture=out/'fixture-calls.jsonl';native=Native({'repositoryRoot':str(Path(source).resolve()),'installationDirectory':str(out/'native-installation'),**session,'denyRead':gate_deny_paths(None)},out)
  try:
@@ -684,7 +684,8 @@ def gate_rows(out,source,workspace,owner,model,tier,repetitions=range(1,4),api=N
  return rows
 
 
-def live_gate(out,source,plan_path,resume_native=None,host_id='rtx3080ti'):
+def live_gate(out,source,plan_path,resume_native=None,host_id=None):
+ host_id=host_id or current_host()
  out=Path(out).resolve();plan,tier=gate_plan(plan_path,host_id);model=plan['model'];out.mkdir(parents=True,exist_ok=False)
  host=MeasurementHost(host_id);save(out/'source-check.json',host.verify_sources())
  profile=host.profile_sha256(model)
@@ -794,7 +795,7 @@ def provider_gate(out,source,plan_path):
 
 if __name__=='__main__':
  import argparse
- p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--mock-report-write',type=Path);p.add_argument('--mock-approval',type=Path);p.add_argument('--run',type=Path);p.add_argument('--plan',type=Path,help='Approved run plan for --run: host, model and optional context_window; with --provider-run, the API selection and catalog.');p.add_argument('--provider-run',type=Path,help='Live gate on the API provider the --plan selection names (no lease).');p.add_argument('--model',choices=MODELS,default='IQ3_XXS',help='Zero-model modes only; --run takes the plan model.');p.add_argument('--resume-native',type=Path);p.add_argument('--host',default='rtx3080ti');p.add_argument('--directory-probe',action='store_true',help='Zero-model check of the approved dedicated report-directory grant the live gate uses.');p.add_argument('--read-probe',action='store_true',help='Zero-model read probe with a fake key; needs --directory-probe.');p.add_argument('--api-plan',type=Path,help='Zero-model modes on an API provider configuration: plan with selection and catalog; no request leaves the scripted parent.');p.add_argument('--legacy-landlock',action='store_true',help='Zero-model compatibility probe only; never changes the live gate.');p.add_argument('--web-search',choices=['disabled','cached','live'],help='Zero-model Strata modes: the Codex web_search mode (an --api-plan takes its selection).');p.add_argument('--codex-home',type=Path,help='Zero-model report-write mode: a CODEX_HOME shared with other gate runs.');p.add_argument('--scratch-probe',action='store_true',help='Zero-model check of the ARW patch reviewer-private-scratch (the --source carries it); needs --directory-probe.');p.add_argument('--write-tool',choices=['exec_command','apply_patch','exec_escalated'],default='exec_command');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--mock-report-write',type=Path);p.add_argument('--mock-approval',type=Path);p.add_argument('--run',type=Path);p.add_argument('--plan',type=Path,help='Approved run plan for --run: host, model and optional context_window; with --provider-run, the API selection and catalog.');p.add_argument('--provider-run',type=Path,help='Live gate on the API provider the --plan selection names (no lease).');p.add_argument('--model',choices=MODELS,default='IQ3_XXS',help='Zero-model modes only; --run takes the plan model.');p.add_argument('--resume-native',type=Path);p.add_argument('--host',help='Registered host (default: this machine).');p.add_argument('--directory-probe',action='store_true',help='Zero-model check of the approved dedicated report-directory grant the live gate uses.');p.add_argument('--read-probe',action='store_true',help='Zero-model read probe with a fake key; needs --directory-probe.');p.add_argument('--api-plan',type=Path,help='Zero-model modes on an API provider configuration: plan with selection and catalog; no request leaves the scripted parent.');p.add_argument('--legacy-landlock',action='store_true',help='Zero-model compatibility probe only; never changes the live gate.');p.add_argument('--web-search',choices=['disabled','cached','live'],help='Zero-model Strata modes: the Codex web_search mode (an --api-plan takes its selection).');p.add_argument('--codex-home',type=Path,help='Zero-model report-write mode: a CODEX_HOME shared with other gate runs.');p.add_argument('--scratch-probe',action='store_true',help='Zero-model check of the ARW patch reviewer-private-scratch (the --source carries it); needs --directory-probe.');p.add_argument('--write-tool',choices=['exec_command','apply_patch','exec_escalated'],default='exec_command');a=p.parse_args()
  api=api_plan(a.api_plan)[1]if a.api_plan else None
  if api and api['provider']['auth']=='chatgpt'and a.mock_report_write and os.environ.get(NETNS_FLAG)!='1':
   raise SystemExit(in_network_namespace([sys.executable,'-m','tools.safety.safety_gate',*sys.argv[1:]]))

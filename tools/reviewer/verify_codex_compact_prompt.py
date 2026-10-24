@@ -18,7 +18,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[2]
 from tools.metrics.prompt_policy import NATIVE_COMPACT_VERSION
-from tools.ops.deployment_source import published_tier
+from tools.ops.deployment_source import current_host, published_tier
 from tools.reviewer.native_cli_binding import CODEX
 from tools.safety.scripted_responses import scripted_stream
 
@@ -153,8 +153,8 @@ class Client:
         self.events.close()
 
 
-def run(folder, model='IQ3_XXS', host='rtx3080ti'):
-    folder = folder.resolve()
+def run(folder, model='IQ3_XXS', host=None):
+    folder, host = folder.resolve(), host or current_host()
     slug, tier = 'qwen3.8-flash-next-' + model.lower(), published_tier(host, model)
     folder.mkdir(parents=True, exist_ok=False)
     workspace = folder / 'workspace'
@@ -212,7 +212,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--model', choices=('Q2_0', 'IQ2_XS', 'IQ3_XXS'), default='IQ3_XXS')
-    parser.add_argument('--host', default='rtx3080ti', help='host whose default context tier the mock session uses')
+    parser.add_argument('--host', help='host whose default context tier the mock session uses (default: this machine)')
     args = parser.parse_args()
     result = run(args.out, args.model, args.host)
     print(json.dumps(result, ensure_ascii=False))

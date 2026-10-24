@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import subprocess
 import time
-from tools.ops.deployment_source import published_tier
+from tools.ops.deployment_source import current_host, published_tier
 from tools.safety.reviewer_permissions import restricted_profile
 from tools.reviewer.native_cli_binding import CODEX
 from tools.reviewer.wsl_client import ROOT, Client, save, statistics, completed_items
@@ -21,7 +21,8 @@ def denied_targets(host):
             'model_api': [deployment['listen_address'], deployment['port']]}
 
 
-def run(out, url, model='IQ3_XXS', host='rtx3080ti'):
+def run(out, url, model='IQ3_XXS', host=None):
+    host = host or current_host()
     project, scratch = out / 'project', out / 'fixed-scratch'
     project.mkdir(parents=True); scratch.mkdir()
     (project / 'source.txt').write_text('SOURCE-READ-9173\n')
@@ -155,7 +156,7 @@ if __name__=='__main__':
     parser.add_argument('--out',type=Path,required=True)
     parser.add_argument('--base-url',default='')
     parser.add_argument('--model',choices=MODELS,default='IQ3_XXS',help='the model --base-url serves; its default tier sets the harness')
-    parser.add_argument('--host',default='rtx3080ti')
+    parser.add_argument('--host',help='default: this machine')
     args=parser.parse_args()
     report=run(args.out.resolve(),args.base_url,args.model,args.host)
     print(json.dumps({k:report[k] for k in ('pass','canaries_unchanged','auto_review_selection') if k in report},ensure_ascii=False))

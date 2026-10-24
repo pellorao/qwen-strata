@@ -1,6 +1,7 @@
 """Render installation inputs exclusively from project templates and host data."""
 import hashlib
 import json
+import os
 from pathlib import Path, PureWindowsPath
 import re
 import tomllib
@@ -18,11 +19,39 @@ INSTALLATION_DEFAULTS = {'reasoning_effort', 'reasoning_budget_tokens', 'max_tok
 CONDITION_FIELDS = {'id', 'model', 'model_overrides', 'model_environment', 'request_defaults'}
 # A tuning condition may vary only these request defaults (min_p, presence_penalty: sampling dimension, 2026-10-24), and only for its own model
 CONDITION_REQUEST_DEFAULTS = {'temperature', 'top_p', 'top_k', 'min_p', 'presence_penalty'}
+# The host this project copy runs on (one copy per machine, user 2026-10-24): the environment variable wins, else the
+# machine's own project.private.toml names it with a top-level `local_host`.
+HOST_ENVIRONMENT = 'QWEN_STRATA_HOST'
+# Transitional: rtx3080ti's private file predates `local_host`. Once it names its host, drop this and fail instead.
+LEGACY_HOST = 'rtx3080ti'
 
 
 def load_private(project=None):
     """Parse project.private.toml in-process; its values never go to output, logs or reports."""
     return tomllib.loads((Path(project or ROOT) / 'project.private.toml').read_text(encoding='utf-8-sig'))
+
+
+def current_host(project=None):
+    """Registered host id of this machine: $QWEN_STRATA_HOST, else private `local_host`, else LEGACY_HOST."""
+    project = Path(project or ROOT)
+    identifier = os.environ.get(HOST_ENVIRONMENT)
+    if not identifier:
+        try:
+            identifier = load_private(project).get('local_host')
+        except FileNotFoundError:
+            identifier = None
+    identifier = identifier or LEGACY_HOST
+    if not isinstance(identifier, str) or not re.fullmatch(r'[a-z0-9][a-z0-9-]*', identifier) or not (project / 'config/deployments' / (identifier + '.json')).is_file():
+        raise ValueError(f'Current host {identifier!r} is not registered in config/deployments')
+    return identifier
+
+
+def require_current_host(identifier, project=None):
+    """Installation work reaches only this machine's Windows side; refuse another host's deployment here."""
+    local = current_host(project)
+    if identifier != local:
+        raise ValueError(f'{identifier} is not this machine ({local}); run it on that host\'s own project copy')
+    return identifier
 
 
 def load_host(identifier, project=None, condition=None):

@@ -1,12 +1,15 @@
 """Generated deployments use project/private host inputs without leaking credentials."""
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.ops.deployment_source import (frontend_configuration, load_host, model_configuration, published_tier,
+from tools.ops.deployment_source import (HOST_ENVIRONMENT, LEGACY_HOST, current_host, require_current_host,
+                                         frontend_configuration, load_host, model_configuration, published_tier,
                                          served_model, source_bytes)
 
 
@@ -200,6 +203,54 @@ installation_path='C:\\Strata'
         self.host('leaky', engine_overrides={}, password='x')
         with self.assertRaisesRegex(ValueError, 'Unknown deployment field'):
             load_host('leaky', self.root)
+
+
+class CurrentHostTests(unittest.TestCase):
+    """One project copy per machine (user 2026-10-24): the copy knows which registered host it runs on."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        (self.root/'config/deployments').mkdir(parents=True)
+        for identifier in ('rtx3080ti', 'rtx4070tis'):
+            (self.root/'config/deployments'/(identifier+'.json')).write_text('{}', encoding='utf-8')
+        environment = mock.patch.dict(os.environ)
+        environment.start()
+        self.addCleanup(environment.stop)
+        os.environ.pop(HOST_ENVIRONMENT, None)
+
+    def private(self, text):
+        (self.root/'project.private.toml').write_text(text, encoding='utf-8')
+
+    def test_without_a_choice_the_legacy_host_stays(self):
+        self.assertEqual(current_host(self.root), LEGACY_HOST)
+        self.private('[hosts.rtx3080ti]\ninstallation_path = "C:\\\\x"\n')
+        self.assertEqual(current_host(self.root), 'rtx3080ti')
+
+    def test_private_file_names_this_machine(self):
+        self.private('local_host = "rtx4070tis"\n[hosts.rtx4070tis]\ninstallation_path = "C:\\\\x"\n')
+        self.assertEqual(current_host(self.root), 'rtx4070tis')
+
+    def test_environment_overrides_the_private_file(self):
+        self.private('local_host = "rtx4070tis"\n')
+        os.environ[HOST_ENVIRONMENT] = 'rtx3080ti'
+        self.assertEqual(current_host(self.root), 'rtx3080ti')
+
+    def test_unregistered_or_invalid_host_is_refused(self):
+        for value in ('rtx9999', '../rtx3080ti', 'RTX3080TI'):
+            os.environ[HOST_ENVIRONMENT] = value
+            with self.assertRaisesRegex(ValueError, 'not registered'):
+                current_host(self.root)
+        os.environ.pop(HOST_ENVIRONMENT)
+        self.private('local_host = 1\n')
+        with self.assertRaisesRegex(ValueError, 'not registered'):
+            current_host(self.root)
+
+    def test_installation_work_only_targets_this_machine(self):
+        self.private('local_host = "rtx4070tis"\n')
+        self.assertEqual(require_current_host('rtx4070tis', self.root), 'rtx4070tis')
+        with self.assertRaisesRegex(ValueError, 'not this machine'):
+            require_current_host('rtx3080ti', self.root)
 
 
 if __name__ == '__main__':unittest.main()

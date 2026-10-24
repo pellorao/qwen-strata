@@ -27,7 +27,7 @@ import tempfile
 import threading
 import time
 
-from tools.ops.deployment_source import published_tier
+from tools.ops.deployment_source import current_host, published_tier
 
 ROOT = Path(__file__).resolve().parents[2]
 AGENT = ROOT / 'scripts/wsl/qwen-agent'
@@ -190,9 +190,9 @@ def cell_name(window, limit, claimed, mid_turn, blocking_override, repeat):
             f'-r{repeat}')
 
 
-def run(out, host='rtx3080ti', model='IQ3_XXS', effort='high', claimed=None, ways=('two-turn', 'mid-turn'),
+def run(out, host=None, model='IQ3_XXS', effort='high', claimed=None, ways=('two-turn', 'mid-turn'),
         repeat=1, blocking_override=True, tier=None, claude=None, log=lambda line: print(line, flush=True)):
-    out = Path(out)
+    out, host = Path(out), host or current_host()
     tier = tier or published_tier(host, model)
     claude = claude or shutil.which('claude')
     if not claude:
@@ -226,7 +226,7 @@ def run(out, host='rtx3080ti', model='IQ3_XXS', effort='high', claimed=None, way
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('--out', type=Path, required=True, help='new directory for this check (under .tmp/)')
-    p.add_argument('--host', default='rtx3080ti', help='host whose published default tier qwen-agent uses')
+    p.add_argument('--host', help='host whose published default tier qwen-agent uses (default: this machine)')
     p.add_argument('--model', choices=MODELS, default='IQ3_XXS')
     p.add_argument('--effort', choices=('low', 'medium', 'high'), default='high')
     p.add_argument('--repeat', type=int, default=1)

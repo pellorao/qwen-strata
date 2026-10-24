@@ -208,6 +208,8 @@ def main():
     parser.add_argument('--docs-only', action='store_true', help='Only replace the caller manual; frontend keeps running.')
     parser.add_argument('--condition', type=Path, help='Frozen tuning condition file; a later plain deploy restores the default.')
     args = parser.parse_args()
+    from tools.ops.deployment_source import require_current_host
+    require_current_host(args.host)
     print(json.dumps(deploy(args.host, args.docs_only, args.condition and load_condition(args.condition)), indent=2))
 
 
