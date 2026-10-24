@@ -12,9 +12,11 @@ MODELS = ('Q2_0', 'IQ2_XS', 'IQ3_XXS')
 MODEL_PORT = 8100
 PUBLIC_FIELDS = {'schema_version', 'id', 'cuda_arch', 'models', 'engine_overrides', 'model_overrides', 'model_environment', 'hardware',
                  'qualification', 'listen_address', 'port', 'installation_defaults', 'context_tiers', 'note'}
+# presence_penalty: Strata 0.2.x fills sampling keys the request and the run config leave out from the model card, whose
+# thinking-off set carries presence_penalty 1.5 (serve/server.py MODEL_CARD_SAMPLING), so a host pins it explicitly.
 INSTALLATION_DEFAULTS = {'reasoning_effort', 'reasoning_budget_tokens', 'max_tokens',
                          'guardian_reasoning_budget_tokens', 'guardian_max_tokens',
-                         'cpu_prefill_share', 'temperature', 'top_p', 'top_k'}
+                         'cpu_prefill_share', 'temperature', 'top_p', 'top_k', 'presence_penalty'}
 CONDITION_FIELDS = {'id', 'model', 'model_overrides', 'model_environment', 'request_defaults'}
 # A tuning condition may vary only these request defaults (min_p, presence_penalty: sampling dimension, 2026-10-24), and only for its own model
 CONDITION_REQUEST_DEFAULTS = {'temperature', 'top_p', 'top_k', 'min_p', 'presence_penalty'}

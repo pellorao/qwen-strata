@@ -246,7 +246,7 @@ class ConfigurationTests(unittest.TestCase):
         (root / 'config/iq3_xxs-prebuilt.json').write_text(json.dumps({
             'args': ['--max-context', '156584', '--expert-profile', 'x'],
             'request_defaults': {'reasoning_effort': 'high', 'reasoning_budget_tokens': 8192,
-                                 'max_tokens': 24576, 'top_k': 20},
+                                 'max_tokens': 24576, 'top_k': 20, 'presence_penalty': 0.0},
             'engine_environment': {'STRATA_PREFILL_CPU_SHARE': 'auto'},
             'context_tiers': [{'context_window': 156584, 'auto_compact_token_limit': 100000},
                               {'context_window': 65536, 'auto_compact_token_limit': 40000}]}))
@@ -262,7 +262,8 @@ class ConfigurationTests(unittest.TestCase):
             {'engine_overrides': {'vram-reserve-mib': 500, 'no-capture': True}}, 8100)
         self.assertEqual(model, 'IQ3_XXS')  # the installation's only served model
         self.assertEqual(config['args'][-3:], ['--vram-reserve-mib', '500', '--no-capture'])
-        self.assertEqual(config['sampling'], {'top_k': 20})
+        # an explicit 0 penalty reaches Strata's sampling block, so the model card's 1.5 never fills it
+        self.assertEqual(config['sampling'], {'top_k': 20, 'presence_penalty': 0.0})
         self.assertEqual((config['port'], config['host']), (8100, '127.0.0.1'))
         self.assertEqual(env['STRATA_PREFILL_CPU_SHARE'], 'auto')
         self.assertEqual(reasoning['reasoning_budget_tokens'], 8192)
