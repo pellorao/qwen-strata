@@ -116,55 +116,39 @@ class DesignTest(unittest.TestCase):
                     if c['config'] == 6]
             self.assertEqual([(c['kind'], c['n']) for c in rows], [('main', 5)])
 
-    def test_v2_family_is_the_47_same_harness_same_effort_pairs_and_v1_stays_25(self):
-        """Plan v2 §10 row 13: every two configurations of a harness and effort (Codex 15, Claude Code 26) plus the 6
-        harness pairs; v1 keeps its 25."""
-        pairs = bs.comparisons('v2')
-        self.assertEqual(len(pairs), 47)
-        self.assertEqual(len({(a, b) for _, a, b in pairs}), 47)
-        counts = {}
-        for g, _, _ in pairs:
-            counts[g] = counts.get(g, 0) + 1
-        self.assertEqual(counts, {'codex low': 6, 'codex medium': 3, 'codex high': 6, 'claude-code low': 10,
-                                  'claude-code medium': 6, 'claude-code high': 10, 'harness': 6})
-        for g, first, second in pairs:
-            a, b = bs.CONFIGS[first], bs.CONFIGS[second]
-            self.assertLess(first, second)
-            self.assertEqual(a['effort'], b['effort'])
-            if g == 'harness':
-                self.assertEqual((a['harness'], b['harness'], a['vendor']), ('codex', 'claude-code', b['vendor']))
-            else:
-                self.assertEqual((a['harness'], a['effort']), tuple(g.split()))
-                self.assertEqual(b['harness'], a['harness'])
-        self.assertEqual(sorted(p for p in pairs if p[0] == 'harness'),
-                         sorted(p for p in bs.comparisons() if p[0] == 'harness'))
+    def test_v2_keeps_the_within_group_statistics_and_has_no_comparison(self):
+        """User 2026-10-25: v2 drops everything between groups (family, Holm, tests, differences, verdicts, ranking);
+        the statistics inside a group of identical conditions are v1's, unchanged. v1 keeps its 25."""
+        self.assertEqual(bs.comparisons('v2'), [])
         self.assertEqual(len(bs.comparisons('v1')), 25)
-        self.assertEqual(bs.comparisons(), bs.comparisons('v1'))
         with self.assertRaises(ValueError):
             bs.comparisons('v3')
-
-    def test_v2_summary_has_47_comparisons_with_asymmetric_n_and_no_ranking(self):
-        """Strata alone has extra instances (phase 2): a pair of Strata (10) against sol (1) reads n 5 / 8 ... first is the
-        lower number, so (1, 10) shows 5 / 8; Holm family size is 47; the v1 summary is untouched."""
-        records = full_design() + [record(10, i, 0.7 + 0.01 * i, started=7000.0 + i) for i in (6, 7, 8)]
-        records = ranked(records)
+        records = ranked(full_design() + [record(10, i, 0.7 + 0.01 * i, started=7000.0 + i) for i in (6, 7, 8)])
         for r in records:
             r['score_status'] = 'final' if r['valid'] else None
-        summary = bs.summarize(records, 2, 'v2')
-        self.assertEqual((summary['suite'], summary['holm_family_size']), ('v2', 47))
-        result = summary['scenarios'][SCENARIO]
-        self.assertEqual(len(result['comparisons']), 47)
-        rows = {(r['first'], r['second']): r for r in result['comparisons']}
-        self.assertEqual((rows[(1, 10)]['n_first'], rows[(1, 10)]['n_second']), (5, 8))
-        self.assertEqual(rows[(1, 10)]['group'], 'codex low')
-        self.assertEqual(rows[(7, 10)]['group'], 'codex low')  # DeepSeek and Strata: both low, neither is the reference
-        self.assertTrue(all(0 <= r['p_holm'] <= 1 for r in rows.values()))
-        text = bs.markdown(summary)
-        self.assertIn('# 多模型 benchmark v2 汇总', text)
-        self.assertIn('每个场景 47 个预登记比较', text)
-        self.assertIn('codex low', text)
-        v1 = bs.summarize(records, 2)
-        self.assertEqual((v1['suite'], v1['holm_family_size'], len(v1['scenarios'][SCENARIO]['comparisons'])), ('v1', 25, 25))
+        v1 = bs.summarize([dict(r) for r in records], 2)
+        v2 = bs.summarize([dict(r) for r in records], 2, 'v2')
+        self.assertEqual(v2['suite'], 'v2')
+        for key in ('alpha', 'holm_family_size'):
+            self.assertNotIn(key, v2)
+        a, b = v1['scenarios'][SCENARIO], v2['scenarios'][SCENARIO]
+        self.assertEqual(a['configs'], b['configs'])  # mean, SD, SE, 95% interval, speeds, time, tokens: same code
+        self.assertEqual(a['instances'], b['instances'])
+        self.assertEqual(len(a['comparisons']), 25)
+        self.assertEqual(b['comparisons'], [])
+        cell = next(c for c in b['configs'] if c['config'] == 10 and c['kind'] == 'main')
+        for key in ('mean', 'sd', 'se', 'ci95', 'speeds_mean', 'seconds_mean', 'tokens_mean'):
+            self.assertIn(key, cell)
+        self.assertEqual(cell['n'], 8)
+        text = json.dumps(bs.compact(v2), ensure_ascii=False)
+        for word in ('p_holm', 'verdict', '"holm', '"alpha"', 'n_first', '"d_r83"', 'p_r83'):
+            self.assertNotIn(word, text)
+        md = bs.markdown(v2)
+        self.assertIn('# 多模型 benchmark v2 汇总', md)
+        self.assertIn('均值 ± SD', md)
+        for word in ('Holm', '高于', '低于', '未分出', '预登记比较', '结论'):
+            self.assertNotIn(word, md)
+        self.assertIn('Holm', bs.markdown(v1))
 
     def test_family_is_the_25_preregistered_pairs(self):
         """Plan §5 (2026-10-21): Codex 8, Claude Code 11, harness 6."""

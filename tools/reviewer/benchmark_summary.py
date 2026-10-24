@@ -13,10 +13,14 @@ directory, per scenario:
   cells (C', plan §14.4) and, in phase 2, Strata cells with extra instances (never for the phase-3 supplement);
 - supplementary rows (DeepSeek medium not merged, `supplementary_label`) and their descriptive high+medium row; they
   never enter a comparison;
-- the preregistered comparisons (plan §5: 25 in v1; --suite v2: the 47 of benchmarks/multi-model-v2/plan.md §10 row 13): Welch t with Welch-Satterthwaite df, Holm within the scenario,
+- the preregistered comparisons (plan §5: 25 in v1; --suite v2 makes none, user 2026-10-25): Welch t with Welch-Satterthwaite df, Holm within the scenario,
   two-sided alpha 0.05. A comparison without two fully scored sides of n >= 2 keeps its place in the family with p 1;
 - the per-instance table, invalid instances included and marked (measurement rule).
 No ratios, combined scores or ranks (D7).
+
+--suite v2 (user 2026-10-25): the statistics inside each group of identical conditions (scenario, configuration: the
+per-cell rows and the per-instance table) are exactly v1's; nothing between groups: no comparison, Holm, test,
+difference, higher / lower verdict or ranking.
 
 Scoring r8.4 (user 2026-10-21) no longer cuts scores at 0, so each cell also gives its negative instances, minimum and
 median, and every score keeps its r8.3 counterpart (bench_score final_r83: cut at 0, deduction multiplied) for the
@@ -79,27 +83,11 @@ SUITES = ('v1', 'v2')
 
 
 def comparisons(suite='v1'):
-    """The preregistered pairs per scenario of a suite: v1 the 25 below, v2 the 47 of comparisons_v2."""
+    """The preregistered pairs per scenario: v1 the 25 of comparisons_v1; v2 none (user 2026-10-25: no comparison
+    between groups; the statistics inside a group of identical conditions stay as in v1)."""
     if suite not in SUITES:
         raise ValueError(f'suite must be one of {SUITES}')
-    return comparisons_v2() if suite == 'v2' else comparisons_v1()
-
-
-def comparisons_v2():
-    """The 47 preregistered pairs per scenario of v2 (benchmarks/multi-model-v2/plan.md §10 row 13): models are
-    equals, so within each harness and effort every two configurations are paired (Codex 15: low 6, medium 3, high 6;
-    Claude Code 26: low 10, medium 6, high 10; Strata has no max and DeepSeek no medium, so a max cell has one
-    configuration at most and pairs with none), then the 6 harness pairs of comparisons_v1 (Codex against Claude Code
-    for Strata at low / medium / high and DeepSeek at low / high / max). Group = '<harness> <effort>' or 'harness';
-    first < second by configuration number. The phase-3 supplement never pairs. Reported as a paired table, no
-    ranking."""
-    configs = {c: x for c, x in CONFIGS.items() if c in PREREGISTERED_CONFIGS}
-    pairs = []
-    for harness in ('codex', 'claude-code'):
-        for effort in ('low', 'medium', 'high', 'xhigh', 'max'):
-            cell = sorted(c for c, x in configs.items() if x['harness'] == harness and x['effort'] == effort)
-            pairs += [(f'{harness} {effort}', a, b) for i, a in enumerate(cell) for b in cell[i + 1:]]
-    return pairs + [p for p in comparisons_v1() if p[0] == 'harness']
+    return [] if suite == 'v2' else comparisons_v1()
 
 
 def comparisons_v1():
@@ -499,30 +487,31 @@ def scenario_summary(records, phase, suite='v1'):
     rows.sort(key=lambda c: (c['config'], order[c['kind']], c['label']))
 
     tests = []
-    for group_name, first, second in comparisons(suite):
-        a, b = samples.get(first, []), samples.get(second, [])
-        complete = bool(a) and bool(b) and all(r['score'] is not None for r in a + b)
-        test = welch([r['score'] for r in a], [r['score'] for r in b]) if complete else None
-        old_a, old_b = (r83_scores(a), r83_scores(b)) if complete else (None, None)
-        old = welch(old_a, old_b) if old_a is not None and old_b is not None else None
-        tests.append({'group': group_name, 'first': first, 'second': second, 'n_first': len(a), 'n_second': len(b),
-                      'scored_first': sum(r['score'] is not None for r in a),
-                      'scored_second': sum(r['score'] is not None for r in b), 'complete': complete,
-                      **(test or {'d': None, 'se': None, 't': None, 'df': None, 'p': None}),
-                      'r83_known': old_a is not None and old_b is not None,
-                      'd_r83': (old or {}).get('d'), 'p_r83': (old or {}).get('p')})
-    adjusted = holm([1.0 if t['p'] is None else t['p'] for t in tests])
-    adjusted_r83 = holm([1.0 if t['p_r83'] is None else t['p_r83'] for t in tests])
-    verdict = lambda complete, d, p, p_holm: ('未计分完' if not complete else '未分出' if p is None or p_holm >= ALPHA
-                                              else '高于' if d > 0 else '低于')
-    known = all(t['r83_known'] for t in tests if t['complete'])
-    for t, p, p_old in zip(tests, adjusted, adjusted_r83):
-        t['p_holm'] = p
-        t['verdict'] = verdict(t['complete'], t['d'], t['p'], p)
-        # r8.3 Holm over the same family; unknown when any complete comparison lacks r8.3 scores.
-        t['p_holm_r83'] = p_old if known else None
-        t['verdict_r83'] = verdict(t['complete'], t['d_r83'], t['p_r83'], p_old) if known else None
-        t['verdict_changed'] = None if t['verdict_r83'] is None else t['verdict'] != t['verdict_r83']
+    if comparisons(suite):
+        for group_name, first, second in comparisons(suite):
+            a, b = samples.get(first, []), samples.get(second, [])
+            complete = bool(a) and bool(b) and all(r['score'] is not None for r in a + b)
+            test = welch([r['score'] for r in a], [r['score'] for r in b]) if complete else None
+            old_a, old_b = (r83_scores(a), r83_scores(b)) if complete else (None, None)
+            old = welch(old_a, old_b) if old_a is not None and old_b is not None else None
+            tests.append({'group': group_name, 'first': first, 'second': second, 'n_first': len(a), 'n_second': len(b),
+                          'scored_first': sum(r['score'] is not None for r in a),
+                          'scored_second': sum(r['score'] is not None for r in b), 'complete': complete,
+                          **(test or {'d': None, 'se': None, 't': None, 'df': None, 'p': None}),
+                          'r83_known': old_a is not None and old_b is not None,
+                          'd_r83': (old or {}).get('d'), 'p_r83': (old or {}).get('p')})
+        adjusted = holm([1.0 if t['p'] is None else t['p'] for t in tests])
+        adjusted_r83 = holm([1.0 if t['p_r83'] is None else t['p_r83'] for t in tests])
+        verdict = lambda complete, d, p, p_holm: ('未计分完' if not complete else '未分出' if p is None or p_holm >= ALPHA
+                                                  else '高于' if d > 0 else '低于')
+        known = all(t['r83_known'] for t in tests if t['complete'])
+        for t, p, p_old in zip(tests, adjusted, adjusted_r83):
+            t['p_holm'] = p
+            t['verdict'] = verdict(t['complete'], t['d'], t['p'], p)
+            # r8.3 Holm over the same family; unknown when any complete comparison lacks r8.3 scores.
+            t['p_holm_r83'] = p_old if known else None
+            t['verdict_r83'] = verdict(t['complete'], t['d_r83'], t['p_r83'], p_old) if known else None
+            t['verdict_changed'] = None if t['verdict_r83'] is None else t['verdict'] != t['verdict_r83']
     for r in records:
         r['in_main'] = in_main(r, phase)
     return {'configs': rows, 'comparisons': tests,
@@ -541,7 +530,8 @@ def summarize(records, phase=1, suite='v1'):
     scenarios = sorted({r['scenario'] for r in records})
     out = {s: scenario_summary([r for r in records if r['scenario'] == s], phase, suite) for s in scenarios}
     complete = all(c['complete'] for s in out.values() for c in s['configs'] if c['kind'] in ('main', 'phase3'))
-    return {'phase': phase, 'suite': suite, 'alpha': ALPHA, 'holm_family_size': len(comparisons(suite)),
+    families = {} if suite == 'v2' else {'alpha': ALPHA, 'holm_family_size': len(comparisons(suite))}
+    return {'phase': phase, 'suite': suite, **families,
             'preregistered_n': PREREGISTERED_N, 'strata_phase2_max': STRATA_PHASE2_MAX, 'complete': complete,
             'scenarios': out}
 
@@ -586,11 +576,14 @@ def phase_text(summary):
 
 
 def markdown(summary):
+    v1 = summary.get('suite', 'v1') != 'v2'
     lines = [f"# 多模型 benchmark {summary.get('suite', 'v1')} 汇总", '', phase_text(summary), '',
-             f"每个场景 {summary['holm_family_size']} 个预登记比较，Holm 校正，双侧 α = {summary['alpha']}，"
-             'Welch t 检验（Welch–Satterthwaite 自由度）。主统计多于前 5 个的格另给一致性行（按开始时刻的前 5 个'
+             *([f"每个场景 {summary['holm_family_size']} 个预登记比较，Holm 校正，双侧 α = {summary['alpha']}，"
+                'Welch t 检验（Welch–Satterthwaite 自由度）。'] if v1 else
+               ['不做组间比较（用户 2026-10-25）；条件相同的组内统计与 v1 相同。']),
+             '主统计多于前 5 个的格另给一致性行（按开始时刻的前 5 个'
              + ('；第三阶段补充配置不给' if summary['phase'] >= 3 else '') + '）；'
-             '补充行和敏感性行不进比较。不给比值、综合分和排名。', '']
+             + ('补充行和敏感性行不进比较。' if v1 else '') + '不给比值、综合分和排名。', '']
     if not summary['complete']:
         lines += ['**未计分完**：有主统计实例还没有最终分数，相关比较标"未计分完"。', '']
     for scenario, result in summary['scenarios'].items():
@@ -614,7 +607,7 @@ def markdown(summary):
                 config_cost_text(c),
                 '' if c['anthropic_quota_percent'] is None else fmt(c['anthropic_quota_percent'], 2) + '%',
                 '、'.join(c['model_ids']) or '未知', '、'.join(c['service_tiers']) or '未知']) + ' |')
-        lines += ['', '### 预登记比较', '', 'r8.3 列：同一批实例按 r8.3（截到 0、整体扣减相乘）计分的对照（plan §14.1）。', '',
+        lines += [] if not v1 else ['', '### 预登记比较', '', 'r8.3 列：同一批实例按 r8.3（截到 0、整体扣减相乘）计分的对照（plan §14.1）。', '',
                   '| 组 | 前者 | 后者 | n | 差值 | SE | t | 自由度 | p | Holm p | 结论 | r8.3 差值 | r8.3 Holm p | r8.3 结论 | 结论改变 |',
                   '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|']
         for r in result['comparisons']:
@@ -814,8 +807,7 @@ if __name__ == '__main__':
                         help='summary.json whose deepseek_reconciliation is kept when it cannot be recomputed')
     parser.add_argument('--phase', type=int, choices=PHASES, default=1, help='scoring phase (plan §14.1; default 1)')
     parser.add_argument('--suite', choices=SUITES, default='v1',
-                        help='comparison family: v1 (25 pairs, default) or v2 (47 pairs, same-harness same-effort '
-                             'pairs of all configurations plus the 6 harness pairs)')
+                        help='v1 (default): 25 preregistered comparisons; v2: the same within-group statistics, no comparison')
     parser.add_argument('--out', type=Path, required=True, help='fresh output directory')
     args = parser.parse_args()
     if args.score_root is None:

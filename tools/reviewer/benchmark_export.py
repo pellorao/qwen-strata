@@ -5,7 +5,7 @@ a published summary listed in LEGACY_SUMMARIES, and every instance must have its
 optional sensitivity-variant summaries of the same instances
 (each a benchmark_summary run over another score root), and the session-check diagnostic list. Output: one JSON file with
 per-instance detail only (user 2026-10-22): no aggregate statistics and no comparison results, but every field and
-design rule needed to recompute them (which instances enter a cell, the preregistered pairs per scenario (25 in v1, 47 in v2), alpha, Holm
+design rule needed to recompute them (which instances enter a cell, the preregistered pairs per scenario (25 in v1; v2 makes none), alpha, Holm
 family, the test). The format is documented in benchmarks/multi-model-v1/export-format.md.
 
 The file is published, so it carries no network detail beyond host names, no local paths, user names, session or
@@ -436,7 +436,7 @@ def configs(summary):
                 'local': c['vendor'] == 'strata',
                 'arm': arm, 'tokenSource': TOKEN_SOURCE[arm], 'durationBasis': c['harness'],
                 'costBasis': c['vendor'] if c['vendor'] in COST_BASIS else None,
-                'inComparisons': not supp and number in bs.PREREGISTERED_CONFIGS})
+                'inComparisons': not supp and number in bs.PREREGISTERED_CONFIGS and summary.get('suite') != 'v2'})
     return out
 
 
@@ -610,6 +610,7 @@ def check_source(summary, summary_sha):
 
 def build(summary, summary_sha, variant_paths=(), diagnostic=None, generated=None):
     diagnostic = diagnostic or {}
+    v2 = summary.get('suite') == 'v2'  # no comparison design in v2 (user 2026-10-25)
     commit, dirty = git_commit()
     return {
         'meta': {
@@ -629,7 +630,7 @@ def build(summary, summary_sha, variant_paths=(), diagnostic=None, generated=Non
                       'period can only affect speed and duration, not scores.',
                 'windows': [{'id': n, 'start': a, 'end': b, 'zh': zh, 'en': en}
                             for n, a, b, zh, en in PARALLEL_WINDOWS]},
-            'statistics': {'alpha': summary['alpha'], 'holmFamilySize': summary['holm_family_size'],
+            'statistics': {**({} if v2 else {'alpha': summary['alpha'], 'holmFamilySize': summary['holm_family_size']}),
                            'preregisteredN': summary['preregistered_n'], 'strataExtraTarget': summary['strata_phase2_max']},
             'userDecisions': [
                 {'zh': '本文件只提供到每个实例的细节，不提供任何汇总统计，也不提供比较结果；重现所需的设计信息（实例有效性、是否进主统计、前 N 个的选取、阶段、比较设计）照常提供（用户 2026-10-22）。',
@@ -655,7 +656,7 @@ def build(summary, summary_sha, variant_paths=(), diagnostic=None, generated=Non
         'environment': environment(),
         'configs': configs(summary),
         'selection': selection_rules(summary),
-        'comparisonDesign': comparison_design(summary),
+        **({} if v2 else {'comparisonDesign': comparison_design(summary)}),
         'instances': instances(summary, diagnostic),
         'sensitivityVariants': variants(variant_paths, summary),
         'caveats': caveats(summary['phase']),

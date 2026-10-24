@@ -149,15 +149,23 @@ class Phase3Test(unittest.TestCase):
 
 
 class SuiteTest(unittest.TestCase):
-    def test_comparison_design_follows_the_summary_suite(self):
+    def test_v2_export_has_no_comparison_design_and_v1_keeps_25(self):
         v1 = synthetic_summary()
         self.assertEqual(be.comparison_design(v1)['familySize'], 25)
-        v2 = dict(v1, suite='v2')
-        design = be.comparison_design(v2)
-        self.assertEqual(design['familySize'], 47)
-        self.assertIn('47 comparisons', design['correction'])
-        self.assertEqual(len({(p['firstNumber'], p['secondNumber']) for p in design['pairs']}), 47)
-        self.assertIn('25 comparisons', be.comparison_design(v1)['correction'])
+        records = ranked(full_design())
+        for r in records:
+            r['score_status'] = 'final' if r['valid'] else None
+            r['speeds'] = dict.fromkeys(bs.SPEEDS)
+        v2 = dict(bs.compact(bs.summarize(records, 2, 'v2')), generator=bs.generator(2))
+        result = be.build(v2, 'sha', generated='2026-10-25T00:00:00+00:00')
+        self.assertNotIn('comparisonDesign', result)
+        self.assertEqual(set(result['meta']['statistics']), {'preregisteredN', 'strataExtraTarget'})
+        self.assertFalse(any(c['inComparisons'] for c in result['configs']))
+        text = json.dumps(result)
+        for key in ('p_holm', 'verdict', 'holm', 'alpha'):
+            self.assertNotIn(key, text)
+        self.assertEqual(be.safety_hits(result), [])
+        self.assertIn('comparisonDesign', be.build(v1, 'sha', generated='2026-10-25T00:00:00+00:00'))
 
 
 class BuildTest(unittest.TestCase):
