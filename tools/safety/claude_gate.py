@@ -563,7 +563,7 @@ def strata_live(out, model, effort, home, config_dir, host):
 
 
 def session(out, backend, model, effort, repeat_id, base, project_dir, live=False, limit=LIMIT, claude=ch.CLAUDE, label=None,
-            startup=True, subset=None, host=None, fx=None):
+            startup=True, subset=None, host=None, fx=None, limits=None):
     """One gate session with the runner's exact command and settings shape. The fixture's canaries are removed however
     the session ends: a failure before judging (environment, lease, Claude Code, the judgment itself) also releases
     them and removes what write probes got through, after listing it in unjudged-writes.json."""
@@ -573,7 +573,8 @@ def session(out, backend, model, effort, repeat_id, base, project_dir, live=Fals
                        fresh_config=not (live and backend == 'anthropic'))
     state = {}
     try:
-        return run_session(out, fx, state, backend, model, effort, live, limit, claude, label, startup, subset, host)
+        return run_session(out, fx, state, backend, model, effort, live, limit, claude, label, startup, subset, host,
+                           limits)
     finally:
         if 'server' in state and not state.get('stopped'):
             state['server'].shutdown()
@@ -585,7 +586,7 @@ def session(out, backend, model, effort, repeat_id, base, project_dir, live=Fals
             remove_written(fx)
 
 
-def run_session(out, fx, state, backend, model, effort, live, limit, claude, label, startup, subset, host):
+def run_session(out, fx, state, backend, model, effort, live, limit, claude, label, startup, subset, host, limits=None):
     server = state['server'] = serve(None if live else out / 'requests')
     stop = {}
     script = lambda: probes(fx, stop.get('pid', 0), server.server_address[1], subset)
@@ -609,9 +610,10 @@ def run_session(out, fx, state, backend, model, effort, live, limit, claude, lab
         env = ch.environment('anthropic', effort, fx['probe_home'], tmp=ch.run_tmp(fx['work']))
     elif live:  # DeepSeek: the real endpoint and key, the runner's environment shape
         env = ch.environment('deepseek', effort, fx['home'], fx['config'],
-                             ch.deepseek_environment(model, os.environ.get(ch.DEEPSEEK_KEY)), tmp=ch.run_tmp(fx['work']))
+                             ch.deepseek_environment(model, os.environ.get(ch.DEEPSEEK_KEY), limits=limits),
+                             tmp=ch.run_tmp(fx['work']))
     elif backend == 'deepseek':  # mock: the same shape, the scripted server and the fake key
-        env = ch.environment('deepseek', effort, fx['home'], fx['config'], ch.deepseek_environment(model, fx['key'], local),
+        env = ch.environment('deepseek', effort, fx['home'], fx['config'], ch.deepseek_environment(model, fx['key'], local, limits),
                              tmp=ch.run_tmp(fx['work']))
     else:
         fake = {'ANTHROPIC_BASE_URL': local, KEY_NAME: fx['key'], 'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC': '1'}
@@ -661,6 +663,14 @@ def run_session(out, fx, state, backend, model, effort, live, limit, claude, lab
     return record
 
 
+def plan_limits(path):
+    """The DeepSeek Claude Code limits of a scenario plan (fixed_conditions.deepseek_claude_environment); null is an error."""
+    limits = json.loads(Path(path).read_text())['fixed_conditions']['deepseek_claude_environment']
+    if any(v is None for v in limits.values()):
+        raise ValueError('The plan has unset DeepSeek limits')
+    return limits
+
+
 def pair_sessions(out, backend, model, effort, repeat, base, claude, startup):
     """Mock only: sessions run concurrently in pairs, each one's peer temporary directory being the other's own, so
     the cross-instance probes target a live neighbour's TMPDIR and its canary."""
@@ -683,7 +693,10 @@ def pair_sessions(out, backend, model, effort, repeat, base, claude, startup):
 
 
 def gate(out, backend='anthropic', model='haiku', effort='high', repeat=REPEAT, live=False, base=ch.WORK_BASE,
-         claude=ch.CLAUDE, label=None, startup=True, subset=None, host=None, pair=False):
+         claude=ch.CLAUDE, label=None, startup=True, subset=None, host=None, pair=False, limits=None):
+    """limits: the DeepSeek Claude Code limits a scenario plan fixes (plan_limits), so the gate runs the measured shape."""
+    if limits and backend != 'deepseek':
+        raise ValueError('Plan limits apply to the DeepSeek backend only')
     if live and backend != 'strata' and not label:
         raise ValueError('A live gate records its quota use under a label')
     if live and backend == 'strata' and not host:
@@ -696,11 +709,11 @@ def gate(out, backend='anthropic', model='haiku', effort='high', repeat=REPEAT, 
         records = pair_sessions(out, backend, model, effort, repeat, base, claude, startup)
     else:
         records = [session(out / f'repeat-{i + 1}', backend, model, effort, i + 1, base, out / f'repeat-{i + 1}-project',
-                           live, claude=claude, label=label, startup=startup, subset=subset, host=host)
+                           live, claude=claude, label=label, startup=startup, subset=subset, host=host, limits=limits)
                    for i in range(repeat)]
     failed = sorted({p for r in records for p, row in r['probes'].items() if not row['pass']})
     summary = {'backend': backend, 'model': model, 'effort': effort, 'mode': 'live' if live else 'mock', 'repeat': repeat,
-               'startup_prompt': startup, 'subset': subset or 'full',
+               'startup_prompt': startup, 'subset': subset or 'full', 'deepseek_limits': dict(limits or {}),
                'web_tools': sorted({t for r in records for t in (r['isolation']['web_tools'] or [])}),
                'pass': all(r['pass'] for r in records), 'failed_probes': failed,
                'isolation_pass': [r['isolation']['pass'] for r in records],
@@ -734,6 +747,8 @@ if __name__ == '__main__':
     parser.add_argument('--subset', choices=('full', 'smoke', 'transcript'), default='full')
     parser.add_argument('--label', help='Quota ledger label for a live gate (estimate.sh --add-stream).')
     parser.add_argument('--pair', action='store_true', help='Mock: run sessions two at a time against each other\'s TMPDIR.')
+    parser.add_argument('--plan', type=Path, help='DeepSeek: scenario plan whose fixed_conditions.deepseek_claude_environment '
+                        'limits the sessions use (the benchmark shape).')
     parser.add_argument('--claude', default=ch.CLAUDE, help=f'Claude Code binary; must be the pinned copy ({ch.CLAUDE_VERSION}).')
     args = parser.parse_args()
     found = ch.pinned_binary(args.claude)
@@ -741,5 +756,5 @@ if __name__ == '__main__':
         raise SystemExit(in_network_namespace([sys.executable, '-m', 'tools.safety.claude_gate', *sys.argv[1:]]))
     summary = gate(args.out, args.backend, args.model, args.effort, args.repeat, args.live, claude=args.claude,
                    label=args.label, startup=not args.no_startup_prompt, subset=None if args.subset == 'full' else args.subset,
-                   host=args.host, pair=args.pair)
+                   host=args.host, pair=args.pair, limits=args.plan and plan_limits(args.plan))
     print(json.dumps({**summary, 'claude': found}, ensure_ascii=False))
