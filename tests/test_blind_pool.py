@@ -169,6 +169,51 @@ class BlindPoolTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             blind_pool.override('anthropic/code-spec-v5/opus-low-a1', sid, 'matched', 'x', root=self.root)
 
+    def test_suites_keep_their_decisions_apart_and_bind_the_brief(self):
+        """Plan v2 §9.2: a v2 store records its suite and the brief of each decision; v1 never reads it, and a decision
+        made under another brief is pooled again."""
+        from tools.reviewer import bench_score
+        registry = json.loads((self.registry / 'code-spec-v5.json').read_text())
+        blind_pool.save(self.registry / 'code-spec-v5.1.json', {**registry, 'scenario': 'code-spec-v5.1'})
+        v2 = Path(self.tmp.name) / 'c2.json'
+        blind_pool.save(v2, [{**c, 'record': c['record'].replace('code-spec-v5', 'code-spec-v5.1')}
+                             for c in json.loads(self.candidates.read_text())])
+        with self.assertRaisesRegex(ValueError, 'not a scenario of suite v2'):
+            blind_pool.build('code-spec-v5', 'p', self.adj, self.keys, [self.candidates], self.registry, suite='v2')
+        blind_pool.build('code-spec-v5.1', 'p', self.adj, self.keys, [v2], self.registry, suite='v2')
+        key, decisions = self.answer('p')
+        self.assertEqual(json.loads(key.read_text())['suite'], 'v2')
+        with self.assertRaisesRegex(ValueError, 'run prompt first'):
+            blind_pool.split(key, decisions, self.root)
+        (self.adj / 'p' / 'view').mkdir()
+        (self.adj / 'p' / 'change.diff').write_text('')
+        info = blind_pool.prompt(key)
+        brief = blind_pool.sha256_file(blind_pool.brief_path('code-spec-v5.1', 'v2'))
+        self.assertEqual(info['brief_sha256'], brief)
+        self.assertIn('benchmarks/multi-model-v2/briefs', info['brief_path'])
+        blind_pool.split(key, decisions, self.root)
+        work = self.root / 'openai/code-spec-v5.1/sol-high-a1'
+        store = json.loads((work / 'decisions.json').read_text())
+        self.assertEqual(store['suite'], 'v2')
+        self.assertEqual({d['brief_sha256'] for d in store['decisions'].values()}, {brief})
+        # v1 tools refuse the v2 store; v2 reads it.
+        with self.assertRaisesRegex(ValueError, 'decisions of suite v2, not v1'):
+            bench_score.load_store(work)
+        with self.assertRaisesRegex(ValueError, 'decisions of suite v2, not v1'):
+            blind_pool.override('openai/code-spec-v5.1/sol-high-a1', next(iter(store['decisions'])), 'not-matched', 'x',
+                                root=self.root)
+        self.assertEqual(bench_score.load_store(work, 'v2')['suite'], 'v2')
+        [again] = blind_pool.build('code-spec-v5.1', 'q', self.adj, self.keys, [v2], self.registry, root=self.root, suite='v2')
+        self.assertEqual(again['already_decided_skipped'], 4)
+        # A decision made under another brief is not reused.
+        for d in store['decisions'].values():
+            d['brief_sha256'] = '0' * 64
+        blind_pool.save(work / 'decisions.json', store)
+        [changed] = blind_pool.build('code-spec-v5.1', 'r', self.adj, self.keys, [v2], self.registry, root=self.root, suite='v2')
+        self.assertEqual(changed['already_decided_skipped'], 2)
+        live = association(1, 'E1', 'openai/code-spec-v5.1/sol-high-a1')
+        self.assertEqual(bench_score.stored_choice(store['decisions'], live, 'code-spec-v5.1', brief), 'stale')
+
     def test_an_override_must_be_one_of_the_candidates_allowed_decisions(self):
         self.built()
         key, decisions = self.answer('p')

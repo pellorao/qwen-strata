@@ -109,12 +109,42 @@ class ClaudeScenarioTest(unittest.TestCase):
         args = cs.arguments(base + ['--backend', 'deepseek'])
         self.assertEqual((args.backend, args.host), ('deepseek', None))
         self.assertEqual(cs.arguments(base).backend, 'anthropic')
-        self.assertFalse(cs.arguments(base).role_as_system)
+        # No flag: the plan decides (plan_role_as_system).
+        self.assertIsNone(cs.arguments(base).role_as_system)
         self.assertTrue(cs.arguments(base + ['--role-as-system']).role_as_system)
         self.assertEqual(cs.arguments(base + ['--backend', 'strata', '--host', 'rtx3080ti']).host, 'rtx3080ti')
         for bad in (['--backend', 'strata'], ['--backend', 'openai']):
             with self.assertRaises(SystemExit):
                 cs.arguments(base + bad)
+
+    def test_role_placement_follows_the_plan(self):
+        v1, v2 = {'fixed_conditions': {}}, {'fixed_conditions': {'claude_role_as_system': True}}
+        # v1 plans keep the user-message shape unless asked; v2 plans put the Role in the system prompt by default.
+        self.assertEqual((cs.plan_role_as_system(v1), cs.plan_role_as_system(v1, True)), (False, True))
+        self.assertEqual((cs.plan_role_as_system(v2), cs.plan_role_as_system(v2, True)), (True, True))
+        with self.assertRaisesRegex(ValueError, 'fixes claude_role_as_system'):
+            cs.plan_role_as_system(v2, False)
+
+    def test_deepseek_limits_come_from_the_plan_and_must_be_frozen(self):
+        limits = {'CLAUDE_CODE_MAX_CONTEXT_TOKENS': 1048576, 'CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE': 1000000,
+                  'CLAUDE_CODE_MAX_OUTPUT_TOKENS': 65536}
+        plan = {'fixed_conditions': {'deepseek_claude_environment': limits}}
+        self.assertEqual(cs.plan_deepseek_limits(plan, 'deepseek'), limits)
+        self.assertIsNone(cs.plan_deepseek_limits(plan, 'anthropic'))
+        self.assertIsNone(cs.plan_deepseek_limits({'fixed_conditions': {}}, 'deepseek'))
+        draft = {'fixed_conditions': {'deepseek_claude_environment': {**limits, 'CLAUDE_CODE_MAX_OUTPUT_TOKENS': None}}}
+        with self.assertRaisesRegex(ValueError, 'not frozen yet'):
+            cs.plan_deepseek_limits(draft, 'deepseek')
+
+    def test_v2_plans_fix_role_scratch_scoring_and_the_deepseek_window(self):
+        root = Path(__file__).resolve().parents[1] / 'benchmarks/multi-model-v2/scenarios'
+        names = ('code-spec-v5.1', 'code-standards-v5.1', 'commit-audit-v3.1', 'spec-readiness-v4.4')
+        for name in names:
+            fixed = json.loads((root / f'{name}.json').read_text())['fixed_conditions']
+            self.assertIs(fixed['claude_role_as_system'], True, name)
+            self.assertEqual(fixed['scoring'], 'r8.5', name)
+            self.assertIn('reviewer-private-scratch', fixed['codex_harness_patches'], name)
+            self.assertEqual(fixed['deepseek_claude_environment']['CLAUDE_CODE_MAX_CONTEXT_TOKENS'], 1048576, name)
 
 if __name__ == '__main__':
     unittest.main()

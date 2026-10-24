@@ -38,11 +38,12 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from tools.reviewer import bench_validity
+from tools.reviewer import bench_suite, bench_validity
 
 ROOT = Path(__file__).resolve().parents[2]
-PLANS = ROOT / 'benchmarks/multi-model-v1/scenarios'
-SCENARIOS = ('commit-audit-v3', 'code-spec-v5', 'code-standards-v5.1', 'spec-readiness-v4.3')
+# The v1 suite (tools.reviewer.bench_suite); other suites pass suite= down to base().
+PLANS = bench_suite.SUITES['v1']['plans']
+SCENARIOS = bench_suite.SUITES['v1']['scenarios']
 # Default layout (arm -> run root and scenario -> scene directory); the voided earlier rounds are left out.
 LAYOUT = {
     'openai': ('.tmp/bench-openai-1020', {'commit-audit-v3': 'ca', 'code-spec-v5': 'cs', 'code-standards-v5.1': 'cstd',
@@ -217,7 +218,7 @@ def machine_pauses(path):
     return len(seen)
 
 
-def base(arm, scenario, folder):
+def base(arm, scenario, folder, suite='v1'):
     match = DIR_NAME.match(folder.name)
     if not match or match.group('model') not in MODELS:
         raise ValueError(f'{folder}: not an instance directory name')
@@ -229,8 +230,9 @@ def base(arm, scenario, folder):
     config = EXTRA_CONFIGS.get((match.group('model'), effective))
     if config is None and effective not in efforts:
         raise ValueError(f'{folder}: effort {effective} is not a configuration of {family}')
-    plan = PLANS / f'{scenario}.json'
-    record = {'id': f'{arm}/{scenario}/{folder.name}', 'arm': arm, 'harness': HARNESS[arm],
+    plan = bench_suite.plan_path(suite, scenario)
+    # v1 records keep their v1 fields; other suites name theirs.
+    record = {'id': f'{arm}/{scenario}/{folder.name}', **({} if suite == 'v1' else {'suite': suite}), 'arm': arm, 'harness': HARNESS[arm],
               'model_family': family, 'style_family': style, 'effort': effort,
               'requested_effort': instance.get('requested_effort', effort), 'effective_effort': effective,
               'pooled': bool(instance.get('pooled')), 'supplementary': bool(instance.get('supplementary')),
@@ -250,8 +252,8 @@ def validity(status, reasons, source):
     return {'valid': status == 'valid', 'validity': {'status': status, 'reasons': reasons, 'source': source}}
 
 
-def openai_record(arm, scenario, folder):
-    record = base(arm, scenario, folder)
+def openai_record(arm, scenario, folder, suite='v1'):
+    record = base(arm, scenario, folder, suite)
     instance = load(folder / 'instance.json')
     void = void_marker(folder, instance)
     if void is not None:
@@ -326,9 +328,9 @@ def usage_tokens(usage):
             'cached_input': usage.get('cache_read_input_tokens') or 0, 'output': usage.get('output_tokens') or 0}
 
 
-def claude_record(arm, scenario, folder):
+def claude_record(arm, scenario, folder, suite='v1'):
     from tools.reviewer.claude_headless import segment_streams, stream_summary
-    record = base(arm, scenario, folder)
+    record = base(arm, scenario, folder, suite)
     instance = load(folder / 'instance.json')
     void = void_marker(folder, instance)
     handoffs, reasons = [], []
@@ -426,8 +428,8 @@ def read_spills(out):
     return [str(kept[name]) for name in sorted(named)]
 
 
-def strata_codex_record(arm, scenario, folder, done):
-    record = base(arm, scenario, folder)
+def strata_codex_record(arm, scenario, folder, done, suite='v1'):
+    record = base(arm, scenario, folder, suite)
     void = void_marker(folder, None)
     event = done.get(folder.name)
     results = load(folder / 'run/results.json') or []
@@ -877,7 +879,7 @@ def final_status_error(record):
     return record
 
 
-def scene_records(arm, scenario, scene):
+def scene_records(arm, scenario, scene, suite='v1'):
     scene = Path(scene)
     if not scene.is_dir():
         return []
@@ -897,7 +899,7 @@ def scene_records(arm, scenario, scene):
                 arm_tokens = [a + b for a, b in zip(arm_tokens, event['tokens'])]  # the token mix of the whole arm
     out = []
     for folder in sorted(p for p in scene.iterdir() if p.is_dir() and arm_instance(arm, p.name)):
-        out.append(instance_record(arm, scenario, folder, done, arm_tokens))
+        out.append(instance_record(arm, scenario, folder, done, arm_tokens, suite))
     # Plan §3, §14.1 L256, §14.4 and ruling 2026-10-21: not merged cells take their first 5 valid instances by start
     # time for the main statistic; merged cells (DeepSeek C') take every valid one; so do the phase-3 supplement cells
     # (user 2026-10-23).
@@ -909,14 +911,14 @@ def arm_instance(arm, name):
     return bool(match) and match.group('model') in (ARM_MODELS.get(arm) or MODELS)
 
 
-def instance_record(arm, scenario, folder, done=None, arm_tokens=None):
+def instance_record(arm, scenario, folder, done=None, arm_tokens=None, suite='v1'):
     """The normalized record of one instance directory, validity rejudged (bench_validity) before the summary fields."""
     if arm in ('openai', 'deepseek-codex'):
-        record = openai_record(arm, scenario, folder)
+        record = openai_record(arm, scenario, folder, suite)
     elif arm == 'strata-codex':
-        record = strata_codex_record(arm, scenario, folder, done or {})
+        record = strata_codex_record(arm, scenario, folder, done or {}, suite)
     else:
-        record = claude_record(arm, scenario, folder)
+        record = claude_record(arm, scenario, folder, suite)
     bench_validity.apply(record, folder, load(folder / 'instance.json'))
     record.update(SCORE_FIELDS)
     record.update(summary_fields(record))
@@ -948,27 +950,37 @@ def config_notes(records):
             for (arm, scenario, label), by in sorted(groups.items()) if len(by) > 1]
 
 
-def all_records(layout=LAYOUT, data_root=None):
-    """Every record of the layout; data_root is the checkout holding .tmp (default: this one)."""
+# Run layout per suite; v2 is filled in when its runs exist (benchmarks/multi-model-v2/plan.md).
+LAYOUTS = {'v1': LAYOUT, 'v2': {}}
+
+
+def all_records(layout=None, data_root=None, suite='v1'):
+    """Every record of the layout (default: the suite's); data_root is the checkout holding .tmp (default: this one)."""
     out = []
-    for arm, (root, scenes) in layout.items():
+    for arm, (root, scenes) in (LAYOUTS[suite] if layout is None else layout).items():
         for scenario, name in scenes.items():
-            out += scene_records(arm, scenario, Path(data_root or ROOT) / root / name)
+            out += scene_records(arm, scenario, Path(data_root or ROOT) / root / name, suite)
     return out
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--all', action='store_true', help='every arm and scenario of LAYOUT')
-    parser.add_argument('--arm', choices=sorted(LAYOUT))
-    parser.add_argument('--scenario', choices=SCENARIOS)
-    parser.add_argument('--dir', type=Path, help='scene directory (default: LAYOUT)')
+    parser.add_argument('--suite', choices=sorted(bench_suite.SUITES), default=bench_suite.DEFAULT)
+    parser.add_argument('--all', action='store_true', help='every arm and scenario of the suite layout')
+    parser.add_argument('--arm', choices=sorted(HARNESS))
+    parser.add_argument('--scenario', choices=bench_suite.all_scenarios())
+    parser.add_argument('--dir', type=Path, help='scene directory (default: the suite layout)')
     parser.add_argument('--out', type=Path, help='JSON Lines output (default: stdout)')
     args = parser.parse_args()
+    layout = LAYOUTS[args.suite]
     if args.all:
-        records = all_records()
+        records = all_records(suite=args.suite)
     elif args.arm and args.scenario:
-        records = scene_records(args.arm, args.scenario, args.dir or ROOT / LAYOUT[args.arm][0] / LAYOUT[args.arm][1][args.scenario])
+        bench_suite.check_scenario(args.suite, args.scenario)
+        if args.dir is None and args.arm not in layout:
+            parser.error(f'suite {args.suite} has no layout for {args.arm}; give --dir')
+        records = scene_records(args.arm, args.scenario, args.dir or ROOT / layout[args.arm][0] / layout[args.arm][1][args.scenario],
+                                args.suite)
     else:
         parser.error('give --all, or --arm and --scenario')
     for note in config_notes(records):

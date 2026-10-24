@@ -156,6 +156,14 @@ class RunnerBuildersTest(unittest.TestCase):
         self.assertNotIn('ANTHROPIC_API_KEY', env)
         with self.assertRaises(ValueError):
             ch.deepseek_environment('deepseek-flash', None)
+        self.assertFalse(set(ch.DEEPSEEK_LIMIT_VARIABLES) & set(env))
+        # Plan-fixed limits (multi-model v2 §5.2) become the Claude Code variables; anything else is refused.
+        limited = ch.deepseek_environment('deepseek-flash', 'synthetic', limits={'CLAUDE_CODE_MAX_CONTEXT_TOKENS': 1048576})
+        self.assertEqual(limited['CLAUDE_CODE_MAX_CONTEXT_TOKENS'], '1048576')
+        for bad in ({'CLAUDE_CODE_MAX_CONTEXT_TOKENS': None}, {'CLAUDE_CODE_MAX_CONTEXT_TOKENS': '1048576'},
+                    {'ANTHROPIC_BASE_URL': 1}, {'CLAUDE_CODE_MAX_OUTPUT_TOKENS': 0}):
+            with self.assertRaises(ValueError):
+                ch.deepseek_environment('deepseek-flash', 'synthetic', limits=bad)
         with self.assertRaises(ValueError):
             ch.environment('deepseek', 'high', tmp=ch.run_tmp(self.work))
 

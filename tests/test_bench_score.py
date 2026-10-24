@@ -143,6 +143,25 @@ class RepetitionScoreTest(unittest.TestCase):
             bench_score.repetition_score(upstream(-0.4, codes=('some-new-code',), score=-0.36),
                                          {'default-x-instance-1': None}, self.registry)
 
+    def test_r8_5_missing_checks_are_recorded_and_bound_to_the_plan_version(self):
+        up = upstream(0.5)
+        up['results'][0]['repetitions'][0].update(missingChecks=2, neutralCleanCases=7)
+        up['results'][0]['repetitions'][0]['instances'][0]['missingChecks'] = 2
+        row = bench_score.repetition_score(up, {'default-x-instance-1': None}, self.registry)
+        self.assertEqual((row['missing_checks'], row['neutral_clean_cases']), (2, 7))
+        self.assertEqual(row['per_handoff']['default-x-instance-1']['missingChecks'], 2)
+        bench_score.check_scoring_version('r8.5', row)
+        with self.assertRaisesRegex(ValueError, 'another version'):
+            bench_score.check_scoring_version('r8.4', row)
+        old = bench_score.repetition_score(upstream(0.5), {'default-x-instance-1': None}, self.registry)
+        self.assertIsNone(old['missing_checks'])
+        bench_score.check_scoring_version('r8.4', old)
+        with self.assertRaisesRegex(ValueError, 'another version'):
+            bench_score.check_scoring_version('r8.5', old)
+        # v1 plans select nothing (r8.4); v2 plans select r8.5.
+        self.assertEqual(bench_score.scoring_version({'fixed_conditions': {}}), 'r8.4')
+        self.assertEqual(bench_score.scoring_version({'fixed_conditions': {'scoring': 'r8.5'}}), 'r8.5')
+
 
 def candidate(n, kind='association'):
     cid = CID.replace('finding-9', f'finding-{n}')
