@@ -52,6 +52,7 @@ rtx3080ti 安装 Strata v0.2.2（引擎 0.1.47，2026-10-22，通过短检查）
 - 多模型 benchmark 的有效性判据：时限提醒或中断送达时正在进行的请求，它的 relay 错误不算错误，实例有效；只此一条（2026-10-23 用户定，取代 10-20 Main 定的 7 条）：[计划 §14 M2](benchmarks/multi-model-v1/plan.md)。
 - 多跑的有效实例只要不是按分数加跑，全部进最终实例集合，不截取前 n 个（2026-10-23 用户定，第三阶段起）：[测量规则](.claude/rules/measurement.md)。
 - Codex、Claude Code 等 harness 不长期钉旧版：每项工作开始时用当时的最新版，工作期间固定，换版先重跑 mock 门（2026-10-23，用户定）：[测量规则](.claude/rules/measurement.md)。
+- rtx3080ti / IQ3_XXS 采样维持 greedy（0/1/20）：ARW code-spec-v5 第 1 轮 greedy、模型卡推荐值、t06 三档分不出，实测 SD 0.072 远大于假设，用户决定不再继续（2026-10-24，用户）：[报告](reports/v0.2.2/sampling-dim/summary.md)。
 - rtx3080ti / IQ3_XXS 对外窗口默认维持 206584（压缩阈值约 150000）：窗口维负载对模型侧不敏感、206584 工作时间更短且压缩丢失更少；长上下文记忆重测在 100K–190K 未见断崖，latest 题的弱点在 100K 同样存在、与窗口档无关（2026-10-24，Main 与独立审查一致，待用户复核）：[窗口维](reports/v0.2.2/window-dim/summary.md)、[重测](reports/v0.2.2/longctx-retest/summary.md)。
 - `qwen-agent` 关闭 Claude Code 工具搜索（`ENABLE_TOOL_SEARCH=false`）：Strata 不实现延迟加载，工具搜索在 Strata 上不可用（2026-10-24，Main 与独立审查一致，rtx3080ti 已部署）：[报告](reports/v0.2.2/toolsearch-off/summary.md)。
 - rtx3080ti 一直用平衡电源计划：高性能的 Strata 速度差不到 1%（2026-10-23）：[报告](reports/v0.2.2/power-plan/summary.md)。
