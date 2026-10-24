@@ -290,8 +290,8 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     from tools.ops.deploy import local_path, maintenance
-    from tools.ops.deployment_source import load_host
-    host = load_host(args.host)
+    from tools.ops.deployment_source import load_host, require_current_host
+    host = load_host(require_current_host(args.host))
     root = local_path(host['installation_root']).resolve(strict=True)
     # The frontend is shut down through its own lease, so no model can start meanwhile.
     with maintenance(host['frontend_url']):

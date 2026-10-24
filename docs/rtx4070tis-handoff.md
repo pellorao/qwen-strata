@@ -51,7 +51,7 @@ rtx3080ti 上由 Claude Code 管理本工程，rtx4070tis 上用 Codex。同一�
 
 每步先说清要做什么，取得同意后再开始：
 
-- 复制工程和私有配置。`project.private.toml`、安装目录的 `installation.private.toml` 不进 git，由用户自己放到位。
+- 复制工程和私有配置。`project.private.toml`、安装目录的 `installation.private.toml` 不进 git，由用户自己放到位。`project.private.toml` 开头加一行顶层键 `local_host = "rtx4070tis"`，工程据此识别当前主机（`tools.ops.deployment_source.current_host`；环境变量 `QWEN_STRATA_HOST` 可临时覆盖）。
 - 准备用户级配置 `~/.claude/`：CLAUDE.md、`docs/`、`status/`、`statusline/`、`hooks/`。具体做法按可移植化的决定。
 - 核对 BIOS 微码（14900K 的 Vmin Shift 修复）。
 - 系统设置需要 UAC 授权。
