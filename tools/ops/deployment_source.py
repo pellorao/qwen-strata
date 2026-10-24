@@ -22,8 +22,6 @@ CONDITION_REQUEST_DEFAULTS = {'temperature', 'top_p', 'top_k', 'min_p', 'presenc
 # The host this project copy runs on (one copy per machine, user 2026-10-24): the environment variable wins, else the
 # machine's own project.private.toml names it with a top-level `local_host`.
 HOST_ENVIRONMENT = 'QWEN_STRATA_HOST'
-# Transitional: rtx3080ti's private file predates `local_host`. Once it names its host, drop this and fail instead.
-LEGACY_HOST = 'rtx3080ti'
 
 
 def load_private(project=None):
@@ -32,7 +30,7 @@ def load_private(project=None):
 
 
 def current_host(project=None):
-    """Registered host id of this machine: $QWEN_STRATA_HOST, else private `local_host`, else LEGACY_HOST."""
+    """Registered host id of this machine: $QWEN_STRATA_HOST, else private `local_host`; neither is an error."""
     project = Path(project or ROOT)
     identifier = os.environ.get(HOST_ENVIRONMENT)
     if not identifier:
@@ -40,7 +38,8 @@ def current_host(project=None):
             identifier = load_private(project).get('local_host')
         except FileNotFoundError:
             identifier = None
-    identifier = identifier or LEGACY_HOST
+    if not identifier:
+        raise ValueError(f'This machine names no host: set local_host in project.private.toml or ${HOST_ENVIRONMENT}')
     if not isinstance(identifier, str) or not re.fullmatch(r'[a-z0-9][a-z0-9-]*', identifier) or not (project / 'config/deployments' / (identifier + '.json')).is_file():
         raise ValueError(f'Current host {identifier!r} is not registered in config/deployments')
     return identifier

@@ -8,7 +8,7 @@ import unittest
 from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.ops.deployment_source import (HOST_ENVIRONMENT, LEGACY_HOST, current_host, require_current_host,
+from tools.ops.deployment_source import (HOST_ENVIRONMENT, current_host, require_current_host,
                                          frontend_configuration, load_host, model_configuration, published_tier,
                                          served_model, source_bytes)
 
@@ -222,10 +222,12 @@ class CurrentHostTests(unittest.TestCase):
     def private(self, text):
         (self.root/'project.private.toml').write_text(text, encoding='utf-8')
 
-    def test_without_a_choice_the_legacy_host_stays(self):
-        self.assertEqual(current_host(self.root), LEGACY_HOST)
+    def test_without_a_choice_the_host_is_refused(self):
+        with self.assertRaisesRegex(ValueError, 'names no host'):
+            current_host(self.root)
         self.private('[hosts.rtx3080ti]\ninstallation_path = "C:\\\\x"\n')
-        self.assertEqual(current_host(self.root), 'rtx3080ti')
+        with self.assertRaisesRegex(ValueError, 'names no host'):
+            current_host(self.root)
 
     def test_private_file_names_this_machine(self):
         self.private('local_host = "rtx4070tis"\n[hosts.rtx4070tis]\ninstallation_path = "C:\\\\x"\n')
