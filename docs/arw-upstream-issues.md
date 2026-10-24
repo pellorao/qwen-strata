@@ -92,6 +92,14 @@
 - **本工程修改**：`checkReportBinding` 把报告目录直属、名字恰为这四个之一的真实空目录放过，其余额外条目照旧失败，包括：非空的占位目录、名单外的名字、符号链接、文件、额外文件。每次放过都在 stderr 写一行 `{"event":"codex-synthetic-mount-target-ignored","path":…}`。补丁不在冻结 manifest 里，由调用方在 prepare 时选择应用（`tools.reviewer.freeze_arw_source.HARNESS_PATCHES`，`prepare(..., harness_patches=…)`），核对补丁前后成员的 sha。写权限不变。
 - **建议上游**：绑定检查应能识别 Codex 自建的挂载占位目录；也可以向 Codex 报告：同步删除失败时，至少应在进程退出时把占位目录清掉。
 
+### F. 冷恢复（restorePausedTask）用原始交接 settings 重开线程，丢掉 Reviewer 的 profile、私有 scratch、TMPDIR 与凭据 deny-read（本工程运行层 `tools/reviewer/arw_native_setup.mjs` 已绕开，未改 ARW）
+
+- **版本**：ARW 760007c，`lib/reviewer-runtime/reviewer-runtime.mjs` 的 `restorePausedTask`（约 859 行）。
+- **现象**：spawn（721 行）和 followup（786 行）都会把交接经 `reviewerNativeSettings` 转成带权限 profile 的 settings 再 `nativeSessions.open`；只有 `restorePausedTask` 冷恢复时直接 `nativeSessions.open({settings: record.settings, …})`，`record.settings` 是原始的 `review_settings`，没有 profile。于是运行时重启或 `--resume` 恢复出来的 Reviewer：`default_permissions` 为 null（丢掉 `:read-only` 加显式写路径的 profile），没有私有 scratch（`reviewer-private-scratch`）和指向它的 TMPDIR，也没有凭据路径 deny-read（G7）。`arw_measure` 同进程内的早退暂停续跑走的是热路径（`runs` 里仍持有该 run，不重开），不受影响；只有冷恢复（运行时重启、`--resume`）受影响。
+- **证据**：冷 `restorePausedTask` 探针显示重开会话的 `default_permissions`、TMPDIR、`approval_policy` 都是 null（`.tmp/scratch-verify-1024/resume/`）。本工程运行栈上 `denyReadSettings` 对这种无 profile 的 settings 会直接抛错（fail-closed），所以实际不会以降级权限静默跑完，但恢复本身会失败。
+- **本工程修改**（2026-10-24）：`arw_native_setup.mjs` 的 `reviewerResumeOpen` 包住 `sessions.open`：对任何 settings 里还没有 `default_permissions` 的 open（即冷恢复），先补 `reviewerNativeSettings`（用该 open 自带的 cwd、readPaths、writePaths，与首段同源，所以 profile、scratch 路径、TMPDIR 与首段一致），再叠加 deny-read；已带 profile 的 open（spawn、followup）原样放过，不重复加 profile。回归测试 `tests/test_reviewer_scratch.py::test_resume_reopens_a_reviewer_with_the_same_scratch_and_deny_read`：断言恢复后重新拿到 profile、TMPDIR 与首段相同、scratch 为 write、公共根为 none、恢复和普通 open 都带 deny，而普通 open 的 profile 不变。
+- **建议上游**：`restorePausedTask` 应与 spawn、followup 一样，把恢复的交接经 `reviewerNativeSettings`（或等效的权限派生）再 open，使恢复后的线程与原线程权限一致。
+
 ### B. 能力测量中不要求每实例冷启动
 
 - 本工程以前在每个实例之间停模型、冷启动，以便按引擎日志分段计量。这是本工程自己的旧做法，ARW 本身不这样做（它在整个共享 App Server 期间持有独占，关闭时才归还，也不停模型）。现在本工程也不再停模型，引擎日志按派发时刻分段。

@@ -62,7 +62,7 @@ def inside(path, root):
     return path == root or path.startswith(root + '/')
 
 
-def path_reasons(text, workdir, root, allow):
+def path_reasons(text, workdir, root, allow, env_assigned=()):
     reasons = []
     for p in ABS_PATH.findall(text):
         # '/x' whose top level does not exist is a fragment joined to a
@@ -81,6 +81,7 @@ def path_reasons(text, workdir, root, allow):
     assigned |= set(re.findall(r'\bfor\s+([A-Za-z_]\w*)\s+in\b', text))
     assigned |= set(re.findall(r'\bread\s+(?:-\w+\s+)*([A-Za-z_]\w*)', text))
     assigned |= set(re.findall(r'--(?:arg|argjson)\s+([A-Za-z_]\w*)', text))  # jq variables
+    assigned |= set(env_assigned)  # variables the run's own profile sets (e.g. TMPDIR under reviewer-private-scratch)
     for v in sorted(set(SHELL_VAR.findall(text)) - assigned):
         reasons.append(f'unassigned variable: ${v}')
     return reasons
@@ -113,6 +114,19 @@ def inspect(session, root=None, allow=()):
     meta = events[0]['payload']
     root = os.path.normpath(root or meta['cwd'])
     allow = [os.path.normpath(a) for a in allow]
+    # The Reviewer's private scratch (reviewer-private-scratch) is a writable root outside the scenario root, named in
+    # every turn_context's sandbox_policy. Its reads and writes stay inside this one instance, so fold it into allow and
+    # treat TMPDIR (which the patch points at the scratch) as an assigned variable. A sibling instance's scratch, /tmp
+    # or any other out-of-root path is not in this list and is still flagged.
+    scratch_roots = []
+    for e in events:
+        if e.get('type') == 'turn_context':
+            for w in ((e.get('payload') or {}).get('sandbox_policy') or {}).get('writable_roots') or []:
+                w = os.path.normpath(w)
+                if not (inside(w, root) or any(inside(w, a) for a in allow)) and w not in scratch_roots:
+                    scratch_roots.append(w)
+    allow = allow + scratch_roots
+    env_assigned = ('TMPDIR',) if scratch_roots else ()
     norm = lambda s: UUID.sub('<UUID>', s.replace(root, '<ROOT>'))
     sha = lambda s: hashlib.sha256(
         ARG0.sub('codex-arg0<RAND>', DATE.sub('<DATE>', CODEX_HOME.sub('<CODEX_HOME>/', norm(s)))).encode()).hexdigest()[:16]
@@ -138,7 +152,7 @@ def inspect(session, root=None, allow=()):
                 wd = os.path.normpath(workdir) if workdir else root
                 if workdir and not any(inside(wd, r) for r in (root, *allow)):
                     reasons.append(f'workdir outside root: {workdir}')
-                reasons += path_reasons(text, wd, root, allow)
+                reasons += path_reasons(text, wd, root, allow, env_assigned)
                 reasons += [label for rx, label in RISKY if rx.search(text)]
                 output = f"{item.get('aggregated_output') or ''}\nExit code: {item.get('exit_code')}"
                 tool = 'exec>command'
@@ -179,7 +193,7 @@ def inspect(session, root=None, allow=()):
                     target = os.path.join(root, a or b)
                     if not inside(target, root):
                         reasons.append(f'patch outside root: {a or b}')
-            reasons += path_reasons(text, wd, root, allow)
+            reasons += path_reasons(text, wd, root, allow, env_assigned)
             reasons += [label for rx, label in RISKY if rx.search(text)]
             actions.append({'n': len(actions) + 1, 'event': i, 'time': e.get('timestamp', '')[11:19],
                             'tool': name, 'workdir': norm(workdir) if workdir else '', 'text': text,
