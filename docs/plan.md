@@ -1,6 +1,6 @@
 # 后续计划
 
-更新：2026-10-19。只放待办和需要重复执行的流程；已完成的经过见[历史工作](work-history.md)，测量通用约束见 `.claude/rules/`，参数任务只在[每机调参手册](host-tuning.md)维护。整个工程的现行决定见 [README](../README.md#现行决定)。
+更新：2026-10-24。只放待办和需要重复执行的流程；已完成的经过见[历史工作](work-history.md)，测量通用约束见 `.claude/rules/`，参数任务只在[每机调参手册](host-tuning.md)维护。整个工程的现行决定见 [README](../README.md#现行决定)。
 
 ## 待办顺序
 
@@ -18,18 +18,10 @@
 11. ~~零模型 mock 门回归~~：2026-10-22 修好（91bed4d），根因是调用缺 `--directory-probe`；`claude_scenario --backend` 已加 deepseek。
 12. ~~Claude Code 路径的提醒改用高优先级消息~~：2026-10-23 实现，见「多模型 benchmark」。
 13. **采样与窗口重新测量**：负载设计，见同名一节。前置的 harness 换版已完成（2026-10-24）：版本改由 `tools/reviewer/harness_pins.py` 一处配置，换到 Codex 0.164.0、Claude Code 2.1.309 的 benchmark 副本；单测、两侧 mock 门、compact probe 和第 12 项的 Strata 送达实测 2 例都通过；2.1.309 的工具搜索占位工具由 runner 设 `ENABLE_TOOL_SEARCH=false` 去掉（`qwen-agent` 日常路径未改，待定）。开跑时若已有更新版本，按测量规则再换。
-14. **rtx4070tis 上线**（用户 2026-10-22 提出；2026-10-24 定：排在所有 benchmark 遗留工作和本机遗留项之后，做法是把本工程整体复制到 rtx4070tis 由那里的会话就地运行，不远程管理；目的是上线前解决本地问题，新机只做主机相关步骤和 GPU 调参）：本机前置「工程可移植化」（状态页 queue `portable`）；新机要做的全部事项写在[交接文档](rtx4070tis-handoff.md)，上线时交给新机会话。原「顺序」第 6 条并入本项。
+14. **rtx4070tis 上线**（用户 2026-10-22 提出；2026-10-24 定：排在所有 benchmark 遗留工作和本机遗留项之后，做法是把本工程整体复制到 rtx4070tis 由那里的会话就地运行，不远程管理；目的是上线前解决本地问题，新机只做主机相关步骤和 GPU 调参）：本机前置「工程可移植化」（状态页 queue `portable`）；新机要做的全部事项写在[交接文档](rtx4070tis-handoff.md)，上线时交给新机会话。原「顺序」第 3、6 条与 rtx4070tis 相关的旧条目已清理并并入交接文档（2026-10-24，见 work-history）。
 15. ~~v5 题库~~：2026-10-24 用户关闭（采样维 10-22 已改用 ARW），见 work-history。
 
 下一版 benchmark 的改进（输出上限重试、harness 设置对齐、Role 说明、歧义题目、会话检查工具）在下一版 benchmark 立项时一起做，不单独排序。已先做的部分（2026-10-24，b7a4f36 合入）：Claude Code 臂加 `claude_scenario --role-as-system`（Role 说明合进 `--append-system-prompt`，默认关，旧计划不变；mock 已核对请求形态，未用真实 ARW Role 全文测命令行长度）；会话检查对解析失败的 Bash 输入显示原文并标 `bash input not parsed`。歧义题目要改场景原文，会改变 v1 冻结的 SHA 绑定，留到新版目录建立时做。
-
-等外部条件、不参与排序：rtx4070tis 恢复后的各项，包括「顺序」第 6 条、「ARW 同步与 Spec 恢复」「升级后 Spec Readiness 配置比较」「上下文配置的测量与选择」。
-
-待核实是否仍然有效（「IQ3_XXS 遗留事项」）：
-- 补测调参只剩第 9 维（窗口），已并入第 8 项；
-- 场景修复 F2–F6 针对的是已停用的合并实例；
-- "ARW 完整四场景 benchmark"已被多模型 benchmark 取代；
-- 「顺序」第 3 条在 rtx3080ti 上随 v0.1.42 已部署，只剩 rtx4070tis。
 
 ## Reviewer 场景重构（用户 2026-10-13）
 
@@ -74,36 +66,6 @@
 - [ ] 试跑结束后：调参驱动实现加载后预热、分数类参数同条件连跑、速度类参数按块交替（AA BB BB AA）与运行顺序趋势检查、各实例 reused 比例核对（规则见 measurement.md「预热与连跑」，bcceb93）。
 - [x] 窗口维：2026-10-24 试跑收尾，负载对模型侧不敏感，按工作时间暂时维持 206584（[报告](../reports/v0.2.2/window-dim/summary.md)，待用户复核）；长上下文验证 v2（[报告](../reports/v0.2.2/longctx-150k/summary.md)）与按用户要求重做的 v3 记忆负载（[报告](../reports/v0.2.2/longctx-retest/summary.md)）跑完，2026-10-24 定为维持 206584（已登记现行决定，待用户复核）。
   - [ ] 低优先级：窗口维负载加入多次更新的 latest 题，两档各跑 1 个 Codex 实例（约 1 小时 GPU），看压缩后答最新值是否有差别；不阻塞现行决定。
-
-## 顺序
-
-rtx3080ti 是唯一可用主机，先推进属于它的工作；rtx4070tis 恢复后再决定它的工作。
-
-3. [ ] **防循环弃用部署**：代码、手册和测试已改（2026-10-11），随 v0.1.42 升级一起部署到 rtx3080ti；rtx4070tis 待同步。
-6. [ ] **rtx4070tis 恢复后**：核对实际文件、版本、服务和持有状态；补同步离线期间的部署（`config/deployments/rtx4070tis.json` 的 `models` 暂定 `["IQ3_XXS"]` 是占位（每台机器只对外一个模型，用户 2026-10-19）：先核对该机实际装有哪些权重、确认对外模型，再补该模型的 `context_tiers`，否则渲染 catalog 会失败停下；部署会备份并删除安装目录里不对外量化的 prebuilt 和已退役的 `config/maintenance-baseline.json`；rtx3080ti 当前的 Strata 版本、前端、新默认值；它仍为 v0.1.40.2）；再按[ARW 同步与 Spec 恢复](#arw-同步与-spec-恢复)和调参手册的本机待办安排。思考上限沿用 8192/24576，不采用方案 A（用户 2026-10-12 回滚）；guardian 用思考 512 / 总输出 1024。
-
-## IQ3_XXS 遗留事项
-
-  - [ ] **IQ3_XXS 补测调参**（用户 2026-10-11 批准申请一）：按序 0 `STRATA_ADAPT_LAG` 不设置/2（直接完整测）→ 1 `--adapt-swaps` 96/160/48 → 2 `--adapt-every` 4/2/8 → 3 `--adapt-decay` 0.7/0.5/0.9 → 4 `--kv-resident` 20480/32768/12288（0–4 用 32K 资源负载，各 3 次）→ 5 `--spec` 3/4/5/6 → 6 CPU 辅助显式 auto/不设置 → 7 学习型专家档案（用户 2026-10-11 取消：v0.1.37/38 已训练过，没有稳定收益，直接用默认发布档案）（5–6 用 Commit Audit，等修复 F1/F2）→ 8 采样参数 → 9 窗口（用户：窗口和采样必须在 IQ3_XXS 上实测才能纳入默认值，放在最后，先采样后窗口；推理强度保持 high）。每维 Main 与独立复核一致才采用。第 5、6 维按 `tools/tuning/arw_dimension.py` 每个实例部署条件并冷启动（用户 2026-10-11 确认，授权 `deploy --condition` 可多次）。进度：第 0 维完成，2 更快（约 +3–6%），双方一致采用并部署（[报告](../reports/v0.1.42/iq3_xxs-tuning/adapt-lag/summary.md)）；第 1 维完成，160 优势在噪声内（约 +1.4%）、48 偏差，双方一致保持 96（[报告](../reports/v0.1.42/iq3_xxs-tuning/adapt-swaps/summary.md)）；第 2 维完成，三者无可分辨差异（±1.5% 内），双方一致保持 4（[报告](../reports/v0.1.42/iq3_xxs-tuning/adapt-every/summary.md)）；第 3 维完成，0.9 与 0.7 持平、0.5 劣势来自单个离群实例，双方一致保持 0.7（[报告](../reports/v0.1.42/iq3_xxs-tuning/adapt-decay/summary.md)）；第 4 维完成，32768 在短负载上无收益、12288 被引擎抬到 20480 无效，双方一致保持 20480；长上下文 20480/32768 补测待另行申请，测 64K/100K/150K 三个长度（用户 2026-10-11）；对外上下文档位定为阈值 100K/150K/200K、窗口 156584/206584/256584 三档（第一档为默认），用户 2026-10-11 决定先在 IQ3_XXS 上实测再发布 206584/256584 两档（[报告](../reports/v0.1.42/iq3_xxs-tuning/kv-resident/summary.md)）；rtx4070tis 待同步；第 5 维完成，采用 spec 4 并部署（旧口径曾选 spec 3 并部署，2026-10-11 评分口径改为低频格式失误不计分后重算：spec 5 差最高分 0.081 出局，3/4/6 在 0.08 内按引擎输出 tok/s 选 4；Main 与复核一致，用户确认；证据弱），[报告](../reports/v0.1.42/iq3_xxs-tuning/spec/summary.md)。第 6 维完成，显式 auto 与不设置实质等价，双方一致维持 auto（[报告](../reports/v0.1.42/iq3_xxs-tuning/cpu-prefill-share-unset/summary.md)）。第 8 维（采样）完成，greedy 最快、分差在 0.08 内，双方一致维持 0/1/20（[报告](../reports/v0.1.42/iq3_xxs-tuning/sampling/summary.md)）。
-  - [ ] **benchmark 场景修复**（用户 2026-10-11 批准申请二）：F1 测量交接追加说明（冻结文本文件，记 SHA）；F2 能力验证和 benchmark 中关闭本工程接续机制，改用 ARW 原版接续与 10/5 次暂停（最大限度还原 ARW，便于与 ARW 自己的结果直接对比）；（进展：F1 已完成；F2 按用户决定改为给 ARW 打本工程接口补丁、由 ARW 持有独占并启动模型，实例间不停模型，补丁、驱动和单元测试已完成，待 F3 实跑验证；F3 合并实例改由 `arw_measure` 在 ARW 持有模型模式下运行：同一重复先 runtime-migration、再在同一线程接续 artifact-promotion，第一份报告接续前核对 SHA，第一阶段未完成则跳过并记录缺口，不再停等 Main 中途决定；本机准备和预检已通过（前端 `/health` 改动已部署）；F3 首次试跑失败（ARW 请求 403）：本工程运行层传入 `nativeSessions` 时 ARW 宿主不创建模型目录，管理器读不到 provider，provider 也只写进了 `native-model-catalog.json` 而非 ARW 读取的 `models.custom.json`；2026-10-11 已修复（运行层与 App Server 共用一个 ARW 目录、provider 写入 codex-home 的 `models.custom.json`，daemon 就绪时回报 ARW 实际读到的 provider，驱动核对后才派发），同时 ARW 补丁改为只传模型和安装目录发布的上下文档位（provider `contextWindow`，默认第一档），窗口和压缩阈值都取自该档位，selection 不再带 `auto_compact_token_limit`；ARW 持有模型模式下每个实例从派发到分段关闭采集主机遥测；ARW 合并后的压缩提示 = 安装目录基础提示（与工程源同 SHA）+ Codex 原生快照 0.160.1，该快照文本完整出现在 0.162.0 二进制中（静态比对，实际压缩路径待试跑确认））F3 第二次试跑（2026-10-11）：ARW 成功领 key、启动模型，runtime-migration 首回合完成（758 秒，报告 ready）；接续 artifact-promotion 时触发 ARW 缺陷（见 `docs/arw-upstream-issues.md` D：原线程卸载后 followup 用新交接的文件系统检查原报告，判"缺失"并连续接续 10 次），驱动收到 `reviewer-busy` 退出，实例无效；已用 ARW 原版中断结束任务、维护接口关闭守护进程归还 key，并停模型；修复需改 ARW 运行层，待用户决定；F3 Spec Readiness 本机无模型准备与回归，再试跑 1 个合并实例；F4 单场景评分工具；F5 已有 Code Spec/Code Standards 两个实例不并入，全部重跑；F6 四场景各 5 次（另行开跑）。
-  - [ ] 有余时间时：ARW 完整四场景 benchmark，只用 IQ3_XXS / high，其他参数用调参后的默认值，每场景 5 次取平均（用户 2026-10-11 授权，排在 IQ3_XXS 调参和高优先级任务之后）。
-
-## ARW 同步与 Spec 恢复
-
-这部分属于 rtx4070tis，等它恢复。规则见 `.claude/rules/reviewer-suite.md`。ARW 已同步到 760007c，[同步核查](../benchmarks/reviewer-suite-v1/source-sync.json)：554 文件逐项核对，112 份业务 fixture 字节不变；只完成无模型验证。
-
-- [ ] 在新来源完成原版准备和受影响的无模型回归：报告独立目录可写，输入、请求、规则和恢复记录在目录外。
-- [ ] 核对最终交付由运行层验证 completion，不再额外要求最终 send_message；更新受影响的驱动和来源绑定。
-- [ ] 补安全验收（`.claude/rules/reviewer-suite.md`「正式测量前的安全验收」）中受影响的部分：一个该机对外模型的实例（原计划为 Q2_0；2026-10-19 起每台机器只对外一个模型）、三个原生沙箱 / 报告写入 / 同线程接续流程、15 个审批用例（约 21 次 guardian 判断），预计 30–60 分钟。
-- [ ] 完成旧 Spec runtime-migration 报告和原生会话的 Main 检查；旧 0.1.40.1 首阶段不与 0.1.40.2 第二阶段拼接。
-
-## 升级后 Spec Readiness 配置比较
-
-该计划（rtx4070tis 上固定 Q2_0 的合并实例四组合）已失效：合并实例已停用（`.claude/rules/reviewer-suite.md`），IQ3_XXS 已是默认量化，窗口默认已改为 206584／150000。rtx4070tis 恢复后重新制定；旧计划文件 [spec-readiness-local-plan.json](../benchmarks/reviewer-suite-v1/spec-readiness-local-plan.json) 仅作历史。
-
-## 上下文配置的测量与选择
-
-（rtx4070tis 恢复后重定；IQ3_XXS 默认已改为 150K／206584；维护基线 = 本机唯一对外模型 + 部署默认值，原 Q2_0 100K／156584 基线 2026-10-19 退役。）上下文维度用合并实例（同线程先 runtime-migration 再 artifact-promotion），各子场景各有 55/60 分钟初审预算，按合并实例统计。容量公式见[容量计算](compaction-options.md#上下文容量计算)：64K/100K/150K/200K 对应 120584/156584/206584/256584。下面的 100K / 156584 默认是当时的设定。报告统一写入 `reports/v0.1.38/context-comparison/` 的 `summary.md` 和 `summary.json`；已完成结果见[历史工作](work-history.md#已完成上下文配置测量)，排序由用户决定。
 
 ## 周期流程
 

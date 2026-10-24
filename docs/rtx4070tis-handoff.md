@@ -70,7 +70,7 @@ rtx3080ti 上由 Claude Code 管理本工程，rtx4070tis 上用 Codex。同一�
    - 核对 `models`，现在的 `["IQ3_XXS"]` 只是占位。
    - 思考上限沿用 8192/24576；guardian 用思考 512 / 总输出 1024。
 4. 安装最新版 Strata：用 `tools.ops.upgrade_release` 或重建安装。注意 `install_offline` 按发布版本拼引擎目录的已知限制。
-5. 部署（命令不加 `cd … &&` 前缀和管道）。部署会备份并删除安装目录里不对外量化的 prebuilt 和已退役的 `config/maintenance-baseline.json`。
+5. 部署（命令不加 `cd … &&` 前缀和管道）。部署会备份并删除安装目录里不对外量化的 prebuilt 和已退役的 `config/maintenance-baseline.json`；防循环已弃用（默认关闭、启动提示不加载防循环段），随工程部署即带上。
 6. 检查：安全门、compact probe、短检查（`strata-upgrade` skill）。
 7. GPU 调参：按[调参手册](host-tuning.md)「每机执行方法」对 IQ3_XXS 独立调参，rtx3080ti 的调参结论不套用。
    - 16GB 显存下要重新测 prefill（现 16384）、kv-resident（现 20480）、显存预留、专家缓存、pool-workers。
@@ -78,11 +78,6 @@ rtx3080ti 上由 Claude Code 管理本工程，rtx4070tis 上用 Codex。同一�
    - 可以顺带对照 256584 档在非 int8 KV 下的 200K 检索错误（plan「其他未解决问题」）。
 8. 写上线报告，登记 README「现行决定」（rtx4070tis 的参数绑定），状态页 `know` 交用户复核。
 
-## 待核实的旧计划
+## 已清理的旧计划
 
-`docs/plan.md` 里下列几节写的是旧做法，按「清理待核实清单」在 rtx3080ti 上先核对，失效的删除。交接时只保留仍然有效的部分：
-
-- 「顺序」第 3、6 条；
-- 「ARW 同步与 Spec 恢复」；
-- 「升级后 Spec Readiness 配置比较」；
-- 「上下文配置的测量与选择」。
+`docs/plan.md` 里原有的 rtx4070tis 旧条目（「顺序」第 3、6 条、「ARW 同步与 Spec 恢复」「升级后 Spec Readiness 配置比较」「上下文配置的测量与选择」、IQ3_XXS 遗留事项）已在 rtx3080ti 上核对并删除（2026-10-24），经过见 [work-history](work-history.md)「plan 清理：rtx4070tis 旧条目」。新机不需要再做 Spec Readiness 十二实例和 Q2_0 基线；ARW 已同步到 760007c，随工程一起复制，新机只需重跑步骤 6 的安全门等检查。
