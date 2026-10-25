@@ -58,7 +58,6 @@ rtx3080ti 安装 Strata v0.2.4（引擎 0.1.48，2026-10-24，通过短检查）
 - rtx3080ti 一直用平衡电源计划：高性能的 Strata 速度差不到 1%（2026-10-23）：[报告](reports/v0.2.2/power-plan/summary.md)。
 - 多模型 benchmark（2026-10-19，用户决定；方案定稿待冻结，[计划](benchmarks/multi-model-v1/plan.md)）：27 个配置（Codex：gpt-6.1-sol、gpt-6-luna、deepseek-flash、Strata；Claude Code：Opus、Sonnet、Haiku、deepseek-flash、Strata；均 low／medium／high）× 4 场景 × 5 次；只报分场景原始分，不算比值和综合分；两份基础提示只给 Strata（硬约束 3 例外）；搜索全部关闭（2026-10-11 搜索规则在 benchmark 期间豁免）；service tier 一律 default 并记录实际返回值；OpenAI 用 ChatGPT 套餐登录、只报 token。盲裁维持单名 Opus 全量裁（加锚点和合成负例）：按用户的 20% 规则盲裁占 benchmark 的 Anthropic 总消耗中值约 24%，但双裁只省约 $55–58，用户按例外处理、质量优先（2026-10-19，用户决定；计划 §6），"盲裁用 Opus，不用 Sonnet"继续有效。
 - 跨 harness 比较以设置一致为目标，不以“各用原生设置”为目标；保留差异须有充分理由并写进计划（2026-10-22，用户决定）：[测量规则](.claude/rules/measurement.md)。
-- 多模型 benchmark v2 冻结：CS v5.1、CStd v5.1、CA v3.1、SR v4.5 四个计划，Claude Code 2.1.310、Codex 0.164.0，评分 r8.5，不做组间比较；运行与计分代码按文件 SHA 绑定（`bench_bindings --check`）；Anthropic、OpenAI 两臂第一个实例前须先过计划第 11.1 节的安全门放行条件（2026-10-25，Main 与独立审查一致）：[计划](benchmarks/multi-model-v2/plan.md)、[冻结审查](benchmarks/multi-model-v2/review-f15-2026-10-25.md)。
 
 ## 主线
 
