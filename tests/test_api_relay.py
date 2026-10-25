@@ -12,7 +12,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.api_relay import Relay, load, tier_summary
+from tools.reviewer.api_relay import Fields, Relay, load, tier_summary
 from tools.reviewer.providers import (api_provider, credential_present, link_login, process_environment, provider_config,
     release_login, shell_exclude)
 from tools.safety.safety_gate import guardian_request, rate_limit_header, request_body, synthetic_login, web_search_tools
@@ -58,6 +58,15 @@ class RelayTests(unittest.TestCase):
                 self.assertEqual((summary['requests'],summary['websocket_refused'],summary['service_tiers']),(1,1,{'default':1}))
         finally:
             upstream.shutdown();upstream.server_close()
+
+    def test_incomplete_response_keeps_its_reason(self):
+        fields=Fields()
+        event={'type':'response.incomplete','response':{'id':'r1','status':'incomplete',
+            'incomplete_details':{'reason':'max_output_tokens'},'usage':{'output_tokens':8192}}}
+        fields.feed(b'data: '+json.dumps(event).encode()+b'\n')
+        self.assertEqual((fields.values['response_status'],fields.values['incomplete_details']),('incomplete',{'reason':'max_output_tokens'}))
+        done=Fields();done.feed(b'data: '+json.dumps({'type':'response.completed','response':{'status':'completed','incomplete_details':None}}).encode()+b'\n')
+        self.assertNotIn('incomplete_details',done.values)
 
     def test_reply_without_content_type_is_scanned_and_refusal_is_no_error(self):
         # The ChatGPT backend streams SSE with no Content-Type (2026-10-20); a plain JSON reply still parses.

@@ -642,6 +642,31 @@ def relay_tokens(folder):
     return (out, used, missing) if used else None
 
 
+def relay_output_limits(folder):
+    """Per-response output of a Codex API instance from its relay log (F15 suggestion 1: Codex sends no output limit,
+    the endpoint applies its own): the largest single-response output_tokens, and the responses the provider marked
+    incomplete with their incomplete_details reasons. All None without a relay log; a reason the relay did not keep is
+    'unknown'."""
+    files = sorted((Path(folder) / 'run/relay').glob('*.jsonl'))
+    outputs, reasons = [], {}
+    for f in files:
+        for line in f.read_text(errors='replace').splitlines():
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            output = (row.get('usage') or {}).get('output_tokens')
+            if output is not None:
+                outputs.append(output)
+            if row.get('response_status') == 'incomplete' or row.get('incomplete_details'):
+                reason = (row.get('incomplete_details') or {}).get('reason') or 'unknown'
+                reasons[reason] = reasons.get(reason, 0) + 1
+    if not files:
+        return {'max_response_output_tokens': None, 'incomplete_responses': None, 'incomplete_reasons': None}
+    return {'max_response_output_tokens': max(outputs) if outputs else None,
+            'incomplete_responses': sum(reasons.values()), 'incomplete_reasons': reasons}
+
+
 def relay_token_fallback(record, folder):
     """A Codex API record whose handoffs carry no tokens (ARW lost them at a hard interrupt) takes the relay log sums;
     POST requests without usage (cut by the interrupt) make them a lower bound, stated in token_source."""
@@ -923,6 +948,8 @@ def instance_record(arm, scenario, folder, done=None, arm_tokens=None, suite='v1
     record.update(SCORE_FIELDS)
     record.update(summary_fields(record))
     relay_token_fallback(record, folder)
+    if arm in ('openai', 'deepseek-codex'):
+        record.update(relay_output_limits(folder))
     record.update(speed_fields(record, folder))
     if arm.startswith('deepseek'):
         event = (done or {}).get(folder.name)

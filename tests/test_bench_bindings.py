@@ -2,6 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from tools.reviewer import bench_bindings, bench_suite
 
@@ -45,6 +46,45 @@ class CollectFilesTest(unittest.TestCase):
             problems = []
             bench_bindings.plan_files(path, problems)
         self.assertTrue(any('manifest sha256 00000000' in p for p in problems), problems)
+
+
+class CodeTest(unittest.TestCase):
+    def test_every_code_file_exists_and_is_hashed(self):
+        problems = []
+        code = bench_bindings.code_files(problems)
+        self.assertEqual(problems, [])
+        self.assertEqual(sorted(code), sorted(bench_bindings.CODE_FILES))
+        for name in ('tools/reviewer/claude_scenario.py', 'tools/reviewer/bench_score.py', 'tools/safety/claude_gate.py'):
+            self.assertIn(name, code)
+        self.assertTrue(all(len(v) == 64 for v in code.values()))
+
+    def test_missing_code_file_is_a_problem(self):
+        problems = []
+        code = bench_bindings.code_files(problems, ('tools/reviewer/no_such_file.py',))
+        self.assertEqual((code, len(problems)), ({}, 1))
+
+    def test_changed_code_file_is_named(self):
+        lines = bench_bindings.differences({'code': {'a.py': '1' * 64}}, {'code': {'a.py': '2' * 64}})
+        self.assertEqual(len(lines), 1)
+        self.assertTrue(lines[0].startswith('code a.py:'), lines)
+
+
+class BaselineTest(unittest.TestCase):
+    def test_inherited_entry_is_verified_against_the_archive_it_inherits_from(self):
+        from tools.reviewer import format_penalty
+        seen = []
+        with mock.patch.object(format_penalty, 'verify_archive', side_effect=lambda entry, archive: seen.append(archive)):
+            self.assertEqual(bench_bindings.baseline_problems('v2'), [])
+        v1_archive = bench_bindings.V1_SUITE / 'format-baseline'
+        self.assertIn(v1_archive, seen)  # the CStd entry says inheritsFrom v1
+        self.assertIn(bench_bindings.SUITE_DIRS['v2'] / 'format-baseline', seen)
+
+        def broken(entry, archive):
+            if archive == v1_archive:
+                raise ValueError('sha256 mismatch')
+        with mock.patch.object(format_penalty, 'verify_archive', side_effect=broken):
+            problems = bench_bindings.baseline_problems('v2')
+        self.assertTrue(problems and all('sha256 mismatch' in p for p in problems), problems)
 
 
 if __name__ == '__main__':

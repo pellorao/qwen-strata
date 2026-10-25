@@ -252,6 +252,25 @@ class RecordsTest(unittest.TestCase):
         r = bench_records.instance_record('openai', 'commit-audit-v3', o)
         self.assertEqual((r['tokens']['output'], r['token_source']), (3, 'API usage (relay)'))
 
+    def test_codex_api_largest_response_output_and_incomplete_reasons_from_the_relay(self):
+        o = self.scene / 'codex-high-a1'
+        write(o / 'instance.json', {'valid': True, 'handoffs': [
+            {'instanceId': IID, 'reviewer_active_seconds': 100, 'tool_calls': 4, 'tokens': None}]})
+        rows = [{'method': 'POST', 'started_at': 1, 'ended_at': 3, 'response_status': 'completed',
+                 'usage': {'input_tokens': 500, 'output_tokens': 7328}},
+                {'method': 'POST', 'started_at': 4, 'ended_at': 5, 'response_status': 'incomplete',
+                 'incomplete_details': {'reason': 'max_output_tokens'}, 'usage': {'input_tokens': 9, 'output_tokens': 8192}},
+                {'method': 'POST', 'started_at': 6, 'ended_at': 7, 'response_status': 'incomplete'}]  # reason not kept
+        write(o / 'run/relay/relay.jsonl', ''.join(json.dumps(x) + '\n' for x in rows))
+        r = bench_records.instance_record('deepseek-codex', 'commit-audit-v3', o)
+        self.assertEqual((r['max_response_output_tokens'], r['incomplete_responses'], r['incomplete_reasons']),
+                         (8192, 2, {'max_output_tokens': 1, 'unknown': 1}))
+        write(o / 'run/relay/relay.jsonl', json.dumps(rows[0]) + '\n')
+        r = bench_records.instance_record('deepseek-codex', 'commit-audit-v3', o)
+        self.assertEqual((r['max_response_output_tokens'], r['incomplete_responses'], r['incomplete_reasons']), (7328, 0, {}))
+        (o / 'run/relay/relay.jsonl').unlink()
+        self.assertIsNone(bench_records.relay_output_limits(o)['incomplete_responses'])  # no log: unknown, not 0
+
     def test_openai_pauses_rebuilt_from_the_flag_and_the_machine_log(self):
         notice = lambda mid: {'ok': True, 'result': {'notifications': [
             {'type': 'message', 'messageId': mid, 'text': bench_records.ARW_PAUSE_PREFIX + '10 turns.'}]}}

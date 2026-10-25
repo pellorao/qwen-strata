@@ -59,6 +59,32 @@
   "config/prompts/compact-prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
   "config/prompts/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e"
  },
+ "code": {
+  "tools/reviewer/claude_scenario.py": "9c0bdd75df5ca006011718b5e30bc27bf5ed86ee955223ed6c7cec15bf02e877",
+  "tools/reviewer/claude_headless.py": "757a5ac79de88df9106128dad49fbab45d1b31d7d01996d89464e748ba4eaf67",
+  "tools/reviewer/review_deadlines.py": "b909c4940c2a4101a84ce34453c93ea8f68a8afa6310f5b368ca061558ee07f9",
+  "tools/reviewer/reminder_interrupt.py": "8e3a7fa626d1e737e4128f5e7ab406bbde60ef000d5df80e82bd346d8b804cb5",
+  "tools/reviewer/harness_pins.py": "4c0c8997475ee00155802451365f6023fa53aeebb7df0502c8819f34e8b4fcf7",
+  "tools/tuning/arw_dimension.py": "c947ece836c74755776ad3a3cbc79088ad5fdebeb58a3e74fd82cda9aacf4180",
+  "tools/reviewer/arw_measure.py": "1735b7be60c89df95137c1c5cd2a6a61fa4a994810ccca012eff87d3d9fd5e9a",
+  "tools/reviewer/arw_runtime.mjs": "2678356fac3e684e103feff4bbd3386c0e73b0ca4f6cdea25e3bf5bb98e78aa7",
+  "tools/reviewer/arw_native_setup.mjs": "8f3071804733363c67dfd2fb9e2ec274eb7c8304752bccddc3523e1b52d4e258",
+  "tools/reviewer/providers.py": "d17b0cf7cc2f7d149b949756167dc353fbf39df5c3808d38123855b51671c107",
+  "tools/reviewer/api_relay.py": "a206df76e36e457bb502ff5f1905e285290914287025e8a2b85bd2e37f9b1e75",
+  "tools/reviewer/freeze_arw_source.py": "2c48b463781b445b83728622131701371fadedddeb96b8812a11374f92e87bcd",
+  "tools/safety/claude_gate.py": "66a6f102ffe40f8916a526ea56e365688a083c34df11426df77a51c3be7d230d",
+  "tools/safety/safety_gate.py": "af3e7927e8f5b5483837e64ccdb37ec51b5c7c35624af0b799df836b1ed203e4",
+  "tools/reviewer/inspect_session.py": "280034eada4088637a3ab187b7c67900677a23dfb8ff90eaccf6453294973cf5",
+  "tools/reviewer/bench_suite.py": "10790e7a869beeab315a947475d63d04505f95509bed5b2df07b873da83296b7",
+  "tools/reviewer/bench_records.py": "499f0d01f3a95091f5b00cc5b4be24385b8673f483a34c6a92ddf6026e116a19",
+  "tools/reviewer/bench_validity.py": "7f919e190252c038498b0bc1c871168a3067ceb594be8ab610bb6ad584b81eba",
+  "tools/reviewer/bench_score.py": "06a41e0f23c120dea085d9e649a7ddac9f5172ccb617c2514d1e138f56828030",
+  "tools/reviewer/single_scenario_score.py": "38f87acd96976838201a8323af4a5a3e60d8d396387b46bbb6e8490ef0d79375",
+  "tools/reviewer/arw_native.mjs": "28c115b9e79b21fa3d21efe668993ba5422e82672eb78303daa0b64159fdc12a",
+  "tools/reviewer/format_penalty.py": "dccd61074e9965da2ca1c31ae3f51b8b38698a31dd1f6dc0db12227367560ba0",
+  "tools/reviewer/repair_reviewer_report.py": "7c62e25fcd3af1f41b13ee2b1c3733fce926a2b6c0286a25e569bca7c8e2ca6e",
+  "tools/reviewer/blind_pool.py": "dc460b55199e349149abc56037779f56c35a218f2b06625869fd91af3716abc7"
+ },
  "harness": {
   "codex": {
    "version": "0.164.0",

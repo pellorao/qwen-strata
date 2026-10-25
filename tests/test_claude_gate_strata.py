@@ -1,3 +1,5 @@
+import contextlib
+import io
 import tempfile
 import unittest
 from pathlib import Path
@@ -41,6 +43,23 @@ class PlanLimitsTest(unittest.TestCase):
                 gate.plan_limits(plan)
             with self.assertRaisesRegex(ValueError, 'DeepSeek backend only'):
                 gate.gate(Path(folder) / 'out', backend='anthropic', limits={'CLAUDE_CODE_MAX_OUTPUT_TOKENS': 1})
+
+
+class MockDisconnectTest(unittest.TestCase):
+    def test_client_disconnect_is_silent_and_other_errors_are_printed(self):
+        server = gate.serve()
+        try:
+            for error, printed in ((ConnectionResetError, False), (BrokenPipeError, False), (ValueError, True)):
+                stderr = io.StringIO()
+                with contextlib.redirect_stderr(stderr):
+                    try:
+                        raise error('x')
+                    except error:
+                        server.handle_error(None, ('127.0.0.1', 1))
+                self.assertEqual(bool(stderr.getvalue()), printed, error)
+        finally:
+            server.shutdown()
+            server.server_close()
 
 
 if __name__ == '__main__':

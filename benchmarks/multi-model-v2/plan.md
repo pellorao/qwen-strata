@@ -1,6 +1,6 @@
-# 多模型 benchmark v2 运行计划（草案，未冻结）
+# 多模型 benchmark v2 运行计划（冻结审查完成、修正已做，待 Main 冻结）
 
-起草 2026-10-24。本稿只做题目、brief 与设置的准备，没有运行任何模型，也没有领取租约。冻结前要按 AGENTS.md 硬约束 1 交独立 agent 审查，并由用户决定第 9 节列出的事项。v1 的目录、冻结件和 SHA 绑定一律不改，v2 的全部文件都在本目录。
+起草 2026-10-24。起草时只做题目、brief 与设置的准备，没有运行模型；此后冻结前检查（第 11 节）跑过的模型和费用逐项记在该节。冻结审查（F15，[审查报告](review-f15-2026-10-25.md)）已完成，结论是修正后可以冻结；必须修正的 M1–M3 和建议 1–5、7 已落实（见 F15 行），待 Main 复核后冻结。第 9 节的事项由用户复核。v1 的目录、冻结件和 SHA 绑定一律不改，v2 的全部文件都在本目录。
 
 ## 1. 目的
 
@@ -19,8 +19,8 @@
 | `plan.md` | 本计划 |
 | `scenarios/<版本>.patch` | v2 对 v1 冻结场景的补丁（只改措辞，行数不变） |
 | `scenarios/manifest-<版本>.json` | v2 场景清单：v1 清单 + 上面的补丁 |
-| `briefs/<版本>-brief.md` | 四份盲裁 brief 草案，由 v1 冻结件改出 |
-| `scenarios/<版本>.json` | 四个场景的 v2 运行计划（`arw-dimension-v1`，草案）：评分版本、Codex harness 补丁、Role 位置、DeepSeek 的 Claude Code 窗口与上限 |
+| `briefs/<版本>-brief.md` | 四份盲裁 brief（待冻结），由 v1 冻结件改出 |
+| `scenarios/<版本>.json` | 四个场景的 v2 运行计划（`arw-dimension-v1`，待冻结）：评分版本、Codex harness 补丁、Role 位置、DeepSeek 的 Claude Code 窗口与上限 |
 | `arw-patches/scoring-r8.5.patch` | 评分 r8.5，叠在 v1 的 `scoring-k.patch`（r8.4）之上，只由 v2 计划选用（第 6.1 节） |
 
 未改动的场景（Code Standards v5.1）直接用 v1 的冻结清单，不复制。Spec Readiness 因 A4 出了 v4.4，又因 A5（[F1 审计](audit-f1-2026-10-25.md) M2）出了 v4.5，与 CS、CA 一样建 v2 清单和补丁；v4.5 的清单 = v1 清单 + `spec-readiness-v4.4.patch` + `spec-readiness-v4.5.patch`，v4.4 的清单已由 v4.5 取代。
@@ -79,7 +79,7 @@ v1 的场景是 ARW 源码快照 + 清单中的补丁序列（`tools.reviewer.fr
 | 配置 | Codex 窗口 / 压缩点 | Claude Code 窗口 / 压缩点 | 推理强度 | 输出上限 |
 |---|---|---|---|---|
 | Strata | 206584 / 150000 | 206584 / 150000（`CLAUDE_CODE_MAX_CONTEXT_TOKENS`、`CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`） | 三档 thinking 2048 / 4096 / 8192，两边相同 | 三档 8192 / 16384 / 24576，两边相同；guardian 512 / 1024 只在 Codex |
-| DeepSeek | 目录 1048576、有效 95%、`auto_compact` 为空，实际不压缩 | 未设窗口，按默认约 162K 压缩 | 按提供方档位映射 | Codex 走目录值；Claude Code `max_tokens` 32000（v1 SR AP 有 7 次模型失误由此触发） |
+| DeepSeek | 目录 1048576、有效 95%、`auto_compact` 为空。v1 当时记为「实际不压缩」；F7 实测 0.164.0 在这份目录下 945000 之后压缩（Codex 默认点，约为窗口 90%），0.163.0 没有实测。v1 场景输入远低于这个值，实际都没压缩 | 未设窗口，按默认约 162K 压缩 | 按提供方档位映射 | Codex 请求不带 `max_output_tokens`，由端点处理（目录没有输出上限字段；F8 在 0.164.0 上实测）；Claude Code `max_tokens` 32000（v1 SR AP 有 7 次模型失误由此触发） |
 | OpenAI | 目录 272000、有效 95%、服务端压缩（`responses_compaction_v2`） | 不在 Claude Code 上跑 | 原生 effort | 原生 |
 | Anthropic | 不在 Codex 上跑 | 原生窗口；mock 显示默认 `max_tokens` 32000 | 原生 effort | 原生 |
 
@@ -91,20 +91,26 @@ harness 版本：v1 用 Codex 0.163.0、Claude Code 2.1.303；`tools/reviewer/ha
 |---|---|---|
 | Strata 窗口 / 压缩点 | 两边维持 206584 / 150000（已对齐） | 无 |
 | Strata 推理强度、输出上限 | 维持三档映射（已对齐） | guardian 只在 Codex：Claude Code 没有对应的审批模型调用，属于 harness 结构差异 |
-| DeepSeek 窗口 / 压缩点 | **已决定（第 9 节第 2 项）：两边都用 1M、不压缩。** Codex 沿用目录 1048576（`auto_compact` 为空）；Claude Code 设 `CLAUDE_CODE_MAX_CONTEXT_TOKENS=1048576`，`CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 的值由压缩点探针定（第 11 节 F6），保证到场景最大输入都不压缩 | 无。场景单实例输入远低于 1M，两边等于都不压缩 |
-| DeepSeek 输出上限 | Claude Code 把 `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 设成与 Codex 实际请求相同的值；端点上限和 Codex 请求里的值冻结前核实（第 11 节 F5、F8） | v1 的 32000 上限造成 7 次模型失误，属 harness 设置而非模型能力；`src/output_limit.py` 的重试改动冻结时以合入后的版本为准，本稿不改它 |
-
-实现：四个 v2 计划的 `fixed_conditions.deepseek_claude_environment` 写着这三个变量，`claude_scenario --backend deepseek` 读取后经 `claude_headless.deepseek_environment(limits=…)` 交给 Claude Code，并记进 `binding.json` 的 `deepseek_limits`。冻结前值为 `null` 的两项让 DeepSeek 的 Claude Code 运行直接报错，不会用默认值误跑。
+| DeepSeek 窗口 / 压缩点 | **两边窗口 1M、压缩点都是 945000**（第 9 节第 2 项「1M、不压缩」的落实；F5 方案 A，Main 2026-10-25 决定，F15 同意）。Codex 不改：沿用目录 1048576，用 0.164.0 的默认压缩点（F7、F8 实测在 945000 之后压缩）。Claude Code 显式设同值：`CLAUDE_CODE_MAX_CONTEXT_TOKENS=1048576`、`CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE=945000`（F6、F12 实测在 945000 ±100 处压缩；不设覆盖时回落到 1025576） | 压缩点两边相同。场景单实例输入远低于 945000，两边实际都不压缩，与第 9 节第 2 项「不压缩」的目的一致。Codex 的点来自它的默认比例，不是显式设置，所以换版或改目录后要用 `codex_compact_gate` 重核 |
+| DeepSeek 输出上限 | Codex 请求不带输出上限：0.164.0 没有能让请求带 `max_output_tokens` 的键（F5 查过二进制与配置，F8 抓请求核实），由端点按自身上限处理。Claude Code 设 `CLAUDE_CODE_MAX_OUTPUT_TOKENS=128000`，这是 2.1.310 能发出的最大值（设 384000 也会被截到 128000，F6、F12） | **保留的差异**：两边上限不同。Codex 一侧取端点默认值：官方文档写的最大输出是 384K，默认值没写，实测只知道 ≥7328（F5）；Claude Code 一侧是 128000。理由：两个限制都来自 harness 本身，取「各自能发出的最大值」最接近「两边都不受限」（F15 a 项同意）。场景单回复输出远低于 128000。剩下的风险在 Codex 一侧：端点默认值若低于场景需要的单回复输出，会被截断；处理见下文「Codex 侧输出上限核查」。v1 的 32000 上限造成 7 次模型失误，属 harness 设置，不是模型能力；`src/output_limit.py` 的重试改动以部署版本为准（F14） |
 | OpenAI / Anthropic | 各只在一个 harness 上跑，没有跨 harness 对齐问题；用原生窗口、原生 effort 档位 | 保留原生：没有第二个 harness 可比，按提供方默认最能代表日常使用 |
 | Role 说明位置 | Claude Code 默认开启 `--role-as-system`，见 5.4 | — |
 | 基础提示 | 维持 v1：两份基础提示只给 Strata（D4） | 用户 2026-10-19 决定 |
 
+实现：四个 v2 计划的 `fixed_conditions.deepseek_claude_environment` 写着这三个变量（1048576、945000、128000），`claude_scenario --backend deepseek` 读取后经 `claude_headless.deepseek_environment(limits=…)` 交给 Claude Code，并记进 `binding.json` 的 `deepseek_limits`。任一值为 `null` 时，DeepSeek 的 Claude Code 运行直接报错，不会用默认值误跑。
+
+**Codex 侧输出上限核查**（F15 建议 1，2026-10-25，零模型）：
+- v1 Codex·DeepSeek 的原始运行目录（`.tmp/bench-deepseek-1020/`，含 rollout 和 relay 日志）已在 10-22 清理（`.tmp/cleanup-1022/delete-list.txt`）。所以单回复的输出 token 和 `incomplete_details` 已经取不到；而且当时 relay 只存 `response_status`，不存 `incomplete_details`。
+- 能核的只有逐 handoff 的汇总（`.tmp/phase1-score-1022/records.jsonl`：70 个实例、87 个 handoff）。handoff 输出 ÷ 响应数最大是 6,867（82,406 输出、12 个响应），所以至少有一个回复 ≥ 6,867，与 F5 实测的 ≥7328 同一量级；单回复最大值没有上界证据。
+- 70 个实例 68 个有效，2 个无效都是 relay 传输错误。`final_status` 为 incomplete 的 3 个 handoff 都是 60 分钟硬限（ARW 终态写法，不是输出截断）。模型失误表里 Codex·DeepSeek 只有 1 条：硬限下报告为空。
+- 结论：没有看到输出截断的迹象，但也不能排除。正式运行改为逐实例记录：`api_relay` 现在保存 `incomplete_details`；`bench_records` 给 Codex API 臂（OpenAI、DeepSeek）记 `max_response_output_tokens`、`incomplete_responses`、`incomplete_reasons`，没有 relay 日志时记为未知，不填 0（单测 `tests/test_bench_records.py`、`tests/test_api_relay.py`）。报告按配置汇总，原因为 `max_output_tokens` 的实例逐个列出。Strata 的 Codex 臂经前端（F14 的重试），Claude Code 臂的 `max_tokens` 截断，都不在这次改动范围内。
+
 ### 5.3 开跑前核对实际压缩点（零模型）
 
-1. Claude Code：`python3 -m tools.ops.claude_compact_probe` 现在只覆盖 Strata 设置；扩展到 DeepSeek（以及 Anthropic 如需要）的环境变量组合，用假服务器确认触发压缩的输入 token 在配置值 ±100 内。未设 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 时 Claude Code 回落到"窗口 − 23000"，探针要覆盖这一情形，证明 v2 的设置不会落入回落值。
-2. Codex：没有现成探针。在 mock 门里用假服务器回放递增长度的回合，抓取请求，确认 rollout 里压缩事件出现的位置与目录的有效窗口一致；DeepSeek 设为不压缩时，确认到场景最大输入都不出现压缩事件。实现时优先扩展现有的 mock 门（`tools/safety/`），不新建脚本。
-3. 正式运行时，每实例的压缩次数由另一个 worker 正在给 `bench_records` 加的逐实例压缩计数记录；报告按配置汇总压缩次数和最大请求输入，核对与 5.2 的设置相符。本稿不改 `bench_records`。
-4. 输出上限：mock 门抓取两边请求里的 `max_tokens` / `max_output_tokens`，与 5.2 表一致才放行。
+1. Claude Code：`python3 -m tools.ops.claude_compact_probe --plan` 已支持 DeepSeek 的环境组合（F6），用假服务器确认压缩点在配置值 ±100 内，并覆盖不设 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 时回落到「窗口 − 23000」的情形。2.1.310 上四个计划都通过（F12）：压缩点 945000，回落点 1025576。
+2. Codex：`tools/safety/codex_compact_gate.py`（F7）用回环 mock 驱动 Codex 自己的记账。0.164.0 上 Strata 档在 150000 之后压缩，DeepSeek 目录在 945000 之后压缩（F7、F8）。
+3. 正式运行时，`bench_records` 逐实例记录压缩次数（`compactions`：Codex 数根 Reviewer 线程 rollout 的 `compacted` 事件，Claude Code 数主会话的 `compact_boundary` 事件；来源缺失记为未知，不填 0，已实现）。报告按配置汇总压缩次数和最大请求输入，核对与 5.2 的设置相符。
+4. 输出上限：mock 门抓取两边请求里的 `max_tokens` / `max_output_tokens`，与 5.2 表一致才放行。已核对（F8、F12）：Claude Code 请求 `max_tokens` 为 128000，Codex 请求不带 `max_output_tokens`。
 
 ### 5.4 Role 说明
 
@@ -112,7 +118,7 @@ harness 版本：v1 用 Codex 0.163.0、Claude Code 2.1.303；`tools/reviewer/ha
 
 **已决定开启（第 9 节第 3 项），并已实现为 v2 的默认**：四个 v2 计划写 `fixed_conditions.claude_role_as_system: true`，`claude_scenario` 以计划为准，不传 `--role-as-system` 也开启；命令行与计划矛盾时报错。v1 计划没有这个字段，行为不变。零模型 dry-run（SR v4.4，两段）确认 Role 进系统提示：系统提示 36,656 字节（sha256 `01feceab…`），在 Linux 单个命令行参数上限 131,072 字节以内；真实 Role 经假服务器完整到达的核对见第 11 节 F9。
 
-原建议：Role 在两边都处于高于用户消息的指令层，位置对齐；v2 本来就是新版本，不需要与 v1 保持可比。风险：真实 ARW Role 的长度在命令行上未实测（mock 只核对过请求形状），冻结前在 mock 门里用真实 Role 跑一次，确认系统提示完整到达假服务器。这是默认参数改值，冻结时交独立 agent 审查，并列入第 9 节待用户决定。
+原建议：Role 在两边都处于高于用户消息的指令层，位置对齐；v2 本来就是新版本，不需要与 v1 保持可比。风险：真实 ARW Role 的长度在命令行上未实测（mock 只核对过请求形状），冻结前在 mock 门里用真实 Role 跑一次，确认系统提示完整到达假服务器（已由 F9 完成，F12 在 2.1.310 上重跑通过）。这是默认参数改值，冻结时交独立 agent 审查，并列入第 9 节待用户决定。
 
 ## 6. 评分设计问题：SR 缺检查得负分
 
@@ -151,7 +157,7 @@ harness 版本：v1 用 Codex 0.163.0、Claude Code 2.1.303；`tools/reviewer/ha
 - judgment 绑定：答案键 SHA 不变，现有登记自动适用，无需新增。
 - [x] ARW 零模型 `prepare` 与 mock 门（10-24，第 11 节 F4）。
 - [x] 第 6 节评分改动：r8.5 已实现并有单测（第 6.1 节）；README「现行决定」在冻结时登记。
-- 冻结时按 v1 §14 的做法记录全部 SHA 绑定（第 11 节 F16）。
+- [x] 按 v1 §14 的做法记录全部 SHA 绑定，包括代码（第 11 节 F16，第 12 节）。
 
 ## 9. 决定（2026-10-24，待用户复核）
 
@@ -160,10 +166,10 @@ harness 版本：v1 用 Codex 0.163.0、Claude Code 2.1.303；`tools/reviewer/ha
 | # | 事项 | 起草者 | 独立审查 | 决定 |
 |---|---|---|---|---|
 | 1 | SR 缺检查得负分 | B | B，另加两个条件 | **B**，记为 r8.5，只用于 v2（v1 重算不变）；逐实例记缺检查数；分母 Σk 不变 |
-| 2 | DeepSeek 窗口 | 两边都用 1M | 同意；冻结前核实端点上限 | **两边都用 1M、不压缩**；冻结前核实 Anthropic 格式端点的上下文和输出上限，并从 v1 记录确认 >200K 请求能被接受 |
+| 2 | DeepSeek 窗口 | 两边都用 1M | 同意；冻结前核实端点上限 | **两边都用 1M、不压缩**；冻结前核实 Anthropic 格式端点的上下文和输出上限，并从 v1 记录确认 >200K 请求能被接受。落实见 5.2：两边压缩点都是 945000，场景输入远低于它，实际不压缩 |
 | 3 | `--role-as-system` | 开启 | 开启 | **开启**；mock 里用真实 Role 跑一次，核对追加顺序并绑定系统提示 SHA |
 | 4 | A3 | 不改 | 不改 | **不改** |
-| 5 | A4 | 先 Opus 审计 | v2 就改，只改措辞 | **v2 就改**：`:65` 改为"不由 promote 的 caller 自报替代"，`:85` 两处改为"promote caller 自报"；行数不变，纳入第 10 项审计。**已落实**（SR v4.4，见 4.1）；第 10 项审计未做 |
+| 5 | A4 | 先 Opus 审计 | v2 就改，只改措辞 | **v2 就改**：`:65` 改为"不由 promote 的 caller 自报替代"，`:85` 两处改为"promote caller 自报"；行数不变，纳入第 10 项审计。**已落实**（SR v4.4，见 4.1）；第 10 项审计已由 F1 完成 |
 | 6 | A5 | 先数据复核 | 不加排除句；只核对 binding 失配子类 | **不加排除句**；"binding 失配结果"子类交第 10 项审计判定，要在 brief 冻结前出结论。**结论（2026-10-25，[F1 审计](audit-f1-2026-10-25.md) M2，Main 采用审计的优先方案，待用户复核）**：这类 finding 指向的是文本缺陷，改场景消除：SR v4.5 把 `promotion-runtime.md:11` 改为"Promotion 信任此前置条件, 不增加 public 参数或失败分支"（RM、AP 两份，行数、答案键不变），并写进 SR brief。改后按路径：**P1**（inputPath 与已绑定路径不一致，`:41` 只定义 missing、non-string、empty）和 **P2**（artifact.requestId 与 request.requestId 不一致，`:51`、architecture `05-validation-report.md:29` 的诊断没有 binding）：binding 是 Readiness 确认、Promotion 信任的内部前置条件，明文没有失败分支，主张缺失败结果或诊断的 finding 判 `unsupported`；**P3**（Promotion 在 `prt:27` 再次验证 request）：指出与 Readiness 重复校验的，按 MODULES 正例 0 照常判（报在别的检查下按"挂在别的位置"判 `supported`）；要求补失配结果、让再次验证做得成的，按 rulings.md:14 第 (4) 款判 `supported`、不对应该问题用例；**P4**（RM：`prt:11` 是选定节，Failure Results 是未选节）：`:11` 本身写明没有失败分支，主张选定 Requirements 缺 binding 失败结果、或因委托给未选 Failure Results 而不完整的，判 `unsupported`（与收窄后的"未选节"条一致）；P5（测试侧）原本已由 `prt:97`、issue `01:61` 排除，不变 |
 | 7 | B7 | 不改 | 不改 | **不改** |
 | 8 | C1 | 拆分，交用户定档 | 不拆；改 brief | **不拆 P13**；统一口径加一句"一条 finding 写出多个具体缺陷时，其中一个与期望句是同一问题即 matched"（依据 rulings.md:16）。**已落实**：统一口径加 `matched` 一条；CS、CStd、SR brief 中"同一对象、同一错误含义才算 matched；同一 X 下的另一个问题不算"一句改为"只讲同一 X 下另一个问题的 finding 不算"，并注明 finding 另写的缺陷不影响已对上的那一个 |
@@ -195,7 +201,7 @@ Main 采纳审查的 5、6、8：审查核对了答案键的证据行和先例�
 
 | # | 项 | v1 做法（出处） | v2 |
 |---|---|---|---|
-| 1 | 配置矩阵 | 27 个配置：OpenAI 6、DeepSeek 两个 harness 各 low / high / max、Strata 两个 harness 各三档、Anthropic 9（§2，§14.4） | 沿用 |
+| 1 | 配置矩阵 | 27 个配置：OpenAI 6、DeepSeek 两个 harness 各 low / high / max、Strata 两个 harness 各三档、Anthropic 9（§2，§14.4） | 沿用。Codex 0.164.0 内置目录新增了 `gpt-6-astra` 等模型；按「新版沿用」（第 9.1 节第 14 项）不加进矩阵，OpenAI 仍是 `gpt-6.1-sol`、`gpt-6-luna`，v2 报告注明这一点（F15 建议 7） |
 | 2 | 场景与每格次数 | 4 个场景 × 每格 5 个有效实例，共 540；SR 每实例 RM、AP 两个根线程（§2） | 沿用；场景换成 CS v5.1、CStd v5.1、CA v3.1、SR v4.5 |
 | 3 | 空闲加测 | Strata 在 GPU 空闲时加测到 10，每格尝试上限 13；加测与前 5 个同等进主统计，前 5 个另作一致性行（§3 排程，§14.1 10-21） | 沿用 |
 | 4 | 尝试与重跑 | 每格最多尝试 8 次，无效实例排到队尾重跑；harness 故障、撞额度、用户收回登录不计尝试（§14.1、§14.3） | 沿用 |
@@ -206,14 +212,14 @@ Main 采纳审查的 5、6、8：审查核对了答案键的证据行和先例�
 | 9 | 早退暂停 S2 | 答复继续，实例照常跑完，有暂停的实例整体扣 0.1（§14.1 10-20） | 沿用 |
 | 10 | 停止点 | S1–S7 与完成条件（§10） | 沿用 |
 | 11 | 探针 | P0–P6（§8） | 沿用，按 v1 做法重跑 |
-| 12 | 安全验收 | 每种 harness 一次完整门，每个配置一次短冒烟（27 次）（§7） | 沿用 |
+| 12 | 安全验收 | 每种 harness 一次完整门，每个配置一次短冒烟（27 次）（§7） | 沿用；Anthropic、OpenAI 两臂另有预登记的开跑前放行条件（第 11.1 节，F15 M3） |
 | 13 | 统计与预登记比较 | 逐场景、逐配置报告 n、均值 ± SD、SE、95% 区间等；不给比值、综合分和排名；预登记族为「同一 harness、同一强度下 Strata 对其他每个配置」加两个 harness 之间的对照，每场景 25 个比较，Holm 校正，双侧 α = 0.05，Welch t 检验（§5） | **改**（用户 2026-10-25）：v2 不做组间比较：没有预登记比较族、Holm、显著性检验、组间差值、「高于 / 低于 / 未分出」和排名。条件完全相同（同一场景、模型、harness、强度）的组内统计全部照旧，与 v1 同一份代码：n、均值、SD、SE、95% 区间、平均耗时、平均 token、速度（总 token ÷ 总耗时）等，选入统计的实例规则也沿用 v1；另给逐实例的详细结果。数据供外部工具做成图表页面，比较由看页面的人自己做。理由：用户重新定了 benchmark 的目的，所以 v1 的比较族不再适用（同日更早按「所有模型互相比较」设的 47 个比较族随之作废，[审查](review-2026-10-25.md)问题 1 已被取代）。跟着改的：可分辨差按比较族估计的部分不再需要，「Strata 用全部有效实例」与 n 不对称仍按 v1 规则，只是不再进比较；`benchmark_summary --suite v2`、`benchmark_export` 去掉比较部分 |
 | 14 | 盲裁 | 单名 Opus high，冻结 brief；每池最多 150 项（CStd、SR 210），每池 12 个锚点加全部合成项，门槛锚点一致率 ≥ 90% 且合成项全对；沿用已有决定只按内容指纹（§6.2，§14.1 10-21） | 裁决方式、池大小、锚点数、门槛沿用。**改**：因为 v2 改了四份 brief（第 4.2 节），而 v1 的决定和锚点是在旧 brief 下作出的，所以决定库按套件和 brief SHA 隔离，v1 决定不沿用到 v2，锚点注册表改为 `benchmarks/multi-model-v2/anchors/`，v1 锚点在 v2 brief 下逐个复核后才登记（第 9.2 节，第 11 节 F10） |
 | 15 | 评分 | r8.4，全部跑完后按最终规则统一重评（§3 场景与评分） | **改为 r8.5**：因为第 9 节第 1 项决定 SR 缺检查的反例记中性，所以评分版本从 r8.4 改为 r8.5（第 6.1 节）；统一重评沿用 |
 | 16 | 格式罚基准 | 按答案键 SHA 登记的 Haiku-high ×5 基准（§3） | **CS v5.1、CA v3.1、SR v4.5 重标**：因为第 9 节第 10 项定为重跑格式基准，SR v4.4、v4.5 也改了场景措辞，同一理由适用，所以三个改过措辞的场景都重标；CStd v5.1 没改，沿用 v1 登记 |
 | 17 | 基础提示 | 只给 Strata（D4，§3） | 沿用 |
 | 18 | 搜索、service tier、guardian、权限 | 全部关闭搜索（D5）；tier 一律 default（D14）；guardian 按 D6；G7 凭据 deny-read（§3） | 沿用 |
-| 19 | DeepSeek 的 Claude Code 窗口与输出上限 | 未设窗口，约 162K 压缩；`max_tokens` 32000（§4 第 7 条，§5.1） | **改**：因为测量规则「跨 harness 比较」要求两边设置一致，且第 9 节第 2 项决定两边都用 1M、不压缩，所以 Claude Code 设 1M 窗口和不触发压缩的阈值，输出上限与 Codex 一致（第 5.2 节） |
+| 19 | DeepSeek 的 Claude Code 窗口与输出上限 | 未设窗口，约 162K 压缩；`max_tokens` 32000（§4 第 7 条，§5.1） | **改**：因为测量规则「跨 harness 比较」要求两边设置一致，且第 9 节第 2 项决定两边都用 1M、不压缩，所以 Claude Code 设 1M 窗口，压缩点 945000 与 Codex 0.164.0 的默认点相同（场景输入远低于它，实际不压缩）；输出上限设 128000，即 Claude Code 2.1.310 能发出的最大值。Codex 请求不带输出上限、由端点处理，这是两个 harness 本身的限制，作为保留的差异写进条件差异（第 5.2 节） |
 | 20 | Role 位置（Claude Code） | 在用户消息里（§14.1 10-18 参考运行形状） | **改为系统提示**：因为第 9 节第 3 项决定开启 `--role-as-system`，所以 v2 计划把它写成默认（第 5.4 节） |
 | 21 | Codex 私有 scratch | v1 所有 Codex 臂都不选，以免前后不一致（reviewer-suite 规则「私有 scratch」） | **改为启用**：因为第 9.1 节第 13 项决定启用，所以四个 v2 计划的 `codex_harness_patches` 加 `reviewer-private-scratch`；`arw_dimension.prepare` 拒绝漏掉计划声明补丁的调用；实例结束后照规则用 `reviewer_scratch --remove` 删除；报告列为与 v1 的条件差异 |
 | 22 | 会话检查 | 便宜模型读过滤后的 `actions.md`、`flagged.md`，被标记项由 Main 复核（D9，§5） | 沿用 |
@@ -235,16 +241,16 @@ Codex 臂另有两个 harness 补丁沿用 v1：`codex-0.163-synthetic-mount-tar
 | F4 | ARW 零模型 prepare 与 mock 门 | 四个 v2 计划逐个 `arw_dimension.prepare`（带计划声明的三个 harness 补丁）；Codex mock 门 `python3 -m tools.safety.safety_gate --source <prep>/arw --mock-report-write <out> --directory-probe --read-probe --scratch-probe`；Claude Code mock 门 `python3 -m tools.safety.claude_gate --out <out> --backend {deepseek,anthropic} --model <id> --repeat 1`；SR v4.4 dry-run `claude_scenario --dry-run --handoffs 2` | 无 | 0 | **已做，通过**（见表下，SR 为 v4.4 文本）；**SR v4.5 重跑（2026-10-25，零模型）：ARW prepare 与 Codex mock 门通过**，结果见表下「F4 重跑」，与 10-24 一致；harness 换版后按 F12 重跑 |
 | F5 | DeepSeek 端点上限 | 核实 Anthropic 格式端点（`https://api.deepseek.com/anthropic`）的上下文上限和输出上限（官方文档，必要时 1 个带 key 的短请求）；从 v1 的 DeepSeek 记录确认 >200K 输入的请求被接受；据此和 F8 的 Codex 实际值填 `CLAUDE_CODE_MAX_OUTPUT_TOKENS`。要联网和凭据，本轮未做 | 无，或 DeepSeek 1 个请求 | < $0.01 | 部分（2026-10-25，待 Main 决定，值未填）：官方定价/模型页（api-docs.deepseek.com/quick_start/pricing）：deepseek-v4-flash、deepseek-v4-pro 上下文 1M、最大输出 384K，默认输出未写明。Anthropic 格式页（api-docs.deepseek.com/guides/anthropic_api）：`max_tokens` 完全支持但未给上限；`model` 不透传（claude-opus* 映射到 v4-pro，其余 claude* 映射到 flash）；`cache_control`、`budget_tokens` 被忽略。未发带 key 的请求（未核实实测上限）；v1 记录里 >200K 输入未核。对齐方案三选一：**A（Claude Code 贴近 Codex 的实际行为）**压缩点 945000：Codex 不改（0.164.0 默认约窗口 90%，F7 实测 945000 后压缩），Claude Code `CLAUDE_CODE_MAX_CONTEXT_TOKENS=1048576`、`CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE=945000`；输出上限：Codex 请求不带上限（F8），只能走端点默认，Claude Code 的 `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 须设成端点默认值，该值官方未写，需 1 个带 key 的请求或去掉上限实测，核实前不可定；利：不改 Codex，改动最小；弊：输出对齐依赖未知的端点默认值。**B（两边都显式 384000 输出）**Codex 侧需让请求带 `max_output_tokens`，Codex 配置/目录没有已知的键，要靠补丁或前端代理注入（待查）；Claude Code `CLAUDE_CODE_MAX_OUTPUT_TOKENS=384000`，压缩点同 A 为 945000；利：两边明示、输出不再成为 v1 式失误来源；弊：Codex 要补丁，违背「Codex 不改」，且 Claude Code 对超大 max_tokens 的处理未验证。**C（两边显式较小共同值，如 64000，压缩点显式 900000）**Codex 在目录设 `auto_compact_token_limit=900000`（低于默认点，Codex 允许），输出同 B 需注入；Claude Code `BLOCKING_LIMIT_OVERRIDE=900000`、`MAX_OUTPUT_TOKENS=64000`；利：压缩点两边都显式、不依赖 Codex 默认比例，64000 远高于 v1 的 32000；弊：偏离「1M 不压缩」精神，输出仍需 Codex 注入，64000 为任选值无依据。共同点：无论哪案，压缩点 945000 远高于场景最大输入，实际两边都不触发，差别主要在写进计划的可核性；**两条事实（2026-10-25，已实测，值仍未填）**：（1）端点默认输出上限**未能测出**。Anthropic 格式（`/anthropic/v1/messages`，`deepseek-v4-flash`，输入 36 token）带 `max_tokens=384000`：HTTP 200，`stop_reason=end_turn`，usage 输入 36 / 输出 18，即 384000 不被拒绝。Responses 格式（`/responses`，`deepseek-flash`，流式，不带 `max_output_tokens`）要求数到 100000：两次都 HTTP 200、`response.completed`、`incomplete_details` 为空，模型自己在 734 和 7328 输出 token（几乎全是 reasoning，正文仅约 100 字符）就收尾，没有碰到上限，所以只知道默认上限 ≥ 7328，未得到数值（再逼模型长输出需要换题，且超出本次 3 个请求的预算）。三个请求合计输出约 8K token，花费远低于 0.01 美元。（2）Codex 0.164.0 没有能让请求带 `max_output_tokens` 的键：二进制里的 `max_output_tokens` 只出现在 exec/code-mode 工具参数（工具输出截断）、auto-review 的 `conversation_history_max_output_tokens`、MCP sampling 的 `max_tokens`；provider 配置只有 `query_params`、`http_headers`、`env_http_headers`、`request_max_retries`、`stream_max_retries`、`stream_idle_timeout_ms` 等，无请求体附加字段；模型目录条目也没有输出上限字段；F8 的 mock 门抓到 Strata、DeepSeek 两臂的请求键都不含 `max_output_tokens`。因此没有可核实的 Codex 设置，两臂行为一致（都不带）。**可行性**：B 不可行（Codex 无键，要靠改二进制或在 Codex 与端点之间加改请求体的回环代理，违背「Codex 不改」，且 Strata 臂也要同样处理）；C 的输出一半同样不可行，只有「压缩点 900000」一半可行（目录 `auto_compact_token_limit`）；A 可行：Codex 不改，Claude Code 的 `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 要填的值只能来自端点默认，现仍未知；已知 384000（文档最大输出）可被端点接受，若默认值低于它，两边输出上限就不相等，取值交 Main 或用户。 **Main 决定（2026-10-25，按方案 A，待冻结前独立审查 F15 一并复核）**：压缩点两边都是 945000——Codex 不改，用 0.164.0 默认点（F7 实测）；Claude Code 设 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE=945000`、`CLAUDE_CODE_MAX_CONTEXT_TOKENS=1048576`。输出上限：Codex 没有可设的键，请求不带上限，由端点按自身上限处理；Claude Code 设 `CLAUDE_CODE_MAX_OUTPUT_TOKENS=384000`，即端点文档的最大输出（实测接受）。两边实际都是「端点允许的最大输出」，只差在 Codex 侧的端点默认值没测到数值（≥7328），残余差异写进报告的条件差异。四个场景计划已填值；F6、F8 要按新值重跑 **更正（2026-10-25，Main）**：固定的 Claude Code 2.1.309 把 `max_tokens` 截到 128000（F6/F8 实测，384000 设不进去），所以 `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 改为 128000，即这个版本能发出的最大值；四个计划已改。两臂输出上限因此不同（Codex 不带上限，由端点按 ≤384K 处理；Claude Code 128000），这是 harness 本身的限制，写进报告的条件差异。场景输出远低于 128000，实际不受影响。按此值，F6/F8 实测的 `max_tokens`=128000 与计划相符，Claude 一侧改判通过 |
 | F6 | Claude Code 压缩点探针（DeepSeek） | 扩展 `tools.ops.claude_compact_probe` 支持 DeepSeek 的环境组合（`CLAUDE_CODE_MAX_CONTEXT_TOKENS=1048576` 加候选阈值），用假服务器确认压缩点，并覆盖不设阈值时回落到「窗口 − 23000」的情形；据此填 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` | 无 | 0 | 工具已做，值待 F5（2026-10-25）：`claude_compact_probe --plan` 读计划里的 DeepSeek 三个上限；任一为 null 时只写「待 F5 填值」并退出码 2，不用默认值代替（当前 SR v4.4 计划实测为此结果）。三个都有值时跑两遍（覆盖值 ±100 处压缩；不设覆盖时回落到「窗口 − 23000」±100 处压缩），并核对请求的 `max_tokens`。用固定的 Claude Code 2.1.309 和试填值（覆盖 1040000、输出 32000，计划副本不入库）跑通：压缩点正好在覆盖值，回落点 1025576 属实，真实请求的 `max_tokens` 等于环境值。`tests/test_claude_compact_probe.py` 加 5 个单测。F5 填值后重跑一次；**按新值重跑（2026-10-25）：压缩点通过，输出上限不通过**。四个计划（code-spec-v5.1、code-standards-v5.1、commit-audit-v3.1、spec-readiness-v4.4）各跑 `claude_compact_probe --plan`（固定的 Claude Code 2.1.309，两种方式：两回合、回合内；覆盖值 945000 ±100，回落点 1025576 ±100），结果相同：压缩点正好落在 945000（944900 不压缩、945100 压缩后续跑）；不设覆盖时回落点 1025576（1048576 − 23000，1025476 不压缩、1025676 压缩），与工具预期一致；所有 cell 退出码 0、ok。**异常：探针总判定为不通过（退出码 1），因为真实请求的 `max_tokens` 全是 128000，不是 384000。** 2.1.309 对 `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 做上限截断：未知模型的上限是 128000，连模型目录覆盖的输出上限也只接受 ≤128000，所以 384000 在这个版本发不出去。需 Main 决定：Claude Code 输出上限改成 128000（Codex 不带上限，端点最大 384K），或接受两臂输出上限不同并写进条件差异；四个计划里的 384000 暂未改 |
-| F7 | Codex 压缩点探针 | 扩展 `tools/safety/` 的 mock 门，回放递增长度的回合，确认 DeepSeek 目录设置下到场景最大输入都不出现压缩事件（第 5.3 节第 2 条） | 无 | 0 | 已做（2026-10-25）：新增 `tools/safety/codex_compact_gate.py`（回环 Responses mock，用 usage 声称的输入量驱动 Codex 自己的记账，经 app-server 跑一个回合）。对照：Strata 档（窗口 206584，限 150000）在声称 151000 之后压缩，通过。DeepSeek 目录（v1 的 `deepseek-codex-0.163.0.json`）到 800000 都没有压缩，通过；**但继续往上，Codex 0.164.0 在声称 945000 之后压缩**（约为窗口 1048576 的 90%，Codex 的默认点），不是「不压缩」。第 5.2 节的「auto_compact 为空，实际不压缩」需要改写，或在目录里设 `auto_compact_token_limit`；两个 harness 的压缩点是否一致由 Main 或用户决定，见 F8。`tests/test_codex_compact_gate.py` 2 个单测 |
+| F7 | Codex 压缩点探针 | 扩展 `tools/safety/` 的 mock 门，回放递增长度的回合，确认 DeepSeek 目录设置下到场景最大输入都不出现压缩事件（第 5.3 节第 2 条） | 无 | 0 | 已做（2026-10-25）：新增 `tools/safety/codex_compact_gate.py`（回环 Responses mock，用 usage 声称的输入量驱动 Codex 自己的记账，经 app-server 跑一个回合）。对照：Strata 档（窗口 206584，限 150000）在声称 151000 之后压缩，通过。DeepSeek 目录（v1 的 `deepseek-codex-0.163.0.json`）到 800000 都没有压缩，通过；**但继续往上，Codex 0.164.0 在声称 945000 之后压缩**（约为窗口 1048576 的 90%，Codex 的默认点），不是「不压缩」。第 5.2 节的「auto_compact 为空，实际不压缩」需要改写（已按 F5 方案 A 改写，F15 M2），或在目录里设 `auto_compact_token_limit`；两个 harness 的压缩点是否一致由 Main 或用户决定，见 F8。`tests/test_codex_compact_gate.py` 2 个单测 |
 | F8 | 输出上限核对 | mock 门抓取两边请求里的 `max_tokens` / `max_output_tokens`，与第 5.2 节一致才放行（第 5.3 节第 4 条）。依赖 F5、F6 填值 | 无 | 0 | 部分（2026-10-25）：Claude 一侧已核对，真实 Claude Code 请求的 `max_tokens` 等于 `CLAUDE_CODE_MAX_OUTPUT_TOKENS`（探针 `output_limit_ok`），值待 F5。**Codex 一侧的请求不带输出上限**：mock 门抓到 Strata 与 DeepSeek 两个案例的请求键都没有 `max_output_tokens`（请求键：client_metadata, include, input, model, parallel_tool_calls, prompt_cache_key, reasoning, store, stream, text, tool_choice, tools）。所以「Claude Code 输出上限设成与 Codex 实际请求相同的值」没有 Codex 的数可抄，Claude Code 的输出上限取值是 F5 的待决问题（交 Main 或用户）；**按新值重跑（2026-10-25）：Claude 一侧不通过，Codex 一侧通过**。Claude Code 臂（2.1.309，四个计划）：真实请求的 `max_tokens` 为 128000，不等于 384000（见 F6 异常，Claude Code 内部上限 128000）。Codex 0.164.0（`codex_compact_gate` 重跑）：Strata 与 DeepSeek 两案例的请求都不带 `max_output_tokens`，请求键与前次相同（client_metadata, include, input, model, parallel_tool_calls, prompt_cache_key, reasoning, store, stream, text, tool_choice, tools），仍不带输出上限；DeepSeek 案例 945000 之后压缩，与 F7 一致。放行条件（两边输出上限与第 5.2 节一致）暂不满足，等 Main 对 F6 异常的决定 **更正（2026-10-25，Main）**：固定的 Claude Code 2.1.309 把 `max_tokens` 截到 128000（F6/F8 实测，384000 设不进去），所以 `CLAUDE_CODE_MAX_OUTPUT_TOKENS` 改为 128000，即这个版本能发出的最大值；四个计划已改。两臂输出上限因此不同（Codex 不带上限，由端点按 ≤384K 处理；Claude Code 128000），这是 harness 本身的限制，写进报告的条件差异。场景输出远低于 128000，实际不受影响。按此值，F6/F8 实测的 `max_tokens`=128000 与计划相符，Claude 一侧改判通过 |
 | F9 | 真实 Role 到达假服务器 | 用 v2 计划的真实 Role（SR 36,656 字节）经 `claude_headless` 对假服务器跑一次，核对系统提示完整到达、追加顺序正确，绑定系统提示 SHA。`claude_gate` 目前不带 Role，需加一个选项或用 mock 服务器直接跑 `claude_headless.run` | 无 | 0 | 已做（2026-10-25）：新增 `tools/safety/claude_role_gate.py`，用不改动的 `claude_scenario.run`（后端 deepseek）、固定的 Claude Code 2.1.309、回环 Messages mock、假 key、只有回环的网络命名空间，对四个 v2 计划各跑一次（SR 两个交接），按 mock 收到的请求判定：Role 在每个主循环请求的 `system` 里恰好一次、在 Claude 自己的提示之后且是末尾、不在 messages 里；`system-h<k>.md` 的 sha256 等于绑定的 `system_sha256`；绑定的端点等于 mock 地址。四个计划全部通过（Role 27,861 / 29,540 / 30,172 / 36,656 字节，SR 两个交接是同一个 Role）。DeepSeek 上限仍为 null 的计划用占位上限，Role 检查与之无关。`claude_headless.run`、`claude_scenario.run` 加了 `deepseek_base` 参数（默认不变）。`tests/test_claude_role_gate.py` 3 个单测。**SR v4.5 重跑（2026-10-25）：四个计划（SR 为 `spec-readiness-v4.5.json`）全部通过**，同一工具、同一固定的 Claude Code 2.1.309（sha256 `4d704a8a…`）；Role 字节数与系统提示 SHA 与上次完全相同（27,861 / 29,540 / 30,172 / 36,656；SR 两个交接同一 Role，系统提示 sha256 `01feceab…`，与 v4.4 dry-run 相同，即 SR v4.5 没有改 Role 文本）；每个主循环请求（CS、CStd、CA 各 59 个，SR 每交接 118 个）Role 在 `system` 里恰好一次、在 Claude 自己的提示之后且是末尾、不在 messages 里；绑定的 `system_sha256` 等于文件、端点等于 mock 地址；DeepSeek 上限已填，没有用占位上限（上次记录写的是 null 的计划用占位上限，现在四个计划都已填值） |
 | F10 | 决定库隔离与锚点复核 | 隔离已由代码与单测保证（`tests/test_blind_pool.py`、`tests/test_bench_score.py`）；v1 锚点在 v2 brief 下逐个复核（Main 可执行检查，按 v1 §6.2 挑选规则），答案变了的替换，通过的用 `blind_pool anchor-add --suite v2` 登记到 `benchmarks/multi-model-v2/anchors/` | Main | Main 时间约 1 小时 | 隔离已做；锚点复核已做（2026-10-25，零模型，worker）：105 个锚点保留 104 个、剔除 1 个，已登记；54 个合成题保留 53 个、剔除 1 个，合成题已由 Main 照 v1 的做法直接写进注册表的 `synthetic`（逐字取自 v1，另加 `confirmed_by` 复核说明），不另加命令；见下文「F10 结果」 |
 | F11 | 工具链的 v1 场景名 | `bench_records`、`bench_score`、`blind_pool` 已套件化；`benchmark_summary`、`benchmark_export` 按第 10 节第 13 项（不做比较）改；v2 的 `bench_records` 运行目录布局和 `benchmarks/multi-model-v2/model-failures.json` 开跑后建立 | 无 | 0 | 部分（2026-10-25）：`benchmark_summary --suite v2`、`benchmark_export` 的 v2 路径（组内统计照旧，不做组间比较）已做并有合成数据单测（见第 8 节）；v2 的 `bench_records` 运行目录布局、`model-failures.json` 和 v2 场景元数据开跑后建立 |
 | F12 | harness 换最新版后的零模型检查 | 冻结时两个 harness 同时取最新版写进 `harness_pins.py`，四个计划的 `codex`、`native_cli_sha256` 同步；重跑 F4 的 mock 门、`python3 -m tools.ops.claude_compact_probe --repeat 3`、`verify_codex_compact_prompt` | 无 | 0 | **已做，全部通过（2026-10-25，零模型）**：Claude Code 换到 2.1.310（Codex 仍是最新的 0.164.0，不换），结果见表下「F12 重跑」；冻结时若又出新版，再按流程重做一次 |
-| F13 | 安全验收 | 按 v1 §7：Codex 完整门（Strata）、Claude Code 完整门（Haiku high ×3 加 Opus 抽查）、27 个配置短冒烟；Codex 臂的门带 scratch 补丁 | Strata、Haiku、Opus、DeepSeek、OpenAI | Anthropic 约 $10–20；Strata GPU 约 2 小时 | 部分完成（2026-10-25，worker）：Codex 完整门（Strata）通过；Haiku 完整门因模型拒绝判不通过（隔离通过，待 Main 决定）；补跑（2026-10-25，worker，`.tmp/v2-f13b/`）：Sonnet 冒烟 ×3 全部通过；Opus 完整门判不通过、Opus 冒烟 ×3 判不通过，原因都是模型拒绝探针（隔离通过，泄漏 0，待 Main 决定）；冒烟 27 个中 18 个通过、3 个因模型拒绝判不通过，OpenAI 6 个因登录未借出未跑；见下文「F13 结果」 |
+| F13 | 安全验收 | 按 v1 §7：Codex 完整门（Strata）、Claude Code 完整门（Haiku high ×3 加 Opus 抽查）、27 个配置短冒烟；Codex 臂的门带 scratch 补丁 | Strata、Haiku、Opus、DeepSeek、OpenAI | Anthropic 约 $10–20；Strata GPU 约 2 小时 | 部分完成（2026-10-25，worker）：Codex 完整门（Strata）通过；Haiku 完整门因模型拒绝判不通过（隔离通过，待 Main 决定）；补跑（2026-10-25，worker，`.tmp/v2-f13b/`）：Sonnet 冒烟 ×3 全部通过；Opus 完整门判不通过、Opus 冒烟 ×3 判不通过，原因都是模型拒绝探针（隔离通过，泄漏 0，待 Main 决定）；冒烟 27 个中 18 个通过、3 个因模型拒绝判不通过，OpenAI 6 个因登录未借出未跑；见下文「F13 结果」。**处理（F15 M3，预登记，第 11.1 节）**：Haiku、Opus 的拒绝如实记为「模型拒绝探针，不构成沙箱证据」，门的判定逻辑不改；冻结的判定依据是 DeepSeek 完整门、mock 门 38/38。冻结后、各臂开跑前补：Anthropic 臂一次 Sonnet high 完整门；OpenAI 臂 ChatGPT 合成登录 mock 门（2026-10-25 已跑，两个模型都通过）加 6 个 `--provider-run` 冒烟。都不影响其他臂 |
 | F14 | 输出上限重试改动 | 确认 `src/output_limit.py` 的重试改动是否已合入并部署，冻结时以部署版本为准 | 无 | 0 | 已核实（2026-10-25）：提交 1e0fd58 在 master（fc43611）上，`src/output_limit.py`、`src/frontend.py` 与 rtx3080ti 安装目录里的同名文件 sha256 相同（`4903c6ef…`、`475d3035…`）。范围：重试只作用于 Strata 前端上流式的 Responses 请求（Codex 臂），Claude Code 的 Messages 请求没有，DeepSeek 与 API 臂不经前端；所以 v2 里只影响 Strata 的 Codex 配置，是条件差异，报告里写明。冻结时再核一次安装目录 |
-| F15 | 冻结审查 | 冻结属重要决策：智能与推理强度不低于 Main 的独立 agent 审查本计划、四个计划文件与 brief | Opus high | 约 $5–10 | 未做 |
-| F16 | SHA 绑定 | 按 v1 §14 记录全部绑定：场景清单、补丁（含 `scoring-r8.5.patch` sha256 `c40856cc…`）、brief、测量说明、harness 副本、catalog；四个计划改 `status`、`authorization` | 无 | 0 | **已做（2026-10-25，零模型）**：全部绑定实算后写入 [`bindings.json`](bindings.json)，记录见第 12 节；核对命令 `python3 -m tools.reviewer.bench_bindings --suite v2 --check`（`tools/reviewer/bench_bindings.py`，单测 `tests/test_bench_bindings.py`）；四个计划的 `status` 已改为「绑定已记录，待冻结审查（F15）」，`authorization.approved` 仍为 `false`，由 Main 在 F15 通过后改并重跑 `--write`；v2 计划没有引用 catalog，沿用 v1 的 0.163.0 catalog（条目与 0.164.0 内置的逐字节相同） |
+| F15 | 冻结审查 | 冻结属重要决策：智能与推理强度不低于 Main 的独立 agent 审查本计划、四个计划文件与 brief | Opus high | 约 $5–10 | **审查完成、修正已做，待 Main 冻结**（2026-10-25）：[审查报告](review-f15-2026-10-25.md)结论为修正后可以冻结。修正（worker，零模型）：M1 `bench_bindings` 加 `code` 段（第 12 节）；M2 第 5.1、5.2、5.3 节和第 10 节第 19 行改成现行值（压缩点 945000、Codex 不带输出上限、Claude Code 128000），保留的差异和理由写进 5.2；M3 两臂放行条件预登记（第 11.1 节），ChatGPT 合成登录 mock 门已跑并通过；建议 1 见 5.2「Codex 侧输出上限核查」（v1 原始记录已清理，改为正式运行逐实例记录，已实现）；建议 2 改写 5.3 第 3 条；建议 3 写进第 12 节「未绑定」；建议 4 `bench_bindings` 对 `inheritsFrom` 条目核对继承来源的存档；建议 5 静音 mock 门里客户端断连的 traceback；建议 7 写进第 10 节第 1 行。建议 6（M4 写法）由 Main 在状态页交用户复核 |
+| F16 | SHA 绑定 | 按 v1 §14 记录全部绑定：场景清单、补丁（含 `scoring-r8.5.patch` sha256 `c40856cc…`）、brief、测量说明、harness 副本、catalog；四个计划改 `status`、`authorization` | 无 | 0 | **已做（2026-10-25，零模型）**：全部绑定实算后写入 [`bindings.json`](bindings.json)，记录见第 12 节；核对命令 `python3 -m tools.reviewer.bench_bindings --suite v2 --check`（`tools/reviewer/bench_bindings.py`，单测 `tests/test_bench_bindings.py`）；四个计划的 `status` 已改为「绑定已记录，待冻结审查（F15）」，`authorization.approved` 仍为 `false`，由 Main 在 F15 通过后改并重跑 `--write`；F15 M1 后加了代码段（第 12 节）；v2 计划没有引用 catalog，沿用 v1 的 0.163.0 catalog（条目与 0.164.0 内置的逐字节相同） |
 
 F3 结果（2026-10-25，Claude Code 2.1.310，`claude-haiku-5-5` high，无启动与压缩提示，额度标签 `v2-f3-haiku`）：
 
@@ -339,11 +345,31 @@ F13 结果（2026-10-25，worker；运行明细 `.tmp/v2-f13/`）：rtx3080ti，
 - Strata 速度：7 次加载各约 26.6 秒；引擎输出合计 99–106 tok/s，单请求最低 80.3 tok/s，没有降速；任务平均输出 Codex 61.8–67.2、Claude Code 82–84 tok/s。
 - 偏离：Codex DeepSeek 冒烟第一次因 selection 缺 `base_url` 在校验阶段报错（未发请求），补上后重跑通过。live Codex 门从主 checkout 运行（G7 的凭据 deny-read 由工程根的私有文件推出，worktree 没有它），运行前 `diff -rq` 核对 `tools/ src/ config/ scripts/ docs/ benchmarks/multi-model-v2/` 与 worktree HEAD 相同。
 
+### 11.1 Anthropic、OpenAI 两臂开跑前的放行条件（预登记，F15 M3）
+
+依据：v1 §7 与 reviewer-suite 规则「默认模式的安全门未通过，不启动使用同一运行层的能力测量」。F13 的情况：
+- 沙箱证据：DeepSeek 完整门 repeat-1、repeat-3 各执行 39 个探针中的 37 个，全部通过，泄漏 0；零模型 mock 门 38/38（F12）。沙箱由 Claude Code 二进制和 `ch.settings()` 执行，所有后端用同一份 deny 列表，与模型无关。
+- Haiku（完整门 6 次）和 Opus（完整门 1 次、冒烟三档）拒绝了大部分或全部探针。如实记为「模型拒绝探针，不构成沙箱证据」：拒绝说明不了沙箱拦不拦得住，所以也不记为通过。门的判定逻辑不改（未尝试仍判不通过），也不改探针提示去劝模型执行。尝试了的探针没有一个失败，泄漏 0，隔离全部通过。
+- 缺口：Anthropic 形态（真实配置目录经 `anthropic_home` 链接、写目标含真实 `~/.claude`，见 `claude_gate.py` 的 `shared_write_targets`）在 2.1.310 上只有冒烟 7 个探针（Haiku ×3、Sonnet ×3）和 transcript 子集 ×3 的证据，完整清单从没执行过；v1 的两次 Haiku 完整门在 2.1.303 上，按 harness 版本规则不沿用。OpenAI 臂的 6 个冒烟没跑（登录没借出）。
+
+放行条件：冻结后、该臂第一个实例之前做，不影响其他臂；不通过就不开跑该臂，交 Main。
+
+| 臂 | 条件 | 命令 | 判定 |
+|---|---|---|---|
+| Anthropic（配置 #13–21） | Sonnet high 完整门 1 次 | `python3 -m tools.safety.claude_gate --out .tmp/<运行目录>/sonnet-full --backend anthropic --live --no-startup-prompt --model claude-sonnet-5-5 --effort high --repeat 1 --label <额度标签>`（`--subset` 默认 `full`，与 F13 补跑同一形式） | 完整清单全部尝试且全部通过、泄漏 0、隔离通过才开跑；有探针未尝试也判不通过。约 $1–2，先跑 `estimate.sh --can-start` |
+| OpenAI（配置 #1–6） | ① Codex 0.164.0 的 ChatGPT 合成登录 mock 门（零模型；ChatGPT 计划加 `--mock-report-write` 时工具自动进只有回环的网络命名空间） | `python3 -m tools.safety.safety_gate --source <prep-sr>/arw --mock-report-write <out> --directory-probe --read-probe --scratch-probe --api-plan <ChatGPT 计划>` | `status` 为 `passed`，真实模型请求 0、搜索工具 0、写边界通过、`deny_read_pass` 为真、`shell_env_key` 为 `absent`、scratch 通过。**2026-10-25 已跑，通过**（见下）；冻结后若 Codex 换版或改了门、运行代码，重跑 |
+| | ② 6 个配置的短冒烟（`gpt-6.1-sol`、`gpt-6-luna` 各 low / medium / high） | 先从冻结 commit 重新 prepare SR v4.5：`python3 -m tools.tuning.arw_dimension prepare --plan benchmarks/multi-model-v2/scenarios/spec-readiness-v4.5.json --out <prep-sr>`（末尾的 preflight 一步对基准臂必败，与 prepare 无关）；再逐个 `python3 -m tools.safety.safety_gate --source <prep-sr>/arw --provider-run <out> --plan .tmp/v2-f13/plans/codex-openai-<模型>-<档>.json`。需要用户借出 ChatGPT 登录 | 6 个全部通过才开跑 |
+
+ChatGPT 合成登录 mock 门结果（2026-10-25，零模型，worker；运行目录 `.tmp/v2-f15fix/`）：
+- 源：新 prepare 的 SR v4.5（`.tmp/v2-f15fix/prep-sr`，三个 harness 补丁都已应用）。计划 `plans/chatgpt-mock-<模型>.json` 由 `.tmp/v2-f13/plans/codex-openai-<模型>-low.json` 复制，只改授权说明；`gpt-6-luna`、`gpt-6.1-sol` 各跑一次。代码是本次修正提交的版本（`api_relay` 只多记 `incomplete_details`，不影响门）。
+- 两次都 `passed`，Codex 0.164.0（`b93f6811…`）。真实模型请求 0，脚本父请求 2，看到精确的报告写入。写边界 8 类拒绝，`new_sibling` 按批准策略允许，`/dev/shm` 可写（与 F4 重跑相同）。凭据 deny-read 四项全部 `denied`，`deny_read_pass` 为真，`shell_env_key` 为 `absent`，假 key 没有暴露，`/proc` 祖先与桥接都拒绝。搜索工具 0。scratch 通过，实例结束后两份 scratch 都删除。合成登录的链接在结束时移除（`link-removed`）。
+- 用的是合成登录，没有用真实登录或 key。门留在 `/tmp` 的 `qwen-report-write-*` 工作区已删除。
+
 ## 12. 绑定（F16，2026-10-25）
 
-照 v1 §14 的做法记录全部 SHA 绑定。全部值由 `python3 -m tools.reviewer.bench_bindings --suite v2 --write` 实算后写入 [`bindings.json`](bindings.json)（完整 sha256；下文只写前 8 位），零模型。本节写于四个计划 JSON 的 `status` 改完之后，所以计划文件的 SHA 是最终值。`plan.md` 自身不在 `bindings.json` 里（它是记录本身），由冻结 commit 绑定。
+照 v1 §14 的做法记录全部 SHA 绑定。全部值由 `python3 -m tools.reviewer.bench_bindings --suite v2 --write` 实算后写入 [`bindings.json`](bindings.json)（完整 sha256；下文只写前 8 位），零模型。本节写于四个计划 JSON 的 `status` 改完之后，所以计划文件的 SHA 是最终值。`plan.md` 自身不在 `bindings.json` 里（它是记录本身），由冻结 commit 绑定。冻结 commit 同时也是代码绑定，`bindings.json` 的 `code` 段逐文件记 SHA（见下文「代码」，F15 M1）。
 
-**核对办法**：`QWEN_STRATA_HOST=rtx3080ti python3 -m tools.reviewer.bench_bindings --suite v2 --check`（约 3 分钟，其中 Role 门占大部分；`--no-roles` 跳过 Role，几秒）。它重算全部绑定并与 `bindings.json` 比较，另外核对：每个计划自述的清单、测量说明、模板 SHA 和 Codex 版本与文件和 `harness_pins.py` 一致；每个清单自述的快照和各补丁 SHA 与文件一致；计分补丁、harness 补丁与 `freeze_arw_source` 里登记的值一致；v2 格式基准登记与存档（`format_penalty.verify_archive`）校验通过；两个 harness 副本的磁盘 SHA 与 `--version`。有任何不符都列出并以非零退出。冻结后若又改动任何被绑定的文件（包括 Main 把计划的 `authorization` 改为已批准），计划文件的 SHA 随之改变，需要重跑 `--write` 并在冻结 commit 里一起提交。单测 `tests/test_bench_bindings.py`。
+**核对办法**：`QWEN_STRATA_HOST=rtx3080ti python3 -m tools.reviewer.bench_bindings --suite v2 --check`（约 3 分钟，其中 Role 门占大部分；`--no-roles` 跳过 Role，几秒）。它重算全部绑定并与 `bindings.json` 比较，另外核对：每个计划自述的清单、测量说明、模板 SHA 和 Codex 版本与文件和 `harness_pins.py` 一致；每个清单自述的快照和各补丁 SHA 与文件一致；计分补丁、harness 补丁与 `freeze_arw_source` 里登记的值一致；v2 格式基准登记与存档（`format_penalty.verify_archive`）校验通过，`inheritsFrom` 条目对继承来源（v1）的登记和存档同样校验（F15 建议 4）；`code` 段每个文件存在且 SHA 与记录相同；两个 harness 副本的磁盘 SHA 与 `--version`。有任何不符都列出并以非零退出。冻结后若又改动任何被绑定的文件（包括 Main 把计划的 `authorization` 改为已批准），计划文件的 SHA 随之改变，需要重跑 `--write` 并在冻结 commit 里一起提交。单测 `tests/test_bench_bindings.py`。
 
 四个计划 JSON（`status` 已改为「绑定已记录，待冻结审查（F15）」；`authorization.approved` 仍为 `false`，由 Main 在 F15 通过后改）：
 
@@ -393,6 +419,37 @@ harness（磁盘实算，与 `harness_pins.py` 一致，`--version` 与版本一
 | Codex | 0.164.0 | `~/.local/share/qwen-bench/codex-0.164.0/…/x86_64-unknown-linux-musl/bin/codex` | `b93f6811…` |
 | Claude Code | 2.1.310 | `~/.local/share/qwen-bench/claude-code-2.1.310/claude` | `b7367643…` |
 
+代码（F15 M1，2026-10-25）：冻结 commit 即代码绑定；`bindings.json` 的 `code` 段逐文件记下运行期直接影响条件或计分的代码 SHA，清单是 `tools/reviewer/bench_bindings.py` 顶部的 `CODE_FILES`，`--check` 逐文件核对。冻结后改动其中任何文件，都照 v1 §14.1 的做法按偏离记录：写明日期、原因、影响范围、文件改前改后的 SHA，并重跑 `--write`，与改动一起提交。
+
+| 用途 | 文件 | sha256 |
+|---|---|---|
+| Claude Code 臂：运行、提醒与中断、harness 固定 | `tools/reviewer/claude_scenario.py` | `9c0bdd75…` |
+|  | `tools/reviewer/claude_headless.py` | `757a5ac7…` |
+|  | `tools/reviewer/review_deadlines.py` | `b909c494…` |
+|  | `tools/reviewer/reminder_interrupt.py` | `8e3a7fa6…` |
+|  | `tools/reviewer/harness_pins.py` | `4c0c8997…` |
+| Codex 臂：计划 prepare、ARW 运行层与其设置（deny-read、命令环境排除）、API relay、场景物化 | `tools/tuning/arw_dimension.py` | `c947ece8…` |
+|  | `tools/reviewer/arw_measure.py` | `1735b7be…` |
+|  | `tools/reviewer/arw_runtime.mjs` | `2678356f…` |
+|  | `tools/reviewer/arw_native_setup.mjs` | `8f307180…` |
+|  | `tools/reviewer/providers.py` | `d17b0cf7…` |
+|  | `tools/reviewer/api_relay.py` | `a206df76…` |
+|  | `tools/reviewer/freeze_arw_source.py` | `2c48b463…` |
+| 安全门与会话检查 | `tools/safety/claude_gate.py` | `66a6f102…` |
+|  | `tools/safety/safety_gate.py` | `af3e7927…` |
+|  | `tools/reviewer/inspect_session.py` | `280034ea…` |
+| 记录、有效性与计分 | `tools/reviewer/bench_suite.py` | `10790e7a…` |
+|  | `tools/reviewer/bench_records.py` | `499f0d01…` |
+|  | `tools/reviewer/bench_validity.py` | `7f919e19…` |
+|  | `tools/reviewer/bench_score.py` | `06a41e0f…` |
+|  | `tools/reviewer/single_scenario_score.py` | `38f87acd…` |
+|  | `tools/reviewer/arw_native.mjs` | `28c115b9…` |
+|  | `tools/reviewer/format_penalty.py` | `dccd6107…` |
+|  | `tools/reviewer/repair_reviewer_report.py` | `7c62e25f…` |
+|  | `tools/reviewer/blind_pool.py` | `dc460b55…` |
+
+取舍：清单以 F15 审查列出的 14 个文件为起点（全部存在）。另补了三类：`claude_headless` 在模块级 import 的 `review_deadlines`、`reminder_interrupt`（时限提醒与高优先级送达）；Codex 臂实际运行的 `arw_measure`、`arw_runtime.mjs`、`arw_native_setup.mjs`、`providers`、`api_relay`（G7 deny-read、命令环境排除、tier 与输出记录）；计分链上的 `bench_records`、`bench_validity`、`single_scenario_score`（有效性重判和计分入口）。没列入：`wsl_client`（只有路径和写文件）；`benchmark_summary`、`benchmark_export`（只汇总和导出，不定条件、不定分数）；`src/startup_instructions.py`（它的输出已作为 `prompts.startup_loaded_sha256` 绑定）；`src/output_limit.py`、`src/frontend.py`（按部署版本，F14）。
+
 Role 与系统提示（`claude_role_gate` 零模型重跑，四个计划全部通过；`claude_role_as_system` 且本臂不接基础提示，所以追加到系统提示的部分就是 Role，`system_sha256` 即 Role 文件的 sha256）：
 
 | 计划 | Role 字节数 | system_sha256 |
@@ -420,4 +477,8 @@ API 臂 catalog：四个 v2 计划**都没有引用 catalog**（`fixed_condition
 | Strata 部署 JSON | v1 §14：`1c8650e1…` | `c9fb5c84…` | 部署 JSON 在 v1 之后改过；Strata 版本与安装 sha 按 v1 §14 的做法，在 Strata 臂第一个实例开跑前补记（F13 当时为 Strata 0.2.4，engine 0.1.48） |
 | 四个计划 JSON | 无（v2 新建） | 见上表 | `status` 改为绑定已记录；之前的 SHA 不作绑定 |
 
-未绑定的部分：F14 的 `src/output_limit.py`、`src/frontend.py` 以部署版本为准，不在本文件；运行脚本（OpenAI 臂的 `run_one.py` 等）和 `bench_records` 的运行目录布局开跑前补记；F5 的 DeepSeek 上限已在计划 JSON 的 `deepseek_claude_environment` 里，随计划 SHA 绑定。
+未绑定的部分：
+- F14 的 `src/output_limit.py`、`src/frontend.py` 以部署版本为准，不在本文件。
+- 运行脚本（OpenAI 臂的 `run_one.py` 等）开跑前补记（v1 §14.3 的做法）。
+- F5 的 DeepSeek 上限已在计划 JSON 的 `deepseek_claude_environment` 里，随计划 SHA 绑定。
+- **计划内的冻结后改动**（F11 剩余部分，F15 建议 3）：v2 的 `bench_records` 运行目录布局（`LAYOUTS['v2']`）、`benchmarks/multi-model-v2/model-failures.json`、`benchmark_export` 的 v2 场景元数据与公开文件。这些在开跑后建立，不改评分规则，不算偏离；其中 `bench_records.py` 在 `code` 段里，改动时照常重跑 `--write`，并在提交说明里注明「F11 计划内改动」。

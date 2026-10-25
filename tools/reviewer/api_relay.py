@@ -3,8 +3,8 @@
 Codex does not keep the service tier of a response, so API provider runs send their model requests through this
 relay: every request is forwarded unchanged (method, path below the relay root, body and headers, including the
 credential headers Codex adds) and the reply is streamed back unchanged. From the reply only these fields are kept:
-HTTP status, model, service tier, response id and status, and usage (Responses ``response.created``/``response.completed`` events, or
-an Anthropic Messages ``message_start``/``message_delta`` pair). Headers and bodies are never written.
+HTTP status, model, service tier, response id, status and incomplete_details, and usage (Responses
+``response.created``/``response.completed`` events, or an Anthropic Messages ``message_start``/``message_delta`` pair). Headers and bodies are never written.
 
 A WebSocket upgrade is refused with 426 and recorded, so a client that prefers WebSocket falls back to HTTP; the
 zero-model probe in benchmarks/multi-model-v1/plan.md checks that Codex does.
@@ -50,6 +50,8 @@ class Fields:
                 self.values['response_status'] = response['status']
             if response.get('usage'):
                 self.values['usage'] = response['usage']
+            if response.get('incomplete_details'):  # e.g. {"reason": "max_output_tokens"} on an output-limit cut
+                self.values['incomplete_details'] = response['incomplete_details']
         elif kind == 'message_start' and isinstance(data.get('message'), dict):
             message = data['message']
             for key in ('model', 'id'):

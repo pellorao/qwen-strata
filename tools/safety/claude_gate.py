@@ -398,8 +398,17 @@ class Messages(BaseHTTPRequestHandler):
         self.send(200, json.dumps(message).encode())
 
 
+class Server(ThreadingHTTPServer):
+    def handle_error(self, request, client_address):
+        # Claude Code may hang up while a reply is still being written (e.g. at its own exit): that client disconnect
+        # is not a gate fault, so it is not printed as a traceback. Every other error is reported as before.
+        if isinstance(sys.exc_info()[1], (ConnectionResetError, BrokenPipeError)):
+            return
+        super().handle_error(request, client_address)
+
+
 def serve(out=None):
-    server = ThreadingHTTPServer(('127.0.0.1', 0), Messages)
+    server = Server(('127.0.0.1', 0), Messages)
     server.requests, server.network, server.lock, server.out, server.script = [], [], threading.Lock(), out, None
     threading.Thread(target=server.serve_forever, daemon=True).start()
     return server
