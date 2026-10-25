@@ -409,7 +409,7 @@ Role 与系统提示（`claude_role_gate` 零模型重跑，四个计划全部�
 | `config/prompts/startup-instructions.txt` | `5f9efc02…` | `1cae169a…`（防循环段关闭，`claude_headless.startup_text`） |
 | `config/prompts/compact-prompt.txt` | `3856cb62…` | `3856cb62…`（原样；Codex 原生压缩提示 `ab0c334d…` 见 F12） |
 
-API 臂 catalog：四个 v2 计划**都没有引用 catalog**（`fixed_conditions` 里没有 catalog 字段）。v2 沿用 v1 的冻结文件 `multi-model-v1/catalogs/openai-codex-0.163.0.json`（`40484beb…`）和 `deepseek-codex-0.163.0.json`（`71af1bea…`），已列入 `bindings.json`。零模型核对：0.164.0 内置 catalog（`codex debug models --bundled`）里 `gpt-6.1-sol`、`gpt-6-luna`、`codex-auto-review` 三个条目与 openai catalog 逐字节相同；DeepSeek 条目是手写的，与版本无关。开跑时由运行脚本把 catalog 传给 Codex，运行脚本的 SHA 开跑前再补记（v1 §14.3 的做法）。
+API 臂 catalog：四个 v2 计划**都没有引用 catalog**（`fixed_conditions` 里没有 catalog 字段）。v2 沿用 v1 的冻结文件 `multi-model-v1/catalogs/openai-codex-0.163.0.json`（`40484beb…`）和 `deepseek-codex-0.163.0.json`（`71af1bea…`），已列入 `bindings.json`。零模型核对：0.164.0 内置 catalog（`codex debug models --bundled`）里 `gpt-6.1-sol`、`gpt-6-luna`、`codex-auto-review` 三个条目与 openai catalog 逐字节相同；DeepSeek 条目是手写的，与版本无关。开跑时由运行脚本把 catalog 传给 Codex，运行脚本的 SHA 开跑前再补记（v1 §14.3 的做法）。Main 决定（2026-10-25）：沿用这两份，不另冻结 0.164.0 版。理由：OpenAI 三个条目与 0.164.0 内置的逐字节相同，DeepSeek 条目与版本无关，另冻结只会多出一对内容相同的文件；交 F15 复核。
 
 与旧值的差别（其余绑定与计划、F4、F9、F12 中已记的值一致，没有发现不符）：
 
