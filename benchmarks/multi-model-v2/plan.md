@@ -1,6 +1,6 @@
-# 多模型 benchmark v2 运行计划（冻结审查完成、修正已做，待 Main 冻结）
+# 多模型 benchmark v2 运行计划（可冻结，等后续需求，未冻结）
 
-起草 2026-10-24。起草时只做题目、brief 与设置的准备，没有运行模型；此后冻结前检查（第 11 节）跑过的模型和费用逐项记在该节。冻结审查（F15，[审查报告](review-f15-2026-10-25.md)）已完成，结论是修正后可以冻结；必须修正的 M1–M3 和建议 1–5、7 已落实（见 F15 行），待 Main 复核后冻结。第 9 节的事项由用户复核。v1 的目录、冻结件和 SHA 绑定一律不改，v2 的全部文件都在本目录。
+起草 2026-10-24。起草时只做题目、brief 与设置的准备，没有运行模型；此后冻结前检查（第 11 节）跑过的模型和费用逐项记在该节。冻结审查（F15，[审查报告](review-f15-2026-10-25.md)）已完成，结论是修正后可以冻结；必须修正的 M1–M3 和建议 1–5、7 已落实（见 F15 行），Main 已复核。**用户 2026-10-25 定：v2 现在只规划、不跑，也不冻结**。之前的问题已处理完，v2 处于可冻结的状态，但还要等后续需求，按需求调整；开跑前再冻结。冻结时重做 F12（换当时最新的 harness）、F16（重算绑定），改动部分重新独立审查（F15），再把四个计划的 `authorization.approved` 改为 true。第 9 节的事项由用户复核。v1 的目录、冻结件和 SHA 绑定一律不改，v2 的全部文件都在本目录。
 
 ## 1. 目的
 
@@ -249,7 +249,7 @@ Codex 臂另有两个 harness 补丁沿用 v1：`codex-0.163-synthetic-mount-tar
 | F12 | harness 换最新版后的零模型检查 | 冻结时两个 harness 同时取最新版写进 `harness_pins.py`，四个计划的 `codex`、`native_cli_sha256` 同步；重跑 F4 的 mock 门、`python3 -m tools.ops.claude_compact_probe --repeat 3`、`verify_codex_compact_prompt` | 无 | 0 | **已做，全部通过（2026-10-25，零模型）**：Claude Code 换到 2.1.310（Codex 仍是最新的 0.164.0，不换），结果见表下「F12 重跑」；冻结时若又出新版，再按流程重做一次 |
 | F13 | 安全验收 | 按 v1 §7：Codex 完整门（Strata）、Claude Code 完整门（Haiku high ×3 加 Opus 抽查）、27 个配置短冒烟；Codex 臂的门带 scratch 补丁 | Strata、Haiku、Opus、DeepSeek、OpenAI | Anthropic 约 $10–20；Strata GPU 约 2 小时 | 部分完成（2026-10-25，worker）：Codex 完整门（Strata）通过；Haiku 完整门因模型拒绝判不通过（隔离通过，待 Main 决定）；补跑（2026-10-25，worker，`.tmp/v2-f13b/`）：Sonnet 冒烟 ×3 全部通过；Opus 完整门判不通过、Opus 冒烟 ×3 判不通过，原因都是模型拒绝探针（隔离通过，泄漏 0，待 Main 决定）；冒烟 27 个中 18 个通过、3 个因模型拒绝判不通过，OpenAI 6 个因登录未借出未跑；见下文「F13 结果」。**处理（F15 M3，预登记，第 11.1 节）**：Haiku、Opus 的拒绝如实记为「模型拒绝探针，不构成沙箱证据」，门的判定逻辑不改；冻结的判定依据是 DeepSeek 完整门、mock 门 38/38。冻结后、各臂开跑前补：Anthropic 臂一次 Sonnet high 完整门；OpenAI 臂 ChatGPT 合成登录 mock 门（2026-10-25 已跑，两个模型都通过）加 6 个 `--provider-run` 冒烟。都不影响其他臂 |
 | F14 | 输出上限重试改动 | 确认 `src/output_limit.py` 的重试改动是否已合入并部署，冻结时以部署版本为准 | 无 | 0 | 已核实（2026-10-25）：提交 1e0fd58 在 master（fc43611）上，`src/output_limit.py`、`src/frontend.py` 与 rtx3080ti 安装目录里的同名文件 sha256 相同（`4903c6ef…`、`475d3035…`）。范围：重试只作用于 Strata 前端上流式的 Responses 请求（Codex 臂），Claude Code 的 Messages 请求没有，DeepSeek 与 API 臂不经前端；所以 v2 里只影响 Strata 的 Codex 配置，是条件差异，报告里写明。冻结时再核一次安装目录 |
-| F15 | 冻结审查 | 冻结属重要决策：智能与推理强度不低于 Main 的独立 agent 审查本计划、四个计划文件与 brief | Opus high | 约 $5–10 | **审查完成、修正已做，待 Main 冻结**（2026-10-25）：[审查报告](review-f15-2026-10-25.md)结论为修正后可以冻结。修正（worker，零模型）：M1 `bench_bindings` 加 `code` 段（第 12 节）；M2 第 5.1、5.2、5.3 节和第 10 节第 19 行改成现行值（压缩点 945000、Codex 不带输出上限、Claude Code 128000），保留的差异和理由写进 5.2；M3 两臂放行条件预登记（第 11.1 节），ChatGPT 合成登录 mock 门已跑并通过；建议 1 见 5.2「Codex 侧输出上限核查」（v1 原始记录已清理，改为正式运行逐实例记录，已实现）；建议 2 改写 5.3 第 3 条；建议 3 写进第 12 节「未绑定」；建议 4 `bench_bindings` 对 `inheritsFrom` 条目核对继承来源的存档；建议 5 静音 mock 门里客户端断连的 traceback；建议 7 写进第 10 节第 1 行。建议 6（M4 写法）由 Main 在状态页交用户复核 |
+| F15 | 冻结审查 | 冻结属重要决策：智能与推理强度不低于 Main 的独立 agent 审查本计划、四个计划文件与 brief | Opus high | 约 $5–10 | **审查完成、修正已做、Main 已复核；按用户决定暂不冻结**（2026-10-25）：[审查报告](review-f15-2026-10-25.md)结论为修正后可以冻结。修正（worker，零模型）：M1 `bench_bindings` 加 `code` 段（第 12 节）；M2 第 5.1、5.2、5.3 节和第 10 节第 19 行改成现行值（压缩点 945000、Codex 不带输出上限、Claude Code 128000），保留的差异和理由写进 5.2；M3 两臂放行条件预登记（第 11.1 节），ChatGPT 合成登录 mock 门已跑并通过；建议 1 见 5.2「Codex 侧输出上限核查」（v1 原始记录已清理，改为正式运行逐实例记录，已实现）；建议 2 改写 5.3 第 3 条；建议 3 写进第 12 节「未绑定」；建议 4 `bench_bindings` 对 `inheritsFrom` 条目核对继承来源的存档；建议 5 静音 mock 门里客户端断连的 traceback；建议 7 写进第 10 节第 1 行。建议 6（M4 写法）由 Main 在状态页交用户复核 |
 | F16 | SHA 绑定 | 按 v1 §14 记录全部绑定：场景清单、补丁（含 `scoring-r8.5.patch` sha256 `c40856cc…`）、brief、测量说明、harness 副本、catalog；四个计划改 `status`、`authorization` | 无 | 0 | **已做（2026-10-25，零模型）**：全部绑定实算后写入 [`bindings.json`](bindings.json)，记录见第 12 节；核对命令 `python3 -m tools.reviewer.bench_bindings --suite v2 --check`（`tools/reviewer/bench_bindings.py`，单测 `tests/test_bench_bindings.py`）；四个计划的 `status` 已改为「绑定已记录，待冻结审查（F15）」，`authorization.approved` 仍为 `false`，由 Main 在 F15 通过后改并重跑 `--write`；F15 M1 后加了代码段（第 12 节）；v2 计划没有引用 catalog，沿用 v1 的 0.163.0 catalog（条目与 0.164.0 内置的逐字节相同） |
 
 F3 结果（2026-10-25，Claude Code 2.1.310，`claude-haiku-5-5` high，无启动与压缩提示，额度标签 `v2-f3-haiku`）：
@@ -367,7 +367,7 @@ ChatGPT 合成登录 mock 门结果（2026-10-25，零模型，worker；运行�
 
 ## 12. 绑定（F16，2026-10-25）
 
-照 v1 §14 的做法记录全部 SHA 绑定。全部值由 `python3 -m tools.reviewer.bench_bindings --suite v2 --write` 实算后写入 [`bindings.json`](bindings.json)（完整 sha256；下文只写前 8 位），零模型。本节写于四个计划 JSON 的 `status` 改完之后，所以计划文件的 SHA 是最终值。`plan.md` 自身不在 `bindings.json` 里（它是记录本身），由冻结 commit 绑定。冻结 commit 同时也是代码绑定，`bindings.json` 的 `code` 段逐文件记 SHA（见下文「代码」，F15 M1）。
+照 v1 §14 的做法记录全部 SHA 绑定。全部值由 `python3 -m tools.reviewer.bench_bindings --suite v2 --write` 实算后写入 [`bindings.json`](bindings.json)（完整 sha256；下文只写前 8 位），零模型。计划文件的 SHA 是当前草案（`status` 为「可冻结，未冻结」）的值；冻结时 `status`、`authorization` 再改，SHA 随之重算。`plan.md` 自身不在 `bindings.json` 里（它是记录本身），由冻结 commit 绑定。冻结 commit 同时也是代码绑定，`bindings.json` 的 `code` 段逐文件记 SHA（见下文「代码」，F15 M1）。
 
 **核对办法**：`QWEN_STRATA_HOST=rtx3080ti python3 -m tools.reviewer.bench_bindings --suite v2 --check`（约 3 分钟，其中 Role 门占大部分；`--no-roles` 跳过 Role，几秒）。它重算全部绑定并与 `bindings.json` 比较，另外核对：每个计划自述的清单、测量说明、模板 SHA 和 Codex 版本与文件和 `harness_pins.py` 一致；每个清单自述的快照和各补丁 SHA 与文件一致；计分补丁、harness 补丁与 `freeze_arw_source` 里登记的值一致；v2 格式基准登记与存档（`format_penalty.verify_archive`）校验通过，`inheritsFrom` 条目对继承来源（v1）的登记和存档同样校验（F15 建议 4）；`code` 段每个文件存在且 SHA 与记录相同；两个 harness 副本的磁盘 SHA 与 `--version`。有任何不符都列出并以非零退出。冻结后若又改动任何被绑定的文件（包括 Main 把计划的 `authorization` 改为已批准），计划文件的 SHA 随之改变，需要重跑 `--write` 并在冻结 commit 里一起提交。单测 `tests/test_bench_bindings.py`。
 
@@ -375,10 +375,10 @@ ChatGPT 合成登录 mock 门结果（2026-10-25，零模型，worker；运行�
 
 | 场景 | 计划 JSON | sha256 | 清单 | 清单 sha256 |
 |---|---|---|---|---|
-| CS v5.1 | `scenarios/code-spec-v5.1.json` | `34a0d487…` | `scenarios/manifest-code-spec-v5.1.json` | `a53fd137…` |
-| CStd v5.1 | `scenarios/code-standards-v5.1.json` | `4b6636cd…` | v1 的 `reviewer-suite-v1/source-snapshots/current/manifest-code-standards-v5.1.json` | `f405dc8d…` |
-| CA v3.1 | `scenarios/commit-audit-v3.1.json` | `58789155…` | `scenarios/manifest-commit-audit-v3.1.json` | `aae30060…` |
-| SR v4.5 | `scenarios/spec-readiness-v4.5.json` | `a1196607…` | `scenarios/manifest-spec-readiness-v4.5.json` | `5b9d3d62…` |
+| CS v5.1 | `scenarios/code-spec-v5.1.json` | `29dbf091…` | `scenarios/manifest-code-spec-v5.1.json` | `a53fd137…` |
+| CStd v5.1 | `scenarios/code-standards-v5.1.json` | `cc058639…` | v1 的 `reviewer-suite-v1/source-snapshots/current/manifest-code-standards-v5.1.json` | `f405dc8d…` |
+| CA v3.1 | `scenarios/commit-audit-v3.1.json` | `4d4bdbae…` | `scenarios/manifest-commit-audit-v3.1.json` | `aae30060…` |
+| SR v4.5 | `scenarios/spec-readiness-v4.5.json` | `9496973b…` | `scenarios/manifest-spec-readiness-v4.5.json` | `5b9d3d62…` |
 
 其余绑定：
 
