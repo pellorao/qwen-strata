@@ -1,13 +1,13 @@
 {
  "schema": "arw-dimension-v1",
- "status": "bindings recorded, awaiting freeze review (benchmarks/multi-model-v2/plan.md §11 F15, §12 bindings; bindings.json, verified by tools.reviewer.bench_bindings --suite v2 --check); not frozen: authorization stays unapproved until F15 passes and Main approves; codex / native_cli_sha256 are the harness_pins values (Codex 0.164.0); the DeepSeek Claude Code limits are the §11 F5 values (compaction 945000, output 128000), checked by F6 / F8",
+ "status": "frozen 2026-10-25 (benchmarks/multi-model-v2/plan.md §11 F15, §12 bindings; bindings.json, verified by tools.reviewer.bench_bindings --suite v2 --check); per-arm release conditions before the first instance: plan §11.1; codex / native_cli_sha256 are the harness_pins values (Codex 0.164.0); the DeepSeek Claude Code limits are the §11 F5 values (compaction 945000, output 128000), checked by F6 / F8",
  "host": "none (benchmark arms; model, effort and time limit given by the runner)",
  "model": "multi-model-benchmark-arm",
  "reviewer": "commit-audit-reviewer",
  "authorization": {
-  "approved": false,
-  "source": "多模型 benchmark v2 草案（benchmarks/multi-model-v2/plan.md），未冻结",
-  "scope": "只用于 ARW 零模型 prepare 与 mock 门；冻结前不用于模型运行"
+  "approved": true,
+  "source": "多模型 benchmark v2（benchmarks/multi-model-v2/plan.md），2026-10-25 冻结；冻结审查 benchmarks/multi-model-v2/review-f15-2026-10-25.md",
+  "scope": "用于 v2 正式运行：ARW prepare 与各臂模型运行；各臂第一个实例前须满足 plan §11.1 的放行条件"
  },
  "method": "Codex 臂：arw_dimension.prepare（codex_harness_patches）→ ARW runtime；Claude Code 臂：tools.reviewer.claude_scenario（claude_role_as_system、deepseek_claude_environment）",
  "fixed_conditions": {
