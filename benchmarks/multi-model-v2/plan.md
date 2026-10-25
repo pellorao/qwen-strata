@@ -244,7 +244,7 @@ Codex 臂另有两个 harness 补丁沿用 v1：`codex-0.163-synthetic-mount-tar
 | F13 | 安全验收 | 按 v1 §7：Codex 完整门（Strata）、Claude Code 完整门（Haiku high ×3 加 Opus 抽查）、27 个配置短冒烟；Codex 臂的门带 scratch 补丁 | Strata、Haiku、Opus、DeepSeek、OpenAI | Anthropic 约 $10–20；Strata GPU 约 2 小时 | 部分完成（2026-10-25，worker）：Codex 完整门（Strata）通过；Haiku 完整门因模型拒绝判不通过（隔离通过，待 Main 决定）；补跑（2026-10-25，worker，`.tmp/v2-f13b/`）：Sonnet 冒烟 ×3 全部通过；Opus 完整门判不通过、Opus 冒烟 ×3 判不通过，原因都是模型拒绝探针（隔离通过，泄漏 0，待 Main 决定）；冒烟 27 个中 18 个通过、3 个因模型拒绝判不通过，OpenAI 6 个因登录未借出未跑；见下文「F13 结果」 |
 | F14 | 输出上限重试改动 | 确认 `src/output_limit.py` 的重试改动是否已合入并部署，冻结时以部署版本为准 | 无 | 0 | 已核实（2026-10-25）：提交 1e0fd58 在 master（fc43611）上，`src/output_limit.py`、`src/frontend.py` 与 rtx3080ti 安装目录里的同名文件 sha256 相同（`4903c6ef…`、`475d3035…`）。范围：重试只作用于 Strata 前端上流式的 Responses 请求（Codex 臂），Claude Code 的 Messages 请求没有，DeepSeek 与 API 臂不经前端；所以 v2 里只影响 Strata 的 Codex 配置，是条件差异，报告里写明。冻结时再核一次安装目录 |
 | F15 | 冻结审查 | 冻结属重要决策：智能与推理强度不低于 Main 的独立 agent 审查本计划、四个计划文件与 brief | Opus high | 约 $5–10 | 未做 |
-| F16 | SHA 绑定 | 按 v1 §14 记录全部绑定：场景清单、补丁（含 `scoring-r8.5.patch` sha256 `c40856cc…`）、brief、测量说明、harness 副本、catalog；四个计划改 `status`、`authorization` | 无 | 0 | 未做（随冻结） |
+| F16 | SHA 绑定 | 按 v1 §14 记录全部绑定：场景清单、补丁（含 `scoring-r8.5.patch` sha256 `c40856cc…`）、brief、测量说明、harness 副本、catalog；四个计划改 `status`、`authorization` | 无 | 0 | **已做（2026-10-25，零模型）**：全部绑定实算后写入 [`bindings.json`](bindings.json)，记录见第 12 节；核对命令 `python3 -m tools.reviewer.bench_bindings --suite v2 --check`（`tools/reviewer/bench_bindings.py`，单测 `tests/test_bench_bindings.py`）；四个计划的 `status` 已改为「绑定已记录，待冻结审查（F15）」，`authorization.approved` 仍为 `false`，由 Main 在 F15 通过后改并重跑 `--write`；v2 计划没有引用 catalog，沿用 v1 的 0.163.0 catalog（条目与 0.164.0 内置的逐字节相同） |
 
 F3 结果（2026-10-25，Claude Code 2.1.310，`claude-haiku-5-5` high，无启动与压缩提示，额度标签 `v2-f3-haiku`）：
 
@@ -338,3 +338,86 @@ F13 结果（2026-10-25，worker；运行明细 `.tmp/v2-f13/`）：rtx3080ti，
 
 - Strata 速度：7 次加载各约 26.6 秒；引擎输出合计 99–106 tok/s，单请求最低 80.3 tok/s，没有降速；任务平均输出 Codex 61.8–67.2、Claude Code 82–84 tok/s。
 - 偏离：Codex DeepSeek 冒烟第一次因 selection 缺 `base_url` 在校验阶段报错（未发请求），补上后重跑通过。live Codex 门从主 checkout 运行（G7 的凭据 deny-read 由工程根的私有文件推出，worktree 没有它），运行前 `diff -rq` 核对 `tools/ src/ config/ scripts/ docs/ benchmarks/multi-model-v2/` 与 worktree HEAD 相同。
+
+## 12. 绑定（F16，2026-10-25）
+
+照 v1 §14 的做法记录全部 SHA 绑定。全部值由 `python3 -m tools.reviewer.bench_bindings --suite v2 --write` 实算后写入 [`bindings.json`](bindings.json)（完整 sha256；下文只写前 8 位），零模型。本节写于四个计划 JSON 的 `status` 改完之后，所以计划文件的 SHA 是最终值。`plan.md` 自身不在 `bindings.json` 里（它是记录本身），由冻结 commit 绑定。
+
+**核对办法**：`QWEN_STRATA_HOST=rtx3080ti python3 -m tools.reviewer.bench_bindings --suite v2 --check`（约 3 分钟，其中 Role 门占大部分；`--no-roles` 跳过 Role，几秒）。它重算全部绑定并与 `bindings.json` 比较，另外核对：每个计划自述的清单、测量说明、模板 SHA 和 Codex 版本与文件和 `harness_pins.py` 一致；每个清单自述的快照和各补丁 SHA 与文件一致；计分补丁、harness 补丁与 `freeze_arw_source` 里登记的值一致；v2 格式基准登记与存档（`format_penalty.verify_archive`）校验通过；两个 harness 副本的磁盘 SHA 与 `--version`。有任何不符都列出并以非零退出。冻结后若又改动任何被绑定的文件（包括 Main 把计划的 `authorization` 改为已批准），计划文件的 SHA 随之改变，需要重跑 `--write` 并在冻结 commit 里一起提交。单测 `tests/test_bench_bindings.py`。
+
+四个计划 JSON（`status` 已改为「绑定已记录，待冻结审查（F15）」；`authorization.approved` 仍为 `false`，由 Main 在 F15 通过后改）：
+
+| 场景 | 计划 JSON | sha256 | 清单 | 清单 sha256 |
+|---|---|---|---|---|
+| CS v5.1 | `scenarios/code-spec-v5.1.json` | `34a0d487…` | `scenarios/manifest-code-spec-v5.1.json` | `a53fd137…` |
+| CStd v5.1 | `scenarios/code-standards-v5.1.json` | `4b6636cd…` | v1 的 `reviewer-suite-v1/source-snapshots/current/manifest-code-standards-v5.1.json` | `f405dc8d…` |
+| CA v3.1 | `scenarios/commit-audit-v3.1.json` | `58789155…` | `scenarios/manifest-commit-audit-v3.1.json` | `aae30060…` |
+| SR v4.5 | `scenarios/spec-readiness-v4.5.json` | `a1196607…` | `scenarios/manifest-spec-readiness-v4.5.json` | `5b9d3d62…` |
+
+其余绑定：
+
+| 项 | 路径或名称 | sha256 |
+|---|---|---|
+| ARW 快照 | `reviewer-suite-v1/source-snapshots/current/arw-760007c2134d-855835bef963.tar.gz`（四个清单共用） | `855835be…` |
+| 场景补丁 | `scenarios/code-spec-v5.1.patch` | `3af95047…` |
+| | `scenarios/commit-audit-v3.1.patch` | `939cc058…` |
+| | `scenarios/spec-readiness-v4.4.patch`（清单里先于 v4.5 应用） | `817f84df…` |
+| | `scenarios/spec-readiness-v4.5.patch` | `40ae22dc…` |
+| | CStd 用 v1 的 `arw-patches/code-standards-v5.1.patch` | `09f02f20…` |
+| 计分补丁 | `scoring-k.patch`（r8.4，v1 目录） | `b0f1929f…` |
+| | `multi-model-v2/arw-patches/scoring-r8.5.patch` | `c40856cc…`（与 F4 记录一致） |
+| harness 补丁 | `codex-0.163-synthetic-mount-targets` | `c1347209…` |
+| | `strata-measurement-time-limit` | `8b285e30…` |
+| | `reviewer-private-scratch` | `12b35b5b…` |
+| brief | `briefs/code-spec-v5.1-brief.md` | `5410f3eb…` |
+| | `briefs/code-standards-v5.1-brief.md` | `2f6ad88b…` |
+| | `briefs/commit-audit-v3.1-brief.md` | `efa00ff6…` |
+| | `briefs/spec-readiness-v4.5-brief.md` | `88d762ca…` |
+| 测量说明 | `measurement-note.txt`（CS、CStd、SR 的 `measurement_note_sha256`） | `0bf509f0…` |
+| | `measurement-note-time-limit.txt`（CS、CStd 的模板，T = 1800；渲染后 `9d6c6da7…` 见 F4） | `4c7558c8…` |
+| | `measurement-note-commit-audit.txt`（CA） | `35e135fd…` |
+| 格式基准 | `format-baseline.json`（v2；CStd 条目 `inheritsFrom: v1`） | `3abfbc28…` |
+| | `reviewer-suite-v1/format-baseline.json`（CStd 继承的 v1 基准） | `8be7d5f7…` |
+| 锚点注册表 | `anchors/code-spec-v5.1.json` | `90de07af…` |
+| | `anchors/code-standards-v5.1.json` | `7904a671…` |
+| | `anchors/commit-audit-v3.1.json` | `e2118cf1…` |
+| | `anchors/spec-readiness-v4.5.json` | `941e36a7…` |
+| judgment | `reviewer-suite-v1/judgment/registry.json` | `be83d73a…` |
+| | `judgment/repeats.json`、`spec-readiness-v4.2.json`、`README.md` | `9a81e580…`、`c5cbef4f…`、`a0771df9…` |
+| Strata 部署 JSON | `config/deployments/rtx3080ti.json` | `c9fb5c84…` |
+
+harness（磁盘实算，与 `harness_pins.py` 一致，`--version` 与版本一致）：
+
+| harness | 版本 | 副本 | sha256 |
+|---|---|---|---|
+| Codex | 0.164.0 | `~/.local/share/qwen-bench/codex-0.164.0/…/x86_64-unknown-linux-musl/bin/codex` | `b93f6811…` |
+| Claude Code | 2.1.310 | `~/.local/share/qwen-bench/claude-code-2.1.310/claude` | `b7367643…` |
+
+Role 与系统提示（`claude_role_gate` 零模型重跑，四个计划全部通过；`claude_role_as_system` 且本臂不接基础提示，所以追加到系统提示的部分就是 Role，`system_sha256` 即 Role 文件的 sha256）：
+
+| 计划 | Role 字节数 | system_sha256 |
+|---|---|---|
+| CS v5.1 | 27,861 | `4687f2b5…` |
+| CStd v5.1 | 29,540 | `5a987333…` |
+| CA v3.1 | 30,172 | `76347dd4…` |
+| SR v4.5（RM、AP 两个交接相同） | 36,656 | `01feceab…` |
+
+基础提示（硬约束 3 的例外：多模型 benchmark 中只给 Strata，其他模型不接；Strata 臂逐实例核对加载 SHA）：
+
+| 提示 | 源文件 sha256 | 加载 sha256 |
+|---|---|---|
+| `config/prompts/startup-instructions.txt` | `5f9efc02…` | `1cae169a…`（防循环段关闭，`claude_headless.startup_text`） |
+| `config/prompts/compact-prompt.txt` | `3856cb62…` | `3856cb62…`（原样；Codex 原生压缩提示 `ab0c334d…` 见 F12） |
+
+API 臂 catalog：四个 v2 计划**都没有引用 catalog**（`fixed_conditions` 里没有 catalog 字段）。v2 沿用 v1 的冻结文件 `multi-model-v1/catalogs/openai-codex-0.163.0.json`（`40484beb…`）和 `deepseek-codex-0.163.0.json`（`71af1bea…`），已列入 `bindings.json`。零模型核对：0.164.0 内置 catalog（`codex debug models --bundled`）里 `gpt-6.1-sol`、`gpt-6-luna`、`codex-auto-review` 三个条目与 openai catalog 逐字节相同；DeepSeek 条目是手写的，与版本无关。开跑时由运行脚本把 catalog 传给 Codex，运行脚本的 SHA 开跑前再补记（v1 §14.3 的做法）。
+
+与旧值的差别（其余绑定与计划、F4、F9、F12 中已记的值一致，没有发现不符）：
+
+| 项 | 旧值 | 现值 | 原因 |
+|---|---|---|---|
+| Codex | v1：0.163.0，`399ff69c…` | 0.164.0，`b93f6811…` | 用户 2026-10-23 的 harness 版本规则，F12 |
+| Claude Code | v1：2.1.303，`375988f4…` | 2.1.310，`b7367643…` | 同上；F4、F9 在 2.1.309 上做，F12 在 2.1.310 上重跑 |
+| Strata 部署 JSON | v1 §14：`1c8650e1…` | `c9fb5c84…` | 部署 JSON 在 v1 之后改过；Strata 版本与安装 sha 按 v1 §14 的做法，在 Strata 臂第一个实例开跑前补记（F13 当时为 Strata 0.2.4，engine 0.1.48） |
+| 四个计划 JSON | 无（v2 新建） | 见上表 | `status` 改为绑定已记录；之前的 SHA 不作绑定 |
+
+未绑定的部分：F14 的 `src/output_limit.py`、`src/frontend.py` 以部署版本为准，不在本文件；运行脚本（OpenAI 臂的 `run_one.py` 等）和 `bench_records` 的运行目录布局开跑前补记；F5 的 DeepSeek 上限已在计划 JSON 的 `deepseek_claude_environment` 里，随计划 SHA 绑定。
