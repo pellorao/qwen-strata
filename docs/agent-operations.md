@@ -1,6 +1,6 @@
 # Agent 运行规则
 
-本工程运行时依赖、但原本只写在 rtx3080ti 用户级 `~/.claude/` 里的规则，写成与 harness 无关的形式，给没有这些用户级规则的 harness（如 rtx4070tis 上的 Codex）用。rtx3080ti 上的 Claude Code 照旧读用户级规则；两边内容重叠或不一致时，Claude Code 以用户级规则为准。
+本工程运行时依赖、但原本只写在 rtx3080ti 用户级 `~/.claude/` 里的规则，写成与 harness 无关的形式，给没有这些用户级规则的 harness（如 rtx4070tis 上的 Codex、Antigravity/agy）用。rtx3080ti 上的 Claude Code 照旧读用户级规则；两边内容重叠或不一致时，Claude Code 以用户级规则为准。
 
 这里只写规则；个人偏好（对话语言、回复长度等）放在各 harness 的用户级指令里。
 
@@ -16,7 +16,7 @@
 
 ## 推送
 
-命令：`~/.claude/hooks/stop-notify/push.sh "<一行消息>"`，在本轮最终回复之前运行。不传标题时，脚本取会话标题，找不到时用目录名；Codex 下没有会话标题，就用目录名。
+命令：`~/.claude/hooks/stop-notify/push.sh "<一行消息>"`，在本轮最终回复之前运行。不传标题时，脚本取会话标题，找不到时用目录名；Codex、Antigravity 下没有会话标题，就用目录名。
 
 - 何时推送：本轮新增或改动了 `decide` 项；本轮请用户动手做某一步；不是用户消息触发的一轮（后台检查、任务结束）以结果、失败或新增 `know` 项结束。
 - 消息写明哪项工作、需要用户做什么，例如"Code Spec Q3×5 完成，需你决定 1 项"。`know` 写"待你知悉"，只有 `decide` 才写"待你决定"。
@@ -42,7 +42,7 @@
 
 AGENTS.md 硬约束 1 的重要决策（冻结、默认参数改值、部署、改测量设计）要先取得独立意见：
 
-- 另开一个只读会话，模型和推理强度都不低于 Main。Codex 下用 `codex exec --sandbox read-only`，模型和 `model_reasoning_effort` 不低于当前会话；Claude Code 下用 Agent 工具开新 agent。
+- 另开一个只读会话，模型和推理强度都不低于 Main。Codex 下用 `codex exec --sandbox read-only`，模型和 `model_reasoning_effort` 不低于当前会话；Claude Code 下用 Agent 工具开新 agent；Antigravity 下用 `invoke_subagent` 工具（`TypeName: "research"`，在只读沙箱运行）。
 - 交给审查方的是代码、数据和问题本身，不附 Main 的结论，避免被带偏。
 - 审查会话只给意见，不改文件；Main 综合双方意见后执行，双方意见和结果写进该工作的报告。
 
@@ -50,3 +50,4 @@ AGENTS.md 硬约束 1 的重要决策（冻结、默认参数改值、部署、�
 
 - Claude Code（rtx3080ti）：照用户级规则，用 `~/.claude/statusline/estimate.sh` 估算 Anthropic 账号额度。
 - Codex（rtx4070tis）：用的是 OpenAI 额度，`estimate.sh` 不适用。Codex 侧是否需要类似的判定**待定**，由用户决定；决定前，AGENTS.md 硬约束 1 中的 `estimate.sh --can-start` 判定在 Codex 侧跳过。
+- Antigravity：使用 Gemini / Google 额度，`estimate.sh` 同样不适用，判定跳过。

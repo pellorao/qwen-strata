@@ -2,9 +2,9 @@
 
 维护本地 Qwen3.8-Flash-Next / Strata 推理服务（Windows 原生运行），并测量它作为 Codex / Claude 等 agent 后端的表现。
 
-专题规则：Claude Code 按文件头 `paths` 自动加载；不按路径自动加载规则的 harness（如 Codex），动到表中路径之前先读对应规则。在 plan、`.tmp` 或对话里设计测量、评分口径、场景时，路径触发覆盖不到，也要先读对应规则。可重复流程在 `.claude/skills/`（Codex 经符号链接 `.agents/skills` 发现同一份）。整个工程的现行决定在 [README](README.md#现行决定)。
+专题规则：Claude Code 按文件头 `paths` 自动加载；不按路径自动加载规则的 harness（如 Codex、Antigravity/agy），动到表中路径之前先读对应规则。在 plan、`.tmp` 或对话里设计测量、评分口径、场景时，路径触发覆盖不到，也要先读对应规则。可重复流程在 `.claude/skills/`（Codex、Antigravity 经符号链接 `.agents/skills` 发现同一份）。整个工程的现行决定在 [README](README.md#现行决定)。
 
-运行规则（状态页与推送、后台长任务、独立审查、额度）：没有加载用户级 `~/.claude/` 规则的 harness，开始工作前读 [agent-operations](docs/agent-operations.md)。
+运行规则（状态页与推送、后台长任务、独立审查、额度）：没有加载用户级 `~/.claude/` 规则的 harness（如 Codex、Antigravity），开始工作前读 [agent-operations](docs/agent-operations.md)。
 
 | 专题规则 | 适用路径 |
 |---|---|
