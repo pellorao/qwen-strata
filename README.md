@@ -9,9 +9,9 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 | id | 硬件 | 状态 |
 |---|---|---|
 | `rtx3080ti` | RTX 3080 Ti 12GB，i9-13900 | 可用；本工程所在机 |
-| `rtx4070tis` | RTX 4070 Ti SUPER | 离线；本地遗留做完后复制整个工程过去，用 Codex 就地运行，见[交接文档](docs/rtx4070tis-handoff.md) |
+| `rtx4070tis` | RTX 4070 Ti SUPER | 已上线（2026-10-28，Strata v0.2.4）；由本机的 agent 就地运行，参数为初始基线，与硬件有关的维度待重调，见[交接文档](docs/rtx4070tis-handoff.md) |
 
-rtx3080ti 安装 Strata v0.2.4（引擎 0.1.48，2026-10-24，通过短检查），只对外提供 IQ3_XXS，参数沿用 v0.1.42 调参结果（未在新版上重测）；Q2_0、IQ2_XS 权重保留，默认不运行、不测试。rtx4070tis 离线，仍为 v0.1.40.2，上线步骤见[交接文档](docs/rtx4070tis-handoff.md)。
+rtx3080ti 安装 Strata v0.2.4（引擎 0.1.48，2026-10-24，通过短检查），只对外提供 IQ3_XXS，参数沿用 v0.1.42 调参结果（未在新版上重测）；Q2_0、IQ2_XS 权重保留，默认不运行、不测试。rtx4070tis 已于 2026-10-28 部署 Strata v0.2.4，只对外提供 IQ3_XXS，参数沿用既有安装设置的初始基线（未在本机重测），上线步骤与待办见[交接文档](docs/rtx4070tis-handoff.md)。
 
 ## 文档
 

@@ -310,7 +310,18 @@ class ManualRenderingTests(unittest.TestCase):
         self.assertIn('model_context_window = 100000\nmodel_auto_compact_token_limit = 70000', rendered)
         self.assertNotIn('192.168.60.212', rendered.split('## 已观察到的执行异常')[0])
 
+    def test_rtx4070tis_renders_its_own_manual(self):
+        rendered = render_manual('rtx4070tis', self.root)
+        self.assertNotIn('{{', rendered)
+        self.assertIn('rtx4070tis：对外模型为 IQ3_XXS', rendered)
+
     def test_host_without_its_data_or_paragraphs_is_refused(self):
+        path = self.root/'config/deployments/rtx4070tis.json'
+        value = json.loads(path.read_text(encoding='utf-8'))
+        for key in ('listen_address', 'port', 'context_tiers'):
+            del value[key]
+        value['context_tiers'] = {}
+        path.write_text(json.dumps(value), encoding='utf-8')
         with self.assertRaisesRegex(ValueError, 'lacks what the manual names: listen_address, port, context_tiers.IQ3_XXS'):
             render_manual('rtx4070tis', self.root)
         (self.root/MANUAL_HOSTS/'rtx3080ti.md').unlink()

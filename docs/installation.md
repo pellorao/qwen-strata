@@ -20,7 +20,7 @@ rtx3080ti 为 i9-13900、RTX 3080 Ti 12 GB。rtx4070tis 为 i9-14900K、64 GB RA
 
 私有配置统一放工程根目录 `project.private.toml`（Git 忽略，权限 0600，不部署、不写入报告），包括各主机的 `installation_path`、`frontend_url` 和 Brave key 等凭据，只由程序解析，不读入会话。安装目录需要的敏感配置将放在安装根目录 `installation.private.toml`，由部署程序从工程私有配置写入；当前前端不需要任何安装凭据，该文件在接入托管搜索时才创建。新增主机时增加一个 `[hosts.<id>]` 分组。配置按 UTF-8 读写。
 
-旧的 `ssh-windows` 连接方式（SSH、`listen_port`／`access_port` 端口映射）已废弃；前端常驻在 Windows、监听局域网固定端口（rtx3080ti 为 `192.168.60.212:8000`）。部署和测量工具只处理本机安装（经 `wslpath` 访问）。rtx4070tis 离线，连接方式在它恢复后再定。
+旧的 `ssh-windows` 连接方式（SSH、`listen_port`／`access_port` 端口映射）已废弃；前端常驻在 Windows、监听局域网固定端口（rtx3080ti 为 `192.168.60.212:8000`）。部署和测量工具只处理本机安装（经 `wslpath` 访问）。rtx4070tis 的监听地址和端口见 `config/deployments/rtx4070tis.json`。
 
 | 路径 | 内容 |
 |---|---|

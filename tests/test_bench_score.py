@@ -374,6 +374,16 @@ class ReportsTest(unittest.TestCase):
         self.assertEqual(checks['trees'], [{'k': 0, 'tree': 'no manifest kept'}])
 
 
+def local_codex_plan(plan, directory):
+    """The plan with its Codex pin pointed at a stand-in executable: these tests score reports and never run Codex, so
+    they must not need the benchmark copy of whichever version a (finished or later) plan was frozen with."""
+    from unittest.mock import patch
+    executable = Path(directory) / 'codex'
+    executable.write_bytes(b'stand-in for the Codex binary')
+    plan['fixed_conditions'].update(codex='stand-in', native_cli_sha256=hashlib.sha256(executable.read_bytes()).hexdigest())
+    return patch('tools.tuning.arw_dimension.codex_binary', return_value=executable)
+
+
 class SpillScoringEndToEndTest(unittest.TestCase):
     """A spill-cited report on a fresh zero-model Code Standards v5.1 preparation, scored by the frozen ARW scorer:
     the converted fragments counted in r are locators T reads, one each, and T is the same for the report as written,
@@ -385,7 +395,8 @@ class SpillScoringEndToEndTest(unittest.TestCase):
         plan = load_plan(bench_records.ROOT / 'benchmarks/multi-model-v1/scenarios/code-standards-v5.1.json')[0]
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp)
-            prepare(plan, None, work / 'prep', time_limit_seconds=1200)
+            with local_codex_plan(plan, work):
+                prepare(plan, None, work / 'prep', time_limit_seconds=1200)
             prepared = json.loads((work / 'prep/preparation.json').read_text())
             handoff = prepared['handoffs'][0]
             diff = subprocess.run(['git', '-C', handoff['scenarioRoot'], 'diff', '--cached'], capture_output=True,
@@ -452,7 +463,8 @@ class ModelFailureEndToEndTest(unittest.TestCase):
                     plan = load_plan(bench_records.ROOT / f'benchmarks/multi-model-v1/scenarios/{name}.json')[0]
                     work = Path(tmp)
                     limited = 'measurement_note_template' in plan['fixed_conditions']
-                    prepare(plan, None, work / 'prep', time_limit_seconds=1200 if limited else None)
+                    with local_codex_plan(plan, work):
+                        prepare(plan, None, work / 'prep', time_limit_seconds=1200 if limited else None)
                     prepared = json.loads((work / 'prep/preparation.json').read_text())
                     os.environ['CODEX_THREAD_ID'] = plan['codex_thread_id']
                     # The first repetition, as an instance record pairs its handoffs with the fresh ones.
