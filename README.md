@@ -18,6 +18,7 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 | 内容 | 入口 |
 |---|---|
 | 当前待办、周期流程与工作状态 | [状态页](.status/index.html) |
+| Codex CLI 定时唤醒 | [实现方法](docs/codex-cli-scheduling.md) |
 | 安装目录调用手册（源文件） | [docs/installation-directory-readme.md](docs/installation-directory-readme.md) |
 | 安装、升级与下载 | [安装说明](docs/installation.md) · [下载清单](docs/downloads.md) |
 | 启停、网络与部署 | [前端运行与维护](docs/frontend.md) |

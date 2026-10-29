@@ -1,0 +1,17 @@
+{
+  "description": "Remove this Codex CLI thread's queue timers when the session ends.",
+  "hooks": {
+    "SessionEnd": [
+      {
+        "matcher": "other",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/scripts/wsl/codex-timers\" cleanup",
+            "timeout": 3
+          }
+        ]
+      }
+    ]
+  }
+}

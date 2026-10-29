@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+"""Schedule Codex CLI follow-ups without starting a second agent session.
+
+Each timer runs `codex queue` against one existing thread.  A SessionEnd hook calls
+`cleanup`, which stops and unloads every transient systemd user timer for that thread.
+"""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+
+PREFIX = 'codex-timer-'
+SCRIPT = Path(__file__).resolve()
+
+
+def tag(session_id):
+    if not session_id:
+        raise ValueError('session id is required')
+    return hashlib.sha256(session_id.encode()).hexdigest()[:12]
+
+
+def unit_name(session_id, label):
+    identity = hashlib.sha256((session_id + '\0' + label).encode()).hexdigest()[:8]
+    return f'{PREFIX}{tag(session_id)}-{identity}'
+
+
+def systemctl(*args, check=True):
+    return subprocess.run(['systemctl', '--user', *args], text=True, capture_output=True, check=check, timeout=5)
+
+
+def timer_units(session_id):
+    pattern = f'{PREFIX}{tag(session_id)}-*.timer'
+    result = systemctl('list-units', '--all', '--plain', '--no-legend', pattern, check=False)
+    if result.returncode:
+        raise RuntimeError(result.stderr.strip() or 'systemctl list-units failed')
+    return [line.split(None, 1)[0] for line in result.stdout.splitlines() if line.strip()]
+
+
+def cleanup(session_id):
+    units = timer_units(session_id)
+    if units:
+        systemctl('stop', *units)
+    return units
+
+
+def queue(session_id, message):
+    codex = shutil.which('codex')
+    if not codex:
+        raise RuntimeError('codex is not on PATH')
+    result = subprocess.run(
+        [codex, 'queue', '--thread', session_id, '--message', message],
+        text=True, capture_output=True, timeout=30,
+    )
+    return codex, result
+
+
+def schedule(args):
+    when = json.dumps([args.seconds, args.at, args.every])
+    unit = unit_name(args.session_id, args.message + '\0' + when)
+    codex = shutil.which('codex')
+    if not codex:
+        raise RuntimeError('codex is not on PATH')
+    command = [
+        'systemd-run', '--user', '--unit', unit, '--collect', '--same-dir',
+        '--setenv', f'HOME={Path.home()}',
+        '--setenv', f'PATH={os.environ.get("PATH", "/usr/local/bin:/usr/bin:/bin")}',
+    ]
+    if args.seconds is not None:
+        command.append(f'--on-active={args.seconds}')
+    elif args.every is not None:
+        command.append(f'--on-calendar={args.every}')
+    else:
+        command.append(f'--on-calendar={args.at}')
+    command += [
+        sys.executable, str(SCRIPT), 'wake',
+        '--session-id', args.session_id,
+        '--unit', unit,
+        '--message', args.message,
+    ]
+    subprocess.run(command, check=True, timeout=15)
+    return unit
+
+
+def wake(session_id, unit, message):
+    _, result = queue(session_id, message)
+    if result.returncode:
+        # The session is gone or detached. Remove this transient timer instead of
+        # leaving a stale wake-up behind when SessionEnd could not run.
+        systemctl('stop', f'{unit}.timer', check=False)
+        raise RuntimeError(result.stderr.strip() or 'codex queue failed')
+    return result.stdout
+
+
+def hook_session():
+    try:
+        event = json.load(sys.stdin)
+    except (ValueError, OSError):
+        event = {}
+    return event.get('session_id') or os.environ.get('CODEX_THREAD_ID')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    sub = parser.add_subparsers(dest='command', required=True)
+
+    add = sub.add_parser('schedule', help='Queue a follow-up message into an existing Codex CLI thread.')
+    add.add_argument('--session-id', required=True, help='Existing thread UUID, normally $CODEX_THREAD_ID.')
+    add.add_argument('--message', required=True, help='Message that Codex should receive when the timer fires.')
+    when = add.add_mutually_exclusive_group(required=True)
+    when.add_argument('--seconds', type=int, help='One-shot delay accepted by systemd-run --on-active.')
+    when.add_argument('--at', help='One-shot systemd OnCalendar expression.')
+    when.add_argument('--every', help='Recurring systemd OnCalendar expression, for example *-*-* *:00/20:00.')
+
+    show = sub.add_parser('list', help='List this thread\'s timer units.')
+    show.add_argument('--session-id', required=True)
+
+    remove = sub.add_parser('cleanup', help='Stop and unload this thread\'s timer units; reads SessionEnd JSON on stdin.')
+    remove.add_argument('--session-id')
+
+    wake_parser = sub.add_parser('wake', help=argparse.SUPPRESS)
+    wake_parser.add_argument('--session-id', required=True)
+    wake_parser.add_argument('--unit', required=True)
+    wake_parser.add_argument('--message', required=True)
+
+    args = parser.parse_args()
+    try:
+        if args.command == 'schedule':
+            print(schedule(args))
+        elif args.command == 'list':
+            print('\n'.join(timer_units(args.session_id)))
+        elif args.command == 'cleanup':
+            units = cleanup(args.session_id or hook_session())
+            print('\n'.join(units))
+        else:
+            wake(args.session_id, args.unit, args.message)
+    except (OSError, RuntimeError, subprocess.SubprocessError, ValueError) as error:
+        print(f'codex-timers: {error}', file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

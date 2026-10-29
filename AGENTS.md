@@ -6,6 +6,8 @@
 
 运行规则（状态页与推送、后台长任务、独立审查、额度）：没有加载用户级 `~/.claude/` 规则的 harness（如 Codex、Antigravity），开始工作前读 [agent-operations](docs/agent-operations.md)。
 
+Codex CLI 定时唤醒、未来待办提醒或 subagent 周期检查：读 [codex-cli-scheduling](docs/codex-cli-scheduling.md)，timer 只能 queue 到仍打开的现有会话。
+
 | 专题规则 | 适用路径 |
 |---|---|
 | [测量](.claude/rules/measurement.md) | `tools/`、`reports/`、`benchmarks/` |
