@@ -66,6 +66,7 @@ def schedule(args):
         raise RuntimeError('codex is not on PATH')
     command = [
         'systemd-run', '--user', '--unit', unit, '--collect', '--same-dir',
+        '--timer-property', 'AccuracySec=1s',
         '--setenv', f'HOME={Path.home()}',
         '--setenv', f'PATH={os.environ.get("PATH", "/usr/local/bin:/usr/bin:/bin")}',
     ]

@@ -41,6 +41,7 @@ class CodexTimersTests(unittest.TestCase):
             unit = codex_timers.schedule(args)
         command = run.call_args.args[0]
         self.assertIn('systemd-run', command)
+        self.assertIn('AccuracySec=1s', command)
         self.assertIn('--on-active=1200', command)
         self.assertNotIn('exec', command)
         self.assertEqual(command[-7:], [

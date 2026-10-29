@@ -9,6 +9,7 @@
 - 定时器只执行 `codex queue --thread <UUID> --message <文本>`。queue 的消息在当前回合结束后成为下一回合，不会 steer 或打断忙碌中的 Main。
 - 定时检查只在 Main 空闲时处理。到点唤醒后，检查指定任务或 subagent：仍在运行就安排下一次检查后结束回合；已经完成就汇总并停止；任务已不存在就不重建定时器。
 - systemd timer 是用外部时钟触发消息；Codex 会话仍由原 CLI 进程持有。timer 不是新的 Codex 会话。
+- helper 将 timer 的 `AccuracySec` 固定为 1 秒，避免 systemd 默认一分钟精度把短提醒推迟。
 - Codex CLI 正常关闭时，`SessionEnd` hook 删除该 UUID 的全部 timer。强杀、崩溃和断电可能跳过 hook；下一次 timer 触发时如果 `codex queue` 失败，timer 自删。需要“强制终止也立即清理”时必须让 CLI 本身由外部 supervisor 运行，本项目不采用这种启动方式。
 
 ## 安装清理 hook
