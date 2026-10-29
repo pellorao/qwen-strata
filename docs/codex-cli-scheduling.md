@@ -15,7 +15,7 @@
 
 ## 安装清理 hook
 
-仓库模板见 [codex-cli-scheduling-hooks.json](codex-cli-scheduling-hooks.json)。将它合并到仓库的 `.codex/hooks.json`，再在 Codex CLI 运行 `/hooks` 审查并信任该 hook。项目 `.codex/` 层必须受信任，否则清理 hook 不会运行。
+仓库内的 [.codex/hooks.json](../.codex/hooks.json) 是唯一 hook 源。新机器拿到工程后，在 Codex CLI 运行 `/hooks` 审查并信任该 hook；信任记录按本机保存。项目 `.codex/` 层必须受信任，否则清理 hook 不会运行。
 
 SessionEnd 使用 3 秒上限，因此清理命令停止 `codex-timer-<session-tag>-*.timer` 和对应的 watchdog service。systemd 的 transient unit 停止后自行卸载，不需要再删除文件。
 

@@ -68,8 +68,8 @@ class CodexTimersTests(unittest.TestCase):
         command = run.call_args_list[-1].args[0]
         self.assertIn('--on-calendar=*-*-* *:00/20:00', command)
 
-    def test_session_end_template_has_a_three_second_cleanup_hook(self):
-        template = json.loads((ROOT / 'docs/codex-cli-scheduling-hooks.json').read_text(encoding='utf-8'))
+    def test_session_end_hook_has_a_three_second_cleanup_command(self):
+        template = json.loads((ROOT / '.codex/hooks.json').read_text(encoding='utf-8'))
         hook = template['hooks']['SessionEnd'][0]['hooks'][0]
         self.assertEqual(hook['timeout'], 3)
         self.assertIn('/scripts/wsl/codex-timers', hook['command'])
