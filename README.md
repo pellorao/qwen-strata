@@ -17,7 +17,7 @@ rtx3080ti 安装 Strata v0.2.4（引擎 0.1.48，2026-10-24，通过短检查）
 
 | 内容 | 入口 |
 |---|---|
-| 后续计划与周期流程 | [docs/plan.md](docs/plan.md) |
+| 当前待办、周期流程与工作状态 | [状态页](.status/index.html) |
 | 安装目录调用手册（源文件） | [docs/installation-directory-readme.md](docs/installation-directory-readme.md) |
 | 安装、升级与下载 | [安装说明](docs/installation.md) · [下载清单](docs/downloads.md) |
 | 启停、网络与部署 | [前端运行与维护](docs/frontend.md) |
@@ -61,14 +61,13 @@ rtx3080ti 安装 Strata v0.2.4（引擎 0.1.48，2026-10-24，通过短检查）
 
 ## 主线
 
-- [ ] **多模型 benchmark**：四个 reviewer 场景都已冻结并测完（评分 r8 起的 Q3/Opus：Code Spec v5 0.733（×5，r8 重算）、Code Standards v5.1 0.936（×10，r8 重算；区分度不足的末版）、Spec Readiness v4.3 0.584（×5）、Commit Audit v3 0.730（×5，r8.3）），benchmark 前置工作完成；四个臂已跑完；第一阶段（预登记实例）与第二阶段（Strata 加测进主统计，全样本）都已出报告，公开结果文件已生成（[运行计划](benchmarks/multi-model-v1/plan.md)、[第一阶段报告](reports/v0.1.45/multi-model-benchmark/phase1/summary.md)、[第二阶段报告](reports/v0.1.45/multi-model-benchmark/phase2/summary.md)、[待办](docs/plan.md#多模型-benchmark用户-2026-10-17)）。
-- [ ] **rtx4070tis 上线**（排在 benchmark 遗留和本机遗留之后）：先做工程可移植化，再复制工程过去由那台机器就地运行，见[交接文档](docs/rtx4070tis-handoff.md)。
+- [ ] **多模型 benchmark**：四个 reviewer 场景都已冻结并测完（评分 r8 起的 Q3/Opus：Code Spec v5 0.733（×5，r8 重算）、Code Standards v5.1 0.936（×10，r8 重算；区分度不足的末版）、Spec Readiness v4.3 0.584（×5）、Commit Audit v3 0.730（×5，r8.3）），benchmark 前置工作完成；四个臂已跑完；第一阶段（预登记实例）与第二阶段（Strata 加测进主统计，全样本）都已出报告，公开结果文件已生成（[运行计划](benchmarks/multi-model-v1/plan.md)、[第一阶段报告](reports/v0.1.45/multi-model-benchmark/phase1/summary.md)、[第二阶段报告](reports/v0.1.45/multi-model-benchmark/phase2/summary.md)）。
 
 ## 进展
 
 - 2026-10-09 从 Codex 工程迁入：主机改按 GPU 命名；私有配置合并为 `project.private.toml`；tools 按用途分子目录，已关闭路线的脚本和测试删除；规则改写为 `AGENTS.md` + `.claude/rules/` + `.claude/skills/`。
 - 2026-10-09 前端重写并部署到 rtx3080ti：常驻 `192.168.60.212:8000`，独占租约 + `/strata/v1/*` 直通原生 Chat / Responses / Messages；WSL 可直连。无模型验收通过。
-- 2026-10-09 agent 接入：Codex 0.162.0 与 Claude Code 2.1.295 经 `bin/qwen-agent` 调用本地模型，冒烟检查通过（[记录](docs/work-history.md)）。托管搜索暂缺，见[计划](docs/plan.md#前端)。
+- 2026-10-09 agent 接入：Codex 0.162.0 与 Claude Code 2.1.295 经 `bin/qwen-agent` 调用本地模型，冒烟检查通过（[记录](docs/work-history.md)）。托管搜索当时暂缺，相关后续待办在[状态页](.status/index.html)。
 - 2026-10-10 2b 模型验收通过（[报告](reports/v0.1.40.2/agent-integration-2b/summary.md)）。搜索三项通过。Claude Code 自写审批（方案 B）优于内置 auto mode。补上了 Claude Code 压缩时的工程压缩提示（PreCompact hook）。SSD 大量读取的原因是每次加载模型都读 36 GB（[探索](reports/v0.1.40.2/resource-calibration/ssd-reads/summary.md)），已改为模型跨租约驻留，相同参数复用不再加载。`qwen-agent` 固定用 `qwen-approve` 审批。
 - 2026-10-10 rtx3080ti 升级到 Strata v0.1.41，短调用链检查通过（[报告](reports/v0.1.41/upgrade.md)）。上游有关于 v0.1.41 生成循环的未关闭 issue #1622；此后已升级到更新版本。
 - 2026-10-11 rtx3080ti 升级到 Strata v0.1.42，短检查通过；服务默认模型改为 IQ3_XXS，8 维调参完成并部署（[升级报告](reports/v0.1.42/upgrade.md)、[调参手册](docs/host-tuning.md#iq3_xxs)）。Commit Audit 诊断得分 IQ3_XXS 0.837、Q2_0 0.773。
@@ -85,3 +84,4 @@ rtx3080ti 安装 Strata v0.2.4（引擎 0.1.48，2026-10-24，通过短检查）
 - 2026-10-22 多模型 benchmark 第二阶段报告：Strata 两臂各格加到 10 个有效实例并进主统计（120 个加测实例另批盲裁、复核和会话检查）；100 个比较里低于 34、高于 13、未分出 53，相对第一阶段改变 16 个，都是从未分出变为有结论，没有反向变化；A6 变体与 r8.3 对照都不改结论；同时生成 Reviewer Model Benchmark v2.0 用的公开结果文件（[报告](reports/v0.1.45/multi-model-benchmark/phase2/summary.md)）。
 - 2026-10-22 rtx3080ti 升级到 Strata v0.2.2（引擎 0.1.47），短检查通过（C1–C3、X1–X2，引擎输出 105.9 tok/s）；greedy 对比本来就不可复现，长提示一问 0.2.2 四次一致答错，只作记录；引擎新提示 `--pool-workers 15`，未验证（[升级报告](reports/v0.2.2/upgrade.md)）。
 - 2026-10-24 rtx3080ti 升级到 Strata v0.2.4（引擎 0.1.48），短检查通过（C1–C3、X1–X2 两遍全过，第 1 遍 C1 偏慢 78.9 tok/s、第 2 遍 108.0 复现不了）；#3493 缓存自动定大小因部署显式设值不触发；装机工具加 `source_cmake_version` 以适配源码 CMake 0.1.49 与引擎包 0.1.48 分家（[升级报告](reports/v0.2.4/upgrade.md)）。
+- 2026-10-28 rtx4070tis 上线：Strata v0.2.4（引擎 0.1.48，CUDA 13，sm_89）与 IQ3_XXS 初始基线部署完成，前端常驻并完成冷加载、推理和租约生命周期检查。硬件相关参数尚未独立调参，后续待办统一维护在状态页（[交接文档](docs/rtx4070tis-handoff.md)）。

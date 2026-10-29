@@ -13,7 +13,7 @@ are ARW's run/results.json. One record per instance directory, with the same fie
   identity (the plan's Main identity and the prep's); original_prepared; repository_check (what the Reviewer saw);
   plus the benchmark_summary fields, score fields left null until scored.
 
-Compactions (docs/plan.md, next benchmark, user 2026-10-22) are counted per handoff and summed per instance
+Compactions (next benchmark, user 2026-10-22) are counted per handoff and summed per instance
 (`compactions`, None unless every handoff is known, never 0 for a missing source): Codex from the `compacted` events
 of the root Reviewer thread's rollout (guardian threads left out), else the count run_one recorded from that same
 rollout; Claude Code from the distinct `system` / `compact_boundary` events of the main session in the kept segment
@@ -72,7 +72,7 @@ DEEPSEEK_EFFORTS = ('low', 'high', 'max')
 # - kind 'main': the 27 configurations of plan §2. DeepSeek rows are low / high / max (plan §2 / §14.4, user
 #   2026-10-21); a medium instance takes the configuration of its effective effort (high) and is either pooled into it
 #   (C') or a supplementary row (instance.json fields).
-# - kind 'phase3': the phase-3 supplement (user 2026-10-22, docs/plan.md 9a): gpt-6-luna xhigh / max on Codex,
+# - kind 'phase3': the phase-3 supplement (user 2026-10-22): gpt-6-luna xhigh / max on Codex,
 #   numbered after the 27; reported per instance only, never in a comparison.
 CONFIG_TABLE = [
     (1, 'sol', 'codex', 'gpt-6.1-sol', 'gpt-6.1-sol', 'openai', EFFORTS, 'main'),

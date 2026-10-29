@@ -32,7 +32,7 @@ Responses 请求用 reasoning.effort；原生 Chat 用 reasoning_effort。Codex 
 
 Chat、Responses、Messages分别发往前端`/strata/v1/chat/completions`、`/strata/v1/responses`、`/strata/v1/messages`，均需`Authorization: Bearer <key>`。Codex自定义provider通过env_key取得调用方私有环境变量中的key；网络和防火墙见[前端运行与维护](frontend.md)。
 
-请求由原生Strata直接处理：Responses支持function/custom工具、命名空间、additional_tools及推理内容回放（不支持客户端tool_search，日常catalog已关闭`supports_search_tool`，MCP工具内联发送）；托管`web_search`由前端经Brave执行（设`web_search = "live"`），其他托管工具被原生服务丢弃。工具发现、MCP及其他工具仍由harness执行，服务不自行压缩。原生Responses的协议细节（加密输入、previous_response_id、流错误事件）以新版Codex实测为准，见[计划](plan.md#前端)。
+请求由原生Strata直接处理：Responses支持function/custom工具、命名空间、additional_tools及推理内容回放（不支持客户端tool_search，日常catalog已关闭`supports_search_tool`，MCP工具内联发送）；托管`web_search`由前端经Brave执行（设`web_search = "live"`），其他托管工具被原生服务丢弃。工具发现、MCP及其他工具仍由harness执行，服务不自行压缩。原生Responses的协议细节（加密输入、previous_response_id、流错误事件）以新版Codex实测为准。
 
 安装`config/model-catalog.json`只描述模型事实（名称、推理档位、窗口、文本输入、搜索工具类型、各自本地auto_review_model_override），基础指令取自所装Codex版本的luna条目，由`tools/ops/model_catalog.py`生成，窗口取各量化在部署配置`context_tiers`中的第一档，部署时再按本机档位写入；工作范围约束放在场景提示词和沙箱权限中。ARW测量使用`benchmarks/reviewer-suite-v1/catalogs/`下冻结的catalog，不使用这份日常catalog。日常使用推荐安装目录`bin/qwen-agent`启动脚本。使用时在app-server启动时加载catalog；晚到的线程配置可能不会更新已构建的模型目录。是否启用auto_review由调用方决定，原生风险策略通常允许低/中风险行为，即使授权低或未知；它不提供绝对写路径边界。更严格隔离是本工程默认关闭的可选功能，见[沙箱模式](../reports/v0.1.38/safety-20261004/sandbox-modes.md)。
 

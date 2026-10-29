@@ -2,7 +2,7 @@
 
 给 rtx4070tis 上运行的会话看。本工程整体复制到这台机器，由这里的会话就地运行和调参，不从 rtx3080ti 远程管理（用户 2026-10-24）。
 
-> 状态：定稿（2026-10-25）。可以照做；与实际状态不符时以实际为准，并在本文记下偏差。
+> 状态：2026-10-28 完成上线与初始部署；仍在执行的待办以[状态页](../.status/index.html)为准。本文保留现场步骤和结果供追溯。
 
 ## 前提（交接前在 rtx3080ti 上完成）
 
@@ -14,7 +14,7 @@
   - 让 Codex 也能按本工程规则工作（见下节「与 Claude Code 管理方式的兼容」；工程侧已完成，2026-10-25）。
 - 本文已按可移植化的结果改写（2026-10-25）。
 
-分支约定：rtx3080ti 用 `master`；本机建长期分支 `host/rtx4070tis`，只推这个分支，不直接推 `master`。开工前先拉取并合入 `origin/master`；每完成一个工作组推一次，由 rtx3080ti 侧合入 `master`。共享文档（AGENTS.md、`.claude/rules/`、`docs/plan.md`、README「现行决定」）尽量只追加本机条目，改已有内容前先拉取。
+分支约定：rtx3080ti 用 `master`；本机建长期分支 `host/rtx4070tis`，只推这个分支，不直接推 `master`。开工前先拉取并合入 `origin/master`；每完成一个工作组推一次，由 rtx3080ti 侧合入 `master`。共享文档（AGENTS.md、`.claude/rules/`、README「现行决定」）尽量只追加本机条目，改已有内容前先拉取。
 
 ## 与 Claude Code 管理方式的兼容（新机用 Codex，用户 2026-10-24）
 
@@ -83,9 +83,9 @@ rtx3080ti 上由 Claude Code 管理本工程，rtx4070tis 上用 Codex。同一�
 7. GPU 调参：按[调参手册](host-tuning.md)「每机执行方法」对 IQ3_XXS 独立调参，rtx3080ti 的调参结论不套用。
    - 16GB 显存下要重新测 prefill（现 16384）、kv-resident（现 20480）、显存预留、专家缓存、pool-workers。
    - sm_86 专用的解码开关表（含 `STRATA_SM86_PERF`）不适用。
-   - 可以顺带对照 256584 档在非 int8 KV 下的 200K 检索错误（plan「其他未解决问题」）。
+   - 可以顺带对照 256584 档在非 int8 KV 下的 200K 检索错误（已作为低优先级事项列入状态页）。
 8. 写上线报告，登记 README「现行决定」（rtx4070tis 的参数绑定），状态页 `know` 交用户复核。
 
-## 已清理的旧计划
+## 旧计划清理记录
 
-`docs/plan.md` 里原有的 rtx4070tis 旧条目（「顺序」第 3、6 条、「ARW 同步与 Spec 恢复」「升级后 Spec Readiness 配置比较」「上下文配置的测量与选择」、IQ3_XXS 遗留事项）已在 rtx3080ti 上核对并删除（2026-10-24），经过见 [work-history](work-history.md)「plan 清理：rtx4070tis 旧条目」。新机不需要再做 Spec Readiness 十二实例和 Q2_0 基线；ARW 已同步到 760007c，随工程一起复制，新机只需重跑步骤 6 的安全门等检查。
+`docs/plan.md` 里原有的 rtx4070tis 旧条目（「顺序」第 3、6 条、「ARW 同步与 Spec 恢复」「升级后 Spec Readiness 配置比较」「上下文配置的测量与选择」、IQ3_XXS 遗留事项）已在 rtx3080ti 上核对并删除（2026-10-24），经过见 [work-history](work-history.md)「plan 清理：rtx4070tis 旧条目」。不再适合作为当前队列的 `docs/plan.md` 已于 2026-10-30 退役；现行待办统一在状态页维护。新机不需要再做 Spec Readiness 十二实例和 Q2_0 基线；ARW 已同步到 760007c，随工程一起复制，新机只需重跑安全门等检查。
