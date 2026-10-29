@@ -38,6 +38,10 @@
 
 不再需要的后台进程和临时文件及时清理；删除前按 AGENTS.md 硬约束 1「删除前核对」列清单核对。
 
+## Codex CLI 定时任务
+
+Codex CLI 需要未来待办提醒、到点唤醒或空闲时周期检查时，读 [Codex CLI 定时唤醒](codex-cli-scheduling.md)。定时器只调用 `codex queue` 投递到仍打开的现有会话，禁止用 `codex exec`／`codex resume` 重新启动会话；CLI 正常关闭时必须清理该会话的 timer。
+
 ## 独立审查
 
 AGENTS.md 硬约束 1 的重要决策（冻结、默认参数改值、部署、改测量设计）要先取得独立意见：
