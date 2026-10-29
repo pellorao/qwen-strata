@@ -24,7 +24,8 @@ class MeasurementHostTests(unittest.TestCase):
     def test_another_machine_is_never_measured(self):
         # The guard runs before any host data, installation path or frontend is touched.
         from tools.ops.controller_client import Controller
-        with patch.dict('os.environ',{'QWEN_STRATA_HOST':'rtx3080ti'}),patch('tools.ops.measurement_host.load_host') as load:
+        with patch('tools.ops.deployment_source.current_host',return_value='rtx3080ti'),\
+                patch('tools.ops.measurement_host.load_host') as load:
             with self.assertRaisesRegex(ValueError,'not this machine'):
                 MeasurementHost('rtx4070tis')
             with self.assertRaisesRegex(ValueError,'not this machine'):
@@ -39,7 +40,7 @@ class MeasurementHostTests(unittest.TestCase):
 
     def test_this_machine_is_measured(self):
         deployment={'installation_root':'C:\\strata'}
-        with patch.dict('os.environ',{'QWEN_STRATA_HOST':'rtx3080ti'}),\
+        with patch('tools.ops.deployment_source.current_host',return_value='rtx3080ti'),\
                 patch('tools.ops.measurement_host.load_host',return_value=deployment) as load,\
                 patch('tools.ops.measurement_host.local_path',return_value=Path('/mnt/c/strata')):
             host=MeasurementHost('rtx3080ti')
@@ -56,14 +57,14 @@ class MeasurementHostTests(unittest.TestCase):
     def test_host_selection_freezes_hardware_without_mutating_approved_source(self):
         source={'engine_overrides':{'prefill':16384,'spec-min-p':.7},'sampling':{'temperature':0}}
         before=copy.deepcopy(source)
-        with patch.dict('os.environ',{'QWEN_STRATA_HOST':'rtx3080ti'}),\
+        with patch('tools.ops.deployment_source.current_host',return_value='rtx3080ti'),\
                 patch('tools.ops.measurement_host.load_host',return_value=self.remote().deployment):
             result=host_selection(source,'rtx3080ti')
         self.assertEqual(source,before)
         self.assertEqual(result['engine_overrides'],{'prefill':8192,'spec-min-p':.7})
         self.assertEqual(result['sampling'],source['sampling'])
         self.assertEqual(result['host_id'],'rtx3080ti')
-        with patch.dict('os.environ',{'QWEN_STRATA_HOST':'rtx3080ti'}),\
+        with patch('tools.ops.deployment_source.current_host',return_value='rtx3080ti'),\
                 patch('tools.ops.measurement_host.load_host',return_value=self.remote().deployment):
             owned=host_selection({'model_owner':'arw','engine_overrides':{}},'rtx3080ti')
         self.assertEqual(owned['engine_overrides'],{})  # ARW starts the model with installation defaults
@@ -71,7 +72,7 @@ class MeasurementHostTests(unittest.TestCase):
     def test_unbound_main_selection_is_rejected_before_model_work(self):
         with tempfile.TemporaryDirectory() as directory:
             target=Path(directory)/'run'
-            with patch.dict('os.environ',{'QWEN_STRATA_HOST':'rtx3080ti'}),\
+            with patch('tools.ops.deployment_source.current_host',return_value='rtx3080ti'),\
                 patch('tools.reviewer.native_cli_binding.selection_native_cli',return_value=None),\
                 patch('tools.ops.measurement_host.MeasurementHost',return_value=self.remote()),\
                     self.assertRaisesRegex(ValueError,'not frozen'):

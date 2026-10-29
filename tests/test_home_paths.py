@@ -1,7 +1,6 @@
 """Isolation and deny paths follow Path.home(); on rtx3080ti (HOME=/home/pello) they expand exactly as the literal
 /home/pello paths they replaced, so the sandbox, HOME isolation and credential deny lists are unchanged there."""
 import json
-import os
 from pathlib import Path
 import subprocess
 import sys
@@ -45,8 +44,7 @@ print(json.dumps(result))
 
 class Rtx3080tiHomePathsTest(unittest.TestCase):
     def test_expansions_match_the_literal_paths(self):
-        env = {'PATH': os.environ.get('PATH', '/usr/bin:/bin'), 'HOME': RTX3080TI_HOME, 'LANG': 'C.UTF-8',
-               'QWEN_STRATA_HOST': 'rtx3080ti'}
+        env = {'PATH': '/usr/bin:/bin', 'HOME': RTX3080TI_HOME, 'LANG': 'C.UTF-8'}
         reply = subprocess.run([sys.executable, '-c', PROBE], cwd=ROOT, env=env, capture_output=True, text=True,
                                timeout=120)
         self.assertEqual(reply.returncode, 0, reply.stderr)

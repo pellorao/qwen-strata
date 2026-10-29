@@ -11,6 +11,7 @@ import urllib.error
 
 from tools.reviewer.arw_measure import stop_and_capture_engine_log, log_offset
 from tools.ops.measurement_host import MeasurementHost
+from tools.ops.deployment_source import current_host
 from tools.metrics.prompt_policy import verify_loaded_startup
 from tools.metrics.strata_tokens import engine_rates, task_rates
 from tools.reviewer.wsl_client import ROOT, save
@@ -123,7 +124,7 @@ def frozen_inputs(plan_path,workload_path):
 
 def experiment_schedule(plan):
     """Admit only the concrete resource comparisons selected in this project."""
-    if plan.get('host')!='rtx3080ti':raise ValueError('Unapproved resource host')
+    if plan.get('host')!=current_host():raise ValueError('Resource plan targets another machine')
     dimension=plan['candidate_dimension']
     if plan.get('schema')=='conditions-v2':
         # Each condition names its own engine overrides (null drops a template flag) and environment.

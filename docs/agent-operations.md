@@ -48,6 +48,5 @@ AGENTS.md 硬约束 1 的重要决策（冻结、默认参数改值、部署、�
 
 ## 额度
 
-- Claude Code（rtx3080ti）：照用户级规则，用 `~/.claude/statusline/estimate.sh` 估算 Anthropic 账号额度。
-- Codex（rtx4070tis）：用的是 OpenAI 额度，`estimate.sh` 不适用。Codex 侧是否需要类似的判定**待定**，由用户决定；决定前，AGENTS.md 硬约束 1 中的 `estimate.sh --can-start` 判定在 Codex 侧跳过。
-- Antigravity：使用 Gemini / Google 额度，`estimate.sh` 同样不适用，判定跳过。
+- 额度预检只在 `rtx3080ti` 执行：该机的 Claude Code 按用户级规则运行 `~/.claude/statusline/estimate.sh --can-start`，据此决定是否开始可能消耗 Anthropic 额度的长工作。
+- `rtx4070tis` 及其他主机没有额度预检脚本，不执行额度预检。它们仍须按硬约束完成 Strata key、租约、模型状态等运行前检查。

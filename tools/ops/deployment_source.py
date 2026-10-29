@@ -1,7 +1,6 @@
 """Render installation inputs exclusively from project templates and host data."""
 import hashlib
 import json
-import os
 from pathlib import Path, PureWindowsPath
 import re
 import tomllib
@@ -21,9 +20,7 @@ INSTALLATION_DEFAULTS = {'reasoning_effort', 'reasoning_budget_tokens', 'max_tok
 CONDITION_FIELDS = {'id', 'model', 'model_overrides', 'model_environment', 'request_defaults'}
 # A tuning condition may vary only these request defaults (min_p, presence_penalty: sampling dimension, 2026-10-24), and only for its own model
 CONDITION_REQUEST_DEFAULTS = {'temperature', 'top_p', 'top_k', 'min_p', 'presence_penalty'}
-# The host this project copy runs on (one copy per machine, user 2026-10-24): the environment variable wins, else the
-# machine's own project.private.toml names it with a top-level `local_host`.
-HOST_ENVIRONMENT = 'QWEN_STRATA_HOST'
+# The host this project copy runs on is named only by project.private.toml's top-level `local_host`.
 # The caller manual: a template whose {{name}} values come from the host data and whose {{host.<section>}} paragraphs
 # (measured facts that hold for one host only) come from MANUAL_HOSTS/<host>.md.
 MANUAL = 'docs/installation-directory-readme.md'
@@ -37,16 +34,14 @@ def load_private(project=None):
 
 
 def current_host(project=None):
-    """Registered host id of this machine: $QWEN_STRATA_HOST, else private `local_host`; neither is an error."""
+    """Registered host id of this machine from project.private.toml's top-level `local_host`."""
     project = Path(project or ROOT)
-    identifier = os.environ.get(HOST_ENVIRONMENT)
+    try:
+        identifier = load_private(project).get('local_host')
+    except FileNotFoundError:
+        identifier = None
     if not identifier:
-        try:
-            identifier = load_private(project).get('local_host')
-        except FileNotFoundError:
-            identifier = None
-    if not identifier:
-        raise ValueError(f'This machine names no host: set local_host in project.private.toml or ${HOST_ENVIRONMENT}')
+        raise ValueError('This machine names no host: set top-level local_host in project.private.toml')
     if not isinstance(identifier, str) or not re.fullmatch(r'[a-z0-9][a-z0-9-]*', identifier) or not (project / 'config/deployments' / (identifier + '.json')).is_file():
         raise ValueError(f'Current host {identifier!r} is not registered in config/deployments')
     return identifier
@@ -322,3 +317,11 @@ def installation_model_config(installation, model, identifier, project=None):
     if actual != expected:
         raise ValueError('Installed model configuration differs from project deployment source')
     return expected
+
+
+def main():
+    print(current_host())
+
+
+if __name__ == '__main__':
+    main()

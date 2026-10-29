@@ -1,16 +1,14 @@
 # 安装与维护
 
-安装目录：rtx3080ti 为 `C:\Users\pello\AppData\Local\Programs\qwen-3.8-flash-next`（WSL `/mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next`）；rtx4070tis 为 `C:\Users\Pello\AppData\Local\Programs\qwen-3.8-flash-next`。维护工程位于 `/home/pello/projects/qwen_strata`；日常启动只依赖安装目录。
+安装路径、前端地址和本机凭据只从 `project.private.toml` 读取；文档不复制这些值。每台机器的当前状态见[rtx3080ti](hosts/rtx3080ti.md)和[rtx4070tis](hosts/rtx4070tis.md)主机说明。日常启动只依赖安装目录。
 
 模型、tokenizer、native pack、MTP、私有 Python 和 CUDA 依赖均保存在 Windows。前端和推理都由 Windows 原生进程执行，WSL 只运行调用方 harness 和维护工具。前端结构、一次性安装和部署见[前端运行与维护](frontend.md)。
 
 ## 版本与环境
 
-当前双机安装Strata v0.1.40.2，提交`e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a`，源包及官方NVIDIA引擎均更新，架构86／89已核对；各机2264个上游文件及26个部署文件回读通过。每机一个有效短观测、12个入口请求／13个内部段通过生成、工具往返、实际搜索引用、MCP、无害审批、短压缩及同线程恢复；rtx3080ti一次路径读取恢复与额外加载保留。见[升级与快速验证](../reports/v0.1.40.2/upgrade.md)。现有Q2/high/default及各机参数沿用，模型／依赖未改，完整安全质量、真实100K可靠性及正式Reviewer验收仍未完成；旧版本经过见[历史工作](work-history.md)。
+各机版本、硬件和已验证范围记录在主机说明中。安装和运行使用官方预编译引擎，无需在本机重新编译；Python、CUDA 和私有依赖位于 Windows 安装目录。
 
-rtx3080ti 为 i9-13900、RTX 3080 Ti 12 GB。rtx4070tis 为 i9-14900K、64 GB RAM、RTX 4070 Ti SUPER 16 GB、NVMe。CPU 支持 AVX2/FMA/F16C，无 AVX-512。Windows 私有环境由 `C:\Python314\python.exe` 3.14.7 创建，依赖检查通过；历史Linux Codex验收版本为0.160.0，当前原生回归使用0.160.1。当前使用官方预编译引擎，无需安装编译工具或重新编译。
-
-每台机器只对外提供一个模型（用户 2026-10-19）：rtx3080ti 提供 IQ3_XXS，Q2_0、IQ2_XS 的权重和 pack 保留在安装目录，默认不再运行或测试，除非用户提出专门针对它们的任务（这类专项按部署规则走 `--condition`，结束后普通部署恢复）。对外模型由 `config/deployments/<host>.json` 的 `models`（恰好一个）决定；安装目录只部署它的 prebuilt 配置和 catalog 条目，前端拒绝启动其他量化。引擎参数与测量依据见[调优记录](tuning.md)。维护基线不再单独成文件：基线 = 本机唯一对外模型 + 部署默认值（`installation_defaults` 与该模型的首个上下文档位，B1，用户 2026-10-19）；原 Q2_0 维护基线文件已删除，历史内容用 `git show ff94f3c:config/maintenance-baseline.json` 查看。安装原始配置保留 250000，所选窗口由部署档位显式覆盖。调用方须同步自己的 harness 及模型 catalog，不自动改写其他工程配置。
+每台机器只对外提供一个模型（用户 2026-10-19）。对外模型由 `config/deployments/<host>.json` 的 `models`（恰好一个）决定；安装目录只部署它的 prebuilt 配置和 catalog 条目，前端拒绝启动其他量化。Q2_0、IQ2_XS 权重和 pack 可保留，默认不运行或测试，除非用户提出专门任务。维护基线 = 本机唯一对外模型 + 部署默认值（`installation_defaults` 与该模型的首个上下文档位）；引擎参数与测量依据见[调优记录](tuning.md)和[每机调参目录](host-tuning/README.md)。
 
 ## 安装目录
 
@@ -20,7 +18,7 @@ rtx3080ti 为 i9-13900、RTX 3080 Ti 12 GB。rtx4070tis 为 i9-14900K、64 GB RA
 
 私有配置统一放工程根目录 `project.private.toml`（Git 忽略，权限 0600，不部署、不写入报告），包括各主机的 `installation_path`、`frontend_url` 和 Brave key 等凭据，只由程序解析，不读入会话。安装目录需要的敏感配置将放在安装根目录 `installation.private.toml`，由部署程序从工程私有配置写入；当前前端不需要任何安装凭据，该文件在接入托管搜索时才创建。新增主机时增加一个 `[hosts.<id>]` 分组。配置按 UTF-8 读写。
 
-旧的 `ssh-windows` 连接方式（SSH、`listen_port`／`access_port` 端口映射）已废弃；前端常驻在 Windows、监听局域网固定端口（rtx3080ti 为 `192.168.60.212:8000`）。部署和测量工具只处理本机安装（经 `wslpath` 访问）。rtx4070tis 的监听地址和端口见 `config/deployments/rtx4070tis.json`。
+旧的 `ssh-windows` 连接方式（SSH、`listen_port`／`access_port` 端口映射）已废弃；前端常驻 Windows，监听 `config/deployments/<host>.json` 中该主机的地址和端口。部署和测量工具只处理本机安装（经 `wslpath` 访问）。
 
 | 路径 | 内容 |
 |---|---|
@@ -71,6 +69,6 @@ GGUF 第二分片可在整文件 SHA 一致后按各量化预期名称硬链接�
 
 ## 每机安装默认与校准入口
 
-每机安装默认由`config/deployments/<host>.json`的可选`installation_defaults`单独拥有；缺失该项时保持该机原模板，不能从公共维护起点静默继承另一台性能选择。该项可声明窗口、推理强度／预算、采样及CPU辅助，部署工具生成模型预置，前端在省略启动覆盖时使用它，显式调用值优先。rtx3080ti当前156584／high／8192／24576及auto已渲染并回读，rtx4070tis预置没有迁入rtx3080ti选择。已核对范围和忙碌目标待同步见[默认核查](../reports/v0.1.40.1/installation-defaults.json)。
+每机安装默认由`config/deployments/<host>.json`的可选`installation_defaults`单独拥有；缺失该项时保持该机原模板，不继承另一台的性能选择。该项可声明窗口、推理强度／预算、采样及CPU辅助；部署工具生成模型预置，前端在请求省略启动覆盖时使用它，显式请求值优先。当前实际值与回读证据以各机部署配置和主机说明为准。
 
-已有rtx3080ti全部参数选择、rtx4070tis覆盖及新主机独立校准遵循[每机调参手册](host-tuning.md)，不把该手册变成每次升级的全量固定流程。
+每台机器的参数选择、覆盖边界和待办遵循[每机调参目录](host-tuning/README.md)，不把该目录变成每次升级的全量固定流程。

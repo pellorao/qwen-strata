@@ -14,7 +14,7 @@
   - 让 Codex 也能按本工程规则工作（见下节「与 Claude Code 管理方式的兼容」；工程侧已完成，2026-10-25）。
 - 本文已按可移植化的结果改写（2026-10-25）。
 
-分支约定：rtx3080ti 用 `master`；本机建长期分支 `host/rtx4070tis`，只推这个分支，不直接推 `master`。开工前先拉取并合入 `origin/master`；每完成一个工作组推一次，由 rtx3080ti 侧合入 `master`。共享文档（AGENTS.md、`.claude/rules/`、README「现行决定」）尽量只追加本机条目，改已有内容前先拉取。
+Git 约定（2026-10-30 起）：两台机器都只使用 `master`。开工前先拉取；每组工作提交后直接推送。推送被拒绝时先 pull/rebase；不 force push。主机相关事实放在每机文件，减少并发修改共享文档造成的冲突。
 
 ## 与 Claude Code 管理方式的兼容（新机用 Codex，用户 2026-10-24）
 
@@ -31,7 +31,7 @@ rtx3080ti 上由 Claude Code 管理本工程，rtx4070tis 上用 Codex。同一�
 | 子 agent 与后台 | Agent、SendMessage、CronCreate、20 分钟检查 | 长任务用分离进程（`setsid nohup`）加进度文件，至少每 20 分钟检查一次（agent-operations「后台长任务」） |
 | 独立审查 | 不低于 Main 的独立 agent（Opus high） | `codex exec --sandbox read-only` 新开会话，模型和推理强度不低于 Main（agent-operations「独立审查」） |
 | 记忆 | `~/.claude/projects/.../memory/` | 不跟随复制；工程必需的事实已经在文档里，记忆里有工程相关内容的，交接前移进文档 |
-| git | 主仓库是 rtx3080ti Windows 侧的 bare 仓库 `C:\Users\pello\repos\qwen_strata.git`（用户 2026-10-25：主仓库必须在 rtx3080ti）；rtx3080ti 的 WSL 工程是它的子仓库，`origin` 指向本地路径 | rtx4070tis 也是子仓库，经 SSH 连 rtx3080ti 的 Windows OpenSSH 推拉（`ssh://<用户>@<rtx3080ti>/C:/Users/pello/repos/qwen_strata.git`）；每台机器一个长期分支，避免两边同时改同一份共享文档。clone 到 WSL 文件系统，`.agents/skills` 符号链接才能保留 |
+| git | 主仓库是 rtx3080ti Windows 侧的 bare 仓库 `C:\Users\pello\repos\qwen_strata.git`（用户 2026-10-25：主仓库必须在 rtx3080ti）；rtx3080ti 的 WSL 工程是它的子仓库，`origin` 指向本地路径 | rtx4070tis 也是子仓库，经 SSH 连 rtx3080ti 的 Windows OpenSSH 推拉（`ssh://<用户>@<rtx3080ti>/C:/Users/pello/repos/qwen_strata.git`）；两台都使用 `master`。clone 到 WSL 文件系统，`.agents/skills` 符号链接才能保留 |
 
 原则：规则和流程的正文只留一份，放在工程里；两种 harness 各自只保留一层很薄的入口。
 
@@ -54,7 +54,7 @@ rtx3080ti 上由 Claude Code 管理本工程，rtx4070tis 上用 Codex。同一�
 每步先说清要做什么，取得同意后再开始：
 
 - rtx3080ti 上启用 Windows OpenSSH 服务端（`sshd.exe` 已在系统里，需要启动服务并设为自动、放行防火墙，要 UAC），放入 rtx4070tis 的公钥；Git for Windows 已装。rtx4070tis 从主仓库 clone 工程，不要整目录复制。
-- 复制私有配置。`project.private.toml`、安装目录的 `installation.private.toml` 不进 git，由用户自己放到位。`project.private.toml` 开头加一行顶层键 `local_host = "rtx4070tis"`，工程据此识别当前主机（`tools.ops.deployment_source.current_host`；环境变量 `QWEN_STRATA_HOST` 可临时覆盖）。
+- 复制私有配置。`project.private.toml`、安装目录的 `installation.private.toml` 不进 git，由用户自己放到位。`project.private.toml` 顶层的 `local_host` 是当前主机的唯一来源，由 `tools.ops.deployment_source.current_host` 读取。
 - 准备 Codex 侧的用户级配置。本机由 Codex 管理，不需要 `~/.claude/` 的 CLAUDE.md、`docs/`、`statusline/`：
   - 从 rtx3080ti 复制 `~/.claude/status/status.py` 和 `~/.claude/hooks/stop-notify/` 到本机同一路径；其中 `ntfy-topic` 是私有文件，由用户自己放入。脚本需要 `python3`、`jq`、`curl`。
   - 在 Codex 用户级指令 `~/.codex/AGENTS.md` 写个人偏好（对话和文档用简体中文、回复简短等），并加一行：在本工程工作时按 `docs/agent-operations.md` 执行运行规则。工程 `AGENTS.md` 已指向该文档，这一行只作保险。
@@ -80,7 +80,7 @@ rtx3080ti 上由 Claude Code 管理本工程，rtx4070tis 上用 Codex。同一�
 4. 安装最新版 Strata：用 `tools.ops.upgrade_release` 或重建安装。`install_offline` 用已装在 `runtime/Strata/engine` 的引擎（按 `installed-release.json` 的 `engine_version` 核对），所以重建前先用 `upgrade_release` 装好发布版。
 5. 部署（命令不加 `cd … &&` 前缀和管道）。部署会备份并删除安装目录里不对外量化的 prebuilt 和已退役的 `config/maintenance-baseline.json`；防循环已弃用（默认关闭、启动提示不加载防循环段），随工程部署即带上。
 6. 检查：安全门、compact probe、短检查（`strata-upgrade` skill）。
-7. GPU 调参：按[调参手册](host-tuning.md)「每机执行方法」对 IQ3_XXS 独立调参，rtx3080ti 的调参结论不套用。
+7. GPU 调参：按[调参目录](host-tuning/README.md)「每机执行方法」对 IQ3_XXS 独立调参，rtx3080ti 的调参结论不套用。
    - 16GB 显存下要重新测 prefill（现 16384）、kv-resident（现 20480）、显存预留、专家缓存、pool-workers。
    - sm_86 专用的解码开关表（含 `STRATA_SM86_PERF`）不适用。
    - 可以顺带对照 256584 档在非 int8 KV 下的 200K 检索错误（已作为低优先级事项列入状态页）。

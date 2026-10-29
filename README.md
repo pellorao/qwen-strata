@@ -6,12 +6,12 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 
 ## 主机
 
-| id | 硬件 | 状态 |
+| id | 硬件 | 入口 |
 |---|---|---|
-| `rtx3080ti` | RTX 3080 Ti 12GB，i9-13900 | 可用；本工程所在机 |
-| `rtx4070tis` | RTX 4070 Ti SUPER | 已上线（2026-10-28，Strata v0.2.4）；由本机的 agent 就地运行，参数为初始基线，与硬件有关的维度待重调，见[交接文档](docs/rtx4070tis-handoff.md) |
+| `rtx3080ti` | RTX 3080 Ti 12GB，i9-13900 | [主机说明](docs/hosts/rtx3080ti.md) |
+| `rtx4070tis` | RTX 4070 Ti SUPER 16GB，i9-14900K | [主机说明](docs/hosts/rtx4070tis.md) |
 
-rtx3080ti 安装 Strata v0.2.4（引擎 0.1.48，2026-10-24，通过短检查），只对外提供 IQ3_XXS，参数沿用 v0.1.42 调参结果（未在新版上重测）；Q2_0、IQ2_XS 权重保留，默认不运行、不测试。rtx4070tis 已于 2026-10-28 部署 Strata v0.2.4，只对外提供 IQ3_XXS，参数沿用既有安装设置的初始基线（未在本机重测），上线步骤与待办见[交接文档](docs/rtx4070tis-handoff.md)。
+每份工程副本的当前主机只由 `project.private.toml` 顶层 `local_host` 决定。各机版本、参数和待办在对应主机文档及该机本地状态页维护。
 
 ## 文档
 
@@ -22,17 +22,20 @@ rtx3080ti 安装 Strata v0.2.4（引擎 0.1.48，2026-10-24，通过短检查）
 | 安装、升级与下载 | [安装说明](docs/installation.md) · [下载清单](docs/downloads.md) |
 | 启停、网络与部署 | [前端运行与维护](docs/frontend.md) |
 | 调用方接入 | [docs/codex.md](docs/codex.md) |
-| 参数与调优 | [调优记录](docs/tuning.md) · [每机调参手册](docs/host-tuning.md) |
+| 参数与调优 | [调优记录](docs/tuning.md) · [每机调参目录](docs/host-tuning/README.md) |
 | 上下文压缩 | [docs/compaction-options.md](docs/compaction-options.md) |
-| 已验证行为与证据 | [验证汇总](docs/validation.md) · [测量工具](tools/README.md) |
-| 已完成工作 | [docs/work-history.md](docs/work-history.md) |
+| 已验证行为与证据 | [验证汇总](docs/validation.md) · [测量工具](tools/README.md) · [报告约定](reports/README.md) |
+| 已完成工作 | [历史归档](docs/work-history.md) · [按主机记录](docs/work-history/) |
 
 ## 现行决定
 
 只收对整个工程有影响的决定，每条一行：结论、日期、依据（用户决定的出处，或含 Main 与独立 agent 双方意见的报告）。单个场景或单项测量内部的决定留在各自报告里；被取代的决定移到 [work-history](docs/work-history.md)。agent 的工作规则在 [AGENTS.md](AGENTS.md)。
 
 - Strata 0.2.x 不用官方安装程序和 `install.ps1`，继续“标签源码 ZIP + 预编译引擎（cuda13 tar.gz）”，由 `upgrade_release` 核验 feed 与引擎清单的 Ed25519 签名；0.2.2 起工具调用解析与 sm_86 解码开关表行为有变，此后的测量不与 0.1.45 结果直接比较（2026-10-22，Main 与独立审查一致）：[升级报告](reports/v0.2.2/upgrade.md)。
-- 每台机器只对外提供一个模型：rtx3080ti 为 IQ3_XXS（8 维调参结果为默认值，2026-10-11），Q2_0、IQ2_XS 权重保留，默认不再运行或测试，除非用户提出专门针对它们的任务（走部署 `--condition`，结束后普通部署恢复）；维护基线 = 本机唯一对外模型 + 部署默认值，不再单独成文件（B1）（2026-10-19，用户决定 + 独立审查，rtx3080ti 已部署，安全门按新源重跑通过）：[报告](reports/v0.1.45/single-model/summary.md)、[历史工作](docs/work-history.md#每台机器只对外一个模型维护基线退役2026-10-19)、[调参手册](docs/host-tuning.md#iq3_xxs)。
+- Git 只有一个长期分支 `master`；两台机器直接在 `master` 上拉取、提交和推送，推送冲突用 pull/rebase 解决（2026-10-30，用户决定）。
+- 当前主机只由 `project.private.toml` 顶层 `local_host` 指定；有副作用的操作只作用于当前主机，只读检查可显式指定其他 host。主机差异较多时拆为每机子文档，少量差异留在共用主文档；新报告写 `reports/<host>/...`（2026-10-30，用户决定）。
+- 额度预检只在 rtx3080ti 执行；其他主机没有 `estimate.sh` 等预检脚本，不执行额度预检（2026-10-30，用户决定）。
+- 每台机器只对外提供一个模型：rtx3080ti 为 IQ3_XXS（8 维调参结果为默认值，2026-10-11），Q2_0、IQ2_XS 权重保留，默认不再运行或测试，除非用户提出专门针对它们的任务（走部署 `--condition`，结束后普通部署恢复）；维护基线 = 本机唯一对外模型 + 部署默认值，不再单独成文件（B1）（2026-10-19，用户决定 + 独立审查，rtx3080ti 已部署，安全门按新源重跑通过）：[报告](reports/v0.1.45/single-model/summary.md)、[历史工作](docs/work-history.md#每台机器只对外一个模型维护基线退役2026-10-19)、[rtx3080ti 调参](docs/host-tuning/rtx3080ti.md)。
 - IQ3_XXS 默认档改为 206584／150000（2026-10-14）：经过见[历史工作](docs/work-history.md)「自主模式（2026-10-14 01:58 起，已结束）」。
 - 思考上限三档 low 2048／8192、medium 4096／16384、high 8192／24576，guardian 512／1024（2026-10-12，回滚方案 A）：[历史工作](docs/work-history.md)「Spec Readiness 思考上限诊断」。
 - 显存预留 512（2026-10-11）：[调参报告](reports/v0.1.42/iq3_xxs-tuning/vram-reserve/summary.md)。
@@ -70,7 +73,7 @@ rtx3080ti 安装 Strata v0.2.4（引擎 0.1.48，2026-10-24，通过短检查）
 - 2026-10-09 agent 接入：Codex 0.162.0 与 Claude Code 2.1.295 经 `bin/qwen-agent` 调用本地模型，冒烟检查通过（[记录](docs/work-history.md)）。托管搜索当时暂缺，相关后续待办在[状态页](.status/index.html)。
 - 2026-10-10 2b 模型验收通过（[报告](reports/v0.1.40.2/agent-integration-2b/summary.md)）。搜索三项通过。Claude Code 自写审批（方案 B）优于内置 auto mode。补上了 Claude Code 压缩时的工程压缩提示（PreCompact hook）。SSD 大量读取的原因是每次加载模型都读 36 GB（[探索](reports/v0.1.40.2/resource-calibration/ssd-reads/summary.md)），已改为模型跨租约驻留，相同参数复用不再加载。`qwen-agent` 固定用 `qwen-approve` 审批。
 - 2026-10-10 rtx3080ti 升级到 Strata v0.1.41，短调用链检查通过（[报告](reports/v0.1.41/upgrade.md)）。上游有关于 v0.1.41 生成循环的未关闭 issue #1622；此后已升级到更新版本。
-- 2026-10-11 rtx3080ti 升级到 Strata v0.1.42，短检查通过；服务默认模型改为 IQ3_XXS，8 维调参完成并部署（[升级报告](reports/v0.1.42/upgrade.md)、[调参手册](docs/host-tuning.md#iq3_xxs)）。Commit Audit 诊断得分 IQ3_XXS 0.837、Q2_0 0.773。
+- 2026-10-11 rtx3080ti 升级到 Strata v0.1.42，短检查通过；服务默认模型改为 IQ3_XXS，8 维调参完成并部署（[升级报告](reports/v0.1.42/upgrade.md)、[rtx3080ti 调参](docs/host-tuning/rtx3080ti.md)）。Commit Audit 诊断得分 IQ3_XXS 0.837、Q2_0 0.773。
 - 防循环：[CPU 小模型](reports/v0.1.40.2/small-model-decision-30m/summary.md)和 [Strata 判断](reports/v0.1.41/loop-strata-judge/summary.md)两条路线已关闭（Strata 复核在开发集上只把 F1 从 0.612 提到 0.621）。2026-10-10 用户决定只用机械规则，检测到重复只发提醒、不中断；评分合同第 7 版（F2 门槛 0.8，单阈值，按组计分：首次报警与后续报警各占 0.5，线性衰减）。机械规则 r5（窗口 10 条记录）：第一次划分开发集 0.8198、[验证集](reports/v0.1.41/loop-mechanical-gate/summary.md) 0.5409；全部重新随机划分并补齐伴随记录复核后，开发集 0.7586、验证集 0.7841，全量 0.7661。r6 改为连续概率（多处部分相似按 noisy-OR 累加）：开发集 0.8043、验证集 0.7756、全量 0.7974。前端协议桥提醒（`src/loop_reminder.py`）已部署到 rtx3080ti；[真实试跑](reports/v0.1.41/loop-reminder-trial/summary.md)和[无提示无提醒基线](reports/v0.1.41/loop-baseline/summary.md)各 3 次（得分 0.699 对 0.656；Commit Audit 场景里循环少见，防护作用测不出）。2026-10-11 用户决定弃用：提醒默认关闭，启动提示默认不加载防循环段，由用户日后触发删除。
 - 2026-10-13 Spec Readiness v4（v4.1 键，删除答案不成立的 SEAMS#1）：Opus 0.774、Q3 ×5 0.593，Q3/Opus 0.766，判据四条成立；Q3 ×10 扣罚后 SD 0.073 超 0.068，不用于调参（[报告](reports/v0.1.42/spec-readiness-v4/summary.md)）。
 - 2026-10-13 rtx3080ti 升级到 Strata v0.1.43.1，短检查通过（IQ3_XXS 引擎输出 95.9 tok/s，短负载、只跑一次，不作版本对比）；计量解析器适配新的 #2090 分块日志行；新版显存检查在 2/13 个请求上告警（剩余 128–276 MiB），待观察（[升级报告](reports/v0.1.43.1/upgrade.md)）。

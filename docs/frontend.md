@@ -6,11 +6,11 @@
 
 | 组件 | 位置 | 作用 |
 |---|---|---|
-| 前端 | `src/frontend.py`，监听 `config/frontend.json` 的地址和端口（rtx3080ti 为 `192.168.60.212:8000`） | 独占租约、模型启停、`/strata/*` 转发、客户端地址检查 |
+| 前端 | `src/frontend.py`，监听本机 `config/deployments/<host>.json` 的地址和端口 | 独占租约、模型启停、`/strata/*` 转发、客户端地址检查 |
 | 模型进程管理 | `src/model_process.py` | 校验启动参数，生成临时运行配置（`.tmp/model/`），启动并停止原生服务 |
 | 原生服务 | `src/native_service.py` 包装 Strata `serve`，只监听 `127.0.0.1:8100` | 加载基础提示，提供 Chat / Responses / Messages；内部 key 每次启动随机生成，经环境变量 `STRATA_API_KEY` 传入 |
 
-- 推理全部在 Windows 原生进程中运行。WSL 保持 NAT，不做端口转发；WSL 内的调用方直接访问 `192.168.60.212:8000`。
+- 推理全部在 Windows 原生进程中运行。WSL 保持 NAT，不做端口转发；调用方访问当前主机部署配置中的 `http://<listen_address>:<port>`。
 - 客户端允许列表按本机各网卡子网动态计算（每 60 秒刷新），WSL 虚拟网卡子网每次开机变化也能自动覆盖。
 - 租约只在内存中。前端启动时会先停掉遗留的模型进程，因此重启前端等于强制回收。租约本身没有超时回收。
 - 模型跨租约驻留：归还租约不停模型，下一个租约用相同参数启动时直接复用（省掉约 16 秒加载和 36 GB SSD 读取）。参数比较的是校验后的完整运行配置的 SHA。没有租约的模型空闲 `IDLE_STOP_MINUTES`（30）分钟后停止，0 表示不停。代价是空闲期间一直占用约 39 GB 内存和约 11 GB 显存；上一个调用方的 prompt cache 也留在进程中。
@@ -25,7 +25,7 @@
 首次部署后，在 Windows 上以安装用户身份运行一次：
 
 ```powershell
-& 'C:\Users\pello\AppData\Local\Programs\qwen-3.8-flash-next\maintenance\Install-Frontend.ps1'
+& "<installation_root>\maintenance\Install-Frontend.ps1"
 ```
 
 脚本会请求一次 UAC，然后：
@@ -40,7 +40,7 @@
 从维护工程执行：
 
 ```bash
-python3 -m tools.ops.deploy --host rtx3080ti
+python3 -m tools.ops.deploy --host <local_host>
 ```
 
 流程：
@@ -56,7 +56,7 @@ python3 -m tools.ops.deploy --host rtx3080ti
 ## 升级 Strata
 
 ```bash
-python3 -m tools.ops.upgrade_release --host rtx3080ti --metadata <发布元数据> --source <标签源码 ZIP> --engine <引擎 tar.gz> --feed <strata-feed.json，.sig 放同目录> --output <回执>
+python3 -m tools.ops.upgrade_release --host <local_host> --metadata <发布元数据> --source <标签源码 ZIP> --engine <引擎 tar.gz> --feed <strata-feed.json，.sig 放同目录> --output <回执>
 ```
 
 与部署相同：先经前端租约关闭前端，替换期间没有任何调用方能启动模型；完成后重新启动前端。`--rollback <备份目录>` 回滚。校验内容和周期流程见[安装与维护](installation.md#升级部署与恢复)。
