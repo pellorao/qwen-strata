@@ -12,6 +12,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import time
 
 PREFIX = 'codex-timer-'
 SCRIPT = Path(__file__).resolve()
@@ -32,6 +33,39 @@ def systemctl(*args, check=True):
     return subprocess.run(['systemctl', '--user', *args], text=True, capture_output=True, check=check, timeout=5)
 
 
+def process_start(pid):
+    try:
+        raw = Path(f'/proc/{pid}/stat').read_text(encoding='utf-8')
+        return raw.rsplit(')', 1)[1].split()[19]
+    except (FileNotFoundError, OSError, IndexError):
+        return None
+
+
+def session_owner(session_id):
+    """Find the live Codex CLI process holding this thread's writer lock."""
+    codex_home = Path(os.environ.get('CODEX_HOME', Path.home() / '.codex'))
+    lock = codex_home / 'thread-writer-locks' / f'{session_id}.lock'
+    for entry in Path('/proc').iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            executable = Path(os.readlink(entry / 'exe')).name
+            if not (executable == 'codex' or executable.startswith('codex-')):
+                continue
+            for descriptor in (entry / 'fd').iterdir():
+                if os.readlink(descriptor) == str(lock):
+                    started = process_start(int(entry.name))
+                    if started is not None:
+                        return int(entry.name), started
+        except (FileNotFoundError, OSError):
+            continue
+    raise RuntimeError('cannot find the Codex CLI process holding this thread lock')
+
+
+def watch_unit(session_id):
+    return f'{PREFIX}watch-{tag(session_id)}'
+
+
 def timer_units(session_id):
     pattern = f'{PREFIX}{tag(session_id)}-*.timer'
     result = systemctl('list-units', '--all', '--plain', '--no-legend', pattern, check=False)
@@ -40,10 +74,11 @@ def timer_units(session_id):
     return [line.split(None, 1)[0] for line in result.stdout.splitlines() if line.strip()]
 
 
-def cleanup(session_id):
+def cleanup(session_id, stop_watch=True):
     units = timer_units(session_id)
-    if units:
-        systemctl('stop', *units)
+    targets = units + ([f'{watch_unit(session_id)}.service'] if stop_watch else [])
+    if targets:
+        systemctl('stop', *targets, check=False)
     return units
 
 
@@ -64,6 +99,7 @@ def schedule(args):
     codex = shutil.which('codex')
     if not codex:
         raise RuntimeError('codex is not on PATH')
+    owner_pid, owner_start = session_owner(args.session_id)
     command = [
         'systemd-run', '--user', '--unit', unit, '--collect', '--same-dir',
         '--timer-property', 'AccuracySec=1s',
@@ -82,6 +118,17 @@ def schedule(args):
         '--unit', unit,
         '--message', args.message,
     ]
+    active = systemctl('is-active', '--quiet', f'{watch_unit(args.session_id)}.service', check=False)
+    if active.returncode:
+        subprocess.run([
+            'systemd-run', '--user', '--unit', watch_unit(args.session_id), '--collect', '--same-dir',
+            '--setenv', f'HOME={Path.home()}',
+            '--setenv', f'PATH={os.environ.get("PATH", "/usr/local/bin:/usr/bin:/bin")}',
+            sys.executable, str(SCRIPT), 'watch',
+            '--session-id', args.session_id,
+            '--owner-pid', str(owner_pid),
+            '--owner-start', owner_start,
+        ], check=True, timeout=15)
     subprocess.run(command, check=True, timeout=15)
     return unit
 
@@ -94,6 +141,12 @@ def wake(session_id, unit, message):
         systemctl('stop', f'{unit}.timer', check=False)
         raise RuntimeError(result.stderr.strip() or 'codex queue failed')
     return result.stdout
+
+
+def watch(session_id, owner_pid, owner_start):
+    while process_start(owner_pid) == owner_start:
+        time.sleep(2)
+    cleanup(session_id, stop_watch=False)
 
 
 def hook_session():
@@ -127,6 +180,11 @@ def main():
     wake_parser.add_argument('--unit', required=True)
     wake_parser.add_argument('--message', required=True)
 
+    watch_parser = sub.add_parser('watch', help=argparse.SUPPRESS)
+    watch_parser.add_argument('--session-id', required=True)
+    watch_parser.add_argument('--owner-pid', type=int, required=True)
+    watch_parser.add_argument('--owner-start', required=True)
+
     args = parser.parse_args()
     try:
         if args.command == 'schedule':
@@ -136,6 +194,8 @@ def main():
         elif args.command == 'cleanup':
             units = cleanup(args.session_id or hook_session())
             print('\n'.join(units))
+        elif args.command == 'watch':
+            watch(args.session_id, args.owner_pid, args.owner_start)
         else:
             wake(args.session_id, args.unit, args.message)
     except (OSError, RuntimeError, subprocess.SubprocessError, ValueError) as error:

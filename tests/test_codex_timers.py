@@ -25,7 +25,10 @@ class CodexTimersTests(unittest.TestCase):
             'list-units', '--all', '--plain', '--no-legend',
             f'codex-timer-{codex_timers.tag("thread")}-*.timer', check=False,
         )
-        systemctl.assert_any_call('stop', 'codex-timer-a.timer', 'codex-timer-b.timer')
+        systemctl.assert_any_call(
+            'stop', 'codex-timer-a.timer', 'codex-timer-b.timer',
+            f'{codex_timers.watch_unit("thread")}.service', check=False,
+        )
 
     def test_session_end_hook_uses_stdin_session_id(self):
         event = json.dumps({'session_id': 'thread-from-hook'})
@@ -37,9 +40,13 @@ class CodexTimersTests(unittest.TestCase):
             'session_id': 'thread', 'message': 'check later', 'seconds': 1200, 'at': None, 'every': None,
         })()
         with patch.object(codex_timers.shutil, 'which', return_value='/usr/bin/codex'), \
+                patch.object(codex_timers, 'session_owner', return_value=(1234, '5678')), \
+                patch.object(codex_timers, 'systemctl', return_value=subprocess_result('', '', 3)), \
                 patch.object(codex_timers.subprocess, 'run') as run:
             unit = codex_timers.schedule(args)
-        command = run.call_args.args[0]
+        watch_command, command = [call.args[0] for call in run.call_args_list]
+        self.assertIn('watch', watch_command)
+        self.assertIn('--owner-pid', watch_command)
         self.assertIn('systemd-run', command)
         self.assertIn('AccuracySec=1s', command)
         self.assertIn('--on-active=1200', command)
@@ -54,9 +61,12 @@ class CodexTimersTests(unittest.TestCase):
             'every': '*-*-* *:00/20:00',
         })()
         with patch.object(codex_timers.shutil, 'which', return_value='/usr/bin/codex'), \
+                patch.object(codex_timers, 'session_owner', return_value=(1234, '5678')), \
+                patch.object(codex_timers, 'systemctl', return_value=subprocess_result('', '', 3)), \
                 patch.object(codex_timers.subprocess, 'run') as run:
             codex_timers.schedule(args)
-        self.assertIn('--on-calendar=*-*-* *:00/20:00', run.call_args.args[0])
+        command = run.call_args_list[-1].args[0]
+        self.assertIn('--on-calendar=*-*-* *:00/20:00', command)
 
     def test_session_end_template_has_a_three_second_cleanup_hook(self):
         template = json.loads((ROOT / 'docs/codex-cli-scheduling-hooks.json').read_text(encoding='utf-8'))
@@ -72,6 +82,13 @@ class CodexTimersTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'no session'):
                 codex_timers.wake('thread', 'codex-timer-unit', 'check')
         systemctl.assert_called_once_with('stop', 'codex-timer-unit.timer', check=False)
+
+    def test_watchdog_cleans_after_the_cli_process_exits(self):
+        with patch.object(codex_timers, 'process_start', side_effect=['same', 'same', None]), \
+                patch.object(codex_timers.time, 'sleep'), \
+                patch.object(codex_timers, 'cleanup') as cleanup:
+            codex_timers.watch('thread', 1234, 'same')
+        cleanup.assert_called_once_with('thread', stop_watch=False)
 
 
 def subprocess_result(stdout='', stderr='', returncode=0):

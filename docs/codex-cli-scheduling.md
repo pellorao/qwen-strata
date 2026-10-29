@@ -10,13 +10,14 @@
 - 定时检查只在 Main 空闲时处理。到点唤醒后，检查指定任务或 subagent：仍在运行就安排下一次检查后结束回合；已经完成就汇总并停止；任务已不存在就不重建定时器。
 - systemd timer 是用外部时钟触发消息；Codex 会话仍由原 CLI 进程持有。timer 不是新的 Codex 会话。
 - helper 将 timer 的 `AccuracySec` 固定为 1 秒，避免 systemd 默认一分钟精度把短提醒推迟。
-- Codex CLI 正常关闭时，`SessionEnd` hook 删除该 UUID 的全部 timer。强杀、崩溃和断电可能跳过 hook；下一次 timer 触发时如果 `codex queue` 失败，timer 自删。需要“强制终止也立即清理”时必须让 CLI 本身由外部 supervisor 运行，本项目不采用这种启动方式。
+- 创建 timer 时同时启动一个绑定 CLI 进程 PID 和启动时间的 systemd watchdog。CLI 退出后 watchdog 在约 2 秒内删除该 UUID 的全部 timer；正常关闭、强杀或崩溃都不依赖 `SessionEnd` 是否执行。断电后 transient timer 和 watchdog 本身也不会跨重启保留。
+- `SessionEnd` hook 作为正常结束时的即时补充清理，主要防止会话在 timer/watchdog 尚未建立或已经异常时留下残余。
 
 ## 安装清理 hook
 
 仓库模板见 [codex-cli-scheduling-hooks.json](codex-cli-scheduling-hooks.json)。将它合并到仓库的 `.codex/hooks.json`，再在 Codex CLI 运行 `/hooks` 审查并信任该 hook。项目 `.codex/` 层必须受信任，否则清理 hook 不会运行。
 
-SessionEnd 使用 3 秒上限，因此清理命令只停止 `codex-timer-<session-tag>-*.timer`。systemd 的 transient timer 停止后自行卸载，不需要再删除文件。
+SessionEnd 使用 3 秒上限，因此清理命令停止 `codex-timer-<session-tag>-*.timer` 和对应的 watchdog service。systemd 的 transient unit 停止后自行卸载，不需要再删除文件。
 
 ## 安排任务
 
@@ -66,7 +67,7 @@ scripts/wsl/codex-timers cleanup --session-id "$session_id"
 
 1. 用 `--seconds 60` 安排一条无副作用检查。
 2. 回到空闲的 CLI；到点后确认收到新的 Codex 回合，且不是当前回合被打断。
-3. 关闭 CLI，在独立 shell 中重新运行同一 UUID 的 `list`；结果应为空。
+3. 关闭 CLI，约 2 秒后在独立 shell 中运行同一 UUID 的 `list`；结果应为空。此检查不依赖 `SessionEnd` 是否已经触发。
 4. 如有残留，检查 `/hooks` 是否已信任当前 hook 版本，并手动运行 `cleanup` 保留现场。
 
 ## 边界
