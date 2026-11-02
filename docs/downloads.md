@@ -1,10 +1,19 @@
 # 下载与恢复清单
 
-rtx3080ti 已于 2026-10-24 安装 v0.2.4（Qwen 引擎 0.1.48），见[升级报告](../reports/v0.2.4/upgrade.md)；前一版 v0.2.2 保留供回退。rtx4070tis 已于 2026-10-28 部署 v0.2.4（Qwen 引擎 0.1.48）；后续升级待办见[状态页](../.status/index.html)。单个不超过1GB的文件可由助手下载；超过1GB的模型等由用户下载，来源与校验由工程维护。以下链接供恢复及后续升级核对。`artifacts/` 只保留最新版和前一个版本（前一版用于无法修复时回退）；更早的版本只保留下面的来源、大小和 SHA，需要时重新下载核对（用户 2026-10-14）。
+rtx3080ti 已于 2026-11-02 安装 v0.2.9（Qwen 引擎 0.1.55），见[升级报告](../reports/rtx3080ti/v0.2.9/upgrade.md)；前一版 v0.2.4 保留供回退（v0.2.4 的升级报告见[这里](../reports/v0.2.4/upgrade.md)）。rtx4070tis 已于 2026-10-28 部署 v0.2.4（Qwen 引擎 0.1.48）；后续升级待办见[状态页](../.status/index.html)。单个不超过1GB的文件可由助手下载；超过1GB的模型等由用户下载，来源与校验由工程维护。以下链接供恢复及后续升级核对。`artifacts/` 只保留最新版和前一个版本（前一版用于无法修复时回退）；更早的版本只保留下面的来源、大小和 SHA，需要时重新下载核对（用户 2026-10-14）。
 
 探索下载的候选模型、分词器和配套文件统一放工程`.tmp/`；仅在确认需要采用后才进入`artifacts/`。工程长期保留公共来源、固定版本、大小、SHA及必要结果，临时缓存位置不表示已采用或已部署；清空临时目录后重新下载／准备。此规则同时适用于助手和提供给用户的探索下载路径。
 
-## Strata v0.2.4（rtx3080ti 已安装）
+## Strata v0.2.9（rtx3080ti 已安装）
+
+2026-11-02 核对官方发布，附注标签 `v0.2.9`（标签对象 `d94bac6a`）指向提交 `c62d5e3a15b40ea51c96aae9e8d36928965f53ab`，发布时间 2026-10-31T08:02Z。Control 与引擎同为 0.1.55（CMake `VERSION 0.1.55`，与引擎包一致，不需要 `source_cmake_version`）。同一发布的 `strata-dsv41-*` 包（422 MB，DeepSeek）不用。由升级 worker 下载。
+
+- 引擎：[strata-engine-0.1.55-windows-x86_64-cuda-cuda13.tar.gz](https://github.com/Niko1221/Strata/releases/download/v0.2.9/strata-engine-0.1.55-windows-x86_64-cuda-cuda13.tar.gz)，621585315 字节，官方 SHA256 `34f399a0a22e4af8b434439de04dcce3734ccba7e884ef6003439ba148d667df`，与 API digest 一致（build_id `99866a47a2b8+cuda13.0`，源 `f-029-rel`，清单 SHA `84271f6e…b98d`，安装后 949389792 字节）。
+- feed：[strata-feed.json](https://github.com/Niko1221/Strata/releases/download/v0.2.9/strata-feed.json)，15491 字节，SHA256 `05cc1b2287e69fd1627cfdf5feacdb2708fcdd46f9a5b9c77fe6bdb592ba4014`（sequence 118），Ed25519 签名已用固定公钥 `5d1bc23abbeffd0d` 核验，引擎清单签名同样通过；feed 与 `.sig` 存于 `artifacts/strata/0.2.9/`。
+- 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.9.zip)，34878231 字节，本地 SHA256 `4c5f3c00ee6a1e28ff17c46f43ca6f8aaeebbc224ad2f4e812b9ac0dafd51e6f`（顶层目录 `Strata-0.2.9/`，ZIP 注释为标签提交）。`AGENTS.md`（`ba70683a…7a69`，文档改写）有变化，`requirements.txt` 未变；0.2.4 有而本版没有的源码路径：无。
+- 工程文件为 `artifacts/strata/0.2.9/engine.tar.gz` 和 `source.zip`，版本清单见[制品清单](../config/artifacts/strata-v0.2.9.json)，`strata-release.json` 已指向本版。2026-11-02 安装到 rtx3080ti 并通过短检查。`artifacts/strata/0.2.2/` 已删除（只保留最新版和前一版）。rtx4070tis 仍是 v0.2.4，待同步。
+
+## Strata v0.2.4（rtx3080ti 曾安装，回退用）
 
 2026-10-24 核对官方发布，附注标签 `v0.2.4`（标签对象 `0303f658`，标签时间 02:14Z）指向提交 `96ca4383c7b05a8a3e6064c65d9e9977d4b3bb59`。发布页之后更新为 Terminal 0.2.4.1／Control 0.1.49.1（DeepSeek 准备脚本补丁，main 上 `c33fa7ba`），标签未移动，我们装的是标签内容。DeepSeek V4.1-Flash 的 `strata-dsv41-*` 包只用于 Terminal，不安装。由升级 worker 下载。
 
