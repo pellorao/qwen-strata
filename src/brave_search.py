@@ -30,6 +30,7 @@ MAX_REDIRECTS = 5
 RESULT_COUNT = {'low': 3, 'medium': 5, 'high': 10}
 OPEN_CHARS = 20000          # page text returned by open_page
 MAX_MATCHES = 30
+LOCAL_CONFIG = 'config.local.json'  # installation-local settings, never deployed or committed
 
 
 class SearchError(RuntimeError):
@@ -86,13 +87,42 @@ def public_url(url):
         raise SearchError('Only public HTTP(S) URLs without credentials are supported.', 'invalid_url') from None
 
 
+def allowed_networks(root=None):
+    """Extra networks that count as allowed at connect time: `fetch_allow_networks` (list of CIDR) in
+    config.local.json of the installation. Missing file or key means none; a malformed file fails closed."""
+    path = Path(root or ROOT) / LOCAL_CONFIG
+    try:
+        text = path.read_text(encoding='utf-8')
+    except FileNotFoundError:
+        return ()
+    except OSError:
+        raise SearchError(f'{LOCAL_CONFIG} could not be read.', 'not_configured') from None
+    try:
+        listed = json.loads(text).get('fetch_allow_networks', [])
+        if not isinstance(listed, list) or not all(isinstance(item, str) for item in listed):
+            raise ValueError
+        return tuple(ipaddress.ip_network(item) for item in listed)
+    except (ValueError, TypeError, AttributeError):
+        raise SearchError(f'{LOCAL_CONFIG} is invalid: fetch_allow_networks must be a list of CIDR networks.',
+                          'not_configured') from None
+
+
 def connect_public(host, port, timeout):
-    """Resolve host, refuse unless every answer is a public address, and connect to a checked address."""
+    """Resolve host, refuse unless every answer is public or in a locally allowed network, and connect to a checked address."""
     try:
         answers = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
     except (OSError, UnicodeError):
         raise OSError('Host name could not be resolved.') from None
-    if not answers or not all(global_address(answer[4][0]) for answer in answers):
+    extra = allowed_networks()
+
+    def allowed(text):
+        if global_address(text):
+            return True
+        address = ipaddress.ip_address(text.split('%')[0])
+        address = getattr(address, 'ipv4_mapped', None) or address
+        return any(address in network for network in extra if network.version == address.version)
+
+    if not answers or not all(allowed(answer[4][0]) for answer in answers):
         raise SearchError('The host does not resolve to public addresses only.', 'blocked_destination')
     error = OSError('No address could be reached.')
     for family, kind, proto, _, address in answers:

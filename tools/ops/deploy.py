@@ -8,6 +8,7 @@ from contextlib import contextmanager
 from datetime import datetime
 import errno
 import hashlib
+import http.client
 import json
 import os
 from pathlib import Path
@@ -79,8 +80,13 @@ NO_LISTENER = (errno.ENETUNREACH, errno.EHOSTUNREACH, errno.ENETDOWN, errno.EHOS
 
 
 def no_listener(error):
-    """Refused, timed out or unreachable: nothing answered. Other failures (a reset, a half reply) leave it open."""
-    reason = getattr(error, 'reason', error)
+    """The connection itself failed (refused, connect timeout, unreachable): nothing is listening.
+
+    urllib wraps only connection-phase errors in URLError; a bare error (a read timeout, a reset) means the
+    connection was made, so a hung frontend still counts as running and goes through the lease path."""
+    if not isinstance(error, urllib.error.URLError):
+        return False
+    reason = error.reason
     return isinstance(reason, (ConnectionRefusedError, TimeoutError)) or getattr(reason, 'errno', None) in NO_LISTENER
 
 
@@ -103,8 +109,8 @@ class Frontend:
             self.call('/health', timeout=5)
         except urllib.error.HTTPError:
             pass  # an error status is still an answer: a lease holder may be working behind it
-        except ValueError:
-            pass  # answered, but not with JSON
+        except (ValueError, http.client.HTTPException):
+            pass  # answered, but not with JSON or only half a reply
         except OSError as error:
             return not no_listener(error)
         return True

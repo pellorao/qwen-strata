@@ -1,5 +1,6 @@
 """Installation credentials are rendered from the project private file only."""
 from pathlib import Path
+import http.client
 import json
 import sys
 import tempfile
@@ -59,7 +60,9 @@ class FrontendTests(unittest.TestCase):
 
     def test_only_connection_failures_mean_not_reachable(self):
         for error, expected in ((http_error(503), True), (http_error(401), True), (ConnectionResetError(), True),
-                                (ValueError(), True), (refused(), False), (TimeoutError(), False),
+                                (ValueError(), True), (refused(), False),
+                                (TimeoutError(), True), (http.client.BadStatusLine('x'), True),
+                                (http.client.IncompleteRead(b''), True),
                                 (urllib.error.URLError(TimeoutError()), False),
                                 (urllib.error.URLError(OSError(101, 'unreachable')), False)):
             self.assertEqual(self.frontend({'/health': [error]}).reachable(), expected, msg=repr(error))
@@ -99,6 +102,12 @@ class DeployTests(unittest.TestCase):
 
     def test_private_file_is_never_a_public_deployment_file(self):
         self.assertNotIn('installation.private.toml', deployment_files({'models': ['IQ3_XXS']}))
+
+    def test_installation_local_config_is_never_replaced_or_removed(self):
+        host = {'models': ['IQ3_XXS']}
+        self.assertNotIn('config.local.json', deployment_files(host))
+        self.assertNotIn('config.local.json', obsolete_files(host))
+        self.assertNotIn('config.local.json', deploy.OBSOLETE_TREES)
 
     def test_only_the_served_models_prebuilt_is_deployed_and_the_others_are_removed(self):
         host = {'models': ['IQ3_XXS']}
