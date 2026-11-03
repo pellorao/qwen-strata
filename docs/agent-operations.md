@@ -52,5 +52,5 @@ AGENTS.md 硬约束 1 的重要决策（冻结、默认参数改值、部署、�
 
 ## 额度
 
-- 额度预检只在 `rtx3080ti` 执行：该机的 Claude Code 按用户级规则运行 `~/.claude/statusline/estimate.sh --can-start`，据此决定是否开始可能消耗 Anthropic 额度的长工作。
+- 额度由总层计划决定（`~/.claude/docs/agents.md` Quota check），本工程不做额度判断。
 - `rtx4070tis` 及其他主机没有额度预检脚本，不执行额度预检。它们仍须按硬约束完成 Strata key、租约、模型状态等运行前检查。

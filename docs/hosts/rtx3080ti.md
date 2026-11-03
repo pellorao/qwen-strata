@@ -19,7 +19,7 @@ RTX 3080 Ti 12 GB、i9-13900。该机由 Claude Code 管理，负责现有 bench
 
 ## Agent 与额度
 
-- 该机使用 Claude Code。额度预检只在这里执行：按用户级规则调用 `~/.claude/statusline/estimate.sh --can-start`，决定是否开始可能消耗 Anthropic 额度的长工作。
+- 该机使用 Claude Code。额度由总层计划决定（`~/.claude/docs/agents.md` Quota check），本工程不做额度判断。
 - Strata 的 key、租约和模型状态检查仍按统一流程执行。
 
 新报告写入 `reports/rtx3080ti/<版本或主题>/`。已有报告保留原路径，不回写历史。
