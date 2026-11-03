@@ -11,6 +11,8 @@ import ipaddress
 import json
 from pathlib import Path
 import re
+import socket
+import ssl
 import threading
 import time
 import tomllib
@@ -46,8 +48,22 @@ def load_key(root=ROOT):
     return key.strip()
 
 
+def global_address(text):
+    """True for a public IP literal; IPv4-mapped IPv6 is judged by its embedded IPv4 address."""
+    try:
+        address = ipaddress.ip_address(text.split('%')[0])
+    except ValueError:
+        return False
+    address = getattr(address, 'ipv4_mapped', None) or address
+    return address.is_global
+
+
 def public_url(url):
-    """Accept http(s) URLs on public hosts only: no credentials, odd ports, local names or private addresses."""
+    """Accept http(s) URLs on public hosts only: no credentials, odd ports, local names or private addresses.
+
+    This is the name-level check. Where the name really points is checked again when the
+    connection is made (PublicHTTPConnection), so DNS answers and rebinding cannot slip past it.
+    """
     try:
         value = urlsplit(url)
         if (value.scheme not in ('http', 'https') or not value.hostname or value.username is not None
@@ -55,16 +71,65 @@ def public_url(url):
             raise ValueError
         host = value.hostname.lower().rstrip('.')
         try:
-            address = ipaddress.ip_address(host)
+            ipaddress.ip_address(host)
         except ValueError:
-            if '.' not in host or host.endswith(('.localhost', '.local', '.internal', '.lan', '.home.arpa')):
+            # A last label that is all digits or 0x.. is an address in a form resolvers still accept
+            # (127.1, 0x7f.1, 2130706433), not a host name.
+            if ('.' not in host or host.endswith(('.localhost', '.local', '.internal', '.lan', '.home.arpa'))
+                    or re.fullmatch(r'\d+|0x[0-9a-f]*', host.rsplit('.', 1)[-1])):
                 raise ValueError from None
         else:
-            if not address.is_global:
+            if not global_address(host):
                 raise ValueError
         return value
     except (ValueError, TypeError):
         raise SearchError('Only public HTTP(S) URLs without credentials are supported.', 'invalid_url') from None
+
+
+def connect_public(host, port, timeout):
+    """Resolve host, refuse unless every answer is a public address, and connect to a checked address."""
+    try:
+        answers = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
+    except (OSError, UnicodeError):
+        raise OSError('Host name could not be resolved.') from None
+    if not answers or not all(global_address(answer[4][0]) for answer in answers):
+        raise SearchError('The host does not resolve to public addresses only.', 'blocked_destination')
+    error = OSError('No address could be reached.')
+    for family, kind, proto, _, address in answers:
+        sock = socket.socket(family, kind, proto)
+        try:
+            sock.settimeout(timeout)
+            sock.connect(address)
+            return sock
+        except OSError as failure:
+            sock.close()
+            error = failure
+    raise error
+
+
+class PublicHTTPConnection(http.client.HTTPConnection):
+    def connect(self):
+        self.sock = connect_public(self.host, self.port, self.timeout)
+
+
+class PublicHTTPSConnection(http.client.HTTPSConnection):
+    def connect(self):
+        sock = connect_public(self.host, self.port, self.timeout)
+        try:
+            self.sock = self._context.wrap_socket(sock, server_hostname=self.host)
+        except BaseException:
+            sock.close()
+            raise
+
+
+class PublicHTTPHandler(urllib.request.HTTPHandler):
+    def http_open(self, request):
+        return self.do_open(PublicHTTPConnection, request)
+
+
+class PublicHTTPSHandler(urllib.request.HTTPSHandler):
+    def https_open(self, request):
+        return self.do_open(PublicHTTPSConnection, request, context=self._context or ssl.create_default_context())
 
 
 def domain_allowed(url, domains):
@@ -142,7 +207,9 @@ def decoded(raw, headers):
 def fetch(url, headers, check=lambda: None):
     """GET with manual redirects; returns (final url, content type, body). Never retries."""
     deadline = time.monotonic() + TIMEOUT
-    opener = urllib.request.build_opener(NoRedirect())
+    # No proxy: the address check is only meaningful on the connection the page host itself receives.
+    opener = urllib.request.build_opener(NoRedirect(), urllib.request.ProxyHandler({}),
+                                         PublicHTTPHandler(), PublicHTTPSHandler())
     keyed = 'X-Subscription-Token' in headers
     for _ in range(MAX_REDIRECTS + 1):
         check()

@@ -1,6 +1,7 @@
 """Brave search session without network: URL policy, key handling, actions."""
 import json
 from pathlib import Path
+import socket
 import sys
 import tempfile
 import unittest
@@ -15,6 +16,10 @@ BRAVE = json.dumps({'web': {'results': [
     {'url': 'http://10.0.0.1/x', 'title': 'private', 'description': 'skip'},
     {'url': 'https://other.org/b', 'title': 'B', 'description': 'second'}]}}).encode()
 PAGE = b'<html><title>Page A</title><script>x()</script><p>Version v0.1.41</p><p>other line</p></html>'
+
+
+NONCANONICAL = ('http://127.1/', 'http://0x7f.1/', 'http://2130706433/', 'http://0177.0.0.1/', 'http://0x7f000001/',
+                'http://[::1]/', 'http://[::ffff:127.0.0.1]/', 'http://[fe80::1%25eth0]/', 'http://10.1.2.3./')
 
 
 class Transport:
@@ -77,7 +82,8 @@ class BraveTests(unittest.TestCase):
                      {'action': 'find_in_page', 'url': 'https://example.com/a'},
                      {'action': 'open_page', 'url': 'http://127.0.0.1/'}, {'action': 'open_page', 'url': 'file:///etc/passwd'},
                      {'action': 'open_page', 'url': 'https://user:pw@example.com/'},
-                     {'action': 'open_page', 'url': 'http://printer.local/'}, {'action': 'open_page', 'url': 'http://example.com:8080/'}):
+                     {'action': 'open_page', 'url': 'http://printer.local/'}, {'action': 'open_page', 'url': 'http://example.com:8080/'},
+                     *({'action': 'open_page', 'url': u} for u in NONCANONICAL)):
             with self.assertRaises(SearchError, msg=args):
                 self.search.execute(args)
         self.assertEqual(self.transport.calls, [])
@@ -112,6 +118,66 @@ class FetchTests(unittest.TestCase):
             with self.assertRaises(SearchError) as error:
                 brave_search.decoded(raw, headers)
             self.assertEqual(error.exception.code, code)
+
+
+class Sock:
+    made = []
+
+    def __init__(self, *args):
+        self.args, self.connected, self.closed = args, None, False
+        Sock.made.append(self)
+
+    def settimeout(self, value):
+        self.timeout = value
+
+    def connect(self, address):
+        self.connected = address
+
+    def close(self):
+        self.closed = True
+
+
+def answers(*addresses):
+    return [(2 if ':' not in a else 10, 1, 6, '', (a, 80)) for a in addresses]
+
+
+class ConnectTests(unittest.TestCase):
+    """The address a host name really resolves to is checked where the connection is made; no network is used."""
+
+    def setUp(self):
+        Sock.made = []
+        patch.object(brave_search.socket, 'socket', Sock).start()
+        self.addCleanup(patch.stopall)
+
+    def resolve(self, *addresses):
+        return patch.object(brave_search.socket, 'getaddrinfo', lambda *a, **k: answers(*addresses))
+
+    def test_names_resolving_to_non_public_addresses_are_refused_before_any_socket(self):
+        for addresses in (('127.0.0.1',), ('10.0.0.5',), ('::1',), ('::ffff:192.168.0.1',), ('93.184.216.34', '127.0.0.1')):
+            with self.resolve(*addresses), self.assertRaises(SearchError, msg=addresses) as error:
+                brave_search.connect_public('127-0-0-1.nip.io', 80, 5)
+            self.assertEqual(error.exception.code, 'blocked_destination')
+        self.assertEqual(Sock.made, [])
+
+    def test_connects_to_the_checked_address(self):
+        with self.resolve('93.184.216.34'):
+            sock = brave_search.connect_public('example.com', 80, 5)
+        self.assertEqual((sock.connected, sock.timeout), (('93.184.216.34', 80), 5))
+
+    def test_fetch_never_reaches_a_name_that_rebinds_to_loopback(self):
+        # public_url passes the name; the address check at connect time stops it, redirects included
+        for url in ('http://127-0-0-1.nip.io/', 'https://rebind.example.net/'):
+            with self.resolve('127.0.0.1'), self.assertRaises(SearchError) as error:
+                brave_search.fetch(url, {})
+            self.assertEqual(error.exception.code, 'blocked_destination')
+        self.assertEqual(Sock.made, [])
+
+    def test_unresolvable_name_is_a_network_error(self):
+        def fail(*args, **kwargs):
+            raise socket.gaierror
+        with patch.object(brave_search.socket, 'getaddrinfo', fail), self.assertRaises(SearchError) as error:
+            brave_search.fetch('http://nowhere.example.net/', {})
+        self.assertEqual(error.exception.code, 'network_error')
 
 
 class KeyTests(unittest.TestCase):
