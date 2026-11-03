@@ -117,6 +117,17 @@ class ClaudeScenarioTest(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 cs.arguments(base + bad)
 
+    def test_effort_choices_follow_the_backend(self):
+        def args(effort, backend):
+            extra = ['--host', 'rtx3080ti'] if backend == 'strata' else []
+            return cs.arguments(['--plan', 'p.json', '--out', 'o', '--model', 'm', '--effort', effort, '--label', 'l',
+                                 '--backend', backend, *extra])
+        self.assertEqual(args('max', 'deepseek').effort, 'max')
+        self.assertEqual(args('xhigh', 'strata').effort, 'xhigh')
+        for effort, backend in (('max', 'anthropic'), ('medium', 'deepseek'), ('none', 'strata')):
+            with self.assertRaises(SystemExit):
+                args(effort, backend)
+
     def test_role_placement_follows_the_plan(self):
         v1, v2 = {'fixed_conditions': {}}, {'fixed_conditions': {'claude_role_as_system': True}}
         # v1 plans keep the user-message shape unless asked; v2 plans put the Role in the system prompt by default.

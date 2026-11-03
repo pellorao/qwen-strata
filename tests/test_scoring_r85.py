@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 from tools.reviewer import freeze_arw_source
 from tools.reviewer.freeze_arw_source import SCORING_OVERLAY, SCORING_UPGRADE, materialize, upgrade_scoring
@@ -97,6 +98,16 @@ class ScoringR85Tests(unittest.TestCase):
             upgrade_scoring(self.r85, 'r8.4')
         with self.assertRaisesRegex(ValueError, 'Unknown scoring version'):
             upgrade_scoring(self.r85, 'r9')
+
+    def test_an_r8_4_upgrade_does_not_need_the_v2_overlay_pin(self):
+        with tempfile.TemporaryDirectory() as folder:
+            manifest = json.loads((SNAPSHOTS / 'manifest-spec-readiness-v4.3.json').read_text())
+            copy = Path(folder) / 'arw'
+            materialize(manifest, SNAPSHOTS / manifest['snapshot']['file'], copy)
+            with mock.patch.dict(SCORING_OVERLAY, {'sha256': '0' * 64}):
+                self.assertEqual(upgrade_scoring(copy)['scoring_version'], 'r8.4')
+                with self.assertRaisesRegex(ValueError, 'patch differs'):
+                    upgrade_scoring(copy, 'r8.5')
 
     def test_an_r8_5_copy_with_a_changed_conformance_module_is_rejected(self):
         with tempfile.TemporaryDirectory() as folder:

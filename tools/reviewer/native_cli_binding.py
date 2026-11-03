@@ -15,13 +15,22 @@ def pinned_codex():
     return verify_native_cli({'executable': str(CODEX), 'version': CODEX_VERSION, 'sha256': CODEX_SHA256})
 
 
+def file_sha256(path, chunk=1 << 20):
+    """SHA-256 of a file read in chunks (the native binary is about a hundred megabytes)."""
+    digest = hashlib.sha256()
+    with open(path, 'rb') as stream:
+        while block := stream.read(chunk):
+            digest.update(block)
+    return digest.hexdigest()
+
+
 def verify_native_cli(binding):
     if binding is None:
         return None
     executable = Path(binding['executable'])
     if not executable.is_absolute() or not executable.is_file():
         raise ValueError('Frozen native CLI must be an existing absolute executable.')
-    digest = hashlib.sha256(executable.read_bytes()).hexdigest()
+    digest = file_sha256(executable)
     if digest != binding['sha256']:
         raise ValueError('Frozen native CLI executable SHA differs.')
     version = subprocess.check_output([str(executable), '--version'], text=True,

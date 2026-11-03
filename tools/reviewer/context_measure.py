@@ -25,6 +25,20 @@ from tools.metrics.context_capacity import (validate_context_pair, COMPACTION_OV
 from tools.ops.measurement_host import MeasurementHost
 
 
+# The model and lease stay loaded while Main inspects the first task; past this the run ends through its normal
+# cleanup (model stopped, lease returned) rather than holding them on.
+DECISION_TIMEOUT_SECONDS=3600
+
+
+def wait_for_decision(path, timeout, sleep=time.sleep, clock=time.monotonic):
+    """Block until Main's decision file exists; raise TimeoutError after `timeout` seconds."""
+    deadline=clock()+timeout
+    while not path.exists():
+        if clock()>=deadline:
+            raise TimeoutError(f'No Main decision at {path.name} within {timeout} seconds; ending the run and returning the lease')
+        sleep(1)
+
+
 def context_start_options(baseline, window, threshold):
     """Keep the frozen effort budgets while deriving the agreed capacity."""
     validate_context_pair(threshold, window)
@@ -62,7 +76,8 @@ def paired_handoffs(preparation, repetition):
     return [by_scene['runtime-migration'],by_scene['artifact-promotion']]
 
 
-def run(installation, out, baseline_path, preparation_path, catalog_path, window, threshold, repetition, new_thread=False):
+def run(installation, out, baseline_path, preparation_path, catalog_path, window, threshold, repetition, new_thread=False,
+        decision_timeout=DECISION_TIMEOUT_SECONDS):
     validate_context_pair(threshold, window)
     out.mkdir(parents=True,exist_ok=False)
     baseline=json.loads(baseline_path.read_text())
@@ -147,7 +162,7 @@ def run(installation, out, baseline_path, preparation_path, catalog_path, window
                             print(json.dumps({'stage':1,'status':'awaiting-main-inspection',
                                 'decision_path':str(decision_path),'complete':record['complete'],
                                 'generation_exit_code':record['generation'].get('exit_code')}),flush=True)
-                            while not decision_path.exists():time.sleep(1)
+                            wait_for_decision(decision_path,decision_timeout)
                             decision=json.loads(decision_path.read_text())
                             save(out/'stage-1-main-decision-consumed.json',decision)
                             if decision['action']=='finish':break
@@ -201,6 +216,7 @@ if __name__=='__main__':
     parser.add_argument('--window',type=int,required=True)
     parser.add_argument('--threshold',type=int,required=True)
     parser.add_argument('--repetition',type=int,default=1)
+    parser.add_argument('--decision-timeout',type=int,default=DECISION_TIMEOUT_SECONDS,help='Seconds to wait for stage-1-main-decision.json before ending the run and returning the lease.')
     parser.add_argument('--new-thread',action='store_true',help='Explicitly approved replacement attempt after archiving the previous report and recovery record.')
     args=parser.parse_args()
-    run(args.installation,args.out.resolve(),args.baseline,args.preparation,args.catalog,args.window,args.threshold,args.repetition,args.new_thread)
+    run(args.installation,args.out.resolve(),args.baseline,args.preparation,args.catalog,args.window,args.threshold,args.repetition,args.new_thread,args.decision_timeout)

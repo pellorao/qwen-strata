@@ -2,7 +2,9 @@ import json
 from pathlib import Path
 import sys
 import tempfile
+import hashlib
 import unittest
+from unittest import mock
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from tools.reviewer.review_observations import observe
@@ -80,6 +82,25 @@ class ObservationsTests(unittest.TestCase):
         self.assertEqual(len(r['tool_failure_candidates']),1)
         self.assertTrue(r['tool_failure_candidates'][0]['permission_denial_candidate'])
         self.assertEqual(r['unknown_tool_outputs'],[])
+
+    def test_legacy_trace_folder_comes_from_deployment_source_not_a_literal_path(self):
+        installation=self.trial/'installation'
+        report=self.trial/'a/b/c/report.md'
+        digest=hashlib.sha256(str(report.parents[2]).encode()).hexdigest()[:12]
+        folder=installation/('.tmp/wsl-profile-measurement-'+digest)/'test-bridge-trace'
+        folder.mkdir(parents=True)
+        (folder/'one-input.json').write_text('{}')
+        (folder/'one-output.json').write_text('{"status":"completed"}')
+        self.result['report']=str(report)
+        del self.result['native']['bridge_requests']
+        with mock.patch('tools.reviewer.review_observations.deployment_source') as source:
+            source.current_host.return_value='h'
+            source.load_host.return_value={'installation_root':'ignored'}
+            source.wsl_path.return_value=str(installation)
+            r=self.run_observe()
+        self.assertEqual(r['api_request_count'],1)
+        self.assertEqual(r['api_failure_count'],0)
+        source.load_host.assert_called_once_with('h')
 
 
 if __name__=='__main__':unittest.main()

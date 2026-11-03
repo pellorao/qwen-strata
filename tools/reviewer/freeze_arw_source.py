@@ -12,6 +12,7 @@ score reports missingChecks / neutralCleanCases. A copy that carries the overlay
 version and refuses an explicit r8.4; no version keeps r8.4, so every v1 path is unchanged.
 """
 import argparse
+import gzip
 import hashlib
 import io
 import json
@@ -47,7 +48,8 @@ def freeze(source, destination):
     hashes = {name: sha(raw) for name, raw in payload.items()}
     destination.mkdir(parents=True, exist_ok=True)
     buffer = io.BytesIO()
-    with tarfile.open(fileobj=buffer, mode='w:gz') as archive:
+    # mtime=0 in the gzip header too, so equal content gives equal bytes and an equal SHA-256
+    with gzip.GzipFile(fileobj=buffer, mode='wb', mtime=0) as compressed, tarfile.open(fileobj=compressed, mode='w') as archive:
         for name, raw in payload.items():
             member = tarfile.TarInfo(name)
             member.size, member.mode, member.mtime = len(raw), modes[name], 0
@@ -266,6 +268,11 @@ MERGED_K_MISSING = ('{} marks merged case {} at k >= 1; the k tier balance does 
                     'cases must stay at the default k 0.25')
 
 
+def tier_key(k):
+    """One name per k value (4, 4.0 and '4' are the same tier), so a refusal or a balance check cannot be bypassed by spelling."""
+    return format(float(k), 'g')
+
+
 def k_balanced(tiers):
     """Each marked tier holds k problem cases per clean case, so reporting everything or nothing scores 0 on it."""
     return bool(tiers) and all(counts['problem'] == float(k) * counts['clean'] for k, counts in tiers.items())
@@ -369,9 +376,9 @@ def judgment_binding(destination):
                     if case.get('judgment') is True or 'k' in case:
                         if 'merge' in case and (case.get('judgment') is True or float(case['k']) >= 1):
                             raise ValueError(MERGED_K_MISSING.format(f'Answer key {digest} of {reviewer}', case['merge']))
-                        tier = marked.setdefault(str(1 if case.get('judgment') is True else case['k']), {'problem': 0, 'clean': 0})
+                        tier = marked.setdefault(tier_key(1 if case.get('judgment') is True else case['k']), {'problem': 0, 'clean': 0})
                         tier[kind] += 1
-        if '4' in marked:
+        if tier_key(4) in marked:
             raise ValueError(DUAL_ADJUDICATION_MISSING.format(f'Answer key {digest} of {reviewer}'))
         if entry['judgment'] == 'in-key':
             if not k_balanced(marked):
@@ -402,7 +409,7 @@ def judgment_binding(destination):
                 raise ValueError(MERGED_K_MISSING.format(f'Judgment overlay {path.name}', merged[key]))
             seen.add(key)
             counts[item['kind']] += 1
-            tiers.setdefault(str(item.get('k', 1)), {'problem': 0, 'clean': 0})[item['kind']] += 1
+            tiers.setdefault(tier_key(item.get('k', 1)), {'problem': 0, 'clean': 0})[item['kind']] += 1
         # Each case counts once per scoring unit (the two Spec Readiness scenarios never score the same case,
         # v4.3), so a balanced unit needs k problem cases per clean case in each tier.
         if not k_balanced(tiers) or overlay.get('counts') != counts:
@@ -441,7 +448,6 @@ def upgrade_scoring(destination, version=None):
         raise ValueError(f'Unknown scoring version: {version}')
     destination = Path(destination)
     overlay = SCORING_OVERLAY
-    overlay_patch = pinned_patch(overlay['file'], overlay['sha256'], V2_PATCHES)
     members = SCORING_UPGRADE['members']
     if all(sha((destination / name).read_bytes()) == new for name, (_, new) in overlay['members'].items()):
         if version == 'r8.4':
@@ -450,13 +456,14 @@ def upgrade_scoring(destination, version=None):
                     if name not in overlay['members'])
                 and git_apply(pinned_patch(SCORING_UPGRADE['file'], SCORING_UPGRADE['sha256']), destination, '--reverse',
                               '--check', '--include=' + SCORING_UPGRADE['patched_member'], check=False)
-                and git_apply(overlay_patch, destination, '--reverse', '--check', check=False)):
+                and git_apply(pinned_patch(overlay['file'], overlay['sha256'], V2_PATCHES), destination, '--reverse', '--check',
+                              check=False)):
             raise ValueError('ARW scoring r8.5 copy is incomplete; re-materialize the copy')
         return {'applied': False, 'migrated_from': None, 'scoring_version': overlay['version'],
                 'judgment': bind_judgment(destination)}
     result = upgrade_k(destination)
     if version == overlay['version']:
-        git_apply(overlay_patch, destination)
+        git_apply(pinned_patch(overlay['file'], overlay['sha256'], V2_PATCHES), destination)
         for name, (_, new) in overlay['members'].items():
             if sha((destination / name).read_bytes()) != new:
                 raise ValueError('ARW scoring r8.5 member differs: ' + name)

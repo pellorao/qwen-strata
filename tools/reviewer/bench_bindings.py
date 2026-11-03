@@ -220,6 +220,8 @@ def main(argv=None):
     mode.add_argument('--write', action='store_true')
     parser.add_argument('--no-roles', action='store_true', help='skip the Role gate (~3 minutes); roles are then not compared')
     args = parser.parse_args(argv)
+    if args.write and args.no_roles:
+        parser.error('--write records the roles section; --no-roles would drop the recorded roles (use --check --no-roles)')
     path = SUITE_DIRS[args.suite] / 'bindings.json'
     data, problems = collect(args.suite, not args.no_roles)
     if args.write:

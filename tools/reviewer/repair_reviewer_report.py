@@ -56,7 +56,9 @@ ARW patch keeps the original's diagnostics.
 import argparse
 import copy
 import hashlib
+import io
 import json
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -368,9 +370,13 @@ def spill_conversion(content, sources, maps, texts, found=None):
 
 
 def staged_texts(root):
-    """Texts of the files in the scenario index (the frozen source)."""
-    git = lambda *args: subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True, text=True).stdout
-    return {path: git('show', ':' + path) for path in git('ls-files').splitlines()}
+    """Texts of the files in the scenario index (the frozen source). Names come NUL-separated (no quoting of non-ASCII
+    names) and contents are read as bytes, decoded with replacement and with universal newlines as before, so a name
+    or file that is not UTF-8 neither raises nor goes missing."""
+    git = lambda *args: subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True).stdout
+    names = [os.fsdecode(name) for name in git('ls-files', '-z').split(b'\0') if name]
+    return {name: io.TextIOWrapper(io.BytesIO(git('show', ':' + name)), encoding='utf-8', errors='replace').read()
+            for name in names}
 
 
 def staged_sources(root, texts=None):

@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.context_measure import paired_handoffs, context_start_options, startup_binding
+from tools.reviewer.context_measure import paired_handoffs, context_start_options, startup_binding, wait_for_decision
 from tools.reviewer.arw_measure import execute_review, review_request_path
 from tools.metrics.context_capacity import context_capacity, validate_context_pair, THRESHOLDS
 from tools.metrics.prompt_policy import verify_loaded_startup
@@ -155,6 +155,26 @@ class ContextMeasurementTests(unittest.TestCase):
                     self.assertIn('Do not perform the task or call tools',compact)
                     self.assertIn('CONTEXT CHECKPOINT COMPACTION',compact)
                     self.assertNotIn('compact_prompt',config)
+
+
+class DecisionWaitTests(unittest.TestCase):
+    def test_returns_when_the_decision_file_appears(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'d.json'
+            ticks=[]
+            def sleep(_):
+                ticks.append(1)
+                if len(ticks)==3:path.write_text('{}')
+            wait_for_decision(path,100,sleep=sleep)
+            self.assertEqual(len(ticks),3)
+
+    def test_gives_up_after_the_timeout_so_the_lease_can_be_returned(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            now=[0.0]
+            def sleep(seconds):now[0]+=seconds
+            with self.assertRaisesRegex(TimeoutError,'No Main decision'):
+                wait_for_decision(Path(tmp)/'d.json',5,sleep=sleep,clock=lambda:now[0])
+            self.assertEqual(now[0],5)
 
 
 if __name__=='__main__':unittest.main()

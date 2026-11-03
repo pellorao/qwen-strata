@@ -66,6 +66,23 @@ class MultiModelV2Tests(unittest.TestCase):
         self.assertEqual([message for ok, message in results if not ok], [])
         self.assertIn('v2: common paragraph identical in all briefs', [message for _, message in results])
 
+    def test_a_left_over_copy_is_reused_only_while_it_matches_what_was_made(self):
+        manifest_path = V2 / 'manifest-code-spec-v5.1.json'
+        work = self.work / 'reuse'
+        work.mkdir()
+        first = check_briefs.materialized(work, manifest_path)
+        self.assertEqual(check_briefs.materialized(work, manifest_path), first)  # unchanged: reused
+        victim = next(p for p in first.rglob('*.mjs') if p.is_file())
+        original = victim.read_bytes()
+        victim.write_bytes(original + b'\n// edited\n')
+        with self.assertRaisesRegex(ValueError, 'remove it so it is materialized again'):
+            check_briefs.materialized(work, manifest_path)
+        victim.write_bytes(original)
+        self.assertEqual(check_briefs.materialized(work, manifest_path), first)
+        (first / check_briefs.MARKER).unlink()  # a copy of unknown origin
+        with self.assertRaisesRegex(ValueError, 'remove it so it is materialized again'):
+            check_briefs.materialized(work, manifest_path)
+
 
 if __name__ == '__main__':
     unittest.main()

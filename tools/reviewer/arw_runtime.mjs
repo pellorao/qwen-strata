@@ -16,7 +16,6 @@ if(operation==='daemon') {
  mkdirSync(info.installationDirectory,{recursive:true,mode:0o700});
  const {createBackgroundAgentHost}=await upstream('arw-background-agent-host.mjs');
  const {createBackgroundAgentDaemon}=await upstream('background-agent/daemon.mjs');
- const {backgroundAgentRuntimeDirectory}=clientModule;
  const {sessions:nativeSessions,modelCatalog}=await createIsolatedNativeSessions(info);
  const host=await createBackgroundAgentHost({installationDirectory:info.installationDirectory,
   programDirectory:info.programDirectory??info.repositoryRoot,nativeSessions,modelCatalog});

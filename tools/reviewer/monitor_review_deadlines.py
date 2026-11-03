@@ -23,8 +23,8 @@ def monitor(batch, folder):
                     'batch': str(batch), 'transport': 'original ARW machine API'})
     try:
         while True:
-            schedule = json.loads((batch / 'schedule.json').read_text())
-            try:
+            try:  # a file read while it is being written is retried, not a failure
+                schedule = json.loads((batch / 'schedule.json').read_text())
                 records = json.loads((batch / 'results.json').read_text())
             except (FileNotFoundError, json.JSONDecodeError):
                 time.sleep(1)
@@ -42,7 +42,9 @@ def monitor(batch, folder):
                     record = json.loads((instance / 'result.json').read_text())
                 except (FileNotFoundError, json.JSONDecodeError):
                     continue
-                accepted = record['accepted']
+                accepted = record.get('accepted')
+                if not isinstance(accepted, dict) or 'messageId' not in accepted or 'runId' not in accepted:
+                    raise ValueError(f"{job['instanceId']}: result.json holds no accepted run (messageId, runId); cannot attach a deadline")
                 identity = accepted['messageId']
                 if identity not in timers:
                     phase = 'revision' if record.get('revisions') else 'initial'

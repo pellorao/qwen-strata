@@ -484,6 +484,117 @@ class ContinuationTest(unittest.TestCase):
         self.assertEqual(cs.pause_summary(records), {'arw_pause_events': [{'early_exit_count': 10, 'handoff': 0}],
                                                      'continue_count': 1, 'early_exit_count': 12})
 
+    def run_recorded(self, **patches):
+        from unittest import mock
+        def segments(out, prompt_text, argv, env, work, limit, started_file, report, deadline=None):
+            (out / 'stream.jsonl').write_text(json.dumps({'type': 'result', 'is_error': False, 'result': READY}) + '\n')
+            return {'exit': 0, 'hard_interrupt': False}
+        prompt = self.base / 'p.md'
+        prompt.write_text('h\n')
+        with mock.patch.object(ch, 'run_segments', segments), \
+                mock.patch.object(ch, 'config_root', lambda backend, work: self.base / 'cfg'):
+            return ch.run(self.base / 'run', prompt, 'anthropic', 'm', 'high', 'x', startup=False, base=self.base / 'runs',
+                          claude=sys.executable, **patches)
+
+    def test_result_is_saved_before_accounting_and_an_absent_script_is_recorded(self):
+        from unittest import mock
+        seen = {}
+
+        def account(stream, label, effort, out, estimate=None):
+            seen['saved_first'] = (out / 'result.json').exists()
+            return {'estimate_exit': 0, 'estimate_note': None}
+        with mock.patch.object(ch, 'account', account):
+            self.run_recorded()
+        self.assertTrue(seen['saved_first'])
+        missing = self.base / 'no-such-estimate.sh'
+        self.assertEqual(ch.account(self.base / 's.jsonl', 'x', 'high', self.base, estimate=missing)['estimate_exit'], None)
+        self.assertIn('absent', ch.account(self.base / 's.jsonl', 'x', 'high', self.base, estimate=missing)['estimate_note'])
+
+    def test_failing_accounting_never_loses_the_result(self):
+        from unittest import mock
+        with mock.patch.object(ch, 'account', side_effect=OSError('boom')):
+            result = self.run_recorded()
+        saved = json.loads((self.base / 'run/result.json').read_text())
+        self.assertIsNone(saved['estimate_exit'])
+        self.assertIn('boom', saved['estimate_note'])
+        self.assertEqual(saved['exit'], result['exit'])
+
+    def test_account_records_a_script_that_cannot_start(self):
+        script = self.base / 'estimate.sh'
+        script.write_text('#!/nonexistent/interpreter\n')
+        script.chmod(0o755)
+        done = ch.account(self.base / 's.jsonl', 'x', 'high', self.base, estimate=script)
+        self.assertIsNone(done['estimate_exit'])
+        self.assertTrue(done['estimate_note'].startswith('failed:'))
+        ok = self.base / 'ok.sh'
+        ok.write_text('#!/bin/sh\necho added\nexit 3\n')
+        ok.chmod(0o755)
+        self.assertEqual(ch.account(self.base / 's.jsonl', 'x', 'high', self.base, estimate=ok), {'estimate_exit': 3, 'estimate_note': None})
+
+
+class StrataRunCleanupTest(unittest.TestCase):
+    """strata_run's finally: the service log is saved first and a cleanup failure never masks the run's exception."""
+    def setUp(self):
+        self.base = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.base, True)
+        self.out = self.base / 'out'
+        self.out.mkdir()
+        self.work = self.base / 'case/work'
+        self.work.mkdir(parents=True)
+
+    def call(self, run_error, stop_error):
+        from contextlib import contextmanager
+        from unittest import mock
+        host = mock.MagicMock()
+        host.installation = self.base
+        host.log_bytes_since.return_value = b'service text'
+        host.metadata.return_value = {}
+        host.installed_release.return_value = {}
+        owner = mock.MagicMock()
+        owner.start.return_value = ({'native_health': {}}, 1.0)
+
+        @contextmanager
+        def controller(folder):
+            yield owner
+        host.controller = controller
+
+        def stop(*args):
+            if stop_error:
+                raise stop_error
+            return {'status': 'stopped'}, [], {}
+
+        def segments(*args, **kwargs):
+            if run_error:
+                raise run_error
+            return {'exit': 0}
+        with mock.patch('tools.ops.measurement_host.MeasurementHost', return_value=host), \
+                mock.patch('tools.ops.deployment_source.served_model', return_value='IQ3_XXS'), \
+                mock.patch('tools.ops.deployment_source.published_tier', return_value={'context_window': 1, 'auto_compact_token_limit': 1}), \
+                mock.patch('tools.reviewer.arw_measure.log_offset', return_value=0), \
+                mock.patch('tools.reviewer.arw_measure.stop_and_capture_engine_log', stop), \
+                mock.patch.object(ch, 'strata_environment', return_value={}), \
+                mock.patch.object(ch, 'environment', return_value={}), \
+                mock.patch.object(ch, 'run_tmp', return_value=self.base / 'tmp'), \
+                mock.patch.object(ch, 'run_segments', segments):
+            return ch.strata_run(self.out, 'p', [], 'qwen3.8-flash-next-iq3_xxs', 'high', self.work, 60, None, {}, False,
+                                 'h')
+
+    def test_run_exception_survives_a_failing_stop_and_the_log_is_kept(self):
+        with self.assertRaisesRegex(RuntimeError, 'run failed'):
+            self.call(RuntimeError('run failed'), OSError('stop failed'))
+        self.assertEqual((self.out / 'service-log.txt').read_text(), 'service text')
+        self.assertIn('stop failed', (self.out / 'cleanup-errors.txt').read_text())
+
+    def test_failing_stop_after_a_good_run_still_raises(self):
+        with self.assertRaisesRegex(OSError, 'stop failed'):
+            self.call(None, OSError('stop failed'))
+        self.assertEqual((self.out / 'service-log.txt').read_text(), 'service text')
+
+    def test_clean_run_returns_the_engine_record(self):
+        result = self.call(None, None)
+        self.assertEqual(result['engine_requests'], [])
+        self.assertFalse((self.out / 'cleanup-errors.txt').exists())
+
 
 if __name__ == '__main__':
     unittest.main()

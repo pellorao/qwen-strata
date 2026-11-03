@@ -763,14 +763,14 @@ def deepseek_reconciliation(records, data_root=None):
     return bench_validity.deepseek_batch_reconciliation(root, costs)
 
 
-def load_records(records_path=None, data_root=None):
+def load_records(records_path=None, data_root=None, suite='v1'):
     """Records from one JSON Lines file or a list of them (phase 3: the phase-2 records plus the supplement), or built
     from the run directories."""
     if records_path:
         paths = [records_path] if isinstance(records_path, (str, Path)) else list(records_path)
         return [json.loads(line) for p in paths for line in Path(p).read_text().splitlines() if line.strip()]
     from tools.reviewer import bench_records
-    return bench_records.all_records(data_root=data_root)
+    return bench_records.all_records(data_root=data_root, suite=suite)
 
 
 def generator(phase):
@@ -782,7 +782,7 @@ def generator(phase):
 def write(out, records_path=None, data_root=None, score_root=None, phase=1, reconciliation_from=None, suite='v1'):
     """reconciliation_from: a published summary.json whose deepseek_reconciliation is kept when the DeepSeek
     schedule.jsonl it was computed from is gone (the phase-2 and phase-3 summaries read records.jsonl)."""
-    records = load_records(records_path, data_root)
+    records = load_records(records_path, data_root, suite)
     attach_scores(records, score_root)
     summary = summarize(records, phase, suite)
     summary['deepseek_reconciliation'] = deepseek_reconciliation(records, data_root)

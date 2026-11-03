@@ -259,12 +259,24 @@ def pause_summary(records):
             'early_exit_count': sum((r.get('continuation') or {}).get('early_exit_count') or 0 for r in records)}
 
 
+def backend_efforts(backend):
+    """Efforts the backend takes: Anthropic's three, the frontend's list for Strata, the DeepSeek arm's list."""
+    if backend == 'strata':
+        from tools.ops.model_catalog import EFFORTS
+        return EFFORTS
+    if backend == 'deepseek':
+        from tools.reviewer.bench_records import DEEPSEEK_EFFORTS
+        return DEEPSEEK_EFFORTS
+    return ('low', 'medium', 'high')
+
+
 def arguments(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--plan', type=Path, required=True, help='Scenario plan (arw-dimension-v1) naming the frozen manifest and note.')
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--model', required=True, help='Concrete model ID (plan §2: aliases resolved before the run).')
-    parser.add_argument('--effort', choices=('low', 'medium', 'high'), required=True)
+    parser.add_argument('--effort', required=True, help='Efforts the backend offers: anthropic low/medium/high; strata the frontend\'s '
+                        '(tools.ops.model_catalog.EFFORTS); deepseek bench_records.DEEPSEEK_EFFORTS.')
     parser.add_argument('--label', required=True)
     parser.add_argument('--claude', default=ch.CLAUDE,
                         help=f'The pinned Claude Code benchmark copy ({ch.CLAUDE_VERSION}; tools.reviewer.harness_pins).')
@@ -284,6 +296,9 @@ def arguments(argv=None):
     args = parser.parse_args(argv)
     if args.backend == 'strata' and not args.host:
         parser.error('--backend strata needs --host')
+    if args.effort not in backend_efforts(args.backend):
+        parser.error(f'--effort {args.effort} is not offered by the {args.backend} backend (choose from '
+                     f'{", ".join(backend_efforts(args.backend))})')
     return args
 
 

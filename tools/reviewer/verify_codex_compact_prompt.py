@@ -18,7 +18,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[2]
 from tools.metrics.prompt_policy import NATIVE_COMPACT_VERSION
-from tools.ops.deployment_source import current_host, published_tier
+from tools.ops.deployment_source import MODELS, current_host, published_tier, served_model
 from tools.reviewer.native_cli_binding import CODEX
 from tools.safety.scripted_responses import scripted_stream
 
@@ -213,12 +213,18 @@ def run(folder, model='IQ3_XXS', host=None):
     return result
 
 
-if __name__ == '__main__':
+def arguments(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
-    parser.add_argument('--model', choices=('Q2_0', 'IQ2_XS', 'IQ3_XXS'), default='IQ3_XXS')
+    parser.add_argument('--model', choices=MODELS, help='quantization (default: the one the host serves, from its deployment config)')
     parser.add_argument('--host', help='host whose default context tier the mock session uses (default: this machine)')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    args.model = args.model or served_model(args.host or current_host())
+    return args
+
+
+if __name__ == '__main__':
+    args = arguments()
     result = run(args.out, args.model, args.host)
     print(json.dumps(result, ensure_ascii=False))
     raise SystemExit(0 if result['status'] == 'passed' else 1)

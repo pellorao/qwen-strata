@@ -4,6 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+from tools.ops import deployment_source
 from tools.reviewer.wsl_client import save
 
 
@@ -16,7 +17,7 @@ def bridge_requests(result):
     if 'bridge_requests' in native:return native['bridge_requests']
     # Earlier trials retain complete trace files even though their helper did not
     # return the index. Read those files; never rewrite their result.json.
-    installation=Path('/mnt/c/Users/Pello/AppData/Local/Programs/qwen-3.8-flash-next')
+    installation=Path(deployment_source.wsl_path(deployment_source.load_host(deployment_source.current_host())['installation_root']))
     digest=hashlib.sha256(str(Path(result['report']).parents[2]).encode()).hexdigest()[:12]
     folder=installation/('.tmp/wsl-profile-measurement-'+digest)/(result['label']+'-bridge-trace')
     if not folder.is_dir():return None

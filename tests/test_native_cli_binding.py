@@ -7,12 +7,18 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.reviewer.native_cli_binding import (CODEX, CODEX_SHA256, CODEX_VERSION, selection_native_cli,
-                                               verify_native_cli)
+                                               file_sha256, verify_native_cli)
 
 
 class NativeCliBindingTests(unittest.TestCase):
     def test_no_binding_keeps_existing_entrypoint(self):
         self.assertIsNone(verify_native_cli(None))
+
+    def test_chunked_hash_equals_the_whole_file_hash(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'codex'
+            path.write_bytes(b'0123456789' * 5)
+            self.assertEqual(file_sha256(path, chunk=7), hashlib.sha256(path.read_bytes()).hexdigest())
 
     def test_digest_drift_rejected_before_execution(self):
         with tempfile.TemporaryDirectory() as folder:

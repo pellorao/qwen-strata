@@ -70,7 +70,7 @@ def path_reasons(text, workdir, root, allow, env_assigned=()):
         if not os.path.exists('/' + p.split('/')[1]):
             continue
         if not (inside(p, root) or any(inside(p, a) for a in allow)
-                or p.startswith(SYSTEM_PATHS)):
+                or (os.path.normpath(p) + '/').startswith(SYSTEM_PATHS)):
             reasons.append(f'outside root: {p}')
     # a merged Spec Readiness thread moves to a second scenario root, passed with --allow
     home = next((r for r in (root, *allow) if inside(workdir, r)), root)
@@ -459,6 +459,15 @@ def redact(text):
     return text
 
 
+def redact_all(value):
+    """redact() over every string inside a JSON value (keys stay as they are)."""
+    if isinstance(value, dict):
+        return {k: redact_all(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [redact_all(v) for v in value]
+    return redact(value)
+
+
 def one_line(s, n=LINE_CHARS):
     s = ' '.join(s.split())
     return s if len(s) <= n else s[:n] + f' …(+{len(s) - n})'
@@ -501,7 +510,7 @@ def render(r, out):
     summary = {k: v for k, v in r.items() if k not in ('actions', 'messages')}
     summary['flagged_actions'] = [a['n'] for a in r['actions'] if a['reasons']]
     summary['flagged_messages'] = [m['event'] for m in r['messages'] if m['flag']]
-    (out / 'summary.json').write_text(json.dumps(summary, indent=2, ensure_ascii=False) + '\n')
+    (out / 'summary.json').write_text(json.dumps(redact_all(summary), indent=2, ensure_ascii=False) + '\n')
     return summary
 
 

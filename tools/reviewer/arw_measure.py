@@ -1,5 +1,6 @@
 """Run unchanged ARW handoffs through unchanged ARW Reviewer runtime APIs."""
 import argparse
+from contextlib import contextmanager
 import hashlib
 import json
 import os
@@ -578,6 +579,20 @@ def read_daemon_message(stream,process,timeout=60):
     raise RuntimeError('Original ARW daemon response is uncertain')
 
 
+@contextmanager
+def cleanup_step(failures,name):
+    """One cleanup step on its own: a failure is recorded and the steps after it still run."""
+    try:yield
+    except Exception as error:failures.append(name+': '+repr(error))
+
+
+def report_cleanup_failures(failures,out):
+    """Record failed cleanup steps; raise them only when no other exception is already propagating."""
+    if not failures:return
+    save(Path(out)/'cleanup-errors.json',failures)
+    if sys.exc_info()[1] is None:raise RuntimeError('Cleanup steps failed: '+'; '.join(failures))
+
+
 def commit_audit_generated(generation):
     """Upstream success is {files}; failed generation has status='failed'."""
     result=generation.get('result')
@@ -817,21 +832,31 @@ def run_api(out,selection,preparation_paths,catalog,schedule=None,limit=None,cod
             record['service_tier_returned']=relay.summary(record['started_at'],time.time()) if relay else None
             save(folder/'result.json',record);records.append(record);save(out/'results.json',records)
     finally:
-        if machine:machine.close()
-        if safe:
-            daemon.stdin.close()
-            value=read_daemon_message(daemon_reader,daemon)
-            if value:save(cleanup_path,value)
-            if value and value.get('cleanup',{}).get('status')=='ready':daemon.wait(timeout=30)
-            else:safe=False
-        daemon_log.close();daemon_output.close();daemon_reader.close()
+        failures=[]
+        with cleanup_step(failures,'machine close'):
+            if machine:machine.close()
+        # Unsafe until the daemon's cleanup is confirmed, so a failed read below still leaves the recovery marker.
+        was_safe,safe=safe,False
+        if was_safe:
+            with cleanup_step(failures,'daemon cleanup'):
+                daemon.stdin.close()
+                value=read_daemon_message(daemon_reader,daemon)
+                if value:save(cleanup_path,value)
+                if value and value.get('cleanup',{}).get('status')=='ready':
+                    daemon.wait(timeout=30);safe=True
+        for name,stream in (('daemon log',daemon_log),('daemon output',daemon_output),('daemon reader',daemon_reader)):
+            with cleanup_step(failures,name):stream.close()
         os.environ['PATH']=old_path;os.environ.pop('QWEN_ARW_RUNTIME_FILE',None);os.environ.pop('QWEN_API_RELAY_BASE',None)
-        if relay:relay.close()
-        if safe and not shared_home:save(out/'login-release.json',{'status':release_login(provider,codex_home)})
+        if relay:
+            with cleanup_step(failures,'relay close'):relay.close()
+        if safe and not shared_home:
+            with cleanup_step(failures,'login release'):save(out/'login-release.json',{'status':release_login(provider,codex_home)})
         if not safe:
-            save(out/'recovery-required.json',{'reason':'Reviewer completion or native cleanup is uncertain; preserve the ARW runtime.',
-                'runtime':str(runtime),'model_owner':'api','daemon_pid':daemon.pid})
+            with cleanup_step(failures,'recovery marker'):
+                save(out/'recovery-required.json',{'reason':'Reviewer completion or native cleanup is uncertain; preserve the ARW runtime.',
+                    'runtime':str(runtime),'model_owner':'api','daemon_pid':daemon.pid})
             print('Reviewer state requires recovery; the ARW runtime has been preserved.',flush=True)
+        report_cleanup_failures(failures,out)
     return records
 
 
@@ -1075,24 +1100,31 @@ def run(installation,out,selection,preparation_paths,catalog,profile=None,schedu
                     record['stop']=stopped;save(folder/'result.json',record);records.append(record)
                     save(out/'results.json',records)
         finally:
-            if machine:machine.close()
-            if safe_to_release:
-                safe_to_release=False
-                daemon.stdin.close()
-                value=read_daemon_message(daemon_reader,daemon)
-                if value:
-                    cleanup=value;save(cleanup_path,cleanup)
-                    safe_to_release=cleanup.get('cleanup',{}).get('status')=='ready'
-                if safe_to_release:daemon.wait(timeout=30)
-            daemon_log.close();daemon_output.close();daemon_reader.close()
+            failures=[]
+            with cleanup_step(failures,'machine close'):
+                if machine:machine.close()
+            with cleanup_step(failures,'daemon cleanup'):
+                if safe_to_release:
+                    safe_to_release=False  # until the daemon's cleanup is confirmed
+                    daemon.stdin.close()
+                    value=read_daemon_message(daemon_reader,daemon)
+                    if value:
+                        cleanup=value;save(cleanup_path,cleanup)
+                        safe_to_release=cleanup.get('cleanup',{}).get('status')=='ready'
+                    if safe_to_release:daemon.wait(timeout=30)
+            for name,stream in (('daemon log',daemon_log),('daemon output',daemon_output),('daemon reader',daemon_reader)):
+                with cleanup_step(failures,name):stream.close()
             if open_segment and safe_to_release:
                 # ARW released its lease at closure; the last instance's segment ends at the log's end now.
-                close_arw_segment(open_segment,measurement_host,selection['model'],
-                                  log_offset(installation,selection['model'],measurement_host),telemetry)
-                save(out/'results.json',records);telemetry=None
-            if http_archive:http_archive.close()
+                with cleanup_step(failures,'segment close'):
+                    close_arw_segment(open_segment,measurement_host,selection['model'],
+                                      log_offset(installation,selection['model'],measurement_host),telemetry)
+                    save(out/'results.json',records);telemetry=None
+            if http_archive:
+                with cleanup_step(failures,'http archive close'):http_archive.close()
             os.environ['PATH']=old_path
             for key in ('STRATA_API_KEY','QWEN_ARW_MODEL_BASE','QWEN_ARW_RUNTIME_FILE'):os.environ.pop(key,None)
+            report_cleanup_failures(failures,out)
     finally:
         if telemetry:  # an instance that never reached its segment close must not leave the sampler running
             try:save(telemetry[1]/'unclosed-segment.json',finish_arw_telemetry(measurement_host,telemetry))

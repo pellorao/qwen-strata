@@ -599,7 +599,8 @@ class ScoringUpgradeTests(unittest.TestCase):
                                                    ((0, 0), 'in-key', 'per clean case', {'judgment': True}),
                                                    ((1, 1), 'in-key', None, {'judgment': True}),
                                                    ((1, 1), 'in-key', 'dual adjudication', {'k': 4}),
-                                                   ((4, 1), 'in-key', 'dual adjudication', {'k': 4})):
+                                                   ((4, 1), 'in-key', 'dual adjudication', {'k': 4}),
+                                                   ((1, 1), 'in-key', 'dual adjudication', {'k': 4.0})):
                 with self.subTest(marks=marks, judgment=judgment, mark=mark), tempfile.TemporaryDirectory() as directory:
                     marked = json.loads(original)
                     for kind, count in zip(('problem', 'clean'), marks):

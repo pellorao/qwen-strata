@@ -299,6 +299,21 @@ SPEC_TEXT = ('# Spec\n\n## Requirements\n\n- Stop ordering uses descending prior
              '- Schedule offsets pass through without coercion.\n')
 
 
+class StagedTextsTest(unittest.TestCase):
+    def test_non_ascii_names_and_non_utf8_content_are_read(self):
+        from tools.reviewer.repair_reviewer_report import staged_texts
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            (repo / 'docs').mkdir()
+            (repo / 'docs/caf\u00e9.md').write_text('one\ntwo\n')
+            (repo / 'raw.txt').write_bytes(b'a\xff\r\nb\n')
+            for args in (['init', '-q'], ['add', '-A']):
+                subprocess.run(['git', *args], cwd=repo, check=True, capture_output=True)
+            texts = staged_texts(repo)
+        self.assertEqual(texts['docs/caf\u00e9.md'], 'one\ntwo\n')
+        self.assertEqual(texts['raw.txt'], 'a\ufffd\nb\n')
+
+
 class Gate2RequirementLineTest(unittest.TestCase):
     """Gate-2 rows (spec lines are free) move like gate-1 rows, against every line of the spec (user 2026-10-22)."""
 

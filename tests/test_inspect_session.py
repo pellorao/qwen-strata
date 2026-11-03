@@ -97,6 +97,22 @@ class InspectSessionTest(unittest.TestCase):
                      'STRATA_REMOTE_PASSWORD=pw-123456789'):
             self.assertNotIn('-123456789', redact(text))
 
+    def test_system_path_prefix_is_checked_after_normalisation(self):
+        r = self.run_session('ls /usr/bin/', 'cat /usr/bin/../../etc/hostname')
+        self.assertEqual(r['actions'][0]['reasons'], [])
+        self.assertIn('outside root', ' '.join(r['actions'][1]['reasons']))
+
+    def test_summary_json_is_redacted_like_the_other_files(self):
+        from tools.reviewer.inspect_session import render
+        r = self.run_session('ls')
+        r['final'] = 'key sk-' + 'a' * 24
+        out = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, out, True)
+        render(r, out)
+        text = (out / 'summary.json').read_text()
+        self.assertNotIn('sk-' + 'a' * 24, text)
+        self.assertEqual(json.loads(text)['final'], 'key <redacted>')
+
     def test_second_scenario_root_is_allowed(self):
         second = '/home/u/run/ap/1'
         events = [{'type': 'session_meta', 'payload': {'id': 't', 'cwd': ROOT, 'base_instructions': 'x'}},

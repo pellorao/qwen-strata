@@ -1178,11 +1178,19 @@ def remove_run_tmp(work):
 
 
 def account(stream, label, effort, out, estimate=ESTIMATE):
-    """Add this run to the quota ledger; the script itself ignores models that are not Anthropic's."""
-    done = subprocess.run([str(estimate), '--add-stream', str(stream), label, '--effort', effort],
-                          capture_output=True, text=True)
-    (out / 'add-stream.out').write_text(done.stdout + done.stderr)
-    return done.returncode
+    """Add this run to the owner's optional quota ledger script (the script itself ignores models that are not
+    Anthropic's). Never raises: the result says what happened, `estimate_exit` the script's exit code (None when it
+    did not run) and `estimate_note` why it did not run or how it failed."""
+    estimate = Path(estimate)
+    if not estimate.is_file():
+        return {'estimate_exit': None, 'estimate_note': 'skipped: the accounting script is absent on this machine'}
+    try:
+        done = subprocess.run([str(estimate), '--add-stream', str(stream), label, '--effort', effort],
+                              capture_output=True, text=True)
+        (out / 'add-stream.out').write_text(done.stdout + done.stderr)
+    except OSError as error:
+        return {'estimate_exit': None, 'estimate_note': f'failed: {error}'}
+    return {'estimate_exit': done.returncode, 'estimate_note': None}
 
 
 def binary(claude=CLAUDE):
@@ -1269,9 +1277,13 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
             shutil.copytree(target, out / 'outputs' / name, dirs_exist_ok=True)
     result['session_files'] = keep_session_files(work, config_root(backend, work), out)
     result['run_tmp_removed'] = remove_run_tmp(work)  # after the copies above; the stream holds every tool result
+    save(out / 'result.json', result)  # the record first: accounting is optional and must never lose it
     if record:  # the last result carries the session's cumulative cost under the one session id
-        result['estimate_exit'] = account(accounting_stream(streams), label, effort, out)
-    save(out / 'result.json', result)
+        try:
+            result.update(account(accounting_stream(streams), label, effort, out))
+        except Exception as error:  # noqa: BLE001 - recorded, the run result stands
+            result.update(estimate_exit=None, estimate_note=f'failed: {error!r}')
+        save(out / 'result.json', result)
     return result
 
 
@@ -1324,11 +1336,24 @@ def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file,
             else:
                 result = run_segments(out, prompt_text, argv, env, work, limit, started_file, report, deadline)
         finally:
-            stopped, stages, tokens = stop_and_capture_engine_log(owner, measurement_host.installation, quantization,
-                                                                  offset, out, measurement_host)
-            save(out / 'engine-stop.json', stopped)
-            service = measurement_host.log_bytes_since(None, service_offset).decode(errors='replace')
-            (out / 'service-log.txt').write_text(service)
+            # The service log first, then the engine stop, each on its own; with the run's own exception in flight a
+            # cleanup failure is written to cleanup-errors.txt instead of replacing it.
+            failures, service = [], ''
+            try:
+                service = measurement_host.log_bytes_since(None, service_offset).decode(errors='replace')
+                (out / 'service-log.txt').write_text(service)
+            except Exception as error:  # noqa: BLE001
+                failures.append(('service log', error))
+            try:
+                stopped, stages, tokens = stop_and_capture_engine_log(owner, measurement_host.installation, quantization,
+                                                                      offset, out, measurement_host)
+                save(out / 'engine-stop.json', stopped)
+            except Exception as error:  # noqa: BLE001
+                failures.append(('engine stop', error))
+            if failures:
+                if sys.exc_info()[1] is None:
+                    raise failures[0][1]
+                (out / 'cleanup-errors.txt').write_text(''.join(f'{step}: {error!r}\n' for step, error in failures))
     result.update(engine_requests=stages, engine_tokens=tokens, output_limits=output_limits(service),
                   token_consumption_source='engine log segment of this run (API usage in the stream is diagnostic only)')
     return result

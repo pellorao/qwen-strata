@@ -68,6 +68,11 @@ class CodeTest(unittest.TestCase):
         self.assertEqual(len(lines), 1)
         self.assertTrue(lines[0].startswith('code a.py:'), lines)
 
+    def test_write_without_roles_is_rejected_before_anything_is_computed(self):
+        with mock.patch.object(bench_bindings, 'collect') as collect, self.assertRaises(SystemExit):
+            bench_bindings.main(['--suite', 'v2', '--write', '--no-roles'])
+        collect.assert_not_called()
+
 
 class BaselineTest(unittest.TestCase):
     def test_inherited_entry_is_verified_against_the_archive_it_inherits_from(self):

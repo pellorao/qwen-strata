@@ -49,11 +49,34 @@ V2_SR_WORDING = {('promotion-recovery.md', 65): '不由 promote 的 caller 自�
 V2_ROLE_QUOTE = re.compile(r'`(docs/agents/roles/[^`]+)`:(\d+) 原文((?:"[^"]+"、?)+)')
 
 
+MARKER = '.materialized.json'
+
+
+def tree_sha256(target):
+    """One digest over every file of a copy (name and SHA-256), the marker excluded."""
+    entries = sorted((p.relative_to(target).as_posix(), hashlib.sha256(p.read_bytes()).hexdigest())
+                     for p in target.rglob('*') if p.is_file() and p.name != MARKER)
+    return hashlib.sha256(json.dumps(entries).encode()).hexdigest()
+
+
 def materialized(work, manifest):
+    """The copy of a manifest in `work`: made when absent, with a marker naming the manifest and the copy's digest. A copy
+    left there earlier is reused only while both still match (an old or edited one would make every brief check run
+    against the wrong source)."""
     target = Path(work) / ('arw-' + manifest.stem.removeprefix('manifest-'))
+    manifest_sha = hashlib.sha256(Path(manifest).read_bytes()).hexdigest()
     if not target.exists():
         subprocess.run([sys.executable, '-m', 'tools.reviewer.freeze_arw_source', '--manifest', str(manifest),
                         '--out', str(target)], cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
+        (target / MARKER).write_text(json.dumps({'manifest_sha256': manifest_sha, 'tree_sha256': tree_sha256(target)}))
+        return target
+    try:
+        marker = json.loads((target / MARKER).read_text())
+    except (FileNotFoundError, ValueError):
+        marker = None
+    if marker is None or marker.get('manifest_sha256') != manifest_sha or marker.get('tree_sha256') != tree_sha256(target):
+        raise ValueError(f'{target} is not the copy of {Path(manifest).name} that was made here (no marker, another manifest, '
+                         'or edited files); remove it so it is materialized again')
     return target
 
 
