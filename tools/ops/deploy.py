@@ -6,6 +6,7 @@ stopped through its own lease and restarted by its Windows scheduled task.
 import argparse
 from contextlib import contextmanager
 from datetime import datetime
+import errno
 import hashlib
 import json
 import os
@@ -74,6 +75,15 @@ def local_path(windows):
     return Path(subprocess.check_output(['wslpath', '-u', windows], text=True).strip())
 
 
+NO_LISTENER = (errno.ENETUNREACH, errno.EHOSTUNREACH, errno.ENETDOWN, errno.EHOSTDOWN)
+
+
+def no_listener(error):
+    """Refused, timed out or unreachable: nothing answered. Other failures (a reset, a half reply) leave it open."""
+    reason = getattr(error, 'reason', error)
+    return isinstance(reason, (ConnectionRefusedError, TimeoutError)) or getattr(reason, 'errno', None) in NO_LISTENER
+
+
 class Frontend:
     def __init__(self, base):
         self.base, self.key = base.rstrip('/'), None
@@ -88,11 +98,16 @@ class Frontend:
             return json.load(reply)
 
     def reachable(self):
+        """False only when nothing answers the connection; any HTTP status or reply means the frontend is running."""
         try:
             self.call('/health', timeout=5)
-            return True
-        except OSError:
-            return False
+        except urllib.error.HTTPError:
+            pass  # an error status is still an answer: a lease holder may be working behind it
+        except ValueError:
+            pass  # answered, but not with JSON
+        except OSError as error:
+            return not no_listener(error)
+        return True
 
     def wait(self, up, timeout=60):
         deadline = time.monotonic() + timeout

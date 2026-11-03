@@ -5,9 +5,86 @@ import sys
 import tempfile
 import tomllib
 import unittest
+import urllib.error
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from tools.ops import deploy
 from tools.ops.deploy import deployment_files, obsolete_files, private_bytes
+
+
+class Reply:
+    def __init__(self, body):
+        self.body = body
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+    def read(self, *args):
+        return json.dumps(self.body).encode()
+
+
+def http_error(code):
+    return urllib.error.HTTPError('http://x/', code, 'err', {}, None)
+
+
+def refused():
+    return urllib.error.URLError(ConnectionRefusedError(111, 'refused'))
+
+
+class FrontendScript:
+    """A scripted frontend: per path a list of replies (a reply that is an exception is raised); the last one repeats."""
+
+    def __init__(self, script):
+        self.script, self.calls = {path: list(replies) for path, replies in script.items()}, []
+
+    def open(self, request, timeout):
+        path = request.full_url.removeprefix('http://frontend')
+        self.calls.append(path)
+        replies = self.script[path]
+        reply = replies.pop(0) if len(replies) > 1 else replies[0]
+        if isinstance(reply, BaseException):
+            raise reply
+        return Reply(reply)
+
+
+class FrontendTests(unittest.TestCase):
+    def frontend(self, script):
+        frontend = deploy.Frontend('http://frontend')
+        frontend.opener = FrontendScript(script)
+        return frontend
+
+    def test_only_connection_failures_mean_not_reachable(self):
+        for error, expected in ((http_error(503), True), (http_error(401), True), (ConnectionResetError(), True),
+                                (ValueError(), True), (refused(), False), (TimeoutError(), False),
+                                (urllib.error.URLError(TimeoutError()), False),
+                                (urllib.error.URLError(OSError(101, 'unreachable')), False)):
+            self.assertEqual(self.frontend({'/health': [error]}).reachable(), expected, msg=repr(error))
+        self.assertTrue(self.frontend({'/health': [{'ok': True}]}).reachable())
+
+    def test_health_error_status_still_takes_the_lease_path_and_a_held_lease_aborts(self):
+        frontend = self.frontend({'/health': [http_error(503)], '/lease/acquire': [http_error(409)]})
+        with patch.object(deploy, 'Frontend', lambda base: frontend), patch.object(deploy.subprocess, 'run') as run:
+            with self.assertRaisesRegex(RuntimeError, 'lease is held'):
+                with deploy.maintenance('http://frontend'):
+                    self.fail('files must not change while the lease is held by someone else')
+        self.assertEqual(frontend.opener.calls, ['/health', '/lease/acquire'])
+        run.assert_not_called()
+
+    def test_health_error_status_with_a_free_lease_stops_through_the_lease(self):
+        frontend = self.frontend({'/health': [http_error(503), http_error(503), refused(), {'ok': True}],
+                                  '/lease/acquire': [{'key': 'k'}], '/model/status': [{'status': 'stopped'}],
+                                  '/admin/shutdown': [{}]})
+        with patch.object(deploy, 'Frontend', lambda base: frontend), patch.object(deploy.time, 'sleep'), \
+                patch.object(deploy.subprocess, 'run') as run:
+            run.return_value.returncode = 0
+            with deploy.maintenance('http://frontend'):
+                pass
+        self.assertEqual(frontend.opener.calls[1:5], ['/lease/acquire', '/model/status', '/admin/shutdown', '/health'])
+        run.assert_called_once()
 
 
 class DeployTests(unittest.TestCase):
