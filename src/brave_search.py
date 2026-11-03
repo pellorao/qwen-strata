@@ -30,7 +30,7 @@ MAX_REDIRECTS = 5
 RESULT_COUNT = {'low': 3, 'medium': 5, 'high': 10}
 OPEN_CHARS = 20000          # page text returned by open_page
 MAX_MATCHES = 30
-LOCAL_CONFIG = 'config.local.json'  # installation-local settings, never deployed or committed
+PRIVATE_FILE = 'installation.private.toml'
 
 
 class SearchError(RuntimeError):
@@ -41,7 +41,7 @@ class SearchError(RuntimeError):
 
 def load_key(root=ROOT):
     try:
-        key = tomllib.loads((Path(root) / 'installation.private.toml').read_text(encoding='utf-8'))['brave']['api_key']
+        key = tomllib.loads((Path(root) / PRIVATE_FILE).read_text(encoding='utf-8'))['brave']['api_key']
     except (OSError, KeyError, TypeError, tomllib.TOMLDecodeError):
         raise SearchError('Brave key is not configured in installation.private.toml.', 'not_configured') from None
     if not isinstance(key, str) or not key.strip() or any(c.isspace() for c in key.strip()):
@@ -88,22 +88,21 @@ def public_url(url):
 
 
 def allowed_networks(root=None):
-    """Extra networks that count as allowed at connect time: `fetch_allow_networks` (list of CIDR) in
-    config.local.json of the installation. Missing file or key means none; a malformed file fails closed."""
-    path = Path(root or ROOT) / LOCAL_CONFIG
+    """Extra networks that count as allowed at connect time: `[fetch] allow_networks` (list of CIDR) in
+    installation.private.toml, next to the Brave key. No file or no section means none; a malformed one fails closed."""
     try:
-        text = path.read_text(encoding='utf-8')
+        text = (Path(root or ROOT) / PRIVATE_FILE).read_text(encoding='utf-8')
     except FileNotFoundError:
         return ()
     except OSError:
-        raise SearchError(f'{LOCAL_CONFIG} could not be read.', 'not_configured') from None
+        raise SearchError(f'{PRIVATE_FILE} could not be read.', 'not_configured') from None
     try:
-        listed = json.loads(text).get('fetch_allow_networks', [])
+        listed = tomllib.loads(text).get('fetch', {}).get('allow_networks', [])
         if not isinstance(listed, list) or not all(isinstance(item, str) for item in listed):
             raise ValueError
         return tuple(ipaddress.ip_network(item) for item in listed)
-    except (ValueError, TypeError, AttributeError):
-        raise SearchError(f'{LOCAL_CONFIG} is invalid: fetch_allow_networks must be a list of CIDR networks.',
+    except (ValueError, TypeError, AttributeError):  # tomllib.TOMLDecodeError is a ValueError
+        raise SearchError(f'{PRIVATE_FILE} is invalid: [fetch] allow_networks must be a list of CIDR networks.',
                           'not_configured') from None
 
 

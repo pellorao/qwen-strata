@@ -103,11 +103,23 @@ class DeployTests(unittest.TestCase):
     def test_private_file_is_never_a_public_deployment_file(self):
         self.assertNotIn('installation.private.toml', deployment_files({'models': ['IQ3_XXS']}))
 
-    def test_installation_local_config_is_never_replaced_or_removed(self):
-        host = {'models': ['IQ3_XXS']}
-        self.assertNotIn('config.local.json', deployment_files(host))
-        self.assertNotIn('config.local.json', obsolete_files(host))
-        self.assertNotIn('config.local.json', deploy.OBSOLETE_TREES)
+    def test_fetch_networks_come_from_the_host_section_and_bad_values_fail_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            head = '[brave]\napi_key = "k"\n[hosts.x]\n'
+            for line, expected in (('', {}), ('fetch_allow_networks = []\n', {}),
+                                   ('fetch_allow_networks = ["203.0.113.0/24", "2001:db8::/32"]\n',
+                                    {'fetch': {'allow_networks': ['203.0.113.0/24', '2001:db8::/32']}})):
+                (root/'project.private.toml').write_text(head + line)
+                self.assertEqual(tomllib.loads(private_bytes(root, 'x').decode()), {'brave': {'api_key': 'k'}, **expected})
+            (root/'project.private.toml').write_text(head + 'fetch_allow_networks = ["203.0.113.0/24"]\n')
+            self.assertNotIn(b'fetch', private_bytes(root))  # no host named: nothing extra
+            for line in ('fetch_allow_networks = "203.0.113.0/24"\n', 'fetch_allow_networks = [5]\n',
+                         'fetch_allow_networks = ["203.0.113.5/24"]\n', 'fetch_allow_networks = ["not-a-network"]\n'):
+                (root/'project.private.toml').write_text(head + line)
+                with self.assertRaises(ValueError) as error:
+                    private_bytes(root, 'x')
+                self.assertNotIn('203.0.113', str(error.exception))
 
     def test_only_the_served_models_prebuilt_is_deployed_and_the_others_are_removed(self):
         host = {'models': ['IQ3_XXS']}
