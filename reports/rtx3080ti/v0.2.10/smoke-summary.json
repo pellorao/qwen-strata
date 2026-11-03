@@ -1,0 +1,104 @@
+{
+ "marker": "MARK-07803917297f",
+ "note": "NOTE-d20dff4a80a2",
+ "stages": [
+  {
+   "stage": "C1",
+   "exit": 0,
+   "seconds": 91.97382187843323,
+   "segments": 6,
+   "tokens": {
+    "uncached_input": 70663,
+    "cached_input": 0,
+    "output": 1177
+   },
+   "rates": {
+    "engine_input_seconds": 30.098,
+    "engine_decode_seconds": 11.403,
+    "engine_input_tokens_per_second": 2347.7639710279755,
+    "engine_output_tokens_per_second": 103.21845128474962,
+    "unit": "token/s",
+    "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+   }
+  },
+  {
+   "stage": "C2",
+   "exit": 0,
+   "seconds": 53.44562554359436,
+   "segments": 1,
+   "tokens": {
+    "uncached_input": 1832,
+    "cached_input": 28722,
+    "output": 4338
+   },
+   "rates": {
+    "engine_input_seconds": 1.783,
+    "engine_decode_seconds": 41.629,
+    "engine_input_tokens_per_second": 1027.4817722938867,
+    "engine_output_tokens_per_second": 104.2062024069759,
+    "unit": "token/s",
+    "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+   }
+  },
+  {
+   "stage": "C3",
+   "exit": 0,
+   "seconds": 13.83010983467102,
+   "segments": 1,
+   "tokens": {
+    "uncached_input": 5309,
+    "cached_input": 16059,
+    "output": 137
+   },
+   "rates": {
+    "engine_input_seconds": 2.57,
+    "engine_decode_seconds": 1.249,
+    "engine_input_tokens_per_second": 2065.7587548638135,
+    "engine_output_tokens_per_second": 109.68775020016012,
+    "unit": "token/s",
+    "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+   }
+  },
+  {
+   "stage": "X1",
+   "exit": 0,
+   "seconds": 37.47517108917236,
+   "segments": 3,
+   "tokens": {
+    "uncached_input": 17944,
+    "cached_input": 19997,
+    "output": 615
+   },
+   "rates": {
+    "engine_input_seconds": 9.076,
+    "engine_decode_seconds": 5.473,
+    "engine_input_tokens_per_second": 1977.0824151608638,
+    "engine_output_tokens_per_second": 112.36981545770145,
+    "unit": "token/s",
+    "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+   }
+  },
+  {
+   "stage": "X2",
+   "exit": 0,
+   "seconds": 37.036089181900024,
+   "segments": 3,
+   "tokens": {
+    "uncached_input": 25059,
+    "cached_input": 0,
+    "output": 346
+   },
+   "rates": {
+    "engine_input_seconds": 13.233,
+    "engine_decode_seconds": 3.41,
+    "engine_input_tokens_per_second": 1893.674903649966,
+    "engine_output_tokens_per_second": 101.46627565982405,
+    "unit": "token/s",
+    "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+   }
+  }
+ ],
+ "C1_result": "All three steps are done:\n\n1. **Bash command run:** `echo MARK-07803917297f > marker.txt` executed successfully in `/home/pello/smoke-0.2.10`.\n\n2. **marker.txt content:** `MARK-07803917297f`\n\n3. **Strata v0.2.10 release page:** The search confirmed \"Strata 0.2.10\" is the latest release of Niko1221/Strata (tag `v0.2.10`, commit `ffa80d7`, released Nov 2 at 23:52). Its URL is:\n\n   **https://github.com/Niko1221/Strata/releases/tag/v0.2.10**\n\n   (The general releases index is https://github.com/Niko1221/Strata/releases, where 0.2.10 appears at the top marked \"Latest\".)",
+ "C3_result": "{\"marker\": \"MARK-07803917297f\", \"url\": \"https://github.com/Niko1221/Strata/releases/tag/v0.2.10\"}",
+ "marker_file": "MARK-07803917297f\n"
+}

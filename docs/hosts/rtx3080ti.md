@@ -4,8 +4,9 @@ RTX 3080 Ti 12 GB、i9-13900。该机由 Claude Code 管理，负责现有 bench
 
 ## 当前服务
 
-- 2026-10-24 安装 Strata v0.2.4（Qwen 引擎 0.1.48），短调用链检查通过。
-- 对外模型为 IQ3_XXS；参数沿用 v0.1.42 的本机调参结果，未在 v0.2.4 上重新调参。
+- 2026-11-03 升级到 Strata v0.2.10（Control 与 Qwen 引擎 0.1.56），短调用链检查通过，见[升级报告](../../reports/rtx3080ti/v0.2.10/upgrade.md)；前一版 v0.2.9（引擎 0.1.55）用于回退。
+- 草稿器仍是 MTP（`config/templates/iq3_xxs-prebuilt.json` 带 `--spec 4 --mtp`，没有 `--parallel`，部署的 `installation_defaults` 也没有 drafter 或 parallel 键）。v0.2.10 的服务端对未设 `drafting` 的配置按 Auto 处理，只在本机已有 DFlash2 草稿器文件时才会换成 DFlash2；启动不下载，本机没有该文件，实测启动日志为 `Drafting: MTP (the DFlash2 drafter isn't downloaded yet)`，速度基线不变。要把 MTP 钉死或评估 DFlash2 另立任务。
+- 对外模型为 IQ3_XXS；参数沿用 v0.1.42 的本机调参结果，未在后续版本（v0.2.4 至 v0.2.10）上重新调参。
 - Q2_0、IQ2_XS 权重保留，但不对外，默认不运行或测试。
 - 安装路径和前端地址只从该副本的 `project.private.toml` 读取。
 

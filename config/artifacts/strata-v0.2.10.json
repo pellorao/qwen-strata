@@ -1,0 +1,86 @@
+{
+ "schema_version": 1,
+ "status": "installed-rtx3080ti-sha-verified",
+ "version": "0.2.10",
+ "commit": "ffa80d73133ea5c548aefe57889a16e8085a938f",
+ "engine_version": "0.1.56",
+ "control_version": "0.1.56",
+ "source": {
+  "project_file": "artifacts/strata/0.2.10/source.zip",
+  "bytes": 36598440,
+  "sha256": "f00cfe9a3d220328c7961e27992295c88371afa62d1e9d461000f449d8a60eb3",
+  "url": "https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.10.zip",
+  "archive": "tag archive, top directory Strata-0.2.10/, ZIP comment = commit; CMake VERSION 0.1.56 = engine package 0.1.56"
+ },
+ "engine": {
+  "project_file": "artifacts/strata/0.2.10/engine.tar.gz",
+  "bytes": 627806827,
+  "sha256": "5336671c55bc1b819d076104608522147227001d1711378f35ea5d524bc866ec",
+  "url": "https://github.com/Niko1221/Strata/releases/download/v0.2.10/strata-engine-0.1.56-windows-x86_64-cuda-cuda13.tar.gz",
+  "format": "tar.gz, flat (no top directory)",
+  "variant": "cuda13",
+  "build_id": "06698c674673+cuda13.0",
+  "manifest_sha256": "978eca44cf13f27c996843b6cf6564761f17b263b706c7d41226f0b8d76de897",
+  "installed_bytes": 970225121,
+  "min_driver": {
+   "nvidia": "580.65"
+  },
+  "archs": [
+   "sm_75",
+   "sm_86",
+   "sm_89",
+   "sm_120",
+   "compute_120"
+  ],
+  "manifest_signature_key_id": "5d1bc23abbeffd0d",
+  "manifest_signature_verified": true
+ },
+ "feed": {
+  "url": "https://github.com/Niko1221/Strata/releases/download/v0.2.10/strata-feed.json",
+  "bytes": 15552,
+  "sha256": "bb421243a4e36d9b2aff24f53f48226237cb7de5dde3287813eb3497a20f134d",
+  "signature_verified": true,
+  "project_file": "artifacts/strata/0.2.10/strata-feed.json",
+  "signature_file": "artifacts/strata/0.2.10/strata-feed.json.sig",
+  "signature_key_id": "5d1bc23abbeffd0d",
+  "generated_at": "2026-11-02T23:03:18Z",
+  "sequence": 120
+ },
+ "build": {
+  "version": "0.1.56",
+  "source": "f-0291-rc1",
+  "commit": "06698c674673",
+  "archs": [
+   75,
+   86,
+   89,
+   120
+  ],
+  "ptx": true,
+  "cuda": "13.0",
+  "vision": "gpu-cuda13",
+  "portable": true,
+  "vision_archs": "75;86;89;120"
+ },
+ "instruction_dependency_comparison": {
+  "AGENTS.md": {
+   "unchanged": false,
+   "sha256": "83bb196c538045faca43129c5ca504ab0204240d6a52e01c03376febd09cfafd",
+   "change": "version line only (0.2.10, engine 0.1.56)"
+  },
+  "requirements.txt": {
+   "unchanged": true,
+   "sha256": "517d23bc6b9daeef506bdf712e68c4e8fcd2d67296a80ff6dd0743bb7a506506"
+  }
+ },
+ "previous_source_paths": [],
+ "currently_installed": {
+  "rtx3080ti": true,
+  "rtx4070tis": "pending-sync (offline, still v0.2.4)"
+ },
+ "installed_on_rtx3080ti": "2026-11-03",
+ "upstream_files_written": 804,
+ "unchanged_files": 4885,
+ "removed_upstream_files": [],
+ "backup_on_rtx3080ti": ".tmp/maintenance-backups/release-backup-20261103-100435-850754"
+}
