@@ -298,9 +298,11 @@ def place_reports(record, prepared, work, failures=None):
             shutil.rmtree(repaired.parent)
         repaired.parent.mkdir(parents=True)
         spills = [a for path in handoff.get('spill_files') or [] for a in ('--spill', path)]
-        subprocess.run([sys.executable, '-m', 'tools.reviewer.repair_reviewer_report', '--report', str(target),
-                        '--out', str(repaired), '--scenario-root', fresh['scenarioRoot'], *spills],
-                       cwd=ROOT, check=True, capture_output=True)
+        repair = subprocess.run([sys.executable, '-m', 'tools.reviewer.repair_reviewer_report', '--report', str(target),
+                                 '--out', str(repaired), '--scenario-root', fresh['scenarioRoot'], *spills],
+                                cwd=ROOT, capture_output=True, text=True)
+        if repair.returncode:
+            raise RuntimeError(f"report repair failed (rc {repair.returncode}) for {target}: {repair.stderr[-600:]}")
         change_record = json.loads(repaired.with_name(repaired.name + '.changes.json').read_text())
         entry = {'instanceId': fresh['instanceId'], 'artifactPaths': [str(target)]}
         if change_record['changes']:
@@ -343,7 +345,11 @@ def parse_reply(reply):
 
 
 def bound_decision(candidate, bound):
-    return next(v for v in BOUNDS[bound] if v in candidate['allowedDecisions'])
+    decision = next((v for v in BOUNDS[bound] if v in candidate['allowedDecisions']), None)
+    if decision is None:
+        raise ValueError(f"candidate {candidate.get('candidateId')}: allowedDecisions {candidate['allowedDecisions']} "
+                         f"has none of the {bound} bound values {BOUNDS[bound]}")
+    return decision
 
 
 def adjudicate(prepared, input_path, work, decide, rounds=10, scorer=None):
@@ -526,7 +532,9 @@ def score_instance(record, work, provisional=None, enumerate_only=False, scorer=
     work.mkdir(parents=True, exist_ok=True)
     pause = None if enumerate_only else pause_state(record)
     plan, prepared = prepare_fresh(record, work)
-    os.environ['CODEX_THREAD_ID'] = plan['codex_thread_id']
+    if scorer is None:  # the plan's thread id reaches the scorer subprocess only, never this process's environment
+        from tools.reviewer.single_scenario_score import upstream_score
+        scorer = lambda *args: upstream_score(*args, thread_id=plan['codex_thread_id'])
     checks = check_preparation(record, prepared)
     upstream_input, repairs, rows = place_reports(record, prepared, work)
     base = {'id': record['id'], 'arm': record['arm'], 'scenario': record['scenario'], 'config': record['config'],

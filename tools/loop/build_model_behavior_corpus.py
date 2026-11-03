@@ -17,21 +17,26 @@ def sha(value):
 
 
 _CREDENTIAL = re.compile(
-    r'(?i)(\b(?:STRATA_API_KEY|OPENAI_API_KEY|BRAVE_API_KEY|api_key|password|'
-    r'access_token|secret_key)\b[\"\x27]?\s*[:=]\s*[\"\x27]?)([^\s\"\x27,}]+)|'
-    r'(\bBearer\s+)([A-Za-z0-9._-]{12,})')
+    r'(?i)(\b(?:STRATA_API_KEY|OPENAI_API_KEY|BRAVE_API_KEY|ANTHROPIC_AUTH_TOKEN|api_key|password|'
+    r'access_token|refresh_token|id_token|auth_token|secret_key)\b[\"\x27]?\s*[:=]\s*[\"\x27]?)([^\s\"\x27,}]+)|'
+    r'(\bBearer\s+)([A-Za-z0-9._-]{12,})|'
+    r'(\bAuthorization\b[\"\x27]?\s*[:=]\s*[\"\x27]?Basic\s+)([A-Za-z0-9+/=]{8,})|'
+    r'(\b)(sk-[A-Za-z0-9_-]{16,})|'
+    # A bare `token` is also ordinary prose and code ("token: `x`"): only a secret-like value (8+ token characters
+    # with a digit) counts.
+    r'(\btoken\b[\"\x27]?\s*[:=]\s*[\"\x27]?)((?=[A-Za-z0-9._~+/=-]*\d)[A-Za-z0-9._~+/=-]{8,})')
 
 
 def scrub(text):
     """Return text and offset changes, never emit a matched credential value."""
     edits = []
     def replace(match):
-        group = 2 if match[2] else 4
+        group = next(g for g in (2, 4, 6, 8, 10) if match[g])
         value = match[group]
         if value.startswith(('$', '<')):
             return match[0]
         edits.append({'start': match.start(group), 'end': match.end(group), 'replacement_length': 10})
-        return (match[1] or match[3]) + '<redacted>'
+        return match[group - 1] + '<redacted>'
     return _CREDENTIAL.sub(replace, text), edits
 
 
@@ -42,7 +47,7 @@ def safe_value(value):
         return [safe_value(x) for x in value]
     if isinstance(value, dict):
         return {k: ('<redacted>' if re.fullmatch(
-            r'(?i)(password|(?:[A-Z_]*_)?api_?key|access_token|secret_key|authorization)', k) else safe_value(v))
+            r'(?i)(password|(?:[A-Z_]*_)?api_?key|(?:(?:ANTHROPIC|access|refresh|id|auth)_)*token|secret_key|authorization)', k) else safe_value(v))
             for k, v in value.items()}
     return value
 

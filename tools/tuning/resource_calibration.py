@@ -91,9 +91,13 @@ def case_text(workload,key,case):
 
 def frozen_inputs(plan_path,workload_path):
     plan=json.loads(Path(plan_path).read_text());workload=json.loads(Path(workload_path).read_text())
-    if not (plan.get('authorization') or {}).get('approved') and (plan.get('authorization') or {}).get('user_response')!='agree':
+    authorization=plan.get('authorization') or {}
+    # `approved` decides when present (an explicit false is never overridden by a response); the older plans that have no
+    # `approved` field are approved only by user_response == 'agree'.
+    approved=authorization['approved']is True if 'approved' in authorization else authorization.get('user_response')=='agree'
+    if not approved:
         raise ValueError('This exact resource work is not approved')
-    if plan['authorization'].get('paused_by_user'):
+    if authorization.get('paused_by_user'):
         raise ValueError('This exact resource work is not approved and resumed')
     if not isinstance(plan.get('baseline',{}).get('start_options',{}).get('model'),str):
         raise ValueError('The plan baseline names its model explicitly')

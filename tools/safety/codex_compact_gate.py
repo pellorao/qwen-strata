@@ -42,6 +42,9 @@ def request_text(body):
     return json.dumps(body.get('input', []), ensure_ascii=False)
 
 
+REQUEST_LOCK = threading.Lock()
+
+
 class Mock(BaseHTTPRequestHandler):
     def log_message(self, *_):
         pass
@@ -51,23 +54,24 @@ class Mock(BaseHTTPRequestHandler):
             self.send_error(404)
             return
         server = self.server
-        body = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
-        number = len(server.log) + 1
-        save(server.folder / f'request-{number}.json', body)
+        body = json.loads(self.rfile.read(int(self.headers.get('Content-Length') or 0)) or b'{}')
         compaction = COMPACT_MARKER in request_text(body)
         aliases = tool_aliases(body)
         tool = next((n for n in ('shell_command', 'exec_command', 'shell') if n in aliases), None)
-        entry = {'n': number, 'compaction': compaction, 'claimed': None,
-                 'max_output_tokens': body.get('max_output_tokens'), 'keys': sorted(body)}
-        if compaction:
-            entry['claimed'], calls, text = SUMMARY_CLAIM, [], 'Mock checkpoint. Nothing happened.'
-        elif server.step < len(server.ladder) and tool:
-            entry['claimed'], text = server.ladder[server.step], None
-            calls = [(tool, {'command': 'true'} if tool == 'shell_command' else {'cmd': 'true'})]
-            server.step += 1
-        else:
-            entry['claimed'], calls, text = server.ladder[-1], [], 'Done.'
-        server.log.append(entry)
+        with REQUEST_LOCK:  # request numbering and the ladder step are shared by concurrent requests
+            number = len(server.log) + 1
+            entry = {'n': number, 'compaction': compaction, 'claimed': None,
+                     'max_output_tokens': body.get('max_output_tokens'), 'keys': sorted(body)}
+            if compaction:
+                entry['claimed'], calls, text = SUMMARY_CLAIM, [], 'Mock checkpoint. Nothing happened.'
+            elif server.step < len(server.ladder) and tool:
+                entry['claimed'], text = server.ladder[server.step], None
+                calls = [(tool, {'command': 'true'} if tool == 'shell_command' else {'cmd': 'true'})]
+                server.step += 1
+            else:
+                entry['claimed'], calls, text = server.ladder[-1], [], 'Done.'
+            server.log.append(entry)
+        save(server.folder / f'request-{number}.json', body)
         self.send_response(200)
         self.send_header('Content-Type', 'text/event-stream')
         self.send_header('Connection', 'close')

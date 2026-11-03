@@ -52,7 +52,7 @@ class ContinuationBoundaries(unittest.TestCase):
         self.assertEqual(self.classify({'type':'task_complete','last_agent_message':message}),'premature-normal-end')
 
     def test_other_turn_terminal_cannot_end_current_round(self):
-        with self.assertRaises(StopIteration):
+        with self.assertRaisesRegex(ValueError,'no task_complete or turn_aborted event for turn current'):
             self.classify({'type':'task_complete'},turn_id='previous')
 
     def test_empty_engine_capture_is_not_assumed_zero(self):

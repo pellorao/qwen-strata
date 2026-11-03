@@ -85,6 +85,19 @@ class BehaviorCorpusTests(unittest.TestCase):
             self.assertNotIn(secret, json.dumps(edits))
         self.assertEqual(safe_value({'STRATA_API_KEY': 'long-private-key'})['STRATA_API_KEY'], '<redacted>')
 
+    def test_token_forms_basic_authorization_and_sk_keys_are_removed(self):
+        secrets = ['anthropic-secret-1', 'plain-token-2', 'dXNlcjpwYXNzd29yZA==', 'sk-ant-abcdefghijklmnop1234', 'refresh-3']
+        text = ('ANTHROPIC_AUTH_TOKEN=anthropic-secret-1 curl "?token=plain-token-2" Authorization: Basic dXNlcjpwYXNzd29yZA== '
+                'key sk-ant-abcdefghijklmnop1234 {"refresh_token": "refresh-3"}')
+        clean, edits = scrub(text)
+        self.assertEqual(len(edits), 5)
+        for secret in secrets:
+            self.assertNotIn(secret, clean)
+            self.assertNotIn(secret, json.dumps(edits))
+        self.assertEqual(scrub('max_tokens=5 tokens: 7 ask-me')[0], 'max_tokens=5 tokens: 7 ask-me')
+        self.assertEqual(safe_value({'ANTHROPIC_AUTH_TOKEN': 'x', 'input_tokens': 3}),
+                         {'ANTHROPIC_AUTH_TOKEN': '<redacted>', 'input_tokens': 3})
+
 
 if __name__ == '__main__':
     unittest.main()

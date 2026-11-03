@@ -53,14 +53,15 @@ class HttpArchive:
 def terminal_kind(native,observation,report):
  # Classify a normal premature end only from the exact latest native terminal.
  ev=[json.loads(l) for l in native.read_text().splitlines()]
- terminal=next(e['payload'] for e in reversed(ev) if e.get('payload',{}).get('type') in ('task_complete','turn_aborted') and (not observation.get('turnId') or e['payload'].get('turn_id')==observation['turnId']))
+ terminal=next((e['payload'] for e in reversed(ev) if e.get('payload',{}).get('type') in ('task_complete','turn_aborted') and (not observation.get('turnId') or e['payload'].get('turn_id')==observation['turnId'])),None)
+ if terminal is None:raise ValueError(f'{native}: no task_complete or turn_aborted event'+(f" for turn {observation['turnId']}" if observation.get('turnId') else ''))
  if terminal['type']=='turn_aborted':return 'interrupted',terminal
  if terminal.get('error'):
   message=terminal['error'].get('message','')
   if '[invalid_response]' in message and 'Model returned unknown tool:' in message:return 'recoverable-tool-response-failure',terminal
   if '[invalid_response]' in message and 'Unterminated string starting at:' in message:return 'recoverable-tool-argument-response-failure',terminal
   return 'protocol-or-native-failure',terminal
- if observation['completion']['status']=='ready':return 'ready',terminal
+ if (observation.get('completion') or {}).get('status')=='ready':return 'ready',terminal
  message=terminal.get('last_agent_message') or ''
  trimmed=message.strip()
  fence=re.fullmatch(r'```(?:json)?\s*(.*?)\s*```',trimmed,re.S)

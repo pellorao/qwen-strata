@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+import unittest.mock
 
 from tools.reviewer.native_cli_binding import CODEX, CODEX_VENDOR
 from tools.reviewer import wsl_client
@@ -41,6 +42,25 @@ class ProbeConfigurationTests(unittest.TestCase):
         deployment = json.loads((wsl_client.ROOT / 'config/deployments/rtx3080ti.json').read_text())
         self.assertEqual(targets['model_api'], [deployment['listen_address'], deployment['port']])
         self.assertTrue(Path(targets['other_project']).is_file())
+
+    def test_unreachable_network_targets_are_vacuous_controls(self):
+        import socket
+        listener = socket.socket()
+        listener.bind(('127.0.0.1', 0))
+        listener.listen(1)
+        live = ['127.0.0.1', listener.getsockname()[1]]
+        free = socket.socket()
+        free.bind(('127.0.0.1', 0))
+        dead = ['127.0.0.1', free.getsockname()[1]]
+        free.close()
+        try:
+            self.assertTrue(verify_reviewer_sandbox.reachable(live))
+            self.assertFalse(verify_reviewer_sandbox.reachable(dead))
+            with unittest.mock.patch.object(verify_reviewer_sandbox, 'PUBLIC_TARGET', tuple(live)):
+                controls = verify_reviewer_sandbox.network_controls({'model_api': dead})
+            self.assertEqual(controls, {'public_network': True, 'model_api': False})
+        finally:
+            listener.close()
 
 
 if __name__ == '__main__':

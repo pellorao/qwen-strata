@@ -19,7 +19,7 @@ from tools.reviewer.freeze_arw_source import upgrade_scoring
 THREAD_ID = 'b7635f94-ad60-429b-98e7-3ee5c19ba2bb'  # Main identity bound at upstream preparation
 
 
-def upstream_score(arw, prepared, scoring_input, adjudication=None):
+def upstream_score(arw, prepared, scoring_input, adjudication=None, thread_id=None):
     arw = Path(arw).resolve()
     upgrade_scoring(arw)
     command = ['node', str(arw / 'scripts/reviewer-capability-conformance.mjs'), 'score-completed',
@@ -27,7 +27,7 @@ def upstream_score(arw, prepared, scoring_input, adjudication=None):
     if adjudication:
         command += ['--adjudication', str(Path(adjudication).resolve())]
     return subprocess.run(command, cwd=arw, capture_output=True, text=True,
-                          env=dict(os.environ, CODEX_THREAD_ID=os.environ.get('CODEX_THREAD_ID', THREAD_ID)))
+                          env=dict(os.environ, CODEX_THREAD_ID=thread_id or os.environ.get('CODEX_THREAD_ID', THREAD_ID)))
 
 
 def summarize(upstream):

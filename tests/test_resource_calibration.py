@@ -368,4 +368,26 @@ class PleReadPathTests(unittest.TestCase):
                          {'system_read_bytes':15,'process_read_bytes':None})
 
 
+class ApprovalTest(unittest.TestCase):
+    def refused(self, authorization):
+        with tempfile.TemporaryDirectory() as folder:
+            plan, workload = Path(folder) / 'plan.json', Path(folder) / 'workload.json'
+            plan.write_text(json.dumps({'authorization': authorization}))
+            workload.write_text('{}')
+            try:
+                frozen_inputs(plan, workload)
+            except ValueError as error:
+                return 'not approved' in str(error)
+            except KeyError:
+                return False  # approval passed; the plan is otherwise incomplete
+            return False
+
+    def test_approved_decides_when_present_and_agree_only_when_absent(self):
+        self.assertTrue(self.refused({'approved': False, 'user_response': 'agree'}))
+        self.assertTrue(self.refused({}))
+        self.assertTrue(self.refused({'user_response': 'maybe'}))
+        self.assertFalse(self.refused({'approved': True}))
+        self.assertFalse(self.refused({'user_response': 'agree'}))
+
+
 if __name__=='__main__':unittest.main()

@@ -34,11 +34,13 @@ def targets(here):
 
 
 def script(here):
-    """One shell command printing `<name> READABLE|BLOCKED` per target, then the workspace checks."""
+    """One shell command printing `<name> READABLE|BLOCKED` per target (BLOCKED: the read fails), then the workspace
+    checks, whose known-content read is the control that the read itself works."""
     lines = []
     for name, path, kind in targets(here):
-        test = f'head -c1 {shlex.quote(str(path))}' if kind == 'file' else f'ls -A {shlex.quote(str(path))} | head -1'
-        lines.append(f'if [ -n "$({test} 2>/dev/null)" ]; then echo "{name} READABLE"; else echo "{name} BLOCKED"; fi')
+        # By exit status, not by output: an empty file, directory or /tmp is readable yet prints nothing.
+        test = f'head -c1 {shlex.quote(str(path))}' if kind == 'file' else f'ls -A {shlex.quote(str(path))}'
+        lines.append(f'if {test} >/dev/null 2>&1; then echo "{name} READABLE"; else echo "{name} BLOCKED"; fi')
     lines += ['if [ -n "$STRATA_API_KEY" ]; then echo "provider-key READABLE"; else echo "provider-key BLOCKED"; fi',
               'if head -c1 README.md >/dev/null 2>&1; then echo "workspace-read OK"; fi',
               'if echo ok > probe-write.txt 2>/dev/null; then echo "workspace-write OK"; fi',
@@ -96,6 +98,8 @@ def probe(out):
     home.mkdir()
     (here / 'probe-marker.txt').write_text('outside the workspace\n')
     (workspace / 'README.md').write_text('# probe workspace\n')
+    # A target that does not exist is "blocked" for any reason: it would pass vacuously.
+    missing = [name for name, path, _ in targets(here) if not path.exists()]
     server = ThreadingHTTPServer(('127.0.0.1', 0), Mock)
     command = script(here)
     server.workspace, server.requests, server.outputs = workspace, [], []
@@ -114,6 +118,7 @@ def probe(out):
     results = [{'probe': p, 'output': o, 'problems': verdict(o)}
                for p, o in zip(('sandboxed', 'escalation-requested'), server.outputs)]
     problems = [] if len(results) == 2 else [f'only {len(results)} of 2 probes returned output']
+    problems += [f'{n} target does not exist (its block would be vacuous)' for n in missing]
     problems += [f'{r["probe"]}: {p}' for r in results for p in r['problems']]
     result = {'ok': not problems and code == 0, 'exit': code, 'seconds': round(seconds, 1), 'problems': problems,
               'results': results, 'mock_requests': len(server.requests), 'real_model_requests': 0}
