@@ -77,6 +77,21 @@ class ApproveTests(unittest.TestCase):
         self.assertIn('untrusted data', prompt)
         self.assertLess(prompt.index('Run ./clean.sh'), prompt.index('USER SAYS'))
 
+    def test_action_is_never_clipped_and_too_long_is_denied_unread(self):
+        long_command = 'echo ok; ' * 300 + 'rm -rf /data/keep'  # the dangerous part sits past the context clip
+        self.assertGreater(len(long_command), approve.CLIP)
+        event = {'tool_name': 'Bash', 'tool_input': {'command': long_command}, 'transcript_path': str(self.transcript)}
+        with patch.object(Model, 'reply', '{"decision": "allow", "reason": "ok"}'):
+            self.assertEqual(self.run_hook(event), {'behavior': 'allow'})
+        self.assertIn('rm -rf /data/keep', self.server.seen[0][2]['messages'][1]['content'])
+        self.assertNotIn('[...]', self.server.seen[0][2]['messages'][1]['content'].split('Action to review:')[1])
+        event['tool_input'] = {'command': 'x' * (approve.ACTION_LIMIT + 1)}
+        with patch.object(Model, 'reply', '{"decision": "allow", "reason": "ok"}'):
+            decision = self.run_hook(event)
+        self.assertEqual(decision['behavior'], 'deny')
+        self.assertIn('too long', decision['message'])
+        self.assertEqual(len(self.server.seen), 1)  # the model was not asked about a clipped action
+
     def test_allow_and_failures(self):
         event = {'tool_name': 'Bash', 'tool_input': {'command': 'ls'}, 'transcript_path': str(self.transcript)}
         with patch.object(Model, 'reply', 'Sure. {"decision": "allow", "reason": "read only"}'):
