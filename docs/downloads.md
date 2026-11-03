@@ -29,7 +29,7 @@ rtx3080ti 已于 2026-11-03 安装 v0.2.10（Control 与 Qwen 引擎 0.1.56）�
 - 引擎：[strata-engine-0.1.48-windows-x86_64-cuda-cuda13.tar.gz](https://github.com/Niko1221/Strata/releases/download/v0.2.4/strata-engine-0.1.48-windows-x86_64-cuda-cuda13.tar.gz)，581299508 字节，官方 SHA256 `1e1611b0977d984bd7d8e79591a1ba1a7e550a2f4a66bfa45744a77308a71b95`，与 API digest 一致，是 0.2.3 的同一文件（build_id `6f8800aefe27+cuda13.0`，源 `f-023-rel`）。包内 7 个文件：`strata.exe`、`strata_kq.dll`、`strata-vision.exe`、`cublas64_13.dll`、`cublasLt64_13.dll`、`BUILD.json`、`engine-component.json`；清单 SHA `17670345…1a6f`，两个 cublas DLL 与 0.2.2 相同故未重写。
 - feed：[strata-feed.json](https://github.com/Niko1221/Strata/releases/download/v0.2.4/strata-feed.json)，14242 字节，SHA256 `9ece054762f0a4f55f252a733ddbe15f718ca8ca6a664b5faf454fc37ba012b8`，Ed25519 签名已用固定公钥 `5d1bc23abbeffd0d` 核验，引擎清单签名同样通过；feed 与 `.sig` 存于 `artifacts/strata/0.2.4/`。
 - 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.4.zip)，33002954 字节，本地 SHA256 `d543da4aa06cb548ed177b8e96353112ee06b45c0d57a5fb9c4beee3ea3d8f0a`（顶层目录 `Strata-0.2.4/`，ZIP 注释为标签提交）。CMake 版本是 0.1.49（DeepSeek 引擎），引擎包是 0.1.48，`upgrade_release` 的元数据用 `source_cmake_version` 明确绑定。`AGENTS.md`（`685edaa9…03bb5`，只改版本行）和 `requirements.txt`（`517d23bc…6506`，certifi 2026.10.19、新增 truststore 0.10.5）有变化；0.2.2 有而本版没有的源码路径：无。
-- 工程文件为 `artifacts/strata/0.2.4/engine.tar.gz` 和 `source.zip`，版本清单见[制品清单](../config/artifacts/strata-v0.2.4.json)，`strata-release.json` 已指向本版。2026-10-24 安装到 rtx3080ti 并通过短检查。
+- 工程文件为 `artifacts/strata/0.2.4/engine.tar.gz` 和 `source.zip`，版本清单见[制品清单](../config/artifacts/strata-v0.2.4.json)，`strata-release.json` 已指向本版。2026-10-24 安装到 rtx3080ti 并通过短检查。2026-11-03 升级到 v0.2.10 后本地文件已删除。
 
 ## Strata v0.2.2（rtx3080ti 曾安装，回退用）
 
