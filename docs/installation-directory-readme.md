@@ -175,7 +175,7 @@ key 通过 `env_key` 指定的环境变量只提供给该 harness。请求重试
 - **Codex**：设置 `web_search = "live"`。前端把 `web_search` 换成同名函数交给模型；模型调用时由前端执行 `search`、`open_page`、`find_in_page`，结果写回对话后继续生成，Codex 看到的是普通的 `web_search_call`。只支持流式；每个请求最多 8 次搜索、10 轮模型调用，各轮共用一个输出上限。支持 `filters.allowed_domains` 和 `search_context_size`，不支持 `user_location`。
 - 搜索结果按随机调用 id 保存在前端内存，跨租约保留（`codex exec resume` 每次领新租约），Codex 回传时还原给模型；总量超过上限时淘汰最旧的，前端重启后清空，此后旧会话里的搜索只会得到"结果不可用"。
 - **Claude Code**：内置 WebSearch 依赖 Anthropic 服务，启动脚本把它禁用，改为挂载 MCP 服务 `src/brave_mcp.py`（工具 `mcp__brave__web_search`、`open_page`、`find_in_page`）。
-- 只读取公网 http(s) 地址；内网、本机、带账号密码或非标准端口的地址都会拒绝（`127.1` 这类简写数字地址同样拒绝；域名在建立连接时解析，只要有一个结果不是公网地址就拒绝，并直连检查过的地址、不走代理；安装目录的 `config.local.json` 可用 `fetch_allow_networks`（CIDR 列表）为本机放行额外网段，如 fake-IP 网络的解析网段，URL 里直接写的地址仍然拒绝；此时经路由器到达的目标只受路由器规则保护），每次重定向重新检查。Brave key 只发给 Brave API。Brave 调用每秒最多一次，失败不重试。
+- 只读取公网 http(s) 地址；内网、本机、带账号密码或非标准端口的地址都会拒绝（`127.1` 这类简写数字地址同样拒绝；域名在建立连接时解析，只要有一个结果不是公网地址就拒绝，并直连检查过的地址、不走代理；`installation.private.toml` 的 `[fetch] allow_networks`（CIDR 列表，部署时取自 `project.private.toml` 的 `[hosts.<id>] fetch_allow_networks`）可为本机放行额外网段，如 fake-IP 网络的解析网段，URL 里直接写的地址仍然拒绝；此时经路由器到达的目标只受路由器规则保护），每次重定向重新检查。Brave key 只发给 Brave API。Brave 调用每秒最多一次，失败不重试。
 
 ## Claude Code 接入
 

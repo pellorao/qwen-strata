@@ -16,7 +16,7 @@
 
 两台机器共用代码及实验条件，各自的路径、端口、CPU线程数及显存相关设置单独维护。`config/deployments/`保存公开硬件／部署来源，私有主机配置提供各自安装路径和服务端口；`tools/ops/deployment_source.py`从工程模板生成目标副本，安装文件只用于回读核验。修改部署集合中的工程源后分别同步登记目标；每台须等待空闲、领取维护key、确认模型停止并关闭前端，回读校验。离线／繁忙／失败的目标记录为待同步，不抢占调用方，也不将部分完成称为两台一致。持有状态、日志、运行临时配置及私有凭据不作为公共同步内容；双机文件部署及回读已完成，rtx3080ti三量化短推理已通过，见[短安装验收](../reports/v0.1.40.1/multi-host-deployment/validation.md)及[文件阶段结果](../reports/v0.1.40.1/multi-host-deployment/summary.md)。
 
-私有配置统一放工程根目录 `project.private.toml`（Git 忽略，权限 0600，不部署、不写入报告），包括各主机的 `installation_path`、`frontend_url` 和 Brave key 等凭据，只由程序解析，不读入会话。安装目录需要的敏感配置将放在安装根目录 `installation.private.toml`，由部署程序从工程私有配置写入；当前前端不需要任何安装凭据，该文件在接入托管搜索时才创建。新增主机时增加一个 `[hosts.<id>]` 分组。配置按 UTF-8 读写。
+私有配置统一放工程根目录 `project.private.toml`（Git 忽略，权限 0600，不部署、不写入报告），包括各主机的 `installation_path`、`frontend_url` 和 Brave key 等凭据，只由程序解析，不读入会话。安装目录需要的敏感配置将放在安装根目录 `installation.private.toml`，由部署程序从工程私有配置写入；该文件含托管搜索的 Brave key；`[hosts.<id>]` 下可选的 `fetch_allow_networks`（CIDR 列表）由部署程序写成它的 `[fetch] allow_networks`，让页面读取在连接时额外放行这些网段（fake-IP 网络的解析网段；不写则只放行公网地址）。新增主机时增加一个 `[hosts.<id>]` 分组。配置按 UTF-8 读写。
 
 旧的 `ssh-windows` 连接方式（SSH、`listen_port`／`access_port` 端口映射）已废弃；前端常驻 Windows，监听 `config/deployments/<host>.json` 中该主机的地址和端口。部署和测量工具只处理本机安装（经 `wslpath` 访问）。
 
