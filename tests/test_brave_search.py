@@ -137,9 +137,6 @@ class Sock:
         self.closed = True
 
 
-NETWORK = '[fetch]\nallow_networks = ["203.0.113.0/24"]\n'  # placeholder (TEST-NET-3)
-
-
 def answers(*addresses):
     return [(2 if ':' not in a else 10, 1, 6, '', (a, 80)) for a in addresses]
 
@@ -163,14 +160,14 @@ class ConnectTests(unittest.TestCase):
         self.assertEqual(Sock.made, [])
 
     def listed(self, text):
-        """An installation.private.toml with `text` in a temporary installation root."""
+        """A config.local.json with `text` in a temporary installation root."""
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
-        (Path(temp.name) / 'installation.private.toml').write_text(text, encoding='utf-8')
+        (Path(temp.name) / 'config.local.json').write_text(text, encoding='utf-8')
         return patch.object(brave_search, 'ROOT', Path(temp.name))
 
     def test_listed_network_is_allowed_at_connect_time_only_for_its_addresses(self):
-        with self.listed(NETWORK):
+        with self.listed('{"fetch_allow_networks": ["203.0.113.0/24"]}'):
             with self.resolve('203.0.113.7'):
                 sock = brave_search.connect_public('example.com', 80, 5)
             self.assertEqual(sock.connected, ('203.0.113.7', 80))
@@ -182,27 +179,26 @@ class ConnectTests(unittest.TestCase):
             self.assertEqual(Sock.made, [])
 
     def test_a_literal_address_in_a_listed_network_is_still_refused_in_the_url(self):
-        with self.listed(NETWORK):
+        with self.listed('{"fetch_allow_networks": ["203.0.113.0/24"]}'):
             with self.assertRaises(SearchError) as error:
                 brave_search.public_url('http://203.0.113.7/')
         self.assertEqual(error.exception.code, 'invalid_url')
 
-    def test_missing_or_empty_fetch_section_adds_no_network(self):
-        with self.listed('[brave]\napi_key = "k"\n'), self.resolve('203.0.113.7'), self.assertRaises(SearchError):
+    def test_missing_or_empty_local_config_adds_no_network(self):
+        with self.listed('{}'), self.resolve('203.0.113.7'), self.assertRaises(SearchError):
             brave_search.connect_public('example.com', 80, 5)
         with tempfile.TemporaryDirectory() as empty, patch.object(brave_search, 'ROOT', Path(empty)):
             self.assertEqual(brave_search.allowed_networks(), ())
-        with self.listed('[fetch]\nallow_networks = []\n'):
+        with self.listed('{"fetch_allow_networks": []}'):
             self.assertEqual(brave_search.allowed_networks(), ())
 
-    def test_malformed_fetch_section_fails_closed_with_a_clear_error(self):
-        for text in ('not toml [', '[fetch]\nallow_networks = "203.0.113.0/24"\n', 'fetch = 5\n',
-                     '[fetch]\nallow_networks = ["not a network"]\n', '[fetch]\nallow_networks = [5]\n',
-                     '[fetch]\nallow_networks = ["203.0.113.1/24"]\n'):
+    def test_malformed_local_config_fails_closed_with_a_clear_error(self):
+        for text in ('not json', '[]', '{"fetch_allow_networks": "203.0.113.0/24"}',
+                     '{"fetch_allow_networks": ["not a network"]}', '{"fetch_allow_networks": [5]}'):
             with self.listed(text), self.resolve('93.184.216.34'), self.assertRaises(SearchError, msg=text) as error:
                 brave_search.connect_public('example.com', 80, 5)
             self.assertEqual(error.exception.code, 'not_configured')
-            self.assertIn('installation.private.toml', str(error.exception))
+            self.assertIn('config.local.json', str(error.exception))
         self.assertEqual(Sock.made, [])
 
     def test_connects_to_the_checked_address(self):

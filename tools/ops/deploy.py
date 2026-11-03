@@ -9,7 +9,6 @@ from datetime import datetime
 import errno
 import hashlib
 import http.client
-import ipaddress
 import json
 import os
 from pathlib import Path
@@ -61,26 +60,12 @@ def obsolete_files(host):
     return (*OBSOLETE, *(prebuilt(m) for m in MODELS if m not in host['models']))
 
 
-def private_bytes(project=None, host=None):
-    """Installation credentials and settings, rendered in-process from project.private.toml; never printed or backed up.
-
-    The optional `[hosts.<host>] fetch_allow_networks` (CIDR list, for networks the page fetcher may connect to
-    besides public addresses) becomes `[fetch] allow_networks`; a bad value fails the render without echoing it."""
-    private = load_private(project)
-    key = private.get('brave', {}).get('api_key')
+def private_bytes(project=None):
+    """Installation credentials, rendered in-process from project.private.toml; never printed or backed up."""
+    key = load_private(project).get('brave', {}).get('api_key')
     if not isinstance(key, str) or not key.strip():
         raise ValueError('project.private.toml needs [brave] api_key')
-    text = '[brave]\napi_key = ' + json.dumps(key.strip()) + '\n'
-    networks = private.get('hosts', {}).get(host, {}).get('fetch_allow_networks', []) if host else []
-    if not isinstance(networks, list) or not all(isinstance(item, str) for item in networks):
-        raise ValueError('fetch_allow_networks must be a list of CIDR strings')
-    try:
-        networks = [str(ipaddress.ip_network(item)) for item in networks]
-    except ValueError:
-        raise ValueError('fetch_allow_networks has an entry that is not a CIDR network') from None
-    if networks:
-        text += '\n[fetch]\nallow_networks = ' + json.dumps(networks) + '\n'
-    return text.encode()
+    return ('[brave]\napi_key = ' + json.dumps(key.strip()) + '\n').encode()
 
 
 def sha(data):
@@ -180,7 +165,7 @@ def deploy(identifier, docs_only=False, condition=None):
     files = {t: s for t, s in deployment_files(host).items() if not docs_only or t == 'README.md'}
     obsolete = () if docs_only else obsolete_files(host)
     expected = {target: source_bytes(source, identifier, condition=condition) for target, source in files.items()}
-    private = None if docs_only else private_bytes(host=identifier)
+    private = None if docs_only else private_bytes()
     backup = ROOT / '.tmp/maintenance-backups' / ('deploy-' + datetime.now().strftime('%Y%m%d-%H%M%S-%f'))
     before = {}
     for target in sorted(expected) + list(obsolete):
