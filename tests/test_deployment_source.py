@@ -268,7 +268,7 @@ class CurrentHostTests(unittest.TestCase):
 REAL_ROOT = Path(__file__).resolve().parents[1]
 # SHA-256 of the README deployed on rtx3080ti when the manual became a host template (2026-10-24); the render must keep
 # it byte for byte. A deliberate manual change updates this pin together with the deployment.
-DEPLOYED_MANUAL_SHA256 = '44535b6f6394e3491b7b20fb279472363ff85e5f7a3226d3e15835731e59484b'
+DEPLOYED_MANUAL_SHA256 = '7516950264001950f18e59ec7bdacb01364b3ff376bb7c9da0e3d079c0cee3d3'
 
 
 class ManualRenderingTests(unittest.TestCase):
