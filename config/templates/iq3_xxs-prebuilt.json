@@ -43,5 +43,6 @@
   "gpu": 0,
   "gpus_asked": true,
   "host": "127.0.0.1",
-  "draft_vocab": "cjk"
+  "draft_vocab": "cjk",
+  "drafting": "mtp"
 }

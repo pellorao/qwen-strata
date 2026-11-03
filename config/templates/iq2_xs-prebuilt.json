@@ -42,6 +42,7 @@
   "gpus_asked": true,
   "host": "127.0.0.1",
   "draft_vocab": "cjk",
+  "drafting": "mtp",
   "env": {
     "STRATA_PF_FUSED": "1"
   }

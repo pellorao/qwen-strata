@@ -1,5 +1,6 @@
 """Installation credentials are rendered from the project private file only."""
 from pathlib import Path
+import json
 import sys
 import tempfile
 import tomllib
@@ -34,6 +35,13 @@ class DeployTests(unittest.TestCase):
                          'config/maintenance-baseline.json'} <= set(obsolete))
         self.assertFalse(set(obsolete) & set(files))
         self.assertTrue(all(t.startswith(('config/', 'src/', 'maintenance/', 'Run-')) for t in obsolete))
+
+    def test_every_quantization_template_pins_the_mtp_drafter(self):
+        # v0.2.10 treats a missing "drafting" as Auto, which swaps to DFlash2 once its drafter file is on the machine
+        templates = sorted((Path(__file__).resolve().parents[1]/'config'/'templates').glob('*-prebuilt.json'))
+        self.assertEqual(len(templates), 3)
+        for template in templates:
+            self.assertEqual(json.loads(template.read_text())['drafting'], 'mtp', template.name)
 
 
 if __name__ == '__main__':
