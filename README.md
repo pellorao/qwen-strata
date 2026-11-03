@@ -39,6 +39,7 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 - 每台机器只对外提供一个模型：rtx3080ti 为 IQ3_XXS（8 维调参结果为默认值，2026-10-11），Q2_0、IQ2_XS 权重保留，默认不再运行或测试，除非用户提出专门针对它们的任务（走部署 `--condition`，结束后普通部署恢复）；维护基线 = 本机唯一对外模型 + 部署默认值，不再单独成文件（B1）（2026-10-19，用户决定 + 独立审查，rtx3080ti 已部署，安全门按新源重跑通过）：[报告](reports/v0.1.45/single-model/summary.md)、[历史工作](docs/work-history.md#每台机器只对外一个模型维护基线退役2026-10-19)、[rtx3080ti 调参](docs/host-tuning/rtx3080ti.md)。
 - IQ3_XXS 默认档改为 206584／150000（2026-10-14）：经过见[历史工作](docs/work-history.md)「自主模式（2026-10-14 01:58 起，已结束）」。
 - 思考上限三档 low 2048／8192、medium 4096／16384、high 8192／24576，guardian 512／1024（2026-10-12，回滚方案 A）：[历史工作](docs/work-history.md)「Spec Readiness 思考上限诊断」。
+- 托管页面读取在连接时检查域名解析出的每个地址，只放行公网地址；fake-IP 网络（路由器或本机代理把所有域名解析到一段保留网段）需要在该主机的 `project.private.toml` 里写 `[hosts.<id>] fetch_allow_networks`（CIDR 列表），部署时写入安装目录 `installation.private.toml` 的 `[fetch] allow_networks`；放行后经路由器到达的目标只受路由器规则保护，Strata 的检查管不到（2026-11-04，独立审核 Opus high 与 Main 综合，用户决定网段只放本机私有配置、不进 Git；审核记录在本机总层 `.tasks/qwen-strata/deploy1104-review.md`，不在本仓库）。
 - 显存预留 512（2026-10-11）：[调参报告](reports/v0.1.42/iq3_xxs-tuning/vram-reserve/summary.md)。
 - 防循环提醒与检测弃用，只留离线复查（2026-10-11）：[历史工作](docs/work-history.md#2026-10-1011-防循环提醒试跑基线与弃用)。
 - Claude Code 用自写审批 `qwen-approve`，不用内置 auto mode（2026-10-10）：[验收报告](reports/v0.1.40.2/agent-integration-2b/summary.md)。
