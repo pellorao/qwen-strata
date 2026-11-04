@@ -27,8 +27,8 @@ for await(const line of lines){
    result=await session.snapshot({rootThreadId:root.threadId});
    if(result.clientRequests.length){await declineReviewerInteractions(session,result.clientRequests);result=await session.snapshot({rootThreadId:root.threadId});}
   }else if(request.operation==='restart'){
-   // The new manager is built before the old one is swapped out: a failed build leaves `native` usable, not closed.
-   await session.stop();const next=(await createIsolatedNativeSessions(info)).sessions;await native.close();native=next;
+   // The new manager is built before the session is stopped and the old one swapped out: a failed build leaves both usable.
+   const next=(await createIsolatedNativeSessions(info)).sessions;await session.stop();await native.close();native=next;
    session=await native.open({settings:settings(current),cwd:current.cwd,readPaths:[],writePaths:writes(current),onNotification:()=>{}});
    const resumed=await session.resume({threadId:root.threadId,expectedSessionPath:root.sessionPath,instructions:current.instructions});
    if(resumed.threadId!==root.threadId)throw Error('Restart changed original thread');

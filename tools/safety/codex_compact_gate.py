@@ -26,6 +26,7 @@ import time
 from tools.ops.deployment_source import current_host, published_tier
 from tools.reviewer.native_cli_binding import pinned_codex
 from tools.reviewer.verify_codex_compact_prompt import Client, ROOT, save
+from tools.safety.gate_http import REQUEST_LOCK, read_request_raw
 from tools.safety.scripted_responses import scripted_stream, tool_aliases
 
 DEEPSEEK_CATALOG = ROOT / 'benchmarks/multi-model-v1/catalogs/deepseek-codex-0.163.0.json'
@@ -42,9 +43,6 @@ def request_text(body):
     return json.dumps(body.get('input', []), ensure_ascii=False)
 
 
-REQUEST_LOCK = threading.Lock()
-
-
 class Mock(BaseHTTPRequestHandler):
     def log_message(self, *_):
         pass
@@ -54,7 +52,10 @@ class Mock(BaseHTTPRequestHandler):
             self.send_error(404)
             return
         server = self.server
-        body = json.loads(self.rfile.read(int(self.headers.get('Content-Length') or 0)) or b'{}')
+        raw = read_request_raw(self)
+        if raw is None:
+            return
+        body = json.loads(raw)
         compaction = COMPACT_MARKER in request_text(body)
         aliases = tool_aliases(body)
         tool = next((n for n in ('shell_command', 'exec_command', 'shell') if n in aliases), None)

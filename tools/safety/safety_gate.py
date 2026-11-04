@@ -12,6 +12,7 @@ from tools.ops.measurement_host import MeasurementHost
 from tools.ops.deployment_source import current_host,published_tier,served_model
 from tools.metrics.prompt_policy import compaction_config,verify_loaded_startup
 from tools.safety.scripted_responses import scripted_stream,tool_aliases
+from tools.safety.gate_http import REQUEST_LOCK,read_request_raw
 sys.path.append(str(ROOT/'src'))
 from startup_instructions import startup_prompt_bytes
 
@@ -416,7 +417,7 @@ def synthetic_login(folder):
 def request_body(headers,raw):
  """The JSON body of a Codex request; with a ChatGPT login Codex compresses it (Content-Encoding: zstd, seen 2026-10-19)."""
  encoding=(headers.get('Content-Encoding')or'').lower().strip()
- if not raw:return{}  # no Content-Length (e.g. chunked) reads as an empty body
+ if not raw:raise ValueError('Empty request body')
  if encoding=='zstd':
   from compression import zstd
   raw=zstd.decompress(raw)
@@ -435,13 +436,12 @@ def rate_limit_header(name):
  return name.lower().startswith(RATE_LIMIT_HEADERS)
 
 
-REQUEST_LOCK=threading.Lock()  # request numbering under ThreadingHTTPServer
-
-
 class Proxy(BaseHTTPRequestHandler):
  def log_message(self,*args):pass
  def do_POST(self):
-  request=request_body(self.headers,self.rfile.read(int(self.headers.get('Content-Length')or 0)));s=self.server
+  raw=read_request_raw(self)
+  if raw is None:return
+  request=request_body(self.headers,raw);s=self.server
   with REQUEST_LOCK:n=len(s.requests)+1;s.requests.append(request)
   save(s.out/f'request-{n}.json',request)
   low=guardian_request(request)  # by metadata, not effort: a low-effort plan sends low-effort Reviewer turns too
