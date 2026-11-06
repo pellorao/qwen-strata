@@ -17,12 +17,15 @@ def read_request_raw(handler):
 
 
 def read_json_request(handler, decode):
-    """The decoded request body, or None after replying 411/501 (see read_request_raw) or 400 when decode raises (empty or malformed body)."""
+    """The decoded request body, or None after replying 411/501 (see read_request_raw) or 400 when decode raises or the top level is not a JSON object (empty, malformed, null, array, scalar). None therefore always means a reply was sent."""
     raw = read_request_raw(handler)
     if raw is None:
         return None
     try:
-        return decode(raw)
+        body = decode(raw)
     except Exception:
-        handler.send_error(400, 'Request body could not be decoded')
+        body = None
+    if not isinstance(body, dict):
+        handler.send_error(400, 'Request body must be a JSON object')
         return None
+    return body

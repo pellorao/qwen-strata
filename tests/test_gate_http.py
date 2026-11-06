@@ -73,6 +73,10 @@ class ReadJsonRequestTest(ServerCase):
         self.assertEqual(self.post({'Content-Length': '0'}, b'')[0], 400)
         self.assertEqual(self.post({'Content-Length': '3'}, b'{x}')[0], 400)
 
+    def test_non_object_json_gets_400(self):
+        for body in (b'null', b'[]', b'1', b'"x"'):
+            self.assertEqual(self.post({'Content-Length': str(len(body))}, body)[0], 400, body)
+
     def test_valid_body_is_accepted(self):
         self.assertEqual(self.post({'Content-Length': '2'}, b'{}')[0], 200)
 
