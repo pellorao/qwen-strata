@@ -12,7 +12,7 @@ from tools.ops.measurement_host import MeasurementHost
 from tools.ops.deployment_source import current_host,published_tier,served_model
 from tools.metrics.prompt_policy import compaction_config,verify_loaded_startup
 from tools.safety.scripted_responses import scripted_stream,tool_aliases
-from tools.safety.gate_http import REQUEST_LOCK,read_request_raw
+from tools.safety.gate_http import REQUEST_LOCK,read_json_request
 sys.path.append(str(ROOT/'src'))
 from startup_instructions import startup_prompt_bytes
 
@@ -439,9 +439,9 @@ def rate_limit_header(name):
 class Proxy(BaseHTTPRequestHandler):
  def log_message(self,*args):pass
  def do_POST(self):
-  raw=read_request_raw(self)
-  if raw is None:return
-  request=request_body(self.headers,raw);s=self.server
+  request=read_json_request(self,lambda raw:request_body(self.headers,raw))
+  if request is None:return
+  s=self.server
   with REQUEST_LOCK:n=len(s.requests)+1;s.requests.append(request)
   save(s.out/f'request-{n}.json',request)
   low=guardian_request(request)  # by metadata, not effort: a low-effort plan sends low-effort Reviewer turns too

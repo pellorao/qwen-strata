@@ -3,7 +3,9 @@ import threading
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from tools.safety.gate_http import read_request_raw
+import json
+
+from tools.safety.gate_http import read_json_request, read_request_raw
 
 
 class Echo(BaseHTTPRequestHandler):
@@ -20,9 +22,21 @@ class Echo(BaseHTTPRequestHandler):
         self.wfile.write(raw)
 
 
-class ReadRequestRawTest(unittest.TestCase):
+class JsonEcho(Echo):
+    def do_POST(self):
+        body = read_json_request(self, json.loads)
+        if body is None:
+            return
+        self.send_response(200)
+        self.send_header('Content-Length', '0')
+        self.end_headers()
+
+
+class ServerCase(unittest.TestCase):
+    handler = Echo
+
     def setUp(self):
-        self.server = ThreadingHTTPServer(('127.0.0.1', 0), Echo)
+        self.server = ThreadingHTTPServer(('127.0.0.1', 0), self.handler)
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
         self.addCleanup(self.server.server_close)
         self.addCleanup(self.server.shutdown)
@@ -38,6 +52,8 @@ class ReadRequestRawTest(unittest.TestCase):
         conn.close()
         return reply.status, data
 
+
+class ReadRequestRawTest(ServerCase):
     def test_content_length_body_is_read(self):
         self.assertEqual(self.post({'Content-Length': '2'}, b'{}'), (200, b'{}'))
 
@@ -48,6 +64,17 @@ class ReadRequestRawTest(unittest.TestCase):
     def test_missing_length_is_refused(self):
         status, _ = self.post({})
         self.assertEqual(status, 411)
+
+
+class ReadJsonRequestTest(ServerCase):
+    handler = JsonEcho
+
+    def test_empty_and_malformed_bodies_get_400(self):
+        self.assertEqual(self.post({'Content-Length': '0'}, b'')[0], 400)
+        self.assertEqual(self.post({'Content-Length': '3'}, b'{x}')[0], 400)
+
+    def test_valid_body_is_accepted(self):
+        self.assertEqual(self.post({'Content-Length': '2'}, b'{}')[0], 200)
 
 
 if __name__ == '__main__':

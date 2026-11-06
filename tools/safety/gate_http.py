@@ -14,3 +14,15 @@ def read_request_raw(handler):
         handler.send_error(411, 'A numeric Content-Length is required')
         return None
     return handler.rfile.read(int(length))
+
+
+def read_json_request(handler, decode):
+    """The decoded request body, or None after replying 411/501 (see read_request_raw) or 400 when decode raises (empty or malformed body)."""
+    raw = read_request_raw(handler)
+    if raw is None:
+        return None
+    try:
+        return decode(raw)
+    except Exception:
+        handler.send_error(400, 'Request body could not be decoded')
+        return None
