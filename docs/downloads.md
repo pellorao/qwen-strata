@@ -4,6 +4,14 @@ rtx3080ti 已于 2026-11-03 安装 v0.2.10（Control 与 Qwen 引擎 0.1.56）�
 
 探索下载的候选模型、分词器和配套文件统一放工程`.tmp/`；仅在确认需要采用后才进入`artifacts/`。工程长期保留公共来源、固定版本、大小、SHA及必要结果，临时缓存位置不表示已采用或已部署；清空临时目录后重新下载／准备。此规则同时适用于助手和提供给用户的探索下载路径。
 
+## DFlash2 草稿器（rtx3080ti 已下载，评估后不采用）
+
+2026-11-07 评估 DFlash2 并行草稿器时下载，经 `strata drafting fetch` 取得并校验，结论是本机 12 GB 卡上无提升、长输入更慢，量化模板继续钉死 `"drafting": "mtp"`，见[评估任务记录](../../.tasks/qwen-strata/dflash2-report.md)。
+
+- 来源：Hugging Face `incoai/Qwen3.8-Flash-Next-DFlash2`，revision `a22a1744`；`model.safetensors` 1,206,140,008 字节（SHA-256 `d6723f2a…186f`，上游固定），下载后由工具打包并删除原文件。
+- 本地产物：pack 522,458,112 字节，SHA-256 `cda40d62d0eb8f37ed6e272142641a1d2f0de4a32f9e14d0416e7a71534849f1`（与上游钉死值一致），落地安装目录 `data\dflash2\qwen3.8-flash-next-dflash2.q4_0.pack` 加 `draft_vocab.bin`。总写盘约 1.2 GB 下载加 0.5 GB pack。
+- 注意：pack 已在本机，若以后去掉模板的 `"drafting": "mtp"` 钉死，Auto 会悄悄换成 DFlash2。需要恢复时重新执行 `strata drafting fetch --data-dir <安装目录>\data`。
+
 ## Strata v0.2.10（rtx3080ti 已安装）
 
 2026-11-03 核对官方发布，附注标签 `v0.2.10`（标签对象 `db0500a5`）指向提交 `ffa80d73133ea5c548aefe57889a16e8085a938f`，发布时间 2026-11-02T23:52Z。Control 与引擎同为 0.1.56（CMake `VERSION 0.1.56`，与引擎包一致，不需要 `source_cmake_version`）。同一发布的 `strata-dsv41-*` 包不用。由升级 worker 下载。
