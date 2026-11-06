@@ -1,0 +1,104 @@
+{
+ "marker": "MARK-7177a2bad28f",
+ "note": "NOTE-6ff9f514acee",
+ "stages": [
+  {
+   "stage": "C1",
+   "exit": 0,
+   "seconds": 68.65708041191101,
+   "segments": 5,
+   "tokens": {
+    "uncached_input": 40452,
+    "cached_input": 20432,
+    "output": 732
+   },
+   "rates": {
+    "engine_input_seconds": 20.414,
+    "engine_decode_seconds": 8.063,
+    "engine_input_tokens_per_second": 1981.5812677574213,
+    "engine_output_tokens_per_second": 90.78506759270742,
+    "unit": "token/s",
+    "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+   }
+  },
+  {
+   "stage": "C2",
+   "exit": 0,
+   "seconds": 39.69701361656189,
+   "segments": 1,
+   "tokens": {
+    "uncached_input": 1832,
+    "cached_input": 20457,
+    "output": 2705
+   },
+   "rates": {
+    "engine_input_seconds": 2.155,
+    "engine_decode_seconds": 27.563,
+    "engine_input_tokens_per_second": 850.1160092807426,
+    "engine_output_tokens_per_second": 98.13880927330116,
+    "unit": "token/s",
+    "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+   }
+  },
+  {
+   "stage": "C3",
+   "exit": 0,
+   "seconds": 14.445120096206665,
+   "segments": 1,
+   "tokens": {
+    "uncached_input": 4417,
+    "cached_input": 16059,
+    "output": 120
+   },
+   "rates": {
+    "engine_input_seconds": 3.265,
+    "engine_decode_seconds": 1.137,
+    "engine_input_tokens_per_second": 1352.833078101072,
+    "engine_output_tokens_per_second": 105.54089709762533,
+    "unit": "token/s",
+    "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+   }
+  },
+  {
+   "stage": "X1",
+   "exit": 0,
+   "seconds": 46.79976844787598,
+   "segments": 3,
+   "tokens": {
+    "uncached_input": 19131,
+    "cached_input": 20129,
+    "output": 450
+   },
+   "rates": {
+    "engine_input_seconds": 12.065,
+    "engine_decode_seconds": 4.117,
+    "engine_input_tokens_per_second": 1585.6610029009532,
+    "engine_output_tokens_per_second": 109.30289045421424,
+    "unit": "token/s",
+    "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+   }
+  },
+  {
+   "stage": "X2",
+   "exit": 0,
+   "seconds": 56.76136803627014,
+   "segments": 4,
+   "tokens": {
+    "uncached_input": 15643,
+    "cached_input": 19168,
+    "output": 623
+   },
+   "rates": {
+    "engine_input_seconds": 11.783,
+    "engine_decode_seconds": 7.266,
+    "engine_input_tokens_per_second": 1327.5905966222524,
+    "engine_output_tokens_per_second": 85.74181117533719,
+    "unit": "token/s",
+    "source": "Internal read/generated and prompt/decode durations; cache excluded from input numerator"
+   }
+  }
+ ],
+ "C1_result": "Done — all three steps completed:\n\n1. **Bash:** Ran `echo MARK-7177a2bad28f > marker.txt` successfully.\n2. **Read:** `marker.txt` contains exactly:\n   ```\n   MARK-7177a2bad28f\n   ```\n3. **Brave search:** The GitHub release page for Strata v0.2.11 is:\n   **https://github.com/Niko1221/Strata/releases/tag/v0.2.11**\n\n   (Released 05 Nov 12:49 by Niko1221, tag `v0.2.11`, commit `c3b3f50` — \"Strata 0.2.11\", marked as Latest on the general releases page at https://github.com/Niko1221/Strata/releases.)",
+ "C3_result": "{\"marker\": \"MARK-7177a2bad28f\", \"url\": \"https://github.com/Niko1221/Strata/releases/tag/v0.2.11\"}",
+ "marker_file": "MARK-7177a2bad28f\n"
+}
