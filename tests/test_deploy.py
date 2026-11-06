@@ -103,6 +103,12 @@ class DeployTests(unittest.TestCase):
     def test_private_file_is_never_a_public_deployment_file(self):
         self.assertNotIn('installation.private.toml', deployment_files({'models': ['IQ3_XXS']}))
 
+    def test_the_caller_manual_deploys_as_a_readme_and_a_detailed_manual_in_both_languages(self):
+        files = deployment_files({'models': ['IQ3_XXS']})
+        manual = {t: files[t] for t in ('README.md', 'README.zh-CN.md', 'docs/manuals/caller-manual.md', 'docs/manuals/caller-manual.zh-CN.md')}
+        self.assertEqual(manual, deploy.MANUAL_FILES)
+        self.assertEqual(len(set(manual.values())), 4)
+
     def test_installation_local_config_is_never_replaced_or_removed(self):
         host = {'models': ['IQ3_XXS']}
         self.assertNotIn('config.local.json', deployment_files(host))

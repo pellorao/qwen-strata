@@ -19,7 +19,7 @@ Codex CLI 定时唤醒、未来待办提醒或 subagent 周期检查：读 [code
 
 - Git 只有一个长期分支 `master`，两台机器都直接在 `master` 上拉取、提交和推送。开始工作前先拉取；推送被拒绝时先 pull/rebase，禁止 force push。
 - 每台机器各有一份工程副本，只管本机。当前主机只由 `project.private.toml` 顶层的 `local_host` 指定；`python3 -m tools.ops.deployment_source` 只输出主机 id，是有副作用的操作校验当前主机的统一入口。部署、升级、调参和测量只接受当前主机。只读渲染和检查可以显式指定其他 host。
-- 主机相关事实按机器分开：配置在 `config/deployments/<host>.json`，调用手册段落在 `docs/installation-readme-hosts/<host>.md`，主页在 `docs/hosts/<host>.md`，新报告在 `reports/<host>/<版本或主题>/`。主文档保留共用规则；主机差异多而常变时放子文档，少量差异可以直接写在主文档的对应小节。
+- 主机相关事实按机器分开：配置在 `config/deployments/<host>.json`，调用手册段落在 `docs/installation-readme-hosts/<host>.md` 和 `<host>.zh-CN.md`，主页在 `docs/hosts/<host>.md`，新报告在 `reports/<host>/<版本或主题>/`。主文档保留共用规则；主机差异多而常变时放子文档，少量差异可以直接写在主文档的对应小节。
 - 安装路径、前端地址和凭据只在 `project.private.toml`，不写进其他来源。历史报告中的主机名表示证据来源，不是当前主机声明。
 
 已知主机入口：[rtx3080ti](docs/hosts/rtx3080ti.md)、[rtx4070tis](docs/hosts/rtx4070tis.md)。
@@ -55,7 +55,7 @@ Codex CLI 定时唤醒、未来待办提醒或 subagent 周期检查：读 [code
 
 ## 目录
 
-目录布局用 `ls` 查看。`docs/` 里 `arw-upstream-issues.md`、`strata-upstream-issues.md` 记 ARW 与 Strata 的上游缺陷；`docs/hosts/<host>.md` 记录每机当前事实，`installation-directory-readme.md` 是安装目录调用手册的模板，按主机渲染（本机段落在 `installation-readme-hosts/`）。`.tmp/` 是可随时删除的运行明细，长期文档不得依赖它。
+目录布局用 `ls` 查看。`docs/` 里 `arw-upstream-issues.md`、`strata-upstream-issues.md` 记 ARW 与 Strata 的上游缺陷；`docs/hosts/<host>.md` 记录每机当前事实，`installation-directory-readme*.md`（简介）和 `installation-directory-manual*.md`（详细手册）是安装目录调用手册的模板，各有英文和 `.zh-CN.md` 两份，按主机和语言渲染（本机段落在 `installation-readme-hosts/`）。`.tmp/` 是可随时删除的运行明细，长期文档不得依赖它。
 
 ## 命令
 

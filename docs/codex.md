@@ -26,7 +26,7 @@ Responses 请求用 reasoning.effort；原生 Chat 用 reasoning_effort。Codex 
 
 调用方必须先取得独占权，再按自身需求启动指定量化，并在请求中使用所需推理强度。独占期间其他调用方无权启动、停止、切换或调用模型。安装目录的所有启停入口、Chat/Responses 及模型管理API须检查同一持有凭据；IP允许列表或短暂启动互斥锁不能代替调用方独占。
 
-前端常驻运行，调用方无需启动。完整租约流程、参数表及Python示例在[调用手册](installation-directory-readme.md)。停止保留租约，归还立即撤销key并停止模型；租约只在前端内存中，重启前端即回收。
+前端常驻运行，调用方无需启动。完整租约流程、参数表在[详细手册](installation-directory-manual.zh-CN.md)，Python示例在[简介](installation-directory-readme.zh-CN.md)。停止保留租约，归还立即撤销key并停止模型；租约只在前端内存中，重启前端即回收。
 
 ## 协议与工具
 

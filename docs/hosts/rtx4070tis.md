@@ -12,7 +12,7 @@ RTX 4070 Ti SUPER 16 GB、i9-14900K、64 GB RAM。该机由 Codex 管理；是�
 具体参数与证据入口：
 
 - 部署配置：[config/deployments/rtx4070tis.json](../../config/deployments/rtx4070tis.json)
-- 调用手册本机段落：[docs/installation-readme-hosts/rtx4070tis.md](../installation-readme-hosts/rtx4070tis.md)
+- 调用手册本机段落：[docs/installation-readme-hosts/rtx4070tis.md](../installation-readme-hosts/rtx4070tis.md)（中文：[rtx4070tis.zh-CN.md](../installation-readme-hosts/rtx4070tis.zh-CN.md)）
 - 本机调参：[docs/host-tuning/rtx4070tis.md](../host-tuning/rtx4070tis.md)
 - 上线交接：[docs/rtx4070tis-handoff.md](../rtx4070tis-handoff.md)
 - 本机后续进度：[docs/work-history/rtx4070tis.md](../work-history/rtx4070tis.md)

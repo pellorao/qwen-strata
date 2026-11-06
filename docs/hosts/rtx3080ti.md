@@ -13,7 +13,7 @@ RTX 3080 Ti 12 GB、i9-13900。该机由 Claude Code 管理，负责现有 bench
 具体参数与证据入口：
 
 - 部署配置：[config/deployments/rtx3080ti.json](../../config/deployments/rtx3080ti.json)
-- 调用手册本机段落：[docs/installation-readme-hosts/rtx3080ti.md](../installation-readme-hosts/rtx3080ti.md)
+- 调用手册本机段落：[docs/installation-readme-hosts/rtx3080ti.md](../installation-readme-hosts/rtx3080ti.md)（中文：[rtx3080ti.zh-CN.md](../installation-readme-hosts/rtx3080ti.zh-CN.md)）
 - 本机调参：[docs/host-tuning/rtx3080ti.md](../host-tuning/rtx3080ti.md)
 - 本机后续进度：[docs/work-history/rtx3080ti.md](../work-history/rtx3080ti.md)
 

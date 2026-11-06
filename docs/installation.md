@@ -31,7 +31,7 @@
 | `downloads/wheels/` | 重建Windows Python环境所需的离线依赖缓存 |
 | `logs/` | 前端、原生服务和引擎日志 |
 | `src/` | 前端、模型进程管理、原生服务包装、基础提示加载及文件 MCP |
-| 根目录 `README.md` | 调用手册；源文件为工程 `docs/installation-directory-readme.md` |
+| 根目录 `README.md`、`README.zh-CN.md`、`docs/manuals/caller-manual.md`、`docs/manuals/caller-manual.zh-CN.md` | 调用手册的简介和详细手册（各中英两份）；源文件为工程 `docs/installation-directory-readme*.md` 和 `docs/installation-directory-manual*.md` |
 | `deployment-manifest.json` | 最近一次部署的文件清单与 SHA |
 | `.tmp/model/` | 每次模型启动生成的临时运行配置 |
 

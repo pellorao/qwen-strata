@@ -1,6 +1,6 @@
 # 调用方独占控制器验收
 
-2026-10-03，Windows原生Strata v0.1.38，WSL调用方；完整使用方法位于[安装README](../../docs/installation-directory-readme.md#调用方使用方法)，机器可读结果见[controller.json](controller.json)。
+2026-10-03，Windows原生Strata v0.1.38，WSL调用方；完整使用方法位于[安装README](../../docs/installation-directory-readme.zh-CN.md#调用方使用方法)，机器可读结果见[controller.json](controller.json)。
 
 模型服务由8101控制器独占管理，安装根目录仅公开Run-Strata-Controller.sh。领取仅在无持有者且模型停止时成功，后续启动/查询/停止/Chat/Responses验证同一key。服务端持有状态只记录key摘要，归还先生成随机新key并撤销旧key，再卸载/停止；清理失败进入blocked，未确认停止不发下一把key。停止本身保留独占权，控制器重启也不清除持有者。
 

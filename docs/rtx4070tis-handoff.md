@@ -76,7 +76,7 @@ rtx3080ti 上由 Claude Code 管理本工程，rtx4070tis 上用 Codex。同一�
    - 对外模型的 `context_tiers`，没有它渲染 catalog 会失败；
    - 核对 `models`，现在的 `["IQ3_XXS"]` 只是占位。
    - 思考上限沿用 8192/24576；guardian 用思考 512 / 总输出 1024；采样（temperature、top_p、top_k、presence_penalty）显式写进 `installation_defaults`，调用手册要用到。
-   - 写调用手册的本机段落 `docs/installation-readme-hosts/rtx4070tis.md`（段名与 rtx3080ti 的相同，内容按本机实测），缺任何一项渲染即报错。
+   - 写调用手册的本机段落 `docs/installation-readme-hosts/rtx4070tis.md` 和 `rtx4070tis.zh-CN.md`（段名与 rtx3080ti 的相同，内容按本机实测），缺任何一项渲染即报错。
 4. 安装最新版 Strata：用 `tools.ops.upgrade_release` 或重建安装。`install_offline` 用已装在 `runtime/Strata/engine` 的引擎（按 `installed-release.json` 的 `engine_version` 核对），所以重建前先用 `upgrade_release` 装好发布版。
 5. 部署（命令不加 `cd … &&` 前缀和管道）。部署会备份并删除安装目录里不对外量化的 prebuilt 和已退役的 `config/maintenance-baseline.json`；防循环已弃用（默认关闭、启动提示不加载防循环段），随工程部署即带上。
 6. 检查：安全门、compact probe、短检查（`strata-upgrade` skill）。

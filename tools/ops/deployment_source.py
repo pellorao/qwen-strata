@@ -21,11 +21,29 @@ CONDITION_FIELDS = {'id', 'model', 'model_overrides', 'model_environment', 'requ
 # A tuning condition may vary only these request defaults (min_p, presence_penalty: sampling dimension, 2026-10-24), and only for its own model
 CONDITION_REQUEST_DEFAULTS = {'temperature', 'top_p', 'top_k', 'min_p', 'presence_penalty'}
 # The host this project copy runs on is named only by project.private.toml's top-level `local_host`.
-# The caller manual: a template whose {{name}} values come from the host data and whose {{host.<section>}} paragraphs
-# (measured facts that hold for one host only) come from MANUAL_HOSTS/<host>.md.
-MANUAL = 'docs/installation-directory-readme.md'
+# The caller manual: two parts, each in two languages (English is the default, `X.md`; Simplified Chinese is `X.zh-CN.md`).
+# A part is a template whose {{name}} values come from the host data and whose {{host.<section>}} paragraphs (measured facts
+# that hold for one host only) come from MANUAL_HOSTS/<host>[.zh-CN].md. The installation keeps the same relative links.
 MANUAL_HOSTS = 'docs/installation-readme-hosts'
+LANGUAGES = ('en', 'zh-CN')
+# part -> (template source, installation target); each takes `.zh-CN` before `.md` for Chinese
+MANUAL_PARTS = {'readme': ('docs/installation-directory-readme', 'README'),
+                'manual': ('docs/installation-directory-manual', 'docs/manuals/caller-manual')}
 MANUAL_SAMPLING = ('temperature', 'top_p', 'top_k', 'presence_penalty')
+MANUAL_JOINER = {'en': ', ', 'zh-CN': '、'}
+
+
+def _suffix(language):
+    if language not in LANGUAGES:
+        raise ValueError(f'Unknown manual language {language!r}')
+    return '.md' if language == 'en' else '.zh-CN.md'
+
+
+# installation target -> template source, and template source -> (part, language)
+MANUAL_FILES = {target + _suffix(lang): source + _suffix(lang)
+                for source, target in MANUAL_PARTS.values() for lang in LANGUAGES}
+MANUAL_SOURCES = {source + _suffix(lang): (part, lang)
+                  for part, (source, _) in MANUAL_PARTS.items() for lang in LANGUAGES}
 
 
 def load_private(project=None):
@@ -164,11 +182,12 @@ def wsl_path(windows):
     return '/'.join(['/mnt', path.drive[0].lower(), *path.parts[1:]])
 
 
-def manual_sections(identifier, project=None):
-    """The host's manual paragraphs: each starts at a `<!-- name -->` line and runs to the next one."""
-    path = Path(project or ROOT) / MANUAL_HOSTS / (identifier + '.md')
+def manual_sections(identifier, project=None, language='en'):
+    """The host's manual paragraphs in one language: each starts at a `<!-- name -->` line and runs to the next one."""
+    name = identifier + _suffix(language)
+    path = Path(project or ROOT) / MANUAL_HOSTS / name
     if not path.is_file():
-        raise ValueError(f'{identifier} has no manual paragraphs: write {MANUAL_HOSTS}/{identifier}.md')
+        raise ValueError(f'{identifier} has no manual paragraphs: write {MANUAL_HOSTS}/{name}')
     parts = re.split(r'^<!-- ([a-z_]+) -->$', path.read_text(encoding='utf-8'), flags=re.M)
     names = parts[1::2]
     if len(set(names)) != len(names):
@@ -176,8 +195,9 @@ def manual_sections(identifier, project=None):
     return {name: body.strip('\n') for name, body in zip(names, parts[2::2])}
 
 
-def render_manual(identifier, project=None):
-    """The installation README for this host: every placeholder resolved from its host data, none left over."""
+def render_manual(identifier, project=None, part='readme', language='en'):
+    """One part of the caller manual for this host in one language: every placeholder resolved from its host data, none left over."""
+    source = MANUAL_PARTS[part][0] + _suffix(language)
     host = load_host(identifier, project)
     model = host['models'][0]
     tiers, defaults = host['context_tiers'].get(model), host.get('installation_defaults', {})
@@ -193,9 +213,9 @@ def render_manual(identifier, project=None):
               'context_window': tiers[0]['context_window'], 'auto_compact_token_limit': tiers[0]['auto_compact_token_limit'],
               'example_context_window': tiers[-1]['context_window'],
               **{k: defaults[k] for k in ('reasoning_effort', 'reasoning_budget_tokens', 'max_tokens')},
-              'sampling': '、'.join(f'{k} {defaults[k]:g}' for k in MANUAL_SAMPLING)}
-    values.update({'host.' + k: v for k, v in manual_sections(identifier, project).items()})
-    template = (Path(project or ROOT) / MANUAL).read_text(encoding='utf-8')
+              'sampling': MANUAL_JOINER[language].join(f'{k} {defaults[k]:g}' for k in MANUAL_SAMPLING)}
+    values.update({'host.' + k: v for k, v in manual_sections(identifier, project, language).items()})
+    template = (Path(project or ROOT) / source).read_text(encoding='utf-8')
     names = set(re.findall(r'\{\{([a-z_.]+)\}\}', template))
     if names - set(values):
         raise ValueError(f'The manual names values {identifier} does not provide: ' + ', '.join(sorted(names - set(values))))
@@ -288,8 +308,8 @@ def source_bytes(relative, identifier, project=None, condition=None):
         return (json.dumps(model_configuration(model, identifier, project, condition), indent=2) + '\n').encode()
     if path.as_posix() == 'config/deployment.json':
         return (json.dumps(public_host(identifier, project, condition), indent=2) + '\n').encode()
-    if path.as_posix() == MANUAL:
-        return render_manual(identifier, project).encode()
+    if path.as_posix() in MANUAL_SOURCES:
+        return render_manual(identifier, project, *MANUAL_SOURCES[path.as_posix()]).encode()
     if path.as_posix() == 'config/frontend.json':
         return (json.dumps(frontend_configuration(identifier, project), indent=2) + '\n').encode()
     if path.as_posix() == 'config/model-catalog.json':

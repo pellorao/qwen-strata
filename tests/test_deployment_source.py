@@ -9,8 +9,11 @@ from unittest import mock
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.ops.deployment_source import (current_host, require_current_host,
                                          frontend_configuration, load_host, model_configuration, published_tier,
-                                         served_model, source_bytes, render_manual, wsl_path, MANUAL, MANUAL_HOSTS)
+                                         served_model, source_bytes, render_manual, wsl_path, MANUAL_FILES, MANUAL_HOSTS,
+                                         MANUAL_PARTS, MANUAL_SOURCES, LANGUAGES)
 import hashlib
+import posixpath
+import re
 import shutil
 
 
@@ -266,31 +269,80 @@ class CurrentHostTests(unittest.TestCase):
 
 
 REAL_ROOT = Path(__file__).resolve().parents[1]
-# SHA-256 of the README deployed on rtx3080ti when the manual became a host template (2026-10-24); the render must keep
-# it byte for byte. A deliberate manual change updates this pin together with the deployment.
-DEPLOYED_MANUAL_SHA256 = '7516950264001950f18e59ec7bdacb01364b3ff376bb7c9da0e3d079c0cee3d3'
+# SHA-256 of each caller-manual file rendered for rtx3080ti, per installation target. The render is pinned byte for byte;
+# a deliberate manual change updates these pins together with the deployment (README.md: 2026-10-24 deployed file for the
+# one-file manual; the two-part, two-language manual 2026-11-07).
+RENDERED_MANUAL_SHA256 = {
+    'README.md': 'fc330714abcf0080b41af083e90f45ec7b23760b01626b57b3359f6da65b11c1',
+    'README.zh-CN.md': 'fb73b6a8af301d31cd0603af5b13b04f2619d0a7113c4e3a5da3a9cbe62aad97',
+    'docs/manuals/caller-manual.md': '245f2107c5ee0251f3b78b6b6324a2766449d53ed1f7365d191780f73e51c34d',
+    'docs/manuals/caller-manual.zh-CN.md': '3ec5f8426de3156799967126708b909d08dd887e5bf0c16c7411691a5f358216',
+}
+CJK = re.compile('[\u4e00-\u9fff]')
+
+
+def github_slug(heading):
+    """GitHub's anchor of a heading: lowercase, punctuation dropped, spaces to hyphens."""
+    return re.sub(r'[^\w\- ]', '', heading.strip().lower()).replace(' ', '-')
 
 
 class ManualRenderingTests(unittest.TestCase):
-    """The caller manual is rendered per host from the template, the host file and the host's own paragraphs."""
+    """The caller manual (a README and a detailed manual, each in English and Chinese) is rendered per host from the
+    templates, the host file and the host's own paragraphs."""
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         (self.root/'docs').mkdir()
         shutil.copytree(REAL_ROOT/'config/deployments', self.root/'config/deployments')
-        shutil.copyfile(REAL_ROOT/MANUAL, self.root/MANUAL)
+        for source in MANUAL_SOURCES:
+            shutil.copyfile(REAL_ROOT/source, self.root/source)
         shutil.copytree(REAL_ROOT/MANUAL_HOSTS, self.root/MANUAL_HOSTS)
         (self.root/'project.private.toml').write_text(
             "[hosts.rtx3080ti]\ninstallation_path = 'C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next'\n"
             "[hosts.rtx4070tis]\ninstallation_path = 'C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next'\n",
             encoding='utf-8')
 
-    def test_rtx3080ti_renders_the_deployed_manual(self):
-        rendered = render_manual('rtx3080ti', self.root).encode()
-        self.assertEqual(hashlib.sha256(rendered).hexdigest(), DEPLOYED_MANUAL_SHA256)
-        self.assertEqual(source_bytes(MANUAL, 'rtx3080ti', self.root), rendered)
-        self.assertNotIn(b'{{', rendered)
+    def test_every_part_and_language_renders_without_placeholders(self):
+        self.assertEqual(sorted(MANUAL_FILES), sorted(RENDERED_MANUAL_SHA256))
+        for host in ('rtx3080ti', 'rtx4070tis'):
+            for target, source in MANUAL_FILES.items():
+                with self.subTest(host=host, target=target):
+                    rendered = source_bytes(source, host, self.root).decode()
+                    self.assertNotIn('{{', rendered)
+                    # English files are English throughout; the switch line to the Chinese file is the one exception
+                    self.assertEqual(bool(CJK.search(rendered.replace('简体中文', ''))), target.endswith('.zh-CN.md'))
+
+    def test_rtx3080ti_renders_the_pinned_files(self):
+        for target, source in MANUAL_FILES.items():
+            with self.subTest(target=target):
+                part, language = MANUAL_SOURCES[source]
+                rendered = render_manual('rtx3080ti', self.root, part, language).encode()
+                self.assertEqual(hashlib.sha256(rendered).hexdigest(), RENDERED_MANUAL_SHA256[target])
+                self.assertEqual(source_bytes(source, 'rtx3080ti', self.root), rendered)
+
+    def test_both_languages_carry_the_same_placeholders_and_host_sections(self):
+        for part, (source, _) in MANUAL_PARTS.items():
+            en, zh = ((REAL_ROOT/(source + suffix)).read_text(encoding='utf-8') for suffix in ('.md', '.zh-CN.md'))
+            self.assertEqual(re.findall(r'\{\{[^}]*\}\}', en), re.findall(r'\{\{[^}]*\}\}', zh), part)
+            self.assertEqual(len(re.findall(r'^#+ ', en, flags=re.M)), len(re.findall(r'^#+ ', zh, flags=re.M)), part)
+        for host in ('rtx3080ti', 'rtx4070tis'):
+            en, zh = ((REAL_ROOT/MANUAL_HOSTS/(host + suffix)).read_text(encoding='utf-8') for suffix in ('.md', '.zh-CN.md'))
+            marker = r'^<!-- ([a-z_]+) -->$'
+            self.assertEqual(re.findall(marker, en, flags=re.M), re.findall(marker, zh, flags=re.M), host)
+
+    def test_links_and_anchors_resolve_inside_the_installation(self):
+        rendered = {target: source_bytes(source, 'rtx3080ti', self.root).decode() for target, source in MANUAL_FILES.items()}
+        for target, text in rendered.items():
+            text = re.sub(r'```.*?```', '', text, flags=re.S)
+            for link in re.findall(r'\]\(([^)\s]+)\)', text):
+                with self.subTest(target=target, link=link):
+                    path, _, anchor = link.partition('#')
+                    other = posixpath.normpath(posixpath.join(posixpath.dirname(target), path)) if path else target
+                    self.assertIn(other, rendered)
+                    if anchor:
+                        body = re.sub(r'```.*?```', '', rendered[other], flags=re.S)
+                        self.assertIn(anchor, [github_slug(h) for h in re.findall(r'^#+ (.+)$', body, flags=re.M)])
 
     def test_values_follow_the_host_file(self):
         path = self.root/'config/deployments/rtx3080ti.json'
@@ -298,15 +350,22 @@ class ManualRenderingTests(unittest.TestCase):
         value.update(listen_address='10.0.0.9', port=8123)
         value['context_tiers']['IQ3_XXS'] = [{'context_window': 100000, 'auto_compact_token_limit': 70000}]
         path.write_text(json.dumps(value), encoding='utf-8')
-        rendered = render_manual('rtx3080ti', self.root)
-        self.assertIn('base_url = "http://10.0.0.9:8123/strata/v1"', rendered)
-        self.assertIn('model_context_window = 100000\nmodel_auto_compact_token_limit = 70000', rendered)
-        self.assertNotIn('192.168.60.212', rendered.split('## 已观察到的执行异常')[0])
+        for part, language, anomalies in (('manual', 'en', '## Observed execution anomalies'),
+                                          ('manual', 'zh-CN', '## 已观察到的执行异常')):
+            rendered = render_manual('rtx3080ti', self.root, part, language)
+            self.assertIn('base_url = "http://10.0.0.9:8123/strata/v1"', rendered)
+            self.assertIn('model_context_window = 100000\nmodel_auto_compact_token_limit = 70000', rendered)
+            self.assertNotIn('192.168.60.212', rendered.split(anomalies)[0])
+        for language in LANGUAGES:
+            self.assertIn('http://10.0.0.9:8123', render_manual('rtx3080ti', self.root, 'readme', language))
+
+    def test_text_the_code_joins_follows_the_language(self):
+        self.assertIn('temperature 0, top_p 1, top_k 20, presence_penalty 0', render_manual('rtx3080ti', self.root, 'manual', 'en'))
+        self.assertIn('temperature 0、top_p 1、top_k 20、presence_penalty 0', render_manual('rtx3080ti', self.root, 'manual', 'zh-CN'))
 
     def test_rtx4070tis_renders_its_own_manual(self):
-        rendered = render_manual('rtx4070tis', self.root)
-        self.assertNotIn('{{', rendered)
-        self.assertIn('rtx4070tis：对外模型为 IQ3_XXS', rendered)
+        self.assertIn('The served model on rtx4070tis is IQ3_XXS', render_manual('rtx4070tis', self.root, 'manual', 'en'))
+        self.assertIn('rtx4070tis 对外提供的模型为 IQ3_XXS', render_manual('rtx4070tis', self.root, 'manual', 'zh-CN'))
 
     def test_host_without_its_data_or_paragraphs_is_refused(self):
         path = self.root/'config/deployments/rtx4070tis.json'
@@ -317,15 +376,20 @@ class ManualRenderingTests(unittest.TestCase):
         path.write_text(json.dumps(value), encoding='utf-8')
         with self.assertRaisesRegex(ValueError, 'lacks what the manual names: listen_address, port, context_tiers.IQ3_XXS'):
             render_manual('rtx4070tis', self.root)
+        (self.root/MANUAL_HOSTS/'rtx3080ti.zh-CN.md').unlink()
+        render_manual('rtx3080ti', self.root, 'manual', 'en')  # the English file does not need the Chinese paragraphs
+        with self.assertRaisesRegex(ValueError, 'no manual paragraphs'):
+            render_manual('rtx3080ti', self.root, 'manual', 'zh-CN')
         (self.root/MANUAL_HOSTS/'rtx3080ti.md').unlink()
         with self.assertRaisesRegex(ValueError, 'no manual paragraphs'):
             render_manual('rtx3080ti', self.root)
 
     def test_unknown_placeholder_is_refused(self):
-        with (self.root/MANUAL).open('a', encoding='utf-8') as stream:
-            stream.write('{{host.unwritten}}\n')
-        with self.assertRaisesRegex(ValueError, 'host.unwritten'):
-            render_manual('rtx3080ti', self.root)
+        for source, (part, language) in MANUAL_SOURCES.items():
+            with (self.root/source).open('a', encoding='utf-8') as stream:
+                stream.write('{{host.unwritten}}\n')
+            with self.assertRaisesRegex(ValueError, 'host.unwritten'):
+                render_manual('rtx3080ti', self.root, part, language)
 
     def test_wsl_path(self):
         self.assertEqual(wsl_path('C:\\Users\\pello\\x y'), '/mnt/c/Users/pello/x y')

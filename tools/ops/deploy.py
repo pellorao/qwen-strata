@@ -19,7 +19,7 @@ import time
 import urllib.error
 import urllib.request
 
-from tools.ops.deployment_source import MANUAL, MODELS, load_condition, load_host, load_private, source_bytes
+from tools.ops.deployment_source import MANUAL_FILES, MODELS, load_condition, load_host, load_private, source_bytes
 
 ROOT = Path(__file__).resolve().parents[2]
 TASK = 'QwenStrataFrontend'
@@ -30,7 +30,7 @@ FILES = {f'src/{name}': f'src/{name}' for name in (
 FILES.update({name: name for name in (
     'config/prompts/startup-instructions.txt', 'config/prompts/compact-prompt.txt', 'config/model-catalog.json',
     'config/deployment.json', 'config/frontend.json')})
-FILES['README.md'] = MANUAL  # rendered for the host (deployment_source.render_manual)
+FILES.update(MANUAL_FILES)  # rendered for the host (deployment_source.render_manual)
 FILES['maintenance/Install-Frontend.ps1'] = 'scripts/windows/Install-Frontend.ps1'
 FILES['bin/qwen-agent'] = 'scripts/wsl/qwen-agent'
 FILES['bin/qwen-approve'] = 'scripts/wsl/qwen-approve'
@@ -162,7 +162,7 @@ def deploy(identifier, docs_only=False, condition=None):
     root = local_path(host['installation_root'])
     if not (root / 'runtime/Strata/.venv').is_dir():
         raise RuntimeError('Installation runtime is missing')
-    files = {t: s for t, s in deployment_files(host).items() if not docs_only or t == 'README.md'}
+    files = {t: s for t, s in deployment_files(host).items() if not docs_only or t in MANUAL_FILES}
     obsolete = () if docs_only else obsolete_files(host)
     expected = {target: source_bytes(source, identifier, condition=condition) for target, source in files.items()}
     private = None if docs_only else private_bytes()

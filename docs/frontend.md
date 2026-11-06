@@ -1,6 +1,6 @@
 # 前端运行与维护
 
-调用方的接口、启动参数和示例见[调用手册](installation-directory-readme.md)。本文说明前端的结构、一次性安装、部署和升级。
+调用方的接口、启动参数见[详细手册](installation-directory-manual.zh-CN.md)，示例见[简介](installation-directory-readme.zh-CN.md)。本文说明前端的结构、一次性安装、部署和升级。
 
 ## 结构
 
@@ -16,7 +16,7 @@
 - 模型跨租约驻留：归还租约不停模型，下一个租约用相同参数启动时直接复用（省掉约 16 秒加载和 36 GB SSD 读取）。参数比较的是校验后的完整运行配置的 SHA。没有租约的模型空闲 `IDLE_STOP_MINUTES`（30）分钟后停止，0 表示不停。代价是空闲期间一直占用约 39 GB 内存和约 11 GB 显存；上一个调用方的 prompt cache 也留在进程中。
 - 测量工具经 `tools/ops/controller_client.py` 领租约后，若发现模型在运行就先停掉，保证每个测量实例从冷加载开始；部署和升级同样先停模型。ARW 持有模型的批次（`selection.model_owner = "arw"`）由 `arw_measure` 在交给 ARW 之前做同样的事：领租约、停常驻模型、核实已停后归还，ARW 再自己领租约启动，所以每批从冷加载开始（批内实例之间不停模型）。
 - 采样默认值写入原生运行配置的 `sampling`；前端只为 Chat 和 Responses 补推理强度、思考预算和输出上限。
-- 流式 Responses 回答撞到输出上限时，`src/output_limit.py` 在前端内部带服务端通知重试一次（上限是服务默认值时重试上限加倍，最多 24576），调用方看不到截断的回答；没撞上限的流逐字节原样转发；Messages 不处理。做法和边界见调用手册「撞到输出上限时的内部重试」。
+- 流式 Responses 回答撞到输出上限时，`src/output_limit.py` 在前端内部带服务端通知重试一次（上限是服务默认值时重试上限加倍，最多 24576），调用方看不到截断的回答；没撞上限的流逐字节原样转发；Messages 不处理。做法和边界见[详细手册](installation-directory-manual.zh-CN.md#撞到输出上限时的内部重试)。
 - 原生服务丢弃 `web_search` 等服务端托管工具。前端 `src/hosted_search.py` 为 Responses 流式请求补上，经 `src/brave_search.py` 调用 Brave；搜索结果按随机 id 存在前端内存，跨租约保留以便 resume 回放，超过上限淘汰最旧的，前端重启清空。
 - 日志 `logs/frontend.log` 每行带本地时间（毫秒），用于计算工作时间。
 
