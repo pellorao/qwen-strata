@@ -153,6 +153,22 @@ def maintenance(base):
         frontend.wait(True)
 
 
+def write_manifest(root, identifier, condition, condition_sha, files, actual, docs_only):
+    """The last deployment's files and SHAs.  A docs-only deploy keeps the recorded deployment and condition and
+    updates just the entries it wrote (nothing is written when no manifest exists yet)."""
+    path = root / 'deployment-manifest.json'
+    entries = {t: {'source': files[t], 'sha256': actual[t]} for t in sorted(actual)}
+    if docs_only:
+        if not path.is_file():
+            return
+        manifest = json.loads(path.read_text())
+        manifest['files'] = dict(sorted({**manifest['files'], **entries}.items()))
+    else:
+        manifest = {'deployment': identifier, 'source': 'maintenance project only',
+                    'condition': condition and {'id': condition['id'], 'sha256': condition_sha}, 'files': entries}
+    path.write_text(json.dumps(manifest, indent=2) + '\n')
+
+
 def deploy(identifier, docs_only=False, condition=None):
     """`condition`, a frozen tuning condition and its file SHA, overlays the host default until a plain deploy."""
     condition, condition_sha = condition or (None, None)
@@ -203,11 +219,7 @@ def deploy(identifier, docs_only=False, condition=None):
             raise RuntimeError('Read-back SHA differs; backup at ' + str(backup))
         if private is not None and (root / PRIVATE).read_bytes() != private:
             raise RuntimeError('Read-back of ' + PRIVATE + ' differs')
-        if not docs_only:
-            manifest = {'deployment': identifier, 'source': 'maintenance project only',
-                        'condition': condition and {'id': condition['id'], 'sha256': condition_sha},
-                        'files': {t: {'source': files[t], 'sha256': actual[t]} for t in sorted(actual)}}
-            (root / 'deployment-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+        write_manifest(root, identifier, condition, condition_sha, files, actual, docs_only)
         return removed, actual
 
     # Verified before the frontend restarts, so a failed restart still leaves a checked installation.

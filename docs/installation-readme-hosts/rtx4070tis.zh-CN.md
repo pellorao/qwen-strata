@@ -11,7 +11,7 @@ rtx4070tis 对外提供的模型为 IQ3_XXS。其默认档设为窗口 206584、
 rtx4070tis 上 Strata v0.2.4 上线端到端测试的冷加载约 32 秒（IQ3_XXS，2026-10-28，一次记录）
 
 <!-- compact_check -->
-Claude Code 不会按 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 触发压缩，而是只在达到阻塞上限（即窗口 − 20000 − 3000：206584 窗口对应 183584，156584 窗口对应 133584）时才压缩；因此需要通过 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 将该上限设为所用档的阈值，使其与 Codex 保持一致。该行为已在 rtx3080ti 上用假服务器和压缩探针核对过（涵盖 Claude Code 2.1.303–2.1.310），但本机尚未重跑 `tools.ops.claude_compact_probe`。由于这个变量不在 Claude Code 的公开文档里，升级 Claude Code 后要重新核对。
+Claude Code 不会按 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 触发压缩，而是只在达到阻塞上限（即窗口 − 20000 − 3000：206584 窗口对应 183584，156584 窗口对应 133584）时才压缩；因此需要通过 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 将该上限设为所用档的阈值，使其与 Codex 保持一致。该行为已在 rtx3080ti 上用假服务器和压缩探针核对过（涵盖 Claude Code 2.1.303–2.1.317），但本机尚未重跑 `tools.ops.claude_compact_probe`。由于这个变量不在 Claude Code 的公开文档里，升级 Claude Code 后要重新核对。
 
 <!-- approval_cache -->
 引擎单会话持有显存前缀缓存，所以审批请求会挤掉主对话的缓存。为此，本机可配置开启会话暂存（`conversation-cache-mib 8192`、`conversation-cache-slots 4`、`conversation-cache-min-free-mib 5120`），在会话切换时将其暂存到内存中。相关实测数据将在上线后结合独立调参更新。

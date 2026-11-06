@@ -12,8 +12,8 @@ Only one holder is allowed at a time. A caller acquires, uses, and releases a le
 
 1. Call `POST /lease/acquire` to acquire a key. If a holder already exists, the endpoint immediately returns 409; there is no queuing and no preemption.
 2. Once you have the key, include `Authorization: Bearer <key>` (or `x-api-key: <key>`) on every subsequent request, including model start/stop, status, and inference. A missing, invalid, or released key returns 403.
-3. Call `POST /model/start` to select the quantization and context tier and wait for the model to become ready. If the model left behind by the previous lease has the exact same quantization and tier, the service reuses it without reloading and returns `reused: true`; if it differs, the service stops the old model before starting the new one.
-4. Call `POST /model/stop` to stop only the model while keeping the lease with the current caller, so you can restart with a different quantization or tier.
+3. Call `POST /model/start` to select the context tier and wait for the model to become ready. If the model left behind by the previous lease has the exact same model and tier, the service reuses it without reloading and returns `reused: true`; if it differs, the service stops the old model before starting the new one.
+4. Call `POST /model/stop` to stop only the model while keeping the lease with the current caller, so you can restart with a different tier.
 5. When the task finishes, call `POST /lease/release` to release the lease: this revokes the key, but **the model stays loaded** for the next caller to reuse. A model without a lease is stopped by the frontend after 30 minutes of idle time; to free system and GPU memory immediately, call `/model/stop` before releasing the lease.
 
 Because the lease is kept only in frontend memory, with no timeout and no automatic reclamation, the caller must release it in its own finally path. If a key is lost or the holder exits abnormally, the service offers no keyless takeover endpoint; a maintainer must restart the frontend, which stops the model and clears the lease. In addition, the key is a caller credential: do not write it into prompts, version control, shared logs, or reports.
@@ -38,11 +38,11 @@ The frontend provides both lease/model management endpoints and inference entry 
 
 Every request must go through the frontend because the internal native Strata service on this host listens only on 127.0.0.1 and uses an internal key generated randomly on each startup, so callers cannot bypass the frontend. Requests under `/strata/` are forwarded as-is to the native Strata service, and responses (including streams) are returned as-is.
 
-Before forwarding, the frontend does only three things:
+Before forwarding, the frontend does only four things:
 - The requested `model` must equal the currently loaded model ID, or the frontend returns 409; if omitted, it is filled in automatically. If no model is running, the frontend returns 503.
 - When a Chat or Responses request omits reasoning effort, thinking budget, or output limit, the frontend fills them in according to [Reasoning effort and output](#reasoning-effort-and-output).
 - When a streaming Responses request declares `{"type": "web_search"}`, the frontend executes the search via Brave; see [Web search](#web-search).
-- Messages requests do not get default values filled in; the caller sets `max_tokens` and thinking itself.
+- When a Messages request omits a thinking budget, the frontend fills in the thinking limit; it does not fill in `max_tokens`, which the caller sets itself (see the Claude Code section).
 
 ### Errors
 
@@ -294,7 +294,7 @@ For trigger cadence and permission boundaries, prompt once for each confirmed st
 
 To evaluate whether the guard actually works, record the trigger basis, message acceptance, native receipt by the model, and whether a fix or delivery followed. Message acceptance alone, a change in command text, or another claim of completion cannot by itself prove that the reminder worked. First replay historical logs and counterexamples of normal fixes/polling to check for false positives, then verify feedback effectiveness on real tasks.
 
-Finally, note that the thresholds above are only conservative candidate starting points that callers should validate against their own workloads. The first version in this project passed offline mechanism checks and completed three real diagnostic runs on this host with Q2_0: all three still had confirmed loops, dynamic reminders never triggered, and real reminders have not yet been shown to reduce loops or shorten runtime. The main misses occurred in repeated reasoning within active turns; command-result guards cannot see all semantic repetition, while deliverable detection for "two normal yet incomplete finishes" must wait until a turn ends before it can give feedback. Therefore, do not treat offline triggerability or faster tasks as proof that real intervention is effective, and do not replace existing everyday loop prevention prompts on that basis. If a caller adds stall detection for active turns, it should first check actual deliverable progress and counterexamples of normal thinking and fixing, and separately validate false positives and feedback effectiveness.
+Finally, note that the thresholds above are only conservative candidate starting points that callers should validate against their own workloads. The first version in this project passed offline mechanism checks and completed three real diagnostic runs on this host with Q2_0: all three still had confirmed loops, dynamic reminders never triggered, and real reminders have not yet been shown to reduce loops or shorten runtime. The main misses occurred in repeated reasoning within active turns; command-result guards cannot see all semantic repetition, while deliverable detection for "two normal yet incomplete finishes" must wait until a turn ends before it can give feedback. Therefore, do not treat offline triggerability or faster tasks as proof that real intervention is effective, and do not drop loop safeguards you already have on that basis. If a caller adds stall detection for active turns, it should first check actual deliverable progress and counterexamples of normal thinking and fixing, and separately validate false positives and feedback effectiveness.
 
 ## Base prompts and context compaction
 

@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-本安装提供 Qwen3.8-Flash-Next 的 Windows 原生推理服务。服务由一个监听局域网固定地址的常驻前端统一对外，负责独占租约、模型启停和推理转发。调用方使用时，先向前端领取 key，选择量化和参数并启动模型，再通过 OpenAI Chat、OpenAI Responses 或 Anthropic Messages 接口推理，最后归还。
+本安装提供 Qwen3.8-Flash-Next 的 Windows 原生推理服务。服务由一个监听局域网固定地址的常驻前端统一对外，负责独占租约、模型启停和推理转发。调用方使用时，先向前端领取 key，选择上下文档位并启动模型，再通过 OpenAI Chat、OpenAI Responses 或 Anthropic Messages 接口推理，最后归还。
 
 调用方自行管理 Codex、Claude Code 或其他 harness，包括 provider、权限、工具、会话与压缩策略。
 

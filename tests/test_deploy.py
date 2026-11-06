@@ -109,6 +109,26 @@ class DeployTests(unittest.TestCase):
         self.assertEqual(manual, deploy.MANUAL_FILES)
         self.assertEqual(len(set(manual.values())), 4)
 
+    def test_docs_only_deploy_updates_only_its_manifest_entries(self):
+        old = {'deployment': 'h', 'source': 'maintenance project only', 'condition': {'id': 'c', 'sha256': 'x'},
+               'files': {'a': {'source': 'sa', 'sha256': '1'}, 'README.md': {'source': 'old', 'sha256': '2'}}}
+        new = {'README.md': 'src/readme', 'docs/manuals/caller-manual.md': 'src/manual'}
+        actual = {'README.md': '3', 'docs/manuals/caller-manual.md': '4'}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            deploy.write_manifest(root, 'h', None, None, new, actual, True)
+            self.assertFalse((root / 'deployment-manifest.json').exists())
+            (root / 'deployment-manifest.json').write_text(json.dumps(old))
+            deploy.write_manifest(root, 'h', None, None, new, actual, True)
+            manifest = json.loads((root / 'deployment-manifest.json').read_text())
+            self.assertEqual(manifest['condition'], old['condition'])
+            self.assertEqual(manifest['deployment'], 'h')
+            self.assertEqual(manifest['files'], {'README.md': {'source': 'src/readme', 'sha256': '3'},
+                                                 'a': {'source': 'sa', 'sha256': '1'},
+                                                 'docs/manuals/caller-manual.md': {'source': 'src/manual', 'sha256': '4'}})
+            deploy.write_manifest(root, 'h', None, None, new, actual, False)
+            self.assertEqual(set(json.loads((root / 'deployment-manifest.json').read_text())['files']), set(actual))
+
     def test_installation_local_config_is_never_replaced_or_removed(self):
         host = {'models': ['IQ3_XXS']}
         self.assertNotIn('config.local.json', deployment_files(host))

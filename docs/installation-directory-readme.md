@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-This installation provides a Windows-native inference service for Qwen3.8-Flash-Next. A resident frontend listening on a fixed LAN address serves all requests and manages exclusive leases, model startup and shutdown, and inference forwarding. To use the service, a caller first acquires a key from the frontend, selects the quantization and parameters to start the model, runs inference through the OpenAI Chat, OpenAI Responses, or Anthropic Messages API, and finally releases the lease.
+This installation provides a Windows-native inference service for Qwen3.8-Flash-Next. A resident frontend listening on a fixed LAN address serves all requests and manages exclusive leases, model startup and shutdown, and inference forwarding. To use the service, a caller first acquires a key from the frontend, starts the model by selecting a context tier, runs inference through the OpenAI Chat, OpenAI Responses, or Anthropic Messages API, and finally releases the lease.
 
 The caller manages Codex, Claude Code, or any other harness on its own, including providers, permissions, tools, sessions, and compaction policies.
 
