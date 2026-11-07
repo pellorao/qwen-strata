@@ -1,0 +1,21 @@
+{
+ "n": 15,
+ "means": {
+  "rp-off": 0.5311956979040576,
+  "rp-15": 0.5138559630633941
+ },
+ "sd": {
+  "rp-off": 0.06594021985063171,
+  "rp-15": 0.06561173381575883
+ },
+ "leader": "rp-off",
+ "d_leader_minus_other": 0.017339734840663534,
+ "se": 0.02401806571209768,
+ "c": 2.053959590644373,
+ "c_se": 0.0493321364180898,
+ "abs_d_plus_2se": 0.06537586626485889,
+ "state": "open",
+ "note": "n=15 is outside staged_decision.SIZES (3..11); c extrapolated as c_final*sqrt(5/6); even at the n=11 final bound (2.25) it is the same ordering: d>2.25*se?",
+ "d_over_se": 0.7219455158676524,
+ "welch_p_two_sided_approx_z": 0.47032797586087366
+}
