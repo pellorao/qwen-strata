@@ -23,7 +23,7 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 | 安装、升级与下载 | [安装说明](docs/installation.md) · [下载清单](docs/downloads.md) |
 | 启停、网络与部署 | [前端运行与维护](docs/frontend.md) |
 | 调用方接入 | [docs/codex.md](docs/codex.md) |
-| 参数与调优 | [调优记录](docs/tuning.md) · [每机调参目录](docs/host-tuning/README.md) |
+| 参数与调优 | [调优记录](docs/tuning.md) · [每机调参目录](docs/host-tuning/README.md)  · [提速](docs/tuning-speed.md) · [智力](docs/tuning-quality.md) |
 | 上下文压缩 | [docs/compaction-options.md](docs/compaction-options.md) |
 | 已验证行为与证据 | [验证汇总](docs/validation.md) · [测量工具](tools/README.md) · [报告约定](reports/README.md) |
 | 已完成工作 | [历史归档](docs/work-history.md) · [按主机记录](docs/work-history/) |
