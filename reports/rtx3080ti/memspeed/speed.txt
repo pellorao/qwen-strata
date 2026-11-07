@@ -1,0 +1,9 @@
+short-story-1 dec [98.7, 87.8, 85.5] mean 90.7 sd 7.1 read [470, 357, 379] acc 0.83
+short-code-1 dec [114.9, 100.3, 102.9] mean 106.0 sd 7.8 read [465, 373, 393] acc 0.92
+short-story-2 dec [78.3, 84.5, 83.3] mean 82.0 sd 3.3 read [373, 357, 358] acc 0.84
+short-code-2 dec [99.4, 107.5, 106.2] mean 104.4 sd 4.4 read [395, 378, 365] acc 0.95
+M dec [128.4, 129.5, 126.1] mean 128.0 sd 1.7 read [2408, 2415, 2387] acc 0.92
+L1 dec [122.4, 121.2, 127.8] mean 123.8 sd 3.5 read [2589, 2562, 2557] acc 0.94
+L2 dec [101.5, 99.1, 118.8] mean 106.5 sd 10.7 read [2553, 2533, 2522] acc 0.92
+L3 dec [118.7, 82.1, 119.5] mean 106.8 sd 21.4 read [2539, 2539, 2532] acc 0.95
+L dec mean 112.3 sd 14.8 med 118.8 read mean 2547 sd 20
