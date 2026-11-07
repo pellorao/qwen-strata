@@ -1,0 +1,24 @@
+short-story-1 C n 3 dec 99.6 (97.6-101.3) read None acc 0.84 prompt 304.0 [97.6, 101.3, 99.8]
+short-story-1 R n 3 dec 109.4 (104.0-114.5) read None acc 0.84 prompt 304.0 [104.0, 109.7, 114.5]
+short-code-1 C n 3 dec 112.8 (108.5-115.5) read None acc 0.91 prompt 301.0 [115.5, 114.4, 108.5]
+short-code-1 R n 3 dec 152.0 (150.2-154.1) read None acc 0.90 prompt 301.0 [150.2, 151.9, 154.1]
+short-story-2 C n 3 dec 94.6 (90.6-98.3) read None acc 0.85 prompt 305.0 [98.3, 90.6, 95.0]
+short-story-2 R n 3 dec 110.5 (109.6-111.1) read None acc 0.83 prompt 305.0 [111.1, 109.6, 110.7]
+short-code-2 C n 3 dec 121.0 (118.6-122.4) read None acc 0.95 prompt 305.0 [122.1, 118.6, 122.4]
+short-code-2 R n 3 dec 158.9 (153.7-163.2) read None acc 0.92 prompt 305.0 [159.7, 153.7, 163.2]
+M C n 3 dec 129.2 (128.3-130.0) read 2663 acc 0.92 prompt 28861.0 [128.3, 130.0, 129.2]
+M R n 3 dec 144.8 (123.7-161.2) read 2659 acc 0.92 prompt 28862.0 [161.2, 149.4, 123.7]
+L1 C n 3 dec 111.7 (99.6-119.6) read 2639 acc 0.93 prompt 119175.0 [99.6, 116.0, 119.6]
+L1 R n 3 dec 143.2 (140.6-146.9) read 2648 acc 0.94 prompt 119177.0 [141.9, 140.6, 146.9]
+L2 C n 3 dec 124.6 (117.6-128.5) read 2649 acc 0.93 prompt 119174.0 [117.6, 127.8, 128.5]
+L2 R n 3 dec 126.8 (105.8-141.2) read 2615 acc 0.90 prompt 119177.0 [141.2, 105.8, 133.4]
+L3 C n 3 dec 117.6 (111.8-123.2) read 2652 acc 0.91 prompt 119176.0 [117.8, 111.8, 123.2]
+L3 R n 3 dec 138.2 (128.8-144.8) read 2630 acc 0.92 prompt 119177.0 [144.8, 141.0, 128.8]
+L pooled C 9 mean 118.0 sd 8.3 median 117.8
+L pooled R 9 mean 136.1 sd 11.9 median 141.0
+load1-C-r1 load_s 18.2 vram 11301 11500 ram% 93.3 None
+load2-R-r1 load_s 20.2 vram 11302 11456 ram% 95.0 None
+load3-R-r2 load_s 18.2 vram 11297 11451 ram% 93.8 None
+load4-C-r2 load_s 20.2 vram 11288 11408 ram% 91.2 None
+load5-C-r3 load_s 20.2 vram 11305 11433 ram% 92.4 None
+load6-R-r3 load_s 20.2 vram 11286 11437 ram% 94.1 None

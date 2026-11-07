@@ -1,0 +1,258 @@
+{
+ "scores": {
+  "rp-off": [
+   0.42219788709605616,
+   0.4186339523226358,
+   0.5976528318908018,
+   0.5242616867136738,
+   0.5218443714295107,
+   0.5203582109419815,
+   0.5581360874602641
+  ],
+  "rp-15": [
+   0.4891262168111001,
+   0.3880280832119296,
+   0.4577203635717568,
+   0.6022435021795924,
+   0.5570713730615839,
+   0.6080885167649874,
+   0.5715634567522045
+  ]
+ },
+ "instances": [
+  {
+   "id": "codex-strata-high-a1",
+   "condition": "rp-off",
+   "minutes": 8.4,
+   "tokens": {
+    "uncached_input": 81097,
+    "cached_input": 1124857,
+    "output": 41443
+   },
+   "tool_calls": 21,
+   "compactions": 0,
+   "engine_out_tps": 92.3,
+   "engine_in_tps": 1861,
+   "task_out_tps": 82.7
+  },
+  {
+   "id": "codex-strata-high-a2",
+   "condition": "rp-off",
+   "minutes": 5.5,
+   "tokens": {
+    "uncached_input": 62878,
+    "cached_input": 696030,
+    "output": 27664
+   },
+   "tool_calls": 17,
+   "compactions": 0,
+   "engine_out_tps": 96.1,
+   "engine_in_tps": 1850,
+   "task_out_tps": 83.8
+  },
+  {
+   "id": "codex-strata-high-a3",
+   "condition": "rp-off",
+   "minutes": 8.6,
+   "tokens": {
+    "uncached_input": 92778,
+    "cached_input": 2031488,
+    "output": 43069
+   },
+   "tool_calls": 29,
+   "compactions": 0,
+   "engine_out_tps": 94.7,
+   "engine_in_tps": 1898,
+   "task_out_tps": 83.8
+  },
+  {
+   "id": "codex-strata-high-a4",
+   "condition": "rp-off",
+   "minutes": 6.6,
+   "tokens": {
+    "uncached_input": 75844,
+    "cached_input": 1069482,
+    "output": 32293
+   },
+   "tool_calls": 17,
+   "compactions": 0,
+   "engine_out_tps": 92.4,
+   "engine_in_tps": 2044,
+   "task_out_tps": 81.6
+  },
+  {
+   "id": "codex-strata-high-a5",
+   "condition": "rp-off",
+   "minutes": 9.2,
+   "tokens": {
+    "uncached_input": 85260,
+    "cached_input": 2182805,
+    "output": 45546
+   },
+   "tool_calls": 27,
+   "compactions": 0,
+   "engine_out_tps": 92.6,
+   "engine_in_tps": 1775,
+   "task_out_tps": 82.8
+  },
+  {
+   "id": "codex-strata-high-a6",
+   "condition": "rp-off",
+   "minutes": 6.3,
+   "tokens": {
+    "uncached_input": 73561,
+    "cached_input": 890705,
+    "output": 33018
+   },
+   "tool_calls": 26,
+   "compactions": 0,
+   "engine_out_tps": 99.8,
+   "engine_in_tps": 2008,
+   "task_out_tps": 87.8
+  },
+  {
+   "id": "codex-strata-high-a7",
+   "condition": "rp-off",
+   "minutes": 8.5,
+   "tokens": {
+    "uncached_input": 85204,
+    "cached_input": 1731180,
+    "output": 44690
+   },
+   "tool_calls": 25,
+   "compactions": 0,
+   "engine_out_tps": 100.0,
+   "engine_in_tps": 1674,
+   "task_out_tps": 88.0
+  },
+  {
+   "id": "codex-strata-high-a101",
+   "condition": "rp-15",
+   "minutes": 4.8,
+   "tokens": {
+    "uncached_input": 88915,
+    "cached_input": 941818,
+    "output": 31236
+   },
+   "tool_calls": 17,
+   "compactions": 0,
+   "engine_out_tps": 133.2,
+   "engine_in_tps": 2074,
+   "task_out_tps": 109.2
+  },
+  {
+   "id": "codex-strata-high-a102",
+   "condition": "rp-15",
+   "minutes": 6.6,
+   "tokens": {
+    "uncached_input": 77689,
+    "cached_input": 1780836,
+    "output": 45924
+   },
+   "tool_calls": 30,
+   "compactions": 0,
+   "engine_out_tps": 136.3,
+   "engine_in_tps": 1669,
+   "task_out_tps": 116.7
+  },
+  {
+   "id": "codex-strata-high-a103",
+   "condition": "rp-15",
+   "minutes": 4.1,
+   "tokens": {
+    "uncached_input": 75329,
+    "cached_input": 956896,
+    "output": 26718
+   },
+   "tool_calls": 17,
+   "compactions": 0,
+   "engine_out_tps": 132.2,
+   "engine_in_tps": 2116,
+   "task_out_tps": 108.5
+  },
+  {
+   "id": "codex-strata-high-a104",
+   "condition": "rp-15",
+   "minutes": 6.3,
+   "tokens": {
+    "uncached_input": 91913,
+    "cached_input": 1965438,
+    "output": 40538
+   },
+   "tool_calls": 27,
+   "compactions": 0,
+   "engine_out_tps": 127.1,
+   "engine_in_tps": 1851,
+   "task_out_tps": 107.1
+  },
+  {
+   "id": "codex-strata-high-a105",
+   "condition": "rp-15",
+   "minutes": 5.5,
+   "tokens": {
+    "uncached_input": 79673,
+    "cached_input": 1425883,
+    "output": 35773
+   },
+   "tool_calls": 21,
+   "compactions": 0,
+   "engine_out_tps": 127.0,
+   "engine_in_tps": 1936,
+   "task_out_tps": 107.7
+  },
+  {
+   "id": "codex-strata-high-a106",
+   "condition": "rp-15",
+   "minutes": 6.0,
+   "tokens": {
+    "uncached_input": 86006,
+    "cached_input": 2029550,
+    "output": 40702
+   },
+   "tool_calls": 30,
+   "compactions": 0,
+   "engine_out_tps": 134.7,
+   "engine_in_tps": 1736,
+   "task_out_tps": 112.5
+  },
+  {
+   "id": "codex-strata-high-a107",
+   "condition": "rp-15",
+   "minutes": 5.4,
+   "tokens": {
+    "uncached_input": 76434,
+    "cached_input": 1315967,
+    "output": 34321
+   },
+   "tool_calls": 26,
+   "compactions": 0,
+   "engine_out_tps": 126.8,
+   "engine_in_tps": 1794,
+   "task_out_tps": 106.4
+  }
+ ],
+ "aggregate": {
+  "rp-off": {
+   "n": 7,
+   "min_per_instance": 7.6,
+   "engine_out_tps": 95.2,
+   "engine_in_tps": 1861,
+   "task_out_tps": 84.3,
+   "tool_calls_mean": 23.1,
+   "generated_mean": 38246,
+   "read_mean": 79517,
+   "reused_mean": 1389507
+  },
+  "rp-15": {
+   "n": 7,
+   "min_per_instance": 5.5,
+   "engine_out_tps": 131.1,
+   "engine_in_tps": 1870,
+   "task_out_tps": 110.0,
+   "tool_calls_mean": 24.0,
+   "generated_mean": 36459,
+   "read_mean": 82280,
+   "reused_mean": 1488055
+  }
+ }
+}

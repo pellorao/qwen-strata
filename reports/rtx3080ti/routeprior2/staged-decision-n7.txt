@@ -1,0 +1,41 @@
+rp-off h-a1 0.422 0.422 sec 501 {'uncached_input': 81097, 'cached_input': 1124857, 'output': 41443}
+rp-off h-a2 0.419 0.419 sec 330 {'uncached_input': 62878, 'cached_input': 696030, 'output': 27664}
+rp-off h-a3 0.598 0.544 sec 514 {'uncached_input': 92778, 'cached_input': 2031488, 'output': 43069}
+rp-off h-a4 0.524 0.524 sec 396 {'uncached_input': 75844, 'cached_input': 1069482, 'output': 32293}
+rp-off h-a5 0.522 0.522 sec 550 {'uncached_input': 85260, 'cached_input': 2182805, 'output': 45546}
+rp-off h-a6 0.52 0.52 sec 376 {'uncached_input': 73561, 'cached_input': 890705, 'output': 33018}
+rp-off h-a7 0.558 0.558 sec 508 {'uncached_input': 85204, 'cached_input': 1731180, 'output': 44690}
+rp-15 a101 0.489 0.464 sec 286 {'uncached_input': 88915, 'cached_input': 941818, 'output': 31236}
+rp-15 a102 0.388 0.388 sec 393 {'uncached_input': 77689, 'cached_input': 1780836, 'output': 45924}
+rp-15 a103 0.458 0.458 sec 246 {'uncached_input': 75329, 'cached_input': 956896, 'output': 26718}
+rp-15 a104 0.602 0.602 sec 378 {'uncached_input': 91913, 'cached_input': 1965438, 'output': 40538}
+rp-15 a105 0.557 0.557 sec 332 {'uncached_input': 79673, 'cached_input': 1425883, 'output': 35773}
+rp-15 a106 0.608 0.608 sec 362 {'uncached_input': 86006, 'cached_input': 2029550, 'output': 40702}
+rp-15 a107 0.572 0.572 sec 323 {'uncached_input': 76434, 'cached_input': 1315967, 'output': 34321}
+rp-off n 7 mean 0.509 sd 0.066
+rp-15 n 7 mean 0.525 sd 0.082
+{
+ "n": 7,
+ "round": 3,
+ "c": 2.9047375096555625,
+ "means": {
+  "rp-off": 0.5090121468364177,
+  "rp-15": 0.5248345017647364
+ },
+ "leader": "rp-15",
+ "comparisons": {
+  "rp-off": {
+   "d": 0.015822354928318738,
+   "se": 0.039982970998201986,
+   "bound": 0.11614003560594782,
+   "state": "open"
+  }
+ },
+ "leaving": [],
+ "tied": [],
+ "sampled_next": [
+  "rp-15",
+  "rp-off"
+ ],
+ "decision": "continue"
+}
