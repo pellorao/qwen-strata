@@ -37,6 +37,7 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 - 当前主机只由 `project.private.toml` 顶层 `local_host` 指定；有副作用的操作只作用于当前主机，只读检查可显式指定其他 host。主机差异较多时拆为每机子文档，少量差异留在共用主文档；新报告写 `reports/<host>/...`（2026-10-30，用户决定）。
 - 额度预检只在 rtx3080ti 执行；其他主机没有 `estimate.sh` 等预检脚本，不执行额度预检（2026-10-30，用户决定）。
 - 每台机器只对外提供一个模型：rtx3080ti 为 IQ3_XXS（8 维调参结果为默认值，2026-10-11），Q2_0、IQ2_XS 权重保留，默认不再运行或测试，除非用户提出专门针对它们的任务（走部署 `--condition`，结束后普通部署恢复）；维护基线 = 本机唯一对外模型 + 部署默认值，不再单独成文件（B1）（2026-10-19，用户决定 + 独立审查，rtx3080ti 已部署，安全门按新源重跑通过）：[报告](reports/v0.1.45/single-model/summary.md)、[历史工作](docs/work-history.md#每台机器只对外一个模型维护基线退役2026-10-19)、[rtx3080ti 调参](docs/host-tuning/rtx3080ti.md)。
+- rtx3080ti 生产默认开启 `STRATA_ROUTE_PRIOR=1.5`（2026-11-08，用户选 B；依据 routeprior3 n=15 判定 open，开组质量点估计低 3%、每实例快约 35%；用户决定，无需另行复议）：[报告](reports/rtx3080ti/routeprior3/summary.md)。
 - IQ3_XXS 默认档改为 206584／150000（2026-10-14）：经过见[历史工作](docs/work-history.md)「自主模式（2026-10-14 01:58 起，已结束）」。
 - 思考上限三档 low 2048／8192、medium 4096／16384、high 8192／24576，guardian 512／1024（2026-10-12，回滚方案 A）：[历史工作](docs/work-history.md)「Spec Readiness 思考上限诊断」。
 - 托管页面读取在连接时检查域名解析出的每个地址，只放行公网地址；fake-IP 网络（路由器或本机代理把所有域名解析到一段保留网段）需要在该主机安装目录写 `config.local.json` 的 `fetch_allow_networks`（CIDR 列表；不进 Git，部署不覆盖也不删除；Brave key 仍只在 `installation.private.toml`）；放行后经路由器到达的目标只受路由器规则保护，Strata 的检查管不到（2026-11-04，独立审核 Opus high 与 Main 综合，用户决定网段只放安装目录本机文件、不进 Git；审核记录在本机总层 `.tasks/qwen-strata/deploy1104-review.md`，不在本仓库）。

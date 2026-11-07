@@ -31,7 +31,9 @@ BOOL_FLAGS = {
 ENVIRONMENT = {'STRATA_HC_SPLIT', 'STRATA_ADAPT_NOWAIT', 'STRATA_SSD_KEEPALIVE',
                'STRATA_BATCH_TRACE', 'STRATA_PREFILL_CPU_SHARE', 'STRATA_ADAPT_LAG',
                # 0 turns off the engine's sm_86 default speed switches; a switch set explicitly (ADAPT_LAG) stays.
-               'STRATA_SM86_PERF'}
+               'STRATA_SM86_PERF',
+               # Expert-routing prior; rtx3080ti serves 1.5 (routeprior3, user 2026-11-08).
+               'STRATA_ROUTE_PRIOR'}
 SAMPLING = {'temperature', 'top_p', 'top_k', 'min_p', 'presence_penalty', 'frequency_penalty',
             'repetition_penalty', 'penalty_last_n'}
 REASONING = {'reasoning_effort', 'reasoning_budget_tokens', 'max_tokens',

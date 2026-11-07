@@ -29,7 +29,8 @@
   },
   "model_environment": {
     "IQ3_XXS": {
-      "STRATA_ADAPT_LAG": 2
+      "STRATA_ADAPT_LAG": 2,
+      "STRATA_ROUTE_PRIOR": 1.5
     }
   },
   "listen_address": "192.168.60.212",
