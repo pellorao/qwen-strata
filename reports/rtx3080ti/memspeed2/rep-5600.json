@@ -1,0 +1,172 @@
+{
+ "load1-C-r1": [
+  {
+   "task": "pure-1",
+   "gen": 24558.0,
+   "gen_ms": 208558.0,
+   "finish": "length",
+   "error": null,
+   "tps": 117.8
+  },
+  {
+   "task": "pure-2",
+   "gen": 19919.0,
+   "gen_ms": 190238.0,
+   "finish": "stop",
+   "error": null,
+   "tps": 104.7
+  },
+  {
+   "task": "pure-3",
+   "gen": 24558.0,
+   "gen_ms": 236001.0,
+   "finish": "length",
+   "error": null,
+   "tps": 104.1
+  },
+  {
+   "task": "pure-4",
+   "gen": 24558.0,
+   "gen_ms": 226147.0,
+   "finish": "length",
+   "error": null,
+   "tps": 108.6
+  }
+ ],
+ "load2-C-r2": [
+  {
+   "task": "doc-A",
+   "gen": 24559.0,
+   "gen_ms": 205658.0,
+   "finish": "length",
+   "error": null,
+   "tps": 119.4
+  },
+  {
+   "task": "doc-B",
+   "gen": 24560.0,
+   "gen_ms": 158916.0,
+   "finish": "length",
+   "error": null,
+   "tps": 154.5
+  },
+  {
+   "task": "doc-C",
+   "gen": 24558.0,
+   "gen_ms": 222637.0,
+   "finish": "length",
+   "error": null,
+   "tps": 110.3
+  },
+  {
+   "task": "doc-D",
+   "gen": 22542.0,
+   "gen_ms": 205721.0,
+   "finish": "stop",
+   "error": null,
+   "tps": 109.6
+  }
+ ],
+ "load3-C-r1": [
+  {
+   "task": "pure-1",
+   "gen": 24558.0,
+   "gen_ms": 213932.0,
+   "finish": "length",
+   "error": null,
+   "tps": 114.8
+  },
+  {
+   "task": "pure-2",
+   "gen": 13695.0,
+   "gen_ms": 129692.0,
+   "finish": "stop",
+   "error": null,
+   "tps": 105.6
+  },
+  {
+   "task": "pure-3",
+   "gen": 24558.0,
+   "gen_ms": 216527.0,
+   "finish": "length",
+   "error": null,
+   "tps": 113.4
+  },
+  {
+   "task": "pure-4",
+   "gen": 24558.0,
+   "gen_ms": 218621.0,
+   "finish": "length",
+   "error": null,
+   "tps": 112.3
+  }
+ ],
+ "load4-C-r2": [
+  {
+   "task": "doc-A",
+   "gen": 24561.0,
+   "gen_ms": 224753.0,
+   "finish": "length",
+   "error": null,
+   "tps": 109.3
+  },
+  {
+   "task": "doc-B",
+   "gen": 24558.0,
+   "gen_ms": 173250.0,
+   "finish": "length",
+   "error": null,
+   "tps": 141.7
+  },
+  {
+   "task": "doc-C",
+   "gen": 24558.0,
+   "gen_ms": 206126.0,
+   "finish": "length",
+   "error": null,
+   "tps": 119.1
+  },
+  {
+   "task": "doc-D",
+   "gen": 24561.0,
+   "gen_ms": 191755.0,
+   "finish": "length",
+   "error": null,
+   "tps": 128.1
+  }
+ ],
+ "load5-C-r1": [
+  {
+   "task": "pure-1",
+   "gen": 24561.0,
+   "gen_ms": 218313.0,
+   "finish": "length",
+   "error": null,
+   "tps": 112.5
+  },
+  {
+   "task": "pure-2",
+   "gen": 19928.0,
+   "gen_ms": 178012.0,
+   "finish": "stop",
+   "error": null,
+   "tps": 111.9
+  },
+  {
+   "task": "pure-3",
+   "gen": 23127.0,
+   "gen_ms": 206131.0,
+   "finish": "stop",
+   "error": null,
+   "tps": 112.2
+  },
+  {
+   "task": "pure-4",
+   "gen": 24560.0,
+   "gen_ms": 226259.0,
+   "finish": "length",
+   "error": null,
+   "tps": 108.5
+  }
+ ]
+}

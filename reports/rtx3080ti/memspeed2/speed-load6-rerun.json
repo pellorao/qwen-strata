@@ -1,0 +1,226 @@
+[
+ {
+  "tag": "short-story-1",
+  "wall_s": 7.87,
+  "error": null,
+  "records": [
+   {
+    "prompt": 304.0,
+    "reused": 0.0,
+    "read": 304.0,
+    "read_ms": 662.0,
+    "read_tps": 459.3,
+    "gen": 700.0,
+    "gen_ms": 7194.0,
+    "gen_tps": 97.3,
+    "acc": 248.0,
+    "drafts": 285.0
+   }
+  ],
+  "finish": "length",
+  "usage": {
+   "prompt_tokens": 304,
+   "completion_tokens": 700,
+   "total_tokens": 1004,
+   "prompt_tokens_details": {
+    "cached_tokens": 0
+   }
+  }
+ },
+ {
+  "tag": "short-code-1",
+  "wall_s": 7.12,
+  "error": null,
+  "records": [
+   {
+    "prompt": 301.0,
+    "reused": 0.0,
+    "read": 301.0,
+    "read_ms": 656.0,
+    "read_tps": 459.1,
+    "gen": 700.0,
+    "gen_ms": 6433.0,
+    "gen_tps": 108.8,
+    "acc": 419.0,
+    "drafts": 445.0
+   }
+  ],
+  "finish": "length",
+  "usage": {
+   "prompt_tokens": 301,
+   "completion_tokens": 700,
+   "total_tokens": 1001,
+   "prompt_tokens_details": {
+    "cached_tokens": 0
+   }
+  }
+ },
+ {
+  "tag": "short-story-2",
+  "wall_s": 8.85,
+  "error": null,
+  "records": [
+   {
+    "prompt": 305.0,
+    "reused": 0.0,
+    "read": 305.0,
+    "read_ms": 740.0,
+    "read_tps": 412.0,
+    "gen": 700.0,
+    "gen_ms": 8084.0,
+    "gen_tps": 86.6,
+    "acc": 256.0,
+    "drafts": 298.0
+   }
+  ],
+  "finish": "length",
+  "usage": {
+   "prompt_tokens": 305,
+   "completion_tokens": 700,
+   "total_tokens": 1005,
+   "prompt_tokens_details": {
+    "cached_tokens": 0
+   }
+  }
+ },
+ {
+  "tag": "short-code-2",
+  "wall_s": 7.09,
+  "error": null,
+  "records": [
+   {
+    "prompt": 305.0,
+    "reused": 0.0,
+    "read": 305.0,
+    "read_ms": 664.0,
+    "read_tps": 459.5,
+    "gen": 700.0,
+    "gen_ms": 6405.0,
+    "gen_tps": 109.3,
+    "acc": 419.0,
+    "drafts": 439.0
+   }
+  ],
+  "finish": "length",
+  "usage": {
+   "prompt_tokens": 305,
+   "completion_tokens": 700,
+   "total_tokens": 1005,
+   "prompt_tokens_details": {
+    "cached_tokens": 0
+   }
+  }
+ },
+ {
+  "tag": "M",
+  "wall_s": 17.65,
+  "error": null,
+  "records": [
+   {
+    "prompt": 28861.0,
+    "reused": 0.0,
+    "read": 28861.0,
+    "read_ms": 11383.0,
+    "read_tps": 2535.5,
+    "gen": 700.0,
+    "gen_ms": 6211.0,
+    "gen_tps": 112.7,
+    "acc": 409.0,
+    "drafts": 447.0
+   }
+  ],
+  "finish": "length",
+  "usage": {
+   "prompt_tokens": 28861,
+   "completion_tokens": 700,
+   "total_tokens": 29561,
+   "prompt_tokens_details": {
+    "cached_tokens": 0
+   }
+  }
+ },
+ {
+  "tag": "L1",
+  "wall_s": 53.67,
+  "error": null,
+  "records": [
+   {
+    "prompt": 119177.0,
+    "reused": 0.0,
+    "read": 119177.0,
+    "read_ms": 46910.0,
+    "read_tps": 2540.5,
+    "gen": 700.0,
+    "gen_ms": 6626.0,
+    "gen_tps": 105.6,
+    "acc": 399.0,
+    "drafts": 442.0
+   }
+  ],
+  "finish": "length",
+  "usage": {
+   "prompt_tokens": 119177,
+   "completion_tokens": 700,
+   "total_tokens": 119877,
+   "prompt_tokens_details": {
+    "cached_tokens": 0
+   }
+  }
+ },
+ {
+  "tag": "L2",
+  "wall_s": 54.39,
+  "error": null,
+  "records": [
+   {
+    "prompt": 119175.0,
+    "reused": 0.0,
+    "read": 119175.0,
+    "read_ms": 47508.0,
+    "read_tps": 2508.5,
+    "gen": 700.0,
+    "gen_ms": 6771.0,
+    "gen_tps": 103.4,
+    "acc": 388.0,
+    "drafts": 424.0
+   }
+  ],
+  "finish": "length",
+  "usage": {
+   "prompt_tokens": 119175,
+   "completion_tokens": 700,
+   "total_tokens": 119875,
+   "prompt_tokens_details": {
+    "cached_tokens": 0
+   }
+  }
+ },
+ {
+  "tag": "L3",
+  "wall_s": 54.58,
+  "error": null,
+  "records": [
+   {
+    "prompt": 119175.0,
+    "reused": 0.0,
+    "read": 119175.0,
+    "read_ms": 47838.0,
+    "read_tps": 2491.2,
+    "gen": 700.0,
+    "gen_ms": 6645.0,
+    "gen_tps": 105.3,
+    "acc": 394.0,
+    "drafts": 427.0
+   }
+  ],
+  "finish": "length",
+  "usage": {
+   "prompt_tokens": 119175,
+   "completion_tokens": 700,
+   "total_tokens": 119875,
+   "prompt_tokens_details": {
+    "cached_tokens": 0
+   }
+  }
+ }
+]
