@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "version": "0.2.10",
-  "commit": "ffa80d73133ea5c548aefe57889a16e8085a938f",
-  "engine_version": "0.1.56",
+  "version": "0.2.12",
+  "commit": "146df3c468739147f520ac3816de806f71232571",
+  "engine_version": "0.1.58",
   "source": {
-    "project_file": "artifacts/strata/0.2.10/source.zip",
-    "bytes": 36598440,
-    "sha256": "f00cfe9a3d220328c7961e27992295c88371afa62d1e9d461000f449d8a60eb3",
-    "url": "https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.10.zip"
+    "project_file": "artifacts/strata/0.2.12/source.zip",
+    "bytes": 37314704,
+    "sha256": "6bee8e4f06cc5397d8651f115aeda9c97890a6eac540255758a054bc95a617ac",
+    "url": "https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.12.zip"
   },
   "engine": {
-    "project_file": "artifacts/strata/0.2.10/engine.tar.gz",
-    "bytes": 627806827,
-    "sha256": "5336671c55bc1b819d076104608522147227001d1711378f35ea5d524bc866ec",
-    "url": "https://github.com/Niko1221/Strata/releases/download/v0.2.10/strata-engine-0.1.56-windows-x86_64-cuda-cuda13.tar.gz",
-    "manifest_sha256": "978eca44cf13f27c996843b6cf6564761f17b263b706c7d41226f0b8d76de897",
-    "build_id": "06698c674673+cuda13.0"
+    "project_file": "artifacts/strata/0.2.12/engine.tar.gz",
+    "bytes": 630769464,
+    "sha256": "3311443ba9172154adc99c48668c4187d60864e3b6cafe5d9aa39b035e4f9f34",
+    "url": "https://github.com/Niko1221/Strata/releases/download/v0.2.12/strata-engine-0.1.58-windows-x86_64-cuda-cuda13.tar.gz",
+    "manifest_sha256": "d4964abd777ce53e518abf78f0af1882ad779a225550e1480a2267486ea055a0",
+    "build_id": "8a42a9457db6+cuda13.0"
   }
 }

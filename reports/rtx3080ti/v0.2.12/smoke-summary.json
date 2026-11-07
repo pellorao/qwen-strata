@@ -1,0 +1,72 @@
+{
+ "marker": "MARK-8d02201becde",
+ "note": "NOTE-acb01353ceef",
+ "stages": [
+  {
+   "stage": "C1",
+   "exit": 0,
+   "seconds": 54.5,
+   "segments": 5,
+   "uncached_input": 22547,
+   "cached_input": 39670,
+   "output": 645,
+   "in_tps": 1844.0,
+   "out_tps": 139.3
+  },
+  {
+   "stage": "C2",
+   "exit": 0,
+   "seconds": 31.8,
+   "segments": 1,
+   "uncached_input": 1832,
+   "cached_input": 21044,
+   "output": 2832,
+   "in_tps": 949.0,
+   "out_tps": 142.4
+  },
+  {
+   "stage": "C3",
+   "exit": 0,
+   "seconds": 12.8,
+   "segments": 1,
+   "uncached_input": 4618,
+   "cached_input": 16037,
+   "output": 64,
+   "in_tps": 1866.0,
+   "out_tps": 147.5
+  },
+  {
+   "stage": "X1",
+   "exit": 0,
+   "seconds": 27.8,
+   "segments": 3,
+   "uncached_input": 17431,
+   "cached_input": 20835,
+   "output": 581,
+   "in_tps": 1776.0,
+   "out_tps": 148.6
+  },
+  {
+   "stage": "X2",
+   "exit": 0,
+   "seconds": 26.4,
+   "segments": 3,
+   "uncached_input": 17042,
+   "cached_input": 9525,
+   "output": 454,
+   "in_tps": 1693.0,
+   "out_tps": 140.9
+  }
+ ],
+ "C1_result": "All three steps done:\n\n1. **Marker:** `MARK-8d02201becde` (written to `marker.txt` and read back \u2014 file contains exactly that line)\n2. **Release page URL:** https://github.com/Niko1221/Strata/releases/tag/v0.2.12\n\nThat's the \"Strata 0.2.12\" release by Niko1221 (tag `v0.2.12`, commit `146df3c`, released Nov 7).\n",
+ "C1_err": "qwen-agent: starting IQ3_XXS...\n[claude-code:unrecognized_model] {\"model\":\"qwen3.8-flash-next-iq3_xxs\",\"query_source\":\"sdk\"}\nqwen-agent: lease returned; the frontend keeps the model loaded until it idles out\n",
+ "C2_result": "\n",
+ "C2_err": "qwen-agent: starting IQ3_XXS...\nqwen-agent: reusing the loaded model\n[claude-code:unrecognized_model] {\"model\":\"qwen3.8-flash-next-iq3_xxs\",\"query_source\":\"compact\"}\nqwen-agent: lease returned; the frontend keeps the model loaded until it idles out\n",
+ "C3_result": "{\"marker\": \"MARK-8d02201becde\", \"url\": \"https://github.com/Niko1221/Strata/releases/tag/v0.2.12\"}\n",
+ "C3_err": "qwen-agent: starting IQ3_XXS...\nqwen-agent: reusing the loaded model\n[claude-code:unrecognized_model] {\"model\":\"qwen3.8-flash-next-iq3_xxs\",\"query_source\":\"sdk\"}\nqwen-agent: lease returned; the frontend keeps the model loaded until it idles out\n",
+ "X1_result": "**note.txt content**\n\n```\nNOTE-acb01353ceef\n```\n\nSingle line, 17 bytes, exit code 0.\n\n**Strata v0.2.12 release page**\n\n- Release page: https://github.com/Niko1221/Strata/releases/tag/v0.2.12\n- All releases list: https://github.com/Niko1221/Strata/releases\n\nI opened the tag URL directly to confirm it resolves: the page is titled \"Release Strata 0.2.12 \u00b7 Niko1221/Strata\", pushed as tag `v0.2.12` at commit `146df3c`, released 07 Nov 08:54, and marked \"Latest\" (app and Terminal 0.2.12, Control and engine packages 0.1.58, 42 assets totaling 9.70 GiB).\n",
+ "X1_err": " line, 17 bytes, exit code 0.\n\n**Strata v0.2.12 release page**\n\n- Release page: https://github.com/Niko1221/Strata/releases/tag/v0.2.12\n- All releases list: https://github.com/Niko1221/Strata/releases\n\nI opened the tag URL directly to confirm it resolves: the page is titled \"Release Strata 0.2.12 \u00b7 Niko1221/Strata\", pushed as tag `v0.2.12` at commit `146df3c`, released 07 Nov 08:54, and marked \"Latest\" (app and Terminal 0.2.12, Control and engine packages 0.1.58, 42 assets totaling 9.70 GiB).\ntokens used\n18,012\nqwen-agent: lease returned; the frontend keeps the model loaded until it idles out\n",
+ "X2_result": "The request went through after escalation, and the release page resolved.\n\n**Status line:** `HTTP/2 200`\n\nNotable response headers:\n\n- `content-type: text/html; charset=utf-8`\n- `server: github.com`\n- `x-github-request-id: C91F:1F2AE5:715BC0:C34EAE:6AEFA21A`\n- `x-github-edge-region: japaneast`\n- `date: Sat, 07 Nov 2026 22:11:39 GMT`\n\nSo `https://github.com/Niko1221/Strata/releases/tag/v0.2.12` exists and returns 200, with no redirect in the response.\n",
+ "X2_err": "1A\nx-github-edge-region: japaneast\n\n\ncodex\nThe request went through after escalation, and the release page resolved.\n\n**Status line:** `HTTP/2 200`\n\nNotable response headers:\n\n- `content-type: text/html; charset=utf-8`\n- `server: github.com`\n- `x-github-request-id: C91F:1F2AE5:715BC0:C34EAE:6AEFA21A`\n- `x-github-edge-region: japaneast`\n- `date: Sat, 07 Nov 2026 22:11:39 GMT`\n\nSo `https://github.com/Niko1221/Strata/releases/tag/v0.2.12` exists and returns 200, with no redirect in the response.\ntokens used\n11,262\nqwen-agent: lease returned; the frontend keeps the model loaded until it idles out\n",
+ "marker_file": "MARK-8d02201becde\n"
+}

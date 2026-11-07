@@ -12,6 +12,15 @@ rtx3080ti 已于 2026-11-03 安装 v0.2.10（Control 与 Qwen 引擎 0.1.56）�
 - 本地产物：pack 522,458,112 字节，SHA-256 `cda40d62d0eb8f37ed6e272142641a1d2f0de4a32f9e14d0416e7a71534849f1`（与上游钉死值一致），落地安装目录 `data\dflash2\qwen3.8-flash-next-dflash2.q4_0.pack` 加 `draft_vocab.bin`。总写盘约 1.2 GB 下载加 0.5 GB pack。
 - 注意：pack 已在本机，若以后去掉模板的 `"drafting": "mtp"` 钉死，Auto 会悄悄换成 DFlash2。需要恢复时重新执行 `strata drafting fetch --data-dir <安装目录>\data`。
 
+## Strata v0.2.12（rtx3080ti 已安装）
+
+2026-11-08 核对官方发布，附注标签 `v0.2.12`（标签对象 `123bad4a`）指向提交 `146df3c468739147f520ac3816de806f71232571`，发布时间 2026-11-07。发布 0.2.12，引擎 0.1.58（build_id `8a42a9457db6+cuda13.0`）。由升级 worker 下载，合计约 668 MB。
+
+- 引擎：[strata-engine-0.1.58-windows-x86_64-cuda-cuda13.tar.gz](https://github.com/Niko1221/Strata/releases/download/v0.2.12/strata-engine-0.1.58-windows-x86_64-cuda-cuda13.tar.gz)，630769464 字节，官方 SHA256 `3311443ba9172154adc99c48668c4187d60864e3b6cafe5d9aa39b035e4f9f34`，与 API digest 一致，清单 SHA `d4964abd…55a0`。
+- feed：[strata-feed.json](https://github.com/Niko1221/Strata/releases/download/v0.2.12/strata-feed.json)，16498 字节，SHA256 `77bf5e7b86bb73abdce88a1159f76f2abef233856f9fc9f10890a7a31cda470d`（sequence 122），Ed25519 签名（`5d1bc23abbeffd0d`）与引擎清单签名核验通过。
+- 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.12.zip)，37314704 字节，本地 SHA256 `6bee8e4f06cc5397d8651f115aeda9c97890a6eac540255758a054bc95a617ac`（ZIP 注释为标签提交）。`AGENTS.md` 只改版本行。
+- 工程文件为 `artifacts/strata/0.2.12/`，`config/artifacts/strata-release.json` 已指向本版。2026-11-08 安装到 rtx3080ti，短检查通过。0.2.9、0.2.10 的本地文件已删（来源与 SHA 见下）。
+
 ## Strata v0.2.10（rtx3080ti 已安装）
 
 2026-11-03 核对官方发布，附注标签 `v0.2.10`（标签对象 `db0500a5`）指向提交 `ffa80d73133ea5c548aefe57889a16e8085a938f`，发布时间 2026-11-02T23:52Z。Control 与引擎同为 0.1.56（CMake `VERSION 0.1.56`，与引擎包一致，不需要 `source_cmake_version`）。同一发布的 `strata-dsv41-*` 包不用。由升级 worker 下载。
