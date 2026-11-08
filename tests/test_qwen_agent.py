@@ -1,6 +1,7 @@
 """The agent launcher points each agent at the frontend with the lease key only."""
 from importlib.machinery import SourceFileLoader
 import json
+import signal
 from pathlib import Path
 import sys
 import tempfile
@@ -23,6 +24,17 @@ DEFAULT = TIERS['IQ3_XXS'][0]
 
 
 class LauncherTests(unittest.TestCase):
+    def test_shutdown_signal_is_taken_once_so_the_release_is_not_interrupted(self):
+        saved = {n: signal.getsignal(getattr(signal, n)) for n in agent.SHUTDOWN_SIGNALS}
+        try:
+            with self.assertRaises(SystemExit):
+                agent.shut_down()
+            for name in agent.SHUTDOWN_SIGNALS:
+                self.assertEqual(signal.getsignal(getattr(signal, name)), signal.SIG_IGN)
+        finally:
+            for name, handler in saved.items():
+                signal.signal(getattr(signal, name), handler)
+
     def test_child_environment_drops_credentials_and_parent_session(self):
         parent = {'PATH': '/bin', 'CLAUDE_CONFIG_DIR': '/tmp/cfg', 'CLAUDE_CONFIG_DIRX': 'x', 'ANTHROPIC_API_KEY': 'x',
                   'OPENAI_API_KEY': 'x', 'AI_AGENT': 'claude-code', 'CLAUDECODE': '1', 'CLAUDE_CODE_SESSION_ID': 's',

@@ -139,6 +139,17 @@ def child_environment(environ, environment):
     return dict(kept, **environment)
 
 
+SHUTDOWN_SIGNALS = ('SIGHUP', 'SIGTERM')
+
+
+def shut_down(*_):
+    """Leave through the release below, once: `timeout` forwards its TERM to this process and then signals the whole
+    process group, so a second TERM arrives within milliseconds and would abort the release call (lease stays held)."""
+    for name in SHUTDOWN_SIGNALS:
+        signal.signal(getattr(signal, name), signal.SIG_IGN)
+    sys.exit(1)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--model', help='a model this installation serves; default: its only served model')
@@ -151,8 +162,8 @@ def main():
     tier = default_tier(args.model)
     frontend = Frontend()
     # A closed terminal or kill must still reach the release below.
-    for name in ('SIGHUP', 'SIGTERM'):
-        signal.signal(getattr(signal, name), lambda *_: sys.exit(1))
+    for name in SHUTDOWN_SIGNALS:
+        signal.signal(getattr(signal, name), shut_down)
     frontend.key = frontend.call('/lease/acquire', {})['key']
     try:
         print(f'qwen-agent: starting {args.model}...', file=sys.stderr, flush=True)
