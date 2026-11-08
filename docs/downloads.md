@@ -19,7 +19,7 @@ rtx3080ti 已于 2026-11-03 安装 v0.2.10（Control 与 Qwen 引擎 0.1.56）�
 - 引擎：[strata-engine-0.1.58-windows-x86_64-cuda-cuda13.tar.gz](https://github.com/Niko1221/Strata/releases/download/v0.2.12/strata-engine-0.1.58-windows-x86_64-cuda-cuda13.tar.gz)，630769464 字节，官方 SHA256 `3311443ba9172154adc99c48668c4187d60864e3b6cafe5d9aa39b035e4f9f34`，与 API digest 一致，清单 SHA `d4964abd…55a0`。
 - feed：[strata-feed.json](https://github.com/Niko1221/Strata/releases/download/v0.2.12/strata-feed.json)，16498 字节，SHA256 `77bf5e7b86bb73abdce88a1159f76f2abef233856f9fc9f10890a7a31cda470d`（sequence 122），Ed25519 签名（`5d1bc23abbeffd0d`）与引擎清单签名核验通过。
 - 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.12.zip)，37314704 字节，本地 SHA256 `6bee8e4f06cc5397d8651f115aeda9c97890a6eac540255758a054bc95a617ac`（ZIP 注释为标签提交）。`AGENTS.md` 只改版本行。
-- 工程文件为 `artifacts/strata/0.2.12/`，`config/artifacts/strata-release.json` 已指向本版。2026-11-08 安装到 rtx3080ti，短检查通过。0.2.9、0.2.10 的本地文件已删（来源与 SHA 见下）。
+- 工程文件为 `artifacts/strata/0.2.12/`，`config/artifacts/strata-release.json` 已指向本版。2026-11-08 安装到 rtx3080ti，短检查通过。0.2.9、0.2.10 的本地文件已删（来源与 SHA 见下），0.2.11 保留作回退。
 
 ## Strata v0.2.10（rtx3080ti 已安装）
 
