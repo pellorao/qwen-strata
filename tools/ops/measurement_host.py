@@ -113,6 +113,10 @@ class MeasurementHost:
         """model-server.log: the native service's own stderr (sampling trace), apart from the engine log."""
         return self.installation / 'logs/model-server.log'
 
+    def frontend_log_path(self):
+        """frontend.log: timestamped request lines, the only clock for the untimed engine token records."""
+        return self.installation / 'logs/frontend.log'
+
     def log_offset(self, model=None):
         log = self.log_path(model) if model else self.service_log_path()
         return log.stat().st_size if log.exists() else 0
