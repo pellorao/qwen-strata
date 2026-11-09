@@ -25,6 +25,8 @@ from tools.tuning import arw_dimension as dim
 from tools.reviewer.bench_score import file_tree
 
 ROOT = dim.ROOT
+# Spec Readiness: one repetition is a runtime-migration and an artifact-promotion result, scored together.
+RESULTS_PER_INSTANCE = {'spec-readiness-reviewer': 2}
 PATCHES = ('codex-0.163-synthetic-mount-targets', 'strata-measurement-time-limit', 'reviewer-private-scratch')
 
 
@@ -69,11 +71,13 @@ def run_block(plan_path, out, round_number, condition_name, scored, warmup=1):
     dimension = next(iter(dimensions.values()))
     checks = dimension['conditions'][condition_name]
     condition, digest = conditions[condition_name]
-    seconds = dimension['time_limit_seconds']
+    seconds = dimension.get('time_limit_seconds')
+    patches = tuple(plan['fixed_conditions'].get('harness_patches', PATCHES))
+    per = RESULTS_PER_INSTANCE.get(dimension.get('reviewer'), 1)
     total = warmup + scored
     folder = out / 'blocks' / f'r{round_number}-{condition_name}'
     ids = dim.prepare(plan, condition, folder / 'prep', dimension.get('reviewer'), checks.get('context_window'), seconds,
-                      PATCHES, preparations=math.ceil(total / 3))
+                      patches, preparations=math.ceil(total / 3))
     preparations = sorted((folder / 'prep').glob('preparation*.json'))
     copies = {}
     for path in preparations:
@@ -90,7 +94,7 @@ def run_block(plan_path, out, round_number, condition_name, scored, warmup=1):
     offset, service_offset = host.log_offset(plan['model']), host.log_offset()
     started = datetime.now().isoformat(timespec='seconds')
     command = [sys.executable, '-m', 'tools.reviewer.arw_measure', '--host', plan['host'], '--out', str(folder / 'run'),
-               '--selection', str(folder / 'prep/preflight/selection.json'), '--catalog', str(catalog), '--limit', str(total)]
+               '--selection', str(folder / 'prep/preflight/selection.json'), '--catalog', str(catalog), '--limit', str(total * per)]
     for path in preparations:
         command += ['--preparation', str(path)]
     log(out, f'{folder.name}: arw_measure {total} instances ({warmup} warm-up)')
@@ -110,42 +114,64 @@ def run_block(plan_path, out, round_number, condition_name, scored, warmup=1):
               'effect': effect, 'results': len(results)}
     dim.save(folder / 'block.json', record)
     log(out, f'{folder.name}: arw_measure exit {measured.returncode}, {len(results)} results, effect ok={effect["ok"]} {effect["problems"]}')
-    if measured.returncode or not effect['ok'] or len(results) != total:
+    if measured.returncode or not effect['ok'] or len(results) != total * per:
         raise RuntimeError(f'{folder.name} needs review: exit {measured.returncode}, results {len(results)}/{total}, {effect["problems"]}')
-    layout(out, folder, record, results, copies)
+    layout(out, folder, record, results, copies, per)
     return record
 
 
-def layout(out, folder, record, results, copies):
-    """Benchmark-style instance directories for the scored results; the warm-up results stay in the block."""
+def layout(out, folder, record, results, copies, per=1):
+    """Benchmark-style instance directories for the scored results (`per` results each); the warm-up results stay in the block."""
     scene = out / 'scenes' / record['condition']
     scene.mkdir(parents=True, exist_ok=True)
     reports = {}
-    for number, result in enumerate(results):
+    groups = [results[n:n + per] for n in range(0, len(results), per)]
+    for number, group in enumerate(groups):
         if number < record['warmup']:
             continue
         attempt = next_attempt(scene)
         target = scene / f'codex-strata-high-a{attempt}'
         (target / 'run').mkdir(parents=True)
-        dim.save(target / 'run/results.json', [result])
+        dim.save(target / 'run/results.json', group)
         (target / 'prep').symlink_to(folder / 'prep')
         (target / 'report').mkdir()
-        report = Path(result['report'])
-        if report.is_file():
-            shutil.copyfile(report, target / 'report' / report.name)
-        dim.save(target / 'scenario-copies.json', {k: v for k, v in copies.items() if k.endswith(result_root(result))} or None)
+        for result in group:
+            report = Path(result['report'])
+            if report.is_file():
+                shutil.copyfile(report, target / 'report' / report_name(result, per))
+        roots = tuple(result_root(result) for result in group)
+        dim.save(target / 'scenario-copies.json', {k: v for k, v in copies.items() if k.endswith(roots)} or None)
         dim.save(target / 'origin.json', {'block': folder.name, 'index': number, 'round': record['round'],
-                                          'condition': record['condition'], 'instanceId': result['instanceId']})
+                                          'condition': record['condition'], 'instanceId': group[0]['instanceId'],
+                                          'instanceIds': [result['instanceId'] for result in group]})
         with (scene / 'schedule.jsonl').open('a') as stream:
             stream.write(json.dumps({'event': 'done', 'out': target.name, 'kind': 'valid'}) + '\n')
-        reports[target.name] = result['instanceId']
+        reports[target.name] = [result['instanceId'] for result in group]
     dim.save(folder / 'layout.json', reports)
 
 
+SPEC_SCENARIOS = ('runtime-migration', 'artifact-promotion')
+
+
 def result_root(result):
-    """The scenario root suffix of a result's instance (`<run uuid>/csp/<n>`), from its instance id."""
-    uuid = result['instanceId'].split('-instance-')[0].removeprefix('default-')
-    return f"{uuid}/csp/{result['instanceId'].rsplit('-instance-', 1)[1]}"
+    """The scenario root suffix of a result's instance, from its instance id: `<run uuid>/csp/<n>` for the
+    single-scenario reviewers, `<run uuid>/sr/<scenario>/<n>` for Spec Readiness."""
+    identifier = result['instanceId']
+    number = identifier.rsplit('-instance-', 1)[1]
+    uuid = identifier.split('-instance-')[0].removeprefix('default-')
+    for scenario in SPEC_SCENARIOS:
+        if uuid.startswith(scenario + '-'):
+            return f"{uuid.removeprefix(scenario + '-')}/sr/{scenario}/{number}"
+    return f"{uuid}/csp/{number}"
+
+
+def report_name(result, per):
+    """Report file name inside an instance directory: the two Spec Readiness reports are told apart by scenario."""
+    name = Path(result['report']).name
+    if per > 1:
+        scenario = next(s for s in SPEC_SCENARIOS if result['instanceId'].startswith(s + '-'))
+        return f'{scenario}--{name}'
+    return name
 
 
 def run_round(plan_path, out, round_number, order, scored, warmup=1):

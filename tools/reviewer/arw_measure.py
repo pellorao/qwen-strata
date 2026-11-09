@@ -178,9 +178,20 @@ SPEC_STAGES={'runtime-migration':0,'artifact-promotion':1}
 
 
 def spec_repetition_order(jobs):
-    """Order each Spec Readiness repetition runtime-migration, then artifact-promotion; each runs in its own fresh root thread."""
-    return sorted(jobs,key=lambda j:(j[1]['instanceId'].rsplit('-',1)[1],SPEC_STAGES[j[1]['scenarioId']])
-                  if j[1].get('scenarioId') in SPEC_STAGES else ('',0))
+    """Order each Spec Readiness repetition runtime-migration, then artifact-promotion; each runs in its own fresh root thread.
+
+    Instance numbers restart in every ARW preparation, so a repetition is (preparation, number): preparations keep
+    their given order and a block of several preparations never pairs a runtime-migration with another preparation's."""
+    first = {}
+    for p, _, _ in jobs:
+        first.setdefault(p['preparedPath'] if isinstance(p, dict) else None, len(first))
+    def key(job):
+        p, h, _ = job
+        if h.get('scenarioId') not in SPEC_STAGES:
+            return (0, 0, 0)
+        return (first[p['preparedPath'] if isinstance(p, dict) else None], int(h['instanceId'].rsplit('-', 1)[1]),
+                SPEC_STAGES[h['scenarioId']])
+    return sorted(jobs, key=key)
 
 
 def review_settings(selection,runtime_file,folder):

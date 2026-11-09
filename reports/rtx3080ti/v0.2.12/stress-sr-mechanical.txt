@@ -1,0 +1,12 @@
+v0212 n 10 all reports True
+ work s mean 645 sd 60 range 582-810
+ output tokens/rep mean 71138; uncached in mean 166575; cached in mean 3670623
+  r1-v0212 5 work s mean 670
+  r2-v0212 5 work s mean 620
+ task-avg output tok/s (sum out / sum sec) 110.3
+v0211 n 10 all reports True
+ work s mean 694 sd 128 range 589-1037
+ output tokens/rep mean 74608; uncached in mean 178921; cached in mean 3321455
+  r1-v0211 5 work s mean 724
+  r2-v0211 5 work s mean 664
+ task-avg output tok/s (sum out / sum sec) 107.5

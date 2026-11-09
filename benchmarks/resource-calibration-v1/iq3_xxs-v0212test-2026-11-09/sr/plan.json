@@ -1,0 +1,65 @@
+{
+ "schema": "arw-dimension-v1",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "reviewer": "spec-readiness-reviewer",
+ "authorization": {
+  "approved": true,
+  "source": "用户 2026-11-09 要求 v0.2.12 对 v0.2.11 高压力对比；Main 派 qwen-strata/v0212test，设计经独立审查，Main 2026-11-09 定每版本 10 个重复",
+  "scope": "Spec Readiness v4.3，Codex 0.164.0 high，每版本 10 个计分重复，只测量"
+ },
+ "method": "arw_blocks：每块 = 一次冷载 + 1 个不计分预热重复 + 5 个计分重复连跑；版本由 v0212test 驱动在块之间切换",
+ "fixed_conditions": {
+  "codex": "0.164.0",
+  "effort": "high",
+  "effort_reason": "与 ARW 原生 agent-cli 配置（model_reasoning_effort=\"high\"）及 F6 基线一致",
+  "context_window": 206584,
+  "auto_compact_token_limit": 150000,
+  "startup_instructions": "config/prompts/startup-instructions.txt（源 SHA 5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e，去掉防循环段），compact-prompt.txt（3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af）接入；开跑前核对已安装 SHA",
+  "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
+  "native_cli_sha256": "b93f6811d3f653f0fb83be4050d857fb9abbb111dfa2ce160563327daff7f306",
+  "web_search": "disabled",
+  "strata": "per phase: 0.2.12 or 0.2.11 (asserted from installed-release.json before every block)",
+  "engine_defaults": "config/deployments/rtx3080ti.json 的安装默认值，两个条件文件内容相同（生产 model_environment），差别只在已安装的 Strata 版本",
+  "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest-spec-readiness-v4.3.json",
+  "scenario": "Spec Readiness v4.3（修订号 46，冻结；每重复 runtime-migration + artifact-promotion 各一个独立根线程）；ARW 原版 55 分钟提醒、60 分钟中断，不设 T",
+  "codex_harness_patches": [
+   "codex-0.163-synthetic-mount-targets",
+   "reviewer-private-scratch"
+  ],
+  "harness_patches": [
+   "codex-0.163-synthetic-mount-targets",
+   "reviewer-private-scratch"
+  ],
+  "scoring": "r8.4"
+ },
+ "codex_thread_id": "b7635f94-ad60-429b-98e7-3ee5c19ba2bb",
+ "dimensions": [
+  {
+   "order": 1,
+   "id": "version",
+   "default": "v0212",
+   "reviewer": "spec-readiness-reviewer",
+   "schedule_design": "A1 B1 B2 A2 四块，每块 1 预热 + 5 计分",
+   "schedule": [
+    "v0212",
+    "v0211"
+   ],
+   "conditions": {
+    "v0212": {
+     "log_present": [],
+     "log_absent": []
+    },
+    "v0211": {
+     "log_present": [],
+     "log_absent": []
+    }
+   },
+   "warmup_per_block": 1,
+   "time_limit_seconds": null,
+   "judgement": "见 .tmp/v0212test/plan.md"
+  }
+ ],
+ "target_repetitions": 10,
+ "primary_repetitions": 5
+}
