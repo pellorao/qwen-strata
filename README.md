@@ -17,7 +17,7 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 
 | 内容 | 入口 |
 |---|---|
-| 当前待办、周期流程与工作状态 | [状态页](.status/index.html) |
+| 当前待办、周期流程与工作状态 | 所在机器的状态页或任务清单（不在本仓库） |
 | Codex CLI 定时唤醒 | [实现方法](docs/codex-cli-scheduling.md) |
 | 安装目录调用手册（源文件，各有英文和 `.zh-CN.md`） | [简介](docs/installation-directory-readme.zh-CN.md) · [详细手册](docs/installation-directory-manual.zh-CN.md) |
 | 安装、升级与下载 | [安装说明](docs/installation.md) · [下载清单](docs/downloads.md) |
@@ -73,7 +73,7 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 
 - 2026-10-09 从 Codex 工程迁入：主机改按 GPU 命名；私有配置合并为 `project.private.toml`；tools 按用途分子目录，已关闭路线的脚本和测试删除；规则改写为 `AGENTS.md` + `.claude/rules/` + `.claude/skills/`。
 - 2026-10-09 前端重写并部署到 rtx3080ti：常驻 `192.168.60.212:8000`，独占租约 + `/strata/v1/*` 直通原生 Chat / Responses / Messages；WSL 可直连。无模型验收通过。
-- 2026-10-09 agent 接入：Codex 0.162.0 与 Claude Code 2.1.295 经 `bin/qwen-agent` 调用本地模型，冒烟检查通过（[记录](docs/work-history.md)）。托管搜索当时暂缺，相关后续待办在[状态页](.status/index.html)。
+- 2026-10-09 agent 接入：Codex 0.162.0 与 Claude Code 2.1.295 经 `bin/qwen-agent` 调用本地模型，冒烟检查通过（[记录](docs/work-history.md)）。托管搜索当时暂缺，相关后续待办在所在机器的状态页。
 - 2026-10-10 2b 模型验收通过（[报告](reports/v0.1.40.2/agent-integration-2b/summary.md)）。搜索三项通过。Claude Code 自写审批（方案 B）优于内置 auto mode。补上了 Claude Code 压缩时的工程压缩提示（PreCompact hook）。SSD 大量读取的原因是每次加载模型都读 36 GB（[探索](reports/v0.1.40.2/resource-calibration/ssd-reads/summary.md)），已改为模型跨租约驻留，相同参数复用不再加载。`qwen-agent` 固定用 `qwen-approve` 审批。
 - 2026-10-10 rtx3080ti 升级到 Strata v0.1.41，短调用链检查通过（[报告](reports/v0.1.41/upgrade.md)）。上游有关于 v0.1.41 生成循环的未关闭 issue #1622；此后已升级到更新版本。
 - 2026-10-11 rtx3080ti 升级到 Strata v0.1.42，短检查通过；服务默认模型改为 IQ3_XXS，8 维调参完成并部署（[升级报告](reports/v0.1.42/upgrade.md)、[rtx3080ti 调参](docs/host-tuning/rtx3080ti.md)）。Commit Audit 诊断得分 IQ3_XXS 0.837、Q2_0 0.773。

@@ -1,6 +1,6 @@
 # 验证汇总
 
-更新：2026-10-07。按实际工作负载及版本说明结果；报告、失败和冻结评审输入保留原字节。日常操作见[前端运行与维护](frontend.md)，当前待办与未决问题见[状态页](../.status/index.html)。
+更新：2026-10-07。按实际工作负载及版本说明结果；报告、失败和冻结评审输入保留原字节。日常操作见[前端运行与维护](frontend.md)，当前待办与未决问题见所在机器的状态页。
 
 ## v0.1.40.1 hotfix
 
@@ -53,7 +53,7 @@
 
 本次升级流程的基础回归55项通过，维护操作的正确/错误key及互斥/持有状态经过真实Windows验证，证据见[基础数据](../reports/v0.1.38/upgrade-cycle-20261003/basics.json)。之后计量代码修复又通过两项针对性回归，不冒充全量重跑。53维短任务参数比较、279个实际观察、15次启动失败及逐次/平均值见[参数报告](../reports/v0.1.38/upgrade-cycle-20261003/parameter-comparison.md)，不并入历史或ARW能力评分。
 
-独立review profile五个训练任务正常完成，完整48×512排序已核验；默认/训练profile的原版ARW收益对照已开始，尚无完整评分与选择结论，默认未替换。第一次计量中断及响应记录丢失保留，修复后新批次独立完成，见[训练报告](../reports/v0.1.38/upgrade-cycle-20261003/profile-training.md)。材料及完整提示词的隔离审计见[隔离报告](../reports/v0.1.38/upgrade-cycle-20261003/profile-isolation.md)。四类原版ARW正式实例当时尚未启动；当前是否继续以[状态页](../.status/index.html)为准。
+独立review profile五个训练任务正常完成，完整48×512排序已核验；默认/训练profile的原版ARW收益对照已开始，尚无完整评分与选择结论，默认未替换。第一次计量中断及响应记录丢失保留，修复后新批次独立完成，见[训练报告](../reports/v0.1.38/upgrade-cycle-20261003/profile-training.md)。材料及完整提示词的隔离审计见[隔离报告](../reports/v0.1.38/upgrade-cycle-20261003/profile-isolation.md)。四类原版ARW正式实例当时尚未启动；当前是否继续以所在机器的状态页为准。
 
 旧桥的Hosted搜索不兼容记录保留在[工具预检](../reports/v0.1.38/upgrade-cycle-20261003/native-tools.md)。当前桥内Brave适配已部署：74项全量本地回归、真实Windows模型的索引/live查询及页面打开/查找、实际Codex连续两轮搜索历史复用通过。网络使用普通域名HTTPS，无解析IP检查或本机VPN/DNS分支；索引模式仅提供摘要，不是OpenAI缓存全文。首次地址检查拒绝和可选token null导致的原生解析失败均保留，新批次通过不覆盖失败；详细计量和范围见[搜索验收](../reports/v0.1.38/upgrade-cycle-20261003/brave-search.md)。
 

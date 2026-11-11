@@ -6,7 +6,7 @@
 
 ## 状态页
 
-每个工程一页，`<工程>/.status/index.html`，由 `.status/status.txt` 渲染。只经 `~/.claude/status/status.py` 修改（`set`/`done`/`rm`/`order`/`list`，用法见脚本开头说明；它给每项盖时间并重新渲染），不手改数据文件。
+每个工程一页，由所在机器总层的 `.status/status.txt` 渲染（不在本仓库）。只经 `~/.claude/status/status.py` 修改（`set`/`done`/`rm`/`order`/`list`，用法见脚本开头说明；它给每项盖时间并重新渲染），不手改数据文件。
 
 - 分区：`decide`（待用户决定）、`know`（用户必须知道）、`now`（正在进行）、`queue`（全部待办，按优先级用 `order` 排序）、`done`。保持当前状态，不往上堆历史。
 - id 在所有分区里唯一：对已有 id 执行 `set` 会把它移到新分区，所以同一工作的 `decide` 和 `now` 要用不同 id。

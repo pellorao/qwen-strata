@@ -45,7 +45,7 @@ GGUF 第二分片可在整文件 SHA 一致后按各量化预期名称硬链接�
 
 `tools/ops/upgrade_release.py` 从 WSL 更新已安装的固定源包和官方 NVIDIA 引擎。它校验发布元数据、完整 SHA、源码 ZIP 注释绑定的提交、引擎包（0.2.x 起为 tar.gz）逐文件对照 `engine-component.json`（清单 SHA 取自发布 feed）、版本（发布版本与引擎版本分开核对）和 GPU 架构，用固定在工具里的上游 Ed25519 公钥（key_id `5d1bc23abbeffd0d`，源码自带的 `strata_control/update_keys.json` 必须与之相同）核验 `strata-feed.json` 签名和引擎清单签名，元数据里的引擎包条目必须与签名 feed 中的条目完全相同；拒绝链接、设备文件、越界路径、Windows 保留名和以点或空格结尾的名字，路径比较不分大小写；审查 instructions/requirements 是否变化；内容未变的文件不重写，引擎目录中不属于新包的文件备份后删除。工具自己经前端领取租约（被持有则中止），确认模型停止后关闭前端，替换完成再由计划任务重新启动前端；替换期间没有调用方能启动模型。备份后原子替换并回读，删除旧文件后再复核全部写入文件，失败恢复；回滚逐文件继续、最后汇总失败；`--rollback`可使用对应备份回退。v0.1.38的备份路径与实际回归见[升级报告](../reports/v0.1.38/upgrade.md)。
 
-每次升级先核查GitHub官方发布说明、文件／配置及基础提示，再进行一次短调用链检查、default/no-save确认和当前配置／验证范围记录；目标总耗时15—30分钟。较完整回归按周集中，只验证当时使用版本；参数比较按相关变化、性能退化或资源告警触发，不每次或每周全量扫描。权限、guardian、harness或工具协议重要变化提前专项验证，排程与具体待办见[状态页](../.status/index.html)。普通使用可先于完整回归，明确标记仅通过短检查；正式能力测量所需安全门继续单独核对。训练及完整profile对照保留为可选专项。实际启动／请求参数以本机 `config/deployments/<host>.json` 的唯一模型档位和 `installation_defaults` 为准；历史v0.1.38参数选择及局限见[升级总结](../reports/v0.1.38/upgrade-cycle-20261003/summary.md)。
+每次升级先核查GitHub官方发布说明、文件／配置及基础提示，再进行一次短调用链检查、default/no-save确认和当前配置／验证范围记录；目标总耗时15—30分钟。较完整回归按周集中，只验证当时使用版本；参数比较按相关变化、性能退化或资源告警触发，不每次或每周全量扫描。权限、guardian、harness或工具协议重要变化提前专项验证，排程与具体待办见所在机器的状态页。普通使用可先于完整回归，明确标记仅通过短检查；正式能力测量所需安全门继续单独核对。训练及完整profile对照保留为可选专项。实际启动／请求参数以本机 `config/deployments/<host>.json` 的唯一模型档位和 `installation_defaults` 为准；历史v0.1.38参数选择及局限见[升级总结](../reports/v0.1.38/upgrade-cycle-20261003/summary.md)。
 
 `config/prompts/startup-instructions.txt`保存服务统一追加的启动提示词全文，由`src/native_service.py`在每次模型进程启动时读取并固定。它覆盖Chat、Responses及Messages请求，调用方指令、权限与输出格式继续保留。更新通过同一部署流程进行；已启动实例不热更新，下一次模型启动使用新文件。状态返回该进程加载的提示词SHA，维护工程保留同名源文件。
 
