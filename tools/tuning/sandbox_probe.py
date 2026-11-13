@@ -178,7 +178,7 @@ def window_replay(out, workload_path, tier=156584, base_tokens=12000):
     WindowMock.  Checks that compaction requests carry the project compact prompt, that the conversation continues
     after each compaction, and that every checkpoint's answers parse and score.  The mock reports exact usage, so
     where Codex compacts is not representative (only the pilot shows that)."""
-    from tools.tuning import codex_workload, window_bank
+    from tools.tuning import codex_workload
     out = Path(out).resolve()
     workload = json.loads(Path(workload_path).read_text())
     server = ThreadingHTTPServer(('127.0.0.1', 0), WindowMock)

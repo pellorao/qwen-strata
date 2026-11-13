@@ -1,11 +1,11 @@
 """Current native sandbox and guardian gate; synthetic targets and original policies."""
-import json,pathlib,subprocess,threading,queue,time,os,sys,urllib.request,hashlib,shlex
+import json,subprocess,threading,queue,time,os,sys,urllib.request,hashlib,shlex
 from http.server import ThreadingHTTPServer,BaseHTTPRequestHandler
 from pathlib import Path
 from tools.reviewer.wsl_client import ROOT,save
 from tools.reviewer.native_cli_binding import pinned_codex
 from tools.reviewer import reviewer_scratch
-from tools.reviewer.arw_measure import local_review_catalog,api_review_catalog,stop_and_capture_engine_log,log_offset,review_shell_environment
+from tools.reviewer.arw_measure import local_review_catalog,api_review_catalog,stop_and_capture_engine_log,log_offset
 from tools.reviewer.providers import (CREDENTIAL_VARIABLES,credential_deny_paths,process_environment,shell_exclude,validate_api_selection,provider_config,service_tier,api_model,credential_present,
  link_login,release_login,web_search_mode,AUTH_FILE)
 from tools.ops.measurement_host import MeasurementHost

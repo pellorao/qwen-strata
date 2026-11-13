@@ -7,7 +7,7 @@ RTX 4070 Ti SUPER 16 GB、i9-14900K、64 GB RAM。该机由 Codex 管理；是�
 - 2026-10-28 部署 Strata v0.2.4（Qwen 引擎 0.1.48，CUDA 13，sm_89）。
 - 对外模型为 IQ3_XXS；当前参数是初始基线，尚未在本机独立调参。
 - 2026-10-30 只读 `/health` 检查时前端在线、租约空闲、未加载模型；实时状态和待办以该机状态页为准。
-- 安装路径和前端地址只从该副本的 `project.private.toml` 读取。
+- 安装路径和 `frontend_url` 只从该副本的 `project.private.toml` 读取。
 
 具体参数与证据入口：
 

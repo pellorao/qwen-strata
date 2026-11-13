@@ -12,7 +12,6 @@ from pathlib import Path
 import queue
 import signal
 import subprocess
-import sys
 import threading
 import time
 

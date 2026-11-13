@@ -6,7 +6,6 @@ import time
 import urllib.error
 import urllib.request
 
-from tools.reviewer.wsl_client import save
 from tools.metrics.model_lifetime import ModelAliveClock
 
 
@@ -41,8 +40,6 @@ class Controller:
         if path=='/maintenance/model/start' and status=='running':
             self.model_alive_clock.observe(True,requested_at,estimated=True,bounds=bounds)
         elif path=='/model/stop' and status=='stopped':
-            self.model_alive_clock.observe(False,confirmed_at,estimated=True,bounds=bounds)
-        elif path=='/lease/release' and result.get('model_stop',{}).get('status')=='stopped':
             self.model_alive_clock.observe(False,confirmed_at,estimated=True,bounds=bounds)
         elif path=='/model/status' and status in ('running','stopped','unloaded'):
             self.model_alive_clock.observe(status=='running',confirmed_at,estimated=True,bounds=bounds)

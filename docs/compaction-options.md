@@ -116,6 +116,6 @@ v0.1.37同一Linux持久线程完成两次200K压缩，实际摘要约118.7、11
 
 ## 基础压缩提示的接入
 
-本工程所有模型任务遵循AGENTS中的基础提示政策。活跃WSL及原版ARW测量入口通过`tools/metrics/prompt_policy.py`组合`config/prompts/compact-prompt.txt`及场景自带的inline/file压缩提示，两者均存在时全部保留；无自定义摘要提示时，保留Codex 0.160.0实际请求中的默认指令作为补充，快照见`tools/resources/codex/0.160.0/compact-prompt.txt`。最终文本及来源SHA存于运行目录的`prompt-policy/`，缺失或空的基础文件使提交失败。普通生成仍由Windows原生服务追加`config/prompts/startup-instructions.txt`；“只输出摘要”仅用于压缩阶段，不影响普通评审任务。其他工程自行管理harness，不自动修改其Codex配置。
+本工程所有模型任务遵循AGENTS中的基础提示政策。活跃WSL及原版ARW测量入口通过`tools/metrics/prompt_policy.py`组合`config/prompts/compact-prompt.txt`及场景自带的inline/file压缩提示，两者均存在时全部保留；无自定义摘要提示时，保留Codex 0.160.1实际请求中的默认指令作为补充，快照见`tools/resources/codex/0.160.1/compact-prompt.txt`。最终文本及来源SHA存于运行目录的`prompt-policy/`，缺失或空的基础文件使提交失败。普通生成仍由Windows原生服务追加`config/prompts/startup-instructions.txt`；“只输出摘要”仅用于压缩阶段，不影响普通评审任务。其他工程自行管理harness，不自动修改其Codex配置。
 
 历史九个完整上下文实例未接入工程基础压缩提示，只使用原生默认；本次修复后的64K三次采用新组合。原九次不重跑，比较时保留这个固定条件差异。失败终态修复让错误可见，不能自行保证压缩内容正确；每次仍按真实终态、压缩事件及完整会话检查统计。

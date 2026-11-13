@@ -70,7 +70,6 @@
 | `verify_reviewer_sandbox` | 探测 Linux Codex 执行边界：不带 `--base-url` 为零模型 `command/exec` 探针，带上时加真实模型回合；用 ARW 运行的原生 Codex 二进制，窗口取 `--model` 的默认档 |
 | `reviewer_permissions` | 测量专用 Codex 权限 profile |
 | `safety_mcp_fixture` | 合成 MCP 动作，删除类工具只记录调用 |
-| `safety_boundary_probe` | 沙箱内探针；目前无调用方，待确认后删除 |
 
 ## tuning：资源校准
 

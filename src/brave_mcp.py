@@ -24,6 +24,8 @@ TOOLS = [
 
 def handle(message, search):
     """Return the JSON-RPC reply for one message, or None for notifications."""
+    if not isinstance(message, dict):
+        return {'jsonrpc': '2.0', 'id': None, 'error': {'code': -32600, 'message': 'Invalid Request.'}}
     method, ident = message.get('method'), message.get('id')
     if ident is None:
         return None

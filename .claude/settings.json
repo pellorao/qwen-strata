@@ -3,10 +3,10 @@
     "deny": [
       "Read(/project.private.toml)",
       "Edit(/project.private.toml)",
-      "Read(//mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next/installation.private.toml)",
-      "Edit(//mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next/installation.private.toml)",
-      "Read(//mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next/.state/**)",
-      "Edit(//mnt/c/Users/pello/AppData/Local/Programs/qwen-3.8-flash-next/.state/**)"
+      "Read(//mnt/c/Users/*/AppData/Local/Programs/*/installation.private.toml)",
+      "Edit(//mnt/c/Users/*/AppData/Local/Programs/*/installation.private.toml)",
+      "Read(//mnt/c/Users/*/AppData/Local/Programs/*/.state/**)",
+      "Edit(//mnt/c/Users/*/AppData/Local/Programs/*/.state/**)"
     ]
   }
 }

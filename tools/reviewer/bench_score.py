@@ -114,10 +114,6 @@ def load_store(work, suite='v1'):
     return store
 
 
-def save_store(work, store):
-    save(Path(work) / 'decisions.json', store)
-
-
 # ---- record lookup ------------------------------------------------------------------------------------------------
 
 def find_record(record_id, records=None, suite='v1'):

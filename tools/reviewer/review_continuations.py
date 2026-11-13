@@ -4,7 +4,7 @@ Batch bindings and evidence stay in the caller-selected temporary batch director
 This program is invoked only after the user authorizes its actual model scope.
 """
 from pathlib import Path
-import hashlib,json,os,re,sqlite3,subprocess,sys,threading,time
+import hashlib,json,os,re,sqlite3,subprocess,threading,time
 
 
 from tools.reviewer.arw_measure import Machine,read_daemon_message,log_offset,capture_engine_log,generate_original

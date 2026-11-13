@@ -7,7 +7,7 @@ Gold labels are never passed to either detector.
 from __future__ import annotations
 
 import argparse
-from collections import Counter, defaultdict
+from collections import Counter
 import gzip
 import hashlib
 import json

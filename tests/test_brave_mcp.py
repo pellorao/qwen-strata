@@ -32,6 +32,10 @@ class McpTests(unittest.TestCase):
         names = [t['name'] for t in self.call('tools/list')['result']['tools']]
         self.assertEqual(names, ['web_search', 'open_page', 'find_in_page'])
 
+    def test_non_object_messages_get_an_invalid_request_error(self):
+        for message in (None, 5, [], 'x'):
+            self.assertEqual(brave_mcp.handle(message, self.search)['error']['code'], -32600)
+
     def test_calls_map_to_actions_and_errors_are_tool_results(self):
         found = self.call('tools/call', {'name': 'web_search', 'arguments': {'query': 'q'}})['result']
         self.assertFalse(found['isError'])

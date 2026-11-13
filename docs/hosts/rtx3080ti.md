@@ -9,7 +9,7 @@ RTX 3080 Ti 12 GB、i9-13900。该机由 Claude Code 管理，负责现有 bench
 - 对外模型为 IQ3_XXS；参数沿用 v0.1.42 的本机调参结果，未在后续版本（v0.2.4 至 v0.2.12）上重新调参。
 - 路由先验 `STRATA_ROUTE_PRIOR=1.5` 为生产默认（用户 2026-11-08 选 B；routeprior3 n=15 判定 open，开组质量点估计低 3%，每实例约快 35%，[报告](../../reports/rtx3080ti/routeprior3/summary.md)）；部署配置 `model_environment`，出现质量问题删该键即可回退。
 - Q2_0、IQ2_XS 权重保留，但不对外，默认不运行或测试。
-- 安装路径和前端地址只从该副本的 `project.private.toml` 读取。
+- 安装路径和 `frontend_url` 只从该副本的 `project.private.toml` 读取。
 
 具体参数与证据入口：
 

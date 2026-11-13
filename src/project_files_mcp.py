@@ -61,6 +61,9 @@ def main():
         request={}
         try:
             request=json.loads(line)
+            if not isinstance(request,dict):
+                request={}
+                raise ValueError('Invalid Request')
             if 'id' not in request:continue
             method=request.get('method');params=request.get('params',{})
             if method=='initialize':result={'protocolVersion':params.get('protocolVersion','2025-03-26'),'capabilities':{'tools':{}},'serverInfo':{'name':'local-project-readonly','version':'1'}}

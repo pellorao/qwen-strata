@@ -1,6 +1,5 @@
 """Review work intervals, excluding shutdown and idle between completed turns."""
 import json
-from pathlib import Path
 from tools.metrics.model_lifetime import alive_seconds, ModelAliveClock
 
 

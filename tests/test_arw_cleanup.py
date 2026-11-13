@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.reviewer import arw_measure
-from tools.reviewer.arw_measure import cleanup_step, read_daemon_message, report_cleanup_failures, run_api
+from tools.reviewer.arw_measure import cleanup_step, report_cleanup_failures, run_api
 
 OPENAI = {'id': 'openai', 'auth': 'env_key', 'base_url': 'https://api.openai.com/v1'}
 API = {'provider': OPENAI, 'model': 'gpt-6.1-sol', 'effort': 'high'}

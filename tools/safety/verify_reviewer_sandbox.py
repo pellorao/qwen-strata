@@ -6,11 +6,10 @@ from pathlib import Path
 import shlex
 import socket
 import subprocess
-import time
 from tools.ops.deployment_source import current_host, published_tier
 from tools.safety.reviewer_permissions import restricted_profile
 from tools.reviewer.native_cli_binding import CODEX
-from tools.reviewer.wsl_client import ROOT, Client, save, statistics, completed_items
+from tools.reviewer.wsl_client import ROOT, Client, save, statistics
 
 MODELS = ('Q2_0', 'IQ2_XS', 'IQ3_XXS')
 

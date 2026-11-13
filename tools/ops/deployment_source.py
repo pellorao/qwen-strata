@@ -330,15 +330,6 @@ def source_bytes(relative, identifier, project=None, condition=None):
     return (project / path).read_bytes()
 
 
-def installation_model_config(installation, model, identifier, project=None):
-    """Return project input after checking the target copy, never use it as a template."""
-    expected = model_configuration(model, identifier, project)
-    actual = json.loads((Path(installation) / 'config' / (model.lower() + '-prebuilt.json')).read_text(encoding='utf-8'))
-    if actual != expected:
-        raise ValueError('Installed model configuration differs from project deployment source')
-    return expected
-
-
 def main():
     print(current_host())
 

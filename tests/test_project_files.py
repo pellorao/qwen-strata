@@ -23,6 +23,16 @@ class ProjectFileTests(unittest.TestCase):
             result=json.loads(proc.stdout.decode('utf-8'))['result']
             self.assertNotIn('isError',result)
             self.assertEqual(json.loads(result['content'][0]['text'])['text'],'UTF8中文正文')
+    def test_non_object_json_lines_get_an_error_and_the_server_keeps_running(self):
+        with tempfile.TemporaryDirectory() as folder:
+            request={'jsonrpc':'2.0','id':7,'method':'ping'}
+            data=('null\n5\n[]\n'+json.dumps(request)+'\n').encode('utf-8')
+            proc=subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'src/project_files_mcp.py')],input=data,capture_output=True,env=dict(os.environ,QWEN_PROJECT_WORKSPACE=folder,QWEN_PROJECT_AUDIT=''),timeout=10)
+            self.assertEqual(proc.returncode,0)
+            replies=[json.loads(line) for line in proc.stdout.decode('utf-8').splitlines()]
+            self.assertEqual(len(replies),4)
+            self.assertTrue(all('error' in r and r['id'] is None for r in replies[:3]))
+            self.assertEqual(replies[3],{'jsonrpc':'2.0','id':7,'result':{}})
     def test_long_line_is_explicit(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder);(root/'a.txt').write_text('x'*24001,encoding='utf-8')
