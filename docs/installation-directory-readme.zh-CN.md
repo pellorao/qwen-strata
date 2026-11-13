@@ -28,7 +28,7 @@
 4. 模型就绪后，向 `/strata/v1/chat/completions`（OpenAI Chat）、`/strata/v1/responses`（OpenAI Responses，Codex）或 `/strata/v1/messages`（Anthropic Messages，Claude Code）发推理请求。
 5. 用完后调用 `POST /lease/release` 归还：这会撤销 key，但模型继续加载，留给下一个调用方复用。没有租约的模型在空闲 30 分钟后由前端停止。
 
-调用方只能选三项：模型、上下文大小（启动时选择档位）、推理强度（随每个请求传递）；其余的引擎参数、环境变量、采样默认值、思考预算和输出上限都已由安装目录预置。为了与所选档位对齐，调用方必须把自己 harness 的窗口和自动压缩阈值设为所用档的值。完整的租约规则、接口表和参数见[详细手册](docs/manuals/caller-manual.zh-CN.md)。
+调用方只能选两项：上下文大小（启动时选择档位）、推理强度（随每个请求传递），模型固定为本机对外的那一个；其余的引擎参数、环境变量、采样默认值、思考预算和输出上限都已由安装目录预置。为了与所选档位对齐，调用方必须把自己 harness 的窗口和自动压缩阈值设为所用档的值。完整的租约规则、接口表和参数见[详细手册](docs/manuals/caller-manual.zh-CN.md)。
 
 ### 用启动脚本运行 Codex 或 Claude Code
 

@@ -273,10 +273,10 @@ REAL_ROOT = Path(__file__).resolve().parents[1]
 # a deliberate manual change updates these pins together with the deployment (README.md: 2026-10-24 deployed file for the
 # one-file manual; the two-part, two-language manual 2026-11-07).
 RENDERED_MANUAL_SHA256 = {
-    'README.md': 'd51d57a7389835e1ddcd24d7b8a7118d0fd58115ba2c2f3ae40f0fdc47372c6b',
-    'README.zh-CN.md': '623cf0e8d1b21097c40506fce3010cbc8077b3dcc0a361ed408d6fef2c3b95e3',
-    'docs/manuals/caller-manual.md': 'e4ed7f6acf2dce677da5d4dfe786ee91d3eb55bff1c0c252ff48704d50f369f9',
-    'docs/manuals/caller-manual.zh-CN.md': '198bb76a18d0c54eeb18ad9b2ae9953bdc72f6a344e4d0e2ead1d79d0c322ba7',
+    'README.md': '428ccd1019001a6378e0db2373a5e0ddf8ae9973a16adac3fcc411ca6eb26313',
+    'README.zh-CN.md': '0416271361da9d9ce026353aa679e9df27237cca186b90f0cf6397c3fcfa6e69',
+    'docs/manuals/caller-manual.md': '187a6a1a5e3e2005cb5600dcea98deb1c9c862e2d83e0b19af4e99f8f2f9b273',
+    'docs/manuals/caller-manual.zh-CN.md': '0e29febc307844a6ef6a091ab69efe99b742aa23797d5119e4f33b706fede07a',
 }
 CJK = re.compile('[\u4e00-\u9fff]')
 

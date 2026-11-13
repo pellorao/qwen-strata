@@ -28,7 +28,7 @@ The caller acquires a key, starts the model, runs inference, and releases the le
 4. Once the model is ready, send inference requests to `/strata/v1/chat/completions` (OpenAI Chat), `/strata/v1/responses` (OpenAI Responses, for Codex), or `/strata/v1/messages` (Anthropic Messages, for Claude Code).
 5. When finished, call `POST /lease/release` to release the lease: this revokes the key, while the model stays loaded for the next caller to reuse. The frontend stops a model with no active lease after 30 minutes of idle time.
 
-A caller can choose only three settings: the model, the context size (by selecting a tier at startup), and the reasoning effort (passed with each request); all other engine parameters, environment variables, sampling defaults, thinking budgets, and output limits are preset by the installation directory. To align with the selected tier, the caller must set its harness's context window and auto-compact threshold to the values for that tier. For the complete lease rules, API reference table, and parameters, see the [detailed manual](docs/manuals/caller-manual.md).
+A caller can choose only two settings: the context size (by selecting a tier at startup) and the reasoning effort (passed with each request), since the model is fixed to this host's one served model; all other engine parameters, environment variables, sampling defaults, thinking budgets, and output limits are preset by the installation directory. To align with the selected tier, the caller must set its harness's context window and auto-compact threshold to the values for that tier. For the complete lease rules, API reference table, and parameters, see the [detailed manual](docs/manuals/caller-manual.md).
 
 ### Run Codex or Claude Code with the Launch Script
 

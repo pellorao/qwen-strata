@@ -59,7 +59,7 @@ Note that a streaming response can still fail after returning HTTP 200. Determin
 
 ## Start parameters
 
-Engine parameters, environment variables, sampling defaults, thinking budgets, and output limits are preset by the installation directory per "this host + quantization" and cannot be overridden by the caller. A caller can choose only three things: **model**, **context size** (selecting a tier at start time), and **reasoning effort** (passed with each request).
+Engine parameters, environment variables, sampling defaults, thinking budgets, and output limits are preset by the installation directory per "this host + quantization" and cannot be overridden by the caller. A caller can choose only two things: **context size** (selecting a tier at start time) and **reasoning effort** (passed with each request); the model is fixed to this host's one served model.
 
 Pass the model and context size through `POST /model/start`, for example:
 
