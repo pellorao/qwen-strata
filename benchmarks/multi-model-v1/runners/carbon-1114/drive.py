@@ -21,7 +21,9 @@ HERE = Path(__file__).resolve().parent
 OUT = ROOT / '.tmp/carbonbench'
 MIN_REMAIN_5H = 3.0     # stop line: remaining percent of the 5h window
 MIN_REMAIN_WEEK = 10.0  # stop line: remaining percent of the weekly window (keeps quota for translation etc.)
+STOP_NAME = os.environ.get('CARBON_STOP', 'STOP')   # parallel lanes (run5.py) use their own stop file name
 MAX_ATTEMPTS = 8
+MAX_GEMINI = 3   # most Gemini runs at once across every task (registry entries with harness agy-gemini)
 T_CS = 3600   # s: CS / CStd instance limit for Carbon (user 2026-11-15: every scenario at the 3600 s cap of clamp(formula, 900, 3600)); a timed-out instance is void and rerun
 SAMPLE = 30  # s between samples of the other registered agy runs (overlap with Hydrogen)
 SEARCH_STOP = 0.30  # plan §3: voided for search / sub-agent use over this share of attempts
@@ -31,6 +33,7 @@ import agyrun  # noqa: E402
 import usage_guard as ug  # noqa: E402
 
 LABEL = 'common/carbonbench'
+GUARD_LABEL = LABEL + (':' + os.environ['CARBON_LANE'] if os.environ.get('CARBON_LANE') else '')   # one usage-guard ledger per parallel lane (run5.py)
 TURNS_PER_START = 2.2   # expected agy turns per instance start (CA/CS/CStd 1 handoff, SR 2; reminder and continuation turns add some)
 
 
@@ -66,6 +69,21 @@ def classify(folder):
     if folder.parent.name in ('cs', 'cstd') and not reasons and any((h.get('checks') or {}).get('hard_stop') for h in handoffs):
         return 'timeout', [f"hard stop at T={inst.get('T')} s"]   # interrupted at T: voided, rerun (user 2026-11-15)
     return ('invalid', reasons or ['not valid']) if reasons else ('valid', [])
+
+
+def acquire_slot(effort):
+    """Register this instance as a running Gemini (agy-gemini) run once fewer than MAX_GEMINI are registered in all (user 2026-11-15: at most 3 Gemini runs at
+    once across every task); waits otherwise. The count and the registration happen under one file lock so parallel lanes cannot both take the last slot.
+    None when the stop file appears while waiting."""
+    import fcntl
+    while True:
+        with open(OUT / 'slot.lock', 'w') as lk:
+            fcntl.flock(lk, fcntl.LOCK_EX)
+            if sum(1 for r in ug.live_runs() if r.get('harness') == 'agy-gemini') < MAX_GEMINI:
+                return ug.register(LABEL, 'agy-gemini', model='Carbon', effort=effort, source='agy-gemini')   # one registration per instance, its real effort
+        if (OUT / STOP_NAME).exists():
+            return None
+        time.sleep(30)
 
 
 def agy_identity():
@@ -107,7 +125,7 @@ def pace_wait(seconds):
     """The 'off' window of the interference check: do nothing for `seconds` (the length of the instance just run), ending early on STOP."""
     log(event='pace_off_start', seconds=round(seconds))
     end = time.time() + seconds
-    while time.time() < end and not (OUT / 'STOP').exists():
+    while time.time() < end and not (OUT / STOP_NAME).exists():
         time.sleep(5)
     log(event='pace_off_end')
 
@@ -160,7 +178,7 @@ def main():
     missing = sum(max(0, a.n - len(cell_state(e, k)['valid'])) for e, k in cells(a.efforts, a.scenarios))
     max_starts = a.max_starts or int(missing * 1.3) + 3
     # Usage watch (worker-rules): expected agy turns for the missing instances; the guard stops at 2x. agyrun.turn counts every turn (child processes join via env).
-    guard = ug.Guard.start(LABEL, calls=int(max_starts * TURNS_PER_START), secs=((a.max_minutes or 600) + 25) * 60)
+    guard = ug.Guard.start(GUARD_LABEL, calls=int(max_starts * TURNS_PER_START), secs=((a.max_minutes or 600) + 25) * 60)
     guard.export_env()
     agy_id = agy_identity()
     agy_sha = __import__('hashlib').sha256(Path(agy_id[0]).read_bytes()).hexdigest()
@@ -177,7 +195,7 @@ def main():
                 break
             if s['timeout_at_cap']:
                 log(event='timeout_at_cap', effort=effort, scenario=key, instances=s['timeout_at_cap']); return
-            if (OUT / 'STOP').exists():
+            if (OUT / STOP_NAME).exists():
                 log(event='stop_file'); return
             if a.max_minutes and time.time() - t_start > a.max_minutes * 60:
                 log(event='time_stop', minutes=a.max_minutes, before=f'{effort}/{key}'); return
@@ -199,9 +217,11 @@ def main():
                 log(event='no_T', effort=effort, scenario=key); return
             attempt = s['next_attempt']
             cmd = [sys.executable, '-I', str(HERE / 'run_one.py'), key, effort, str(attempt)] + (['--T', str(T)] if T else [])
+            run = acquire_slot(effort)
+            if run is None:
+                log(event='stop_file'); return
             started = time.time()
             starts += 1
-            run = ug.register(LABEL, 'agy-gemini', model='Carbon', effort=effort, source='agy-gemini')  # one registration per instance, its real effort
             try:
                 r, overlap = run_sampled(cmd)
             finally:

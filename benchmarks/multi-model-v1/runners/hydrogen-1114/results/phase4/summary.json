@@ -19,55 +19,55 @@
      "n_selected": 5,
      "n": 5,
      "complete": true,
-     "invalid": 0,
+     "invalid": 2,
      "ids": [
       "antigravity/code-spec-v5/hydrogen-medium-a1",
       "antigravity/code-spec-v5/hydrogen-medium-a2",
       "antigravity/code-spec-v5/hydrogen-medium-a3",
       "antigravity/code-spec-v5/hydrogen-medium-a4",
-      "antigravity/code-spec-v5/hydrogen-medium-a5"
+      "antigravity/code-spec-v5/hydrogen-medium-a7"
      ],
-     "mean": 0.5490901826917894,
-     "sd": 0.11595127268762065,
-     "se": 0.0518549855614269,
+     "mean": 0.6088193344975986,
+     "sd": 0.10380004492705608,
+     "se": 0.04642079130488592,
      "ci95": [
-      0.4051176618496636,
-      0.6930627035339153
+      0.47993455569974,
+      0.7377041132954573
      ],
      "n_negative": 0,
-     "min": 0.41174950017278866,
-     "median": 0.5155924508118706,
-     "mean_r83": 0.5490901826917894,
-     "raw_score_mean": 0.5542251649110344,
-     "format_penalty_mean": 0.01173913043478261,
+     "min": 0.4795019795019795,
+     "median": 0.6643420305185013,
+     "mean_r83": 0.6088193344975986,
+     "raw_score_mean": 0.6088193344975986,
+     "format_penalty_mean": 0.0,
      "repairs_total": 0,
-     "seconds_mean": 338.09256768226624,
-     "time_share_mean": 0.8781625134604317,
+     "seconds_mean": 347.80541586875916,
+     "time_share_mean": 0.6999342240967276,
      "tokens_mean": {
-      "uncached_input": 111624.6,
-      "cached_input": 1088508.8,
-      "output": 13472.0
+      "uncached_input": 115556.6,
+      "cached_input": 1288569.2,
+      "output": 15049.4
      },
      "token_sources": [
       "agy stream usage"
      ],
-     "tool_calls_mean": 27.4,
+     "tool_calls_mean": 29.8,
      "speeds_mean": {
       "engine_input": null,
       "engine_output": null,
-      "task_input": 330.15987534190026,
-      "task_output": 39.84707529170166
+      "task_input": 332.2449701116906,
+      "task_output": 43.26959648517589
      },
      "speed_totals": {
       "engine_input": null,
       "engine_output": null,
       "task_input": {
-       "tokens": 558123,
-       "seconds": 1690.4628384113312
+       "tokens": 577783,
+       "seconds": 1739.0270793437958
       },
       "task_output": {
-       "tokens": 67360,
-       "seconds": 1690.4628384113312
+       "tokens": 75247,
+       "seconds": 1739.0270793437958
       }
      },
      "speeds_lower_bound": [],
@@ -171,55 +171,55 @@
      "n_selected": 5,
      "n": 5,
      "complete": true,
-     "invalid": 0,
+     "invalid": 2,
      "ids": [
-      "antigravity/code-spec-v5/hydrogen-xhigh-a1",
       "antigravity/code-spec-v5/hydrogen-xhigh-a2",
       "antigravity/code-spec-v5/hydrogen-xhigh-a3",
-      "antigravity/code-spec-v5/hydrogen-xhigh-a4",
-      "antigravity/code-spec-v5/hydrogen-xhigh-a5"
+      "antigravity/code-spec-v5/hydrogen-xhigh-a5",
+      "antigravity/code-spec-v5/hydrogen-xhigh-a6",
+      "antigravity/code-spec-v5/hydrogen-xhigh-a7"
      ],
-     "mean": 0.6910199547720632,
-     "sd": 0.07007557323108363,
-     "se": 0.031338749061393514,
+     "mean": 0.7452743926185958,
+     "sd": 0.1045360155209465,
+     "se": 0.04674992736036189,
      "ci95": [
-      0.6040096383375354,
-      0.7780302712065911
+      0.6154757856305668,
+      0.8750729996066249
      ],
      "n_negative": 0,
      "min": 0.6306049195943018,
-     "median": 0.6591222127099311,
-     "mean_r83": 0.6910199547720632,
-     "raw_score_mean": 0.7001164553921828,
-     "format_penalty_mean": 0.01279233870967742,
+     "median": 0.7895876118956482,
+     "mean_r83": 0.7452743926185958,
+     "raw_score_mean": 0.7452743926185958,
+     "format_penalty_mean": 0.0,
      "repairs_total": 0,
-     "seconds_mean": 367.6867478847504,
-     "time_share_mean": 0.9701497305666237,
+     "seconds_mean": 443.65988249778746,
+     "time_share_mean": 0.6316168933092972,
      "tokens_mean": {
-      "uncached_input": 146457.0,
-      "cached_input": 700708.8,
-      "output": 34775.6
+      "uncached_input": 176452.0,
+      "cached_input": 1569499.8,
+      "output": 55918.6
      },
      "token_sources": [
       "agy stream usage"
      ],
-     "tool_calls_mean": 25.4,
+     "tool_calls_mean": 34.0,
      "speeds_mean": {
       "engine_input": null,
       "engine_output": null,
-      "task_input": 398.3200396602443,
-      "task_output": 94.57942174978861
+      "task_input": 397.71907932396834,
+      "task_output": 126.03934276225407
      },
      "speed_totals": {
       "engine_input": null,
       "engine_output": null,
       "task_input": {
-       "tokens": 732285,
-       "seconds": 1838.4337394237518
+       "tokens": 882260,
+       "seconds": 2218.2994124889374
       },
       "task_output": {
-       "tokens": 173878,
-       "seconds": 1838.4337394237518
+       "tokens": 279593,
+       "seconds": 2218.2994124889374
       }
      },
      "speeds_lower_bound": [],
@@ -671,13 +671,13 @@
      "thinking_tokens": 8292
     },
     {
-     "id": "antigravity/code-spec-v5/hydrogen-medium-a5",
+     "id": "antigravity/code-spec-v5/hydrogen-medium-a7",
      "arm": "antigravity",
      "scenario": "code-spec-v5",
      "config": 30,
      "supplementary_label": null,
-     "attempt": 5,
-     "started": 1794634588.8408897,
+     "attempt": 7,
+     "started": 1794674367.9922874,
      "valid": true,
      "validity": {
       "status": "valid",
@@ -690,10 +690,120 @@
      "cell_pooled": false,
      "in_main": true,
      "score_status": "final",
-     "score": 0.41174950017278866,
-     "raw_score": 0.4374244112690134,
-     "format_penalty": 0.05869565217391305,
+     "score": 0.7103952592018347,
+     "raw_score": 0.7103952592018347,
+     "format_penalty": 0.0,
      "repairs": 0,
+     "seconds": 438.5546851158142,
+     "time_limit_seconds": 3600,
+     "tokens": {
+      "uncached_input": 143747,
+      "cached_input": 2519195,
+      "output": 21515
+     },
+     "token_source": "agy stream usage",
+     "tool_calls": 40,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gemini-4-hydrogen-medium"
+     ],
+     "service_tiers": {},
+     "speeds": {
+      "task_input": 327.7744027795281,
+      "task_output": 49.058876190818225,
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 143747,
+       "seconds": 438.5546851158142
+      },
+      "task_output": {
+       "tokens": 21515,
+       "seconds": 438.5546851158142
+      },
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_basis": {
+      "task": "agy stream usage over the instance work seconds",
+      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
+     },
+     "speed_lower_bounds": [],
+     "score_r83": 0.7103952592018347,
+     "score_before_penalty": 0.7103952592018347,
+     "overall_deduction": 0.0,
+     "missing_checks": null,
+     "model_failure_handoffs": [],
+     "requested_effort": "medium",
+     "effective_effort": "medium",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 438.5546851158142,
+       "tokens": {
+        "uncached_input": 143747,
+        "cached_input": 2519195,
+        "output": 21515
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 40,
+       "api_seconds": 347.942638767,
+       "compactions": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": "ready",
+       "continuation_stop": "delivered",
+       "harness_reported_cost_usd": null
+      }
+     ],
+     "compactions": null,
+     "compactions_source": "not available in the agy stream",
+     "harness_version": "1.5.9",
+     "thinking_tokens": 15422
+    },
+    {
+     "id": "antigravity/code-spec-v5/hydrogen-medium-a5",
+     "arm": "antigravity",
+     "scenario": "code-spec-v5",
+     "config": 30,
+     "supplementary_label": null,
+     "attempt": 5,
+     "started": 1794634588.8408897,
+     "valid": false,
+     "validity": {
+      "status": "timeout",
+      "reasons": [
+       "hard stop at T=385 s"
+      ],
+      "source": "drive.classify (hard stop at T)"
+     },
+     "valid_rank": null,
+     "first_n": null,
+     "main_statistic": null,
+     "cell_pooled": false,
+     "in_main": false,
+     "score_status": null,
+     "score": null,
+     "raw_score": null,
+     "format_penalty": null,
+     "repairs": null,
      "seconds": 389.9904441833496,
      "time_limit_seconds": 385,
      "tokens": {
@@ -734,11 +844,11 @@
       "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
      },
      "speed_lower_bounds": [],
-     "score_r83": 0.41174950017278866,
-     "score_before_penalty": 0.4374244112690134,
-     "overall_deduction": 0.05869565217391305,
+     "score_r83": null,
+     "score_before_penalty": null,
+     "overall_deduction": null,
      "missing_checks": null,
-     "model_failure_handoffs": [],
+     "model_failure_handoffs": null,
      "requested_effort": "medium",
      "effective_effort": "medium",
      "pooled": false,
@@ -777,6 +887,117 @@
      "compactions_source": "not available in the agy stream",
      "harness_version": "1.5.8",
      "thinking_tokens": 8685
+    },
+    {
+     "id": "antigravity/code-spec-v5/hydrogen-medium-a6",
+     "arm": "antigravity",
+     "scenario": "code-spec-v5",
+     "config": 30,
+     "supplementary_label": null,
+     "attempt": 6,
+     "started": 1794673298.58122,
+     "valid": false,
+     "validity": {
+      "status": "invalid",
+      "reasons": [
+       "h0: ended_normally",
+       "h0: status ERROR API error (attempt 2): request failed: Post \"https://daily-cloudcode-pa.googleapis.com/v1internal:streamGenerateContent?alt=sse\": EOF"
+      ],
+      "source": "run_one checks (drive.classify)"
+     },
+     "valid_rank": null,
+     "first_n": null,
+     "main_statistic": null,
+     "cell_pooled": null,
+     "in_main": false,
+     "score_status": null,
+     "score": null,
+     "raw_score": null,
+     "format_penalty": null,
+     "repairs": null,
+     "seconds": 1061.2493212223053,
+     "time_limit_seconds": 3600,
+     "tokens": {
+      "uncached_input": 134008,
+      "cached_input": 1733980,
+      "output": 17730
+     },
+     "token_source": "agy stream usage",
+     "tool_calls": 36,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gemini-4-hydrogen-medium"
+     ],
+     "service_tiers": {},
+     "speeds": {
+      "task_input": 126.2738145694688,
+      "task_output": 16.706724466574247,
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 134008,
+       "seconds": 1061.2493212223053
+      },
+      "task_output": {
+       "tokens": 17730,
+       "seconds": 1061.2493212223053
+      },
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_basis": {
+      "task": "agy stream usage over the instance work seconds",
+      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
+     },
+     "speed_lower_bounds": [],
+     "score_r83": null,
+     "score_before_penalty": null,
+     "overall_deduction": null,
+     "missing_checks": null,
+     "model_failure_handoffs": null,
+     "requested_effort": "medium",
+     "effective_effort": "medium",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 1061.2493212223053,
+       "tokens": {
+        "uncached_input": 134008,
+        "cached_input": 1733980,
+        "output": 17730
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 36,
+       "api_seconds": 910.627373246,
+       "compactions": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": null,
+       "continuation_stop": "abnormal_end",
+       "harness_reported_cost_usd": null
+      }
+     ],
+     "compactions": null,
+     "compactions_source": "not available in the agy stream",
+     "harness_version": "1.5.9",
+     "thinking_tokens": 12172
     },
     {
      "id": "antigravity/code-spec-v5/hydrogen-high-a1",
@@ -1319,114 +1540,6 @@
      "thinking_tokens": 12482
     },
     {
-     "id": "antigravity/code-spec-v5/hydrogen-xhigh-a1",
-     "arm": "antigravity",
-     "scenario": "code-spec-v5",
-     "config": 32,
-     "supplementary_label": null,
-     "attempt": 1,
-     "started": 1794645047.6942058,
-     "valid": true,
-     "validity": {
-      "status": "valid",
-      "reasons": [],
-      "source": "run_one checks (drive.classify)"
-     },
-     "valid_rank": 1,
-     "first_n": true,
-     "main_statistic": true,
-     "cell_pooled": false,
-     "in_main": true,
-     "score_status": "final",
-     "score": 0.6591222127099311,
-     "raw_score": 0.6881536967934028,
-     "format_penalty": 0.0421875,
-     "repairs": 0,
-     "seconds": 381.62007093429565,
-     "time_limit_seconds": 379,
-     "tokens": {
-      "uncached_input": 152065,
-      "cached_input": 1069941,
-      "output": 29746
-     },
-     "token_source": "agy stream usage",
-     "tool_calls": 29,
-     "cost_usd": null,
-     "cost_cny": null,
-     "cost_basis": null,
-     "cost_lower_bound": false,
-     "model_ids": [
-      "gemini-4-hydrogen-xhigh"
-     ],
-     "service_tiers": {},
-     "speeds": {
-      "task_input": 398.47222822350284,
-      "task_output": 77.94663401003726,
-      "engine_input": null,
-      "engine_output": null
-     },
-     "speed_parts": {
-      "task_input": {
-       "tokens": 152065,
-       "seconds": 381.62007093429565
-      },
-      "task_output": {
-       "tokens": 29746,
-       "seconds": 381.62007093429565
-      },
-      "engine_input": null,
-      "engine_output": null
-     },
-     "speed_basis": {
-      "task": "agy stream usage over the instance work seconds",
-      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
-     },
-     "speed_lower_bounds": [],
-     "score_r83": 0.6591222127099311,
-     "score_before_penalty": 0.6881536967934028,
-     "overall_deduction": 0.0421875,
-     "missing_checks": null,
-     "model_failure_handoffs": [],
-     "requested_effort": "xhigh",
-     "effective_effort": "xhigh",
-     "pooled": false,
-     "pause_known": true,
-     "pause_count": 0,
-     "continue_count": 0,
-     "seconds_adjustment": null,
-     "harness_generation": null,
-     "harness_reported_cost_usd": null,
-     "handoff_metrics": [
-      {
-       "k": 0,
-       "sub_scenario": "default",
-       "seconds": 381.62007093429565,
-       "tokens": {
-        "uncached_input": 152065,
-        "cached_input": 1069941,
-        "output": 29746
-       },
-       "tokens_lower_bound": false,
-       "cache_write": null,
-       "tool_calls": 29,
-       "api_seconds": 266.585409154,
-       "compactions": null,
-       "engine_read": null,
-       "engine_generated": null,
-       "engine_input_seconds": null,
-       "engine_decode_seconds": null,
-       "model_failure": false,
-       "final_status": "not-arw-form",
-       "continuation_stop": "hard_limit",
-       "harness_reported_cost_usd": null
-      }
-     ],
-     "compactions": null,
-     "compactions_source": "not available in the agy stream",
-     "harness_version": "1.5.9",
-     "thinking_tokens": 24144
-    },
-    {
      "id": "antigravity/code-spec-v5/hydrogen-xhigh-a2",
      "arm": "antigravity",
      "scenario": "code-spec-v5",
@@ -1440,7 +1553,7 @@
       "reasons": [],
       "source": "run_one checks (drive.classify)"
      },
-     "valid_rank": 2,
+     "valid_rank": 1,
      "first_n": true,
      "main_statistic": true,
      "cell_pooled": false,
@@ -1548,7 +1661,7 @@
       "reasons": [],
       "source": "run_one checks (drive.classify)"
      },
-     "valid_rank": 3,
+     "valid_rank": 2,
      "first_n": true,
      "main_statistic": true,
      "cell_pooled": false,
@@ -1643,114 +1756,6 @@
      "thinking_tokens": 33914
     },
     {
-     "id": "antigravity/code-spec-v5/hydrogen-xhigh-a4",
-     "arm": "antigravity",
-     "scenario": "code-spec-v5",
-     "config": 32,
-     "supplementary_label": null,
-     "attempt": 4,
-     "started": 1794646164.7320158,
-     "valid": true,
-     "validity": {
-      "status": "valid",
-      "reasons": [],
-      "source": "run_one checks (drive.classify)"
-     },
-     "valid_rank": 4,
-     "first_n": true,
-     "main_statistic": true,
-     "cell_pooled": false,
-     "in_main": true,
-     "score_status": "final",
-     "score": 0.7390772617693941,
-     "raw_score": 0.7555282807865199,
-     "format_penalty": 0.021774193548387097,
-     "repairs": 0,
-     "seconds": 380.08129692077637,
-     "time_limit_seconds": 379,
-     "tokens": {
-      "uncached_input": 140332,
-      "cached_input": 515975,
-      "output": 39712
-     },
-     "token_source": "agy stream usage",
-     "tool_calls": 21,
-     "cost_usd": null,
-     "cost_cny": null,
-     "cost_basis": null,
-     "cost_lower_bound": false,
-     "model_ids": [
-      "gemini-4-hydrogen-xhigh"
-     ],
-     "service_tiers": {},
-     "speeds": {
-      "task_input": 369.2157470964708,
-      "task_output": 104.48291016086887,
-      "engine_input": null,
-      "engine_output": null
-     },
-     "speed_parts": {
-      "task_input": {
-       "tokens": 140332,
-       "seconds": 380.08129692077637
-      },
-      "task_output": {
-       "tokens": 39712,
-       "seconds": 380.08129692077637
-      },
-      "engine_input": null,
-      "engine_output": null
-     },
-     "speed_basis": {
-      "task": "agy stream usage over the instance work seconds",
-      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
-     },
-     "speed_lower_bounds": [],
-     "score_r83": 0.7390772617693941,
-     "score_before_penalty": 0.7555282807865199,
-     "overall_deduction": 0.021774193548387097,
-     "missing_checks": null,
-     "model_failure_handoffs": [],
-     "requested_effort": "xhigh",
-     "effective_effort": "xhigh",
-     "pooled": false,
-     "pause_known": true,
-     "pause_count": 0,
-     "continue_count": 0,
-     "seconds_adjustment": null,
-     "harness_generation": null,
-     "harness_reported_cost_usd": null,
-     "handoff_metrics": [
-      {
-       "k": 0,
-       "sub_scenario": "default",
-       "seconds": 380.08129692077637,
-       "tokens": {
-        "uncached_input": 140332,
-        "cached_input": 515975,
-        "output": 39712
-       },
-       "tokens_lower_bound": false,
-       "cache_write": null,
-       "tool_calls": 21,
-       "api_seconds": 276.80482562,
-       "compactions": null,
-       "engine_read": null,
-       "engine_generated": null,
-       "engine_input_seconds": null,
-       "engine_decode_seconds": null,
-       "model_failure": false,
-       "final_status": "not-arw-form",
-       "continuation_stop": "hard_limit",
-       "harness_reported_cost_usd": null
-      }
-     ],
-     "compactions": null,
-     "compactions_source": "not available in the agy stream",
-     "harness_version": "1.5.9",
-     "thinking_tokens": 32448
-    },
-    {
      "id": "antigravity/code-spec-v5/hydrogen-xhigh-a5",
      "arm": "antigravity",
      "scenario": "code-spec-v5",
@@ -1764,7 +1769,7 @@
       "reasons": [],
       "source": "run_one checks (drive.classify)"
      },
-     "valid_rank": 5,
+     "valid_rank": 3,
      "first_n": true,
      "main_statistic": true,
      "cell_pooled": false,
@@ -1857,6 +1862,442 @@
      "compactions_source": "not available in the agy stream",
      "harness_version": "1.5.9",
      "thinking_tokens": 18969
+    },
+    {
+     "id": "antigravity/code-spec-v5/hydrogen-xhigh-a6",
+     "arm": "antigravity",
+     "scenario": "code-spec-v5",
+     "config": 32,
+     "supplementary_label": null,
+     "attempt": 6,
+     "started": 1794674817.4190876,
+     "valid": true,
+     "validity": {
+      "status": "valid",
+      "reasons": [],
+      "source": "run_one checks (drive.classify)"
+     },
+     "valid_rank": 4,
+     "first_n": true,
+     "main_statistic": true,
+     "cell_pooled": false,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.8146739962965333,
+     "raw_score": 0.8146739962965333,
+     "format_penalty": 0.0,
+     "repairs": 0,
+     "seconds": 620.5864658355713,
+     "time_limit_seconds": 3600,
+     "tokens": {
+      "uncached_input": 222079,
+      "cached_input": 3084532,
+      "output": 88681
+     },
+     "token_source": "agy stream usage",
+     "tool_calls": 44,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gemini-4-hydrogen-xhigh"
+     ],
+     "service_tiers": {},
+     "speeds": {
+      "task_input": 357.85343739488087,
+      "task_output": 142.89870128024455,
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 222079,
+       "seconds": 620.5864658355713
+      },
+      "task_output": {
+       "tokens": 88681,
+       "seconds": 620.5864658355713
+      },
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_basis": {
+      "task": "agy stream usage over the instance work seconds",
+      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
+     },
+     "speed_lower_bounds": [],
+     "score_r83": 0.8146739962965333,
+     "score_before_penalty": 0.8146739962965333,
+     "overall_deduction": 0.0,
+     "missing_checks": null,
+     "model_failure_handoffs": [],
+     "requested_effort": "xhigh",
+     "effective_effort": "xhigh",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 620.5864658355713,
+       "tokens": {
+        "uncached_input": 222079,
+        "cached_input": 3084532,
+        "output": 88681
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 44,
+       "api_seconds": 522.5294230549999,
+       "compactions": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": "ready",
+       "continuation_stop": "delivered",
+       "harness_reported_cost_usd": null
+      }
+     ],
+     "compactions": null,
+     "compactions_source": "not available in the agy stream",
+     "harness_version": "1.5.9",
+     "thinking_tokens": 78260
+    },
+    {
+     "id": "antigravity/code-spec-v5/hydrogen-xhigh-a7",
+     "arm": "antigravity",
+     "scenario": "code-spec-v5",
+     "config": 32,
+     "supplementary_label": null,
+     "attempt": 7,
+     "started": 1794675449.8284686,
+     "valid": true,
+     "validity": {
+      "status": "valid",
+      "reasons": [],
+      "source": "run_one checks (drive.classify)"
+     },
+     "valid_rank": 5,
+     "first_n": true,
+     "main_statistic": true,
+     "cell_pooled": false,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.8547976674154552,
+     "raw_score": 0.8547976674154552,
+     "format_penalty": 0.0,
+     "repairs": 0,
+     "seconds": 520.9805750846863,
+     "time_limit_seconds": 3600,
+     "tokens": {
+      "uncached_input": 220293,
+      "cached_input": 2845339,
+      "output": 86492
+     },
+     "token_source": "agy stream usage",
+     "tool_calls": 49,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gemini-4-hydrogen-xhigh"
+     ],
+     "service_tiers": {},
+     "speeds": {
+      "task_input": 422.8430205179742,
+      "task_output": 166.01770610341964,
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 220293,
+       "seconds": 520.9805750846863
+      },
+      "task_output": {
+       "tokens": 86492,
+       "seconds": 520.9805750846863
+      },
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_basis": {
+      "task": "agy stream usage over the instance work seconds",
+      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
+     },
+     "speed_lower_bounds": [],
+     "score_r83": 0.8547976674154552,
+     "score_before_penalty": 0.8547976674154552,
+     "overall_deduction": 0.0,
+     "missing_checks": null,
+     "model_failure_handoffs": [],
+     "requested_effort": "xhigh",
+     "effective_effort": "xhigh",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 520.9805750846863,
+       "tokens": {
+        "uncached_input": 220293,
+        "cached_input": 2845339,
+        "output": 86492
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 49,
+       "api_seconds": 451.002537012,
+       "compactions": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": "ready",
+       "continuation_stop": "delivered",
+       "harness_reported_cost_usd": null
+      }
+     ],
+     "compactions": null,
+     "compactions_source": "not available in the agy stream",
+     "harness_version": "1.5.9",
+     "thinking_tokens": 77528
+    },
+    {
+     "id": "antigravity/code-spec-v5/hydrogen-xhigh-a1",
+     "arm": "antigravity",
+     "scenario": "code-spec-v5",
+     "config": 32,
+     "supplementary_label": null,
+     "attempt": 1,
+     "started": 1794645047.6942058,
+     "valid": false,
+     "validity": {
+      "status": "timeout",
+      "reasons": [
+       "hard stop at T=379 s"
+      ],
+      "source": "drive.classify (hard stop at T)"
+     },
+     "valid_rank": null,
+     "first_n": null,
+     "main_statistic": null,
+     "cell_pooled": false,
+     "in_main": false,
+     "score_status": null,
+     "score": null,
+     "raw_score": null,
+     "format_penalty": null,
+     "repairs": null,
+     "seconds": 381.62007093429565,
+     "time_limit_seconds": 379,
+     "tokens": {
+      "uncached_input": 152065,
+      "cached_input": 1069941,
+      "output": 29746
+     },
+     "token_source": "agy stream usage",
+     "tool_calls": 29,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gemini-4-hydrogen-xhigh"
+     ],
+     "service_tiers": {},
+     "speeds": {
+      "task_input": 398.47222822350284,
+      "task_output": 77.94663401003726,
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 152065,
+       "seconds": 381.62007093429565
+      },
+      "task_output": {
+       "tokens": 29746,
+       "seconds": 381.62007093429565
+      },
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_basis": {
+      "task": "agy stream usage over the instance work seconds",
+      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
+     },
+     "speed_lower_bounds": [],
+     "score_r83": null,
+     "score_before_penalty": null,
+     "overall_deduction": null,
+     "missing_checks": null,
+     "model_failure_handoffs": null,
+     "requested_effort": "xhigh",
+     "effective_effort": "xhigh",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 381.62007093429565,
+       "tokens": {
+        "uncached_input": 152065,
+        "cached_input": 1069941,
+        "output": 29746
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 29,
+       "api_seconds": 266.585409154,
+       "compactions": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": "not-arw-form",
+       "continuation_stop": "hard_limit",
+       "harness_reported_cost_usd": null
+      }
+     ],
+     "compactions": null,
+     "compactions_source": "not available in the agy stream",
+     "harness_version": "1.5.9",
+     "thinking_tokens": 24144
+    },
+    {
+     "id": "antigravity/code-spec-v5/hydrogen-xhigh-a4",
+     "arm": "antigravity",
+     "scenario": "code-spec-v5",
+     "config": 32,
+     "supplementary_label": null,
+     "attempt": 4,
+     "started": 1794646164.7320158,
+     "valid": false,
+     "validity": {
+      "status": "timeout",
+      "reasons": [
+       "hard stop at T=379 s"
+      ],
+      "source": "drive.classify (hard stop at T)"
+     },
+     "valid_rank": null,
+     "first_n": null,
+     "main_statistic": null,
+     "cell_pooled": false,
+     "in_main": false,
+     "score_status": null,
+     "score": null,
+     "raw_score": null,
+     "format_penalty": null,
+     "repairs": null,
+     "seconds": 380.08129692077637,
+     "time_limit_seconds": 379,
+     "tokens": {
+      "uncached_input": 140332,
+      "cached_input": 515975,
+      "output": 39712
+     },
+     "token_source": "agy stream usage",
+     "tool_calls": 21,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gemini-4-hydrogen-xhigh"
+     ],
+     "service_tiers": {},
+     "speeds": {
+      "task_input": 369.2157470964708,
+      "task_output": 104.48291016086887,
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 140332,
+       "seconds": 380.08129692077637
+      },
+      "task_output": {
+       "tokens": 39712,
+       "seconds": 380.08129692077637
+      },
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_basis": {
+      "task": "agy stream usage over the instance work seconds",
+      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
+     },
+     "speed_lower_bounds": [],
+     "score_r83": null,
+     "score_before_penalty": null,
+     "overall_deduction": null,
+     "missing_checks": null,
+     "model_failure_handoffs": null,
+     "requested_effort": "xhigh",
+     "effective_effort": "xhigh",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 380.08129692077637,
+       "tokens": {
+        "uncached_input": 140332,
+        "cached_input": 515975,
+        "output": 39712
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 21,
+       "api_seconds": 276.80482562,
+       "compactions": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": "not-arw-form",
+       "continuation_stop": "hard_limit",
+       "harness_reported_cost_usd": null
+      }
+     ],
+     "compactions": null,
+     "compactions_source": "not available in the agy stream",
+     "harness_version": "1.5.9",
+     "thinking_tokens": 32448
     }
    ]
   },
@@ -2026,55 +2467,55 @@
      "n_selected": 5,
      "n": 5,
      "complete": true,
-     "invalid": 0,
+     "invalid": 5,
      "ids": [
-      "antigravity/code-standards-v5.1/hydrogen-xhigh-a1",
-      "antigravity/code-standards-v5.1/hydrogen-xhigh-a2",
       "antigravity/code-standards-v5.1/hydrogen-xhigh-a3",
-      "antigravity/code-standards-v5.1/hydrogen-xhigh-a4",
-      "antigravity/code-standards-v5.1/hydrogen-xhigh-a5"
+      "antigravity/code-standards-v5.1/hydrogen-xhigh-a5",
+      "antigravity/code-standards-v5.1/hydrogen-xhigh-a6",
+      "antigravity/code-standards-v5.1/hydrogen-xhigh-a8",
+      "antigravity/code-standards-v5.1/hydrogen-xhigh-a10"
      ],
-     "mean": 0.47215833026085036,
-     "sd": 0.43161528276827354,
-     "se": 0.19302422247953063,
+     "mean": 0.832354382600473,
+     "sd": 0.03152469067901589,
+     "se": 0.014098270265586707,
      "ci95": [
-      -0.0637628274270518,
-      1.0080794879487525
+      0.7932113091298293,
+      0.8714974560711167
      ],
      "n_negative": 0,
-     "min": 0.0,
-     "median": 0.7569372443557522,
-     "mean_r83": 0.47215833026085036,
-     "raw_score_mean": 0.485566807360318,
-     "format_penalty_mean": 0.0163932615299641,
+     "min": 0.7831391459219514,
+     "median": 0.843606825428876,
+     "mean_r83": 0.832354382600473,
+     "raw_score_mean": 0.8421893584308329,
+     "format_penalty_mean": 0.011398484319232013,
      "repairs_total": 8,
-     "seconds_mean": 340.1791045665741,
-     "time_share_mean": 0.9975926820134138,
+     "seconds_mean": 471.7247773647308,
+     "time_share_mean": 0.47992391597498274,
      "tokens_mean": {
-      "uncached_input": 112637.8,
-      "cached_input": 824734.4,
-      "output": 25500.8
+      "uncached_input": 197563.0,
+      "cached_input": 1790661.4,
+      "output": 70391.0
      },
      "token_sources": [
       "agy stream usage"
      ],
-     "tool_calls_mean": 28.8,
+     "tool_calls_mean": 37.6,
      "speeds_mean": {
       "engine_input": null,
       "engine_output": null,
-      "task_input": 331.11322385163265,
-      "task_output": 74.9628641432602
+      "task_input": 418.80988550925133,
+      "task_output": 149.2204848624576
      },
      "speed_totals": {
       "engine_input": null,
       "engine_output": null,
       "task_input": {
-       "tokens": 563189,
-       "seconds": 1700.8955228328705
+       "tokens": 987815,
+       "seconds": 2358.623886823654
       },
       "task_output": {
-       "tokens": 127504,
-       "seconds": 1700.8955228328705
+       "tokens": 351955,
+       "seconds": 2358.623886823654
       }
      },
      "speeds_lower_bound": [],
@@ -3174,226 +3615,6 @@
      "thinking_tokens": 20047
     },
     {
-     "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a1",
-     "arm": "antigravity",
-     "scenario": "code-standards-v5.1",
-     "config": 32,
-     "supplementary_label": null,
-     "attempt": 1,
-     "started": 1794646945.2238386,
-     "valid": true,
-     "validity": {
-      "status": "valid",
-      "reasons": [],
-      "source": "run_one checks (drive.classify)"
-     },
-     "valid_rank": 1,
-     "first_n": true,
-     "main_statistic": true,
-     "cell_pooled": false,
-     "in_main": true,
-     "score_status": "final",
-     "score": 0.0,
-     "raw_score": 0,
-     "format_penalty": 0.0,
-     "repairs": 0,
-     "seconds": 349.6532163619995,
-     "time_limit_seconds": 341,
-     "tokens": {
-      "uncached_input": 85450,
-      "cached_input": 558717,
-      "output": 12039
-     },
-     "token_source": "agy stream usage",
-     "tool_calls": 27,
-     "cost_usd": null,
-     "cost_cny": null,
-     "cost_basis": null,
-     "cost_lower_bound": false,
-     "model_ids": [
-      "gemini-4-hydrogen-xhigh"
-     ],
-     "service_tiers": {},
-     "speeds": {
-      "task_input": 244.3849963374361,
-      "task_output": 34.431257705165514,
-      "engine_input": null,
-      "engine_output": null
-     },
-     "speed_parts": {
-      "task_input": {
-       "tokens": 85450,
-       "seconds": 349.6532163619995
-      },
-      "task_output": {
-       "tokens": 12039,
-       "seconds": 349.6532163619995
-      },
-      "engine_input": null,
-      "engine_output": null
-     },
-     "speed_basis": {
-      "task": "agy stream usage over the instance work seconds",
-      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
-     },
-     "speed_lower_bounds": [],
-     "score_r83": 0.0,
-     "score_before_penalty": 0,
-     "overall_deduction": 0.0,
-     "missing_checks": null,
-     "model_failure_handoffs": [
-      0
-     ],
-     "requested_effort": "xhigh",
-     "effective_effort": "xhigh",
-     "pooled": false,
-     "pause_known": true,
-     "pause_count": 0,
-     "continue_count": 0,
-     "seconds_adjustment": null,
-     "harness_generation": null,
-     "harness_reported_cost_usd": null,
-     "handoff_metrics": [
-      {
-       "k": 0,
-       "sub_scenario": "default",
-       "seconds": 349.6532163619995,
-       "tokens": {
-        "uncached_input": 85450,
-        "cached_input": 558717,
-        "output": 12039
-       },
-       "tokens_lower_bound": false,
-       "cache_write": null,
-       "tool_calls": 27,
-       "api_seconds": 186.049793996,
-       "compactions": null,
-       "engine_read": null,
-       "engine_generated": null,
-       "engine_input_seconds": null,
-       "engine_decode_seconds": null,
-       "model_failure": true,
-       "final_status": "not-arw-form",
-       "continuation_stop": "hard_limit",
-       "harness_reported_cost_usd": null
-      }
-     ],
-     "compactions": null,
-     "compactions_source": "not available in the agy stream",
-     "harness_version": "1.5.9",
-     "thinking_tokens": 9345
-    },
-    {
-     "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a2",
-     "arm": "antigravity",
-     "scenario": "code-standards-v5.1",
-     "config": 32,
-     "supplementary_label": null,
-     "attempt": 2,
-     "started": 1794647306.1473246,
-     "valid": true,
-     "validity": {
-      "status": "valid",
-      "reasons": [],
-      "source": "run_one checks (drive.classify)"
-     },
-     "valid_rank": 2,
-     "first_n": true,
-     "main_statistic": true,
-     "cell_pooled": false,
-     "in_main": true,
-     "score_status": "final",
-     "score": 0.0,
-     "raw_score": 0,
-     "format_penalty": 0.0,
-     "repairs": 0,
-     "seconds": 346.5329661369324,
-     "time_limit_seconds": 341,
-     "tokens": {
-      "uncached_input": 103034,
-      "cached_input": 661978,
-      "output": 22722
-     },
-     "token_source": "agy stream usage",
-     "tool_calls": 27,
-     "cost_usd": null,
-     "cost_cny": null,
-     "cost_basis": null,
-     "cost_lower_bound": false,
-     "model_ids": [
-      "gemini-4-hydrogen-xhigh"
-     ],
-     "service_tiers": {},
-     "speeds": {
-      "task_input": 297.32813344888564,
-      "task_output": 65.56951926767455,
-      "engine_input": null,
-      "engine_output": null
-     },
-     "speed_parts": {
-      "task_input": {
-       "tokens": 103034,
-       "seconds": 346.5329661369324
-      },
-      "task_output": {
-       "tokens": 22722,
-       "seconds": 346.5329661369324
-      },
-      "engine_input": null,
-      "engine_output": null
-     },
-     "speed_basis": {
-      "task": "agy stream usage over the instance work seconds",
-      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
-     },
-     "speed_lower_bounds": [],
-     "score_r83": 0.0,
-     "score_before_penalty": 0,
-     "overall_deduction": 0.0,
-     "missing_checks": null,
-     "model_failure_handoffs": [
-      0
-     ],
-     "requested_effort": "xhigh",
-     "effective_effort": "xhigh",
-     "pooled": false,
-     "pause_known": true,
-     "pause_count": 0,
-     "continue_count": 0,
-     "seconds_adjustment": null,
-     "harness_generation": null,
-     "harness_reported_cost_usd": null,
-     "handoff_metrics": [
-      {
-       "k": 0,
-       "sub_scenario": "default",
-       "seconds": 346.5329661369324,
-       "tokens": {
-        "uncached_input": 103034,
-        "cached_input": 661978,
-        "output": 22722
-       },
-       "tokens_lower_bound": false,
-       "cache_write": null,
-       "tool_calls": 27,
-       "api_seconds": 212.079917125,
-       "compactions": null,
-       "engine_read": null,
-       "engine_generated": null,
-       "engine_input_seconds": null,
-       "engine_decode_seconds": null,
-       "model_failure": true,
-       "final_status": "not-arw-form",
-       "continuation_stop": "hard_limit",
-       "harness_reported_cost_usd": null
-      }
-     ],
-     "compactions": null,
-     "compactions_source": "not available in the agy stream",
-     "harness_version": "1.5.9",
-     "thinking_tokens": 20607
-    },
-    {
      "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a3",
      "arm": "antigravity",
      "scenario": "code-standards-v5.1",
@@ -3407,7 +3628,7 @@
       "reasons": [],
       "source": "run_one checks (drive.classify)"
      },
-     "valid_rank": 3,
+     "valid_rank": 1,
      "first_n": true,
      "main_statistic": true,
      "cell_pooled": false,
@@ -3502,114 +3723,6 @@
      "thinking_tokens": 17103
     },
     {
-     "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a4",
-     "arm": "antigravity",
-     "scenario": "code-standards-v5.1",
-     "config": 32,
-     "supplementary_label": null,
-     "attempt": 4,
-     "started": 1794647997.6057901,
-     "valid": true,
-     "validity": {
-      "status": "valid",
-      "reasons": [],
-      "source": "run_one checks (drive.classify)"
-     },
-     "valid_rank": 4,
-     "first_n": true,
-     "main_statistic": true,
-     "cell_pooled": false,
-     "in_main": true,
-     "score_status": "final",
-     "score": 0.7569372443557522,
-     "raw_score": 0.816723542922638,
-     "format_penalty": 0.07320261437908497,
-     "repairs": 7,
-     "seconds": 347.6113805770874,
-     "time_limit_seconds": 341,
-     "tokens": {
-      "uncached_input": 113177,
-      "cached_input": 786350,
-      "output": 35295
-     },
-     "token_source": "agy stream usage",
-     "tool_calls": 31,
-     "cost_usd": null,
-     "cost_cny": null,
-     "cost_basis": null,
-     "cost_lower_bound": false,
-     "model_ids": [
-      "gemini-4-hydrogen-xhigh"
-     ],
-     "service_tiers": {},
-     "speeds": {
-      "task_input": 325.5848522913982,
-      "task_output": 101.53580110468468,
-      "engine_input": null,
-      "engine_output": null
-     },
-     "speed_parts": {
-      "task_input": {
-       "tokens": 113177,
-       "seconds": 347.6113805770874
-      },
-      "task_output": {
-       "tokens": 35295,
-       "seconds": 347.6113805770874
-      },
-      "engine_input": null,
-      "engine_output": null
-     },
-     "speed_basis": {
-      "task": "agy stream usage over the instance work seconds",
-      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
-     },
-     "speed_lower_bounds": [],
-     "score_r83": 0.7569372443557522,
-     "score_before_penalty": 0.816723542922638,
-     "overall_deduction": 0.07320261437908497,
-     "missing_checks": null,
-     "model_failure_handoffs": [],
-     "requested_effort": "xhigh",
-     "effective_effort": "xhigh",
-     "pooled": false,
-     "pause_known": true,
-     "pause_count": 0,
-     "continue_count": 0,
-     "seconds_adjustment": null,
-     "harness_generation": null,
-     "harness_reported_cost_usd": null,
-     "handoff_metrics": [
-      {
-       "k": 0,
-       "sub_scenario": "default",
-       "seconds": 347.6113805770874,
-       "tokens": {
-        "uncached_input": 113177,
-        "cached_input": 786350,
-        "output": 35295
-       },
-       "tokens_lower_bound": false,
-       "cache_write": null,
-       "tool_calls": 31,
-       "api_seconds": 240.18856099200002,
-       "compactions": null,
-       "engine_read": null,
-       "engine_generated": null,
-       "engine_input_seconds": null,
-       "engine_decode_seconds": null,
-       "model_failure": false,
-       "final_status": "not-arw-form",
-       "continuation_stop": "hard_limit",
-       "harness_reported_cost_usd": null
-      }
-     ],
-     "compactions": null,
-     "compactions_source": "not available in the agy stream",
-     "harness_version": "1.5.9",
-     "thinking_tokens": 26701
-    },
-    {
      "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a5",
      "arm": "antigravity",
      "scenario": "code-standards-v5.1",
@@ -3623,7 +3736,7 @@
       "reasons": [],
       "source": "run_one checks (drive.classify)"
      },
-     "valid_rank": 5,
+     "valid_rank": 2,
      "first_n": true,
      "main_statistic": true,
      "cell_pooled": false,
@@ -3716,6 +3829,882 @@
      "compactions_source": "not available in the agy stream",
      "harness_version": "1.5.9",
      "thinking_tokens": 25514
+    },
+    {
+     "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a6",
+     "arm": "antigravity",
+     "scenario": "code-standards-v5.1",
+     "config": 32,
+     "supplementary_label": null,
+     "attempt": 6,
+     "started": 1794675980.4273186,
+     "valid": true,
+     "validity": {
+      "status": "valid",
+      "reasons": [],
+      "source": "run_one checks (drive.classify)"
+     },
+     "valid_rank": 3,
+     "first_n": true,
+     "main_statistic": true,
+     "cell_pooled": false,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.8516406625874797,
+     "raw_score": 0.8739892460480697,
+     "format_penalty": 0.025570776255707764,
+     "repairs": 3,
+     "seconds": 568.5127248764038,
+     "time_limit_seconds": 3600,
+     "tokens": {
+      "uncached_input": 210967,
+      "cached_input": 2148954,
+      "output": 95516
+     },
+     "token_source": "agy stream usage",
+     "tool_calls": 39,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gemini-4-hydrogen-xhigh"
+     ],
+     "service_tiers": {},
+     "speeds": {
+      "task_input": 371.0858011944496,
+      "task_output": 168.01031150316896,
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 210967,
+       "seconds": 568.5127248764038
+      },
+      "task_output": {
+       "tokens": 95516,
+       "seconds": 568.5127248764038
+      },
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_basis": {
+      "task": "agy stream usage over the instance work seconds",
+      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
+     },
+     "speed_lower_bounds": [],
+     "score_r83": 0.8516406625874797,
+     "score_before_penalty": 0.8739892460480697,
+     "overall_deduction": 0.025570776255707764,
+     "missing_checks": null,
+     "model_failure_handoffs": [],
+     "requested_effort": "xhigh",
+     "effective_effort": "xhigh",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 568.5127248764038,
+       "tokens": {
+        "uncached_input": 210967,
+        "cached_input": 2148954,
+        "output": 95516
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 39,
+       "api_seconds": 497.42500878500005,
+       "compactions": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": "ready",
+       "continuation_stop": "delivered",
+       "harness_reported_cost_usd": null
+      }
+     ],
+     "compactions": null,
+     "compactions_source": "not available in the agy stream",
+     "harness_version": "1.5.9",
+     "thinking_tokens": 79474
+    },
+    {
+     "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a8",
+     "arm": "antigravity",
+     "scenario": "code-standards-v5.1",
+     "config": 32,
+     "supplementary_label": null,
+     "attempt": 8,
+     "started": 1794677207.6905553,
+     "valid": true,
+     "validity": {
+      "status": "valid",
+      "reasons": [],
+      "source": "run_one checks (drive.classify)"
+     },
+     "valid_rank": 4,
+     "first_n": true,
+     "main_statistic": true,
+     "cell_pooled": false,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.843606825428876,
+     "raw_score": 0.8525220891057994,
+     "format_penalty": 0.01045751633986928,
+     "repairs": 2,
+     "seconds": 567.4205160140991,
+     "time_limit_seconds": 3600,
+     "tokens": {
+      "uncached_input": 220169,
+      "cached_input": 3123597,
+      "output": 87480
+     },
+     "token_source": "agy stream usage",
+     "tool_calls": 51,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gemini-4-hydrogen-xhigh"
+     ],
+     "service_tiers": {},
+     "speeds": {
+      "task_input": 388.0173412597039,
+      "task_output": 154.17137296076604,
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 220169,
+       "seconds": 567.4205160140991
+      },
+      "task_output": {
+       "tokens": 87480,
+       "seconds": 567.4205160140991
+      },
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_basis": {
+      "task": "agy stream usage over the instance work seconds",
+      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
+     },
+     "speed_lower_bounds": [],
+     "score_r83": 0.843606825428876,
+     "score_before_penalty": 0.8525220891057994,
+     "overall_deduction": 0.01045751633986928,
+     "missing_checks": null,
+     "model_failure_handoffs": [],
+     "requested_effort": "xhigh",
+     "effective_effort": "xhigh",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 567.4205160140991,
+       "tokens": {
+        "uncached_input": 220169,
+        "cached_input": 3123597,
+        "output": 87480
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 51,
+       "api_seconds": 470.930882203,
+       "compactions": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": "ready",
+       "continuation_stop": "delivered",
+       "harness_reported_cost_usd": null
+      }
+     ],
+     "compactions": null,
+     "compactions_source": "not available in the agy stream",
+     "harness_version": "1.5.9",
+     "thinking_tokens": 74360
+    },
+    {
+     "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a10",
+     "arm": "antigravity",
+     "scenario": "code-standards-v5.1",
+     "config": 32,
+     "supplementary_label": null,
+     "attempt": 10,
+     "started": 1794678402.2760985,
+     "valid": true,
+     "validity": {
+      "status": "valid",
+      "reasons": [],
+      "source": "run_one checks (drive.classify)"
+     },
+     "valid_rank": 5,
+     "first_n": true,
+     "main_statistic": true,
+     "cell_pooled": false,
+     "in_main": true,
+     "score_status": "final",
+     "score": 0.86267001803751,
+     "raw_score": 0.8733249631213433,
+     "format_penalty": 0.012200435729847494,
+     "repairs": 2,
+     "seconds": 565.5926861763,
+     "time_limit_seconds": 3600,
+     "tokens": {
+      "uncached_input": 295151,
+      "cached_input": 1564129,
+      "output": 111511
+     },
+     "token_source": "agy stream usage",
+     "tool_calls": 39,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gemini-4-hydrogen-xhigh"
+     ],
+     "service_tiers": {},
+     "speeds": {
+      "task_input": 521.8437352777205,
+      "task_output": 197.1577828452348,
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 295151,
+       "seconds": 565.5926861763
+      },
+      "task_output": {
+       "tokens": 111511,
+       "seconds": 565.5926861763
+      },
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_basis": {
+      "task": "agy stream usage over the instance work seconds",
+      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
+     },
+     "speed_lower_bounds": [],
+     "score_r83": 0.86267001803751,
+     "score_before_penalty": 0.8733249631213433,
+     "overall_deduction": 0.012200435729847494,
+     "missing_checks": null,
+     "model_failure_handoffs": [],
+     "requested_effort": "xhigh",
+     "effective_effort": "xhigh",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 565.5926861763,
+       "tokens": {
+        "uncached_input": 295151,
+        "cached_input": 1564129,
+        "output": 111511
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 39,
+       "api_seconds": 494.49516099299996,
+       "compactions": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": "ready",
+       "continuation_stop": "delivered",
+       "harness_reported_cost_usd": null
+      }
+     ],
+     "compactions": null,
+     "compactions_source": "not available in the agy stream",
+     "harness_version": "1.5.9",
+     "thinking_tokens": 90409
+    },
+    {
+     "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a1",
+     "arm": "antigravity",
+     "scenario": "code-standards-v5.1",
+     "config": 32,
+     "supplementary_label": null,
+     "attempt": 1,
+     "started": 1794646945.2238386,
+     "valid": false,
+     "validity": {
+      "status": "timeout",
+      "reasons": [
+       "hard stop at T=341 s"
+      ],
+      "source": "drive.classify (hard stop at T)"
+     },
+     "valid_rank": null,
+     "first_n": null,
+     "main_statistic": null,
+     "cell_pooled": false,
+     "in_main": false,
+     "score_status": null,
+     "score": null,
+     "raw_score": null,
+     "format_penalty": null,
+     "repairs": null,
+     "seconds": 349.6532163619995,
+     "time_limit_seconds": 341,
+     "tokens": {
+      "uncached_input": 85450,
+      "cached_input": 558717,
+      "output": 12039
+     },
+     "token_source": "agy stream usage",
+     "tool_calls": 27,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gemini-4-hydrogen-xhigh"
+     ],
+     "service_tiers": {},
+     "speeds": {
+      "task_input": 244.3849963374361,
+      "task_output": 34.431257705165514,
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 85450,
+       "seconds": 349.6532163619995
+      },
+      "task_output": {
+       "tokens": 12039,
+       "seconds": 349.6532163619995
+      },
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_basis": {
+      "task": "agy stream usage over the instance work seconds",
+      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
+     },
+     "speed_lower_bounds": [],
+     "score_r83": null,
+     "score_before_penalty": null,
+     "overall_deduction": null,
+     "missing_checks": null,
+     "model_failure_handoffs": null,
+     "requested_effort": "xhigh",
+     "effective_effort": "xhigh",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 349.6532163619995,
+       "tokens": {
+        "uncached_input": 85450,
+        "cached_input": 558717,
+        "output": 12039
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 27,
+       "api_seconds": 186.049793996,
+       "compactions": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": "not-arw-form",
+       "continuation_stop": "hard_limit",
+       "harness_reported_cost_usd": null
+      }
+     ],
+     "compactions": null,
+     "compactions_source": "not available in the agy stream",
+     "harness_version": "1.5.9",
+     "thinking_tokens": 9345
+    },
+    {
+     "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a2",
+     "arm": "antigravity",
+     "scenario": "code-standards-v5.1",
+     "config": 32,
+     "supplementary_label": null,
+     "attempt": 2,
+     "started": 1794647306.1473246,
+     "valid": false,
+     "validity": {
+      "status": "timeout",
+      "reasons": [
+       "hard stop at T=341 s"
+      ],
+      "source": "drive.classify (hard stop at T)"
+     },
+     "valid_rank": null,
+     "first_n": null,
+     "main_statistic": null,
+     "cell_pooled": false,
+     "in_main": false,
+     "score_status": null,
+     "score": null,
+     "raw_score": null,
+     "format_penalty": null,
+     "repairs": null,
+     "seconds": 346.5329661369324,
+     "time_limit_seconds": 341,
+     "tokens": {
+      "uncached_input": 103034,
+      "cached_input": 661978,
+      "output": 22722
+     },
+     "token_source": "agy stream usage",
+     "tool_calls": 27,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gemini-4-hydrogen-xhigh"
+     ],
+     "service_tiers": {},
+     "speeds": {
+      "task_input": 297.32813344888564,
+      "task_output": 65.56951926767455,
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 103034,
+       "seconds": 346.5329661369324
+      },
+      "task_output": {
+       "tokens": 22722,
+       "seconds": 346.5329661369324
+      },
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_basis": {
+      "task": "agy stream usage over the instance work seconds",
+      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
+     },
+     "speed_lower_bounds": [],
+     "score_r83": null,
+     "score_before_penalty": null,
+     "overall_deduction": null,
+     "missing_checks": null,
+     "model_failure_handoffs": null,
+     "requested_effort": "xhigh",
+     "effective_effort": "xhigh",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 346.5329661369324,
+       "tokens": {
+        "uncached_input": 103034,
+        "cached_input": 661978,
+        "output": 22722
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 27,
+       "api_seconds": 212.079917125,
+       "compactions": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": "not-arw-form",
+       "continuation_stop": "hard_limit",
+       "harness_reported_cost_usd": null
+      }
+     ],
+     "compactions": null,
+     "compactions_source": "not available in the agy stream",
+     "harness_version": "1.5.9",
+     "thinking_tokens": 20607
+    },
+    {
+     "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a4",
+     "arm": "antigravity",
+     "scenario": "code-standards-v5.1",
+     "config": 32,
+     "supplementary_label": null,
+     "attempt": 4,
+     "started": 1794647997.6057901,
+     "valid": false,
+     "validity": {
+      "status": "timeout",
+      "reasons": [
+       "hard stop at T=341 s"
+      ],
+      "source": "drive.classify (hard stop at T)"
+     },
+     "valid_rank": null,
+     "first_n": null,
+     "main_statistic": null,
+     "cell_pooled": false,
+     "in_main": false,
+     "score_status": null,
+     "score": null,
+     "raw_score": null,
+     "format_penalty": null,
+     "repairs": null,
+     "seconds": 347.6113805770874,
+     "time_limit_seconds": 341,
+     "tokens": {
+      "uncached_input": 113177,
+      "cached_input": 786350,
+      "output": 35295
+     },
+     "token_source": "agy stream usage",
+     "tool_calls": 31,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gemini-4-hydrogen-xhigh"
+     ],
+     "service_tiers": {},
+     "speeds": {
+      "task_input": 325.5848522913982,
+      "task_output": 101.53580110468468,
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 113177,
+       "seconds": 347.6113805770874
+      },
+      "task_output": {
+       "tokens": 35295,
+       "seconds": 347.6113805770874
+      },
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_basis": {
+      "task": "agy stream usage over the instance work seconds",
+      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
+     },
+     "speed_lower_bounds": [],
+     "score_r83": null,
+     "score_before_penalty": null,
+     "overall_deduction": null,
+     "missing_checks": null,
+     "model_failure_handoffs": null,
+     "requested_effort": "xhigh",
+     "effective_effort": "xhigh",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 347.6113805770874,
+       "tokens": {
+        "uncached_input": 113177,
+        "cached_input": 786350,
+        "output": 35295
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 31,
+       "api_seconds": 240.18856099200002,
+       "compactions": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": "not-arw-form",
+       "continuation_stop": "hard_limit",
+       "harness_reported_cost_usd": null
+      }
+     ],
+     "compactions": null,
+     "compactions_source": "not available in the agy stream",
+     "harness_version": "1.5.9",
+     "thinking_tokens": 26701
+    },
+    {
+     "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a7",
+     "arm": "antigravity",
+     "scenario": "code-standards-v5.1",
+     "config": 32,
+     "supplementary_label": null,
+     "attempt": 7,
+     "started": 1794676562.0729449,
+     "valid": false,
+     "validity": {
+      "status": "invalid",
+      "reasons": [
+       "h0: ended_normally",
+       "h0: status ERROR API error (attempt 3): request failed: Post \"https://daily-cloudcode-pa.googleapis.com/v1internal:streamGenerateContent?alt=sse\": EOF"
+      ],
+      "source": "run_one checks (drive.classify)"
+     },
+     "valid_rank": null,
+     "first_n": null,
+     "main_statistic": null,
+     "cell_pooled": null,
+     "in_main": false,
+     "score_status": null,
+     "score": null,
+     "raw_score": null,
+     "format_penalty": null,
+     "repairs": null,
+     "seconds": 637.1817746162415,
+     "time_limit_seconds": 3600,
+     "tokens": {
+      "uncached_input": 228161,
+      "cached_input": 3175905,
+      "output": 94809
+     },
+     "token_source": "agy stream usage",
+     "tool_calls": 43,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gemini-4-hydrogen-xhigh"
+     ],
+     "service_tiers": {},
+     "speeds": {
+      "task_input": 358.0783523468097,
+      "task_output": 148.79427469045402,
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 228161,
+       "seconds": 637.1817746162415
+      },
+      "task_output": {
+       "tokens": 94809,
+       "seconds": 637.1817746162415
+      },
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_basis": {
+      "task": "agy stream usage over the instance work seconds",
+      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
+     },
+     "speed_lower_bounds": [],
+     "score_r83": null,
+     "score_before_penalty": null,
+     "overall_deduction": null,
+     "missing_checks": null,
+     "model_failure_handoffs": null,
+     "requested_effort": "xhigh",
+     "effective_effort": "xhigh",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 637.1817746162415,
+       "tokens": {
+        "uncached_input": 228161,
+        "cached_input": 3175905,
+        "output": 94809
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 43,
+       "api_seconds": 508.297186197,
+       "compactions": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": null,
+       "continuation_stop": "abnormal_end",
+       "harness_reported_cost_usd": null
+      }
+     ],
+     "compactions": null,
+     "compactions_source": "not available in the agy stream",
+     "harness_version": "1.5.9",
+     "thinking_tokens": 81546
+    },
+    {
+     "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a9",
+     "arm": "antigravity",
+     "scenario": "code-standards-v5.1",
+     "config": 32,
+     "supplementary_label": null,
+     "attempt": 9,
+     "started": 1794677783.7393625,
+     "valid": false,
+     "validity": {
+      "status": "invalid",
+      "reasons": [
+       "h0: ended_normally",
+       "h0: status ERROR API error (attempt 2): request failed: Post \"https://daily-cloudcode-pa.googleapis.com/v1internal:streamGenerateContent?alt=sse\": EOF"
+      ],
+      "source": "run_one checks (drive.classify)"
+     },
+     "valid_rank": null,
+     "first_n": null,
+     "main_statistic": null,
+     "cell_pooled": null,
+     "in_main": false,
+     "score_status": null,
+     "score": null,
+     "raw_score": null,
+     "format_penalty": null,
+     "repairs": null,
+     "seconds": 611.3065931797028,
+     "time_limit_seconds": 3600,
+     "tokens": {
+      "uncached_input": 227361,
+      "cached_input": 3034532,
+      "output": 92224
+     },
+     "token_source": "agy stream usage",
+     "tool_calls": 48,
+     "cost_usd": null,
+     "cost_cny": null,
+     "cost_basis": null,
+     "cost_lower_bound": false,
+     "model_ids": [
+      "gemini-4-hydrogen-xhigh"
+     ],
+     "service_tiers": {},
+     "speeds": {
+      "task_input": 371.92630103559804,
+      "task_output": 150.86374174421732,
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_parts": {
+      "task_input": {
+       "tokens": 227361,
+       "seconds": 611.3065931797028
+      },
+      "task_output": {
+       "tokens": 92224,
+       "seconds": 611.3065931797028
+      },
+      "engine_input": null,
+      "engine_output": null
+     },
+     "speed_basis": {
+      "task": "agy stream usage over the instance work seconds",
+      "engine": "Antigravity: engine speeds not derived (unknown); only the task speeds are given"
+     },
+     "speed_lower_bounds": [],
+     "score_r83": null,
+     "score_before_penalty": null,
+     "overall_deduction": null,
+     "missing_checks": null,
+     "model_failure_handoffs": null,
+     "requested_effort": "xhigh",
+     "effective_effort": "xhigh",
+     "pooled": false,
+     "pause_known": true,
+     "pause_count": 0,
+     "continue_count": 0,
+     "seconds_adjustment": null,
+     "harness_generation": null,
+     "harness_reported_cost_usd": null,
+     "handoff_metrics": [
+      {
+       "k": 0,
+       "sub_scenario": "default",
+       "seconds": 611.3065931797028,
+       "tokens": {
+        "uncached_input": 227361,
+        "cached_input": 3034532,
+        "output": 92224
+       },
+       "tokens_lower_bound": false,
+       "cache_write": null,
+       "tool_calls": 48,
+       "api_seconds": 494.882861804,
+       "compactions": null,
+       "engine_read": null,
+       "engine_generated": null,
+       "engine_input_seconds": null,
+       "engine_decode_seconds": null,
+       "model_failure": false,
+       "final_status": null,
+       "continuation_stop": "abnormal_end",
+       "harness_reported_cost_usd": null
+      }
+     ],
+     "compactions": null,
+     "compactions_source": "not available in the agy stream",
+     "harness_version": "1.5.9",
+     "thinking_tokens": 78059
     }
    ]
   },
@@ -8000,7 +8989,7 @@
  "deepseek_reconciliation": null,
  "generator": {
   "tool": "tools.reviewer.benchmark_summary",
-  "sha256": "66817a9948ae9985f0a8517618521e488631afbaffba6b1d89faf72c7266e5ca",
+  "sha256": "cc4ea078111c7f2839cc62d6012454071c728fa86f46bffa902b3a0bd9eb9696",
   "phase": 4
  }
 }

@@ -113,15 +113,19 @@ def tools():
     return blind_pool, adjudication_view
 
 
-def build(registry=None):
+def build(registry=None, suffix='', only=None):
+    """suffix / only: a second round after reruns (user 2026-11-15): pools named <scenario><suffix> for the scenarios in `only`, holding just the candidates not decided yet (the stored decisions of the first round are kept)."""
     blind_pool, adjudication_view = tools()
     for key, scenario in SCENARIOS.items():
+        if only and key not in only:
+            continue
+        name = key + suffix
         files = sorted(SCORE.glob(f'antigravity/{scenario}/*/candidates.json'))
         files = [f for f in files if f.parent.name in {Path(r['id']).name for r in valid_records() if r['scenario'] == scenario}]
-        if list(KEYS.glob(f'key-{key}*.json')):
-            log(f'{key}: pools exist, skipped')
+        if list(KEYS.glob(f'key-{name}*.json')) or (not suffix and list(KEYS.glob(f'key-{key}-*.json'))):
+            log(f'{name}: pools exist, skipped')
             continue
-        written = blind_pool.build(scenario, key, ADJ, KEYS, files, registry=registry, root=SCORE)
+        written = blind_pool.build(scenario, name, ADJ, KEYS, files, registry=registry, root=SCORE)
         plan = json.loads(Path(next(r for r in valid_records() if r['scenario'] == scenario)['plan']).read_text())
         manifest = ROOT / plan['fixed_conditions']['arw_source_manifest']
         work, out = SHM / f'view-{key}', SHM / f'viewout-{key}'
@@ -134,7 +138,7 @@ def build(registry=None):
                     shutil.copytree(out / v, Path(w['adj']) / v, symlinks=True)
                 else:
                     shutil.copy2(out / v, Path(w['adj']) / v)
-        (BASE / f'view-binding-{key}.json').write_bytes((out / 'view-binding.json').read_bytes())
+        (BASE / f'view-binding-{name}.json').write_bytes((out / 'view-binding.json').read_bytes())
         shutil.rmtree(work)
         shutil.rmtree(out)
         for w in written:
@@ -211,6 +215,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('cmd', choices=['enumerate', 'score', 'build', 'judge'])
     ap.add_argument('--registry', type=Path)
+    ap.add_argument('--suffix', default='', help='build: pool name suffix of a later round')
+    ap.add_argument('--scenarios', nargs='*', help='build: only these scenario keys (ca cs cstd sr)')
     ap.add_argument('--pools', nargs='*')
     ap.add_argument('--parallel', type=int, default=3)
     ap.add_argument('--provisional', choices=['lower', 'upper'])
@@ -219,7 +225,7 @@ def main():
     SHM.mkdir(parents=True, exist_ok=True)
     SCORE.mkdir(parents=True, exist_ok=True)
     if a.cmd == 'build':
-        build(a.registry)
+        build(a.registry, a.suffix, a.scenarios)
     elif a.cmd == 'judge':
         judge(a.pools, a.parallel)
     elif a.cmd == 'enumerate':

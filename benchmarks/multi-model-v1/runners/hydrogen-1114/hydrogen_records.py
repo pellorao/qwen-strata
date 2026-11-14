@@ -37,8 +37,29 @@ def record(key, folder):
     return br.antigravity_record(SCEN[key], folder, verdict, reasons, inst['plan'], agy_version(started))
 
 
-def all_records():
+def carried(path):
+    """Records of the first run whose instance directories are gone (their records and scores kept as evidence); an instance of cs / cstd hard-stopped at T
+    is voided as `timeout` (user 2026-11-15), the others stay as recorded."""
     out = []
+    for line in Path(path).read_text().splitlines():
+        r = json.loads(line)
+        if r['scenario'] in ('code-spec-v5', 'code-standards-v5.1') and any(h.get('hard_stop') for h in r['handoffs']):
+            reasons = [f"hard stop at T={r.get('time_limit_seconds')} s"]
+            r.update(br.validity('timeout', reasons, 'drive.classify (hard stop at T)'))
+            r['validity_before_rejudge'] = {'valid': False, 'status': 'timeout', 'source': 'run_one checks', 'reasons': reasons}
+        # the first run's records predate the summary fields: complete them the way bench_records.antigravity_record ends (same functions)
+        r.update(br.summary_fields(r))
+        r['thinking_tokens'] = sum(h['thinking_tokens'] or 0 for h in r['handoffs'])
+        r.update(br.speed_fields(r))
+        r['cost_cny'], r['cost_lower_bound'] = None, False
+        r['harness_version'] = agy_version(r.get('started'))
+        br.final_status_error(r)
+        out.append(r)
+    return out
+
+
+def all_records(carry=None):
+    out = carried(carry) if carry else []
     for key in SCEN:
         for folder in sorted((OUT / key).glob('hydrogen-*-a*')) if (OUT / key).is_dir() else []:
             if (folder / 'instance.json').is_file():
@@ -49,7 +70,8 @@ def all_records():
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--out', type=Path, default=OUT / 'records.jsonl')
+    ap.add_argument('--carry', type=Path, help='records.jsonl of the first run (instance directories gone): kept, timeouts voided; the directories present are added')
     a = ap.parse_args()
-    rows = all_records()
+    rows = all_records(a.carry)
     a.out.write_text(''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in rows))
     print(len(rows), 'records ->', a.out)
