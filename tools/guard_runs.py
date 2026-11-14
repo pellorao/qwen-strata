@@ -16,8 +16,15 @@ class Stopped(Exception):
     """The start rate of a label is over its cap (a stop marker was written, or an earlier one is not acknowledged yet)."""
 
 
+def _test_without_state_dirs():
+    """A unit test run (unittest loaded) with no USAGE_GUARD_DIR / USAGE_GUARD_RUNS override must not write the real counts and run registry."""
+    return 'unittest' in sys.modules and not (os.environ.get('USAGE_GUARD_DIR') and os.environ.get('USAGE_GUARD_RUNS'))
+
+
 def _lib():
     global _ug
+    if _test_without_state_dirs():
+        return None
     if _ug is None and os.path.isdir(LIB):
         if LIB not in sys.path:
             sys.path.append(LIB)

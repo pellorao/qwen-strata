@@ -76,5 +76,33 @@ class GuardRunsTest(unittest.TestCase):
             pass
 
 
+class UnitTestsDoNotTouchRealStateTest(unittest.TestCase):
+    """Without the USAGE_GUARD_* overrides a unit test must not write the real usageguard/ or runs/ (2026-11-14: a full run tripped a real stop marker)."""
+    LABEL = 'qs:isolation-probe'
+
+    def real(self):
+        base = Path(os.path.expanduser('~/.claude/statusline'))
+        ug = sorted(p.name for p in (base / 'usageguard').glob('*isolation-probe*'))
+        runs = sorted(p.name for p in (base / 'runs').glob('*.json') if self.LABEL in p.read_text(errors='replace'))
+        return ug, runs
+
+    def test_rate_and_registration_leave_real_state_alone(self):
+        for k in ('USAGE_GUARD_RUNS', 'USAGE_GUARD_DIR'):
+            if k in os.environ:
+                self.addCleanup(os.environ.__setitem__, k, os.environ[k])
+                del os.environ[k]
+        before = self.real()
+        try:
+            guard_runs.rate(self.LABEL, 100, 3600)
+            with guard_runs.registered(self.LABEL, 'claude'):
+                self.assertEqual(self.real()[1], before[1])
+            self.assertEqual(self.real(), before)
+        finally:   # remove what a failing run left in the real directories
+            for name in set(self.real()[0]) - set(before[0]):
+                os.remove(os.path.expanduser('~/.claude/statusline/usageguard/') + name)
+            for name in set(self.real()[1]) - set(before[1]):
+                os.remove(os.path.expanduser('~/.claude/statusline/runs/') + name)
+
+
 if __name__ == '__main__':
     unittest.main()
