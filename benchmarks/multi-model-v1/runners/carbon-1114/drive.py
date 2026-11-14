@@ -11,6 +11,7 @@ import json
 import os
 import shutil
 import subprocess
+import tempfile
 import sys
 import time
 from pathlib import Path
@@ -21,6 +22,7 @@ OUT = ROOT / '.tmp/carbonbench'
 MIN_REMAIN_5H = 3.0     # stop line: remaining percent of the 5h window
 MIN_REMAIN_WEEK = 10.0  # stop line: remaining percent of the weekly window (keeps quota for translation etc.)
 MAX_ATTEMPTS = 8
+SAMPLE = 30  # s between samples of the other registered agy runs (overlap with Hydrogen)
 SEARCH_STOP = 0.30  # plan §3: voided for search / sub-agent use over this share of attempts
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, os.path.expanduser('~/.claude/lib'))
@@ -68,6 +70,27 @@ def agy_identity():
     p = os.path.realpath(agyrun.AGY)
     st = os.stat(p)
     return [p, st.st_size, int(st.st_mtime)]
+
+
+def run_sampled(cmd):
+    """Run one instance and, every SAMPLE s, note the other registered Antigravity runs alive at that moment (Hydrogen's drivers, agy-run.py calls, ...):
+    {"<label> <model> <effort>": samples}. The ledger carries it per instance (overlap with Hydrogen in the report)."""
+    seen = {}
+    with tempfile.TemporaryFile('w+') as out, tempfile.TemporaryFile('w+') as err:
+        p = subprocess.Popen(cmd, stdout=out, stderr=err, text=True)
+        while True:
+            try:
+                p.wait(timeout=SAMPLE)
+                break
+            except subprocess.TimeoutExpired:
+                pass
+            for rec in ug.live_runs():
+                if rec['pid'] != os.getpid() and str(rec.get('harness', '')).startswith('agy-') and rec.get('label') != LABEL:
+                    key = f"{rec.get('label')} {rec.get('model')} {rec.get('effort')}"
+                    seen[key] = seen.get(key, 0) + 1
+        out.seek(0)
+        err.seek(0)
+        return subprocess.CompletedProcess(cmd, p.returncode, out.read(), err.read()), seen
 
 
 def safe_remaining():
@@ -174,7 +197,7 @@ def main():
             starts += 1
             run = ug.register(LABEL, 'agy-gemini', model='Carbon', effort=effort, source='agy-gemini')  # one registration per instance, its real effort
             try:
-                r = subprocess.run(cmd, capture_output=True, text=True)
+                r, overlap = run_sampled(cmd)
             finally:
                 run.close()
             ended = time.time()
@@ -183,7 +206,7 @@ def main():
                 (OUT / key).mkdir(exist_ok=True)
                 (OUT / f'fail-{key}-{effort}-a{attempt}.err').write_text(r.stdout[-3000:] + r.stderr[-6000:])
                 log(event='run_one_failed', effort=effort, scenario=key, attempt=attempt, rc=r.returncode, tail=r.stderr[-300:],
-                    t0=round(started), t1=round(ended))
+                    t0=round(started), t1=round(ended), overlap=overlap)
                 streak = streak + 1 if last == 'fail' else 1
                 last = 'fail'
                 if streak >= 3:
@@ -203,7 +226,7 @@ def main():
                 continue
             verdict, reasons = classify(folder)
             log(event='instance', effort=effort, scenario=key, attempt=attempt, verdict=verdict, reasons=reasons,
-                wall=round(ended - started), t0=round(started), t1=round(ended), remaining=safe_remaining())
+                wall=round(ended - started), t0=round(started), t1=round(ended), overlap=overlap, remaining=safe_remaining())
             if starts <= a.pace:
                 pace_wait(ended - started)
                 if starts == a.pace:
