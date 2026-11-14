@@ -10,6 +10,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from tools.reviewer import claude_headless as ch
 from tools.reviewer import claude_scenario as cs
@@ -113,6 +114,10 @@ class ContinuationTest(unittest.TestCase):
     def setUp(self):
         self.base = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, self.base, True)
+        (self.base / 'fake-tmp-root').mkdir()   # not the real /tmp: its entry count must not decide the result (SHARED_TMP_LIMIT)
+        patcher = mock.patch.object(ch, 'SHARED_TMP_ROOT', self.base / 'fake-tmp-root')
+        patcher.start()
+        self.addCleanup(patcher.stop)
         self.work = self.base / 'work'
         self.work.mkdir()
         (self.work / 'src.txt').write_text('input\n')

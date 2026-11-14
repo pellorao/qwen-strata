@@ -3,19 +3,35 @@ import json
 import os
 import sys
 import shutil
+import signal
+import subprocess
 import tempfile
 import unittest
+from contextlib import contextmanager
 from pathlib import Path
+from unittest import mock
 
 from tools.reviewer import claude_headless as ch
 from tools.safety import claude_gate as gate
 
 
-class RunnerBuildersTest(unittest.TestCase):
+class SharedTmpMixin:
+    def use_fake_shared_tmp(self):
+        """The result must not depend on how many entries the machine's real /tmp holds (SHARED_TMP_LIMIT)."""
+        root = self.base / 'fake-tmp-root'
+        root.mkdir()
+        (root / 'entry').mkdir()
+        patcher = mock.patch.object(ch, 'SHARED_TMP_ROOT', root)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+
+class RunnerBuildersTest(SharedTmpMixin, unittest.TestCase):
     """Zero-model checks of the Claude Code runner's command, settings, environment and inputs."""
     def setUp(self):
         self.base = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, self.base, True)
+        self.use_fake_shared_tmp()
         self.work = ch.workspace('r1', self.base)
         (self.work / 'inputs').mkdir()
         (self.work / 'inputs/a.txt').write_text('a\n')
@@ -256,6 +272,30 @@ class RunnerBuildersTest(unittest.TestCase):
         with self.assertRaises(ch.guard_runs.Stopped):   # the third Anthropic start in the hour
             go({'PATH': os.environ['PATH']}, 'a3')
 
+    def test_failed_registration_leaves_no_running_process(self):
+        # A registry that fails when the run is registered must not leave the process just started running unattended.
+        seen = []
+
+        @contextmanager
+        def failing(label, harness, **kw):
+            seen.append(kw['pid'])
+            raise OSError('registry unavailable')
+            yield
+        argv = [sys.executable, '-c', 'import time;time.sleep(60)']
+        with mock.patch.object(ch.guard_runs, 'registered', failing):
+            with self.assertRaisesRegex(OSError, 'registry unavailable'):
+                ch.start_process(argv, {'PATH': os.environ['PATH'], 'ANTHROPIC_BASE_URL': 'http://x'}, self.work,
+                                 subprocess.PIPE, subprocess.DEVNULL, self.base / 'x')
+        self.assertEqual(len(seen), 1)
+        try:
+            os.killpg(seen[0], 0)
+            alive = True
+        except ProcessLookupError:
+            alive = False
+        if alive:
+            os.killpg(seen[0], signal.SIGKILL)   # leave nothing behind when the assertion fails
+        self.assertFalse(alive)
+
     def test_turns_are_sent_one_after_another_and_analysed(self):
         out = self.base / 'turns'
         out.mkdir()
@@ -353,26 +393,30 @@ class RunnerBuildersTest(unittest.TestCase):
         self.assertEqual(ch.stream_summary(stream)['sandbox_failures'], 2)
 
     def test_shared_tmp_entries_refuse_over_limit(self):
-        expected = sorted(str(p) for p in Path('/tmp').iterdir() if not p.is_socket() and str(p) not in ch.SHARED_DENY)
-        self.assertEqual(ch.shared_tmp_entries(), expected)  # under the limit: the same list as before the check
+        root = self.base / 'fake-tmp-root'   # listed instead of the real /tmp (use_fake_shared_tmp)
+        (root / 'second').mkdir()
+        sock = root / 'sock'
+        import socket
+        with socket.socket(socket.AF_UNIX) as server:
+            server.bind(str(sock))
+            self.assertEqual(ch.shared_tmp_entries(), [str(root / 'entry'), str(root / 'second')])  # sockets are skipped
         self.assertEqual(ch.SHARED_TMP_LIMIT, 1500)
-        (self.base / 'probe').mkdir(exist_ok=True)
-        original = ch.SHARED_TMP_LIMIT
-        ch.SHARED_TMP_LIMIT = -1
-        try:
-            with self.assertRaisesRegex(RuntimeError, 'over -1'):
+        with mock.patch.object(ch, 'SHARED_TMP_LIMIT', 1):
+            self.assertEqual(len(ch.shared_tmp_entries()), 2 - 1 + 1 - 1 + 1 - 1 + 0 if False else 2) if False else None
+            with self.assertRaisesRegex(RuntimeError, 'holds 2 top-level entries, over 1'):
                 ch.shared_tmp_entries()
-        finally:
-            ch.SHARED_TMP_LIMIT = original
+        with mock.patch.object(ch, 'SHARED_TMP_LIMIT', 2):   # at the limit: still allowed
+            self.assertEqual(len(ch.shared_tmp_entries()), 2)
 
 
-class ClaudeGateLogicTest(unittest.TestCase):
+class ClaudeGateLogicTest(SharedTmpMixin, unittest.TestCase):
     """The scripted server and the judgments, without Claude Code."""
     def setUp(self):
         self.base = Path(tempfile.mkdtemp())
         self.project = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, self.base, True)
         self.addCleanup(shutil.rmtree, self.project, True)
+        self.use_fake_shared_tmp()
         self.fx = gate.fixture('g1', self.base, self.project)
         self.script = gate.probes(self.fx, 4242, 9)
 

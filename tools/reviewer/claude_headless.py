@@ -46,6 +46,7 @@ wall clock from the first segment's start. Each segment keeps its own stream (st
         --model opus --effort high --label <label> --copy <source>:<name> --write <name>/<report dir>
 """
 import argparse
+import contextlib
 import fnmatch
 import hashlib
 from importlib.machinery import SourceFileLoader
@@ -115,11 +116,12 @@ POLL = 0.1
 # Each denied path costs bwrap about three arguments and bwrap takes at most 9000: with 2136 /tmp entries every Bash
 # call of Claude Code 2.1.303 failed at sandbox setup (2026-10-20, test leftovers in /tmp). Refuse well before that.
 SHARED_TMP_LIMIT = 1500
+SHARED_TMP_ROOT = Path('/tmp')   # the directory whose entries are listed; tests point it at a temporary one
 
 
 def shared_tmp_entries():
-    """Entries at the top of /tmp when a run starts, except Unix sockets (connecting to them is blocked anyway)."""
-    entries = sorted(str(p) for p in Path('/tmp').iterdir() if not p.is_socket() and str(p) not in SHARED_DENY)
+    """Entries at the top of /tmp (SHARED_TMP_ROOT) when a run starts, except Unix sockets (connecting to them is blocked anyway)."""
+    entries = sorted(str(p) for p in SHARED_TMP_ROOT.iterdir() if not p.is_socket() and str(p) not in SHARED_DENY)
     if len(entries) > SHARED_TMP_LIMIT:
         raise RuntimeError(f'/tmp holds {len(entries)} top-level entries, over {SHARED_TMP_LIMIT}: each is denied '
                            'separately and the sandbox would exceed the bwrap argument limit; clear stale /tmp entries')
@@ -491,15 +493,22 @@ ANTHROPIC_START_CAP = (60, 3600)   # Anthropic-backend process starts (a segment
 def start_process(argv, env, work, stdin, stderr, out):
     """Popen of one Claude Code process, plus its guard: Anthropic-backend starts are rate capped (a loop that keeps restarting the run
     spends the subscription), and the run is registered for the status page (local backends as claude-local, not a plan run).
-    Returns (process, run); close the run when the process has ended."""
+    Returns (process, registration); leave the registration's `with` when the process has ended. A failed registration kills the process group and raises."""
     local = 'ANTHROPIC_BASE_URL' in env
     if not local:
         guard_runs.rate('qwen-strata:claude_headless', *ANTHROPIC_START_CAP)
     process = subprocess.Popen(argv, cwd=work, env=env, stdin=stdin, stdout=subprocess.PIPE, stderr=stderr, start_new_session=True)
     flag = lambda name: argv[argv.index(name) + 1] if name in argv and argv.index(name) + 1 < len(argv) else ''   # noqa: E731
-    cm = guard_runs.registered(f'qwen-strata:{Path(out).parent.name}/{Path(out).name}', 'claude-local' if local else 'claude',
-                               model=flag('--model'), effort=flag('--effort'), source='' if local else 'claude-sub', pid=process.pid)
-    return process, cm
+    registration = contextlib.ExitStack()
+    try:   # registered here, not left to the caller's `with`: a registry that fails must not leave the process running unattended
+        registration.enter_context(guard_runs.registered(
+            f'qwen-strata:{Path(out).parent.name}/{Path(out).name}', 'claude-local' if local else 'claude',
+            model=flag('--model'), effort=flag('--effort'), source='' if local else 'claude-sub', pid=process.pid))
+    except BaseException:
+        os.killpg(process.pid, signal.SIGKILL)   # the process leads its own session and group (start_new_session)
+        process.wait()
+        raise
+    return process, registration
 
 
 def run_turns(out, messages, argv, env, work, deadline, clock=time.time):
