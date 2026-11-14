@@ -8,7 +8,7 @@ from tools.reviewer import benchmark_summary as bs
 
 ARMS = {('codex', 'openai'): 'openai', ('codex', 'deepseek'): 'deepseek-codex', ('codex', 'strata'): 'strata-codex',
         ('claude-code', 'anthropic'): 'anthropic', ('claude-code', 'deepseek'): 'deepseek-claude',
-        ('claude-code', 'strata'): 'strata-claude'}
+        ('claude-code', 'strata'): 'strata-claude', ('antigravity', 'google'): 'antigravity'}
 SCENARIO = 'commit-audit-v3'
 
 
@@ -29,7 +29,7 @@ def record(config, attempt, score, valid=True, started=None, name=None, scenario
 
 
 def ranked(records):
-    return bench_validity.rank_cells(records, whole_configs=bench_records.PHASE3_CONFIGS)
+    return bench_validity.rank_cells(records, whole_configs=bench_records.SUPPLEMENT_CONFIGS)
 
 
 def full_design(score=lambda config, attempt: 0.5 + 0.01 * attempt):
@@ -64,6 +64,8 @@ class DesignTest(unittest.TestCase):
                 self.assertEqual(bs.CONFIGS[first + i]['effort'], effort, key)
         self.assertEqual(len(bs.PREREGISTERED_CONFIGS), 27)
         self.assertEqual(sorted(bs.PHASE3_CONFIGS), [28, 29])
+        self.assertEqual(sorted(bs.PHASE4_CONFIGS), [30, 31, 32])
+        self.assertEqual(bs.SUPPLEMENT_CONFIGS, bs.PHASE3_CONFIGS | bs.PHASE4_CONFIGS)
         self.assertEqual([bs.CONFIGS[c]['effort'] for c in (7, 8, 9, 22, 23, 24)], ['low', 'high', 'max'] * 2)
 
     def test_every_configuration_bench_records_numbers_is_in_the_summary_table(self):
@@ -73,8 +75,9 @@ class DesignTest(unittest.TestCase):
         for key, (first, family, vendor) in bench_records.MODELS.items():
             for i, effort in enumerate(bench_records.MODEL_EFFORTS.get(key, bench_records.EFFORTS)):
                 produced[first + i] = (vendor, effort)
+        vendors = {key: vendor for _, key, _, _, _, vendor, _, _ in bench_records.CONFIG_TABLE}
         for (key, effort), number in bench_records.EXTRA_CONFIGS.items():
-            produced[number] = (bench_records.MODELS[key][2], effort)
+            produced[number] = (vendors[key], effort)
         self.assertEqual(set(produced), set(bs.CONFIGS))
         for number, (vendor, effort) in produced.items():
             self.assertEqual((bs.CONFIGS[number]['vendor'], bs.CONFIGS[number]['effort']), (vendor, effort), number)
@@ -82,7 +85,7 @@ class DesignTest(unittest.TestCase):
         self.assertEqual(bs.CONFIGS[29]['effort'], 'max')
 
     def test_a_configuration_outside_the_table_stops_the_summary(self):
-        records = ranked(full_design() + [dict(record(4, 9, 0.5), config=30, id='openai/x/gpt-6-luna-ultra-a1')])
+        records = ranked(full_design() + [dict(record(4, 9, 0.5), config=40, id='openai/x/gpt-6-luna-ultra-a1')])
         with self.assertRaisesRegex(ValueError, 'not in tools.reviewer.bench_records.CONFIG_TABLE'):
             bs.summarize(records, 3)
 
@@ -102,6 +105,26 @@ class DesignTest(unittest.TestCase):
         sixth = [r for r in three['scenarios'][SCENARIO]['instances'] if r['config'] == 28 and r['attempt'] == 6]
         self.assertTrue(sixth[0]['in_main'])
         self.assertFalse(sixth[0]['first_n'])  # still the plain fact valid_rank <= 5
+
+    def test_phase4_supplement_is_tabled_alone_never_compared_and_only_in_phase_4(self):
+        """Antigravity configurations 30-32 (user 2026-11-14): a supplement-only phase-4 summary, every valid instance in
+        the main statistic, no consistency row, no comparison and no Holm family."""
+        self.assertEqual({n: bs.CONFIGS[n] for n in (30, 32)},
+                         {30: {'harness': 'antigravity', 'model': 'gemini-4-hydrogen', 'vendor': 'google', 'effort': 'medium'},
+                          32: {'harness': 'antigravity', 'model': 'gemini-4-hydrogen', 'vendor': 'google', 'effort': 'xhigh'}})
+        extra = ranked([record(c, i, 0.7) for c in (30, 31, 32) for i in range(1, 7)])
+        for phase in (1, 2, 3):
+            with self.assertRaisesRegex(ValueError, 'phase-4 supplement'):
+                bs.summarize([dict(r) for r in extra], phase)
+        four = bs.summarize(extra, 4)
+        rows = four['scenarios'][SCENARIO]['configs']
+        self.assertEqual([(c['config'], c['kind'], c['n'], c['n_valid']) for c in rows],
+                         [(30, 'phase4', 6, 6), (31, 'phase4', 6, 6), (32, 'phase4', 6, 6)])
+        self.assertEqual(four['scenarios'][SCENARIO]['comparisons'], [])
+        self.assertNotIn('holm_family_size', four)
+        self.assertTrue(four['complete'])
+        self.assertEqual(rows[0]['cost_usd_total'], None)  # a plan run: tokens only, the page prices them
+        self.assertIn('第四阶段补充', bs.markdown(four))
 
     def test_phase3_records_ranked_with_the_first_5_cut_are_refused(self):
         stale = bench_validity.rank_cells(full_design() + [record(28, i, 0.9) for i in range(1, 7)])
@@ -501,14 +524,14 @@ class SummaryTest(unittest.TestCase):
             bs.summarize(records + [records[0]])
         with self.assertRaises(ValueError):
             bad = record(1, 1, 0.5)
-            bad['config'] = 30
+            bad['config'] = 40
             bs.summarize(ranked([bad]))
         with self.assertRaises(ValueError):
             bs.summarize(ranked([record(1, 1, 0.5, tokens={'output': 1})]))
         with self.assertRaises(ValueError):
             bs.summarize([record(1, 1, 0.5)])  # not ranked by bench_validity
         with self.assertRaises(ValueError):
-            bs.summarize(records, phase=4)
+            bs.summarize(records, phase=5)
 
 
 if __name__ == '__main__':

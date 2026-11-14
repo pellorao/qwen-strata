@@ -25,6 +25,13 @@ python3 -m tools.reviewer.benchmark_export --summary <summary.json> --out <file>
   python3 -m tools.reviewer.benchmark_export --summary <该目录>/summary.json --variant A6=<A6 summary.json> --out <file>
   ```
   一个记录的 score.json 只能出现在一个计分根里，否则报错。`--reconciliation-from` 在 DeepSeek 的 schedule.jsonl 已删除时沿用已发布的对账结果。第二阶段的 A6 变体在第三阶段文件里照样可用（比对时不含补充实例）。
+- 第四阶段（只含补充，用户 2026-11-14）：Hydrogen（Antigravity，配置 30–32，`kind` 为 `phase4`、`stage` 为 `phase4`）单独成文件，因为 v1 的运行目录和记录已不在，没法再合并成一个文件：
+  ```
+  python3 -I benchmarks/multi-model-v1/runners/hydrogen-1114/hydrogen_records.py --out <records.jsonl>
+  python3 -m tools.reviewer.benchmark_summary --phase 4 --records <records.jsonl> --score-root <计分根> --out <新目录>
+  python3 -m tools.reviewer.benchmark_export --summary <该目录>/summary.json --out <file>
+  ```
+  文件只有三个补充配置的实例，没有 `comparisonDesign` 和 `statistics.alpha`、`holmFamilySize`，`meta.phase` 没有 `phase1`、`phase2`，`configs` 只列本文件出现的配置，`caveats` 只留 d7、负分、null 含义、分辨率四条加 `phase4-supplement`、`antigravity-harness`、`antigravity-speeds`。实例另有 `harnessVersion`（agy 版本，1.5.8 或 1.5.9）和 `tokens.thinking`（思考 token，已含在 `output` 里，只有 Antigravity 实例有）。配置键为 `antigravity/gemini-4-hydrogen/<强度>`。耗时是 agy 进程墙钟（与 claude-code 同口径），引擎速度为 null，任务速度用通用公式；无 `cost`（套餐运行，页面按 Google 官方 API 价另算）。
 - `--variant` 是同一批实例在另一计分根上生成的 summary，只有计分字段可以不同（有效性、排名、选取、配置不同时报错）。可用的 id 见下文「敏感性变体」。
 - `--diagnostic` 是会话检查后记诊断分的实例清单（`session-diagnostic.json`，实例 id → 环境查询次数）。第二阶段的 4 个已补入（共 16 个）。
 - **发布安全自检**：输出前扫描整份结果的所有键和字符串，发现 IPv4/IPv6、localhost、本机路径（`/home`、`/mnt`、`/var`、`/tmp` 等，`~/`，Windows 盘符，`\\wsl`）、当前用户名、邮箱、UUID、请求或消息 id（`req_`、`msg_`、`toolu_`、`chatcmpl` 等）、密钥形态（`sk-`、Bearer、JWT、PEM）、`api_key=` 一类赋值、私有文件名（`private.toml`、`.state/`、`.credentials`、`.env`）、白名单之外的 URL，或者禁用键名（report、findings、answer、expected、decisions、session、thread、instanceId、dir、path、prompt 等），就报错退出，什么都不写。字段一律按白名单逐个复制，不整体搬运记录。

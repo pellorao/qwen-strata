@@ -392,6 +392,45 @@ class RecordsTest(unittest.TestCase):
         self.assertIsNone(r['compactions'])
 
 
+class AntigravityRecordTest(unittest.TestCase):
+    """The phase-4 Antigravity record (user 2026-11-14): the run's instance.json becomes a bench_records record."""
+
+    def test_record_fields_speeds_and_configuration(self):
+        report = 'finding\n'
+        sha = hashlib.sha256(report.encode()).hexdigest()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            folder = root / 'cs' / 'hydrogen-xhigh-a3'
+            plan = write(root / 'plan.json', {'codex_thread_id': 'thread'})
+            write(folder / 'h0' / 'outputs' / 'report.md', report)
+            write(folder / 'instance.json', {'T': 400, 'handoffs': [{
+                'k': 0, 'instanceId': IID, 'staging': {'report': 'report.md'}, 'report_sha256': sha, 'report_exists': True,
+                'wall_seconds': 100.0, 'started_at': 5000.0, 'tool_calls': 4, 'api_seconds': 60.0,
+                'tokens': {'input_tokens': 1000, 'cache_read_tokens': 9000, 'output_tokens': 500, 'thinking_tokens': 300},
+                'checks': {'result_event': True, 'status': 'SUCCESS', 'model_echo': 'gemini-4-hydrogen-xhigh'},
+                'final_response': '{"status":"ready"}', 'continuation': {'conversation_id': 'c', 'arw_pause_events': []}}]})
+            record = bench_records.antigravity_record('code-spec-v5', folder, 'valid', [], plan, '1.5.9')
+        self.assertEqual((record['id'], record['arm'], record['harness'], record['config'], record['attempt']),
+                         ('antigravity/code-spec-v5/hydrogen-xhigh-a3', 'antigravity', 'antigravity', 32, 3))
+        self.assertTrue(record['valid'])
+        self.assertEqual((record['seconds'], record['tokens'], record['token_source'], record['model_ids'], record['harness_version']),
+                         (100.0, {'uncached_input': 1000, 'cached_input': 9000, 'output': 500}, 'agy stream usage',
+                          ['gemini-4-hydrogen-xhigh'], '1.5.9'))
+        self.assertEqual(record['thinking_tokens'], 300)
+        # Task speeds by the common formula; engine speeds unknown, never derived from api_seconds.
+        self.assertEqual(record['speeds'], {'task_input': 10.0, 'task_output': 5.0, 'engine_input': None, 'engine_output': None})
+        self.assertEqual(record['speed_lower_bounds'], [])
+        self.assertEqual((record['time_limit_seconds'], record['pause_count'], record['cost_usd']), (400, 0, None))
+        self.assertTrue(record['handoffs'][0]['report_ok'])
+
+    def test_directory_names_outside_the_table_are_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp) / 'hydrogen-max-a1'
+            write(folder / 'instance.json', {'handoffs': []})
+            with self.assertRaisesRegex(ValueError, 'not an Antigravity instance directory name'):
+                bench_records.antigravity_record('code-spec-v5', folder, 'valid', [], folder / 'x', None)
+
+
 class ScenarioRepositoriesTest(unittest.TestCase):
     def test_marker_finds_every_layout_and_its_report_directories(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -39,6 +39,11 @@ supplement row takes every valid instance of its cell, with no first-5 cut and n
 before that rule are refused. Configurations come from tools.reviewer.bench_records.CONFIG_TABLE; a record outside it stops the
 summary. summary.json carries a `generator` marker (tool, its sha256, phase) that benchmark_export requires.
 
+Phase 4 (user 2026-11-14): a supplement-only summary of Gemini 4 Hydrogen medium / high / xhigh (configurations 30-32,
+Antigravity, PHASE4_CONFIGS), built from `--records` only (the v1 run directories are gone, so it is not a union with the
+earlier phases): the same rules as the phase-3 supplement (every valid instance, no consistency row), and no comparison
+and no Holm family because it holds no preregistered configuration. Records come from bench_records.antigravity_record.
+
     python3 -m tools.reviewer.benchmark_summary --data-root <checkout> --out <fresh dir> [--phase 1|2|3]
         [--records records.jsonl ...] [--score-root <dir> ...] [--reconciliation-from <summary.json>]
 """
@@ -49,7 +54,7 @@ import math
 from pathlib import Path
 
 from tools.metrics.measurement_format import equivalent_cost_usd, minutes
-from tools.reviewer.bench_records import CONFIG_TABLE, PHASE3_CONFIGS
+from tools.reviewer.bench_records import CONFIG_TABLE, PHASE3_CONFIGS, PHASE4_CONFIGS, SUPPLEMENT_CONFIGS
 
 # Configurations from the one table of tools.reviewer.bench_records (user 2026-10-23: no copy of it here). Rows of plan
 # §2 have kind main; PHASE3_CONFIGS are the phase-3 supplement (gpt-6-luna xhigh / max), only in phase 3, never in a
@@ -58,7 +63,7 @@ CONFIG_ROWS = [(first, harness, model, vendor, efforts)
                for first, _, harness, _, model, vendor, efforts, _ in CONFIG_TABLE]
 CONFIGS = {first + i: {'harness': h, 'model': m, 'vendor': v, 'effort': e}
            for first, h, m, v, efforts in CONFIG_ROWS for i, e in enumerate(efforts)}
-PREREGISTERED_CONFIGS = frozenset(CONFIGS) - PHASE3_CONFIGS
+PREREGISTERED_CONFIGS = frozenset(CONFIGS) - SUPPLEMENT_CONFIGS
 RECORD_FIELDS = ('id', 'scenario', 'config', 'valid', 'valid_rank', 'main_statistic', 'first_n', 'score', 'raw_score',
                  'format_penalty', 'repairs', 'seconds', 'time_limit_seconds', 'tokens', 'token_source', 'tool_calls',
                  'cost_usd', 'model_ids', 'service_tiers')
@@ -66,10 +71,11 @@ TOKEN_CLASSES = ('uncached_input', 'cached_input', 'output')
 SPEEDS = ('engine_input', 'engine_output', 'task_input', 'task_output')
 PREREGISTERED_N = 5      # first 5 valid by start time (plan §3, §14.1)
 STRATA_PHASE2_MAX = 10   # Strata extra-run target per cell (plan §14.1, 2026-10-21 09:14)
-PHASES = (1, 2, 3)
+PHASES = (1, 2, 3, 4)
 GENERATOR = 'tools.reviewer.benchmark_summary'  # summary.json source marker, required by benchmark_export
 ALPHA = 0.05
 QUOTA_PER_USD = 0.086  # % of the Anthropic weekly quota per API-equivalent USD (estimate.sh calibration)
+TOKEN_ONLY_VENDORS = ('openai', 'google')  # subscription / plan runs: tokens only, no amount (the page prices them)
 SCORED_STATUSES = ('final', 'no-report')  # bench_score statuses with a final score
 SPEED_POOL_NOTE = ('速度汇总口径（用户 2026-10-22）：多个实例的速度（summary.json 各行的 speeds_mean）是总 token ÷ 总耗时'
                    '（各实例 speed_parts 的分子之和 ÷ 分母之和，speed_totals 给出两者），不是各实例速度的算术平均；'
@@ -218,12 +224,14 @@ def validate(record, phase=3):
                          'tools.reviewer.bench_records.CONFIG_TABLE')
     if record['config'] in PHASE3_CONFIGS and phase < 3:
         raise ValueError(f'{record["id"]}: configuration {record["config"]} is the phase-3 supplement (use --phase 3)')
+    if record['config'] in PHASE4_CONFIGS and phase < 4:
+        raise ValueError(f'{record["id"]}: configuration {record["config"]} is the phase-4 supplement (use --phase 4)')
     if set(record['tokens']) != set(TOKEN_CLASSES):
         raise ValueError('Tokens must state ' + ', '.join(TOKEN_CLASSES))
     if record['valid'] and record['valid_rank'] is None:
         raise ValueError(f'{record["id"]}: a valid instance without valid_rank (bench_validity.rank_cells)')
-    if record['config'] in PHASE3_CONFIGS and record['valid'] and not record['main_statistic']:
-        raise ValueError(f'{record["id"]}: a valid phase-3 supplement instance outside the main statistic (records '
+    if record['config'] in SUPPLEMENT_CONFIGS and record['valid'] and not record['main_statistic']:
+        raise ValueError(f'{record["id"]}: a valid phase-3/4 supplement instance outside the main statistic (records '
                          'ranked with the first-5 cut; rebuild them with tools.reviewer.bench_records)')
     if not record['valid'] and record['score'] is not None:
         raise ValueError(f'{record["id"]}: an invalid instance with a score')
@@ -295,7 +303,7 @@ def cost(record):
     if vendor(record) == 'strata':
         value = equivalent_cost_usd(record['tokens'])
         return None if value is None else float(value)
-    if vendor(record) == 'openai':
+    if vendor(record) in TOKEN_ONLY_VENDORS:
         return None
     return record['cost_usd']
 
@@ -316,14 +324,14 @@ def both_currencies(dollars, yuan):
 
 
 def cost_text(record):
-    if vendor(record) == 'openai':
+    if vendor(record) in TOKEN_ONLY_VENDORS:
         return '只报 token'
     text = both_currencies(cost(record), cost_cny(record)) if vendor(record) == 'deepseek' else usd(cost(record))
     return FLOOR + text if record.get('cost_lower_bound') and text != '未知' else text
 
 
 def config_cost_text(c):
-    if c['vendor'] == 'openai':
+    if c['vendor'] in TOKEN_ONLY_VENDORS:
         return '只报 token'
     text = (both_currencies(c['cost_usd_total'], c['cost_cny_total']) if c['vendor'] == 'deepseek'
             else usd(c['cost_usd_total']))
@@ -472,9 +480,10 @@ def scenario_summary(records, phase, suite='v1'):
         valid = by_start([r for r in group if r['valid']])
         main = [r for r in valid if in_main(r, phase)]
         first = [r for r in valid if r['first_n']]
-        kind = 'supplementary' if supplementary else 'phase3' if config in PHASE3_CONFIGS else 'main'
+        kind = ('supplementary' if supplementary else 'phase3' if config in PHASE3_CONFIGS
+                else 'phase4' if config in PHASE4_CONFIGS else 'main')
         rows.append(statistics(config, main, kind, supplementary, group, len(valid)))
-        if kind != 'phase3' and {r['id'] for r in first} != {r['id'] for r in main}:
+        if kind not in ('phase3', 'phase4') and {r['id'] for r in first} != {r['id'] for r in main}:
             rows.append(statistics(config, first, 'consistency', supplementary or '', group, len(valid)))
         if kind == 'main':
             samples[config] = main
@@ -485,11 +494,11 @@ def scenario_summary(records, phase, suite='v1'):
             extra = [r for r in by_start([r for r in group if r['valid']]) if in_main(r, phase)]
             rows.append(statistics(config, samples.get(config, []) + extra, 'sensitivity',
                                    f'high+medium 合并（描述性，{supplementary}）', [], len(samples.get(config, []) + extra)))
-    order = {'main': 0, 'phase3': 0, 'consistency': 1, 'supplementary': 2, 'sensitivity': 3}
+    order = {'main': 0, 'phase3': 0, 'phase4': 0, 'consistency': 1, 'supplementary': 2, 'sensitivity': 3}
     rows.sort(key=lambda c: (c['config'], order[c['kind']], c['label']))
 
     tests = []
-    if comparisons(suite):
+    if comparisons(suite) and phase < 4:  # a phase-4 file holds the supplement only: nothing to compare
         for group_name, first, second in comparisons(suite):
             a, b = samples.get(first, []), samples.get(second, [])
             complete = bool(a) and bool(b) and all(r['score'] is not None for r in a + b)
@@ -531,8 +540,8 @@ def summarize(records, phase=1, suite='v1'):
         raise ValueError('Duplicate record id')
     scenarios = sorted({r['scenario'] for r in records})
     out = {s: scenario_summary([r for r in records if r['scenario'] == s], phase, suite) for s in scenarios}
-    complete = all(c['complete'] for s in out.values() for c in s['configs'] if c['kind'] in ('main', 'phase3'))
-    families = {} if suite == 'v2' else {'alpha': ALPHA, 'holm_family_size': len(comparisons(suite))}
+    complete = all(c['complete'] for s in out.values() for c in s['configs'] if c['kind'] in ('main', 'phase3', 'phase4'))
+    families = {} if suite == 'v2' or phase >= 4 else {'alpha': ALPHA, 'holm_family_size': len(comparisons(suite))}
     return {'phase': phase, 'suite': suite, **families,
             'preregistered_n': PREREGISTERED_N, 'strata_phase2_max': STRATA_PHASE2_MAX, 'complete': complete,
             'scenarios': out}
@@ -561,10 +570,14 @@ def label(config):
 
 
 KIND_LABEL = {'main': '主统计', 'consistency': '一致性行（前 5）', 'supplementary': '补充行', 'sensitivity': '敏感性行',
-              'phase3': '第三阶段补充（不比较）'}
+              'phase3': '第三阶段补充（不比较）', 'phase4': '第四阶段补充（不比较）'}
 
 
 def phase_text(summary):
+    if summary['phase'] == 4:
+        return ('第四阶段补充（只含补充）：Gemini 4 Hydrogen medium / high / xhigh（配置 30–32，Antigravity，各格取全部有效实例，'
+                '不截取前 5 个，也没有一致性行；用户 2026-11-14，规则同第三阶段补充）。本文件只有这三个配置，'
+                '不含预登记配置和比较；预登记配置与前三阶段见第三阶段文件。')
     if summary['phase'] == 1:
         return ('第一阶段：只用预登记实例（未合并的格取按开始时刻的前 5 个有效实例，DeepSeek 合并格取全部有效实例）。')
     text = (f"第二阶段：Strata 各格取全部有效实例（至多 {summary['strata_phase2_max']} 个，不足按实际 n），"
@@ -578,11 +591,12 @@ def phase_text(summary):
 
 
 def markdown(summary):
-    v1 = summary.get('suite', 'v1') != 'v2'
+    v1 = summary.get('suite', 'v1') != 'v2' and 'holm_family_size' in summary
     lines = [f"# 多模型 benchmark {summary.get('suite', 'v1')} 汇总", '', phase_text(summary), '',
              *([f"每个场景 {summary['holm_family_size']} 个预登记比较，Holm 校正，双侧 α = {summary['alpha']}，"
                 'Welch t 检验（Welch–Satterthwaite 自由度）。'] if v1 else
-               ['不做组间比较（用户 2026-10-25）；条件相同的组内统计与 v1 相同。']),
+               ['不做组间比较（' + ('补充文件只含补充配置' if summary['phase'] >= 4 else '用户 2026-10-25')
+                + '）；条件相同的组内统计与 v1 相同。']),
              '主统计多于前 5 个的格另给一致性行（按开始时刻的前 5 个'
              + ('；第三阶段补充配置不给' if summary['phase'] >= 3 else '') + '）；'
              + ('补充行和敏感性行不进比较。' if v1 else '') + '不给比值、综合分和排名。', '']
@@ -689,7 +703,9 @@ SUMMARY_RECORD_FIELDS = ('id', 'arm', 'scenario', 'config', 'supplementary_label
                          'continue_count', 'seconds_adjustment', 'harness_generation', 'harness_reported_cost_usd',
                          'handoff_metrics',
                          # Compactions per instance (null = unknown; records made before the field have none).
-                         'compactions', 'compactions_source')
+                         'compactions', 'compactions_source',
+                         # Antigravity (phase 4): the agy version of the instance and its thinking tokens (inside output).
+                         'harness_version', 'thinking_tokens')
 CLAUDE_USAGE_ARMS = ('anthropic', 'deepseek-claude', 'strata-claude')
 
 

@@ -36,6 +36,7 @@ SCHEMA_VERSION = 1
 SCORING_VERSION = 'r8.4'
 CODEX_VERSION = '0.163.0'
 CLAUDE_CODE_VERSION = '2.1.303'
+AGY_VERSIONS = ('1.5.8', '1.5.9')  # the agy versions the phase-4 instances ran on (each instance: harnessVersion)
 STRATA_VERSION = 'v0.1.45'
 STRATA_HOST = 'rtx3080ti'
 STRATA_QUANT = 'IQ3_XXS'
@@ -125,11 +126,12 @@ VARIANTS = {
 VARIANT_FIELDS = (('score', 'score'), ('scoreStatus', 'score_status'), ('rawScore', 'raw_score'),
                   ('formatPenalty', 'format_penalty'), ('repairs', 'repairs'), ('scoreR83', 'score_r83'))
 
-HARNESS_NAMES = {'codex': 'Codex', 'claude-code': 'Claude Code'}
-VENDOR_NAMES = {'openai': 'OpenAI', 'deepseek': 'DeepSeek', 'strata': 'Strata (local)', 'anthropic': 'Anthropic'}
+HARNESS_NAMES = {'codex': 'Codex', 'claude-code': 'Claude Code', 'antigravity': 'Antigravity'}
+VENDOR_NAMES = {'openai': 'OpenAI', 'deepseek': 'DeepSeek', 'strata': 'Strata (local)', 'anthropic': 'Anthropic',
+                'google': 'Google'}
 MODEL_NAMES = {'gpt-6.1-sol': 'gpt-6.1-sol', 'gpt-6-luna': 'gpt-6-luna', 'deepseek-flash': 'DeepSeek V4.1 Flash',
                'strata-iq3_xxs': 'Qwen3.8-Flash-Next IQ3_XXS (Strata)', 'opus': 'Claude Opus', 'sonnet': 'Claude Sonnet',
-               'haiku': 'Claude Haiku'}
+               'haiku': 'Claude Haiku', 'gemini-4-hydrogen': 'Gemini 4 Hydrogen'}
 TOKEN_SOURCE = {
     'openai': {'zh': 'API usage，由本机回环 relay 从流式回复记录（只记 usage、模型、tier，不记头和正文）；未缓存输入 = input − cached。',
                'en': 'API usage recorded from the streamed replies by a local loopback relay (usage, model and tier '
@@ -148,10 +150,14 @@ TOKEN_SOURCE = {
                            'guardian requests included.'},
     'strata-claude': {'zh': 'Strata 引擎内部日志（同上；Claude Code 路径没有 guardian）。',
                       'en': 'Strata engine log (as above; no guardian on the Claude Code path).'},
+    'antigravity': {'zh': 'agy stream-json 每步 usage 之和：input_tokens（未缓存输入）、cache_read_tokens（缓存输入）、output_tokens（输出，含思考；thinking 为其中思考部分）。',
+                    'en': 'Sum of the per-step usage of the agy stream-json: input_tokens (uncached input), '
+                          'cache_read_tokens (cached input), output_tokens (output, thinking included; thinking is the part '
+                          'of it that is reasoning).'},
 }
 ARMS = {('codex', 'openai'): 'openai', ('codex', 'deepseek'): 'deepseek-codex', ('codex', 'strata'): 'strata-codex',
         ('claude-code', 'anthropic'): 'anthropic', ('claude-code', 'deepseek'): 'deepseek-claude',
-        ('claude-code', 'strata'): 'strata-claude'}
+        ('claude-code', 'strata'): 'strata-claude', ('antigravity', 'google'): 'antigravity'}
 DURATION_BASIS = {
     'codex': {'zh': 'ARW Reviewer 的累计工作秒数（各根线程相加），从首个请求进入模型起算，不含部署、加载与准备。',
               'en': 'ARW Reviewer accumulated work seconds (root threads summed), from the first model request, '
@@ -159,7 +165,12 @@ DURATION_BASIS = {
     'claude-code': {'zh': '各根线程 claude -p 会话（含接续段）的墙钟秒数相加，不含准备。',
                     'en': 'Wall seconds of the claude -p sessions of each root thread (continuations included), '
                           'summed; preparation excluded.'},
+    'antigravity': {'zh': '各根线程 agy 会话（含接续段）的进程墙钟秒数相加，每段从进程启动起算（含约 7 秒启动），不含准备；与 claude-code 同一口径。',
+                    'en': 'Process wall seconds of the agy sessions of each root thread (continuations included), summed; '
+                          'each segment counts from its process start (about 7 seconds of start-up included), preparation '
+                          'excluded; the same basis as claude-code.'},
 }
+AGY_NETWORK_DETAIL = re.compile(r'(?:https?://)?[\w.-]+\.googleapis\.com\S*|read tcp \S+')
 
 COST_BASIS = {
     'anthropic': {'zh': 'Claude Code 报告的 total_cost_usd：按 Anthropic 价目的 API 等价美元；本 benchmark 用订阅运行，不是实际账单。',
@@ -185,6 +196,37 @@ PHASE3_CAVEAT = (
     'Holm family, and not compared with other configurations by this project. Run on 2026-10-23 (JST 02:20-07:12) on a '
     'borrowed ChatGPT login under the v1 conditions (same Codex copy, frozen scenario sources, harness patches, search '
     'off, credential deny-read); a day after the first two phases, so the served model or routing may have changed.')
+
+
+PHASE4_CAVEATS = [
+    ('phase4-supplement',
+     '第四阶段只是补充（用户 2026-11-14）：Gemini 4 Hydrogen medium / high / xhigh（配置 30–32，Antigravity）在 4 个场景各格取全部有效实例（不截取前 5 个），'
+     '只给逐实例结果，不进预登记比较；本文件只含这三个配置，预登记配置与前三阶段在第三阶段文件里。运行于 2026-11-14（JST），晚于 v1 约三周，'
+     '服务端模型或路由可能已有变化，也没有同期对照。',
+     'Phase 4 is a supplement only (user 2026-11-14): Gemini 4 Hydrogen medium / high / xhigh (configurations 30-32, '
+     'Antigravity), every valid instance of each cell in the 4 scenarios (no first-5 cut), per-instance results only, '
+     'never in a preregistered comparison; this file holds only these three configurations, the preregistered ones and '
+     'the first three phases are in the phase-3 file. Run on 2026-11-14 (JST), about three weeks after v1, so the served '
+     'model or routing may have changed, and there is no same-period control.'),
+    ('antigravity-harness',
+     'Hydrogen 在 Antigravity（agy）上运行，不是 v1 的 Codex 或 Claude Code：agy 自带系统提示（空提示实测约 10K token 输入）、工具集和上下文管理，'
+     'Role 指令放在用户消息里；搜索和子 agent 无法关闭，只能事后检测（作废重跑，最终实例中没有）；agy 的 --sandbox 拦不住读取，改用 bwrap 隔离；'
+     '模型 id 只有请求回显（弱核对）；盲裁者 claude 版本与 v1 不同，Hydrogen 作为新的来源 family 另登记了 14 个锚点。'
+     '所以 Hydrogen 与 v1 配置的分差不能全归于模型。agy 版本在运行中从 1.5.8 升到 1.5.9（2026-11-14 14:55 JST），每个实例的版本见 harnessVersion。',
+     'Hydrogen ran on Antigravity (agy), not on v1\'s Codex or Claude Code: agy brings its own system prompt (about 10K '
+     'input tokens with an empty prompt, measured), toolset and context management, and the Role instruction sits in the '
+     'user message; search and sub-agent tools cannot be switched off and were only detected afterwards (such runs voided and '
+     'rerun, none among the final instances); agy --sandbox does not stop reads, so isolation uses bwrap; the model id is '
+     'only the requested one echoed back (a weak check); the blind-adjudicator claude version differs from v1 and '
+     'Hydrogen, a new source family, got 14 anchors of its own. So differences between Hydrogen and the v1 configurations '
+     'cannot all be put down to the model. agy went from 1.5.8 to 1.5.9 during the runs (2026-11-14 14:55 JST); the version '
+     'of each instance is in harnessVersion.'),
+    ('antigravity-speeds',
+     'Antigravity 的引擎速度不给（null）：stream 只有每次响应的秒数，没有规则把它换成引擎输入或输出速度；任务速度照通用公式（未缓存输入、输出 ÷ 工作秒数）。',
+     'Antigravity engine speeds are not given (null): the stream has per-response seconds but no rule turns them into an '
+     'engine input or output speed; task speeds follow the common formula (uncached input and output over work seconds).'),
+]
+PHASE4_KEEP = ('d7', 'negative-scores', 'unknown-not-zero', 'resolution')
 
 
 def caveats(phase=2):
@@ -237,7 +279,9 @@ def caveats(phase=2):
          'Strata results hold for one host and one quantization only (rtx3080ti, IQ3_XXS, parameters from the '
          'v0.1.42 tuning).'),
     ]
-    if phase >= 3:
+    if phase >= 4:  # the supplement-only file: only the statements that hold for it, plus its own
+        items = [i for i in items if i[0] in PHASE4_KEEP] + PHASE4_CAVEATS
+    elif phase >= 3:
         items.append(PHASE3_CAVEAT)
     return [{'id': i, 'zh': zh, 'en': en} for i, zh, en in items]
 
@@ -292,6 +336,8 @@ def stage(row, first_started):
     never in a main statistic."""
     if row['config'] in bs.PHASE3_CONFIGS:
         return 'phase3'
+    if row['config'] in bs.PHASE4_CONFIGS:
+        return 'phase4'
     strata = bs.CONFIGS[row['config']]['vendor'] == 'strata'
     designed = 'preregistered'
     if row['valid']:
@@ -323,8 +369,10 @@ def instance(row, phase, diagnostic):
         'requestedEffort': row.get('requested_effort'), 'effectiveEffort': row.get('effective_effort'),
         'pooledIntoHigh': bool(row.get('pooled')),
         'startedAt': iso(row.get('started')),
+        **({'harnessVersion': row['harness_version']} if row.get('harness_version') else {}),
         'validity': {'valid': row['valid'], 'status': (row.get('validity') or {}).get('status'),
-                     'notes': list((row.get('validity') or {}).get('reasons') or []),
+                     'notes': [AGY_NETWORK_DETAIL.sub('<network detail>', n) if row['arm'] == 'antigravity' else n
+                               for n in (row.get('validity') or {}).get('reasons') or []],
                      'reminderInterrupts': len(rejudge.get('reminder_interrupts') or []),
                      'streamCutRetries': len(rejudge.get('stream_cut_retries') or [])},
         'selection': {'validRank': row.get('valid_rank'), 'firstN': row.get('first_n'),
@@ -344,6 +392,8 @@ def instance(row, phase, diagnostic):
         'tokens': {**tokens(row.get('tokens')),
                    **(summed_cache_write(handoffs) if claude and c['vendor'] != 'strata'
                       else {'cacheWriteInput': None, 'cacheWrite1h': None, 'cacheWrite5m': None}),
+                   # Thinking is part of output (Antigravity); left out when unknown so earlier files stay identical.
+                   **({'thinking': row['thinking_tokens']} if row.get('thinking_tokens') is not None else {}),
                    'source': row.get('token_source'),
                    'lowerBound': bool(row.get('token_source') and 'lower bound' in row['token_source'])},
         'speeds': {'engineInput': (row.get('speeds') or {}).get('engine_input'),
@@ -412,33 +462,42 @@ def instances(summary, diagnostic):
 def configs(summary):
     """Descriptive configuration table: the 27 of plan §2 plus the supplementary DeepSeek medium-requested cells, and in
     a phase-3 file the supplement configurations 28 / 29 (kind phase3, never in a comparison)."""
-    observed = {}
+    observed, versions = {}, {}
     supplementary = set()
     for result in summary['scenarios'].values():
         for r in result['instances']:
             observed.setdefault(r['config'], set()).update(r.get('model_ids') or [])
+            if r.get('harness_version'):
+                versions.setdefault(r['config'], set()).add(r['harness_version'])
             if r.get('supplementary_label'):
                 supplementary.add(r['config'])
     out = []
     for number, c in sorted(bs.CONFIGS.items()):
         if number in bs.PHASE3_CONFIGS and summary['phase'] < 3:
             continue
+        if number in bs.PHASE4_CONFIGS and summary['phase'] < 4:
+            continue
+        if summary['phase'] >= 4 and number not in observed:  # the supplement-only file lists its own configurations
+            continue
         for supp in ([False, True] if number in supplementary else [False]):
             arm = ARMS[c['harness'], c['vendor']]
             out.append({
                 'key': config_key(number, supp), 'configNumber': number, 'harness': c['harness'],
                 'harnessName': HARNESS_NAMES[c['harness']],
-                'harnessVersion': CODEX_VERSION if c['harness'] == 'codex' else CLAUDE_CODE_VERSION,
+                'harnessVersion': (' / '.join(sorted(versions.get(number, ()))) or None if c['harness'] == 'antigravity'
+                                   else CODEX_VERSION if c['harness'] == 'codex' else CLAUDE_CODE_VERSION),
                 'model': c['model'], 'modelName': MODEL_NAMES[c['model']],
                 'modelId': STRATA_MODEL_ID if c['vendor'] == 'strata' else None,
                 'modelIdsReturned': sorted(observed.get(number, ())),
                 'vendor': c['vendor'], 'vendorName': VENDOR_NAMES[c['vendor']],
                 'effort': 'medium' if supp else c['effort'], 'effectiveEffort': c['effort'],
-                'kind': ('supplementary' if supp else 'phase3' if number in bs.PHASE3_CONFIGS else 'main'),
+                'kind': ('supplementary' if supp else 'phase3' if number in bs.PHASE3_CONFIGS
+                         else 'phase4' if number in bs.PHASE4_CONFIGS else 'main'),
                 'local': c['vendor'] == 'strata',
                 'arm': arm, 'tokenSource': TOKEN_SOURCE[arm], 'durationBasis': c['harness'],
                 'costBasis': c['vendor'] if c['vendor'] in COST_BASIS else None,
-                'inComparisons': not supp and number in bs.PREREGISTERED_CONFIGS and summary.get('suite') != 'v2'})
+                'inComparisons': (not supp and number in bs.PREREGISTERED_CONFIGS and summary.get('suite') != 'v2'
+                                  and summary['phase'] < 4)})
     return out
 
 
@@ -469,16 +528,21 @@ def selection_rules(summary):
         'strataExtraTarget': summary['strata_phase2_max'],
         'zh': ('有效实例按开始时刻排序得到 validRank。phase 1：未合并的格取 validRank ≤ 5（firstN）；DeepSeek 合并格（cellPooled，'
                'medium 请求并入 high）取全部有效实例。phase 2：Strata 的格取 validRank ≤ 10，其余同 phase 1。'
-               + ('phase 3：同 phase 2，另加补充配置 28、29（gpt-6-luna xhigh、max），各格取全部有效实例（mainStatistic 为 true，'
+               + ('phase 4（只含补充）：本文件只有补充配置 30–32（Gemini 4 Hydrogen medium、high、xhigh，Antigravity），各格取全部有效实例（mainStatistic 为 true，'
+                  '不截取前 5 个，用户 2026-11-14），只给实例、不进比较，也没有一致性行。'
+                  if summary['phase'] >= 4 else 'phase 3：同 phase 2，另加补充配置 28、29（gpt-6-luna xhigh、max），各格取全部有效实例（mainStatistic 为 true，'
                   '不截取前 5 个，用户 2026-10-23），只给实例、不进比较，也没有一致性行。'
-                  if summary['phase'] >= 3 else '') + 'inMain 是本文件阶段的结果；'
+                  if summary['phase'] == 3 else '') + 'inMain 是本文件阶段的结果；'
                '主统计多于前 5 个的格另有一致性行（firstN 为 true 的实例）。'),
         'en': ('Valid instances ordered by start give validRank. Phase 1: cells not pooled take validRank <= 5 (firstN); '
                'pooled DeepSeek cells (cellPooled, medium requests pooled into high) take every valid instance. '
                'Phase 2: Strata cells take validRank <= 10, others as in phase 1. '
-               + ('Phase 3: as phase 2, plus the supplement configurations 28 / 29 (gpt-6-luna xhigh / max), every '
+               + ('Phase 4 (supplement only): this file holds only the supplement configurations 30-32 (Gemini 4 Hydrogen '
+                  'medium / high / xhigh on Antigravity), every valid instance per cell (mainStatistic true, no first-5 cut, '
+                  'user 2026-11-14), instances only, never in a comparison and without a consistency row. '
+                  if summary['phase'] >= 4 else 'Phase 3: as phase 2, plus the supplement configurations 28 / 29 (gpt-6-luna xhigh / max), every '
                   'valid instance per cell (mainStatistic true, no first-5 cut, user 2026-10-23), instances only, never '
-                  'in a comparison and without a consistency row. ' if summary['phase'] >= 3 else '')
+                  'in a comparison and without a consistency row. ' if summary['phase'] == 3 else '')
                + 'inMain is the result for the phase '
                'of this file; a cell whose main statistic holds more than its first 5 also has a consistency row '
                '(the instances with firstN true).')}
@@ -491,6 +555,11 @@ def environment():
     defaults = deployment.get('installation_defaults') or {}
     return {
         'harnesses': {
+            'antigravity': {'versions': list(AGY_VERSIONS), 'notes': {
+                'zh': 'Antigravity CLI（agy）：自带 agent 循环、约 10K token 的系统提示和工具集；经 stdin 的 stream-json 送入单条用户消息；bwrap 隔离（只读系统目录、空家目录、只有工作副本可写）；搜索与子 agent 无法关闭，事后检测。',
+                'en': 'Antigravity CLI (agy): its own agent loop, a system prompt of about 10K tokens and toolset; one user '
+                      'message through stdin stream-json; bwrap isolation (read-only system directories, empty home, only '
+                      'the work copy writable); search and sub-agents cannot be switched off and are detected afterwards.'}},
             'codex': {'version': CODEX_VERSION, 'notes': {
                 'zh': 'benchmark 专用副本，固定 SHA；ARW Reviewer 运行层；read-only 权限加报告目录写授权，凭据路径 deny-read；搜索关闭；service tier default。',
                 'en': 'Dedicated pinned copy; ARW Reviewer runtime; read-only permissions plus a report-directory '
@@ -566,6 +635,12 @@ def phase_meta(summary):
         2: ('第二阶段：按计划的全样本分析，Strata 各格取全部有效实例（至多 10 个），其余配置同第一阶段。',
             'Phase 2: the planned full-sample analysis; Strata cells use every valid instance (up to 10), other '
             'configurations as in phase 1.'),
+        4: ('第四阶段补充（只含补充）：Gemini 4 Hydrogen medium / high / xhigh（配置 30–32，Antigravity），每格全部有效实例、不截取前 5 个，stage 为 phase4；'
+            '本文件不含预登记配置，也不含前三阶段的实例（见第三阶段文件）；补充配置不进任何比较，见 caveats 的 phase4-supplement。',
+            'Phase 4 supplement (supplement only): Gemini 4 Hydrogen medium / high / xhigh (configurations 30-32, Antigravity), '
+            'every valid instance per cell, no first-5 cut, stage phase4; this file holds neither the preregistered '
+            'configurations nor the instances of the first three phases (see the phase-3 file); the supplement configurations '
+            'never enter a comparison, see the phase4-supplement caveat.'),
         3: ('第三阶段补充（三阶段合一）：第二阶段的全部实例与选取不变，另加 gpt-6-luna xhigh（配置 28）、max（配置 29）的补充实例'
             '（Codex，每格全部有效实例、不截取前 5 个，stage 为 phase3）；补充配置不进任何比较，见 caveats 的 phase3-supplement。',
             'Phase 3 supplement (all three phases in one file): every phase-2 instance and selection unchanged, plus the '
@@ -573,13 +648,13 @@ def phase_meta(summary):
             'first-5 cut, stage phase3); the supplement configurations never enter a comparison, see the phase3-supplement caveat.')}
     out = {'number': phase, 'complete': summary['complete'], 'final': False if phase == 1 else summary['complete'],
            'zh': texts[phase][0], 'en': texts[phase][1]}
-    if phase >= 2:
+    if 2 <= phase < 4:
         out['phase1'] = {**published(PHASE1_SUMMARY_MD, PHASE1_SUMMARY_JSON),
                          'zh': '用 selection.mainStatistic 可重算第一阶段全部统计；第一阶段敏感性变体只适用于第一阶段实例集，见第一阶段报告，本文件不带。',
                          'en': 'selection.mainStatistic recomputes every phase-1 statistic; the phase-1 sensitivity '
                                'variants apply to the phase-1 instance set only and are in the phase-1 report, not '
                                'in this file.'}
-    if phase >= 3:
+    if phase == 3:
         out['phase2'] = {**published(PHASE2_SUMMARY_MD, PHASE2_SUMMARY_JSON),
                          'zh': '去掉 configNumber 28、29 的实例即为第二阶段文件的实例集；inMain 与第二阶段相同。',
                          'en': 'Without the configNumber 28 / 29 instances this is the phase-2 instance set; inMain as in '
@@ -612,7 +687,8 @@ def check_source(summary, summary_sha):
 
 def build(summary, summary_sha, variant_paths=(), diagnostic=None, generated=None):
     diagnostic = diagnostic or {}
-    v2 = summary.get('suite') == 'v2'  # no comparison design in v2 (user 2026-10-25)
+    # No comparison design in v2 (user 2026-10-25) and in a supplement-only phase-4 file.
+    v2 = summary.get('suite') == 'v2' or summary['phase'] >= 4
     commit, dirty = git_commit()
     return {
         'meta': {

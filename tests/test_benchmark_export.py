@@ -148,6 +148,53 @@ class Phase3Test(unittest.TestCase):
         self.assertNotIn('phase3-supplement', [c['id'] for c in two['caveats']])
 
 
+def phase4_summary():
+    records = [record(c, i, 0.8 if i < 6 else None) for c in (30, 31, 32) for i in range(1, 7)]
+    records.append(record(32, 7, None, valid=False, started=2500.0, validity={
+        'status': 'invalid', 'reasons': ['h0: status ERROR Get https://x.googleapis.com/v1: read tcp 10.0.0.1:5->6: reset']}))
+    records = ranked(records)
+    for r in records:
+        r['score_status'] = 'final' if r['score'] is not None else None
+        r['speeds'] = dict.fromkeys(bs.SPEEDS)
+        r['harness_version'] = '1.5.8' if r['attempt'] < 4 else '1.5.9'
+        r['thinking_tokens'] = 100
+    return dict(bs.compact(bs.summarize(records, 4)), generator=bs.generator(4))
+
+
+class Phase4Test(unittest.TestCase):
+    def test_supplement_only_file(self):
+        result = be.build(phase4_summary(), 'sha', generated='2026-11-14T00:00:00+00:00')
+        self.assertEqual({c['configNumber']: (c['key'], c['kind'], c['inComparisons'], c['harnessVersion'], c['vendor'], c['modelName'])
+                          for c in result['configs']},
+                         {n: (f'antigravity/gemini-4-hydrogen/{e}', 'phase4', False, '1.5.8 / 1.5.9', 'google', 'Gemini 4 Hydrogen')
+                          for n, e in ((30, 'medium'), (31, 'high'), (32, 'xhigh'))})
+        self.assertEqual({i['selection']['stage'] for i in result['instances']}, {'phase4'})
+        self.assertNotIn('comparisonDesign', result)
+        self.assertEqual(set(result['meta']['statistics']), {'preregisteredN', 'strataExtraTarget'})
+        self.assertEqual(result['meta']['phase']['number'], 4)
+        self.assertNotIn('phase1', result['meta']['phase'])
+        self.assertNotIn('phase2', result['meta']['phase'])
+        ids = [c['id'] for c in result['caveats']]
+        self.assertIn('phase4-supplement', ids)
+        self.assertIn('antigravity-harness', ids)
+        self.assertNotIn('strata-local', ids)
+        sel = {i['id'].split('/')[-1]: i for i in result['instances']}
+        a1 = sel['gemini-4-hydrogen-medium-a1']
+        self.assertEqual((a1['harnessVersion'], a1['tokens']['thinking'], a1['configKey']), ('1.5.8', 100, 'antigravity/gemini-4-hydrogen/medium'))
+        self.assertTrue(sel['gemini-4-hydrogen-medium-a6']['selection']['inMain'])
+        invalid = sel['gemini-4-hydrogen-xhigh-a7']
+        self.assertFalse(invalid['selection']['inMain'])
+        self.assertEqual(invalid['validity']['notes'], ['h0: status ERROR Get <network detail> <network detail> reset'])
+        self.assertEqual(be.safety_hits(result), [])
+        self.assertIn('antigravity', result['environment']['harnesses'])
+
+    def test_earlier_phases_do_not_show_the_supplement_or_its_fields(self):
+        three = be.build(phase3_summary(), 'sha', generated='2026-10-23T00:00:00+00:00')
+        self.assertFalse([c for c in three['configs'] if c['configNumber'] >= 30])
+        self.assertTrue(all('thinking' not in i['tokens'] and 'harnessVersion' not in i for i in three['instances']))
+        self.assertNotIn('phase4-supplement', [c['id'] for c in three['caveats']])
+
+
 class SuiteTest(unittest.TestCase):
     def test_v2_export_has_no_comparison_design_and_v1_keeps_25(self):
         v1 = synthetic_summary()

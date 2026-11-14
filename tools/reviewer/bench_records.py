@@ -61,7 +61,7 @@ LAYOUT = {
                                                         'code-standards-v5.1': 'cstd', 'spec-readiness-v4.3': 'sr'}),
 }
 HARNESS = {'openai': 'codex', 'strata-codex': 'codex', 'anthropic': 'claude-code', 'strata-claude': 'claude-code',
-           'deepseek-codex': 'codex', 'deepseek-claude': 'claude-code'}
+           'deepseek-codex': 'codex', 'deepseek-claude': 'claude-code', 'antigravity': 'antigravity'}
 # Arm -> the directory model keys of its instances (None: every key of MODELS).
 ARM_MODELS = {'deepseek-codex': ('codex',), 'deepseek-claude': ('cc',)}
 EFFORTS = ('low', 'medium', 'high')
@@ -74,6 +74,9 @@ DEEPSEEK_EFFORTS = ('low', 'high', 'max')
 #   (C') or a supplementary row (instance.json fields).
 # - kind 'phase3': the phase-3 supplement (user 2026-10-22): gpt-6-luna xhigh / max on Codex,
 #   numbered after the 27; reported per instance only, never in a comparison.
+# - kind 'phase4': the phase-4 supplement (user 2026-11-14): Gemini 4 Hydrogen medium / high / xhigh on Antigravity
+#   (agy), same rules as phase 3. Its records come from the run's own producer (runners/hydrogen-1114/hydrogen_records.py,
+#   through antigravity_record below), not from run directories of LAYOUT.
 CONFIG_TABLE = [
     (1, 'sol', 'codex', 'gpt-6.1-sol', 'gpt-6.1-sol', 'openai', EFFORTS, 'main'),
     (4, 'luna', 'codex', 'gpt-6-luna', 'gpt-6-luna', 'openai', EFFORTS, 'main'),
@@ -85,11 +88,16 @@ CONFIG_TABLE = [
     (22, 'cc', 'claude-code', 'deepseek-flash', 'deepseek-flash', 'deepseek', DEEPSEEK_EFFORTS, 'main'),
     (25, 'strata', 'claude-code', 'strata', 'strata-iq3_xxs', 'strata', EFFORTS, 'main'),
     (28, 'luna', 'codex', 'gpt-6-luna', 'gpt-6-luna', 'openai', ('xhigh', 'max'), 'phase3'),
+    (30, 'hydrogen', 'antigravity', 'gemini-4-hydrogen', 'gemini-4-hydrogen', 'google', ('medium', 'high', 'xhigh'), 'phase4'),
 ]
 # Configurations of the phase-3 supplement: every valid instance counts, no first-5 cut (measurement rule 失败与重跑,
 # user 2026-10-23: extra runs not triggered by scores count the same as preregistered ones).
 PHASE3_CONFIGS = frozenset(first + i for first, _, _, _, _, _, efforts, kind in CONFIG_TABLE if kind == 'phase3'
                            for i in range(len(efforts)))
+PHASE4_CONFIGS = frozenset(first + i for first, _, _, _, _, _, efforts, kind in CONFIG_TABLE if kind == 'phase4'
+                           for i in range(len(efforts)))
+# Supplement configurations (phase 3 and 4): every valid instance counts, no first-5 cut.
+SUPPLEMENT_CONFIGS = PHASE3_CONFIGS | PHASE4_CONFIGS
 # Directory model key -> (first configuration of its main row, model family, report style family = vendor).
 MODELS = {key: (first, family, vendor) for first, key, _, family, _, vendor, _, kind in CONFIG_TABLE if kind == 'main'}
 MODEL_EFFORTS = {key: efforts for _, key, _, _, _, _, efforts, kind in CONFIG_TABLE if kind == 'main'}
@@ -708,6 +716,10 @@ def speed_fields(record, folder=None):
         parts['engine_input'] = (summed('engine_read'), summed('engine_input_seconds'))
         parts['engine_output'] = (summed('engine_generated'), summed('engine_decode_seconds'))
         basis['engine'] = 'engine log requests: read / input-processing seconds, generated / decode seconds'
+    elif record['harness'] == 'antigravity':
+        # agy's stream has per-response seconds, but no stated rule turns them into an engine speed (user 2026-11-14:
+        # new time bases are decided first), so both engine speeds stay unknown; the task speeds are the common formula.
+        basis['engine'] = 'Antigravity: engine speeds not derived (unknown); only the task speeds are given'
     elif record['harness'] == 'claude-code':
         parts['engine_output'] = (tokens.get('output'), summed('api_seconds'))
         basis['engine'] = ('API model: input unknown (no input-processing time); output = stream result output tokens / '
@@ -745,7 +757,8 @@ def summary_fields(record):
                        for c in ('uncached_input', 'cached_input', 'output')},
             'token_source': None if not known else (
                 'engine log' if record['model_family'] == 'strata' else
-                'Claude Code stream result usage' if record['arm'] in API_TOKEN_ARMS else 'API usage (relay)')
+                'Claude Code stream result usage' if record['arm'] in API_TOKEN_ARMS else
+                'agy stream usage' if record['arm'] == 'antigravity' else 'API usage (relay)')
             + (' (lower bound: a segment without result)' if known and any(h.get('tokens_lower_bound') for h in handoffs) else ''),
             'tool_calls': sum(calls) if handoffs and None not in calls else None,
             'compactions': sum(compactions) if handoffs and None not in compactions else None,
@@ -928,12 +941,82 @@ def scene_records(arm, scenario, scene, suite='v1'):
     # Plan §3, §14.1 L256, §14.4 and ruling 2026-10-21: not merged cells take their first 5 valid instances by start
     # time for the main statistic; merged cells (DeepSeek C') take every valid one; so do the phase-3 supplement cells
     # (user 2026-10-23).
-    return bench_validity.rank_cells(out, whole_configs=PHASE3_CONFIGS)
+    return bench_validity.rank_cells(out, whole_configs=SUPPLEMENT_CONFIGS)
 
 
 def arm_instance(arm, name):
     match = DIR_NAME.match(name)
     return bool(match) and match.group('model') in (ARM_MODELS.get(arm) or MODELS)
+
+
+def antigravity_record(scenario, folder, verdict, reasons, plan_path, version=None):
+    """The normalized record of one Antigravity (agy) instance directory (phase-4 supplement, runners/hydrogen-1114).
+
+    The run's own instance.json (handoffs with checks, tokens, segments) is the source; the validity verdict and its
+    reasons come from the run's classifier (drive.classify), since the run decides what an instance check is. Fields
+    follow claude_record so bench_score and benchmark_summary read it like any other arm. `plan_path` is the scenario
+    plan the instance was prepared from (a run-local copy of the frozen plan), `version` the agy version the instance
+    ran on. Tokens: the stream's per-step usage summed, output including thinking (thinking_tokens is the part of it)."""
+    from tools.reviewer.claude_headless import final_status
+    inst = load(folder / 'instance.json')
+    match = DIR_NAME.match(folder.name)
+    if not match or (match.group('model'), match.group('effort')) not in EXTRA_CONFIGS:
+        raise ValueError(f'{folder}: not an Antigravity instance directory name')
+    key, effort = match.group('model'), match.group('effort')
+    config = EXTRA_CONFIGS[key, effort]
+    record = {'id': f'antigravity/{scenario}/{folder.name}', 'arm': 'antigravity', 'harness': 'antigravity',
+              'model_family': key, 'style_family': 'anthropic', 'effort': effort, 'requested_effort': effort,
+              'effective_effort': effort, 'pooled': False, 'supplementary': False, 'supplementary_label': None,
+              'config': config, 'config_label': f'{key}-{effort}', 'scenario': scenario, 'plan': str(plan_path),
+              'plan_sha256_now': sha256_file(plan_path), 'attempt': int(match.group('attempt')), 'dir': str(folder),
+              'harness_version': version}
+    plan = json.loads(Path(plan_path).read_text())
+    prep = load(folder / 'prep/preparation.json') or {}
+    record['identity'] = {'plan_codex_thread_id': plan['codex_thread_id'], 'prep_session_id': (prep.get('identity') or {}).get('sessionId')}
+    originals = sorted(folder.glob(PREPARED))
+    record['original_prepared'] = str(originals[0]) if len(originals) == 1 else None
+    handoffs = []
+    for h in inst['handoffs']:
+        k = h['k']
+        staged = (h.get('staging') or {}).get('report')
+        out = folder / f'h{k}'
+        path, ok = report_location(h.get('report_sha256'), out / 'outputs' / staged if staged else None)
+        result = load(out / 'result.json') or {}
+        c = h.get('checks') or {}
+        tokens = h.get('tokens') or {}
+        cont = h.get('continuation') or {}
+        status = (final_status(h.get('final_response')) or 'not-arw-form') if c.get('result_event') and c.get('status') == 'SUCCESS' else None
+        handoffs.append({'k': k, 'instanceId': h['instanceId'], 'sub_scenario': sub_scenario(h['instanceId']), 'report': path,
+                         'report_ok': ok, 'report_exists': h.get('report_exists'), 'report_sha256': h.get('report_sha256'),
+                         'seconds': h.get('wall_seconds'),
+                         'tokens': {'uncached_input': tokens.get('input_tokens'), 'cached_input': tokens.get('cache_read_tokens'),
+                                    'output': tokens.get('output_tokens')},
+                         'thinking_tokens': tokens.get('thinking_tokens'), 'tokens_lower_bound': False,
+                         'api_usage': result.get('usage_sum'), 'cost_usd': None, 'tool_calls': h.get('tool_calls'),
+                         'api_seconds': h.get('api_seconds'), 'session': cont.get('conversation_id'),
+                         'pause_events': cont.get('arw_pause_events', []), 'sandbox_failures': 0,
+                         'continuation_stop': cont.get('stop'), 'models_returned': [c['model_echo']] if c.get('model_echo') else [],
+                         'service_tiers': {}, 'files_before': str(out / 'files-before.json'), 'spill_files': [],
+                         'compactions': None, 'compactions_source': 'not available in the agy stream',
+                         'final_status': status, 'final_status_source': 'agy result response text',
+                         'hard_stop': c.get('hard_stop'), 'unexpected_changes': c.get('unexpected_changes')})
+    record.update(validity(verdict, reasons, 'run_one checks (drive.classify)'))
+    record['validity_before_rejudge'] = {'valid': record['valid'], 'status': verdict, 'source': 'run_one checks', 'reasons': reasons}
+    record['seconds_adjustment'] = None
+    record['started'] = min((h.get('started_at') for h in inst['handoffs'] if h.get('started_at')), default=None)
+    record['time_limit_seconds'], record['time_limit_source'] = time_limit(folder, inst.get('T'))
+    record['harness_generation'] = None
+    record.update(pause_fields([e for h in handoffs for e in h['pause_events']], 0, None))
+    record['handoffs'] = handoffs
+    record['repository_manifest'] = {'kind': 'h<k>/files-before.json'}
+    record.update(SCORE_FIELDS)
+    record.update(summary_fields(record))
+    record['thinking_tokens'] = sum(h['thinking_tokens'] or 0 for h in handoffs)
+    record.update(speed_fields(record, folder))
+    record['cost_cny'] = None
+    record['cost_lower_bound'] = False
+    final_status_error(record)
+    return record
 
 
 def instance_record(arm, scenario, folder, done=None, arm_tokens=None, suite='v1'):
@@ -994,7 +1077,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--suite', choices=sorted(bench_suite.SUITES), default=bench_suite.DEFAULT)
     parser.add_argument('--all', action='store_true', help='every arm and scenario of the suite layout')
-    parser.add_argument('--arm', choices=sorted(HARNESS))
+    parser.add_argument('--arm', choices=sorted(LAYOUT))
     parser.add_argument('--scenario', choices=bench_suite.all_scenarios())
     parser.add_argument('--dir', type=Path, help='scene directory (default: the suite layout)')
     parser.add_argument('--out', type=Path, help='JSON Lines output (default: stdout)')
