@@ -24,9 +24,8 @@ OUT = ROOT / '.tmp/carbonbench'
 SCEN = {'ca': 'commit-audit-v3', 'cs': 'code-spec-v5', 'cstd': 'code-standards-v5.1', 'sr': 'spec-readiness-v4.3'}
 EFFORTS = ('low', 'medium', 'high')
 FIRST_CONFIG = 33  # Hydrogen is 30-32
-# Report-style family for synthetic controls: the same value as Hydrogen's records (same Gemini family, shared anchors); the finishing run
-# keeps both in step if Hydrogen's finishing changes it (plan section 0).
-STYLE_FAMILY = re.search(r"^STYLE_FAMILY = '([^']+)'", (HERE.parent / 'hydrogen-1114' / 'hydrogen_records.py').read_text(), re.M).group(1)
+# Report-style family for synthetic controls: 'anthropic', the value of Hydrogen's records (bench_records.antigravity_record; same Gemini family, shared anchors).
+STYLE_FAMILY = 'anthropic'
 
 
 def record(key, folder):

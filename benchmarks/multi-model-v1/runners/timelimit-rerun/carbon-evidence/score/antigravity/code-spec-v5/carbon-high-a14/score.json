@@ -1,0 +1,101 @@
+{
+ "id": "antigravity/code-spec-v5/carbon-high-a14",
+ "arm": "antigravity",
+ "scenario": "code-spec-v5",
+ "config": 35,
+ "time_limit_seconds": 3600,
+ "checks": {
+  "contract": "same as the original prepared.json",
+  "trees": [
+   {
+    "k": 0,
+    "tree": "same as h<k>/files-before.json"
+   }
+  ],
+  "unverified": false
+ },
+ "handoffs": [
+  {
+   "k": 0,
+   "instanceId": "default-897885d9-f068-42cb-86e4-083caaef155c-instance-1",
+   "original_instanceId": "default-3747d363-7edf-46e0-bd22-d624149bafcd-instance-1",
+   "report": "/home/pello/projects/qwen-strata/.tmp/carbonbench/cs/carbon-high-a14/h0/outputs/.tmp/reports/review-result.md",
+   "report_sha256": "90778ed405e674bf4696e97623828595f316145b4a4ddc3aa0e1f77b44bdcf07",
+   "scored": "original",
+   "repair": {},
+   "spill_files": 0,
+   "spill_edits": 0,
+   "spill_fragments": 0,
+   "spill_in_range_readable": 0
+  }
+ ],
+ "validity_source": "run_one checks (drive.classify)",
+ "valid_rank": 5,
+ "main_statistic": true,
+ "seconds": 1195.44286775589,
+ "seconds_adjustment": null,
+ "status": "final",
+ "provisional_bound": null,
+ "paused": false,
+ "pause_count": 0,
+ "pause_basis": "recorded arw_pause_events",
+ "harness_generation": null,
+ "scoreBeforePenalty": 0.868036176594094,
+ "arw_score": 0.868036176594094,
+ "rawScore": 0.868036176594094,
+ "arw_cut": false,
+ "arw_cut_codes": [],
+ "report_diagnostic_codes": [],
+ "r": 0,
+ "rRepairable": 0,
+ "rUnrepairable": 0,
+ "rOverrun": 0,
+ "rFinalStatus": 0,
+ "T_locators": 136,
+ "p": 0.0,
+ "f": 0.0,
+ "missing_checks": null,
+ "neutral_clean_cases": null,
+ "per_handoff": {
+  "default-897885d9-f068-42cb-86e4-083caaef155c-instance-1": {
+   "score": 0.868036176594094,
+   "rawScore": 0.868036176594094,
+   "locatorCount": 136,
+   "missingChecks": null
+  }
+ },
+ "overall_deduction": 0.0,
+ "final": 0.868036176594094,
+ "score_r83": 0.868036176594094,
+ "final_r83": 0.868036176594094,
+ "decisions": 21,
+ "decision_sources": {
+  "pool cs-c-1:cs-c-1-004": 1,
+  "pool cs-c-1:cs-c-1-101": 1,
+  "pool cs-c-1:cs-c-1-054": 1,
+  "pool cs-c-1:cs-c-1-060": 1,
+  "pool cs-c-1:cs-c-1-008": 1,
+  "pool cs-c-1:cs-c-1-021": 1,
+  "pool cs-c-1:cs-c-1-119": 1,
+  "pool cs-c-1:cs-c-1-089": 1,
+  "pool cs-c-1:cs-c-1-043": 1,
+  "pool cs-c-1:cs-c-1-072": 1,
+  "pool cs-c-1:cs-c-1-091": 1,
+  "pool cs-c-1:cs-c-1-111": 1,
+  "pool cs-c-1:cs-c-1-104": 1,
+  "pool cs-c-1:cs-c-1-081": 1,
+  "pool cs-c-1:cs-c-1-039": 1,
+  "pool cs-c-1:cs-c-1-048": 1,
+  "pool cs-c-1:cs-c-1-014": 1,
+  "pool cs-c-1:cs-c-1-034": 1,
+  "pool cs-c-1:cs-c-1-026": 1,
+  "pool cs-c-1:cs-c-1-067": 1,
+  "pool cs-c-1:cs-c-1-076": 1
+ },
+ "stale_decisions": [],
+ "upstream_status": "diagnostic",
+ "final_status_basis": "every handoff ended in ARW form, wrote no report, or has no final message",
+ "template_findings": [],
+ "scoring_version": "r8.4",
+ "rule": "final = s - d x |s|, s = scoreBeforePenalty, d = max(0.1 if paused, f, 0.1 if ARW cut) (r8.4)"
+}

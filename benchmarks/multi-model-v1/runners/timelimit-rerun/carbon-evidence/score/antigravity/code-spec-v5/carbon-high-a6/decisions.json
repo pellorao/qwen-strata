@@ -1,0 +1,772 @@
+{
+ "decisions": {
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-8": {
+   "decision": "problem-17",
+   "reason": "finding 与第 17 个问题用例同为 maxQueryWindow 是毫秒而 windowSpan 是分钟，10080 分钟上限不生效。",
+   "source": "pool cs-c-2:cs-c-2-017",
+   "kind": "finding",
+   "fingerprint": "db02d7af6255e15e99d060f36bd216a2abda1e28d5e6a20ccd489f815a036097",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-15": {
+   "decision": "problem-18",
+   "reason": "finding 与第 18 个问题用例同为 releaseTime 以向上取整的分钟加上按向下取整分钟算出的 wait，releaseAt 晚一分钟。",
+   "source": "pool cs-c-2:cs-c-2-018",
+   "kind": "finding",
+   "fingerprint": "dc5052c853c99e779552479f99af41455b59ef382fdfd22eaafb2924a7611159",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-6": {
+   "decision": "problem-12",
+   "reason": "finding 与第 12 个问题用例同为单一 withdraw 规则带 60 分钟截止，错误地限制了 waiting 条目的撤回。",
+   "source": "pool cs-c-2:cs-c-2-022",
+   "kind": "finding",
+   "fingerprint": "f96d3e96ac39aa66004e29fa26d5368c3215d96fea7f1dda5a2f7fc8d3be475d",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-5": {
+   "decision": "problem-20",
+   "reason": "finding 与第 20 个问题用例同为 acceptOffer 在转为 accepted 后才用 isLapsing 检查，过期报价仍可被接受。",
+   "source": "pool cs-c-2:cs-c-2-027",
+   "kind": "finding",
+   "fingerprint": "ea14b96abdc7ae588de9fdc57c71ac71d71c34d9e554217729005563025c1f65",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-4": {
+   "decision": "problem-4",
+   "reason": "finding 与第 4 个问题用例同为 findKeyedEvent 以 store.list(event) 按 buildingId 过滤，查不到其他楼宇已记录的 eventKey。",
+   "source": "pool cs-c-2:cs-c-2-029",
+   "kind": "finding",
+   "fingerprint": "331ff2238c8c70a34cd042cd6267fc60d9cf58a5c1d228ff4c44a6d4ff016225",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-2": {
+   "decision": "problem-3",
+   "reason": "finding 与第 3 个问题用例同为 rescheduleReservation 未对快照后的新窗口执行 240 分钟时长上限。",
+   "source": "pool cs-c-2:cs-c-2-032",
+   "kind": "finding",
+   "fingerprint": "e07d510d7fee27208e18f7602761335d75625a60a984fad8359d8739b0660d05",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-17": {
+   "decision": "problem-16",
+   "reason": "finding 与第 16 个问题用例同为 paymentStatus 把发票对象而非 id 传给 netPaid，=== 永不相等，paid 恒为 0。",
+   "source": "pool cs-c-2:cs-c-2-037",
+   "kind": "finding",
+   "fingerprint": "e98eaf68fa91a5bd541ee3a4f9c4ec60514c448e25b0da1c07b803e972ca06ed",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-10": {
+   "decision": "problem-19",
+   "reason": "finding 与第 19 个问题用例同为 formatList 经 formatText 给以 =、+、-、@ 开头的列表项加 ' 前缀，而列表项应按原样写出。",
+   "source": "pool cs-c-2:cs-c-2-038",
+   "kind": "finding",
+   "fingerprint": "151abadbcf1556cf78e238352c0d2a383540750658ca91078cf7adfa9d07d0d4",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-14": {
+   "decision": "problem-8",
+   "reason": "finding 与第 8 个问题用例同为 sendMessage 未 await store.save 就调用 send，违反先保存后发送。",
+   "source": "pool cs-c-2:cs-c-2-043",
+   "kind": "finding",
+   "fingerprint": "017630b784aa3cf0143060736b36c412aef33f692e93abe0f8af94b0b6256d9c",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-18": {
+   "decision": "problem-11",
+   "reason": "finding 与第 11 个问题用例同为 hasEnded 用截断到整分钟的 minutesBetween，剩余不足一分钟的关闭被当作已结束。",
+   "source": "pool cs-c-2:cs-c-2-048",
+   "kind": "finding",
+   "fingerprint": "51f593b70c3be720a8d45e44e0188a7112d8d066436234a1bef8028b8b6707c5",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-16": {
+   "decision": "problem-10",
+   "reason": "finding 与第 10 个问题用例同为 intentRequest 丢掉 issuedAt，lateFee 得到 NaN 截止时间，逾期发票费用为 0。",
+   "source": "pool cs-c-2:cs-c-2-053",
+   "kind": "finding",
+   "fingerprint": "40c551148b6d48d009bd7e94069de8e26c81f1a0f5415212e4042012141070eb",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-13": {
+   "decision": "problem-5",
+   "reason": "finding 与第 5 个问题用例同为 overlaps(instant(startAt), period) 的严格比较漏计恰在月初开始的已确认预订。",
+   "source": "pool cs-c-2:cs-c-2-070",
+   "kind": "finding",
+   "fingerprint": "3e899920ba09e75047403df5d9c5e0e2c6b596112cfe060e94b1a823f8f52a2d",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-7": {
+   "decision": "problem-6",
+   "reason": "finding 与第 6 个问题用例同为 summarizeActors 统计 selectEntries 截断到 limit 后的结果而非忽略 limit。",
+   "source": "pool cs-c-2:cs-c-2-072",
+   "kind": "finding",
+   "fingerprint": "2374c59de95689c7f7c5f9ae9aff19b967e1f1b2c81b4d7b729aa05329378879",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-3": {
+   "decision": "problem-1",
+   "reason": "finding 与第 1 个问题用例同为 hasAmenities 用并集大小比较未去重的 room.amenities.length，重复设施使判定出错。",
+   "source": "pool cs-c-2:cs-c-2-079",
+   "kind": "finding",
+   "fingerprint": "b9c0e3bff01d3e52ab9b3e100edef8db77dbb2619671634f921629bd3438ec81",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-1": {
+   "decision": "problem-2",
+   "reason": "finding 与第 2 个问题用例同为 applyTransition 浅拷贝后 push 到共享的 history 数组，修改了收到的预订对象。",
+   "source": "pool cs-c-2:cs-c-2-086",
+   "kind": "finding",
+   "fingerprint": "7ca49b36b385718c284ea6ab6752852afe737f754a9a28d52be2c6b8073b44c9",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-11": {
+   "decision": "problem-7",
+   "reason": "finding 与第 7 个问题用例同为 quoteField 的 /\"/ 无 g 标志只把第一个内部双引号加倍。",
+   "source": "pool cs-c-2:cs-c-2-087",
+   "kind": "finding",
+   "fingerprint": "f3b4fe2ec1cc191a154edd4ecb3ebba2e73edec8593be2ae2c112f3f98264a92",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-12": {
+   "decision": "problem-9",
+   "reason": "finding 与第 9 个问题用例同为 clearPlannedWork 先展开原 ticket，删掉的 plannedWork 未被覆盖而保留。",
+   "source": "pool cs-c-2:cs-c-2-090",
+   "kind": "finding",
+   "fingerprint": "d55b1d0b685c93bed6da6c812aa8f77c8349c336a8f59df955e5d2c399b8805e",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:unassociated:CODE-SPEC-FINDINGS:finding-9": {
+   "decision": "problem-14",
+   "reason": "finding 与第 14 个问题用例同为 credit reason 被 trim 而非按原样存储。",
+   "source": "pool cs-c-2:cs-c-2-099",
+   "kind": "finding",
+   "fingerprint": "4cb857046f8d1b99aed13ab015dfd78c6236a95034c2cfa43c3f998d6521c6a5",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6",
+    "problem-7",
+    "problem-8",
+    "problem-9",
+    "problem-10",
+    "problem-11",
+    "problem-12",
+    "problem-13",
+    "problem-14",
+    "problem-15",
+    "problem-16",
+    "problem-17",
+    "problem-18",
+    "problem-19",
+    "problem-20"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-1:CODE-SPEC-FINDINGS:finding-3": {
+   "decision": "matched",
+   "reason": "finding 指出 hasAmenities 以并集大小比较未去重的 room.amenities.length，重复（含大小写）设施导致合格房间被拒，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-006",
+   "kind": "association",
+   "fingerprint": "a4a2030209a64635da6f287c95da24f2da871d32ba8a40717014407d2ab34285",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-5:CODE-SPEC-FINDINGS:finding-13": {
+   "decision": "matched",
+   "reason": "finding 指出 overlaps(instant(startAt), period) 的严格比较使恰在月初开始的已确认预订不被计入，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-010",
+   "kind": "association",
+   "fingerprint": "c0b8afba4207dfcee3345c86f61b732d9706b1a73d49e180f72febf519e6d4e9",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-16:CODE-SPEC-FINDINGS:finding-17": {
+   "decision": "matched",
+   "reason": "finding 指出 paymentStatus 把 invoice 对象而非 id 传给 netPaid，=== 比较永不成立致 paid 恒为 0，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-013",
+   "kind": "association",
+   "fingerprint": "8a5873aa674627c146c8c48f6a27eae748a53f3dcd732a8213ce09c34bf273a6",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-6:CODE-SPEC-FINDINGS:finding-7": {
+   "decision": "matched",
+   "reason": "finding 指出 summarizeActors 经 selectEntries 截断到 limit 后计数，未按规格忽略 limit，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-025",
+   "kind": "association",
+   "fingerprint": "c526e23250d491aac4088b571e49361edd03314c26387d421c58cfbc9b463f8b",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-18:CODE-SPEC-FINDINGS:finding-15": {
+   "decision": "matched",
+   "reason": "finding 指出 releaseTime 以向上取整的分钟加上按向下取整分钟算出的 wait，now() 非整分时晚一分钟，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-027",
+   "kind": "association",
+   "fingerprint": "5bc0bf5c40e06140113947ab6d6beedd0bbee9b93c412cde091e4c9ea73f1958",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-17:CODE-SPEC-FINDINGS:finding-8": {
+   "decision": "matched",
+   "reason": "finding 指出 maxQueryWindow 为毫秒而 windowSpan 为分钟，10080 分钟上限永不触发，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-032",
+   "kind": "association",
+   "fingerprint": "82f9301fe5d0210f3206dac2c72ae5b5cea49a3331284c44620b76142086e5d4",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-14:CODE-SPEC-FINDINGS:finding-9": {
+   "decision": "matched",
+   "reason": "finding 指出 prepareCredit 对 credit.reason 做 trim 后存储而非原样存储，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-038",
+   "kind": "association",
+   "fingerprint": "644ba214ade8cf99d778ebb485c6a4992086c226b570edc0730be84df30d2abf",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-9:CODE-SPEC-FINDINGS:finding-12": {
+   "decision": "matched",
+   "reason": "finding 指出 clearPlannedWork 先展开原 ticket 再展开已删 plannedWork 的副本，plannedWork 未被清除，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-045",
+   "kind": "association",
+   "fingerprint": "7aec5d86225ba806b197d398b47ab812e7f275773fa4e27ab0db3fe509b9b22e",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-3:CODE-SPEC-FINDINGS:finding-2": {
+   "decision": "matched",
+   "reason": "finding 指出 rescheduleReservation 未对吸附后的新窗口执行 240 分钟时长上限，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-057",
+   "kind": "association",
+   "fingerprint": "145d5d10a6c3476d70348bf182a25d648822b7bea372b9b59d9360d1e6901e55",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-4:CODE-SPEC-FINDINGS:finding-4": {
+   "decision": "matched",
+   "reason": "finding 指出 findKeyedEvent 以带 buildingId 的事件调用 store.list 致只在本楼查找 eventKey，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-058",
+   "kind": "association",
+   "fingerprint": "895b319bdce10d8f07a2fccc3fa4110e2b95a02b2718830d702591392af15496",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-19:CODE-SPEC-FINDINGS:finding-10": {
+   "decision": "matched",
+   "reason": "finding 指出 formatList 对每个列表项调用 formatText 加 ' 前缀而非原样写出，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-064",
+   "kind": "association",
+   "fingerprint": "ab06f0b3dd0b4faf1a12b10ad25154882a088a950173c8c3759f8c25c440b36a",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-10:CODE-SPEC-FINDINGS:finding-16": {
+   "decision": "matched",
+   "reason": "finding 指出 intentRequest 丢弃 issuedAt 致 lateFee 得到 NaN 到期时间、逾期发票不收滞纳金，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-073",
+   "kind": "association",
+   "fingerprint": "9415c7dbdbd4be3dd1dda9c455864b5cde5bce48c73f33f5cbaf37605fc9601b",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-20:CODE-SPEC-FINDINGS:finding-5": {
+   "decision": "matched",
+   "reason": "finding 指出 acceptOffer 在状态已变为 accepted 的 next 上调用 isLapsing，过期 offer 可被接受，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-074",
+   "kind": "association",
+   "fingerprint": "5d2bcf55d420844be5c19cf3171653083b94df4088b8018984c90bc7469d58fb",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-8:CODE-SPEC-FINDINGS:finding-14": {
+   "decision": "matched",
+   "reason": "finding 指出 sendMessage 未 await store.save 即调用 send，send 在写入完成前收到消息，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-084",
+   "kind": "association",
+   "fingerprint": "e9b422a37c45b358f8b98384167416be82dcf280d870aea2b05eadc4fb98f2a9",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-11:CODE-SPEC-FINDINGS:finding-18": {
+   "decision": "matched",
+   "reason": "finding 指出 hasEnded 以截断取整的 minutesBetween 与 0 比较，剩余不足一分钟的关闭被视为已结束，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-092",
+   "kind": "association",
+   "fingerprint": "421f94a9a479e4bda9efb21b14674aec9a1b2e840b7b798022d78115e957f199",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-2:CODE-SPEC-FINDINGS:finding-1": {
+   "decision": "matched",
+   "reason": "finding 指出 applyTransition 浅拷贝后 push 到共享的 history 数组，修改了收到的预订对象，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-096",
+   "kind": "association",
+   "fingerprint": "86f8e727e782d08d67051a69a3ad82206dc7195277324528c3dd431e760440fb",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-12:CODE-SPEC-FINDINGS:finding-5": {
+   "decision": "not-matched",
+   "reason": "finding 讲的是 acceptOffer 过期检查失效（另一问题用例），不是 waiting 条目撤回受 60 分钟限制",
+   "source": "pool cs-c-1:cs-c-1-105",
+   "kind": "association",
+   "fingerprint": "9e8f62e378a84c3e2cda6f45e41ea31c88887b72232872e87e08235c7900696a",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-12:CODE-SPEC-FINDINGS:finding-6": {
+   "decision": "matched",
+   "reason": "finding 指出单一 withdraw 规则对 waiting 条目也施加 60 分钟截止，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-113",
+   "kind": "association",
+   "fingerprint": "8e0bf355b6c921df2f06b508500fda14b3c23cc46b9cb96a7aebb56525822c2e",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "code-spec-reviewer:default:scope-1:problem-7:CODE-SPEC-FINDINGS:finding-11": {
+   "decision": "matched",
+   "reason": "finding 指出 quoteField 的 /\"/ 无 g 标志只加倍第一个双引号，与期望同一缺陷",
+   "source": "pool cs-c-1:cs-c-1-118",
+   "kind": "association",
+   "fingerprint": "ccd21a42ad7b4a54048631326036ea8fcf4d0bb27b19e462524bbca247f6309b",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  }
+ },
+ "history": []
+}

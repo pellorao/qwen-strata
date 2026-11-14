@@ -1,0 +1,755 @@
+{
+ "adjudicator": "blind Opus high",
+ "decisions": [
+  {
+   "id": "ca-c-1-001",
+   "decision": "matched",
+   "reason": "指出 stopsForDriver 只比较 stop.driver、忽略 reassignment.driver，与期望句同一缺陷。"
+  },
+  {
+   "id": "ca-c-1-002",
+   "decision": "matched",
+   "reason": "指出 stopsForDriver 只比较 stop.driver、忽略 reassignment.driver，与期望句同一缺陷。"
+  },
+  {
+   "id": "ca-c-1-003",
+   "decision": "matched",
+   "reason": "指出 stopsForDriver 只比较 stop.driver、忽略 reassignment.driver，与期望句同一缺陷。"
+  },
+  {
+   "id": "ca-c-1-004",
+   "decision": "matched",
+   "reason": "指出 stopsForDriver 只比较 stop.driver、忽略 reassignment.driver，与期望句同一缺陷。"
+  },
+  {
+   "id": "ca-c-1-005",
+   "decision": "matched",
+   "reason": "指出 stopsForDriver 只比较 stop.driver、忽略 reassignment.driver，与期望句同一缺陷。"
+  },
+  {
+   "id": "ca-c-1-006",
+   "decision": "matched",
+   "reason": "指出 stopsForDriver 只比较 stop.driver、忽略 reassignment.driver，与期望句同一缺陷。"
+  },
+  {
+   "id": "ca-c-1-007",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出地理编码合同未规定未知地址时 lookup 的行为，符合 01:43 口径。"
+  },
+  {
+   "id": "ca-c-1-008",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出地理编码合同未规定未知地址时 lookup 的行为，符合 01:43 口径。"
+  },
+  {
+   "id": "ca-c-1-009",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出地理编码合同未规定未知地址时 lookup 的行为，符合 01:43 口径。"
+  },
+  {
+   "id": "ca-c-1-010",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出地理编码合同未规定未知地址时 lookup 的行为，符合 01:43 口径。"
+  },
+  {
+   "id": "ca-c-1-011",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出地理编码合同未规定未知地址时 lookup 的行为，符合 01:43 口径。"
+  },
+  {
+   "id": "ca-c-1-012",
+   "decision": "matched",
+   "reason": "指出 retryAfter 按真值判断、为 0 时回退到计算退避，符合 01:19 口径。"
+  },
+  {
+   "id": "ca-c-1-013",
+   "decision": "matched",
+   "reason": "指出 retryAfter 按真值判断、为 0 时回退到计算退避，符合 01:19 口径。"
+  },
+  {
+   "id": "ca-c-1-014",
+   "decision": "matched",
+   "reason": "指出 retryAfter 按真值判断、为 0 时回退到计算退避，符合 01:19 口径。"
+  },
+  {
+   "id": "ca-c-1-015",
+   "decision": "matched",
+   "reason": "指出 retryAfter 按真值判断、为 0 时回退到计算退避，符合 01:19 口径。"
+  },
+  {
+   "id": "ca-c-1-016",
+   "decision": "matched",
+   "reason": "指出 retryAfter 按真值判断、为 0 时回退到计算退避，符合 01:19 口径。"
+  },
+  {
+   "id": "ca-c-1-017",
+   "decision": "not-matched",
+   "reason": "finding 讲的是 authorizeRouteBatch 的 <= 0，与凭据数组未脱敏的期望句无关。"
+  },
+  {
+   "id": "ca-c-1-018",
+   "decision": "matched",
+   "reason": "指出 depotId 与路由键无分隔符拼接导致不同身份碰撞，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-019",
+   "decision": "matched",
+   "reason": "指出 depotId 与路由键无分隔符拼接导致不同身份碰撞，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-020",
+   "decision": "matched",
+   "reason": "指出 depotId 与路由键无分隔符拼接导致不同身份碰撞，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-021",
+   "decision": "matched",
+   "reason": "指出 depotId 与路由键无分隔符拼接导致不同身份碰撞，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-022",
+   "decision": "matched",
+   "reason": "指出 depotId 与路由键无分隔符拼接导致不同身份碰撞，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-023",
+   "decision": "not-matched",
+   "reason": "finding 称非有限 priority 同时落入两个分区，与代码不符（非有限值不会是 urgent），也未指出某类 priority 落不进任何分区。"
+  },
+  {
+   "id": "ca-c-1-024",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为 unlessForbidden 的参数先被求值，授权前就已调用，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-025",
+   "decision": "matched",
+   "reason": "指出 nextDispatchTime 用 getHours（主机本地小时）而非 UTC 小时，符合 spec:40 口径。"
+  },
+  {
+   "id": "ca-c-1-026",
+   "decision": "matched",
+   "reason": "指出 nextDispatchTime 用 getHours（主机本地小时）而非 UTC 小时，符合 spec:40 口径。"
+  },
+  {
+   "id": "ca-c-1-027",
+   "decision": "matched",
+   "reason": "指出 nextDispatchTime 用 getHours（主机本地小时）而非 UTC 小时，符合 spec:40 口径。"
+  },
+  {
+   "id": "ca-c-1-028",
+   "decision": "matched",
+   "reason": "指出 nextDispatchTime 用 getHours（主机本地小时）而非 UTC 小时，符合 spec:40 口径。"
+  },
+  {
+   "id": "ca-c-1-029",
+   "decision": "not-matched",
+   "reason": "finding 讲 routeDuration 少算停车时间，与禁发本地小时的期望句不同。"
+  },
+  {
+   "id": "ca-c-1-030",
+   "decision": "matched",
+   "reason": "指出 nextDispatchTime 用 getHours（主机本地小时）而非 UTC 小时，符合 spec:40 口径。"
+  },
+  {
+   "id": "ca-c-1-031",
+   "decision": "not-matched",
+   "reason": "finding 讲通知发往未规范化的 phone，与 transient:false 带 retryAfter 被重试的期望句不同。"
+  },
+  {
+   "id": "ca-c-1-032",
+   "decision": "matched",
+   "reason": "指出 canPlanRoute 在 actor.scopes 而非持有范围中查 routes:admin，经 active claim 持有的 admin 不生效。"
+  },
+  {
+   "id": "ca-c-1-033",
+   "decision": "matched",
+   "reason": "指出 canPlanRoute 在 actor.scopes 而非持有范围中查 routes:admin，经 active claim 持有的 admin 不生效。"
+  },
+  {
+   "id": "ca-c-1-034",
+   "decision": "matched",
+   "reason": "指出 canPlanRoute 在 actor.scopes 而非持有范围中查 routes:admin，经 active claim 持有的 admin 不生效。"
+  },
+  {
+   "id": "ca-c-1-035",
+   "decision": "matched",
+   "reason": "指出 canPlanRoute 在 actor.scopes 而非持有范围中查 routes:admin，经 active claim 持有的 admin 不生效。"
+  },
+  {
+   "id": "ca-c-1-036",
+   "decision": "matched",
+   "reason": "指出 canPlanRoute 在 actor.scopes 而非持有范围中查 routes:admin，经 active claim 持有的 admin 不生效。"
+  },
+  {
+   "id": "ca-c-1-037",
+   "decision": "matched",
+   "reason": "指出把 groupByDestination 的 Map 传给 orderManifestGroups，条目无 destination，排序失效，符合 01:38 口径。"
+  },
+  {
+   "id": "ca-c-1-038",
+   "decision": "matched",
+   "reason": "指出把 groupByDestination 的 Map 传给 orderManifestGroups，条目无 destination，排序失效，符合 01:38 口径。"
+  },
+  {
+   "id": "ca-c-1-039",
+   "decision": "matched",
+   "reason": "指出把 groupByDestination 的 Map 传给 orderManifestGroups，条目无 destination，排序失效，符合 01:38 口径。"
+  },
+  {
+   "id": "ca-c-1-040",
+   "decision": "matched",
+   "reason": "指出把 groupByDestination 的 Map 传给 orderManifestGroups，条目无 destination，排序失效，符合 01:38 口径。"
+  },
+  {
+   "id": "ca-c-1-041",
+   "decision": "matched",
+   "reason": "指出把 groupByDestination 的 Map 传给 orderManifestGroups，条目无 destination，排序失效，符合 01:38 口径。"
+  },
+  {
+   "id": "ca-c-1-042",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后已出窗口却未拒绝，符合 01:23 口径。"
+  },
+  {
+   "id": "ca-c-1-043",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后已出窗口却未拒绝，符合 01:23 口径。"
+  },
+  {
+   "id": "ca-c-1-044",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后已出窗口却未拒绝，符合 01:23 口径。"
+  },
+  {
+   "id": "ca-c-1-045",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后已出窗口却未拒绝，符合 01:23 口径。"
+  },
+  {
+   "id": "ca-c-1-046",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后已出窗口却未拒绝，符合 01:23 口径。"
+  },
+  {
+   "id": "ca-c-1-047",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 后已出窗口却未拒绝，符合 01:23 口径。"
+  },
+  {
+   "id": "ca-c-1-048",
+   "decision": "not-matched",
+   "reason": "finding 讲 publishManifest 的异步校验，与禁发移出窗口的期望句不同。"
+  },
+  {
+   "id": "ca-c-1-049",
+   "decision": "matched",
+   "reason": "指出 stripCredentials 只递归 constructor 为 Object 的值，数组里的凭据未删除，符合 02:23 口径。"
+  },
+  {
+   "id": "ca-c-1-050",
+   "decision": "matched",
+   "reason": "指出 stripCredentials 只递归 constructor 为 Object 的值，数组里的凭据未删除，符合 02:23 口径。"
+  },
+  {
+   "id": "ca-c-1-051",
+   "decision": "matched",
+   "reason": "指出 stripCredentials 只递归 constructor 为 Object 的值，数组里的凭据未删除，符合 02:23 口径。"
+  },
+  {
+   "id": "ca-c-1-052",
+   "decision": "matched",
+   "reason": "指出 stripCredentials 只递归 constructor 为 Object 的值，数组里的凭据未删除，符合 02:23 口径。"
+  },
+  {
+   "id": "ca-c-1-053",
+   "decision": "matched",
+   "reason": "指出 stripCredentials 只递归 constructor 为 Object 的值，数组里的凭据未删除，符合 02:23 口径。"
+  },
+  {
+   "id": "ca-c-1-054",
+   "decision": "matched",
+   "reason": "指出 routeDuration 每个停靠点少算 5 分钟停车时间，符合 spec:11 口径。"
+  },
+  {
+   "id": "ca-c-1-055",
+   "decision": "matched",
+   "reason": "指出暂停时只清空自身范围、active claim 的范围仍保留，符合 01:51 口径。"
+  },
+  {
+   "id": "ca-c-1-056",
+   "decision": "matched",
+   "reason": "指出暂停时只清空自身范围、active claim 的范围仍保留，符合 01:51 口径。"
+  },
+  {
+   "id": "ca-c-1-057",
+   "decision": "matched",
+   "reason": "指出暂停时只清空自身范围、active claim 的范围仍保留，符合 01:51 口径。"
+  },
+  {
+   "id": "ca-c-1-058",
+   "decision": "not-matched",
+   "reason": "泛泛称未获授权文件无法核实，未指出暂停时仍保留 claim 范围。"
+  },
+  {
+   "id": "ca-c-1-059",
+   "decision": "matched",
+   "reason": "指出暂停时只清空自身范围、active claim 的范围仍保留，符合 01:51 口径。"
+  },
+  {
+   "id": "ca-c-1-060",
+   "decision": "not-matched",
+   "reason": "只说未检查暂停（且与代码不符），口径明确此种说法不匹配。"
+  },
+  {
+   "id": "ca-c-1-061",
+   "decision": "matched",
+   "reason": "指出暂停时只清空自身范围、active claim 的范围仍保留，符合 01:51 口径。"
+  },
+  {
+   "id": "ca-c-1-062",
+   "decision": "matched",
+   "reason": "指出 seen 记录原始 ID 而过滤用规范化 ID，带空白的重复 ID 在后续组中保留，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-063",
+   "decision": "matched",
+   "reason": "指出 seen 记录原始 ID 而过滤用规范化 ID，带空白的重复 ID 在后续组中保留，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-064",
+   "decision": "matched",
+   "reason": "指出 seen 记录原始 ID 而过滤用规范化 ID，带空白的重复 ID 在后续组中保留，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-065",
+   "decision": "matched",
+   "reason": "指出 seen 记录原始 ID 而过滤用规范化 ID，带空白的重复 ID 在后续组中保留，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-066",
+   "decision": "matched",
+   "reason": "指出 seen 记录原始 ID 而过滤用规范化 ID，带空白的重复 ID 在后续组中保留，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-067",
+   "decision": "matched",
+   "reason": "指出 seen 记录原始 ID 而过滤用规范化 ID，带空白的重复 ID 在后续组中保留，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-068",
+   "decision": "matched",
+   "reason": "指出 asPublicationError 对带有限 retryAfter 的 transient:false 失败标为 transient 并被重试，符合 02:46 口径。"
+  },
+  {
+   "id": "ca-c-1-069",
+   "decision": "matched",
+   "reason": "指出 asPublicationError 对带有限 retryAfter 的 transient:false 失败标为 transient 并被重试，符合 02:46 口径。"
+  },
+  {
+   "id": "ca-c-1-070",
+   "decision": "matched",
+   "reason": "指出 asPublicationError 对带有限 retryAfter 的 transient:false 失败标为 transient 并被重试，符合 02:46 口径。"
+  },
+  {
+   "id": "ca-c-1-071",
+   "decision": "matched",
+   "reason": "指出 asPublicationError 对带有限 retryAfter 的 transient:false 失败标为 transient 并被重试，符合 02:46 口径。"
+  },
+  {
+   "id": "ca-c-1-072",
+   "decision": "matched",
+   "reason": "指出 asPublicationError 对带有限 retryAfter 的 transient:false 失败标为 transient 并被重试，符合 02:46 口径。"
+  },
+  {
+   "id": "ca-c-1-073",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的 record.driver，浅拷贝不足，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-074",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的 record.driver，浅拷贝不足，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-075",
+   "decision": "not-matched",
+   "reason": "finding 讲 stopsForDriver 忽略 reassignment，与 buildManifest 改写调用方记录的期望句不同。"
+  },
+  {
+   "id": "ca-c-1-076",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的 record.driver，浅拷贝不足，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-077",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的 record.driver，浅拷贝不足，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-078",
+   "decision": "matched",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方的 record.driver，浅拷贝不足，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-079",
+   "decision": "not-matched",
+   "reason": "finding 讲路由身份无分隔符碰撞，与容量等于上限被拒的期望句不同。"
+  },
+  {
+   "id": "ca-c-1-080",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、> 0 为假而被拒，符合 01:49 口径。"
+  },
+  {
+   "id": "ca-c-1-081",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、> 0 为假而被拒，符合 01:49 口径。"
+  },
+  {
+   "id": "ca-c-1-082",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、> 0 为假而被拒，符合 01:49 口径。"
+  },
+  {
+   "id": "ca-c-1-083",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、> 0 为假而被拒，符合 01:49 口径。"
+  },
+  {
+   "id": "ca-c-1-084",
+   "decision": "matched",
+   "reason": "指出等于上限时余量为 0、> 0 为假而被拒，符合 01:49 口径。"
+  },
+  {
+   "id": "ca-c-1-085",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 时使用计算退避而非服务端延迟，符合 spec:75 口径。"
+  },
+  {
+   "id": "ca-c-1-086",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出称重合同未规定 scale.read 的单位，符合 spec:53 口径。"
+  },
+  {
+   "id": "ca-c-1-087",
+   "decision": "matched",
+   "reason": "指出传给 store.remove 的是 store.get 返回的副本而非已存对象，符合 02:22 口径。"
+  },
+  {
+   "id": "ca-c-1-088",
+   "decision": "matched",
+   "reason": "指出传给 store.remove 的是 store.get 返回的副本而非已存对象，符合 02:22 口径。"
+  },
+  {
+   "id": "ca-c-1-089",
+   "decision": "matched",
+   "reason": "指出传给 store.remove 的是 store.get 返回的副本而非已存对象，符合 02:22 口径。"
+  },
+  {
+   "id": "ca-c-1-090",
+   "decision": "matched",
+   "reason": "指出传给 store.remove 的是 store.get 返回的副本而非已存对象，符合 02:22 口径。"
+  },
+  {
+   "id": "ca-c-1-091",
+   "decision": "matched",
+   "reason": "指出传给 store.remove 的是 store.get 返回的副本而非已存对象，符合 02:22 口径。"
+  },
+  {
+   "id": "ca-c-1-092",
+   "decision": "matched",
+   "reason": "指出 Number() 接受 ''、'0x2'、带空格等非十进制数字文本，符合 01:30 口径。"
+  },
+  {
+   "id": "ca-c-1-093",
+   "decision": "matched",
+   "reason": "指出 Number() 接受 ''、'0x2'、带空格等非十进制数字文本，符合 01:30 口径。"
+  },
+  {
+   "id": "ca-c-1-094",
+   "decision": "not-matched",
+   "reason": "只谈上界 3（且本版接受 3 是正确的），口径明确不匹配。"
+  },
+  {
+   "id": "ca-c-1-095",
+   "decision": "matched",
+   "reason": "指出 Number() 接受 ''、'0x2'、带空格等非十进制数字文本，符合 01:30 口径。"
+  },
+  {
+   "id": "ca-c-1-096",
+   "decision": "matched",
+   "reason": "指出 Number() 接受 ''、'0x2'、带空格等非十进制数字文本，符合 01:30 口径。"
+  },
+  {
+   "id": "ca-c-1-097",
+   "decision": "matched",
+   "reason": "指出 Number() 接受 ''、'0x2'、带空格等非十进制数字文本，符合 01:30 口径。"
+  },
+  {
+   "id": "ca-c-1-098",
+   "decision": "matched",
+   "reason": "指出 Number() 接受 ''、'0x2'、带空格等非十进制数字文本，符合 01:30 口径。"
+  },
+  {
+   "id": "ca-c-1-099",
+   "decision": "not-matched",
+   "reason": "finding 讲路由身份无分隔符碰撞，与 parseRetryCount 的期望句不同。"
+  },
+  {
+   "id": "ca-c-1-100",
+   "decision": "matched",
+   "reason": "指出异步回调产生的 Promise 恒为真值、无效清单仍被存储，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-101",
+   "decision": "matched",
+   "reason": "指出异步回调产生的 Promise 恒为真值、无效清单仍被存储，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-102",
+   "decision": "matched",
+   "reason": "指出异步回调产生的 Promise 恒为真值、无效清单仍被存储，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-103",
+   "decision": "matched",
+   "reason": "指出异步回调产生的 Promise 恒为真值、无效清单仍被存储，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-104",
+   "decision": "matched",
+   "reason": "指出异步回调产生的 Promise 恒为真值、无效清单仍被存储，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-105",
+   "decision": "not-matched",
+   "reason": "只谈缺失 sequence 字段，口径明确不匹配（本版缺失值已排后）。"
+  },
+  {
+   "id": "ca-c-1-106",
+   "decision": "matched",
+   "reason": "指出非数值 sequence（NaN、文本等）未排在有数值 sequence 的同优先级停靠点之后，符合 spec:50 口径。"
+  },
+  {
+   "id": "ca-c-1-107",
+   "decision": "matched",
+   "reason": "指出非数值 sequence（NaN、文本等）未排在有数值 sequence 的同优先级停靠点之后，符合 spec:50 口径。"
+  },
+  {
+   "id": "ca-c-1-108",
+   "decision": "matched",
+   "reason": "指出非数值 sequence（NaN、文本等）未排在有数值 sequence 的同优先级停靠点之后，符合 spec:50 口径。"
+  },
+  {
+   "id": "ca-c-1-109",
+   "decision": "matched",
+   "reason": "指出非数值 sequence（NaN、文本等）未排在有数值 sequence 的同优先级停靠点之后，符合 spec:50 口径。"
+  },
+  {
+   "id": "ca-c-1-110",
+   "decision": "matched",
+   "reason": "指出非数值 sequence（NaN、文本等）未排在有数值 sequence 的同优先级停靠点之后，符合 spec:50 口径。"
+  },
+  {
+   "id": "ca-c-1-111",
+   "decision": "matched",
+   "reason": "指出 withSortedKeys 只代理顶层对象，嵌套字段顺序进入序列化与哈希，符合 spec:35 口径。"
+  },
+  {
+   "id": "ca-c-1-112",
+   "decision": "matched",
+   "reason": "指出首个路由失败时 findIndex 返回 0、0 <= 0 为真而误授权，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-113",
+   "decision": "matched",
+   "reason": "指出首个路由失败时 findIndex 返回 0、0 <= 0 为真而误授权，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-114",
+   "decision": "matched",
+   "reason": "指出首个路由失败时 findIndex 返回 0、0 <= 0 为真而误授权，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-115",
+   "decision": "matched",
+   "reason": "指出首个路由失败时 findIndex 返回 0、0 <= 0 为真而误授权，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-116",
+   "decision": "matched",
+   "reason": "指出首个路由失败时 findIndex 返回 0、0 <= 0 为真而误授权，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-117",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为参数先于授权检查被调用，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-118",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为参数先于授权检查被调用，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-119",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为参数先于授权检查被调用，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-120",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为参数先于授权检查被调用，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-121",
+   "decision": "matched",
+   "reason": "指出 dispatch 作为参数先于授权检查被调用，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-122",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被 pendingStops 返回，符合 01:32 口径。"
+  },
+  {
+   "id": "ca-c-1-123",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被 pendingStops 返回，符合 01:32 口径。"
+  },
+  {
+   "id": "ca-c-1-124",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被 pendingStops 返回，符合 01:32 口径。"
+  },
+  {
+   "id": "ca-c-1-125",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被 pendingStops 返回，符合 01:32 口径。"
+  },
+  {
+   "id": "ca-c-1-126",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被 pendingStops 返回，符合 01:32 口径。"
+  },
+  {
+   "id": "ca-c-1-127",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被 pendingStops 返回，符合 01:32 口径。"
+  },
+  {
+   "id": "ca-c-1-128",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs，执行面不在公开入口，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-129",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs，执行面不在公开入口，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-130",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs，执行面不在公开入口，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-131",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs，执行面不在公开入口，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-132",
+   "decision": "matched",
+   "reason": "指出 index.mjs 未导出 executor.mjs，执行面不在公开入口，与期望句一致。"
+  },
+  {
+   "id": "ca-c-1-133",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出无合同规定 store.write 何时调用 onCommit，无法确定 plan.created 在存储成功后发出。"
+  },
+  {
+   "id": "ca-c-1-134",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出无合同规定 store.write 何时调用 onCommit，无法确定 plan.created 在存储成功后发出。"
+  },
+  {
+   "id": "ca-c-1-135",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出无合同规定 store.write 何时调用 onCommit，无法确定 plan.created 在存储成功后发出。"
+  },
+  {
+   "id": "ca-c-1-136",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出无合同规定 store.write 何时调用 onCommit，无法确定 plan.created 在存储成功后发出。"
+  },
+  {
+   "id": "ca-c-1-137",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出无合同规定 store.write 何时调用 onCommit，无法确定 plan.created 在存储成功后发出。"
+  },
+  {
+   "id": "ca-c-1-138",
+   "decision": "matched",
+   "reason": "虽引用 01:28（不同用例），但正文自身完整指出无合同规定 onCommit 何时调用，按本行期望句匹配。"
+  },
+  {
+   "id": "ca-c-1-139",
+   "decision": "matched",
+   "reason": "虽引用 01:28（不同用例），但正文自身完整指出无合同规定 onCommit 何时调用，按本行期望句匹配。"
+  },
+  {
+   "id": "ca-c-1-140",
+   "decision": "matched",
+   "reason": "虽引用 01:28（不同用例），但正文自身完整指出无合同规定 onCommit 何时调用，按本行期望句匹配。"
+  },
+  {
+   "id": "ca-c-1-141",
+   "decision": "matched",
+   "reason": "虽引用 01:28（不同用例），但正文自身完整指出无合同规定 onCommit 何时调用，按本行期望句匹配。"
+  },
+  {
+   "id": "ca-c-1-142",
+   "decision": "matched",
+   "reason": "虽引用 01:28（不同用例），但正文自身完整指出无合同规定 onCommit 何时调用，按本行期望句匹配。"
+  },
+  {
+   "id": "ca-c-1-143",
+   "decision": "false-positive:clean-11",
+   "reason": "代码 executor.mjs:12 用 state !== 'cancelled' 过滤，确实排除取消的停靠点，finding 与代码不符。"
+  },
+  {
+   "id": "ca-c-1-144",
+   "decision": "false-positive:clean-9",
+   "reason": "normalizePackageIds 先 trim 再用 Set 去重，' A' 与 'A' 不会同时保留，finding 不成立。"
+  },
+  {
+   "id": "ca-c-1-145",
+   "decision": "false-positive:clean-16",
+   "reason": "retryTransient 实际为 error.transient === true，finding 所称 Boolean(...) 不存在。"
+  },
+  {
+   "id": "ca-c-1-146",
+   "decision": "problem-2",
+   "reason": "指出 retryAfter 为 0 时按真值判断回退到计算退避，与第 2 个问题用例相同。"
+  },
+  {
+   "id": "ca-c-1-147",
+   "decision": "problem-1",
+   "reason": "指出 index.mjs 未再导出 executor.mjs，与第 1 个问题用例相同。"
+  },
+  {
+   "id": "ca-c-1-148",
+   "decision": "unsupported",
+   "reason": "writePlanAtomically 实际调用 store.writeTemporary/renameTemporary，没有 fs.writeFileSync，finding 无依据。"
+  },
+  {
+   "id": "ca-c-1-149",
+   "decision": "unsupported",
+   "reason": "retry.mjs 中没有 eval，finding 无依据。"
+  },
+  {
+   "id": "ca-c-1-150",
+   "decision": "problem-20",
+   "reason": "指出 retryAfter 为 0 回退到退避、Infinity 替代退避，与第 20 个问题用例相同。"
+  }
+ ]
+}

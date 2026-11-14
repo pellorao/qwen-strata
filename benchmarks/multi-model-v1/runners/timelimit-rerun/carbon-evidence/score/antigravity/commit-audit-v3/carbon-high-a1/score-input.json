@@ -1,0 +1,15 @@
+{
+ "artifacts": [
+  {
+   "reviewerId": "commit-audit-reviewer",
+   "instances": [
+    {
+     "instanceId": "default-56a66614-90d9-43d7-a6ff-ef3380dc75d8-instance-1",
+     "artifactPaths": [
+      "/dev/shm/carbonscore/antigravity/commit-audit-v3/carbon-high-a1/prep/arw/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_reviewer-cap/runs/56a66614-90d9-43d7-a6ff-ef3380dc75d8/ca/1/.tmp/codex/59773751-09d2-4c7d-8189-46ed8c9e2164/_commit-audit-capability/reports/review.jsonl"
+     ]
+    }
+   ]
+  }
+ ]
+}

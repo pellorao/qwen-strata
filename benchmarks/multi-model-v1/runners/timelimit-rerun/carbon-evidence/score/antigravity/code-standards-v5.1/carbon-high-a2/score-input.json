@@ -1,0 +1,15 @@
+{
+ "artifacts": [
+  {
+   "reviewerId": "code-standards-reviewer",
+   "instances": [
+    {
+     "instanceId": "default-7c5a9bb3-b690-4110-8b13-c5c1b092cb92-instance-1",
+     "artifactPaths": [
+      "/dev/shm/carbonscore/antigravity/code-standards-v5.1/carbon-high-a2/prep/arw/.tmp/codex/b7635f94-ad60-429b-98e7-3ee5c19ba2bb/_reviewer-cap/runs/7c5a9bb3-b690-4110-8b13-c5c1b092cb92/cst/1/.tmp/reports/review-result.md"
+     ]
+    }
+   ]
+  }
+ ]
+}

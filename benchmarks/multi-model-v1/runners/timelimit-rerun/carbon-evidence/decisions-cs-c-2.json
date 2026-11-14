@@ -1,0 +1,510 @@
+{
+ "adjudicator": "blind Opus high",
+ "decisions": [
+  {
+   "id": "cs-c-2-001",
+   "decision": "matched",
+   "reason": "finding 与期望句同为 ENTRY_DEFAULTS 的 active: true 使缺 active 的房间被选入报告。"
+  },
+  {
+   "id": "cs-c-2-002",
+   "decision": "matched",
+   "reason": "finding 与期望句同为 paymentStatus 把发票对象传给 netPaid，与字符串 invoiceId 永不相等，paid 为 0。"
+  },
+  {
+   "id": "cs-c-2-003",
+   "decision": "matched",
+   "reason": "finding 与期望句同为 paymentStatus 传整个 current 对象给 netPaid，导致 paid 恒为 0。"
+  },
+  {
+   "id": "cs-c-2-004",
+   "decision": "not-matched",
+   "reason": "finding 说的是授权保留时长被重复换算，与期望句的 netPaid 传参缺陷不同。"
+  },
+  {
+   "id": "cs-c-2-005",
+   "decision": "matched",
+   "reason": "finding 与期望句同为 summarizeActors 统计被 limit 截断后的 selectEntries 结果。"
+  },
+  {
+   "id": "cs-c-2-006",
+   "decision": "not-matched",
+   "reason": "finding 说的是 quoteField 双引号无 g 标志，与期望句的 formatList 给列表项加前缀不是同一缺陷。"
+  },
+  {
+   "id": "cs-c-2-007",
+   "decision": "matched",
+   "reason": "finding 与期望句同为 quoteField 的 /\"/ 无 g 标志只加倍第一个双引号。"
+  },
+  {
+   "id": "cs-c-2-008",
+   "decision": "not-matched",
+   "reason": "finding 说的是负时间戳取模导致快照方向错误，不是改期未执行 240 分钟时长上限。"
+  },
+  {
+   "id": "cs-c-2-009",
+   "decision": "not-matched",
+   "reason": "finding 是已登记诱饵（endAt <= startAt 对 NaN 放行），与改期时长上限无关且按无依据处理。"
+  },
+  {
+   "id": "cs-c-2-010",
+   "decision": "not-matched",
+   "reason": "finding 说的是改期未检查时长上限，与期望句的 history 数组被原地修改不是同一缺陷。"
+  },
+  {
+   "id": "cs-c-2-011",
+   "decision": "not-matched",
+   "reason": "finding 说的是改期未检查时长上限，与期望句的 applyTransition 修改收到对象不是同一缺陷。"
+  },
+  {
+   "id": "cs-c-2-012",
+   "decision": "not-matched",
+   "reason": "finding 说的是改期未检查时长上限，与期望句的浅拷贝后 push history 不是同一缺陷。"
+  },
+  {
+   "id": "cs-c-2-013",
+   "decision": "matched",
+   "reason": "finding 与期望句同为 hasAmenities 用并集大小与未去重的 amenities 长度比较，重复设施使房间判定出错。"
+  },
+  {
+   "id": "cs-c-2-014",
+   "decision": "matched",
+   "reason": "finding 与期望句同为 sendMessage 未 await 写队列中的 store.save 就调用 send。"
+  },
+  {
+   "id": "cs-c-2-015",
+   "decision": "not-matched",
+   "reason": "finding 说的是 releaseTime 晚一分钟，与期望句的未 await 保存即发送不是同一缺陷。"
+  },
+  {
+   "id": "cs-c-2-016",
+   "decision": "not-matched",
+   "reason": "finding 说的是 acceptOffer 过期检查失效，与期望句的 waiting 条目被 60 分钟截止限制不同。"
+  },
+  {
+   "id": "cs-c-2-017",
+   "decision": "problem-17",
+   "reason": "finding 与第 17 个问题用例同为 maxQueryWindow 是毫秒而 windowSpan 是分钟，10080 分钟上限不生效。"
+  },
+  {
+   "id": "cs-c-2-018",
+   "decision": "problem-18",
+   "reason": "finding 与第 18 个问题用例同为 releaseTime 以向上取整的分钟加上按向下取整分钟算出的 wait，releaseAt 晚一分钟。"
+  },
+  {
+   "id": "cs-c-2-019",
+   "decision": "problem-15",
+   "reason": "finding 与第 15 个问题用例同为 authorizationHold 已是毫秒又经 addMinutes 再乘一分钟，授权到期时间过远。"
+  },
+  {
+   "id": "cs-c-2-020",
+   "decision": "problem-5",
+   "reason": "finding 与第 5 个问题用例同为 overlaps(instant(startAt), period) 的严格比较漏计恰在月初开始的已确认预订。"
+  },
+  {
+   "id": "cs-c-2-021",
+   "decision": "problem-11",
+   "reason": "finding 与第 11 个问题用例同为 hasEnded 用截断到整分钟的 minutesBetween，剩余不足一分钟的关闭被当作已结束。"
+  },
+  {
+   "id": "cs-c-2-022",
+   "decision": "problem-12",
+   "reason": "finding 与第 12 个问题用例同为单一 withdraw 规则带 60 分钟截止，错误地限制了 waiting 条目的撤回。"
+  },
+  {
+   "id": "cs-c-2-023",
+   "decision": "problem-12",
+   "reason": "finding 与第 12 个问题用例同为单一 withdraw 规则带 60 分钟截止，错误地限制了 waiting 条目的撤回。"
+  },
+  {
+   "id": "cs-c-2-024",
+   "decision": "problem-3",
+   "reason": "finding 与第 3 个问题用例同为 rescheduleReservation 未对快照后的新窗口执行 240 分钟时长上限。"
+  },
+  {
+   "id": "cs-c-2-025",
+   "decision": "problem-16",
+   "reason": "finding 与第 16 个问题用例同为 paymentStatus 把发票对象而非 id 传给 netPaid，=== 永不相等，paid 恒为 0。"
+  },
+  {
+   "id": "cs-c-2-026",
+   "decision": "problem-17",
+   "reason": "finding 与第 17 个问题用例同为 maxQueryWindow 是毫秒而 windowSpan 是分钟，10080 分钟上限不生效。"
+  },
+  {
+   "id": "cs-c-2-027",
+   "decision": "problem-20",
+   "reason": "finding 与第 20 个问题用例同为 acceptOffer 在转为 accepted 后才用 isLapsing 检查，过期报价仍可被接受。"
+  },
+  {
+   "id": "cs-c-2-028",
+   "decision": "problem-3",
+   "reason": "finding 与第 3 个问题用例同为 rescheduleReservation 未对快照后的新窗口执行 240 分钟时长上限。"
+  },
+  {
+   "id": "cs-c-2-029",
+   "decision": "problem-4",
+   "reason": "finding 与第 4 个问题用例同为 findKeyedEvent 以 store.list(event) 按 buildingId 过滤，查不到其他楼宇已记录的 eventKey。"
+  },
+  {
+   "id": "cs-c-2-030",
+   "decision": "problem-18",
+   "reason": "finding 与第 18 个问题用例同为 releaseTime 以向上取整的分钟加上按向下取整分钟算出的 wait，releaseAt 晚一分钟。"
+  },
+  {
+   "id": "cs-c-2-031",
+   "decision": "problem-9",
+   "reason": "finding 与第 9 个问题用例同为 clearPlannedWork 先展开原 ticket，删掉的 plannedWork 未被覆盖而保留。"
+  },
+  {
+   "id": "cs-c-2-032",
+   "decision": "problem-3",
+   "reason": "finding 与第 3 个问题用例同为 rescheduleReservation 未对快照后的新窗口执行 240 分钟时长上限。"
+  },
+  {
+   "id": "cs-c-2-033",
+   "decision": "false-positive:clean-1",
+   "reason": "catalog.mjs:14 的 canHost 实为 partySize <= room.capacity，finding 把第 1 个干净用例的成立行为当成缺陷。"
+  },
+  {
+   "id": "cs-c-2-034",
+   "decision": "problem-8",
+   "reason": "finding 与第 8 个问题用例同为 sendMessage 未 await store.save 就调用 send，违反先保存后发送。"
+  },
+  {
+   "id": "cs-c-2-035",
+   "decision": "problem-17",
+   "reason": "finding 与第 17 个问题用例同为 maxQueryWindow 是毫秒而 windowSpan 是分钟，10080 分钟上限不生效。"
+  },
+  {
+   "id": "cs-c-2-036",
+   "decision": "problem-3",
+   "reason": "finding 与第 3 个问题用例同为 rescheduleReservation 未对快照后的新窗口执行 240 分钟时长上限。"
+  },
+  {
+   "id": "cs-c-2-037",
+   "decision": "problem-16",
+   "reason": "finding 与第 16 个问题用例同为 paymentStatus 把发票对象而非 id 传给 netPaid，=== 永不相等，paid 恒为 0。"
+  },
+  {
+   "id": "cs-c-2-038",
+   "decision": "problem-19",
+   "reason": "finding 与第 19 个问题用例同为 formatList 经 formatText 给以 =、+、-、@ 开头的列表项加 ' 前缀，而列表项应按原样写出。"
+  },
+  {
+   "id": "cs-c-2-039",
+   "decision": "problem-10",
+   "reason": "finding 与第 10 个问题用例同为 intentRequest 丢掉 issuedAt，lateFee 得到 NaN 截止时间，逾期发票费用为 0。"
+  },
+  {
+   "id": "cs-c-2-040",
+   "decision": "problem-14",
+   "reason": "finding 与第 14 个问题用例同为 credit reason 被 trim 而非按原样存储。"
+  },
+  {
+   "id": "cs-c-2-041",
+   "decision": "problem-19",
+   "reason": "finding 与第 19 个问题用例同为 formatList 经 formatText 给以 =、+、-、@ 开头的列表项加 ' 前缀，而列表项应按原样写出。"
+  },
+  {
+   "id": "cs-c-2-042",
+   "decision": "problem-9",
+   "reason": "finding 与第 9 个问题用例同为 clearPlannedWork 先展开原 ticket，删掉的 plannedWork 未被覆盖而保留。"
+  },
+  {
+   "id": "cs-c-2-043",
+   "decision": "problem-8",
+   "reason": "finding 与第 8 个问题用例同为 sendMessage 未 await store.save 就调用 send，违反先保存后发送。"
+  },
+  {
+   "id": "cs-c-2-044",
+   "decision": "problem-6",
+   "reason": "finding 与第 6 个问题用例同为 summarizeActors 统计 selectEntries 截断到 limit 后的结果而非忽略 limit。"
+  },
+  {
+   "id": "cs-c-2-045",
+   "decision": "problem-18",
+   "reason": "finding 与第 18 个问题用例同为 releaseTime 以向上取整的分钟加上按向下取整分钟算出的 wait，releaseAt 晚一分钟。"
+  },
+  {
+   "id": "cs-c-2-046",
+   "decision": "false-positive:clean-16",
+   "reason": "guest-fields.mjs:3 实为 replace(/\\s+/g, ' ')，带 g 标志，finding 把第 16 个干净用例的成立行为当成缺陷。"
+  },
+  {
+   "id": "cs-c-2-047",
+   "decision": "problem-5",
+   "reason": "finding 与第 5 个问题用例同为 overlaps(instant(startAt), period) 的严格比较漏计恰在月初开始的已确认预订。"
+  },
+  {
+   "id": "cs-c-2-048",
+   "decision": "problem-11",
+   "reason": "finding 与第 11 个问题用例同为 hasEnded 用截断到整分钟的 minutesBetween，剩余不足一分钟的关闭被当作已结束。"
+  },
+  {
+   "id": "cs-c-2-049",
+   "decision": "problem-16",
+   "reason": "finding 与第 16 个问题用例同为 paymentStatus 把发票对象而非 id 传给 netPaid，=== 永不相等，paid 恒为 0。"
+  },
+  {
+   "id": "cs-c-2-050",
+   "decision": "problem-4",
+   "reason": "finding 与第 4 个问题用例同为 findKeyedEvent 以 store.list(event) 按 buildingId 过滤，查不到其他楼宇已记录的 eventKey。"
+  },
+  {
+   "id": "cs-c-2-051",
+   "decision": "unsupported",
+   "reason": "已登记诱饵：request-validation.mjs:14 的 endAt <= startAt 对非数字放行，规格规定时间戳为毫秒数字，无依据。"
+  },
+  {
+   "id": "cs-c-2-052",
+   "decision": "problem-19",
+   "reason": "finding 与第 19 个问题用例同为 formatList 经 formatText 给以 =、+、-、@ 开头的列表项加 ' 前缀，而列表项应按原样写出。"
+  },
+  {
+   "id": "cs-c-2-053",
+   "decision": "problem-10",
+   "reason": "finding 与第 10 个问题用例同为 intentRequest 丢掉 issuedAt，lateFee 得到 NaN 截止时间，逾期发票费用为 0。"
+  },
+  {
+   "id": "cs-c-2-054",
+   "decision": "problem-10",
+   "reason": "finding 与第 10 个问题用例同为 intentRequest 丢掉 issuedAt，lateFee 得到 NaN 截止时间，逾期发票费用为 0。"
+  },
+  {
+   "id": "cs-c-2-055",
+   "decision": "problem-2",
+   "reason": "finding 与第 2 个问题用例同为 applyTransition 浅拷贝后 push 到共享的 history 数组，修改了收到的预订对象。"
+  },
+  {
+   "id": "cs-c-2-056",
+   "decision": "problem-6",
+   "reason": "finding 与第 6 个问题用例同为 summarizeActors 统计 selectEntries 截断到 limit 后的结果而非忽略 limit。"
+  },
+  {
+   "id": "cs-c-2-057",
+   "decision": "problem-19",
+   "reason": "finding 与第 19 个问题用例同为 formatList 经 formatText 给以 =、+、-、@ 开头的列表项加 ' 前缀，而列表项应按原样写出。"
+  },
+  {
+   "id": "cs-c-2-058",
+   "decision": "problem-12",
+   "reason": "finding 与第 12 个问题用例同为单一 withdraw 规则带 60 分钟截止，错误地限制了 waiting 条目的撤回。"
+  },
+  {
+   "id": "cs-c-2-059",
+   "decision": "problem-1",
+   "reason": "finding 与第 1 个问题用例同为 hasAmenities 用并集大小比较未去重的 room.amenities.length，重复设施使判定出错。"
+  },
+  {
+   "id": "cs-c-2-060",
+   "decision": "problem-20",
+   "reason": "finding 与第 20 个问题用例同为 acceptOffer 在转为 accepted 后才用 isLapsing 检查，过期报价仍可被接受。"
+  },
+  {
+   "id": "cs-c-2-061",
+   "decision": "problem-5",
+   "reason": "finding 指出的是 overlaps(instant(startAt), period) 漏计月初开始的预订（第 5 个问题用例），并未主张 usageMonth 的月末滚动有误。"
+  },
+  {
+   "id": "cs-c-2-062",
+   "decision": "unsupported",
+   "reason": "已登记诱饵：request-validation.mjs:14 的比较对非数字放行，规格 Conventions 规定时间戳为毫秒数字，无依据。"
+  },
+  {
+   "id": "cs-c-2-063",
+   "decision": "problem-15",
+   "reason": "finding 与第 15 个问题用例同为 authorizationHold 已是毫秒又经 addMinutes 再乘一分钟，授权到期时间过远。"
+  },
+  {
+   "id": "cs-c-2-064",
+   "decision": "problem-20",
+   "reason": "finding 与第 20 个问题用例同为 acceptOffer 在转为 accepted 后才用 isLapsing 检查，过期报价仍可被接受。"
+  },
+  {
+   "id": "cs-c-2-065",
+   "decision": "problem-20",
+   "reason": "finding 与第 20 个问题用例同为 acceptOffer 在转为 accepted 后才用 isLapsing 检查，过期报价仍可被接受。"
+  },
+  {
+   "id": "cs-c-2-066",
+   "decision": "problem-4",
+   "reason": "finding 与第 4 个问题用例同为 findKeyedEvent 以 store.list(event) 按 buildingId 过滤，查不到其他楼宇已记录的 eventKey。"
+  },
+  {
+   "id": "cs-c-2-067",
+   "decision": "unsupported",
+   "reason": "已登记诱饵：reservation-service.mjs:54 的 endAt <= startAt 对非数字放行，按无依据处理，也不匹配相邻的时长上限问题。"
+  },
+  {
+   "id": "cs-c-2-068",
+   "decision": "problem-1",
+   "reason": "finding 与第 1 个问题用例同为 hasAmenities 用并集大小比较未去重的 room.amenities.length，重复设施使判定出错。"
+  },
+  {
+   "id": "cs-c-2-069",
+   "decision": "problem-13",
+   "reason": "finding 与第 13 个问题用例同为 ENTRY_DEFAULTS 的 active: true 使未给 active 的房间被选入报告。"
+  },
+  {
+   "id": "cs-c-2-070",
+   "decision": "problem-5",
+   "reason": "finding 与第 5 个问题用例同为 overlaps(instant(startAt), period) 的严格比较漏计恰在月初开始的已确认预订。"
+  },
+  {
+   "id": "cs-c-2-071",
+   "decision": "problem-10",
+   "reason": "finding 与第 10 个问题用例同为 intentRequest 丢掉 issuedAt，lateFee 得到 NaN 截止时间，逾期发票费用为 0。"
+  },
+  {
+   "id": "cs-c-2-072",
+   "decision": "problem-6",
+   "reason": "finding 与第 6 个问题用例同为 summarizeActors 统计 selectEntries 截断到 limit 后的结果而非忽略 limit。"
+  },
+  {
+   "id": "cs-c-2-073",
+   "decision": "problem-4",
+   "reason": "finding 与第 4 个问题用例同为 findKeyedEvent 以 store.list(event) 按 buildingId 过滤，查不到其他楼宇已记录的 eventKey。"
+  },
+  {
+   "id": "cs-c-2-074",
+   "decision": "problem-14",
+   "reason": "finding 与第 14 个问题用例同为 credit reason 被 trim 而非按原样存储。"
+  },
+  {
+   "id": "cs-c-2-075",
+   "decision": "problem-13",
+   "reason": "finding 与第 13 个问题用例同为 ENTRY_DEFAULTS 的 active: true 使未给 active 的房间被选入报告。"
+  },
+  {
+   "id": "cs-c-2-076",
+   "decision": "problem-2",
+   "reason": "finding 与第 2 个问题用例同为 applyTransition 浅拷贝后 push 到共享的 history 数组，修改了收到的预订对象。"
+  },
+  {
+   "id": "cs-c-2-077",
+   "decision": "problem-7",
+   "reason": "finding 与第 7 个问题用例同为 quoteField 的 /\"/ 无 g 标志只把第一个内部双引号加倍。"
+  },
+  {
+   "id": "cs-c-2-078",
+   "decision": "problem-7",
+   "reason": "finding 与第 7 个问题用例同为 quoteField 的 /\"/ 无 g 标志只把第一个内部双引号加倍。"
+  },
+  {
+   "id": "cs-c-2-079",
+   "decision": "problem-1",
+   "reason": "finding 与第 1 个问题用例同为 hasAmenities 用并集大小比较未去重的 room.amenities.length，重复设施使判定出错。"
+  },
+  {
+   "id": "cs-c-2-080",
+   "decision": "problem-13",
+   "reason": "finding 与第 13 个问题用例同为 ENTRY_DEFAULTS 的 active: true 使未给 active 的房间被选入报告。"
+  },
+  {
+   "id": "cs-c-2-081",
+   "decision": "problem-18",
+   "reason": "finding 与第 18 个问题用例同为 releaseTime 以向上取整的分钟加上按向下取整分钟算出的 wait，releaseAt 晚一分钟。"
+  },
+  {
+   "id": "cs-c-2-082",
+   "decision": "problem-8",
+   "reason": "finding 与第 8 个问题用例同为 sendMessage 未 await store.save 就调用 send，违反先保存后发送。"
+  },
+  {
+   "id": "cs-c-2-083",
+   "decision": "problem-12",
+   "reason": "finding 与第 12 个问题用例同为单一 withdraw 规则带 60 分钟截止，错误地限制了 waiting 条目的撤回。"
+  },
+  {
+   "id": "cs-c-2-084",
+   "decision": "problem-20",
+   "reason": "finding 与第 20 个问题用例同为 acceptOffer 在转为 accepted 后才用 isLapsing 检查，过期报价仍可被接受。"
+  },
+  {
+   "id": "cs-c-2-085",
+   "decision": "problem-6",
+   "reason": "finding 与第 6 个问题用例同为 summarizeActors 统计 selectEntries 截断到 limit 后的结果而非忽略 limit。"
+  },
+  {
+   "id": "cs-c-2-086",
+   "decision": "problem-2",
+   "reason": "finding 与第 2 个问题用例同为 applyTransition 浅拷贝后 push 到共享的 history 数组，修改了收到的预订对象。"
+  },
+  {
+   "id": "cs-c-2-087",
+   "decision": "problem-7",
+   "reason": "finding 与第 7 个问题用例同为 quoteField 的 /\"/ 无 g 标志只把第一个内部双引号加倍。"
+  },
+  {
+   "id": "cs-c-2-088",
+   "decision": "problem-12",
+   "reason": "finding 与第 12 个问题用例同为单一 withdraw 规则带 60 分钟截止，错误地限制了 waiting 条目的撤回。"
+  },
+  {
+   "id": "cs-c-2-089",
+   "decision": "problem-14",
+   "reason": "finding 与第 14 个问题用例同为 credit reason 被 trim 而非按原样存储。"
+  },
+  {
+   "id": "cs-c-2-090",
+   "decision": "problem-9",
+   "reason": "finding 与第 9 个问题用例同为 clearPlannedWork 先展开原 ticket，删掉的 plannedWork 未被覆盖而保留。"
+  },
+  {
+   "id": "cs-c-2-091",
+   "decision": "problem-11",
+   "reason": "finding 与第 11 个问题用例同为 hasEnded 用截断到整分钟的 minutesBetween，剩余不足一分钟的关闭被当作已结束。"
+  },
+  {
+   "id": "cs-c-2-092",
+   "decision": "problem-16",
+   "reason": "finding 与第 16 个问题用例同为 paymentStatus 把发票对象而非 id 传给 netPaid，=== 永不相等，paid 恒为 0。"
+  },
+  {
+   "id": "cs-c-2-093",
+   "decision": "problem-7",
+   "reason": "finding 与第 7 个问题用例同为 quoteField 的 /\"/ 无 g 标志只把第一个内部双引号加倍。"
+  },
+  {
+   "id": "cs-c-2-094",
+   "decision": "problem-15",
+   "reason": "finding 与第 15 个问题用例同为 authorizationHold 已是毫秒又经 addMinutes 再乘一分钟，授权到期时间过远。"
+  },
+  {
+   "id": "cs-c-2-095",
+   "decision": "false-positive:clean-13",
+   "reason": "template-render.mjs:11 的 escapeText 实为 /[&<>\"']/g，带 g 标志，finding 把第 13 个干净用例的成立行为当成缺陷。"
+  },
+  {
+   "id": "cs-c-2-096",
+   "decision": "problem-11",
+   "reason": "finding 与第 11 个问题用例同为 hasEnded 用截断到整分钟的 minutesBetween，剩余不足一分钟的关闭被当作已结束。"
+  },
+  {
+   "id": "cs-c-2-097",
+   "decision": "problem-11",
+   "reason": "finding 与第 11 个问题用例同为 hasEnded 用截断到整分钟的 minutesBetween，剩余不足一分钟的关闭被当作已结束。"
+  },
+  {
+   "id": "cs-c-2-098",
+   "decision": "problem-17",
+   "reason": "finding 与第 17 个问题用例同为 maxQueryWindow 是毫秒而 windowSpan 是分钟，10080 分钟上限不生效。"
+  },
+  {
+   "id": "cs-c-2-099",
+   "decision": "problem-14",
+   "reason": "finding 与第 14 个问题用例同为 credit reason 被 trim 而非按原样存储。"
+  },
+  {
+   "id": "cs-c-2-100",
+   "decision": "problem-8",
+   "reason": "finding 与第 8 个问题用例同为 sendMessage 未 await store.save 就调用 send，违反先保存后发送。"
+  },
+  {
+   "id": "cs-c-2-101",
+   "decision": "problem-1",
+   "reason": "finding 与第 1 个问题用例同为 hasAmenities 用并集大小比较未去重的 room.amenities.length，重复设施使判定出错。"
+  }
+ ]
+}

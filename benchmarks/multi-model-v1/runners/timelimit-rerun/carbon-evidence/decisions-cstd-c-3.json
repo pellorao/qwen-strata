@@ -1,0 +1,360 @@
+{
+ "adjudicator": "blind Opus high",
+ "decisions": [
+  {
+   "id": "cstd-c-3-001",
+   "decision": "not-matched",
+   "reason": "finding 说的是服务模块职责过多（Divergent Change），不是 isUpcoming 每单调用 now() 的 6.3 问题。"
+  },
+  {
+   "id": "cstd-c-3-002",
+   "decision": "matched",
+   "reason": "finding 指出 catering-store 用 class 而无外部 Interface 要求、其他 store 均为工厂闭包，与期望同一问题。"
+  },
+  {
+   "id": "cstd-c-3-003",
+   "decision": "matched",
+   "reason": "finding 明确指出 catering-store 是 src 中唯一 class、无外部 Interface 要求，违反 writing.md 避免 class 的规则，与期望一致（另附抽取公共存储的主张不影响）。"
+  },
+  {
+   "id": "cstd-c-3-004",
+   "decision": "matched",
+   "reason": "finding 指出 cancellationFee 规则模块接收并调用 context.now()，cancelOrder 一次调用两次读时钟，与期望同一缺陷。"
+  },
+  {
+   "id": "cstd-c-3-005",
+   "decision": "not-matched",
+   "reason": "finding 说的是 vendorNotice 中 Date.now()，不是 cancelOrder 把 now 传给 cancellationFee 的问题。"
+  },
+  {
+   "id": "cstd-c-3-006",
+   "decision": "matched",
+   "reason": "finding 指出规则模块 kitchen-manifest.mjs 导入 node:crypto 违反规则 2，与期望一致。"
+  },
+  {
+   "id": "cstd-c-3-007",
+   "decision": "matched",
+   "reason": "finding 指出 DIETARY_TAGS 以 Object.keys 结果直接导出且未冻结，与期望一致。"
+  },
+  {
+   "id": "cstd-c-3-008",
+   "decision": "not-matched",
+   "reason": "finding 说的是 DIETARY_TAGS 未冻结，不是 findMenuItem 纯转发。"
+  },
+  {
+   "id": "cstd-c-3-009",
+   "decision": "matched",
+   "reason": "finding 指出 findMenuItem 只是转发 requireMenuItem、应删除并让 catering-notices 直接调用，与期望一致。"
+  },
+  {
+   "id": "cstd-c-3-010",
+   "decision": "matched",
+   "reason": "finding 指出 save 返回被 .catch(() => undefined) 吞掉的同一 promise，失败写入对调用方 resolve 为 undefined，违反 4.3，与期望一致。"
+  },
+  {
+   "id": "cstd-c-3-011",
+   "decision": "not-matched",
+   "reason": "finding 说的是 store 使用 class，不是 save 吞掉错误的 4.3 问题。"
+  },
+  {
+   "id": "cstd-c-3-012",
+   "decision": "not-matched",
+   "reason": "finding 说的是 notifyVendor 未以 {cause} 保留原错误，不是 store 吞错。"
+  },
+  {
+   "id": "cstd-c-3-013",
+   "decision": "not-matched",
+   "reason": "finding 说的是服务模块职责过多，不是 addLine 浅拷贝后 push 修改调用方 lines。"
+  },
+  {
+   "id": "cstd-c-3-014",
+   "decision": "not-matched",
+   "reason": "finding 说的是 node:crypto 导入，不是 kitchenFor 与 vendorFor 重复供应商规则。"
+  },
+  {
+   "id": "cstd-c-3-015",
+   "decision": "matched",
+   "reason": "finding 指出 advanceOrder 默认导出且被默认导入，违反命名导出规则，与期望一致。"
+  },
+  {
+   "id": "cstd-c-3-016",
+   "decision": "problem-12",
+   "reason": "finding 指出 kitchenManifests 经 inDeliveryOrder 对调用方 orders 原地 sort，违反规则 5，与问题 12 一致。"
+  },
+  {
+   "id": "cstd-c-3-017",
+   "decision": "unsupported",
+   "reason": "去掉 memberId 是为与预订行项字段一致、发票另记 memberId，所称丢失会员信息无依据（memberId 诱饵）。"
+  },
+  {
+   "id": "cstd-c-3-018",
+   "decision": "problem-11",
+   "reason": "finding 指出 notifyVendor 把 error 作为 options 传入而非 {cause: error}，与问题 11 一致。"
+  },
+  {
+   "id": "cstd-c-3-019",
+   "decision": "problem-24",
+   "reason": "finding 指出课程信息分散在 COURSES、SERVING_ORDER 与 prepMinutes switch 三处，与问题 24 一致。"
+  },
+  {
+   "id": "cstd-c-3-020",
+   "decision": "problem-7",
+   "reason": "finding 指出 postponeOrder 对 store.find 返回记录用 Object.assign 原地修改且校验失败仍留在存储中，与问题 7 一致。"
+  },
+  {
+   "id": "cstd-c-3-021",
+   "decision": "problem-23",
+   "reason": "finding 指出 deskDeliveries 手写交付窗口与日窗口判断，重复 deliveryWindow/contains 及 kitchenManifests 的同一选择规则，与问题 23 一致。"
+  },
+  {
+   "id": "cstd-c-3-022",
+   "decision": "problem-20",
+   "reason": "finding 指出 listOrders 内联的排序-游标-切片分页应交给 platform/listing.mjs 的 pageOf，对端与问题 20 一致。"
+  },
+  {
+   "id": "cstd-c-3-023",
+   "decision": "problem-16",
+   "reason": "finding 指出 catering-time.mjs 只转发 platform/time.mjs 的 DAY 与 addMinutes，与问题 16 一致。"
+  },
+  {
+   "id": "cstd-c-3-024",
+   "decision": "problem-17",
+   "reason": "finding 指出 KITCHENS/kitchenFor 重复 vendors.mjs 的 vendorFor 规则并建议按 order.vendorId 分组，与问题 17 一致。"
+  },
+  {
+   "id": "cstd-c-3-025",
+   "decision": "false-positive:clean-14",
+   "reason": "DIETARY_LABELS 实际已用 Object.freeze 冻结，finding 把被提名干净用例的成立做法当成问题。"
+  },
+  {
+   "id": "cstd-c-3-026",
+   "decision": "problem-26",
+   "reason": "finding 指出 vendorStatement 的 withCanceled 选项唯一调用方从不传入，属投机选项，与问题 26 一致。"
+  },
+  {
+   "id": "cstd-c-3-027",
+   "decision": "problem-25",
+   "reason": "finding 指出 deliveredNotice 自行 reduce 求份数，重复 catering-statements 的 servingsOf，与问题 25 一致。"
+  },
+  {
+   "id": "cstd-c-3-028",
+   "decision": "problem-3",
+   "reason": "finding 指出规则模块 kitchen-manifest 导入 node:crypto 违反规则 2，与问题 3 一致。"
+  },
+  {
+   "id": "cstd-c-3-029",
+   "decision": "problem-8",
+   "reason": "finding 指出 catering-service 导入 schedules/front-desk-service 的 isFrontDeskOpen 违反 7.2，并建议用 desk-policy 的 isDeskOpen，与问题 8 一致。"
+  },
+  {
+   "id": "cstd-c-3-030",
+   "decision": "problem-26",
+   "reason": "finding 指出 vendorStatement 未使用的 withCanceled 选项属投机通用性，与问题 26 一致。"
+  },
+  {
+   "id": "cstd-c-3-031",
+   "decision": "problem-10",
+   "reason": "finding 指出 DIETARY_TAGS 直接导出未冻结数组，与问题 10 一致。"
+  },
+  {
+   "id": "cstd-c-3-032",
+   "decision": "problem-19",
+   "reason": "finding 指出 share 重复 billing/totals.mjs 的 roundedTax 舍入税额，对端与问题 19 一致。"
+  },
+  {
+   "id": "cstd-c-3-033",
+   "decision": "problem-3",
+   "reason": "finding 指出规则模块 kitchen-manifest 导入 node:crypto 违反规则 2，与问题 3 一致。"
+  },
+  {
+   "id": "cstd-c-3-034",
+   "decision": "problem-9",
+   "reason": "finding 指出 save 返回被 catch 吞掉的队列 promise，失败写入 resolve 为 undefined，违反 4.3，与问题 9 一致。"
+  },
+  {
+   "id": "cstd-c-3-035",
+   "decision": "problem-14",
+   "reason": "finding 指出 catering-store 用 class 而无外部 Interface 要求、其他 store 均为冻结工厂，与问题 14 一致。"
+  },
+  {
+   "id": "cstd-c-3-036",
+   "decision": "problem-6",
+   "reason": "finding 指出 isUpcoming 返回的谓词对每个订单调用 now()，违反 6.3，与问题 6 一致；并未主张改用 pageOf。"
+  },
+  {
+   "id": "cstd-c-3-037",
+   "decision": "false-positive:clean-16",
+   "reason": "advanceOrder 实际用 [...order.history, ...] 新建数组，finding 称其 push 修改历史，正是被提名干净用例的成立做法。"
+  },
+  {
+   "id": "cstd-c-3-038",
+   "decision": "problem-23",
+   "reason": "finding 指出 deskDeliveries 内联窗口算术重复 deliveryWindow/contains 及 kitchenManifests 的日窗口选择，与问题 23 一致。"
+  },
+  {
+   "id": "cstd-c-3-039",
+   "decision": "false-positive:clean-22",
+   "reason": "buildLineItems 的 extraCharges 由唯一调用方 draftFor 传入，finding 称其投机选项应删除，即被提名干净用例的误报。"
+  },
+  {
+   "id": "cstd-c-3-040",
+   "decision": "unsupported",
+   "reason": "cancel 规则的 from 实为 ['placed','confirmed']，不含 delivered，finding 与代码不符。"
+  },
+  {
+   "id": "cstd-c-3-041",
+   "decision": "false-positive:clean-30",
+   "reason": "CATERING 放在 platform/site-settings.mjs 符合 PAYMENT_TERMS、BADGE_SETTINGS 的既有约定，finding 要求移出即被提名干净用例的误报。"
+  },
+  {
+   "id": "cstd-c-3-042",
+   "decision": "problem-12",
+   "reason": "finding 指出 kitchenManifests 通过 inDeliveryOrder 原地排序调用方 orders，违反规则 5，与问题 12 一致。"
+  },
+  {
+   "id": "cstd-c-3-043",
+   "decision": "problem-1",
+   "reason": "finding 指出 advanceOrder 默认导出并被默认导入，违反规则 1，与问题 1 一致。"
+  },
+  {
+   "id": "cstd-c-3-044",
+   "decision": "problem-4",
+   "reason": "finding 指出规则模块 menu.mjs 的 loadMenu 捕获 JSON.parse 错误违反 4.1，且 menuFor 已包装，与问题 4 一致；并未把 menuFor 的捕获当成问题。"
+  },
+  {
+   "id": "cstd-c-3-045",
+   "decision": "problem-24",
+   "reason": "finding 指出课程信息分散在三处（COURSES、SERVING_ORDER、prepMinutes），与问题 24 一致。"
+  },
+  {
+   "id": "cstd-c-3-046",
+   "decision": "problem-18",
+   "reason": "finding 指出 PAYABLE_WITHIN_DAYS = 14 重复 PAYMENT_TERMS.dueMinutes/invoice-terms 的付款期限，与问题 18 一致。"
+  },
+  {
+   "id": "cstd-c-3-047",
+   "decision": "false-positive:clean-19",
+   "reason": "VENDORS 的每个供应商条目实际都已 Object.freeze，finding 把被提名干净用例的成立做法当成问题。"
+  },
+  {
+   "id": "cstd-c-3-048",
+   "decision": "problem-15",
+   "reason": "finding 指出 findMenuItem 纯转发 requireMenuItem，应让 catering-notices 直接调用，与问题 15 一致。"
+  },
+  {
+   "id": "cstd-c-3-049",
+   "decision": "problem-13",
+   "reason": "finding 指出 addLine 浅拷贝后 push 修改调用方 order.lines，与问题 13 一致。"
+  },
+  {
+   "id": "cstd-c-3-050",
+   "decision": "problem-22",
+   "reason": "finding 指出 fitsReservation 的到场/离场偏移重复 reservations/policy.mjs 的 accessWindow 及其 SETTINGS，与问题 22 一致。"
+  },
+  {
+   "id": "cstd-c-3-051",
+   "decision": "unsupported",
+   "reason": "itemsFor 是服务模块内的私有校验辅助，规则与 Role 未要求服务模块不得含纯逻辑，所称 Data Clumps/Feature Envy 缺乏明确依据。"
+  },
+  {
+   "id": "cstd-c-3-052",
+   "decision": "problem-11",
+   "reason": "finding 指出 notifyVendor 未以 {cause: error} 保留原错误，与问题 11 一致。"
+  },
+  {
+   "id": "cstd-c-3-053",
+   "decision": "problem-21",
+   "reason": "finding 指出 placeOrder 手写停权判断，应调用 members/suspension.mjs 的 isSuspended，与问题 21 一致。"
+  },
+  {
+   "id": "cstd-c-3-054",
+   "decision": "problem-10",
+   "reason": "finding 指出 DIETARY_TAGS 直接导出未冻结数组，与问题 10 一致。"
+  },
+  {
+   "id": "cstd-c-3-055",
+   "decision": "unsupported",
+   "reason": "loadMenu 实际返回 Object.freeze(items.map(prepareItem))，finding 与代码不符。"
+  },
+  {
+   "id": "cstd-c-3-056",
+   "decision": "problem-20",
+   "reason": "finding 指出 listOrders 内联游标分页，应委托 platform/listing.mjs 的 pageOf，对端与问题 20 一致。"
+  },
+  {
+   "id": "cstd-c-3-057",
+   "decision": "problem-4",
+   "reason": "finding 指出规则模块 loadMenu 捕获 JSON.parse 错误违反 4.1，且服务端 menuFor 已包装，与问题 4 一致。"
+  },
+  {
+   "id": "cstd-c-3-058",
+   "decision": "problem-2",
+   "reason": "finding 指出规则模块 vendorNotice 用 Date.now() 读时钟，违反 6.1，与问题 2 一致。"
+  },
+  {
+   "id": "cstd-c-3-059",
+   "decision": "problem-17",
+   "reason": "finding 指出 kitchenFor 重复 vendorFor 的供应商路由并建议按 order.vendorId 分组，与问题 17 一致。"
+  },
+  {
+   "id": "cstd-c-3-060",
+   "decision": "problem-9",
+   "reason": "finding 指出 save 返回被 catch 吞掉的 promise，重复 requestKey 时 resolve 为 undefined，违反 4.3，与问题 9 一致。"
+  },
+  {
+   "id": "cstd-c-3-061",
+   "decision": "problem-16",
+   "reason": "finding 指出 catering-time.mjs 只转发 platform/time.mjs，属 Middle Man，与问题 16 一致。"
+  },
+  {
+   "id": "cstd-c-3-062",
+   "decision": "problem-5",
+   "reason": "finding 指出 cancellationFee 接收服务 context 并调用 context.now()，cancelOrder 两次读时钟，与问题 5 一致。"
+  },
+  {
+   "id": "cstd-c-3-063",
+   "decision": "problem-19",
+   "reason": "finding 指出 share 重复 billing/totals.mjs 的 roundedTax，对端与问题 19 一致。"
+  },
+  {
+   "id": "cstd-c-3-064",
+   "decision": "false-positive:clean-10",
+   "reason": "cancelForReservation 把 now 传给导出的服务函数 cancelOrder，规则 6.3 明确允许，finding 即被提名干净用例的误报。"
+  },
+  {
+   "id": "cstd-c-3-065",
+   "decision": "problem-11",
+   "reason": "finding 指出 notifyVendor 的 new Error(message, error) 未保留 cause，与问题 11 一致。"
+  },
+  {
+   "id": "cstd-c-3-066",
+   "decision": "problem-18",
+   "reason": "finding 指出 confirmedNotice 的 14 天付款期限硬编码，重复 PAYMENT_TERMS.dueMinutes，与问题 18 一致。"
+  },
+  {
+   "id": "cstd-c-3-067",
+   "decision": "unsupported",
+   "reason": "prepareItem 实际以 Object.freeze([...requireDietaryTags(...)]) 复制并冻结 dietary，finding 与代码不符。"
+  },
+  {
+   "id": "cstd-c-3-068",
+   "decision": "problem-13",
+   "reason": "finding 指出 addLine 浅拷贝致 amended.lines.push 修改调用方 order.lines，与问题 13 一致。"
+  },
+  {
+   "id": "cstd-c-3-069",
+   "decision": "problem-4",
+   "reason": "finding 指出规则模块 loadMenu 的 try/catch 违反 4.1 且与 menuFor 冗余，与问题 4 一致；未把 menuFor 的捕获当问题。"
+  },
+  {
+   "id": "cstd-c-3-070",
+   "decision": "problem-14",
+   "reason": "finding 指出 catering-store 用 class 而无外部 Interface 要求、其他 store 为冻结工厂，与问题 14 一致。"
+  },
+  {
+   "id": "cstd-c-3-071",
+   "decision": "problem-25",
+   "reason": "finding 指出 deliveredNotice 自行 reduce，重复 servingsOf，与问题 25 一致。"
+  }
+ ]
+}

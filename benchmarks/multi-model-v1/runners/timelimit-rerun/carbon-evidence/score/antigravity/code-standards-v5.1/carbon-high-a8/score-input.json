@@ -1,0 +1,17 @@
+{
+ "artifacts": [
+  {
+   "reviewerId": "code-standards-reviewer",
+   "instances": [
+    {
+     "instanceId": "default-8df1c555-d38b-418d-899a-53fb1e434863-instance-1",
+     "artifactPaths": null,
+     "formatCorrection": {
+      "originalReportPath": "/dev/shm/carbonscore/antigravity/code-standards-v5.1/carbon-high-a8/prep/arw/.tmp/codex/b7635f94-ad60-429b-98e7-3ee5c19ba2bb/_reviewer-cap/runs/8df1c555-d38b-418d-899a-53fb1e434863/cst/1/.tmp/reports/review-result.md",
+      "correctedReportPath": "/dev/shm/carbonscore/antigravity/code-standards-v5.1/carbon-high-a8/prep/arw/.tmp/codex/b7635f94-ad60-429b-98e7-3ee5c19ba2bb/_reviewer-cap/runs/8df1c555-d38b-418d-899a-53fb1e434863/cst/1/.tmp/reports/review-result.format-corrected.md"
+     }
+    }
+   ]
+  }
+ ]
+}

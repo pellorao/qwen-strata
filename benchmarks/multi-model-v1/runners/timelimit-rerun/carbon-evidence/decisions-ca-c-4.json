@@ -1,0 +1,380 @@
+{
+ "adjudicator": "blind Opus high",
+ "decisions": [
+  {
+   "id": "ca-c-4-001",
+   "decision": "matched",
+   "reason": "判 uncertain 并指出称重合同未规定 scale.read 的单位，与期望一致。"
+  },
+  {
+   "id": "ca-c-4-002",
+   "decision": "matched",
+   "reason": "指出 routeDuration 每站少算规则 32 的 5 分钟停车时间。"
+  },
+  {
+   "id": "ca-c-4-003",
+   "decision": "not-matched",
+   "reason": "只说未检查暂停（且与代码不符），未指出保留了 active claim 的范围。"
+  },
+  {
+   "id": "ca-c-4-004",
+   "decision": "not-matched",
+   "reason": "泛泛称缺少政策文档，未描述暂停者保留 claim 范围的缺陷。"
+  },
+  {
+   "id": "ca-c-4-005",
+   "decision": "matched",
+   "reason": "指出 dispatch 在 unlessForbidden 前作为参数被求值并执行。"
+  },
+  {
+   "id": "ca-c-4-006",
+   "decision": "not-matched",
+   "reason": "只谈缺失 sequence，口径规定不匹配（本版缺失值已排后）。"
+  },
+  {
+   "id": "ca-c-4-007",
+   "decision": "matched",
+   "reason": "指出 handedOver 状态的停靠点仍被 pendingStops 返回。"
+  },
+  {
+   "id": "ca-c-4-008",
+   "decision": "not-matched",
+   "reason": "只谈上界 3，口径规定不匹配。"
+  },
+  {
+   "id": "ca-c-4-009",
+   "decision": "not-matched",
+   "reason": "谈的是路线键拼接冲突，与 Number 接受非十进制文本无关。"
+  },
+  {
+   "id": "ca-c-4-010",
+   "decision": "matched",
+   "reason": "指出 Number() 接受 ''、' 1'、'0x1'、'1e0' 等非十进制文本。"
+  },
+  {
+   "id": "ca-c-4-011",
+   "decision": "matched",
+   "reason": "指出 retryAfter 为 0 时回退到计算退避。"
+  },
+  {
+   "id": "ca-c-4-012",
+   "decision": "not-matched",
+   "reason": "称该类停靠点同时落入两个分区，实际 '7'/Infinity 不在任何分区，与期望缺陷相反。"
+  },
+  {
+   "id": "ca-c-4-013",
+   "decision": "not-matched",
+   "reason": "谈的是 routeDuration 漏停车时间，与 nextDispatchTime 使用本地小时无关。"
+  },
+  {
+   "id": "ca-c-4-014",
+   "decision": "matched",
+   "reason": "指出 seen 记录原始 ID 而过滤用规范化 ID，空白变体在后续组残留。"
+  },
+  {
+   "id": "ca-c-4-015",
+   "decision": "matched",
+   "reason": "指出 stopsForDriver 按自身 driver 而非 reassignment.driver 归属。"
+  },
+  {
+   "id": "ca-c-4-016",
+   "decision": "matched",
+   "reason": "指出 withSortedKeys 只代理顶层，嵌套字段顺序影响序列化与哈希。"
+  },
+  {
+   "id": "ca-c-4-017",
+   "decision": "not-matched",
+   "reason": "谈的是批量授权 firstRejected<=0，与数组内凭据未删除无关。"
+  },
+  {
+   "id": "ca-c-4-018",
+   "decision": "not-matched",
+   "reason": "谈的是通知发往原始 phone，与 transient:false 带 retryAfter 被重试无关。"
+  },
+  {
+   "id": "ca-c-4-019",
+   "decision": "matched",
+   "reason": "指出移到禁发结束小时 5 点后落在窗口外而未拒绝。"
+  },
+  {
+   "id": "ca-c-4-020",
+   "decision": "not-matched",
+   "reason": "谈的是 publishManifest 异步校验恒真，与 chooseDeparture 无关。"
+  },
+  {
+   "id": "ca-c-4-021",
+   "decision": "not-matched",
+   "reason": "谈的是 stopsForDriver 改派，与 buildManifest 改写调用方对象无关。"
+  },
+  {
+   "id": "ca-c-4-022",
+   "decision": "not-matched",
+   "reason": "谈的是路线键拼接冲突，与容量等于上限被拒无关。"
+  },
+  {
+   "id": "ca-c-4-023",
+   "decision": "problem-15",
+   "reason": "引用 01:20 并照抄结论，指出 dispatch 在授权判断前已执行。"
+  },
+  {
+   "id": "ca-c-4-024",
+   "decision": "problem-4",
+   "reason": "指出 seen 中存原始 ID 而过滤用规范化 ID，跨组空白变体重复保留。"
+  },
+  {
+   "id": "ca-c-4-025",
+   "decision": "problem-9",
+   "reason": "指出 handedOver 停靠点仍被返回。"
+  },
+  {
+   "id": "ca-c-4-026",
+   "decision": "problem-6",
+   "reason": "判 uncertain，指出无合同规定 store.write 何时调用 onCommit。"
+  },
+  {
+   "id": "ca-c-4-027",
+   "decision": "problem-4",
+   "reason": "指出 stopsForDriver 忽略 reassignment，按自身 driver 归属。"
+  },
+  {
+   "id": "ca-c-4-028",
+   "decision": "problem-11",
+   "reason": "判 uncertain，指出 onCommit 调用时机无合同规定。"
+  },
+  {
+   "id": "ca-c-4-029",
+   "decision": "false-positive:clean-9",
+   "reason": "normalizePackageIds 先 trim 再去重，finding 所称先去重后 trim 与代码不符。"
+  },
+  {
+   "id": "ca-c-4-030",
+   "decision": "problem-13",
+   "reason": "指出 routes:admin 只查自身 scopes，经 active claim 持有的 admin 不生效。"
+  },
+  {
+   "id": "ca-c-4-031",
+   "decision": "problem-9",
+   "reason": "指出 Infinity 或数字文本 '10' 的停靠点不在任何分区。"
+  },
+  {
+   "id": "ca-c-4-032",
+   "decision": "problem-2",
+   "reason": "指出 stripCredentials 只遍历 Object 构造的值，数组内凭据未删除。"
+  },
+  {
+   "id": "ca-c-4-033",
+   "decision": "problem-14",
+   "reason": "指出暂停时仍加入 active claim 的范围，可凭 routes:plan claim 规划。"
+  },
+  {
+   "id": "ca-c-4-034",
+   "decision": "problem-19",
+   "reason": "指出通知发往未去空格或连字符的原始 phone。"
+  },
+  {
+   "id": "ca-c-4-035",
+   "decision": "problem-5",
+   "reason": "指出 rename 被拒后 discardTemporary 不删除锁定字节，未调用 removeTemporary。"
+  },
+  {
+   "id": "ca-c-4-036",
+   "decision": "problem-20",
+   "reason": "指出 seen 存原始 ID、过滤用规范化 ID，空白变体在后续组残留。"
+  },
+  {
+   "id": "ca-c-4-037",
+   "decision": "problem-16",
+   "reason": "指出只递归 constructor 为 Object 的值，数组内凭据保留。"
+  },
+  {
+   "id": "ca-c-4-038",
+   "decision": "problem-8",
+   "reason": "指出 Number() 接受 ''、' 2 '、'0x2' 等非十进制文本及布尔值。"
+  },
+  {
+   "id": "ca-c-4-039",
+   "decision": "problem-12",
+   "reason": "指出等于上限时余量为 0，> 0 为假而被拒。"
+  },
+  {
+   "id": "ca-c-4-040",
+   "decision": "problem-12",
+   "reason": "明确指出 NaN 与文本 '' 等非数值 sequence 未排在有数值 sequence 之后，经核实属实。"
+  },
+  {
+   "id": "ca-c-4-041",
+   "decision": "problem-1",
+   "reason": "指出 routeDuration 每站漏加 5 分钟停车时间。"
+  },
+  {
+   "id": "ca-c-4-042",
+   "decision": "problem-2",
+   "reason": "指出 retryAfter 为 0 回退到退避，及非有限真值替代退避。"
+  },
+  {
+   "id": "ca-c-4-043",
+   "decision": "problem-16",
+   "reason": "指出 Number() 接受 '0x2' 等非十进制文本。"
+  },
+  {
+   "id": "ca-c-4-044",
+   "decision": "problem-3",
+   "reason": "指出 store.remove 收到的是 store.get 的副本，回滚无效。"
+  },
+  {
+   "id": "ca-c-4-045",
+   "decision": "problem-7",
+   "reason": "指出公共入口未导出 executor.mjs。"
+  },
+  {
+   "id": "ca-c-4-046",
+   "decision": "problem-10",
+   "reason": "指出 Map 条目不是带 destination 的分组对象，比较器恒 0 未排序。"
+  },
+  {
+   "id": "ca-c-4-047",
+   "decision": "problem-15",
+   "reason": "指出传给 store.remove 的是 store.get 的副本，已存清单未被删除。"
+  },
+  {
+   "id": "ca-c-4-048",
+   "decision": "problem-2",
+   "reason": "指出 retryAfter 为 0 时按真值判断回退到退避。"
+  },
+  {
+   "id": "ca-c-4-049",
+   "decision": "problem-7",
+   "reason": "指出公共入口未导出 executor.mjs 的执行操作。"
+  },
+  {
+   "id": "ca-c-4-050",
+   "decision": "problem-13",
+   "reason": "指出 findIndex 返回 0 时批次被误授权。"
+  },
+  {
+   "id": "ca-c-4-051",
+   "decision": "problem-10",
+   "reason": "指出 nextDispatchTime 用 getHours 本地小时而非 UTC。"
+  },
+  {
+   "id": "ca-c-4-052",
+   "decision": "false-positive:clean-16",
+   "reason": "retryTransient 实为 error.transient === true，finding 所称 Boolean() 与代码不符。"
+  },
+  {
+   "id": "ca-c-4-053",
+   "decision": "problem-9",
+   "reason": "指出 Infinity 或数字文本 '10' 的停靠点不在任何分区。"
+  },
+  {
+   "id": "ca-c-4-054",
+   "decision": "problem-11",
+   "reason": "判 uncertain 并指出合同未规定未知地址时 lookup 的行为。"
+  },
+  {
+   "id": "ca-c-4-055",
+   "decision": "problem-18",
+   "reason": "引用 01:51 并指出暂停时 active claim 范围仍被保留。"
+  },
+  {
+   "id": "ca-c-4-056",
+   "decision": "problem-17",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被重包为 transient 并重试。"
+  },
+  {
+   "id": "ca-c-4-057",
+   "decision": "unsupported",
+   "reason": "retry.mjs 中不存在 eval，finding 无依据。"
+  },
+  {
+   "id": "ca-c-4-058",
+   "decision": "problem-5",
+   "reason": "指出移到 UTC 5 点后落在窗口外却未拒绝。"
+  },
+  {
+   "id": "ca-c-4-059",
+   "decision": "problem-19",
+   "reason": "指出 transient:false 但带有限 retryAfter 的失败被 publishWithRetry 重试。"
+  },
+  {
+   "id": "ca-c-4-060",
+   "decision": "problem-6",
+   "reason": "指出等于上限时余量为 0，> 0 为假而被拒。"
+  },
+  {
+   "id": "ca-c-4-061",
+   "decision": "unsupported",
+   "reason": "writePlanAtomically 实际调用 store 方法，不存在 fs.writeFileSync，finding 无依据。"
+  },
+  {
+   "id": "ca-c-4-062",
+   "decision": "problem-3",
+   "reason": "指出 dispatch 作为参数先于授权结果被调用。"
+  },
+  {
+   "id": "ca-c-4-063",
+   "decision": "problem-20",
+   "reason": "指出 retryAfter 为 0 回退到退避，及非有限真值替代退避。"
+  },
+  {
+   "id": "ca-c-4-064",
+   "decision": "false-positive:clean-11",
+   "reason": "runEligibleStops 实为 state !== 'cancelled'，finding 所称与代码不符。"
+  },
+  {
+   "id": "ca-c-4-065",
+   "decision": "problem-8",
+   "reason": "指出 withSortedKeys 只排顶层键，嵌套字段顺序影响哈希。"
+  },
+  {
+   "id": "ca-c-4-066",
+   "decision": "false-positive:clean-2",
+   "reason": "按口径置为 undefined 算移除（序列化后不出现），该行实际满足。"
+  },
+  {
+   "id": "ca-c-4-067",
+   "decision": "problem-17",
+   "reason": "指出 labelDriver 用 Object.assign 改写调用方 driver 对象。"
+  },
+  {
+   "id": "ca-c-4-068",
+   "decision": "problem-6",
+   "reason": "指出等于上限时余量为 0，> 0 为假而被拒。"
+  },
+  {
+   "id": "ca-c-4-069",
+   "decision": "problem-7",
+   "reason": "指出拼接无分隔符导致不同路线身份冲突。"
+  },
+  {
+   "id": "ca-c-4-070",
+   "decision": "problem-8",
+   "reason": "指出 withSortedKeys 只代理顶层，嵌套字段顺序导致哈希不同。"
+  },
+  {
+   "id": "ca-c-4-071",
+   "decision": "problem-20",
+   "reason": "指出 retryAfter 为 0 回退到退避，及 Infinity 替代退避。"
+  },
+  {
+   "id": "ca-c-4-072",
+   "decision": "problem-18",
+   "reason": "指出 async 回调产生恒真的 Promise，无效清单被存储。"
+  },
+  {
+   "id": "ca-c-4-073",
+   "decision": "problem-14",
+   "reason": "判 uncertain 并指出合同未规定 scale.read 的单位。"
+  },
+  {
+   "id": "ca-c-4-074",
+   "decision": "problem-1",
+   "reason": "指出公共入口未导出 executor.mjs，执行操作不可达。"
+  },
+  {
+   "id": "ca-c-4-075",
+   "decision": "problem-1",
+   "reason": "指出公共入口遗漏 executor.mjs 的执行操作。"
+  }
+ ]
+}
