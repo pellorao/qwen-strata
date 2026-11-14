@@ -230,6 +230,32 @@ class RunnerBuildersTest(unittest.TestCase):
         stop = json.loads((out / 'deadline-handoff.json').read_text())['interrupt']
         self.assertEqual((stop['status'], stop.get('group_stopped')), ('unknown', True))  # never answered
 
+    def test_segment_is_registered_while_it_runs_and_anthropic_starts_are_rate_capped(self):
+        sys.path.insert(0, os.path.expanduser('~/.claude/lib'))
+        import usage_guard
+        for k in ('USAGE_GUARD_RUNS', 'USAGE_GUARD_DIR'):
+            self.addCleanup(os.environ.pop, k, None)
+            os.environ[k] = str(self.base / k)
+        self.addCleanup(setattr, ch, 'ANTHROPIC_START_CAP', ch.ANTHROPIC_START_CAP)
+        ch.ANTHROPIC_START_CAP = (2, 3600)
+        argv = [sys.executable, '-c', 'import sys;sys.stdin.readline();print(\'{"type":"result","subtype":"success"}\',flush=True)', '--model', 'sonnet', '--effort', 'high']
+        seen = []
+        def go(env, name):
+            out = self.base / name
+            out.mkdir()
+            ch.run_segment(out, 0, 'p', argv, env, self.work, ch.Deadline(out, 60),
+                           on_start=lambda process, text: seen.append([(r['harness'], r['model'], r['effort'], r['source'], r['pid'] == process.pid)
+                                                                       for r in usage_guard.live_runs()]) or text)
+        go({'PATH': os.environ['PATH']}, 'a1')
+        go({'PATH': os.environ['PATH'], 'ANTHROPIC_BASE_URL': 'http://x'}, 'l1')   # a local backend is registered but not capped
+        go({'PATH': os.environ['PATH'], 'ANTHROPIC_BASE_URL': 'http://x'}, 'l2')
+        self.assertEqual(seen[0], [('claude', 'sonnet', 'high', 'claude-sub', True)])
+        self.assertEqual(seen[1][0][0], 'claude-local')
+        self.assertEqual(usage_guard.live_runs(), [])
+        go({'PATH': os.environ['PATH']}, 'a2')
+        with self.assertRaises(ch.guard_runs.Stopped):   # the third Anthropic start in the hour
+            go({'PATH': os.environ['PATH']}, 'a3')
+
     def test_turns_are_sent_one_after_another_and_analysed(self):
         out = self.base / 'turns'
         out.mkdir()

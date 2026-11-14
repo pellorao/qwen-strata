@@ -1,4 +1,5 @@
 import json
+import sys
 import os
 import tempfile
 import time
@@ -269,6 +270,21 @@ class CodexWorkloadTest(unittest.TestCase):
                 self.fail('the shell started by the session outlived the hard limit')
             with open(Path(tmp) / 'log', 'w') as out:
                 self.assertEqual(codex_workload.run_limited(['sh', '-c', 'read x; exit $x'], '3\n', out, tmp, None, 5), 3)
+
+    def test_codex_turn_is_registered_and_start_rate_is_capped(self):
+        for k in ('USAGE_GUARD_RUNS', 'USAGE_GUARD_DIR'):
+            self.addCleanup(os.environ.pop, k, None)
+        with tempfile.TemporaryDirectory() as tmp:
+            os.environ['USAGE_GUARD_RUNS'], os.environ['USAGE_GUARD_DIR'] = tmp + '/runs', tmp + '/ug'
+            lib = os.path.expanduser('~/.claude/lib')
+            script = f"import sys,json;sys.path.insert(0,{lib!r});import usage_guard;print(json.dumps([[r['harness'],r['label']] for r in usage_guard.live_runs()]))"
+            with open(Path(tmp) / 'log', 'w') as out:
+                self.assertEqual(codex_workload.run_limited([sys.executable, '-c', script], '', out, tmp, None, 20), 0)
+            self.assertEqual((Path(tmp) / 'log').read_text().strip(), '[["codex-local", "qwen-strata:codex_workload"]]')
+            self.addCleanup(setattr, codex_workload, 'START_CAP', codex_workload.START_CAP)
+            codex_workload.START_CAP = (1, 3600)   # one start was counted above
+            with open(Path(tmp) / 'log', 'w') as out, self.assertRaises(codex_workload.guard_runs.Stopped):
+                codex_workload.run_limited(['true'], '', out, tmp, None, 5)
 
     def test_wait_engine_idle_polls_native_status(self):
         import http.server

@@ -9,8 +9,12 @@ import os
 import signal
 import subprocess
 import shutil
+import sys
 import time
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))   # the repository root: tools.guard_runs (a runner started by path has only its own directory)
+from tools import guard_runs  # noqa: E402
 
 # --- tunables ---
 AGY = os.path.expanduser('~/.local/bin/agy')
@@ -31,6 +35,7 @@ FORBIDDEN = ('search_web', 'read_url_content', 'open_browser_url', 'invoke_subag
 HOME = os.path.expanduser('~')
 GEMINI = f'{HOME}/.gemini/antigravity-cli'
 STARTUP = 7  # seconds agy needs to start and stop around its --print-timeout (measured 6.5-7); taken off every segment's budget
+START_CAP = (60, 3600)  # agy turn starts per hour (a continuation or a reminder is a start too); a loop restarting turns stops here (usage_guard rate net)
 GRACE = 90  # seconds past --print-timeout before the process group is killed
 # --- end tunables ---
 
@@ -93,16 +98,18 @@ def turn(out, work, prompt, model, effort, timeout_seconds, conversation=None, n
     message = json.dumps({'event': 'user', 'message': {'content': prompt}}) + '\n'
     started = time.time()
     with (out / f'{name}.jsonl').open('wb') as so, (out / f'{name}.err').open('wb') as se:
+        guard_runs.rate('qwen-strata:hydrogen-agy', *START_CAP)
         p = subprocess.Popen(cmd, cwd=work, stdin=subprocess.PIPE, stdout=so, stderr=se, start_new_session=True)
         killed = False
-        try:
-            p.stdin.write(message.encode())
-            p.stdin.close()
-            code = p.wait(timeout=timeout_seconds + GRACE)
-        except subprocess.TimeoutExpired:
-            os.killpg(p.pid, signal.SIGKILL)
-            p.wait()
-            code, killed = p.returncode, True
+        with guard_runs.agy('qwen-strata:hydrogen-agy', model, effort, pid=p.pid):   # the status page's run list; removed when the turn ends
+            try:
+                p.stdin.write(message.encode())
+                p.stdin.close()
+                code = p.wait(timeout=timeout_seconds + GRACE)
+            except subprocess.TimeoutExpired:
+                os.killpg(p.pid, signal.SIGKILL)
+                p.wait()
+                code, killed = p.returncode, True
     ended = time.time()
     try:
         refresh_limits()

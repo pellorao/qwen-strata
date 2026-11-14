@@ -67,6 +67,7 @@ from tools.reviewer.review_deadlines import LIMITS, REMINDER, reminder_message, 
 from tools.reviewer import reminder_interrupt
 from tools.reviewer.harness_pins import CLAUDE as CLAUDE_COPY, CLAUDE_SHA256, CLAUDE_VERSION
 from tools.reviewer.wsl_client import ROOT, save
+from tools import guard_runs
 
 sys.path.append(str(ROOT / 'src'))
 from startup_instructions import startup_prompt_bytes
@@ -484,6 +485,23 @@ def drive_turns(process, stream_file, stream_name, messages, deadline, clock=tim
     return process.wait(), hard, turns
 
 
+ANTHROPIC_START_CAP = (60, 3600)   # Anthropic-backend process starts (a segment, a turn run) per hour; a script that restarts the run over and over stops here
+
+
+def start_process(argv, env, work, stdin, stderr, out):
+    """Popen of one Claude Code process, plus its guard: Anthropic-backend starts are rate capped (a loop that keeps restarting the run
+    spends the subscription), and the run is registered for the status page (local backends as claude-local, not a plan run).
+    Returns (process, run); close the run when the process has ended."""
+    local = 'ANTHROPIC_BASE_URL' in env
+    if not local:
+        guard_runs.rate('qwen-strata:claude_headless', *ANTHROPIC_START_CAP)
+    process = subprocess.Popen(argv, cwd=work, env=env, stdin=stdin, stdout=subprocess.PIPE, stderr=stderr, start_new_session=True)
+    flag = lambda name: argv[argv.index(name) + 1] if name in argv and argv.index(name) + 1 < len(argv) else ''   # noqa: E731
+    cm = guard_runs.registered(f'qwen-strata:{Path(out).parent.name}/{Path(out).name}', 'claude-local' if local else 'claude',
+                               model=flag('--model'), effort=flag('--effort'), source='' if local else 'claude-sub', pid=process.pid)
+    return process, cm
+
+
 def run_turns(out, messages, argv, env, work, deadline, clock=time.time):
     """One process, the messages one turn after another (window workload v2 on Claude Code); the clock starts with
     the first message."""
@@ -491,9 +509,9 @@ def run_turns(out, messages, argv, env, work, deadline, clock=time.time):
     with stream.open('wb') as stdout, errors.open('wb') as stderr:
         begun = clock()
         deadline.begin(begun)
-        process = subprocess.Popen(argv, cwd=work, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                   stderr=stderr, start_new_session=True)
-        code, timed_out, turns = drive_turns(process, stdout, stream.name, messages, deadline, clock)
+        process, registered = start_process(argv, env, work, subprocess.PIPE, stderr, out)
+        with registered:
+            code, timed_out, turns = drive_turns(process, stdout, stream.name, messages, deadline, clock)
         ended = clock()
     return {'exit': code, 'hard_interrupt': timed_out, 'started_at': begun, 'ended_at': ended,
             'wall_seconds': ended - begun, 'pid': process.pid, 'turns': turns, 'turns_planned': len(messages),
@@ -936,12 +954,12 @@ def run_segment(out, k, message, argv, env, work, deadline, on_start=None, clock
     with stream.open('wb') as stdout, errors.open('wb') as stderr:
         begun = clock()
         deadline.begin(begun)
-        process = subprocess.Popen(argv, cwd=work, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                   stderr=stderr, start_new_session=True)
-        if on_start:
-            message = on_start(process, message)
-        (out / f'prompt-sent{suffix}.md').write_text(message)
-        code, timed_out = drive(process, stdout, stream.name, message, deadline, clock)
+        process, registered = start_process(argv, env, work, subprocess.PIPE, stderr, out)
+        with registered:
+            if on_start:
+                message = on_start(process, message)
+            (out / f'prompt-sent{suffix}.md').write_text(message)
+            code, timed_out = drive(process, stdout, stream.name, message, deadline, clock)
         ended = clock()
     return {'exit': code, 'hard_interrupt': timed_out, 'started_at': begun, 'ended_at': ended,
             'wall_seconds': ended - begun, 'pid': process.pid}

@@ -24,6 +24,7 @@ import signal
 import subprocess
 import time
 
+from tools import guard_runs
 from tools.tuning import staged_decision, window_bank
 from tools.reviewer.native_cli_binding import CODEX, CODEX_VENDOR
 from tools.reviewer.providers import CREDENTIAL_PATTERNS, CREDENTIAL_VARIABLES
@@ -33,6 +34,7 @@ CATALOG = ROOT / 'config/model-catalog.json'
 STARTUP = ROOT / 'config/prompts/startup-instructions.txt'
 TIERS = {156584: 100000, 206584: 150000}
 KILL_GRACE_SECONDS = 5          # SIGTERM to the session's process group, then SIGKILL
+START_CAP = (600, 3600)         # model process starts per hour (a turn is one `codex exec`); a loop restarting the workload stops here (usage_guard rate net)
 ENGINE_IDLE_LIMIT_SECONDS = 120  # a cancelled request must leave Strata idle within this
 
 
@@ -141,10 +143,12 @@ def run_limited(command, prompt, out, cwd, env, timeout):
     """Run in its own process group; at the hard limit kill the whole group (Codex and every shell it started).
     Returns the exit code, or 'timeout'.  Killing Codex drops its HTTP stream, which makes the frontend and then
     Strata cancel the generation (`wait_engine_idle` confirms it)."""
+    guard_runs.rate('qwen-strata:codex_workload', *START_CAP)
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=out, stderr=subprocess.STDOUT, text=True,
                                cwd=cwd, env=env, start_new_session=True)
     try:
-        process.communicate(prompt, timeout=max(timeout, 0.1))
+        with guard_runs.registered('qwen-strata:codex_workload', 'codex-local', pid=process.pid):   # the model is Strata, not the Codex plan
+            process.communicate(prompt, timeout=max(timeout, 0.1))
         return process.returncode
     except subprocess.TimeoutExpired:
         for sig in (signal.SIGTERM, signal.SIGKILL):
