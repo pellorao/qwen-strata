@@ -1,0 +1,3289 @@
+{
+ "meta": {
+  "name": "Hydrogen supplement (phase 4) on the frozen Reviewer Model Benchmark v1 scenarios",
+  "scoring": "r8.4",
+  "generator": "runners/hydrogen-1114/summarize.py (not the frozen bench_export toolchain; kept apart from the page data)",
+  "configs": {
+   "30": "antigravity/hydrogen/medium",
+   "31": "antigravity/hydrogen/high",
+   "32": "antigravity/hydrogen/xhigh"
+  },
+  "unit": "seconds, tokens; cost null = unknown"
+ },
+ "instances": [
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-medium-a1",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 1,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T13:40:22+09:00",
+   "validity": {
+    "valid": false,
+    "status": "invalid",
+    "notes": [
+     "h0: ended_normally",
+     "h0: status ERROR The stream was interrupted. Please continue the task you were working on."
+    ]
+   },
+   "selection": {
+    "validRank": null,
+    "mainStatistic": false,
+    "stage": "phase4"
+   },
+   "scoring": null,
+   "time": {
+    "durationSeconds": 432.83097767829895,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 172575,
+    "cachedInput": 402590,
+    "output": 71859,
+    "thinking": 51129,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 36,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-medium-a2",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 2,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T13:47:45+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 1,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8316099528812204,
+    "rawScore": 0.8316099528812204,
+    "scoreBeforePenalty": 0.8316099528812204,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 285.44451904296875,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 97281,
+    "cachedInput": 644671,
+    "output": 40073,
+    "thinking": 24786,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 39,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-medium-a3",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 3,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T13:52:42+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 2,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8306953025068976,
+    "rawScore": 0.8306953025068976,
+    "scoreBeforePenalty": 0.8306953025068976,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 339.046679019928,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 102351,
+    "cachedInput": 807768,
+    "output": 43961,
+    "thinking": 28392,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 37,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-medium-a4",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 4,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T13:58:32+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 3,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.851974039845372,
+    "rawScore": 0.851974039845372,
+    "scoreBeforePenalty": 0.851974039845372,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 350.8374843597412,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 97763,
+    "cachedInput": 666668,
+    "output": 40286,
+    "thinking": 25874,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 39,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-medium-a5",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 5,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T14:04:34+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 4,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8385968894654671,
+    "rawScore": 0.8385968894654671,
+    "scoreBeforePenalty": 0.8385968894654671,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 323.26614594459534,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 102427,
+    "cachedInput": 708776,
+    "output": 41861,
+    "thinking": 27638,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 36,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-medium-a6",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 6,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T14:10:11+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 5,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8318352361475525,
+    "rawScore": 0.8318352361475525,
+    "scoreBeforePenalty": 0.8318352361475525,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 226.05460286140442,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 85688,
+    "cachedInput": 392536,
+    "output": 37795,
+    "thinking": 24329,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 36,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-high-a1",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 1,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T10:36:10+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 1,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8629326007936274,
+    "rawScore": 0.8629326007936274,
+    "scoreBeforePenalty": 0.8629326007936274,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 299.1421277523041,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 124134,
+    "cachedInput": 605986,
+    "output": 60064,
+    "thinking": 45270,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 27,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-high-a2",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 2,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T10:41:19+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 2,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8807433853296668,
+    "rawScore": 0.8807433853296668,
+    "scoreBeforePenalty": 0.8807433853296668,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 295.15688467025757,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 122449,
+    "cachedInput": 730464,
+    "output": 59860,
+    "thinking": 44972,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 37,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-high-a3",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 3,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T10:46:22+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 3,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8745929504144487,
+    "rawScore": 0.8745929504144487,
+    "scoreBeforePenalty": 0.8745929504144487,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 308.6922903060913,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 147612,
+    "cachedInput": 1177681,
+    "output": 57537,
+    "thinking": 45225,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 48,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-high-a4",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 4,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T10:51:39+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 4,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8704818758167964,
+    "rawScore": 0.8704818758167964,
+    "scoreBeforePenalty": 0.8704818758167964,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 351.475661277771,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 146700,
+    "cachedInput": 846990,
+    "output": 69997,
+    "thinking": 54698,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 34,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-high-a5",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 5,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T10:57:39+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 5,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8207542815874421,
+    "rawScore": 0.8207542815874421,
+    "scoreBeforePenalty": 0.8207542815874421,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 389.85732316970825,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 254075,
+    "cachedInput": 1611041,
+    "output": 70469,
+    "thinking": 51652,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 51,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-xhigh-a1",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 1,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T15:55:39+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 1,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8637922260813997,
+    "rawScore": 0.8637922260813997,
+    "scoreBeforePenalty": 0.8637922260813997,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 918.5940406322479,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 260894,
+    "cachedInput": 1368089,
+    "output": 125215,
+    "thinking": 106195,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 28,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-xhigh-a2",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 2,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T16:11:14+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 2,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8689870819310181,
+    "rawScore": 0.8689870819310181,
+    "scoreBeforePenalty": 0.8689870819310181,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 821.5972971916199,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 282673,
+    "cachedInput": 1494057,
+    "output": 120508,
+    "thinking": 102631,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 32,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-xhigh-a3",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 3,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T16:25:10+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 3,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8596763850070267,
+    "rawScore": 0.8596763850070267,
+    "scoreBeforePenalty": 0.8596763850070267,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 1053.4443731307983,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 254265,
+    "cachedInput": 1436746,
+    "output": 125762,
+    "thinking": 107567,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 51,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-xhigh-a4",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 4,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T16:42:55+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 4,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8243650825181384,
+    "rawScore": 0.8243650825181384,
+    "scoreBeforePenalty": 0.8243650825181384,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 1038.6634922027588,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 357292,
+    "cachedInput": 1948120,
+    "output": 146757,
+    "thinking": 116580,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 54,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-xhigh-a5",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 5,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T17:00:27+09:00",
+   "validity": {
+    "valid": false,
+    "status": "invalid",
+    "notes": [
+     "h0: ended_normally",
+     "h0: status ERROR API error (attempt 1): request failed: Post \"https://<network detail> <network detail> read: connection reset by peer"
+    ]
+   },
+   "selection": {
+    "validRank": null,
+    "mainStatistic": false,
+    "stage": "phase4"
+   },
+   "scoring": null,
+   "time": {
+    "durationSeconds": 1062.8691565990448,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 303462,
+    "cachedInput": 2386209,
+    "output": 144584,
+    "thinking": 124393,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 42,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/commit-audit-v3/hydrogen-xhigh-a6",
+   "scenario": "commit-audit-v3",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 6,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T17:18:22+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 5,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8639936556141139,
+    "rawScore": 0.8639936556141139,
+    "scoreBeforePenalty": 0.8639936556141139,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 733.8456280231476,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 245641,
+    "cachedInput": 1382235,
+    "output": 109642,
+    "thinking": 90956,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 54,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-medium-a1",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 1,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T14:14:06+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 1,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.6643420305185013,
+    "rawScore": 0.6643420305185013,
+    "scoreBeforePenalty": 0.6643420305185013,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 331.51442646980286,
+    "timeLimitSeconds": 385,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 118500,
+    "cachedInput": 1129120,
+    "output": 13813,
+    "thinking": 7643,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 30,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-medium-a2",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 2,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T14:19:48+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 2,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.5155924508118706,
+    "rawScore": 0.5155924508118706,
+    "scoreBeforePenalty": 0.5155924508118706,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 285.1220054626465,
+    "timeLimitSeconds": 385,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 100670,
+    "cachedInput": 791096,
+    "output": 12825,
+    "thinking": 8336,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 27,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-medium-a3",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 3,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T14:24:44+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 3,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.6742649524538071,
+    "rawScore": 0.6742649524538071,
+    "scoreBeforePenalty": 0.6742649524538071,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 385.25643515586853,
+    "timeLimitSeconds": 385,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 106558,
+    "cachedInput": 1154893,
+    "output": 13978,
+    "thinking": 8295,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 27,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-medium-a4",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 4,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T14:31:18+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 4,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.4795019795019795,
+    "rawScore": 0.4795019795019795,
+    "scoreBeforePenalty": 0.4795019795019795,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 298.5795271396637,
+    "timeLimitSeconds": 385,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 108308,
+    "cachedInput": 848542,
+    "output": 13116,
+    "thinking": 8292,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 25,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-medium-a5",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 5,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T14:36:28+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 5,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.41174950017278866,
+    "rawScore": 0.4374244112690134,
+    "scoreBeforePenalty": 0.4374244112690134,
+    "formatPenalty": 0.05869565217391305,
+    "repairs": 0,
+    "overallDeduction": 0.05869565217391305,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 389.9904441833496,
+    "timeLimitSeconds": 385,
+    "hardStop": true,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 124087,
+    "cachedInput": 1518893,
+    "output": 13628,
+    "thinking": 8685,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 28,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-high-a1",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 1,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T11:04:18+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 1,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.6914566178105078,
+    "rawScore": 0.6914566178105078,
+    "scoreBeforePenalty": 0.6914566178105078,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 224.24168920516968,
+    "timeLimitSeconds": 359,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 143082,
+    "cachedInput": 1326527,
+    "output": 28564,
+    "thinking": 21873,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 24,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-high-a2",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 2,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T11:08:11+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 2,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.6353140958952987,
+    "rawScore": 0.6353140958952987,
+    "scoreBeforePenalty": 0.6353140958952987,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 239.7455382347107,
+    "timeLimitSeconds": 359,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 138598,
+    "cachedInput": 1231655,
+    "output": 27964,
+    "thinking": 22604,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 32,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-high-a3",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 3,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T11:12:20+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 3,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.7004504400307098,
+    "rawScore": 0.7004504400307098,
+    "scoreBeforePenalty": 0.7004504400307098,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 257.5550808906555,
+    "timeLimitSeconds": 359,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 131977,
+    "cachedInput": 1105259,
+    "output": 23287,
+    "thinking": 17103,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 25,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-high-a4",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 4,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T11:16:45+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 4,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.6552365496050446,
+    "rawScore": 0.6552365496050446,
+    "scoreBeforePenalty": 0.6552365496050446,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 256.54341292381287,
+    "timeLimitSeconds": 359,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 141638,
+    "cachedInput": 1910099,
+    "output": 22037,
+    "thinking": 16136,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 29,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-high-a5",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 5,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T11:21:12+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 5,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.6685766153780861,
+    "rawScore": 0.6685766153780861,
+    "scoreBeforePenalty": 0.6685766153780861,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 270.2710165977478,
+    "timeLimitSeconds": 359,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 110352,
+    "cachedInput": 665882,
+    "output": 17639,
+    "thinking": 12482,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 20,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-xhigh-a1",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 1,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T17:30:47+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 1,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.6591222127099311,
+    "rawScore": 0.6881536967934028,
+    "scoreBeforePenalty": 0.6881536967934028,
+    "formatPenalty": 0.0421875,
+    "repairs": 0,
+    "overallDeduction": 0.0421875,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 381.62007093429565,
+    "timeLimitSeconds": 379,
+    "hardStop": true,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 152065,
+    "cachedInput": 1069941,
+    "output": 29746,
+    "thinking": 24144,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 29,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-xhigh-a2",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 2,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T17:37:19+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 2,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.6306049195943018,
+    "rawScore": 0.6306049195943018,
+    "scoreBeforePenalty": 0.6306049195943018,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 323.66012024879456,
+    "timeLimitSeconds": 379,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 145210,
+    "cachedInput": 653799,
+    "output": 38510,
+    "thinking": 33669,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 23,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-xhigh-a3",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 3,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T17:42:54+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 3,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.7895876118956482,
+    "rawScore": 0.7895876118956482,
+    "scoreBeforePenalty": 0.7895876118956482,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 376.38827872276306,
+    "timeLimitSeconds": 379,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 163097,
+    "cachedInput": 653501,
+    "output": 40670,
+    "thinking": 33914,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 25,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-xhigh-a4",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 4,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T17:49:24+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 4,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.7390772617693941,
+    "rawScore": 0.7555282807865199,
+    "scoreBeforePenalty": 0.7555282807865199,
+    "formatPenalty": 0.021774193548387097,
+    "repairs": 0,
+    "overallDeduction": 0.021774193548387097,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 380.08129692077637,
+    "timeLimitSeconds": 379,
+    "hardStop": true,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 140332,
+    "cachedInput": 515975,
+    "output": 39712,
+    "thinking": 32448,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 21,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/code-spec-v5/hydrogen-xhigh-a5",
+   "scenario": "code-spec-v5",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 5,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T17:55:57+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 5,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.6367077678910411,
+    "rawScore": 0.6367077678910411,
+    "scoreBeforePenalty": 0.6367077678910411,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 376.6839725971222,
+    "timeLimitSeconds": 379,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 131581,
+    "cachedInput": 610328,
+    "output": 25240,
+    "thinking": 18969,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 29,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-medium-a1",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 1,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T14:43:09+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 1,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.7230938767115238,
+    "rawScore": 0.803437640790582,
+    "scoreBeforePenalty": 0.803437640790582,
+    "formatPenalty": 0.1,
+    "repairs": 11,
+    "overallDeduction": 0.1,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 277.9132595062256,
+    "timeLimitSeconds": 371,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 73459,
+    "cachedInput": 674522,
+    "output": 17870,
+    "thinking": 11306,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 27,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-medium-a2",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 2,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T14:48:02+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 2,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8437460747572793,
+    "rawScore": 0.8545981143039967,
+    "scoreBeforePenalty": 0.8545981143039967,
+    "formatPenalty": 0.012698412698412698,
+    "repairs": 1,
+    "overallDeduction": 0.012698412698412698,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 255.0628821849823,
+    "timeLimitSeconds": 371,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 75994,
+    "cachedInput": 508476,
+    "output": 21052,
+    "thinking": 14969,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 24,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-medium-a3",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 3,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T14:52:27+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 3,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8514681233798882,
+    "rawScore": 0.8514681233798882,
+    "scoreBeforePenalty": 0.8514681233798882,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 253.8278992176056,
+    "timeLimitSeconds": 371,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 70141,
+    "cachedInput": 472575,
+    "output": 18268,
+    "thinking": 10112,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 29,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-medium-a4",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 4,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T14:56:53+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 4,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.7855338125926361,
+    "rawScore": 0.7855338125926361,
+    "scoreBeforePenalty": 0.7855338125926361,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 286.42295479774475,
+    "timeLimitSeconds": 371,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 79870,
+    "cachedInput": 651034,
+    "output": 18529,
+    "thinking": 12166,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 35,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-medium-a5",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 5,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T15:01:51+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 5,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.75040031411282,
+    "rawScore": 0.7933241318761682,
+    "scoreBeforePenalty": 0.7933241318761682,
+    "formatPenalty": 0.05410628019323671,
+    "repairs": 4,
+    "overallDeduction": 0.05410628019323671,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 264.05274271965027,
+    "timeLimitSeconds": 371,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 75231,
+    "cachedInput": 503611,
+    "output": 15946,
+    "thinking": 9874,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 25,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-high-a1",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 1,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T11:30:33+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 1,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8867546211753591,
+    "rawScore": 0.9157267674914735,
+    "scoreBeforePenalty": 0.9157267674914735,
+    "formatPenalty": 0.031638418079096044,
+    "repairs": 3,
+    "overallDeduction": 0.031638418079096044,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 317.1919753551483,
+    "timeLimitSeconds": 401,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 99619,
+    "cachedInput": 1042562,
+    "output": 25384,
+    "thinking": 16807,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 30,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-high-a2",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 2,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T11:35:59+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 2,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.7973515489546391,
+    "rawScore": 0.8677800769380142,
+    "scoreBeforePenalty": 0.8677800769380142,
+    "formatPenalty": 0.08115942028985507,
+    "repairs": 9,
+    "overallDeduction": 0.08115942028985507,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 304.93916273117065,
+    "timeLimitSeconds": 401,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 111545,
+    "cachedInput": 1107576,
+    "output": 30781,
+    "thinking": 22514,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 32,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-high-a3",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 3,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T11:41:12+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 3,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8625313675766164,
+    "rawScore": 0.8625313675766164,
+    "scoreBeforePenalty": 0.8625313675766164,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 308.7034361362457,
+    "timeLimitSeconds": 401,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 119830,
+    "cachedInput": 1292879,
+    "output": 28493,
+    "thinking": 21543,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 32,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-high-a4",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 4,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T11:46:30+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 4,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8489902844362047,
+    "rawScore": 0.8489902844362047,
+    "scoreBeforePenalty": 0.8489902844362047,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 285.2677414417267,
+    "timeLimitSeconds": 401,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 113131,
+    "cachedInput": 1206136,
+    "output": 34285,
+    "thinking": 26235,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 30,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-high-a5",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 5,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T11:51:24+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 5,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.819310184536429,
+    "rawScore": 0.819310184536429,
+    "scoreBeforePenalty": 0.819310184536429,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 274.43499302864075,
+    "timeLimitSeconds": 401,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 101590,
+    "cachedInput": 799936,
+    "output": 26181,
+    "thinking": 20047,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 31,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a1",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 1,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T18:02:25+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 1,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.0,
+    "rawScore": 0,
+    "scoreBeforePenalty": 0,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": true
+   },
+   "time": {
+    "durationSeconds": 349.6532163619995,
+    "timeLimitSeconds": 341,
+    "hardStop": true,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 85450,
+    "cachedInput": 558717,
+    "output": 12039,
+    "thinking": 9345,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 27,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a2",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 2,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T18:08:26+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 2,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.0,
+    "rawScore": 0,
+    "scoreBeforePenalty": 0,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": true
+   },
+   "time": {
+    "durationSeconds": 346.5329661369324,
+    "timeLimitSeconds": 341,
+    "hardStop": true,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 103034,
+    "cachedInput": 661978,
+    "output": 22722,
+    "thinking": 20607,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 27,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a3",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 3,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T18:14:26+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 3,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.7831391459219514,
+    "rawScore": 0.7831391459219514,
+    "scoreBeforePenalty": 0.7831391459219514,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 315.4483950138092,
+    "timeLimitSeconds": 341,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 123343,
+    "cachedInput": 1086352,
+    "output": 23199,
+    "thinking": 17103,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 30,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a4",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 4,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T18:19:57+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 4,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.7569372443557522,
+    "rawScore": 0.816723542922638,
+    "scoreBeforePenalty": 0.816723542922638,
+    "formatPenalty": 0.07320261437908497,
+    "repairs": 7,
+    "overallDeduction": 0.07320261437908497,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 347.6113805770874,
+    "timeLimitSeconds": 341,
+    "hardStop": true,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 113177,
+    "cachedInput": 786350,
+    "output": 35295,
+    "thinking": 26701,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 31,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/code-standards-v5.1/hydrogen-xhigh-a5",
+   "scenario": "code-standards-v5.1",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 5,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T18:25:53+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 5,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.820715261026548,
+    "rawScore": 0.8279713479570007,
+    "scoreBeforePenalty": 0.8279713479570007,
+    "formatPenalty": 0.008763693270735525,
+    "repairs": 1,
+    "overallDeduction": 0.008763693270735525,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 341.649564743042,
+    "timeLimitSeconds": 341,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 138185,
+    "cachedInput": 1030275,
+    "output": 34249,
+    "thinking": 25514,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 29,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-medium-a1",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 1,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T15:06:28+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 1,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.5951581027667984,
+    "rawScore": 0.5951581027667984,
+    "scoreBeforePenalty": 0.5951581027667984,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 460.0766706466675,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 184559,
+    "cachedInput": 1033770,
+    "output": 44407,
+    "thinking": 38085,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 32,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-medium-a2",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 2,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T15:14:29+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 2,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.5917654808959157,
+    "rawScore": 0.5917654808959157,
+    "scoreBeforePenalty": 0.5917654808959157,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 469.2899134159088,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 182159,
+    "cachedInput": 1346637,
+    "output": 41888,
+    "thinking": 33384,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 35,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-medium-a3",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 3,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T15:26:10+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 3,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.7716833890746935,
+    "rawScore": 0.7716833890746935,
+    "scoreBeforePenalty": 0.7716833890746935,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 449.0350158214569,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 187063,
+    "cachedInput": 1071336,
+    "output": 40543,
+    "thinking": 33242,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 36,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-medium-a4",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 4,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T15:34:02+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 4,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.6911725955204217,
+    "rawScore": 0.6911725955204217,
+    "scoreBeforePenalty": 0.6911725955204217,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 473.9958357810974,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 243982,
+    "cachedInput": 986616,
+    "output": 38908,
+    "thinking": 32495,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 32,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-medium-a5",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/medium",
+   "configNumber": 30,
+   "arm": "antigravity",
+   "attempt": 5,
+   "requestedEffort": "medium",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T15:42:21+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 5,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.6270142900577683,
+    "rawScore": 0.6270142900577683,
+    "scoreBeforePenalty": 0.6270142900577683,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 776.6209893226624,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 222145,
+    "cachedInput": 1847515,
+    "output": 48538,
+    "thinking": 40944,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 41,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-medium"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-high-a1",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 1,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T11:56:08+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 1,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8340390159040044,
+    "rawScore": 0.8340390159040044,
+    "scoreBeforePenalty": 0.8340390159040044,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 602.6652393341064,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 290135,
+    "cachedInput": 1405880,
+    "output": 115060,
+    "thinking": 106590,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 33,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-high-a2",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 2,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T12:06:28+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 2,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8326765945052391,
+    "rawScore": 0.8326765945052391,
+    "scoreBeforePenalty": 0.8326765945052391,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 652.7738265991211,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 297704,
+    "cachedInput": 1289221,
+    "output": 119041,
+    "thinking": 110803,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 37,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-high-a3",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 3,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T12:17:40+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 3,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8829862166818689,
+    "rawScore": 0.8829862166818689,
+    "scoreBeforePenalty": 0.8829862166818689,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 668.4875500202179,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 280678,
+    "cachedInput": 1131579,
+    "output": 111060,
+    "thinking": 103653,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 34,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-high-a4",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 4,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T12:29:09+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 4,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8212886005724881,
+    "rawScore": 0.8212886005724881,
+    "scoreBeforePenalty": 0.8212886005724881,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 734.1554939746857,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 299559,
+    "cachedInput": 1486031,
+    "output": 126268,
+    "thinking": 118196,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 35,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-high-a5",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/high",
+   "configNumber": 31,
+   "arm": "antigravity",
+   "attempt": 5,
+   "requestedEffort": "high",
+   "agyVersion": "1.5.8",
+   "startedAt": "2026-11-14T13:23:09+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 5,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.7938186067981462,
+    "rawScore": 0.7938186067981462,
+    "scoreBeforePenalty": 0.7938186067981462,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 1012.2515380382538,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 488815,
+    "cachedInput": 1401011,
+    "output": 128922,
+    "thinking": 119625,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 41,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-high"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-xhigh-a1",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 1,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T18:31:46+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 1,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.7657567733015304,
+    "rawScore": 0.7657567733015304,
+    "scoreBeforePenalty": 0.7657567733015304,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 1682.334840297699,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 685597,
+    "cachedInput": 1803671,
+    "output": 284940,
+    "thinking": 272054,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 46,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-xhigh-a2",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 2,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T19:00:08+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 2,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.7320027798288669,
+    "rawScore": 0.7320027798288669,
+    "scoreBeforePenalty": 0.7320027798288669,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 2552.449251651764,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 740403,
+    "cachedInput": 3654851,
+    "output": 290240,
+    "thinking": 270659,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 63,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-xhigh-a3",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 3,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T19:43:02+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 3,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.7611169946847696,
+    "rawScore": 0.7611169946847696,
+    "scoreBeforePenalty": 0.7611169946847696,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 2311.376887321472,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 585302,
+    "cachedInput": 1313666,
+    "output": 373278,
+    "thinking": 361492,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 39,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-xhigh-a4",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 4,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T20:21:57+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 4,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.7631887933038827,
+    "rawScore": 0.7631887933038827,
+    "scoreBeforePenalty": 0.7631887933038827,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 2330.78329372406,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 657240,
+    "cachedInput": 2992551,
+    "output": 263244,
+    "thinking": 250069,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 48,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  },
+  {
+   "id": "antigravity/spec-readiness-v4.3/hydrogen-xhigh-a5",
+   "scenario": "spec-readiness-v4.3",
+   "configKey": "antigravity/hydrogen/xhigh",
+   "configNumber": 32,
+   "arm": "antigravity",
+   "attempt": 5,
+   "requestedEffort": "xhigh",
+   "agyVersion": "1.5.9",
+   "startedAt": "2026-11-14T21:01:12+09:00",
+   "validity": {
+    "valid": true,
+    "status": "valid",
+    "notes": []
+   },
+   "selection": {
+    "validRank": 5,
+    "mainStatistic": true,
+    "stage": "phase4"
+   },
+   "scoring": {
+    "status": "final",
+    "score": 0.8233032525871401,
+    "rawScore": 0.8233032525871401,
+    "scoreBeforePenalty": 0.8233032525871401,
+    "formatPenalty": 0.0,
+    "repairs": 0,
+    "overallDeduction": 0.0,
+    "modelFailure": false
+   },
+   "time": {
+    "durationSeconds": 2183.5153064727783,
+    "timeLimitSeconds": null,
+    "hardStop": false,
+    "durationBasis": "agy process wall time summed over the segments of the instance; each segment counts --print-timeout from its process start (7 s start-up included)"
+   },
+   "tokens": {
+    "uncachedInput": 509674,
+    "cachedInput": 2449512,
+    "output": 244005,
+    "thinking": 233873,
+    "source": "agy stream usage"
+   },
+   "toolCalls": 44,
+   "cost": null,
+   "pauses": {
+    "known": true,
+    "count": 0
+   },
+   "modelIdsReturned": [
+    "gemini-4-hydrogen-xhigh"
+   ]
+  }
+ ]
+}

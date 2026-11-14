@@ -35,3 +35,6 @@ touch ~/projects/qwen-strata/.tmp/hydrobench/STOP                    # 要停时
 2. 盲裁：全部格跑完后按场景建池（见 plan.md §6）；Opus high 无头，unset 三个 ANTHROPIC_* 变量，每次调用后 `usage.sh --add-stream <stream> common/hydrobench:judge --effort high`；先写预期调用数。
 3. 计分（r8.4）：逐实例物化、计完即删，`--root` 下峰值约 100 MB（Main 已批准总量约 0.8 GB）。
 4. 导出（单独文件）与报告。
+
+## 2026-11-14 22:20 收尾完成
+12 格满、27 个盲裁池过门槛、60 个实例计分完成；结果在 `results/`（`summary.md`、`summary.json`、`hydrogen-results.json`），最终报告见 `.tasks/common/hydrobench/report-1114.md` 末节。复核清单、Hydrogen 锚点、导出并入页面三项留给 Main。
