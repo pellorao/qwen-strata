@@ -94,9 +94,10 @@ SCENARIOS = {
 }
 TIME_LIMITS = {
     'reading-volume': {
-        'zh': '阅读量时限 T = B ×（1/P + k/G）/ β，P、G、β 取每个配置自己短探针测出的速度；到 T 硬中断，按已写出的报告计分。实例的 T 见 timeLimitSeconds。',
+        'zh': '阅读量时限 T = B ×（1/P + k/G）/ β，P、G、β 取每个配置自己短探针测出的速度；T 取值限制在 15–60 分钟（用户 2026-11-15）；到 T 被硬中断的实例作废并以 60 分钟时限重跑，不计分。实例的 T 见 timeLimitSeconds。',
         'en': 'Reading-volume limit T = B x (1/P + k/G) / beta with P, G, beta measured per configuration by a short '
-              'probe; hard stop at T, scored from the report written. Per-instance T in timeLimitSeconds.'},
+              'probe, clamped to 15-60 minutes (user 2026-11-15); an instance hard-stopped at T is voided and rerun with a 60-minute '
+              'limit, never scored. Per-instance T in timeLimitSeconds.'},
     'arw': {
         'zh': 'ARW 原版：累计工作 55 分钟提醒、60 分钟中断（每个根线程）。',
         'en': 'ARW original: reminder at 55 minutes and interrupt at 60 minutes of accumulated work (per root thread).'},

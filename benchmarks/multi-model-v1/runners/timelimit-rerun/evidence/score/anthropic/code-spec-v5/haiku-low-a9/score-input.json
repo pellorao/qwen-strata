@@ -1,0 +1,15 @@
+{
+ "artifacts": [
+  {
+   "reviewerId": "code-spec-reviewer",
+   "instances": [
+    {
+     "instanceId": "default-8c6463a8-56bf-4a08-a83c-55b2b76c940d-instance-1",
+     "artifactPaths": [
+      "/dev/shm/oldrerun-score/anthropic/code-spec-v5/haiku-low-a9/prep/arw/.tmp/codex/b7635f94-ad60-429b-98e7-3ee5c19ba2bb/_reviewer-cap/runs/8c6463a8-56bf-4a08-a83c-55b2b76c940d/csp/1/.tmp/reports/review-result.md"
+     ]
+    }
+   ]
+  }
+ ]
+}
