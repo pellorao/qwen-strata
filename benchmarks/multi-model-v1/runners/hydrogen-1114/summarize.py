@@ -172,7 +172,41 @@ def write_md(S):
             cells.append(f"{c['score']['mean']:.3f} ± {c['score']['sd']:.3f}, n={c['score']['n']} ({c['wall_s']['mean'] / 60:.1f})")
         L.append(f"| {CONFIG[e]}† | antigravity/hydrogen/{e} | " + ' | '.join(cells) + ' |')
     L += ['', '* 补充配置；† 本补测（agy 1.5.8/1.5.9，另一 harness）。D7：不排名、不给综合分。']
+    L += ['', '## 裁决复核与锚点（decisions.json 与 anchors/）', '',
+          '| 场景 | 决定数 | 其中复核改判 | Hydrogen 锚点 | 锚点与盲裁一致 |', '|---|---|---|---|---|']
+    for s, row in review_rows().items():
+        L.append(f"| {NAME[s]} | {row['decisions']} | {row['overrides']} | {row['anchors']} | {row['agree']}/{row['anchors']} |")
     (OUT / 'summary.md').write_text('\n'.join(L) + '\n')
+
+
+def review_rows():
+    """Per scenario: decisions in the stores, Main review overrides among them, this family's anchors and how many of
+    them agree with the blind decision kept in the store (the anchor's origin)."""
+    out = {}
+    for s, scen in SCEN.items():
+        row = out.setdefault(s, {'decisions': 0, 'overrides': 0, 'anchors': 0, 'agree': 0})
+        stores = {}
+        for f in sorted(SCORE.glob(f'antigravity/{scen}/*/decisions.json')):
+            d = json.loads(f.read_text())['decisions']
+            stores[str(f.parent.relative_to(SCORE))] = d
+            row['decisions'] += len(d)
+            row['overrides'] += sum(not v['source'].startswith('pool ') for v in d.values())
+        reg = OUT.parent / 'anchors' / f'{scen}.json'
+        for a in (json.loads(reg.read_text())['anchors'] if reg.is_file() else []):
+            if a['family'] != 'hydrogen':
+                continue
+            row['anchors'] += 1
+            row['agree'] += blind_decision(stores, a['origin']) == a['expected']
+    return out
+
+
+def blind_decision(stores, origin):
+    """The blind pool decision of one stable id: the current one, or the one an override replaced (store history)."""
+    path = SCORE / origin['record'] / 'decisions.json'
+    for h in json.loads(path.read_text()).get('history', []):
+        if h['stable_id'] == origin['stable_id'] and h['replaced'] and h['replaced']['source'].startswith('pool '):
+            return h['replaced']['decision']
+    return stores[origin['record']][origin['stable_id']]['decision']
 
 
 FORBIDDEN = re.compile(r'/home|/mnt|/tmp|/var/|~/|[A-Za-z]:\\\\|localhost|127\.0\.0\.1|\bsk-|Bearer|@[A-Za-z0-9.-]+\.[a-z]{2,}|private\.toml|\.credentials|\.state/|pello|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')

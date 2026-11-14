@@ -1,0 +1,77 @@
+{
+ "ca-3-007": {
+  "decision": "matched",
+  "method": "benchmarks/multi-model-v1/runners/hydrogen-1114/anchors/checks/ca-checks.mjs; node on a read-only copy of pool ca-3 view",
+  "evidence": "authorizeRouteBatch(depot A, [Z, A]) is true, [A, Z] false, [A] true (expectation true: findIndex 0 passes firstRejected <= 0); the finding names firstRejected <= 0 vs === -1 and the index-0 case, evidence access.mjs:7-10 covers the association line; blind decision matched, consistent"
+ },
+ "ca-5-004": {
+  "decision": "matched",
+  "method": "benchmarks/multi-model-v1/runners/hydrogen-1114/anchors/checks/ca-checks.mjs; node on a read-only copy of pool ca-5 view",
+  "evidence": "redactManifestEvent removes a top-level auth token but keeps {keys: [{token}]} (expectation true: arrays not visited); the finding names the constructor === Object recursion test and arrays under event.auth, evidence telemetry.mjs:13-14; blind decision matched, consistent"
+ },
+ "cs-2-121": {
+  "decision": "matched",
+  "method": "benchmarks/multi-model-v1/runners/hydrogen-1114/anchors/checks/cs-checks.mjs; node on a read-only copy of pool cs-2 view",
+  "evidence": "allowanceSummary over a half-open UTC month counts only r1: a confirmed 60-minute reservation starting at period.startAt is left out (used 60, ids [r1]; expectation true); the finding names instant() plus strict overlaps and startAt === period.startAt, evidence allowance.mjs:9-13 and periods.mjs:1,5; blind decision matched, consistent"
+ },
+ "cs-1-057": {
+  "decision": "matched",
+  "method": "benchmarks/multi-model-v1/runners/hydrogen-1114/anchors/checks/cs-checks.mjs; node on a read-only copy of pool cs-1 view",
+  "evidence": "recordBadgeEvent with eventKey K in building b2 after K was recorded in b1 records a second event (e1, e2 stored), while the same building returns e1 (expectation true); the finding names store.list(event) filtering by buildingId in createAppendLog, evidence badge-service.mjs:5-7 and append-log.mjs:6-8; blind decision matched, consistent"
+ },
+ "cs-1-105": {
+  "decision": "not-matched",
+  "method": "benchmarks/multi-model-v1/runners/hydrogen-1114/anchors/checks/cs-checks.mjs; node on a read-only copy of pool cs-1 view",
+  "evidence": "withdrawEntry of a waiting entry starting in 30 min throws too late to withdraw (expectation true); acceptOffer of an offered entry whose expiresAt has passed is accepted (the finding describes this other, real defect); finding text has none of withdraw/waiting/60/cutoff; blind decision not-matched, consistent"
+ },
+ "cs-1-090": {
+  "decision": "not-matched",
+  "method": "benchmarks/multi-model-v1/runners/hydrogen-1114/anchors/checks/cs-checks.mjs; node on a read-only copy of pool cs-1 view",
+  "evidence": "same two runs as cs-1-105: waiting withdraw at 30 min refused (expectation true), expired offer accepted (the finding's acceptOffer defect); finding text has none of withdraw/waiting/60/cutoff; blind decision not-matched, consistent"
+ },
+ "cstd-1-118": {
+  "decision": "matched",
+  "method": "benchmarks/multi-model-v1/runners/hydrogen-1114/anchors/checks/cstd-checks.mjs; node on a read-only copy of pool cstd-1 view",
+  "evidence": "addLine on an order with one line grows the caller's order.lines from 1 to 2 before the menu check throws (expectation true: shallow spread then push); the finding names {...order} plus amended.lines.push and mutation of order.lines, evidence catering-service.mjs:70-79; blind decision matched, consistent"
+ },
+ "cstd-3-053": {
+  "decision": "matched",
+  "method": "benchmarks/multi-model-v1/runners/hydrogen-1114/anchors/checks/cstd-checks.mjs; node on a read-only copy of pool cstd-3 view",
+  "evidence": "the inline test at catering-service.mjs:55 and members/suspension.mjs isSuspended agree on no suspension, active, at expiry and after expiry (the same rule, expectation true); the finding names the same two locations and asks placeOrder to call isSuspended; blind decision matched, consistent"
+ },
+ "cstd-1-049": {
+  "decision": "not-matched",
+  "method": "benchmarks/multi-model-v1/runners/hydrogen-1114/anchors/checks/cstd-checks.mjs; node on a read-only copy of pool cstd-1 view",
+  "evidence": "a second save with a used request key resolves undefined, does not reject and is not stored (expectation true); the store is a CateringStore class instance behind createCateringStore (the finding's other, real point: class instead of a factory); finding text has none of catch/swallow/reject/error/undefined; blind decision not-matched, consistent"
+ },
+ "cstd-1-035": {
+  "decision": "not-matched",
+  "method": "benchmarks/multi-model-v1/runners/hydrogen-1114/anchors/checks/cstd-checks.mjs; node on a read-only copy of pool cstd-1 view",
+  "evidence": "same runs as cstd-1-049: the failed save resolves undefined (expectation true), the store is a class (the finding's point); finding text has none of catch/swallow/reject/error/undefined; blind decision not-matched, consistent"
+ },
+ "sr-3-043": {
+  "decision": "matched",
+  "method": "mechanical check of the quoted text against a read-only copy of the artifact-promotion view",
+  "evidence": "promotion-recovery.md:95 says the rollback recovery result is a manifestation of the ADR 0001 rollback responsibility, while docs/adr/0001-persistence.md:5 and architecture/02-commit.md:5 say they do not define the new recovery-result fields and failure lifecycle (expectation true); the finding cites exactly these three lines and names the missing evaluation; blind decision matched, consistent"
+ },
+ "sr-1-034": {
+  "decision": "matched",
+  "method": "mechanical check of the quoted text against a read-only copy of the artifact-promotion view",
+  "evidence": "access-review.md:55 has Access Review call Policy Evaluation Seam, and Module Design Rationale (65-79) has Boundary Alternative, Accepted Cost, Identity and Facts Authorities and Reader Dependency only, none for the Policy Evaluation Seam direction (expectation true); the finding cites 55 and 79 and names that direction; blind decision matched, consistent"
+ },
+ "sr-1-048": {
+  "decision": "not-matched",
+  "method": "mechanical check of the quoted text against a read-only copy of the runtime-migration view",
+  "evidence": "runtime-migration.md:23 gives the successful result as {status, artifactId, trackedStateId} without the summary that result-summary.md:11 requires (expectation true); the finding is about promotion-runtime.md:11 citing the architecture contract, but architecture/05-validation-report.md:33 states that shape for before the Result Summary change, and the finding never names Runtime Migration; blind decision not-matched, consistent"
+ },
+ "sr-4-018": {
+  "decision": "not-matched",
+  "method": "mechanical check of the quoted text against a read-only copy of the artifact-promotion view",
+  "evidence": "access-review.md:37 reviewAccess(request) takes only request, no verified-principal input, although Testing Decisions (93) requires it from the caller boundary (expectation true); the finding is about the missing Policy Adapter failure result in Other Results (45), a different gap; finding text has none of principal/verified/authentic; blind decision not-matched, consistent"
+ },
+ "sr-2-026": {
+  "decision": "not-matched",
+  "method": "mechanical check of the quoted text against a read-only copy of the artifact-promotion view",
+  "evidence": "Boundary Alternative (access-review.md:65-67) states the separate Access Review Module with no compared alternative (expectation true); the finding is about the Input author deployment-config authority for Authorization policy (59) missing from the rationale, which covers identity and facts only, a different object; blind decision not-matched, consistent"
+ }
+}

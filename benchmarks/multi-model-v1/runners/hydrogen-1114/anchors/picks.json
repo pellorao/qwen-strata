@@ -1,0 +1,1310 @@
+{
+ "seed": 20261021,
+ "per_stratum": 2,
+ "spare": 3,
+ "strata": {
+  "commit-audit-v3:matched": {
+   "size": 598,
+   "picks": [
+    {
+     "record": "antigravity/commit-audit-v3/hydrogen-xhigh-a6",
+     "stable_id": "commit-audit-reviewer:default:scope-2:problem-13:COMMIT-AUDIT-GATE-2:finding-13",
+     "pool_id": "ca-3-007",
+     "blind": "matched",
+     "blind_reason": "指出 findIndex 返回 0 时 `firstRejected <= 0` 为真，首条路线不属本仓仍被授权，与期望句同一缺陷。",
+     "item": {
+      "id": "ca-3-007",
+      "group": "E01",
+      "kind": "association",
+      "check": "COMMIT-AUDIT-GATE-2",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "`authorizeRouteBatch` accepts the batch when `findIndex` returns 0, so a batch whose first route fails depot ownership is authorized.",
+      "finding": "authorizeRouteBatch returns firstRejected <= 0 instead of firstRejected === -1, so when the first route (index 0) fails requireDepotOwner, firstRejected is 0 and the batch is accepted.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/dispatch/access.mjs",
+        "lineEnd": 10,
+        "lineStart": 7
+       },
+       {
+        "filePath": "src/dispatch/access.mjs",
+        "line": 14
+       }
+      ],
+      "requirementSource": {
+       "filePath": ".scratch/0001-dispatch-control/spec.md",
+       "line": 52,
+       "requirement": "Batch authorization rejects the batch when any route fails depot ownership."
+      }
+     }
+    },
+    {
+     "record": "antigravity/commit-audit-v3/hydrogen-medium-a3",
+     "stable_id": "commit-audit-reviewer:default:scope-2:problem-2:COMMIT-AUDIT-GATE-2:finding-2",
+     "pool_id": "ca-5-004",
+     "blind": "matched",
+     "blind_reason": "finding指出stripCredentials只递归constructor为Object的值，数组内的凭据未删除，与期望句同一缺陷。",
+     "item": {
+      "id": "ca-5-004",
+      "group": "E01",
+      "kind": "association",
+      "check": "COMMIT-AUDIT-GATE-2",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "Manifest-event redaction leaves arrays unvisited, so a credential in an object inside an array of the authentication data is not removed.",
+      "finding": "Repeated requirement from issue:0001:02 line 23: stripCredentials only recurses when value?.constructor === Object, so credentials nested inside arrays or null-prototype objects under event.auth are not removed.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/dispatch/telemetry.mjs",
+        "line": 7
+       },
+       {
+        "filePath": "src/dispatch/telemetry.mjs",
+        "lineEnd": 14,
+        "lineStart": 13
+       }
+      ],
+      "requirementSource": {
+       "filePath": ".scratch/0001-dispatch-control/spec.md",
+       "line": 12,
+       "requirement": "Under docs/dispatch/dispatch-policy.md, manifest-event redaction removes every credential nested inside authentication data."
+      }
+     }
+    },
+    {
+     "record": "antigravity/commit-audit-v3/hydrogen-high-a2",
+     "stable_id": "commit-audit-reviewer:default:scope-1:problem-18:COMMIT-AUDIT-GATE-1:finding-19",
+     "pool_id": "ca-1-008",
+     "blind": "matched",
+     "blind_reason": "指出 async 回调产生恒为真值的 Promise，checks.every(Boolean) 恒真，无效清单被存储，与期望一致。",
+     "item": {
+      "id": "ca-1-008",
+      "group": "E06",
+      "kind": "association",
+      "check": "COMMIT-AUDIT-GATE-1",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "`publishManifest` maps entries through an async callback, and every resulting promise is truthy, so a manifest with invalid entries is stored.",
+      "finding": "publishManifest maps manifest.entries with an async callback without awaiting the returned promises, so checks is an array of truthy Promise objects and checks.every(Boolean) is always true, causing invalid manifests to be stored.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/dispatch/manifest.mjs",
+        "line": 22
+       },
+       {
+        "filePath": "src/dispatch/manifest.mjs",
+        "line": 30
+       },
+       {
+        "filePath": "src/dispatch/publisher.mjs",
+        "lineEnd": 8,
+        "lineStart": 4
+       }
+      ],
+      "requirementSource": {
+       "filePath": ".scratch/0001-dispatch-control/issues/02-publish-dispatch-manifest.md",
+       "line": 39,
+       "requirement": "publishManifest stores the manifest only when every entry is valid."
+      }
+     }
+    },
+    {
+     "record": "antigravity/commit-audit-v3/hydrogen-xhigh-a6",
+     "stable_id": "commit-audit-reviewer:default:scope-1:problem-6:COMMIT-AUDIT-GATE-1:finding-7",
+     "pool_id": "ca-2-120",
+     "blind": "matched",
+     "blind_reason": "判uncertain并指出合同未规定store.write何时调用onCommit，无法确认plan.created在存储成功后才发出，与期望句一致。",
+     "item": {
+      "id": "ca-2-120",
+      "group": "E17",
+      "kind": "association",
+      "check": "COMMIT-AUDIT-GATE-1",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "No available contract establishes when `store.write` invokes `onCommit`, so it cannot be established that `plan.created` is emitted only after storage succeeds.",
+      "finding": "emitPlanCreated delegates emission to an onStored callback passed as {onCommit: onStored} into savePlan and store.write, and neither docs/dispatch/storage-contract.md nor docs/dispatch/adapter-contracts.md defines store.write or guarantees when or whether onCommit is invoked after storage succeeds.",
+      "result": "uncertain",
+      "evidence": [
+       {
+        "filePath": "src/dispatch/executor.mjs",
+        "line": 2
+       },
+       {
+        "filePath": "src/dispatch/executor.mjs",
+        "lineEnd": 17,
+        "lineStart": 14
+       },
+       {
+        "filePath": "src/dispatch/storage.mjs",
+        "lineEnd": 5,
+        "lineStart": 1
+       }
+      ],
+      "requirementSource": {
+       "filePath": ".scratch/0001-dispatch-control/issues/01-assemble-dispatch-plan.md",
+       "line": 28,
+       "requirement": "emitPlanCreated emits plan.created only after storage succeeds."
+      }
+     }
+    },
+    {
+     "record": "antigravity/commit-audit-v3/hydrogen-medium-a3",
+     "stable_id": "commit-audit-reviewer:default:scope-2:problem-16:COMMIT-AUDIT-GATE-2:finding-16",
+     "pool_id": "ca-4-038",
+     "blind": "matched",
+     "blind_reason": "finding 指出 Number() 接受空串、空白或非十进制文本及布尔值等，符合 spec:59 口径。",
+     "item": {
+      "id": "ca-4-038",
+      "group": "E06",
+      "kind": "association",
+      "check": "COMMIT-AUDIT-GATE-2",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "Retry-count parsing accepts any text that `Number` converts to an integer from 0 through 3, including text that is not base-10 digits such as `'0x2'`.",
+      "finding": "Repeated requirement from issue:0001:01 line 30: parseRetryCount uses Number(value), accepting empty/whitespace strings, booleans, null, decimals, and non-base-10 literals.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/dispatch/retry.mjs",
+        "line": 1
+       },
+       {
+        "filePath": "src/dispatch/retry.mjs",
+        "lineEnd": 6,
+        "lineStart": 3
+       }
+      ],
+      "requirementSource": {
+       "filePath": ".scratch/0001-dispatch-control/spec.md",
+       "line": 59,
+       "requirement": "Under docs/dispatch/dispatch-policy.md, retry-count parsing accepts exactly the valid retry counts and rejects every other value."
+      }
+     }
+    }
+   ]
+  },
+  "commit-audit-v3:not-matched": {
+   "size": 0,
+   "picks": []
+  },
+  "code-spec-v5:matched": {
+   "size": 228,
+   "picks": [
+    {
+     "record": "antigravity/code-spec-v5/hydrogen-medium-a5",
+     "stable_id": "code-spec-reviewer:default:scope-1:problem-5:CODE-SPEC-FINDINGS:finding-9",
+     "pool_id": "cs-2-121",
+     "blind": "matched",
+     "blind_reason": "finding 指出 countedReservations 用零长 instant 与严格比较的 overlaps，月初起点恰好开始的 confirmed 预订不计入 used，与期望句同一缺陷。",
+     "item": {
+      "id": "cs-2-121",
+      "group": "E16",
+      "kind": "association",
+      "check": "CODE-SPEC-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "countedReservations tests overlaps(instant(startAt), period), but instant is a zero-length interval and overlaps uses strict comparisons, so a confirmed reservation starting exactly at the first instant of the month is not counted in used minutes, although the month is half-open and its start is inside it.",
+      "finding": "- `src/members/allowance.mjs:9-13`, `src/platform/periods.mjs:1,5`: `countedReservations` checks whether `reservation.startAt` is within the usage month using `overlaps(instant(reservation.startAt), period)`. Because `instant(at)` sets `startAt: at, endAt: at` and `overlaps` checks `left.startAt < right.endAt && right.startAt < left.endAt`, when `reservation.startAt === period.startAt` (the exact start of the UTC month), `period.startAt < reservation.startAt` evaluates to `false`. This violates `governing-spec.md` Selection and counting (\"A member's used minutes are the total length in minutes of the member's `confirmed` reservations whose `startAt` is within the month\") and Time limits and expiry (\"A usage month is a half-open UTC calendar month\"). Confirmed reservations starting at the exact beginning of the month are excluded from used minutes and `reservationIds`. Fix: check `period.startAt <= reservation.startAt && reservation.startAt < period.endAt` directly.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/members/allowance.mjs",
+        "lineEnd": 13,
+        "lineStart": 9
+       },
+       {
+        "filePath": "src/platform/periods.mjs",
+        "line": 1
+       },
+       {
+        "filePath": "src/platform/periods.mjs",
+        "line": 5
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-spec-v5/hydrogen-medium-a5",
+     "stable_id": "code-spec-reviewer:default:scope-1:problem-4:CODE-SPEC-FINDINGS:finding-3",
+     "pool_id": "cs-1-057",
+     "blind": "matched",
+     "blind_reason": "finding 指出 findKeyedEvent 以 store.list(event) 查询，append-log 按 event.buildingId 过滤，跨楼的 eventKey 查不到而重复记录，与期望句同一缺陷。",
+     "item": {
+      "id": "cs-1-057",
+      "group": "E06",
+      "kind": "association",
+      "check": "CODE-SPEC-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "recordBadgeEvent looks up the event key through findKeyedEvent(store, prepared), which reads store.list(event); the event carries the event's buildingId, which the badge store (createAppendLog) destructures as a building filter, so a key already recorded for an event in another building is not found and the event is recorded again.",
+      "finding": "- `src/badges/badge-service.mjs:5-7,15-18`, `src/platform/append-log.mjs:6-8`: `findKeyedEvent` calls `store.list(event)`, which passes `event.buildingId` into `createAppendLog`'s `list({buildingId})` filter and therefore only searches events in the same building. This violates `governing-spec.md` Request keys (\"After the badge event rules for its fields, `direction`, `at` and reader, if an event recorded in any building has the key, recording returns it and does no further work.\"). Recording a badge event with an `eventKey` already recorded in a different building fails to return the existing event and instead records a duplicate event. Fix: call `await store.list()` without filtering by `buildingId` inside `findKeyedEvent`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/badges/badge-service.mjs",
+        "lineEnd": 7,
+        "lineStart": 5
+       },
+       {
+        "filePath": "src/badges/badge-service.mjs",
+        "lineEnd": 18,
+        "lineStart": 15
+       },
+       {
+        "filePath": "src/platform/append-log.mjs",
+        "lineEnd": 8,
+        "lineStart": 6
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-spec-v5/hydrogen-high-a5",
+     "stable_id": "code-spec-reviewer:default:scope-1:problem-5:CODE-SPEC-FINDINGS:finding-8",
+     "pool_id": "cs-2-119",
+     "blind": "matched",
+     "blind_reason": "finding 指出 countedReservations 用零长 instant 与严格比较的 overlaps，月初起点恰好开始的 confirmed 预订不计入 used，与期望句同一缺陷。",
+     "item": {
+      "id": "cs-2-119",
+      "group": "E16",
+      "kind": "association",
+      "check": "CODE-SPEC-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "countedReservations tests overlaps(instant(startAt), period), but instant is a zero-length interval and overlaps uses strict comparisons, so a confirmed reservation starting exactly at the first instant of the month is not counted in used minutes, although the month is half-open and its start is inside it.",
+      "finding": "8. `src/members/allowance.mjs:9-13`, `src/platform/periods.mjs:1,5`\n   - Governing requirement: `governing-spec.md:154,180` (\"A member's used minutes are the total length in minutes of the member's `confirmed` reservations whose `startAt` is within the month; `held` and `canceled` ones are not counted.\" / \"A usage month is a half-open UTC calendar month\")\n   - Problem: `countedReservations` checks `overlaps(instant(reservation.startAt), period)`. `instant(at)` returns `{startAt: at, endAt: at}`, and `overlaps` checks `left.startAt < right.endAt && right.startAt < left.endAt`, which requires `period.startAt < reservation.startAt && reservation.startAt < period.endAt`.\n   - Impact: A confirmed reservation starting at the exact start of the UTC month (`reservation.startAt === period.startAt`) is excluded from `used`, `remaining`, `overage`, and `reservationIds`.\n   - Fix: Replace `overlaps(instant(reservation.startAt), period)` with the half-open check `period.startAt <= reservation.startAt && reservation.startAt < period.endAt`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/members/allowance.mjs",
+        "lineEnd": 13,
+        "lineStart": 9
+       },
+       {
+        "filePath": "src/platform/periods.mjs",
+        "line": 1
+       },
+       {
+        "filePath": "src/platform/periods.mjs",
+        "line": 5
+       },
+       {
+        "filePath": "governing-spec.md",
+        "line": 154
+       },
+       {
+        "filePath": "governing-spec.md",
+        "line": 180
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-spec-v5/hydrogen-xhigh-a5",
+     "stable_id": "code-spec-reviewer:default:scope-1:problem-4:CODE-SPEC-FINDINGS:finding-4",
+     "pool_id": "cs-1-065",
+     "blind": "matched",
+     "blind_reason": "finding 指出 findKeyedEvent 以 store.list(event) 查询，append-log 按 event.buildingId 过滤，跨楼的 eventKey 查不到而重复记录，与期望句同一缺陷。",
+     "item": {
+      "id": "cs-1-065",
+      "group": "E06",
+      "kind": "association",
+      "check": "CODE-SPEC-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "recordBadgeEvent looks up the event key through findKeyedEvent(store, prepared), which reads store.list(event); the event carries the event's buildingId, which the badge store (createAppendLog) destructures as a building filter, so a key already recorded for an event in another building is not found and the event is recorded again.",
+      "finding": "- `src/badges/badge-service.mjs:5-7,15-18`, `src/platform/append-log.mjs:6-8`\n  - Requirement (`governing-spec.md` section \"Request keys\"): \"A badge event's `eventKey` is trimmed and lowercased; a non-string or blank key counts as absent. After the badge event rules for its fields, `direction`, `at` and reader, if an event recorded in any building has the key, recording returns it and does no further work.\"\n  - Evidence: `recordBadgeEvent` calls `findKeyedEvent(store, prepared)`, which calls `store.list(event)` passing `prepared` (which includes `buildingId`). In `createAppendLog`, `list({buildingId} = {})` filters stored events to `record.buildingId === buildingId`.\n  - Impact: Idempotent lookup by `eventKey` ignores events recorded in other buildings and allows duplicate events with the same `eventKey` across buildings.\n  - Fix: Call `store.list()` without arguments in `findKeyedEvent` so the `eventKey` lookup scans events across all buildings.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/badges/badge-service.mjs",
+        "lineEnd": 7,
+        "lineStart": 5
+       },
+       {
+        "filePath": "src/badges/badge-service.mjs",
+        "lineEnd": 18,
+        "lineStart": 15
+       },
+       {
+        "filePath": "src/platform/append-log.mjs",
+        "lineEnd": 8,
+        "lineStart": 6
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-spec-v5/hydrogen-high-a5",
+     "stable_id": "code-spec-reviewer:default:scope-1:problem-10:CODE-SPEC-FINDINGS:finding-11",
+     "pool_id": "cs-2-091",
+     "blind": "matched",
+     "blind_reason": "finding 指出 intentRequest 丢弃 issuedAt，newIntent 的 lateFee 得到 NaN 到期时间，逾期发票的 fee 恒为 0，与期望句同一缺陷。",
+     "item": {
+      "id": "cs-2-091",
+      "group": "E10",
+      "kind": "association",
+      "check": "CODE-SPEC-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "intentRequest rebuilds the request from a fixed list of invoice fields that leaves out issuedAt, so newIntent, which computes the fee with lateFee(prepared.total, prepared.issuedAt, at), gets a due instant of NaN and an intent created while its invoice is late has a fee of 0 and an amount equal to the total.",
+      "finding": "11. `src/payments/payment-service.mjs:8-10,13,19`, `src/payments/payment-policy.mjs:13-14`\n    - Governing requirement: `governing-spec.md:267` (\"An intent created while its invoice is late has a `fee` of 5 percent of `total`, rounded down to a whole unit; otherwise its `fee` is 0. Its `amount` is `total` plus `fee`.\")\n    - Problem: `intentRequest` destructures `{requestKey, invoice: {id, memberId, total}}` and drops `issuedAt`. `newIntent` then calls `lateFee(prepared.total, prepared.issuedAt, at)` where `prepared.issuedAt` is `undefined`, causing `dueAt(undefined)` to evaluate to `NaN` and `isLate` (`at >= NaN`) to return `false`.\n    - Impact: Payment intents created for late invoices always receive `fee: 0` and `amount: total` instead of the 5% late fee.\n    - Fix: Include `issuedAt` in `intentRequest`: `{requestKey, invoiceId: id, memberId, issuedAt, total}`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/payments/payment-service.mjs",
+        "lineEnd": 10,
+        "lineStart": 8
+       },
+       {
+        "filePath": "src/payments/payment-service.mjs",
+        "line": 13
+       },
+       {
+        "filePath": "src/payments/payment-service.mjs",
+        "line": 19
+       },
+       {
+        "filePath": "src/payments/payment-policy.mjs",
+        "lineEnd": 14,
+        "lineStart": 13
+       },
+       {
+        "filePath": "governing-spec.md",
+        "line": 267
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "code-spec-v5:not-matched": {
+   "size": 7,
+   "picks": [
+    {
+     "record": "antigravity/code-spec-v5/hydrogen-xhigh-a2",
+     "stable_id": "code-spec-reviewer:default:scope-1:problem-12:CODE-SPEC-FINDINGS:finding-4",
+     "pool_id": "cs-1-105",
+     "blind": "not-matched",
+     "blind_reason": "finding 讲的是 acceptOffer 在转换后的 next 上检查 isLapsing 致使过期报价可被接受，期望句是 withdraw 截止误用于 waiting 条目，缺陷不同。",
+     "item": {
+      "id": "cs-1-105",
+      "group": "E11",
+      "kind": "association",
+      "check": "CODE-SPEC-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "The single withdraw rule for waiting and offered entries carries the 60-minute cutoff, so a waiting entry whose startAt is less than 60 minutes from now cannot be withdrawn, although the limit applies only to offered entries.",
+      "finding": "- `src/waitlist/waitlist-service.mjs:58-64`, `src/waitlist/queue.mjs:13`, `src/waitlist/entry-states.mjs:6,19-26`: `acceptOffer` calls `moveEntry(entry, 'accept', at)` first, which transitions `next.state` to `'accepted'`, and only then checks `if (isLapsing(next, at))`. Because `isLapsing` requires `entry.state === 'offered'`, it always returns `false` on `next`, allowing expired `offered` waitlist entries to be accepted. This violates `governing-spec.md` under `Waitlist` (\"Only a nonexpired `offered` entry may be accepted; acceptance sets `accepted` and `acceptedAt` and books nothing.\"). Check `isLapsing(entry, at)` (or `entry.state === 'offered' && isExpired(entry, at)`) on `entry` before calling `moveEntry(entry, 'accept', at)`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/waitlist/waitlist-service.mjs",
+        "lineEnd": 64,
+        "lineStart": 58
+       },
+       {
+        "filePath": "src/waitlist/queue.mjs",
+        "line": 13
+       },
+       {
+        "filePath": "src/waitlist/entry-states.mjs",
+        "line": 6
+       },
+       {
+        "filePath": "src/waitlist/entry-states.mjs",
+        "lineEnd": 26,
+        "lineStart": 19
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-spec-v5/hydrogen-high-a3",
+     "stable_id": "code-spec-reviewer:default:scope-1:problem-12:CODE-SPEC-FINDINGS:finding-15",
+     "pool_id": "cs-1-090",
+     "blind": "not-matched",
+     "blind_reason": "finding 讲的是 acceptOffer 在转换后的 next 上检查 isLapsing 致使过期报价可被接受，期望句是 withdraw 截止误用于 waiting 条目，缺陷不同。",
+     "item": {
+      "id": "cs-1-090",
+      "group": "E11",
+      "kind": "association",
+      "check": "CODE-SPEC-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "The single withdraw rule for waiting and offered entries carries the 60-minute cutoff, so a waiting entry whose startAt is less than 60 minutes from now cannot be withdrawn, although the limit applies only to offered entries.",
+      "finding": "15. `src/waitlist/waitlist-service.mjs:58-64`, `src/waitlist/entry-states.mjs:7,19-26`, `src/waitlist/queue.mjs:9,13`\n    - **Governing requirement**: `governing-spec.md:50,182` (\"Only a nonexpired `offered` entry may be accepted; acceptance sets `accepted` and `acceptedAt` and books nothing.\" and \"A waitlist offer is expired when `now()` is equal to or later than its `expiresAt`.\")\n    - **Problem**: `acceptOffer` calls `const next = moveEntry(entry, 'accept', at)` first, which changes `next.state` to `'accepted'`, and only then checks `if (isLapsing(next, at))`. Because `isLapsing` requires `entry.state === 'offered'`, `isLapsing(next, at)` is always `false`.\n    - **Impact**: Expired `offered` waitlist entries (`now() >= entry.expiresAt`) can be accepted instead of being rejected.\n    - **Fix**: Check `if (isLapsing(entry, at)) throw new Error('offer has expired');` against the original `entry` before calling `moveEntry(entry, 'accept', at)`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/waitlist/waitlist-service.mjs",
+        "lineEnd": 64,
+        "lineStart": 58
+       },
+       {
+        "filePath": "src/waitlist/entry-states.mjs",
+        "line": 7
+       },
+       {
+        "filePath": "src/waitlist/entry-states.mjs",
+        "lineEnd": 26,
+        "lineStart": 19
+       },
+       {
+        "filePath": "src/waitlist/queue.mjs",
+        "line": 9
+       },
+       {
+        "filePath": "src/waitlist/queue.mjs",
+        "line": 13
+       },
+       {
+        "filePath": "governing-spec.md",
+        "line": 50
+       },
+       {
+        "filePath": "governing-spec.md",
+        "line": 182
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-spec-v5/hydrogen-high-a2",
+     "stable_id": "code-spec-reviewer:default:scope-1:problem-1:CODE-SPEC-FINDINGS:finding-3",
+     "pool_id": "cs-2-114",
+     "blind": "not-matched",
+     "blind_reason": "finding 虽指向同一 hasAmenities 比较，但所述错误含义是缺少所请求设施时误判为合格，而期望句是具备全部设施时永不合格，错误含义相反，不判同一缺陷。",
+     "item": {
+      "id": "cs-2-114",
+      "group": "E15",
+      "kind": "association",
+      "check": "CODE-SPEC-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "hasAmenities compares the size of the union with room.amenities.length; after lowercasing, a room amenity list with duplicates (Whiteboard, whiteboard) has a union smaller than its length, so that room is never eligible even when it has every requested amenity.",
+      "finding": "- `src/reservations/catalog.mjs:3-6,16`: `hasAmenities` checks `new Set([...room.amenities, ...amenities]).size === room.amenities.length`. Because `normalizeRoom` only lowercases `room.amenities` without deduplicating, any room whose input `amenities` contain duplicates (including case-differing duplicates such as `['WiFi', 'wifi']`) has a `room.amenities.length` larger than its unique amenity count, causing `hasAmenities` to return `true` when a requested amenity is missing. This violates `governing-spec.md` (`## Rooms`: \"Amenity names are compared case-insensitively, and a room must contain every requested amenity.\"). Deduplicate `room.amenities` or check membership directly against `new Set(room.amenities)` (e.g., `const offered = new Set(room.amenities); return amenities.every((amenity) => offered.has(amenity));`).",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/reservations/catalog.mjs",
+        "lineEnd": 6,
+        "lineStart": 3
+       },
+       {
+        "filePath": "src/reservations/catalog.mjs",
+        "line": 16
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-spec-v5/hydrogen-high-a1",
+     "stable_id": "code-spec-reviewer:default:scope-1:problem-12:CODE-SPEC-FINDINGS:finding-15",
+     "pool_id": "cs-1-103",
+     "blind": "not-matched",
+     "blind_reason": "finding 讲的是 acceptOffer 在转换后的 next 上检查 isLapsing 致使过期报价可被接受，期望句是 withdraw 截止误用于 waiting 条目，缺陷不同。",
+     "item": {
+      "id": "cs-1-103",
+      "group": "E11",
+      "kind": "association",
+      "check": "CODE-SPEC-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "The single withdraw rule for waiting and offered entries carries the 60-minute cutoff, so a waiting entry whose startAt is less than 60 minutes from now cannot be withdrawn, although the limit applies only to offered entries.",
+      "finding": "- `src/waitlist/waitlist-service.mjs:58-64`, `src/waitlist/entry-states.mjs:7,19-26`, `src/waitlist/queue.mjs:9,13`: `acceptOffer` calls `moveEntry(entry, 'accept', at)` first, changing `next.state` to `'accepted'`, and then checks `if (isLapsing(next, at))`. Because `isLapsing` requires `entry.state === 'offered'`, it always returns `false` on `next`. This violates `governing-spec.md:50,182` (`## Waitlist`: \"Only a nonexpired `offered` entry may be accepted\" and `## Time limits and expiry`: \"A waitlist offer is expired when `now()` is equal to or later than its `expiresAt`.\"). Expired `offered` waitlist entries are accepted instead of being rejected. Fix by checking `isLapsing(entry, at)` (or `entry.state === 'offered' && isExpired(entry, at)`) before `moveEntry`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/waitlist/waitlist-service.mjs",
+        "lineEnd": 64,
+        "lineStart": 58
+       },
+       {
+        "filePath": "src/waitlist/entry-states.mjs",
+        "line": 7
+       },
+       {
+        "filePath": "src/waitlist/entry-states.mjs",
+        "lineEnd": 26,
+        "lineStart": 19
+       },
+       {
+        "filePath": "src/waitlist/queue.mjs",
+        "line": 9
+       },
+       {
+        "filePath": "src/waitlist/queue.mjs",
+        "line": 13
+       },
+       {
+        "filePath": "governing-spec.md",
+        "line": 50
+       },
+       {
+        "filePath": "governing-spec.md",
+        "line": 182
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-spec-v5/hydrogen-xhigh-a5",
+     "stable_id": "code-spec-reviewer:default:scope-1:problem-12:CODE-SPEC-FINDINGS:finding-15",
+     "pool_id": "cs-1-094",
+     "blind": "not-matched",
+     "blind_reason": "finding 讲的是 acceptOffer 在转换后的 next 上检查 isLapsing 致使过期报价可被接受，期望句是 withdraw 截止误用于 waiting 条目，缺陷不同。",
+     "item": {
+      "id": "cs-1-094",
+      "group": "E11",
+      "kind": "association",
+      "check": "CODE-SPEC-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "The single withdraw rule for waiting and offered entries carries the 60-minute cutoff, so a waiting entry whose startAt is less than 60 minutes from now cannot be withdrawn, although the limit applies only to offered entries.",
+      "finding": "- `src/waitlist/waitlist-service.mjs:58-64`, `src/waitlist/entry-states.mjs:19-26`, `src/waitlist/queue.mjs:9,13`\n  - Requirement (`governing-spec.md` section \"Waitlist\"): \"Only a nonexpired `offered` entry may be accepted; acceptance sets `accepted` and `acceptedAt` and books nothing.\"\n  - Evidence: `acceptOffer` calls `const next = moveEntry(entry, 'accept', at);` first, transitioning `next.state` to `'accepted'`, and then checks `if (isLapsing(next, at))`. Because `isLapsing` checks `entry.state === 'offered' && isExpired(entry, at)`, `isLapsing(next, at)` is always `false`.\n  - Impact: Expired `offered` waitlist entries are allowed to be accepted instead of being rejected.\n  - Fix: Check `isLapsing(entry, at)` (or `isExpired(entry, at)`) before calling `moveEntry(entry, 'accept', at)`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/waitlist/waitlist-service.mjs",
+        "lineEnd": 64,
+        "lineStart": 58
+       },
+       {
+        "filePath": "src/waitlist/entry-states.mjs",
+        "lineEnd": 26,
+        "lineStart": 19
+       },
+       {
+        "filePath": "src/waitlist/queue.mjs",
+        "line": 9
+       },
+       {
+        "filePath": "src/waitlist/queue.mjs",
+        "line": 13
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "code-standards-v5.1:matched": {
+   "size": 307,
+   "picks": [
+    {
+     "record": "antigravity/code-standards-v5.1/hydrogen-high-a1",
+     "stable_id": "code-standards-reviewer:default:scope-1:problem-13:CODE-STANDARDS-FINDINGS:finding-7",
+     "pool_id": "cstd-1-118",
+     "blind": "matched",
+     "blind_reason": "finding 指出 addLine 只做了浅拷贝，随后向仍属调用方的 order.lines push，修改了调用方数据，和期望一致。",
+     "item": {
+      "id": "cstd-1-118",
+      "group": "E10",
+      "kind": "association",
+      "check": "CODE-STANDARDS-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "addLine copies the order with a shallow spread and then pushes into amended.lines, which is still the caller's order.lines array, mutating caller data.",
+      "finding": "7. `src/catering/catering-service.mjs:70-79`\n   - **Rule violated**: `src/AGENTS.md` rule 5 (exported functions must not mutate caller-supplied objects or arrays).\n   - **Problem and impact**: `addLine` creates only a shallow copy `const amended = {...order}` and then calls `amended.lines.push(prepareLine(line))`, mutating `order.lines` in place on the caller-supplied/store-returned `order` object (and mutating the in-memory store record if the caller passed a record previously retrieved from the store).\n   - **Fix**: Create a new array when copying `order`: `const amended = {...order, lines: [...order.lines, prepareLine(line)]};`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/catering/catering-service.mjs",
+        "lineEnd": 79,
+        "lineStart": 70
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-standards-v5.1/hydrogen-high-a3",
+     "stable_id": "code-standards-reviewer:default:scope-1:problem-21:CODE-STANDARDS-FINDINGS:finding-19",
+     "pool_id": "cstd-3-053",
+     "blind": "matched",
+     "blind_reason": "指出 placeOrder 内联停权判断，重复 members/suspension.mjs isSuspended，与期望句一致。",
+     "item": {
+      "id": "cstd-3-053",
+      "group": "E09",
+      "kind": "association",
+      "check": "CODE-STANDARDS-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "placeOrder rejects members with at < (member.suspension?.expiresAt ?? at), the same suspension rule as members/suspension.mjs isSuspended, which owns it; placeOrder can call isSuspended.",
+      "finding": "- `src/catering/catering-service.mjs:55`, `src/members/suspension.mjs:6`: `Duplicated Code` and `Feature Envy`. `placeOrder` manually inspects `member.suspension?.expiresAt` (`at < (member.suspension?.expiresAt ?? at)`), duplicating `isSuspended(member, at)` in `src/members/suspension.mjs`. Import `isSuspended` from `../members/suspension.mjs` (a rule module allowed under `src/AGENTS.md` rule 7.2) and check `if (isSuspended(member, at))`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/catering/catering-service.mjs",
+        "line": 55
+       },
+       {
+        "filePath": "src/members/suspension.mjs",
+        "line": 6
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-standards-v5.1/hydrogen-xhigh-a4",
+     "stable_id": "code-standards-reviewer:default:scope-1:problem-16:CODE-STANDARDS-FINDINGS:finding-22",
+     "pool_id": "cstd-2-118",
+     "blind": "matched",
+     "blind_reason": "finding 与期望句指 catering-time.mjs 只转发 platform/time.mjs 的 DAY 与 addMinutes为同一对象、同一错误含义",
+     "item": {
+      "id": "cstd-2-118",
+      "group": "E15",
+      "kind": "association",
+      "check": "CODE-STANDARDS-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "catering-time.mjs only re-exports DAY and addMinutes from platform/time.mjs, a forwarding module that hides no complexity.",
+      "finding": "- `src/catering/catering-time.mjs:1`, `src/catering/catering-policy.mjs:4`, `src/catering/catering-service.mjs:11` — `Middle Man` (`docs/agents/roles/code-standards-reviewer.md`) and `docs/agents/writing.md` (Common capabilities: \"不得创建只转发调用且没有隐藏任何复杂性的公共包装器.\"): `catering-time.mjs` consists solely of `export {DAY, addMinutes} from '../platform/time.mjs';` and adds no catering policy or abstraction, while both `catering-policy.mjs` and `catering-service.mjs` already import directly from `../platform/`. Impact: introduces an unnecessary indirection module to maintain without hiding any complexity. Fix: remove `src/catering/catering-time.mjs` and import `DAY` and `addMinutes` directly from `../platform/time.mjs`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/catering/catering-time.mjs",
+        "line": 1
+       },
+       {
+        "filePath": "src/catering/catering-policy.mjs",
+        "line": 4
+       },
+       {
+        "filePath": "src/catering/catering-service.mjs",
+        "line": 11
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-standards-v5.1/hydrogen-medium-a1",
+     "stable_id": "code-standards-reviewer:default:scope-1:problem-11:CODE-STANDARDS-FINDINGS:finding-4",
+     "pool_id": "cstd-1-094",
+     "blind": "matched",
+     "blind_reason": "finding 指出 notifyVendor 用 new Error(message, error) 把捕获的错误当作 options 传入而不是 {cause: error}，新错误没有 cause，和期望一致。",
+     "item": {
+      "id": "cstd-1-094",
+      "group": "E07",
+      "kind": "association",
+      "check": "CODE-STANDARDS-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "notifyVendor replaces the caught notifier error with new Error(message, error); the caught error is passed as the options argument, not as {cause: error}, so the new error has no cause.",
+      "finding": "4. `src/catering/catering-service.mjs:31-37`\n   - Violated rule: `src/AGENTS.md` rule 4.2 (\"An error that replaces a caught error must preserve the caught error as its `cause`.\").\n   - Problem and impact: In `notifyVendor`, `throw new Error(\\`vendor of order ${order.id} was not notified\\`, error);` passes `error` directly as the second argument to `Error` instead of `{cause: error}`. Because `Error` expects an options object `{cause}`, the caught error is not attached as `.cause`, losing the underlying failure diagnostics when vendor notification fails.\n   - Fix: Pass `{cause: error}` as the second argument: `throw new Error(\\`vendor of order ${order.id} was not notified\\`, {cause: error});`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/catering/catering-service.mjs",
+        "lineEnd": 37,
+        "lineStart": 31
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-standards-v5.1/hydrogen-high-a4",
+     "stable_id": "code-standards-reviewer:default:scope-1:problem-25:CODE-STANDARDS-FINDINGS:finding-20",
+     "pool_id": "cstd-3-017",
+     "blind": "matched",
+     "blind_reason": "指出 deliveredNotice 内联 reduce 求份数，并写明对端 catering-statements.mjs servingsOf，符合重复题匹配口径。",
+     "item": {
+      "id": "cstd-3-017",
+      "group": "E03",
+      "kind": "association",
+      "check": "CODE-STANDARDS-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "deliveredNotice in catering-notices.mjs sums line servings with its own reduce, the same fact that servingsOf in catering-statements.mjs computes; the notice can call servingsOf so the servings total keeps one authority.",
+      "finding": "- `src/catering/catering-notices.mjs:37-42`: `deliveredNotice` computes total servings with an inline `order.lines.reduce((total, line) => total + line.servings, 0)` instead of reusing `servingsOf(order)` (`src/catering/catering-statements.mjs:5`) or `sumOf` (`src/platform/amounts.mjs:1`).\n  - Violated rule / design smell: `Duplicated Code` and `docs/agents/writing.md` (\"Common capabilities\").\n  - Problem and impact: Re-implementing line-item summation inline duplicates `servingsOf` and `sumOf` across `src/catering/`.\n  - Fix: Reuse `servingsOf(order)` (or `sumOf`) in `deliveredNotice` instead of an inline `.reduce(...)`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/catering/catering-notices.mjs",
+        "lineEnd": 42,
+        "lineStart": 37
+       },
+       {
+        "filePath": "src/catering/catering-statements.mjs",
+        "line": 5
+       },
+       {
+        "filePath": "src/platform/amounts.mjs",
+        "line": 1
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "code-standards-v5.1:not-matched": {
+   "size": 19,
+   "picks": [
+    {
+     "record": "antigravity/code-standards-v5.1/hydrogen-medium-a4",
+     "stable_id": "code-standards-reviewer:default:scope-1:problem-9:CODE-STANDARDS-FINDINGS:finding-15",
+     "pool_id": "cstd-1-049",
+     "blind": "not-matched",
+     "blind_reason": "finding 说的是 store 用了 class 而不是工厂闭包，属于另一个问题，没有说 save 吞掉错误。",
+     "item": {
+      "id": "cstd-1-049",
+      "group": "E03",
+      "kind": "association",
+      "check": "CODE-STANDARDS-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error.",
+      "finding": "- `src/catering/catering-store.mjs:12-44`:\n  - Violated rule: `docs/agents/writing.md` (\"Source Checkout JavaScript 样式: 除非外部 Interface 要求, 否则避免使用 `class`.\").\n  - Problem and impact: `catering-store.mjs` defines `class CateringStore` even though `createCateringStore` is the exported factory and no external interface requires a class, diverging from all other store modules in the repository (`createReservationStore`, `createInvoiceStore`, `createPaymentStore`).\n  - Fix: Replace `class CateringStore` with a `createCateringStore` factory function returning a frozen object literal backed by closure-scoped `records` and `writes`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/catering/catering-store.mjs",
+        "lineEnd": 44,
+        "lineStart": 12
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-standards-v5.1/hydrogen-medium-a2",
+     "stable_id": "code-standards-reviewer:default:scope-1:problem-9:CODE-STANDARDS-FINDINGS:finding-7",
+     "pool_id": "cstd-1-035",
+     "blind": "not-matched",
+     "blind_reason": "finding 说的是 store 用了 class 而不是工厂闭包，属于另一个问题，没有说 save 吞掉错误。",
+     "item": {
+      "id": "cstd-1-035",
+      "group": "E03",
+      "kind": "association",
+      "check": "CODE-STANDARDS-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error.",
+      "finding": "- `src/catering/catering-store.mjs:15-43`\n  - **Violated rule**: `docs/agents/writing.md` (Source Checkout JavaScript style: avoid `class` unless required by an external interface).\n  - **Problem and impact**: `catering-store.mjs` defines `class CateringStore` internally even though the module only exports the factory function `createCateringStore`, introducing unnecessary class boilerplate that diverges from the closure-based pattern used by other stores in the repository (such as `src/payments/payment-store.mjs`).\n  - **Fix**: Replace `class CateringStore` with a closure returning `Object.freeze({find, findByRequestKey, list, save})` inside `createCateringStore`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/catering/catering-store.mjs",
+        "lineEnd": 43,
+        "lineStart": 15
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-standards-v5.1/hydrogen-high-a2",
+     "stable_id": "code-standards-reviewer:default:scope-1:problem-9:CODE-STANDARDS-FINDINGS:finding-14",
+     "pool_id": "cstd-1-047",
+     "blind": "not-matched",
+     "blind_reason": "finding 说的是 store 用了 class 而不是工厂闭包，属于另一个问题，没有说 save 吞掉错误。",
+     "item": {
+      "id": "cstd-1-047",
+      "group": "E03",
+      "kind": "association",
+      "check": "CODE-STANDARDS-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error.",
+      "finding": "- `src/catering/catering-store.mjs:12-44`: Violates `docs/agents/writing.md` (\"除非外部 Interface 要求, 否则避免使用 `class`.\").\n  - Problem and impact: `CateringStore` is a private `class` instantiated solely inside `createCateringStore`, unlike all other store modules in `src/` (such as `src/billing/invoice-store.mjs:3-23` and `src/reservations/reservation-store.mjs:1-20`) that use factory functions returning frozen plain objects. Using a `class` here diverges from the repository style without any external interface requirement and returns an unfrozen instance.\n  - Fix: Replace `class CateringStore` with a `createCateringStore` factory function returning `Object.freeze({find, findByRequestKey, list, save})`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/catering/catering-store.mjs",
+        "lineEnd": 44,
+        "lineStart": 12
+       },
+       {
+        "filePath": "src/billing/invoice-store.mjs",
+        "lineEnd": 23,
+        "lineStart": 3
+       },
+       {
+        "filePath": "src/reservations/reservation-store.mjs",
+        "lineEnd": 20,
+        "lineStart": 1
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-standards-v5.1/hydrogen-high-a4",
+     "stable_id": "code-standards-reviewer:default:scope-1:problem-9:CODE-STANDARDS-FINDINGS:finding-14",
+     "pool_id": "cstd-1-043",
+     "blind": "not-matched",
+     "blind_reason": "finding 说的是 store 用了 class 而不是工厂闭包，属于另一个问题，没有说 save 吞掉错误。",
+     "item": {
+      "id": "cstd-1-043",
+      "group": "E03",
+      "kind": "association",
+      "check": "CODE-STANDARDS-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "CateringStore.save chains each write onto this.#writes with .catch(() => undefined) and returns that same swallowed promise, so a failed save (request key already used) resolves with undefined instead of rejecting; rule 4.3 allows the catch only to keep the queue usable, and the caller must still see the original error.",
+      "finding": "- `src/catering/catering-store.mjs:12-44`: `src/catering/catering-store.mjs` defines `class CateringStore` and returns `new CateringStore(initialOrders)` from `createCateringStore`, even though no external interface requires a class and every other store in `src/` (such as `src/platform/append-log.mjs` and `src/billing/invoice-store.mjs`) returns a plain frozen object from a closure.\n  - Violated rule: `docs/agents/writing.md` (\"Source Checkout JavaScript 样式\": \"除非外部 Interface 要求, 否则避免使用 `class`.\").\n  - Problem and impact: Using a `class` introduces an unnecessary prototype-based instance and mutable fields instead of the repository's standard closure-plus-`Object.freeze` store pattern.\n  - Fix: Replace `class CateringStore` with a factory closure inside `createCateringStore` returning `Object.freeze({find, findByRequestKey, list, save})`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/catering/catering-store.mjs",
+        "lineEnd": 44,
+        "lineStart": 12
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/code-standards-v5.1/hydrogen-medium-a2",
+     "stable_id": "code-standards-reviewer:default:scope-1:problem-24:CODE-STANDARDS-FINDINGS:finding-24",
+     "pool_id": "cstd-3-094",
+     "blind": "not-matched",
+     "blind_reason": "该 finding 主张 notices 模块职责混杂（付款期、排序、时钟），不是课程事实三处重复这一缺陷。",
+     "item": {
+      "id": "cstd-3-094",
+      "group": "E17",
+      "kind": "association",
+      "check": "CODE-STANDARDS-FINDINGS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "Course facts are kept in three places: the prepMinutes switch in catering-policy.mjs, the SERVING_ORDER map in catering-notices.mjs (which repeats the order of the COURSES list) and COURSES in menu.mjs; a course added only to COURSES passes menu validation and then makes placeOrder throw and the notice sort compare undefined. One course table can hold them.",
+      "finding": "- `src/catering/catering-notices.mjs:5-7,27,54`\n  - **Design smell / violated rule**: General design check (mixed responsibilities / `Divergent Change`).\n  - **Problem and impact**: `catering-notices.mjs` mixes notice payload formatting with billing terms (`PAYABLE_WITHIN_DAYS = 14`), menu course ordering (`SERVING_ORDER`), and clock reading (`Date.now()`). Changes to payment terms, menu courses, or notice formatting all force edits to the same module.\n  - **Fix**: Move `PAYABLE_WITHIN_DAYS` to `CATERING` in `src/platform/site-settings.mjs`, source course order from the shared course definition, and pass the timestamp `at` from `catering-service.mjs` so `catering-notices.mjs` only formats notice payloads.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "src/catering/catering-notices.mjs",
+        "lineEnd": 7,
+        "lineStart": 5
+       },
+       {
+        "filePath": "src/catering/catering-notices.mjs",
+        "line": 27
+       },
+       {
+        "filePath": "src/catering/catering-notices.mjs",
+        "line": 54
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "spec-readiness-v4.3:matched": {
+   "size": 282,
+   "picks": [
+    {
+     "record": "antigravity/spec-readiness-v4.3/hydrogen-high-a3",
+     "stable_id": "spec-readiness-reviewer:artifact-promotion:scope-4:problem-1:SPEC-READINESS-ADR-EVALUATION:finding-1",
+     "pool_id": "sr-3-043",
+     "blind": "matched",
+     "blind_reason": "finding 指出 recovery ADR Evaluation 把新 recovery-result 合同与失败生命周期视为 ADR 0001 已覆盖而未评估，与期望同一缺陷。",
+     "item": {
+      "id": "sr-3-043",
+      "group": "E06",
+      "kind": "association",
+      "scenario": "artifact-promotion",
+      "check": "SPEC-READINESS-ADR-EVALUATION",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "The recovery ADR evaluation treats the new public recovery-result contract and failure lifecycle as covered by an existing rollback responsibility without evaluating that new decision.",
+      "finding": "`specs/promotion-recovery.md` treats the new rollback recovery result contract (`{recovered, failureCode, priorTrackedState, baselineStatus}`) and failure lifecycle as a manifestation of `ADR 0001`, directly contradicting `docs/adr/0001-persistence.md` and `architecture/02-commit.md`, which explicitly state that they do not define the newly added `recovery-result` public fields or failure lifecycle. As a result, the spec provides neither an applicable ADR nor a specific non-ADR conclusion for this caller-visible recovery contract.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "architecture/02-commit.md",
+        "line": 5
+       },
+       {
+        "filePath": "docs/adr/0001-persistence.md",
+        "line": 5
+       },
+       {
+        "filePath": "specs/promotion-recovery.md",
+        "line": 95
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/spec-readiness-v4.3/hydrogen-xhigh-a4",
+     "stable_id": "spec-readiness-reviewer:artifact-promotion:scope-11:problem-3:MODULE-DESIGN-RATIONALE:finding-2",
+     "pool_id": "sr-1-034",
+     "blind": "matched",
+     "blind_reason": "finding 指出 Module Design Rationale 未论证 Access Review Module 到 Policy Evaluation Seam 的依赖方向，与期望句同一缺陷",
+     "item": {
+      "id": "sr-1-034",
+      "group": "E02",
+      "kind": "association",
+      "scenario": "artifact-promotion",
+      "check": "MODULE-DESIGN-RATIONALE",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "The access-review rationale does not justify the dependency direction from Access Review Module to Policy Evaluation Seam.",
+      "finding": "`specs/access-review.md` `Dependencies and Data Flow` specifies that `Access Review Module` calls `Policy Evaluation Seam`, yet `Module Design Rationale` (`Reader Dependency`) justifies only the dependency on `Artifact Reader`, omitting alternatives, priority, rejection reason, and accepted cost or limitation for the `Access Review Module -> Policy Evaluation Seam` dependency direction.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "specs/access-review.md",
+        "line": 55
+       },
+       {
+        "filePath": "specs/access-review.md",
+        "line": 79
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/spec-readiness-v4.3/hydrogen-medium-a1",
+     "stable_id": "spec-readiness-reviewer:runtime-migration:scope-2:problem-3:SPEC-READINESS-REQUIREMENTS:finding-2",
+     "pool_id": "sr-3-112",
+     "blind": "matched",
+     "blind_reason": "finding 指出所选 image-cache preview cleanup 与 What to build 的交付无关，与期望的多余选择是同一缺陷。",
+     "item": {
+      "id": "sr-3-112",
+      "group": "E11",
+      "kind": "association",
+      "scenario": "runtime-migration",
+      "check": "SPEC-READINESS-REQUIREMENTS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "The subject adds image-preview cleanup that is not needed to implement this issue.",
+      "finding": "`specs/image-cache.md#preview-cleanup` is selected in `## Spec Requirement`, but `## What to build` does not include image preview cache cleanup in the issue deliverables, so this selection is unrelated and out of scope.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": ".scratch/0001-reviewer-capability/issues/01-review-readiness.md",
+        "line": 3
+       },
+       {
+        "filePath": ".scratch/0001-reviewer-capability/issues/01-review-readiness.md",
+        "line": 20
+       },
+       {
+        "filePath": "specs/image-cache.md",
+        "line": 5
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/spec-readiness-v4.3/hydrogen-high-a5",
+     "stable_id": "spec-readiness-reviewer:artifact-promotion:scope-5:problem-1:MODULE-DESIGN-APPLICABILITY:finding-1",
+     "pool_id": "sr-3-034",
+     "blind": "matched",
+     "blind_reason": "finding 指出 result-summary 新增 caller-visible summary 改变公开 Interface 却用 Not required，与期望同一缺陷。",
+     "item": {
+      "id": "sr-3-034",
+      "group": "E05",
+      "kind": "association",
+      "scenario": "artifact-promotion",
+      "check": "MODULE-DESIGN-APPLICABILITY",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "The result-summary change alters a caller-visible Interface and therefore cannot use the Module Design exemption.",
+      "finding": "`specs/result-summary.md` modifies non-test runtime code and changes the public `promote(inputPath)` Interface by adding a caller-visible `summary` field to the successful result shape (requiring existing result consumers to handle a new field), yet uses a `Not required:` Module Design paragraph instead of the required complete Module Design format.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "specs/result-summary.md",
+        "line": 5
+       },
+       {
+        "filePath": "specs/result-summary.md",
+        "line": 11
+       },
+       {
+        "filePath": "specs/result-summary.md",
+        "line": 15
+       },
+       {
+        "filePath": "specs/result-summary.md",
+        "line": 19
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/spec-readiness-v4.3/hydrogen-medium-a3",
+     "stable_id": "spec-readiness-reviewer:artifact-promotion:scope-8:problem-3:MODULE-DESIGN-INTERFACES:finding-2",
+     "pool_id": "sr-2-075",
+     "blind": "matched",
+     "blind_reason": "指出 rollback failure 单个 failureCode 未定义承载 commit 还是 restore 失败码，与期望句同一缺陷",
+     "item": {
+      "id": "sr-2-075",
+      "group": "E05",
+      "kind": "association",
+      "scenario": "artifact-promotion",
+      "check": "MODULE-DESIGN-INTERFACES",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "Rollback-failure result does not define whether failureCode identifies the commit or rollback failure.",
+      "finding": "Recovery Storage Seam states that on restore failure Recovery Module preserves both the original commit failure and restoreFailureCode ('restore-failed') to form the Recovery Result Interface output, but Recovery Result Interface ({recovered: false, failureCode, priorTrackedState, baselineStatus}) has only a single failureCode field and does not specify whether failureCode carries commitFailureCode or restoreFailureCode or how both failures are preserved.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "specs/promotion-recovery.md",
+        "line": 47
+       },
+       {
+        "filePath": "specs/promotion-recovery.md",
+        "line": 59
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "spec-readiness-v4.3:not-matched": {
+   "size": 133,
+   "picks": [
+    {
+     "record": "antigravity/spec-readiness-v4.3/hydrogen-xhigh-a2",
+     "stable_id": "spec-readiness-reviewer:runtime-migration:scope-2:problem-1:SPEC-READINESS-REQUIREMENTS:finding-8",
+     "pool_id": "sr-1-048",
+     "blind": "not-matched",
+     "blind_reason": "finding 针对 promotion-runtime.md#requirements 引用的 architecture 合同缺 summary，对象不是 Runtime Migration 的成功结果",
+     "item": {
+      "id": "sr-1-048",
+      "group": "E04",
+      "kind": "association",
+      "scenario": "runtime-migration",
+      "check": "SPEC-READINESS-REQUIREMENTS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "Runtime Migration successful result omits the summary required by Result Summary.",
+      "finding": "specs/promotion-runtime.md#requirements states that promotion returns the canonical JSON result defined by \"architecture contract\". However, architecture/05-validation-report.md defines the pre-Result Summary contract as {status: \"succeeded\", artifactId, trackedStateId} without summary, making specs/promotion-runtime.md#requirements inconsistent with specs/result-summary.md#requirements (and with its own unselected Successful Result contract requiring summary).",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "architecture/05-validation-report.md",
+        "line": 33
+       },
+       {
+        "filePath": "specs/promotion-runtime.md",
+        "line": 11
+       },
+       {
+        "filePath": "specs/promotion-runtime.md",
+        "line": 37
+       },
+       {
+        "filePath": "specs/result-summary.md",
+        "line": 11
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/spec-readiness-v4.3/hydrogen-xhigh-a1",
+     "stable_id": "spec-readiness-reviewer:artifact-promotion:scope-8:problem-1:MODULE-DESIGN-INTERFACES:finding-1",
+     "pool_id": "sr-4-018",
+     "blind": "not-matched",
+     "blind_reason": "finding 说的是 Policy Adapter 执行失败缺结果合同，与 verified principal 输入缺失的期望不是同一缺陷。",
+     "item": {
+      "id": "sr-4-018",
+      "group": "E05",
+      "kind": "association",
+      "scenario": "artifact-promotion",
+      "check": "MODULE-DESIGN-INTERFACES",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "Access Review Interface does not provide the verified-principal input required by its authentication boundary.",
+      "finding": "specs/access-review.md `## Testing Decisions` requires testing `Policy Adapter failure` through the `reviewAccess` public lifecycle, yet `### Interfaces` (`#### Other Results`), `### Seams and Adapters` (`#### Policy Evaluation Seam`), `### Dependencies and Data Flow`, and `architecture/04-seams.md` define no Policy Adapter failure return shape, `failureCode`, no-read/no-write invariant, or propagation contract.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "architecture/04-seams.md",
+        "line": 5
+       },
+       {
+        "filePath": "specs/access-review.md",
+        "line": 45
+       },
+       {
+        "filePath": "specs/access-review.md",
+        "line": 51
+       },
+       {
+        "filePath": "specs/access-review.md",
+        "line": 55
+       },
+       {
+        "filePath": "specs/access-review.md",
+        "line": 93
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/spec-readiness-v4.3/hydrogen-xhigh-a1",
+     "stable_id": "spec-readiness-reviewer:artifact-promotion:scope-11:problem-1:MODULE-DESIGN-RATIONALE:finding-3",
+     "pool_id": "sr-2-026",
+     "blind": "not-matched",
+     "blind_reason": "说的是 authorization policy 权威来源（Input author 部署配置）缺理由，不是 Module 边界缺备选",
+     "item": {
+      "id": "sr-2-026",
+      "group": "E02",
+      "kind": "association",
+      "scenario": "artifact-promotion",
+      "check": "MODULE-DESIGN-RATIONALE",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "The rationale selects a separate Access Review Module but does not compare it with an authorization-ownership alternative such as keeping authorization in the caller, and gives no reason for rejecting it.",
+      "finding": "specs/access-review.md `### Dependencies and Data Flow` designates `Input author`'s deployment configuration as the authority for `Authorization policy`, yet `### Module Design Rationale` omits the alternative authority, chosen priority, rejection reason, and accepted cost or limitation for this authority choice.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "specs/access-review.md",
+        "line": 59
+       },
+       {
+        "filePath": "specs/access-review.md",
+        "line": 67
+       },
+       {
+        "filePath": "specs/access-review.md",
+        "line": 71
+       },
+       {
+        "filePath": "specs/access-review.md",
+        "line": 75
+       },
+       {
+        "filePath": "specs/access-review.md",
+        "line": 79
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/spec-readiness-v4.3/hydrogen-high-a4",
+     "stable_id": "spec-readiness-reviewer:runtime-migration:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-8",
+     "pool_id": "sr-1-080",
+     "blind": "not-matched",
+     "blind_reason": "finding 说的是成功结果缺 summary，不是 expected failure 缺 operation",
+     "item": {
+      "id": "sr-1-080",
+      "group": "E06",
+      "kind": "association",
+      "scenario": "runtime-migration",
+      "check": "SPEC-READINESS-REQUIREMENTS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "Runtime Migration expected filesystem failure omits the operation field required by Promotion Runtime.",
+      "finding": "`specs/result-summary.md#requirements` requires `promote(inputPath)` on success to return string `summary` (`${artifactId} promoted to ${trackedStateId}`) in the structured result, whereas `specs/runtime-migration.md#requirements` requires the successful result of `promote(inputPath)` to be exact `{status: \"succeeded\", artifactId, trackedStateId}` without `summary`, creating an irreconcilable conflict.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "specs/result-summary.md",
+        "line": 11
+       },
+       {
+        "filePath": "specs/runtime-migration.md",
+        "line": 23
+       }
+      ]
+     }
+    },
+    {
+     "record": "antigravity/spec-readiness-v4.3/hydrogen-medium-a1",
+     "stable_id": "spec-readiness-reviewer:runtime-migration:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-4",
+     "pool_id": "sr-1-105",
+     "blind": "not-matched",
+     "blind_reason": "finding 说的是成功结果缺 summary，不是 expected failure 缺 operation",
+     "item": {
+      "id": "sr-1-105",
+      "group": "E06",
+      "kind": "association",
+      "scenario": "runtime-migration",
+      "check": "SPEC-READINESS-REQUIREMENTS",
+      "allowedDecisions": [
+       "matched",
+       "not-matched"
+      ],
+      "expectation": "Runtime Migration expected filesystem failure omits the operation field required by Promotion Runtime.",
+      "finding": "The selected requirements conflict on the successful result shape of `promote(inputPath)`: `specs/result-summary.md#requirements` requires returning `summary` (`${artifactId} promoted to ${trackedStateId}`) in the structured result, whereas `specs/runtime-migration.md#requirements` specifies the exact successful result `{status: \"succeeded\", artifactId, trackedStateId}` without `summary`.",
+      "result": "gap",
+      "evidence": [
+       {
+        "filePath": "specs/result-summary.md",
+        "line": 11
+       },
+       {
+        "filePath": "specs/runtime-migration.md",
+        "line": 23
+       }
+      ]
+     }
+    }
+   ]
+  }
+ }
+}
