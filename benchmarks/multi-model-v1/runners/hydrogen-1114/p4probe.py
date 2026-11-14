@@ -66,7 +66,7 @@ def probe(key, effort):
     beta = size / mt
     big = max(rows['material']['responses'], key=lambda x: x['usage']['output_tokens'])
     G = big['usage']['output_tokens'] / big['seconds']
-    T = round(size * K / (G * beta))
+    T = min(3600, max(900, round(size * K / (G * beta))))   # clamp(formula, 900, 3600 s), user 2026-11-15
     result = {'scenario': key, 'effort': effort, 'material_bytes': size, 'material_tokens': mt, 'beta': beta, 'G': G,
               'G_response': {'output_tokens': big['usage']['output_tokens'], 'thinking_tokens': big['usage']['thinking_tokens'],
                              'seconds': big['seconds']}, 'T_seconds': T,

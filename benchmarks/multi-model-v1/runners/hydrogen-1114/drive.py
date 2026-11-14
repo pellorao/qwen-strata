@@ -17,9 +17,12 @@ from pathlib import Path
 ROOT = Path('/home/pello/projects/qwen-strata')
 HERE = Path(__file__).resolve().parent
 OUT = ROOT / '.tmp/hydrobench'
+CARRY = OUT / 'carryover.json'
 MIN_REMAIN_5H = 3.0     # stop line: remaining percent of the 5h window
 MIN_REMAIN_WEEK = 10.0  # stop line: remaining percent of the weekly window (keeps quota for translation etc.)
 MAX_ATTEMPTS = 8
+T_MIN, T_MAX = 900, 3600   # s: the formula T of cs / cstd is clamped to this range (user 2026-11-15)
+T_RERUN = 3600             # s: a cell holding a timed-out instance reruns at T_MAX; timing out there too stops the driver (Main decides)
 SEARCH_STOP = 0.30  # plan §3: voided for search / sub-agent use over this share of attempts
 sys.path.insert(0, str(HERE))
 import agyrun  # noqa: E402
@@ -54,6 +57,8 @@ def classify(folder):
                                                                                            if not c.get('ended_normally') else [])
     if quota:
         return 'void', ['quota hit'] + reasons
+    if folder.parent.name in ('cs', 'cstd') and not reasons and any((h.get('checks') or {}).get('hard_stop') for h in handoffs):
+        return 'timeout', [f"hard stop at T={inst.get('T')} s"]   # interrupted at T: voided, rerun (user 2026-11-15)
     return ('invalid', reasons or ['not valid']) if reasons else ('valid', [])
 
 
@@ -63,21 +68,30 @@ def cells(efforts, scenarios):
 
 def cell_state(effort, key):
     folder = OUT / key
-    valid, invalid, void, search = [], [], [], 0
+    valid, invalid, void, search, timeout, capped = [], [], [], 0, [], []
     for d in sorted(folder.glob(f'hydrogen-{effort}-a*')) if folder.is_dir() else []:
         verdict, reasons = classify(d)
-        {'valid': valid, 'invalid': invalid, 'void': void}[verdict].append(d.name)
+        {'valid': valid, 'invalid': invalid, 'void': void, 'timeout': timeout}[verdict].append(d.name)
+        if verdict == 'timeout' and (json.loads((d / 'instance.json').read_text()).get('T') or 0) >= T_RERUN:
+            capped.append(d.name)   # timed out even at the cap: no more reruns
         search += any('forbidden_tools' in r or 'denied_actions' in r for r in reasons)
     attempts = [int(d.name.rsplit('-a', 1)[1]) for d in (sorted(folder.glob(f'hydrogen-{effort}-a*')) if folder.is_dir() else [])]
-    return {'valid': valid, 'invalid': invalid, 'void': void, 'search_voided': search, 'next_attempt': max(attempts, default=0) + 1,
-            'counted_attempts': len(valid) + len(invalid)}
+    # instances of the first run whose directories are gone (kept in the exported records): CARRY[<effort>/<key>] = {valid, timeout, attempts}
+    carry = json.loads(CARRY.read_text()).get(f'{effort}/{key}', {}) if CARRY.is_file() else {}
+    valid += [f'carried-{i}' for i in range(carry.get('valid', 0))]
+    timeout += [f'carried-timeout-{i}' for i in range(carry.get('timeout', 0))]
+    attempts.append(carry.get('attempts', 0))
+    return {'valid': valid, 'invalid': invalid, 'void': void, 'search_voided': search, 'timeout': timeout, 'timeout_at_cap': capped,
+            'next_attempt': max(attempts, default=0) + 1, 'counted_attempts': len(valid) + len(invalid)}
 
 
 def limit_for(key, effort):
     if key not in ('cs', 'cstd'):
         return None
+    if cell_state(effort, key)['timeout']:
+        return T_RERUN
     f = OUT / 'p4' / f'{ {"cs": "cs", "cstd": "cstd"}[key] }-T.json'
-    return json.loads(f.read_text())[effort] if f.is_file() else None
+    return min(T_MAX, max(T_MIN, json.loads(f.read_text())[effort])) if f.is_file() else None
 
 
 def main():
@@ -106,6 +120,8 @@ def main():
             if s['counted_attempts'] >= MAX_ATTEMPTS:
                 log(event='cell_attempt_cap', effort=effort, scenario=key, **{k: s[k] for k in ('valid', 'invalid')})
                 break
+            if s['timeout_at_cap']:
+                log(event='timeout_at_cap', effort=effort, scenario=key, instances=s['timeout_at_cap']); return
             if (OUT / 'STOP').exists():
                 log(event='stop_file'); return
             if a.max_minutes and time.time() - t_start > a.max_minutes * 60:
