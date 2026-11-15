@@ -8,6 +8,7 @@ T for cs / cstd is T_CS (3600 s).
 """
 import argparse
 import json
+import re
 import os
 import shutil
 import subprocess
@@ -121,6 +122,24 @@ def safe_remaining():
         return None
 
 
+READINGS = Path(os.path.expanduser('~/.claude/statusline/agy-readings.jsonl'))
+
+
+def projected_5h(rem):
+    """The 5h remaining percent now, not at the last limits reading: that reading is up to ~30 min old (07:34 showed 6.8 % left, the
+    quota was gone at 07:40), so subtract the burn since then at the rate between the last two readings of the same window."""
+    try:
+        at = json.loads(agyrun.LIMITS.read_text())['at']
+        rows = [json.loads(l) for l in READINGS.read_text().splitlines()[-2:]]
+        a, b = [next(w for w in r['groups']['antigravity-gemini'] if w['name'] == '5h') for r in rows]
+        if len(rows) < 2 or a['resets_at'] != b['resets_at'] or rows[1]['at'] <= rows[0]['at']:
+            return rem['5h']
+        rate = max(0.0, (b['used_pct'] - a['used_pct']) / ((rows[1]['at'] - rows[0]['at']) / 60))
+        return rem['5h'] - rate * max(0.0, time.time() - at) / 60
+    except (OSError, ValueError, KeyError, StopIteration):
+        return rem['5h']
+
+
 def pace_wait(seconds):
     """The 'off' window of the interference check: do nothing for `seconds` (the length of the instance just run), ending early on STOP."""
     log(event='pace_off_start', seconds=round(seconds))
@@ -210,8 +229,9 @@ def main():
                 log(event='guard_stop', reason=str(e)); return
             except RuntimeError as e:
                 log(event='limits_stale', reason=str(e)); return
-            if rem['5h'] < MIN_REMAIN_5H or rem['\u5468'] < MIN_REMAIN_WEEK:
-                log(event='quota_stop', remaining=rem, before=f'{effort}/{key}'); return
+            proj = projected_5h(rem)
+            if proj < MIN_REMAIN_5H or rem['\u5468'] < MIN_REMAIN_WEEK:
+                log(event='quota_stop', remaining={**rem, '5h': round(proj, 1)}, read_5h=rem['5h'], before=f'{effort}/{key}'); return
             T = limit_for(key, effort)
             if key in ('cs', 'cstd') and T is None:
                 log(event='no_T', effort=effort, scenario=key); return
@@ -257,6 +277,12 @@ def main():
                 pace_wait(ended - started)
                 if starts == a.pace:
                     log(event='pace_done'); return
+            if verdict == 'void' and 'quota hit' in reasons:
+                # The service says the quota is used up (the limits file lags by up to ~30 min, so the stop line did not fire first):
+                # stop this lane as a quota stop with the reset time from the message, not as a streak of identical failures (run5 waits).
+                m = re.search(r'Resets in (?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?', ' '.join(reasons))
+                reset_s = (int(m.group(1) or 0) * 3600 + int(m.group(2) or 0) * 60 + int(m.group(3) or 0)) if m else None
+                log(event='quota_stop', remaining=safe_remaining() or {}, reset_s=reset_s, cause='quota hit', before=f'{effort}/{key}'); return
             tag = f'{verdict}:{sorted(reasons)[:1]}'
             streak = streak + 1 if (verdict != 'valid' and last == tag) else (1 if verdict != 'valid' else 0)
             last = tag if verdict != 'valid' else None
