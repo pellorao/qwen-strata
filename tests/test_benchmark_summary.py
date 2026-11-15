@@ -64,7 +64,7 @@ class DesignTest(unittest.TestCase):
                 self.assertEqual(bs.CONFIGS[first + i]['effort'], effort, key)
         self.assertEqual(len(bs.PREREGISTERED_CONFIGS), 27)
         self.assertEqual(sorted(bs.PHASE3_CONFIGS), [28, 29])
-        self.assertEqual(sorted(bs.PHASE4_CONFIGS), [30, 31, 32])
+        self.assertEqual(sorted(bs.PHASE4_CONFIGS), [30, 31, 32, 36])
         self.assertEqual(bs.SUPPLEMENT_CONFIGS, bs.PHASE3_CONFIGS | bs.PHASE4_CONFIGS)
         self.assertEqual([bs.CONFIGS[c]['effort'] for c in (7, 8, 9, 22, 23, 24)], ['low', 'high', 'max'] * 2)
 

@@ -1,6 +1,6 @@
 # 多模型 benchmark v1 汇总
 
-第四阶段补充（只含补充）：Gemini 4 Hydrogen medium / high / xhigh（配置 30–32，Antigravity，各格取全部有效实例，不截取前 5 个，也没有一致性行；用户 2026-11-14，规则同第三阶段补充）。本文件只有这三个配置，不含预登记配置和比较；预登记配置与前三阶段见第三阶段文件。
+第四阶段补充（只含补充）：Gemini 4 Hydrogen low / medium / high / xhigh（配置 30–32 和 36，Antigravity，各格取全部有效实例，不截取前 5 个，也没有一致性行；用户 2026-11-14，规则同第三阶段补充）。本文件只有这四个配置，不含预登记配置和比较；预登记配置与前三阶段见第三阶段文件。
 
 不做组间比较（补充文件只含补充配置）；条件相同的组内统计与 v1 相同。
 主统计多于前 5 个的格另给一致性行（按开始时刻的前 5 个；第三阶段补充配置不给）；不给比值、综合分和排名。
@@ -14,6 +14,7 @@
 | 30 antigravity gemini-4-hydrogen medium | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.609 ± 0.104 | 0.046 | 0.480–0.738 | 0 | 0.480 | 0.664 | 0.609 | 0.609 | 0.000 | 0 | 5.8 | 0.70 | 115,557 | 1,288,569 | 15,049 | agy stream usage | 29.8 | 只报 token |  | gemini-4-hydrogen-medium | 未知 |
 | 31 antigravity gemini-4-hydrogen high | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.670 ± 0.027 | 0.012 | 0.637–0.703 | 0 | 0.635 | 0.669 | 0.670 | 0.670 | 0.000 | 0 | 4.2 | 0.70 | 133,129 | 1,247,884 | 23,898 | agy stream usage | 26.0 | 只报 token |  | gemini-4-hydrogen-high | 未知 |
 | 32 antigravity gemini-4-hydrogen xhigh | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.745 ± 0.105 | 0.047 | 0.615–0.875 | 0 | 0.631 | 0.790 | 0.745 | 0.745 | 0.000 | 0 | 7.4 | 0.63 | 176,452 | 1,569,500 | 55,919 | agy stream usage | 34.0 | 只报 token |  | gemini-4-hydrogen-xhigh | 未知 |
+| 36 antigravity gemini-4-hydrogen low | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.468 ± 0.086 | 0.038 | 0.361–0.575 | 0 | 0.350 | 0.454 | 0.468 | 0.468 | 0.000 | 0 | 3.1 | 0.21 | 97,387 | 1,216,964 | 9,052 | agy stream usage | 49.6 | 只报 token |  | gemini-4-hydrogen-low | 未知 |
 
 ### 逐实例
 
@@ -42,6 +43,11 @@
 | 32 antigravity gemini-4-hydrogen xhigh | hydrogen-xhigh-a7 |  | 是 | 5 | 是 | 0.855 | 0.855 | 0.855 | 0.000 | 0 | 8.7 | 0.14 | 220,293 | 2,845,339 | 86,492 | 49 | 只报 token | gemini-4-hydrogen-xhigh | 未知 | 未知 | 未知 | 422.8 | 166.0 |
 | 32 antigravity gemini-4-hydrogen xhigh | hydrogen-xhigh-a1 |  | 否 |  |  | 未知 |  | 未知 | 未知 | 未知 | 6.4 | 1.01 | 152,065 | 1,069,941 | 29,746 | 29 | 只报 token | gemini-4-hydrogen-xhigh | 未知 | 未知 | 未知 | 398.5 | 77.9 |
 | 32 antigravity gemini-4-hydrogen xhigh | hydrogen-xhigh-a4 |  | 否 |  |  | 未知 |  | 未知 | 未知 | 未知 | 6.3 | 1.00 | 140,332 | 515,975 | 39,712 | 21 | 只报 token | gemini-4-hydrogen-xhigh | 未知 | 未知 | 未知 | 369.2 | 104.5 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a1 |  | 是 | 1 | 是 | 0.350 | 0.350 | 0.350 | 0.000 | 0 | 2.6 | 0.17 | 90,853 | 1,156,585 | 9,883 | 53 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 590.9 | 64.3 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a2 |  | 是 | 2 | 是 | 0.578 | 0.578 | 0.578 | 0.000 | 0 | 3.3 | 0.22 | 107,379 | 1,332,808 | 7,643 | 33 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 534.9 | 38.1 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a3 |  | 是 | 3 | 是 | 0.454 | 0.454 | 0.454 | 0.000 | 0 | 4.4 | 0.29 | 92,521 | 1,199,168 | 11,444 | 64 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 353.7 | 43.7 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a4 |  | 是 | 4 | 是 | 0.441 | 0.441 | 0.441 | 0.000 | 0 | 2.4 | 0.16 | 93,997 | 1,160,092 | 8,479 | 64 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 640.7 | 57.8 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a5 |  | 是 | 5 | 是 | 0.518 | 0.518 | 0.518 | 0.000 | 0 | 2.9 | 0.20 | 102,184 | 1,236,168 | 7,809 | 34 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 582.1 | 44.5 |
 
 ## code-standards-v5.1
 
@@ -52,6 +58,7 @@
 | 30 antigravity gemini-4-hydrogen medium | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.791 ± 0.056 | 0.025 | 0.721–0.861 | 0 | 0.723 | 0.786 | 0.791 | 0.818 | 0.033 | 16 | 4.5 | 0.72 | 74,939 | 562,044 | 18,333 | agy stream usage | 28.0 | 只报 token |  | gemini-4-hydrogen-medium | 未知 |
 | 31 antigravity gemini-4-hydrogen high | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.843 ± 0.035 | 0.016 | 0.799–0.887 | 0 | 0.797 | 0.849 | 0.843 | 0.863 | 0.023 | 12 | 5.0 | 0.74 | 109,143 | 1,089,818 | 29,025 | agy stream usage | 31.0 | 只报 token |  | gemini-4-hydrogen-high | 未知 |
 | 32 antigravity gemini-4-hydrogen xhigh | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.832 ± 0.032 | 0.014 | 0.793–0.871 | 0 | 0.783 | 0.844 | 0.832 | 0.842 | 0.011 | 8 | 7.9 | 0.48 | 197,563 | 1,790,661 | 70,391 | agy stream usage | 37.6 | 只报 token |  | gemini-4-hydrogen-xhigh | 未知 |
+| 36 antigravity gemini-4-hydrogen low | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.476 ± 0.046 | 0.021 | 0.418–0.533 | 0 | 0.431 | 0.462 | 0.476 | 0.476 | 0.000 | 0 | 1.2 | 0.08 | 44,295 | 204,676 | 6,600 | agy stream usage | 13.2 | 只报 token |  | gemini-4-hydrogen-low | 未知 |
 
 ### 逐实例
 
@@ -81,6 +88,11 @@
 | 32 antigravity gemini-4-hydrogen xhigh | hydrogen-xhigh-a4 |  | 否 |  |  | 未知 |  | 未知 | 未知 | 未知 | 5.8 | 1.02 | 113,177 | 786,350 | 35,295 | 31 | 只报 token | gemini-4-hydrogen-xhigh | 未知 | 未知 | 未知 | 325.6 | 101.5 |
 | 32 antigravity gemini-4-hydrogen xhigh | hydrogen-xhigh-a7 |  | 否 |  |  | 未知 |  | 未知 | 未知 | 未知 | 10.6 | 0.18 | 228,161 | 3,175,905 | 94,809 | 43 | 只报 token | gemini-4-hydrogen-xhigh | 未知 | 未知 | 未知 | 358.1 | 148.8 |
 | 32 antigravity gemini-4-hydrogen xhigh | hydrogen-xhigh-a9 |  | 否 |  |  | 未知 |  | 未知 | 未知 | 未知 | 10.2 | 0.17 | 227,361 | 3,034,532 | 92,224 | 48 | 只报 token | gemini-4-hydrogen-xhigh | 未知 | 未知 | 未知 | 371.9 | 150.9 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a1 |  | 是 | 1 | 是 | 0.526 | 0.526 | 0.526 | 0.000 | 0 | 1.3 | 0.08 | 44,497 | 241,735 | 7,623 | 10 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 587.7 | 100.7 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a2 |  | 是 | 2 | 是 | 0.436 | 0.436 | 0.436 | 0.000 | 0 | 1.0 | 0.07 | 41,498 | 167,470 | 6,242 | 19 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 707.9 | 106.5 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a3 |  | 是 | 3 | 是 | 0.462 | 0.462 | 0.462 | 0.000 | 0 | 1.1 | 0.07 | 41,433 | 146,070 | 6,524 | 10 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 646.9 | 101.9 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a4 |  | 是 | 4 | 是 | 0.431 | 0.431 | 0.431 | 0.000 | 0 | 1.1 | 0.08 | 45,870 | 219,174 | 6,164 | 17 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 666.0 | 89.5 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a5 |  | 是 | 5 | 是 | 0.524 | 0.524 | 0.524 | 0.000 | 0 | 1.4 | 0.10 | 48,177 | 248,933 | 6,445 | 10 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 557.8 | 74.6 |
 
 ## commit-audit-v3
 
@@ -91,6 +103,7 @@
 | 30 antigravity gemini-4-hydrogen medium | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.837 ± 0.009 | 0.004 | 0.826–0.848 | 0 | 0.831 | 0.832 | 0.837 | 0.837 | 0.000 | 0 | 5.1 | 未知 | 97,102 | 644,084 | 40,795 | agy stream usage | 37.4 | 只报 token |  | gemini-4-hydrogen-medium | 未知 |
 | 31 antigravity gemini-4-hydrogen high | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.862 ± 0.024 | 0.011 | 0.832–0.892 | 0 | 0.821 | 0.870 | 0.862 | 0.862 | 0.000 | 0 | 5.5 | 未知 | 158,994 | 994,432 | 63,585 | agy stream usage | 39.4 | 只报 token |  | gemini-4-hydrogen-high | 未知 |
 | 32 antigravity gemini-4-hydrogen xhigh | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.856 ± 0.018 | 0.008 | 0.834–0.879 | 0 | 0.824 | 0.864 | 0.856 | 0.856 | 0.000 | 0 | 15.2 | 未知 | 280,153 | 1,525,849 | 125,577 | agy stream usage | 43.8 | 只报 token |  | gemini-4-hydrogen-xhigh | 未知 |
+| 36 antigravity gemini-4-hydrogen low | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.257 ± 0.256 | 0.115 | -0.061–0.575 | 0 | 0.066 | 0.159 | 0.257 | 0.257 | 0.000 | 0 | 2.2 | 未知 | 63,386 | 351,330 | 18,283 | agy stream usage | 26.2 | 只报 token |  | gemini-4-hydrogen-low | 未知 |
 
 ### 逐实例
 
@@ -117,6 +130,11 @@
 | 32 antigravity gemini-4-hydrogen xhigh | hydrogen-xhigh-a4 |  | 是 | 4 | 是 | 0.824 | 0.824 | 0.824 | 0.000 | 0 | 17.3 | 未知 | 357,292 | 1,948,120 | 146,757 | 54 | 只报 token | gemini-4-hydrogen-xhigh | 未知 | 未知 | 未知 | 344.0 | 141.3 |
 | 32 antigravity gemini-4-hydrogen xhigh | hydrogen-xhigh-a6 |  | 是 | 5 | 是 | 0.864 | 0.864 | 0.864 | 0.000 | 0 | 12.2 | 未知 | 245,641 | 1,382,235 | 109,642 | 54 | 只报 token | gemini-4-hydrogen-xhigh | 未知 | 未知 | 未知 | 334.7 | 149.4 |
 | 32 antigravity gemini-4-hydrogen xhigh | hydrogen-xhigh-a5 |  | 否 |  |  | 未知 |  | 未知 | 未知 | 未知 | 17.7 | 未知 | 303,462 | 2,386,209 | 144,584 | 42 | 只报 token | gemini-4-hydrogen-xhigh | 未知 | 未知 | 未知 | 285.5 | 136.0 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a1 |  | 是 | 1 | 是 | 0.707 | 0.707 | 0.707 | 0.000 | 0 | 2.2 | 未知 | 63,304 | 304,843 | 20,937 | 26 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 487.0 | 161.1 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a2 |  | 是 | 2 | 是 | 0.066 | 0.066 | 0.066 | 0.000 | 0 | 2.4 | 未知 | 56,500 | 308,196 | 14,971 | 25 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 394.2 | 104.4 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a3 |  | 是 | 3 | 是 | 0.158 | 0.158 | 0.158 | 0.000 | 0 | 2.3 | 未知 | 68,751 | 403,184 | 19,600 | 26 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 492.1 | 140.3 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a4 |  | 是 | 4 | 是 | 0.159 | 0.159 | 0.159 | 0.000 | 0 | 2.0 | 未知 | 64,504 | 381,046 | 17,525 | 27 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 528.9 | 143.7 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a5 |  | 是 | 5 | 是 | 0.194 | 0.194 | 0.194 | 0.000 | 0 | 2.0 | 未知 | 63,870 | 359,380 | 18,382 | 27 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 522.0 | 150.2 |
 
 ## spec-readiness-v4.3
 
@@ -127,6 +145,7 @@
 | 30 antigravity gemini-4-hydrogen medium | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.655 ± 0.076 | 0.034 | 0.561–0.750 | 0 | 0.592 | 0.627 | 0.655 | 0.655 | 0.000 | 0 | 8.8 | 未知 | 203,982 | 1,257,175 | 42,857 | agy stream usage | 35.2 | 只报 token |  | gemini-4-hydrogen-medium | 未知 |
 | 31 antigravity gemini-4-hydrogen high | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.833 ± 0.032 | 0.014 | 0.793–0.873 | 0 | 0.794 | 0.833 | 0.833 | 0.833 | 0.000 | 0 | 12.2 | 未知 | 331,378 | 1,342,744 | 120,070 | agy stream usage | 36.0 | 只报 token |  | gemini-4-hydrogen-high | 未知 |
 | 32 antigravity gemini-4-hydrogen xhigh | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.769 ± 0.033 | 0.015 | 0.728–0.810 | 0 | 0.732 | 0.763 | 0.769 | 0.769 | 0.000 | 0 | 36.9 | 未知 | 635,643 | 2,442,850 | 291,141 | agy stream usage | 48.0 | 只报 token |  | gemini-4-hydrogen-xhigh | 未知 |
+| 36 antigravity gemini-4-hydrogen low | 第四阶段补充（不比较） | 5 | 5 | 5 |  | 0.265 ± 0.052 | 0.023 | 0.200–0.329 | 0 | 0.174 | 0.276 | 0.265 | 0.265 | 0.000 | 0 | 1.9 | 未知 | 109,220 | 363,992 | 12,201 | agy stream usage | 17.0 | 只报 token |  | gemini-4-hydrogen-low | 未知 |
 
 ### 逐实例
 
@@ -151,3 +170,8 @@
 | 32 antigravity gemini-4-hydrogen xhigh | hydrogen-xhigh-a3 |  | 是 | 3 | 是 | 0.761 | 0.761 | 0.761 | 0.000 | 0 | 38.5 | 未知 | 585,302 | 1,313,666 | 373,278 | 39 | 只报 token | gemini-4-hydrogen-xhigh | 未知 | 未知 | 未知 | 253.2 | 161.5 |
 | 32 antigravity gemini-4-hydrogen xhigh | hydrogen-xhigh-a4 |  | 是 | 4 | 是 | 0.763 | 0.763 | 0.763 | 0.000 | 0 | 38.8 | 未知 | 657,240 | 2,992,551 | 263,244 | 48 | 只报 token | gemini-4-hydrogen-xhigh | 未知 | 未知 | 未知 | 282.0 | 112.9 |
 | 32 antigravity gemini-4-hydrogen xhigh | hydrogen-xhigh-a5 |  | 是 | 5 | 是 | 0.823 | 0.823 | 0.823 | 0.000 | 0 | 36.4 | 未知 | 509,674 | 2,449,512 | 244,005 | 44 | 只报 token | gemini-4-hydrogen-xhigh | 未知 | 未知 | 未知 | 233.4 | 111.7 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a1 |  | 是 | 1 | 是 | 0.276 | 0.276 | 0.276 | 0.000 | 0 | 2.0 | 未知 | 104,689 | 354,052 | 10,990 | 16 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 857.3 | 90.0 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a2 |  | 是 | 2 | 是 | 0.296 | 0.296 | 0.296 | 0.000 | 0 | 1.9 | 未知 | 107,209 | 359,262 | 12,330 | 17 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 951.5 | 109.4 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a3 |  | 是 | 3 | 是 | 0.174 | 0.174 | 0.174 | 0.000 | 0 | 1.9 | 未知 | 112,776 | 421,383 | 12,782 | 18 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 1009.7 | 114.4 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a4 |  | 是 | 4 | 是 | 0.302 | 0.302 | 0.302 | 0.000 | 0 | 1.9 | 未知 | 115,247 | 330,927 | 13,269 | 18 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 1034.5 | 119.1 |
+| 36 antigravity gemini-4-hydrogen low | hydrogen-low-a5 |  | 是 | 5 | 是 | 0.276 | 0.276 | 0.276 | 0.000 | 0 | 1.8 | 未知 | 106,177 | 354,338 | 11,633 | 16 | 只报 token | gemini-4-hydrogen-low | 未知 | 未知 | 未知 | 964.6 | 105.7 |

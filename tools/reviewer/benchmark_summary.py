@@ -39,7 +39,7 @@ supplement row takes every valid instance of its cell, with no first-5 cut and n
 before that rule are refused. Configurations come from tools.reviewer.bench_records.CONFIG_TABLE; a record outside it stops the
 summary. summary.json carries a `generator` marker (tool, its sha256, phase) that benchmark_export requires.
 
-Phase 4 (user 2026-11-14): a supplement-only summary of Gemini 4 Hydrogen medium / high / xhigh (configurations 30-32,
+Phase 4 (user 2026-11-14): a supplement-only summary of Gemini 4 Hydrogen low / medium / high / xhigh (configurations 30-32 and 36,
 Antigravity, PHASE4_CONFIGS), built from `--records` only (the v1 run directories are gone, so it is not a union with the
 earlier phases): the same rules as the phase-3 supplement (every valid instance, no consistency row), and no comparison
 and no Holm family because it holds no preregistered configuration. Records come from bench_records.antigravity_record.
@@ -575,8 +575,8 @@ KIND_LABEL = {'main': '主统计', 'consistency': '一致性行（前 5）', 'su
 
 def phase_text(summary):
     if summary['phase'] == 4:
-        return ('第四阶段补充（只含补充）：Gemini 4 Hydrogen medium / high / xhigh（配置 30–32，Antigravity，各格取全部有效实例，'
-                '不截取前 5 个，也没有一致性行；用户 2026-11-14，规则同第三阶段补充）。本文件只有这三个配置，'
+        return ('第四阶段补充（只含补充）：Gemini 4 Hydrogen low / medium / high / xhigh（配置 30–32 和 36，Antigravity，各格取全部有效实例，'
+                '不截取前 5 个，也没有一致性行；用户 2026-11-14，规则同第三阶段补充）。本文件只有这四个配置，'
                 '不含预登记配置和比较；预登记配置与前三阶段见第三阶段文件。')
     if summary['phase'] == 1:
         return ('第一阶段：只用预登记实例（未合并的格取按开始时刻的前 5 个有效实例，DeepSeek 合并格取全部有效实例）。')

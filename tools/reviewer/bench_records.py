@@ -75,8 +75,8 @@ DEEPSEEK_EFFORTS = ('low', 'high', 'max')
 # - kind 'phase3': the phase-3 supplement (user 2026-10-22): gpt-6-luna xhigh / max on Codex,
 #   numbered after the 27; reported per instance only, never in a comparison.
 # - kind 'phase4': the phase-4 supplement (user 2026-11-14): Gemini 4 Hydrogen medium / high / xhigh on Antigravity
-#   (agy), same rules as phase 3. Its records come from the run's own producer (runners/hydrogen-1114/hydrogen_records.py,
-#   through antigravity_record below), not from run directories of LAYOUT.
+#   (agy), same rules as phase 3; low (configuration 36, 2026-11-15) is the fourth tier. Its records come from the run's own
+#   producer (runners/hydrogen-1114/hydrogen_records.py, through antigravity_record below), not from run directories of LAYOUT.
 CONFIG_TABLE = [
     (1, 'sol', 'codex', 'gpt-6.1-sol', 'gpt-6.1-sol', 'openai', EFFORTS, 'main'),
     (4, 'luna', 'codex', 'gpt-6-luna', 'gpt-6-luna', 'openai', EFFORTS, 'main'),
@@ -89,6 +89,8 @@ CONFIG_TABLE = [
     (25, 'strata', 'claude-code', 'strata', 'strata-iq3_xxs', 'strata', EFFORTS, 'main'),
     (28, 'luna', 'codex', 'gpt-6-luna', 'gpt-6-luna', 'openai', ('xhigh', 'max'), 'phase3'),
     (30, 'hydrogen', 'antigravity', 'gemini-4-hydrogen', 'gemini-4-hydrogen', 'google', ('medium', 'high', 'xhigh'), 'phase4'),
+    # Hydrogen low (common/hydroeffort, 2026-11-15): the fourth tier, run later; 33-35 are taken by the Carbon run.
+    (36, 'hydrogen', 'antigravity', 'gemini-4-hydrogen', 'gemini-4-hydrogen', 'google', ('low',), 'phase4'),
 ]
 # Configurations of the phase-3 supplement: every valid instance counts, no first-5 cut (measurement rule 失败与重跑,
 # user 2026-10-23: extra runs not triggered by scores count the same as preregistered ones).

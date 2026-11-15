@@ -201,10 +201,10 @@ PHASE3_CAVEAT = (
 
 PHASE4_CAVEATS = [
     ('phase4-supplement',
-     '第四阶段只是补充（用户 2026-11-14）：Gemini 4 Hydrogen medium / high / xhigh（配置 30–32，Antigravity）在 4 个场景各格取全部有效实例（不截取前 5 个），'
+     '第四阶段只是补充（用户 2026-11-14）：Gemini 4 Hydrogen low / medium / high / xhigh（配置 30–32 和 36，Antigravity）在 4 个场景各格取全部有效实例（不截取前 5 个），'
      '只给逐实例结果，不进预登记比较；本文件只含这三个配置，预登记配置与前三阶段在第三阶段文件里。运行于 2026-11-14（JST），晚于 v1 约三周，'
      '服务端模型或路由可能已有变化，也没有同期对照。',
-     'Phase 4 is a supplement only (user 2026-11-14): Gemini 4 Hydrogen medium / high / xhigh (configurations 30-32, '
+     'Phase 4 is a supplement only (user 2026-11-14): Gemini 4 Hydrogen low / medium / high / xhigh (configurations 30-32 and 36, '
      'Antigravity), every valid instance of each cell in the 4 scenarios (no first-5 cut), per-instance results only, '
      'never in a preregistered comparison; this file holds only these three configurations, the preregistered ones and '
      'the first three phases are in the phase-3 file. Run on 2026-11-14 (JST), about three weeks after v1, so the served '
@@ -529,7 +529,7 @@ def selection_rules(summary):
         'strataExtraTarget': summary['strata_phase2_max'],
         'zh': ('有效实例按开始时刻排序得到 validRank。phase 1：未合并的格取 validRank ≤ 5（firstN）；DeepSeek 合并格（cellPooled，'
                'medium 请求并入 high）取全部有效实例。phase 2：Strata 的格取 validRank ≤ 10，其余同 phase 1。'
-               + ('phase 4（只含补充）：本文件只有补充配置 30–32（Gemini 4 Hydrogen medium、high、xhigh，Antigravity），各格取全部有效实例（mainStatistic 为 true，'
+               + ('phase 4（只含补充）：本文件只有补充配置 30–32 和 36（Gemini 4 Hydrogen low、medium、high、xhigh，Antigravity），各格取全部有效实例（mainStatistic 为 true，'
                   '不截取前 5 个，用户 2026-11-14），只给实例、不进比较，也没有一致性行。'
                   if summary['phase'] >= 4 else 'phase 3：同 phase 2，另加补充配置 28、29（gpt-6-luna xhigh、max），各格取全部有效实例（mainStatistic 为 true，'
                   '不截取前 5 个，用户 2026-10-23），只给实例、不进比较，也没有一致性行。'
@@ -538,8 +538,8 @@ def selection_rules(summary):
         'en': ('Valid instances ordered by start give validRank. Phase 1: cells not pooled take validRank <= 5 (firstN); '
                'pooled DeepSeek cells (cellPooled, medium requests pooled into high) take every valid instance. '
                'Phase 2: Strata cells take validRank <= 10, others as in phase 1. '
-               + ('Phase 4 (supplement only): this file holds only the supplement configurations 30-32 (Gemini 4 Hydrogen '
-                  'medium / high / xhigh on Antigravity), every valid instance per cell (mainStatistic true, no first-5 cut, '
+               + ('Phase 4 (supplement only): this file holds only the supplement configurations 30-32 and 36 (Gemini 4 Hydrogen '
+                  'low / medium / high / xhigh on Antigravity), every valid instance per cell (mainStatistic true, no first-5 cut, '
                   'user 2026-11-14), instances only, never in a comparison and without a consistency row. '
                   if summary['phase'] >= 4 else 'Phase 3: as phase 2, plus the supplement configurations 28 / 29 (gpt-6-luna xhigh / max), every '
                   'valid instance per cell (mainStatistic true, no first-5 cut, user 2026-10-23), instances only, never '
@@ -636,9 +636,9 @@ def phase_meta(summary):
         2: ('第二阶段：按计划的全样本分析，Strata 各格取全部有效实例（至多 10 个），其余配置同第一阶段。',
             'Phase 2: the planned full-sample analysis; Strata cells use every valid instance (up to 10), other '
             'configurations as in phase 1.'),
-        4: ('第四阶段补充（只含补充）：Gemini 4 Hydrogen medium / high / xhigh（配置 30–32，Antigravity），每格全部有效实例、不截取前 5 个，stage 为 phase4；'
+        4: ('第四阶段补充（只含补充）：Gemini 4 Hydrogen low / medium / high / xhigh（配置 30–32 和 36，Antigravity），每格全部有效实例、不截取前 5 个，stage 为 phase4；'
             '本文件不含预登记配置，也不含前三阶段的实例（见第三阶段文件）；补充配置不进任何比较，见 caveats 的 phase4-supplement。',
-            'Phase 4 supplement (supplement only): Gemini 4 Hydrogen medium / high / xhigh (configurations 30-32, Antigravity), '
+            'Phase 4 supplement (supplement only): Gemini 4 Hydrogen low / medium / high / xhigh (configurations 30-32 and 36, Antigravity), '
             'every valid instance per cell, no first-5 cut, stage phase4; this file holds neither the preregistered '
             'configurations nor the instances of the first three phases (see the phase-3 file); the supplement configurations '
             'never enter a comparison, see the phase4-supplement caveat.'),
