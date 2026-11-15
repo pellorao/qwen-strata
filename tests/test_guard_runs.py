@@ -54,7 +54,7 @@ class GuardRunsTest(unittest.TestCase):
                         '"response":json.dumps([[r["harness"],r["label"]] for r in usage_guard.live_runs()])}}))\n')
         fake.chmod(0o755)
         for name, value in (('AGY', str(fake)), ('bwrap', lambda state, work: []), ('prepare_state', lambda state: Path(state).mkdir(parents=True, exist_ok=True)),
-                            ('refresh_limits', lambda: None), ('START_CAP', (1, 3600))):
+                            ('START_CAP', (1, 3600))):
             self.addCleanup(setattr, agyrun, name, getattr(agyrun, name))
             setattr(agyrun, name, value)
         work = Path(self.tmp.name) / 'work'

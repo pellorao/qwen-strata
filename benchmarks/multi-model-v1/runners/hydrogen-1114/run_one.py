@@ -145,7 +145,7 @@ def checks(result, cont, model, effort, changed, report_dir):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('key', choices=SCENARIOS)
-    ap.add_argument('effort', choices=('medium', 'high', 'xhigh'))
+    ap.add_argument('effort', choices=('low', 'medium', 'high', 'xhigh'))
     ap.add_argument('attempt', type=int)
     ap.add_argument('--T', type=int)
     a = ap.parse_args()

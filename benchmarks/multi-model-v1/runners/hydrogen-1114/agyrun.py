@@ -3,6 +3,7 @@
 Shared by run_one.py (scenario instances) and p4probe.py (T probes). The stream is kept; `summarize` turns it into the
 facts the plan (§3 per-instance checks) needs: per-response usage, tool names, web/subagent tools, final status.
 """
+import contextlib
 import json
 import re
 import os
@@ -15,11 +16,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))   # the repository root: tools.guard_runs (a runner started by path has only its own directory)
 from tools import guard_runs  # noqa: E402
+sys.path.insert(0, os.path.expanduser('~/.claude/lib'))
+import usage_guard  # noqa: E402
 
 # --- tunables ---
 AGY = os.path.expanduser('~/.local/bin/agy')
 LIMITS = Path(os.path.expanduser('~/.claude/statusline/limits/antigravity-gemini.json'))
-LIMITS_PY = os.path.expanduser('~/.claude/statusline/limits.py')
 ALLOW_CMDS = ['ls', 'cat', 'echo', 'wc', 'head', 'tail', 'grep', 'find', 'sort', 'diff', 'nl', 'sed', 'awk', 'tr', 'cut',
               'uniq', 'stat', 'tree', 'git status', 'git diff', 'git log', 'git show', 'git cat-file', 'git ls-tree',
               'git ls-files', 'git grep', 'git rev-parse', 'git blame', 'git rev-list', 'git diff-tree',
@@ -36,19 +38,18 @@ HOME = os.path.expanduser('~')
 GEMINI = f'{HOME}/.gemini/antigravity-cli'
 STARTUP = 7  # seconds agy needs to start and stop around its --print-timeout (measured 6.5-7); taken off every segment's budget
 START_CAP = (60, 3600)  # agy turn starts per hour (a continuation or a reminder is a start too); a loop restarting turns stops here (usage_guard rate net)
+STALE = 7200  # s: a limits reading older than this is not trusted for the stop lines
 GRACE = 90  # seconds past --print-timeout before the process group is killed
 # --- end tunables ---
 
 
 def remaining():
-    """Gemini group remaining percent per window, from the status-line limits file (refreshed after every run)."""
+    """Gemini group remaining percent per window, from the status-line limits file (the limits timer refreshes it about every 30 min;
+    this runner does not query the quota itself, common/agyrefresh)."""
     d = json.loads(LIMITS.read_text())
+    if time.time() - d['at'] > STALE:
+        raise RuntimeError(f"limits file older than {STALE} s: the limits timer is not running")
     return {w['name']: round(100 - w['used_pct'], 2) for w in d['windows']}
-
-
-def refresh_limits():
-    subprocess.run(['python3', '-I', LIMITS_PY, '--refresh', 'agy'], timeout=120, stdin=subprocess.DEVNULL,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
 
 
 def settings(work):
@@ -80,6 +81,9 @@ def bwrap(state, work):
 
 def turn(out, work, prompt, model, effort, timeout_seconds, conversation=None, name='stream', state_dir=None):
     """Run one agy turn with `prompt` in `work`; returns the facts. Files: out/stream.jsonl, stream.err, prompt-sent.md."""
+    guard = usage_guard.Guard.from_env()  # the driver's declared run (drive.py / p4probe.py export it); None when run by hand
+    if guard and conversation is None:   # only a new instance / probe is refused; a stop never cuts an instance between its segments
+        guard.check()
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
     (out / ('prompt-sent.md' if name == 'stream' else f'prompt-sent-{name}.md')).write_text(prompt)
@@ -101,7 +105,8 @@ def turn(out, work, prompt, model, effort, timeout_seconds, conversation=None, n
         guard_runs.rate('qwen-strata:hydrogen-agy', *START_CAP)
         p = subprocess.Popen(cmd, cwd=work, stdin=subprocess.PIPE, stdout=so, stderr=se, start_new_session=True)
         killed = False
-        with guard_runs.agy('qwen-strata:hydrogen-agy', model, effort, pid=p.pid):   # the status page's run list; removed when the turn ends
+        # the status page's run list; removed when the turn ends. A driver that registers its whole instance (drive.py acquire_slot) sets HYDROGEN_REGISTERED.
+        with (contextlib.nullcontext() if os.environ.get('HYDROGEN_REGISTERED') else guard_runs.agy('qwen-strata:hydrogen-agy', model, effort, pid=p.pid)):
             try:
                 p.stdin.write(message.encode())
                 p.stdin.close()
@@ -111,10 +116,11 @@ def turn(out, work, prompt, model, effort, timeout_seconds, conversation=None, n
                 p.wait()
                 code, killed = p.returncode, True
     ended = time.time()
-    try:
-        refresh_limits()
-    except Exception:
-        pass
+    if guard:
+        try:
+            guard.record()  # one agy turn
+        except usage_guard.Stopped:
+            pass  # past the declared limit: the stop marker is written, the next check() (next turn, next instance) refuses; this turn's result is kept
     return {'exit': code, 'killed_by_driver': killed, 'started_at': started, 'ended_at': ended,
             'wall_seconds': ended - started, **summarize(out / f'{name}.jsonl')}
 

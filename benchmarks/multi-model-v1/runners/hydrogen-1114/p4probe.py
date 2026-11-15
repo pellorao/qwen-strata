@@ -7,6 +7,7 @@ from the agy stream; thinking tokens count as output, as in every other arm; a l
 The material is the scenario's frozen root as run_one stages it (CS: governing-spec.md + src = 152919 B, CStd: src = 142529 B).
 """
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -21,6 +22,8 @@ import agyrun  # noqa: E402
 import run_one as r  # noqa: E402
 from tools.reviewer import claude_scenario as cs  # noqa: E402
 from tools.tuning.arw_dimension import load_plan, prepare  # noqa: E402
+sys.path.insert(0, os.path.expanduser('~/.claude/lib'))
+import usage_guard as ug  # noqa: E402
 
 K = 2.0755
 PARTS = {'cs': (['governing-spec.md', 'src'], 152919), 'cstd': (['src'], 142529)}
@@ -85,9 +88,16 @@ if __name__ == '__main__':
     OUT.mkdir(parents=True, exist_ok=True)
     limits = OUT / f'{key}-T.json'
     T = json.loads(limits.read_text()) if limits.exists() else {}
+    # Usage watch: 2 agy turns per probe (baseline + material); the guard stops at 2x. The probe's turns are registered once here, not per turn.
+    ug.Guard.start('common/hydroeffort-p4-' + key, calls=2 * len(sys.argv[2:]), secs=2 * len(sys.argv[2:]) * 1500).export_env()
+    os.environ['HYDROGEN_REGISTERED'] = '1'
     for effort in sys.argv[2:]:
         rem = agyrun.remaining()
-        if min(rem.values()) < 30:
-            raise SystemExit(f'quota {rem} below 30% - stop')
-        T[effort] = probe(key, effort)['T_seconds']
+        if rem['5h'] < 3 or rem['\u5468'] < 10:
+            raise SystemExit(f'quota {rem} below the stop lines (5h 3%, week 10%) - stop')
+        reg = ug.register('common/hydroeffort', 'agy-gemini', model='Hydrogen', effort=effort, source='agy-gemini')
+        try:
+            T[effort] = probe(key, effort)['T_seconds']
+        finally:
+            reg.close()
         limits.write_text(json.dumps(T) + '\n')
