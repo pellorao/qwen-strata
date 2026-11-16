@@ -1,35 +1,29 @@
 """Four-tier table (Hydrogen low / medium / high / xhigh) of the four reviewer scenarios, for common/hydroeffort report.md.
 
     python3 -I low_report.py     -> Markdown on stdout
-Low from .tmp/hydrolow (records.jsonl + score/<id>/score.json); medium / high / xhigh from results/phase4/benchmark-results.json (the exported main statistic)."""
+All four tiers from results/phase4/benchmark-results.json (the exported main statistic, five valid instances per cell)."""
 import json
 import statistics as st
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-LOW = HERE.parents[3] / '.tmp/hydrolow'
 SC = [('spec-readiness-v4.3', 'SR'), ('code-spec-v5', 'CS'), ('code-standards-v5.1', 'CStd'), ('commit-audit-v3', 'CA')]
 EFFORTS = ['low', 'medium', 'high', 'xhigh']
 
 
 def rows():
     out = {}
-    for l in open(LOW / 'records.jsonl'):
-        r = json.loads(l)
-        if not r['valid']:
-            continue
-        sc = json.loads((LOW / 'score' / r['id'] / 'score.json').read_text())
-        h = r['handoffs']
-        out.setdefault(('low', r['scenario']), []).append(dict(
-            score=sc['final'], sec=sum(x['seconds'] or 0 for x in h), out=sum(x['tokens']['output'] or 0 for x in h),
-            think=sum(x['thinking_tokens'] or 0 for x in h), tools=sum(x['tool_calls'] or 0 for x in h), limit=r.get('time_limit_seconds')))
-    d = json.load(open(HERE / 'results/phase4/benchmark-results.json'))
+    d = json.loads((HERE / 'results/phase4/benchmark-results.json').read_text())
     for i in d['instances']:
         if not (i['selection'] or {}).get('mainStatistic') or not i['validity']['valid']:
             continue
         out.setdefault((i['requestedEffort'], i['scenario']), []).append(dict(
             score=i['scoring']['score'], sec=i['time']['durationSeconds'], out=i['tokens']['output'], think=i['tokens']['thinking'],
             tools=i['toolCalls'], limit=i['time']['timeLimitSeconds']))
+    for effort in EFFORTS:
+        for scenario, _ in SC:
+            n = len(out.get((effort, scenario), []))
+            assert n == 5, f'{effort}/{scenario}: expected 5 main-statistic instances, got {n}'
     return out
 
 

@@ -51,6 +51,7 @@ def acquire_slot(effort):
     runs at once across every task); waits otherwise. Count and registration happen under one file lock so parallel lanes cannot both take the last
     slot (same lock file as the Carbon driver's: .tmp/carbonbench/slot.lock). None when the stop file appears while waiting."""
     lock = ROOT / '.tmp/carbonbench/slot.lock'
+    lock.parent.mkdir(parents=True, exist_ok=True)
     while True:
         with open(lock, 'w') as lk:
             fcntl.flock(lk, fcntl.LOCK_EX)

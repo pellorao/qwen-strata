@@ -67,12 +67,12 @@ def du(path):
 def run_bench_score(rec_id, mode):
     cmd = [sys.executable, '-m', 'tools.reviewer.bench_score', '--id', rec_id, '--records', str(RECORDS), '--root', str(SHM)]
     if mode:
-        cmd.append(mode)
+        cmd.extend(mode)
     return subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
 
 
 def step(mode, result_name, limit=None, stage=None):
-    """mode: '--enumerate' | '' | '--provisional lower' ..."""
+    """mode: argv list, e.g. ['--enumerate'], [], ['--provisional', 'lower']."""
     done = 0
     for rec in valid_records():
         keep = SCORE / rec['id']
@@ -230,9 +230,9 @@ def main():
     elif a.cmd == 'judge':
         judge(a.pools, a.parallel)
     elif a.cmd == 'enumerate':
-        step('--enumerate', 'candidates.json', a.limit)
+        step(['--enumerate'], 'candidates.json', a.limit)
     else:
-        step(f'--provisional {a.provisional}' if a.provisional else '', 'score.json', a.limit)
+        step(['--provisional', a.provisional] if a.provisional else [], 'score.json', a.limit)
 
 
 if __name__ == '__main__':
