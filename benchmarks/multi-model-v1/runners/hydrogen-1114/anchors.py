@@ -108,15 +108,18 @@ def register(dry_run=False):
     for scenario in SCENARIOS:   # registry copy: base anchors and synthetic items, then this family's anchors
         target = REGISTRY / f'{scenario}.json'
         reg = load(target) if target.is_file() else load(REGISTRY_IN / f'{scenario}.json')
-        known = {(a.get('origin') or {}).get('stable_id') for a in reg['anchors']}
+        known = {((a.get('origin') or {}).get('record'), (a.get('origin') or {}).get('stable_id'))
+                 for a in reg['anchors']}
         save(target, reg)
         for p, c in summary.get(scenario, {}).get('registered', []):
-            if p['stable_id'] in known:
+            identity = (p['record'], p['stable_id'])
+            if identity in known:
                 continue
             a = blind_pool.anchor_add(scenario, p['item'], c['decision'], FAMILY,
                                       f"Main executable check 11-15 (common/hydrojudge; {c['method']}): {c['evidence']}",
                                       origin={'record': p['record'], 'stable_id': p['stable_id']}, registry=REGISTRY,
                                       model=MODEL)
+            known.add(identity)
             print('registered', scenario, a['id'], p['pool_id'], c['decision'])
 
 
