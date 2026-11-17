@@ -27,13 +27,14 @@ foreach ($path in @($Python, $Entry, $Config)) {
     if (-not (Test-Path $path)) { throw "Missing $path; deploy the installation first." }
 }
 $frontend = Get-Content $Config -Raw | ConvertFrom-Json
-$ListenAddress, $Port = $frontend.listen_address, $frontend.port
+# The frontend binds the WSL adapter's address, read at each start (listen_interface), so the rule cannot name it.
+$Port = $frontend.port
 
 foreach ($name in $RetiredRules + $RuleName) {
     Get-NetFirewallRule -DisplayName $name -ErrorAction SilentlyContinue | Remove-NetFirewallRule
 }
 New-NetFirewallRule -DisplayName $RuleName -Direction Inbound -Action Allow -Protocol TCP `
-    -LocalAddress $ListenAddress -LocalPort $Port -RemoteAddress LocalSubnet -Profile Any | Out-Null
+    -LocalAddress Any -LocalPort $Port -RemoteAddress LocalSubnet -Profile Any | Out-Null
 
 # Large pages need SeLockMemoryPrivilege for the task user; Windows adds it to tokens at the next logon.
 $sid = ([Security.Principal.NTAccount]$TaskUser).Translate([Security.Principal.SecurityIdentifier]).Value
@@ -64,7 +65,7 @@ Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Se
     -Principal $taskPrincipal -Force | Out-Null
 Start-ScheduledTask -TaskName $TaskName
 
-Write-Host "Firewall rule ${RuleName}: TCP $ListenAddress`:$Port from LocalSubnet"
+Write-Host "Firewall rule ${RuleName}: TCP $Port from LocalSubnet (the frontend itself listens only on the WSL adapter)"
 Write-Host "Lock pages in memory for ${TaskUser}: $LargePages"
 Write-Host "Task $TaskName registered for $TaskUser and started"
 Read-Host 'Press Enter to close'

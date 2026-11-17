@@ -3,6 +3,8 @@ import hashlib
 import json
 from pathlib import Path, PureWindowsPath
 import re
+import socket
+import struct
 import tomllib
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -11,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 MODELS = ('Q2_0', 'IQ2_XS', 'IQ3_XXS')
 MODEL_PORT = 8100
 PUBLIC_FIELDS = {'schema_version', 'id', 'cuda_arch', 'models', 'engine_overrides', 'model_overrides', 'model_environment', 'hardware',
-                 'qualification', 'listen_address', 'port', 'installation_defaults', 'context_tiers', 'note'}
+                 'qualification', 'listen_interface', 'port', 'installation_defaults', 'context_tiers', 'note'}
 # presence_penalty: Strata 0.2.x fills sampling keys the request and the run config leave out from the model card, whose
 # thinking-off set carries presence_penalty 1.5 (serve/server.py MODEL_CARD_SAMPLING), so a host pins it explicitly.
 INSTALLATION_DEFAULTS = {'reasoning_effort', 'reasoning_budget_tokens', 'max_tokens',
@@ -65,6 +67,27 @@ def current_host(project=None):
     return identifier
 
 
+def wsl_gateway(route_table='/proc/net/route'):
+    """Address of the Windows side as WSL sees it: the default route's gateway. The frontend listens only on the
+    WSL virtual adapter, whose address Windows assigns, so no caller writes it down."""
+    try:
+        lines = Path(route_table).read_text(encoding='ascii').splitlines()[1:]
+    except OSError:
+        return None
+    for line in lines:
+        fields = line.split()
+        if len(fields) > 2 and fields[1] == '00000000' and int(fields[3], 16) & 2:  # default destination, RTF_GATEWAY
+            return socket.inet_ntoa(struct.pack('<I', int(fields[2], 16)))
+    return None
+
+
+def frontend_base(host):
+    """Frontend URL for callers on this WSL: derived from the default gateway; the private `frontend_url` only
+    where the machine has no WSL route table."""
+    gateway = wsl_gateway()
+    return f'http://{gateway}:{host["port"]}' if gateway else host['frontend_url']
+
+
 def require_current_host(identifier, project=None):
     """Installation work reaches only this machine's Windows side; refuse another host's deployment here."""
     local = current_host(project)
@@ -86,6 +109,8 @@ def load_host(identifier, project=None, condition=None):
     private = load_private(project).get('hosts', {}).get(identifier, {})
     value['installation_root'] = private.get('installation_path', '')
     value['frontend_url'] = private.get('frontend_url', '')
+    if value.get('listen_interface'):
+        value['frontend_url'] = frontend_base(value)
     root = PureWindowsPath(value['installation_root'])
     if not root.is_absolute() or '..' in root.parts:
         raise ValueError('Host needs an absolute Windows installation_path in project.private.toml')
@@ -201,13 +226,13 @@ def render_manual(identifier, project=None, part='readme', language='en'):
     host = load_host(identifier, project)
     model = host['models'][0]
     tiers, defaults = host['context_tiers'].get(model), host.get('installation_defaults', {})
-    missing = [k for k in ('listen_address', 'port') if not host.get(k)]
+    missing = [k for k in ('listen_interface', 'port') if not host.get(k)]
     missing += [] if tiers else [f'context_tiers.{model}']
     missing += [f'installation_defaults.{k}' for k in ('reasoning_effort', 'reasoning_budget_tokens', 'max_tokens',
                                                        *MANUAL_SAMPLING) if k not in defaults]
     if missing:
         raise ValueError(f'{identifier} lacks what the manual names: ' + ', '.join(missing))
-    values = {'host': identifier, 'base_url': f'http://{host["listen_address"]}:{host["port"]}',
+    values = {'host': identifier, 'base_url': f'http://<WSL-gateway>:{host["port"]}',
               'installation_wsl': wsl_path(host['installation_root']), 'model': model,
               'model_slug': 'qwen3.8-flash-next-' + model.lower(),
               'context_window': tiers[0]['context_window'], 'auto_compact_token_limit': tiers[0]['auto_compact_token_limit'],
@@ -232,7 +257,7 @@ def load_condition(path):
 
 def frontend_configuration(identifier, project=None):
     host = load_host(identifier, project)
-    return {'listen_address': host['listen_address'], 'port': host['port'], 'model_port': MODEL_PORT}
+    return {'listen_interface': host['listen_interface'], 'port': host['port'], 'model_port': MODEL_PORT}
 
 
 def model_configuration(model, identifier, project=None, condition=None):

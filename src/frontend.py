@@ -1,4 +1,4 @@
-"""Resident LAN frontend: one exclusive lease, model lifecycle and native Strata passthrough."""
+"""Resident frontend, listening only on the WSL virtual adapter: one exclusive lease, model lifecycle and native Strata passthrough."""
 import hashlib
 import hmac
 import http.client
@@ -29,6 +29,18 @@ IDLE_CHECK_SECONDS = 30
 EFFORT_BUDGETS = {'low': (2048, 8192), 'medium': (4096, 16384),
                   'high': (8192, 24576), 'xhigh': (8192, 24576), 'max': (8192, 24576)}
 GENERATION = ('/v1/chat/completions', '/v1/responses', '/v1/messages', '/v1/messages/count_tokens')
+
+
+def interface_address(prefix):
+    """IPv4 address of the first network interface whose name starts with `prefix`, or None while it has none.
+    Read at every frontend start: the WSL virtual adapter's address is assigned by Windows and may change."""
+    import psutil
+    for name, addresses in sorted(psutil.net_if_addrs().items()):
+        if name.startswith(prefix):
+            for address in addresses:
+                if address.family.name == 'AF_INET':
+                    return address.address
+    return None
 
 
 def log(message):
@@ -453,17 +465,20 @@ def main():
     (ROOT / 'logs').mkdir(exist_ok=True)
     sys.stdout = sys.stderr = open(ROOT / 'logs/frontend.log', 'a', encoding='utf-8', buffering=1)  # pythonw has no console
     while True:
+        address = interface_address(config['listen_interface'])
         try:
-            server = ThreadingHTTPServer((config['listen_address'], config['port']), Handler)
+            if address is None:
+                raise OSError(f'no IPv4 address on an interface named "{config["listen_interface"]}*"')
+            server = ThreadingHTTPServer((address, config['port']), Handler)
             break
-        except OSError as error:  # at logon the LAN address may not be assigned yet
-            log(f'bind {config["listen_address"]}:{config["port"]} failed: {error}; retrying')
+        except OSError as error:  # at logon the WSL adapter may not exist or have an address yet
+            log(f'bind {address}:{config["port"]} failed: {error}; retrying')
             time.sleep(BIND_RETRY)
     server.daemon_threads = True
     server.frontend = Frontend(config['model_port'])
     server.frontend.model.stop()  # never inherit a model this process did not start
     threading.Thread(target=server.frontend.watch_idle, daemon=True).start()
-    log(f'frontend ready on http://{config["listen_address"]}:{config["port"]}')
+    log(f'frontend ready on http://{address}:{config["port"]}')
     server.serve_forever()
     server.server_close()
 

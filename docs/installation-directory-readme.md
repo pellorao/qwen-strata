@@ -10,7 +10,7 @@ This document helps first-time callers get a complete workflow running quickly; 
 
 ## Address
 
-Callers only need to connect to the following frontend address to use the service:
+Callers only need to connect to the following frontend address to use the service. The frontend listens only on the WSL virtual network adapter, so it is unreachable from the LAN; its address is assigned by Windows and can change, so take `<WSL-gateway>` from the default route in WSL (`ip route show default`, the address after `via`) rather than writing it down:
 
 | Host | Frontend Address |
 |---|---|

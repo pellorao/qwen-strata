@@ -20,7 +20,7 @@ Codex CLI 定时唤醒、未来待办提醒或 subagent 周期检查：读 [code
 - Git 只有一个长期分支 `master`，只在本机工作，直接在 `master` 上提交（本工程现无远端，不推送）。
 - Strata 只供本机使用（用户 2026-11-17），只有一份工程副本。当前主机只由 `project.private.toml` 顶层的 `local_host` 指定；`python3 -m tools.ops.deployment_source` 只输出主机 id，是有副作用的操作校验当前主机的统一入口。部署、升级、调参和测量只接受当前主机。只读渲染和检查可以显式指定其他 host。
 - 主机相关事实按机器分开：配置在 `config/deployments/<host>.json`，调用手册段落在 `docs/installation-readme-hosts/<host>.md` 和 `<host>.zh-CN.md`，主页在 `docs/hosts/<host>.md`，新报告在 `reports/<host>/<版本或主题>/`。主文档保留共用规则；主机差异多而常变时放子文档，少量差异可以直接写在主文档的对应小节。
-- 安装路径、客户端连接前端用的 `frontend_url` 和凭据只在 `project.private.toml`，不写进其他来源；前端监听地址和端口（`listen_address`、`port`）是公开部署数据，在 `config/deployments/<host>.json`，并渲染进调用手册和安装目录的 `config/frontend.json`。`.claude/settings.json` 的 deny 路径用通配，不写具体安装名。历史报告中的主机名表示证据来源，不是当前主机声明。
+- 安装路径、客户端连接前端用的 `frontend_url`（仅作无 WSL 路由表时的后备）和凭据只在 `project.private.toml`，不写进其他来源；前端监听网卡名前缀和端口（`listen_interface`、`port`；前端每次启动现取该网卡地址，WSL 侧调用方取默认网关，不写死地址）是公开部署数据，在 `config/deployments/<host>.json`，并渲染进调用手册和安装目录的 `config/frontend.json`。`.claude/settings.json` 的 deny 路径用通配，不写具体安装名。历史报告中的主机名表示证据来源，不是当前主机声明。
 
 主机入口：[rtx3080ti](docs/hosts/rtx3080ti.md)。
 

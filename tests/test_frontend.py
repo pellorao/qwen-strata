@@ -329,6 +329,22 @@ class ConfigurationTests(unittest.TestCase):
                 model_process.configuration(options, 8100)
 
 
+class InterfaceAddressTests(unittest.TestCase):
+    def test_address_is_read_by_adapter_name_prefix_each_time(self):
+        import socket
+        from types import SimpleNamespace as NS
+        def adapters(wsl):
+            return {'Ethernet 4': [NS(family=socket.AF_INET, address='10.0.0.2')],
+                    'vEthernet (WSL (Hyper-V firewall))': [NS(family=socket.AF_INET6, address='fe80::1'),
+                                                           NS(family=socket.AF_INET, address=wsl)]}
+        def lookup(table):
+            with patch.dict(sys.modules, {'psutil': NS(net_if_addrs=lambda: table)}):
+                return frontend.interface_address('vEthernet (WSL')
+        self.assertEqual(lookup(adapters('172.29.112.1')), '172.29.112.1')
+        self.assertEqual(lookup(adapters('172.30.0.1')), '172.30.0.1')  # Windows assigned a new subnet
+        self.assertIsNone(lookup({'Ethernet 4': []}))
+
+
 class StopTests(unittest.TestCase):
     def test_process_exiting_while_tree_is_walked_still_stops(self):
         class NoSuchProcess(Exception):

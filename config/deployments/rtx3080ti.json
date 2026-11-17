@@ -33,7 +33,7 @@
       "STRATA_ROUTE_PRIOR": 1.5
     }
   },
-  "listen_address": "10.0.0.2",
+  "listen_interface": "vEthernet (WSL",
   "port": 8000,
   "hardware": {
     "gpu": "NVIDIA RTX 3080 Ti",

@@ -10,7 +10,7 @@
 | 模型进程管理 | `src/model_process.py` | 校验启动参数，生成临时运行配置（`.tmp/model/`），启动并停止原生服务 |
 | 原生服务 | `src/native_service.py` 包装 Strata `serve`，只监听 `127.0.0.1:8100` | 加载基础提示，提供 Chat / Responses / Messages；内部 key 每次启动随机生成，经环境变量 `STRATA_API_KEY` 传入 |
 
-- 推理全部在 Windows 原生进程中运行。WSL 保持 NAT，不做端口转发；调用方访问当前主机部署配置中的 `http://<listen_address>:<port>`。
+- 推理全部在 Windows 原生进程中运行。WSL 保持 NAT，不做端口转发；前端只监听名称以部署配置 `listen_interface` 开头的网卡（`vEthernet (WSL`，即 WSL 虚拟网卡）的 IPv4 地址，每次启动现取，不写死；局域网不可达。调用方在 WSL 里取默认路由的网关作为地址：`http://<网关>:<port>`（`tools.ops.deployment_source.wsl_gateway`，`bin/qwen-agent` 同理），不再使用 `project.private.toml` 的 `frontend_url`（仅在没有 WSL 路由表的机器上作后备）。网卡尚无地址时前端每 `BIND_RETRY` 秒重试。
 - 客户端允许列表按本机各网卡子网动态计算（每 60 秒刷新），WSL 虚拟网卡子网每次开机变化也能自动覆盖。
 - 租约只在内存中。前端启动时会先停掉遗留的模型进程，因此重启前端等于强制回收。租约本身没有超时回收。
 - 模型跨租约驻留：归还租约不停模型，下一个租约用相同参数启动时直接复用（省掉约 16 秒加载和 36 GB SSD 读取）。参数比较的是校验后的完整运行配置的 SHA。没有租约的模型空闲 `IDLE_STOP_MINUTES`（30）分钟后停止，0 表示不停。代价是空闲期间一直占用约 39 GB 内存和约 11 GB 显存；上一个调用方的 prompt cache 也留在进程中。

@@ -7,7 +7,7 @@ import unittest
 from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.ops.deployment_source import (current_host, require_current_host,
+from tools.ops.deployment_source import (wsl_gateway, current_host, require_current_host,
                                          frontend_configuration, load_host, model_configuration, published_tier,
                                          served_model, source_bytes, render_manual, wsl_path, MANUAL_FILES, MANUAL_HOSTS,
                                          MANUAL_PARTS, MANUAL_SOURCES, LANGUAGES)
@@ -23,7 +23,7 @@ class SourceRenderingTests(unittest.TestCase):
         self.root = root = Path(self.temp.name)
         (root/'config/deployments').mkdir(parents=True)
         (root/'config/templates').mkdir()
-        self.host('tuned', engine_overrides={'prefill': 8192}, listen_address='192.168.60.212', port=8000,
+        self.host('tuned', engine_overrides={'prefill': 8192}, listen_interface='vEthernet (WSL', port=8000,
                   installation_defaults={'reasoning_effort': 'high', 'max_tokens': 24576,
                                          'cpu_prefill_share': 'auto', 'top_k': 20},
                   context_tiers={'Q2_0': [{'context_window': 156584, 'auto_compact_token_limit': 100000},
@@ -185,7 +185,7 @@ installation_path='C:\\Strata'
 
     def test_public_outputs_never_carry_private_values(self):
         self.assertEqual(frontend_configuration('tuned', self.root),
-                         {'listen_address': '192.168.60.212', 'port': 8000, 'model_port': 8100})
+                         {'listen_interface': 'vEthernet (WSL', 'port': 8000, 'model_port': 8100})
         public = source_bytes('config/deployment.json', 'tuned', self.root).decode('utf-8')
         for private in ('secret-sentinel', 'frontend_url', 'installation_root', '模型'):
             self.assertNotIn(private, public)
@@ -268,15 +268,35 @@ class CurrentHostTests(unittest.TestCase):
             require_current_host('rtx3080ti', self.root)
 
 
+class GatewayTests(unittest.TestCase):
+    def table(self, *rows):
+        header = 'Iface\tDestination\tGateway\tFlags\tRefCnt\tUse\tMetric\tMask\n'
+        path = Path(tempfile.mkdtemp()) / 'route'
+        self.addCleanup(shutil.rmtree, path.parent)
+        path.write_text(header + ''.join(row.replace(' ', '\t') + '\n' for row in rows), encoding='ascii')
+        return path
+
+    def test_gateway_follows_the_default_route(self):
+        first = self.table('eth0 00000000 01701DAC 0003 0 0 0 00000000', 'eth0 00701DAC 00000000 0001 0 0 0 F0FFFFFF')
+        self.assertEqual(wsl_gateway(first), '172.29.112.1')
+        # the adapter's address changed after a restart: the next lookup follows it
+        second = self.table('eth0 00000000 0100A8C0 0003 0 0 0 00000000')
+        self.assertEqual(wsl_gateway(second), '192.168.0.1')
+
+    def test_no_default_route_gives_none(self):
+        self.assertIsNone(wsl_gateway(self.table('eth0 00701DAC 00000000 0001 0 0 0 F0FFFFFF')))
+        self.assertIsNone(wsl_gateway(Path('/nonexistent/route')))
+
+
 REAL_ROOT = Path(__file__).resolve().parents[1]
 # SHA-256 of each caller-manual file rendered for rtx3080ti, per installation target. The render is pinned byte for byte;
 # a deliberate manual change updates these pins together with the deployment (README.md: 2026-10-24 deployed file for the
 # one-file manual; the two-part, two-language manual 2026-11-07).
 RENDERED_MANUAL_SHA256 = {
-    'README.md': '428ccd1019001a6378e0db2373a5e0ddf8ae9973a16adac3fcc411ca6eb26313',
-    'README.zh-CN.md': '0416271361da9d9ce026353aa679e9df27237cca186b90f0cf6397c3fcfa6e69',
-    'docs/manuals/caller-manual.md': '187a6a1a5e3e2005cb5600dcea98deb1c9c862e2d83e0b19af4e99f8f2f9b273',
-    'docs/manuals/caller-manual.zh-CN.md': '0e29febc307844a6ef6a091ab69efe99b742aa23797d5119e4f33b706fede07a',
+    'README.md': '9c87bb2272abc7c795af2621dc37f17b0a33488ee355aff391e90a3e6d5c2f32',
+    'README.zh-CN.md': 'c09fb16ca60b3892a06749fc381fdceff5c9151dbffa6ba572c125dde9eaf022',
+    'docs/manuals/caller-manual.md': '2da8b64770682aec8d465abf9ece4191eca476b14b3ef904fb64a65f3eaf31b0',
+    'docs/manuals/caller-manual.zh-CN.md': '0ea27b1a89098559a4cd9cb2686c91ba650f78aeeae74c070f029925a0703a51',
 }
 CJK = re.compile('[\u4e00-\u9fff]')
 
@@ -346,17 +366,17 @@ class ManualRenderingTests(unittest.TestCase):
     def test_values_follow_the_host_file(self):
         path = self.root/'config/deployments/rtx3080ti.json'
         value = json.loads(path.read_text(encoding='utf-8'))
-        value.update(listen_address='10.0.0.9', port=8123)
+        value.update(listen_interface='vEthernet (WSL', port=8123)
         value['context_tiers']['IQ3_XXS'] = [{'context_window': 100000, 'auto_compact_token_limit': 70000}]
         path.write_text(json.dumps(value), encoding='utf-8')
         for part, language, anomalies in (('manual', 'en', '## Observed execution anomalies'),
                                           ('manual', 'zh-CN', '## 已观察到的执行异常')):
             rendered = render_manual('rtx3080ti', self.root, part, language)
-            self.assertIn('base_url = "http://10.0.0.9:8123/strata/v1"', rendered)
+            self.assertIn('base_url = "http://<WSL-gateway>:8123/strata/v1"', rendered)
             self.assertIn('model_context_window = 100000\nmodel_auto_compact_token_limit = 70000', rendered)
             self.assertNotIn('192.168.60.212', rendered.split(anomalies)[0])
         for language in LANGUAGES:
-            self.assertIn('http://10.0.0.9:8123', render_manual('rtx3080ti', self.root, 'readme', language))
+            self.assertIn('http://<WSL-gateway>:8123', render_manual('rtx3080ti', self.root, 'readme', language))
 
     def test_text_the_code_joins_follows_the_language(self):
         self.assertIn('temperature 0, top_p 1, top_k 20, presence_penalty 0', render_manual('rtx3080ti', self.root, 'manual', 'en'))
@@ -366,11 +386,11 @@ class ManualRenderingTests(unittest.TestCase):
         path = self.root/'config/deployments/rtx3080ti.json'
         original = path.read_text(encoding='utf-8')
         value = json.loads(original)
-        for key in ('listen_address', 'port', 'context_tiers'):
+        for key in ('listen_interface', 'port', 'context_tiers'):
             del value[key]
         value['context_tiers'] = {}
         path.write_text(json.dumps(value), encoding='utf-8')
-        with self.assertRaisesRegex(ValueError, 'lacks what the manual names: listen_address, port, context_tiers.IQ3_XXS'):
+        with self.assertRaisesRegex(ValueError, 'lacks what the manual names: listen_interface, port, context_tiers.IQ3_XXS'):
             render_manual('rtx3080ti', self.root)
         path.write_text(original, encoding='utf-8')
         (self.root/MANUAL_HOSTS/'rtx3080ti.zh-CN.md').unlink()

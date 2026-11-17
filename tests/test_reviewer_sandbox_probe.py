@@ -40,7 +40,7 @@ class ProbeConfigurationTests(unittest.TestCase):
     def test_denied_targets_exist_and_name_the_hosts_model_endpoint(self):
         targets = verify_reviewer_sandbox.denied_targets('rtx3080ti')
         deployment = json.loads((wsl_client.ROOT / 'config/deployments/rtx3080ti.json').read_text())
-        self.assertEqual(targets['model_api'], [deployment['listen_address'], deployment['port']])
+        self.assertEqual(targets['model_api'], [verify_reviewer_sandbox.wsl_gateway() or deployment['listen_interface'], deployment['port']])
         self.assertTrue(Path(targets['other_project']).is_file())
 
     def test_unreachable_network_targets_are_vacuous_controls(self):

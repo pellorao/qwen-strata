@@ -6,7 +6,7 @@ from pathlib import Path
 import shlex
 import socket
 import subprocess
-from tools.ops.deployment_source import current_host, published_tier
+from tools.ops.deployment_source import current_host, published_tier, wsl_gateway
 from tools.safety.reviewer_permissions import restricted_profile
 from tools.reviewer.native_cli_binding import CODEX
 from tools.reviewer.wsl_client import ROOT, Client, save, statistics
@@ -19,7 +19,7 @@ def denied_targets(host):
     deployment = json.loads((ROOT / 'config/deployments' / (host + '.json')).read_text(encoding='utf-8'))
     return {'other_project': str(ROOT / 'README.md'), 'user_config': str(Path.home() / '.bashrc'),
             'windows_file': '/mnt/c/Windows/win.ini',
-            'model_api': [deployment['listen_address'], deployment['port']]}
+            'model_api': [wsl_gateway() or deployment['listen_interface'], deployment['port']]}
 
 
 PUBLIC_TARGET = ('1.1.1.1', 443)

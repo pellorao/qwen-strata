@@ -10,7 +10,7 @@
 
 请求模型 ID 必须与实际加载量化一致，修改请求名称不会加载另一份模型。维护基线 = 本机唯一对外模型 + 部署默认值（B1，用户 2026-10-19）：high、思考8192、总输出24576，窗口与压缩阈值取该模型在当前主机部署配置中的首个上下文档位。原 Q2_0 运行基线文件已删除，历史内容用 `git show ff94f3c:config/maintenance-baseline.json` 查看。
 
-Responses 请求用 reasoning.effort；原生 Chat 用 reasoning_effort。Codex 配置字段为 model_reasoning_effort，provider 的 wire_api 使用 responses，base_url 为当前主机的 `http://<listen_address>:<port>/strata/v1`。工程应管理自己的配置入口和 model catalog；config/ 中的 Windows profile 是环境参考，不能直接复制到 Linux。官方字段见[配置参考](https://learn.chatgpt.com/docs/config-file/config-reference)。
+Responses 请求用 reasoning.effort；原生 Chat 用 reasoning_effort。Codex 配置字段为 model_reasoning_effort，provider 的 wire_api 使用 responses，base_url 为当前主机的 `http://<WSL 默认网关>:<port>/strata/v1`。工程应管理自己的配置入口和 model catalog；config/ 中的 Windows profile 是环境参考，不能直接复制到 Linux。官方字段见[配置参考](https://learn.chatgpt.com/docs/config-file/config-reference)。
 
 | 强度 | 思考 token 上限 | 默认总输出上限，含思考 |
 |---|---:|---:|

@@ -16,6 +16,8 @@ import json
 import os
 from pathlib import Path
 import signal
+import socket
+import struct
 import subprocess
 import sys
 import urllib.error
@@ -28,10 +30,19 @@ MAX_OUTPUT = {'low': 8192, 'medium': 16384, 'high': 24576}
 APPROVE_TIMEOUT = 180  # seconds Claude Code waits for bin/qwen-approve
 
 
+def wsl_gateway():
+    """The Windows side as WSL sees it (the default route's gateway); the frontend listens only on that adapter."""
+    for line in Path('/proc/net/route').read_text(encoding='ascii').splitlines()[1:]:
+        fields = line.split()
+        if len(fields) > 3 and fields[1] == '00000000' and int(fields[3], 16) & 2:
+            return socket.inet_ntoa(struct.pack('<I', int(fields[2], 16)))
+    raise SystemExit('qwen-agent: no default route, so the frontend address is unknown')
+
+
 class Frontend:
     def __init__(self):
         config = json.loads((INSTALL / 'config/frontend.json').read_text(encoding='utf-8'))
-        self.base = f'http://{config["listen_address"]}:{config["port"]}'
+        self.base = f'http://{wsl_gateway()}:{config["port"]}'
         self.key = None
         self.opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
