@@ -22,7 +22,7 @@ python3 scripts/wsl/finalize-stress-measurement \
 
 ## 输出
 
-一次收尾追加两行，每档一行（125K、150K；150K 冻结负载实际 150254 token）。每行含智力分数、decode/prefill、完成时间、主机、版本、配置、协议、`baseline_id` 和两个源文件的 SHA256；两档分别与各自基线的 95% 线比较。
+一次收尾追加两行，每档一行（125K、150K；150K 冻结负载实际 150254 token）。每行含智力分数、decode/prefill、完成时间、主机、版本、配置、协议、`baseline_id` 和两个源文件的 SHA256。脚本只校验绑定与基线一致并写入 `baseline_id`，不做数值比较；与基线的对比由读取输出的消费者负责。
 
 ## 失败条件
 
