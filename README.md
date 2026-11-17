@@ -1,6 +1,6 @@
 # Qwen3.8-Flash-Next / Strata 维护工程
 
-维护本地 Qwen3.8-Flash-Next / Strata 推理服务，并测量它作为 Codex、Claude Code 等 agent 后端的表现。推理在 Windows 原生进程（Python + Strata + CUDA）中运行；调用方经局域网访问常驻前端，领取独占 key 后调用，用完归还。
+维护本地 Qwen3.8-Flash-Next / Strata 推理服务，并测量它作为 Codex、Claude Code 等 agent 后端的表现。推理在 Windows 原生进程（Python + Strata + CUDA）中运行；调用方（本机的 WSL 与 Windows 进程）访问常驻前端，领取独占 key 后调用，用完归还。
 
 agent 规则见 [AGENTS.md](AGENTS.md)。
 
@@ -9,7 +9,6 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 | id | 硬件 | 入口 |
 |---|---|---|
 | `rtx3080ti` | RTX 3080 Ti 12GB，i9-13900 | [主机说明](docs/hosts/rtx3080ti.md) |
-| `rtx4070tis` | RTX 4070 Ti SUPER 16GB，i9-14900K | [主机说明](docs/hosts/rtx4070tis.md) |
 
 每份工程副本的当前主机只由 `project.private.toml` 顶层 `local_host` 决定。各机版本、参数和待办在对应主机文档及该机本地状态页维护。
 
@@ -33,9 +32,8 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 只收对整个工程有影响的决定，每条一行：结论、日期、依据（用户决定的出处，或含 Main 与独立 agent 双方意见的报告）。单个场景或单项测量内部的决定留在各自报告里；被取代的决定移到 [work-history](docs/work-history.md)。agent 的工作规则在 [AGENTS.md](AGENTS.md)。
 
 - Strata 0.2.x 不用官方安装程序和 `install.ps1`，继续“标签源码 ZIP + 预编译引擎（cuda13 tar.gz）”，由 `upgrade_release` 核验 feed 与引擎清单的 Ed25519 签名；0.2.2 起工具调用解析与 sm_86 解码开关表行为有变，此后的测量不与 0.1.45 结果直接比较（2026-10-22，Main 与独立审查一致）：[升级报告](reports/v0.2.2/upgrade.md)。
-- Git 只有一个长期分支 `master`；两台机器直接在 `master` 上拉取、提交和推送，推送冲突用 pull/rebase 解决（2026-10-30，用户决定）。
+- Git 只有一个长期分支 `master`；Strata 只供本机使用，只有一份工程副本，直接在 `master` 提交，无远端不推送（2026-11-17，用户决定）。
 - 当前主机只由 `project.private.toml` 顶层 `local_host` 指定；有副作用的操作只作用于当前主机，只读检查可显式指定其他 host。主机差异较多时拆为每机子文档，少量差异留在共用主文档；新报告写 `reports/<host>/...`（2026-10-30，用户决定）。
-- 额度预检只在 rtx3080ti 执行；其他主机没有 `estimate.sh` 等预检脚本，不执行额度预检（2026-10-30，用户决定）。
 - 每台机器只对外提供一个模型：rtx3080ti 为 IQ3_XXS（8 维调参结果为默认值，2026-10-11），Q2_0、IQ2_XS 权重保留，默认不再运行或测试，除非用户提出专门针对它们的任务（走部署 `--condition`，结束后普通部署恢复）；维护基线 = 本机唯一对外模型 + 部署默认值，不再单独成文件（B1）（2026-10-19，用户决定 + 独立审查，rtx3080ti 已部署，安全门按新源重跑通过）：[报告](reports/v0.1.45/single-model/summary.md)、[历史工作](docs/work-history.md#每台机器只对外一个模型维护基线退役2026-10-19)、[rtx3080ti 调参](docs/host-tuning/rtx3080ti.md)。
 - rtx3080ti 生产默认开启 `STRATA_ROUTE_PRIOR=1.5`（2026-11-08，用户选 B；依据 routeprior3 n=15 判定 open，开组质量点估计低 3%、每实例快约 35%；用户决定，无需另行复议）：[报告](reports/rtx3080ti/routeprior3/summary.md)。
 - IQ3_XXS 默认档改为 206584／150000（2026-10-14）：经过见[历史工作](docs/work-history.md)「自主模式（2026-10-14 01:58 起，已结束）」。
@@ -51,7 +49,7 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 - Reviewer 评分 r8.4：取消分数截到 0 的下限（N < 0 时按答案键全部反例的 k 之和归一，可低于 −1；原始分 ≥ 0 时与 r8.3 逐位相同），整体扣减改为 s − d·|s|；模型失误（没有报告）得 0，与什么都不报相同（用户 2026-10-21 定；负分表示浪费审核时间，没有报告就没有这种浪费）（2026-10-21，用户决定，独立审查有条件实施）：[benchmark 计划 §14.1](benchmarks/multi-model-v1/plan.md#141-冻结后的偏离)、[Reviewer 规则](.claude/rules/reviewer-suite.md)。
 - 出题原则：一道题只出一次；意外的重复改题，有意保留的重复在答案键里显式声明为合并用例、评分按声明合并，不靠计分端去重；报告凡给得分处同时给耗时，附 token 数和工具调用数，耗时不进分数（2026-10-16／17，用户决定）：[Reviewer 规则](.claude/rules/reviewer-suite.md)、[Commit Audit v2 变更说明](benchmarks/reviewer-suite-v1/commit-audit-v2.md)。
 - 场景能力判定用相对口径 Q3／Opus，目标 < 0.8（2026-10-13；2026-10-15 用户确认维持 Opus 参考）：[Reviewer 规则](.claude/rules/reviewer-suite.md)。
-- `qwen-agent` 改按所选量化的默认档启动，Codex 与 Claude Code 同值（IQ3_XXS 206584／150000）；Claude Code 的压缩点依赖未公开的 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`，版本变化后用 `tools.ops.claude_compact_probe` 重新核对（2026-10-19，Main 与独立审查一致，rtx3080ti 已部署；rtx4070tis 随工程复制带上）：[报告](reports/v0.1.45/context-tier-unify/summary.md)。
+- `qwen-agent` 改按所选量化的默认档启动，Codex 与 Claude Code 同值（IQ3_XXS 206584／150000）；Claude Code 的压缩点依赖未公开的 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`，版本变化后用 `tools.ops.claude_compact_probe` 重新核对（2026-10-19，Main 与独立审查一致，rtx3080ti 已部署）：[报告](reports/v0.1.45/context-tier-unify/summary.md)。
 - 所有 Codex Reviewer 臂（含 Strata）对用户登录（`~/.claude/.credentials.json`、`~/.codex` 整个目录，含默认位置的 ChatGPT 登录）和 `project.private.toml` deny-read，偏离 reviewer-suite「不额外收紧」（2026-10-19，Main 按硬约束 4 决定，三种 mock 门用合成文件验证通过，待用户复核）：[ARW Reviewer 规则](.claude/rules/reviewer-suite.md#合同)、[benchmark 计划 §3](benchmarks/multi-model-v1/plan.md#3-固定条件)。
 - 报告写授权用专用父目录（目录里只有该报告），绕过 Codex 单文件写授权的 bwrap 故障；安全门与测量同一策略（2026-10-07，用户决定）：[ARW Reviewer 规则](.claude/rules/reviewer-suite.md#正式测量前的安全验收)。
 - 多模型 benchmark 的 DeepSeek 改测 low / high / max；已跑的 medium 按方案 C′ 部分并入 high，其余作补充行，Holm 族改为每场景 25 个比较（2026-10-21，用户决定改档，Main 经独立审查定并入方案，待用户复核）：[计划 §14.4](benchmarks/multi-model-v1/plan.md)。
@@ -90,4 +88,3 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 - 2026-10-22 多模型 benchmark 第二阶段报告：Strata 两臂各格加到 10 个有效实例并进主统计（120 个加测实例另批盲裁、复核和会话检查）；100 个比较里低于 34、高于 13、未分出 53，相对第一阶段改变 16 个，都是从未分出变为有结论，没有反向变化；A6 变体与 r8.3 对照都不改结论；同时生成 Reviewer Model Benchmark v2.0 用的公开结果文件（[报告](reports/v0.1.45/multi-model-benchmark/phase2/summary.md)）。
 - 2026-10-22 rtx3080ti 升级到 Strata v0.2.2（引擎 0.1.47），短检查通过（C1–C3、X1–X2，引擎输出 105.9 tok/s）；greedy 对比本来就不可复现，长提示一问 0.2.2 四次一致答错，只作记录；引擎新提示 `--pool-workers 15`，未验证（[升级报告](reports/v0.2.2/upgrade.md)）。
 - 2026-10-24 rtx3080ti 升级到 Strata v0.2.4（引擎 0.1.48），短检查通过（C1–C3、X1–X2 两遍全过，第 1 遍 C1 偏慢 78.9 tok/s、第 2 遍 108.0 复现不了）；#3493 缓存自动定大小因部署显式设值不触发；装机工具加 `source_cmake_version` 以适配源码 CMake 0.1.49 与引擎包 0.1.48 分家（[升级报告](reports/v0.2.4/upgrade.md)）。
-- 2026-10-28 rtx4070tis 上线：Strata v0.2.4（引擎 0.1.48，CUDA 13，sm_89）与 IQ3_XXS 初始基线部署完成，前端常驻并完成冷加载、推理和租约生命周期检查。硬件相关参数尚未独立调参，后续待办统一维护在状态页（[交接文档](docs/rtx4070tis-handoff.md)）。

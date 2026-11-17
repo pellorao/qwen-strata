@@ -299,13 +299,12 @@ class ManualRenderingTests(unittest.TestCase):
             shutil.copyfile(REAL_ROOT/source, self.root/source)
         shutil.copytree(REAL_ROOT/MANUAL_HOSTS, self.root/MANUAL_HOSTS)
         (self.root/'project.private.toml').write_text(
-            "[hosts.rtx3080ti]\ninstallation_path = 'C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next'\n"
-            "[hosts.rtx4070tis]\ninstallation_path = 'C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next'\n",
+            "[hosts.rtx3080ti]\ninstallation_path = 'C:\\Users\\pello\\AppData\\Local\\Programs\\qwen-3.8-flash-next'\n",
             encoding='utf-8')
 
     def test_every_part_and_language_renders_without_placeholders(self):
         self.assertEqual(sorted(MANUAL_FILES), sorted(RENDERED_MANUAL_SHA256))
-        for host in ('rtx3080ti', 'rtx4070tis'):
+        for host in ('rtx3080ti',):
             for target, source in MANUAL_FILES.items():
                 with self.subTest(host=host, target=target):
                     rendered = source_bytes(source, host, self.root).decode()
@@ -326,7 +325,7 @@ class ManualRenderingTests(unittest.TestCase):
             en, zh = ((REAL_ROOT/(source + suffix)).read_text(encoding='utf-8') for suffix in ('.md', '.zh-CN.md'))
             self.assertEqual(re.findall(r'\{\{[^}]*\}\}', en), re.findall(r'\{\{[^}]*\}\}', zh), part)
             self.assertEqual(len(re.findall(r'^#+ ', en, flags=re.M)), len(re.findall(r'^#+ ', zh, flags=re.M)), part)
-        for host in ('rtx3080ti', 'rtx4070tis'):
+        for host in ('rtx3080ti',):
             en, zh = ((REAL_ROOT/MANUAL_HOSTS/(host + suffix)).read_text(encoding='utf-8') for suffix in ('.md', '.zh-CN.md'))
             marker = r'^<!-- ([a-z_]+) -->$'
             self.assertEqual(re.findall(marker, en, flags=re.M), re.findall(marker, zh, flags=re.M), host)
@@ -363,19 +362,17 @@ class ManualRenderingTests(unittest.TestCase):
         self.assertIn('temperature 0, top_p 1, top_k 20, presence_penalty 0', render_manual('rtx3080ti', self.root, 'manual', 'en'))
         self.assertIn('temperature 0、top_p 1、top_k 20、presence_penalty 0', render_manual('rtx3080ti', self.root, 'manual', 'zh-CN'))
 
-    def test_rtx4070tis_renders_its_own_manual(self):
-        self.assertIn('The served model on rtx4070tis is IQ3_XXS', render_manual('rtx4070tis', self.root, 'manual', 'en'))
-        self.assertIn('rtx4070tis 对外提供的模型为 IQ3_XXS', render_manual('rtx4070tis', self.root, 'manual', 'zh-CN'))
-
     def test_host_without_its_data_or_paragraphs_is_refused(self):
-        path = self.root/'config/deployments/rtx4070tis.json'
-        value = json.loads(path.read_text(encoding='utf-8'))
+        path = self.root/'config/deployments/rtx3080ti.json'
+        original = path.read_text(encoding='utf-8')
+        value = json.loads(original)
         for key in ('listen_address', 'port', 'context_tiers'):
             del value[key]
         value['context_tiers'] = {}
         path.write_text(json.dumps(value), encoding='utf-8')
         with self.assertRaisesRegex(ValueError, 'lacks what the manual names: listen_address, port, context_tiers.IQ3_XXS'):
-            render_manual('rtx4070tis', self.root)
+            render_manual('rtx3080ti', self.root)
+        path.write_text(original, encoding='utf-8')
         (self.root/MANUAL_HOSTS/'rtx3080ti.zh-CN.md').unlink()
         render_manual('rtx3080ti', self.root, 'manual', 'en')  # the English file does not need the Chinese paragraphs
         with self.assertRaisesRegex(ValueError, 'no manual paragraphs'):

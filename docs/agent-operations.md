@@ -1,6 +1,6 @@
 # Agent 运行规则
 
-本工程运行时依赖、但原本只写在 rtx3080ti 用户级 `~/.claude/` 里的规则，写成与 harness 无关的形式，给没有这些用户级规则的 harness（如 rtx4070tis 上的 Codex、Antigravity/agy）用。rtx3080ti 上的 Claude Code 照旧读用户级规则；两边内容重叠或不一致时，Claude Code 以用户级规则为准。
+本工程运行时依赖、但原本只写在 rtx3080ti 用户级 `~/.claude/` 里的规则，写成与 harness 无关的形式，给没有这些用户级规则的 harness（如 Codex）用。rtx3080ti 上的 Claude Code 照旧读用户级规则；两边内容重叠或不一致时，Claude Code 以用户级规则为准。
 
 这里只写规则；个人偏好（对话语言、回复长度等）放在各 harness 的用户级指令里。
 
@@ -53,4 +53,3 @@ AGENTS.md 硬约束 1 的重要决策（冻结、默认参数改值、部署、�
 ## 额度
 
 - 额度由总层计划决定（`~/.claude/docs/agents.md` Quota check），本工程不做额度判断。
-- `rtx4070tis` 及其他主机没有额度预检脚本，不执行额度预检。它们仍须按硬约束完成 Strata key、租约、模型状态等运行前检查。
