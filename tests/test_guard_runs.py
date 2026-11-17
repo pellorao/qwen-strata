@@ -8,6 +8,18 @@ from pathlib import Path
 from tools import guard_runs
 
 
+def _agy_rate_missing():
+    sys.path.insert(0, os.path.expanduser('~/.claude/lib'))
+    try:
+        import agy_rate  # noqa: F401
+    except ModuleNotFoundError:
+        return True
+    return False
+
+
+NO_AGY = unittest.skipIf(_agy_rate_missing(), 'agy_rate not importable: Antigravity was removed on this machine')
+
+
 class GuardRunsTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -35,6 +47,7 @@ class GuardRunsTest(unittest.TestCase):
         with self.assertRaises(guard_runs.Stopped):   # the marker stays until an agent acks it
             guard_runs.rate('qs:t', 2, 3600)
 
+    @NO_AGY
     def test_agy_run_harness_follows_the_model_group(self):
         with guard_runs.agy('qs:g', 'gemini-4-hydrogen-medium', 'medium'):
             with guard_runs.agy('qs:c', 'claude-opus-5-5', 'high'):
@@ -42,6 +55,7 @@ class GuardRunsTest(unittest.TestCase):
         self.assertEqual(got, [('qs:c', 'agy-claude', 'agy-claude', 'Opus 5.5', 'high'),
                                ('qs:g', 'agy-gemini', 'agy-gemini', 'Hydrogen', 'medium')])
 
+    @NO_AGY
     def test_hydrogen_turn_is_registered_and_start_rate_capped(self):
         import importlib.util
         spec = importlib.util.spec_from_file_location(

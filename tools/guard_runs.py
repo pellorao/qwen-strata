@@ -66,7 +66,10 @@ def agy(label, model, effort='', pid=None):
         with registered(label, 'agy'):
             yield None
         return
-    import agy_rate
+    try:
+        import agy_rate
+    except ModuleNotFoundError as e:
+        raise RuntimeError('Antigravity (agy) was removed on this machine: ~/.claude/lib/agy_rate.py no longer exists, so agy() cannot run') from e
     group = agy_rate.group_of(model)
     harness = group.replace('antigravity-', 'agy-') if group else 'agy'
     name, tier = agy_rate.display_model(model, effort)
