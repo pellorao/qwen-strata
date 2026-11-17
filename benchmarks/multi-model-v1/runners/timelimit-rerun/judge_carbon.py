@@ -16,6 +16,7 @@ Hydrogen is a new report family: the frozen tools know three. The families are e
 """
 import argparse
 import concurrent.futures
+import fcntl
 import json
 import os
 import re
@@ -109,7 +110,7 @@ def tools():
     sys.path.insert(0, str(ROOT))
     from tools.reviewer import bench_records, blind_pool, adjudication_view
     bench_records.MODELS['carbon'] = (33, 'carbon', 'anthropic')
-    pass
+    blind_pool.FAMILIES = (*blind_pool.FAMILIES, 'hydrogen')   # anchors of the Hydrogen registry
     return blind_pool, adjudication_view
 
 
@@ -122,7 +123,7 @@ def build(registry=None, suffix='', only=None):
         name = key + suffix
         files = sorted(SCORE.glob(f'antigravity/{scenario}/*/candidates.json'))
         files = [f for f in files if f.parent.name in {Path(r['id']).name for r in valid_records() if r['scenario'] == scenario}]
-        if list(KEYS.glob(f'key-{name}*.json')) or (not suffix and list(KEYS.glob(f'key-{key}-*.json'))):
+        if any(re.fullmatch(re.escape(name) + r'(?:-\d+)?', p.stem[4:]) for p in KEYS.glob('key-*.json')):
             log(f'{name}: pools exist, skipped')
             continue
         written = blind_pool.build(scenario, name, ADJ, KEYS, files, registry=registry, root=SCORE)
@@ -149,8 +150,19 @@ def build(registry=None, suffix='', only=None):
     log(f'{len(pools)} pools; expected judge calls {len(pools)}, cap {2 * len(pools)}')
 
 
-def calls_so_far():
-    return sum(1 for _ in open(CALLS)) if CALLS.is_file() else 0
+def reserve_call(pool):
+    """Atomically reserve a call across threads and concurrent runner processes."""
+    cap = json.loads(EXPECT.read_text())['cap']
+    with open(CALLS, 'a+') as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        f.seek(0)
+        count = sum(1 for _ in f)
+        if count >= cap:
+            raise RuntimeError(f'STOP: {count} judge calls reached the cap {cap}; check the cause before more (usage watch)')
+        n = count + 1
+        f.write(json.dumps({'pool': pool, 'n': n, 'at': time.strftime('%F %T')}) + '\n')
+        f.flush()
+    return n
 
 
 def judge_one(pool):
@@ -160,14 +172,8 @@ def judge_one(pool):
     adj = Path(key['pool_path']).parent
     dec = adj / f'decisions-{pool}.json'
     JUDGE.mkdir(parents=True, exist_ok=True)
-    cap = json.loads(EXPECT.read_text())['cap']
-    if calls_so_far() >= cap:
-        log(f'STOP: {calls_so_far()} judge calls reached the cap {cap}; check the cause before more (usage watch)')
-        sys.exit(3)
-    n = calls_so_far() + 1
+    n = reserve_call(pool)
     stream = JUDGE / f'{pool}-{n}.jsonl'
-    with open(CALLS, 'a') as f:
-        f.write(json.dumps({'pool': pool, 'n': n, 'at': time.strftime('%F %T')}) + '\n')
     env = {k: v for k, v in os.environ.items() if k not in ('ANTHROPIC_API_KEY', 'ANTHROPIC_BASE_URL', 'ANTHROPIC_AUTH_TOKEN')}
     t = time.time()
     cmd = [GUARD, '--label', f'{LABEL}:{pool}', '--max-usd', str(POOL_USD), '--max-min', str(POOL_MIN), '--',
@@ -177,14 +183,15 @@ def judge_one(pool):
         rc = subprocess.call(cmd, cwd=adj, stdin=pin, stdout=out, stderr=subprocess.STDOUT, env=env)
     subprocess.call([USAGE, '--add-stream', str(stream), 'reviewer-bench/timelimit:carbonjudge', '--effort', 'high'], stdout=subprocess.DEVNULL)
     final = ''
-    for line in open(stream):
-        try:
-            ev = json.loads(line)
-        except ValueError:
-            continue
-        if ev.get('type') == 'result':
-            final = ev.get('result') or ''
-            cost = ev.get('total_cost_usd')
+    with open(stream) as events:
+        for line in events:
+            try:
+                ev = json.loads(line)
+            except ValueError:
+                continue
+            if ev.get('type') == 'result':
+                final = ev.get('result') or ''
+                cost = ev.get('total_cost_usd')
     log(f'{pool}: judge call {n} rc={rc} {time.time() - t:.0f}s cost={locals().get("cost")} decisions={dec.is_file()}')
     if not dec.is_file():
         return {'pool': pool, 'ok': False, 'why': f'no decisions file (rc {rc})'}
@@ -200,8 +207,16 @@ def judge(pools=None, parallel=3):
     pools = pools or json.loads(EXPECT.read_text())['names']
     todo = [p for p in pools if not (JUDGE / f'split-{p}.ok').is_file()]
     log(f'judge: {len(todo)} pools to do, parallel {parallel}')
+    JUDGE.mkdir(parents=True, exist_ok=True)
     with concurrent.futures.ThreadPoolExecutor(parallel) as ex:
-        for res in ex.map(judge_one, todo):
+        futures = {ex.submit(judge_one, p): p for p in todo}
+        for future in concurrent.futures.as_completed(futures):
+            pool = futures[future]
+            try:
+                res = future.result()
+            except Exception as exc:
+                log(f'{pool}: ERROR {type(exc).__name__}: {exc}; no success marker, retry after checking the cause')
+                continue
             if res['ok']:
                 (JUDGE / f"split-{res['pool']}.ok").write_text('passed\n')
             else:
