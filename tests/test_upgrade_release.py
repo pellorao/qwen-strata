@@ -194,6 +194,11 @@ class UpgradeTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError,'GPU architecture'):self.run_upgrade(cuda_arch=61)
         self.assert_untouched(before)
 
+    def test_engine_reused_from_an_earlier_release_is_named_by_full_url(self):
+        self.metadata['engine_package']['url']='https://example.invalid/releases/download/v0.2.14/'+ASSET
+        self.write_feed()
+        self.assertEqual(self.run_upgrade()['engine_version'],'0.1.47')
+
     def test_source_cmake_version_may_be_bound_by_metadata(self):
         self.write_source({'AGENTS.md':'Instructions','requirements.txt':'Dependencies','CMakeLists.txt':'VERSION 0.1.49'})
         with self.assertRaisesRegex(RuntimeError,'engine version'):self.run_upgrade()

@@ -168,7 +168,8 @@ def upgrade(root, metadata, source, engine, feed, cuda_arch=89):
     feed_key = verify_feed(feed, release, package)
     version, commit = release['tag_name'].removeprefix('v'), metadata['commit']
     engine_version = package['version']
-    asset = next(a for a in release['assets'] if a['name'] == package['url'])
+    # Since v0.2.15 the feed names an engine reused from an earlier release by full URL; the asset is its file name.
+    asset = next(a for a in release['assets'] if a['name'] == package['url'].rsplit('/', 1)[-1])
     if (asset['size'] != package['size'] or asset['digest'] != 'sha256:' + package['sha256']
             or engine.stat().st_size != asset['size'] or sha(engine) != package['sha256']):
         raise RuntimeError('Engine differs from the official release size or SHA256')
