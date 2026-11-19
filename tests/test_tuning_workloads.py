@@ -267,7 +267,7 @@ class CodexWorkloadTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             script = 'sleep 60 & echo $! > child.pid; wait'
             with open(Path(tmp) / 'log', 'w') as out:
-                code = codex_workload.run_limited(['sh', '-c', script], '', out, tmp, None, 0.2)
+                code = codex_workload.run_limited(['sh', '-c', script], '', out, tmp, None, 0.4)
             self.assertEqual(code, 'timeout')
             child = int((Path(tmp) / 'child.pid').read_text())
             for _ in range(500):

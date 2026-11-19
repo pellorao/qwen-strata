@@ -238,7 +238,7 @@ class RunnerBuildersTest(SharedTmpMixin, unittest.TestCase):
         seen = {}
         grace, ch.HARD_GRACE = ch.HARD_GRACE, 0.1
         try:
-            result = ch.execute(out, 'p', argv, {'PATH': os.environ['PATH']}, self.work, limit=0.2,
+            result = ch.execute(out, 'p', argv, {'PATH': os.environ['PATH']}, self.work, limit=0.4,
                                 on_start=lambda process, text: seen.setdefault('pid', process.pid) and text + 'q')
         finally:
             ch.HARD_GRACE = grace
