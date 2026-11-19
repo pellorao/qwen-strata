@@ -1,3 +1,4 @@
+import os, sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import fast_servers  # noqa: E401,F401
 import hashlib
 import json
 import os
@@ -32,6 +33,9 @@ class RunnerBuildersTest(SharedTmpMixin, unittest.TestCase):
         self.base = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, self.base, True)
         self.use_fake_shared_tmp()
+        poll = mock.patch.object(ch, 'POLL', 0.005)  # the polling interval only paces the loop, not what it decides
+        poll.start()
+        self.addCleanup(poll.stop)
         self.work = ch.workspace('r1', self.base)
         (self.work / 'inputs').mkdir()
         (self.work / 'inputs/a.txt').write_text('a\n')
@@ -232,9 +236,9 @@ class RunnerBuildersTest(SharedTmpMixin, unittest.TestCase):
         # a process that ignores the hard-limit interrupt: stdin closes, the group is stopped after the grace
         argv = [sys.executable, '-c', 'import sys,time;sys.stdin.read();open("report/r.md","w").write("x");time.sleep(30)']
         seen = {}
-        grace, ch.HARD_GRACE = ch.HARD_GRACE, 1
+        grace, ch.HARD_GRACE = ch.HARD_GRACE, 0.1
         try:
-            result = ch.execute(out, 'p', argv, {'PATH': os.environ['PATH']}, self.work, limit=2,
+            result = ch.execute(out, 'p', argv, {'PATH': os.environ['PATH']}, self.work, limit=0.2,
                                 on_start=lambda process, text: seen.setdefault('pid', process.pid) and text + 'q')
         finally:
             ch.HARD_GRACE = grace

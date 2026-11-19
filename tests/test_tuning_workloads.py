@@ -1,9 +1,11 @@
+import os, sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import fast_servers  # noqa: E401,F401
 import json
 import sys
 import os
 import tempfile
 import time
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from tools.tuning import codex_workload, staged_decision, window_bank
@@ -36,7 +38,13 @@ class SandboxProbeTest(unittest.TestCase):
     @unittest.skipUnless(codex_workload.CODEX.exists(), 'native Codex not installed')
     def test_workspace_is_the_only_readable_place(self):
         from tools.tuning import sandbox_probe
-        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[1] / '.tmp') as tmp:
+        overrides = codex_workload.codex_overrides
+
+        def quick(*args, **kwargs):
+            # Without this Codex waits 10 s at exit to flush analytics it cannot send; unrelated to the sandbox.
+            return [*overrides(*args, **kwargs), '-c', 'analytics.enabled=false']
+        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[1] / '.tmp') as tmp, \
+                mock.patch.object(codex_workload, 'codex_overrides', quick):
             result = sandbox_probe.probe(tmp)
         self.assertTrue(result['ok'], result['problems'])
 
@@ -259,13 +267,13 @@ class CodexWorkloadTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             script = 'sleep 60 & echo $! > child.pid; wait'
             with open(Path(tmp) / 'log', 'w') as out:
-                code = codex_workload.run_limited(['sh', '-c', script], '', out, tmp, None, 1)
+                code = codex_workload.run_limited(['sh', '-c', script], '', out, tmp, None, 0.2)
             self.assertEqual(code, 'timeout')
             child = int((Path(tmp) / 'child.pid').read_text())
-            for _ in range(50):
+            for _ in range(500):
                 if not Path(f'/proc/{child}').exists() or 'Z' in Path(f'/proc/{child}/stat').read_text().split()[2]:
                     break
-                time.sleep(0.1)
+                time.sleep(0.01)
             else:
                 self.fail('the shell started by the session outlived the hard limit')
             with open(Path(tmp) / 'log', 'w') as out:

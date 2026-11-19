@@ -1,4 +1,5 @@
 """The Codex compaction gate (plan v2 F7/F8): mock behaviour and the ladder."""
+import os, sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import fast_servers  # noqa: E401,F401
 import json
 from pathlib import Path
 import tempfile

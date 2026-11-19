@@ -60,5 +60,5 @@ Codex CLI 定时唤醒、未来待办提醒或 subagent 周期检查：读 [code
 
 ## 命令
 
-- 测试：`python3 -m unittest discover -s tests -p 'test_*.py'`
+- 测试：`python3 -m unittest discover -s tests -p 'test_*.py'`；看最慢用例加 `--durations 30`。测试里的回环服务器经 `tests/fast_servers.py`（`import fast_servers`）关得快，新写起服务器的测试同样引入；测 Codex 真进程时加 `-c analytics.enabled=false`，否则它退出时空等 10 秒。
 - 工具：从工程根运行 `python3 -m tools.<子目录>.<模块>`

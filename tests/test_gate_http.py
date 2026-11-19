@@ -1,3 +1,4 @@
+import os, sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import fast_servers  # noqa: E401,F401
 import http.client
 import threading
 import unittest

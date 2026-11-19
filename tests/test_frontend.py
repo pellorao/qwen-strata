@@ -1,4 +1,5 @@
 """Frontend lease, defaults and passthrough without a model."""
+import os, sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import fast_servers  # noqa: E401,F401
 import http.client
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json

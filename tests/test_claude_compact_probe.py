@@ -1,4 +1,5 @@
 """The Claude Code compaction probe uses qwen-agent's own variables and judges each size against the threshold."""
+import os, sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import fast_servers  # noqa: E401,F401
 import json
 from pathlib import Path
 import subprocess

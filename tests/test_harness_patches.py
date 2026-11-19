@@ -12,15 +12,30 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFESTS = ROOT / 'benchmarks/reviewer-suite-v1/source-snapshots/current'
 
 
+SCENARIOS = ('commit-audit-v3', 'code-spec-v5', 'code-standards-v5.1', 'spec-readiness-v4.3')
+
+
 class HarnessPatchTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Each scenario's frozen source is materialized once; every test works on its own copy of it.
+        (ROOT / '.tmp').mkdir(exist_ok=True)
+        cls.bases = tempfile.TemporaryDirectory(dir=ROOT / '.tmp', prefix='harness-patch-base-')
+        cls.addClassCleanup(cls.bases.cleanup)
+        for scenario in SCENARIOS:
+            manifest = json.loads((MANIFESTS / f'manifest-{scenario}.json').read_text())
+            materialize(manifest, MANIFESTS / manifest['snapshot']['file'], Path(cls.bases.name) / scenario)
+
+    def copy_of(self, scenario, tmp):
+        arw = Path(tmp) / 'arw'
+        shutil.copytree(Path(self.bases.name) / scenario, arw)
+        return arw
+
     def test_mount_target_patch_applies_to_every_current_scenario_source(self):
         # The scenario versions the multi-model benchmark binds; all share the patched Reviewer runtime.
-        for name in ('commit-audit-v3', 'code-spec-v5', 'code-standards-v5.1', 'spec-readiness-v4.3'):
-            manifest = json.loads((MANIFESTS / f'manifest-{name}.json').read_text())
-            (ROOT / '.tmp').mkdir(exist_ok=True)
+        for name in SCENARIOS:
             with tempfile.TemporaryDirectory(dir=ROOT / '.tmp', prefix='harness-patch-') as tmp:
-                arw = Path(tmp) / 'arw'
-                materialize(manifest, MANIFESTS / manifest['snapshot']['file'], arw)
+                arw = self.copy_of(name, tmp)
                 applied = apply_harness_patch('codex-0.163-synthetic-mount-targets', arw)
                 self.assertEqual(applied['result'], HARNESS_PATCHES['codex-0.163-synthetic-mount-targets']['result'])
                 with self.assertRaises(ValueError):  # a second application meets a changed base
@@ -28,12 +43,9 @@ class HarnessPatchTest(unittest.TestCase):
 
     def test_time_limit_patch_applies_with_the_mount_patch_and_its_node_test_passes(self):
         name = 'strata-measurement-time-limit'
-        for scenario in ('commit-audit-v3', 'code-spec-v5', 'code-standards-v5.1', 'spec-readiness-v4.3'):
-            manifest = json.loads((MANIFESTS / f'manifest-{scenario}.json').read_text())
-            (ROOT / '.tmp').mkdir(exist_ok=True)
+        for scenario in SCENARIOS:
             with tempfile.TemporaryDirectory(dir=ROOT / '.tmp', prefix='harness-patch-') as tmp:
-                arw = Path(tmp) / 'arw'
-                materialize(manifest, MANIFESTS / manifest['snapshot']['file'], arw)
+                arw = self.copy_of(scenario, tmp)
                 apply_harness_patch('codex-0.163-synthetic-mount-targets', arw)
                 applied = apply_harness_patch(name, arw)
                 self.assertEqual(applied['result'], HARNESS_PATCHES[name]['result'])
@@ -46,12 +58,9 @@ class HarnessPatchTest(unittest.TestCase):
 
     def test_scratch_patch_stacks_with_the_other_harness_patches_and_its_node_test_passes(self):
         name = 'reviewer-private-scratch'
-        for scenario in ('commit-audit-v3', 'code-spec-v5', 'code-standards-v5.1', 'spec-readiness-v4.3'):
-            manifest = json.loads((MANIFESTS / f'manifest-{scenario}.json').read_text())
-            (ROOT / '.tmp').mkdir(exist_ok=True)
+        for scenario in SCENARIOS:
             with tempfile.TemporaryDirectory(dir=ROOT / '.tmp', prefix='harness-patch-') as tmp:
-                arw = Path(tmp) / 'arw'
-                materialize(manifest, MANIFESTS / manifest['snapshot']['file'], arw)
+                arw = self.copy_of(scenario, tmp)
                 apply_harness_patch('codex-0.163-synthetic-mount-targets', arw)
                 applied = apply_harness_patch(name, arw)
                 apply_harness_patch('strata-measurement-time-limit', arw)

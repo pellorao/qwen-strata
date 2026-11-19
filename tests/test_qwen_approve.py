@@ -1,4 +1,5 @@
 """The Claude Code approval hook: context from the transcript, verdict from the model, denial on any failure."""
+import os, sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import fast_servers  # noqa: E401,F401
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.machinery import SourceFileLoader
 import io

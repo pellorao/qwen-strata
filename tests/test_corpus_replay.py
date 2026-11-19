@@ -1,11 +1,14 @@
 """The frozen development / validation split partitions the loop corpus without sharing a task."""
+import functools
 import json
 import sys
 import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.loop.corpus_replay import CORPUS, load
+from tools.loop.corpus_replay import CORPUS, load as _load
+
+load = functools.cache(_load)  # three tests read the same frozen corpus; they only read the result
 
 
 class SplitTests(unittest.TestCase):

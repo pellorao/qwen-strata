@@ -118,6 +118,9 @@ class ContinuationTest(unittest.TestCase):
         patcher = mock.patch.object(ch, 'SHARED_TMP_ROOT', self.base / 'fake-tmp-root')
         patcher.start()
         self.addCleanup(patcher.stop)
+        poll = mock.patch.object(ch, 'POLL', 0.005)  # the polling interval only paces the loop, not what it decides
+        poll.start()
+        self.addCleanup(poll.stop)
         self.work = self.base / 'work'
         self.work.mkdir()
         (self.work / 'src.txt').write_text('input\n')
@@ -206,7 +209,7 @@ class ContinuationTest(unittest.TestCase):
     def test_hard_limit_stops_the_continued_segment(self):
         script = [{'result': INCOMPLETE}, {'sleep': 30, 'result': READY}]
         started = time.time()
-        result = self.run_script(script, limit=3)
+        result = self.run_script(script, limit=0.6)
         c = result['continuation']
         self.assertEqual((c['stop'], result['hard_interrupt'], c['early_exit_count']), ('hard_limit', True, 1))
         self.assertLess(time.time() - started, 15)  # the limit counts from the first segment's start
@@ -228,7 +231,7 @@ class ContinuationTest(unittest.TestCase):
 
     def test_reminder_during_generation_is_a_priority_message_that_cuts_the_turn(self):
         started = time.time()
-        result = self.run_script([{'sleep': 20, 'write': '- f\n', 'result': READY}], reminder_after=1)
+        result = self.run_script([{'sleep': 20, 'write': '- f\n', 'result': READY}], reminder_after=0.15)
         self.assertLess(time.time() - started, 10)  # not after the 20 s generation
         self.assertEqual(result['continuation']['stop'], 'delivered')
         [message] = self.inputs()
@@ -255,7 +258,7 @@ class ContinuationTest(unittest.TestCase):
 
     def test_reminder_during_a_tool_interrupts_first(self):
         started = time.time()
-        result = self.run_script([{'tool': True, 'sleep': 20, 'write': '- f\n', 'result': READY}], reminder_after=1)
+        result = self.run_script([{'tool': True, 'sleep': 20, 'write': '- f\n', 'result': READY}], reminder_after=0.15)
         self.assertLess(time.time() - started, 10)  # not after the tool's remaining time
         self.assertEqual(result['continuation']['stop'], 'delivered')
         interrupt, message = self.inputs()
@@ -270,7 +273,7 @@ class ContinuationTest(unittest.TestCase):
 
     def test_reminder_in_a_continued_segment_names_that_segment(self):
         result = self.run_script([{'result': INCOMPLETE}, {'sleep': 20, 'write': '- f\n', 'result': READY}],
-                                 reminder_after=1)
+                                 reminder_after=0.15)
         self.assertEqual((result['continuation']['stop'], len(result['continuation']['segments'])), ('delivered', 2))
         reminder = json.loads((self.out / 'deadline-handoff.json').read_text())['reminder']
         self.assertEqual((reminder['stream'], reminder['status']), ('stream-1.jsonl', 'accepted'))

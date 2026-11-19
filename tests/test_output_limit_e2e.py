@@ -1,5 +1,6 @@
 """Output-limit retry end to end: the real frontend Handler between a scripted engine (Strata v0.1.45 fixture streams)
 and the real Codex (pinned benchmark copy, tools.reviewer.harness_pins).  No model is used."""
+import os, sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import fast_servers  # noqa: E401,F401
 from http.server import BaseHTTPRequestHandler
 import json
 import os
@@ -110,7 +111,8 @@ class EndToEnd(unittest.TestCase):
                   'model_providers.front.base_url': self.base + '/v1', 'model_providers.front.wire_api': 'responses',
                   'model_providers.front.env_key': 'STRATA_API_KEY', 'model_providers.front.supports_websockets': False,
                   'model_providers.front.requires_openai_auth': False,
-                  'model_providers.front.request_max_retries': 0, 'model_providers.front.stream_max_retries': 0}
+                  'model_providers.front.request_max_retries': 0, 'model_providers.front.stream_max_retries': 0,
+                  'analytics.enabled': False}      # else Codex waits 10 s at exit to flush analytics it cannot send
         args = [str(CODEX), 'exec', '--json', '--skip-git-repo-check', '-s', 'workspace-write']
         for key, value in config.items():
             args += ['-c', key + '=' + json.dumps(value)]

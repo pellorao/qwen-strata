@@ -1,5 +1,4 @@
 import tempfile
-import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -8,14 +7,15 @@ from tools.reviewer import freeze_arw_source as freeze
 
 
 class FreezeArchiveTests(unittest.TestCase):
-    def snapshot(self, source, destination):
+    def snapshot(self, source, destination, now):
         def git(command, cwd, **kwargs):
             if command[1] == 'rev-parse':
                 return 'a' * 40 + '\n'
             if command[1] == 'ls-files':
                 return b'lib/a.mjs\0package.json\0'
             return b''
-        with mock.patch.object(freeze.subprocess, 'check_output', side_effect=git):
+        with mock.patch.object(freeze.subprocess, 'check_output', side_effect=git), \
+                mock.patch('gzip.time.time', return_value=now):
             return freeze.freeze(source, destination)
 
     def test_equal_content_gives_equal_archive_bytes_whenever_it_is_frozen(self):
@@ -24,9 +24,9 @@ class FreezeArchiveTests(unittest.TestCase):
             (source / 'lib').mkdir(parents=True)
             (source / 'lib/a.mjs').write_text('export const a = 1;\n')
             (source / 'package.json').write_text('{}\n')
-            first = self.snapshot(source, Path(tmp) / 'one')
-            time.sleep(1.1)  # the gzip header carries a second-resolution time unless it is pinned
-            second = self.snapshot(source, Path(tmp) / 'two')
+            # the gzip header carries a second-resolution time unless it is pinned: freeze at two different seconds
+            first = self.snapshot(source, Path(tmp) / 'one', 1_000_000_000)
+            second = self.snapshot(source, Path(tmp) / 'two', 1_000_000_002)
             self.assertEqual(first['snapshot'], second['snapshot'])
 
 
