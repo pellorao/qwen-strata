@@ -44,7 +44,7 @@ def main():
     with concurrent.futures.ThreadPoolExecutor(args.j) as pool:
         for name, code, output, _ in pool.map(run, names):
             tail = output.strip().splitlines()
-            ran += sum(int(l.split()[1]) for l in tail[-6:] if re.match(r'Ran \d+ tests? in ', l))
+            ran += sum(int(l.split()[1]) for l in tail if re.fullmatch(r'Ran \d+ tests? in [\d.]+s', l))
             if code:
                 failed.append(name)
                 print(f'==== {name} FAILED (exit {code})\n{output}', file=sys.stderr)
