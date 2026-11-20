@@ -4,7 +4,7 @@
 
 - 命令：`upgrade_release --host rtx3080ti --metadata <metadata.json> --source artifacts/strata/0.2.16/source.zip --engine .../engine.tar.gz --feed .../strata-feed.json`。SHA 与签名见 `docs/downloads.md`。
 - 源码 ZIP 布局改变（`terminal/` 放 Python 运行时，`engine/` 放引擎源码），旧 `upgrade_release` 会把引擎源码写进二进制目录；已改为只装 `terminal/` 到 `runtime/Strata`，并加测试 `test_terminal_layout_installs_only_terminal_and_agents`。
-- 备份 `.tmp/maintenance-backups/release-backup-20261120-124134-621860`；回退用 `upgrade_release --rollback <备份>`。0.2.12 制品已删（来源与 SHA 留在 `docs/downloads.md`）。
+- 备份 `.tmp/maintenance-backups/release-backup-20261120-124134-621860`；回退用 `upgrade_release --host rtx3080ti --rollback <备份> --output <receipt.json>`。0.2.12 制品已删（来源与 SHA 留在 `docs/downloads.md`）。
 - `MODEL_CARD_SAMPLING`：qwen4exp、qwen35moe 两组与 0.2.15 相同（现在位于 `terminal/serve/server_parts/http_api.py`），`MODEL_CARD_KEYS` 与 `installation_defaults` 不需改。
 - 启动日志：引擎命令行含 `--spec 4 --mtp`，`strata mtp: draft layer loaded`，MTP 仍在用。
 
@@ -20,3 +20,7 @@
 | X1 | Codex：`cat note.txt` 加托管搜索 | 0 | 22 | 内容正确，搜索给出发布页 URL |
 
 全部 9 个请求合计：未缓存输入 1995 tok/s，解码 135.5 tok/s（引擎日志，`engine_speed`；短提示含固定开销，不与长上下文数字比）。未跑 Codex 审批提权。
+
+## 遗留
+- 安装目录 `runtime/Strata` 根部仍有旧布局的 `CMakeLists.txt`（版本 0.1.61），`strata --version` 可能显示 0.1.61，实际引擎为 0.1.62；`upgrade_release` 未清理旧布局残留（审核 low 项），待 Main 决定是否处理。
+- Claude Code 2.1.329 的压缩阈值零模型探测未做（手册记录到 2.1.319）。

@@ -186,7 +186,7 @@ def upgrade(root, metadata, source, engine, feed, cuda_arch=89):
         # Since v0.2.16 the tag keeps the Python runtime under terminal/ and the engine source under engine/ (the
         # installed runtime/Strata is that terminal/ folder, whose engine/ holds the binaries): only terminal/ and the
         # top-level AGENTS.md are installed, and engine/CMakeLists.txt is read for the version check.
-        terminal = prefix + 'terminal/serve/server.py' in archive.namelist()
+        has_terminal_layout = prefix + 'terminal/serve/server.py' in archive.namelist()
         cmake = None
         for info in archive.infolist():
             if info.is_dir():
@@ -194,7 +194,7 @@ def upgrade(root, metadata, source, engine, feed, cuda_arch=89):
             if not info.filename.startswith(prefix) or info.external_attr >> 16 & 0o170000 == 0o120000:
                 raise RuntimeError('Unexpected source archive entry')
             name = info.filename[len(prefix):]
-            if terminal:
+            if has_terminal_layout:
                 if name == 'engine/CMakeLists.txt':
                     cmake = archive.read(info)
                 if name.startswith('terminal/'):
