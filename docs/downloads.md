@@ -1,6 +1,6 @@
 # 下载与恢复清单
 
-rtx3080ti 已于 2026-11-18 安装 v0.2.15（引擎 0.1.60），见[升级报告](../reports/rtx3080ti/v0.2.15/upgrade.md)；前一版 v0.2.12 保留供回退。rtx4070tis 已于 2026-10-28 部署 v0.2.4（Qwen 引擎 0.1.48）；后续升级待办见所在机器的状态页。单个不超过1GB的文件可由助手下载；超过1GB的模型等由用户下载，来源与校验由工程维护。以下链接供恢复及后续升级核对。`artifacts/` 只保留最新版和前一个版本（前一版用于无法修复时回退）；更早的版本只保留下面的来源、大小和 SHA，需要时重新下载核对（用户 2026-10-14）。
+rtx3080ti 已于 2026-11-20 安装 v0.2.16（引擎 0.1.62），见[升级报告](../reports/rtx3080ti/v0.2.16/upgrade.md)；前一版 v0.2.15 保留供回退。rtx4070tis 已于 2026-10-28 部署 v0.2.4（Qwen 引擎 0.1.48）；后续升级待办见所在机器的状态页。单个不超过1GB的文件可由助手下载；超过1GB的模型等由用户下载，来源与校验由工程维护。以下链接供恢复及后续升级核对。`artifacts/` 只保留最新版和前一个版本（前一版用于无法修复时回退）；更早的版本只保留下面的来源、大小和 SHA，需要时重新下载核对（用户 2026-10-14）。
 
 探索下载的候选模型、分词器和配套文件统一放工程`.tmp/`；仅在确认需要采用后才进入`artifacts/`。工程长期保留公共来源、固定版本、大小、SHA及必要结果，临时缓存位置不表示已采用或已部署；清空临时目录后重新下载／准备。此规则同时适用于助手和提供给用户的探索下载路径。
 
@@ -12,14 +12,23 @@ rtx3080ti 已于 2026-11-18 安装 v0.2.15（引擎 0.1.60），见[升级报告
 - 本地产物：pack 522,458,112 字节，SHA-256 `cda40d62d0eb8f37ed6e272142641a1d2f0de4a32f9e14d0416e7a71534849f1`（与上游钉死值一致），落地安装目录 `data\dflash2\qwen3.8-flash-next-dflash2.q4_0.pack` 加 `draft_vocab.bin`。总写盘约 1.2 GB 下载加 0.5 GB pack。
 - 注意：pack 已在本机，若以后去掉模板的 `"drafting": "mtp"` 钉死，Auto 会悄悄换成 DFlash2。需要恢复时重新执行 `strata drafting fetch --data-dir <安装目录>\data`。
 
-## Strata v0.2.15（rtx3080ti 已安装）
+## Strata v0.2.16（rtx3080ti 已安装）
+
+2026-11-20 由 latest 任务下载并核对，同日装为生产。发布 v0.2.16（提交 `64524fb9fc82222ddce554c0643b64f056ec8366`），引擎 0.1.62（build_id `1d295787b365+cuda13.0`，自研内核，不含 ggml/llama.cpp 矩阵内核）。源码 ZIP 布局改变：Python 运行时在 `terminal/`，引擎源码在 `engine/`，`upgrade_release` 已适配。合计下载约 532 MB（约 0.53 GB）。
+
+- 引擎：[strata-engine-0.1.62-windows-x86_64-cuda-cuda13.tar.gz](https://github.com/Niko1221/Strata/releases/download/v0.2.16/strata-engine-0.1.62-windows-x86_64-cuda-cuda13.tar.gz)，487452901 字节，官方 SHA256 `493464d411b38efc0c5ae83651699fcd2869698538adef15f44d9e47dd3b729b`，与 API digest 一致，清单 SHA `5ca4d699…e8be17c`。
+- feed：[strata-feed.json](https://github.com/Niko1221/Strata/releases/download/v0.2.16/strata-feed.json)，16674 字节，SHA256 `3debe2547b643ac23979d496bdea377bd3f7c3799622334214cb46e4c372f624`（sequence 128），Ed25519 签名（`5d1bc23abbeffd0d`）核验通过；feed 里引擎 URL 为相对文件名。
+- 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.16.zip)，44833196 字节，本地 SHA256 `032cf90ade5ad5a67974fbaa0f3c4d6ba355350b4c82dd6ada0ab10a6017d45f`。
+- 工程文件为 `artifacts/strata/0.2.16/`，`config/artifacts/strata-release.json` 已指向本版。0.2.15 保留作回退。
+
+## Strata v0.2.15（rtx3080ti 前一版，保留作回退）
 
 2026-11-18 由 up0214 评估下载并核对，同日经 up0215 装为生产。发布 v0.2.15（提交 `c77572806996349b49995e4f98d41b5294d36a21`，Control 0.1.61），引擎 0.1.60（build_id `09b603886925+cuda13.0`）；feed 里引擎 URL 沿用 v0.2.14 发布的资产。合计下载约 578 MB。
 
 - 引擎：[strata-engine-0.1.60-windows-x86_64-cuda-cuda13.tar.gz](https://github.com/Niko1221/Strata/releases/download/v0.2.14/strata-engine-0.1.60-windows-x86_64-cuda-cuda13.tar.gz)，577971407 字节，官方 SHA256 `a54cc75a84aa7b93839c330197bdc35395f6fcc5ee31e25008f380558da5b18c`，与 API digest 一致，清单 SHA `3c6cf75b…169c`。下载中断一次，用 `curl -C -` 续传。
 - feed：[strata-feed.json](https://github.com/Niko1221/Strata/releases/download/v0.2.15/strata-feed.json)，17521 字节，SHA256 `8ba61d12d658a6b06314ff309445b2de54d93e396cc7fe975edeca27b2ef1484`（sequence 127），Ed25519 签名（`5d1bc23abbeffd0d`）与引擎清单签名核验通过。
 - 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.15.zip)，43643392 字节，本地 SHA256 `1ba1a2dfe786c6271cfcb5b864d9a998912e4bbfabbbdf629a672b3121f6f9ca`。源码 CMake 为 0.1.61，与引擎 0.1.60 不同，元数据用 `source_cmake_version`（v0.2.4 先例）。`AGENTS.md`（`99da99d5…8f0c6`）与 `requirements.txt`（`8036a1c8…ecfb`）变化已审查绑定；相对 0.2.12 源码移除 397 个文件（主要 DeepSeek 相关）。
-- 工程文件为 `artifacts/strata/0.2.15/`，`config/artifacts/strata-release.json` 已指向本版。0.2.12 保留作回退。
+- 工程文件为 `artifacts/strata/0.2.15/`，0.2.12 本地文件已于 2026-11-20 删除（来源与 SHA 见下）。
 
 ## Strata v0.2.11（rtx3080ti 曾安装，本地文件已删）
 
@@ -29,14 +38,14 @@ rtx3080ti 已于 2026-11-18 安装 v0.2.15（引擎 0.1.60），见[升级报告
 - feed：`https://github.com/Niko1221/Strata/releases/download/v0.2.11/strata-feed.json`，15552 字节，SHA256 `b993f0d9d07927832da0ac8c5a403084cc1b754b418fd86be99149851c0bc72f`。
 - 源码：`https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.11.zip`，37125084 字节，本地 SHA256 `a69ef11bc031cf721cdd2c420f40780ca1bbb6183547f57e4eef7702c2a20b14`。
 
-## Strata v0.2.12（rtx3080ti 前一版，保留作回退）
+## Strata v0.2.12（rtx3080ti 曾安装，本地文件已删）
 
 2026-11-08 核对官方发布，附注标签 `v0.2.12`（标签对象 `123bad4a`）指向提交 `146df3c468739147f520ac3816de806f71232571`，发布时间 2026-11-07。发布 0.2.12，引擎 0.1.58（build_id `8a42a9457db6+cuda13.0`）。由升级 worker 下载，合计约 668 MB。
 
 - 引擎：[strata-engine-0.1.58-windows-x86_64-cuda-cuda13.tar.gz](https://github.com/Niko1221/Strata/releases/download/v0.2.12/strata-engine-0.1.58-windows-x86_64-cuda-cuda13.tar.gz)，630769464 字节，官方 SHA256 `3311443ba9172154adc99c48668c4187d60864e3b6cafe5d9aa39b035e4f9f34`，与 API digest 一致，清单 SHA `d4964abd…55a0`。
 - feed：[strata-feed.json](https://github.com/Niko1221/Strata/releases/download/v0.2.12/strata-feed.json)，16498 字节，SHA256 `77bf5e7b86bb73abdce88a1159f76f2abef233856f9fc9f10890a7a31cda470d`（sequence 122），Ed25519 签名（`5d1bc23abbeffd0d`）与引擎清单签名核验通过。
 - 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.12.zip)，37314704 字节，本地 SHA256 `6bee8e4f06cc5397d8651f115aeda9c97890a6eac540255758a054bc95a617ac`（ZIP 注释为标签提交）。`AGENTS.md` 只改版本行。
-- 工程文件为 `artifacts/strata/0.2.12/`，`config/artifacts/strata-release.json` 已指向本版。2026-11-08 安装到 rtx3080ti，短检查通过。0.2.9、0.2.10 的本地文件已删（来源与 SHA 见下），0.2.11 已于 2026-11-18 删除（来源与 SHA 见上），0.2.12 保留作回退。
+- 2026-11-08 安装到 rtx3080ti，短检查通过；本地文件 `artifacts/strata/0.2.12/` 已于 2026-11-20 删除。0.2.9、0.2.10 的本地文件已删（来源与 SHA 见下），0.2.11 已于 2026-11-18 删除（来源与 SHA 见上）。
 
 ## Strata v0.2.10（rtx3080ti 已安装）
 

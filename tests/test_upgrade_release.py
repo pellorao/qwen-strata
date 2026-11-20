@@ -205,6 +205,22 @@ class UpgradeTests(unittest.TestCase):
         self.metadata['source_cmake_version']='0.1.49'
         self.run_upgrade()
 
+    def test_terminal_layout_installs_only_terminal_and_agents(self):
+        files={'AGENTS.md':'Instructions','engine/CMakeLists.txt':'project(strata VERSION 0.1.47 LANGUAGES CXX)',
+               'engine/src/a.cpp':'engine source','docs/x.md':'docs','app/y.js':'app','tools/z.py':'root tool',
+               'terminal/serve/server.py':'server','terminal/requirements.txt':'Dependencies',
+               'terminal/strata_control/update_keys.json':UPDATE_KEYS,'terminal/changed.txt':'new bytes'}
+        with zipfile.ZipFile(self.source,'w') as z:
+            for name,content in files.items():z.writestr('Strata-0.2.2/'+name,content)
+            z.comment=b'fixed'
+        self.run_upgrade()
+        runtime=self.root/'runtime/Strata'
+        self.assertEqual((runtime/'serve/server.py').read_text(),'server')
+        self.assertEqual((runtime/'changed.txt').read_text(),'new bytes')
+        self.assertFalse((runtime/'src').exists() or (runtime/'docs').exists() or (runtime/'tools').exists())
+        self.assertEqual((runtime/'engine/strata.exe').read_text(),'new engine')
+        self.assertFalse((runtime/'engine/src').exists())
+
     def test_tag_archive_comment_must_bind_the_commit(self):
         before=self.snapshot()
         with zipfile.ZipFile(self.source,'a') as z:z.comment=b'other'

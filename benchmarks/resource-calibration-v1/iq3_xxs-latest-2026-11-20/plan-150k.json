@@ -1,0 +1,135 @@
+{
+  "schema": "conditions-v2",
+  "status": "latest copy of the up0214 plan (same frozen inputs and request options); only source hashes refreshed",
+  "created_at": "2026-11-20",
+  "host": "rtx3080ti",
+  "candidate_dimension": "context-length",
+  "authorization": {
+    "approved": true,
+    "approved_on": "2026-11-20",
+    "source": "Main 派 qwen-strata/latest worker，沿用 up0214/v0212test 受控批次设计，只测升级后基线",
+    "scope": "150k 长度，2 个冷启动实例，只测量"
+  },
+  "length_block": "150k",
+  "conditions": [
+    {
+      "id": "default-150k",
+      "overrides": {
+        "max-context": 206584
+      }
+    }
+  ],
+  "schedule": [
+    {
+      "condition": "default-150k",
+      "repetition": 1
+    },
+    {
+      "condition": "default-150k",
+      "repetition": 2
+    }
+  ],
+  "model_instances": 2,
+  "logical_requests": 6,
+  "repetitions_per_condition": 2,
+  "fixed_conditions": {
+    "strata_version": "0.2.16 source with engine 0.1.62 (installed-release.json recorded per run)",
+    "model": "IQ3_XXS",
+    "base": "部署默认参数（rtx3080ti IQ3_XXS 默认档 206584，kv-resident 20480，--kv int8）；override 只写与默认相同的 max-context 以核对实际窗口",
+    "max_context": 206584,
+    "user_text_tokens_tokenizer": 149951,
+    "request": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": 20,
+      "max_tokens": 24576,
+      "reasoning_budget_tokens": 8192,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0,
+      "repetition_penalty": 1.0,
+      "penalty_last_n": 64,
+      "reasoning_effort": "high"
+    },
+    "loop_reminder": "off",
+    "conversation_cache": "installed default (8192 MiB, 4 slots)"
+  },
+  "baseline": {
+    "start_options": {
+      "model": "IQ3_XXS",
+      "engine_overrides": {
+        "max-context": 206584
+      }
+    },
+    "request_options": {
+      "chat": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20,
+        "max_tokens": 24576,
+        "reasoning_budget_tokens": 8192,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "penalty_last_n": 64,
+        "reasoning_effort": "high"
+      }
+    }
+  },
+  "workload": {
+    "source": "benchmarks/resource-calibration-v1/workload.py",
+    "version": 2,
+    "record_count": 3600,
+    "build": "python3 -c \"import json,sys;sys.path.insert(0,'benchmarks/resource-calibration-v1');import workload;print(json.dumps(workload.build(3600,2)))\" > .tmp/longctx-1024/prep/workload-150k.json",
+    "case_bindings": [
+      {
+        "id": "initial-extraction",
+        "user_text_sha256": "606a86b3a721e230acdc76de3a341a8ac3389db86d841d66d0dc07c662593301",
+        "expected_sha256": "d20bc8b9b6fb250bb23c90398ef06e5df64112c9aaea17e812141c52d28f055d",
+        "alternatives_sha256": "8fdc6ccb06d2c52fd10c44954ee9689b0a850325b223323dfbe7637ceff309cb",
+        "expected_rows": 28
+      },
+      {
+        "id": "cached-calculation",
+        "user_text_sha256": "c64dd57a5d0828f7ec0fa160523ad391e243ecaf12793c006d8b105deccb7fcb",
+        "expected_sha256": "d0863928a3c0b427bc9b81f7d43c970939f80dfc52dfa4c03b22d33fc5e84cab",
+        "alternatives_sha256": "198db647c93d66a11e5cbd5a5cf6efad1014ab8a08851d5eb56abbc8f179bce8",
+        "expected_rows": 28
+      },
+      {
+        "id": "cached-update",
+        "user_text_sha256": "9ee44aa9b25b27059e6fd3323f5e6668f9a4acf09f1640bcc7f6966d4a751bac",
+        "expected_sha256": "96daa5d6d70b6ab560921c521920a2bda40cda1be5cb7293672401c3310cf56c",
+        "alternatives_sha256": "ec34c1b90a77e94b95672bbda9a229de0634662074b43e36b88f61ae7b39d384",
+        "expected_rows": 28
+      }
+    ]
+  },
+  "prompt_binding": {
+    "startup_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+    "compact_sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+  },
+  "telemetry": {
+    "interval_seconds": 1
+  },
+  "stream_chat": true,
+  "capture_each_request": true,
+  "record_kv_facts": true,
+  "per_logical_request_work_seconds_limit": 600,
+  "source_sha256": {
+    "tools/tuning/resource_calibration.py": "bf2736184e1dcec3b76b5980c20d4b0ab8f9ea7731bbe32f72f6e00e7d151fbe",
+    "tools/metrics/streamed_chat.py": "6ab84674ae01a2b3e6c74576eac582744ee758fbe316c3033f29c0001018e5b2",
+    "tools/metrics/host_telemetry.py": "29dde08f79ca97b6dfa94a56710b97a81fa49c177a2c9f1f0e9377e3a051c490",
+    "tools/metrics/windows_resource_sampler.py": "1b1a51771ba1a97931bf8c043240d4adad7f4ac0bfe45be90ad1d701c4f89e7a",
+    "tools/ops/measurement_host.py": "10c5269c80e09fe5a445861e8bbb1528e2ec298720dfc777cd568c421c1102cb",
+    "tools/metrics/strata_tokens.py": "d6462d26d1e7f52366da313e76ced4e501a20945c930815bed477ea03335b4c7",
+    "benchmarks/resource-calibration-v1/workload.py": "9b26ad6bc952b4d4ae91d39998e69a5d0dc85039731f733202ac3c051545a2ce",
+    "config/prompts/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "config/prompts/compact-prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+    "config/deployments/rtx3080ti.json": "467f37e111199fb1e14ac40b1070abc750384a49a7c3c41c31241cd345803879",
+    "config/templates/iq3_xxs-prebuilt.json": "2ea1503640549f48c654811dc0ba93cf9bc7c50c523a43adea5efb3e9e27bd03",
+    "src/model_process.py": "58be9dea49635bc798e7427b4f7e0e7a7ffcc2801a9661e569b45aa8eb8fa877"
+  },
+  "default_profile_sha256_verified": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf"
+}

@@ -183,12 +183,25 @@ def upgrade(root, metadata, source, engine, feed, cuda_arch=89):
         prefix = 'Strata-' + version + '/'
         if archive.comment != commit.encode():
             raise RuntimeError('Source ZIP comment does not bind the release commit')
+        # Since v0.2.16 the tag keeps the Python runtime under terminal/ and the engine source under engine/ (the
+        # installed runtime/Strata is that terminal/ folder, whose engine/ holds the binaries): only terminal/ and the
+        # top-level AGENTS.md are installed, and engine/CMakeLists.txt is read for the version check.
+        terminal = prefix + 'terminal/serve/server.py' in archive.namelist()
+        cmake = None
         for info in archive.infolist():
             if info.is_dir():
                 continue
             if not info.filename.startswith(prefix) or info.external_attr >> 16 & 0o170000 == 0o120000:
                 raise RuntimeError('Unexpected source archive entry')
-            data, relative = archive.read(info), 'runtime/Strata/' + member(info.filename[len(prefix):])
+            name = info.filename[len(prefix):]
+            if terminal:
+                if name == 'engine/CMakeLists.txt':
+                    cmake = archive.read(info)
+                if name.startswith('terminal/'):
+                    name = name[len('terminal/'):]
+                elif name != 'AGENTS.md':
+                    continue
+            data, relative = archive.read(info), 'runtime/Strata/' + member(name)
             if relative.lower() in {r.lower() for r in writes}:
                 raise RuntimeError('Duplicate source archive entry: ' + relative)
             writes[relative] = (data, hashlib.sha256(data).hexdigest())
@@ -210,7 +223,7 @@ def upgrade(root, metadata, source, engine, feed, cuda_arch=89):
     # that CMake version explicitly (source_cmake_version), a reviewed deviation, never a default.
     cmake_version = metadata.get('source_cmake_version', engine_version)
     if not re.search(r'\bVERSION\s+' + re.escape(cmake_version) + r'(?:\s|\)|$)',
-                     writes['runtime/Strata/CMakeLists.txt'][0].decode()):
+                     (cmake or writes['runtime/Strata/CMakeLists.txt'][0]).decode()):
         raise RuntimeError('Source version does not match the engine version')
     engine_digests, build, manifest = read_engine(engine, package, engine_version, cuda_arch)
     for name, entry in engine_digests.items():
