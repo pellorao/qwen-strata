@@ -1,6 +1,6 @@
 """Records of the Hydrogen low instances (common/hydroeffort, 2026-11-15): same producer as hydrogen_records.py, only for hydrogen-low-a* directories.
 
-    python3 -I low_records.py [--out records.jsonl]     -> .tmp/hydrolow/records.jsonl (the base dir of judge_low.py)
+    python3 -I low_records.py [--out records.jsonl]     -> .tmp/hydrolow/records.jsonl (the base dir of `judge.py --profile low`)
 
 Hydrogen medium / high / xhigh are configs 30-32 of the tool chain; low is not in its CONFIG_TABLE, so it is added to EXTRA_CONFIGS in this
 process only (config 36; Carbon uses 33-35), as judge.py extends the families. Every valid instance counts (phase-4 supplement rule)."""

@@ -16,8 +16,8 @@ from unittest.mock import Mock, patch
 ROOT = Path(__file__).resolve().parents[1]
 RUNNERS = ROOT / 'benchmarks/multi-model-v1/runners'
 HYDRO = RUNNERS / 'hydrogen-1114'
-JUDGES = [HYDRO / 'judge.py', HYDRO / 'judge_low.py',
-          RUNNERS / 'timelimit-rerun/judge_carbon.py', RUNNERS / 'timelimit-rerun/judge_old.py']
+JUDGE = HYDRO / 'judge.py'
+PROFILES = ['hydrogen', 'low', 'carbon', 'old']
 
 
 class ReviewFixTest(unittest.TestCase):
@@ -57,19 +57,23 @@ class ReviewFixTest(unittest.TestCase):
                     module['rows']()
 
     def test_judge_modes_are_separate_arguments(self):
-        for path in JUDGES:
-            module = runpy.run_path(str(path))
+        for profile in PROFILES:
+            module = runpy.run_path(str(JUDGE))
             for mode, expected in [('lower', ['--provisional', 'lower']),
                                    ('upper', ['--provisional', 'upper']),
                                    (None, []), ('enumerate', ['--enumerate'])]:
-                with self.subTest(path=path.name, mode=mode):
-                    args = ['judge', 'enumerate' if mode == 'enumerate' else 'score']
+                with self.subTest(profile=profile, mode=mode):
+                    args = ['judge', '--profile', profile, 'enumerate' if mode == 'enumerate' else 'score']
                     if mode in ('lower', 'upper'):
                         args += ['--provisional', mode]
                     def score_step(flags, *unused):
                         module['run_bench_score']('offline-record', flags)
                     fake_path = Mock()
-                    with patch.dict(module['main'].__globals__, SHM=fake_path, SCORE=fake_path, step=score_step), \
+                    g = module['main'].__globals__
+                    def configure(name, real=module['configure']):
+                        real(name)
+                        g.update(SHM=fake_path, SCORE=fake_path)   # no directory is created
+                    with patch.dict(g, configure=configure, step=score_step), \
                          patch.object(sys, 'argv', args), patch.object(subprocess, 'run') as run:
                         module['main']()
                     argv = run.call_args.args[0]
@@ -78,6 +82,27 @@ class ReviewFixTest(unittest.TestCase):
                     parser.add_argument('--enumerate', action='store_true')
                     parser.add_argument('--provisional', choices=['lower', 'upper'])
                     parser.parse_args(argv[argv.index('--root') + 2:])
+
+    def test_judge_profiles_register_their_own_run(self):
+        # what the four former copies differed in: paths, labels, arm directory and the registered families/configs
+        module = runpy.run_path(str(JUDGE))
+        g = module['configure'].__globals__
+        got = {}
+        for profile in PROFILES:
+            module['configure'](profile)
+            blind_pool = SimpleNamespace(FAMILIES=('openai',))
+            records = SimpleNamespace(MODELS={}, EXTRA_CONFIGS={})
+            fake = SimpleNamespace(bench_records=records, blind_pool=blind_pool, adjudication_view=None)
+            with patch.dict(sys.modules, {'tools.reviewer': fake, 'tools.reviewer.bench_records': records,
+                                          'tools.reviewer.blind_pool': blind_pool}):
+                module['tools']()
+            got[profile] = (g['BASE'].relative_to(g['ROOT']).as_posix(), g['LABEL'], g['ARM'], blind_pool.FAMILIES,
+                            sorted(records.MODELS), sorted(records.EXTRA_CONFIGS))
+        self.assertEqual(got, {
+            'hydrogen': ('.tmp/hydrobench', 'common/hydrobench:judge', 'antigravity', ('openai', 'hydrogen'), ['hydrogen'], []),
+            'low': ('.tmp/hydrolow', 'common/hydroeffort:judge', 'antigravity', ('openai', 'hydrogen'), ['hydrogen'], [('hydrogen', 'low')]),
+            'carbon': ('.tmp/carbonscore/base', 'reviewer-bench/timelimit:carbonjudge', 'antigravity', ('openai', 'hydrogen'), ['carbon'], []),
+            'old': ('.tmp/oldrerun/base', 'reviewer-bench/timelimit:judge', 'anthropic', ('openai',), [], [])})
 
     def test_slot_creates_missing_parent_before_registration(self):
         # Extract only acquire_slot: importing the driver loads operational helpers.

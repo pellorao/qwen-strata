@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Hydrogen supplement: enumerate, blind-adjudicate, score (plan.md §6-§7). Python 3 stdlib; run with -I.
 
+`--profile` picks base dir, labels and registered models from PROFILES: hydrogen (default), low (records from
+low_records.py), carbon (Carbon score of the time-limit rerun), old (the time-limit rerun's old arm, scores under anthropic/).
+
 Every ARW materialization (14 MB per instance) goes to a RAM-backed root (SHM, /dev/shm: no SSD writes) and is deleted
 as soon as the step ends; only the small result files (candidates.json, decisions.json, score.json, ...) are kept on
 disk under SCORE. At most one instance is materialized at a time (peak ~15 MB under SHM).
 
-  judge.py enumerate [--limit N]       bench_score --enumerate per valid record -> SCORE/<id>/candidates.json
+  judge.py [--profile P] enumerate [--limit N]       bench_score --enumerate per valid record -> SCORE/<id>/candidates.json
   judge.py score [--provisional lower|upper] [--limit N]   bench_score per valid record -> SCORE/<id>/score.json
   judge.py build [--registry DIR]      views (RAM root) + blind pools of the four scenarios -> ADJ/<pool>/, KEYS/key-<pool>.json
   judge.py judge [--pools P ...] [--parallel N]   Opus high adjudication of every pool without decisions, then split
@@ -27,23 +30,46 @@ import time
 from pathlib import Path
 
 ROOT = Path('/home/pello/projects/qwen-strata')
-BASE = ROOT / '.tmp/hydrobench'
-RECORDS = BASE / 'records.jsonl'
-SCORE = BASE / 'score'
-SHM = Path('/dev/shm/hydrobench-score')
-LOG = BASE / 'judge.log'
+# Per profile: base dir, RAM scratch dir, usage label, arm directory of the scores, and what this process registers in the
+# frozen tools (bench_records.MODELS / EXTRA_CONFIGS, blind_pool.FAMILIES); no frozen file is edited.
+PROFILES = {
+    'hydrogen': dict(base='.tmp/hydrobench', shm='hydrobench-score', label='common/hydrobench:judge', arm='antigravity',
+                     models={'hydrogen': (30, 'hydrogen', 'hydrogen')}, configs={}, families=('hydrogen',)),
+    'low': dict(base='.tmp/hydrolow', shm='hydrolow-score', label='common/hydroeffort:judge', arm='antigravity',
+                models={'hydrogen': (30, 'hydrogen', 'hydrogen')}, configs={('hydrogen', 'low'): 36},   # low_records.LOW_CONFIG
+                families=('hydrogen',)),
+    'carbon': dict(base='.tmp/carbonscore/base', shm='carbonscore', label='reviewer-bench/timelimit:carbonjudge', arm='antigravity',
+                   models={'carbon': (33, 'carbon', 'anthropic')}, configs={}, families=('hydrogen',)),   # anchors of the Hydrogen registry
+    'old': dict(base='.tmp/oldrerun/base', shm='oldrerun-score', label='reviewer-bench/timelimit:judge', arm='anthropic',
+                models={}, configs={}, families=()),
+}
 ADJ = ROOT / '.tmp/pools'   # neutral path: the adjudicator sees it in the prompt, so it must not name the run
-KEYS = BASE / 'keys'
-JUDGE = BASE / 'judge'   # streams and results of the adjudication calls
-CALLS = BASE / 'judge-calls.jsonl'
-EXPECT = BASE / 'judge-expect.json'   # {"pools": n, "expected_calls": n, "cap": 2n}
 SCENARIOS = {'ca': 'commit-audit-v3', 'cs': 'code-spec-v5', 'cstd': 'code-standards-v5.1', 'sr': 'spec-readiness-v4.3'}
 OPUS = ['--model', 'claude-opus-5-5', '--effort', 'high']   # frozen judge: Opus high, isolated from user config
 GUARD = os.path.expanduser('~/.claude/bin/claude-guard')
 USAGE = os.path.expanduser('~/.claude/statusline/usage.sh')
-LABEL = 'common/hydrobench:judge'
 POOL_USD, POOL_MIN = 3.0, 30   # expectation per pool call; claude-guard stops a call at 2x
 SMALL = ('candidates.json', 'pending.json', 'score.json', 'decisions.json', 'score-input.json')  # kept on disk
+
+
+def configure(name):
+    """Set the module-level paths and labels of a profile."""
+    global PROFILE, BASE, RECORDS, SCORE, SHM, LOG, KEYS, JUDGE, CALLS, EXPECT, LABEL, ARM
+    PROFILE = PROFILES[name]
+    BASE = ROOT / PROFILE['base']
+    RECORDS = BASE / 'records.jsonl'
+    SCORE = BASE / 'score'
+    SHM = Path('/dev/shm') / PROFILE['shm']
+    LOG = BASE / 'judge.log'
+    KEYS = BASE / 'keys'
+    JUDGE = BASE / 'judge'   # streams and results of the adjudication calls
+    CALLS = BASE / 'judge-calls.jsonl'
+    EXPECT = BASE / 'judge-expect.json'   # {"pools": n, "expected_calls": n, "cap": 2n}
+    LABEL = PROFILE['label']
+    ARM = PROFILE['arm']
+
+
+configure('hydrogen')
 
 
 def log(msg):
@@ -109,8 +135,9 @@ def step(mode, result_name, limit=None, stage=None):
 def tools():
     sys.path.insert(0, str(ROOT))
     from tools.reviewer import bench_records, blind_pool, adjudication_view
-    bench_records.MODELS['hydrogen'] = (30, 'hydrogen', 'hydrogen')
-    blind_pool.FAMILIES = (*blind_pool.FAMILIES, 'hydrogen')
+    bench_records.MODELS.update(PROFILE['models'])
+    bench_records.EXTRA_CONFIGS.update(PROFILE['configs'])
+    blind_pool.FAMILIES = (*blind_pool.FAMILIES, *PROFILE['families'])
     return blind_pool, adjudication_view
 
 
@@ -121,7 +148,7 @@ def build(registry=None, suffix='', only=None):
         if only and key not in only:
             continue
         name = key + suffix
-        files = sorted(SCORE.glob(f'antigravity/{scenario}/*/candidates.json'))
+        files = sorted(SCORE.glob(f'{ARM}/{scenario}/*/candidates.json'))
         files = [f for f in files if f.parent.name in {Path(r['id']).name for r in valid_records() if r['scenario'] == scenario}]
         if any(re.fullmatch(re.escape(name) + r'(?:-\d+)?', p.stem[4:]) for p in KEYS.glob('key-*.json')):
             log(f'{name}: pools exist, skipped')
@@ -181,7 +208,7 @@ def judge_one(pool):
            '--output-format', 'stream-json', '--verbose']
     with open(KEYS / f'prompt-{pool}.md') as pin, open(stream, 'w') as out:
         rc = subprocess.call(cmd, cwd=adj, stdin=pin, stdout=out, stderr=subprocess.STDOUT, env=env)
-    subprocess.call([USAGE, '--add-stream', str(stream), 'common/hydrobench:judge', '--effort', 'high'], stdout=subprocess.DEVNULL)
+    subprocess.call([USAGE, '--add-stream', str(stream), LABEL, '--effort', 'high'], stdout=subprocess.DEVNULL)
     final = ''
     with open(stream) as events:
         for line in events:
@@ -228,6 +255,7 @@ def judge(pools=None, parallel=3):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument('--profile', choices=sorted(PROFILES), default='hydrogen', help='run configuration (PROFILES)')
     ap.add_argument('cmd', choices=['enumerate', 'score', 'build', 'judge'])
     ap.add_argument('--registry', type=Path)
     ap.add_argument('--suffix', default='', help='build: pool name suffix of a later round')
@@ -237,6 +265,7 @@ def main():
     ap.add_argument('--provisional', choices=['lower', 'upper'])
     ap.add_argument('--limit', type=int)
     a = ap.parse_args()
+    configure(a.profile)
     SHM.mkdir(parents=True, exist_ok=True)
     SCORE.mkdir(parents=True, exist_ok=True)
     if a.cmd == 'build':
