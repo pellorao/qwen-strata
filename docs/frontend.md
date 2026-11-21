@@ -59,7 +59,7 @@ python3 -m tools.ops.deploy --host <local_host>
 python3 -m tools.ops.upgrade_release --host <local_host> --metadata <发布元数据> --source <标签源码 ZIP> --engine <引擎 tar.gz> --feed <strata-feed.json，.sig 放同目录> --output <回执>
 ```
 
-与部署相同：先经前端租约关闭前端，替换期间没有任何调用方能启动模型；完成后重新启动前端。`--rollback <备份目录>` 回滚。校验内容和周期流程见[安装与维护](installation.md#升级部署与恢复)。
+与部署相同：先经前端租约关闭前端，替换期间没有任何调用方能启动模型；完成后重新启动前端。`--rollback <备份目录>` 回滚。源码 ZIP 用 `terminal/` 布局而安装目录 `runtime/Strata` 根部仍有旧布局的 `CMakeLists.txt` 时，升级把 `runtime/Strata` 下不属于新安装的文件（`.venv`、`engine`、`__pycache__` 除外）一并删除，先备份，回执的 `removed_upstream_files` 列出它们。校验内容和周期流程见[安装与维护](installation.md#升级部署与恢复)。
 
 ## 日志与故障
 

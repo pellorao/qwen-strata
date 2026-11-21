@@ -163,6 +163,20 @@ def read_engine(engine, package, version, cuda_arch):
     return seen, build, manifest
 
 
+# Under runtime/Strata only the source files come from a release; these are the virtualenv, the engine package
+# (replaced as a whole below) and interpreter caches, which a layout change must not sweep.
+LOCAL_DIRS = {'.venv', 'engine', '__pycache__'}
+
+
+def old_layout_files(folder, root):
+    """Installation-relative paths of every file under folder outside the local directories."""
+    found = []
+    for directory, names, files in os.walk(folder):
+        names[:] = [n for n in names if not (Path(directory) == folder and n.lower() in LOCAL_DIRS or n == '__pycache__')]
+        found += [(Path(directory) / f).relative_to(root).as_posix() for f in files]
+    return found
+
+
 def upgrade(root, metadata, source, engine, feed, cuda_arch=89):
     release, package = metadata['release'], metadata['engine_package']
     feed_key = verify_feed(feed, release, package)
@@ -237,6 +251,10 @@ def upgrade(root, metadata, source, engine, feed, cuda_arch=89):
         target = 'runtime/Strata/' + member(relative)
         if target.lower() not in written and (root / target).is_file():
             removals.add(target)
+    # Moving to the terminal/ layout leaves the old repository root in runtime/Strata (recognised by its engine
+    # CMakeLists.txt there, which the new layout never installs): none of it is part of the new install, so go.
+    if has_terminal_layout and (root / 'runtime/Strata/CMakeLists.txt').is_file():
+        removals |= {r for r in old_layout_files(root / 'runtime/Strata', root) if r.lower() not in written}
     # The engine folder holds exactly the package, so no stale DLL from an earlier package is loaded beside it.
     engine_dir = root / ENGINE
     if engine_dir.is_dir():
@@ -313,7 +331,8 @@ def main():
             root, json.loads(args.metadata.read_text()), args.source, args.engine, args.feed,
             cuda_arch=host['cuda_arch'])
     atomic(args.output, (json.dumps(result, indent=2) + '\n').encode())
-    print(json.dumps({k: v for k, v in result.items() if k != 'written_sha256'}, indent=2))
+    print(json.dumps({k: v for k, v in result.items() if k not in ('written_sha256', 'removed_upstream_files')}
+                     | {'removed_upstream_count': len(result.get('removed_upstream_files', []))}, indent=2))
 
 
 if __name__ == '__main__':

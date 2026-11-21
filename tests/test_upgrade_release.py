@@ -221,6 +221,42 @@ class UpgradeTests(unittest.TestCase):
         self.assertEqual((runtime/'engine/strata.exe').read_text(),'new engine')
         self.assertFalse((runtime/'engine/src').exists())
 
+    def write_terminal_source(self):
+        files={'AGENTS.md':'Instructions','engine/CMakeLists.txt':'project(strata VERSION 0.1.47 LANGUAGES CXX)',
+               'terminal/serve/server.py':'server','terminal/requirements.txt':'Dependencies',
+               'terminal/strata_control/update_keys.json':UPDATE_KEYS,'terminal/changed.txt':'new bytes'}
+        with zipfile.ZipFile(self.source,'w') as z:
+            for name,content in files.items():z.writestr('Strata-0.2.2/'+name,content)
+            z.comment=b'fixed'
+
+    def test_layout_switch_removes_old_source_but_keeps_venv_and_cache(self):
+        runtime=self.root/'runtime/Strata'
+        for name,content in {'src/old.cpp':'engine source','docs/a.md':'docs','serve/old_module.py':'old',
+                             '.venv/Lib/site.py':'venv','serve/__pycache__/x.pyc':'cache'}.items():
+            (runtime/name).parent.mkdir(parents=True,exist_ok=True);(runtime/name).write_text(content)
+        self.metadata['previous_source_paths']=[]
+        self.write_terminal_source()
+        before=self.snapshot()
+        result=self.run_upgrade()
+        self.assertEqual(result['removed_upstream_files'],[
+            'runtime/Strata/CMakeLists.txt','runtime/Strata/docs/a.md','runtime/Strata/engine/stale.dll',
+            'runtime/Strata/gone.sh','runtime/Strata/same.txt','runtime/Strata/serve/old_module.py',
+            'runtime/Strata/src/old.cpp'])
+        self.assertFalse((runtime/'src/old.cpp').exists() or (runtime/'docs/a.md').exists() or (runtime/'CMakeLists.txt').exists())
+        self.assertEqual((runtime/'.venv/Lib/site.py').read_text(),'venv')
+        self.assertEqual((runtime/'serve/__pycache__/x.pyc').read_text(),'cache')
+        self.assertEqual((runtime/'serve/server.py').read_text(),'server')
+        upgrade_release.rollback(self.root,Path(result['backup']))
+        self.assertEqual(self.snapshot(),before)
+
+    def test_terminal_layout_without_old_layout_marker_keeps_unlisted_files(self):
+        runtime=self.root/'runtime/Strata'
+        (runtime/'CMakeLists.txt').unlink()
+        self.write_terminal_source()
+        self.run_upgrade()
+        self.assertEqual((runtime/'same.txt').read_text(),'same bytes')
+        self.assertFalse((runtime/'gone.sh').exists())
+
     def test_tag_archive_comment_must_bind_the_commit(self):
         before=self.snapshot()
         with zipfile.ZipFile(self.source,'a') as z:z.comment=b'other'
