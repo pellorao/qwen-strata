@@ -30,7 +30,7 @@ def sha(path):
 
 def prepare(manifest, reviewer, work):
     """ARW's zero-model preparation of a materialized frozen copy; returns its prepared handoffs."""
-    from tools.tuning.arw_dimension import extract_agent_config
+    from tools.reviewer.frozen_arw import extract_agent_config
     arw = work / 'arw'
     subprocess.run([sys.executable, '-m', 'tools.reviewer.freeze_arw_source', '--manifest', str(manifest), '--out', str(arw)],
                    cwd=ROOT, check=True, stdout=subprocess.DEVNULL)

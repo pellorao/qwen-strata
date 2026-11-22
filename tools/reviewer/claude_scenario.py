@@ -162,7 +162,8 @@ def checks(result, model, startup, report_dir=None, strata=None, binding=None):
 def run(plan_path, out, model, effort, label, claude, handoffs=1, limit=ch.HARD_LIMIT, time_limit=None,
         startup=False, compact=False, dry_run=False, backend='anthropic', host=None, role_as_system=None,
         deepseek_base=None):
-    from tools.tuning.arw_dimension import load_plan, prepare
+    from tools.reviewer.frozen_arw import prepare
+    from tools.tuning.arw_dimension import load_plan
     if time_limit is not None:
         limit = time_limit  # the note's limit is the hard stop; the reminder follows ARW's lead (reminder_time)
     plan = load_plan(Path(plan_path))[0]

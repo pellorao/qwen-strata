@@ -182,7 +182,8 @@ def seen_tree(record, handoff, scenario_root):
 
 
 def prepare_fresh(record, work):
-    from tools.tuning.arw_dimension import load_plan, prepare
+    from tools.reviewer.frozen_arw import prepare
+    from tools.tuning.arw_dimension import load_plan
     plan = load_plan(ROOT / record['plan'])[0]
     prep = Path(work) / 'prep'
     if not (prep / 'preparation.json').is_file():

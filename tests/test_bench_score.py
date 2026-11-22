@@ -381,7 +381,7 @@ def local_codex_plan(plan, directory):
     executable = Path(directory) / 'codex'
     executable.write_bytes(b'stand-in for the Codex binary')
     plan['fixed_conditions'].update(codex='stand-in', native_cli_sha256=hashlib.sha256(executable.read_bytes()).hexdigest())
-    return patch('tools.tuning.arw_dimension.codex_binary', return_value=executable)
+    return patch('tools.reviewer.frozen_arw.codex_binary', return_value=executable)
 
 
 class SpillScoringEndToEndTest(unittest.TestCase):
@@ -391,7 +391,8 @@ class SpillScoringEndToEndTest(unittest.TestCase):
 
     def test_r_and_t_count_the_same_fragments(self):
         from tools.reviewer.repair_reviewer_report import spill_map, staged_sources
-        from tools.tuning.arw_dimension import load_plan, prepare
+        from tools.reviewer.frozen_arw import prepare
+        from tools.tuning.arw_dimension import load_plan
         plan = load_plan(bench_records.ROOT / 'benchmarks/multi-model-v1/scenarios/code-standards-v5.1.json')[0]
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp)
@@ -455,7 +456,8 @@ class ModelFailureEndToEndTest(unittest.TestCase):
                 'commit-audit-v3': (12.5, 1)}
 
     def test_clean_weight_and_model_failure_score_of_each_scenario(self):
-        from tools.tuning.arw_dimension import load_plan, prepare
+        from tools.reviewer.frozen_arw import prepare
+        from tools.tuning.arw_dimension import load_plan
         old = os.environ.get('CODEX_THREAD_ID')
         try:
             for name, (clean_weight, handoffs) in self.EXPECTED.items():

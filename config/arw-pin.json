@@ -1,0 +1,6 @@
+{
+  "commit": "6ca23a9d5b9d1116a9690bbbc39b42a408b8df07",
+  "fixtureTree": "4326aca3cbd04ae126f6f4a3e26867f2b740e81a",
+  "origin": "https://github.com/Tranzvision/agent-repository-workflow.git",
+  "note": "ARW commit whose tests/fixtures/reviewer-capability (scenarios, answer keys, scoring) and `reviewer-capability run` this project measures with; the same pin as reviewer-bench v2 (design 1.1). Change it only on purpose: scores of different pins are not comparable."
+}

@@ -41,7 +41,7 @@ CODE_FILES = (
     'tools/reviewer/claude_scenario.py', 'tools/reviewer/claude_headless.py', 'tools/reviewer/review_deadlines.py',
     'tools/reviewer/reminder_interrupt.py', 'tools/reviewer/harness_pins.py',
     # Codex arms: plan prepare, ARW runtime and its setup (deny-read, shell exclude), API relay, scenario freeze
-    'tools/tuning/arw_dimension.py', 'tools/reviewer/arw_measure.py', 'tools/reviewer/arw_runtime.mjs',
+    'tools/tuning/arw_dimension.py', 'tools/reviewer/frozen_arw.py', 'tools/reviewer/arw_measure.py', 'tools/reviewer/arw_runtime.mjs',
     'tools/reviewer/arw_native_setup.mjs', 'tools/reviewer/providers.py', 'tools/reviewer/api_relay.py',
     'tools/reviewer/freeze_arw_source.py',
     # safety gates and session inspection
