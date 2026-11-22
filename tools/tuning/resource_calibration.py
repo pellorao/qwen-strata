@@ -8,12 +8,12 @@ import re
 import time
 import urllib.error
 
-from tools.reviewer.arw_measure import stop_and_capture_engine_log, log_offset
+from tools.strata.engine_log import stop_and_capture_engine_log, log_offset
 from tools.ops.measurement_host import MeasurementHost
 from tools.ops.deployment_source import current_host
 from tools.metrics.prompt_policy import verify_loaded_startup
 from tools.metrics.strata_tokens import engine_rates, task_rates
-from tools.reviewer.wsl_client import ROOT, save
+from tools.strata.wsl_client import ROOT, save
 
 
 def digest(raw):
@@ -352,7 +352,7 @@ def run_case(host,plan,workload,job,folder):
                     if plan.get('disk_io'):result['disk_reads']=disk_read_delta(before,disk_reads(host))
                     row['requests'].append(dict(result,id=case['id']));save(folder/'partial.json',row)
                     if plan.get('capture_each_request'):
-                        from tools.reviewer.arw_measure import capture_engine_log
+                        from tools.strata.engine_log import capture_engine_log
                         detail=folder/f'request-{number}';st,tk=capture_engine_log(host.installation,model,request_offset,detail,host)
                         save(detail/'engine-stages.json',st);save(detail/'engine-counts.json',tk)
                     print(json.dumps({'instance':label,'request':case['id'],'event':'closed','pass':result['pass'],

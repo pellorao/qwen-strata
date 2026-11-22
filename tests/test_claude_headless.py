@@ -12,7 +12,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from unittest import mock
 
-from tools.reviewer import claude_headless as ch
+from tools.strata import claude_headless as ch
 from tools.safety import claude_gate as gate
 
 

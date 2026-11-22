@@ -30,6 +30,8 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 ## 现行决定
 
 只收对整个工程有影响的决定，每条一行：结论、日期、依据（用户决定的出处，或含 Main 与独立 agent 双方意见的报告）。单个场景或单项测量内部的决定留在各自报告里；被取代的决定移到 [work-history](docs/work-history.md)。agent 的工作规则在 [AGENTS.md](AGENTS.md)。
+v1 Reviewer benchmark（冻结 ARW 760007c、套件材料、评分 r8.x、多模型 benchmark 的运行器与统计代码）已从工程删除，完整保存在 tag `reviewer-bench-v1`（2026-11-22，任务 qwen-strata/suitedrop）；下面标“v1 已归档”的条目是历史，其中指向 `benchmarks/multi-model-v*`、`tools/reviewer/` 和套件材料的链接按该 tag 解析（`git show reviewer-bench-v1:<路径>`）。现行：按 `config/arw-pin.json` 引用 ARW，ARW 是场景、答案键和计分的唯一来源，见[ARW Reviewer 规则](.claude/rules/reviewer-suite.md)。
+
 
 - Strata 0.2.x 不用官方安装程序和 `install.ps1`，继续“标签源码 ZIP + 预编译引擎（cuda13 tar.gz）”，由 `upgrade_release` 核验 feed 与引擎清单的 Ed25519 签名；0.2.2 起工具调用解析与 sm_86 解码开关表行为有变，此后的测量不与 0.1.45 结果直接比较（2026-10-22，Main 与独立审查一致）：[升级报告](reports/v0.2.2/upgrade.md)。
 - Git 只有一个长期分支 `master`；Strata 只供本机使用，只有一份工程副本，直接在 `master` 提交，无远端不推送（2026-11-17，用户决定）。
@@ -46,27 +48,27 @@ agent 规则见 [AGENTS.md](AGENTS.md)。
 - 模型跨租约驻留，相同参数复用不再加载（2026-10-10）：设计见[前端运行与维护](docs/frontend.md)，决定经过见[历史工作](docs/work-history.md)「2026-10-09 迁移决定」。
 - 调参默认用可机械判定的专用负载；ARW 场景须 10 次组内 SD ≤ 0.068（罚前、罚后都满足）才考虑用于调参（此值定于 r8 之前的尺度，r8 尺度下待定，新阈值同时看 `rawScore`，2026-10-16；评分 r8.4 起分数不再截断）；影响输出的参数按分阶段判定（2026-10-12／13，用户决定；规则见[测量规则](.claude/rules/measurement.md)）。
 - Spec Readiness 停用合并实例，改用独立根线程（2026-10-13）：[审查报告](reports/v0.1.42/spec-rule-audit/summary.md)。
-- Reviewer 评分：证据 F2、按 k 分档计分（默认 0.25，难以核实的 1 或 4；分数以什么都不报为 0、满分为 1，取代 F2 总分与 A／B 两类计分，2026-10-16 评分 r8）、格式罚按比例、罚分归属原则、越过停止点算一个失败反例（2026-10-14／15，评分 r7）、Commit Audit 满足行上的误报只扣一次（2026-10-17，评分 r8.1）、答案键声明的合并用例只计一次（取低分，2026-10-17，评分 r8.2；Commit Audit 发现候选不跨行补关联，评分 r8.3）：经过见[历史工作](docs/work-history.md)，现行规则见[评分规则](.claude/rules/reviewer-suite.md#评分)。
-- Reviewer 评分 r8.4：取消分数截到 0 的下限（N < 0 时按答案键全部反例的 k 之和归一，可低于 −1；原始分 ≥ 0 时与 r8.3 逐位相同），整体扣减改为 s − d·|s|；模型失误（没有报告）得 0，与什么都不报相同（用户 2026-10-21 定；负分表示浪费审核时间，没有报告就没有这种浪费）（2026-10-21，用户决定，独立审查有条件实施）：[benchmark 计划 §14.1](benchmarks/multi-model-v1/plan.md#141-冻结后的偏离)、[Reviewer 规则](.claude/rules/reviewer-suite.md)。
-- 出题原则：一道题只出一次；意外的重复改题，有意保留的重复在答案键里显式声明为合并用例、评分按声明合并，不靠计分端去重；报告凡给得分处同时给耗时，附 token 数和工具调用数，耗时不进分数（2026-10-16／17，用户决定）：[Reviewer 规则](.claude/rules/reviewer-suite.md)、[Commit Audit v2 变更说明](benchmarks/reviewer-suite-v1/commit-audit-v2.md)。
-- 场景能力判定用相对口径 Q3／Opus，目标 < 0.8（2026-10-13；2026-10-15 用户确认维持 Opus 参考）：[Reviewer 规则](.claude/rules/reviewer-suite.md)。
+- （v1 已归档，tag `reviewer-bench-v1`）Reviewer 评分：证据 F2、按 k 分档计分（默认 0.25，难以核实的 1 或 4；分数以什么都不报为 0、满分为 1，取代 F2 总分与 A／B 两类计分，2026-10-16 评分 r8）、格式罚按比例、罚分归属原则、越过停止点算一个失败反例（2026-10-14／15，评分 r7）、Commit Audit 满足行上的误报只扣一次（2026-10-17，评分 r8.1）、答案键声明的合并用例只计一次（取低分，2026-10-17，评分 r8.2；Commit Audit 发现候选不跨行补关联，评分 r8.3）：经过见[历史工作](docs/work-history.md)，现行规则见[评分规则](.claude/rules/reviewer-suite.md#评分)。
+- （v1 已归档，tag `reviewer-bench-v1`）Reviewer 评分 r8.4：取消分数截到 0 的下限（N < 0 时按答案键全部反例的 k 之和归一，可低于 −1；原始分 ≥ 0 时与 r8.3 逐位相同），整体扣减改为 s − d·|s|；模型失误（没有报告）得 0，与什么都不报相同（用户 2026-10-21 定；负分表示浪费审核时间，没有报告就没有这种浪费）（2026-10-21，用户决定，独立审查有条件实施）：[benchmark 计划 §14.1](benchmarks/multi-model-v1/plan.md#141-冻结后的偏离)、[Reviewer 规则](.claude/rules/reviewer-suite.md)。
+- （v1 已归档，tag `reviewer-bench-v1`）出题原则：一道题只出一次；意外的重复改题，有意保留的重复在答案键里显式声明为合并用例、评分按声明合并，不靠计分端去重；报告凡给得分处同时给耗时，附 token 数和工具调用数，耗时不进分数（2026-10-16／17，用户决定）：[Reviewer 规则](.claude/rules/reviewer-suite.md)、[Commit Audit v2 变更说明](benchmarks/reviewer-suite-v1/commit-audit-v2.md)。
+- （v1 已归档，tag `reviewer-bench-v1`）场景能力判定用相对口径 Q3／Opus，目标 < 0.8（2026-10-13；2026-10-15 用户确认维持 Opus 参考）：[Reviewer 规则](.claude/rules/reviewer-suite.md)。
 - `qwen-agent` 改按所选量化的默认档启动，Codex 与 Claude Code 同值（IQ3_XXS 206584／150000）；Claude Code 的压缩点依赖未公开的 `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE`，版本变化后用 `tools.ops.claude_compact_probe` 重新核对（2026-10-19，Main 与独立审查一致，rtx3080ti 已部署）：[报告](reports/v0.1.45/context-tier-unify/summary.md)。
-- 所有 Codex Reviewer 臂（含 Strata）对用户登录（`~/.claude/.credentials.json`、`~/.codex` 整个目录，含默认位置的 ChatGPT 登录）和 `project.private.toml` deny-read，偏离 reviewer-suite「不额外收紧」（2026-10-19，Main 按硬约束 4 决定，三种 mock 门用合成文件验证通过，待用户复核）：[ARW Reviewer 规则](.claude/rules/reviewer-suite.md#合同)、[benchmark 计划 §3](benchmarks/multi-model-v1/plan.md#3-固定条件)。
-- 报告写授权用专用父目录（目录里只有该报告），绕过 Codex 单文件写授权的 bwrap 故障；安全门与测量同一策略（2026-10-07，用户决定）：[ARW Reviewer 规则](.claude/rules/reviewer-suite.md#正式测量前的安全验收)。
-- 多模型 benchmark 的 DeepSeek 改测 low / high / max；已跑的 medium 按方案 C′ 部分并入 high，其余作补充行，Holm 族改为每场景 25 个比较（2026-10-21，用户决定改档，Main 经独立审查定并入方案，待用户复核）：[计划 §14.4](benchmarks/multi-model-v1/plan.md)。
-- 多模型 benchmark 的有效性判据：时限提醒或中断送达时正在进行的请求，它的 relay 错误不算错误，实例有效；只此一条（2026-10-23 用户定，取代 10-20 Main 定的 7 条）：[计划 §14 M2](benchmarks/multi-model-v1/plan.md)。
+- （v1 已归档，tag `reviewer-bench-v1`）所有 Codex Reviewer 臂（含 Strata）对用户登录（`~/.claude/.credentials.json`、`~/.codex` 整个目录，含默认位置的 ChatGPT 登录）和 `project.private.toml` deny-read，偏离 reviewer-suite「不额外收紧」（2026-10-19，Main 按硬约束 4 决定，三种 mock 门用合成文件验证通过，待用户复核）：[ARW Reviewer 规则](.claude/rules/reviewer-suite.md#合同)、[benchmark 计划 §3](benchmarks/multi-model-v1/plan.md#3-固定条件)。
+- （v1 已归档，tag `reviewer-bench-v1`）报告写授权用专用父目录（目录里只有该报告），绕过 Codex 单文件写授权的 bwrap 故障；安全门与测量同一策略（2026-10-07，用户决定）：[ARW Reviewer 规则](.claude/rules/reviewer-suite.md#正式测量前的安全验收)。
+- （v1 已归档，tag `reviewer-bench-v1`）多模型 benchmark 的 DeepSeek 改测 low / high / max；已跑的 medium 按方案 C′ 部分并入 high，其余作补充行，Holm 族改为每场景 25 个比较（2026-10-21，用户决定改档，Main 经独立审查定并入方案，待用户复核）：[计划 §14.4](benchmarks/multi-model-v1/plan.md)。
+- （v1 已归档，tag `reviewer-bench-v1`）多模型 benchmark 的有效性判据：时限提醒或中断送达时正在进行的请求，它的 relay 错误不算错误，实例有效；只此一条（2026-10-23 用户定，取代 10-20 Main 定的 7 条）：[计划 §14 M2](benchmarks/multi-model-v1/plan.md)。
 - 多跑的有效实例只要不是按分数加跑，全部进最终实例集合，不截取前 n 个（2026-10-23 用户定，第三阶段起）：[测量规则](.claude/rules/measurement.md)。
 - Codex、Claude Code 等 harness 不长期钉旧版：每项工作开始时用当时的最新版，工作期间固定，换版先重跑 mock 门（2026-10-23，用户定）：[测量规则](.claude/rules/measurement.md)。
 - rtx3080ti / IQ3_XXS 采样维持 greedy（0/1/20）：ARW code-spec-v5 第 1 轮 greedy、模型卡推荐值、t06 三档分不出，实测 SD 0.072 远大于假设，用户决定不再继续（2026-10-24，用户）：[报告](reports/v0.2.2/sampling-dim/summary.md)。
 - rtx3080ti / IQ3_XXS 对外窗口默认维持 206584（压缩阈值约 150000）：窗口维负载对模型侧不敏感、206584 工作时间更短且压缩丢失更少；长上下文记忆重测在 100K–190K 未见断崖，latest 题的弱点在 100K 同样存在、与窗口档无关（2026-10-24，Main 与独立审查一致，用户已复核）：[窗口维](reports/v0.2.2/window-dim/summary.md)、[重测](reports/v0.2.2/longctx-retest/summary.md)。
 - `qwen-agent` 关闭 Claude Code 工具搜索（`ENABLE_TOOL_SEARCH=false`）：Strata 不实现延迟加载，工具搜索在 Strata 上不可用（2026-10-24，Main 与独立审查一致，rtx3080ti 已部署）：[报告](reports/v0.2.2/toolsearch-off/summary.md)。
 - rtx3080ti 一直用平衡电源计划：高性能的 Strata 速度差不到 1%（2026-10-23）：[报告](reports/v0.2.2/power-plan/summary.md)。
-- 多模型 benchmark（2026-10-19，用户决定；方案定稿待冻结，[计划](benchmarks/multi-model-v1/plan.md)）：27 个配置（Codex：gpt-6.1-sol、gpt-6-luna、deepseek-flash、Strata；Claude Code：Opus、Sonnet、Haiku、deepseek-flash、Strata；均 low／medium／high）× 4 场景 × 5 次；只报分场景原始分，不算比值和综合分；两份基础提示只给 Strata（硬约束 3 例外）；搜索全部关闭（2026-10-11 搜索规则在 benchmark 期间豁免）；service tier 一律 default 并记录实际返回值；OpenAI 用 ChatGPT 套餐登录、只报 token。盲裁维持单名 Opus 全量裁（加锚点和合成负例）：按用户的 20% 规则盲裁占 benchmark 的 Anthropic 总消耗中值约 24%，但双裁只省约 $55–58，用户按例外处理、质量优先（2026-10-19，用户决定；计划 §6），"盲裁用 Opus，不用 Sonnet"继续有效。
+- （v1 已归档，tag `reviewer-bench-v1`）多模型 benchmark（2026-10-19，用户决定；方案定稿待冻结，[计划](benchmarks/multi-model-v1/plan.md)）：27 个配置（Codex：gpt-6.1-sol、gpt-6-luna、deepseek-flash、Strata；Claude Code：Opus、Sonnet、Haiku、deepseek-flash、Strata；均 low／medium／high）× 4 场景 × 5 次；只报分场景原始分，不算比值和综合分；两份基础提示只给 Strata（硬约束 3 例外）；搜索全部关闭（2026-10-11 搜索规则在 benchmark 期间豁免）；service tier 一律 default 并记录实际返回值；OpenAI 用 ChatGPT 套餐登录、只报 token。盲裁维持单名 Opus 全量裁（加锚点和合成负例）：按用户的 20% 规则盲裁占 benchmark 的 Anthropic 总消耗中值约 24%，但双裁只省约 $55–58，用户按例外处理、质量优先（2026-10-19，用户决定；计划 §6），"盲裁用 Opus，不用 Sonnet"继续有效。
 - 跨 harness 比较以设置一致为目标，不以“各用原生设置”为目标；保留差异须有充分理由并写进计划（2026-10-22，用户决定）：[测量规则](.claude/rules/measurement.md)。
 
 ## 主线
 
-- [ ] **多模型 benchmark**：四个 reviewer 场景都已冻结并测完（评分 r8 起的 Q3/Opus：Code Spec v5 0.733（×5，r8 重算）、Code Standards v5.1 0.936（×10，r8 重算；区分度不足的末版）、Spec Readiness v4.3 0.584（×5）、Commit Audit v3 0.730（×5，r8.3）），benchmark 前置工作完成；四个臂已跑完；第一阶段（预登记实例）与第二阶段（Strata 加测进主统计，全样本）都已出报告，公开结果文件已生成（[运行计划](benchmarks/multi-model-v1/plan.md)、[第一阶段报告](reports/v0.1.45/multi-model-benchmark/phase1/summary.md)、[第二阶段报告](reports/v0.1.45/multi-model-benchmark/phase2/summary.md)）。
+- [ ] （v1 已归档，tag `reviewer-bench-v1`）**多模型 benchmark**：四个 reviewer 场景都已冻结并测完（评分 r8 起的 Q3/Opus：Code Spec v5 0.733（×5，r8 重算）、Code Standards v5.1 0.936（×10，r8 重算；区分度不足的末版）、Spec Readiness v4.3 0.584（×5）、Commit Audit v3 0.730（×5，r8.3）），benchmark 前置工作完成；四个臂已跑完；第一阶段（预登记实例）与第二阶段（Strata 加测进主统计，全样本）都已出报告，公开结果文件已生成（[运行计划](benchmarks/multi-model-v1/plan.md)、[第一阶段报告](reports/v0.1.45/multi-model-benchmark/phase1/summary.md)、[第二阶段报告](reports/v0.1.45/multi-model-benchmark/phase2/summary.md)）。
 
 ## 进展
 

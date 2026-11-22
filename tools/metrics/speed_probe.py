@@ -8,7 +8,7 @@ engine record (read / prompt time, generated / decode time). API usage is never 
 import argparse
 from pathlib import Path
 
-from tools.reviewer.wsl_client import save
+from tools.strata.wsl_client import save
 
 MODEL = 'IQ3_XXS'
 STARTUP_SHA256 = '1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6'
@@ -60,7 +60,7 @@ def time_limit_seconds(material_bytes, beta, P, G, k):
 
 def run(host, paths, out, max_tokens=MAX_TOKENS):
     from tools.metrics.prompt_policy import verify_loaded_startup
-    from tools.reviewer.arw_measure import stop_and_capture_engine_log
+    from tools.strata.engine_log import stop_and_capture_engine_log
     out = Path(out); out.mkdir(parents=True, exist_ok=False)
     text, size = material(paths)
     baseline, probe = bodies(text, max_tokens)

@@ -145,7 +145,7 @@ def deepseek_plan_limits(plan_path):
 
 def deepseek_env_for(limits, model):
     """Environment builder of the DeepSeek arm: the plan's limits (the override dropped on request), fake key and endpoint."""
-    from tools.reviewer import claude_headless as ch
+    from tools.strata import claude_headless as ch
 
     def build(base, blocking_override=True):
         wanted = {k: v for k, v in limits.items() if blocking_override or k != 'CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE'}

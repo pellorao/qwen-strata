@@ -5,8 +5,8 @@ import tempfile
 import unittest
 import unittest.mock
 
-from tools.reviewer.native_cli_binding import CODEX, CODEX_VENDOR
-from tools.reviewer import wsl_client
+from tools.strata.native_cli_binding import CODEX, CODEX_VENDOR
+from tools.strata import wsl_client
 from tools.safety import verify_reviewer_sandbox
 from tools.safety.reviewer_permissions import restricted_profile
 

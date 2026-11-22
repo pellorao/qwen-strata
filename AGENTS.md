@@ -12,7 +12,7 @@ Codex CLI 定时唤醒、未来待办提醒或 subagent 周期检查：读 [code
 |---|---|
 | [测量](.claude/rules/measurement.md) | `tools/`、`reports/`、`benchmarks/` |
 | [防循环检测](.claude/rules/loop-detection.md) | `benchmarks/loop-detection-v2/`、`tools/loop/` |
-| [ARW Reviewer](.claude/rules/reviewer-suite.md) | `benchmarks/reviewer-suite-v1/`、`tools/reviewer/`、`tools/safety/` |
+| [ARW Reviewer](.claude/rules/reviewer-suite.md) | `config/arw-pin.json`、`tools/arw/`、`tools/tuning/arw_*`、`tools/safety/`、`benchmarks/reviewer-suite-v1/` |
 | [部署](.claude/rules/deployment.md) | `src/`、`config/`、`scripts/`、`tools/ops/`、调用手册源文件 |
 
 ## Git 与主机
@@ -35,7 +35,7 @@ Codex CLI 定时唤醒、未来待办提醒或 subagent 周期检查：读 [code
    - **删除前核对**：删除文件或目录前先列出清单再核对；不删运行中工作仍在用的文件，不删文档或报告引用的数据；清理 `.tmp/` 只删已确认作废的运行目录。
    - **汇报**：每完成一个工作组，在状态页加 `know` 条目（结论、决策、偏离、遗留）；推送按全局规则。
 2. **独占 key**。所有模型操作先经前端领取 key，用完归还。不抢占他人持有，不抹掉持有状态。维护流程见部署规则。
-3. **基础提示必须接入**。每次模型运行都接入 `config/prompts/startup-instructions.txt` 和 `config/prompts/compact-prompt.txt`。启动提示默认去掉已弃用的防循环段加载。开跑前核对实际加载的 SHA 并保存绑定；场景提示只能追加，不能替代。例外：多模型 benchmark 中两份基础提示只给 Strata，其他模型都不接入（用户 2026-10-19，D4；做法见 [benchmark 计划](benchmarks/multi-model-v1/plan.md#3-固定条件)）。
+3. **基础提示必须接入**。每次模型运行都接入 `config/prompts/startup-instructions.txt` 和 `config/prompts/compact-prompt.txt`。启动提示默认去掉已弃用的防循环段加载。开跑前核对实际加载的 SHA 并保存绑定；场景提示只能追加，不能替代。例外：多模型 benchmark 中两份基础提示只给 Strata，其他模型都不接入（用户 2026-10-19，D4；做法见 tag `reviewer-bench-v1` 里的 `benchmarks/multi-model-v1/plan.md` 第 3 节）。
 4. **凭据不外泄**。`project.private.toml`、安装目录的 `installation.private.toml` 和 `.state/`（若存在）不读入会话，不进 git、日志、报告或提示词。
 5. **每台机器只对外一个模型，参数按"主机 + 量化"绑定**（用户 2026-10-19）。对外模型是 `config/deployments/<host>.json` 的 `models`（恰好一个），所有任务都用它；当前值见各机主机说明。其他量化权重可以保留，只在用户提出专门针对它们的任务时运行或测试，做法见部署规则。一台机器或一个量化的调参结论，不套用到另一台或另一量化。
 6. **工程是唯一来源**。代码、提示、调用手册和每机配置以本工程为准；安装目录只是部署目标，不反向取源。

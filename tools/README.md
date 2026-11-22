@@ -43,33 +43,41 @@
 | `reasoning_loop_guard` | 文本复现原型和动态文本特征（未验证，不接入 harness） |
 | `loop_reminders` | 跨调用和单响应两类提醒文本 |
 
-## reviewer：ARW Reviewer 测量
+## arw：固定 ARW 提交上的测量
 
 规则见 [reviewer-suite.md](../.claude/rules/reviewer-suite.md)。
 
 | 模块 | 用途 |
 |---|---|
-| `freeze_arw_source` | 冻结上游 ARW 源码字节；展开时打上 manifest 列出的工程兼容补丁并校验结果 |
-| `arw_measure`、`arw_native.mjs`、`arw_native_setup.mjs`、`arw_runtime.mjs` | 用原版 ARW 运行层执行冻结交接 |
-| `context_measure` | 执行一个已批准的同线程合并实例 |
-| `review_deadlines`、`monitor_review_deadlines` | 55/60、10/15 分钟时限 |
-| `review_continuations`、`prepare_continuation_score`、`arw_recovery` | 早停接续、上游诊断评分、停止后恢复核对 |
-| `arw_metrics`、`review_observations` | 补充每轮计量；提取可见执行观测 |
-| `inspect_session` | 会话检查：提取并判定每次工具调用，输出逐条动作表和标记项全文 |
-| `repair_reviewer_report` | 在独立副本上做格式归一（单值行号、成对写法的范围），供评分使用 |
-| `harness_pins` | 当前工作固定的 Codex、Claude Code 版本、SHA 与 benchmark 副本路径（唯一配置点） |
-| `native_cli_binding`、`wsl_client`、`verify_codex_compact_prompt` | Codex CLI 绑定、app-server 客户端、原生压缩提示采集 |
-| `check_briefs`、`adjudication_view` | 盲裁 brief 冻结前的机械核对；从冻结 fixture 构造盲裁 view |
-| `benchmark_summary` | 多模型 benchmark 跨模型汇总：读 `bench_records` 记录与 `bench_score` 分数，按计分阶段（`--phase`，默认 1）选实例，逐格统计（含一致性行、补充行）、每场景 25 个预登记比较（Welch、Holm）、逐实例表 |
+| `pin` | 按 `config/arw-pin.json` 取出固定的 ARW 提交并核对夹具树 SHA |
+| `run` | 在 Strata 提供方上跑一个 ARW `reviewer-capability run` 实例，核对 /health 的加载启动提示 |
+| `measure` | 跑一格实例并存小结果；`provisional` 临时计分 |
+
+## strata：Strata 与 harness 的通用支持
+
+v1 benchmark 的运行器、评分与统计代码已归档在 tag `reviewer-bench-v1`。
+
+| 模块 | 用途 |
+|---|---|
+| `wsl_client` | 与 Windows 侧 Codex app-server 通信的客户端和共用小函数 |
+| `engine_log` | 模型停止前后截取引擎请求日志 |
+| `review_catalog` | 把本地 Strata 模型写入 Codex 模型目录 |
+| `providers` | API 提供方、凭据变量与 deny-read 路径 |
+| `harness_pins`、`native_cli_binding` | 当前固定的 Codex、Claude Code 版本、SHA 与二进制绑定 |
+| `claude_headless`、`reminder_interrupt` | Claude Code 无头运行与时限提醒 / 中断的判定 |
+| `review_deadlines` | 时限与提醒 |
+| `verify_codex_compact_prompt` | 原生压缩提示采集 |
 
 ## safety：安全验收
 
 | 模块 | 用途 |
 |---|---|
-| `safety_gate`、`safety_native.mjs` | 原生沙箱与 guardian 安全门，只用合成目标 |
+| `claude_gate` | Claude Code 沙箱门（隔离、读写限制），mock 与 live |
+| `codex_compact_gate` | Codex 压缩门（零模型） |
+| `probes` | 两个沙箱门共用的越界写 / 读探针与结果读取 |
 | `verify_reviewer_sandbox` | 探测 Linux Codex 执行边界：不带 `--base-url` 为零模型 `command/exec` 探针，带上时加真实模型回合；用 ARW 运行的原生 Codex 二进制，窗口取 `--model` 的默认档 |
 | `reviewer_permissions` | 测量专用 Codex 权限 profile |
-| `safety_mcp_fixture` | 合成 MCP 动作，删除类工具只记录调用 |
+| `gate_http`、`scripted_responses` | 回环门共用的请求读取与脚本化响应 |
 
 ## tuning：资源校准
 

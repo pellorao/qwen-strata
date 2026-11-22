@@ -3,7 +3,7 @@ import base64
 import hashlib
 import json
 from pathlib import Path
-from tools.reviewer.wsl_client import save
+from tools.strata.wsl_client import save
 
 SOURCE=Path(__file__).with_name('windows_resource_sampler.py')
 

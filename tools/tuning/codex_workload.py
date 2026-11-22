@@ -26,8 +26,8 @@ import time
 
 from tools import guard_runs
 from tools.tuning import staged_decision, window_bank
-from tools.reviewer.native_cli_binding import CODEX, CODEX_VENDOR
-from tools.reviewer.providers import CREDENTIAL_PATTERNS, CREDENTIAL_VARIABLES
+from tools.strata.native_cli_binding import CODEX, CODEX_VENDOR
+from tools.strata.providers import CREDENTIAL_PATTERNS, CREDENTIAL_VARIABLES
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / 'config/model-catalog.json'
@@ -105,7 +105,7 @@ def isolation(folder):
 def codex_overrides(plan, spec, folder, base_url):
     """`-c` overrides for one Codex session; the compaction prompt is the project base plus the native supplement."""
     from tools.metrics.prompt_policy import compaction_config
-    from tools.reviewer.arw_measure import local_review_catalog
+    from tools.strata.review_catalog import local_review_catalog
     slug = 'qwen3.8-flash-next-' + plan['model'].lower()
     catalog = local_review_catalog(CATALOG, folder / 'catalog.json', plan['model'], spec['context_window'])
     values = {'model': slug, 'model_provider': 'qwen_strata', 'model_catalog_json': str(catalog),
@@ -452,7 +452,7 @@ def run_window_block(plan, data, name, slots, out):
     first `warmup_batches` batches of the same workload, its own thread) -> each scored instance in a fresh thread ->
     stop the model and capture the engine log, split into per-instance windows.  Returns the instance records."""
     from tools.ops.measurement_host import MeasurementHost
-    from tools.reviewer.arw_measure import stop_and_capture_engine_log
+    from tools.strata.engine_log import stop_and_capture_engine_log
     from tools.metrics.strata_tokens import engine_rates, sum_engine_tokens, task_rates
     spec = plan['conditions'][name]
     folder = out / ('block-' + '-'.join(f'{s:02d}' for s in slots) + '-' + name)
@@ -517,9 +517,9 @@ def run_window_block(plan, data, name, slots, out):
 
 def run_claude_window(plan, data, name, out, seconds_limit=None, mock_base=None):
     """Claude Code mechanism check of the window workload (design §2.4: pilot only, one per tier, not judged):
-    the same conversation through tools.reviewer.claude_headless.run_conversation on this condition's tier, then
+    the same conversation through tools.strata.claude_headless.run_conversation on this condition's tier, then
     compaction positions, ACK compliance, parsed answers and the model-dependent split, as for Codex."""
-    from tools.reviewer import claude_headless
+    from tools.strata import claude_headless
     spec = plan['conditions'][name]
     folder = out / f'claude-{name}'
     result = claude_headless.run_conversation(
@@ -701,7 +701,7 @@ def main():
         plan, data = load_plan(args.plan)
         if (plan.get('authorization') or {}).get('approved') is not True:
             raise ValueError('This plan is not approved for model runs')
-        from tools.reviewer.claude_headless import pinned_binary
+        from tools.strata.claude_headless import pinned_binary
         pinned_binary()
         result = run_claude_window(plan, data, args.condition, Path(args.out).resolve())
         result = {k: v for k, v in result.items() if k != 'scoring'} | {

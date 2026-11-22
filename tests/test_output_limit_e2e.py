@@ -1,5 +1,5 @@
 """Output-limit retry end to end: the real frontend Handler between a scripted engine (Strata v0.1.45 fixture streams)
-and the real Codex (pinned benchmark copy, tools.reviewer.harness_pins).  No model is used."""
+and the real Codex (pinned benchmark copy, tools.strata.harness_pins).  No model is used."""
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import fast_servers  # noqa: E401,F401
 from http.server import BaseHTTPRequestHandler
 import json
@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / 'tests'))
 from test_frontend import FakeModel, frontend, serve
-from tools.reviewer.native_cli_binding import CODEX
+from tools.strata.native_cli_binding import CODEX
 
 FIXTURES = ROOT / 'tests/fixtures/output_limit'
 

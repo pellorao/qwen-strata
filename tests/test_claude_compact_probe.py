@@ -164,13 +164,6 @@ class DeepSeekPlanTests(unittest.TestCase):
             summary = probe.run_deepseek_plan(Path(tmp) / 'out', plan, claude='claude', log=lambda _: None)
         self.assertFalse(summary['pass'])
 
-    def test_the_repo_plans_carry_the_f5_values(self):
-        for name in ('code-spec-v5.1', 'code-standards-v5.1', 'commit-audit-v3.1', 'spec-readiness-v4.5'):
-            limits, pending = probe.deepseek_plan_limits(probe.ROOT / f'benchmarks/multi-model-v2/scenarios/{name}.json')
-            self.assertEqual(pending, [], name)
-            self.assertEqual(limits['CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE'], 945000, name)
-            self.assertEqual(limits['CLAUDE_CODE_MAX_OUTPUT_TOKENS'], 128000, name)
-
 
 if __name__ == '__main__':
     unittest.main()

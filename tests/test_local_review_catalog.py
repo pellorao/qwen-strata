@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.arw_measure import local_review_catalog
+from tools.strata.review_catalog import local_review_catalog
 
 
 class LocalReviewCatalogTests(unittest.TestCase):
