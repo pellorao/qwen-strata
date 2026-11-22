@@ -36,6 +36,7 @@ class StagedDecisionTest(unittest.TestCase):
 
 class SandboxProbeTest(unittest.TestCase):
     @unittest.skipUnless(codex_workload.CODEX.exists(), 'native Codex not installed')
+    @unittest.skipIf(Path(__file__).resolve().is_relative_to('/tmp'), 'a checkout under /tmp makes the workspace itself global-tmp readable')
     def test_workspace_is_the_only_readable_place(self):
         from tools.tuning import sandbox_probe
         overrides = codex_workload.codex_overrides
