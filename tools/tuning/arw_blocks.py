@@ -18,6 +18,7 @@ import time
 from tools.tuning import arw_dimension as dim
 
 ROOT = dim.ROOT
+BLOCK_STARTS_PER_6H = 12  # one dimension = 4 blocks (ABBA); the usage guard's default cap fits one cell
 
 
 def stamp():
@@ -72,7 +73,8 @@ def run_block(plan_path, out, work, round_number, condition_name, scored, warmup
     log(out, f'{folder.name}: {total} instances ({warmup} warm-up)')
     error = None
     try:
-        cell = measure.run_cell(work, plan['scenario'], folder / 'cell', total, plan.get('effort', arw_run.EFFORT))
+        cell = measure.run_cell(work, plan['scenario'], folder / 'cell', total, plan.get('effort', arw_run.EFFORT),
+                                 max_starts=BLOCK_STARTS_PER_6H)
     except RuntimeError as exc:
         error, cell = str(exc), []
     finally:

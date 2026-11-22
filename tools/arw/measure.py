@@ -63,11 +63,12 @@ class StartupWatch(threading.Thread):
                 self.binding = binding
 
 
-def run_cell(work, scenario, out, count, effort=arw_run.EFFORT, first=1, instance=arw_run.run_instance):
+def run_cell(work, scenario, out, count, effort=arw_run.EFFORT, first=1, instance=arw_run.run_instance, max_starts=None):
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
     expected = arw_run.expected_startup_sha()
-    guard_runs.rate(f'qwen-strata/arw-cell-{scenario}', count * 2 + 2, 6 * 3600)
+    # max_starts: a caller that runs several cells by design (tuning blocks) states its own cap
+    guard_runs.rate(f'qwen-strata/arw-cell-{scenario}', max_starts or count * 2 + 2, 6 * 3600)
     session = 'qs-' + arw_run.sha(str(out.resolve()).encode())[:8]  # one session directory per cell
     records, valid, number, streak = [], 0, first, (None, 0)
     with guard_runs.registered(f'qwen-strata/arw-{scenario}', 'codex', model=arw_run.MODEL, effort=effort):
