@@ -18,7 +18,7 @@ import time
 from tools.tuning import arw_dimension as dim
 
 ROOT = dim.ROOT
-BLOCK_STARTS_PER_6H = 12  # one dimension = 4 blocks (ABBA); the usage guard's default cap fits one cell
+BLOCK_STARTS_PER_6H = 16  # 4 dimensions x 4 blocks (ABBA); the usage guard default cap fits one cell
 
 
 def stamp():
