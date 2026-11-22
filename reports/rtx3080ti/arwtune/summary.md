@@ -15,7 +15,7 @@
 | | 300 | 2078, 2067 | 119.4, 122.3 | |
 | adapt-lag | 2 (现) | 2030, 1930 | 119.1, 117.0 | 保留 2: 解码 +4.2% 两轮一致; 不设置的预填充 +9% 两轮一致, 按"输出 tok/s 选择"规则取 2 |
 | | 不设置 | 2234, 2131 | 114.0, 112.6 | |
-| tail-skip | 7 (现) | 2303 (r1) | 124.0 (r1) | 未完成: r2-tail-7 块被用量护栏拦下 (见下) |
+| tail-skip | 7 (现) | 2164 (2303/2025) | 123.5 (124.0/123.0) | tail-0: 预填 1993 (2114/1872), 解码 116.0 (112.5/119.5); tail-7 解码快约 6%, 质量待盲裁 (材料已备) |
 | | 0 | 2114, 1872 | 112.5, 119.5 | |
 
 - 所有维的结论: 现有生产值 (prefill 8192, vram-reserve 512, adapt-lag 2) 保留, 无需改配置。vram 与 adapt 两维两个方向的指标相反 (预填充对解码), 单靠 2 块一维判不出, 要判出需更多块; 本轮没有证据支持改动。
@@ -27,3 +27,8 @@
 
 ## 护栏改动 (提交 4ebe589)
 - `tools/arw/measure.py` `run_cell(..., max_starts=None)`: 默认 None 时仍用原来的 `count*2+2`; 只有 `tools/tuning/arw_blocks.py` 传 `BLOCK_STARTS_PER_6H = 12`。arw_blocks 之外的调用者 (`tools.arw.measure` CLI 与其他) 不受影响。12 的来源: 一个 ABBA 维度 4 块, 上限给 3 维; 事实上连跑 3 维加重跑的块是 13, 所以补跑和以后的连续调参应该每维前先 ack, 或把上限改成 16。建议 16 (4 维 x 4 块), 未改。
+
+
+## 用量护栏上限 16 (补跑 r2-tail-7)
+- 19:17 Main 已 ack 并批准, `tools/tuning/arw_blocks.py` 的 `BLOCK_STARTS_PER_6H` 12 改 16 (单独提交), 只对 arw_blocks 的 run_cell 生效; r2-tail-7 补跑 19:18-19:31 完成, 2 个有效实例。
+- tail-skip 结果: 速度 tail-7 略快 (解码 +6%, n=2 块); 盲裁材料 `/tmp/qwen-strata/arwtune/blind/` (x1-x4), 对照表在 `/tmp/qwen-strata/arwtune/blind-key.json`。盲裁前保持现值 7。
