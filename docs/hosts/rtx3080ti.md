@@ -10,6 +10,7 @@ RTX 3080 Ti 12 GB、i9-13900。该机由 Claude Code 管理，负责现有 bench
 - 草稿器钉死为 MTP（用户 2026-11-03 决定）：三个量化模板（`config/templates/` 下 `iq2_xs`、`iq3_xxs`、`q2_0` 的 `-prebuilt.json`）顶层都带 `"drafting": "mtp"`，引擎参数 `--spec 4 --mtp`，没有 `--parallel`，部署的 `installation_defaults` 也没有 drafter 或 parallel 键。v0.2.10 的服务端对未设 `drafting` 的配置按 Auto 处理，Auto 在本机已有 DFlash2 草稿器文件且单请求时会换成 DFlash2；钉死后即使以后下载了草稿器，启动也不会换。钉死后启动日志不再有 `Drafting: ...` 提示行（该行只在选择无法照办时输出，此前是 `Drafting: MTP (the DFlash2 drafter isn't downloaded yet)`），引擎日志仍有 `strata mtp: draft layer loaded` 和 `MTP windows up to 4 tokens`。DFlash2 与 MTP 的取舍没有评估，要评估另立任务，并同时撤掉该键。
 - 对外模型为 IQ3_XXS；参数沿用 v0.1.42 的本机调参结果，未在后续版本（v0.2.4 至 v0.2.16）上重新调参。
 - 路由先验 `STRATA_ROUTE_PRIOR=1.5` 为生产默认（用户 2026-11-08 选 B；routeprior3 n=15 判定 open，开组质量点估计低 3%，每实例约快 35%，[报告](../../reports/rtx3080ti/routeprior3/summary.md)）；部署配置 `model_environment`，出现质量问题删该键即可回退。
+- 路由尾部跳过 `STRATA_ROUTE_TAIL_SKIP=7` 显式钉在部署配置 `model_environment`（Strata 0.2.17 起上游默认关，不钉会变成 0；2026-11-22 arwtune 在固定 ARW 的 Spec Readiness 上盲裁：tail-7 均值 0.365-0.371，tail-0 0.132，解码 +6%，保留 7，[报告](../../reports/rtx3080ti/arwtune/summary.md)）。
 - Q2_0、IQ2_XS 权重保留，但不对外，默认不运行或测试。
 - 安装路径和 `frontend_url` 只从该副本的 `project.private.toml` 读取。
 
