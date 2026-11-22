@@ -1,0 +1,7 @@
+r1-tail-0: requests=77 all[prefill med/n, decode med/n, decode agg]=(1542.4, 27, 121.9, 77, 112.5) second-half=(1507.6, 11, 117.0, 39, 111.4) PREFILL_AGG=2114
+     strata cpu pool: warning: N CPU expert workers are configured, more than this CPU can use well (the speed stop
+r1-tail-7: requests=174 all[prefill med/n, decode med/n, decode agg]=(1942.6, 55, 137.3, 168, 124.0) second-half=(2103.8, 23, 145.6, 83, 132.0) PREFILL_AGG=2303
+     strata cpu pool: warning: N CPU expert workers are configured, more than this CPU can use well (the speed stop
+     strata serve: conversation cache: could not read N tokens back from the SSD tier (session file: not enough RAM
+r2-tail-0: requests=58 all[prefill med/n, decode med/n, decode agg]=(1831.2, 18, 136.0, 58, 119.5) second-half=(1618.9, 2, 135.3, 29, 120.3) PREFILL_AGG=1872
+     strata cpu pool: warning: N CPU expert workers are configured, more than this CPU can use well (the speed stop
