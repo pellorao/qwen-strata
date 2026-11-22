@@ -6,7 +6,7 @@
 
 ## 条件
 
-同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--adapt-swaps`。执行顺序：96-1、160-1、48-1、48-2、160-2、96-2、160-3、48-3、96-3。冻结计划：[rtx3080ti-iq3_xxs-adapt-swaps-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-adapt-swaps-plan.json)。
+同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--adapt-swaps`。执行顺序：96-1、160-1、48-1、48-2、160-2、96-2、160-3、48-3、96-3。冻结计划：[rtx3080ti-iq3_xxs-adapt-swaps-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-adapt-swaps-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

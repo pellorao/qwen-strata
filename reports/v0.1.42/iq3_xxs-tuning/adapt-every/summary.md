@@ -6,7 +6,7 @@
 
 ## 条件
 
-同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--adapt-every`。执行顺序：4-1、2-1、8-1、8-2、2-2、4-2、2-3、8-3、4-3。所有实例加载 18.3–18.9 秒，这一维没有冷启动偏差。冻结计划：[rtx3080ti-iq3_xxs-adapt-every-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-adapt-every-plan.json)。
+同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--adapt-every`。执行顺序：4-1、2-1、8-1、8-2、2-2、4-2、2-3、8-3、4-3。所有实例加载 18.3–18.9 秒，这一维没有冷启动偏差。冻结计划：[rtx3080ti-iq3_xxs-adapt-every-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-adapt-every-plan.json)。
 
 运行中 Main 误向外层 shell 发了中断信号，测量进程未受影响，9 个实例全部按计划完成，未重跑。
 

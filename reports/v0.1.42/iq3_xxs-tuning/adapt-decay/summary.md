@@ -6,7 +6,7 @@
 
 ## 条件
 
-同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--adapt-decay`。执行顺序：0.7-1、0.5-1、0.9-1、0.9-2、0.5-2、0.7-2、0.5-3、0.9-3、0.7-3。所有实例加载 17.3–19.4 秒，没有冷启动偏差。冻结计划：[rtx3080ti-iq3_xxs-adapt-decay-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-adapt-decay-plan.json)。
+同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--adapt-decay`。执行顺序：0.7-1、0.5-1、0.9-1、0.9-2、0.5-2、0.7-2、0.5-3、0.9-3、0.7-3。所有实例加载 17.3–19.4 秒，没有冷启动偏差。冻结计划：[rtx3080ti-iq3_xxs-adapt-decay-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-adapt-decay-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

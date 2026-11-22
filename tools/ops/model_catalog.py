@@ -3,8 +3,8 @@
 Instructions and message structure come from the native template; every other
 field states what Strata actually serves. Work-scope limits belong in scenario
 prompts, never here. Measurement runs use frozen catalogs under benchmarks/.
-Each model's window is its default (first) context tier in the host deployments;
-deployment re-renders it per host (tools.ops.deployment_source).
+Each model's window is its default (first) context tier in the installation data;
+deployment re-renders it (tools.ops.deployment_source).
 """
 import argparse
 import copy
@@ -16,7 +16,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 TARGET = ROOT / 'config/model-catalog.json'
-DEPLOYMENTS = ROOT / 'config/deployments'
+INSTALLATION = ROOT / 'config/installation.json'
 TEMPLATE = 'gpt-6-luna'
 DEFAULT_EFFORT = 'high'
 MODELS = {'Q2_0': 'q2_0', 'IQ2_XS': 'iq2_xs', 'IQ3_XXS': 'iq3_xxs'}
@@ -38,17 +38,13 @@ FACTS = {
 }
 
 
-def default_windows(deployments=DEPLOYMENTS):
-    """Each model's default (first published) context window; every host that publishes tiers must agree."""
-    windows = {}
-    for path in sorted(Path(deployments).glob('*.json')):
-        for model, tiers in json.loads(path.read_text(encoding='utf-8')).get('context_tiers', {}).items():
-            windows.setdefault(model, set()).add(tiers[0]['context_window'])
-    problems = [m for m in MODELS if len(windows.get(m, ())) != 1]
+def default_windows(installation=INSTALLATION):
+    """Each model's default (first published) context window in the installation data."""
+    tiers = json.loads(Path(installation).read_text(encoding='utf-8')).get('context_tiers', {})
+    problems = [m for m in MODELS if not tiers.get(m)]
     if problems:
-        raise ValueError('Each model needs one default context tier across host deployments: '
-                         + ', '.join(f'{m} {sorted(windows.get(m, ()))}' for m in problems))
-    return {m: next(iter(windows[m])) for m in MODELS}
+        raise ValueError('Each model needs a published default context tier: ' + ', '.join(problems))
+    return {m: tiers[m][0]['context_window'] for m in MODELS}
 
 
 def native_catalog():

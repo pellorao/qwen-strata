@@ -26,7 +26,7 @@
 
 ## 存放
 
-- 每机调参事实写入 `docs/host-tuning/<host>.md`。
+- 每机调参事实写入 `docs/calibration/<host>.md`。
 - 新报告写入 `reports/<host>/<版本或主题>/`。
 - 当前待办只放该机本地状态页。
 

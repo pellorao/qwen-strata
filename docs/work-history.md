@@ -1,6 +1,6 @@
 # 历史工作记录
 
-更新：2026-10-30。这里保存 2026-10-30 以前的跨机历史；之后的新完成项分别写入 [rtx3080ti](work-history/rtx3080ti.md)。按当时口径记录的状态和提案用于追溯，不构成当前待办或开跑授权；现行流程见所在机器的状态页。文内指向已退役 `docs/plan.md` 的链接属于历史来源，可从 Git 历史取回。完整会话、日志与中间裁决仍属于可删除的.tmp材料。
+更新：2026-10-30。这里保存 2026-10-30 以前的跨机历史；之后的新完成项分别写入 [rtx3080ti](work-history/recent.md)。按当时口径记录的状态和提案用于追溯，不构成当前待办或开跑授权；现行流程见所在机器的状态页。文内指向已退役 `docs/plan.md` 的链接属于历史来源，可从 Git 历史取回。完整会话、日志与中间裁决仍属于可删除的.tmp材料。
 
 ## v0.1.38升级与profile对照
 
@@ -863,7 +863,7 @@ auto两个短输入处理少24.4%／30.5%，三项合计工作少6.9%，不扩�
 
 远端CPU辅助六实例闭合后，用户采用auto，并指定安装窗口156584、high、8192思考／24576总输出及采样0／1／20。工程来源、三量化渲染、真实已安装代码空覆盖读取、26文件SHA与控制器重载已核对，新增模型请求0；证据见[默认核查](../reports/v0.1.40.1/installation-defaults.json)。CPU收益仅远端Q2_0已测，其他量化沿用的共享值未独立验证。共用代码／手册的本机副本仍待空闲后同步，不能以远端完成宣称全部部署完成。
 
-已结束远端CPU辅助组的原计划为0／auto各三次，off1/on1/on2/off2/off3/on3；每实例三项四记录任务，共18逻辑请求／72条结果，完整模板输入660／649／2064token。原全流程预算35—60分钟，单项累计150秒，18项全到限可达45分钟模型工作。Windows采集器被SSH任务终止的实际失败、无模型修复及精确CPU分担数未知保留，完整结果见[正式报告](../reports/v0.1.40.2/resource-calibration/cpu-prefill-share/summary.md)。固定条件、源码依据及当前采用边界统一由[调参目录](host-tuning/README.md)维护。
+已结束远端CPU辅助组的原计划为0／auto各三次，off1/on1/on2/off2/off3/on3；每实例三项四记录任务，共18逻辑请求／72条结果，完整模板输入660／649／2064token。原全流程预算35—60分钟，单项累计150秒，18项全到限可达45分钟模型工作。Windows采集器被SSH任务终止的实际失败、无模型修复及精确CPU分担数未知保留，完整结果见[正式报告](../reports/v0.1.40.2/resource-calibration/cpu-prefill-share/summary.md)。固定条件、源码依据及当前采用边界统一由[调参目录](calibration/README.md)维护。
 
 原README中九实例防循环、旧动态策略、IQ3及上下文统计的展开结论退出当前进展段，继续保留在上文历史条目和原报告；尚未闭合的新版动态三次及Spec恢复检查仍列为待办，不归档为完成。
 
@@ -1117,7 +1117,7 @@ Laya多语言社区导出固定20选项槽、1024序列位置，两次ORT执行�
 
 ## v0.1.42 升级、默认 IQ3_XXS 与 IQ3_XXS 调参（2026-10-11，rtx3080ti）
 
-用户授权升级 v0.1.42、默认模型改为 IQ3_XXS 并在本机重新调参；当晚自主模式推进，每个默认值决定都由 Main 与独立复核 agent 各自给意见，一致才采用。升级通过短检查（S1，Q2_0）。IQ3_XXS 8 维调参结果：不传 `--pcie-frac`（引擎实测，解码 +11%）、`--ple-io direct`、`--vram-reserve-mib 512`、`--spec-min-p 0.9` 改值并部署；affinity all、23 线程、prefill 8192、CPU 辅助 auto 保持。第 8 维和 Q2_0 基线都用完整 Commit Audit（各 3 次），诊断得分 IQ3_XXS 0.837、Q2_0 0.773；两批各有 1 个实例做了 `env` 环境身份查询，正式验收失败，分数只作诊断。见[升级报告](../reports/v0.1.42/upgrade.md)、[rtx3080ti 调参](host-tuning/rtx3080ti.md)和各维报告 `reports/v0.1.42/iq3_xxs-tuning/`。rtx4070tis 当时离线，后续已上线。
+用户授权升级 v0.1.42、默认模型改为 IQ3_XXS 并在本机重新调参；当晚自主模式推进，每个默认值决定都由 Main 与独立复核 agent 各自给意见，一致才采用。升级通过短检查（S1，Q2_0）。IQ3_XXS 8 维调参结果：不传 `--pcie-frac`（引擎实测，解码 +11%）、`--ple-io direct`、`--vram-reserve-mib 512`、`--spec-min-p 0.9` 改值并部署；affinity all、23 线程、prefill 8192、CPU 辅助 auto 保持。第 8 维和 Q2_0 基线都用完整 Commit Audit（各 3 次），诊断得分 IQ3_XXS 0.837、Q2_0 0.773；两批各有 1 个实例做了 `env` 环境身份查询，正式验收失败，分数只作诊断。见[升级报告](../reports/v0.1.42/upgrade.md)、[rtx3080ti 调参](calibration/installation.md)和各维报告 `reports/v0.1.42/iq3_xxs-tuning/`。rtx4070tis 当时离线，后续已上线。
 
 ## F3：ARW reviewer 续审交接修复（2026-10-11 至 10-12，rtx3080ti）
 
@@ -1391,7 +1391,7 @@ v4.0–v4.6 逐步加难：缺陷推理步数从约 2 步加到约 4 步，再�
 
 用户 2026-10-19 决定每台机器只对外提供一个模型（rtx3080ti 为 IQ3_XXS；Q2_0、IQ2_XS 权重保留，默认不再运行或测试），维护基线采用方案 B1（取消独立基线文件，基线 = 本机唯一对外模型 + 部署默认值），实现经独立审查。被取代的条目原文如下：
 
-- README 现行决定（2026-10-11）：默认模型 IQ3_XXS，其余量化只作对照；IQ3_XXS 8 维调参结果为默认值：[升级报告](../reports/v0.1.42/upgrade.md)、[rtx3080ti 调参](host-tuning/rtx3080ti.md)。其中"IQ3_XXS 8 维调参结果为默认值"仍有效，并入新条目。
+- README 现行决定（2026-10-11）：默认模型 IQ3_XXS，其余量化只作对照；IQ3_XXS 8 维调参结果为默认值：[升级报告](../reports/v0.1.42/upgrade.md)、[rtx3080ti 调参](calibration/installation.md)。其中"IQ3_XXS 8 维调参结果为默认值"仍有效，并入新条目。
 - README 进展：维护测量基线 Q2_0/high/default，100K 压缩阈值 / 156584 窗口，8192 思考 / 24576 总输出。历史测量绑定 Codex 0.160.1，换新版 Codex 后的结果单独标注，不改历史标签。基线文件 `config/maintenance-baseline.json` 已删除，最后版本用 `git show ff94f3c:config/maintenance-baseline.json` 查看；`benchmarks/` 里各计划记录的该文件 SHA 是当时的冻结绑定，不受影响。
 
 ## 多模型 benchmark 盲裁方式（2026-10-19）
@@ -1421,7 +1421,7 @@ v4.0–v4.6 逐步加难：缺陷推理步数从约 2 步加到约 4 步，再�
 
 - 「顺序」第 3 条（防循环弃用部署）：rtx3080ti 随 v0.1.42 已部署；新机装当时最新版并从本工程部署，弃用已在代码里，无需单列。
 - 「顺序」第 6 条（rtx4070tis 恢复后核对与同步）：内容全部在交接文档「本机步骤」1–5（核对实际状态、占位 `models` 与 `context_tiers`、部署备份删除、思考上限与 guardian）。
-- IQ3_XXS 补测调参（用户 2026-10-11 批准申请一）：9 维全部完成，各维结论与报告见[rtx3080ti 调参](host-tuning/rtx3080ti.md)。要点：第 0 维 `STRATA_ADAPT_LAG` 设 2（约 +3–6%，采用）；第 1 维 `--adapt-swaps` 维持 96；第 2 维 `--adapt-every` 维持 4；第 3 维 `--adapt-decay` 维持 0.7；第 4 维 `--kv-resident` 维持 20480，长上下文 20480/32768 补测（64K/100K/150K/200K）各档仍维持 20480，不按档位绑定（[报告](../reports/v0.1.42/iq3_xxs-tuning/kv-resident-long/summary.md)）；第 5 维 `--spec` 采用 4（证据弱，[报告](../reports/v0.1.42/iq3_xxs-tuning/spec/summary.md)）；第 6 维 CPU 辅助显式 auto 与不设置等价，维持 auto；第 7 维学习型专家档案 2026-10-11 取消；第 8 维采样 2026-10-24 按 ARW 重测仍维持 greedy 0/1/20（[报告](../reports/v0.2.2/sampling-dim/summary.md)）；第 9 维窗口 2026-10-24 维持 206584（[报告](../reports/v0.2.2/window-dim/summary.md)）。方法要求（每维 Main 与独立复核一致才采用、第 5/6 维每实例部署条件并冷启动）已写入调参目录与测量规则。rtx4070tis 不套用，新机独立调参。
+- IQ3_XXS 补测调参（用户 2026-10-11 批准申请一）：9 维全部完成，各维结论与报告见[rtx3080ti 调参](calibration/installation.md)。要点：第 0 维 `STRATA_ADAPT_LAG` 设 2（约 +3–6%，采用）；第 1 维 `--adapt-swaps` 维持 96；第 2 维 `--adapt-every` 维持 4；第 3 维 `--adapt-decay` 维持 0.7；第 4 维 `--kv-resident` 维持 20480，长上下文 20480/32768 补测（64K/100K/150K/200K）各档仍维持 20480，不按档位绑定（[报告](../reports/v0.1.42/iq3_xxs-tuning/kv-resident-long/summary.md)）；第 5 维 `--spec` 采用 4（证据弱，[报告](../reports/v0.1.42/iq3_xxs-tuning/spec/summary.md)）；第 6 维 CPU 辅助显式 auto 与不设置等价，维持 auto；第 7 维学习型专家档案 2026-10-11 取消；第 8 维采样 2026-10-24 按 ARW 重测仍维持 greedy 0/1/20（[报告](../reports/v0.2.2/sampling-dim/summary.md)）；第 9 维窗口 2026-10-24 维持 206584（[报告](../reports/v0.2.2/window-dim/summary.md)）。方法要求（每维 Main 与独立复核一致才采用、第 5/6 维每实例部署条件并冷启动）已写入调参目录与测量规则。rtx4070tis 不套用，新机独立调参。
 - benchmark 场景修复 F1–F6（用户 2026-10-11 批准申请二）：F1（测量交接追加说明）完成；F2/F3 针对已停用的合并实例（2026-10-13 停用，见 `.claude/rules/reviewer-suite.md`），F3 两次试跑暴露的 ARW 缺陷记在 `docs/arw-upstream-issues.md` D，运行层与 provider 写入修复已落地；F4（单场景评分工具）、F5、F6 被多模型 benchmark 取代（四场景全部定稿并按评分 r8.4 重算，[第二阶段报告](../reports/v0.1.45/multi-model-benchmark/phase2/summary.md)），F5 已有实例不并入。
 - ARW 完整四场景 benchmark（只用 IQ3_XXS / high）：被多模型 benchmark 取代，Strata 各臂已跑完。
 - 「ARW 同步与 Spec 恢复」：ARW 已同步到 760007c 并用于多模型 benchmark（完成检查、早退暂停合同在快照上核实，见[计划 §原版依据](../benchmarks/multi-model-v1/plan.md)）；安全门 2026-10-19 在 rtx3080ti 按新源重跑通过（[报告](../reports/v0.1.45/safety-gate-env-fix/summary.md)），新机需自己重跑，在交接文档步骤 6；旧 0.1.40.1 Spec runtime-migration 报告的检查已随合并实例停用而无意义。

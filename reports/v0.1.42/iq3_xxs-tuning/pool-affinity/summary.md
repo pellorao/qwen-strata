@@ -6,7 +6,7 @@
 
 ## 条件
 
-同[第 1 维](../pcie-frac/summary.md)，另加第 1 维胜者（不传 `--pcie-frac`），只改 `--pool-affinity`。执行顺序 auto-1、all-1、all-2、auto-2、all-3、auto-3。冻结计划：[rtx3080ti-iq3_xxs-pool-affinity-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-pool-affinity-plan.json)。
+同[第 1 维](../pcie-frac/summary.md)，另加第 1 维胜者（不传 `--pcie-frac`），只改 `--pool-affinity`。执行顺序 auto-1、all-1、all-2、auto-2、all-3、auto-3。冻结计划：[rtx3080ti-iq3_xxs-pool-affinity-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-pool-affinity-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

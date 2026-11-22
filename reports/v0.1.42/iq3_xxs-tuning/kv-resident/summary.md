@@ -6,7 +6,7 @@
 
 ## 条件
 
-同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--kv-resident`。执行顺序：20480-1、32768-1、12288-1、12288-2、32768-2、20480-2、32768-3、12288-3、20480-3。冻结计划：[rtx3080ti-iq3_xxs-kv-resident-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-kv-resident-plan.json)。
+同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--kv-resident`。执行顺序：20480-1、32768-1、12288-1、12288-2、32768-2、20480-2、32768-3、12288-3、20480-3。冻结计划：[rtx3080ti-iq3_xxs-kv-resident-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-kv-resident-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

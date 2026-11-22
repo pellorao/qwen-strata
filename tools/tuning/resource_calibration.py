@@ -10,7 +10,6 @@ import urllib.error
 
 from tools.strata.engine_log import stop_and_capture_engine_log, log_offset
 from tools.ops.measurement_host import MeasurementHost
-from tools.ops.deployment_source import current_host
 from tools.metrics.prompt_policy import verify_loaded_startup
 from tools.metrics.strata_tokens import engine_rates, task_rates
 from tools.strata.wsl_client import ROOT, save
@@ -127,7 +126,6 @@ def frozen_inputs(plan_path,workload_path):
 
 def experiment_schedule(plan):
     """Admit only the concrete resource comparisons selected in this project."""
-    if plan.get('host')!=current_host():raise ValueError('Resource plan targets another machine')
     dimension=plan['candidate_dimension']
     if plan.get('schema')=='conditions-v2':
         # Each condition names its own engine overrides (null drops a template flag) and environment.
@@ -398,7 +396,7 @@ def run(plan_path,workload_path,out,resume=False):
     plan,workload=frozen_inputs(plan_path,workload_path);out=Path(out);out.mkdir(parents=True,exist_ok=resume)
     progress_path=out/'progress.json'
     progress=json.loads(progress_path.read_text())if resume else{'status':'running','started_at':time.time(),'rows':[],'attempts':[]}
-    host=MeasurementHost(plan['host']);save(out/'source-verification.json',host.verify_sources())
+    host=MeasurementHost();save(out/'source-verification.json',host.verify_sources())
     if host.profile_sha256(plan['baseline']['start_options']['model'])!=plan['default_profile_sha256_verified']:raise RuntimeError('Default profile changed')
     for job in experiment_schedule(plan):
         label=job['label']

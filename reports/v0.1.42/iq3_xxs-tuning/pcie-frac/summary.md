@@ -6,7 +6,7 @@
 
 ## 条件
 
-Strata v0.1.42（61b3fb5），IQ3_XXS，部署渲染的 rtx3080ti 配置（prefill 8192、spec 4、spec-min-p 0.50、int8 KV / resident 20480、23 worker / all、vram-reserve 981、会话暂存 8192 MiB / 4 槽 / 保留 5120 MiB、CPU 辅助 auto），high、思考 8192 / 输出 24576、temperature 0 / top_p 1 / top_k 20，启动提示（已去掉弃用段）`1cae169a…`、压缩提示 `3856cb62…`。每实例冷启动，3 个请求共享约 32K 前缀，各 28 行严格 JSON。执行顺序 measured-1、zero-1、zero-2、measured-2、zero-3、measured-3。冻结计划：[rtx3080ti-iq3_xxs-pcie-frac-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-pcie-frac-plan.json)。
+Strata v0.1.42（61b3fb5），IQ3_XXS，部署渲染的 rtx3080ti 配置（prefill 8192、spec 4、spec-min-p 0.50、int8 KV / resident 20480、23 worker / all、vram-reserve 981、会话暂存 8192 MiB / 4 槽 / 保留 5120 MiB、CPU 辅助 auto），high、思考 8192 / 输出 24576、temperature 0 / top_p 1 / top_k 20，启动提示（已去掉弃用段）`1cae169a…`、压缩提示 `3856cb62…`。每实例冷启动，3 个请求共享约 32K 前缀，各 28 行严格 JSON。执行顺序 measured-1、zero-1、zero-2、measured-2、zero-3、measured-3。冻结计划：[rtx3080ti-iq3_xxs-pcie-frac-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-pcie-frac-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

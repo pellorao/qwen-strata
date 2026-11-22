@@ -20,7 +20,7 @@
   "native_cli_sha256": "b93f6811d3f653f0fb83be4050d857fb9abbb111dfa2ce160563327daff7f306",
   "web_search": "disabled",
   "strata": "per phase: 0.2.12 or 0.2.11 (asserted from installed-release.json before every block)",
-  "engine_defaults": "config/deployments/rtx3080ti.json 的安装默认值，两个条件文件内容相同（生产 model_environment），差别只在已安装的 Strata 版本",
+  "engine_defaults": "config/installation.json 的安装默认值，两个条件文件内容相同（生产 model_environment），差别只在已安装的 Strata 版本",
   "arw_source_manifest": "benchmarks/reviewer-suite-v1/source-snapshots/current/manifest-spec-readiness-v4.3.json",
   "scenario": "Spec Readiness v4.3（修订号 46，冻结；每重复 runtime-migration + artifact-promotion 各一个独立根线程）；ARW 原版 55 分钟提醒、60 分钟中断，不设 T",
   "codex_harness_patches": [

@@ -1,6 +1,5 @@
 {
   "schema_version": 2,
-  "id": "rtx3080ti",
   "cuda_arch": 86,
   "models": [
     "IQ3_XXS"

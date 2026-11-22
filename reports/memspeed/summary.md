@@ -3,7 +3,7 @@
 只测量，生产未改。结论：内存降到 5600 后 decode 速度低约 5-10%（长提示约 5%，噪声内；短提示约 10%，部分提示超出噪声），读入速度低约 3-4%；草稿接受率没有变化。
 
 ## 基线与条件
-- 基线：routeprior2（2026-11-07，内存 6600）速度测量的对照臂 C（不加 `STRATA_ROUTE_PRIOR`，即生产配置），数据 `reports/rtx3080ti/routeprior2/speed.txt`。
+- 基线：routeprior2（2026-11-07，内存 6600）速度测量的对照臂 C（不加 `STRATA_ROUTE_PRIOR`，即生产配置），数据 `reports/routeprior2/speed.txt`。
 - 本次：同一驱动 `routeprior2/driver2.py` 的 speed 模式（输出目录名与调度改为 C×3），同样的提示（4 个短提示、M 2.89 万 token、L 11.9 万 token ×3）、关思考、温度 0、各 700 token、每次冷加载后先预热。
 - 一致：代码与配置（`git log -- src config` 最近改动 2026-11-04，早于基线）、模型、量化、同一临时进程方式（127.0.0.1:8199，停前端）、提示文本、重复次数（C 臂 3 次冷加载）。
 - 差异：内存 6600 → 5600（ConfiguredClockSpeed 已确认 5600）；基线的 C 臂是 6 次加载中的第 1、4、5 次，本次是连续 3 次；基线当天主机状态不可复现。基线只留下汇总，没有逐次读入速度（speed.txt 的 read 列为 None），读入对比只能用报告里写的 L 约 2640 tok/s。

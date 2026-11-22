@@ -15,7 +15,7 @@
     "effort": "high",
     "context_window": 156584,
     "auto_compact_token_limit": 100000,
-    "engine_defaults": "config/deployments/rtx3080ti.json 中 IQ3_XXS 的当前默认值（含第 5、6 维胜者；第 9 维时还含第 2、3 项的结果），每个实例绑定部署后 config/deployment.json 与 iq3_xxs-prebuilt.json 的 SHA",
+    "engine_defaults": "config/installation.json 中 IQ3_XXS 的当前默认值（含第 5、6 维胜者；第 9 维时还含第 2、3 项的结果），每个实例绑定部署后 config/deployment.json 与 iq3_xxs-prebuilt.json 的 SHA",
     "startup_instructions": "config/prompts/startup-instructions.txt（去掉防循环段），compact-prompt.txt 接入；开跑前核对已安装 SHA",
     "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
     "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
@@ -102,7 +102,7 @@
       "scope_change": "2026-10-12 第 3 项决定 256584 不发布（200K 合成检索 6 实例同一记录错误），按 prerequisite 整列删除 window-256584，原 3×3 拉丁方改为 ABBAAB；已发布档位为 156584/100000、206584/150000"
     }
   ],
-  "after_dimension": "Main 与独立复核意见一致才采用：把胜者写入 config/deployments/rtx3080ti.json 的 model_overrides.IQ3_XXS / model_environment.IQ3_XXS 并提交，再无条件部署；不一致或默认胜出时直接无条件部署恢复默认。下一维的条件叠加在新的默认值上。",
+  "after_dimension": "Main 与独立复核意见一致才采用：把胜者写入 config/installation.json 的 model_overrides.IQ3_XXS / model_environment.IQ3_XXS 并提交，再无条件部署；不一致或默认胜出时直接无条件部署恢复默认。下一维的条件叠加在新的默认值上。",
   "benchmark_f6": {
     "scope": "四场景各 5 个实例，全部用今晚调好的默认值（部署默认，不带条件），IQ3_XXS / high，ARW 持有模型",
     "order": [

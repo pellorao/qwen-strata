@@ -94,9 +94,9 @@ class DeployTests(unittest.TestCase):
     def test_private_file_carries_only_the_brave_key(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root/'project.private.toml').write_text('[brave]\napi_key = "k\\"1"\n[hosts.x]\ninstallation_path = "C:\\\\x"\n')
+            (root/'project.private.toml').write_text('[brave]\napi_key = "k\\"1"\n[installation]\ninstallation_path = "C:\\\\x"\n')
             self.assertEqual(tomllib.loads(private_bytes(root).decode()), {'brave': {'api_key': 'k"1'}})
-            (root/'project.private.toml').write_text('[hosts.x]\n')
+            (root/'project.private.toml').write_text('[installation]\n')
             with self.assertRaisesRegex(ValueError, 'api_key'):
                 private_bytes(root)
 
@@ -110,23 +110,22 @@ class DeployTests(unittest.TestCase):
         self.assertEqual(len(set(manual.values())), 4)
 
     def test_docs_only_deploy_updates_only_its_manifest_entries(self):
-        old = {'deployment': 'h', 'source': 'maintenance project only', 'condition': {'id': 'c', 'sha256': 'x'},
+        old = {'source': 'maintenance project only', 'condition': {'id': 'c', 'sha256': 'x'},
                'files': {'a': {'source': 'sa', 'sha256': '1'}, 'README.md': {'source': 'old', 'sha256': '2'}}}
         new = {'README.md': 'src/readme', 'docs/manuals/caller-manual.md': 'src/manual'}
         actual = {'README.md': '3', 'docs/manuals/caller-manual.md': '4'}
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            deploy.write_manifest(root, 'h', None, None, new, actual, True)
+            deploy.write_manifest(root, None, None, new, actual, True)
             self.assertFalse((root / 'deployment-manifest.json').exists())
             (root / 'deployment-manifest.json').write_text(json.dumps(old))
-            deploy.write_manifest(root, 'h', None, None, new, actual, True)
+            deploy.write_manifest(root, None, None, new, actual, True)
             manifest = json.loads((root / 'deployment-manifest.json').read_text())
             self.assertEqual(manifest['condition'], old['condition'])
-            self.assertEqual(manifest['deployment'], 'h')
             self.assertEqual(manifest['files'], {'README.md': {'source': 'src/readme', 'sha256': '3'},
                                                  'a': {'source': 'sa', 'sha256': '1'},
                                                  'docs/manuals/caller-manual.md': {'source': 'src/manual', 'sha256': '4'}})
-            deploy.write_manifest(root, 'h', None, None, new, actual, False)
+            deploy.write_manifest(root, None, None, new, actual, False)
             self.assertEqual(set(json.loads((root / 'deployment-manifest.json').read_text())['files']), set(actual))
 
     def test_installation_local_config_is_never_replaced_or_removed(self):

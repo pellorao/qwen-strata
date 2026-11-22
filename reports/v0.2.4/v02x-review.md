@@ -25,7 +25,7 @@ worker（Opus high）报告，Main 整理存档。来源：`artifacts/strata/0.2
 
 | 0.2.x 功能 | 本工程适配 | 判断 | 建议 |
 |---|---|---|---|
-| 模型卡采样默认值 | `config/deployments/rtx3080ti.json` installation_defaults | 要补显式值 | 做（结论 1） |
+| 模型卡采样默认值 | `config/installation.json` installation_defaults | 要补显式值 | 做（结论 1） |
 | sm_86 解码开关表 | `src/model_process.py` ENVIRONMENT；`STRATA_ADAPT_LAG: 2` | 有一项重复，保留 | 按块交替 A/B |
 | `--prompt-cache-tail`、message boundary | `src/model_process.py` 白名单 | 可能改进 | 先离线统计 |
 | 工具调用解析改进（0.2.2–0.2.4） | `src/hosted_search.py`、`src/output_limit.py` | 不受影响 | 继续在会话检查里统计 |

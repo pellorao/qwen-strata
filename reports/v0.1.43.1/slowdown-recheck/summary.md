@@ -41,6 +41,6 @@
 ## 运行过程
 
 - 排程：runner（`tools.tuning.resource_calibration`）要求至少两个条件，所以用两个完全相同的条件 same-a 和 same-b，按 a b b a 排成 4 次，合起来作为同一负载的样本。计划原定 ×3，实际多跑了 1 次。
-- 冻结输入校验通过：负载 SHA、专家 profile 都与 10-12 一致。来源 SHA 中只有 `config/deployments/rtx3080ti.json` 变了（ecdd132 调换了档位顺序）；本计划显式指定了 `max-context`，不受影响。
+- 冻结输入校验通过：负载 SHA、专家 profile 都与 10-12 一致。来源 SHA 中只有 `config/installation.json` 变了（ecdd132 调换了档位顺序）；本计划显式指定了 `max-context`，不受影响。
 - 实际加载的提示：启动提示 1cae169a，压缩提示 3856cb62。每次都冷加载，KV 驻留 20480/156584。
 - 4 次都有效。租约已归还，模型已停。

@@ -1,4 +1,4 @@
-"""Host-bound frontend and log access for measurements; project files remain sources."""
+"""Frontend and log access to the local installation for measurements; project files remain sources."""
 import argparse
 import copy
 import hashlib
@@ -7,7 +7,7 @@ from pathlib import Path, PureWindowsPath
 import subprocess
 
 from tools.ops.controller_client import Controller
-from tools.ops.deployment_source import load_host, model_configuration, require_current_host, source_bytes
+from tools.ops.deployment_source import load_host, model_configuration, source_bytes
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -33,25 +33,21 @@ print(json.dumps(rows))
 class MeasurementHost:
     condition = None
 
-    def __init__(self, identifier, installation=None, condition=None):
+    def __init__(self, installation=None, condition=None):
         """`condition` is the tuning condition deployed for this run; sources are checked with it overlaid.
-        Only this machine's host: a measurement reaches the installation, logs and engine through the local Windows
-        side, so a run aimed at another host is refused rather than measuring the wrong machine."""
-        self.identifier, self.condition = require_current_host(identifier), condition
-        self.deployment = load_host(identifier, condition=condition)
+        A measurement reaches the installation, logs and engine through the local Windows side."""
+        self.condition = condition
+        self.deployment = load_host(condition=condition)
         self.windows_root = PureWindowsPath(self.deployment['installation_root'])
         self.installation = local_path(self.windows_root)
         if installation is not None and Path(installation) != self.installation:
-            raise ValueError('Installation differs from the selected host; use private host configuration')
+            raise ValueError('Installation differs from the configured one; use project.private.toml')
 
     def _remote(self, code, arguments=()):
-        """Run read-only Python on the host's Windows side with the installation runtime; return its JSON stdout.
-
-        WSL interop reaches only the Windows side of this machine, so this host must be the local one.
-        """
+        """Run read-only Python on the Windows side with the installation runtime; return its JSON stdout."""
         python = self.installation / 'runtime/Strata/.venv/Scripts/python.exe'
         if not python.is_file():
-            raise RuntimeError('Host Windows side is not reachable from this machine')
+            raise RuntimeError('The Windows side is not reachable from this machine')
         reply = subprocess.run([str(python), '-I', '-c', code, *arguments], cwd='/mnt/c',
                                capture_output=True, text=True, encoding='utf-8',
                                errors='replace', timeout=120, check=True)
@@ -61,11 +57,11 @@ class MeasurementHost:
         return Controller(self.installation, folder, base_url=self.deployment['frontend_url'])
 
     def metadata(self):
-        return {'host_id': self.identifier, 'hardware': self.deployment.get('hardware'),
+        return {'hardware': self.deployment.get('hardware'),
                 'hardware_source_overrides': self.deployment['engine_overrides'],
                 'installation_root': str(self.windows_root),
                 'deployment_condition': self.condition,
-                'source': 'project deployment templates and host configuration'}
+                'source': 'project deployment templates and installation configuration'}
 
     def installed_release(self):
         """Read public upstream version metadata without using it as a source."""
@@ -79,22 +75,22 @@ class MeasurementHost:
 
     def verify_sources(self):
         from tools.ops.deploy import deployment_files, obsolete_files
-        expected = {target: hashlib.sha256(source_bytes(source, self.identifier, condition=self.condition)).hexdigest()
+        expected = {target: hashlib.sha256(source_bytes(source, condition=self.condition)).hexdigest()
                     for target, source in deployment_files(self.deployment).items()}
         actual = {target: hashlib.sha256((self.installation / target).read_bytes()).hexdigest()
                   for target in expected}
         if actual != expected:
-            raise RuntimeError('Installed public sources differ from this host project deployment')
+            raise RuntimeError('Installed public sources differ from the project deployment')
         left = [target for target in obsolete_files(self.deployment) if (self.installation / target).exists()]
         if left:
             raise RuntimeError('Installation still holds retired or unserved-model files: ' + ', '.join(left))
         return {'files': actual, 'source_sha_verified': True, **self.metadata()}
 
     def configuration(self, model):
-        expected = model_configuration(model, self.identifier, condition=self.condition)
+        expected = model_configuration(model, condition=self.condition)
         actual = json.loads(self.read_deployed_bytes('config/' + model.lower() + '-prebuilt.json'))
         if actual != expected:
-            raise RuntimeError('Installed model configuration differs from its host project source')
+            raise RuntimeError('Installed model configuration differs from its project source')
         return expected
 
     def profile_sha256(self, model):
@@ -133,39 +129,37 @@ class MeasurementHost:
             return stream.read()
 
 
-def host_selection(source, identifier):
-    """Freeze host hardware values before a run; never silently change them in run."""
+def host_selection(source):
+    """Freeze hardware values before a run; never silently change them in run."""
     result = copy.deepcopy(source)
-    deployment = load_host(require_current_host(identifier))
+    deployment = load_host()
     if result.get('model_owner') != 'arw':
         # ARW-owned runs start the model with the installation defaults, recorded in the preflight receipt.
         result['engine_overrides'].update(deployment['engine_overrides'])
-    result['host_id'] = identifier
     result['host_hardware'] = deployment.get('hardware')
     return result
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--host', required=True)
     parser.add_argument('--selection', type=Path)
     parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=False)
-    selection = args.selection and host_selection(json.loads(args.selection.read_text(encoding='utf-8')), args.host)
-    host = MeasurementHost(args.host, condition=selection and selection.get('deployment_condition'))
+    selection = args.selection and host_selection(json.loads(args.selection.read_text(encoding='utf-8')))
+    host = MeasurementHost(condition=selection and selection.get('deployment_condition'))
     if selection:
         (args.out / 'selection.json').write_text(json.dumps(selection, ensure_ascii=False, indent=2) + '\n')
     receipt = host.verify_sources()
     health = host.controller(args.out / 'controller').call('/health', timeout=15)
     if health.get('lease') != 'free':
-        raise RuntimeError('Selected host is leased; do not displace its holder')
+        raise RuntimeError('The frontend is leased; do not displace its holder')
     # The frontend keeps a released model resident (idle stop after 30 minutes); report it, never assume a stopped engine.
     receipt.update(lease='free', resident_model=health.get('model'), generation_requests=0,
                    model_configurations={m: host.configuration(m) for m in host.deployment['models']},
                    default_profile_sha256={m: host.profile_sha256(m) for m in host.deployment['models']})
     (args.out / 'preflight.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n')
-    print(json.dumps({'host': args.host, 'source_files': len(receipt['files']), 'lease': 'free',
+    print(json.dumps({'source_files': len(receipt['files']), 'lease': 'free',
                       'resident_model': receipt['resident_model'], 'generation_requests': 0}))
 
 

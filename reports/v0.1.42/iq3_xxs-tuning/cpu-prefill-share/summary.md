@@ -6,7 +6,7 @@
 
 ## 条件
 
-同[第 1 维](../pcie-frac/summary.md)，加前五维胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192），只改环境变量。每个实例从唯一的 strata.exe 进程读到的环境变量与条件一致。执行顺序 0-1、auto-1、auto-2、0-2、auto-3、0-3。冻结计划：[rtx3080ti-iq3_xxs-cpu-share-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-cpu-share-plan.json)。
+同[第 1 维](../pcie-frac/summary.md)，加前五维胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192），只改环境变量。每个实例从唯一的 strata.exe 进程读到的环境变量与条件一致。执行顺序 0-1、auto-1、auto-2、0-2、auto-3、0-3。冻结计划：[rtx3080ti-iq3_xxs-cpu-share-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-cpu-share-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

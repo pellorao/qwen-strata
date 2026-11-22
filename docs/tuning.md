@@ -1,12 +1,12 @@
 # 参数选择与专家 profile
 
-更新：2026-10-17 校对开头说明、引擎参数表与当前上下文段；其余章节（含下方性能对照）保持原写作时点，数字不改。这里记录配置、已有对照与测量边界。每机完整选择覆盖及校准方法见[调参目录](host-tuning/README.md)。
+更新：2026-10-17 校对开头说明、引擎参数表与当前上下文段；其余章节（含下方性能对照）保持原写作时点，数字不改。这里记录配置、已有对照与测量边界。每机完整选择覆盖及校准方法见[调参目录](calibration/README.md)。
 
 **每台机器只对外提供一个模型，rtx3080ti 为 IQ3_XXS**（README「现行决定」，用户 2026-10-19）；Q2_0、IQ2_XS 权重保留，默认不再运行或测试，除非用户提出专门针对它们的任务。维护基线 = 本机唯一对外模型 + 部署默认值，不再单独成文件（B1，用户 2026-10-19）；原 Q2_0 维护基线文件已删除，历史内容用 `git show ff94f3c:config/maintenance-baseline.json` 查看。本文下方章节写于 Q2_0 为默认、Strata v0.1.40.x 时期，其中"已有性能对照""模型量化"的数字是当时（Q2_0 基线、v0.1.36–v0.1.38）的历史测量，不代表当前默认。
 
 ## 引擎参数
 
-下表分两列：服务默认（rtx3080ti、IQ3_XXS，来自[每机部署配置](../config/deployments/rtx3080ti.json)与[IQ3 预置模板](../config/templates/iq3_xxs-prebuilt.json)，也是现行维护基线）和已退役的 Q2_0 维护测量基线（2026-10-19 删除，`git show ff94f3c:config/maintenance-baseline.json`，参数继承 v0.1.38，只作历史对照）。两者按"主机 + 量化"各自绑定，不互相套用。
+下表分两列：服务默认（rtx3080ti、IQ3_XXS，来自[每机部署配置](../config/installation.json)与[IQ3 预置模板](../config/templates/iq3_xxs-prebuilt.json)，也是现行维护基线）和已退役的 Q2_0 维护测量基线（2026-10-19 删除，`git show ff94f3c:config/maintenance-baseline.json`，参数继承 v0.1.38，只作历史对照）。两者按"主机 + 量化"各自绑定，不互相套用。
 
 | 参数 | 服务默认 rtx3080ti / IQ3_XXS | 历史 Q2_0 维护基线（已退役） |
 |---|---|---|
@@ -14,13 +14,13 @@
 | 上下文档 / 自动压缩 | 206584 / 150000（现行决定，2026-10-14）；备用档 156584 / 100000 | 156584 / 100000 |
 | 推理强度及思考上限 | 三档 low 2048／8192、medium 4096／16384、high 8192／24576（思考／总输出），guardian 512／1024（现行决定，2026-10-12） | 用户选定 high：8192 / 24576 |
 | KV / resident | int8（模板）/ 20480 | int8 / 20480 |
-| prefill | 8192（rtx3080ti IQ3 调参结果：16384 在 12 GB 卡上会被引擎降为 8192，不可行，[证据](host-tuning/rtx3080ti.md)；部署配置覆盖模板的 16384） | 16384 |
-| expert cache / CPU workers / pcie-frac | auto / 23（pool-affinity all）/ pcie-frac 置空即引擎实测（rtx3080ti IQ3 调参采用，比固定 0 引擎输出快 11.1%，[证据](host-tuning/rtx3080ti.md)；模板为 0） | auto / 23 / 0 |
-| MTP | spec 4；spec-min-p 0.9（rtx3080ti IQ3 调参采用，四值中最快，[证据](host-tuning/rtx3080ti.md)；模板为 0.50）；CJK draft vocab | spec 4；spec-min-p 0.7 |
+| prefill | 8192（rtx3080ti IQ3 调参结果：16384 在 12 GB 卡上会被引擎降为 8192，不可行，[证据](calibration/installation.md)；部署配置覆盖模板的 16384） | 16384 |
+| expert cache / CPU workers / pcie-frac | auto / 23（pool-affinity all）/ pcie-frac 置空即引擎实测（rtx3080ti IQ3 调参采用，比固定 0 引擎输出快 11.1%，[证据](calibration/installation.md)；模板为 0） | auto / 23 / 0 |
+| MTP | spec 4；spec-min-p 0.9（rtx3080ti IQ3 调参采用，四值中最快，[证据](calibration/installation.md)；模板为 0.50）；CJK draft vocab | spec 4；spec-min-p 0.7 |
 | 显存预留 | `vram-reserve-mib=512`（现行决定，2026-10-11） | 700（基线文件；部署配置中 Q2_0 为 512） |
 | 专家 profile | 默认 | 默认 |
 
-"IQ3_XXS 8 维调参结果为默认值"见[rtx3080ti 调参](host-tuning/rtx3080ti.md)；本表数值取自上述配置文件，已和调参证据核对一致；模板保留的是调参前的预置值，实际服务以部署配置为准。IQ2 特有设置 `STRATA_PF_FUSED=1`（实际日志确认）为 v0.1.40 时期记录，未重新核对。IQ3_XXS 另有环境变量 `STRATA_ADAPT_LAG=2`（部署配置）。
+"IQ3_XXS 8 维调参结果为默认值"见[rtx3080ti 调参](calibration/installation.md)；本表数值取自上述配置文件，已和调参证据核对一致；模板保留的是调参前的预置值，实际服务以部署配置为准。IQ2 特有设置 `STRATA_PF_FUSED=1`（实际日志确认）为 v0.1.40 时期记录，未重新核对。IQ3_XXS 另有环境变量 `STRATA_ADAPT_LAG=2`（部署配置）。
 
 `pcie-frac` 控制缺失专家分配给CPU/GPU的比例，0不关闭其他GPU计算。当前为native GGUF pack，日志含默认Q5_K head；不能称为禁用了所有native projection。CPU无AVX-512，canonical Q2融合性能声明不能直接套用rtx4070tis。
 
@@ -150,7 +150,7 @@ v0.1.40.1完整原版Commit Audit基础组三次已闭合，新交接保留两Ga
 
 ## RTX 3080 Ti专用主机的资源校准待办
 
-资源校准的覆盖、候选、逐组预算、部署来源前置和当前待办统一在[每机／模型调参目录](host-tuning/README.md)维护，本节保存来源调查与已结束测量的结论。CPU、RAM和VRAM利用以实际任务吞吐及正确性为依据，不以占用率证明最优；不同主机或同机不同模型均独立选择。
+资源校准的覆盖、候选、逐组预算、部署来源前置和当前待办统一在[每机／模型调参目录](calibration/README.md)维护，本节保存来源调查与已结束测量的结论。CPU、RAM和VRAM利用以实际任务吞吐及正确性为依据，不以占用率证明最优；不同主机或同机不同模型均独立选择。
 
 2026-10-07在rtx3080ti第二场运行中作三秒只读采样：实际24物理核／32逻辑处理器；两秒计算段全机CPU75.7—76.1%，Strata占全机74.3—74.7%，24条逻辑处理器接近100%；后一秒CPU约17%，说明负载随阶段变化，这不是长期均值。RAM使用44.8GiB左右、可用18.9GiB左右，GPU100%、显存11444MiB／12288MiB。资源已大量使用，但这些短样本不能证明最佳线程、缓存分配或瓶颈；没有因此更改配置或追加模型请求。完整临时遥测按当前批次保存，不作为已闭合性能测量报告。
 
@@ -172,7 +172,7 @@ rtx3080ti已结束运行的启动日志显示31.64GiB专家arena已加载并由C
 | [#74 RTX 3080 Laptop诊断](https://github.com/Niko1221/Strata/issues/74) | 2026-09-28—29；i7-10870H、DDR4-2666、engine0.1.18、IQ3_S | 提醒内存带宽、专家命中和PCIe的重要性；它不是桌面3080 Ti。本工程两台已是DDR5-6600，不能机械套用启用XMP或减少线程建议。 |
 | [固定版本DETAILS](https://github.com/Niko1221/Strata/blob/v0.1.40.1/docs/DETAILS.md)及[setup源码](https://github.com/Niko1221/Strata/blob/v0.1.40.1/setup.py) | 当前安装对应版本 | 官方指出worker需按机器校准；8P＋16E的setup建议为15，但显式23不会被覆盖。该建议面向其默认布局，不能将15/auto解释成P核加一半E核。官方全量calibrate会直接启停引擎并比较更多维度，本工程不直接执行它。 |
 
-首轮具体方案见[冻结提案](../benchmarks/resource-calibration-v1/rtx3080ti-cpu-affinity.json)及[工作负载规则](../benchmarks/resource-calibration-v1/protocol.md)：仅rtx3080ti，23worker固定，比较`pool-affinity=auto`／`all`，每条件三个独立实例，共六实例、18项逻辑请求；交错顺序auto1/all1/all2/auto2/auto3/all3。用户材料约32K，787条合成记录；三个用户输入离线BPE计数33006／33014／33203，每次完整检查28条JSON结果。期望答案不加入请求，不做正式ARW评分。保持Q2_0/high/default/no-save、8192／24576预算、当前采样、全量基础提示和其他rtx3080ti硬件参数，逐次记录内部三类token、四速度、工作耗时及失败。基础启动及工程／Codex压缩补充绑定已保存，不注入普通生成摘要指令。
+首轮具体方案见[冻结提案](../benchmarks/resource-calibration-v1/cpu-affinity.json)及[工作负载规则](../benchmarks/resource-calibration-v1/protocol.md)：仅rtx3080ti，23worker固定，比较`pool-affinity=auto`／`all`，每条件三个独立实例，共六实例、18项逻辑请求；交错顺序auto1/all1/all2/auto2/auto3/all3。用户材料约32K，787条合成记录；三个用户输入离线BPE计数33006／33014／33203，每次完整检查28条JSON结果。期望答案不加入请求，不做正式ARW评分。保持Q2_0/high/default/no-save、8192／24576预算、当前采样、全量基础提示和其他rtx3080ti硬件参数，逐次记录内部三类token、四速度、工作耗时及失败。基础启动及工程／Codex压缩补充绑定已保存，不注入普通生成摘要指令。
 
 预计首轮总计25—45分钟，含加载、实际请求、核查和报告：旧rtx3080tiQ2加载约19秒，既有引擎输入约2616／输出86 token/s，首次约32K输入在该速率下约13秒；后两项可复用共同前缀，输出为数十条JSON，实际思考长度仍不确定。每项累计工作上限150秒，18项全到时限时模型工作本身可达45分钟，另加加载／收尾，不能把估计当硬上限；超出预期报告原因和消耗，同一工作故障恢复沿用授权。该段为首轮开跑前的估算，首轮随后获批并闭合，实际结果见下文。worker数量九实例也已获批完成，RAM／VRAM维度另行列出少量候选，不自动扩展矩阵。rtx4070tis十二次Spec范围已获批，当前原生沙箱门未通过，具体恢复差异待决定。
 
@@ -184,7 +184,7 @@ rtx3080ti已结束运行的启动日志显示31.64GiB专家arena已加载并由C
 用户确认重启后通过公开入口恢复rtx3080ti控制器。首个auto1只有一次未使用的加载：驱动误要求默认提示回执的enabled字段，实际完整SHA正确、生成请求0、内部段0；共享校验修复后直接按原授权接续，7次实际启动／6个有效实例，原尝试及额外加载单列。六次全部正常停模归还，profile及26文件回读未变。rtx4070tis同时完成十二次Spec方案、隔离源码准备和无模型回归；两条任务独立，不再等待rtx3080ti全部调优后才规划rtx4070tis。
 
 
-`all`只改变CPU专家线程的亲和性／核心选择：在此8P＋16E机器、23worker＋host下，auto为7个P核主线程＋8个P核SMT兄弟＋8个E核，all为7个P核主线程＋16个E核；host占剩余一个P核。线程数23不变，GPU／RAM预算、采样、提示和其他选项不变；此轮仅进程实验，没有写入安装默认。下一轮[worker提案](../benchmarks/resource-calibration-v1/rtx3080ti-worker-plan.json)临时固定all比较23/15/12，各三次，共九新实例／27项逻辑请求，30—50分钟预算；重新测控制组，九实例现已闭合，结果见下文。两台结果独立，rtx4070tis安全前置同时推进。
+`all`只改变CPU专家线程的亲和性／核心选择：在此8P＋16E机器、23worker＋host下，auto为7个P核主线程＋8个P核SMT兄弟＋8个E核，all为7个P核主线程＋16个E核；host占剩余一个P核。线程数23不变，GPU／RAM预算、采样、提示和其他选项不变；此轮仅进程实验，没有写入安装默认。下一轮[worker提案](../benchmarks/resource-calibration-v1/worker-plan.json)临时固定all比较23/15/12，各三次，共九新实例／27项逻辑请求，30—50分钟预算；重新测控制组，九实例现已闭合，结果见下文。两台结果独立，rtx4070tis安全前置同时推进。
 
 
 ### rtx3080tiworker数量结果（2026-10-07）
@@ -194,7 +194,7 @@ rtx3080ti已结束运行的启动日志显示31.64GiB专家arena已加载并由C
 
 ### rtx3080ti23/all采用与部署（2026-10-07）
 
-用户明确同意使用23/all，已将rtx3080ti`config/deployments/rtx3080ti.json`设为23worker／all，并从工程模板分别同步rtx4070tis和RTX3080Ti。rtx3080ti三量化配置及rtx3080ti运行基线使用23/all，rtx4070tis仍按rtx4070tis模板保持23/auto。每台26文件回读、控制器重载及独占归还完成，无模型请求，下一次启动生效。完整精度[部署核查](../reports/v0.1.40.1/resource-calibration/selected-deployment.json)单独保存，不改写此前实验时“默认未变”的历史事实；当前性能依据仅Q2_0约32K合成任务，不宣称其他量化／长Reviewer均已验证收益。RAM／VRAM待单独比较。
+用户明确同意使用23/all，已将rtx3080ti`config/installation.json`设为23worker／all，并从工程模板分别同步rtx4070tis和RTX3080Ti。rtx3080ti三量化配置及rtx3080ti运行基线使用23/all，rtx4070tis仍按rtx4070tis模板保持23/auto。每台26文件回读、控制器重载及独占归还完成，无模型请求，下一次启动生效。完整精度[部署核查](../reports/v0.1.40.1/resource-calibration/selected-deployment.json)单独保存，不改写此前实验时“默认未变”的历史事实；当前性能依据仅Q2_0约32K合成任务，不宣称其他量化／长Reviewer均已验证收益。RAM／VRAM待单独比较。
 
 ## RTX 3080 Ti PLE IO比较（v0.1.40.1）
 
@@ -224,4 +224,4 @@ rtx4070tis三次循环总次数14／29／26，旧基线0／393／17，原极端�
 
 用户明确采用rtx3080tiCPU辅助auto，并指定安装预置窗口156584、high及对应8192／24576预算；其已确认采样0／1／20也进入每机生成默认。26文件回读和控制器重载、真实已安装代码空启动覆盖的参数渲染通过，0新模型调用。rtx4070tis预置与其当前模型冻结条件不改；共用代码／手册的rtx4070tis副本因持有者忙碌待同步，详见[默认核查](../reports/v0.1.40.1/installation-defaults.json)。
 
-spec-min-p0.7来自早期rtx4070tis对照，不作为rtx3080ti已选优事实。尚未运行的参数计划及每机／模型前置统一见[调参目录](host-tuning/README.md)，不在本记录重复维护。
+spec-min-p0.7来自早期rtx4070tis对照，不作为rtx3080ti已选优事实。尚未运行的参数计划及每机／模型前置统一见[调参目录](calibration/README.md)，不在本记录重复维护。

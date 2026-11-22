@@ -6,7 +6,7 @@
 
 ## 条件
 
-同[第 1 维](../pcie-frac/summary.md)，加前两维胜者（不传 `--pcie-frac`、`--pool-affinity all`），只改 `--pool-workers`。绑核：主机线程在 0，7 个 P 核首线程（2–14）都用；23 / 15 / 12 只差 E 核数（16–31 / 16–23 / 16–20）。执行顺序 23-1、15-1、12-1、12-2、15-2、23-2、15-3、12-3、23-3。冻结计划：[rtx3080ti-iq3_xxs-pool-workers-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-pool-workers-plan.json)。
+同[第 1 维](../pcie-frac/summary.md)，加前两维胜者（不传 `--pcie-frac`、`--pool-affinity all`），只改 `--pool-workers`。绑核：主机线程在 0，7 个 P 核首线程（2–14）都用；23 / 15 / 12 只差 E 核数（16–31 / 16–23 / 16–20）。执行顺序 23-1、15-1、12-1、12-2、15-2、23-2、15-3、12-3、23-3。冻结计划：[rtx3080ti-iq3_xxs-pool-workers-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-pool-workers-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

@@ -15,7 +15,7 @@
   "effort": "medium",
   "context_window": 156584,
   "auto_compact_token_limit": 100000,
-  "engine_defaults": "config/deployments/rtx3080ti.json 中 IQ3_XXS 的当前默认值（方案 A 已回滚，6657937：medium 思考 4096、总输出 16384；high 8192/24576；guardian 1536/2048；fit_max_tokens 开），每个实例绑定部署后 config/deployment.json 与 iq3_xxs-prebuilt.json 的 SHA",
+  "engine_defaults": "config/installation.json 中 IQ3_XXS 的当前默认值（方案 A 已回滚，6657937：medium 思考 4096、总输出 16384；high 8192/24576；guardian 1536/2048；fit_max_tokens 开），每个实例绑定部署后 config/deployment.json 与 iq3_xxs-prebuilt.json 的 SHA",
   "startup_instructions": "config/prompts/startup-instructions.txt（去掉防循环段），compact-prompt.txt 接入；开跑前核对已安装 SHA",
   "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
   "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",

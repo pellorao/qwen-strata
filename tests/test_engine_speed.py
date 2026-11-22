@@ -79,7 +79,7 @@ class EngineSpeedTests(unittest.TestCase):
 
     def test_errors_never_leak_private_text(self):
         secret = '/mnt/c/private-install-root'
-        with patch('tools.ops.deployment_source.current_host', side_effect=ValueError(secret)), \
+        with patch('tools.ops.measurement_host.load_host', side_effect=ValueError(secret)), \
                 patch.object(sys, 'argv', ['engine_speed', '--since', '2026-11-09T06:00:00']):
             with self.assertRaises(SystemExit) as caught:
                 engine_speed.main()

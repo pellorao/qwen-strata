@@ -27,7 +27,7 @@ benchmark 前置工作第 2–4 项要求 Codex 和 Claude Code 两条路径用�
 
 ## 假服务器核对
 
-工具：`python3 -m tools.ops.claude_compact_probe`。环境变量直接取自工程 `scripts/wsl/qwen-agent` 的 `claude()`，与日常启动时相同；档位取 `config/deployments/rtx3080ti.json` 发布的首档。
+工具：`python3 -m tools.ops.claude_compact_probe`。环境变量直接取自工程 `scripts/wsl/qwen-agent` 的 `claude()`，与日常启动时相同；档位取 `config/installation.json` 发布的首档。
 
 两种进入方式：
 - 两回合：第 1 回合的回复声明输入 N，第 2 回合用 `--continue`，看先压缩还是直接发送；

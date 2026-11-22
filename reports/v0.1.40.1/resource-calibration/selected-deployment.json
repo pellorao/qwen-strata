@@ -2,7 +2,7 @@
   "status": "user-selected-remote23-all-deployed-and-readback-verified",
   "checked_at": 1791377493.6158447,
   "decision": "同意使用 23/all",
-  "source": "config/deployments/rtx3080ti.json",
+  "source": "config/installation.json",
   "checks": [
     {
       "host": "local",

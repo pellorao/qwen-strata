@@ -28,7 +28,7 @@ SERVICE_TIERS = ('default', 'flex', 'priority')
 WEB_SEARCH_MODES = ('disabled', 'cached', 'live')
 # Strata-only selection fields: engine, lease and frontend settings that an API provider cannot honor.
 STRATA_ONLY = ('model_owner', 'engine_overrides', 'engine_environment', 'sampling', 'deployment_condition',
-               'loop_reminder', 'loop_prevention_instructions', 'automatic_continuation', 'host_id', 'host_hardware')
+               'loop_reminder', 'loop_prevention_instructions', 'automatic_continuation', 'host_hardware')
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 

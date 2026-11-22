@@ -6,7 +6,7 @@
 
 ## 条件
 
-同前几维：32K 合成负载、每实例 3 个请求，加已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9），只改环境变量。每个实例都从唯一的 strata.exe 进程读回实际环境：2 组为 `"2"`，不设置组为不存在。执行顺序 不设置-1、2-1、2-2、不设置-2、2-3、不设置-3。冻结计划：[rtx3080ti-iq3_xxs-adapt-lag-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-adapt-lag-plan.json)。
+同前几维：32K 合成负载、每实例 3 个请求，加已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9），只改环境变量。每个实例都从唯一的 strata.exe 进程读回实际环境：2 组为 `"2"`，不设置组为不存在。执行顺序 不设置-1、2-1、2-2、不设置-2、2-3、不设置-3。冻结计划：[rtx3080ti-iq3_xxs-adapt-lag-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-adapt-lag-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 
@@ -29,7 +29,7 @@
 
 - Main：采用 2。理由是单次范围不重叠，去掉冷启动后仍快约 6%，正确性和资源没有代价。
 - 独立复核 agent（Opus）：同意采用，但认为证据强度中等，草稿 +8.3% 偏大，真实提速估计 +3–5%。指出排程偏差，建议后续 ARW 运行中若解码低于同场景基线（约 104 token/s），或出现 GPU 复位、停顿，就删除该变量。
-- 结果：双方一致，写入 `config/deployments/rtx3080ti.json` 的 `model_environment.IQ3_XXS`（新增字段，只作用于这台机器的 IQ3_XXS）并部署。
+- 结果：双方一致，写入 `config/installation.json` 的 `model_environment.IQ3_XXS`（新增字段，只作用于这台机器的 IQ3_XXS）并部署。
 
 ## 数据
 

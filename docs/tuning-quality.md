@@ -28,9 +28,9 @@ Strata 的调参有两个目标（用户 2026-11-08）：**提高速度**（见[
 | 2026-10-12 | 思考上限三档 | 采用，保留回滚方案 A | [历史](work-history.md) |
 | 2026-10-14 | 窗口 206584 / 压缩 150000 | 采用；156584/100000 保留可选 | [窗口报告](../reports/v0.1.42/iq3_xxs-tuning/window/summary.md) |
 | 2026-10-11 起 | 速度类参数的分数把关 | spec-min-p 0.9、adapt-lag 2 等按引擎输出选择，分数只查异常 | [提速页](tuning-speed.md) |
-| 2026-11-03 | 草稿器钉死 MTP | 不影响输出内容的取舍，质量无变化证据 | [主机说明](hosts/rtx3080ti.md) |
-| 2026-11-07/08 | `STRATA_ROUTE_PRIOR=1.5`（Code Spec v5，Codex 0.164.0，盲裁） | n=15 判定 open：关 0.531、开 0.514，d=0.017，SE=0.024；未证明 0.05 内等价，未检出变差；开组点估计低约 3%，最差约 0.065；重复率无退化。用户 2026-11-08 选 B，生产默认开启，出现质量问题删该键回退 | [routeprior2](../reports/rtx3080ti/routeprior2/summary.md) · [routeprior3](../reports/rtx3080ti/routeprior3/summary.md) |
-| 2026-11-09 | Strata v0.2.12 对 v0.2.11 的高难度智能对比（Spec Readiness v4.3，Codex 0.164.0 high，每版本 10 个重复，单名 Opus 盲裁） | open：总分 v0.2.12 0.567 (SD 0.051)、v0.2.11 0.557 (SD 0.078)，d=+0.011，SE=0.029，\|d\|+2SE=0.069；RM d=+0.055（SE 0.047）、AP d=-0.002（SE 0.035）也都 open。未检出差异，也未证明 0.05 内等价（10 对 10 只能检出约 0.08 以上）；v0.2.12 没有看到变差，不是改善证据 | [报告](../reports/rtx3080ti/v0.2.12/stress-compare.md) |
+| 2026-11-03 | 草稿器钉死 MTP | 不影响输出内容的取舍，质量无变化证据 | [主机说明](local-installation.md) |
+| 2026-11-07/08 | `STRATA_ROUTE_PRIOR=1.5`（Code Spec v5，Codex 0.164.0，盲裁） | n=15 判定 open：关 0.531、开 0.514，d=0.017，SE=0.024；未证明 0.05 内等价，未检出变差；开组点估计低约 3%，最差约 0.065；重复率无退化。用户 2026-11-08 选 B，生产默认开启，出现质量问题删该键回退 | [routeprior2](../reports/routeprior2/summary.md) · [routeprior3](../reports/routeprior3/summary.md) |
+| 2026-11-09 | Strata v0.2.12 对 v0.2.11 的高难度智能对比（Spec Readiness v4.3，Codex 0.164.0 high，每版本 10 个重复，单名 Opus 盲裁） | open：总分 v0.2.12 0.567 (SD 0.051)、v0.2.11 0.557 (SD 0.078)，d=+0.011，SE=0.029，\|d\|+2SE=0.069；RM d=+0.055（SE 0.047）、AP d=-0.002（SE 0.035）也都 open。未检出差异，也未证明 0.05 内等价（10 对 10 只能检出约 0.08 以上）；v0.2.12 没有看到变差，不是改善证据 | [报告](../reports/v0.2.12/stress-compare.md) |
 | 2026-11-08 | 内存 DDR5 6600→5600 | 只改带宽，不改输出（temperature 0、草稿接受率逐提示不变）；不是质量因素 | [提速页](tuning-speed.md#内存频率对速度的影响) |
 
 ## 待办与未决

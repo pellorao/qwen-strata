@@ -6,7 +6,7 @@
 
 ## 条件
 
-同[第 1 维](../pcie-frac/summary.md)，加前六维胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、CPU 辅助 auto），只改 `--vram-reserve-mib`。三组都没有分块降级；512-r1 请求 1 中途把 PCIe 份额从 0.20 改为 0.15。执行顺序 1024-1、768-1、512-1、512-2、768-2、1024-2、768-3、512-3、1024-3。冻结计划：[rtx3080ti-iq3_xxs-vram-reserve-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-vram-reserve-plan.json)。
+同[第 1 维](../pcie-frac/summary.md)，加前六维胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、CPU 辅助 auto），只改 `--vram-reserve-mib`。三组都没有分块降级；512-r1 请求 1 中途把 PCIe 份额从 0.20 改为 0.15。执行顺序 1024-1、768-1、512-1、512-2、768-2、1024-2、768-3、512-3、1024-3。冻结计划：[rtx3080ti-iq3_xxs-vram-reserve-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-vram-reserve-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

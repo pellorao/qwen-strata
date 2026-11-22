@@ -87,7 +87,7 @@ ESTIMATE = Path.home() / '.claude/statusline/estimate.sh'
 CLAUDE = str(CLAUDE_COPY)
 AGENT = ROOT / 'scripts/wsl/qwen-agent'
 # Named directories, not top-level ones: Claude Code 2.1.303 left /home readable to sandboxed commands with denyRead
-# ["/home"], while the home directory itself (/home/pello on rtx3080ti) was denied (tools.safety.claude_gate, 2026-10-19). The working directory is re-opened
+# ["/home"], while the home directory itself (/home/pello here) was denied (tools.safety.claude_gate, 2026-10-19). The working directory is re-opened
 # by allowRead inside WORK_BASE.
 # Claude Code's shared temporary directory (its default sandbox TMPDIR, also holding other sessions' task outputs and
 # scratchpads): every run gets its own TMPDIR instead (run_tmp), and sandboxed commands can neither read nor write the
@@ -590,7 +590,7 @@ def conversation_analysis(stream, label=lambda text: text, in_text=None):
     return {'replies': replies, 'compactions': compactions, 'tool_calls': calls}
 
 
-def run_conversation(out, messages, model, effort, host, context_window, limit, label='window', run_id=None,
+def run_conversation(out, messages, model, effort, context_window, limit, label='window', run_id=None,
                      base=WORK_BASE, claude=CLAUDE, mock_base=None):
     """A multi-turn Strata conversation through Claude Code (window workload v2 mechanism check): the run() setup
     (isolated working directory, fresh configuration directory, minimal environment, project compact prompt hook)
@@ -611,7 +611,7 @@ def run_conversation(out, messages, model, effort, host, context_window, limit, 
     deadline = Deadline(out, limit, None, run_id=run_id)
     if mock_base:
         from tools.ops.deployment_source import published_tier, served_model
-        tier = published_tier(host, served_model(host), context_window)
+        tier = published_tier(served_model(), context_window)
         home, config_dir = work.parent / 'home', work.parent / 'claude-config'
         home.mkdir()
         config_dir.mkdir()
@@ -620,7 +620,7 @@ def run_conversation(out, messages, model, effort, host, context_window, limit, 
         save(out / 'binding.json', dict(binding, context_tier=tier, mock_base=mock_base))
         result = run_turns(out, messages, argv, env, work, deadline)
     else:
-        result = strata_run(out, None, argv, model, effort, work, limit, None, binding, True, host, deadline=deadline,
+        result = strata_run(out, None, argv, model, effort, work, limit, None, binding, True, deadline=deadline,
                             context_window=context_window, messages=messages)
     result['summary'] = stream_summary([out / 'stream.jsonl'])
     result['session_files'] = keep_session_files(work, config_root('strata', work), out)
@@ -1238,7 +1238,7 @@ def pinned_binary(claude=CLAUDE, expected=CLAUDE_VERSION, sha256=CLAUDE_SHA256):
 
 
 def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=HARD_LIMIT, reminder_after=None,
-        startup=True, tools=TOOLS, host=None, run_id=None, base=WORK_BASE, record=True, claude=CLAUDE, compact=True,
+        startup=True, tools=TOOLS, run_id=None, base=WORK_BASE, record=True, claude=CLAUDE, compact=True,
         report=None, system_prompt=None, deepseek_limits=None, deepseek_base=None):
     """One run. `system_prompt`: command(). `report` (the bound report, relative to the working directory) turns on ARW's early-exit
     continuation (execute_continued) and session persistence; without it the run is the single `claude -p` as before.
@@ -1292,7 +1292,7 @@ def run(out, prompt, backend, model, effort, label, copies=(), writes=(), limit=
         save(out / 'binding.json', binding)
         result = run_segments(out, prompt_text, argv, env, work, limit, started_file, report, deadline)
     else:
-        result = strata_run(out, prompt_text, argv, model, effort, work, limit, started_file, binding, startup, host,
+        result = strata_run(out, prompt_text, argv, model, effort, work, limit, started_file, binding, startup,
                             report, deadline)
     result['reminder'] = deadline.value['reminder']
     result['interrupt'] = deadline.value['interrupt']
@@ -1320,7 +1320,7 @@ def run_segments(out, prompt_text, argv, env, work, limit, started_file, report,
     return execute(out, prompt_text, argv, env, work, limit, started_file, deadline=deadline)
 
 
-def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file, binding, startup, host, report=None,
+def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file, binding, startup, report=None,
                deadline=None, context_window=None, messages=None):
     """Lease, cold start with installation defaults on the published tier (the default one, or `context_window`),
     the same command, engine-log tokens.  `messages` runs a multi-turn conversation instead of one prompt
@@ -1329,13 +1329,11 @@ def strata_run(out, prompt_text, argv, model, effort, work, limit, started_file,
     from tools.ops.deployment_source import published_tier, served_model
     from tools.metrics.prompt_policy import verify_loaded_startup
     from tools.strata.engine_log import log_offset, stop_and_capture_engine_log
-    if host is None:
-        raise ValueError('The Strata backend needs a registered host')
-    quantization = served_model(host)
+    quantization = served_model()
     if model != 'qwen3.8-flash-next-' + quantization.lower():
         raise ValueError('The Strata arm names the served model, ' + 'qwen3.8-flash-next-' + quantization.lower())
-    tier = published_tier(host, quantization, context_window)
-    measurement_host = MeasurementHost(host)
+    tier = published_tier(quantization, context_window)
+    measurement_host = MeasurementHost()
     home, config_dir = work.parent / 'home', work.parent / 'claude-config'
     home.mkdir()
     config_dir.mkdir()
@@ -1417,11 +1415,10 @@ if __name__ == '__main__':
     parser.add_argument('--no-compact-prompt', action='store_true',
                         help='API backends only: no project compact prompt (multi-model benchmark).')
     parser.add_argument('--tools', default=TOOLS)
-    parser.add_argument('--host', help='Registered host for the Strata backend.')
     parser.add_argument('--claude', default=CLAUDE, help=f'Claude Code binary; must be the pinned copy ({CLAUDE_VERSION}).')
     args = parser.parse_args()
     pinned_binary(args.claude)
     print(json.dumps(run(args.out, args.prompt, args.backend, args.model, args.effort, args.label, args.copy, args.write,
-                         args.limit, args.reminder_after, not args.no_startup_prompt, args.tools, args.host,
+                         args.limit, args.reminder_after, not args.no_startup_prompt, args.tools,
                          compact=not args.no_compact_prompt, claude=args.claude),
                      ensure_ascii=False))

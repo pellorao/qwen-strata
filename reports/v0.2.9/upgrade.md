@@ -34,7 +34,7 @@
 
 - `MODEL_CARD_SAMPLING`：与 v0.2.4 完全相同（`qwen4exp`、`qwen35moe`、`deepseek41` 的键没有变化），所以 `tests/test_deployment_source.py` 的 `MODEL_CARD_KEYS` 和主机 `installation_defaults` 不需要改。
 - 启动提示：`/health` 报告 SHA `1cae169a…`、源 `5f9efc02…`、防循环段关闭，与 v0.2.4 一致。
-- `claude --version` 现为 2.1.316，调用手册记的核对版本是 2.1.310。已按部署规则先跑 `claude_compact_probe --repeat 3`：206584／150000 档 12 格全部通过。**手册里的版本号（`docs/installation-readme-hosts/rtx3080ti.md` 的 `compact_check`）还没改，也没部署**，留给 Main。
+- `claude --version` 现为 2.1.316，调用手册记的核对版本是 2.1.310。已按部署规则先跑 `claude_compact_probe --repeat 3`：206584／150000 档 12 格全部通过。**手册里的版本号（`docs/installation-local-sections.md` 的 `compact_check`）还没改，也没部署**，留给 Main。
 - 单元测试 `python3 -m unittest discover -s tests -p 'test_*.py'` 通过。
 
 ## 短调用链检查（1 个实例，每项 1 次，非计分）

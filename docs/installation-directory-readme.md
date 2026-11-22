@@ -12,9 +12,9 @@ This document helps first-time callers get a complete workflow running quickly; 
 
 Callers only need to connect to the following frontend address to use the service. The frontend listens only on the WSL virtual network adapter, so it is unreachable from the LAN; its address is assigned by Windows and can change, so take `<WSL-gateway>` from the default route in WSL (`ip route show default`, the address after `via`) rather than writing it down:
 
-| Host | Frontend Address |
+| Service | Address |
 |---|---|
-| {{host}} | `{{base_url}}` |
+| Frontend | `{{base_url}}` |
 
 The scheduled task `QwenStrataFrontend` starts the frontend at Windows user login and keeps it running, so callers do not need to start it. For access control, the frontend only accepts clients from this host and the subnets of this host's network interfaces (including the WSL virtual network interface), and returns 403 for all other addresses. If an HTTP proxy is configured in the caller's environment, set `NO_PROXY` for this address or connect directly.
 

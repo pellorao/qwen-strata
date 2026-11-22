@@ -92,7 +92,7 @@ class ServerTests(unittest.TestCase):
 class VerdictTests(unittest.TestCase):
     def grid(self, compacts_above):
         with tempfile.TemporaryDirectory() as tmp, mock.patch.object(probe.subprocess, 'run', fake_claude(compacts_above)):
-            summary = probe.run(Path(tmp) / 'out', host='rtx3080ti', tier=TIER, claude='claude', log=lambda _: None)
+            summary = probe.run(Path(tmp) / 'out', tier=TIER, claude='claude', log=lambda _: None)
             saved = json.loads((Path(tmp) / 'out/summary.json').read_text())
         self.assertEqual(saved['pass'], summary['pass'])
         return summary

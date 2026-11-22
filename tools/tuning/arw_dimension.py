@@ -124,11 +124,11 @@ def run(plan_path, dimension_id, out, work, limit=None):
         condition, digest = conditions[name]
         folder = out / f'{slot + 1:02d}-{name}'
         checks = dimension['conditions'][name]
-        arw_run.init(work, plan['host'], context_window=checks.get('context_window'))
-        deployed = deploy(plan['host'], condition=(condition, digest))
+        arw_run.init(work, context_window=checks.get('context_window'))
+        deployed = deploy(condition=(condition, digest))
         folder.mkdir(parents=True, exist_ok=True)
         save(folder / 'deploy.json', deployed)
-        host = MeasurementHost(plan['host'], condition=condition)
+        host = MeasurementHost(condition=condition)
         if 'expert_profile_sha256' in checks and host.profile_sha256(plan['model']) != checks['expert_profile_sha256']:
             raise RuntimeError(name + ': installed expert profile differs from the frozen one')
         offset, service_offset = host.log_offset(plan['model']), host.log_offset()
@@ -162,19 +162,19 @@ def restore(plan_path):
     from tools.ops.deploy import deploy
     from tools.ops.measurement_host import MeasurementHost
     plan, _, _ = load_plan(plan_path)
-    deployed = deploy(plan['host'])
-    return {'deploy': deployed, 'sources': MeasurementHost(plan['host']).verify_sources()['source_sha_verified']}
+    deployed = deploy()
+    return {'deploy': deployed, 'sources': MeasurementHost().verify_sources()['source_sha_verified']}
 
 
 def check(plan_path):
     """No-model review: each condition rendered over the current host default, and what it changes."""
     plan, dimensions, conditions = load_plan(plan_path)
-    default = model_configuration(plan['model'], plan['host'])
+    default = model_configuration(plan['model'])
     result = {}
     for dimension in dimensions.values():
         for name in dimension['conditions']:
             condition, digest = conditions[name]
-            rendered = model_configuration(plan['model'], plan['host'], condition=condition)
+            rendered = model_configuration(plan['model'], condition=condition)
             flags = {f: (default['args'][default['args'].index(f) + 1] if f in default['args'] else None,
                          rendered['args'][rendered['args'].index(f) + 1] if f in rendered['args'] else None)
                      for f in ('--' + k for k in condition.get('model_overrides', {}))}

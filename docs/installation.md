@@ -1,6 +1,6 @@
 # 安装与维护
 
-安装路径、前端地址和本机凭据只从 `project.private.toml` 读取；文档不复制这些值。本机的当前状态见[rtx3080ti](hosts/rtx3080ti.md)主机说明。日常启动只依赖安装目录。
+安装路径、前端地址和本机凭据只从 `project.private.toml` 读取；文档不复制这些值。本机的当前状态见[rtx3080ti](local-installation.md)主机说明。日常启动只依赖安装目录。
 
 模型、tokenizer、native pack、MTP、私有 Python 和 CUDA 依赖均保存在 Windows。前端和推理都由 Windows 原生进程执行，WSL 只运行调用方 harness 和维护工具。前端结构、一次性安装和部署见[前端运行与维护](frontend.md)。
 
@@ -8,7 +8,7 @@
 
 各机版本、硬件和已验证范围记录在主机说明中。安装和运行使用官方预编译引擎，无需在本机重新编译；Python、CUDA 和私有依赖位于 Windows 安装目录。
 
-每台机器只对外提供一个模型（用户 2026-10-19）。对外模型由 `config/deployments/<host>.json` 的 `models`（恰好一个）决定；安装目录只部署它的 prebuilt 配置和 catalog 条目，前端拒绝启动其他量化。Q2_0、IQ2_XS 权重和 pack 可保留，默认不运行或测试，除非用户提出专门任务。维护基线 = 本机唯一对外模型 + 部署默认值（`installation_defaults` 与该模型的首个上下文档位）；引擎参数与测量依据见[调优记录](tuning.md)和[每机调参目录](host-tuning/README.md)。
+每台机器只对外提供一个模型（用户 2026-10-19）。对外模型由 `config/deployments/<host>.json` 的 `models`（恰好一个）决定；安装目录只部署它的 prebuilt 配置和 catalog 条目，前端拒绝启动其他量化。Q2_0、IQ2_XS 权重和 pack 可保留，默认不运行或测试，除非用户提出专门任务。维护基线 = 本机唯一对外模型 + 部署默认值（`installation_defaults` 与该模型的首个上下文档位）；引擎参数与测量依据见[调优记录](tuning.md)和[每机调参目录](calibration/README.md)。
 
 ## 安装目录
 
@@ -71,4 +71,4 @@ GGUF 第二分片可在整文件 SHA 一致后按各量化预期名称硬链接�
 
 每机安装默认由`config/deployments/<host>.json`的可选`installation_defaults`单独拥有；缺失该项时保持该机原模板，不继承其他主机文件的性能选择。该项可声明窗口、推理强度／预算、采样及CPU辅助；部署工具生成模型预置，前端在请求省略启动覆盖时使用它，显式请求值优先。当前实际值与回读证据以各机部署配置和主机说明为准。
 
-每台机器的参数选择、覆盖边界和待办遵循[每机调参目录](host-tuning/README.md)，不把该目录变成每次升级的全量固定流程。
+每台机器的参数选择、覆盖边界和待办遵循[每机调参目录](calibration/README.md)，不把该目录变成每次升级的全量固定流程。

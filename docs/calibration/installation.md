@@ -25,7 +25,7 @@
 | 防循环采样策略 | 温度0／top_p1，与温度1／top_p0.95；top_k20固定，各3，共6完整评审；[报告](../../reports/v0.1.40.1/loop-prevention-comparison/summary.md) | 平均循环次数36.7→60.0，未证明改善；保留0／1／20 |
 | CPU辅助短输入 | 0／auto，各3，共6；[报告](../../reports/v0.1.40.2/resource-calibration/cpu-prefill-share/summary.md) | 短输入处理少24.4%／30.5%，72条正确；采用auto |
 | 显存预留 | 1024／768／512各3次；[报告](../../reports/v0.1.41/vram-reserve/summary.md) | 选定512；只写入本机Q2_0的`model_overrides` |
-| spec-min-p | 旧组固定0.7，没有0.5／0.7对照；[计划](../../benchmarks/resource-calibration-v1/rtx3080ti-spec-min-p-plan.json)未运行 | 安装预置仍0.5；旧维护起点0.7不等于已验证更优 |
+| spec-min-p | 旧组固定0.7，没有0.5／0.7对照；[计划](../../benchmarks/resource-calibration-v1/spec-min-p-plan.json)未运行 | 安装预置仍0.5；旧维护起点0.7不等于已验证更优 |
 
 ## IQ2_XS
 
@@ -61,4 +61,4 @@
 
 - 每项选择只对本机唯一对外模型做；Q2_0、IQ2_XS 默认不测。
 - 升级后先跑轻量检查；只有发布说明涉及对应路径、性能退化或资源告警时，才比较相关参数。
-- 新报告写入 `reports/rtx3080ti/<版本或主题>/`。
+- 新报告写入 `reports/<版本或主题>/`。

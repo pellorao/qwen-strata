@@ -595,7 +595,7 @@
   "withdrawn": "spec 3 was adopted earlier on 2026-10-11 under the old scoring (0.848 vs 0.737) and deployed; withdrawn after the scoring change",
   "main": "spec 4",
   "independent_review": "spec 4",
-  "deployed": "2026-10-11, config/deployments/rtx3080ti.json model_overrides.IQ3_XXS \"spec\": 4 (explicit), read back, source SHAs verified, lease free, no model loaded",
+  "deployed": "2026-10-11, config/installation.json model_overrides.IQ3_XXS \"spec\": 4 (explicit), read back, source SHAs verified, lease free, no model loaded",
   "user": "confirmed spec 4 on 2026-10-11",
   "locator_rule_change": "2026-10-12: slots 8/11 rescored on originals (pair = two lines): spec 3 0.848, 4 0.737, 5 0.772, 6 0.718; low scores each from one instance's report writing, not a program error; selection unchanged (speed)"
  },

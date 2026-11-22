@@ -6,7 +6,7 @@
 
 ## 条件
 
-同[第 1 维](../pcie-frac/summary.md)，加前三维胜者（不传 `--pcie-frac`、all、23 线程）。probe 不传 `--ple-io`，引擎探测低于 15000 行/秒就改用 mmap（3 次都改了，探测 12809–13109 行/秒）；direct 显式传 `--ple-io direct`，引擎只警告（3 次都保持 direct，并开启 SSD keepalive）。执行顺序 probe-1、direct-1、direct-2、probe-2、direct-3、probe-3。冻结计划：[rtx3080ti-iq3_xxs-ple-io-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-ple-io-plan.json)。
+同[第 1 维](../pcie-frac/summary.md)，加前三维胜者（不传 `--pcie-frac`、all、23 线程）。probe 不传 `--ple-io`，引擎探测低于 15000 行/秒就改用 mmap（3 次都改了，探测 12809–13109 行/秒）；direct 显式传 `--ple-io direct`，引擎只警告（3 次都保持 direct，并开启 SSD keepalive）。执行顺序 probe-1、direct-1、direct-2、probe-2、direct-3、probe-3。冻结计划：[rtx3080ti-iq3_xxs-ple-io-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-ple-io-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

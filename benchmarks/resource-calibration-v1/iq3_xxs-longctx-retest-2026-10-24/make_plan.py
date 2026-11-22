@@ -14,7 +14,7 @@ ap.add_argument('--questions',type=int,required=True);ap.add_argument('--batch',
 ap.add_argument('--created',default='2026-10-24T06:00:00+0900');ap.add_argument('--scope',required=True);ap.add_argument('--seed-base',type=int,default=0)
 a=ap.parse_args()
 knobs=json.loads(a.knobs);order=[tuple(map(int,x.split(':')))for x in a.order.split(',')]  # (length in K, repetition)
-count=tokenizer_counter('rtx3080ti');prep=Path('.tmp/longctx-retest-1024/prep');prep.mkdir(parents=True,exist_ok=True)
+count=tokenizer_counter();prep=Path('.tmp/longctx-retest-1024/prep');prep.mkdir(parents=True,exist_ok=True)
 def build(length,rep):
     seed=a.seed_base+length*10+rep;n=int(length*1000/45);target=length*1000
     mk=lambda m:W.build(m,3,seed=seed,questions=a.questions,batch=a.batch,**knobs)
@@ -41,9 +41,9 @@ req={"temperature":0.0,"top_p":1.0,"top_k":20,"max_tokens":24576,"reasoning_budg
 sources=["tools/tuning/resource_calibration.py","tools/metrics/streamed_chat.py","tools/metrics/host_telemetry.py",
  "tools/metrics/windows_resource_sampler.py","tools/ops/measurement_host.py","tools/metrics/strata_tokens.py",
  "benchmarks/resource-calibration-v1/workload.py","config/prompts/startup-instructions.txt","config/prompts/compact-prompt.txt",
- "config/deployments/rtx3080ti.json","config/templates/iq3_xxs-prebuilt.json","src/model_process.py"]
+ "config/installation.json","config/templates/iq3_xxs-prebuilt.json","src/model_process.py"]
 cond=lambda l:f'len{l}k'
-plan={"schema":"conditions-v2","status":"frozen-approved","created_at":a.created,"host":"rtx3080ti","candidate_dimension":"context-length",
+plan={"schema":"conditions-v2","status":"frozen-approved","created_at":a.created,"candidate_dimension":"context-length",
  "authorization":{"approved":True,"approved_on":"2026-10-24","scope":a.scope},
  "conditions":[{"id":cond(l),"overrides":{"max-context":206584}}for l in conds],
  "schedule":[{"condition":cond(l),"repetition":r}for l,r in order],

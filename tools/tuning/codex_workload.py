@@ -457,7 +457,7 @@ def run_window_block(plan, data, name, slots, out):
     spec = plan['conditions'][name]
     folder = out / ('block-' + '-'.join(f'{s:02d}' for s in slots) + '-' + name)
     folder.mkdir(parents=True)
-    host = MeasurementHost(plan['host'])
+    host = MeasurementHost()
     save(folder / 'sources.json', host.verify_sources())
     owner = host.controller(folder / 'controller')
     records, block = [], {'condition': name, 'slots': slots, 'started': datetime.now().isoformat(timespec='seconds')}
@@ -524,7 +524,7 @@ def run_claude_window(plan, data, name, out, seconds_limit=None, mock_base=None)
     folder = out / f'claude-{name}'
     result = claude_headless.run_conversation(
         folder, [s['text'] for s in data['sequence']], 'qwen3.8-flash-next-' + plan['model'].lower(),
-        plan['fixed_conditions']['effort'], plan['host'], spec['context_window'],
+        plan['fixed_conditions']['effort'], spec['context_window'],
         seconds_limit or plan['instance_seconds_limit'], label=f'window-{name}', mock_base=mock_base)
     analysis = claude_headless.conversation_analysis(folder / 'stream.jsonl', turn_label,
                                                      window_bank.finder(data))

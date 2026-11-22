@@ -156,7 +156,7 @@
   "benchmarks/resource-calibration-v1/workload.py": "049d204cae11050fc589f8fa77c337278589b61321315f9896a2474741d0429a",
   "config/prompts/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
   "config/prompts/compact-prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
-  "config/deployments/rtx3080ti.json": "f8bb03a555de488a8e7c4528c0dd30b3a95f754625576923d0f09655f574e914",
+  "config/installation.json": "f8bb03a555de488a8e7c4528c0dd30b3a95f754625576923d0f09655f574e914",
   "config/templates/iq3_xxs-prebuilt.json": "0d1fc8f5eee5db7d3adf91a07858bc773adc5d4c3565b7fc7ae4540d4417bf78",
   "src/model_process.py": "68684dfc9bd0655561fc3d5b0458fbc78d7ea6cb544441c14d4a49a3d253d538"
  }

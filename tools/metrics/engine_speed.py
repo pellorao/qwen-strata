@@ -102,9 +102,8 @@ def main():
     args = parser.parse_args()
     try:
         since, until = local_time(args.since), args.until and local_time(args.until)
-        from tools.ops.deployment_source import current_host
         from tools.ops.measurement_host import MeasurementHost
-        host = MeasurementHost(current_host())
+        host = MeasurementHost()
         engine = host.log_path(host.deployment['models'][0]).read_bytes().decode('utf-8', 'replace')
         frontend = host.frontend_log_path().read_bytes().decode('utf-8', 'replace')
         print(render(summarize(engine, frontend, since, until, args.min_context, args.max_context)))

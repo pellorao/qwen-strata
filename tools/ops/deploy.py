@@ -1,4 +1,4 @@
-"""Deploy the frontend, configs and caller manual to a local host installation.
+"""Deploy the frontend, configs and caller manual to the local installation.
 
 Weights, runtime and private dependencies are never touched. The frontend is
 stopped through its own lease and restarted by its Windows scheduled task.
@@ -30,7 +30,7 @@ FILES = {f'src/{name}': f'src/{name}' for name in (
 FILES.update({name: name for name in (
     'config/prompts/startup-instructions.txt', 'config/prompts/compact-prompt.txt', 'config/model-catalog.json',
     'config/deployment.json', 'config/frontend.json')})
-FILES.update(MANUAL_FILES)  # rendered for the host (deployment_source.render_manual)
+FILES.update(MANUAL_FILES)  # rendered from the installation data (deployment_source.render_manual)
 FILES['maintenance/Install-Frontend.ps1'] = 'scripts/windows/Install-Frontend.ps1'
 FILES['bin/qwen-agent'] = 'scripts/wsl/qwen-agent'
 FILES['bin/qwen-approve'] = 'scripts/wsl/qwen-approve'
@@ -49,14 +49,14 @@ def prebuilt(model):
 
 
 def deployment_files(host):
-    """Installation target -> project source for a loaded host (tools.ops.deployment_source.load_host):
-    the shared files plus the prebuilt configuration of the one model the host serves."""
+    """Installation target -> project source for the loaded installation data (tools.ops.deployment_source.load_host):
+    the shared files plus the prebuilt configuration of the one model it serves."""
     return {**FILES, **{prebuilt(m): 'config/templates/' + prebuilt(m).removeprefix('config/') for m in host['models']}}
 
 
 def obsolete_files(host):
     """Files a deployment backs up and removes: retired files and the prebuilt configurations of the models the
-    host keeps installed but does not serve. Weights, runtime and data stay."""
+    installation keeps but does not serve. Weights, runtime and data stay."""
     return (*OBSOLETE, *(prebuilt(m) for m in MODELS if m not in host['models']))
 
 
@@ -153,7 +153,7 @@ def maintenance(base):
         frontend.wait(True)
 
 
-def write_manifest(root, identifier, condition, condition_sha, files, actual, docs_only):
+def write_manifest(root, condition, condition_sha, files, actual, docs_only):
     """The last deployment's files and SHAs.  A docs-only deploy keeps the recorded deployment and condition and
     updates just the entries it wrote (nothing is written when no manifest exists yet)."""
     path = root / 'deployment-manifest.json'
@@ -164,23 +164,23 @@ def write_manifest(root, identifier, condition, condition_sha, files, actual, do
         manifest = json.loads(path.read_text())
         manifest['files'] = dict(sorted({**manifest['files'], **entries}.items()))
     else:
-        manifest = {'deployment': identifier, 'source': 'maintenance project only',
+        manifest = {'source': 'maintenance project only',
                     'condition': condition and {'id': condition['id'], 'sha256': condition_sha}, 'files': entries}
     path.write_text(json.dumps(manifest, indent=2) + '\n')
 
 
-def deploy(identifier, docs_only=False, condition=None):
-    """`condition`, a frozen tuning condition and its file SHA, overlays the host default until a plain deploy."""
+def deploy(docs_only=False, condition=None):
+    """`condition`, a frozen tuning condition and its file SHA, overlays the default until a plain deploy."""
     condition, condition_sha = condition or (None, None)
     if docs_only and condition:
         raise ValueError('A tuning condition changes model configuration, not only the manual')
-    host = load_host(identifier, condition=condition)
+    host = load_host(condition=condition)
     root = local_path(host['installation_root'])
     if not (root / 'runtime/Strata/.venv').is_dir():
         raise RuntimeError('Installation runtime is missing')
     files = {t: s for t, s in deployment_files(host).items() if not docs_only or t in MANUAL_FILES}
     obsolete = () if docs_only else obsolete_files(host)
-    expected = {target: source_bytes(source, identifier, condition=condition) for target, source in files.items()}
+    expected = {target: source_bytes(source, condition=condition) for target, source in files.items()}
     private = None if docs_only else private_bytes()
     backup = ROOT / '.tmp/maintenance-backups' / ('deploy-' + datetime.now().strftime('%Y%m%d-%H%M%S-%f'))
     before = {}
@@ -219,7 +219,7 @@ def deploy(identifier, docs_only=False, condition=None):
             raise RuntimeError('Read-back SHA differs; backup at ' + str(backup))
         if private is not None and (root / PRIVATE).read_bytes() != private:
             raise RuntimeError('Read-back of ' + PRIVATE + ' differs')
-        write_manifest(root, identifier, condition, condition_sha, files, actual, docs_only)
+        write_manifest(root, condition, condition_sha, files, actual, docs_only)
         return removed, actual
 
     # Verified before the frontend restarts, so a failed restart still leaves a checked installation.
@@ -228,7 +228,7 @@ def deploy(identifier, docs_only=False, condition=None):
     else:
         with maintenance(host['frontend_url']):
             removed, actual = write()
-    return {'host': identifier, 'files': len(actual), 'read_back_verified': True,
+    return {'files': len(actual), 'read_back_verified': True,
             'condition': condition and {'id': condition['id'], 'sha256': condition_sha},
             'model_configuration_sha256': {t: actual[t] for t in actual if t.endswith('-prebuilt.json')},
             'private_file': None if private is None else PRIVATE + ' written and verified',
@@ -237,13 +237,10 @@ def deploy(identifier, docs_only=False, condition=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--host', required=True)
     parser.add_argument('--docs-only', action='store_true', help='Only replace the caller manual; frontend keeps running.')
     parser.add_argument('--condition', type=Path, help='Frozen tuning condition file; a later plain deploy restores the default.')
     args = parser.parse_args()
-    from tools.ops.deployment_source import require_current_host
-    require_current_host(args.host)
-    print(json.dumps(deploy(args.host, args.docs_only, args.condition and load_condition(args.condition)), indent=2))
+    print(json.dumps(deploy(args.docs_only, args.condition and load_condition(args.condition)), indent=2))
 
 
 if __name__ == '__main__':

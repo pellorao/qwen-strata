@@ -121,7 +121,7 @@
 
 ## 部署
 
-- `config/deployments/rtx3080ti.json` 的 `context_tiers.IQ3_XXS` 新增 `{206584, 150000}`。
+- `config/installation.json` 的 `context_tiers.IQ3_XXS` 新增 `{206584, 150000}`。
 - `kv-resident` 仍为 20480，默认档仍为 156584（列表第一项）。
 - 部署命令为 `python3 -m tools.ops.deploy --host rtx3080ti`，部署后已回读核对。
 

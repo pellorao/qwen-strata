@@ -31,10 +31,10 @@ def log(out, text):
     print(f'{stamp()} {text}', flush=True)
 
 
-def wait_lease_free(host_id, folder, out, poll=60):
+def wait_lease_free(folder, out, poll=60):
     """Never displace a holder: wait until the frontend lease is free (deploy itself aborts on a held lease)."""
     from tools.ops.measurement_host import MeasurementHost
-    controller = MeasurementHost(host_id).controller(folder)
+    controller = MeasurementHost().controller(folder)
     announced = False
     while True:
         try:
@@ -61,12 +61,12 @@ def run_block(plan_path, out, work, round_number, condition_name, scored, warmup
     condition, digest = conditions[condition_name]
     folder = out / 'blocks' / f'r{round_number}-{condition_name}'
     folder.mkdir(parents=True)
-    arw_run.init(work, plan['host'], context_window=checks.get('context_window'))
-    wait_lease_free(plan['host'], out / 'controller', out)
+    arw_run.init(work, context_window=checks.get('context_window'))
+    wait_lease_free(out / 'controller', out)
     log(out, f'{folder.name}: deploy condition {condition_name} (sha {digest[:12]})')
-    deployed = deploy(plan['host'], condition=(condition, digest))
+    deployed = deploy(condition=(condition, digest))
     dim.save(folder / 'deploy.json', deployed)
-    host = MeasurementHost(plan['host'], condition=condition)
+    host = MeasurementHost(condition=condition)
     offset, service_offset = host.log_offset(plan['model']), host.log_offset()
     started = datetime.now().isoformat(timespec='seconds')
     total = warmup + scored

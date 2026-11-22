@@ -1,7 +1,7 @@
 """Check where Claude Code auto-compacts under qwen-agent's settings, against a loopback fake Anthropic server.
 
 No model and no lease: every request is answered locally with a scripted reply whose usage claims a chosen
-context size, and the environment is the one `scripts/wsl/qwen-agent` gives Claude Code for the host's
+context size, and the environment is the one `scripts/wsl/qwen-agent` gives Claude Code for the installation's
 published default tier. Two ways in for each claimed size:
 - two turns: turn 1 reports the claimed input; turn 2 (`--continue`) shows whether Claude Code compacts first;
 - mid turn: the first reply is a tool call, so the follow-up inside the same turn shows the same decision.
@@ -33,7 +33,7 @@ import tempfile
 import threading
 import time
 
-from tools.ops.deployment_source import current_host, published_tier
+from tools.ops.deployment_source import published_tier
 
 ROOT = Path(__file__).resolve().parents[2]
 AGENT = ROOT / 'scripts/wsl/qwen-agent'
@@ -218,11 +218,11 @@ def cell_name(window, limit, claimed, mid_turn, blocking_override, repeat):
             f'-r{repeat}')
 
 
-def run(out, host=None, model='IQ3_XXS', effort='high', claimed=None, ways=('two-turn', 'mid-turn'),
+def run(out, model='IQ3_XXS', effort='high', claimed=None, ways=('two-turn', 'mid-turn'),
         repeat=1, blocking_override=True, tier=None, claude=None, log=lambda line: print(line, flush=True),
         env_for=None, slug=None):
-    out, host = Path(out), host or current_host()
-    tier = tier or published_tier(host, model)
+    out = Path(out)
+    tier = tier or published_tier(model)
     claude = claude or shutil.which('claude')
     if not claude:
         raise SystemExit('claude is not on PATH')
@@ -243,7 +243,7 @@ def run(out, host=None, model='IQ3_XXS', effort='high', claimed=None, ways=('two
                               **{k: result[k] for k in ('claimed', 'max_tokens', 'effective_limit', 'expected_compaction', 'compacted',
                                                          'continued', 'exits', 'ok')}})
                 log(json.dumps(cells[-1]))
-    summary = {'host': host, 'model': model, 'effort': effort, 'tier': tier, 'blocking_override': blocking_override,
+    summary = {'model': model, 'effort': effort, 'tier': tier, 'blocking_override': blocking_override,
                'claude_version': result['claude_version'], 'agent_environment': {
                    k: v for k, v in (env_for('http://127.0.0.1:0', blocking_override) if env_for else
                                      agent_environment('http://127.0.0.1:0', slug, effort, tier, blocking_override)).items()
@@ -270,7 +270,7 @@ def run_deepseek_plan(out, plan_path, model='deepseek-v4-flash', effort='high', 
     window, override = limits['CLAUDE_CODE_MAX_CONTEXT_TOKENS'], limits['CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE']
     tier = {'context_window': window, 'auto_compact_token_limit': override}
     env_for = deepseek_env_for(limits, model)
-    passes = {name: run(out / name, 'plan', 'IQ3_XXS', effort, None, ('two-turn', 'mid-turn'), repeat, with_override, tier,
+    passes = {name: run(out / name, 'IQ3_XXS', effort, None, ('two-turn', 'mid-turn'), repeat, with_override, tier,
                         claude, log, env_for, model)
               for name, with_override in (('override', True), ('fallback', False))}
     seen = sorted({m for v in passes.values() for c in v['cells'] for m in c['max_tokens']}, key=str)
@@ -287,7 +287,6 @@ def run_deepseek_plan(out, plan_path, model='deepseek-v4-flash', effort='high', 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('--out', type=Path, required=True, help='new directory for this check (under .tmp/)')
-    p.add_argument('--host', help='host whose published default tier qwen-agent uses (default: this machine)')
     p.add_argument('--model', choices=MODELS, default='IQ3_XXS')
     p.add_argument('--effort', choices=('low', 'medium', 'high'), default='high')
     p.add_argument('--repeat', type=int, default=1)
@@ -309,7 +308,7 @@ def main():
         print(summary.get('note') or json.dumps({k: summary[k] for k in ('claude_version', 'limits', 'fallback_point', 'max_tokens_seen', 'pass')}))
         raise SystemExit(0 if summary['pass'] else 2 if summary['pending'] else 1)
     tier = a.window and {'context_window': a.window, 'auto_compact_token_limit': a.limit}
-    summary = run(a.out, a.host, a.model, a.effort, a.claimed, tuple(a.way or ('two-turn', 'mid-turn')), a.repeat,
+    summary = run(a.out, a.model, a.effort, a.claimed, tuple(a.way or ('two-turn', 'mid-turn')), a.repeat,
                   not a.no_blocking_override, tier, a.claude)
     print(json.dumps({k: summary[k] for k in ('claude_version', 'tier', 'agent_environment', 'pass')}))
     raise SystemExit(0 if summary['pass'] else 1)

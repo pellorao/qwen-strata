@@ -5,7 +5,7 @@ claims a growing input size in `usage`; Codex's own token accounting then decide
 One turn is driven through the app-server: each mock reply is a harmless tool call whose usage claims the next size of the
 ladder, so the next request shows whether Codex compacted first (a compaction request, an `item/completed`
 contextCompaction event). Cases:
-- `strata`: the published tier of this host (window and limit as the Strata arms run); the compaction must come right after
+- `strata`: the published tier of this installation (window and limit as the Strata arms run); the compaction must come right after
   the first claimed size above the limit. This is the control that shows the probe can see a compaction.
 - `deepseek`: the DeepSeek arm's catalog entry as v1 and v2 run it (window 1048576, 95% effective, no compaction limit of its
   own): no compaction at any size up to `--max-input`.
@@ -23,7 +23,7 @@ from pathlib import Path
 import threading
 import time
 
-from tools.ops.deployment_source import current_host, published_tier
+from tools.ops.deployment_source import published_tier
 from tools.strata.native_cli_binding import pinned_codex
 from tools.strata.verify_codex_compact_prompt import Client, ROOT, save
 from tools.safety.gate_http import REQUEST_LOCK, read_json_request
@@ -146,13 +146,12 @@ def strata_ladder(tier):
     return [limit // 2, limit - 1000, limit + 1000, limit + 10000]
 
 
-def run(out, host=None, max_input=800000, codex=None, model='IQ3_XXS'):
+def run(out, max_input=800000, codex=None, model='IQ3_XXS'):
     """Both cases. Pass: the Strata control compacts right after the first claim above its limit (and not before), and the
     DeepSeek arm never compacts at a claim up to `max_input`."""
     out = Path(out).resolve()
-    host = host or current_host()
     codex = codex or pinned_codex()['executable']
-    tier = published_tier(host, model)
+    tier = published_tier(model)
     control = run_case(out / 'strata', 'strata', 'qwen3.8-flash-next-' + model.lower(), strata_ladder(tier), tier, codex=codex)
     deepseek = run_case(out / 'deepseek', 'deepseek', DEEPSEEK_SLUG, DEEPSEEK_LADDER, None, DEEPSEEK_CATALOG, codex=codex)
     limit = tier['auto_compact_token_limit']
@@ -174,13 +173,12 @@ def run(out, host=None, max_input=800000, codex=None, model='IQ3_XXS'):
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('--out', type=Path, required=True, help='new directory for this check (under .tmp/)')
-    p.add_argument('--host')
     p.add_argument('--max-input', type=int, default=800000,
                    help='largest request input the DeepSeek arm must run without compaction (default 800000)')
     a = p.parse_args()
     if a.out.exists():
         p.error(f'{a.out} exists')
-    summary = run(a.out, a.host, a.max_input)
+    summary = run(a.out, a.max_input)
     print(json.dumps({k: summary[k] for k in ('strata_control', 'deepseek', 'pass')}, ensure_ascii=False))
     raise SystemExit(0 if summary['pass'] else 1)
 

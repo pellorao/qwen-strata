@@ -4,7 +4,7 @@
 
 ## 条件
 
-同[第 1 维](../pcie-frac/summary.md)，加前四维胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`），只改请求的 `--prefill`。执行顺序 8192-1、16384-1、16384-2、8192-2、16384-3、8192-3。冻结计划：[rtx3080ti-iq3_xxs-prefill-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-prefill-plan.json)。summary.json 里的 `effective.prefill` 是命令行请求值，不是引擎实际值。
+同[第 1 维](../pcie-frac/summary.md)，加前四维胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`），只改请求的 `--prefill`。执行顺序 8192-1、16384-1、16384-2、8192-2、16384-3、8192-3。冻结计划：[rtx3080ti-iq3_xxs-prefill-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-prefill-plan.json)。summary.json 里的 `effective.prefill` 是命令行请求值，不是引擎实际值。
 
 ## 结果（每条件 3 次算术平均）
 

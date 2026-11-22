@@ -1,8 +1,8 @@
 # rtx3080ti 调用手册的本机段落
 
-[English](rtx3080ti.md) | [简体中文](rtx3080ti.zh-CN.md)
+[English](installation-local-sections.md) | [简体中文](installation-local-sections.zh-CN.md)
 
-这里汇总了详细手册模板 `docs/installation-directory-manual.zh-CN.md` 中 `{{host.<名称>}}` 占位符对应的内容，包含仅对本机成立的实测数据与说明。每段以 `<!-- 名称 -->` 开头，到下一个标记或文件末尾结束，忽略首尾空行，部署时由 `tools.ops.deployment_source.render_manual` 负责渲染。
+这里汇总了详细手册模板 `docs/installation-directory-manual.zh-CN.md` 中 `{{local.<名称>}}` 占位符对应的内容，包含仅对本机成立的实测数据与说明。每段以 `<!-- 名称 -->` 开头，到下一个标记或文件末尾结束，忽略首尾空行，部署时由 `tools.ops.deployment_source.render_manual` 负责渲染。
 
 <!-- presets -->
 rtx3080ti 对外提供的模型为 IQ3_XXS。自 2026-10-14 起，其默认档设为窗口 206584、自动压缩阈值 150000；另有可选档，窗口为 156584、阈值为 100000。206584 窗口已在约 151K token 以内的长上下文检索负载上通过验证，相同负载下速度与 156584 档一致；更长的提示在 200K 级检索中出现过系统性错误，256584 未发布。在配置与调用方面，`config/model-catalog.json` 只列出对外模型，其中的窗口即本机默认档；因为服务不会替调用方压缩，所以调用方仍需将自身 harness 的自动压缩阈值设为所用档的值（IQ3_XXS 默认档为 150000）。而 `bin/qwen-agent` 会直接使用对外模型的默认档，即 `context_tiers` 的第一档（见[与 Codex 的参数对照](#与-codex-的参数对照)）。其余预置参数为：high，思考 8192／总输出 24576，temperature 0、top_p 1、top_k 20、presence_penalty 0，CPU 辅助 auto。其中 presence_penalty 0 是显式指定的，因为 Strata 0.2.x 会把请求和安装配置都未提供的采样键补成模型卡的值，若不显式指定，关闭思考的请求就会被加上 presence_penalty 1.5。以上配置仅作为维护起点，并非完整质量验收或最优参数的结论。

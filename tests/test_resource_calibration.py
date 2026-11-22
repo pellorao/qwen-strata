@@ -13,13 +13,11 @@ FAKE_VOCAB={'Ġ'+''.join(chr(97+(i//26**k)%26)for k in range(4))+'q':i for i in 
 
 class ResourceCalibrationTests(unittest.TestCase):
     def setUp(self):
-        current = patch('tools.tuning.resource_calibration.current_host', return_value='rtx3080ti')
-        current.start()
-        self.addCleanup(current.stop)
+        pass
 
     def test_cpu_share_schedule_retains_only_approved_six_and_environment_change(self):
         root=Path(__file__).resolve().parents[1]
-        plan=json.loads((root/'benchmarks/resource-calibration-v1/rtx3080ti-cpu-share-plan.json').read_text())
+        plan=json.loads((root/'benchmarks/resource-calibration-v1/cpu-share-plan.json').read_text())
         jobs=experiment_schedule(plan)
         self.assertEqual(len(jobs),6)
         self.assertEqual({(x['condition'],x['repetition'])for x in jobs},{(c,r)for c in ['off','on']for r in [1,2,3]})
@@ -30,7 +28,7 @@ class ResourceCalibrationTests(unittest.TestCase):
         with self.assertRaises(ValueError):experiment_schedule(plan)
 
     def test_prefill_scope_retains_two_three_repeat_conditions(self):
-        plan={'host':'rtx3080ti','candidate_dimension':'prefill','conditions':[8192,16384],
+        plan={'candidate_dimension':'prefill','conditions':[8192,16384],
               'fixed_pool_affinity':'all','pool_workers':23,
               'schedule':[{'tokens':c,'repetition':r}for c in [8192,16384]for r in [1,2,3]]}
         jobs=experiment_schedule(plan)
@@ -40,7 +38,7 @@ class ResourceCalibrationTests(unittest.TestCase):
         with self.assertRaises(ValueError):experiment_schedule(plan)
     def test_ple_scope_changes_only_io_mode_with_six_unique_observations(self):
         root=Path(__file__).resolve().parents[1]
-        plan=json.loads((root/'benchmarks/resource-calibration-v1/rtx3080ti-ple-io-plan.json').read_text())
+        plan=json.loads((root/'benchmarks/resource-calibration-v1/ple-io-plan.json').read_text())
         jobs=experiment_schedule(plan)
         self.assertEqual(len(jobs),6)
         self.assertEqual({(j['condition'],j['repetition'])for j in jobs},{(m,r)for m in ['direct','mmap']for r in [1,2,3]})
@@ -49,7 +47,7 @@ class ResourceCalibrationTests(unittest.TestCase):
         with self.assertRaises(ValueError):experiment_schedule(plan)
     def test_worker_scope_has_nine_independent_three_repeat_conditions(self):
         root=Path(__file__).resolve().parents[1]
-        plan=json.loads((root/'benchmarks/resource-calibration-v1/rtx3080ti-worker-plan.json').read_text())
+        plan=json.loads((root/'benchmarks/resource-calibration-v1/worker-plan.json').read_text())
         jobs=experiment_schedule(plan)
         self.assertEqual(len(jobs),9)
         self.assertEqual({(j['condition'],j['repetition'])for j in jobs},{(w,r)for w in [23,15,12]for r in [1,2,3]})
@@ -58,7 +56,7 @@ class ResourceCalibrationTests(unittest.TestCase):
         with self.assertRaises(ValueError):experiment_schedule(plan)
     def test_vram_reserve_scope_has_nine_observations_changing_only_reserve(self):
         root=Path(__file__).resolve().parents[1]
-        plan=json.loads((root/'benchmarks/resource-calibration-v1/rtx3080ti-vram-reserve-plan.json').read_text())
+        plan=json.loads((root/'benchmarks/resource-calibration-v1/vram-reserve-plan.json').read_text())
         jobs=experiment_schedule(plan)
         self.assertEqual(len(jobs),9)
         self.assertEqual({(j['condition'],j['repetition'])for j in jobs},{(v,r)for v in [1024,768,512]for r in [1,2,3]})
@@ -67,7 +65,7 @@ class ResourceCalibrationTests(unittest.TestCase):
         with self.assertRaises(ValueError):experiment_schedule(plan)
     def reply(self,value,raw=False):return {'choices':[{'finish_reason':'stop','message':{'content':value if raw else json.dumps(value)}}]}
     def test_generic_conditions_carry_overrides_and_reject_gaps(self):
-        plan={'host':'rtx3080ti','candidate_dimension':'pcie-frac','schema':'conditions-v2',
+        plan={'candidate_dimension':'pcie-frac','schema':'conditions-v2',
               'conditions':[{'id':'measured','overrides':{'pcie-frac':None}},{'id':'zero','overrides':{'pcie-frac':'0.00'}}],
               'schedule':[{'condition':c,'repetition':r}for r in(1,2,3)for c in('measured','zero')]}
         jobs=experiment_schedule(plan)
@@ -97,24 +95,17 @@ class ResourceCalibrationTests(unittest.TestCase):
         self.assertTrue(result['complete']);self.assertFalse(result['pass'])
 
     def test_context_length_validation_may_run_one_default_condition(self):
-        plan={'host':'rtx3080ti','candidate_dimension':'context-length','schema':'conditions-v2',
+        plan={'candidate_dimension':'context-length','schema':'conditions-v2',
               'conditions':[{'id':'default-160k','overrides':{'max-context':206584}}],
               'schedule':[{'condition':'default-160k','repetition':r}for r in(1,2,3)]}
         self.assertEqual([j['label']for j in experiment_schedule(plan)],['default-160k-r1','default-160k-r2','default-160k-r3'])
         plan['candidate_dimension']='pcie-frac'
         with self.assertRaises(ValueError):experiment_schedule(plan)
 
-    def test_plan_for_another_machine_is_rejected(self):
-        plan={'host':'rtx4070tis','candidate_dimension':'prefill'}
-        with self.assertRaisesRegex(ValueError, 'another machine'):
-            experiment_schedule(plan)
-
 
 class LongContextWorkloadTests(unittest.TestCase):
     def setUp(self):
-        current = patch('tools.tuning.resource_calibration.current_host', return_value='rtx3080ti')
-        current.start()
-        self.addCleanup(current.stop)
+        pass
 
     def test_version1_is_unchanged_for_frozen_plans(self):
         plan=json.loads((ROOT/'benchmarks/resource-calibration-v1/iq3_xxs-night-2026-10-12/kv-long/plan-150k.json').read_text())
@@ -241,7 +232,7 @@ class LongContextWorkloadTests(unittest.TestCase):
                                                     'len-r2':{'shared_prefix':w[1]['shared_prefix'],'cases':w[1]['cases']}}}
         digest=lambda t:hashlib.sha256(t.encode()).hexdigest()
         canon=lambda v:digest(json.dumps(v,sort_keys=True,separators=(',',':')))
-        plan={'authorization':{'approved':True},'baseline':{'start_options':{'model':'IQ3_XXS'}},'host':'rtx3080ti',
+        plan={'authorization':{'approved':True},'baseline':{'start_options':{'model':'IQ3_XXS'}},
               'candidate_dimension':'context-length','schema':'conditions-v2','conditions':[{'id':'len','overrides':{'max-context':206584}}],
               'repetitions_per_condition':2,'schedule':[{'condition':'len','repetition':r}for r in (1,2)],'model_instances':2,
               'logical_requests':4,'source_sha256':{},
@@ -277,7 +268,7 @@ class LongContextWorkloadTests(unittest.TestCase):
                    'expected_sha256':digest(json.dumps(c['expected'],sort_keys=True,separators=(',',':'))),
                    'alternatives_sha256':digest(json.dumps(c['alternatives'],sort_keys=True,separators=(',',':')))}
                   for c in workload['cases']]
-        plan={'host':'rtx3080ti','candidate_dimension':'context-length','schema':'conditions-v2',
+        plan={'candidate_dimension':'context-length','schema':'conditions-v2',
               'authorization':{'approved':True},'baseline':{'start_options':{'model':'IQ3_XXS'}},
               'conditions':[{'id':'d','overrides':{'max-context':206584}}],
               'schedule':[{'condition':'d','repetition':r}for r in(1,2,3)],'model_instances':3,'logical_requests':9,
@@ -293,11 +284,9 @@ class LongContextWorkloadTests(unittest.TestCase):
 
 class PleReadPathTests(unittest.TestCase):
     def setUp(self):
-        current = patch('tools.tuning.resource_calibration.current_host', return_value='rtx3080ti')
-        current.start()
-        self.addCleanup(current.stop)
+        pass
 
-    def plan(self,name):return json.loads((ROOT/f'benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-{name}-plan.json').read_text())
+    def plan(self,name):return json.loads((ROOT/f'benchmarks/resource-calibration-v1/iq3_xxs-{name}-plan.json').read_text())
 
     def test_each_repetition_reads_unseen_text_and_targets_are_in_order(self):
         workload=ple_workload.build(FAKE_VOCAB)

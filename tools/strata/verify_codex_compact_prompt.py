@@ -17,7 +17,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[2]
 from tools.metrics.prompt_policy import NATIVE_COMPACT_VERSION
-from tools.ops.deployment_source import MODELS, current_host, published_tier, served_model
+from tools.ops.deployment_source import MODELS, published_tier, served_model
 from tools.strata.native_cli_binding import CODEX
 from tools.safety.scripted_responses import scripted_stream
 
@@ -157,9 +157,9 @@ class Client:
         self.events.close()
 
 
-def run(folder, model='IQ3_XXS', host=None):
-    folder, host = folder.resolve(), host or current_host()
-    slug, tier = 'qwen3.8-flash-next-' + model.lower(), published_tier(host, model)
+def run(folder, model='IQ3_XXS'):
+    folder = folder.resolve()
+    slug, tier = 'qwen3.8-flash-next-' + model.lower(), published_tier(model)
     folder.mkdir(parents=True, exist_ok=False)
     workspace = folder / 'workspace'
     workspace.mkdir()
@@ -215,15 +215,14 @@ def run(folder, model='IQ3_XXS', host=None):
 def arguments(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
-    parser.add_argument('--model', choices=MODELS, help='quantization (default: the one the host serves, from its deployment config)')
-    parser.add_argument('--host', help='host whose default context tier the mock session uses (default: this machine)')
+    parser.add_argument('--model', choices=MODELS, help='quantization (default: the one the installation serves, from its deployment config)')
     args = parser.parse_args(argv)
-    args.model = args.model or served_model(args.host or current_host())
+    args.model = args.model or served_model()
     return args
 
 
 if __name__ == '__main__':
     args = arguments()
-    result = run(args.out, args.model, args.host)
+    result = run(args.out, args.model)
     print(json.dumps(result, ensure_ascii=False))
     raise SystemExit(0 if result['status'] == 'passed' else 1)

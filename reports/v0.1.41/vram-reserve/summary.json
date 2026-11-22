@@ -1,7 +1,7 @@
 {
  "measurement": "rtx3080ti Q2_0 vram-reserve-mib 1024/768/512",
  "strata": "0.1.41 fb58e0dbc8399662c0e47c76578c6e878b14f6cf",
- "plan": "benchmarks/resource-calibration-v1/rtx3080ti-vram-reserve-plan.json",
+ "plan": "benchmarks/resource-calibration-v1/vram-reserve-plan.json",
  "plan_source_sha256": {
   "tools/tuning/resource_calibration.py": "a98ee78d002680092a1ca466ed2848a37af07eacbff5db5a60d47da441b608f1",
   "tools/metrics/streamed_chat.py": "6ab84674ae01a2b3e6c74576eac582744ee758fbe316c3033f29c0001018e5b2",

@@ -14,37 +14,18 @@ from tools.ops.measurement_host import MeasurementHost, host_selection
 class MeasurementHostTests(unittest.TestCase):
     def remote(self):
         host=MeasurementHost.__new__(MeasurementHost)
-        host.identifier='rtx3080ti'
         host.windows_root=PureWindowsPath('C:/strata')
         host.installation=Path('/mnt/c/strata')
         host.deployment={'hardware':{'vram_gib':12},'engine_overrides':{'prefill':8192},'models':['IQ3_XXS'],
                          'frontend_url':'http://192.168.0.4:8000'}
         return host
 
-    def test_another_machine_is_never_measured(self):
-        # The guard runs before any host data, installation path or frontend is touched.
-        from tools.ops.controller_client import Controller
-        with patch('tools.ops.deployment_source.current_host',return_value='rtx3080ti'),\
-                patch('tools.ops.measurement_host.load_host') as load:
-            with self.assertRaisesRegex(ValueError,'not this machine'):
-                MeasurementHost('rtx4070tis')
-            with self.assertRaisesRegex(ValueError,'not this machine'):
-                host_selection({'engine_overrides':{}},'rtx4070tis')
-            load.assert_not_called()
-            with tempfile.TemporaryDirectory() as directory,\
-                    patch('tools.ops.deployment_source.host_for_installation',return_value='rtx4070tis'),\
-                    patch('tools.ops.deployment_source.load_host') as remote_load,\
-                    self.assertRaisesRegex(ValueError,'not this machine'):
-                Controller(Path('/mnt/c/other'),Path(directory))
-            remote_load.assert_not_called()
-
-    def test_this_machine_is_measured(self):
+    def test_the_installation_is_measured(self):
         deployment={'installation_root':'C:\\strata'}
-        with patch('tools.ops.deployment_source.current_host',return_value='rtx3080ti'),\
-                patch('tools.ops.measurement_host.load_host',return_value=deployment) as load,\
+        with patch('tools.ops.measurement_host.load_host',return_value=deployment) as load,\
                 patch('tools.ops.measurement_host.local_path',return_value=Path('/mnt/c/strata')):
-            host=MeasurementHost('rtx3080ti')
-        load.assert_called_once_with('rtx3080ti',condition=None)
+            host=MeasurementHost()
+        load.assert_called_once_with(condition=None)
         self.assertEqual(host.installation,Path('/mnt/c/strata'))
 
     def test_controller_uses_private_frontend_url_and_metadata_omits_it(self):
@@ -57,16 +38,13 @@ class MeasurementHostTests(unittest.TestCase):
     def test_host_selection_freezes_hardware_without_mutating_approved_source(self):
         source={'engine_overrides':{'prefill':16384,'spec-min-p':.7},'sampling':{'temperature':0}}
         before=copy.deepcopy(source)
-        with patch('tools.ops.deployment_source.current_host',return_value='rtx3080ti'),\
-                patch('tools.ops.measurement_host.load_host',return_value=self.remote().deployment):
-            result=host_selection(source,'rtx3080ti')
+        with patch('tools.ops.measurement_host.load_host',return_value=self.remote().deployment):
+            result=host_selection(source)
         self.assertEqual(source,before)
         self.assertEqual(result['engine_overrides'],{'prefill':8192,'spec-min-p':.7})
         self.assertEqual(result['sampling'],source['sampling'])
-        self.assertEqual(result['host_id'],'rtx3080ti')
-        with patch('tools.ops.deployment_source.current_host',return_value='rtx3080ti'),\
-                patch('tools.ops.measurement_host.load_host',return_value=self.remote().deployment):
-            owned=host_selection({'model_owner':'arw','engine_overrides':{}},'rtx3080ti')
+        with patch('tools.ops.measurement_host.load_host',return_value=self.remote().deployment):
+            owned=host_selection({'model_owner':'arw','engine_overrides':{}})
         self.assertEqual(owned['engine_overrides'],{})  # ARW starts the model with installation defaults
 
     def test_target_configuration_is_verified_not_used_as_source(self):
@@ -129,7 +107,7 @@ class MeasurementHostTests(unittest.TestCase):
                         def call(self,path,timeout):return {'lease':'free','model':'qwen3.8-flash-next-iq3_xxs'}
                     return C()
             with patch.object(measurement_host,'MeasurementHost',Host),\
-                 patch('sys.argv',['measurement_host','--host','rtx3080ti','--out',str(out)]),\
+                 patch('sys.argv',['measurement_host','--out',str(out)]),\
                  patch('builtins.print'):
                 measurement_host.main()
             receipt=json.loads((out/'preflight.json').read_text())

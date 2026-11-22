@@ -23,7 +23,7 @@ import time
 import urllib.request
 
 from tools.arw import pin as arw_pin
-from tools.ops.deployment_source import current_host, frontend_base, served_model, wsl_gateway
+from tools.ops.deployment_source import frontend_base, served_model, wsl_gateway
 from tools.ops.model_catalog import MODELS
 from tools.ops.measurement_host import MeasurementHost
 from src.startup_instructions import startup_prompt_bytes
@@ -90,7 +90,7 @@ def expected_startup_sha(prompt_file=None):
 
 
 def health(base=None, urlopen=urllib.request.urlopen):
-    base = base or frontend_base(MeasurementHost(current_host()).deployment)
+    base = base or frontend_base(MeasurementHost().deployment)
     with urlopen(base + '/health', timeout=15) as response:
         return json.load(response)
 
@@ -113,7 +113,7 @@ def environment(work, session):
     return env
 
 
-def init(work, host=None, context_window=None):
+def init(work, context_window=None):
     """Pinned checkout, isolated HOME with its own ARW install, provider config pointing at the installation view.
     context_window: a published tier the provider selects (ARW `contextWindow`); None keeps the installation's default tier."""
     p = paths(work)
@@ -124,7 +124,7 @@ def init(work, host=None, context_window=None):
     for name in HOME_LINKS:
         if (real / name).exists() and not os.path.lexists(p['home'] / name):
             (p['home'] / name).symlink_to(real / name)
-    installation = MeasurementHost(host or current_host()).installation
+    installation = MeasurementHost().installation
     # The static part of the provider entry belongs to Codex's config.toml (ARW only overrides base_url and the token).
     (p['codex_home'] / 'config.toml').write_text(CODEX_CONFIG)
     # ARW builds the Codex model catalog from `models_cache.json` in the Codex home; the Strata model's entry is the
@@ -145,9 +145,9 @@ def init(work, host=None, context_window=None):
             'installation': str(installation), 'frontend': frontend}
 
 
-def model_id(host=None):
-    """ARW model id (catalog slug) of the one model the current host serves."""
-    return 'qwen3.8-flash-next-' + MODELS[served_model(host or current_host())]
+def model_id():
+    """ARW model id (catalog slug) of the one model the installation serves."""
+    return 'qwen3.8-flash-next-' + MODELS[served_model()]
 
 
 def settings(model=None, effort=EFFORT):

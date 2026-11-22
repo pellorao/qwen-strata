@@ -16,7 +16,7 @@
   "effort_reason": "与 ARW 原生 agent-cli 配置（model_reasoning_effort=\"high\"）及 F6 基线一致",
   "context_window": 206584,
   "auto_compact_token_limit": 150000,
-  "engine_defaults": "config/deployments/rtx3080ti.json 的安装默认值；条件只叠加 model_environment（rp-15: STRATA_ROUTE_PRIOR=1.5）；两条件其余全同",
+  "engine_defaults": "config/installation.json 的安装默认值；条件只叠加 model_environment（rp-15: STRATA_ROUTE_PRIOR=1.5）；两条件其余全同",
   "startup_instructions": "config/prompts/startup-instructions.txt（源 SHA 5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e，去掉防循环段），compact-prompt.txt（3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af）接入；开跑前核对已安装 SHA",
   "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
   "native_cli_sha256": "b93f6811d3f653f0fb83be4050d857fb9abbb111dfa2ce160563327daff7f306",

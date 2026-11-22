@@ -6,7 +6,7 @@ from pathlib import Path
 import shlex
 import socket
 import subprocess
-from tools.ops.deployment_source import current_host, published_tier, wsl_gateway
+from tools.ops.deployment_source import published_tier, wsl_gateway
 from tools.safety.reviewer_permissions import restricted_profile
 from tools.strata.native_cli_binding import CODEX
 from tools.strata.wsl_client import ROOT, Client, save, statistics
@@ -14,9 +14,9 @@ from tools.strata.wsl_client import ROOT, Client, save, statistics
 MODELS = ('Q2_0', 'IQ2_XS', 'IQ3_XXS')
 
 
-def denied_targets(host):
-    """Existing files and the host's real model endpoint: a denial of a missing target would pass vacuously."""
-    deployment = json.loads((ROOT / 'config/deployments' / (host + '.json')).read_text(encoding='utf-8'))
+def denied_targets():
+    """Existing files and the real model endpoint: a denial of a missing target would pass vacuously."""
+    deployment = json.loads((ROOT / 'config/installation.json').read_text(encoding='utf-8'))
     return {'other_project': str(ROOT / 'README.md'), 'user_config': str(Path.home() / '.bashrc'),
             'windows_file': '/mnt/c/Windows/win.ini',
             'model_api': [wsl_gateway() or deployment['listen_interface'], deployment['port']]}
@@ -38,15 +38,14 @@ def network_controls(targets):
     return {'public_network': reachable(PUBLIC_TARGET), 'model_api': reachable(targets['model_api'])}
 
 
-def run(out, url, model='IQ3_XXS', host=None):
-    host = host or current_host()
+def run(out, url, model='IQ3_XXS'):
     project, scratch = out / 'project', out / 'fixed-scratch'
     project.mkdir(parents=True); scratch.mkdir()
     (project / 'source.txt').write_text('SOURCE-READ-9173\n')
     outside = out / 'outside.txt'
     outside.write_text('OUTSIDE-CANARY-5831\n')
     (project / 'escape-link.txt').symlink_to(outside)
-    targets = denied_targets(host)
+    targets = denied_targets()
     targets['public_network'] = list(PUBLIC_TARGET)
     controls = network_controls(targets)
     probe = '''import json,pathlib,subprocess,socket,sys
@@ -95,10 +94,10 @@ sys.exit(0 if all(checks.values()) else 1)
     (project / 'probe.py').write_text(probe)
     profile = restricted_profile(project, scratch)
     before = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in (outside, project/'source.txt')}
-    tier = published_tier(host, model)
+    tier = published_tier(model)
     slug = 'qwen3.8-flash-next-' + model.lower()
     report = {'codex_version': subprocess.check_output([str(CODEX), '--version'], text=True).strip(),
-              'codex_executable': str(CODEX), 'model': slug, 'host': host, 'context_tier': tier,
+              'codex_executable': str(CODEX), 'model': slug, 'context_tier': tier,
               'scope': 'Native shell/apply_patch tools with MCP/apps/plugins disabled. Runtime :minimal remains readable.',
               'profile': profile, 'denied_targets': targets,
               'vacuous_targets': [k for k in ('other_project', 'user_config', 'windows_file')
@@ -177,8 +176,7 @@ if __name__=='__main__':
     parser.add_argument('--out',type=Path,required=True)
     parser.add_argument('--base-url',default='')
     parser.add_argument('--model',choices=MODELS,default='IQ3_XXS',help='the model --base-url serves; its default tier sets the harness')
-    parser.add_argument('--host',help='default: this machine')
     args=parser.parse_args()
-    report=run(args.out.resolve(),args.base_url,args.model,args.host)
+    report=run(args.out.resolve(),args.base_url,args.model)
     print(json.dumps({k:report[k] for k in ('pass','canaries_unchanged','auto_review_selection') if k in report},ensure_ascii=False))
     raise SystemExit(0 if report['pass'] else 1)
