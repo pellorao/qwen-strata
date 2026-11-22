@@ -1,0 +1,7 @@
+{
+ "id": "adapt-2",
+ "model": "IQ3_XXS",
+ "model_environment": {
+  "STRATA_ADAPT_LAG": 2
+ }
+}

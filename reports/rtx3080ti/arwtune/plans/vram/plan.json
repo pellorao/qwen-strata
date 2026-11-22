@@ -1,0 +1,24 @@
+{
+ "schema": "arw-dimension-v2",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "scenario": "spec-readiness",
+ "effort": "high",
+ "dimensions": [
+  {
+   "id": "vram",
+   "default": "vram-512",
+   "schedule": [
+    "vram-512",
+    "vram-300",
+    "vram-300",
+    "vram-512"
+   ],
+   "conditions": {
+    "vram-512": {},
+    "vram-300": {}
+   },
+   "instances_per_slot": 1
+  }
+ ]
+}

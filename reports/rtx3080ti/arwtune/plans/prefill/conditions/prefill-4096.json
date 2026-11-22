@@ -1,0 +1,7 @@
+{
+ "id": "prefill-4096",
+ "model": "IQ3_XXS",
+ "model_overrides": {
+  "prefill": 4096
+ }
+}

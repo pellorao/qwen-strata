@@ -302,6 +302,10 @@ class ConfigurationTests(unittest.TestCase):
         _, _, env, _ = model_process.configuration({'engine_environment': {'STRATA_ROUTE_PRIOR': 1.5}}, 8100)
         self.assertEqual(env['STRATA_ROUTE_PRIOR'], '1.5')
 
+    def test_route_tail_skip_environment(self):
+        _, _, env, _ = model_process.configuration({'engine_environment': {'STRATA_ROUTE_TAIL_SKIP': 0}}, 8100)
+        self.assertEqual(env['STRATA_ROUTE_TAIL_SKIP'], '0')
+
     def test_sm86_perf_switch_environment(self):
         options = {'engine_environment': {'STRATA_ADAPT_LAG': 2, 'STRATA_SM86_PERF': 0}}
         _, _, env, _ = model_process.configuration(options, 8100)

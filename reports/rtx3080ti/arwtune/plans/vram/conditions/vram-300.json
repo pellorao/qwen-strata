@@ -1,0 +1,7 @@
+{
+ "id": "vram-300",
+ "model": "IQ3_XXS",
+ "model_overrides": {
+  "vram-reserve-mib": 300
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "schema": "arw-dimension-v2",
+ "host": "rtx3080ti",
+ "model": "IQ3_XXS",
+ "scenario": "spec-readiness",
+ "effort": "high",
+ "dimensions": [
+  {
+   "id": "prefill",
+   "default": "prefill-8192",
+   "schedule": [
+    "prefill-8192",
+    "prefill-4096",
+    "prefill-4096",
+    "prefill-8192"
+   ],
+   "conditions": {
+    "prefill-8192": {},
+    "prefill-4096": {}
+   },
+   "instances_per_slot": 1
+  }
+ ]
+}
