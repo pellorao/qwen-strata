@@ -2,8 +2,11 @@
 
 ## 结论
 - 用固定的 ARW 提交 6ca23a9（`config/arw-pin.json`，夹具树 4326aca）的 `reviewer-capability run`，在 Strata（IQ3_XXS，安装默认档 206584／150000，effort high）上跑出 Spec Readiness 3 个有效实例，无作废，模型加载一次，租约事后为 free。
-- **盲裁尚未做**：本工作按约束不开子 agent，裁判须由 Main 另派（至少 Sonnet high）。已建好盲池，见下。因此还没有可比较的最终分，只有无裁决的区间。
-- 区间（`score --provisional`，n=3 实例，均值 ± 标准差）：下界（所有未裁候选算错）-0.242 ± 0.030，上界（所有未裁候选算对）0.509 ± 0.089。区间很宽（47 个待裁候选 + 19 个对照），不能当分数用，也不能与 v1 的 SR v4.3 分数直接比较。
+- **最终分（盲裁已做，2026-11-22）**：Spec Readiness 3 实例均值 0.459 ± 0.057（SD，n=3，SE 0.033，95% 区间 0.317 到 0.602），实例 a1 0.515、a2 0.462、a3 0.401；无格式罚、无修复、无模型失败。47 个真实候选加 19 个对照全部裁定，候选集合已空，分数为定稿。
+- 与 v1 的 SR v4.3 分数不可直接比：场景版本（v4.5 修订 48，v2 草案口径）、ARW 提交和计分口径都不同，只能作为 ARW 固定版的新基线供 arwtune 等比较。
+- 盲裁质量：锚点 12 个一致率 1.0，合成对照 7 个全对，通过（pool split passed）；裁决分布 matched 39、not-matched 14、supported 4、unsupported 3、problem 3、false-positive 3。
+- 复核清单（Main 可选复核）：4 个 supported（sr-baseline-054、056、060、063）加 1 个有争议的 unsupported（sr-baseline-064，裁判点名最难，另有 029、059）。
+- 裁判是 Sonnet 5.5 high（我本人，不是 Opus；`decisions` 的 adjudicator 字段如实写 blind Sonnet 5.5 high），按 ARW skill 的下限（至少 Sonnet high）。
 
 ## 条件
 | 项 | 值 |
@@ -29,4 +32,4 @@
 - 安装目录的 `frontend.json` 没有 `listen_address`（固定 ARW 要求），沿用 arwtune 记的做法用影子视图，不改安装目录。
 
 ## 盲裁交接（Main 或后续工作）
-盲池在 `.tmp/arwpin/pool/sr-baseline/`（47 个真实候选 + 19 个对照，`pool view`、`pool prompt` 已做；原始实例文件在 `.tmp/arwpin/sr-baseline/`）。用 ARW 的 `$reviewer-capability` 盲裁步骤：把 `adj/` 复制进裁判工作目录，用 `prompt.md` 启动裁判，得到 `decisions-sr-baseline.json` 后 `pool split <root> sr-baseline <decisions>`，再对每个实例 `score ... --decisions <root>/sr-baseline/decisions.json --no-repair --agent a<N>/agent.json --instance a<N>`，最后 `summary`。完成后把最终分补进本报告和 README 现行决定。
+盲池在 `.tmp/arwpin/pool/sr-baseline/`（47 个真实候选 + 19 个对照，`pool view`、`pool prompt` 已做；原始实例文件在 `.tmp/arwpin/sr-baseline/`）。用 ARW 的 `$reviewer-capability` 盲裁步骤：把 `adj/` 复制进裁判工作目录，用 `prompt.md` 启动裁判，得到 `decisions-sr-baseline.json` 后 `pool split <root> sr-baseline <decisions>`，再对每个实例 `score ... --decisions <root>/sr-baseline/decisions.json --no-repair --agent a<N>/agent.json --instance a<N>`，最后 `summary`。2026-11-22 已完成：盲裁 decisions 在 `.tmp/arwpin/pool/sr-baseline/decisions.json`（裁判原件在 `/tmp/qwen-strata/arwpin-judge/judge/adj/decisions-sr-baseline.json`，易失），各实例 `score.json` 已写定稿，分数见上。
