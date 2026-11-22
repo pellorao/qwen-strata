@@ -71,7 +71,7 @@ def run_cell(work, scenario, out, count, effort=arw_run.EFFORT, first=1, instanc
     guard_runs.rate(f'qwen-strata/arw-cell-{scenario}', max_starts or count * 2 + 2, 6 * 3600)
     session = 'qs-' + arw_run.sha(str(out.resolve()).encode())[:8]  # one session directory per cell
     records, valid, number, streak = [], 0, first, (None, 0)
-    with guard_runs.registered(f'qwen-strata/arw-{scenario}', 'codex', model=arw_run.MODEL, effort=effort):
+    with guard_runs.registered(f'qwen-strata/arw-{scenario}', 'codex', model=arw_run.model_id(), effort=effort):
         while valid < count:
             name = f'a{number}'
             watch = StartupWatch(expected)

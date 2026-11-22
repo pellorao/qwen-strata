@@ -23,7 +23,8 @@ import time
 import urllib.request
 
 from tools.arw import pin as arw_pin
-from tools.ops.deployment_source import current_host, frontend_base, wsl_gateway
+from tools.ops.deployment_source import current_host, frontend_base, served_model, wsl_gateway
+from tools.ops.model_catalog import MODELS
 from tools.ops.measurement_host import MeasurementHost
 from src.startup_instructions import startup_prompt_bytes
 
@@ -32,7 +33,6 @@ ROOT = arw_pin.ROOT
 SCENARIOS = {'code-spec': 'requirements-reviewer', 'commit-audit': 'requirements-reviewer',
              'code-standards': 'code-standards-reviewer', 'spec-readiness': 'spec-readiness-reviewer'}
 PROVIDER = 'qwen_strata'
-MODEL = 'qwen3.8-flash-next-iq3_xxs'  # ARW model id of the served model (config/model-catalog.json slug)
 EFFORT = 'high'
 INSTANCE_WALL = 4500  # s; outer kill of one `run` (ARW's own limit is 3600 s of model work)
 STOP_WAIT = 60  # s; daemon exit after SIGTERM
@@ -145,7 +145,13 @@ def init(work, host=None, context_window=None):
             'installation': str(installation), 'frontend': frontend}
 
 
-def settings(model=MODEL, effort=EFFORT):
+def model_id(host=None):
+    """ARW model id (catalog slug) of the one model the current host serves."""
+    return 'qwen3.8-flash-next-' + MODELS[served_model(host or current_host())]
+
+
+def settings(model=None, effort=EFFORT):
+    model = model or model_id()
     return {'model': model, 'modelProvider': PROVIDER, 'reasoningEffort': effort, 'serviceTier': 'default'}
 
 
