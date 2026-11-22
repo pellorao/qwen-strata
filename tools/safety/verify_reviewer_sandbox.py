@@ -8,8 +8,8 @@ import socket
 import subprocess
 from tools.ops.deployment_source import current_host, published_tier, wsl_gateway
 from tools.safety.reviewer_permissions import restricted_profile
-from tools.reviewer.native_cli_binding import CODEX
-from tools.reviewer.wsl_client import ROOT, Client, save, statistics
+from tools.strata.native_cli_binding import CODEX
+from tools.strata.wsl_client import ROOT, Client, save, statistics
 
 MODELS = ('Q2_0', 'IQ2_XS', 'IQ3_XXS')
 

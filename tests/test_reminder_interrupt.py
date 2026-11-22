@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.reminder_interrupt import classify, classify_instance, deadline_events, error_side
+from tools.strata.reminder_interrupt import classify, classify_instance, deadline_events, error_side
 
 # Shapes of DeepSeek CS codex-low-a1 (2026-10-20): the reminder steer at attempted_at, the abandoned stream's
 # BrokenPipeError 0.106 s later, the resent request starting before it ended.

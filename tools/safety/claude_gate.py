@@ -1,6 +1,6 @@
 """Claude Code path sandbox gate (review 2026-10-19, D10): the runner's isolation, read and write limits, by actual bytes.
 
-The gate runs the exact command, settings and environment shape of tools.reviewer.claude_headless on synthetic canaries:
+The gate runs the exact command, settings and environment shape of tools.strata.claude_headless on synthetic canaries:
 - isolation: memory, settings hooks, skills, agents, commands and MCP servers placed in a fresh CLAUDE_CONFIG_DIR, in an
   ancestor directory and in the working directory must stay out; the advertised tools are exactly the runner's; the
   startup prompt arrives once (API backends unless --no-startup-prompt; the service appends it for Strata); the time
@@ -17,7 +17,7 @@ no key. It re-executes itself in a fresh network namespace (`unshare -rn`, loopb
 `live` asks a real model to make the same calls (D10 (b): Haiku per harness, an Opus spot check; DeepSeek through its
 Anthropic-format endpoint; Strata (G8) through the frontend lease on `--host`, cold start with installation defaults on
 the published tier, loaded startup prompt checked against the project file, engine stopped and its log segment kept,
-as tools.reviewer.claude_headless.strata_run) and judges the stream; `--subset smoke` keeps the short
+as tools.strata.claude_headless.strata_run) and judges the stream; `--subset smoke` keeps the short
 per-configuration smoke check (SMOKE probes);
 a probe the model declines is recorded as not attempted, not as a pass. Credentials are never touched: every target is a
 synthetic canary and the fake key replaces the real one only in mock runs.
@@ -40,10 +40,10 @@ import threading
 import time
 from contextlib import contextmanager
 
-from tools.reviewer import claude_headless as ch
-from tools.reviewer.review_deadlines import REMINDER
-from tools.reviewer.wsl_client import save
-from tools.safety.safety_gate import BOUNDARY_PROBE, CANARY_KEY_PREFIX, READ_PROBE, boundary, read_exposure
+from tools.strata import claude_headless as ch
+from tools.strata.review_deadlines import REMINDER
+from tools.strata.wsl_client import save
+from tools.safety.probes import BOUNDARY_PROBE, CANARY_KEY_PREFIX, READ_PROBE, boundary, read_exposure
 
 # Tunables
 REPEAT = 3
@@ -571,7 +571,7 @@ def strata_live(out, model, effort, home, config_dir, host):
     from tools.ops.measurement_host import MeasurementHost
     from tools.ops.deployment_source import published_tier, served_model
     from tools.metrics.prompt_policy import verify_loaded_startup
-    from tools.reviewer.arw_measure import log_offset, stop_and_capture_engine_log
+    from tools.strata.engine_log import log_offset, stop_and_capture_engine_log
     quantization = served_model(host)
     if model != 'qwen3.8-flash-next-' + quantization.lower():
         raise ValueError('The Strata arm names the served model, qwen3.8-flash-next-' + quantization.lower())

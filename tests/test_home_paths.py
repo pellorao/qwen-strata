@@ -13,7 +13,7 @@ RTX3080TI_HOME = '/home/pello'
 PROBE = r'''
 import json, tempfile
 from pathlib import Path
-from tools.reviewer import claude_headless as ch, claude_scenario as cs, harness_pins, providers
+from tools.strata import claude_headless as ch, harness_pins, providers
 from tools.tuning import sandbox_probe
 result = {
     'deny_read_home': ch.DENY_READ[0],
@@ -28,16 +28,6 @@ try:
     result['workspace_under_home'] = 'allowed'
 except ValueError:
     result['workspace_under_home'] = 'refused'
-with tempfile.TemporaryDirectory() as base:
-    root = base + '/arw/scenario'
-    Path(root, 'drafts').mkdir(parents=True)
-    handoff = {'scenarioRoot': root, 'input': {'reportPath': root + '/drafts/report.md'}}
-    work = Path(base, 'work')
-    try:
-        cs.stage(handoff, 'Review ' + root + ' then read /home/pello/notes.md', work, Path(base, 'stage'))
-        result['prompt_naming_home'] = 'allowed'
-    except ValueError as error:
-        result['prompt_naming_home'] = str(error)
 print(json.dumps(result))
 '''
 
@@ -57,7 +47,6 @@ class Rtx3080tiHomePathsTest(unittest.TestCase):
             'credential_deny': ['/home/pello/.claude/.credentials.json', '/home/pello/.codex', '/p/project.private.toml'],
             'user_codex': ['/home/pello/.codex'],
             'workspace_under_home': 'refused',
-            'prompt_naming_home': 'The prompt still names a path under the home directory',
         })
 
 

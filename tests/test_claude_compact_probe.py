@@ -92,7 +92,7 @@ class ServerTests(unittest.TestCase):
 class VerdictTests(unittest.TestCase):
     def grid(self, compacts_above):
         with tempfile.TemporaryDirectory() as tmp, mock.patch.object(probe.subprocess, 'run', fake_claude(compacts_above)):
-            summary = probe.run(Path(tmp) / 'out', tier=TIER, claude='claude', log=lambda _: None)
+            summary = probe.run(Path(tmp) / 'out', host='rtx3080ti', tier=TIER, claude='claude', log=lambda _: None)
             saved = json.loads((Path(tmp) / 'out/summary.json').read_text())
         self.assertEqual(saved['pass'], summary['pass'])
         return summary
@@ -163,13 +163,6 @@ class DeepSeekPlanTests(unittest.TestCase):
             plan = self.plan(tmp, CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE=1040000, CLAUDE_CODE_MAX_OUTPUT_TOKENS=32000)
             summary = probe.run_deepseek_plan(Path(tmp) / 'out', plan, claude='claude', log=lambda _: None)
         self.assertFalse(summary['pass'])
-
-    def test_the_repo_plans_carry_the_f5_values(self):
-        for name in ('code-spec-v5.1', 'code-standards-v5.1', 'commit-audit-v3.1', 'spec-readiness-v4.5'):
-            limits, pending = probe.deepseek_plan_limits(probe.ROOT / f'benchmarks/multi-model-v2/scenarios/{name}.json')
-            self.assertEqual(pending, [], name)
-            self.assertEqual(limits['CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE'], 945000, name)
-            self.assertEqual(limits['CLAUDE_CODE_MAX_OUTPUT_TOKENS'], 128000, name)
 
 
 if __name__ == '__main__':

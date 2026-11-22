@@ -1,7 +1,7 @@
 import unittest
 from unittest import mock
 
-from tools.reviewer import verify_codex_compact_prompt as tool
+from tools.strata import verify_codex_compact_prompt as tool
 
 
 class ArgumentTests(unittest.TestCase):

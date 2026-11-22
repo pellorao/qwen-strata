@@ -1,6 +1,6 @@
 """Measurement-only Codex profile: project read, fixed scratch write, command network denied."""
 from pathlib import Path
-from tools.reviewer.native_cli_binding import CODEX_VENDOR
+from tools.strata.native_cli_binding import CODEX_VENDOR
 
 
 def restricted_profile(workspace, scratch):

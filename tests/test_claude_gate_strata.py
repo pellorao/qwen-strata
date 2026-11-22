@@ -31,11 +31,13 @@ class StrataLiveGateTest(unittest.TestCase):
 
 
 class PlanLimitsTest(unittest.TestCase):
-    """v2 F13: the DeepSeek gate takes the scenario plan's Claude Code limits, never a null one, never on another backend."""
+    """The DeepSeek gate takes the scenario plan's Claude Code limits, never a null one, never on another backend."""
 
-    def test_v2_plan_limits_are_read(self):
-        limits = gate.plan_limits(Path('benchmarks/multi-model-v2/scenarios/commit-audit-v3.1.json'))
-        self.assertEqual(limits['CLAUDE_CODE_MAX_OUTPUT_TOKENS'], 128000)
+    def test_plan_limits_are_read(self):
+        with tempfile.TemporaryDirectory() as folder:
+            plan = Path(folder) / 'plan.json'
+            plan.write_text('{"fixed_conditions": {"deepseek_claude_environment": {"CLAUDE_CODE_MAX_OUTPUT_TOKENS": 128000}}}')
+            self.assertEqual(gate.plan_limits(plan)['CLAUDE_CODE_MAX_OUTPUT_TOKENS'], 128000)
 
     def test_null_limit_and_other_backend_are_rejected(self):
         with tempfile.TemporaryDirectory() as folder:

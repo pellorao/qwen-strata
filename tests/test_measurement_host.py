@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.arw_measure import capture_engine_log, log_offset, run
+from tools.strata.engine_log import capture_engine_log, log_offset
 from tools.ops.measurement_host import MeasurementHost, host_selection
 
 
@@ -69,16 +69,6 @@ class MeasurementHostTests(unittest.TestCase):
             owned=host_selection({'model_owner':'arw','engine_overrides':{}},'rtx3080ti')
         self.assertEqual(owned['engine_overrides'],{})  # ARW starts the model with installation defaults
 
-    def test_unbound_main_selection_is_rejected_before_model_work(self):
-        with tempfile.TemporaryDirectory() as directory:
-            target=Path(directory)/'run'
-            with patch('tools.ops.deployment_source.current_host',return_value='rtx3080ti'),\
-                patch('tools.reviewer.native_cli_binding.selection_native_cli',return_value=None),\
-                patch('tools.ops.measurement_host.MeasurementHost',return_value=self.remote()),\
-                    self.assertRaisesRegex(ValueError,'not frozen'):
-                run(None,target,{'engine_overrides':{'prefill':16384}},[],Path('/unused'),host='rtx3080ti')
-            self.assertFalse(target.exists())
-
     def test_target_configuration_is_verified_not_used_as_source(self):
         host=self.remote()
         expected={'args':['--prefill','8192'],'log':'C:/strata/logs/q2.log'}
@@ -118,7 +108,7 @@ class MeasurementHostTests(unittest.TestCase):
     def test_driver_uses_host_internal_tokens_and_phase_times(self):
         host=self.remote()
         raw=b'strata serve: prompt 150 tokens = 30 reused + 120 read in 10 ms, 7 generated in 3 ms\n'
-        with tempfile.TemporaryDirectory() as directory,patch.object(host,'log_offset',return_value=37),patch.object(host,'log_bytes_since',return_value=raw) as read,patch('tools.reviewer.arw_measure.subprocess.check_output',side_effect=AssertionError('Wrong host path access')):
+        with tempfile.TemporaryDirectory() as directory,patch.object(host,'log_offset',return_value=37),patch.object(host,'log_bytes_since',return_value=raw) as read:
             self.assertEqual(log_offset(host.installation,'Q2_0',host),37)
             stages,tokens=capture_engine_log(host.installation,'Q2_0',37,Path(directory),host)
             self.assertEqual(tokens,{'uncached_input':120,'cached_input':30,'output':7})

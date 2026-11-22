@@ -13,7 +13,7 @@ Every request body is kept, and the output-limit fields it carries (`max_output_
 
     python3 -m tools.safety.codex_compact_gate --out .tmp/<work>/codex-compact [--max-input 800000]
 
-Codex is the benchmark copy of tools.reviewer.harness_pins (SHA and version checked). The scripted usage is a claim to drive
+Codex is the benchmark copy of tools.strata.harness_pins (SHA and version checked). The scripted usage is a claim to drive
 the accounting, never a measurement.
 """
 import argparse
@@ -24,8 +24,8 @@ import threading
 import time
 
 from tools.ops.deployment_source import current_host, published_tier
-from tools.reviewer.native_cli_binding import pinned_codex
-from tools.reviewer.verify_codex_compact_prompt import Client, ROOT, save
+from tools.strata.native_cli_binding import pinned_codex
+from tools.strata.verify_codex_compact_prompt import Client, ROOT, save
 from tools.safety.gate_http import REQUEST_LOCK, read_json_request
 from tools.safety.scripted_responses import scripted_stream, tool_aliases
 

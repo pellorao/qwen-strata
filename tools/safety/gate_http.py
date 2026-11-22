@@ -1,4 +1,4 @@
-"""Request reading shared by the loopback gates (safety_gate, codex_compact_gate)."""
+"""Request reading shared by the loopback gates (codex_compact_gate)."""
 import threading
 
 REQUEST_LOCK = threading.Lock()  # request numbering and shared gate state under ThreadingHTTPServer

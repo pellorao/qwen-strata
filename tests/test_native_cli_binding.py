@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.reviewer.native_cli_binding import (CODEX, CODEX_SHA256, CODEX_VERSION, selection_native_cli,
+from tools.strata.native_cli_binding import (CODEX, CODEX_SHA256, CODEX_VERSION, selection_native_cli,
                                                file_sha256, verify_native_cli)
 
 
@@ -24,7 +24,7 @@ class NativeCliBindingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / 'codex'
             path.write_bytes(b'changed')
-            with patch('tools.reviewer.native_cli_binding.subprocess.check_output') as run:
+            with patch('tools.strata.native_cli_binding.subprocess.check_output') as run:
                 with self.assertRaisesRegex(ValueError, 'SHA differs'):
                     verify_native_cli(dict(executable=str(path), sha256='old', version='0.160.1'))
                 run.assert_not_called()
@@ -35,16 +35,16 @@ class NativeCliBindingTests(unittest.TestCase):
             path.write_bytes(b'cached binary')
             binding = dict(executable=str(path), sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
                            version='0.160.1')
-            with patch('tools.reviewer.native_cli_binding.subprocess.check_output', return_value='codex-cli 0.161.0\n'):
+            with patch('tools.strata.native_cli_binding.subprocess.check_output', return_value='codex-cli 0.161.0\n'):
                 with self.assertRaisesRegex(ValueError, 'version differs'):
                     verify_native_cli(binding)
-            with patch('tools.reviewer.native_cli_binding.subprocess.check_output', return_value='codex-cli 0.160.1\n') as run:
+            with patch('tools.strata.native_cli_binding.subprocess.check_output', return_value='codex-cli 0.160.1\n') as run:
                 self.assertEqual(verify_native_cli(binding)['observed_version'], 'codex-cli 0.160.1')
                 run.assert_called_once_with([str(path), '--version'], text=True, timeout=20)
 
     def test_unbound_selection_runs_the_pinned_benchmark_copy(self):
         self.assertIn(f'/.local/share/qwen-bench/codex-{CODEX_VERSION}/', str(CODEX))
-        with patch('tools.reviewer.native_cli_binding.verify_native_cli', side_effect=lambda b: b) as verify:
+        with patch('tools.strata.native_cli_binding.verify_native_cli', side_effect=lambda b: b) as verify:
             self.assertEqual(selection_native_cli(None),
                              {'executable': str(CODEX), 'version': CODEX_VERSION, 'sha256': CODEX_SHA256})
             self.assertEqual(selection_native_cli({'executable': '/x'}), {'executable': '/x'})
