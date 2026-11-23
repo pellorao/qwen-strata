@@ -1,6 +1,6 @@
 # 下载与恢复清单
 
-本机已于 2026-11-20 安装 v0.2.16（引擎 0.1.62），见[升级报告](../reports/v0.2.16/upgrade.md)；前一版 v0.2.15 保留供回退。后续升级待办见所在机器的状态页。单个不超过1GB的文件可由助手下载；超过1GB的模型等由用户下载，来源与校验由工程维护。以下链接供恢复及后续升级核对。`artifacts/` 只保留最新版和前一个版本（前一版用于无法修复时回退）；更早的版本只保留下面的来源、大小和 SHA，需要时重新下载核对（用户 2026-10-14）。
+本机已于 2026-11-23 安装 v0.2.19（引擎 0.1.65），见[升级报告](../reports/v0.2.19/upgrade.md)；前一版 v0.2.18（引擎 0.1.64，2026-11-22 装）保留供回退。后续升级待办见所在机器的状态页。单个不超过1GB的文件可由助手下载；超过1GB的模型等由用户下载，来源与校验由工程维护。以下链接供恢复及后续升级核对。`artifacts/` 只保留最新版和前一个版本（前一版用于无法修复时回退）；更早的版本只保留下面的来源、大小和 SHA，需要时重新下载核对（用户 2026-10-14）。
 
 探索下载的候选模型、分词器和配套文件统一放工程`.tmp/`；仅在确认需要采用后才进入`artifacts/`。工程长期保留公共来源、固定版本、大小、SHA及必要结果，临时缓存位置不表示已采用或已部署；清空临时目录后重新下载／准备。此规则同时适用于助手和提供给用户的探索下载路径。
 
@@ -12,7 +12,24 @@
 - 本地产物：pack 522,458,112 字节，SHA-256 `cda40d62d0eb8f37ed6e272142641a1d2f0de4a32f9e14d0416e7a71534849f1`（与上游钉死值一致），落地安装目录 `data\dflash2\qwen3.8-flash-next-dflash2.q4_0.pack` 加 `draft_vocab.bin`。总写盘约 1.2 GB 下载加 0.5 GB pack。
 - 注意：pack 已在本机，若以后去掉模板的 `"drafting": "mtp"` 钉死，Auto 会悄悄换成 DFlash2。需要恢复时重新执行 `strata drafting fetch --data-dir <安装目录>\data`。
 
-## Strata v0.2.16（本机已安装）
+## Strata v0.2.19（本机已安装）
+
+2026-11-23 由 up0219 下载并核对，同日装为生产。发布 v0.2.19（提交 `c6f6427d9de9016fd92d13e29740f65625261df7`，Control 与引擎 0.1.65），引擎 build_id `26350e4387b8+cuda13.0`。上游在同架构（sm_86）显卡上测得解码快 13% 到 20%、提示读取快 12% 到 26%。合计下载约 537 MB；Control zip 不需要，没有下载。
+
+- 引擎：[strata-engine-0.1.65-windows-x86_64-cuda-cuda13.tar.gz](https://github.com/Niko1221/Strata/releases/download/v0.2.19/strata-engine-0.1.65-windows-x86_64-cuda-cuda13.tar.gz)，490092153 字节，官方 SHA256 `2d1891971799a3327d37a2ccbc01561baae18042d2bf6abd7c5715950e7bf0e9`，与 API digest 一致，清单 SHA `0110bdc8…52a65aa`。
+- feed：[strata-feed.json](https://github.com/Niko1221/Strata/releases/download/v0.2.19/strata-feed.json)，38126 字节，SHA256 `b1ed1be130dadf3e1a763fc1ce60681ca47132ef1ed91eec74f7a9e6d603df2a`（sequence 131），Ed25519 签名（`5d1bc23abbeffd0d`）核验通过；feed 里引擎 URL 为相对文件名。
+- 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.19.zip)，47068207 字节，本地 SHA256 `3508e316d391dc8899cf83c4e1ebe84d03d4e976a1043ea5ab3a3388e6e3a1c0`。相对 0.2.18 只有 `AGENTS.md` 的版本文字变化（元数据 `reviewed_changes` 绑定其 SHA），`requirements.txt` 与 `MODEL_CARD_SAMPLING` 不变。
+- 工程文件为 `artifacts/strata/0.2.19/`，`config/artifacts/strata-release.json` 已指向本版。0.2.18 保留作回退；0.2.16 与 0.2.15 的本地文件已于 2026-11-23 删除（来源与 SHA 见下）。
+
+## Strata v0.2.18（本机前一版，保留作回退）
+
+2026-11-22 装为生产（引擎 0.1.64，提交 `6e38f588a646c0ee6948a74afbe670eb75896106`，build_id `f609f862fa9e+cuda13.0`，feed 即时 SHA `0a2e65f86a483a3cd7357596a24814dfe0c6a6cfa20e607db42bcff729df15a5`）。
+
+- 引擎：[strata-engine-0.1.64-windows-x86_64-cuda-cuda13.tar.gz](https://github.com/Niko1221/Strata/releases/download/v0.2.18/strata-engine-0.1.64-windows-x86_64-cuda-cuda13.tar.gz)，487584992 字节，SHA256 `da28bc553a938812c9e3455477510d79783fe819912e364013a580460254c288`。
+- 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.18.zip)，46254329 字节，本地 SHA256 `513e2239d8c9a67100b02342cd1bf529576c06c5eab821aa03ac64fa16fe574f`。
+- 工程文件为 `artifacts/strata/0.2.18/`。
+
+## Strata v0.2.16（旧版，本地文件已删）
 
 2026-11-20 由 latest 任务下载并核对，同日装为生产。发布 v0.2.16（提交 `64524fb9fc82222ddce554c0643b64f056ec8366`），引擎 0.1.62（build_id `1d295787b365+cuda13.0`，自研内核，不含 ggml/llama.cpp 矩阵内核）。源码 ZIP 布局改变：Python 运行时在 `terminal/`，引擎源码在 `engine/`，`upgrade_release` 已适配。合计下载约 532 MB（约 0.53 GB）。
 
@@ -21,7 +38,7 @@
 - 源码：[标签 ZIP](https://github.com/Niko1221/Strata/archive/refs/tags/v0.2.16.zip)，44833196 字节，本地 SHA256 `032cf90ade5ad5a67974fbaa0f3c4d6ba355350b4c82dd6ada0ab10a6017d45f`。
 - 工程文件为 `artifacts/strata/0.2.16/`，`config/artifacts/strata-release.json` 已指向本版。0.2.15 保留作回退。
 
-## Strata v0.2.15（本机前一版，保留作回退）
+## Strata v0.2.15（旧版，本地文件已删）
 
 2026-11-18 由 up0214 评估下载并核对，同日经 up0215 装为生产。发布 v0.2.15（提交 `c77572806996349b49995e4f98d41b5294d36a21`，Control 0.1.61），引擎 0.1.60（build_id `09b603886925+cuda13.0`）；feed 里引擎 URL 沿用 v0.2.14 发布的资产。合计下载约 578 MB。
 
