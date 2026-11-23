@@ -8,13 +8,13 @@
 - **区分度来自少数用例**：23 个用例中只有 MD-RATIONALE#2 双方 0 命中，是有效难题（见"逐用例命中"）。Q3 落后主要在 MD-INTERFACES#4、MD-RATIONALE#1（0/10，Opus 2/3、3/3）和 MD-INTERFACES#3、MD-DEPENDENCIES-DATA-FLOW#1、SR-REQUIREMENTS#3、MD-MODULES#0；反过来 MD-INTERFACES#5 是 Q3 6/10、Opus 0/3。
 - **Q3 波动大，使用受限**：单次分数没有意义（10 次在 0.344–0.696 之间）；10 次时比值约 ±0.04，每组 10 次只能检出约 0.14 以上的差异；引用结果必须带次数和区间（见"SD 带来的使用限制"）。
 - **全部 10 个 Q3 实例有效**：会话检查未发现压缩、早退或禁止来源访问；所有实例的罚分项 r = 0，罚前分等于罚后分。
-- **适用范围**：只对 rtx3080ti、IQ3_XXS、Strata 0.1.44.1、Codex 0.162.0、effort high 成立。分数只在 v4.2（修订号 45）内、同为 r8 口径下比较；与 v4.1（r7.1）不直接比分。
+- **适用范围**：只对 本机、IQ3_XXS、Strata 0.1.44.1、Codex 0.162.0、effort high 成立。分数只在 v4.2（修订号 45）内、同为 r8 口径下比较；与 v4.1（r7.1）不直接比分。
 - **v4.2 定为 Spec Readiness 定版场景，不再加难**（2026-10-17，Main 与独立审查意见一致，见"独立审查意见"）。这是场景内部的决定，所以登记在 `versions.md`，不写进 README「现行决定」；待用户复核。
 
 ## 运行
 
 - 时间：2026-10-16 起跑，10-17 完成后处理与计分。Q3 共 5 批：A（让位前只完成 2 次）、Ar（补 A 让位剩下的 1 次）、B、C、D；原定 5 次为 A、Ar、B（共 5 次），加测 5 次为 C 3 次、D 2 次，目标次数事先写定为 10。
-- 条件：rtx3080ti，IQ3_XXS，Strata 0.1.44.1，Codex 0.162.0，effort high；冻结夹具修订 45，答案键 sha256 `74252e0a…`，A 类正反 4:4。计划：`benchmarks/reviewer-suite-v1/spec-readiness-v4.2-iq3_xxs-2026-10-16-v0.1.44.1/plan.json`。每个实例的 RM、AP 各用一个全新根线程。
+- 条件：本机，IQ3_XXS，Strata 0.1.44.1，Codex 0.162.0，effort high；冻结夹具修订 45，答案键 sha256 `74252e0a…`，A 类正反 4:4。计划：`benchmarks/reviewer-suite-v1/spec-readiness-v4.2-iq3_xxs-2026-10-16-v0.1.44.1/plan.json`。每个实例的 RM、AP 各用一个全新根线程。
 - 参考：Opus 5.5 medium ×3（Claude Code 无头，每次约 7 分钟）；Haiku 5.5 high ×5，只用于机械区间和 p基准。
 - 计分：评分 r8（按 k 分档的统一计分）；候选先经盲裁，Q3 与 Opus 同口径。
 - 中途让位：2026-10-16 21:5x 因 Claude Code 重启让位，A 批只完成 2 次，其余按"运行"所述补跑；Opus ×3 在让位前已完成。

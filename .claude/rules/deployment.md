@@ -5,17 +5,17 @@ paths:
   - "scripts/**"
   - "tools/ops/**"
   - "docs/installation-directory-*.md"
-  - "docs/installation-readme-hosts/**"
+  - "docs/installation-local-sections*.md"
 ---
 
 # 部署规则
 
-- 安装目录只放运行所需的服务、配置和调用手册。调用手册分两篇、各中英两份（英文 `X.md` 为默认，简体中文 `X.zh-CN.md`）：简介 `docs/installation-directory-readme*.md`（部署为安装目录的 `README*.md`）和详细手册 `docs/installation-directory-manual*.md`（部署为 `docs/manuals/caller-manual*.md`），共 4 份模板，两种语言内容保持同步。模板按主机和语言渲染：`{{名称}}` 取自主机配置，`{{host.<段名>}}` 是只对该主机成立的实测段落，在 `docs/installation-readme-hosts/<host>.md`（英文）和 `<host>.zh-CN.md`（中文）；新主机部署前先写它的两份段落文件。工程的 reports、benchmarks、tools、tests 和主题文档不部署。
-- 每机配置由工程模板加 `config/deployments/<host>.json` 渲染生成。不把一台的配置复制给另一台。
-- 每台机器只对外一个模型（用户 2026-10-19）：安装目录只放 `models` 那一个的 prebuilt 和 catalog 条目，部署时把其他量化的 prebuilt 备份后删除，权重、runtime、`data/` 留着；前端只启动它。不对外量化的覆盖、环境和档位留在主机文件里作不对外数据。维护基线 = 对外模型 + 部署默认值，不另设基线文件。用户提出专门针对不对外量化的任务时，`models` 保持不变，用 `deploy --condition` 部署该量化，专项结束后普通部署恢复；现有代码的 condition 只接受对外模型，多模型渲染和前端放行在第一次需要时实现。
+- 安装目录只放运行所需的服务、配置和调用手册。调用手册分两篇、各中英两份（英文 `X.md` 为默认，简体中文 `X.zh-CN.md`）：简介 `docs/installation-directory-readme*.md`（部署为安装目录的 `README*.md`）和详细手册 `docs/installation-directory-manual*.md`（部署为 `docs/manuals/caller-manual*.md`），共 4 份模板，两种语言内容保持同步。模板按语言渲染：`{{名称}}` 取自 `config/installation.json`，`{{local.<段名>}}` 是只对本机成立的实测段落，在 `docs/installation-local-sections.md`（英文）和 `docs/installation-local-sections.zh-CN.md`（中文）。工程的 reports、benchmarks、tools、tests 和主题文档不部署。
+- 安装配置由工程模板加 `config/installation.json` 渲染生成。
+- 只对外一个模型（用户 2026-10-19）：安装目录只放 `models` 那一个的 prebuilt 和 catalog 条目，部署时把其他量化的 prebuilt 备份后删除，权重、runtime、`data/` 留着；前端只启动它。不对外量化的覆盖、环境和档位留在 `config/installation.json` 里作不对外数据。维护基线 = 对外模型 + 部署默认值，不另设基线文件。用户提出专门针对不对外量化的任务时，`models` 保持不变，用 `deploy --condition` 部署该量化，专项结束后普通部署恢复；现有代码的 condition 只接受对外模型，多模型渲染和前端放行在第一次需要时实现。
 - 部署流程（`tools/ops/deploy.py`）：等前端空闲 → 领租约 → 确认模型已停 → 关闭前端 → 备份、替换 → 逐文件回读 SHA → 由计划任务重启前端并等待 `/health`。租约被持有时中止，不抢占。
 - 测量运行期间（运行前检查会比对安装目录和工程源码），部署集合内未部署的改动先在 `master` 上提交但不部署；审查通过后，在两个实例之间部署并推送。否则检查不通过，在跑的测量会停住（2026-10-20 d644935 曾让 Strata 臂停下）。
-- 修改部署集合内的源文件后，同步所有已注册主机。离线的主机记为"待同步"，恢复后补上；一台成功不算全部完成。
+- 修改部署集合内的源文件后，重新部署并回读校验。
 - 调用接口或参数变化时，先改调用手册源文件，再部署。
 - 备份与保留（用户 2026-10-14）：部署和升级的备份放工程 `.tmp/maintenance-backups/`，只保留最新的升级备份和最近的部署备份；`artifacts/` 下每种制品只保留最新版和前一个版本（前一版用于遇到无法修复的问题时回退），更早的版本删除文件、保留下载清单中的来源和 SHA。
 - 安装目录运行时不读工程目录（用户坚持）。重建安装目录时改名旧目录、移动大目录，不原地删除。租约不加自动回收或空闲超时，卡住的租约靠重启前端清除（用户拒绝过自动回收）。

@@ -1,12 +1,12 @@
-# rtx3080ti IQ3_XXS 补测第 2 维：自适应层重新评估间隔（`--adapt-every` 4 / 2 / 8）
+# 本机 IQ3_XXS 补测第 2 维：自适应层重新评估间隔（`--adapt-every` 4 / 2 / 8）
 
 结论：**保持默认 4**，不改部署配置。三者没有可分辨的差异：引擎输出 4 为 116.4、2 为 114.1、8 为 117.7 token/s，8 的单次范围（117.3–117.8）落在 4 的范围（114.8–118.3）之内；按逐请求解码速度，9 个请求均值为 117.3 / 115.1 / 117.9，真实效应估计在 ±1.5% 以内，按零效应对待。27/27 全对。Main 与独立复核 agent 意见一致。
 
-适用范围：仅 rtx3080ti、IQ3_XXS、Strata v0.1.42、32K 合成短负载；adapt-swaps 96、adapt-decay 默认。真实 ARW 长会话未验证。
+适用范围：仅 本机、IQ3_XXS、Strata v0.1.42、32K 合成短负载；adapt-swaps 96、adapt-decay 默认。真实 ARW 长会话未验证。
 
 ## 条件
 
-同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--adapt-every`。执行顺序：4-1、2-1、8-1、8-2、2-2、4-2、2-3、8-3、4-3。所有实例加载 18.3–18.9 秒，这一维没有冷启动偏差。冻结计划：[rtx3080ti-iq3_xxs-adapt-every-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-adapt-every-plan.json)。
+同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--adapt-every`。执行顺序：4-1、2-1、8-1、8-2、2-2、4-2、2-3、8-3、4-3。所有实例加载 18.3–18.9 秒，这一维没有冷启动偏差。冻结计划：[本机-iq3_xxs-adapt-every-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-adapt-every-plan.json)。
 
 运行中 Main 误向外层 shell 发了中断信号，测量进程未受影响，9 个实例全部按计划完成，未重跑。
 

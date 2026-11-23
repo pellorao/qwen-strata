@@ -14,7 +14,7 @@
 ## 运行
 
 - 时间：2026-10-14 22:07 至 10-15 01:35 跑 A、B、C、D、E、Er 共 6 批（原定 10 次）；10-15 01:41–04:18 加测 F–J 各 2 次。
-- 条件：rtx3080ti，IQ3_XXS，Strata 0.1.44.1（installed-release 296b59d），Codex 0.162.0，effort high（budget 8192，max 24576）。冻结夹具修订 44，v4.1 键 sha256 `3093980f…`，registry 登记 all-B。启动提示 SHA 各批一致（base `5d36e1d1…`、developer `50bd785d…`、user@3 `c8957099…`；user@6 按线程类型各自一致）。每次 RM、AP 各用一个全新根线程，全部 0 压缩，终态 ready。
+- 条件：本机，IQ3_XXS，Strata 0.1.44.1（installed-release 296b59d），Codex 0.162.0，effort high（budget 8192，max 24576）。冻结夹具修订 44，v4.1 键 sha256 `3093980f…`，registry 登记 all-B。启动提示 SHA 各批一致（base `5d36e1d1…`、developer `50bd785d…`、user@3 `c8957099…`；user@6 按线程类型各自一致）。每次 RM、AP 各用一个全新根线程，全部 0 压缩，终态 ready。
 - 计划：`benchmarks/reviewer-suite-v1/spec-readiness-v4-iq3_xxs-2026-10-14-v0.1.44.1/`。
 - 与 v0.1.42 时期的混杂：
   1. Strata 版本 0.1.42 → 0.1.44.1。

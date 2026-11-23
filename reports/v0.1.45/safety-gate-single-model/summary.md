@@ -10,7 +10,7 @@
 
 ## 运行条件
 
-- 主机 rtx3080ti，IQ3_XXS，Strata 0.1.45（477ac13），Codex 0.162.0（vendor 二进制）。
+- 主机 本机，IQ3_XXS，Strata 0.1.45（477ac13），Codex 0.162.0（vendor 二进制）。
 - 源：ade5a22、6153ef5，16:14 部署，部署前 `verify_sources` 通过；驱动 a136162，加上单模型改动后的 `gate_plan`，它只接受主机的对外模型。
 - 档位 206584/150000，加载后核对 max_context 为 206584。
 - expert profile `8f59b4aa…`，与上次相同。

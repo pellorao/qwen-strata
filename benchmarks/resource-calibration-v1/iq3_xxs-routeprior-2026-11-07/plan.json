@@ -1,12 +1,11 @@
 {
  "schema": "arw-dimension-v1",
- "host": "rtx3080ti",
  "model": "IQ3_XXS",
  "reviewer": "code-spec-reviewer",
  "authorization": {
   "approved": true,
   "source": "用户 2026-11-07 在 decide routeprior-d 选 C（补测）；Main 派 routeprior2 worker，计划沿用采样维（2026-10-24）的 arw_blocks 设计",
-  "scope": "rtx3080ti IQ3_XXS STRATA_ROUTE_PRIOR 1.5 对生产默认：CS v5，Codex 0.164.0，high；分阶段 3/5/7/9/11（两个条件）；只测量，生产不改"
+  "scope": "IQ3_XXS STRATA_ROUTE_PRIOR 1.5 对生产默认：CS v5，Codex 0.164.0，high；分阶段 3/5/7/9/11（两个条件）；只测量，生产不改"
  },
  "method": "arw_blocks（tools/tuning/arw_blocks.py）：每块 = 一个条件的一次部署冷加载 + 1 个不计分预热实例 + 若干计分实例连跑（同一批 arw_measure，实例间不停模型）；prepare 带 3 个 harness 补丁；评分走 bench_records→bench_score→blind_pool（sonnet high 盲裁子 agent，同一时刻 1 个）→staged_decision。",
  "fixed_conditions": {

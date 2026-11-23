@@ -31,7 +31,7 @@
   "model_requests": 0,
   "annotation_complete": true,
   "detector_acceptance": false,
-  "remote_state_user_reported": "rtx3080ti shutdown; no SSH needed for current offline work",
+  "remote_state_user_reported": "machine shut down; no SSH needed for current offline work",
   "related_regressions_passed": {
     "normalizer": 6,
     "corpus": 5,

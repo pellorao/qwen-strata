@@ -1,6 +1,5 @@
 {
   "schema": "arw-dimension-v1",
-  "host": "rtx3080ti",
   "model": "IQ3_XXS",
   "reviewer": "commit-audit-reviewer",
   "authorization": {
@@ -8,7 +7,7 @@
     "source": "用户 2026-10-11 批准申请一（IQ3_XXS 补测调参第 5–7 维），并同意开始无模型准备；部署留到开跑时",
     "scope": "第 5 维 --spec 3/4/5/6 各 3 次（12）；第 6 维 CPU 辅助显式 auto/不设置各 3 次（6）；第 7 维学习型专家档案关/开各 3 次（6），另加训练（细节待用户决定）"
   },
-  "method": "方案 A：每个实例前用 tools.ops.deploy 把该条件叠加到 rtx3080ti 默认配置部署到安装目录（部署会停模型并重启前端，因此每个实例冷启动引擎），ARW 持有模型运行 1 个 Commit Audit 实例；实例后从引擎日志和进程环境核对实际生效值。",
+  "method": "方案 A：每个实例前用 tools.ops.deploy 把该条件叠加到默认配置部署到安装目录（部署会停模型并重启前端，因此每个实例冷启动引擎），ARW 持有模型运行 1 个 Commit Audit 实例；实例后从引擎日志和进程环境核对实际生效值。",
   "fixed_conditions": {
     "strata": "0.1.42",
     "codex": "0.162.0",

@@ -1,4 +1,4 @@
-# rtx3080ti IQ3_XXS 第 6 维：CPU 辅助预填充（显式 auto / 不设置）
+# 本机 IQ3_XXS 第 6 维：CPU 辅助预填充（显式 auto / 不设置）
 
 **结论：维持显式 `STRATA_PREFILL_CPU_SHARE=auto`（现默认值，配置不改）。** Main 与独立复核一致。取 auto 的理由是"维持现值"，不是"auto 更快"。
 
@@ -12,7 +12,7 @@
 
 **评分口径复核（2026-10-12）**：按用户确定的调参口径（[测量规则 · 评分口径](../../../../.claude/rules/measurement.md#评分口径)），调参取 ARW 扣罚前分。本维每个实例的分数都等于由 problemDetectionRate、cleanAcceptanceRate 按 ARW F2 公式算出的扣罚前分（逐实例核对，差 <0.0006），即格式归一后没有残留报告诊断、没有 ×0.9 罚分，分数和结论都不变。
 
-**适用范围**：仅限 rtx3080ti、IQ3_XXS、Strata v0.1.42、Codex high、ARW Commit Audit 单一场景。
+**适用范围**：仅限 本机、IQ3_XXS、Strata v0.1.42、Codex high、ARW Commit Audit 单一场景。
 
 ## 条件
 
@@ -108,7 +108,7 @@
   - `/tmp` 写入尝试与条件无关，只记录；slot 1 的编排崩溃发生在测量之后，不影响结果。
   - 每条件 n=3；204 个候选由知道条件的 Main 裁决，全部 matched，对结论影响有限。
 - **Main**：同意复核，维持 auto。双方一致（自主模式，2026-10-12）。
-- **部署**：配置未改。2026-10-12 01:52 用 `tools.ops.deploy --host rtx3080ti` 重新部署默认，回读结果：
+- **部署**：配置未改。2026-10-12 01:52 用 `tools.ops.deploy` 重新部署默认，回读结果：
   - spec 4，spec-min-p 0.9，`STRATA_PREFILL_CPU_SHARE=auto`。
   - 23 个源文件 SHA 校验通过。
   - 前端 lease free，模型未加载。

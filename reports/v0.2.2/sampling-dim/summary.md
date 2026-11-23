@@ -1,4 +1,4 @@
-# 采样维第 1 轮：greedy / card / t06（rtx3080ti / IQ3_XXS，ARW code-spec-v5，2026-10-24）
+# 采样维第 1 轮：greedy / card / t06（本机 / IQ3_XXS，ARW code-spec-v5，2026-10-24）
 
 ## 结论
 

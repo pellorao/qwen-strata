@@ -1,4 +1,4 @@
-# adaptfetch：`STRATA_ADAPT_FETCH` 关 / 1 / 2（rtx3080ti，IQ3_XXS，Strata v0.2.12，2026-11-08）
+# adaptfetch：`STRATA_ADAPT_FETCH` 关 / 1 / 2（本机，IQ3_XXS，Strata v0.2.12，2026-11-08）
 
 只测量，生产未改。来源：v0.2.12 新开关，上游唯一数据是 IQ3_S、RTX PRO 5000、缓存仅 16% 专家、`--pcie-frac 0.25` 下解码 `=2` +10.2%、`=1` +5.0%（命中率 54-61% 升到 71-78%）。
 

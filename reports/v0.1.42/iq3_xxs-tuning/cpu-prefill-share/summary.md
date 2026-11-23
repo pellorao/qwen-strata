@@ -1,12 +1,12 @@
-# rtx3080ti IQ3_XXS 第 6 维：CPU 辅助短输入（STRATA_PREFILL_CPU_SHARE 0 / auto）
+# 本机 IQ3_XXS 第 6 维：CPU 辅助短输入（STRATA_PREFILL_CPU_SHARE 0 / auto）
 
 结论：**auto（当前默认）输入处理更快**，引擎输入 2086 对 1871 token/s（+11.5%，Welch t≈21，三对交错全部同向），引擎输出持平（116.3 对 115.4），两组 9/9 全对。提速集中在短增量：每个小于 1024 token 的分块固定省 0.6–0.7 秒，第 2、3 请求的输入时间约少 1/3；8192 的整块没有变化。按"速度优先"规则保持 auto，默认不变，不部署。Main 与独立复核 agent 意见一致。
 
-适用范围：仅 rtx3080ti、IQ3_XXS、Strata v0.1.42、32K 合成短负载。部署里显式写了 `auto`，与上游默认（不设置）不等价：显式 auto 的分担上限是 3072 token（不设置时 1024），所以 1024–3071 token 的分块也走 CPU 分担（上游在 5070 上测到 2048 token 慢 2%）；本组只覆盖了小于 1024 的分块，而 agent 工具结果常在 1–3K，这一段未验证。显式 auto 时内存不足只警告、不会自动跳过。
+适用范围：仅 本机、IQ3_XXS、Strata v0.1.42、32K 合成短负载。部署里显式写了 `auto`，与上游默认（不设置）不等价：显式 auto 的分担上限是 3072 token（不设置时 1024），所以 1024–3071 token 的分块也走 CPU 分担（上游在 5070 上测到 2048 token 慢 2%）；本组只覆盖了小于 1024 的分块，而 agent 工具结果常在 1–3K，这一段未验证。显式 auto 时内存不足只警告、不会自动跳过。
 
 ## 条件
 
-同[第 1 维](../pcie-frac/summary.md)，加前五维胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192），只改环境变量。每个实例从唯一的 strata.exe 进程读到的环境变量与条件一致。执行顺序 0-1、auto-1、auto-2、0-2、auto-3、0-3。冻结计划：[rtx3080ti-iq3_xxs-cpu-share-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-cpu-share-plan.json)。
+同[第 1 维](../pcie-frac/summary.md)，加前五维胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192），只改环境变量。每个实例从唯一的 strata.exe 进程读到的环境变量与条件一致。执行顺序 0-1、auto-1、auto-2、0-2、auto-3、0-3。冻结计划：[本机-iq3_xxs-cpu-share-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-cpu-share-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

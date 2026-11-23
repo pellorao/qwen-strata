@@ -1,11 +1,10 @@
 {
- "host": "rtx3080ti",
  "model": "Q2_0",
  "strata": "0.1.40.2",
  "date": "2026-10-10",
  "kind": "exploratory: one model load per condition, 1 cold + 3 measured requests; not a formal 3-instance tuning comparison",
  "disk_counter": "Windows PhysicalDisk(_Total) cumulative raw bytes, system-wide",
- "fixed": "installed rtx3080ti Q2_0 defaults; reasoning_effort low; temperature 0; every request prefixed with a distinct run id",
+ "fixed": "installed Q2_0 defaults; reasoning_effort low; temperature 0; every request prefixed with a distinct run id",
  "workloads": {
   "s6": {
    "input": "src/frontend.py (~4K tokens input), max_tokens 1500",

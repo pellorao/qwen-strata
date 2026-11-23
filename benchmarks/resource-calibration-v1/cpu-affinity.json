@@ -1,6 +1,5 @@
 {
   "status": "user-approved-resumed-after-remote-reboot",
-  "host": "rtx3080ti",
   "model_instances": 6,
   "observations_per_condition": 3,
   "logical_requests_per_instance": 3,

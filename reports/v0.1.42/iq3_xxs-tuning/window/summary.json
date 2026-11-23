@@ -26,7 +26,7 @@
  "compaction_note": "压缩触发前请求输入：156584 槽 88–100K，206584 槽 119–125K（slot 3 达 127585 未压缩）；触发值不等于阈值，是 Codex 本地估算口径与服务端计数不同；206584 槽最大请求输入 119–130K，均在已验证的约 151K 以内",
  "catalog_note": "run/native-model-catalog.json 与 models_cache.json 在 206584 槽仍只列 156584（原生目录默认档）；实际窗口以会话 model_context_window 206584 为准",
  "restore": {
-  "command": "python3 -m tools.ops.deploy --host rtx3080ti",
+  "command": "python3 -m tools.ops.deploy",
   "read_back_verified": true,
   "iq3_xxs_config_sha256": "cf7b20ea83f7d15b4f2bca8c411f534b3a6e37f2ba28cceb0361d5126f004cd3",
   "context_tiers": [

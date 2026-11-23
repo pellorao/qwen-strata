@@ -33,7 +33,7 @@ class CorpusTests(unittest.TestCase):
         self.assertEqual(sum(r['reviewer_executed'] for r in rows), 30)
         self.assertEqual(sum(r['performance_sample_eligible'] for r in rows), 24)
         self.assertEqual(sum(not r['reviewer_executed'] for r in rows), 1)
-        self.assertEqual({r['host'] for r in rows}, {'local', 'rtx3080ti'})
+        self.assertEqual({r['host'] for r in rows}, {'local'})
 
     def test_one_passage_overlapping_two_markers_is_not_two_witnesses(self):
         case = {'case_id': 'overlap', 'evidence_marks': [

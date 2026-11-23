@@ -2,13 +2,12 @@
   "schema_version": 1,
   "status": "frozen-approved",
   "created_at": "2026-10-10T04:47:06.095295+00:00",
-  "host": "rtx3080ti",
   "authorization": {
     "approved": true,
     "approved_on": "2026-10-10",
     "scope": "VRAM reserve 1024/768/512, 9 cold instances, 27 logical requests; spec-min-p deferred until temperature is chosen."
   },
-  "purpose": "Choose the rtx3080ti Q2_0 VRAM reserve: GPU expert-cache capacity against headroom for desktop growth and temporary buffers.",
+  "purpose": "Choose the Q2_0 VRAM reserve: GPU expert-cache capacity against headroom for desktop growth and temporary buffers.",
   "basis": {
     "ours": "LatestQ2run all6loaded480MiBfree/capture428MiB,4015cache slots. True minimumunknown due missing telemetry; no stall was observed.",
     "upstream": "0.1.40.2DETAILS The expert cache size is a budget: oversizedWindows allocations may spill, reserve can trade cache forheadroom. Examples are othercards and cannot predetermine our optimum.",
@@ -86,7 +85,7 @@
     "conversation_cache": "off (not in the maintenance baseline); single-session workload never switches conversations"
   },
   "fixed_hardware": {
-    "gpu": "RTX3080Ti12GiB",
+    "gpu": "RTX 3080 Ti 12GiB",
     "pool_workers": 23,
     "pool_affinity": "all",
     "prefill": 8192,
@@ -187,7 +186,6 @@
   "next_group": "spec-min-p is deferred until temperature is chosen in the ARW capability validation (user decision 2026-10-10).",
   "mandatory_peer_validation": "Each dimension must have local independent evidence and new hosts must independently calibrate; no remote result propagated to another host default.",
   "selection_key": {
-    "host": "rtx3080ti",
     "model": "Q2_0"
   },
   "selection_transfer": "OnlythishostQ2_0mayadoptresult; samehostIQ2_XS/IQ3_XXSneedindependentnewtuning. Splitper-modelsourcebeforedefaultchange; do notbroadcastviahostsharedoverrides.",
@@ -312,7 +310,7 @@
       "scope": "Other parameters inherited from the v0.1.38 published baseline; that historical file is unchanged."
     },
     "selection_evidence": "reports/v0.1.38/reasoning-effort-comparison/summary.md",
-    "qualification": "v0.1.41 installed on rtx3080ti only (rtx4070tis offline, pending sync); short call-chain check recorded in reports/v0.1.41/upgrade.md. User-selected parameters retained; full safety quality, 100K reliability and ARW Reviewer acceptance are not established.",
+    "qualification": "v0.1.41 installed; short call-chain check recorded in reports/v0.1.41/upgrade.md. User-selected parameters retained; full safety quality, 100K reliability and ARW Reviewer acceptance are not established.",
     "model_run_performed_for_selection": false
   },
   "prompt_binding": {

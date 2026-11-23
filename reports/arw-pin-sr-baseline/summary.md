@@ -1,4 +1,4 @@
-# 固定 ARW 提交上的 Spec Readiness 基线（rtx3080ti，2026-11-22）
+# 固定 ARW 提交上的 Spec Readiness 基线（本机，2026-11-22）
 
 ## 结论
 - 用固定的 ARW 提交 6ca23a9（`config/arw-pin.json`，夹具树 4326aca）的 `reviewer-capability run`，在 Strata（IQ3_XXS，安装默认档 206584／150000，effort high）上跑出 Spec Readiness 3 个有效实例，无作废，模型加载一次，租约事后为 free。

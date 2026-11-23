@@ -2,7 +2,6 @@
  "schema": "conditions-v2",
  "status": "frozen-approved",
  "created_at": "2026-10-24T03:00:00+0900",
- "host": "rtx3080ti",
  "candidate_dimension": "context-length",
  "authorization": {
   "approved": true,
@@ -40,7 +39,7 @@
   "strata_commit": "011c9e600a93bbc9fd451c563501b5831c32bbca",
   "engine_version": "0.1.47",
   "model": "IQ3_XXS",
-  "base": "部署默认参数（rtx3080ti IQ3_XXS 默认档 206584，kv-resident 20480，--kv int8）；override 只写与默认相同的 max-context 以核对实际窗口",
+  "base": "部署默认参数（IQ3_XXS 默认档 206584，kv-resident 20480，--kv int8）；override 只写与默认相同的 max-context 以核对实际窗口",
   "max_context": 206584,
   "user_text_tokens_tokenizer": 149951,
   "request": {

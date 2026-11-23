@@ -1,12 +1,12 @@
-# rtx3080ti IQ3_XXS 第 1 维：PCIe 分担（引擎实测 / 固定 0.00）
+# 本机 IQ3_XXS 第 1 维：PCIe 分担（引擎实测 / 固定 0.00）
 
-结论：去掉 `--pcie-frac`、交给引擎实测（三次都定为 0.20）比旧模板的固定 0.00 **引擎输出快 11.1%**（114.2 对 102.7 token/s，范围 112.5–115.8 对 95.0–106.9，不重叠），平均工作时间少 8.9%（112.2 对 123.2 秒）。两个条件都是 9/9 全对，最终答案逐字节相同，内存和显存没有差别。按"速度优先"规则选 measured。Main 和独立复核 agent 意见一致，已于 2026-10-11 写入 rtx3080ti 的 `model_overrides.IQ3_XXS`（`"pcie-frac": null`）并部署，回读确认安装目录的 IQ3_XXS 配置不再带这个参数，Q2_0 不受影响。
+结论：去掉 `--pcie-frac`、交给引擎实测（三次都定为 0.20）比旧模板的固定 0.00 **引擎输出快 11.1%**（114.2 对 102.7 token/s，范围 112.5–115.8 对 95.0–106.9，不重叠），平均工作时间少 8.9%（112.2 对 123.2 秒）。两个条件都是 9/9 全对，最终答案逐字节相同，内存和显存没有差别。按"速度优先"规则选 measured。Main 和独立复核 agent 意见一致，已于 2026-10-11 写入 本机的 `model_overrides.IQ3_XXS`（`"pcie-frac": null`）并部署，回读确认安装目录的 IQ3_XXS 配置不再带这个参数，Q2_0 不受影响。
 
-适用范围：仅 rtx3080ti、IQ3_XXS、Strata v0.1.42、32K 合成短负载、桌面空闲。100K 级长上下文（KV 流式读取也走 PCIe）和 CPU 忙时启动（引擎可能把比例定到 0.55–0.60）未验证。实测比例只在启动后约 10 秒内决定，之后整个驻留期不变；上游说明只有固定 `--pcie-frac N` 时输出才可重复。
+适用范围：仅 本机、IQ3_XXS、Strata v0.1.42、32K 合成短负载、桌面空闲。100K 级长上下文（KV 流式读取也走 PCIe）和 CPU 忙时启动（引擎可能把比例定到 0.55–0.60）未验证。实测比例只在启动后约 10 秒内决定，之后整个驻留期不变；上游说明只有固定 `--pcie-frac N` 时输出才可重复。
 
 ## 条件
 
-Strata v0.1.42（61b3fb5），IQ3_XXS，部署渲染的 rtx3080ti 配置（prefill 8192、spec 4、spec-min-p 0.50、int8 KV / resident 20480、23 worker / all、vram-reserve 981、会话暂存 8192 MiB / 4 槽 / 保留 5120 MiB、CPU 辅助 auto），high、思考 8192 / 输出 24576、temperature 0 / top_p 1 / top_k 20，启动提示（已去掉弃用段）`1cae169a…`、压缩提示 `3856cb62…`。每实例冷启动，3 个请求共享约 32K 前缀，各 28 行严格 JSON。执行顺序 measured-1、zero-1、zero-2、measured-2、zero-3、measured-3。冻结计划：[rtx3080ti-iq3_xxs-pcie-frac-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-pcie-frac-plan.json)。
+Strata v0.1.42（61b3fb5），IQ3_XXS，部署渲染的 本机配置（prefill 8192、spec 4、spec-min-p 0.50、int8 KV / resident 20480、23 worker / all、vram-reserve 981、会话暂存 8192 MiB / 4 槽 / 保留 5120 MiB、CPU 辅助 auto），high、思考 8192 / 输出 24576、temperature 0 / top_p 1 / top_k 20，启动提示（已去掉弃用段）`1cae169a…`、压缩提示 `3856cb62…`。每实例冷启动，3 个请求共享约 32K 前缀，各 28 行严格 JSON。执行顺序 measured-1、zero-1、zero-2、measured-2、zero-3、measured-3。冻结计划：[本机-iq3_xxs-pcie-frac-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-pcie-frac-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

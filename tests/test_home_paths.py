@@ -1,4 +1,4 @@
-"""Isolation and deny paths follow Path.home(); on rtx3080ti (HOME=/home/pello) they expand exactly as the literal
+"""Isolation and deny paths follow Path.home(); here (HOME=/home/pello) they expand exactly as the literal
 /home/pello paths they replaced, so the sandbox, HOME isolation and credential deny lists are unchanged there."""
 import json
 from pathlib import Path
@@ -7,9 +7,9 @@ import sys
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-RTX3080TI_HOME = '/home/pello'
+INSTALLATION_HOME = '/home/pello'
 
-# Runs in a fresh interpreter whose HOME is rtx3080ti's, since several of these are module-level constants.
+# Runs in a fresh interpreter whose HOME is the installation user's, since several of these are module-level constants.
 PROBE = r'''
 import json, tempfile
 from pathlib import Path
@@ -32,9 +32,9 @@ print(json.dumps(result))
 '''
 
 
-class Rtx3080tiHomePathsTest(unittest.TestCase):
+class InstallationHomePathsTest(unittest.TestCase):
     def test_expansions_match_the_literal_paths(self):
-        env = {'PATH': '/usr/bin:/bin', 'HOME': RTX3080TI_HOME, 'LANG': 'C.UTF-8'}
+        env = {'PATH': '/usr/bin:/bin', 'HOME': INSTALLATION_HOME, 'LANG': 'C.UTF-8'}
         reply = subprocess.run([sys.executable, '-c', PROBE], cwd=ROOT, env=env, capture_output=True, text=True,
                                timeout=120)
         self.assertEqual(reply.returncode, 0, reply.stderr)

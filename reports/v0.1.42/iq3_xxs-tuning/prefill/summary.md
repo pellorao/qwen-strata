@@ -1,10 +1,10 @@
-# rtx3080ti IQ3_XXS 第 5 维：输入处理分块（请求 8192 / 16384）
+# 本机 IQ3_XXS 第 5 维：输入处理分块（请求 8192 / 16384）
 
 结论：**未形成对照，保持 8192，未采用 16384**。请求 16384 的 3 个实例都在服务启动时被引擎降回 8192（日志 `prompt chunk 16384 -> 8192 tokens so its buffers fit in every expert cache`），两组实际配置相同，速度差在噪声内（引擎输出 115.0 对 115.0 token/s）。12 GB 卡在当前显存布局下 16384 不可行，Q2_0（v0.1.40.1）和 IQ3_XXS（v0.1.42）两次结果相同；除非显存布局大变（KV resident、MTP、上下文等减少 2 GiB 以上）或引擎改变缓冲区核算，不再把 16384 列为候选。默认值不变，不部署。Main 与独立复核 agent 意见一致。
 
 ## 条件
 
-同[第 1 维](../pcie-frac/summary.md)，加前四维胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`），只改请求的 `--prefill`。执行顺序 8192-1、16384-1、16384-2、8192-2、16384-3、8192-3。冻结计划：[rtx3080ti-iq3_xxs-prefill-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-prefill-plan.json)。summary.json 里的 `effective.prefill` 是命令行请求值，不是引擎实际值。
+同[第 1 维](../pcie-frac/summary.md)，加前四维胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`），只改请求的 `--prefill`。执行顺序 8192-1、16384-1、16384-2、8192-2、16384-3、8192-3。冻结计划：[本机-iq3_xxs-prefill-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-prefill-plan.json)。summary.json 里的 `effective.prefill` 是命令行请求值，不是引擎实际值。
 
 ## 结果（每条件 3 次算术平均）
 

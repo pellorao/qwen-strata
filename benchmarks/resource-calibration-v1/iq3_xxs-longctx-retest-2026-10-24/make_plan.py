@@ -50,7 +50,7 @@ plan={"schema":"conditions-v2","status":"frozen-approved","created_at":a.created
  "model_instances":len(order),"logical_requests":sum(len(v['cases'])for v in workload['repetitions'].values()),
  "repetitions_per_condition":max(r for _,r in order),
  "fixed_conditions":{"strata_version":"0.2.2","strata_commit":"011c9e600a93bbc9fd451c563501b5831c32bbca","engine_version":"0.1.47","model":"IQ3_XXS",
-   "base":"部署默认参数（rtx3080ti IQ3_XXS 默认档 206584，kv-resident 20480，--kv int8）；override 只写与默认相同的 max-context 以核对实际窗口",
+   "base":"部署默认参数（IQ3_XXS 默认档 206584，kv-resident 20480，--kv int8）；override 只写与默认相同的 max-context 以核对实际窗口",
    "max_context":206584,"user_text_tokens_tokenizer":{k:v[0] for k,v in tokens.items()},"record_counts_and_seeds":{k:v[1:] for k,v in tokens.items()},
    "request":req,"loop_reminder":"off","conversation_cache":"installed default (8192 MiB, 4 slots)",
    "workload_knobs":workload['repetitions'][next(iter(workload['repetitions']))]['knobs']},

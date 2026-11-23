@@ -63,7 +63,7 @@
     "loop_prevention_instructions": false
   },
   "hardware": {
-    "gpu": "RTX4070TiSUPER16GiB",
+    "gpu": "GPU 16GiB",
     "pool_workers": 23,
     "pool_affinity": "auto",
     "prefill": 16384,

@@ -1,7 +1,6 @@
 {
  "scenario": "Code Spec v4.7（SCENARIO_REVISIONS code-spec-reviewer 25，冻结 f9ec01e，patch sha 95b658c0…，expected.json sha 849c6248…）",
  "plan": "benchmarks/reviewer-suite-v1/code-spec-v4-iq3_xxs-2026-10-14/plan.json",
- "host": "rtx3080ti",
  "model": "IQ3_XXS",
  "strata": "0.1.43.1",
  "effort": "high",

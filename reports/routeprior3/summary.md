@@ -1,4 +1,4 @@
-# routeprior3: `STRATA_ROUTE_PRIOR=1.5` 质量补样本 (2026-11-07, rtx3080ti)
+# routeprior3: `STRATA_ROUTE_PRIOR=1.5` 质量补样本 (2026-11-07, 本机)
 
 生产不改, 只测量。延续 [routeprior2](../routeprior2/summary.md): 同一设置 (code-spec-v5, Codex 0.164.0 high, T=916 s, 扣罚前分), 盲裁 Sonnet high。
 

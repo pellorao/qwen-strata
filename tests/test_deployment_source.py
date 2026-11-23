@@ -249,8 +249,8 @@ REAL_ROOT = Path(__file__).resolve().parents[1]
 RENDERED_MANUAL_SHA256 = {
     'README.md': 'fd6543d7487d1454834d714bd723116bbe8efbb954eeb922d1a268bfaad554c0',
     'README.zh-CN.md': '4db3e656ef4516a74a3ec912c4315c8cd55fd8f0d6e271d56e4e99644aa77194',
-    'docs/manuals/caller-manual.md': 'd70d58976629dd8ae7f9eb45dbb5b0f750e94e7ce0bcc1025f83885f04c1a8ce',
-    'docs/manuals/caller-manual.zh-CN.md': '3bbd497d01c54863bb362782361fd3f0373dd6014209c8d33d9964e8587e04eb',
+    'docs/manuals/caller-manual.md': 'a58e71ba0d153310f6f8e211a1f49e4ee57cf5d9ee98f722fc73c15f6be45010',
+    'docs/manuals/caller-manual.zh-CN.md': '25efb3d550f24ca90898d27a7bb0531919d50ee8d1272896cfd19d6b3d28f297',
 }
 CJK = re.compile('[\u4e00-\u9fff]')
 

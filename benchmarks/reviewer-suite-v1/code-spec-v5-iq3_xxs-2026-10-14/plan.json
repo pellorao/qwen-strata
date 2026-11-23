@@ -1,6 +1,5 @@
 {
  "schema": "arw-dimension-v1",
- "host": "rtx3080ti",
  "model": "IQ3_XXS",
  "reviewer": "code-spec-reviewer",
  "authorization": {
@@ -32,7 +31,7 @@
    "formula": "T 秒 = B ×（1/P + k/G）/ β",
    "B": 152919,
    "k": 2.0755,
-   "k_source": "0.1.44.1 首批探针（13:47，.tmp/code-spec-v4/rv/v2 探针）按 rtx3080ti Q3 T = B/10K 分钟反推 k = G(0.006β − 1/P)，此后固定",
+   "k_source": "0.1.44.1 首批探针（13:47，.tmp/code-spec-v4/rv/v2 探针）按 Q3 T = B/10K 分钟反推 k = G(0.006β − 1/P)，此后固定",
    "beta": 3.6591,
    "beta_source": "修订 32 材料实测（.tmp/code-spec-v4/rv/v3/probe-rv3d），冻结",
    "q3": "每批开跑前 tools.metrics.speed_probe 在本批材料上测 P、G（β 固定），T 取整秒后经 arw_dimension prepare --time-limit-seconds 渲染进测量说明；ReviewDeadline 截止前 5 分钟提醒、到时中断，按截至时刻已写出的结果计分。冻结前 trial（修订 35–38）的 T_Q3 为 907–949 秒",

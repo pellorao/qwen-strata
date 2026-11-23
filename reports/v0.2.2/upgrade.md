@@ -1,8 +1,8 @@
-# Strata v0.2.2 升级（rtx3080ti，IQ3_XXS）
+# Strata v0.2.2 升级（本机，IQ3_XXS）
 
 ## 结论
 
-- rtx3080ti 已从 v0.1.45 升到 Strata v0.2.2。标签提交 `011c9e60`，引擎 0.1.47，build `76f90e58436d+cuda13.0`。本版**通过短检查**：IQ3_XXS，一个实例，每项跑一次。检查走 `bin/qwen-agent` 入口，覆盖 Claude Code 2.1.308 和 Codex 0.163.0。审查第 3 节的 2–8 项全部通过。
+- 本机已从 v0.1.45 升到 Strata v0.2.2。标签提交 `011c9e60`，引擎 0.1.47，build `76f90e58436d+cuda13.0`。本版**通过短检查**：IQ3_XXS，一个实例，每项跑一次。检查走 `bin/qwen-agent` 入口，覆盖 Claude Code 2.1.308 和 Codex 0.163.0。审查第 3 节的 2–8 项全部通过。
 - 这只是短检查，不是完整验收，也不继承 0.1.45 的结论。参数沿用原有 IQ3_XXS 调参结果，没改默认值，部署文件没变，所以没有重新部署模型配置。
 - **greedy 对比没有逐 token 一致，也不能写"答案相同"。** 同版本内本来就复现不了，0.1.45 自身两次冷加载、两遍的输出都不同。但长提示第 1 问有一个**一致的差异**：0.2.2 四次都答"R1309 和 R1338 并列最大 9997"，这是错的，R1309 实际是 9941；0.1.45 四次都答对 R1338。只有 8 个样本，而且同一提示，不能下质量结论；但它说明 0.2.2 在本机的输出分布有可观察的变化。后续测量不与 0.1.45 的结果直接比较。
 - 速度：greedy 同条件下，引擎输出 0.1.45 为 88.1 tok/s，0.2.2 为 91.4 tok/s；逐请求速度比的中位数 1.075。冷 49K 预填约 2720 tok/s，0.1.45 为 2740。短检查 14 段合计输出 105.9 tok/s，单段最低 97.1；所有 50 token 以上的请求最低 77.3。全部高于 60 的意外线。
@@ -59,7 +59,7 @@
 
 ## 安装
 
-- 命令：`python3 -m tools.ops.upgrade_release --host rtx3080ti --metadata <元数据> --source artifacts/strata/0.2.2/source.zip --engine artifacts/strata/0.2.2/engine.tar.gz --feed artifacts/strata/0.2.2/strata-feed.json --output <回执>`
+- 命令：`python3 -m tools.ops.upgrade_release --metadata <元数据> --source artifacts/strata/0.2.2/source.zip --engine artifacts/strata/0.2.2/engine.tar.gz --feed artifacts/strata/0.2.2/strata-feed.json --output <回执>`
 - 结果：用时 86 秒，含停止和重启前端。写入 1566 个文件，3067 个未变跳过，删除 `docker-entrypoint.sh`。feed 和清单签名都由 `5d1bc23abbeffd0d` 签发，核验通过。
 - 独立复核：
   - `installed-release.json` 为 0.2.2 / 011c9e60 / 0.1.47。
@@ -152,7 +152,7 @@
   - 第 3 次：断连时 `conn.sock` 为 None。
   - 共多花 3 次模型加载。第 3 次里输出上限重试那部分已经正常运行。
 - **X1 第一次挂起 9.7 分钟**：`codex exec` 在 stdin 不是 TTY 时等待 EOF（"Reading additional input from stdin..."），没有发出任何模型请求。结束 codex 进程后租约由 qwen-agent 正常归还；改为 stdin=DEVNULL 后重跑 X1、X2，都通过。
-- 手册的 Claude Code 核对版本已改并部署到 rtx3080ti；rtx4070tis 离线，**待同步**。
+- 手册的 Claude Code 核对版本已改并部署到 本机；
 
 ## 未验证
 
@@ -162,11 +162,10 @@
 - 长提示第 1 问的系统性差异是否来自 sm_86 开关表、route tail skip 或其他改动。
 - 版本间速度的正式对比：本次只有单次 greedy，输出长度也不同，只作参考。
 - `install_offline` 用发布版本号拼 `engine-v<version>` 目录的已知限制（只影响重建）。
-- rtx4070tis 离线，没有升级。
 
 ## 回退
 
-- 命令：`python3 -m tools.ops.upgrade_release --host rtx3080ti --rollback .tmp/maintenance-backups/release-backup-20261022-205620-310129 --output <回执>`
+- 命令：`python3 -m tools.ops.upgrade_release --rollback .tmp/maintenance-backups/release-backup-20261022-205620-310129 --output <回执>`
 - 演练实测字节完全复原，会留下空目录。
 - 回退后还要把 `config/artifacts/strata-release.json`、`strata-v0.2.2.json`、`strata-v0.1.45.json` 和 `docs/downloads.md` 改回去。
 - 0.1.45 制品在 `artifacts/strata/0.1.45/`；按 zip 路径重装需要从 git b871dfe 取旧工具。
@@ -175,7 +174,7 @@
 
 1. **git 未提交**。工作树改动：
    - `tools/ops/upgrade_release.py`、`tests/test_upgrade_release.py`；
-   - `config/artifacts/strata-release.json`、`strata-v0.2.2.json`（新增，已改为 installed-rtx3080ti-sha-verified，含写入数、备份、签名已核验）、`strata-v0.1.45.json`（superseded-rtx3080ti-2026-10-22）；
+   - `config/artifacts/strata-release.json`、`strata-v0.2.2.json`（新增，已改为 installed-本机-sha-verified，含写入数、备份、签名已核验）、`strata-v0.1.45.json`（superseded-本机-2026-10-22）；
    - `docs/downloads.md`（改为已安装）、`docs/installation.md`、`docs/frontend.md`、`docs/installation-directory-readme.md`（Claude Code 2.1.308）、`.gitignore`；
    - `docs/plan.md` 是 Main 自己的改动；
    - 未跟踪：`artifacts/strata/0.2.2/strata-feed.json`、`.sig`（12KB；`.gitignore` 是否覆盖 artifacts 请核对）。

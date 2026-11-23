@@ -1,4 +1,4 @@
-# rtx3080ti IQ3_XXS 采样维：greedy / t06 / t10
+# 本机 IQ3_XXS 采样维：greedy / t06 / t10
 
 **结论：维持 greedy（temperature 0 / top_p 1 / top_k 20，现默认值），配置不改。** Main 与独立复核一致（自主模式，2026-10-12）。
 
@@ -7,14 +7,14 @@
 - **机械结果**：三个条件都在最高分（t06，0.859）0.08 以内：greedy 低 0.060，t10 低 0.027。按平手判据比引擎输出 tok/s：greedy 107.0 > t06 103.5 > t10 103.4，选 greedy。
 - **速度差有机制支撑**：草稿接受率 greedy 93.2%、t06 91.8%、t10 90.7%，与"采样降低投机解码接受率"一致；每输出 token 工作 ms 也是 greedy 最低。但单次解码速度有重叠，约 3% 的优势主要来自 greedy 第 2、3 次，属弱到中等证据。
 - **质量差不足以推翻**：t06 三次分数都高于 greedy，但本批 greedy 请求数偏少（30.3 对 43），探索更浅。同一配置（greedy + spec 4）在[第 5 维](../spec/summary.md)得 0.853，与本批 t06 持平；在[第 6 维](../cpu-prefill-share-unset/summary.md)出现过 0.745。跨批次波动约 0.05，本批 greedy 偏低很可能是批次噪声。
-- **未测风险**：前端采样默认值作用于所有客户端。Qwen 官方一般不建议思考模式用 greedy（可能重复循环），本维只覆盖 ARW，没有测长输出和循环率。旧证据：rtx3080ti Q2_0 在 v0.1.40.1 上比较过 0/1 与 1/0.95，平均循环次数 36.7→60.0，未证明采样能改善循环（[报告](../../../v0.1.40.1/loop-prevention-comparison/summary.md)），但那是另一量化，不能直接套用。
+- **未测风险**：前端采样默认值作用于所有客户端。Qwen 官方一般不建议思考模式用 greedy（可能重复循环），本维只覆盖 ARW，没有测长输出和循环率。旧证据：本机 Q2_0 在 v0.1.40.1 上比较过 0/1 与 1/0.95，平均循环次数 36.7→60.0，未证明采样能改善循环（[报告](../../../v0.1.40.1/loop-prevention-comparison/summary.md)），但那是另一量化，不能直接套用。
 - **回退条件**：后续同口径运行中 t06 持续高出 greedy 0.08 以上，或 greedy 出现可复现的重复循环，重新比较。不为本维补测；若要认真考虑 t06，应专门测循环率和长输出，或同批加样本（需另行授权）。
 
 **证据弱**：每个条件 3 次，分数组内标准差 0.025–0.048；工作时间主要随输出量变化（组内 6.3–21.6 分钟，输出 33K–112K）。
 
 **评分口径复核（2026-10-12）**：按用户确定的调参口径（[测量规则 · 评分口径](../../../../.claude/rules/measurement.md#评分口径)），调参取 ARW 扣罚前分。本维每个实例的分数都等于由 problemDetectionRate、cleanAcceptanceRate 按 ARW F2 公式算出的扣罚前分（逐实例核对，差 <0.0006），即格式归一后没有残留报告诊断、没有 ×0.9 罚分，分数和结论都不变。
 
-**适用范围**：仅限 rtx3080ti、IQ3_XXS、Strata v0.1.42、Codex high、ARW Commit Audit 单一场景。
+**适用范围**：仅限 本机、IQ3_XXS、Strata v0.1.42、Codex high、ARW Commit Audit 单一场景。
 
 ## 条件
 
@@ -80,7 +80,7 @@
     - 畸形 workdir 被拒、未执行，属基线现象。
   - 真问题（轻微）1 条：slot 4 #18 试图写 `/tmp/gen_review.py`，被只读沙箱拒绝，未写入，不影响评分。
   - guardian 1 次，在 slot 9：allow 删除自己在 reports 下的辅助文件。
-- **恢复**：已执行 `python3 -m tools.ops.deploy --host rtx3080ti`，read_back_verified。回读结果：
+- **恢复**：已执行 `python3 -m tools.ops.deploy`，read_back_verified。回读结果：
   - spec 4、spec-min-p 0.9、ple-io direct、vram-reserve 512
   - CPU share auto、ADAPT_LAG 2，无 BATCH_TRACE
   - 采样 0.0/1.0/20

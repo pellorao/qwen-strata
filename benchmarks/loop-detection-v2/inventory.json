@@ -3,8 +3,7 @@
   "scope": {
     "effective_reviews": 24,
     "hosts": {
-      "local": 18,
-      "rtx3080ti": 6
+      "local": 24
     },
     "confirmed_positive_episodes": 142,
     "reuse_deduplicated": true,
@@ -339,7 +338,7 @@
     },
     {
       "instance_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1",
-      "host": "rtx3080ti",
+      "host": "local",
       "conditions": [
         "remote-baseline"
       ],
@@ -391,7 +390,7 @@
     },
     {
       "instance_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2",
-      "host": "rtx3080ti",
+      "host": "local",
       "conditions": [
         "remote-baseline"
       ],
@@ -443,7 +442,7 @@
     },
     {
       "instance_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3",
-      "host": "rtx3080ti",
+      "host": "local",
       "conditions": [
         "remote-baseline"
       ],
@@ -495,7 +494,7 @@
     },
     {
       "instance_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1",
-      "host": "rtx3080ti",
+      "host": "local",
       "conditions": [
         "remote-official-sampling"
       ],
@@ -547,7 +546,7 @@
     },
     {
       "instance_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2",
-      "host": "rtx3080ti",
+      "host": "local",
       "conditions": [
         "remote-official-sampling"
       ],
@@ -599,7 +598,7 @@
     },
     {
       "instance_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3",
-      "host": "rtx3080ti",
+      "host": "local",
       "conditions": [
         "remote-official-sampling"
       ],

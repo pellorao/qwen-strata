@@ -1,10 +1,10 @@
-# rtx3080ti 升级到 Strata v0.2.12 (2026-11-08)
+# 本机升级到 Strata v0.2.12 (2026-11-08)
 
 结论：Strata v0.2.11（引擎 0.1.57）升到 v0.2.12（Control 与引擎 0.1.58），**通过短检查**。只是一次短调用链检查，不是评分，不继承旧版本的完整验收结论。速度未验证，留给 daily。
 
 ## 安装
 
-- 命令：`python3 -m tools.ops.upgrade_release --host rtx3080ti --metadata ... --source artifacts/strata/0.2.12/source.zip --engine artifacts/strata/0.2.12/engine.tar.gz --feed artifacts/strata/0.2.12/strata-feed.json`。
+- 命令：`python3 -m tools.ops.upgrade_release --metadata ... --source artifacts/strata/0.2.12/source.zip --engine artifacts/strata/0.2.12/engine.tar.gz --feed artifacts/strata/0.2.12/strata-feed.json`。
 - 标签 `v0.2.12` 提交 `146df3c468739147f520ac3816de806f71232571`（ZIP 注释一致）；源码 ZIP SHA256 `6bee8e4f…17ac`（37,314,704 字节）；引擎（cuda13）SHA256 `3311443b…9f4f`（630,769,464 字节，与 API digest 一致）；feed SHA256 `77bf5e7b…470d`（sequence 122）；feed 与引擎清单签名由 `5d1bc23abbeffd0d` 签发，核验通过；build_id `8a42a9457db6+cuda13.0`，archs 含 sm_86。
 - 5657 个文件未变，无上游删除；模型权重、模型配置、依赖未改。`AGENTS.md` 只改版本行（SHA `b0788f3a…50c7` 已在元数据绑定）；`requirements.txt` 不变。
 - 备份 `.tmp/maintenance-backups/release-backup-20261108-070726-038730`；回退用 `strata components rollback`（只回引擎）或 `upgrade_release --rollback <备份>`。未用回退。

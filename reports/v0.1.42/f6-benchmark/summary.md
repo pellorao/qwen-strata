@@ -1,4 +1,4 @@
-# F6 ARW Reviewer benchmark（rtx3080ti，Strata 0.1.42，IQ3_XXS 默认部署）
+# F6 ARW Reviewer benchmark（本机，Strata 0.1.42，IQ3_XXS 默认部署）
 
 日期 2026-10-12。四个场景各跑 5 个有效实例，顺序为 Commit Audit → Code Spec → Code Standards → Spec Readiness。每个场景分两批：批 a 跑 3 个，批 b 跑 2 个（Spec Readiness 批 b 用 `--limit 4`，即 2 个合并实例）。逐实例数据见 [summary.json](summary.json)。
 
@@ -14,7 +14,7 @@
 - Commit Audit 最稳定，所有实例都没有诊断。
 - Code Spec 和 Code Standards 的发现质量（扣罚前分数）接近 Commit Audit。差距主要来自报告格式和证据定位：两个场景共 7 个实例被 ×0.9。
 - Spec Readiness 的融合分偏低，是 artifact-promotion 子场景拖下来的（0.18–0.43）。runtime-migration 子场景本身在 0.82–0.98 之间，但 5 次中有 4 次带 `requirement-scope-continuation` 诊断，因此 ×0.9。
-- 适用范围：只适用于 rtx3080ti + IQ3_XXS + 当前默认部署参数，不套用到其他主机或量化。
+- 适用范围：只适用于 本机 + IQ3_XXS + 当前默认部署参数，不套用到其他主机或量化。
 
 ## 评分口径
 

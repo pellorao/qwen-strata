@@ -1,5 +1,4 @@
 {
-  "host": "rtx3080ti",
   "model": "IQ3_XXS",
   "strata": "v0.1.42",
   "effort": "high",
@@ -625,7 +624,7 @@
     "sampling-t10": 0.0269
   },
   "restore": {
-    "command": "python3 -m tools.ops.deploy --host rtx3080ti",
+    "command": "python3 -m tools.ops.deploy",
     "read_back_verified": true,
     "iq3_xxs_config_sha256": "24a9d6062583d781da1d09fc35370c2e7f94ca14c6c8d952eee3b63a100b3f49",
     "readback": "spec 4, spec-min-p 0.9, ple-io direct, vram-reserve 512, no pcie-frac, env CPU_SHARE auto + ADAPT_LAG 2 (no BATCH_TRACE), sampling 0.0/1.0/20",

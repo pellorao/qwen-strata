@@ -1,12 +1,12 @@
-# rtx3080ti IQ3_XXS 补测第 3 维：自适应层衰减（`--adapt-decay` 0.7 / 0.5 / 0.9）
+# 本机 IQ3_XXS 补测第 3 维：自适应层衰减（`--adapt-decay` 0.7 / 0.5 / 0.9）
 
 结论：**保持默认 0.7**，不改部署配置。0.9 与 0.7 几乎相同（引擎输出 118.3 对 118.4 token/s）；0.5 均值 113.9，但劣势几乎全部来自一个离群实例，去掉后约 117.5（−0.8%）。缓存命中三组相同（约 70–72%），没有看到 decay 改变缓存行为。真实效应估计：0.9 约 0（±2%），0.5 为 0 到 −1.5%。27/27 全对。Main 与独立复核 agent 意见一致。
 
-适用范围：仅 rtx3080ti、IQ3_XXS、Strata v0.1.42、32K 合成短负载；adapt-swaps 96、adapt-every 4。decay 影响长会话中换入权重的衰减，3 个请求的短负载不足以让它显出作用；真实 ARW 长会话未验证。
+适用范围：仅 本机、IQ3_XXS、Strata v0.1.42、32K 合成短负载；adapt-swaps 96、adapt-every 4。decay 影响长会话中换入权重的衰减，3 个请求的短负载不足以让它显出作用；真实 ARW 长会话未验证。
 
 ## 条件
 
-同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--adapt-decay`。执行顺序：0.7-1、0.5-1、0.9-1、0.9-2、0.5-2、0.7-2、0.5-3、0.9-3、0.7-3。所有实例加载 17.3–19.4 秒，没有冷启动偏差。冻结计划：[rtx3080ti-iq3_xxs-adapt-decay-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-adapt-decay-plan.json)。
+同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--adapt-decay`。执行顺序：0.7-1、0.5-1、0.9-1、0.9-2、0.5-2、0.7-2、0.5-3、0.9-3、0.7-3。所有实例加载 17.3–19.4 秒，没有冷启动偏差。冻结计划：[本机-iq3_xxs-adapt-decay-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-adapt-decay-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

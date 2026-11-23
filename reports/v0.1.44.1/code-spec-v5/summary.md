@@ -1,4 +1,4 @@
-# Code Spec 正式场景 v5 测量报告（IQ3_XXS ×5+5；Opus-high ×3；rtx3080ti，Strata v0.1.44.1，Codex 0.162.0）
+# Code Spec 正式场景 v5 测量报告（IQ3_XXS ×5+5；Opus-high ×3；本机，Strata v0.1.44.1，Codex 0.162.0）
 
 ## 结论
 
@@ -18,7 +18,7 @@
 - 另有 3 题 Q3 的命中率在 40–60%，Opus 3/3：selfConflict（Q3 4/10）、accessUntilLarge（Q3 4/10）、buildingFromRoom（Q3 4/10）。
 - 9 题 Q3 是 10/10，都是规则交互、保底和一读就能对照的题。
 
-**适用范围**：只适用于 rtx3080ti + IQ3_XXS + Strata v0.1.44.1 + Codex 0.162.0，推理强度 high，默认档 206584/150000。冻结版本为 code-spec-reviewer 修订号 38（3a18572，`code-spec-v5.patch` sha256 `231fd10853c3eab9917c5d27565396b22a4549b16457fbb256c0ace983d85b1a`），设计说明见 `benchmarks/reviewer-suite-v1/code-spec-v5.md`。参照的 Opus 运行在无头 `claude -p` 下，与 v4.7、rv3 的子 agent 方式不同，见混杂清单。
+**适用范围**：只适用于 本机 + IQ3_XXS + Strata v0.1.44.1 + Codex 0.162.0，推理强度 high，默认档 206584/150000。冻结版本为 code-spec-reviewer 修订号 38（3a18572，`code-spec-v5.patch` sha256 `231fd10853c3eab9917c5d27565396b22a4549b16457fbb256c0ace983d85b1a`），设计说明见 `benchmarks/reviewer-suite-v1/code-spec-v5.md`。参照的 Opus 运行在无头 `claude -p` 下，与 v4.7、rv3 的子 agent 方式不同，见混杂清单。
 
 完整数据：[summary.json](summary.json)。
 

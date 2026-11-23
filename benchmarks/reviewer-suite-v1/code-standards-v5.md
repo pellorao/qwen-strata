@@ -10,11 +10,11 @@
 
 测量 Q3（IQ3_XXS）在约 140K 阅读量、以规则网络和仓库内重复为主的代码规范审查上，相对 Opus-high 的能力比值。
 - 判据：Q3/Opus（两类计分总分的均值比）< 0.8。
-- 适用范围只限 Strata v0.1.44.1、rtx3080ti、IQ3_XXS。
+- 适用范围只限 Strata v0.1.44.1、本机、IQ3_XXS。
 
 ## 2. 主机与模型
 
-与 Code Spec v5 相同（`code-spec-v5.md` §2）：rtx3080ti，IQ3_XXS，Strata 0.1.44.1，Codex 0.162.0，effort high；参考模型 Opus-high 用无头 `claude -p`，隔离选项与 Bash 沙箱照 Code Spec v5。
+与 Code Spec v5 相同（`code-spec-v5.md` §2）：本机，IQ3_XXS，Strata 0.1.44.1，Codex 0.162.0，effort high；参考模型 Opus-high 用无头 `claude -p`，隔离选项与 Bash 沙箱照 Code Spec v5。
 
 ## 3. 固定条件
 

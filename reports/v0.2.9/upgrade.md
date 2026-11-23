@@ -1,10 +1,10 @@
-# rtx3080ti 升级到 Strata v0.2.9 (2026-11-02)
+# 本机升级到 Strata v0.2.9 (2026-11-02)
 
 结论：Strata v0.2.4（引擎 0.1.48）升到 v0.2.9（Control 与引擎 0.1.55），**通过短检查**。这只是一次短调用链检查，不继承旧版本的完整验收结论，也不是评分。
 
 ## 安装
 
-- 命令：`python3 -m tools.ops.upgrade_release --host rtx3080ti --metadata .tmp/up029/metadata.json --source artifacts/strata/0.2.9/source.zip --engine artifacts/strata/0.2.9/engine.tar.gz --feed artifacts/strata/0.2.9/strata-feed.json --output .tmp/up029/upgrade-receipt.json`
+- 命令：`python3 -m tools.ops.upgrade_release --metadata .tmp/up029/metadata.json --source artifacts/strata/0.2.9/source.zip --engine artifacts/strata/0.2.9/engine.tar.gz --feed artifacts/strata/0.2.9/strata-feed.json --output .tmp/up029/upgrade-receipt.json`
 - 标签 `v0.2.9` 提交 `c62d5e3a15b40ea51c96aae9e8d36928965f53ab`，ZIP 注释绑定该提交；源码 ZIP SHA256 `4c5f3c00…1e6f`（34,878,231 字节）。
 - 引擎 SHA256 `34f399a0…67df`（621,585,315 字节）与 API digest 一致；feed SHA256 `05cc1b22…4014`；feed 与引擎清单签名都由 `5d1bc23abbeffd0d` 签发，核验通过；build_id `99866a47a2b8+cuda13.0`，archs 含 sm_86。
 - 写入 982 个文件（含引擎目录），4345 个未变，没有删除（`previous_source_paths` 为空）；`config/installed-release.json` 已读回为 0.2.9／`c62d5e3a`／0.1.55。模型权重、模型配置、依赖（`requirements.txt` 未变）均未改。
@@ -58,6 +58,5 @@
 
 - 未验证：长上下文、故障与取消恢复、审批质量、Reviewer 兼容、速度对照（没有与 0.1.48 的同条件对比）；调参结论（采样、窗口、`--pool-workers`、缓存）都是在 0.1.48 上做的，需要时重新验证。
 - 工具调用解析又变了一次，此后的 agent 类测量不要与 v0.2.4 及之前的结果直接比较（与 v0.2.2 的同类记录一致）。
-- rtx4070tis 仍是 v0.2.4，待同步。
 - 调用手册 Claude Code 核对版本号待改为 2.1.316 并部署；README「现行决定」、状态页由 Main 处理。
 - 结束时模型已经 `/model/stop` 停止，租约已归还，`/health` 的 `lease` 为 `free`。

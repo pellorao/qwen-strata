@@ -2,7 +2,6 @@
  "schema": "conditions-v2",
  "status": "frozen-approved",
  "created_at": "2026-10-11T16:04:50+0900",
- "host": "rtx3080ti",
  "candidate_dimension": "adapt-every",
  "authorization": {
   "approved": true,
@@ -74,7 +73,7 @@
   "strata_version": "0.1.42",
   "strata_commit": "61b3fb5dd3f1e8ec09cf7e4e05208bc6d3c46406",
   "model": "IQ3_XXS",
-  "base": "deployment-rendered rtx3080ti IQ3_XXS config plus previous winners",
+  "base": "deployment-rendered IQ3_XXS config plus previous winners",
   "previous_winners": {
    "pcie-frac": null,
    "pool-affinity": "all",

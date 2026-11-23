@@ -1,6 +1,5 @@
 {
  "schema": "codex-workload-v1",
- "host": "rtx3080ti",
  "model": "IQ3_XXS",
  "workload": "window",
  "input": {

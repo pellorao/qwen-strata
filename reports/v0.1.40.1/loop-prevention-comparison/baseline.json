@@ -10,7 +10,7 @@
   "hardware": {
     "host": "local",
     "cpu": "i9-14900K",
-    "gpu": "RTX4070Ti SUPER",
+    "gpu": "GPU 16 GB",
     "vram_gib": 16,
     "ram_gib": 64
   },
@@ -440,7 +440,6 @@
         "generation_requests": 0
       },
       {
-        "host": "rtx3080ti",
         "files": 26,
         "sha_consistent": true,
         "ownership": "free",

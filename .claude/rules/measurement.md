@@ -9,7 +9,7 @@ paths:
 
 ## 设计
 - 调参和条件对比每个条件跑 3 次，取算术平均；影响输出的调参参数按「调参选择」的分阶段判定逐步增加样本，最多 11 次。按重要度逐个维度比较，其余条件固定；不组合成矩阵。reviewer 场景的次数见 [reviewer-suite · 场景流程](reviewer-suite.md#场景流程)。
-- 不同主机、不同量化的结果分开计算，不混合均值。基础条件和候选必须在同一主机内对照。
+- 不同量化的结果分开计算，不混合均值。基础条件和候选必须在同一安装内对照。
 - 记录版本、全部参数、执行顺序、缓存冷暖、加载耗时；复用旧结果必须满足冻结输入、评分和固定条件完全相同。
 - **harness 版本**（用户 2026-10-23）：Codex、Claude Code 等 harness 不长期钉在旧版。每项工作（一次 benchmark、一项测量、一次工具验证）开始时换成当时的最新版，开始后到结束固定不变，版本和 SHA 写进绑定；换版后先重跑该 harness 的零模型 mock 门，Claude Code 另跑 `tools.ops.claude_compact_probe`。已结束工作的结果照旧按当时版本记录，不追溯。版本、SHA 和 benchmark 副本路径只在 `tools/strata/harness_pins.py` 一处配置，工具默认就用它，版本或 SHA 不符即拒绝运行；副本按旧 benchmark 计划第 3 节的做法安装（计划已删，见 tag `reviewer-bench-v1` 里的 `benchmarks/multi-model-v1/plan.md`）（只读、不在 PATH 上、核对官方 checksum 或 registry integrity）。冻结计划（`arw-dimension-v1` 等）用它自己记的 Codex 版本的副本，所以旧副本在它的结果可能重新 prepare（如重新计分）期间保留。
 - **新版沿用上一版**（用户 2026-10-24）：benchmark 或测量出新版时，运行设计、计分规则和设置默认沿用上一版。只有理由充分才改，例如新版改了规则 A，而规则 A 影响规则 B，所以 B 也要改。每处改动都写明理由。

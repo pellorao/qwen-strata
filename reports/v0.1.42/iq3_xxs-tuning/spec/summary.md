@@ -1,4 +1,4 @@
-# rtx3080ti IQ3_XXS 第 5 维：spec（3 / 4 / 5 / 6）
+# 本机 IQ3_XXS 第 5 维：spec（3 / 4 / 5 / 6）
 
 结论：**采用 spec 4**（即原默认值，现于 `model_overrides.IQ3_XXS` 显式写为 `"spec": 4`）。spec 是不影响输出的参数，按引擎输出 tok/s 选择，spec 4 最快（105.9 tok/s），分数只作异常检测（用户 2026-10-12，[测量规则 · 评分口径](../../../../.claude/rules/measurement.md#评分口径)）。依据：Strata DETAILS.md，greedy 下草稿只在与模型所选 token 一致时保留，greedy 请求输出逐字节相同，spec 只改变每步猜测的草稿数。2026-10-11 按当时的分数规则同样选 spec 4，Main 与独立复核一致，已部署并回读。
 
@@ -17,7 +17,7 @@
 - 证据定位按 ARW 定义（顶层 `[a,b]` 是两行），取消"裸区间对读作区间"修复：slot 8（spec 6）、slot 11（spec 4）按原件重评，候选与原裁决逐字相同（各 21 个），分数回到 0.517、0.530。现行分数：spec 3 0.848、4 0.737、5 0.772、6 0.718。
 - 分数异常检测：spec 4、6 的低分各只来自一个实例，原因是证据把区间写成两行、多数未落在缺陷行，属于模型报告写法，不是程序错误；其余实例与 spec 3 相当。没有条件全部实例失常，不影响按速度选择。
 
-**适用范围**：仅限 rtx3080ti、IQ3_XXS、Strata v0.1.42、Codex high、ARW Commit Audit 单一场景。spec 2 和 spec ≥7 未测，长输出和代码生成也未单独验证。
+**适用范围**：仅限 本机、IQ3_XXS、Strata v0.1.42、Codex high、ARW Commit Audit 单一场景。spec 2 和 spec ≥7 未测，长输出和代码生成也未单独验证。
 
 ## 条件
 
@@ -117,7 +117,7 @@
 - **Main**：spec 4。引擎输出 tok/s 最高（105.9，对 102.5 / 104.8）；每输出 token 工作时间也最短（11.20 ms，对 11.53 / 11.40）。
 - **独立复核**：同意 spec 4，撤回 3；平手判据同上。复核另指出重算缺少逐条裁决记录和归一往返核对，两项已补齐后才定案。
 - 平手判据：Main 与复核提出以 tok/s 为主、每输出 token 工作时间作否决项；用户 2026-10-11 确认以引擎输出 tok/s 为主判据，工作时间不作强选择依据。用户同日确认改回 spec 4。
-- **部署**：2026-10-11 用 `tools.ops.deploy --host rtx3080ti` 部署，安装目录 `config/deployment.json` 回读为 `"spec": 4`，源文件 SHA 校验通过，前端 lease free、模型未加载。spec 4 生效已在本维 spec-4 实例中核对（verify window 6）。
+- **部署**：2026-10-11 用 `tools.ops.deploy` 部署，安装目录 `config/deployment.json` 回读为 `"spec": 4`，源文件 SHA 校验通过，前端 lease free、模型未加载。spec 4 生效已在本维 spec-4 实例中核对（verify window 6）。
 
 ## 数据
 

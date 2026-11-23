@@ -1,8 +1,8 @@
-# Strata v0.1.45 升级（rtx3080ti，IQ3_XXS）
+# Strata v0.1.45 升级（本机，IQ3_XXS）
 
 ## 结论
 
-- rtx3080ti 已从 v0.1.44.1 升级到 Strata v0.1.45（提交 477ac13c），**通过短检查**（IQ3_XXS，一个实例，每项一次）。检查走实际使用的 `bin/qwen-agent` 入口，覆盖 Claude Code 2.1.302 和 Codex 0.162.0，并新增一项 Codex auto_review guardian 子会话检查。
+- 本机已从 v0.1.44.1 升级到 Strata v0.1.45（提交 477ac13c），**通过短检查**（IQ3_XXS，一个实例，每项一次）。检查走实际使用的 `bin/qwen-agent` 入口，覆盖 Claude Code 2.1.302 和 Codex 0.162.0，并新增一项 Codex auto_review guardian 子会话检查。
 - 这只是短检查，不是完整验收，也不继承 v0.1.44.1 的结论。参数沿用原有 IQ3_XXS 调参结果，没有改默认值，也没有在本版上重新测量。ctx-fix 没有并入本次升级。
 - **逐字比对没能核实上游说的"答案逐字节相同"**。原因是 v0.1.44.1 自己在本机参数下的 greedy 输出就不能复现：同一次加载里的两遍不同，两次冷加载的首遍也不同。跨版本比对因此只能作参考。参考结果与"分布不变"相符：提示 token 数逐个相同；有完全相同的跨版本输出；24 个回复的答案全部正确，工具调用参数全部相同。详见[逐字比对](#greedy-逐字比对)。
 - 计量：14 个执行段全部能解析，没有未识别的行。合计引擎输出 100.1 tok/s，单个请求最低 84.6 tok/s，都高于 60 的意外线。显存告警（#2065）为 276 / 132 MiB，与上一版的 276 / 130 MiB 相同。
@@ -31,7 +31,7 @@
 - 安装：`tools.ops.upgrade_release` 写入 3291 个文件，没有删除。独立回读后，与两个 ZIP 逐字节一致。安装记录为 0.1.45 / 477ac13c。升级备份 `release-backup-20261018-114848-289807` 已核对：保存 3182 个旧文件，SHA 全部匹配，另记 109 个新增文件，可以回退。
 - 部署：`tools.ops.deploy` 23 个文件回读通过（只有基线文件内容变了）。
 - 提示：启动提示源文件 5f9efc02、压缩提示 3856cb62，与工程一致；health 报告实际加载的启动提示为 1cae169a，防循环段关闭。
-- 工程记录：新增 `config/artifacts/strata-v0.1.45.json`；v0.1.44.1 标为在 rtx3080ti 上已被取代；`strata-release.json`、`config/maintenance-baseline.json`、`docs/downloads.md` 已更新。
+- 工程记录：新增 `config/artifacts/strata-v0.1.45.json`；v0.1.44.1 标为在 本机上已被取代；`strata-release.json`、`config/maintenance-baseline.json`、`docs/downloads.md` 已更新。
 
 ## 短检查（IQ3_XXS）
 
@@ -99,4 +99,3 @@
 
 - 与 v0.1.44.1 的回答逐字一致性（理由见上文：旧版自身不可复现）。由此，Code Spec v5、Spec Readiness v4.2/v4.3、Commit Audit v2 在 0.1.44.1 上的 Q3 基线能否沿用到 0.1.45，没有逐字证据。
 - 版本间速度对比（需要同一负载按块交替测量）。
-- rtx4070tis 离线，没有升级。

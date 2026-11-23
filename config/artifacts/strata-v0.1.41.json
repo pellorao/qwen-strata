@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "installed-rtx3080ti-sha-verified-short-call-chain-checked",
+  "status": "installed-sha-verified-short-call-chain-checked",
   "version": "0.1.41",
   "commit": "fb58e0dbc8399662c0e47c76578c6e878b14f6cf",
   "engine_version": "0.1.41",
@@ -43,11 +43,8 @@
       "new_sha256": "b9c75993366079fbbcf80deb544e12f932228cf3c98f34b2481d45e1afddd5a8"
     }
   },
-  "currently_installed": {
-    "rtx3080ti": true,
-    "rtx4070tis": "pending-sync (offline)"
-  },
+  "currently_installed": true,
   "upstream_files_written": 2426,
   "removed_upstream_files": [],
-  "backup_on_rtx3080ti": ".tmp/maintenance-backups/release-backup-20261010-045818-421025"
+  "backup": ".tmp/maintenance-backups/release-backup-20261010-045818-421025"
 }

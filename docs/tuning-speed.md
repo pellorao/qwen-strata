@@ -1,8 +1,8 @@
 # 调参目标一：提速
 
-Strata 的调参有两个目标（用户 2026-11-08）：**提高速度**（本页）和**维持或提升智力水平**（见[智力](tuning-quality.md)）。两个目标分开记录历史与进展；同一个改动对两边都有影响时两页各记一次。主机与量化各自独立。细节与证据在各报告、[每机调参](calibration/installation.md)和[调优记录](tuning.md)。
+Strata 的调参有两个目标（用户 2026-11-08）：**提高速度**（本页）和**维持或提升智力水平**（见[智力](tuning-quality.md)）。两个目标分开记录历史与进展；同一个改动对两边都有影响时两页各记一次。量化各自独立。细节与证据在各报告、[调参](calibration/installation.md)和[调优记录](tuning.md)。
 
-## 当前状态（rtx3080ti / IQ3_XXS，Strata 0.2.11）
+## 当前状态（本机 / IQ3_XXS，Strata 0.2.11）
 
 引擎输出：ARW 负载约 95 tok/s（路由先验关）/ 约 134 tok/s（开，生产默认）；固定提示短输入约 95-107、12 万长输入约 115-118 tok/s（内存 5600/6600 之间，路由先验关）。
 
@@ -10,7 +10,7 @@ Strata 的调参有两个目标（用户 2026-11-08）：**提高速度**（本�
 
 | 日期 | 事项 | 结论 | 入口 |
 |---|---|---|---|
-| 2026-10-11 | v0.1.42 逐维调参：pcie-frac 实测、pool-affinity all、pool-workers 23、ple-io direct、cpu-prefill-share auto、spec-min-p 0.9、adapt-lag 2、vram-reserve 512、kv-resident 20480、spec 4 | 各维结论与报告见表 | [rtx3080ti 调参](calibration/installation.md) |
+| 2026-10-11 | v0.1.42 逐维调参：pcie-frac 实测、pool-affinity all、pool-workers 23、ple-io direct、cpu-prefill-share auto、spec-min-p 0.9、adapt-lag 2、vram-reserve 512、kv-resident 20480、spec 4 | 各维结论与报告见表 | [本机调参](calibration/installation.md) |
 | 2026-10-22/24 | 升级 0.2.2、0.2.4 | sm_86 解码开关表变，此后不与 0.1.45 直接比较 | [README 现行决定](../README.md) |
 | 2026-11-03 | 草稿器钉死 MTP | DFlash2 评估（11-07）无提升，长输入更慢 | [主机说明](local-installation.md) |
 | 2026-11-07 | prefill 档位 | 16384/32768 被引擎降回 8192，auto 为 7680，差异在 ±2% 内，生产不改 | `.tasks` prefill-report（本机） |

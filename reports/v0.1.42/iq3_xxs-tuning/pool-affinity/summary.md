@@ -1,12 +1,12 @@
-# rtx3080ti IQ3_XXS 第 2 维：CPU 核心分配（auto / all）
+# 本机 IQ3_XXS 第 2 维：CPU 核心分配（auto / all）
 
 结论：**all（当前默认）比 auto 引擎输出快 16.9%**（114.0 对 97.6 token/s，范围 113.6–114.7 对 95.0–100.4，不重叠），平均工作时间少 16.7%（112.2 对 134.6 秒，范围不重叠），两条件都是 9/9 全对。按"速度优先"规则选 all，默认值不变，不需要部署。Main 与独立复核 agent 意见一致。
 
-适用范围：仅 rtx3080ti、IQ3_XXS、Strata v0.1.42、23 个 worker、pcie-frac 实测、32K 合成短负载、单客户端、桌面空闲。同机并行跑编译等重 CPU 任务时的表现未测；若第 3 维选出 15 或 12 个 worker，绑核布局会变。
+适用范围：仅 本机、IQ3_XXS、Strata v0.1.42、23 个 worker、pcie-frac 实测、32K 合成短负载、单客户端、桌面空闲。同机并行跑编译等重 CPU 任务时的表现未测；若第 3 维选出 15 或 12 个 worker，绑核布局会变。
 
 ## 条件
 
-同[第 1 维](../pcie-frac/summary.md)，另加第 1 维胜者（不传 `--pcie-frac`），只改 `--pool-affinity`。执行顺序 auto-1、all-1、all-2、auto-2、all-3、auto-3。冻结计划：[rtx3080ti-iq3_xxs-pool-affinity-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-pool-affinity-plan.json)。
+同[第 1 维](../pcie-frac/summary.md)，另加第 1 维胜者（不传 `--pcie-frac`），只改 `--pool-affinity`。执行顺序 auto-1、all-1、all-2、auto-2、all-3、auto-3。冻结计划：[本机-iq3_xxs-pool-affinity-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-pool-affinity-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

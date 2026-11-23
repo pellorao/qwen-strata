@@ -1,6 +1,6 @@
 # STRATA_SM86_PERF 开关速度对照
 
-rtx3080ti / IQ3_XXS，Strata v0.2.4（引擎 0.1.48），2026-10-24。冻结计划与驱动：[iq3_xxs-sm86-perf-v024-2026-10-24](../../../benchmarks/resource-calibration-v1/iq3_xxs-sm86-perf-v024-2026-10-24/)；完整数据：[summary.json](summary.json)。
+本机 / IQ3_XXS，Strata v0.2.4（引擎 0.1.48），2026-10-24。冻结计划与驱动：[iq3_xxs-sm86-perf-v024-2026-10-24](../../../benchmarks/resource-calibration-v1/iq3_xxs-sm86-perf-v024-2026-10-24/)；完整数据：[summary.json](summary.json)。
 
 ## 结论
 
@@ -10,7 +10,7 @@ rtx3080ti / IQ3_XXS，Strata v0.2.4（引擎 0.1.48），2026-10-24。冻结计�
 - 引擎输入没有差别：中位数 0.999，方向 3/6，低于 2% 判据。
 - 正确性没有差别：36 个正式请求全部正确。跨条件与同条件的输出差异程度相同。
 - 决定：**维持现行**（8 个开关开启，`STRATA_ADAPT_LAG=2` 显式设置）。默认值不变，所以不需要独立审查。速度提高约 12%，与上游在 3060/A4000 上测得的 +9.6%/+14.6% 一致。
-- 适用范围：rtx3080ti / IQ3_XXS、Strata 0.2.4 和本负载（resource-calibration-v1 三请求：首请求约 34.6K read + 65.5K reused）。
+- 适用范围：本机 / IQ3_XXS、Strata 0.2.4 和本负载（resource-calibration-v1 三请求：首请求约 34.6K read + 65.5K reused）。
 
 ## 冒烟检查（presence_penalty 0 部署后）
 
@@ -84,14 +84,13 @@ rtx3080ti / IQ3_XXS，Strata v0.2.4（引擎 0.1.48），2026-10-24。冻结计�
 
 ## 提交
 
-- 1b5b297：`STRATA_SM86_PERF` 加进 `src/model_process.py` 的 ENVIRONMENT 白名单，补了单测，22:26 部署到 rtx3080ti。rtx4070tis 离线，这项改动属于部署集合，恢复后随工程部署。
+- 1b5b297：`STRATA_SM86_PERF` 加进 `src/model_process.py` 的 ENVIRONMENT 白名单，补了单测，22:26 部署到 本机。
 - 8c437cd：冻结计划和驱动。`run.py` 直接导入 pool-workers 冻结驱动的 workload/run_block/groups，只加了每块的开关核对；`analyze.py` 由 pool-workers 的分析脚本复制而来，加了一致性部分。
 
 ## 未验证
 
 - 只测了这一个负载，没有经过 Codex / Claude Code 实际会话测量。
 - 没有逐个关掉单个开关（drop-one），不知道 12% 由哪几个开关贡献。
-- 没有在 rtx4070tis 或其他量化上测。
 - 运行明细（会话输出、引擎日志）已删除；输出一致性只能以上表为准，不能重算。
 
 收尾：驱动结束时已自动恢复普通部署（`condition: null`，21 个文件回读一致），租约已归还（lease free、model null），没有遗留进程。

@@ -1,5 +1,4 @@
 {
- "host": "rtx3080ti",
  "model": "IQ3_XXS",
  "strata": "0.1.42",
  "item": "autonomous item 3: kv-resident long context",

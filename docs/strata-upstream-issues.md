@@ -9,7 +9,7 @@
 
 以下是撤回前的原始记录：
 
-- **环境**：rtx3080ti，Windows 11，三星 990 PRO 2TB NVMe；Strata v0.1.42（release），IQ3_XXS。
+- **环境**：本机，Windows 11，三星 990 PRO 2TB NVMe；Strata v0.1.42（release），IQ3_XXS。
 - **现象**：引擎启动时探测 PLE 读取速度为 12850 rows/s（约 53 MB/s 的 4 KiB 随机读），并警告长提示可能在读第 1 层时耗时数分钟，触发停滞看门狗（上游 #1425、#1629）。
 - **磁盘实测**（2026-10-11，未加载模型）：对同一个 PLE 文件（`...-00002-of-00002.gguf`，28.8 GB）做只读的无缓冲 4 KiB 随机读，每个线程用独立句柄做阻塞读，每项测 3 秒：
 
@@ -27,7 +27,7 @@
 
 ## 2. 精确前缀缓存的复用量按 16384 向下取整（已解释：设计行为）
 
-- **环境**：rtx3080ti，Strata v0.1.42，IQ3_XXS，`--kv int8`，`--kv-resident` 20480/32768。2026-10-12 长上下文 KV 驻留测量（[报告](../reports/v0.1.42/iq3_xxs-tuning/kv-resident-long/summary.md)）。
+- **环境**：本机，Strata v0.1.42，IQ3_XXS，`--kv int8`，`--kv-resident` 20480/32768。2026-10-12 长上下文 KV 驻留测量（[报告](../reports/v0.1.42/iq3_xxs-tuning/kv-resident-long/summary.md)）。
 - **现象**：同一会话的后续请求共享首请求的整段前缀，但引擎日志里每个后续请求复用的缓存 token 数都是 16384 的整数倍：
   - 64K 负载：49152，前缀约 64K，每次约 15K 需要重新 prefill；
   - 100K、150K、200K 负载：分别为 98304、147456、196608，每次损失 2–4K。
@@ -36,7 +36,7 @@
 
 ## 3. v0.1.43.1 引擎输出比 v0.1.42 低约 10%（待归因，暂不反馈）
 
-- **环境**：rtx3080ti，IQ3_XXS，`--max-context 156584`、`--kv-resident 20480`，100K 合成检索负载，每实例 3 个请求。
+- **环境**：本机，IQ3_XXS，`--max-context 156584`、`--kv-resident 20480`，100K 合成检索负载，每实例 3 个请求。
 - **现象**：2026-10-14 在 v0.1.43.1 上跑同一负载 4 次，引擎输出 106.2 tok/s（104.7–108.0）。2026-10-12 的 v0.1.42 为 117.7（3 次），低 9.8%。引擎输入低 1.5%。
 - **混淆因素**：
   - 两次测量之间，2026-10-13 主机升级了 BIOS 1.C0（微码 0x137），并改用 Intel Default 功耗档（PL1 65 W）。
@@ -46,7 +46,7 @@
 
 ## 4. Codex 遇到 `response.incomplete`（max_output_tokens）直接结束回合（Codex 侧行为，已在前端缓解）
 
-- **环境**：rtx3080ti，Strata v0.1.45，IQ3_XXS；多模型 benchmark 的 Strata Codex 臂（Codex 0.163.0 + ARW），CA 场景 low-a3、low-a5、medium-a2、medium-a3 四个实例。
+- **环境**：本机，Strata v0.1.45，IQ3_XXS；多模型 benchmark 的 Strata Codex 臂（Codex 0.163.0 + ARW），CA 场景 low-a3、low-a5、medium-a2、medium-a3 四个实例。
 - **现象**：模型想用一次 `apply_patch` 写完整份报告，输出超过档位的单次输出上限（low 8192、medium 16384，前端按档位补的 `max_output_tokens`）。Strata 按 Responses 协议以 `response.incomplete`、`incomplete_details.reason = max_output_tokens` 结束，截断的调用 `status: incomplete`。Codex 0.163.0 把它当致命错误结束回合：`task_complete.error = "Incomplete response returned, reason: max_output_tokens"`。截断的调用在本地被判为 invalid patch，这条结果没有发回模型，模型没有机会重写，实例就此结束。
 - **Strata 侧相关点**：custom 工具（如 `apply_patch`）的输入只在调用结束时整段发出（`serve/responses.py` 的 `Assembler.feed`），所以截断时 `input` 为空，已生成的部分内容全部丢失；function 工具的参数是逐段发的，截断时是半截 JSON。
 - **mock 复现**（假引擎 + 真实 Codex 0.163.0，2026-10-20）：同一截断流原样返回时 Codex 报 `turn.failed`；只把结束事件换成 `response.completed` 时回合继续。Claude Code 2.1.304 走 Messages（`stop_reason: max_tokens`、半截 `tool_use`）不中断回合，工具返回 InputValidationError（提到可能是输出被截断），模型下一轮能看到；benchmark 的 Claude Code Strata 臂也有实例这样自己恢复。
@@ -55,7 +55,7 @@
 
 ## 5. 不实现延迟工具加载：Claude Code `defer_loading` / `tool_reference`、Codex `tool_search`，工具搜索不可用（已在调用方关闭）
 
-- **环境**：rtx3080ti，Strata v0.2.2（引擎 0.1.47）原生服务 `runtime/Strata/serve/frontend.py`；Claude Code 2.1.309 经 `/strata/v1/messages`。
+- **环境**：本机，Strata v0.2.2（引擎 0.1.47）原生服务 `runtime/Strata/serve/frontend.py`；Claude Code 2.1.309 经 `/strata/v1/messages`。
 - **现象**：Claude Code 2.1.309 默认开着工具搜索：请求里带 `ToolSearch` 工具和一个 `defer_loading: true` 的占位工具 `DeferredToolPlaceholder`（"never call this tool"），其余内置工具（Cron*、EnterWorktree/ExitWorktree、NotebookEdit、SendMessage、TaskStop、WebFetch）和 MCP 工具（brave 的 3 个）不发 schema，只在 system 角色消息里列出名字，要模型先调用 `ToolSearch`、由返回的 `tool_reference` 块展开定义（零模型抓包，2026-10-24）。
 - **Strata 侧相关点**：`serve/frontend.py` 转换工具表时只取 `name`、`description`、`input_schema`（633–634 行），不看 `defer_loading`，占位工具作为普通工具交给模型；`tool_reference` 块属于不读取的内容块，被静默丢弃（`_check_parts`，202–224 行）。所以 `ToolSearch` 的结果到不了模型，延迟工具实际无法调用。
 - **工程的处理**（2026-10-24，经独立审查）：`qwen-agent` 设 `ENABLE_TOOL_SEARCH=false`，所有工具以完整定义内联，与 Claude Code 2.1.303 相同（测量 runner `tools/reviewer/claude_headless.py` 同样设置）。前端不按工具名或 `defer_loading` 丢弃工具：前者是专门逻辑，后者会藏掉真实工具。

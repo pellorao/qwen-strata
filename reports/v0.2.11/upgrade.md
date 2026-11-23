@@ -1,10 +1,10 @@
-# rtx3080ti 升级到 Strata v0.2.11 (2026-11-06)
+# 本机升级到 Strata v0.2.11 (2026-11-06)
 
 结论：Strata v0.2.10（引擎 0.1.56）升到 v0.2.11（Control 与引擎 0.1.57），**通过短检查**。只是一次短调用链检查加一次长预填充速度复核，不是评分，不继承旧版本的完整验收结论。草稿器仍是 MTP（模板已钉死）。
 
 ## 安装
 
-- 命令：`python3 -m tools.ops.upgrade_release --host rtx3080ti --metadata .tmp/up0211/metadata.json --source artifacts/strata/0.2.11/source.zip --engine artifacts/strata/0.2.11/engine.tar.gz --feed artifacts/strata/0.2.11/strata-feed.json --output .tmp/up0211/upgrade-receipt.json`
+- 命令：`python3 -m tools.ops.upgrade_release --metadata .tmp/up0211/metadata.json --source artifacts/strata/0.2.11/source.zip --engine artifacts/strata/0.2.11/engine.tar.gz --feed artifacts/strata/0.2.11/strata-feed.json --output .tmp/up0211/upgrade-receipt.json`
 - 标签 `v0.2.11` 提交 `c3b3f5035506f3e966f1b4b7b188aeaabae92f1d`（ZIP 注释一致）；源码 ZIP SHA256 `a69ef11b…0b14`；引擎（cuda13）SHA256 `0cdf191f…7c0f`（627,812,560 字节，与 API digest 一致）；feed SHA256 `b993f0d9…bc72f`（sequence 121）；feed 与引擎清单签名均由 `5d1bc23abbeffd0d` 签发，核验通过；build_id `0bdcef4682c5+cuda13.0`，archs 含 sm_86。
 - 5455 个文件未变，无上游删除；模型权重、模型配置未改。`requirements.txt` 变了（pillow 13.0.0 对 Python ≥3.11，修 GHSA-78g4-xqwv-q3g8；3.10 仍 12.3.0），本次不重装依赖，只影响图片读取，本机文本路径不涉及。`AGENTS.md` 只改版本行。
 - `MODEL_CARD_SAMPLING` 与 v0.2.10 逐字相同，`MODEL_CARD_KEYS` 和 `installation_defaults` 不需改。

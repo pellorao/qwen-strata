@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
   "status": "planned-after-vram-group-awaiting-user-review",
-  "host": "rtx3080ti",
   "authorization": {
     "approved": false,
     "scope": "One spec-min-pdimension0.5/0.7,6coldmodelinstancesand18logicalrequests."
@@ -91,7 +90,6 @@
   "model_runs_executed": 0,
   "default_changed": false,
   "selection_key": {
-    "host": "rtx3080ti",
     "model": "Q2_0"
   },
   "selection_transfer": "OnlythishostQ2_0mayadoptresult; samehostIQ2_XS/IQ3_XXSneedindependentnewtuning. Splitper-modelsourcebeforedefaultchange; do notbroadcastviahostsharedoverrides.",

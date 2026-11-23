@@ -1,6 +1,5 @@
 {
   "schema": "arw-dimension-v1",
-  "host": "rtx3080ti",
   "model": "IQ3_XXS",
   "reviewer": "commit-audit-reviewer",
   "authorization": {
@@ -8,7 +7,7 @@
     "source": "用户 2026-10-12 进入自主模式，一次性批准 5 个工作项（docs/plan.md \"自主模式\"一节）",
     "scope": "第 2 项采样 3 组 × 3（9 个 Commit Audit 实例）；第 4 项（第 9 维）窗口 3 档 × 3（9 个 Spec Readiness 合并实例）；第 3 项长上下文 KV 驻留见 kv-long/；第 5 项 F6 见本文件 benchmark 一节"
   },
-  "method": "方案 A：每个实例前用 tools.ops.deploy 把该条件叠加到 rtx3080ti 默认配置部署到安装目录（部署会停模型并重启前端，因此每个实例冷启动引擎），ARW 持有模型运行 1 个 Commit Audit 实例；实例后从引擎日志和进程环境核对实际生效值。",
+  "method": "方案 A：每个实例前用 tools.ops.deploy 把该条件叠加到默认配置部署到安装目录（部署会停模型并重启前端，因此每个实例冷启动引擎），ARW 持有模型运行 1 个 Commit Audit 实例；实例后从引擎日志和进程环境核对实际生效值。",
   "fixed_conditions": {
     "strata": "0.1.42",
     "codex": "0.162.0",
@@ -97,7 +96,7 @@
           ]
         }
       },
-      "prerequisite": "第 3 项结束且双方一致后，rtx3080ti.json 的 context_tiers.IQ3_XXS 已发布 156584/100000、206584/150000、256584/200000 三档并部署；只比已验证的档位，未发布的档位从 schedule 中整列删除（相应改拉丁方并记录）。条件文件不改引擎参数，只部署默认值；档位由 ARW provider contextWindow 选择（selection.context_window），窗口与压缩阈值都取自该档位。",
+      "prerequisite": "第 3 项结束且双方一致后，installation.json 的 context_tiers.IQ3_XXS 已发布 156584/100000、206584/150000、256584/200000 三档并部署；只比已验证的档位，未发布的档位从 schedule 中整列删除（相应改拉丁方并记录）。条件文件不改引擎参数，只部署默认值；档位由 ARW provider contextWindow 选择（selection.context_window），窗口与压缩阈值都取自该档位。",
       "note": "每个槽位冷启动（部署会停模型）。评分：原版融合评分 + 格式归一；分差 0.08 内按引擎输出 tok/s。",
       "scope_change": "2026-10-12 第 3 项决定 256584 不发布（200K 合成检索 6 实例同一记录错误），按 prerequisite 整列删除 window-256584，原 3×3 拉丁方改为 ABBAAB；已发布档位为 156584/100000、206584/150000"
     }
@@ -114,7 +113,7 @@
     "batches": "冻结 ARW 每次 prepare 产生 3 个重复（固定装置 1–3），因此每场景两批：批 a 全部 3 个实例，批 b 新 prepare 后 --limit 2；Spec Readiness 每个实例是合并实例，批 a 不加 --limit（6 个交接），批 b --limit 4",
     "commands": [
       "python3 -m tools.tuning.arw_dimension prepare --plan benchmarks/resource-calibration-v1/iq3_xxs-night-2026-10-12/plan.json --reviewer <reviewer> --out .tmp/f6/<scenario>-<a|b>",
-      "CODEX_THREAD_ID=b7635f94-ad60-429b-98e7-3ee5c19ba2bb python3 -m tools.reviewer.arw_measure --host rtx3080ti --out .tmp/f6/<scenario>-<a|b>/run --selection .tmp/f6/<scenario>-<a|b>/preflight/selection.json --preparation .tmp/f6/<scenario>-<a|b>/preparation.json --catalog config/model-catalog.json [--limit 2 | --limit 4]"
+      "CODEX_THREAD_ID=b7635f94-ad60-429b-98e7-3ee5c19ba2bb python3 -m tools.reviewer.arw_measure --out .tmp/f6/<scenario>-<a|b>/run --selection .tmp/f6/<scenario>-<a|b>/preflight/selection.json --preparation .tmp/f6/<scenario>-<a|b>/preparation.json --catalog config/model-catalog.json [--limit 2 | --limit 4]"
     ],
     "scoring": "原版评分 + 格式归一；逐实例分取平均（5 个）；批 a 另有 ARW 原版批分（3 重复）。批 b 只有实例诊断分，不出原版批分。",
     "estimate_hours": {
@@ -136,7 +135,7 @@
       "python3 -c \"<各计划 workload.build 字段>\" 重建 .tmp/night-prep/workload-<len>.json（确定性，frozen_inputs 按 SHA 核对）",
       "python3 -m tools.tuning.resource_calibration --plan benchmarks/resource-calibration-v1/iq3_xxs-night-2026-10-12/kv-long/plan-<len>.json --workload .tmp/night-prep/workload-<len>.json --out .tmp/night/kv-long/<len>"
     ],
-    "prerequisite": "安装目录是无条件的默认部署（第 2 项结束后已 restore）。若第 2 项改了默认采样并提交 rtx3080ti.json，四份计划的 source_sha256 中只更新该文件一项（请求自带 temperature 0 / top_p 1 / top_k 20，不受默认采样影响），并在决策记录写明。",
+    "prerequisite": "安装目录是无条件的默认部署（第 2 项结束后已 restore）。若第 2 项改了默认采样并提交 installation.json，四份计划的 source_sha256 中只更新该文件一项（请求自带 temperature 0 / top_p 1 / top_k 20，不受默认采样影响），并在决策记录写明。",
     "workload": "同一合成三请求负载按记录数加长：1529 / 2400 / 3609 / 4818 条，首请求估计 64.0K / 100.0K / 150.0K / 200.0K token（按 787 条 = 33309 token 线性外推，约 41.35 token/条；以引擎日志实数为准）。max_tokens 24576 加上 prompt 不超过各自窗口。",
     "max_context": "64K、100K 用 156584；150K 用 206584；200K 用 256584（该长度所属的最小档位），经 baseline engine_overrides 的 max-context 传入，runner 核对 /health max_context 与引擎命令行",
     "memory_estimate": {

@@ -1,15 +1,14 @@
-# v0.1.41 升级（rtx3080ti）
+# v0.1.41 升级（本机）
 
 2026-10-10，用户允许安装。
 
 ## 结论
 
-- rtx3080ti 已升级到 Strata v0.1.41，**通过了短调用链检查**。
+- 本机已升级到 Strata v0.1.41，**通过了短调用链检查**。
   - 2426 个上游文件逐个回读通过。
   - 引擎参数、基础提示和 expert profile 均未改动。
   - 检查经由实际使用的 `bin/qwen-agent` 入口，Claude Code 和 Codex 都覆盖到。
 - 本次只是短检查，不代表完整验收，也不继承 v0.1.40.2 的验收结论。
-- rtx4070tis 仍离线，版本仍是 v0.1.40.2，恢复后需要同步。
 - **已知风险**：上游有一个未关闭的 issue [#1622「Strata v0.1.41 Looping issues」](https://github.com/Niko1221/Strata/issues/1622)，3 位用户反映升级到 v0.1.41 后出现生成循环；还有一个 [#1618](https://github.com/Niko1221/Strata/issues/1618)，同样是无尽思考循环，未注明版本。本次短检查没有出现循环，但规模太小，无法排除。如果实际使用中出现循环，可以用备份回退到 v0.1.40.2，命令见文末。
 
 ## 安装
@@ -65,7 +64,7 @@
 如需回退到 v0.1.40.2：
 
 ```
-python3 -m tools.ops.upgrade_release --host rtx3080ti --rollback .tmp/maintenance-backups/release-backup-20261010-045818-421025 --output .tmp/strata-upgrade-current/out/rollback.json
+python3 -m tools.ops.upgrade_release --rollback .tmp/maintenance-backups/release-backup-20261010-045818-421025 --output .tmp/strata-upgrade-current/out/rollback.json
 ```
 
 之后还要把 `config/maintenance-baseline.json` 的版本改回 0.1.40.2 并重新部署。备份位于 `.tmp/`，删除后就不能用这个命令回退，只能用 [v0.1.40.2 制品](../../config/artifacts/strata-v0.1.40.2.json)重新安装。

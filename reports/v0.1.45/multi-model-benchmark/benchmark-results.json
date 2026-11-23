@@ -219,7 +219,6 @@
   },
   "strata": {
    "version": "v0.1.45",
-   "host": "rtx3080ti",
    "quantization": "IQ3_XXS",
    "modelId": "qwen3.8-flash-next-iq3_xxs",
    "hardware": {
@@ -91429,8 +91428,8 @@
   },
   {
    "id": "single-host",
-   "zh": "Strata 结果只适用于单机单量化（rtx3080ti、IQ3_XXS，参数来自 v0.1.42 调参）。",
-   "en": "Strata results hold for one host and one quantization only (rtx3080ti, IQ3_XXS, parameters from the v0.1.42 tuning)."
+   "zh": "Strata 结果只适用于单量化（IQ3_XXS，参数来自 v0.1.42 调参）。",
+   "en": "Strata results hold for one quantization only (IQ3_XXS, parameters from the v0.1.42 tuning)."
   },
   {
    "id": "phase3-supplement",

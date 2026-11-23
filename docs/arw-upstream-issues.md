@@ -8,7 +8,7 @@
 
 - **版本**：ARW 760007c（`benchmarks/reviewer-suite-v1/source-snapshots/current/`）。
 - **现象**：`docs/agents/reviewer.md` 要求 Reviewer"核实问题后先写入绑定报告，再通过 `arw background-agent` 的 `send_message` 及时通知"。这个命令要连接本机 127.0.0.1 的管理进程端口。原版 Reviewer 权限是 `:read-only` 加显式读写路径（`lib/reviewer-runtime/reviewer-native-policy.mjs`），命令没有网络权限；规格（`docs/specs/agent-repository-workflow/spec.md` 管理进程一节）也写明控制连接"不决定 Agent 的模型网络权限"。所以不提权的 `send_message` 必然失败（`connect EPERM 127.0.0.1:<port>`）。要发出消息只能申请提权，每次都会触发一个 auto_review guardian 审批线程。
-- **证据**：2026-10-11 rtx3080ti 的 Commit Audit 运行中，IQ3_XXS 一个实例两次调用 `send_message`，第二次报 `connect EPERM 127.0.0.1:34787`，消息没有送达。Q2_0 一个实例改为提权调用，两次触发 guardian，额外消耗约 26.9K 未缓存输入和 2K 输出。
+- **证据**：2026-10-11 本机的 Commit Audit 运行中，IQ3_XXS 一个实例两次调用 `send_message`，第二次报 `connect EPERM 127.0.0.1:34787`，消息没有送达。Q2_0 一个实例改为提权调用，两次触发 guardian，额外消耗约 26.9K 未缓存输入和 2K 输出。
 - **影响**：Role 要求的通知路径在默认权限下走不通。模型为完成这项要求会去提权、尝试其他 `arw` 操作，增加 token、时间和违规风险。在 Reviewer Capability 验证和 benchmark 中，中途消息本来就没有作用（最终结果由运行层通过 `completion` 交付，评分不使用中途消息），却仍然诱发这些行为。
 - **建议**：能力验证和 benchmark 的交接不再要求、也不鼓励中途消息；普通审核如果保留这条要求，应给出不需要命令联网的通道，或在 Role 中写明需要提权并说明代价。
 - **本工程临时措施**：能力测量交接末尾追加说明（不发送中途消息、不需要运行标识、禁止查询环境变量和平台身份），见 [多模型 benchmark 计划](../benchmarks/multi-model-v1/plan.md)。
@@ -17,7 +17,7 @@
 
 - **版本**：ARW 760007c。
 - **现象**：`docs/agents/reviewer.md` 要求"使用运行环境提供的 `ARW_BACKGROUND_AGENT_RUN_ID` 作为准确 `runId`"，没有说明它是环境变量，也没有给出读取方式。运行标识只通过 `lib/background-agent/codex-app-server.mjs` 写入的 `shell_environment_policy.set` 提供。会话检查规范（`docs/agents/reviewer-capability-session-inspection.md`）允许使用这个变量，但把"查询模型或平台环境身份"列为违规，任何允许清单外的观察都会使整批失败。
-- **证据**：2026-10-11 rtx3080ti 的 Commit Audit 运行中，IQ3_XXS 和 Q2_0 各有 1 个实例为找运行标识执行了 `env | grep`，输出里有 `CODEX_HOME`、`CODEX_PERMISSION_PROFILE`、运行时文件路径和模型端点（没有凭据）。两批都按规范判为正式验收失败。
+- **证据**：2026-10-11 本机的 Commit Audit 运行中，IQ3_XXS 和 Q2_0 各有 1 个实例为找运行标识执行了 `env | grep`，输出里有 `CODEX_HOME`、`CODEX_PERMISSION_PROFILE`、运行时文件路径和模型端点（没有凭据）。两批都按规范判为正式验收失败。
 - **影响**：Role 的要求与检查规范互相冲突。模型按 Role 去取运行标识时，最自然的做法就是宽泛查询环境变量，而这正是检查规范判失败的行为。
 - **建议**：与第 1 条一起处理。若保留中途消息，在 Role 中写明"直接读取环境变量 `ARW_BACKGROUND_AGENT_RUN_ID`，不得枚举其他环境变量"；更好的做法是由运行层把运行标识注入 `arw` 命令，Reviewer 不必知道它。
 
@@ -25,7 +25,7 @@
 
 - **版本**：ARW 760007c。
 - **现象**：`lib/reviewer-runtime/reviewer-runtime.mjs` 的 `checkReportBinding` 非递归列出报告目录，只要有绑定报告以外的条目就报 `report-binding-invalid`（"The Reviewer report directory must contain only its exact bound report."）。报告目录同时是 Reviewer 的可写根，Codex 沙箱会在可写根内为受保护名称建空的挂载点目录（`.agents`、`.aws`、`.codex`、`.git`），建立和清理时机由沙箱决定。如果检查时挂载点还没被清理，Reviewer 已经完成的审核会被判为绑定失败。
-- **证据**：2026-10-12 rtx3080ti F6 commit-audit-a 实例 3：Reviewer 已返回 ready，`wait_agent` 报上述错误；报告目录里有派发时刻（07:57）创建的四个空目录，Reviewer 命令没有创建它们。同批实例 2 的同一目录在 07:57 有增删，检查时已清理，所以没有出错。处理是停掉该 agent，单独补跑 1 次（commit-audit-c）。
+- **证据**：2026-10-12 本机 F6 commit-audit-a 实例 3：Reviewer 已返回 ready，`wait_agent` 报上述错误；报告目录里有派发时刻（07:57）创建的四个空目录，Reviewer 命令没有创建它们。同批实例 2 的同一目录在 07:57 有增删，检查时已清理，所以没有出错。处理是停掉该 agent，单独补跑 1 次（commit-audit-c）。
 - **影响**：偶发，与 Reviewer 行为无关，但会让已完成的实例失败，还会让批次缺少重复、拿不到原版批分。
 - **建议**：检查时忽略沙箱的受保护名称挂载点（空目录），或者把报告目录与可写根分开，让沙箱挂载点不落在报告目录里。
 
@@ -33,7 +33,7 @@
 
 - **版本**：ARW 760007c（Code Spec Reviewer，`markdown-findings` 评分路径）。
 - **现象**：`lib/release/reviewer-capability-conformance.mjs` 的 Markdown 报告解析把 finding 正文中反引号内形如 `a:b` 的片段都当作证据定位。`` `13:45` `` 被读成文件 `13` 的第 45 行，`` `startAt: 12:00` ``、`` `11:00 <= 11:00` `` 同理；随后第 2638 行按冻结源核对，记 `review-evidence-invalid`（"Markdown evidence is outside the frozen source."），整个实例分数 ×0.9。
-- **证据**：2026-10-13 rtx3080ti Code Spec v2，IQ3_XXS ×10 中有 7 次被 ×0.9，其中全部 `review-evidence-invalid` 都来自这一点（另有 3 次 `review-format-invalid`），没有一条是真实的代码或 spec 引用错误；场景本身是预约时间规则，引用时刻是正常写法。报告见 `reports/v0.1.42/code-spec-v2/summary.md`。
+- **证据**：2026-10-13 本机 Code Spec v2，IQ3_XXS ×10 中有 7 次被 ×0.9，其中全部 `review-evidence-invalid` 都来自这一点（另有 3 次 `review-format-invalid`），没有一条是真实的代码或 spec 引用错误；场景本身是预约时间规则，引用时刻是正常写法。报告见 `reports/v0.1.42/code-spec-v2/summary.md`。
 - **影响**：罚的是写作习惯，不是证据错误；在时间、端口、比例等含冒号内容常见的场景里，会给分数加入与审查能力无关的噪声，也会把调参引向"别把时刻写进反引号"。
 - **建议**：只把路径部分能在冻结源中解析为文件的片段视为定位（或要求定位出现在 Evidence 字段、带文件扩展名）；无法解析为文件的 `a:b` 片段当作普通代码文本，不产生诊断。
 - **本工程临时措施**：无，按 ARW 原版照罚并在报告中注明。
@@ -58,7 +58,7 @@
 
 - **版本**：ARW 760007c，`lib/background-agent/strata-driver.mjs`、`strata-work-policy.mjs`、`strata-models.mjs`、`model-catalog.mjs`、`manager.mjs`，以及对应测试 `tests/background-agent/strata-driver.test.mjs`、`model-catalog.test.mjs`、`host.test.mjs`。
 - **原做法**：每次连接都运行安装目录的 `Run-Strata-Controller.sh` 启动控制进程，用 `/ownership/acquire|status|start|stop|release` 管理独占和模型；启动模型时写死 `spec-min-p 0.7`、`max-context 156584` 和 temperature 0 / top_p 1 / top_k 20；`strata-models.mjs` 的 `STRATA_CONTEXT_WINDOW = 156584` 同时写进模型目录和任务设置，压缩阈值写死为 100000；压缩提示读取 `config/compact_prompt.txt`。
-- **本工程现状**：安装目录有一个常驻前端，网卡名前缀和端口写在 `config/frontend.json`（`listen_interface`、`port`），接口为 `POST /lease/acquire`、`GET /model/status`、`POST /model/start`、`POST /model/stop`、`POST /lease/release`，模型请求走 `/strata/v1`。引擎参数和请求默认值由安装目录按"主机 + 量化"实测选定（例如 rtx3080ti 的 IQ3_XXS 用 `spec-min-p 0.9`）。公开的 `/model/start` 只接受 `{model, context_window}`，其他字段一律拒绝；`context_window` 必须是安装目录 `config/deployment.json` 里该量化 `context_tiers` 发布的档位之一（每档带 `context_window` 和 `auto_compact_token_limit`，第一档为默认）。调用方因此只选三项：模型、推理强度（随请求）、上下文档位。压缩提示位于 `config/prompts/compact-prompt.txt`。旧的控制脚本和 `/ownership/*` 已经删除。
+- **本工程现状**：安装目录有一个常驻前端，网卡名前缀和端口写在 `config/frontend.json`（`listen_interface`、`port`），接口为 `POST /lease/acquire`、`GET /model/status`、`POST /model/start`、`POST /model/stop`、`POST /lease/release`，模型请求走 `/strata/v1`。引擎参数和请求默认值由安装目录按"主机 + 量化"实测选定（例如 本机的 IQ3_XXS 用 `spec-min-p 0.9`）。公开的 `/model/start` 只接受 `{model, context_window}`，其他字段一律拒绝；`context_window` 必须是安装目录 `config/deployment.json` 里该量化 `context_tiers` 发布的档位之一（每档带 `context_window` 和 `auto_compact_token_limit`，第一档为默认）。调用方因此只选三项：模型、推理强度（随请求）、上下文档位。压缩提示位于 `config/prompts/compact-prompt.txt`。旧的控制脚本和 `/ownership/*` 已经删除。
 - **修改**：
   1. `connect()` 不再运行脚本，改为读取 `config/frontend.json`，得到控制地址，模型地址为 `<控制地址>/strata/v1`。
   2. 五个操作改为上面的新路径；解析新的返回字段（`acquire` 返回 `key` 与 `lease: "held"`，`release` 返回 `lease: "free"`）；前端把加载中的模型报告为 `starting`，按原 `partial` 处理。
@@ -68,7 +68,7 @@
   5. `models.custom.json` 的 Strata provider 新增可选字段 `contextWindow`（正整数，只允许 Strata driver）。模型目录先校验 provider，再用校验后的 provider 套档位。
   6. 压缩提示路径改为 `config/prompts/compact-prompt.txt`。
   7. 同步更新 ARW 自带的 driver、模型目录和 host 测试（旧 driver 测试仍按已删除的控制脚本断言；host 测试的夹具改为新压缩提示路径并提供档位）。改动后 `tests/background-agent/` 与 `tests/reviewer-runtime/` 只剩 1 个与本补丁无关、未打补丁时同样失败的终端标题测试。
-- **建议**：ARW 按上述新接口适配；不要在 ARW 中写死引擎参数、窗口或压缩阈值，由安装方的每机每量化默认值和发布档位决定。
+- **建议**：ARW 按上述新接口适配；不要在 ARW 中写死引擎参数、窗口或压缩阈值，由安装方的每量化默认值和发布档位决定。
 
 ### C. 嵌入式宿主传入 `nativeSessions` 时，管理器读不到 provider（本工程运行层已绕开，未改 ARW）
 

@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "status": "superseded-rtx3080ti-2026-10-14",
+ "status": "superseded-2026-10-14",
  "version": "0.1.43.1",
  "commit": "a0116b2782a5b82622358c04a06496485d12b2d6",
  "engine_version": "0.1.43.1",
@@ -39,11 +39,8 @@
    "unchanged": true
   }
  },
- "currently_installed": {
-  "rtx3080ti": false,
-  "rtx4070tis": "pending-sync (offline)"
- },
+ "currently_installed": false,
  "upstream_files_written": 2984,
  "removed_upstream_files": [],
- "backup_on_rtx3080ti": ".tmp/maintenance-backups/release-backup-20261013-230826-710453"
+ "backup": ".tmp/maintenance-backups/release-backup-20261013-230826-710453"
 }

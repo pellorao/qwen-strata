@@ -1,12 +1,12 @@
-# rtx3080ti IQ3_XXS 第 4 维：PLE 读取（自动探测 / 强制 direct）
+# 本机 IQ3_XXS 第 4 维：PLE 读取（自动探测 / 强制 direct）
 
-结论：**强制 direct 首个冷 32K 输入快 0.7 秒（4.6%，范围不重叠）**，解码持平（114.5 对 113.5 token/s，波动内）；按等量输出（10752 token）折算，direct 工作时间约少 1.4%。两条件都是 9/9 全对，最终答案逐字节相同。direct 内存占用有上限（行缓存约 90 MB），最低可用内存多 0.26 GiB；mmap 的映射页会持续占用余量。按"速度优先"规则选 direct。Main 与独立复核 agent 意见一致，已于 2026-10-11 写入 rtx3080ti 的 `model_overrides.IQ3_XXS`（`"ple-io": "direct"`）并部署，回读确认。
+结论：**强制 direct 首个冷 32K 输入快 0.7 秒（4.6%，范围不重叠）**，解码持平（114.5 对 113.5 token/s，波动内）；按等量输出（10752 token）折算，direct 工作时间约少 1.4%。两条件都是 9/9 全对，最终答案逐字节相同。direct 内存占用有上限（行缓存约 90 MB），最低可用内存多 0.26 GiB；mmap 的映射页会持续占用余量。按"速度优先"规则选 direct。Main 与独立复核 agent 意见一致，已于 2026-10-11 写入 本机的 `model_overrides.IQ3_XXS`（`"ple-io": "direct"`）并部署，回读确认。
 
-适用范围与回退：仅 rtx3080ti、IQ3_XXS、Strata v0.1.42、32K 合成短负载。绝对收益很小（每个冷 32K 输入约 0.7 秒）。合成负载的 n-gram 多样性很低，基本没测到 PLE 磁盘路径；长上下文、多样新文本未验证。本机 direct 探测 12.3–13.1K 行/秒，低于引擎 15K 门槛，引擎会警告。最坏估算：8192 token 全新文本约 11 秒，离 60 秒停顿看门狗尚有余量。之后的 ARW 真实负载要监看停顿、看门狗警告和新文本轮次的输入速度；出现分钟级停顿就退回自动探测（删掉这一个配置键）。
+适用范围与回退：仅 本机、IQ3_XXS、Strata v0.1.42、32K 合成短负载。绝对收益很小（每个冷 32K 输入约 0.7 秒）。合成负载的 n-gram 多样性很低，基本没测到 PLE 磁盘路径；长上下文、多样新文本未验证。本机 direct 探测 12.3–13.1K 行/秒，低于引擎 15K 门槛，引擎会警告。最坏估算：8192 token 全新文本约 11 秒，离 60 秒停顿看门狗尚有余量。之后的 ARW 真实负载要监看停顿、看门狗警告和新文本轮次的输入速度；出现分钟级停顿就退回自动探测（删掉这一个配置键）。
 
 ## 条件
 
-同[第 1 维](../pcie-frac/summary.md)，加前三维胜者（不传 `--pcie-frac`、all、23 线程）。probe 不传 `--ple-io`，引擎探测低于 15000 行/秒就改用 mmap（3 次都改了，探测 12809–13109 行/秒）；direct 显式传 `--ple-io direct`，引擎只警告（3 次都保持 direct，并开启 SSD keepalive）。执行顺序 probe-1、direct-1、direct-2、probe-2、direct-3、probe-3。冻结计划：[rtx3080ti-iq3_xxs-ple-io-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-ple-io-plan.json)。
+同[第 1 维](../pcie-frac/summary.md)，加前三维胜者（不传 `--pcie-frac`、all、23 线程）。probe 不传 `--ple-io`，引擎探测低于 15000 行/秒就改用 mmap（3 次都改了，探测 12809–13109 行/秒）；direct 显式传 `--ple-io direct`，引擎只警告（3 次都保持 direct，并开启 SSD keepalive）。执行顺序 probe-1、direct-1、direct-2、probe-2、direct-3、probe-3。冻结计划：[本机-iq3_xxs-ple-io-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-ple-io-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

@@ -81,7 +81,7 @@
           "output": 79588.33333333333
         }
       },
-      "rtx3080ti": {
+      "installation": {
         "observations": [
           {
             "repetition": 1,
@@ -166,7 +166,7 @@
       "hardware": {
         "host": "local",
         "cpu": "i9-14900K",
-        "gpu": "RTX4070Ti SUPER",
+        "gpu": "GPU 16 GB",
         "vram_gib": 16,
         "ram_gib": 64
       },
@@ -536,7 +536,7 @@
       "id": "local-loop-prompt",
       "host": "local",
       "hardware": {
-        "gpu": "NVIDIA RTX 4070 Ti SUPER",
+        "gpu": "GPU 16 GB",
         "vram_gib": 16,
         "cpu": "Intel Core i9-14900K",
         "ram_gib": 64
@@ -617,7 +617,7 @@
         "archive_http": true,
         "host_id": "local",
         "host_hardware": {
-          "gpu": "NVIDIA RTX 4070 Ti SUPER",
+          "gpu": "GPU 16 GB",
           "vram_gib": 16,
           "cpu": "Intel Core i9-14900K",
           "ram_gib": 64
@@ -1242,7 +1242,6 @@
     },
     {
       "id": "remote-baseline",
-      "host": "rtx3080ti",
       "hardware": {
         "gpu": "NVIDIA RTX 3080 Ti",
         "vram_gib": 12,
@@ -1323,7 +1322,6 @@
         "loop_prevention_instructions": false,
         "automatic_continuation": true,
         "archive_http": true,
-        "host_id": "rtx3080ti",
         "host_hardware": {
           "gpu": "NVIDIA RTX 3080 Ti",
           "vram_gib": 12,
@@ -1343,7 +1341,6 @@
       "observations": [
         {
           "instance_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-1",
-          "host": "rtx3080ti",
           "repetition": 1,
           "score": 0.7850661895846136,
           "score_before_format_penalty": 0.7850661895846136,
@@ -1611,7 +1608,6 @@
         },
         {
           "instance_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-2",
-          "host": "rtx3080ti",
           "repetition": 2,
           "score": 0.7357263313270901,
           "score_before_format_penalty": 0.7357263313270901,
@@ -1937,7 +1933,6 @@
         },
         {
           "instance_id": "default-6d96c3e8-840c-444f-81f3-2e7503061923-instance-3",
-          "host": "rtx3080ti",
           "repetition": 3,
           "score": 0.7862755002166136,
           "score_before_format_penalty": 0.7862755002166136,
@@ -2171,7 +2166,6 @@
     },
     {
       "id": "remote-official-sampling",
-      "host": "rtx3080ti",
       "hardware": {
         "gpu": "NVIDIA RTX 3080 Ti",
         "vram_gib": 12,
@@ -2252,7 +2246,6 @@
         "loop_prevention_instructions": false,
         "automatic_continuation": true,
         "archive_http": true,
-        "host_id": "rtx3080ti",
         "host_hardware": {
           "gpu": "NVIDIA RTX 3080 Ti",
           "vram_gib": 12,
@@ -2272,7 +2265,6 @@
       "observations": [
         {
           "instance_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-1",
-          "host": "rtx3080ti",
           "repetition": 1,
           "score": 0.4991909403339134,
           "score_before_format_penalty": 0.4991909403339134,
@@ -2703,7 +2695,6 @@
         },
         {
           "instance_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-2",
-          "host": "rtx3080ti",
           "repetition": 2,
           "score": 0.7822352897618718,
           "score_before_format_penalty": 0.8691503219576354,
@@ -3094,7 +3085,6 @@
         },
         {
           "instance_id": "default-9ccca6cb-46eb-4fa0-9169-e2e981887868-instance-3",
-          "host": "rtx3080ti",
           "repetition": 3,
           "score": 0.7266901192253377,
           "score_before_format_penalty": 0.7266901192253377,
@@ -3447,7 +3437,6 @@
     {
       "baseline": "remote-baseline",
       "candidate": "remote-official-sampling",
-      "host": "rtx3080ti",
       "score_difference": -0.0996505572690648,
       "review_work_seconds_difference": 234.79119099934906,
       "review_work_time_ratio": 1.0876530903875958,
@@ -3524,7 +3513,7 @@
     "prompt_effectiveness_verified": false,
     "adopt_official_sampling_candidate": false,
     "deployment_change_required": false,
-    "next_work": "RTX3080Ti resource calibration research and bounded candidate plan; no new model run authorized by this decision."
+    "next_work": "RTX 3080 Ti resource calibration research and bounded candidate plan; no new model run authorized by this decision."
   },
   "external_feedback": {
     "issue_url": "https://github.com/Niko1221/Strata/issues/710",

@@ -1,7 +1,6 @@
 {
   "scenario": "Code Spec 正式场景 v5（SCENARIO_REVISIONS code-spec-reviewer 38，冻结 3a18572；v5.patch sha256 231fd108…；B 152,919 字节，材料 41,284 token）",
   "plan": "benchmarks/reviewer-suite-v1/code-spec-v5-iq3_xxs-2026-10-14/plan.json",
-  "host": "rtx3080ti",
   "model": "IQ3_XXS",
   "strata": "0.1.44.1",
   "effort": "high",

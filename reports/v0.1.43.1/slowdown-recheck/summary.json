@@ -1,7 +1,6 @@
 {
  "measurement": "v0.1.43.1 降速复核（plan 待办 7）",
  "date": "2026-10-14",
- "host": "rtx3080ti",
  "model": "IQ3_XXS",
  "strata": "0.1.43.1 (a0116b2)",
  "workload": "benchmarks/resource-calibration-v1/workload.py build(2400)，100K 合成检索，3 请求",

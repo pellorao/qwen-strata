@@ -29,7 +29,6 @@
       "ownership": "free"
     },
     {
-      "host": "rtx3080ti",
       "files_verified": 26,
       "source_sha_verified": true,
       "baseline_workers": 23,

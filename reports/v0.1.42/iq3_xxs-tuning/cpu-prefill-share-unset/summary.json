@@ -1,5 +1,4 @@
 {
-  "host": "rtx3080ti",
   "model": "IQ3_XXS",
   "strata": "v0.1.42",
   "effort": "high",
@@ -345,7 +344,7 @@
     "final": "keep STRATA_PREFILL_CPU_SHARE=auto (no config change)",
     "date": "2026-10-12",
     "mode": "autonomous",
-    "deploy": "2026-10-12 01:52 tools.ops.deploy --host rtx3080ti; readback spec 4, spec-min-p 0.9, STRATA_PREFILL_CPU_SHARE=auto; 23 source SHAs verified; lease free, model not loaded"
+    "deploy": "2026-10-12 01:52 tools.ops.deploy; readback spec 4, spec-min-p 0.9, STRATA_PREFILL_CPU_SHARE=auto; 23 source SHAs verified; lease free, model not loaded"
   },
   "startup_context_check": "base_instructions, user@3, user@6 identical across 6 instances; developer@2 differed only by per-slot codex-home skills path; an execution note claiming slot 2 user@3 differed compared it against dimension 5 slot 1 (only <current_date> differs). After inspect_session normalized date and codex-home path, all 4 startup SHAs match across the 6 instances and dimension 5 slot 1.",
   "scoring_recheck": {

@@ -1,6 +1,5 @@
 {
   "status": "closed-six-independent-resource-observations-main-verified",
-  "host": "rtx3080ti",
   "versions": {
     "strata": "0.1.40.1",
     "engine": "0.1.40",
@@ -10,7 +9,7 @@
     "cpu": "i9-13900",
     "p_cores": 8,
     "e_cores": 16,
-    "gpu": "RTX3080Ti",
+    "gpu": "RTX 3080 Ti",
     "vram_mib": 12288,
     "ram_gib": 64,
     "ram_mts": 6600

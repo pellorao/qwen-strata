@@ -24,7 +24,7 @@
 - `tools/tuning/arw_dimension.selection`：冻结计划用计划自己记的 Codex 版本的副本（第一轮单测 5 个错误即由此而来）。
 - `claude_headless.environment` 加 `ENABLE_TOOL_SEARCH=false`，注释记录 2.1.309 上的核对项。
 - 测试：`test_claude_headless`、`test_native_cli_binding`、`test_arw_dimension`、`test_output_limit_e2e`。
-- 文档：测量规则「harness 版本」写明唯一配置点与旧副本保留条件；`tools/README.md`；调用手册源文件「自动压缩」记 2.1.309 核对结果，已 `deploy --docs-only` 到 rtx3080ti（只换手册，前端未重启）；plan 第 13 项前置标为完成。
+- 文档：测量规则「harness 版本」写明唯一配置点与旧副本保留条件；`tools/README.md`；调用手册源文件「自动压缩」记 2.1.309 核对结果，已 `deploy --docs-only` 到 本机（只换手册，前端未重启）；plan 第 13 项前置标为完成。
 
 ## 检查结果
 
@@ -34,7 +34,7 @@
 - Codex 其他零模型检查：`verify_codex_compact_prompt` 通过（原生压缩提示仍为 `ab0c334d…`）；`--mock-approval` routing 通过；`debug models --bundled` 的 catalog 与 0.163.0 逐字节相同。`--write-tool apply_patch` 判 failed，原因是该模式下边界探针不运行（`boundary.ran=false`），属工具组合限制，与版本无关。
 - compact probe：2.1.309 副本 `--repeat 3`，12 格全部通过（149.9K 不压缩，150.1K 压缩后继续）。
 - 送达行为零模型对照：gen-now 与 bash-interrupt（含 `--resume`）事件序列与 2.1.303 相同。
-- Strata 实测（rtx3080ti，IQ3_XXS，Strata 0.2.2 / 引擎 0.1.47）：
+- Strata 实测（本机，IQ3_XXS，Strata 0.2.2 / 引擎 0.1.47）：
 
 | 实例 | 提醒落点 | 送达方式 | 结果 | 耗时 | 引擎输出 |
 |---|---|---|---|---|---|

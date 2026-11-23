@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "status": "installed-rtx3080ti-sha-verified",
+ "status": "installed-sha-verified",
  "version": "0.2.10",
  "commit": "ffa80d73133ea5c548aefe57889a16e8085a938f",
  "engine_version": "0.1.56",
@@ -74,13 +74,10 @@
   }
  },
  "previous_source_paths": [],
- "currently_installed": {
-  "rtx3080ti": true,
-  "rtx4070tis": "pending-sync (offline, still v0.2.4)"
- },
- "installed_on_rtx3080ti": "2026-11-03",
+ "currently_installed": true,
+ "installed_on": "2026-11-03",
  "upstream_files_written": 804,
  "unchanged_files": 4885,
  "removed_upstream_files": [],
- "backup_on_rtx3080ti": ".tmp/maintenance-backups/release-backup-20261103-100435-850754"
+ "backup": ".tmp/maintenance-backups/release-backup-20261103-100435-850754"
 }

@@ -1,4 +1,4 @@
-# Spec Readiness 规则、场景与评分审查（rtx3080ti，Strata v0.1.42）
+# Spec Readiness 规则、场景与评分审查（本机，Strata v0.1.42）
 
 日期 2026-10-13。用户 2026-10-13 决定 Spec Readiness 不再做 Qwen 模型测试，转为只读分析：先检查规则冲突，再分析场景与标准答案，然后逐案例复评；并用 Opus（effort medium）完整跑 3 次作为每个评分项的对照。前置调查见 [低分主因调查](../spec-cause-investigation/summary.md)。
 

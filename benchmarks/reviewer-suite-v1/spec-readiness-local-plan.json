@@ -4,7 +4,7 @@
   "host": "local",
   "hardware": {
     "cpu": "i9-14900K",
-    "gpu": "RTX4070TiSUPER",
+    "gpu": "GPU 16 GB",
     "vram_mib": 16376,
     "ram_gib": 64,
     "p_cores": 8,
@@ -37,7 +37,7 @@
     "top_p": 1.0,
     "top_k": 20
   },
-  "hardware_options_source": "config/deployments/local.json",
+  "hardware_options_source": "config/installation.json",
   "hardware_options_fixed": {
     "prefill": 16384,
     "pool-workers": 23,

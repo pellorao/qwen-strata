@@ -1,5 +1,4 @@
 {
-  "host": "rtx3080ti",
   "baseline": {
     "status": "user-selected-runtime-starting-point",
     "selected_on": "2026-10-06",

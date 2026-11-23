@@ -21,7 +21,7 @@ MAX_BODY = 64 * 1024 * 1024
 UPSTREAM_TIMEOUT = 900
 BIND_RETRY = 10
 # A model outlives its lease so the next caller with the same options skips the load (about 16 s and
-# 36 GB of SSD reads on rtx3080ti); it is stopped after this many idle minutes without a lease. 0 keeps it.
+# 36 GB of SSD reads here); it is stopped after this many idle minutes without a lease. 0 keeps it.
 IDLE_STOP_MINUTES = 30
 IDLE_CHECK_SECONDS = 30
 # Thinking budget and total output per effort, used when a request names neither.
