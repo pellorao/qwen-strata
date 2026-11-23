@@ -1,4 +1,4 @@
-# Code Spec v4.7 测量报告（IQ3_XXS ×5+5；Opus-high ×3；rtx3080ti，Strata v0.1.43.1，Codex 0.162.0）
+# Code Spec v4.7 测量报告（IQ3_XXS ×5+5；Opus-high ×3；本机，Strata v0.1.43.1，Codex 0.162.0）
 
 ## 结论
 
@@ -10,7 +10,7 @@
 - 规则交互题和保底题两边都接近满分；没有双方都漏的题。clean 用例 31/31，13 个实例全部通过，没有误报。
 - Q3 最常漏的是 P14（正则 g）、P15（默认值展开）、P5（字段丢失），10 次中各只检出 1 次；P2、P7（单位）各检出 2 次。Opus 漏过 P2 两次、P4 一次。
 
-**适用范围**：只适用于 rtx3080ti + IQ3_XXS + Strata v0.1.43.1，推理强度 high，默认档 206584/150000。冻结版本为 code-spec-reviewer 修订号 25（f9ec01e），设计说明见 `benchmarks/reviewer-suite-v1/code-spec-v4.md`。v4.7 不使用阅读量维度的时限规则，handoff 与以前的版本相同。
+**适用范围**：只适用于 本机 + IQ3_XXS + Strata v0.1.43.1，推理强度 high，默认档 206584/150000。冻结版本为 code-spec-reviewer 修订号 25（f9ec01e），设计说明见 `benchmarks/reviewer-suite-v1/code-spec-v4.md`。v4.7 不使用阅读量维度的时限规则，handoff 与以前的版本相同。
 
 ## 关键数据
 

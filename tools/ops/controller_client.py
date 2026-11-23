@@ -12,14 +12,14 @@ from tools.metrics.model_lifetime import ModelAliveClock
 class Controller:
     """Lease holder for one frontend; the key is kept in a private file until release."""
     def __init__(self, installation, folder, *, base_url=None):
-        from tools.ops.deployment_source import host_for_installation, load_host, require_current_host
+        from tools.ops.deployment_source import load_host
         self.installation = Path(installation)
         self.folder = Path(folder)
         self.folder.mkdir(parents=True, exist_ok=True)
         self.credential = self.folder / 'controller-key.private.json'
-        self.base = (base_url or load_host(require_current_host(host_for_installation(self.installation)))['frontend_url']).rstrip('/')
+        self.base = (base_url or load_host()['frontend_url']).rstrip('/')
         if not self.base:
-            raise ValueError('Host needs frontend_url in project.private.toml')
+            raise ValueError('The installation needs frontend_url in project.private.toml')
         self.model_base = self.base + '/strata'
         self.key = None
         self.model_alive_clock = ModelAliveClock(self.folder / "model-alive-events.json")

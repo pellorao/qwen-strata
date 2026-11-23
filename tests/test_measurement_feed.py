@@ -40,7 +40,7 @@ class MeasurementFeedTests(unittest.TestCase):
         self.assertEqual([r['context_tier'] for r in result], ['125k', '150k'])
         self.assertEqual([r['decode_tok_s'] for r in result], [150.4, 152.9])
         for row in result:
-            self.assertEqual(row['host'], 'rtx3080ti')
+            self.assertEqual(row['host'], 'local')
             self.assertEqual(row['ts'], datetime.fromisoformat(self.binding['ts']).timestamp())
             self.assertEqual(row['version'], 'v0.2.99')
             self.assertEqual(row['configuration'], BINDING['configuration'])

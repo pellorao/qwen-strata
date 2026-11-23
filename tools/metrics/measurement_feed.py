@@ -14,9 +14,9 @@ import re
 
 
 BINDING = {
-    'baseline_id': 'rtx3080ti-v0.2.12-stress-2026-11-09',
-    'host': 'rtx3080ti',
-    'configuration': 'rtx3080ti/IQ3_XXS/MTP/DDR5600/route_prior=1.5/adapt_lag=2',
+    'baseline_id': 'local-v0.2.12-stress-2026-11-09',
+    'host': 'local',
+    'configuration': 'local/IQ3_XXS/MTP/DDR5600/route_prior=1.5/adapt_lag=2',
     'intelligence_protocol': 'Spec Readiness v4.3 / Codex 0.164.0 high / scoreBeforePenalty total / blind Opus high',
     'speed_protocols': {tier: f'stress {tier} / decode all requests / cold prefill initial / engine token sums per seconds'
                         for tier in ('125k', '150k')},

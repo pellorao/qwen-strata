@@ -10,7 +10,7 @@
 
 ## 范围与固定条件
 
-RTX4070TiSUPER16GiB／i9-14900K／64GB；Q2_0/high/default/no-save，100K压缩阈值／156584窗口，8192思考／24576总输出，采样0／1／20，23/auto、prefill16384、700MiB、int8KV／resident20480、direct、spec-min-p0.7。仅排除启动提示中的Progress and loop prevention段，其余基础启动／压缩及Codex0.160.1原生补充完整保留；实际SHA在JSON逐次绑定，日常提示未改。
+Q2_0/high/default/no-save，100K压缩阈值／156584窗口，8192思考／24576总输出，采样0／1／20，23/auto、prefill16384、700MiB、int8KV／resident20480、direct、spec-min-p0.7。仅排除启动提示中的Progress and loop prevention段，其余基础启动／压缩及Codex0.160.1原生补充完整保留；实际SHA在JSON逐次绑定，日常提示未改。
 
 三独立模型实例／三次初审，不新增基线。保留原547文件ARW冻结来源、完整两Gate及旧单文件权限；本轮不切换已同步的新ARW来源或10／5早退规则。20暂存业务文件及36业务／公开规则／生成配置文件逐实例字节一致。实际执行内部阶段111／102／82，共295（包含续生成、压缩及guardian）；自动原线程接续10／0／3次，均属原任务，未增加有效样本。三次停模、独占归还及ARW cleanup ready确认。1427份活跃原生状态快照按冻结上游命令策略离线重放仍为0提醒，末态与实际guard状态一致；离线重放没有调用模型。
 

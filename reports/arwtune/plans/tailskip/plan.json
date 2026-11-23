@@ -1,0 +1,23 @@
+{
+ "schema": "arw-dimension-v2",
+ "model": "IQ3_XXS",
+ "scenario": "spec-readiness",
+ "effort": "high",
+ "dimensions": [
+  {
+   "id": "tailskip",
+   "default": "tail-7",
+   "schedule": [
+    "tail-7",
+    "tail-0",
+    "tail-0",
+    "tail-7"
+   ],
+   "conditions": {
+    "tail-7": {},
+    "tail-0": {}
+   },
+   "instances_per_slot": 1
+  }
+ ]
+}

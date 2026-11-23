@@ -1,7 +1,6 @@
 {
  "schema_version": 1,
  "date": "2026-10-11",
- "host": "rtx3080ti",
  "strata": "v0.1.41",
  "codex": "0.162.0",
  "arw_snapshot": "760007c2134d",
@@ -48,7 +47,6 @@
   },
   "loop_reminder": "off",
   "automatic_continuation": true,
-  "host_id": "rtx3080ti",
   "host_hardware": {
    "gpu": "NVIDIA RTX 3080 Ti",
    "vram_gib": 12,

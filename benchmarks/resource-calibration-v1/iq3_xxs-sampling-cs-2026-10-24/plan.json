@@ -1,12 +1,11 @@
 {
  "schema": "arw-dimension-v1",
- "host": "rtx3080ti",
  "model": "IQ3_XXS",
  "reviewer": "code-spec-reviewer",
  "authorization": {
   "approved": true,
   "source": "用户 2026-10-22 定采样维用 ARW code-spec-v5、Codex、high、沿用现行分阶段判定；用户 2026-10-11 授权多次 deploy --condition；本计划由 Opus 子 agent 按 docs/plan.md「采样与窗口重新测量」执行",
-  "scope": "rtx3080ti IQ3_XXS 采样维：greedy / card / t06，CS v5，Codex 0.164.0，high；分阶段 3/5/7/9/11；第 1 轮后看实测 SD，明显大于 0.029 停下交回"
+  "scope": "IQ3_XXS 采样维：greedy / card / t06，CS v5，Codex 0.164.0，high；分阶段 3/5/7/9/11；第 1 轮后看实测 SD，明显大于 0.029 停下交回"
  },
  "method": "arw_blocks（tools/tuning/arw_blocks.py）：每块 = 一个条件的一次部署冷加载 + 1 个不计分预热实例 + 若干计分实例连跑（同一批 arw_measure，实例间不停模型）；prepare 带 3 个 harness 补丁；评分走 bench_records→bench_score→blind_pool（Opus high 盲裁，≤2 路）→staged_decision。",
  "fixed_conditions": {
@@ -16,7 +15,7 @@
   "effort_reason": "与 ARW 原生 agent-cli 配置（model_reasoning_effort=\"high\"）及 F6 基线一致",
   "context_window": 206584,
   "auto_compact_token_limit": 150000,
-  "engine_defaults": "config/deployments/rtx3080ti.json 的安装默认值，条件只叠加 request_defaults（temperature/top_p/top_k/min_p/presence_penalty）与 STRATA_BATCH_TRACE=1",
+  "engine_defaults": "config/installation.json 的安装默认值，条件只叠加 request_defaults（temperature/top_p/top_k/min_p/presence_penalty）与 STRATA_BATCH_TRACE=1",
   "startup_instructions": "config/prompts/startup-instructions.txt（源 SHA 5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e，去掉防循环段），compact-prompt.txt（3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af）接入；开跑前核对已安装 SHA",
   "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
   "native_cli_sha256": "b93f6811d3f653f0fb83be4050d857fb9abbb111dfa2ce160563327daff7f306",

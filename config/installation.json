@@ -1,0 +1,81 @@
+{
+  "schema_version": 2,
+  "cuda_arch": 86,
+  "models": [
+    "IQ3_XXS"
+  ],
+  "engine_overrides": {
+    "prefill": 8192,
+    "kv-resident": 20480,
+    "pool-workers": 23,
+    "pool-affinity": "all",
+    "expert-cache": "auto",
+    "conversation-cache-mib": 8192,
+    "conversation-cache-slots": 4,
+    "conversation-cache-min-free-mib": 5120
+  },
+  "model_overrides": {
+    "Q2_0": {
+      "vram-reserve-mib": 512
+    },
+    "IQ3_XXS": {
+      "pcie-frac": null,
+      "ple-io": "direct",
+      "spec": 4,
+      "spec-min-p": 0.9,
+      "vram-reserve-mib": 512
+    }
+  },
+  "model_environment": {
+    "IQ3_XXS": {
+      "STRATA_ADAPT_LAG": 2,
+      "STRATA_ROUTE_PRIOR": 1.5,
+      "STRATA_ROUTE_TAIL_SKIP": 7
+    }
+  },
+  "listen_interface": "vEthernet (WSL",
+  "port": 8000,
+  "hardware": {
+    "gpu": "NVIDIA RTX 3080 Ti",
+    "vram_gib": 12,
+    "cpu": "Intel Core i9-13900",
+    "ram_gib": 64
+  },
+  "qualification": "User selected23/all after current-version Q2_0 affinity6-instance and worker9-instance comparisons. Short-task evidence only; RAM/VRAM and long Reviewer calibration remain pending.",
+  "installation_defaults": {
+    "reasoning_effort": "high",
+    "reasoning_budget_tokens": 8192,
+    "max_tokens": 24576,
+    "guardian_reasoning_budget_tokens": 512,
+    "guardian_max_tokens": 1024,
+    "cpu_prefill_share": "auto",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "top_k": 20,
+    "presence_penalty": 0.0
+  },
+  "context_tiers": {
+    "Q2_0": [
+      {
+        "context_window": 156584,
+        "auto_compact_token_limit": 100000
+      }
+    ],
+    "IQ2_XS": [
+      {
+        "context_window": 156584,
+        "auto_compact_token_limit": 100000
+      }
+    ],
+    "IQ3_XXS": [
+      {
+        "context_window": 206584,
+        "auto_compact_token_limit": 150000
+      },
+      {
+        "context_window": 156584,
+        "auto_compact_token_limit": 100000
+      }
+    ]
+  }
+}

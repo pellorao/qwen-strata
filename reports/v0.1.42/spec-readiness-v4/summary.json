@@ -1,7 +1,6 @@
 {
  "scenario": "spec-readiness",
  "version": "v4 fixture (revision 43, freeze 61287ee) + v4.1 answer key (8510561)",
- "host": "rtx3080ti",
  "strata": "0.1.42",
  "model": "IQ3_XXS",
  "codex": "0.162.0",

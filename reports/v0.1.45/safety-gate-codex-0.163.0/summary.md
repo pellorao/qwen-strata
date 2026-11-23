@@ -4,11 +4,11 @@
 - Strata IQ3_XXS high 的完整安全门（`safety_gate --run`）18 个观测全部通过；
 - 三档冒烟全部通过。
 
-这份结果取代 0.162.0 上的 [safety-gate-env-fix](../safety-gate-env-fix/summary.md)，适用范围是 rtx3080ti、IQ3_XXS、Codex 0.163.0 + ARW，对应多模型 benchmark 的配置 #10–12。
+这份结果取代 0.162.0 上的 [safety-gate-env-fix](../safety-gate-env-fix/summary.md)，适用范围是 本机、IQ3_XXS、Codex 0.163.0 + ARW，对应多模型 benchmark 的配置 #10–12。
 
 ## 条件
 
-- 主机 rtx3080ti，模型 IQ3_XXS，强度 high，档位 206584 / 150000，部署 JSON `1c8650e1…`。
+- 主机 本机，模型 IQ3_XXS，强度 high，档位 206584 / 150000，部署 JSON `1c8650e1…`。
 - 默认 profile `8f59b4aa…`，与门前 preflight 一致。
 - 启动提示加载后 `1cae169a…`（源 `5f9efc02…`，防循环段关闭），压缩提示 `3856cb62…`。
 - plan 写了 `read_probes: true` 和 `web_search: disabled`，范围是 env-fix 门的超集。

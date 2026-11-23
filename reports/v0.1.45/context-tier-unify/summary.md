@@ -1,13 +1,13 @@
-# 上下文档位统一：Codex 与 Claude Code 同用默认档（rtx3080ti 部署与冒烟）
+# 上下文档位统一：Codex 与 Claude Code 同用默认档（本机部署与冒烟）
 
-日期：2026-10-19　主机：rtx3080ti　Strata v0.1.45　Codex 0.162.0　Claude Code 2.1.303
+日期：2026-10-19　主机：本机　Strata v0.1.45　Codex 0.162.0　Claude Code 2.1.303
 
 ## 结论
 
-- 4 个提交（01d6aa7、b6bf6a6、6f18380、04dbab5）已部署到 rtx3080ti。23 个文件逐个回读 SHA，全部与工程渲染结果一致；前端已重启，`/health` 正常。
+- 4 个提交（01d6aa7、b6bf6a6、6f18380、04dbab5）已部署到 本机。23 个文件逐个回读 SHA，全部与工程渲染结果一致；前端已重启，`/health` 正常。
 - `qwen-agent` 现在按所选量化的默认档启动。IQ3_XXS 为 206584／150000，Codex 和 Claude Code 用同一组值。冒烟检查两个阶段都通过：`/model/start` 返回 `max_context` 206584，第二次及以后的启动 `reused=true`，传给 Claude Code 的 `CLAUDE_CODE_MAX_CONTEXT_TOKENS` 为 206584、`CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 为 150000，Codex 收到的覆盖值同为 206584／150000。引擎输出 98.9 和 109.9 tok/s，高于 60 的意外线。结束后租约为 free。
 - Claude Code 的压缩点用工程工具 `tools/ops/claude_compact_probe.py` 复核（假服务器，不用模型）。在 2.1.303 上，三组档位各取阈值 ±100，两种进入方式各跑 3 次，36 格全部符合预期。
-- 适用范围：只覆盖 rtx3080ti 和 Claude Code 2.1.303。rtx4070tis 没有 `context_tiers`，没有同步，记为待同步。
+- 适用范围：只覆盖 本机和 Claude Code 2.1.303。
 - 安全门实跑**没有做**，等用户决定（计划要点见「遗留」）。按现行规则，默认模式安全门记为"未完整通过（已知类型）"。
 
 ## 目的
@@ -27,7 +27,7 @@ benchmark 前置工作第 2–4 项要求 Codex 和 Claude Code 两条路径用�
 
 ## 假服务器核对
 
-工具：`python3 -m tools.ops.claude_compact_probe`。环境变量直接取自工程 `scripts/wsl/qwen-agent` 的 `claude()`，与日常启动时相同；档位取 `config/deployments/rtx3080ti.json` 发布的首档。
+工具：`python3 -m tools.ops.claude_compact_probe`。环境变量直接取自工程 `scripts/wsl/qwen-agent` 的 `claude()`，与日常启动时相同；档位取 `config/installation.json` 发布的首档。
 
 两种进入方式：
 - 两回合：第 1 回合的回复声明输入 N，第 2 回合用 `--continue`，看先压缩还是直接发送；
@@ -52,28 +52,27 @@ benchmark 前置工作第 2–4 项要求 Codex 和 Claude Code 两条路径用�
 
 ## 独立审查意见（原文）
 
-> 独立审查（2026-10-19）：4 个提交（01d6aa7、b6bf6a6、6f18380、04dbab5）有条件同意部署。单测 434 个全部通过，catalog --check 为 current，本机安装目录除 bin/qwen-agent 外与工程一致。缺值报错只出现在 driver 持有路径（含旧批次 resume）和没有档位的主机上；ARW 测量、日常 qwen-agent（rtx3080ti 三个量化都有档位）不受影响。rtx4070tis 没有 context_tiers，部署时会在渲染 catalog 一步失败即停，恢复后须先补档位再同步。qwen-agent 改为 206584/150000 的依据成立：现行探针复跑，回合中途 150.1K 有 6/6 次压缩、149.9K 有 6/6 次不压缩，两回合与不设 override 的 183.6K 边界也一致。原证据中 c150100-mid 的 result.json 由旧版探针生成、判定标记错误，原始请求显示确实发生了压缩，已更正。风险在于 CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE 未公开文档，升级 Claude Code 后可能退回 183.6K 压缩；须把探针纳入工具并在升级流程中重新核对；回退方式是 revert 04dbab5 后重新部署。安全门：实跑的自动 pass 不覆盖默认 exec_command 单文件授权的已知 bwrap 失败，不能把 all_observed_pass 当作安全门通过。按现行规则，默认模式安全门应记"未完整通过（已知类型）"；能否以已知例外开跑 benchmark，属于测量和安全口径，由用户决定；report-directory 授权会扩大写范围，须用户明确同意才可采用。
+> 独立审查（2026-10-19）：4 个提交（01d6aa7、b6bf6a6、6f18380、04dbab5）有条件同意部署。单测 434 个全部通过，catalog --check 为 current，本机安装目录除 bin/qwen-agent 外与工程一致。缺值报错只出现在 driver 持有路径（含旧批次 resume）和没有档位的主机上；ARW 测量、日常 qwen-agent（本机三个量化都有档位）不受影响。qwen-agent 改为 206584/150000 的依据成立：现行探针复跑，回合中途 150.1K 有 6/6 次压缩、149.9K 有 6/6 次不压缩，两回合与不设 override 的 183.6K 边界也一致。原证据中 c150100-mid 的 result.json 由旧版探针生成、判定标记错误，原始请求显示确实发生了压缩，已更正。风险在于 CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE 未公开文档，升级 Claude Code 后可能退回 183.6K 压缩；须把探针纳入工具并在升级流程中重新核对；回退方式是 revert 04dbab5 后重新部署。安全门：实跑的自动 pass 不覆盖默认 exec_command 单文件授权的已知 bwrap 失败，不能把 all_observed_pass 当作安全门通过。按现行规则，默认模式安全门应记"未完整通过（已知类型）"；能否以已知例外开跑 benchmark，属于测量和安全口径，由用户决定；report-directory 授权会扩大写范围，须用户明确同意才可采用。
 
 ## Main 意见
 
 同意审查结论，按以下顺序执行：
 1. 把探针纳入工具，并写进升级流程；
 2. 整理证据；
-3. 部署到 rtx3080ti；
+3. 部署到 本机；
 4. 冒烟检查；
 5. 不做安全门实跑，等用户决定。
 
 ## 部署
 
 - 部署前核对：租约 free，没有加载模型；安装目录与工程渲染结果不同的文件有两个，`bin/qwen-agent` 和 `README.md`（调用手册）。审查说只有 `bin/qwen-agent` 不同，实际手册也不同。差异内容就是 04dbab5 和 01d6aa7 对手册的修改，属于预期部署内容。
-- `python3 -m tools.ops.deploy --host rtx3080ti`：流程为领租约 → 确认模型已停 → 关闭前端 → 备份、替换 → 回读 → 计划任务重启 → `/health`，用时 16.9 秒，退出码 0。
+- `python3 -m tools.ops.deploy`：流程为领租约 → 确认模型已停 → 关闭前端 → 备份、替换 → 回读 → 计划任务重启 → `/health`，用时 16.9 秒，退出码 0。
 - 部署后另行逐文件回读：23 个文件的 SHA 都与工程渲染结果一致，与 `deployment-manifest.json` 一致；没有过时文件需要删除。
   - `bin/qwen-agent` 为 1f2165c9…
   - 启动提示源 5f9efc02…
   - 压缩提示 3856cb62…
 - 备份：`.tmp/maintenance-backups/deploy-20261019-144518-791700`。按保留规则，删除了上一个部署备份 deploy-20261018-115145（删除前已确认没有任何文档引用它）。
 - 回退方式：revert 04dbab5 后重新部署，或从上述备份恢复。
-- rtx4070tis 没有连接，记为待同步：须先在 `config/deployments/rtx4070tis.json` 补上 `context_tiers`，否则渲染 catalog 一步就会失败停下。
 
 ## 冒烟检查
 
@@ -105,11 +104,10 @@ benchmark 前置工作第 2–4 项要求 Codex 和 Claude Code 两条路径用�
 
 ## 遗留
 
-1. **rtx4070tis 待同步**：恢复后先核对实际状态，在 `config/deployments/rtx4070tis.json` 补上 `context_tiers`，再同步部署（不补的话，渲染 catalog 一步就会失败停下）。
 2. **探针已纳入工具**（0c9bfbc）：`tools/ops/claude_compact_probe.py`，附 5 个单元测试。部署规则新增一条：用 `qwen-agent` 跑 Claude Code 的测试（冒烟、升级短检查、测量）之前，核对 `claude --version` 与调用手册「自动压缩」一节记的核对版本（现为 2.1.303）；版本不同就先运行 `python3 -m tools.ops.claude_compact_probe --out .tmp/<工作>/compact-probe --repeat 3`，通过后更新手册里的版本号并部署；不通过按意外事件处理。风险依旧存在：`CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE` 没有公开文档。
 3. **安全门实跑待用户决定**，本次没有跑。计划要点：
    - 先请用户定三件事：(a) WSL 是否先升级再跑；(b) 默认 `exec_command` 单文件授权的已知 bwrap 失败（v0.1.40.1 起一直存在，见 `reports/v0.1.40.1/current-safety-gate/summary.md`）怎么判定——记为"未完整通过（已知类型）"、按已知例外开跑 benchmark，还是修好后再跑；(c) 是否采用 report-directory 授权（会扩大写范围，须用户明确同意）。
-   - 开跑前：按 run-plan 写计划，内容为 host rtx3080ti、IQ3_XXS、默认档 206584／150000、启动提示加载 SHA 1cae169a…、压缩提示 3856cb62…。在已部署版本上重跑零模型预检：`verify_reviewer_sandbox` 零模型模式，以及 `safety_gate` 零模型的 apply_patch、exec_escalated、directory-probe、mock-approval 四项。
+   - 开跑前：按 run-plan 写计划，内容为 host 本机、IQ3_XXS、默认档 206584／150000、启动提示加载 SHA 1cae169a…、压缩提示 3856cb62…。在已部署版本上重跑零模型预检：`verify_reviewer_sandbox` 零模型模式，以及 `safety_gate` 零模型的 apply_patch、exec_escalated、directory-probe、mock-approval 四项。
    - 运行：`python3 -m tools.safety.safety_gate --source <冻结 ARW> --run <.tmp/...> --plan <已批准计划>`。规模按 reviewer-suite「正式测量前的安全验收」：3 个原生实例（沙箱、报告写入、同线程接续），加 15 个审批用例（约 21 次 guardian 决定）；冷加载 1 次，预计 30–60 分钟；不用 Anthropic 模型。
    - 判定：不把 `all_observed_pass` 当作安全门通过，逐项核对实际字节。默认 exec_command 那一项按用户定的口径记录。出现已知类型以外的安全违规，就停止、保留现场，并列入状态页 `decide`。
 4. 临时目录 `.tmp/deploy-ctx-1019/`（含探针原始请求，约 6.6 MB）和 `.tmp/ctx-fix-1019/cc/`：报告数据已收入 `data/`，报告落盘后可以删除。`.tmp/ctx-fix-1019/` 下的 gate-mock-* 和 sandbox-probe-* 是安全门零模型证据，等安全门实跑做完再处理。

@@ -2,10 +2,10 @@
 
 ## 结论
 
-- `qwen-agent` 启动 Claude Code 时固定设 `ENABLE_TOOL_SEARCH=false`，调用方环境不能覆盖（19e9e43，已部署到 rtx3080ti，冒烟通过）。
+- `qwen-agent` 启动 Claude Code 时固定设 `ENABLE_TOOL_SEARCH=false`，调用方环境不能覆盖（19e9e43，已部署到 本机，冒烟通过）。
 - 原因：Claude Code 2.1.309 起默认开工具搜索，会把部分工具延迟加载（`defer_loading`），并加一个 `DeferredToolPlaceholder` 和 ToolSearch 工具。Strata 的 Messages 接口不实现 `defer_loading`，也会丢掉 ToolSearch 返回的 `tool_reference` 块（`runtime/Strata/serve/frontend.py` 633–634、202–224 行，已登记到 [Strata 上游缺陷](../../../docs/strata-upstream-issues.md)第 5 条），所以工具搜索在 Strata 上不可用：占位工具会作为普通工具交给模型，延迟的工具（含 brave）也可能始终到不了模型。
 - 关掉后，工具表恢复成 2.1.303 时的样子，与测量 runner（`claude_headless`）一致。日常只有 brave 3 个 MCP 工具，全部内联对 206584 窗口没有压力。
-- 适用范围：rtx3080ti，Claude Code 2.1.309。rtx4070tis 离线，待同步（plan 第 14 项）。
+- 适用范围：本机，Claude Code 2.1.309。
 
 ## 双方意见
 

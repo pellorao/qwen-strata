@@ -15,7 +15,7 @@ Positive controls: an inside read returns its content and the granted report dir
 `mock` (default) answers Claude Code from a scripted local Messages server, one probe per response: no model, no lease,
 no key. It re-executes itself in a fresh network namespace (`unshare -rn`, loopback only), so nothing can leave the host.
 `live` asks a real model to make the same calls (D10 (b): Haiku per harness, an Opus spot check; DeepSeek through its
-Anthropic-format endpoint; Strata (G8) through the frontend lease on `--host`, cold start with installation defaults on
+Anthropic-format endpoint; Strata (G8) through the frontend lease, cold start with installation defaults on
 the published tier, loaded startup prompt checked against the project file, engine stopped and its log segment kept,
 as tools.strata.claude_headless.strata_run) and judges the stream; `--subset smoke` keeps the short
 per-configuration smoke check (SMOKE probes);
@@ -23,7 +23,7 @@ a probe the model declines is recorded as not attempted, not as a pass. Credenti
 synthetic canary and the fake key replaces the real one only in mock runs.
 
     python3 -m tools.safety.claude_gate --out .tmp/<work>/claude-gate --repeat 3 [--backend anthropic|strata|deepseek]
-        [--no-startup-prompt] [--subset smoke] [--live [--host rtx3080ti]]
+        [--no-startup-prompt] [--subset smoke] [--live]
 """
 import argparse
 import hashlib
@@ -565,18 +565,18 @@ def judge_isolation(fx, requests, init, backend, startup=True, reminder=True):
 
 
 @contextmanager
-def strata_live(out, model, effort, home, config_dir, host):
+def strata_live(out, model, effort, home, config_dir):
     """The Strata arm's live environment: lease, cold start with installation defaults on the published tier, the
     loaded startup prompt checked, then engine stop and the run's engine-log segment (tokens), as ch.strata_run."""
     from tools.ops.measurement_host import MeasurementHost
     from tools.ops.deployment_source import published_tier, served_model
     from tools.metrics.prompt_policy import verify_loaded_startup
     from tools.strata.engine_log import log_offset, stop_and_capture_engine_log
-    quantization = served_model(host)
+    quantization = served_model()
     if model != 'qwen3.8-flash-next-' + quantization.lower():
         raise ValueError('The Strata arm names the served model, qwen3.8-flash-next-' + quantization.lower())
-    tier = published_tier(host, quantization)
-    measurement_host = MeasurementHost(host)
+    tier = published_tier(quantization)
+    measurement_host = MeasurementHost()
     engine = {}
     with measurement_host.controller(out / 'controller') as owner:
         offset = log_offset(measurement_host.installation, quantization, measurement_host)
@@ -597,7 +597,7 @@ def strata_live(out, model, effort, home, config_dir, host):
 
 
 def session(out, backend, model, effort, repeat_id, base, project_dir, live=False, limit=LIMIT, claude=ch.CLAUDE, label=None,
-            startup=True, subset=None, host=None, fx=None, limits=None):
+            startup=True, subset=None, fx=None, limits=None):
     """One gate session with the runner's exact command and settings shape. The fixture's canaries are removed however
     the session ends: a failure before judging (environment, lease, Claude Code, the judgment itself) also releases
     them and removes what write probes got through, after listing it in unjudged-writes.json."""
@@ -607,7 +607,7 @@ def session(out, backend, model, effort, repeat_id, base, project_dir, live=Fals
         # A live Anthropic gate uses the real configuration directory (the login); every other backend gets a fresh one.
         fx = fx or fixture(f'gate-{repeat_id}-{time.time_ns()}', base, project_dir,
                            fresh_config=not (live and backend == 'anthropic'))
-        return run_session(out, fx, state, backend, model, effort, live, limit, claude, label, startup, subset, host,
+        return run_session(out, fx, state, backend, model, effort, live, limit, claude, label, startup, subset,
                            limits)
     finally:
         if 'server' in state and not state.get('stopped'):
@@ -621,7 +621,7 @@ def session(out, backend, model, effort, repeat_id, base, project_dir, live=Fals
                 remove_written(fx)
 
 
-def run_session(out, fx, state, backend, model, effort, live, limit, claude, label, startup, subset, host, limits=None):
+def run_session(out, fx, state, backend, model, effort, live, limit, claude, label, startup, subset, limits=None):
     server = state['server'] = serve(None if live else out / 'requests')
     stop = {}
     script = lambda: probes(fx, stop.get('pid', 0), server.server_address[1], subset)
@@ -639,7 +639,7 @@ def run_session(out, fx, state, backend, model, effort, live, limit, claude, lab
     local = f'http://127.0.0.1:{server.server_address[1]}'
     strata = None
     if live and backend == 'strata':
-        strata = strata_live(out, model, effort, fx['home'], fx['config'], host)
+        strata = strata_live(out, model, effort, fx['home'], fx['config'])
     elif live and backend == 'anthropic':
         fx['probe_home'] = ch.anthropic_home(fx['run'])
         env = ch.environment('anthropic', effort, fx['probe_home'], tmp=ch.run_tmp(fx['work']))
@@ -744,14 +744,12 @@ def pair_sessions(out, backend, model, effort, repeat, base, claude, startup):
 
 
 def gate(out, backend='anthropic', model='haiku', effort='high', repeat=REPEAT, live=False, base=ch.WORK_BASE,
-         claude=ch.CLAUDE, label=None, startup=True, subset=None, host=None, pair=False, limits=None):
+         claude=ch.CLAUDE, label=None, startup=True, subset=None, pair=False, limits=None):
     """limits: the DeepSeek Claude Code limits a scenario plan fixes (plan_limits), so the gate runs the measured shape."""
     if limits and backend != 'deepseek':
         raise ValueError('Plan limits apply to the DeepSeek backend only')
     if live and backend != 'strata' and not label:
         raise ValueError('A live gate records its quota use under a label')
-    if live and backend == 'strata' and not host:
-        raise ValueError('A live Strata gate needs a registered host')
     out = Path(out).resolve()
     out.mkdir(parents=True, exist_ok=False)
     if pair and live:
@@ -760,7 +758,7 @@ def gate(out, backend='anthropic', model='haiku', effort='high', repeat=REPEAT, 
         records = pair_sessions(out, backend, model, effort, repeat, base, claude, startup)
     else:
         records = [session(out / f'repeat-{i + 1}', backend, model, effort, i + 1, base, out / f'repeat-{i + 1}-project',
-                           live, claude=claude, label=label, startup=startup, subset=subset, host=host, limits=limits)
+                           live, claude=claude, label=label, startup=startup, subset=subset, limits=limits)
                    for i in range(repeat)]
     failed = sorted({p for r in records for p, row in r['probes'].items() if not row['pass']})
     summary = {'backend': backend, 'model': model, 'effort': effort, 'mode': 'live' if live else 'mock', 'repeat': repeat,
@@ -793,7 +791,6 @@ if __name__ == '__main__':
     parser.add_argument('--repeat', type=int, default=REPEAT)
     parser.add_argument('--live', action='store_true',
                         help='Ask a real model to make the calls: Anthropic (subscription), DeepSeek (its key) or Strata (lease).')
-    parser.add_argument('--host', help='Registered host for a live Strata gate.')
     parser.add_argument('--no-startup-prompt', action='store_true', help='API backends without the startup prompt (benchmark).')
     parser.add_argument('--subset', choices=('full', 'smoke', 'transcript'), default='full')
     parser.add_argument('--label', help='Quota ledger label for a live gate (estimate.sh --add-stream).')
@@ -807,5 +804,5 @@ if __name__ == '__main__':
         raise SystemExit(in_network_namespace([sys.executable, '-m', 'tools.safety.claude_gate', *sys.argv[1:]]))
     summary = gate(args.out, args.backend, args.model, args.effort, args.repeat, args.live, claude=args.claude,
                    label=args.label, startup=not args.no_startup_prompt, subset=None if args.subset == 'full' else args.subset,
-                   host=args.host, pair=args.pair, limits=args.plan and plan_limits(args.plan))
+                   pair=args.pair, limits=args.plan and plan_limits(args.plan))
     print(json.dumps({**summary, 'claude': found}, ensure_ascii=False))

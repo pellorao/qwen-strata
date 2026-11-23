@@ -7,7 +7,7 @@ replying only `ACK nn`.  Question turns sit at five checkpoints (cumulative cont
 appears again after it is asked.  Whether a question's source was still in the raw context when it was asked, and
 how many compactions it went through, are derived per instance from the measured compactions (`classify`).
 
-    python3 -m tools.tuning.window_bank build --seed S --out window.json [--count-tokens HOST]
+    python3 -m tools.tuning.window_bank build --seed S --out window.json [--count-tokens]
     python3 -m tools.tuning.window_bank check --workload window.json
 """
 import argparse
@@ -301,10 +301,10 @@ print(json.dumps([len(tk.encode(t)) for t in json.loads(Path(sys.argv[3]).read_t
 '''
 
 
-def tokenizer_counter(host_id, pack='iq3_xxs'):
+def tokenizer_counter(pack='iq3_xxs'):
     """Exact counts with the installed Strata tokenizer (read-only Windows-side Python; no model, no lease)."""
     from tools.ops.measurement_host import MeasurementHost
-    host = MeasurementHost(host_id)
+    host = MeasurementHost()
     python = host.installation / 'runtime/Strata/.venv/Scripts/python.exe'
 
     def count(texts):
@@ -541,12 +541,12 @@ def main():
     b = sub.add_parser('build')
     b.add_argument('--seed', type=int, required=True)
     b.add_argument('--out', type=Path, required=True)
-    b.add_argument('--count-tokens', metavar='HOST', help='count with the installed tokenizer of this host')
+    b.add_argument('--count-tokens', action='store_true', help='count with the installed tokenizer')
     k = sub.add_parser('check')
     k.add_argument('--workload', type=Path, required=True)
     args = parser.parse_args()
     if args.command == 'build':
-        counter = tokenizer_counter(args.count_tokens) if args.count_tokens else None
+        counter = tokenizer_counter() if args.count_tokens else None
         args.out.write_text(json.dumps(build(args.seed, counter), ensure_ascii=False, indent=1) + '\n')
     else:
         print(json.dumps(self_check(json.loads(args.workload.read_text()))))

@@ -6,11 +6,11 @@
 
 对外模型及模型 ID：
 
-每台机器只对外提供一个模型（用户 2026-10-19），以 `config/deployments/<host>.json` 的 `models` 为准；当前两台对外都是 IQ3_XXS，请求模型 ID 为 `qwen3.8-flash-next-iq3_xxs`。`/model/start` 省略 `model` 即用它，其他量化（Q2_0、IQ2_XS 权重仍在，但不对外）返回 400。安装目录的 model catalog 也只列这一个。
+只对外提供一个模型（用户 2026-10-19），以 `config/installation.json` 的 `models` 为准；当前对外是 IQ3_XXS，请求模型 ID 为 `qwen3.8-flash-next-iq3_xxs`。`/model/start` 省略 `model` 即用它，其他量化（Q2_0、IQ2_XS 权重仍在，但不对外）返回 400。安装目录的 model catalog 也只列这一个。
 
-请求模型 ID 必须与实际加载量化一致，修改请求名称不会加载另一份模型。维护基线 = 本机唯一对外模型 + 部署默认值（B1，用户 2026-10-19）：high、思考8192、总输出24576，窗口与压缩阈值取该模型在当前主机部署配置中的首个上下文档位。原 Q2_0 运行基线文件已删除，历史内容用 `git show ff94f3c:config/maintenance-baseline.json` 查看。
+请求模型 ID 必须与实际加载量化一致，修改请求名称不会加载另一份模型。维护基线 = 本机唯一对外模型 + 部署默认值（B1，用户 2026-10-19）：high、思考8192、总输出24576，窗口与压缩阈值取该模型在部署配置中的首个上下文档位。原 Q2_0 运行基线文件已删除，历史内容用 `git show ff94f3c:config/maintenance-baseline.json` 查看。
 
-Responses 请求用 reasoning.effort；原生 Chat 用 reasoning_effort。Codex 配置字段为 model_reasoning_effort，provider 的 wire_api 使用 responses，base_url 为当前主机的 `http://<WSL 默认网关>:<port>/strata/v1`。工程应管理自己的配置入口和 model catalog；config/ 中的 Windows profile 是环境参考，不能直接复制到 Linux。官方字段见[配置参考](https://learn.chatgpt.com/docs/config-file/config-reference)。
+Responses 请求用 reasoning.effort；原生 Chat 用 reasoning_effort。Codex 配置字段为 model_reasoning_effort，provider 的 wire_api 使用 responses，base_url 为 `http://<WSL 默认网关>:<port>/strata/v1`。工程应管理自己的配置入口和 model catalog；config/ 中的 Windows profile 是环境参考，不能直接复制到 Linux。官方字段见[配置参考](https://learn.chatgpt.com/docs/config-file/config-reference)。
 
 | 强度 | 思考 token 上限 | 默认总输出上限，含思考 |
 |---|---:|---:|
@@ -20,7 +20,7 @@ Responses 请求用 reasoning.effort；原生 Chat 用 reasoning_effort。Codex 
 
 前端按请求补齐预算；若另设 max_output_tokens，思考预算还会被限制到总输出的一半。上限不是实际思考长度；reasoning token usage 当前不足以可靠计算后者。none 可关闭思考，xhigh/max 与 high 同预算，均不作为本次三档测量的额外维度。
 
-窗口和压缩阈值取当前主机部署配置中该模型的首个 `context_tiers` 档位。调用方同步设置自己的 `model_context_window`、`model_auto_compact_token_limit` 及所选模型 catalog 窗口。输入加输出预算超限返回 400，不静默裁剪。压缩阈值、提示与历史由调用方管理，见[压缩方案](compaction-options.md)。
+窗口和压缩阈值取部署配置中该模型的首个 `context_tiers` 档位。调用方同步设置自己的 `model_context_window`、`model_auto_compact_token_limit` 及所选模型 catalog 窗口。输入加输出预算超限返回 400，不静默裁剪。压缩阈值、提示与历史由调用方管理，见[压缩方案](compaction-options.md)。
 
 ## 调用方独占要求
 

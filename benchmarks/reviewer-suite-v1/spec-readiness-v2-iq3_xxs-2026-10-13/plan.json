@@ -1,6 +1,5 @@
 {
  "schema": "arw-dimension-v1",
- "host": "rtx3080ti",
  "model": "IQ3_XXS",
  "reviewer": "spec-readiness-reviewer",
  "authorization": {
@@ -17,7 +16,7 @@
   "effort_reason": "与 ARW 原生 agent-cli 配置（model_reasoning_effort=\"high\"）及 F6 基线一致",
   "context_window": 156584,
   "auto_compact_token_limit": 100000,
-  "engine_defaults": "config/deployments/rtx3080ti.json 的安装默认值：high 思考 8192、总输出 24576；guardian 512/1024；IQ3_XXS spec 4、ple-io direct、STRATA_ADAPT_LAG 2。每批绑定部署后 config/deployment.json 与模型配置的 SHA（IQ3_XXS 配置 bf6e6465b95d30dcbb5775920e03cd93ab744f248c4da8d41251fc3de6211e7d）",
+  "engine_defaults": "config/installation.json 的安装默认值：high 思考 8192、总输出 24576；guardian 512/1024；IQ3_XXS spec 4、ple-io direct、STRATA_ADAPT_LAG 2。每批绑定部署后 config/deployment.json 与模型配置的 SHA（IQ3_XXS 配置 bf6e6465b95d30dcbb5775920e03cd93ab744f248c4da8d41251fc3de6211e7d）",
   "deployed_source_head": "861a2c5（部署集合自 8056e86 起未变）",
   "startup_instructions": "config/prompts/startup-instructions.txt（源 SHA 5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e，去掉防循环段），compact-prompt.txt（3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af）接入；开跑前核对已安装 SHA",
   "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",

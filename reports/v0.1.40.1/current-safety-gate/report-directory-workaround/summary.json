@@ -998,7 +998,7 @@
     "host_id": "local",
     "transport": "wsl-local",
     "hardware": {
-      "gpu": "NVIDIA RTX 4070 Ti SUPER",
+      "gpu": "GPU 16 GB",
       "vram_gib": 16,
       "cpu": "Intel Core i9-14900K",
       "ram_gib": 64

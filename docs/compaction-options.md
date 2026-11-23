@@ -43,7 +43,7 @@ v0.1.37同一Linux持久线程完成两次200K压缩，实际摘要约118.7、11
 
 [pi官方压缩说明](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/compaction.md)显示，pi保留近期消息、选择切点、调用LLM生成结构化摘要，再重建上下文。因此安装pi本身不会免去Qwen或另一个模型生成摘要。
 
-[BetterCompaction](https://github.com/NotSoSeriouss/BetterCompaction)是pi扩展，可只使用一个TypeScript文件。它将摘要请求保持为原对话消息并在末尾加指令，尝试利用后端已有的前缀缓存；仍由LLM生成摘要。它有希望缩短本地反复重读约200K历史的时间，但缓存收益取决于切点、消息模板、系统指令和缓存实际保留位置，不能保证完全命中。作者的时长例子没有正式基准，不当作rtx4070tis结果。
+[BetterCompaction](https://github.com/NotSoSeriouss/BetterCompaction)是pi扩展，可只使用一个TypeScript文件。它将摘要请求保持为原对话消息并在末尾加指令，尝试利用后端已有的前缀缓存；仍由LLM生成摘要。它有希望缩短本地反复重读约200K历史的时间，但缓存收益取决于切点、消息模板、系统指令和缓存实际保留位置，不能保证完全命中。
 
 其接口是pi的session_before_compact，不是Codex接口。下载后放进Codex目录不会自动生效；本项目继续使用Codex，需要适配摘要请求构造或Codex客户端，再做实测。不要在协议桥内偷偷移动指令、截断原历史或破坏工具调用与返回的配对。
 

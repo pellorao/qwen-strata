@@ -37,11 +37,11 @@
 - (e) 版本：Strata 0.1.43.1 → 0.1.44.1（见第 2 节）。
 - (f) 跨模块结构：干草堆新增共用目录 `src/platform/`（time、periods、site-settings、invoice-terms、records、append-log、listing），7 个搬家缺陷的关键定义放在这里，判错必须跨目录追踪。干草堆 spec 的 50 条条款移入 5 个跨模块主题节，不再是一个模块对应一节。核心 12 节和 Conventions 与 v4.7 逐字相同。这一项主要影响搬家题；对原样题只是间接影响，比如读入顺序和注意力分配。
 
-结论用于决定代码题的阅读量档位和压缩阈值方向。适用范围只限 Strata v0.1.44.1、rtx3080ti、IQ3_XXS。
+结论用于决定代码题的阅读量档位和压缩阈值方向。适用范围只限 Strata v0.1.44.1、本机、IQ3_XXS。
 
 ## 2. 主机与模型
 
-- rtx3080ti，IQ3_XXS，Strata 0.1.44.1，Codex 0.162.0，effort high。
+- 本机，IQ3_XXS，Strata 0.1.44.1，Codex 0.162.0，effort high。
 - 参考模型：Opus-high（Claude agent，与 Q3 相同的渲染交接盲答），不占 GPU。
 - 与 v4.7（0.1.43.1）的逐题比较是跨版本的。冻结前复核时，用户确认视为版本间可比（2026-10-14）。依据有两条，报告里都写明：
   - 0.1.44.1 发布说明称默认 pack 的答案逐字节相同。

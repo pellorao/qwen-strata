@@ -18,7 +18,7 @@ class Fake:
 
 
 ROOT = Path(__file__).resolve().parents[1]
-HOST = json.loads((ROOT / 'config/deployments/rtx3080ti.json').read_text(encoding='utf-8'))
+HOST = json.loads((ROOT / 'config/installation.json').read_text(encoding='utf-8'))
 TIERS = {m: HOST['context_tiers'][m] for m in HOST['models']}  # what the installation publishes
 DEFAULT = TIERS['IQ3_XXS'][0]
 

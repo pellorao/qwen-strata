@@ -1,6 +1,6 @@
 # 防循环提醒真实试跑（3 次）
 
-2026-10-11。rtx3080ti、Strata v0.1.41、Q2_0 / high、Codex 0.162.0。场景是冻结 ARW 760007c 的完整 Commit Audit，加上工程的 Codex 0.162 兼容补丁，3 个重复。服务端提醒（`src/loop_reminder.py`，机械规则 r6）默认开启。完整数据见 [summary.json](summary.json)。无提示、无提醒的对照见[基线报告](../loop-baseline/summary.md)。
+2026-10-11。本机、Strata v0.1.41、Q2_0 / high、Codex 0.162.0。场景是冻结 ARW 760007c 的完整 Commit Audit，加上工程的 Codex 0.162 兼容补丁，3 个重复。服务端提醒（`src/loop_reminder.py`，机械规则 r6）默认开启。完整数据见 [summary.json](summary.json)。无提示、无提醒的对照见[基线报告](../loop-baseline/summary.md)。
 
 ## 结论
 

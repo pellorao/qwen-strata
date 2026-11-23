@@ -1,4 +1,4 @@
-# Spec Readiness v3 测量报告（原定样本：Opus medium ×3、IQ3_XXS ×5；rtx3080ti，Strata v0.1.42，Codex 0.162.0）
+# Spec Readiness v3 测量报告（原定样本：Opus medium ×3、IQ3_XXS ×5；本机，Strata v0.1.42，Codex 0.162.0）
 
 加测批 C/D（目标 10 次，读分前写定于 b3566a5 的计划）仍在运行，10 次附录另报。
 

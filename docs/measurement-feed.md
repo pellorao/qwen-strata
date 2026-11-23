@@ -14,7 +14,7 @@ python3 scripts/wsl/finalize-stress-measurement \
 
 ## 口径
 
-固定基线见 `reports/rtx3080ti/v0.2.12/` 的 `stress-compare.md`、`stress-sr-scores.json`、`stress-speed-detail.txt`。速度：每版本每档 4 个冷启动实例、每实例 initial-extraction / cached-calculation / cached-update 三个请求，decode 取全部请求的引擎 token / 秒，prefill 只取冷 initial。智力：Spec Readiness v4.3，每版本 n=10 的 `scoreBeforePenalty total` 均值。工作日志速度、speed_probe、短冒烟不能替代。
+固定基线见 `reports/v0.2.12/` 的 `stress-compare.md`、`stress-sr-scores.json`、`stress-speed-detail.txt`。速度：每版本每档 4 个冷启动实例、每实例 initial-extraction / cached-calculation / cached-update 三个请求，decode 取全部请求的引擎 token / 秒，prefill 只取冷 initial。智力：Spec Readiness v4.3，每版本 n=10 的 `scoreBeforePenalty total` 均值。工作日志速度、speed_probe、短冒烟不能替代。
 
 ## 绑定文件
 

@@ -313,7 +313,6 @@ def upgrade(root, metadata, source, engine, feed, cuda_arch=89):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--host', required=True)
     parser.add_argument('--metadata', type=Path)
     parser.add_argument('--source', type=Path)
     parser.add_argument('--engine', type=Path)
@@ -322,8 +321,8 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     from tools.ops.deploy import local_path, maintenance
-    from tools.ops.deployment_source import load_host, require_current_host
-    host = load_host(require_current_host(args.host))
+    from tools.ops.deployment_source import load_host
+    host = load_host()
     root = local_path(host['installation_root']).resolve(strict=True)
     # The frontend is shut down through its own lease, so no model can start meanwhile.
     with maintenance(host['frontend_url']):

@@ -2,7 +2,6 @@
  "schema": "speed-blocks-v1",
  "status": "frozen",
  "created_at": "2026-10-24",
- "host": "rtx3080ti",
  "model": "IQ3_XXS",
  "strata": "v0.2.4 (engine 0.1.48)",
  "dimension": "STRATA_SM86_PERF (engine sm_86 default speed switches)",

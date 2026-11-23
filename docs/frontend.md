@@ -6,7 +6,7 @@
 
 | 组件 | 位置 | 作用 |
 |---|---|---|
-| 前端 | `src/frontend.py`，监听本机 `config/deployments/<host>.json` 的地址和端口 | 独占租约、模型启停、`/strata/*` 转发、客户端地址检查 |
+| 前端 | `src/frontend.py`，监听 `config/installation.json` 的地址和端口 | 独占租约、模型启停、`/strata/*` 转发、客户端地址检查 |
 | 模型进程管理 | `src/model_process.py` | 校验启动参数，生成临时运行配置（`.tmp/model/`），启动并停止原生服务 |
 | 原生服务 | `src/native_service.py` 包装 Strata `serve`，只监听 `127.0.0.1:8100` | 加载基础提示，提供 Chat / Responses / Messages；内部 key 每次启动随机生成，经环境变量 `STRATA_API_KEY` 传入 |
 
@@ -40,13 +40,13 @@
 从维护工程执行：
 
 ```bash
-python3 -m tools.ops.deploy --host <local_host>
+python3 -m tools.ops.deploy
 ```
 
 流程：
 1. 前端在运行时，领取租约（已被持有则中止，不抢占），确认模型已停，再调用 `/admin/shutdown` 关闭前端。
 2. 备份将被替换或删除的文件到工程 `.tmp/maintenance-backups/deploy-*`。
-3. 写入前端、模型管理、原生服务包装、基础提示、模型 catalog、每机渲染的模型预置和配置、调用手册、`maintenance/Install-Frontend.ps1`。
+3. 写入前端、模型管理、原生服务包装、基础提示、模型 catalog、渲染的模型预置和配置、调用手册、`maintenance/Install-Frontend.ps1`。
 4. 删除旧控制器的入口、协议桥、网络脚本、`config/service.json` 和 `.state/`。
 5. 逐文件回读 SHA，写 `deployment-manifest.json`。
 6. `schtasks /run` 重新启动前端并等待 `/health`。计划任务不存在时提示先运行 `Install-Frontend.ps1`。
@@ -56,7 +56,7 @@ python3 -m tools.ops.deploy --host <local_host>
 ## 升级 Strata
 
 ```bash
-python3 -m tools.ops.upgrade_release --host <local_host> --metadata <发布元数据> --source <标签源码 ZIP> --engine <引擎 tar.gz> --feed <strata-feed.json，.sig 放同目录> --output <回执>
+python3 -m tools.ops.upgrade_release --metadata <发布元数据> --source <标签源码 ZIP> --engine <引擎 tar.gz> --feed <strata-feed.json，.sig 放同目录> --output <回执>
 ```
 
 与部署相同：先经前端租约关闭前端，替换期间没有任何调用方能启动模型；完成后重新启动前端。`--rollback <备份目录>` 回滚。源码 ZIP 用 `terminal/` 布局而安装目录 `runtime/Strata` 根部仍有旧布局的 `CMakeLists.txt` 时，升级把 `runtime/Strata` 下不属于新安装的文件（`.venv`、`engine`、`__pycache__` 除外）一并删除，先备份，回执的 `removed_upstream_files` 列出它们。校验内容和周期流程见[安装与维护](installation.md#升级部署与恢复)。

@@ -2,7 +2,6 @@
   "schema": "conditions-v2",
   "status": "latest copy of the up0214 plan (same frozen inputs and request options); only source hashes refreshed",
   "created_at": "2026-11-20",
-  "host": "rtx3080ti",
   "candidate_dimension": "context-length",
   "authorization": {
     "approved": true,
@@ -35,7 +34,7 @@
   "fixed_conditions": {
     "strata_version": "0.2.16 source with engine 0.1.62 (installed-release.json recorded per run)",
     "model": "IQ3_XXS",
-    "base": "部署默认参数（rtx3080ti IQ3_XXS 默认档 206584，kv-resident 20480，--kv int8）；override 只写与默认相同的 max-context 以核对实际窗口",
+    "base": "部署默认参数（IQ3_XXS 默认档 206584，kv-resident 20480，--kv int8）；override 只写与默认相同的 max-context 以核对实际窗口",
     "max_context": 206584,
     "user_text_tokens_tokenizer": 149951,
     "request": {
@@ -127,7 +126,7 @@
     "benchmarks/resource-calibration-v1/workload.py": "9b26ad6bc952b4d4ae91d39998e69a5d0dc85039731f733202ac3c051545a2ce",
     "config/prompts/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
     "config/prompts/compact-prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
-    "config/deployments/rtx3080ti.json": "467f37e111199fb1e14ac40b1070abc750384a49a7c3c41c31241cd345803879",
+    "config/installation.json": "467f37e111199fb1e14ac40b1070abc750384a49a7c3c41c31241cd345803879",
     "config/templates/iq3_xxs-prebuilt.json": "2ea1503640549f48c654811dc0ba93cf9bc7c50c523a43adea5efb3e9e27bd03",
     "src/model_process.py": "58be9dea49635bc798e7427b4f7e0e7a7ffcc2801a9661e569b45aa8eb8fa877"
   },

@@ -5,7 +5,7 @@
   "conclusion": "No demonstrated live intervention benefit. All3effective reviews still have confirmed reasoning loops; enhanced guard triggered, admitted and delivered0hints. Offline replay emitted4advisories:2same-failure observations remain supported;2delivery-stall observations were false positives caused by counting a progressing end and a harness clear as stalled ends. Mean diagnostic score/time changes cannot be attributed to this untriggered policy. Keep Q2_0 and existing daily prompts/defaults; active-turn reasoning/delivery stagnation coverage remains unresolved and requires human review before another group.",
   "host_model": {
     "host": "local",
-    "gpu": "RTX4070TiSUPER16GiB",
+    "gpu": "GPU 16GiB",
     "cpu": "i9-14900K",
     "ram_gib": 64,
     "model": "Q2_0"
@@ -95,7 +95,7 @@
     "archive_http": true,
     "host_id": "local",
     "host_hardware": {
-      "gpu": "NVIDIA RTX 4070 Ti SUPER",
+      "gpu": "GPU 16 GB",
       "vram_gib": 16,
       "cpu": "Intel Core i9-14900K",
       "ram_gib": 64
@@ -1744,7 +1744,6 @@
         "model_requests": 0
       },
       {
-        "host": "rtx3080ti",
         "files": 26,
         "result_sha256": "fe3ff400283bd286da3932d30aa4b1a32a7dc677a5982123918cd25326fa8703",
         "source_sha_verified": true,

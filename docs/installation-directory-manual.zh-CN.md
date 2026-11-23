@@ -80,7 +80,7 @@
 
 ### 安装预置
 
-{{host.presets}}
+{{local.presets}}
 
 ## 推理强度与输出
 
@@ -95,7 +95,7 @@
 服务不提供 none 档：请求指定其他强度（包括 none）时会返回 400。在此基础上，不同场景和参数组合遵循以下规则：
 
 - Codex 的 guardian 审批请求有单独的默认值，与强度无关：思考 512、总输出 1024（安装预置，与 `bin/qwen-approve` 相同）。服务不看提示词内容，而是按 Codex 随请求发送的元数据识别它，即 `client_metadata["x-codex-turn-metadata"]` 中 `thread_source` 为 `guardian_review`。审批只需输出一段简短的 JSON 结论。由于 Strata 会为回答保留 min(max(512, 总输出/4), 总输出/2) 的空间，当总输出为 1024 时正好保留 512，思考可以用满 512。如果请求自己给了思考预算或输出上限，则以请求为准。实际调用时，Codex 对 guardian 请求发 `reasoning_effort: low`、不带输出上限和采样字段，而 `bin/qwen-approve` 也显式发同样的值，所以两边审批参数相同。
-- 与该次运行默认强度相同的请求，直接使用默认值中的预算和输出上限（{{host}} 为 {{reasoning_effort}}，思考 {{reasoning_budget_tokens}}／总输出 {{max_tokens}}）。
+- 与该次运行默认强度相同的请求，直接使用默认值中的预算和输出上限（当前为 {{reasoning_effort}}，思考 {{reasoning_budget_tokens}}／总输出 {{max_tokens}}）。
 - 当请求自己给了输出上限、没给思考预算时，思考预算不超过输出上限的一半；Strata 另外为回答至少保留输出上限的 1/4。
 - 思考上限不等于实际思考长度。当请求给的输出上限超出窗口剩余空间时，服务会将其缩短到剩余空间，不返回 400；但如果输入本身超出窗口，仍返回 400，不会静默裁剪输入。
 - Messages 接口按 Anthropic 协议由调用方设置 `max_tokens`，因此前端不补总输出，只补思考上限，见下文 Claude Code 一节。
@@ -127,7 +127,7 @@ python3 "$qwen_install/bin/qwen-agent" claude                      # Claude Code
 
 - `--model` 可省略，默认即本机对外模型（`config/deployment.json` 的 `models`）；如果写其他量化，脚本会在领租约前报错退出。
 - 租约已被他人持有时立即退出，不排队、不抢占。
-- 模型加载耗时：{{host.load_time}}；使用相同参数复用已加载的模型时不再重新加载。运行期间 Ctrl-C 交给 agent 处理；无论 agent 退出、终端关闭还是进程被终止，脚本都会归还租约，并在归还失败时提示重启前端任务。
+- 模型加载耗时：{{local.load_time}}；使用相同参数复用已加载的模型时不再重新加载。运行期间 Ctrl-C 交给 agent 处理；无论 agent 退出、终端关闭还是进程被终止，脚本都会归还租约，并在归还失败时提示重启前端任务。
 - key 只放在 agent 进程的环境变量里，不写入文件或命令行参数。
 - 调用方环境中的 `ANTHROPIC_*`、`OPENAI_*`、`AI_AGENT` 和以 `CLAUDE` 开头的变量（`CLAUDE_CONFIG_DIR` 除外）不会传给 agent；所以在 Claude Code 会话里启动时，agent 拿不到父会话的会话 id 和消息通道。需要的 Claude Code 定制写进 settings.json 的 `env`。
 - 脚本不修改调用方的 `~/.codex` 或 `~/.claude` 配置；所有设置都以命令行覆盖或环境变量传入。
@@ -198,7 +198,7 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default
 
 - 总输出与思考上限：总输出按强度取上表的总输出（`bin/qwen-agent --effort` 同时决定强度和这个值），与前端为 Codex 补的值相同。因为 Claude Code 每个请求都自带 `max_tokens`，前端不覆盖请求给出的值，所以总输出由这个环境变量决定，不要调大；当窗口剩余空间不够时，服务会把输出上限缩短到剩余空间，不返回 400。与此同时，前端会给 Messages 请求补思考硬上限：当思考关闭（`thinking.type: disabled`）或请求自带 `reasoning_budget_tokens` 时保持不动；否则取推理强度对应的思考上限（high 为 8192，见上表），若请求的 `thinking.budget_tokens` 更小则用它，再不超过 `max_tokens` 的一半。实际请求中，Claude Code 发送 `thinking: adaptive`、`output_config.effort`（取 `CLAUDE_CODE_EFFORT_LEVEL`）和 `max_tokens`，所以思考上限与 Codex 同强度相同（high 为 8192），Strata 为回答保留其余空间。
 - 强度：环境变量 `CLAUDE_CODE_EFFORT_LEVEL` 对整个会话生效；而命令行 `--effort` 在第一次压缩后会失效，所以启动脚本用环境变量传强度。
-- 自动压缩：{{host.compact_check}}
+- 自动压缩：{{local.compact_check}}
 - 审批：固定由 `bin/qwen-approve` 完成，不使用 Claude Code 的 auto mode——在 2b 验收中，auto mode 判对 5/9、每次运行 191 秒，而 `qwen-approve` 判对 7/7、仅需 80 秒。权限模式为 `default`，每次权限请求经 `PermissionRequest` hook 交给 `qwen-approve`：它把用户消息（唯一授权来源）、最近 6 次工具调用与结果（标为不可信数据）和待审动作发给本模型审查——其中待审动作不截断，一旦超过 20000 字符就直接拒绝并说明太长无法审查，历史和结果则各截取前 2000 字符；审查请求使用 `reasoning_effort: low`，思考上限 512 token、总输出 1024 token，与 Codex guardian 相同。脚本等模型答复最多 150 秒（hook 给 180 秒），返回 allow / deny 及理由；超时、出错或答复无法解析一律拒绝。如果用户只是让 agent 照文件、网页或工具输出里的步骤执行，只授权其中无害的步骤；破坏性或越界的步骤必须由用户消息点名效果和目标。每次判断都会记一行到 `logs/approve.log`（含工具、结论、理由、耗时、usage，不含 key）。
 - 压缩：当 PreCompact hook 退出码为 0 时，其 stdout 会以 `Additional Instructions:` 追加到 Claude Code 自带摘要指令之后，所以每次压缩（无论自动或手动）都带上 `compact-prompt.txt`。**特例**：Claude Code 没有替换内置摘要指令的办法，因此压缩请求是"内置指令 + 基础压缩提示"；而 Codex 则用 `experimental_compact_prompt_file` 整体替换为基础压缩提示。这是两者唯一不能对齐的提示差异。
 - `skipWebFetchPreflight`：用于关闭 WebFetch 抓网页前向 `api.anthropic.com` 发起的域名查询。
@@ -206,7 +206,7 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default
 
 ### 与 Codex 的参数对照
 
-自 2026-10-12 起，`bin/qwen-agent` 让两种 agent 在参数层面完全一致。它按对外模型的默认档（即 `config/deployment.json` 中 `context_tiers` 的第一档）启动模型，并把同一档的窗口和阈值传给两种 agent；如果配置中没有列出档位，则直接报错退出，不领取租约。下表以 {{host}} 的 {{model}} 为例：
+自 2026-10-12 起，`bin/qwen-agent` 让两种 agent 在参数层面完全一致。它按对外模型的默认档（即 `config/deployment.json` 中 `context_tiers` 的第一档）启动模型，并把同一档的窗口和阈值传给两种 agent；如果配置中没有列出档位，则直接报错退出，不领取租约。下表以 {{model}} 为例：
 
 | 参数 | Codex | Claude Code |
 |---|---|---|
@@ -238,7 +238,7 @@ claude --mcp-config '{"mcpServers": {"brave": {...}}}' --permission-mode default
 
 ### 审批与主对话的缓存
 
-{{host.approval_cache}}
+{{local.approval_cache}}
 
 ## 日志
 

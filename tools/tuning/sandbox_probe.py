@@ -303,8 +303,7 @@ def claude_window_replay(out, workload_path, tier=156584, base_tokens=12000):
     server.requests, server.workload, server.base_tokens = [], workload, base_tokens
     server.compact_text = (ROOT / 'config/prompts/compact-prompt.txt').read_text().strip()[:200]
     threading.Thread(target=server.serve_forever, daemon=True).start()
-    from tools.ops.deployment_source import current_host
-    plan = {'model': 'IQ3_XXS', 'host': current_host(), 'fixed_conditions': {'effort': 'high'},
+    plan = {'model': 'IQ3_XXS', 'fixed_conditions': {'effort': 'high'},
             'instance_seconds_limit': 1800, 'conditions': {f'window-{tier}': {'context_window': tier}}}
     try:
         record = codex_workload.run_claude_window(plan, workload, f'window-{tier}', out / f'claude-replay-{tier}',

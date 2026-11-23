@@ -5,9 +5,8 @@
     "engine": "0.1.40.2",
     "commit": "e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a"
   },
-  "host": "rtx3080ti",
   "hardware": {
-    "gpu": "RTX3080Ti12GiB",
+    "gpu": "RTX 3080 Ti 12GiB",
     "pool_workers": 23,
     "pool_affinity": "all",
     "prefill": 8192,

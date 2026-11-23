@@ -1,4 +1,4 @@
-# Code Spec 阅读量 rv3 测量报告（IQ3_XXS ×3+2；Opus-high ×1；rtx3080ti，Strata v0.1.44.1，Codex 0.162.0）
+# Code Spec 阅读量 rv3 测量报告（IQ3_XXS ×3+2；Opus-high ×1；本机，Strata v0.1.44.1，Codex 0.162.0）
 
 ## 结论
 
@@ -17,7 +17,7 @@
 
 **Q3/Opus = 0.786（原定 3 次），全部 5 次为 0.758**；v4.7 是 0.744 和 0.729。比值升高不是因为 Q3 变好：这次 Opus 只跑了 1 次，又因为证据格式被罚 ×0.9，得分 0.834。按罚前 0.927 算，比值是 0.707 和 0.682。
 
-**适用范围**：只适用于 rtx3080ti + IQ3_XXS + Strata v0.1.44.1 + Codex 0.162.0，推理强度 high，默认档 206584/150000。冻结版本为 code-spec-reviewer 修订号 34（3a2ad7c），设计说明见 `benchmarks/reviewer-suite-v1/code-spec-rv.md`。Opus 的结果可能利用了"每模块一个缺陷"的结构，见"会话分析"中的局限。
+**适用范围**：只适用于 本机 + IQ3_XXS + Strata v0.1.44.1 + Codex 0.162.0，推理强度 high，默认档 206584/150000。冻结版本为 code-spec-reviewer 修订号 34（3a2ad7c），设计说明见 `benchmarks/reviewer-suite-v1/code-spec-rv.md`。Opus 的结果可能利用了"每模块一个缺陷"的结构，见"会话分析"中的局限。
 
 ## 关键数据
 

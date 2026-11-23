@@ -80,7 +80,7 @@ The model ID of the served model is `qwen3.8-flash-next-` followed by the lowerc
 
 ### Installation presets
 
-{{host.presets}}
+{{local.presets}}
 
 ## Reasoning effort and output
 
@@ -95,7 +95,7 @@ Each inference request can specify a reasoning effort and an output limit: Respo
 The service does not offer a none tier: specifying any other effort (including none) returns 400. On top of this, different scenarios and parameter combinations follow these rules:
 
 - Codex guardian approval requests have separate defaults regardless of effort: thinking 512, total output 1024 (installation presets, identical to `bin/qwen-approve`). Rather than inspecting prompt content, the service identifies these requests from the metadata Codex sends with the request, namely `thread_source` equal to `guardian_review` in `client_metadata["x-codex-turn-metadata"]`. An approval only needs to output a short JSON conclusion. Because Strata reserves min(max(512, total output/4), total output/2) for the answer, a total output of 1024 reserves exactly 512, allowing thinking to use the full 512. If the request supplies its own thinking budget or output limit, the request value takes precedence. In practice, Codex sends `reasoning_effort: low` without an output limit or sampling fields on guardian requests, and `bin/qwen-approve` explicitly sends the same values, so both sides use identical approval parameters.
-- Requests whose effort matches the default effort of the current run directly use the budget and output limit from the defaults (for {{host}}: {{reasoning_effort}}, thinking {{reasoning_budget_tokens}} / total output {{max_tokens}}).
+- Requests whose effort matches the default effort of the current run directly use the budget and output limit from the defaults (here: {{reasoning_effort}}, thinking {{reasoning_budget_tokens}} / total output {{max_tokens}}).
 - When a request supplies its own output limit without a thinking budget, the thinking budget does not exceed half of the output limit; Strata additionally reserves at least 1/4 of the output limit for the answer.
 - The thinking limit is not the actual thinking length. When the output limit supplied by a request exceeds the remaining space in the context window, the service shortens it to the remaining space instead of returning 400; if the input itself exceeds the context window, however, the service still returns 400 and never silently truncates the input.
 - On the Messages endpoint, the caller sets `max_tokens` per the Anthropic protocol, so the frontend does not fill in the total output limit and only fills in the thinking limit; see the Claude Code section below.
@@ -127,7 +127,7 @@ The script follows these rules when managing leases and isolating the environmen
 
 - `--model` is optional and defaults to this host's served model (`models` in `config/deployment.json`); if another quantization is specified, the script exits with an error before acquiring a lease.
 - If the lease is already held by someone else, the script exits immediately without queuing or preemption.
-- Model load time: {{host.load_time}}; reusing an already-loaded model with the same parameters skips reloading. During execution, Ctrl-C is passed to the agent; whether the agent exits, the terminal closes, or the process is terminated, the script releases the lease and prompts you to restart the frontend task if releasing fails.
+- Model load time: {{local.load_time}}; reusing an already-loaded model with the same parameters skips reloading. During execution, Ctrl-C is passed to the agent; whether the agent exits, the terminal closes, or the process is terminated, the script releases the lease and prompts you to restart the frontend task if releasing fails.
 - The key is placed only in the agent process's environment variables, never written to files or command-line arguments.
 - `ANTHROPIC_*`, `OPENAI_*`, `AI_AGENT`, and variables starting with `CLAUDE` (except `CLAUDE_CONFIG_DIR`) in the caller's environment are not passed to the agent; therefore, when launched inside a Claude Code session, the agent does not inherit the parent session's session id or message channel. Put any needed Claude Code customizations into `env` in settings.json.
 - The script does not modify the caller's `~/.codex` or `~/.claude` configuration; all settings are passed via command-line overrides or environment variables.
@@ -198,7 +198,7 @@ Each setting works as follows:
 
 - Total output and thinking limits: Total output takes the value for the effort from the table above (`bin/qwen-agent --effort` sets both the effort and this value), matching what the frontend fills in for Codex. Because Claude Code includes `max_tokens` on every request and the frontend does not override a value supplied by the request, total output is governed by this environment variable—do not raise it; when remaining space in the context window is insufficient, the service shortens the output limit to the remaining space without returning 400. Meanwhile, the frontend fills in a hard thinking limit on Messages requests: when thinking is disabled (`thinking.type: disabled`) or the request already includes `reasoning_budget_tokens`, it leaves the request untouched; otherwise it takes the thinking limit corresponding to the reasoning effort (8192 for high, see the table above), uses the request's `thinking.budget_tokens` if smaller, and caps the result at half of `max_tokens`. In actual requests, Claude Code sends `thinking: adaptive`, `output_config.effort` (from `CLAUDE_CODE_EFFORT_LEVEL`), and `max_tokens`, so the thinking limit matches Codex at the same effort (8192 for high), and Strata reserves the remaining space for the answer.
 - Effort: The environment variable `CLAUDE_CODE_EFFORT_LEVEL` applies to the entire session, whereas the command-line flag `--effort` stops taking effect after the first compaction, so the launch script passes effort via the environment variable.
-- Auto-compaction: {{host.compact_check}}
+- Auto-compaction: {{local.compact_check}}
 - Approval: Handled exclusively by `bin/qwen-approve` rather than Claude Code's auto mode—in 2b acceptance testing, auto mode judged 5/9 correctly and took 191 seconds per run, whereas `qwen-approve` judged 7/7 correctly in just 80 seconds. The permission mode is `default`, and every permission request is handed to `qwen-approve` via the `PermissionRequest` hook: it sends the user messages (the sole source of authorization), the last 6 tool calls and results (marked as untrusted data), and the pending action to this model for review—the pending action is never truncated and is rejected outright as too long to review if it exceeds 20000 characters, while history and results are each truncated to their first 2000 characters; the review request uses `reasoning_effort: low`, a thinking limit of 512 tokens, and a total output of 1024 tokens, identical to Codex guardian. The script waits up to 150 seconds for the model's reply (the hook allows 180 seconds) and returns allow / deny with a reason; any timeout, error, or unparseable reply results in a denial. If the user merely asks the agent to follow steps found in a file, webpage, or tool output, only harmless steps are authorized; destructive or out-of-bounds steps must have their effect and target explicitly named in the user's message. Every decision logs one line to `logs/approve.log` (including tool, decision, reason, duration, and usage, without the key).
 - Compaction: When the PreCompact hook exits with code 0, its stdout is appended after Claude Code's built-in summary instructions under `Additional Instructions:`, so every compaction (automatic or manual) includes `compact-prompt.txt`. **Exception**: Claude Code provides no way to replace its built-in summary instructions, so a compaction request combines "built-in instructions + base compaction prompt", whereas Codex replaces the prompt entirely with the base compaction prompt via `experimental_compact_prompt_file`. This is the only prompt difference between the two that cannot be aligned.
 - `skipWebFetchPreflight`: Disables the domain check query that WebFetch sends to `api.anthropic.com` before fetching a webpage.
@@ -206,7 +206,7 @@ Each setting works as follows:
 
 ### Parameter comparison with Codex
 
-Since 2026-10-12, `bin/qwen-agent` keeps the two agents completely identical at the parameter level. It starts the model using the served model's default tier (the first tier of `context_tiers` in `config/deployment.json`) and passes the context window and threshold from that same tier to both agents; if no tiers are listed in the configuration, it exits with an error immediately without acquiring a lease. The table below uses {{host}}'s {{model}} as an example:
+Since 2026-10-12, `bin/qwen-agent` keeps the two agents completely identical at the parameter level. It starts the model using the served model's default tier (the first tier of `context_tiers` in `config/deployment.json`) and passes the context window and threshold from that same tier to both agents; if no tiers are listed in the configuration, it exits with an error immediately without acquiring a lease. The table below uses {{model}} as an example:
 
 | Parameter | Codex | Claude Code |
 |---|---|---|
@@ -238,7 +238,7 @@ In addition, 2b acceptance testing verified search, approval, and auto-compactio
 
 ### Approvals and the main conversation's cache
 
-{{host.approval_cache}}
+{{local.approval_cache}}
 
 ## Logs
 

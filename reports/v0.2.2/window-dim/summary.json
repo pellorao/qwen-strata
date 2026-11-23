@@ -1,6 +1,5 @@
 {
  "dimension": "window 206584 vs 156584",
- "host": "rtx3080ti",
  "quant": "IQ3_XXS",
  "date": "2026-10-24",
  "workload": "benchmarks/window-load-v1/window-v2-seed1.json (seed1)",

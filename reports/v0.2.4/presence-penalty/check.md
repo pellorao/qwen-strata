@@ -11,7 +11,7 @@ worker（Opus high）报告，Main 整理存档。改动在分支 `worktree-agen
 
   本工程目前没有发送方会发这两种请求。Responses 和 Chat 用 effort none/minimal 关思考的请求，会先被前端以 400 拒掉。
 - 思考开启那一档的模型卡值只有 temperature、top_p、top_k，三个键都已被我们的预置覆盖。其他键（min_p 等）没有同样的缺口。
-- 准备的修复：白名单加 `presence_penalty`，rtx3080ti 的 `installation_defaults` 写 `presence_penalty: 0.0`，手册同步更新。渲染出的配置除新增一行外逐字节不变。新增一项测试：主机文件只要设了采样预置，就必须覆盖模型卡会补的全部键。全套 756 项通过。
+- 准备的修复：白名单加 `presence_penalty`，本机的 `installation_defaults` 写 `presence_penalty: 0.0`，手册同步更新。渲染出的配置除新增一行外逐字节不变。新增一项测试：主机文件只要设了采样预置，就必须覆盖模型卡会补的全部键。全套 756 项通过。
 - 属于防御性的默认值补齐，按硬约束 1 先过独立审查再部署。
 
 ## 源码依据（Strata 0.2.4 `serve/`）
@@ -42,6 +42,5 @@ worker（Opus high）报告，Main 整理存档。改动在分支 `worktree-agen
 ## 执行（Main）
 
 - 冲突已解决（两边都在 `tests/test_deployment_source.py` 末尾追加了内容，两段都保留），全套 763 项通过。部署和核对结果见下。
-- 22:18 部署到 rtx3080ti（备份 deploy-20261024-221811-639215），21 个文件回读 SHA 一致。安装目录 `config/iq3_xxs-prebuilt.json` 的 request_defaults 已含 `presence_penalty: 0.0`（model_process 启动时转成 Strata config 的 sampling 块）；安装目录 3 层内没有 `*.shared-settings.json`。
+- 22:18 部署到 本机（备份 deploy-20261024-221811-639215），21 个文件回读 SHA 一致。安装目录 `config/iq3_xxs-prebuilt.json` 的 request_defaults 已含 `presence_penalty: 0.0`（model_process 启动时转成 Strata config 的 sampling 块）；安装目录 3 层内没有 `*.shared-settings.json`。
 - 冒烟检查还没跑：交给下一项加载模型的工作（SM86 开关 A/B）在开跑前先做。
-- rtx4070tis：只有调用手册源文件变了，随工程复制带上。

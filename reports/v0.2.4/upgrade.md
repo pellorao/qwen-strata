@@ -1,8 +1,8 @@
-# Strata v0.2.4 升级报告（rtx3080ti，IQ3_XXS，2026-10-24）
+# Strata v0.2.4 升级报告（本机，IQ3_XXS，2026-10-24）
 
 ## 结论
 
-- rtx3080ti 已从 v0.2.2（引擎 0.1.47）升到 **Strata v0.2.4**，通过短检查。
+- 本机已从 v0.2.2（引擎 0.1.47）升到 **Strata v0.2.4**，通过短检查。
   - 标签 `v0.2.4`（标签对象 `0303f658`）指向提交 `96ca4383c7b05a8a3e6064c65d9e9977d4b3bb59`。
   - Qwen 引擎 0.1.48，build `6f8800aefe27+cuda13.0`，源 `f-023-rel`。
   - 官方 Control 在标签里是 0.1.49，我们用不到。
@@ -37,7 +37,7 @@
 
 ## 核对安装
 
-- 命令：`python3 -m tools.ops.upgrade_release --host rtx3080ti --metadata .tmp/strata-024/metadata.json --source artifacts/strata/0.2.4/source.zip --engine artifacts/strata/0.2.4/engine.tar.gz --feed artifacts/strata/0.2.4/strata-feed.json --output .tmp/strata-024/upgrade-receipt.json`
+- 命令：`python3 -m tools.ops.upgrade_release --metadata .tmp/strata-024/metadata.json --source artifacts/strata/0.2.4/source.zip --engine artifacts/strata/0.2.4/engine.tar.gz --feed artifacts/strata/0.2.4/strata-feed.json --output .tmp/strata-024/upgrade-receipt.json`
 - 结果：
   - 写入 479 个文件，4416 个未变，没有删除（`previous_source_paths` 为空）。
   - feed 和引擎清单签名都由 `5d1bc23abbeffd0d` 签发，核验通过。
@@ -118,16 +118,15 @@
 - cublas／cudart 实际加载路径仍没实测（同 0.2.2，需要提权读进程模块）。
 - `--pool-workers 15` 对比 23 仍未验证（速度类参数，要按块交替测）。
 - 近似平局的差异只做了 greedy 小样本，没有做 ARW 之类的分数对比。
-- rtx4070tis 离线，没有升级。
 - 没有做故障恢复、取消、Reviewer 兼容等完整回归；它们按周安排，不属于短检查。
 
 ## 提交
 
-- `fbc6ff9`：升级 rtx3080ti 到 Strata v0.2.4（引擎 0.1.48）：upgrade_release 支持元数据绑定源码 CMake 版本，制品清单、下载清单、手册 Claude Code 核对版本 2.1.310。
+- `fbc6ff9`：升级 本机到 Strata v0.2.4（引擎 0.1.48）：upgrade_release 支持元数据绑定源码 CMake 版本，制品清单、下载清单、手册 Claude Code 核对版本 2.1.310。
 
 ## 回退
 
-- `python3 -m tools.ops.upgrade_release --host rtx3080ti --rollback .tmp/maintenance-backups/release-backup-20261024-125327-325162 --output <回执>`。字节级复原已在 0.2.2 做过演练。
+- `python3 -m tools.ops.upgrade_release --rollback .tmp/maintenance-backups/release-backup-20261024-125327-325162 --output <回执>`。字节级复原已在 0.2.2 做过演练。
 - 回退后要把 `config/artifacts/strata-release.json`、`strata-v0.2.4.json`、`strata-v0.2.2.json` 和 `docs/downloads.md` 改回去。
 
 ## 残留检查

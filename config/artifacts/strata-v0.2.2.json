@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "status": "superseded-rtx3080ti-2026-10-24",
+ "status": "superseded-2026-10-24",
  "version": "0.2.2",
  "commit": "011c9e600a93bbc9fd451c563501b5831c32bbca",
  "engine_version": "0.1.47",
@@ -81,15 +81,12 @@
  "previous_source_paths": [
   "docker-entrypoint.sh"
  ],
- "currently_installed": {
-  "rtx3080ti": true,
-  "rtx4070tis": "pending-sync (offline)"
- },
- "installed_on_rtx3080ti": "2026-10-22",
+ "currently_installed": true,
+ "installed_on": "2026-10-22",
  "upstream_files_written": 1566,
  "unchanged_files": 3067,
  "removed_upstream_files": [
   "runtime/Strata/docker-entrypoint.sh"
  ],
- "backup_on_rtx3080ti": ".tmp/maintenance-backups/release-backup-20261022-205620-310129"
+ "backup": ".tmp/maintenance-backups/release-backup-20261022-205620-310129"
 }

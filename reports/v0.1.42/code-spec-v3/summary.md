@@ -1,4 +1,4 @@
-# Code Spec v3 测量报告（IQ3_XXS ×5；rtx3080ti，Strata v0.1.42，Codex 0.162.0）
+# Code Spec v3 测量报告（IQ3_XXS ×5；本机，Strata v0.1.42，Codex 0.162.0）
 
 ## 结论
 
@@ -7,7 +7,7 @@
 - 计划在看到任何分数之前定好门槛："Q3 原定 5 次平均检出 ≥20/22 → 不跑 Opus，重新设计"。所以本轮没有跑 Opus 参考运行，也没有加测，没有 Q3/Opus 比值。
 - 原因：多数缺陷需要比对多个文件，但每个缺陷最终仍落在一行可疑代码上。Q3 逐行对照 spec 读完 10 个模块，5–12 分钟就能全部找到。只把缺陷放到跨文件的位置，并不能让它变难。
 
-**适用范围**：只适用于 rtx3080ti + IQ3_XXS + Strata v0.1.42、high 推理强度。冻结版本为 code-spec-reviewer 修订号 13（c5caef7），变更说明见 `benchmarks/reviewer-suite-v1/code-spec-v3.md`。
+**适用范围**：只适用于 本机 + IQ3_XXS + Strata v0.1.42、high 推理强度。冻结版本为 code-spec-reviewer 修订号 13（c5caef7），变更说明见 `benchmarks/reviewer-suite-v1/code-spec-v3.md`。
 
 ## 关键数据
 

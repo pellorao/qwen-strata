@@ -1,5 +1,4 @@
 {
- "host": "rtx3080ti",
  "strata": "0.1.42",
  "model": "qwen3.8-flash-next-iq3_xxs",
  "date": "2026-10-12",

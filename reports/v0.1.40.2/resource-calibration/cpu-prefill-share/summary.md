@@ -29,4 +29,4 @@ token及引擎时间全部来自18个原始内部read/reused/generated阶段，�
 
 模型执行区间5.2分钟，含SSH／控制器／启停与采集；18项工作合计53.250秒。授权至本报告约18.5分钟，含接入、双机26文件同步、准备、执行、Main检查及遥测修复；本机模型同期独立运行。默认profile前后SHA不变，末次26文件回读通过，六次clean_unload、key归还，远端free。
 
-[完整精度统计](summary.json) · [批准范围](../../../../benchmarks/resource-calibration-v1/rtx3080ti-cpu-share-plan.json)。完整请求／响应、SSE和日志仅保留临时区；删除后仍可重算此处均值，但无法重放原请求或再次核查原始日志。
+[完整精度统计](summary.json) · [批准范围](../../../../benchmarks/resource-calibration-v1/cpu-share-plan.json)。完整请求／响应、SSE和日志仅保留临时区；删除后仍可重算此处均值，但无法重放原请求或再次核查原始日志。

@@ -1,4 +1,4 @@
-# Spec Readiness 低分主因调查（rtx3080ti，Strata v0.1.42）
+# Spec Readiness 低分主因调查（本机，Strata v0.1.42）
 
 日期 2026-10-12 至 13。用户 2026-10-12 批准计划，执行顺序为：0 无模型检查 → 1 IQ3_XXS medium × 3 → 2 Q2_0 + IQ3_XXS 引擎参数 high × 3。150K 阈值和"Q2 原参数"两个场景按批准不跑。逐实例数据见 [summary.json](summary.json)。冻结计划：
 
@@ -27,7 +27,7 @@
 - **分数（次要）**：Q2_0 + IQ3 参数的融合分在本次三组中最高，但样本少、组内差异大，不能下结论。
   - 融合分均值（扣罚前）：Q2 0.504，medium 0.418，F6 0.436，方案 A 0.511。
   - AP 单段输出与 AP 分数在 11 个段中的相关系数为 0.55，属弱到中等相关，不足以说明"写得长就审得好"。
-- **适用范围**：rtx3080ti、Strata v0.1.42、Codex 0.162.0、本工程当前启动提示（SHA `1cae169a…`），ARW 冻结快照与 F6 相同（conformance `51e2e22b…`）。结论不套用到 rtx4070tis，也不套用到 IQ2_XS。
+- **适用范围**：本机、Strata v0.1.42、Codex 0.162.0、本工程当前启动提示（SHA `1cae169a…`），ARW 冻结快照与 F6 相同（conformance `51e2e22b…`）。
 
 ## 第 0 步：AP 为何短（无模型）
 
@@ -68,7 +68,7 @@
 - **启动命令核对**：实际启动命令含 `--spec 4 --spec-min-p 0.9 --ple-io direct --vram-reserve-mib 512`，不含 `--pcie-frac`。
 - **服务日志核对**：补跑批 367 行全部为 `budget 8192 (max 24576)`；原批最后 400 行也全部是这个值。
 - **中断记录**：
-  - 2026-10-12 23:56:44，另一个 agent 在工作区改了 `src/frontend.py`、`config/deployments/*.json` 等文件，没有提交。
+  - 2026-10-12 23:56:44，另一个 agent 在工作区改了 `src/frontend.py`、`config/installation.json` 等文件，没有提交。
   - 第 3 个实例开始时，MeasurementHost 发现"已安装配置与工程源不一致"，拒绝运行。arw_measure 跑完 4 个交接（2 个合并实例）后退出。
   - 协调方把这些改动移到独立 worktree，工作区恢复到 `db3937e`。
   - 第 3 个实例按"只影响当前一次"用新批次补跑：2026-10-13 00:03–00:15，一次部署条件、一次加载。
@@ -141,7 +141,7 @@
 
 ## 收尾状态
 
-- 2026-10-13 00:15:57 用 `python3 -m tools.ops.deploy --host rtx3080ti` 恢复默认部署：condition null，23 个文件读回校验通过。
+- 2026-10-13 00:15:57 用 `python3 -m tools.ops.deploy` 恢复默认部署：condition null，23 个文件读回校验通过。
 - `/health`：lease free，model null（模型已停，key 已归还）。
 
 ## 更正与补记（2026-10-21）

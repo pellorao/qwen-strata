@@ -41,7 +41,7 @@ def check_switches(folder, letter):
 
 def deploy(letter):
     """Plain or condition deploy through tools.ops.deploy; wait while the lease is held, never preempt."""
-    cmd = [sys.executable, '-m', 'tools.ops.deploy', '--host', 'rtx3080ti']
+    cmd = [sys.executable, '-m', 'tools.ops.deploy']
     if letter == 'B':
         cmd += ['--condition', str(CONDITION_FILE)]
     for attempt in range(60):
@@ -66,7 +66,7 @@ def main():
     try:
         for g, (letter, numbers) in enumerate(base.groups(SCHEDULE), 1):
             progress['deploys'].append(deploy(letter)); save(OUT / 'progress.json', progress)
-            host = MeasurementHost('rtx3080ti', condition=condition if letter == 'B' else None)
+            host = MeasurementHost(condition=condition if letter == 'B' else None)
             save(OUT / f'source-verification-{g:02d}.json', host.verify_sources())
             with host.controller(OUT / f'controller-{g:02d}') as owner:
                 for number in numbers:

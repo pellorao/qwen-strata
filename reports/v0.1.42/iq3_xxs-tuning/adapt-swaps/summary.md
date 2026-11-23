@@ -1,12 +1,12 @@
-# rtx3080ti IQ3_XXS 补测第 1 维：自适应层换入预算（`--adapt-swaps` 96 / 160 / 48）
+# 本机 IQ3_XXS 补测第 1 维：自适应层换入预算（`--adapt-swaps` 96 / 160 / 48）
 
 结论：**保持默认 96**，不改部署配置。160 的引擎输出 117.9 对 115.2 token/s（+2.3%），但两组单次范围重叠（117.0–119.2 对 113.3–118.1），工作秒持平（106.9 对 106.1）。去掉 96 组的冷启动实例后，差距约 +1.4%；同轮同序号逐请求对比，160 胜 5/8，接近一半对一半。这一差距低于上游 `--calibrate` 保留新设置的门槛（快 3% 以上）。48 方向偏差：缓存命中率最低，工作秒最长。三组 27/27 全对。Main 与独立复核 agent 意见一致。
 
-适用范围：仅 rtx3080ti、IQ3_XXS、Strata v0.1.42、32K 合成短负载、单改 swaps（adapt-every、adapt-decay 用默认值）；真实 ARW 长会话未验证。
+适用范围：仅 本机、IQ3_XXS、Strata v0.1.42、32K 合成短负载、单改 swaps（adapt-every、adapt-decay 用默认值）；真实 ARW 长会话未验证。
 
 ## 条件
 
-同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--adapt-swaps`。执行顺序：96-1、160-1、48-1、48-2、160-2、96-2、160-3、48-3、96-3。冻结计划：[rtx3080ti-iq3_xxs-adapt-swaps-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-adapt-swaps-plan.json)。
+同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--adapt-swaps`。执行顺序：96-1、160-1、48-1、48-2、160-2、96-2、160-3、48-3、96-3。冻结计划：[本机-iq3_xxs-adapt-swaps-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-adapt-swaps-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

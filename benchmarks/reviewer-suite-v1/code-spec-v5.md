@@ -11,11 +11,11 @@
 
 测量 Q3（IQ3_XXS）在约 150K 阅读量、缺陷全部打散的代码规范审查上，相对 Opus-high 的能力比值。
 - 判据：Q3/Opus（ARW 原版得分的均值比）< 0.8。
-- 结论用于 Code Spec 场景的正式结果，适用范围只限 Strata v0.1.44.1、rtx3080ti、IQ3_XXS。
+- 结论用于 Code Spec 场景的正式结果，适用范围只限 Strata v0.1.44.1、本机、IQ3_XXS。
 
 ## 2. 主机与模型
 
-- rtx3080ti，IQ3_XXS，Strata 0.1.44.1，Codex 0.162.0，effort high。
+- 本机，IQ3_XXS，Strata 0.1.44.1，Codex 0.162.0，effort high。
 - 参考模型：Opus-high，无头 `claude -p`（Claude Code 2.1.299），与 Q3 相同的渲染交接盲答，不占 GPU。
 - 无头 Opus 的隔离（2026-10-14 用 haiku 短提示验证）：
   - 选项：`--model opus --effort high --safe-mode --restricted --strict-mcp-config --disable-slash-commands --setting-sources "" --permission-mode dontAsk --permission-prompts none --output-format stream-json --verbose --no-session-persistence`；`--settings` 传入 `autoMemoryEnabled false`、`includeGitInstructions false` 和下面的沙箱设置。验证结果：0 hooks、无 CLAUDE.md、无记忆、无 git 状态。

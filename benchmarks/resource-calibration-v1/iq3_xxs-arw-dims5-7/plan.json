@@ -1,6 +1,5 @@
 {
   "schema": "arw-dimension-v1",
-  "host": "rtx3080ti",
   "model": "IQ3_XXS",
   "reviewer": "commit-audit-reviewer",
   "authorization": {
@@ -8,14 +7,14 @@
     "source": "用户 2026-10-11 批准申请一（IQ3_XXS 补测调参第 5–7 维），并同意开始无模型准备；部署留到开跑时",
     "scope": "第 5 维 --spec 3/4/5/6 各 3 次（12）；第 6 维 CPU 辅助显式 auto/不设置各 3 次（6）；第 7 维学习型专家档案关/开各 3 次（6），另加训练（细节待用户决定）"
   },
-  "method": "方案 A：每个实例前用 tools.ops.deploy 把该条件叠加到 rtx3080ti 默认配置部署到安装目录（部署会停模型并重启前端，因此每个实例冷启动引擎），ARW 持有模型运行 1 个 Commit Audit 实例；实例后从引擎日志和进程环境核对实际生效值。",
+  "method": "方案 A：每个实例前用 tools.ops.deploy 把该条件叠加到默认配置部署到安装目录（部署会停模型并重启前端，因此每个实例冷启动引擎），ARW 持有模型运行 1 个 Commit Audit 实例；实例后从引擎日志和进程环境核对实际生效值。",
   "fixed_conditions": {
     "strata": "0.1.42",
     "codex": "0.162.0",
     "effort": "high",
     "context_window": 156584,
     "auto_compact_token_limit": 100000,
-    "engine_defaults": "config/deployments/rtx3080ti.json 中 IQ3_XXS 的当前默认值（含前几维胜者），每个实例绑定部署后 config/deployment.json 与 iq3_xxs-prebuilt.json 的 SHA",
+    "engine_defaults": "config/installation.json 中 IQ3_XXS 的当前默认值（含前几维胜者），每个实例绑定部署后 config/deployment.json 与 iq3_xxs-prebuilt.json 的 SHA",
     "startup_instructions": "config/prompts/startup-instructions.txt（去掉防循环段），compact-prompt.txt 接入；开跑前核对已安装 SHA",
     "measurement_note_sha256": "0bf509f03b7c985504340f95c9e42f363b6946ce3f7ebe3af2c4072bb5d23beb",
     "native_cli_sha256": "50ed828f357c655a3c82054d346cab8434f24901f14ec19b8267571bdd008b38",
@@ -69,5 +68,5 @@
       "blocked": "训练材料、训练方式和冻结方式待用户决定；训练后把档案放到安装目录 data/profiles/iq3_xxs-learned-dim7.bin 并在此填两份档案的 SHA。比较时两条件都只读（不开 expert_profile_save），避免实例之间累积。"
     }
   ],
-  "after_dimension": "Main 与独立复核意见一致才采用：把胜者写入 config/deployments/rtx3080ti.json 的 model_overrides.IQ3_XXS / model_environment.IQ3_XXS 并提交，再无条件部署；不一致或默认胜出时直接无条件部署恢复默认。下一维的条件叠加在新的默认值上。"
+  "after_dimension": "Main 与独立复核意见一致才采用：把胜者写入 config/installation.json 的 model_overrides.IQ3_XXS / model_environment.IQ3_XXS 并提交，再无条件部署；不一致或默认胜出时直接无条件部署恢复默认。下一维的条件叠加在新的默认值上。"
 }

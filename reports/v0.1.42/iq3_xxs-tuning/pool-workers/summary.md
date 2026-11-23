@@ -1,12 +1,12 @@
-# rtx3080ti IQ3_XXS 第 3 维：CPU 专家线程数（23 / 15 / 12）
+# 本机 IQ3_XXS 第 3 维：CPU 专家线程数（23 / 15 / 12）
 
 结论：**23（当前默认）引擎输出最高**（113.7 / 111.1 / 108.3 token/s），27/27 全对，最终答案在 9 个实例间逐字节相同。23 比 12 快 4.9%（范围不重叠）；比 15 快 2.3%（范围几乎相接，n=3 不显著，但每个验证步耗时和逐请求比较方向一致）。按"速度优先"规则保持 23，默认值不变，不需要部署。Main 与独立复核 agent 意见一致。
 
-适用范围：仅 rtx3080ti、IQ3_XXS、Strata v0.1.42、affinity all、pcie-frac 实测、32K 合成短负载、桌面空闲。15 个线程解码时多空出 8 个 E 核、只慢约 2%；如果以后要兼顾同机并行的重 CPU 任务，需另设带背景负载的对照，不能凭本组改默认。
+适用范围：仅 本机、IQ3_XXS、Strata v0.1.42、affinity all、pcie-frac 实测、32K 合成短负载、桌面空闲。15 个线程解码时多空出 8 个 E 核、只慢约 2%；如果以后要兼顾同机并行的重 CPU 任务，需另设带背景负载的对照，不能凭本组改默认。
 
 ## 条件
 
-同[第 1 维](../pcie-frac/summary.md)，加前两维胜者（不传 `--pcie-frac`、`--pool-affinity all`），只改 `--pool-workers`。绑核：主机线程在 0，7 个 P 核首线程（2–14）都用；23 / 15 / 12 只差 E 核数（16–31 / 16–23 / 16–20）。执行顺序 23-1、15-1、12-1、12-2、15-2、23-2、15-3、12-3、23-3。冻结计划：[rtx3080ti-iq3_xxs-pool-workers-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-pool-workers-plan.json)。
+同[第 1 维](../pcie-frac/summary.md)，加前两维胜者（不传 `--pcie-frac`、`--pool-affinity all`），只改 `--pool-workers`。绑核：主机线程在 0，7 个 P 核首线程（2–14）都用；23 / 15 / 12 只差 E 核数（16–31 / 16–23 / 16–20）。执行顺序 23-1、15-1、12-1、12-2、15-2、23-2、15-3、12-3、23-3。冻结计划：[本机-iq3_xxs-pool-workers-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-pool-workers-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

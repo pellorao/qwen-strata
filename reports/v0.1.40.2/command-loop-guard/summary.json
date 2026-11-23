@@ -5,7 +5,7 @@
   "conclusion": "Do not replace the daily loop-prevention prompt with this command-only dynamic policy. All3reviews still had confirmed loops; the policy observed native commands but triggered and delivered0hints. New diagnostic mean0.7017843237759233 and2084.6985498860677s do not prove benefit over the historical0.1.40.1 baseline. Q2_0 and existing daily prompt/defaults retained pending user adoption review.",
   "host_model": {
     "host": "local",
-    "gpu": "RTX4070TiSUPER16GiB",
+    "gpu": "GPU 16GiB",
     "cpu": "i9-14900K",
     "ram_gib": 64,
     "model": "Q2_0"
@@ -128,7 +128,7 @@
     },
     "host_id": "local",
     "host_hardware": {
-      "gpu": "NVIDIA RTX 4070 Ti SUPER",
+      "gpu": "GPU 16 GB",
       "vram_gib": 16,
       "cpu": "Intel Core i9-14900K",
       "ram_gib": 64
@@ -1667,7 +1667,6 @@
   "next_work": {
     "models_started": 0,
     "local": "Review current group; then affected ARW permission/completion/continuation safety recovery using synced760007c before resuming originally authorized12Spec instances.",
-    "rtx3080ti": "Review concrete700/500/300reserve plan:9coldmodelinstances,27logicalrequests,35-55min. Before running controlled500/300admission, per-host/model source separation and both-host deployment verification.",
     "next_groups_require_review": true,
     "new_scope_approved": false
   },

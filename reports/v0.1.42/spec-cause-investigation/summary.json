@@ -1,5 +1,5 @@
 {
- "host": "rtx3080ti", "strata": "0.1.42", "codex": "0.162.0", "dates": ["2026-10-12", "2026-10-13"],
+ "strata": "0.1.42", "codex": "0.162.0", "dates": ["2026-10-12", "2026-10-13"],
  "criterion": {"ap_mean_output_min": 62000, "f6_ap_output": 41000, "also_requires_duration_recovery": true},
  "startup_instructions_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
  "startup_source_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",

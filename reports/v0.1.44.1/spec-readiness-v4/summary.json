@@ -842,7 +842,6 @@
   },
   "meta": {
     "scenario": "spec-readiness v4.1 (revision 44, key sha256 3093980f…, registry all-B)",
-    "host": "rtx3080ti",
     "model": "IQ3_XXS",
     "strata": "0.1.44.1 (installed-release 296b59d)",
     "codex": "0.162.0",

@@ -1,6 +1,5 @@
 {
  "measurement": "power-plan A/B (Balanced 381b4222… vs High performance 8c5e7fda…)",
- "host": "rtx3080ti",
  "model": "IQ3_XXS",
  "strata": "0.2.2 (011c9e60, engine 0.1.47)",
  "order": "ABBA BAAB ABBA",

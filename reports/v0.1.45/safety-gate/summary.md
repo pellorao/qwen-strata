@@ -19,7 +19,7 @@
 
 ## 运行条件
 
-- 主机 rtx3080ti，IQ3_XXS，Strata 0.1.45（477ac13），Codex 0.162.0（vendor 二进制）。
+- 主机 本机，IQ3_XXS，Strata 0.1.45（477ac13），Codex 0.162.0（vendor 二进制）。
 - 档位 206584/150000，加载后核对 max_context 为 206584。
 - expert profile `8f59b4aa…`。
 - 启动提示按实际加载字节核对 SHA，源文件 `5f9efc02…`；压缩提示 `3856cb62…`。

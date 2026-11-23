@@ -9,7 +9,7 @@
 - **5 个 Q3 实例全部有效**：complete、终态 ready、0 压缩、启动上下文 SHA 一致；会话检查 6 条标记全部无害。Opus 3 次会话也无异常。加测的 5 次同样全部有效。
 - **加测到 10 次（补充，不取代正式值）**：Q3 ×10 罚后 **0.7670 ± 0.1102**，Q3/Opus **0.880**（平均 11.6 分钟、generated 59,618、工具调用 32.3 次）。新增 5 次是 0.8108 ± 0.0362，没有出现 A2 那样的范围外审查行。比值在 0.8–0.9 之间，结论不变，见"加测到 10 次"。
 - **v2 是去重版，不是加难版**："加难最多两版"的配额已用 0/2。按独立评估与 Main 的综合意见，下一步出加难版 v3，v2 不定稿（见"独立评估"）。
-- **适用范围**：只对 rtx3080ti、IQ3_XXS、Strata 0.1.44.1、Codex 0.162.0、effort high、评分 r8.3、修订号 23（答案键 `0f02cf43…`）成立。分数不与 Commit Audit v1 或其他场景直接比较。
+- **适用范围**：只对 本机、IQ3_XXS、Strata 0.1.44.1、Codex 0.162.0、effort high、评分 r8.3、修订号 23（答案键 `0f02cf43…`）成立。分数不与 Commit Audit v1 或其他场景直接比较。
 
 ## 运行
 
@@ -160,7 +160,7 @@ Haiku-high 机械区间（只用于 p基准和参考，不计入比值；上界 
 ## 偏离
 
 1. **Q3 A 首次启动失败**：队列脚本预先建了 run 目录，`arw_measure` 拒绝已存在的目录；当时未加载模型、租约 free。修脚本后重开，失败目录保留为 `A-failed-mkdir`，不计入样本。
-2. **安全验收沿用 rtx3080ti 现有证据**（`reports/v0.1.40.1/current-safety-gate/report-directory-workaround/summary.md`：原生沙箱 8 类外部写入拒绝、15 个审批用例符合预期）。v2 补丁只改夹具、答案键与 conformance 断言，不改运行层和权限生成器，与 Spec Readiness v4.2、Code Spec v5 的做法相同；本次没有重跑安全探针。
+2. **安全验收沿用 本机现有证据**（`reports/v0.1.40.1/current-safety-gate/report-directory-workaround/summary.md`：原生沙箱 8 类外部写入拒绝、15 个审批用例符合预期）。v2 补丁只改夹具、答案键与 conformance 断言，不改运行层和权限生成器，与 Spec Readiness v4.2、Code Spec v5 的做法相同；本次没有重跑安全探针。
 3. **运行层不同**：Opus、Haiku 走 Claude Code 无头运行，Q3 走 ARW/Codex。两者用同一份冻结测量说明和同一夹具，但工具集、系统提示和交接方式不同，比值包含运行层差异。
 4. **A3 格式修复**：A3 的 76 处标量 `lines` 按修复规则在副本中补成数组后计分，并计入 r = 76 罚分（修复记录 `data/runs/A/review-3.jsonl.changes.json`）。
 5. **Q3 A2 的 token 记录**：记录脚本在 results.json 写入 token 字段前读取，得到空值；按引擎日志段补算（read 62,900 / reused 1,251,353 / generated 65,906）。

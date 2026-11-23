@@ -1,6 +1,5 @@
 {
   "status": "closed-six-ple-observations-main-verified",
-  "host": "rtx3080ti",
   "versions": {
     "strata": "0.1.40.1",
     "engine": "0.1.40"
@@ -660,7 +659,6 @@
       "maintenance/Setup-Native-Network.ps1": "923599cdec43e1767b57d2d605b4fdbbb01ba6916b3f49926dcbbda1d21287db"
     },
     "source_sha_verified": true,
-    "host_id": "rtx3080ti",
     "transport": "ssh-windows",
     "hardware": {
       "gpu": "NVIDIA RTX 3080 Ti",

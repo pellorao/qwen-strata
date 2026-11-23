@@ -32,7 +32,7 @@ ENVIRONMENT = {'STRATA_HC_SPLIT', 'STRATA_ADAPT_NOWAIT', 'STRATA_SSD_KEEPALIVE',
                'STRATA_BATCH_TRACE', 'STRATA_PREFILL_CPU_SHARE', 'STRATA_ADAPT_LAG',
                # 0 turns off the engine's sm_86 default speed switches; a switch set explicitly (ADAPT_LAG) stays.
                'STRATA_SM86_PERF',
-               # Expert-routing prior; rtx3080ti serves 1.5 (routeprior3, user 2026-11-08).
+               # Expert-routing prior; this installation serves 1.5 (routeprior3, user 2026-11-08).
                'STRATA_ROUTE_PRIOR',
                # Expert tail skip (0 off, 7 = engine 0.1.41-0.1.62 default; off by default since 0.2.17); arwtune 11-22.
                'STRATA_ROUTE_TAIL_SKIP'}

@@ -1,24 +1,24 @@
 # 安装与维护
 
-安装路径、前端地址和本机凭据只从 `project.private.toml` 读取；文档不复制这些值。本机的当前状态见[rtx3080ti](hosts/rtx3080ti.md)主机说明。日常启动只依赖安装目录。
+安装路径、前端地址和本机凭据只从 `project.private.toml` 读取；文档不复制这些值。本机的当前状态见[本机安装说明](local-installation.md)。日常启动只依赖安装目录。
 
 模型、tokenizer、native pack、MTP、私有 Python 和 CUDA 依赖均保存在 Windows。前端和推理都由 Windows 原生进程执行，WSL 只运行调用方 harness 和维护工具。前端结构、一次性安装和部署见[前端运行与维护](frontend.md)。
 
 ## 版本与环境
 
-各机版本、硬件和已验证范围记录在主机说明中。安装和运行使用官方预编译引擎，无需在本机重新编译；Python、CUDA 和私有依赖位于 Windows 安装目录。
+版本、硬件和已验证范围记录在本机安装说明中。安装和运行使用官方预编译引擎，无需在本机重新编译；Python、CUDA 和私有依赖位于 Windows 安装目录。
 
-每台机器只对外提供一个模型（用户 2026-10-19）。对外模型由 `config/deployments/<host>.json` 的 `models`（恰好一个）决定；安装目录只部署它的 prebuilt 配置和 catalog 条目，前端拒绝启动其他量化。Q2_0、IQ2_XS 权重和 pack 可保留，默认不运行或测试，除非用户提出专门任务。维护基线 = 本机唯一对外模型 + 部署默认值（`installation_defaults` 与该模型的首个上下文档位）；引擎参数与测量依据见[调优记录](tuning.md)和[每机调参目录](host-tuning/README.md)。
+只对外提供一个模型（用户 2026-10-19）。对外模型由 `config/installation.json` 的 `models`（恰好一个）决定；安装目录只部署它的 prebuilt 配置和 catalog 条目，前端拒绝启动其他量化。Q2_0、IQ2_XS 权重和 pack 可保留，默认不运行或测试，除非用户提出专门任务。维护基线 = 本机唯一对外模型 + 部署默认值（`installation_defaults` 与该模型的首个上下文档位）；引擎参数与测量依据见[调优记录](tuning.md)和[调参目录](calibration/README.md)。
 
 ## 安装目录
 
-受维护代码、启动／压缩提示、调用手册及每台机器的部署配置，以维护工程为唯一来源。安装目录仅保存部署副本、上游制品的安装结果及运行状态；读取安装文件可用于运行、计量和回读核验，不能反过来作为新配置模板。上游制品的版本、下载地址及SHA由工程保存，native packs／MTP的逐文件绑定见[支持资产清单](../config/artifacts/native-support.json)；用户已决定模型、native packs、MTP及既有离线依赖直接从不可变现有文件传输，传完核对完整性，不先建立额外大缓存或重新下载。该复制不作为从安装代码／配置派生另一台发布输入的许可。
+受维护代码、启动／压缩提示、调用手册及部署配置，以维护工程为唯一来源。安装目录仅保存部署副本、上游制品的安装结果及运行状态；读取安装文件可用于运行、计量和回读核验，不能反过来作为新配置模板。上游制品的版本、下载地址及SHA由工程保存，native packs／MTP的逐文件绑定见[支持资产清单](../config/artifacts/native-support.json)；用户已决定模型、native packs、MTP及既有离线依赖直接从不可变现有文件传输，传完核对完整性，不先建立额外大缓存或重新下载。
 
-`config/deployments/`保存公开硬件／部署来源，私有配置（`project.private.toml`）提供安装路径和前端地址；`tools/ops/deployment_source.py`从工程模板生成目标副本，安装文件只用于回读核验。修改工程源后部署前须等待空闲、领取维护key、确认模型停止并关闭前端，回读校验。持有状态、日志、运行临时配置及私有凭据不作为公共同步内容。
+`config/installation.json`保存公开硬件／部署来源，私有配置（`project.private.toml`）提供安装路径和前端地址；`tools/ops/deployment_source.py`从工程模板生成目标副本，安装文件只用于回读核验。修改工程源后部署前须等待空闲、领取维护key、确认模型停止并关闭前端，回读校验。持有状态、日志、运行临时配置及私有凭据不作为公共同步内容。
 
-私有配置统一放工程根目录 `project.private.toml`（Git 忽略，权限 0600，不部署、不写入报告），包括各主机的 `installation_path`、`frontend_url` 和 Brave key 等凭据，只由程序解析，不读入会话。安装目录需要的敏感配置将放在安装根目录 `installation.private.toml`，由部署程序从工程私有配置写入；当前前端不需要任何安装凭据，该文件在接入托管搜索时才创建。新增主机时增加一个 `[hosts.<id>]` 分组。配置按 UTF-8 读写。
+私有配置统一放工程根目录 `project.private.toml`（Git 忽略，权限 0600，不部署、不写入报告），包括 `[installation]` 表的 `installation_path`、`frontend_url` 和 Brave key 等凭据，只由程序解析，不读入会话。安装目录需要的敏感配置将放在安装根目录 `installation.private.toml`，由部署程序从工程私有配置写入；当前前端不需要任何安装凭据，该文件在接入托管搜索时才创建。配置按 UTF-8 读写。
 
-旧的 `ssh-windows` 连接方式（SSH、`listen_port`／`access_port` 端口映射）已废弃；前端常驻 Windows，监听 `config/deployments/<host>.json` 中该主机的地址和端口。部署和测量工具只处理本机安装（经 `wslpath` 访问）。
+旧的 `ssh-windows` 连接方式（SSH、`listen_port`／`access_port` 端口映射）已废弃；前端常驻 Windows，监听 `config/installation.json` 中的地址和端口。部署和测量工具只处理本机安装（经 `wslpath` 访问）。
 
 | 路径 | 内容 |
 |---|---|
@@ -51,7 +51,7 @@ GGUF 第二分片可在整文件 SHA 一致后按各量化预期名称硬链接�
 
 托管网页搜索（Brave）随旧协议桥一起移除；是否在前端补回留待新版 Codex 路径重新评估时决定。Brave key 继续只保存在工程私有配置中。
 
-服务文件和调用手册由`tools/ops/deploy.py`部署，流程见[前端运行与维护](frontend.md#部署)。服务部署不替换模型权重、MTP或私有依赖；模型配置由工程模板及每机配置生成并同步，不以安装配置作为模板。重新setup或恢复后核对生成配置和安装副本，不能假定setup保留调参。
+服务文件和调用手册由`tools/ops/deploy.py`部署，流程见[前端运行与维护](frontend.md#部署)。服务部署不替换模型权重、MTP或私有依赖；模型配置由工程模板及安装配置生成并同步，不以安装配置作为模板。重新setup或恢复后核对生成配置和安装副本，不能假定setup保留调参。
 
 恢复链接和 18 个离线 wheel 的清单见[下载与恢复](downloads.md)。`tools/ops/install_offline.py` 是 Windows 离线安装辅助：安装目录由所用 venv 推出，引擎用 `upgrade_release` 已装好的 `runtime/Strata/engine`（版本须等于 `installed-release.json` 的 `engine_version`）；执行前核对下载清单。旧v0.1.37一次性离线升级入口已退出长期工具，当前维护使用`tools/ops/upgrade_release.py`。含 Windows 进程 API 的安装/测量工具须使用 Windows 私有 Python，不能直接由 Linux Python 导入。
 
@@ -67,8 +67,8 @@ GGUF 第二分片可在整文件 SHA 一致后按各量化预期名称硬链接�
 
 调用方管理 harness、权限、工具和压缩，见 [codex.md](codex.md)。安装项目不创建或修改调用方的 Codex 配置。
 
-## 每机安装默认与校准入口
+## 安装默认与校准入口
 
-每机安装默认由`config/deployments/<host>.json`的可选`installation_defaults`单独拥有；缺失该项时保持该机原模板，不继承其他主机文件的性能选择。该项可声明窗口、推理强度／预算、采样及CPU辅助；部署工具生成模型预置，前端在请求省略启动覆盖时使用它，显式请求值优先。当前实际值与回读证据以各机部署配置和主机说明为准。
+安装默认由`config/installation.json`的可选`installation_defaults`拥有；缺失该项时保持原模板。该项可声明窗口、推理强度／预算、采样及CPU辅助；部署工具生成模型预置，前端在请求省略启动覆盖时使用它，显式请求值优先。当前实际值与回读证据以部署配置和[本机说明](local-installation.md)为准。
 
-每台机器的参数选择、覆盖边界和待办遵循[每机调参目录](host-tuning/README.md)，不把该目录变成每次升级的全量固定流程。
+参数选择、覆盖边界和待办遵循[调参目录](calibration/README.md)，不把该目录变成每次升级的全量固定流程。

@@ -1,0 +1,180 @@
+{
+ "schema": "conditions-v2",
+ "status": "frozen-approved",
+ "created_at": "2026-10-11T15:42:28+0900",
+ "candidate_dimension": "adapt-swaps",
+ "authorization": {
+  "approved": true,
+  "approved_on": "2026-10-11",
+  "scope": "User approved proposal 1 (IQ3_XXS supplementary tuning dims 0-9, each condition 3 cold instances) on 2026-10-11; autonomous mode off."
+ },
+ "conditions": [
+  {
+   "id": "swaps96",
+   "overrides": {
+    "adapt-swaps": 96
+   }
+  },
+  {
+   "id": "swaps160",
+   "overrides": {
+    "adapt-swaps": 160
+   }
+  },
+  {
+   "id": "swaps48",
+   "overrides": {
+    "adapt-swaps": 48
+   }
+  }
+ ],
+ "schedule": [
+  {
+   "condition": "swaps96",
+   "repetition": 1
+  },
+  {
+   "condition": "swaps160",
+   "repetition": 1
+  },
+  {
+   "condition": "swaps48",
+   "repetition": 1
+  },
+  {
+   "condition": "swaps48",
+   "repetition": 2
+  },
+  {
+   "condition": "swaps160",
+   "repetition": 2
+  },
+  {
+   "condition": "swaps96",
+   "repetition": 2
+  },
+  {
+   "condition": "swaps160",
+   "repetition": 3
+  },
+  {
+   "condition": "swaps48",
+   "repetition": 3
+  },
+  {
+   "condition": "swaps96",
+   "repetition": 3
+  }
+ ],
+ "model_instances": 9,
+ "logical_requests": 27,
+ "repetitions_per_condition": 3,
+ "fixed_conditions": {
+  "strata_version": "0.1.42",
+  "strata_commit": "61b3fb5dd3f1e8ec09cf7e4e05208bc6d3c46406",
+  "model": "IQ3_XXS",
+  "base": "deployment-rendered IQ3_XXS config plus previous winners",
+  "previous_winners": {
+   "pcie-frac": null,
+   "pool-affinity": "all",
+   "pool-workers": 23,
+   "ple-io": "direct",
+   "prefill": 8192,
+   "vram-reserve-mib": 512,
+   "spec-min-p": 0.9
+  },
+  "request": {
+   "temperature": 0.0,
+   "top_p": 1.0,
+   "top_k": 20,
+   "max_tokens": 24576,
+   "reasoning_budget_tokens": 8192,
+   "min_p": 0.0,
+   "presence_penalty": 0.0,
+   "frequency_penalty": 0.0,
+   "repetition_penalty": 1.0,
+   "penalty_last_n": 64,
+   "reasoning_effort": "high"
+  },
+  "loop_reminder": "off",
+  "conversation_cache": "installed default"
+ },
+ "baseline": {
+  "start_options": {
+   "model": "IQ3_XXS",
+   "engine_overrides": {
+    "pcie-frac": null,
+    "pool-affinity": "all",
+    "pool-workers": 23,
+    "ple-io": "direct",
+    "prefill": 8192,
+    "vram-reserve-mib": 512,
+    "spec-min-p": 0.9
+   }
+  },
+  "request_options": {
+   "chat": {
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "top_k": 20,
+    "max_tokens": 24576,
+    "reasoning_budget_tokens": 8192,
+    "min_p": 0.0,
+    "presence_penalty": 0.0,
+    "frequency_penalty": 0.0,
+    "repetition_penalty": 1.0,
+    "penalty_last_n": 64,
+    "reasoning_effort": "high"
+   }
+  }
+ },
+ "workload": {
+  "source": "benchmarks/resource-calibration-v1/workload.py",
+  "record_count": 787,
+  "case_bindings": [
+   {
+    "id": "initial-extraction",
+    "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+    "expected_sha256": "a79eac60f4a13d3152444aec5e976b98fa5cd95a3ab6698c1ae13710d9829c35",
+    "expected_rows": 28
+   },
+   {
+    "id": "cached-calculation",
+    "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+    "expected_sha256": "981241594236afb80c77f5fee9c6d6d3ef5aed2e59d3a5a452ae2375eca3a691",
+    "expected_rows": 28
+   },
+   {
+    "id": "cached-update",
+    "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+    "expected_sha256": "9b202274bb231e305decbb3d6d66e15723a2facfc54808f1ce7c9e0a5e813575",
+    "expected_rows": 28
+   }
+  ]
+ },
+ "prompt_binding": {
+  "startup_sha256": "1cae169a1b1ebcafbd6b0562992d377c84a550f4cd8bea7184340cf033cd17f6",
+  "compact_sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+ },
+ "default_profile_sha256_verified": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+ "telemetry": {
+  "interval_seconds": 1
+ },
+ "stream_chat": true,
+ "capture_each_request": true,
+ "per_logical_request_work_seconds_limit": 150,
+ "source_sha256": {
+  "tools/tuning/resource_calibration.py": "76c65c1b8fbb461a77aec05522ff0542865e8d1a34fa41859d9f2d8287263d3f",
+  "tools/metrics/streamed_chat.py": "6ab84674ae01a2b3e6c74576eac582744ee758fbe316c3033f29c0001018e5b2",
+  "tools/metrics/host_telemetry.py": "ea1a4a06a54dbf21810fc7f691ffa61b1c3b10717aa21c7a38e10d1582966657",
+  "tools/metrics/windows_resource_sampler.py": "03ee096346a30c1eb29e22d406bf56b28ee96a3e810b858511ad5868d2fbc467",
+  "tools/ops/measurement_host.py": "caf72fe2ad1f0c8a8a219997ad00d7a53fec5b4337250d02ec1e83cddd2c75d3",
+  "tools/metrics/strata_tokens.py": "2905bdb41b097c2b48467ae786ffc72501ff77f74b302e2a10cce9213c168878",
+  "benchmarks/resource-calibration-v1/workload.py": "049d204cae11050fc589f8fa77c337278589b61321315f9896a2474741d0429a",
+  "config/prompts/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+  "config/prompts/compact-prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+  "config/installation.json": "f60d8ae063ec1721655020150160959aa336f73ffff0d8202e7e9ce16cf8926e",
+  "config/templates/iq3_xxs-prebuilt.json": "0d1fc8f5eee5db7d3adf91a07858bc773adc5d4c3565b7fc7ae4540d4417bf78",
+  "src/model_process.py": "68684dfc9bd0655561fc3d5b0458fbc78d7ea6cb544441c14d4a49a3d253d538"
+ }
+}

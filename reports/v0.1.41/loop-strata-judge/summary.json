@@ -6,7 +6,6 @@
   "text": "Drop Strata model judgment of repeats; mechanical rule only; on detection send a reminder to self-check for a no-progress loop, never force an interrupt."
  },
  "scope": {
-  "host": "rtx3080ti",
   "strata": "0.1.41",
   "model": "Q2_0",
   "effort": "low",

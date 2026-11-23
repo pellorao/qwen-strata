@@ -1,12 +1,12 @@
-# v0.1.42 升级（rtx3080ti）
+# v0.1.42 升级（本机）
 
-2026-10-11，用户授权安装（"允许今晚执行 python3 -m tools.ops.upgrade_release --host rtx3080ti 安装 Strata v0.1.42"），同时决定服务默认模型改为 IQ3_XXS 并在本机重新调参。
+2026-10-11，用户授权安装（"允许今晚执行 python3 -m tools.ops.upgrade_release 安装 Strata v0.1.42"），同时决定服务默认模型改为 IQ3_XXS 并在本机重新调参。
 
 ## 结论
 
-- rtx3080ti 已升级到 Strata v0.1.42，**通过了短调用链检查**（S1，Q2_0）。检查经由实际使用的 `bin/qwen-agent` 入口，覆盖了 Claude Code 和 Codex。
+- 本机已升级到 Strata v0.1.42，**通过了短调用链检查**（S1，Q2_0）。检查经由实际使用的 `bin/qwen-agent` 入口，覆盖了 Claude Code 和 Codex。
 - 本次只是短检查，不代表完整验收，也不继承 v0.1.41 的结论。上游说明 v0.1.42 的回答会略有变化，所以 v0.1.42 的结果不与 v0.1.41 直接比较。
-- 默认模型已改为 IQ3_XXS，8 维调参已完成并部署，见[调参报告](iq3_xxs-tuning/)和[调参手册](../../docs/host-tuning.md#iq3_xxs)。
+- 默认模型已改为 IQ3_XXS，8 维调参已完成并部署，见[调参报告](iq3_xxs-tuning/)和[调参手册](../../docs/calibration/installation.md#iq3_xxs)。
 - Q2_0 只作 IQ3_XXS 的基线对比。同一冻结 Commit Audit 场景（各 3 次）的诊断结果如下：
 
   | 模型 | 得分 | 工作时间 | 解码速度 |
@@ -15,7 +15,6 @@
   | IQ3_XXS（调参后） | 0.837 | 13.3 分钟 | 104.0 tok/s |
 
   IQ3_XXS 得分更高，Q2_0 更快。详见下文。
-- rtx4070tis 仍离线，版本未变，恢复后需要同步。
 - **已知风险**：上游 [#1622](https://github.com/Niko1221/Strata/issues/1622)（v0.1.41 生成循环）仍未关闭。本次短检查和 24 个完整 Commit Audit 实例中都没有出现循环。
 
 ## 发布说明核查
@@ -93,7 +92,7 @@
 如需回退到 v0.1.41：
 
 ```
-python3 -m tools.ops.upgrade_release --host rtx3080ti --rollback .tmp/maintenance-backups/release-backup-20261011-025022-954379 --output .tmp/strata-upgrade-current/out/rollback.json
+python3 -m tools.ops.upgrade_release --rollback .tmp/maintenance-backups/release-backup-20261011-025022-954379 --output .tmp/strata-upgrade-current/out/rollback.json
 ```
 
 之后还要把 `config/maintenance-baseline.json` 的版本改回 0.1.41 并重新部署，并重新评估 IQ3_XXS 的调参结果（它们只绑定 v0.1.42）。备份位于 `.tmp/`，删除后就不能用这个命令回退，只能用 [v0.1.41 制品](../../config/artifacts/strata-v0.1.41.json)重新安装。

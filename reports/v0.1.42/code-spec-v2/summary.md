@@ -1,4 +1,4 @@
-# Code Spec v2 测量报告（原定样本：Opus medium ×3、IQ3_XXS ×5；加测至 10 次；rtx3080ti，Strata v0.1.42，Codex 0.162.0）
+# Code Spec v2 测量报告（原定样本：Opus medium ×3、IQ3_XXS ×5；加测至 10 次；本机，Strata v0.1.42，Codex 0.162.0）
 
 ## 结论
 

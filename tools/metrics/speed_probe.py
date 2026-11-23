@@ -91,12 +91,11 @@ def run(host, paths, out, max_tokens=MAX_TOKENS):
 def main():
     from tools.ops.measurement_host import MeasurementHost
     parser = argparse.ArgumentParser(description='Measure P, G and beta on the material before a batch.')
-    parser.add_argument('--host', required=True)
     parser.add_argument('--out', required=True)
     parser.add_argument('--max-tokens', type=int, default=MAX_TOKENS)
     parser.add_argument('files', nargs='+')
     args = parser.parse_args()
-    result = run(MeasurementHost(args.host), args.files, args.out, args.max_tokens)
+    result = run(MeasurementHost(), args.files, args.out, args.max_tokens)
     print({k: result[k] for k in ('material_bytes', 'material_tokens', 'beta_bytes_per_token',
                                   'P_tokens_per_second', 'G_tokens_per_second')})
 

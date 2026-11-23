@@ -4,7 +4,7 @@
 
 ## 固定条件与范围
 
-i9-13900／8P＋16E／DDR5-6600 64GB／RTX3080Ti12GB；Strata0.1.40.1、engine0.1.40，Q2_0/high/default/no-save，思考8192／输出24576，100K策略／156584窗口，完整工程启动提示与压缩补充绑定，temperature0/top_p1/top_k20、prefill8192、KV int8／resident20480、显存预留700、pcie-frac0、spec4／min-p0.7等保持。仅改变pool-affinity，三个独立实例／条件，auto1/all1/all2/auto2/auto3/all3交错。每实例先提取，再用共同前缀计算和更新，实际用户输入33006／33014／33203token；直接Chat，没有Reviewer、客户端工具、guardian或压缩请求。
+i9-13900／8P＋16E／DDR5-6600 64GB／本机12GB；Strata0.1.40.1、engine0.1.40，Q2_0/high/default/no-save，思考8192／输出24576，100K策略／156584窗口，完整工程启动提示与压缩补充绑定，temperature0/top_p1/top_k20、prefill8192、KV int8／resident20480、显存预留700、pcie-frac0、spec4／min-p0.7等保持。仅改变pool-affinity，三个独立实例／条件，auto1/all1/all2/auto2/auto3/all3交错。每实例先提取，再用共同前缀计算和更新，实际用户输入33006／33014／33203token；直接Chat，没有Reviewer、客户端工具、guardian或压缩请求。
 
 实际引擎日志逐台核对亲和性，六次均4016专家槽、完整加载后480MiB显存余量。每次未缓存35115／缓存65536token相同；输出含真实思考及答案，长度不同，不能把全部时间收益归为纯CPU计算改进。
 

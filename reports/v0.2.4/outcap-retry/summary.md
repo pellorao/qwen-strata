@@ -1,10 +1,10 @@
-# 输出上限重试改进：真实模型验证（rtx3080ti / IQ3_XXS，Strata 0.2.4，2026-10-24）
+# 输出上限重试改进：真实模型验证（本机 / IQ3_XXS，Strata 0.2.4，2026-10-24）
 
 设计见同目录 [design.md](design.md)。worker（Opus high）报告，Main 整理存档。
 
 ## 结论
 
-- 新代码三项判据全部通过，已正式部署到 rtx3080ti。同一个撞上限的请求跑了 3 次，每次都满足：
+- 新代码三项判据全部通过，已正式部署到 本机。同一个撞上限的请求跑了 3 次，每次都满足：
   - 以 `response.completed` 结束；
   - 工具调用完整，`bash -n` 通过；
   - `frontend.log` 有 `retrying with the notice and max_output_tokens 16384 (limit set by the frontend)`。

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "asset_family": "Qwen3.8-Flash-Next native packs and MTP",
   "captured_on": "2026-10-07",
-  "provenance": "Existing immutable assets, bound after user-authorized direct transfer and full SHA256 verification on both hosts.",
+  "provenance": "Existing immutable assets, bound after user-authorized direct transfer and full SHA256 verification on the installation.",
   "qualification": "Installed Strata engine 0.1.40; remote GPU inference not yet run.",
   "directories": [
     {

@@ -1,6 +1,6 @@
 # 无防循环提示、无提醒的基线（3 次）
 
-2026-10-11。条件与[提醒组](../loop-reminder-trial/summary.md)完全相同（rtx3080ti、Strata v0.1.41、Q2_0 / high、Codex 0.162.0、冻结 ARW 760007c 加 Codex 0.162 兼容补丁、完整 Commit Audit），只改两处：
+2026-10-11。条件与[提醒组](../loop-reminder-trial/summary.md)完全相同（本机、Strata v0.1.41、Q2_0 / high、Codex 0.162.0、冻结 ARW 760007c 加 Codex 0.162 兼容补丁、完整 Commit Audit），只改两处：
 
 - **去掉防循环提示**：启动提示只去掉 "Progress and loop prevention" 一节，其余部分和压缩提示照常接入。实际加载的启动提示 SHA 为 `1cae169a…`，源文件 SHA 为 `5f9efc02…`，驱动核对一致。
 - **关闭服务端提醒**：Codex 的每个请求都带 `X-Loop-Reminder: off`。事先用本地假服务器确认 Codex 0.162 会发出这个请求头；运行期间前端日志没有任何提醒记录。

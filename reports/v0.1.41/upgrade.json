@@ -1,5 +1,5 @@
 {
-  "status": "installed-rtx3080ti-short-check-passed",
+  "status": "installed-short-check-passed",
   "date": "2026-10-10",
   "strata": {
     "version": "0.1.41",
@@ -35,10 +35,6 @@
   },
   "dependencies_modified": false,
   "model_weights_modified": false,
-  "hosts": {
-    "rtx3080ti": "installed",
-    "rtx4070tis": "offline, pending sync"
-  },
   "prompts": {
     "startup_instructions_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
     "compact_prompt_sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",

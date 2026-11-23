@@ -1,6 +1,5 @@
 {
   "status": "closed-nine-independent-worker-observations-main-verified",
-  "host": "rtx3080ti",
   "versions": {
     "strata": "0.1.40.1",
     "engine": "0.1.40"
@@ -8,7 +7,7 @@
   "hardware": {
     "cpu": "i9-13900",
     "physical_cores": 24,
-    "gpu": "RTX3080Ti",
+    "gpu": "RTX 3080 Ti",
     "ram_gib": 64
   },
   "model_instances_valid": 9,

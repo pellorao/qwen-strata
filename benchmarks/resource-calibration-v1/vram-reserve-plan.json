@@ -1,0 +1,339 @@
+{
+  "schema_version": 1,
+  "status": "frozen-approved",
+  "created_at": "2026-10-10T04:47:06.095295+00:00",
+  "authorization": {
+    "approved": true,
+    "approved_on": "2026-10-10",
+    "scope": "VRAM reserve 1024/768/512, 9 cold instances, 27 logical requests; spec-min-p deferred until temperature is chosen."
+  },
+  "purpose": "Choose the Q2_0 VRAM reserve: GPU expert-cache capacity against headroom for desktop growth and temporary buffers.",
+  "basis": {
+    "ours": "LatestQ2run all6loaded480MiBfree/capture428MiB,4015cache slots. True minimumunknown due missing telemetry; no stall was observed.",
+    "upstream": "0.1.40.2DETAILS The expert cache size is a budget: oversizedWindows allocations may spill, reserve can trade cache forheadroom. Examples are othercards and cannot predetermine our optimum.",
+    "candidate_rationale": "1024 upstream example and room for about 300 MiB desktop swings; 768 near the current 700; 512 more expert slots with headroom about equal to the observed swing.",
+    "desktop_observation": "2026-10-10 desktop VRAM with the model off: 423-726 MiB, median 500 MiB (5 s samples, about 100 minutes)."
+  },
+  "candidate_dimension": "vram-reserve-mib",
+  "conditions": [
+    1024,
+    768,
+    512
+  ],
+  "model_instances": 9,
+  "logical_requests": 27,
+  "repetitions_per_condition": 3,
+  "schedule": [
+    {
+      "reserve": 1024,
+      "repetition": 1
+    },
+    {
+      "reserve": 768,
+      "repetition": 1
+    },
+    {
+      "reserve": 512,
+      "repetition": 1
+    },
+    {
+      "reserve": 512,
+      "repetition": 2
+    },
+    {
+      "reserve": 768,
+      "repetition": 2
+    },
+    {
+      "reserve": 1024,
+      "repetition": 2
+    },
+    {
+      "reserve": 768,
+      "repetition": 3
+    },
+    {
+      "reserve": 1024,
+      "repetition": 3
+    },
+    {
+      "reserve": 512,
+      "repetition": 3
+    }
+  ],
+  "fixed_conditions": {
+    "strata_version": "0.1.41",
+    "strata_commit": "fb58e0dbc8399662c0e47c76578c6e878b14f6cf",
+    "model": "Q2_0",
+    "profile": "default",
+    "profile_save": false,
+    "reasoning_effort": "high",
+    "reasoning_budget_tokens": 8192,
+    "max_output_tokens": 24576,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "top_k": 20,
+    "auto_compact_threshold": 100000,
+    "context_window": 156584,
+    "startup_instructions": true,
+    "project_compact_instructions": true,
+    "base_source": "config/maintenance-baseline.json",
+    "spec_min_p": 0.5,
+    "cpu_prefill_share": "auto",
+    "api": "Chat Completions streamed through the frontend /strata/v1, no agent harness",
+    "base_source_sha256": "0deaad95f1aa8fa91cf0ab20b7787df734b660c3b97bc4fde888bf2909e63d29",
+    "conversation_cache": "off (not in the maintenance baseline); single-session workload never switches conversations"
+  },
+  "fixed_hardware": {
+    "gpu": "RTX 3080 Ti 12GiB",
+    "pool_workers": 23,
+    "pool_affinity": "all",
+    "prefill": 8192,
+    "kv": "int8",
+    "kv_resident": 20480,
+    "expert_cache": "auto",
+    "ple_io": "direct"
+  },
+  "fixed_cpu_share": "auto, now adopted onlyinremote installation; fixedinall3reserveconditions.",
+  "workload": {
+    "source": "benchmarks/resource-calibration-v1/workload.py",
+    "record_count": 787,
+    "shared_user_prefix_tokens_reference": 32752,
+    "requests_per_instance": 3,
+    "expected_rows_per_request": 28,
+    "expected_total_rows": 756,
+    "tasks": [
+      "fieldextraction",
+      "availablecapacitycalculation",
+      "updatedcapacityrecalculation"
+    ],
+    "scope": "Same established32Ksynthetic resource workload, not a formalReviewer. Freeze originalinputs/expected/template/tokenizerSHA beforestart.",
+    "old_results_reused_as_new_control": false,
+    "why_fresh_control": "Old32Kcontrol was0.1.40.1andCPUshareoff; onlycurrent same-version/same-setting results can attribute reserveeffects.",
+    "case_bindings": [
+      {
+        "id": "initial-extraction",
+        "user_text_sha256": "d8bd48d07d9d421b2b08af2d9df868d0c10682808a394d185fec53d52fcdc32d",
+        "expected_sha256": "a79eac60f4a13d3152444aec5e976b98fa5cd95a3ab6698c1ae13710d9829c35",
+        "expected_rows": 28
+      },
+      {
+        "id": "cached-calculation",
+        "user_text_sha256": "7858b4d8c4ffec4d618a32360ac38ddf3eca502517bbcf75259d526eef67d9ba",
+        "expected_sha256": "981241594236afb80c77f5fee9c6d6d3ef5aed2e59d3a5a452ae2375eca3a691",
+        "expected_rows": 28
+      },
+      {
+        "id": "cached-update",
+        "user_text_sha256": "fa37bcf24496963a4fc16c7dd3a30ac3c2637a6b65eb4e6db364ee3ad52073ab",
+        "expected_sha256": "9b202274bb231e305decbb3d6d66e15723a2facfc54808f1ce7c9e0a5e813575",
+        "expected_rows": 28
+      }
+    ],
+    "tokenizer_sha256": {
+      "chat_template.jinja": "12827f24b742ea4e80cdc12dbcf9622227056b9f797252a3149263d4f9aaadce",
+      "merges.txt": "080cf95432173729d160346b7882bd2a644b07f7a3813a3eb73f4e66787bfde9",
+      "tokenizer.json": "87be2ac47d8bc7393b7435df6ccd276740019a393941a2585d5edce59f450c54",
+      "token_type.json": "5088c8c298fc06af8382ddb3b76c888703ac2634e82263b97eedcc2ad202738b",
+      "vocab.json": "4ba64f0332abcfb0b600b7df1537d1e836e68009d5fb7cdb77339738dc6365c4"
+    },
+    "request_user_tokens": [
+      33006,
+      33014,
+      33203
+    ]
+  },
+  "metrics": [
+    "all504answerrows correctness",
+    "per-instancewholework andphase times",
+    "internalread/reused/generated andfourrates",
+    "actualcache slots/reserve/loadedGPUheadroom",
+    "one-secondCPU/RAM/GPUtime-series andobservedminimum, not assumedtrueinstantaneousminimum",
+    "realfailures/continuations/cleanstop/keyreturn"
+  ],
+  "telemetry": {
+    "collector_fix": "Sampler runs on the Windows side through the installation runtime Python (MeasurementHost._remote, WSL interop); idle check 5 samples OK 2026-10-10.",
+    "sampling_interval_seconds": 1,
+    "before_model": "Verify thefixed collector whileunloaded; frozen sourceSHA identicalfor bothgroups.",
+    "do_not_use_old_missing_samples": true,
+    "interval_seconds": 1
+  },
+  "preconditions": [
+    "User approvespreviousCPUgroup interpretation and this newgroup scope.",
+    "Remotecontrollerfree, nopreemption;26sourcesandprofileSHA match.",
+    "CurrentAPI supports700but not500/300. After approval addonlythesevalidatedintegervalues, relevant regressions, syncallregisteredtargetswhenidle andreadback. Do not preemptlocal existinggroup.",
+    "Freeze one version of maintaineddrivers and fullprompts; startupinstructionsfull, default/no-save."
+  ],
+  "estimated_time": {
+    "total_minutes": [
+      35,
+      55
+    ],
+    "basis": "Previous6-instance32Kremote executions11.8-21minutes;9instances scaleabout18-32executionminutes, pluscontrolled300/500admission, freeze, idle samplercheck, Main/report.",
+    "per_logical_request_work_limit_seconds": 150,
+    "upper_envelope_request_work_minutes": 67.5,
+    "does_not_count_user_waiting": true
+  },
+  "selection": "Complete correct results first; then work time against the spread between repetitions. Within noise choose the larger headroom; 512 only if clearly faster. Default stays 700 until the user selects.",
+  "core_unknowns": [
+    "CPU-prefill expert count/share absent fromAPIservebranch.",
+    "This shorttest cannotprove100KReviewer or allRAM/VRAMparameters optimal."
+  ],
+  "model_runs_executed": 0,
+  "source_default_changed": false,
+  "stop_after_group": "Close results, analyze, plan nextgroup and end Mainreply for userreview/approval. No automatic nextdimension.",
+  "candidate_source": "User chose 1024/768/512 on 2026-10-10 (replaces 700/500/300).",
+  "next_group": "spec-min-p is deferred until temperature is chosen in the ARW capability validation (user decision 2026-10-10).",
+  "mandatory_peer_validation": "Each dimension must have local independent evidence and new hosts must independently calibrate; no remote result propagated to another host default.",
+  "selection_key": {
+    "model": "Q2_0"
+  },
+  "selection_transfer": "OnlythishostQ2_0mayadoptresult; samehostIQ2_XS/IQ3_XXSneedindependentnewtuning. Splitper-modelsourcebeforedefaultchange; do notbroadcastviahostsharedoverrides.",
+  "other_quantizations_tuned": false,
+  "fixed_pool_affinity": "all",
+  "pool_workers": 23,
+  "baseline": {
+    "status": "user-selected-runtime-starting-point",
+    "selected_on": "2026-10-06",
+    "selected_by": "user",
+    "reason": "User selects high as the base running effort after observing shorter task times in the current effort comparison.",
+    "strata": {
+      "version": "0.1.41",
+      "commit": "fb58e0dbc8399662c0e47c76578c6e878b14f6cf"
+    },
+    "start_options": {
+      "model": "Q2_0",
+      "engine_overrides": {
+        "prefill": 8192,
+        "kv": "int8",
+        "kv-resident": 20480,
+        "pool-workers": 23,
+        "pcie-frac": 0.0,
+        "spec": 4,
+        "spec-min-p": 0.5,
+        "expert-cache": "auto",
+        "vram-reserve-mib": 700,
+        "adapt-every": 4,
+        "adapt-swaps": 96,
+        "adapt-decay": 0.7,
+        "mtp-window": 32768,
+        "pcie-mode": "auto",
+        "expert-cache-per-layer": false,
+        "expert-cache-cpu-order": false,
+        "pool-affinity": "all",
+        "ple-io": "direct",
+        "ple-inflight": 256,
+        "no-capture": false,
+        "no-host-worker": false,
+        "no-ple-prefetch": false,
+        "no-prefill-borrow": false,
+        "no-split-rows": false,
+        "no-coupled-draft": false,
+        "shared-late": false,
+        "keep-canonical": false,
+        "no-token-graph": false,
+        "no-fused-gr": false,
+        "no-hit-poke": false,
+        "ple-sync-submit": false,
+        "no-spec-split": false,
+        "gr-fp32-activations": false,
+        "ple-row-cache": 1048576,
+        "short-read": 64,
+        "suffix-draft": 3,
+        "mtp-max-t": 0,
+        "prompt-cache": 6,
+        "prompt-cache-every": 16384,
+        "prompt-cache-root": 2048,
+        "max-context": 156584
+      },
+      "engine_environment": {
+        "STRATA_HC_SPLIT": null,
+        "STRATA_ADAPT_NOWAIT": null,
+        "STRATA_SSD_KEEPALIVE": null
+      },
+      "request_defaults": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20,
+        "max_tokens": 24576,
+        "reasoning_budget_tokens": 8192,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "penalty_last_n": 64,
+        "reasoning_effort": "high"
+      }
+    },
+    "request_options": {
+      "responses": {
+        "model": "qwen3.8-flash-next-q2_0",
+        "reasoning": {
+          "effort": "high"
+        },
+        "max_output_tokens": 24576,
+        "temperature": 0.0,
+        "top_p": 1.0
+      },
+      "chat": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "top_k": 20,
+        "max_tokens": 24576,
+        "reasoning_budget_tokens": 8192,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "penalty_last_n": 64,
+        "reasoning_effort": "high",
+        "model": "qwen3.8-flash-next-q2_0"
+      }
+    },
+    "harness": {
+      "model_reasoning_effort": "high",
+      "model_context_window": 156584,
+      "model_auto_compact_token_limit": 100000,
+      "guardian_effort": "low",
+      "guardian_reasoning_budget_tokens": 2048,
+      "guardian_max_tokens": 8192
+    },
+    "profile": {
+      "choice": "default",
+      "installation_relative_path": "runtime/Strata/data/expert-profile.bin",
+      "sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+      "save_enabled": false
+    },
+    "parameter_origin": {
+      "file": "reports/v0.1.38/upgrade-cycle-20261003/baseline.json",
+      "sha256": "ada9da61fe092b296964cd2aa6c03457825000ed7d61ddcf5e7ab1c03ae89ffe",
+      "scope": "Other parameters inherited from the v0.1.38 published baseline; that historical file is unchanged."
+    },
+    "selection_evidence": "reports/v0.1.38/reasoning-effort-comparison/summary.md",
+    "qualification": "v0.1.41 installed; short call-chain check recorded in reports/v0.1.41/upgrade.md. User-selected parameters retained; full safety quality, 100K reliability and ARW Reviewer acceptance are not established.",
+    "model_run_performed_for_selection": false
+  },
+  "prompt_binding": {
+    "startup_sha256": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "compact_sha256": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af"
+  },
+  "default_profile_sha256_verified": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+  "stream_chat": true,
+  "capture_each_request": true,
+  "per_logical_request_work_seconds_limit": 150,
+  "version_note": "Re-frozen 2026-10-10 on v0.1.41 with the resident frontend; fresh conditions, no old result reused.",
+  "effective_binding": "After each start the engine log line \"expert cache auto: X GiB free, N MiB reserved -> S slots\" must show the selected reserve; slots and loaded free VRAM are recorded.",
+  "source_sha256": {
+    "tools/tuning/resource_calibration.py": "a98ee78d002680092a1ca466ed2848a37af07eacbff5db5a60d47da441b608f1",
+    "tools/metrics/streamed_chat.py": "6ab84674ae01a2b3e6c74576eac582744ee758fbe316c3033f29c0001018e5b2",
+    "tools/metrics/host_telemetry.py": "ea1a4a06a54dbf21810fc7f691ffa61b1c3b10717aa21c7a38e10d1582966657",
+    "tools/metrics/windows_resource_sampler.py": "03ee096346a30c1eb29e22d406bf56b28ee96a3e810b858511ad5868d2fbc467",
+    "tools/ops/measurement_host.py": "caf72fe2ad1f0c8a8a219997ad00d7a53fec5b4337250d02ec1e83cddd2c75d3",
+    "tools/metrics/strata_tokens.py": "2905bdb41b097c2b48467ae786ffc72501ff77f74b302e2a10cce9213c168878",
+    "benchmarks/resource-calibration-v1/workload.py": "049d204cae11050fc589f8fa77c337278589b61321315f9896a2474741d0429a",
+    "benchmarks/resource-calibration-v1/protocol.md": "fb8000489aa949a9a44552e9818213780f047e76c8291b83b603985cfacb079a",
+    "config/prompts/startup-instructions.txt": "5f9efc028c9e6a73ba23c52521312cb9c73ac4f848b0d1b2d82e6a526162449e",
+    "config/prompts/compact-prompt.txt": "3856cb62b26a0ab3a3b58c4e77d51a68119a0e11c3c44ec6d61d7e5dc59f42af",
+    "config/maintenance-baseline.json": "0deaad95f1aa8fa91cf0ab20b7787df734b660c3b97bc4fde888bf2909e63d29"
+  }
+}

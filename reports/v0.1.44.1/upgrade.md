@@ -1,8 +1,8 @@
-# Strata v0.1.44.1 升级（rtx3080ti，IQ3_XXS）
+# Strata v0.1.44.1 升级（本机，IQ3_XXS）
 
 ## 结论
 
-- rtx3080ti 已从 v0.1.43.1 升级到 Strata v0.1.44.1（提交 296b59d2），**通过短检查**（IQ3_XXS，一个实例，每项一次）。检查走实际使用的 `bin/qwen-agent` 入口，覆盖 Claude Code 2.1.299 和 Codex 0.162.0。
+- 本机已从 v0.1.43.1 升级到 Strata v0.1.44.1（提交 296b59d2），**通过短检查**（IQ3_XXS，一个实例，每项一次）。检查走实际使用的 `bin/qwen-agent` 入口，覆盖 Claude Code 2.1.299 和 Codex 0.162.0。
 - 这只是短检查，不是完整验收，也不继承 v0.1.43.1 的结论。上游称默认包的回答与 0.1.43.1 逐字相同，本次没有验证逐字一致。
 - 参数沿用原有 IQ3_XXS 调参结果，没有改默认值；默认档仍为 206584/150000。调参结论没有在本版上重新测量。
 - 升级工具有两处缺陷，已修正并加测试（提交 4e17337）：
@@ -32,7 +32,7 @@
 - 安装：写入 3182 个文件，逐个回读，没有删除；安装记录显示 0.1.44.1 / 296b59d2。
 - 部署：`tools.ops.deploy` 23 个文件回读通过。部署配置 `iq3_xxs-prebuilt.json` SHA 85f37fcb，没有变化。
 - 提示：安装目录里压缩提示 3856cb62、启动提示源文件 5f9efc02，与工程一致。前端 health 报告实际加载的启动提示为 1cae169a，防循环段关闭。
-- 工程记录：新增 `config/artifacts/strata-v0.1.44.1.json`；v0.1.43.1 标为在 rtx3080ti 上已被取代；`strata-release.json`、`config/maintenance-baseline.json`、`docs/downloads.md` 已更新（提交 30587ce）。
+- 工程记录：新增 `config/artifacts/strata-v0.1.44.1.json`；v0.1.43.1 标为在 本机上已被取代；`strata-release.json`、`config/maintenance-baseline.json`、`docs/downloads.md` 已更新（提交 30587ce）。
 
 ## 短检查（IQ3_XXS）
 
@@ -68,5 +68,4 @@
 - 与 v0.1.43.1 的回答逐字一致性。
 - 版本间速度对比（需要同一负载按块交替测量）。
 - Responses 路由强度默认值的变化只做了静态核对，运行中没有单独观察。
-- rtx4070tis 离线，没有升级。
 

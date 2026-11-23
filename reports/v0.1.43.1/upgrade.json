@@ -1,6 +1,5 @@
 {
  "version": "0.1.43.1",
- "host": "rtx3080ti",
  "install": {
   "commit": "a0116b2782a5b82622358c04a06496485d12b2d6",
   "source_zip_sha256": "9e37f07e87473210ac98ee6041e6651c02e1c473bf75eae65191840fa2b80768",

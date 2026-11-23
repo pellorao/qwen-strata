@@ -1,7 +1,6 @@
 {
  "scenario": "Code Spec 阅读量 rv3（SCENARIO_REVISIONS code-spec-reviewer 34，冻结 3a2ad7c；B 152,846 字节，材料 41,773 token）",
  "plan": "benchmarks/reviewer-suite-v1/code-spec-rv-iq3_xxs-2026-10-14/plan.json",
- "host": "rtx3080ti",
  "model": "IQ3_XXS",
  "strata": "0.1.44.1",
  "effort": "high",

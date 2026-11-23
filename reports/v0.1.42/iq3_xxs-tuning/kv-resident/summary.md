@@ -1,12 +1,12 @@
-# rtx3080ti IQ3_XXS 补测第 4 维：KV 显存驻留（`--kv-resident` 20480 / 32768 / 12288）
+# 本机 IQ3_XXS 补测第 4 维：KV 显存驻留（`--kv-resident` 20480 / 32768 / 12288）
 
 结论：**保持默认 20480**，不改部署配置。**12288 这一组无效**：三个实例都传入了 `--kv-resident 12288`，但引擎日志均为 `KV streaming: 20480 of 156584 cells`，即引擎把它静默抬到 20480，没有警告，所以这组只是 20480 的复测。32768 在本负载上没有收益：引擎输出 118.2 对 119.3 token/s（−0.9%），专家缓存少 90 个槽位（2898 对 2988）。27/27 全对。Main 与独立复核 agent 意见一致。
 
-适用范围：仅 rtx3080ti、IQ3_XXS、Strata v0.1.42、约 33K 上下文的合成短负载。**不能推广到长会话**：本负载的上下文只比 32768 多一点，20480 也只有约 40% 的 KV 溢出到内存。真实 ARW 会话会在约 100K 时才压缩，上游文档对 64K 以上的上下文推荐 `--kv-resident 32768`（DETAILS.md 第 80 行），长上下文下 20480 可能有未测到的解码损失。
+适用范围：仅 本机、IQ3_XXS、Strata v0.1.42、约 33K 上下文的合成短负载。**不能推广到长会话**：本负载的上下文只比 32768 多一点，20480 也只有约 40% 的 KV 溢出到内存。真实 ARW 会话会在约 100K 时才压缩，上游文档对 64K 以上的上下文推荐 `--kv-resident 32768`（DETAILS.md 第 80 行），长上下文下 20480 可能有未测到的解码损失。
 
 ## 条件
 
-同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--kv-resident`。执行顺序：20480-1、32768-1、12288-1、12288-2、32768-2、20480-2、32768-3、12288-3、20480-3。冻结计划：[rtx3080ti-iq3_xxs-kv-resident-plan.json](../../../../benchmarks/resource-calibration-v1/rtx3080ti-iq3_xxs-kv-resident-plan.json)。
+同前几维：32K 合成负载、每实例 3 个请求，基础条件为已部署的胜者（不传 `--pcie-frac`、all、23 线程、`--ple-io direct`、prefill 8192、显存预留 512、spec-min-p 0.9、`STRATA_ADAPT_LAG=2`），只改 `--kv-resident`。执行顺序：20480-1、32768-1、12288-1、12288-2、32768-2、20480-2、32768-3、12288-3、20480-3。冻结计划：[本机-iq3_xxs-kv-resident-plan.json](../../../../benchmarks/resource-calibration-v1/iq3_xxs-kv-resident-plan.json)。
 
 ## 结果（每条件 3 次算术平均）
 

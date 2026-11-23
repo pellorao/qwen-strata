@@ -111,10 +111,9 @@ class ParityTests(unittest.TestCase):
     def test_limits_are_codex_guardian_ones(self):
         """Both approvers run on this model with the same effort and limits (user 2026-10-12)."""
         root = Path(__file__).resolve().parents[1]
-        for host in ('rtx3080ti',):
-            defaults = json.loads((root / f'config/deployments/{host}.json').read_text())['installation_defaults']
-            self.assertEqual((approve.THINKING, approve.MAX_TOKENS),
-                             (defaults['guardian_reasoning_budget_tokens'], defaults['guardian_max_tokens']))
+        defaults = json.loads((root / 'config/installation.json').read_text())['installation_defaults']
+        self.assertEqual((approve.THINKING, approve.MAX_TOKENS),
+                         (defaults['guardian_reasoning_budget_tokens'], defaults['guardian_max_tokens']))
         self.assertEqual(approve.EFFORT, 'low')  # what Codex 0.162 sends for its guardian
 
 
