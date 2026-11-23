@@ -13,7 +13,7 @@ paths:
 - 历史记录（2026-11-23）：`benchmarks/reviewer-suite-v1/spec-readiness-v2-*/v2.1-key.*` 与 `spec-readiness-v3-*/v3.1-key.*`（.md 和 .patch）是当时调参用的旧版答案键补丁，只供旧报告（`reports/v0.1.42/spec-readiness-v3/summary.md` 等）链接，不要删除。现行题目与答案键只在 ARW，这些文件不再更新。
 - ARW 是 Reviewer 场景、答案键、跑分和计分代码的唯一来源（用户 2026-11-18）。本工程不复制、不改 ARW 源，按 `config/arw-pin.json`（ARW 提交加夹具树 SHA）引用：`tools/arw/pin.py` 把该提交检出（从本机 ARW 克隆，没有时浅取）到 `.tmp/arw/<提交>/`（分离头；`run` 需要 git 检出，所以不用 `git archive`）并核对提交与夹具树 SHA、工作区无改动，`tools/arw/run.py` 跑单个实例（ARW 自己的 `reviewer-capability run`，Strata 提供方），`tools/arw/measure.py` 跑一格并存小结果。
 - 计分只经 ARW 入口（`reviewer-capability score`）；本工程不再补评分升级、格式罚或盲裁池代码。换 ARW 提交是改测量设计，先写进 pin 的 `note` 并跑新基线，旧分数不直接比较。
-- 基础提示按 AGENTS.md 硬约束 3：启动提示由 Strata 服务端追加，开跑前核对 `/health` 的加载 SHA，绑定记进 `binding.json`；场景提示只能追加。
+- 基础提示按 AGENTS.md 硬约束 3：启动提示由 Strata 服务端追加，`/health` 的加载 SHA 要模型加载后才有，所以在实例运行期间由 StartupWatch 在第一个读到已加载模型的读数时核对，不符立即中止实例，绑定记进 `binding.json`；场景提示只能追加。
 - 调参用的 `tools/tuning/arw_dimension`、`arw_blocks` 同样走 pin 版 ARW 的 run。
 - 通用测量规则（预热连跑、分阶段判定、计时）见 [measurement.md](measurement.md)。
 

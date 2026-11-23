@@ -1,0 +1,593 @@
+{
+ "decisions": {
+  "spec-readiness-reviewer:a3:scope-7:problem-1:MODULE-DESIGN-MODULES:finding-2": {
+   "decision": "matched",
+   "reason": "Readiness 与 Promotion 重复验证 request 与 artifact，责任方不唯一",
+   "source": "pool sr-baseline:sr-baseline-002",
+   "kind": "association",
+   "fingerprint": "3cabab85287b6ef50b1d6ee932a6e7b3ec0dd8091aae7792aa4c9320e33e9987",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-7:problem-1:MODULE-DESIGN-MODULES:finding-2": {
+   "decision": "matched",
+   "reason": "Readiness 与 Promotion 重复验证 request 与 artifact，责任方不唯一",
+   "source": "pool sr-baseline:sr-baseline-004",
+   "kind": "association",
+   "fingerprint": "4aeb6829e2e82df1436564df5925cc4bc6fa33892c5678278fcc5011314a723d",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-5:problem-1:MODULE-DESIGN-APPLICABILITY:finding-1": {
+   "decision": "matched",
+   "reason": "result-summary 新增调用方可见 summary 字段却用 Not required 豁免",
+   "source": "pool sr-baseline:sr-baseline-006",
+   "kind": "association",
+   "fingerprint": "150b690ec8f67e12fe1d16964be182116e621c5e1196ad925db95510e45f7402",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a3:scope-6:problem-1:MODULE-DESIGN-EXEMPTION:finding-1": {
+   "decision": "matched",
+   "reason": "parser-scan 豁免段只重述结论，没说明 Module 边界为何不变",
+   "source": "pool sr-baseline:sr-baseline-008",
+   "kind": "association",
+   "fingerprint": "64c310dccfbd445fc416f8797006889d12b7ad8d59875e5263c356aebac1657f",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-6:problem-1:MODULE-DESIGN-EXEMPTION:finding-1": {
+   "decision": "matched",
+   "reason": "parser-scan 豁免段只重述结论，没说明 Module 边界为何不变",
+   "source": "pool sr-baseline:sr-baseline-009",
+   "kind": "association",
+   "fingerprint": "7726e6d70c9bb6801f53cbb2759e995ad8cf7942a0f793a3ddac811244c8542c",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-6:problem-1:MODULE-DESIGN-EXEMPTION:finding-1": {
+   "decision": "matched",
+   "reason": "parser-scan 豁免段只重述结论，没说明 Module 边界为何不变",
+   "source": "pool sr-baseline:sr-baseline-010",
+   "kind": "association",
+   "fingerprint": "28ccaa6df5ab8f2a68d53f3cd070a308ff75c179b1821b0675dd60c331809f8f",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-8:problem-4:MODULE-DESIGN-INTERFACES:finding-2": {
+   "decision": "matched",
+   "reason": "Recovery Testing Decisions 缺 rollback failure 的 public lifecycle 测试",
+   "source": "pool sr-baseline:sr-baseline-012",
+   "kind": "association",
+   "fingerprint": "b65ff24c7c20a3704dd81da4f3faee2af63f149f993ed82c93e7050beabbf384",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-8:problem-4:MODULE-DESIGN-INTERFACES:finding-2": {
+   "decision": "matched",
+   "reason": "Recovery Testing Decisions 缺 rollback failure 的 public lifecycle 测试",
+   "source": "pool sr-baseline:sr-baseline-013",
+   "kind": "association",
+   "fingerprint": "901534070d0677eb70e3a89af8ed5d72d8d6516b9b5ad3554f04d06c84a92970",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a3:scope-11:problem-1:MODULE-DESIGN-RATIONALE:finding-1": {
+   "decision": "matched",
+   "reason": "Access Review 独立 Module 边界缺被拒绝的替代方案与拒绝理由",
+   "source": "pool sr-baseline:sr-baseline-014",
+   "kind": "association",
+   "fingerprint": "1189a75a03df04a5ccd4e4191f2746f4b10135a15be747639f211f02dd644fe5",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-11:problem-1:MODULE-DESIGN-RATIONALE:finding-1": {
+   "decision": "matched",
+   "reason": "Access Review 独立 Module 边界缺被拒绝的替代方案与拒绝理由",
+   "source": "pool sr-baseline:sr-baseline-015",
+   "kind": "association",
+   "fingerprint": "f3716a4a595073808b21911db77e63582e94befebe987887d2d79d5a3eb47afe",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-11:problem-1:MODULE-DESIGN-RATIONALE:finding-1": {
+   "decision": "matched",
+   "reason": "Access Review 独立 Module 边界缺被拒绝的替代方案与拒绝理由",
+   "source": "pool sr-baseline:sr-baseline-016",
+   "kind": "association",
+   "fingerprint": "4d7baa58a6d9fe8d5e9cb8872819a99d92cca28d602e40ad4d4b08c39ad6f17b",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a3:scope-9:problem-1:MODULE-DESIGN-MODULES:finding-1": {
+   "decision": "matched",
+   "reason": "Seam 返回 allowed 后 Module 又判 operation 成员，授权判定双方持有",
+   "source": "pool sr-baseline:sr-baseline-017",
+   "kind": "association",
+   "fingerprint": "3d2045c59df733510db92017bd41b7845d75f623339758194e8e6ca04cf6388f",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-9:problem-1:MODULE-DESIGN-MODULES:finding-1": {
+   "decision": "matched",
+   "reason": "Seam 返回 allowed 后 Module 又判 operation 成员，授权判定双方持有",
+   "source": "pool sr-baseline:sr-baseline-018",
+   "kind": "association",
+   "fingerprint": "20b5d9a30b4782429c295daa9210822f66d90a7c000432b209dfe836f11c595f",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a3:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-2": {
+   "decision": "matched",
+   "reason": "runtime-migration 的 expected failure 缺 operation 字段，与 promotion-runtime 冲突",
+   "source": "pool sr-baseline:sr-baseline-019",
+   "kind": "association",
+   "fingerprint": "955d82e31e4030c5a51c28665c11567b0bc88650557dd2a973a685b48b03deca",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-2": {
+   "decision": "matched",
+   "reason": "runtime-migration 的 expected failure 缺 operation 字段，与 promotion-runtime 冲突",
+   "source": "pool sr-baseline:sr-baseline-020",
+   "kind": "association",
+   "fingerprint": "0edcf2d3e7f7207ea274a2729c6d1e766ed254733ef288a4f2a8e080389d5c33",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-1": {
+   "decision": "not-matched",
+   "reason": "只讲成功结果缺 summary，未讲失败结果缺 operation，非同一缺陷",
+   "source": "pool sr-baseline:sr-baseline-021",
+   "kind": "association",
+   "fingerprint": "a93f70a986836e5e0b247525cc7248e082b94523e17bc1a9dbf761a41520f06d",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a3:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-1": {
+   "decision": "not-matched",
+   "reason": "只讲成功结果缺 summary，未讲失败结果缺 operation，非同一缺陷",
+   "source": "pool sr-baseline:sr-baseline-022",
+   "kind": "association",
+   "fingerprint": "494cfbe8a26ba7c8b35338a3f5b80dddb2e3bcac57ddc13a161df360b4569e0d",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-2:problem-2:SPEC-READINESS-REQUIREMENTS:finding-3": {
+   "decision": "matched",
+   "reason": "同时指出成功结果缺 summary 与失败结果缺 operation，其中后者即期望缺陷",
+   "source": "pool sr-baseline:sr-baseline-023",
+   "kind": "association",
+   "fingerprint": "b8e40babf36fabb37f49b84aaeb5436483140fa9d6c933b7d998ec571251791f",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-8:problem-3:MODULE-DESIGN-INTERFACES:finding-2": {
+   "decision": "not-matched",
+   "reason": "讲 rollback failure 缺测试，不是 failureCode 指代哪个失败的问题",
+   "source": "pool sr-baseline:sr-baseline-025",
+   "kind": "association",
+   "fingerprint": "1042c44d5e79ec01f4d364c040aae64d102e3a55ef9f045d5c3a6e9e829216b7",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-8:problem-3:MODULE-DESIGN-INTERFACES:finding-2": {
+   "decision": "not-matched",
+   "reason": "讲 rollback failure 缺测试，不是 failureCode 指代哪个失败的问题",
+   "source": "pool sr-baseline:sr-baseline-027",
+   "kind": "association",
+   "fingerprint": "2a9ce3ac7dcc098fe646fa26d614faa55ef55b37c6a9687a3cdd9d46bc624617",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-8:problem-3:MODULE-DESIGN-INTERFACES:finding-1": {
+   "decision": "matched",
+   "reason": "指出 rollback failure 的 failureCode 取 commit 失败还是 restore 失败未规定",
+   "source": "pool sr-baseline:sr-baseline-028",
+   "kind": "association",
+   "fingerprint": "d59a6d151f79d71e296e7a8a27d1d3ca7d46fa53875dcc91473da6be5fa15638",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a3:scope-11:problem-3:MODULE-DESIGN-RATIONALE:finding-1": {
+   "decision": "not-matched",
+   "reason": "通用边界替代句；只泛称依赖方向选择无理由，未讲 Access Review 到 Policy Seam 的依赖方向（较难）",
+   "source": "pool sr-baseline:sr-baseline-029",
+   "kind": "association",
+   "fingerprint": "4aeef533b0a9a7c43cee1f20e6b4ebb21426b9e694d3a059d4d46ee5bf0524ed",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-11:problem-3:MODULE-DESIGN-RATIONALE:finding-1": {
+   "decision": "not-matched",
+   "reason": "只讲 Module 边界缺替代方案，不是 Access Review 到 Seam 依赖方向的论证",
+   "source": "pool sr-baseline:sr-baseline-030",
+   "kind": "association",
+   "fingerprint": "d059e318979734271113521bed78d14a63f95d2e2ad6fb57f605be555c074584",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-11:problem-3:MODULE-DESIGN-RATIONALE:finding-1": {
+   "decision": "not-matched",
+   "reason": "只讲 Module 边界缺替代方案，不是 Access Review 到 Seam 依赖方向的论证",
+   "source": "pool sr-baseline:sr-baseline-032",
+   "kind": "association",
+   "fingerprint": "b68e04d70dad21273566cbdbc7b81c4236b46091c084f6076bbb75ee51c91729",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-2:problem-1:SPEC-READINESS-REQUIREMENTS:finding-1": {
+   "decision": "matched",
+   "reason": "指出 runtime-migration 成功结果缺 summary，与 result-summary 和 promotion-runtime 冲突",
+   "source": "pool sr-baseline:sr-baseline-033",
+   "kind": "association",
+   "fingerprint": "6774c5c831208a180c1e16e28c5ea927572a88dddd1bd42dc7aea9273746ff99",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-2:problem-1:SPEC-READINESS-REQUIREMENTS:finding-3": {
+   "decision": "matched",
+   "reason": "指出 runtime-migration 成功结果缺 summary，与 result-summary 和 promotion-runtime 冲突",
+   "source": "pool sr-baseline:sr-baseline-035",
+   "kind": "association",
+   "fingerprint": "1b6596bb5b5e680cc7bd7ff557369cd10c3410d63e67819512554b0c0c168ce6",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-2:problem-1:SPEC-READINESS-REQUIREMENTS:finding-2": {
+   "decision": "not-matched",
+   "reason": "只讲失败结果缺 operation，未讲成功结果缺 summary",
+   "source": "pool sr-baseline:sr-baseline-036",
+   "kind": "association",
+   "fingerprint": "c46ab666b236606bfc6601976f8d50f9e3f983b821a90a9cd5d39eb5be529393",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a3:scope-2:problem-1:SPEC-READINESS-REQUIREMENTS:finding-1": {
+   "decision": "matched",
+   "reason": "指出 runtime-migration 成功结果缺 summary，与 result-summary 和 promotion-runtime 冲突",
+   "source": "pool sr-baseline:sr-baseline-037",
+   "kind": "association",
+   "fingerprint": "d85e213725135ab9045ad10026c68c1a048b60fcab5318fd33579531b7201d82",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a3:scope-2:problem-1:SPEC-READINESS-REQUIREMENTS:finding-2": {
+   "decision": "not-matched",
+   "reason": "只讲失败结果缺 operation，未讲成功结果缺 summary",
+   "source": "pool sr-baseline:sr-baseline-038",
+   "kind": "association",
+   "fingerprint": "588dabfb5995c464a72fb8c4e3e5293016864671aa76b1755a4ff00c3ef5d8bd",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-3:problem-1:SPEC-READINESS-RATIONALE:finding-1": {
+   "decision": "matched",
+   "reason": "Design Rationale 未写重评估的替代方案（如复用决定）与拒绝理由",
+   "source": "pool sr-baseline:sr-baseline-040",
+   "kind": "association",
+   "fingerprint": "0237f7ae7c126c67ab54dd8c82baa476b20ce2df63efe3cb52fdd31f8d577a9c",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a3:scope-8:problem-5:MODULE-DESIGN-INTERFACES:finding-2": {
+   "decision": "matched",
+   "reason": "unexpected-field 在 Invalid Artifact Contract 校验顺序中无位置，首个诊断无法确定",
+   "source": "pool sr-baseline:sr-baseline-041",
+   "kind": "association",
+   "fingerprint": "9de6fda5beacfef3c66e821b37ab1beedb3d3e33616a521c7f1a88fa98456933",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a3:scope-8:problem-2:MODULE-DESIGN-INTERFACES:finding-4": {
+   "decision": "matched",
+   "reason": "Policy Adapter 自身失败无 caller-visible 结果，却要求测试",
+   "source": "pool sr-baseline:sr-baseline-042",
+   "kind": "association",
+   "fingerprint": "571cc93ea5c0796ba0a44b0d63c797730b481a3f4681181682e7faa84e21b2d1",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-8:problem-6:MODULE-DESIGN-INTERFACES:finding-1": {
+   "decision": "matched",
+   "reason": "renderReport 对非 string 或 empty source 无结果合同",
+   "source": "pool sr-baseline:sr-baseline-044",
+   "kind": "association",
+   "fingerprint": "be59929c511bdf21cfd2fe2e154b50169f82208aa9ccdc6b42bb96a7ba000337",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a3:scope-8:problem-6:MODULE-DESIGN-INTERFACES:finding-3": {
+   "decision": "matched",
+   "reason": "renderReport 对非 string 或 empty source 无结果合同",
+   "source": "pool sr-baseline:sr-baseline-045",
+   "kind": "association",
+   "fingerprint": "0cfd7133272e112a309fcaf5ccd71ac518d48bfd0df24c00d4685ca29f9ec238",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-4:problem-1:SPEC-READINESS-ADR-EVALUATION:finding-1": {
+   "decision": "matched",
+   "reason": "recovery ADR 评估把新结果合同并入 ADR 0001，而该 ADR 明言不定义它",
+   "source": "pool sr-baseline:sr-baseline-046",
+   "kind": "association",
+   "fingerprint": "44da27059550ba9c4e097fa5d6b64669b49db48fce3724ac9bcf6686d7946229",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-4:problem-1:SPEC-READINESS-ADR-EVALUATION:finding-1": {
+   "decision": "matched",
+   "reason": "recovery ADR 评估把新结果合同并入 ADR 0001，而该 ADR 明言不定义它",
+   "source": "pool sr-baseline:sr-baseline-047",
+   "kind": "association",
+   "fingerprint": "f3ca4348964a3644fa166ac204e75fa27c35e46323d2d3156fdfb8ae016627f5",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-5:problem-2:MODULE-DESIGN-APPLICABILITY:finding-1": {
+   "decision": "matched",
+   "reason": "runtime-migration 发布运行时迁移与公开结果却没有 Module Design",
+   "source": "pool sr-baseline:sr-baseline-049",
+   "kind": "association",
+   "fingerprint": "f5142fdb0aa8ea8fda9a38e7fd54a7b2168b5e874ceae9e5efaf37dfe4dd2bdd",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-5:problem-2:MODULE-DESIGN-APPLICABILITY:finding-2": {
+   "decision": "matched",
+   "reason": "runtime-migration 发布运行时迁移与公开结果却没有 Module Design",
+   "source": "pool sr-baseline:sr-baseline-050",
+   "kind": "association",
+   "fingerprint": "1c37025fb177babe8be9c2ad441d7216b54a781117ebd641d4d9086915c12faf",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-10:problem-1:MODULE-DESIGN-DEPENDENCIES-DATA-FLOW:finding-1": {
+   "decision": "matched",
+   "reason": "promotion-recovery Dependencies and Data Flow 缺 Source/Authority 表",
+   "source": "pool sr-baseline:sr-baseline-052",
+   "kind": "association",
+   "fingerprint": "7a51b9445e9be117fd1f882ada2db03fd77cacd3ad92e9b7fea5166bfc5befee",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-10:problem-1:MODULE-DESIGN-DEPENDENCIES-DATA-FLOW:finding-1": {
+   "decision": "matched",
+   "reason": "promotion-recovery Dependencies and Data Flow 缺 Source/Authority 表",
+   "source": "pool sr-baseline:sr-baseline-053",
+   "kind": "association",
+   "fingerprint": "28d4a495e7229ddc202bca486c634768165e415c68be59dde74e451c077e9f83",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "matched",
+    "not-matched"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-2:unassociated:SPEC-READINESS-REQUIREMENTS:finding-1": {
+   "decision": "supported",
+   "reason": "unexpected-field 顺序缺位属实，但属 INTERFACES 的问题，本位置无对应用例",
+   "source": "pool sr-baseline:sr-baseline-054",
+   "kind": "finding",
+   "fingerprint": "bc7be8260aa19e8c3695dd35ba57a21609c90f9c1c3941dbdaebdc763726bf24",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2"
+   ]
+  },
+  "spec-readiness-reviewer:a2:scope-8:unassociated:MODULE-DESIGN-INTERFACES:finding-3": {
+   "decision": "supported",
+   "reason": "commit 失败的 failureCode 取值未枚举属实，但不对应所列用例（较难）",
+   "source": "pool sr-baseline:sr-baseline-056",
+   "kind": "finding",
+   "fingerprint": "5895cd95492ee7e130e26bf63e72d84a4619dfdb36f5d01e9974d35427f45564",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-2:unassociated:SPEC-READINESS-REQUIREMENTS:finding-2": {
+   "decision": "unsupported",
+   "reason": "对与交付无关的 export-retention 条件句质疑，条件句本身不是缺陷（较难）",
+   "source": "pool sr-baseline:sr-baseline-059",
+   "kind": "finding",
+   "fingerprint": "7569d3cba2adc90668176246042a3305df1e66e4c2a2fd7ca83082d56fe9bf0a",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2"
+   ]
+  },
+  "spec-readiness-reviewer:a3:scope-8:unassociated:MODULE-DESIGN-INTERFACES:finding-1": {
+   "decision": "supported",
+   "reason": "persistence preconditions 内容未定义属实，不对应所列用例",
+   "source": "pool sr-baseline:sr-baseline-060",
+   "kind": "finding",
+   "fingerprint": "62c5da018962279dc891c3957991ba4071d9079351289c97617f6eef36ce06ff",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6"
+   ]
+  },
+  "spec-readiness-reviewer:a1:scope-1:unassociated:SPEC-READINESS-INPUTS:finding-1": {
+   "decision": "unsupported",
+   "reason": "依据 git ls-files 的实时仓库内容，不是审核证据，且架构证据写明目标已存在",
+   "source": "pool sr-baseline:sr-baseline-061",
+   "kind": "finding",
+   "fingerprint": "0376900e758b37643a730057168a14e527d8cf52211f67edfdc961f536256b3e",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "unsupported",
+    "supported"
+   ]
+  },
+  "spec-readiness-reviewer:a3:scope-10:unassociated:MODULE-DESIGN-DEPENDENCIES-DATA-FLOW:finding-1": {
+   "decision": "supported",
+   "reason": "ADR 评估归并问题属实，但属 ADR-EVALUATION 的用例，本位置无对应",
+   "source": "pool sr-baseline:sr-baseline-063",
+   "kind": "finding",
+   "fingerprint": "17f81ba2d528743daa78d3b3bc3abbd36686c23d78dfca3a51016dcbdc1078d7",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2"
+   ]
+  },
+  "spec-readiness-reviewer:a3:scope-8:unassociated:MODULE-DESIGN-INTERFACES:finding-5": {
+   "decision": "unsupported",
+   "reason": "把 rollback 成功结果当成 persist 成功形状，前提有误，两种形状可区分（较难）",
+   "source": "pool sr-baseline:sr-baseline-064",
+   "kind": "finding",
+   "fingerprint": "65f2039ad0026ebcc202ba655c69c6439a3e43158ba9788b80aae9e09722f29a",
+   "brief_sha256": "ab1a1fbaedfe7a58ce41a1d73710e8563cc8509fcb710115061efdc4680315c5",
+   "allowedDecisions": [
+    "unsupported",
+    "supported",
+    "problem-1",
+    "problem-2",
+    "problem-3",
+    "problem-4",
+    "problem-5",
+    "problem-6"
+   ]
+  }
+ },
+ "history": []
+}

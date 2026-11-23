@@ -1,7 +1,0 @@
-{
- "id": "vram-512",
- "model": "IQ3_XXS",
- "model_overrides": {
-  "vram-reserve-mib": 512
- }
-}

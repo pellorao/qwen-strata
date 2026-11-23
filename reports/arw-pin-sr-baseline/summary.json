@@ -1,0 +1,36 @@
+{
+  "arw_commit": "6ca23a9d5b9d1116a9690bbbc39b42a408b8df07",
+  "scenario": "spec-readiness",
+  "effort": "high",
+  "instances": {
+    "a1": {
+      "final": 0.515403497922295,
+      "score": 0.515403497922295,
+      "cleanAcceptanceRate": 0.9523809523809523,
+      "problemDetectionRate": 0.5360384185572157,
+      "rawScore": 0.515403497922295,
+      "overallDeduction": 0
+    },
+    "a2": {
+      "final": 0.46176046176046187,
+      "score": 0.46176046176046187,
+      "cleanAcceptanceRate": 1,
+      "problemDetectionRate": 0.46176046176046187,
+      "rawScore": 0.46176046176046187,
+      "overallDeduction": 0
+    },
+    "a3": {
+      "final": 0.4009070294784581,
+      "score": 0.4009070294784581,
+      "cleanAcceptanceRate": 0.9761904761904762,
+      "problemDetectionRate": 0.40934858792001655,
+      "rawScore": 0.4009070294784581,
+      "overallDeduction": 0
+    }
+  },
+  "final_mean": 0.45935699638707167,
+  "final_sd": 0.057286061183139926,
+  "n": 3,
+  "decisions_file": "decisions.json",
+  "note": "final = ARW score after blind adjudication; recomputed from instance score.json (not kept in reports); decisions.json holds the adjudication decisions"
+}

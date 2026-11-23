@@ -175,9 +175,10 @@ def parse_result(stdout):
     return {'status': 'failed', 'stage': 'parse', 'stdout': stdout[-300:]}
 
 
-def run_instance(work, scenario, name, session='qs-arw', effort=EFFORT, popen=subprocess.Popen):
+def run_instance(work, scenario, name, session='qs-arw', effort=EFFORT, popen=subprocess.Popen, started=None):
     """One ARW instance; its directory is `<checkout>/.tmp/codex/<session>/<name>` (the Skill's layout: the recovery
-    records must stay inside the session's temporary directory).  Returns (ARW result, instance directory, seconds)."""
+    records must stay inside the session's temporary directory).  `started(process)` is called once the process runs, so
+    a caller can stop it.  Returns (ARW result, instance directory, seconds)."""
     checkout = arw_pin.ensure()
     instance = checkout / '.tmp/codex' / session / name
     if instance.exists():
@@ -187,6 +188,8 @@ def run_instance(work, scenario, name, session='qs-arw', effort=EFFORT, popen=su
     process = popen(run_command(checkout, scenario, instance, settings(effort=effort)), cwd=checkout,
                     env=environment(work, session), stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE, text=True, start_new_session=True)
+    if started is not None:
+        started(process)
     out, err = process.communicate()
     result = parse_result(out)
     if process.returncode in (124, 137):
