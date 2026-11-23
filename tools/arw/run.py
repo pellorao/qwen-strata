@@ -184,7 +184,7 @@ def run_instance(work, scenario, name, session='qs-arw', effort=EFFORT, popen=su
     if instance.exists():
         raise ValueError(f'{instance} exists; instance directories are new paths')
     instance.parent.mkdir(parents=True, exist_ok=True)
-    started = time.monotonic()
+    began = time.monotonic()
     process = popen(run_command(checkout, scenario, instance, settings(effort=effort)), cwd=checkout,
                     env=environment(work, session), stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE, text=True, start_new_session=True)
@@ -195,7 +195,7 @@ def run_instance(work, scenario, name, session='qs-arw', effort=EFFORT, popen=su
     if process.returncode in (124, 137):
         result = {'status': 'outer-timeout'}
     result.update(_rc=process.returncode, _stderr=err[-500:])
-    return result, instance, time.monotonic() - started
+    return result, instance, time.monotonic() - began
 
 
 def daemon_pid(work):
