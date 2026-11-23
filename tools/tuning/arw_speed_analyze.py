@@ -1,7 +1,6 @@
-"""Per-block engine speed from engine-log-since-deploy.txt; usage: analyze.py OUTDIR (contains blocks/rN-cond)."""
+"""Per-block engine speed from engine-log-since-deploy.txt; usage: python3 -m tools.tuning.arw_speed_analyze OUTDIR (contains blocks/rN-cond)."""
 import sys, json, re, statistics as st
 from pathlib import Path
-sys.path.insert(0, str(Path.home() / 'projects/qwen-strata'))
 from tools.metrics.strata_tokens import parse_engine_log
 out = Path(sys.argv[1]); rows = []
 for b in sorted((out / 'blocks').glob('r*-*')):

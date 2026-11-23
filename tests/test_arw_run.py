@@ -1,7 +1,9 @@
 """ARW run plumbing: port derivation, startup-prompt binding, result parsing and the provider config."""
 from pathlib import Path
 import sys
+import tempfile
 import unittest
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.arw import run as arw_run
@@ -40,6 +42,17 @@ class RunTests(unittest.TestCase):
         seen = []
         reply = arw_run.health('http://h:1', urlopen=lambda url, timeout: seen.append(url) or Reply())
         self.assertEqual((reply, seen), ({'lease': 'free'}, ['http://h:1/health']))
+
+    def test_run_instance_hands_the_process_to_the_started_callback(self):
+        process = mock.Mock(returncode=0)
+        process.communicate.return_value = ('{"status": "succeeded"}\n', '')
+        seen = []
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(arw_run.arw_pin, 'ensure', return_value=Path(tmp)), \
+                mock.patch.object(arw_run, 'run_command', return_value=['x']), mock.patch.object(arw_run, 'settings', return_value={}), \
+                mock.patch.object(arw_run, 'environment', return_value={}):
+            result, path, seconds = arw_run.run_instance('w', 's', 'a1', popen=lambda *a, **k: process, started=seen.append)
+        self.assertEqual((result['status'], seen), ('succeeded', [process]))
+        self.assertGreaterEqual(seconds, 0)
 
 
 if __name__ == '__main__':unittest.main()

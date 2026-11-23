@@ -175,24 +175,27 @@ def parse_result(stdout):
     return {'status': 'failed', 'stage': 'parse', 'stdout': stdout[-300:]}
 
 
-def run_instance(work, scenario, name, session='qs-arw', effort=EFFORT, popen=subprocess.Popen):
+def run_instance(work, scenario, name, session='qs-arw', effort=EFFORT, popen=subprocess.Popen, started=None):
     """One ARW instance; its directory is `<checkout>/.tmp/codex/<session>/<name>` (the Skill's layout: the recovery
-    records must stay inside the session's temporary directory).  Returns (ARW result, instance directory, seconds)."""
+    records must stay inside the session's temporary directory).  `started(process)` is called once the process runs, so
+    a caller can stop it.  Returns (ARW result, instance directory, seconds)."""
     checkout = arw_pin.ensure()
     instance = checkout / '.tmp/codex' / session / name
     if instance.exists():
         raise ValueError(f'{instance} exists; instance directories are new paths')
     instance.parent.mkdir(parents=True, exist_ok=True)
-    started = time.monotonic()
+    began = time.monotonic()
     process = popen(run_command(checkout, scenario, instance, settings(effort=effort)), cwd=checkout,
                     env=environment(work, session), stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE, text=True, start_new_session=True)
+    if started is not None:
+        started(process)
     out, err = process.communicate()
     result = parse_result(out)
     if process.returncode in (124, 137):
         result = {'status': 'outer-timeout'}
     result.update(_rc=process.returncode, _stderr=err[-500:])
-    return result, instance, time.monotonic() - started
+    return result, instance, time.monotonic() - began
 
 
 def daemon_pid(work):

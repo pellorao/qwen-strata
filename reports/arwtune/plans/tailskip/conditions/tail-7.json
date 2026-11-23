@@ -1,7 +1,0 @@
-{
- "id": "tail-7",
- "model": "IQ3_XXS",
- "model_environment": {
-  "STRATA_ROUTE_TAIL_SKIP": 7
- }
-}

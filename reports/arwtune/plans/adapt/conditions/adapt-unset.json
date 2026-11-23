@@ -1,7 +1,0 @@
-{
- "id": "adapt-unset",
- "model": "IQ3_XXS",
- "model_environment": {
-  "STRATA_ADAPT_LAG": null
- }
-}

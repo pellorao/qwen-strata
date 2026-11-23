@@ -4,14 +4,18 @@ Each instance is one pinned-ARW `run` (tools.arw.run).  After it the small resul
 `<out>/<name>/` (score.json, candidates.json, agent.json, run.json, the report) and the instance directory is removed.
 Void instances (`validity.status` void) are kept as `<name>` too, flagged, and do not count; the cell stops when the same
 void reason repeats twice (no-completion: three times), as the reviewer-capability Skill says.  The loaded startup prompt is
-checked against the project's against /health once the model is loaded and is recorded in `<out>/binding.json`.
+checked against the project's against /health at the first reading with a model loaded, while the instance runs: a mismatch
+stops the instance at once.  The binding is recorded in `<out>/binding.json`.  A cell resumes from an existing
+`<out>/records.json`: earlier valid instances count and the new ones are appended.
 
     python3 -m tools.arw.measure --work DIR --scenario spec-readiness --out OUT --count 3
 """
 import argparse
 import json
+import os
 from pathlib import Path
 import shutil
+import signal
 import subprocess
 import threading
 
@@ -47,11 +51,13 @@ def store(instance, target):
 
 
 class StartupWatch(threading.Thread):
-    """Poll /health during an instance; the first reading with a model loaded is the startup-prompt binding."""
+    """Poll /health during an instance; the first reading with a model loaded is the startup-prompt binding.
+    A mismatch calls `abort` at once, so a stale prompt does not run a whole instance."""
 
-    def __init__(self, expected, read=arw_run.health):
+    def __init__(self, expected, read=arw_run.health, abort=None):
         super().__init__(daemon=True)
-        self.expected, self.read, self.binding, self.stopped = expected, read, None, threading.Event()
+        self.expected, self.read, self.abort = expected, read, abort
+        self.binding, self.stopped = None, threading.Event()
 
     def run(self):
         while not self.stopped.wait(POLL if self.binding is None else 1e9):
@@ -61,6 +67,24 @@ class StartupWatch(threading.Thread):
                 continue
             if binding['ok'] is not None:
                 self.binding = binding
+                if not binding['ok'] and self.abort is not None:
+                    self.abort()
+
+
+def killer(processes):
+    """abort callback: stop the process group of the latest instance process."""
+    def abort():
+        if processes:
+            try:
+                os.killpg(processes[-1].pid, signal.SIGTERM)
+            except OSError:
+                pass
+    return abort
+
+
+def load_records(out):
+    path = Path(out) / 'records.json'
+    return json.loads(path.read_text()) if path.is_file() else []
 
 
 def run_cell(work, scenario, out, count, effort=arw_run.EFFORT, first=1, instance=arw_run.run_instance, max_starts=None):
@@ -70,14 +94,22 @@ def run_cell(work, scenario, out, count, effort=arw_run.EFFORT, first=1, instanc
     # max_starts: a caller that runs several cells by design (tuning blocks) states its own cap
     guard_runs.rate(f'qwen-strata/arw-cell-{scenario}', max_starts or count * 2 + 2, 6 * 3600)
     session = 'qs-' + arw_run.sha(str(out.resolve()).encode())[:8]  # one session directory per cell
-    records, valid, number, streak = [], 0, first, (None, 0)
+    records = load_records(out)  # resume: earlier instances count and stay in the records
+    valid = sum(1 for r in records if r['valid'])
+    number = max([first] + [int(r['name'][1:]) + 1 for r in records])
+    streak = (None, 0)
     with guard_runs.registered(f'qwen-strata/arw-{scenario}', 'codex', model=arw_run.model_id(), effort=effort):
         while valid < count:
             name = f'a{number}'
-            watch = StartupWatch(expected)
+            processes = []
+            watch = StartupWatch(expected, abort=killer(processes))
             watch.start()
-            result, path, seconds = instance(work, scenario, name, session=session, effort=effort)
+            result, path, seconds = instance(work, scenario, name, session=session, effort=effort, started=processes.append)
             watch.stopped.set()
+            if watch.binding is not None:
+                save(out / 'binding.json', watch.binding)
+                if not watch.binding['ok']:
+                    raise RuntimeError(f'startup prompt check failed: {watch.binding}')
             status, state = result.get('status'), validity(result)
             reason = None if state.get('valid') else (state.get('notes') or result.get('stage') or status)
             if status == 'succeeded' and path.exists():
@@ -87,10 +119,7 @@ def run_cell(work, scenario, out, count, effort=arw_run.EFFORT, first=1, instanc
             records.append(record)
             save(out / f'{name}-result.json', result)
             print(json.dumps(record, ensure_ascii=False), flush=True)
-            if watch.binding is not None:
-                save(out / 'binding.json', watch.binding)
-                if not watch.binding['ok']:
-                    raise RuntimeError(f'startup prompt check failed: {watch.binding}')
+            save(out / 'records.json', records)
             if seconds > 2 * EXPECTED_SECONDS:
                 raise RuntimeError(f'{name} took {seconds:.0f} s, over twice the expected {EXPECTED_SECONDS} s; check before continuing')
             number += 1
@@ -102,7 +131,7 @@ def run_cell(work, scenario, out, count, effort=arw_run.EFFORT, first=1, instanc
             if status != 'succeeded' or streak[1] >= VOID_STOP.get(word, 2):
                 save(out / 'records.json', records)
                 raise RuntimeError(f'stopped at {name}: {status} / {reason} (x{streak[1]}); see {out}')
-            if number - first >= count * 2:
+            if len(records) >= count * 2:
                 raise RuntimeError('more than twice the planned instances were needed')
     save(out / 'records.json', records)
     return records

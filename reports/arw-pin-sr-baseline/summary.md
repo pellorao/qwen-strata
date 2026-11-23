@@ -31,5 +31,5 @@
 - 首跑两次作废（inspect-blocked）：缺 CODEX_HOME 的模型目录，其后 `thread/start` 被拒（-32600）：Codex 的 `config.toml` 里没有 `[model_providers.qwen_strata]`。已在 `tools/arw/run.py` 的 `init` 里建私有 CODEX_HOME 并写这两项；作废实例不计入，不算上面的 3 个。
 - 安装目录的 `frontend.json` 没有 `listen_address`（固定 ARW 要求），沿用 arwtune 记的做法用影子视图，不改安装目录。
 
-## 盲裁交接（Main 或后续工作）
-盲池在 `.tmp/arwpin/pool/sr-baseline/`（47 个真实候选 + 19 个对照，`pool view`、`pool prompt` 已做；原始实例文件在 `.tmp/arwpin/sr-baseline/`）。用 ARW 的 `$reviewer-capability` 盲裁步骤：把 `adj/` 复制进裁判工作目录，用 `prompt.md` 启动裁判，得到 `decisions-sr-baseline.json` 后 `pool split <root> sr-baseline <decisions>`，再对每个实例 `score ... --decisions <root>/sr-baseline/decisions.json --no-repair --agent a<N>/agent.json --instance a<N>`，最后 `summary`。2026-11-22 已完成：盲裁 decisions 在 `.tmp/arwpin/pool/sr-baseline/decisions.json`（裁判原件在 `/tmp/qwen-strata/arwpin-judge/judge/adj/decisions-sr-baseline.json`，易失），各实例 `score.json` 已写定稿，分数见上。
+## 盲裁
+盲池（47 个真实候选加 19 个对照，锚点 12、合成对照 7）已全部裁定，裁判为 Sonnet 5.5 high，按 ARW `$reviewer-capability` 盲裁步骤做（`pool view`、`pool prompt`、裁判裁定、`pool split`，再对每个实例带 `--decisions --no-repair` 计分，最后 `summary`）。裁决原件在 `decisions.json`，三个实例的最终分和均值在 `summary.json`；盲池视图与原始实例文件不入库，不影响这些分数的复核（分数由 `decisions.json` 加实例的候选列表重算，候选列表随原始实例文件已清理，重算需重跑）。
