@@ -109,6 +109,16 @@ class WatchTests(unittest.TestCase):
             measure.killer([process])()
         killpg.assert_called_once_with(123, measure.signal.SIGTERM)
 
+    def test_abort_before_registration_stops_the_process_when_registered(self):
+        process = mock.Mock(pid=456)
+        processes = []
+        abort = measure.killer(processes)
+        with mock.patch.object(measure.os, 'killpg') as killpg:
+            abort()
+            killpg.assert_not_called()
+            abort.register(process)
+        killpg.assert_called_once_with(456, measure.signal.SIGTERM)
+
 
 class ProvisionalTests(unittest.TestCase):
     def test_scores_each_saved_report_and_keeps_the_answer(self):

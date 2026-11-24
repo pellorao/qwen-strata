@@ -1,6 +1,5 @@
 import sys,json,unittest
 from pathlib import Path
-from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import importlib.util,tempfile,hashlib
 from tools.tuning.resource_calibration import inspect_reply, classify_rows, experiment_schedule, frozen_inputs, load_facts, kv_facts, disk_read_delta
@@ -12,9 +11,6 @@ calibration_workload=importlib.util.module_from_spec(spec);spec.loader.exec_modu
 FAKE_VOCAB={'Ġ'+''.join(chr(97+(i//26**k)%26)for k in range(4))+'q':i for i in range(26000)}
 
 class ResourceCalibrationTests(unittest.TestCase):
-    def setUp(self):
-        pass
-
     def test_cpu_share_schedule_retains_only_approved_six_and_environment_change(self):
         root=Path(__file__).resolve().parents[1]
         plan=json.loads((root/'benchmarks/resource-calibration-v1/cpu-share-plan.json').read_text())
@@ -104,9 +100,6 @@ class ResourceCalibrationTests(unittest.TestCase):
 
 
 class LongContextWorkloadTests(unittest.TestCase):
-    def setUp(self):
-        pass
-
     def test_version1_is_unchanged_for_frozen_plans(self):
         plan=json.loads((ROOT/'benchmarks/resource-calibration-v1/iq3_xxs-night-2026-10-12/kv-long/plan-150k.json').read_text())
         workload=calibration_workload.build(3609)
@@ -283,9 +276,6 @@ class LongContextWorkloadTests(unittest.TestCase):
 
 
 class PleReadPathTests(unittest.TestCase):
-    def setUp(self):
-        pass
-
     def plan(self,name):return json.loads((ROOT/f'benchmarks/resource-calibration-v1/iq3_xxs-{name}-plan.json').read_text())
 
     def test_each_repetition_reads_unseen_text_and_targets_are_in_order(self):

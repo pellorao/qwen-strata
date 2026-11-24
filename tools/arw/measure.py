@@ -72,13 +72,26 @@ class StartupWatch(threading.Thread):
 
 
 def killer(processes):
-    """abort callback: stop the process group of the latest instance process."""
+    """abort callback: stop the process group of the latest instance process.  An abort that arrives before the
+    process is registered stays pending; `abort.register` (the instance's `started` callback) then stops it at once."""
+    pending = []
+
+    def stop(process):
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+        except OSError:
+            pass
+
     def abort():
+        pending.append(True)
         if processes:
-            try:
-                os.killpg(processes[-1].pid, signal.SIGTERM)
-            except OSError:
-                pass
+            stop(processes[-1])
+
+    def register(process):
+        processes.append(process)
+        if pending:
+            stop(process)
+    abort.register = register
     return abort
 
 
@@ -102,9 +115,10 @@ def run_cell(work, scenario, out, count, effort=arw_run.EFFORT, first=1, instanc
         while valid < count:
             name = f'a{number}'
             processes = []
-            watch = StartupWatch(expected, abort=killer(processes))
+            abort = killer(processes)
+            watch = StartupWatch(expected, abort=abort)
             watch.start()
-            result, path, seconds = instance(work, scenario, name, session=session, effort=effort, started=processes.append)
+            result, path, seconds = instance(work, scenario, name, session=session, effort=effort, started=abort.register)
             watch.stopped.set()
             if watch.binding is not None:
                 save(out / 'binding.json', watch.binding)

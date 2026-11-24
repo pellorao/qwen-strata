@@ -79,7 +79,7 @@ paths:
 ## 存放
 - `.tmp/`：运行副本、完整会话、请求响应、日志、逐项裁决、进行中的进展。
 - 每个实例跑完就清理残留（用户 2026-10-20，防止磁盘撑爆）：删掉场景仓库副本、prep、工作目录、`/tmp` 下属于本实例的条目，以及沙箱留下的占位目录。保留答案（报告），以及与临时目录无关的记录：会话历史（stream、rollout、machine.jsonl）、instance.json、日志、检查结果。删除前先确认会话检查、unexpected_changes 这类比对需要的内容已经产出。
-- `reports/`：只放**已结束**测量的摘要（`summary.md`）和可重算的完整精度数据（`summary.json`）。不放原始明细，测量未结束不发布。新的单机报告写入 `reports/<host>/<版本或主题>/`；已有报告保留原路径。
+- `reports/`：只放**已结束**测量的摘要（`summary.md`）和可重算的完整精度数据（`summary.json`）。不放原始明细，测量未结束不发布。新报告写入 `reports/<版本或主题>/`；已有报告保留原路径。
 - （v1 benchmark 的工具链已归档在 tag `reviewer-bench-v1`，这一条只作历史口径。）多模型 benchmark 的 `summary.json` 和公开结果文件（`benchmark-results.json`）只经工具链生成：`bench_records` → `bench_score` → `benchmark_summary` → `benchmark_export`，补测、加测也一样，不用临时脚本代写（用户 2026-10-23：第三阶段补充曾由临时脚本写出，耗时只到 0.1 分钟、没有引擎速度）。工具不支持新配置或新阶段时先改工具，再生成。
 - `benchmarks/`：场景、规则、冻结输入的源文件。
 - 长期文档和报告不得依赖 `.tmp/` 才能理解或重算。删除明细后无法重放的部分，要写明边界。

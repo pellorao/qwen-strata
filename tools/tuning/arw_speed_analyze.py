@@ -11,7 +11,7 @@ for b in sorted((out / 'blocks').glob('r*-*')):
         pre = [r['uncached'] / (r['prompt_ms'] / 1000) for r in rs if r['uncached'] >= 2000 and r['prompt_ms'] > 0]
         dec = [r['output'] / (r['decode_ms'] / 1000) for r in rs if r['output'] >= 50 and r['decode_ms'] > 0]
         return (round(st.median(pre), 1) if pre else None, len(pre), round(st.median(dec), 1) if dec else None, len(dec),
-                round(sum(r['output'] for r in rs) / (sum(r['decode_ms'] for r in rs) / 1000), 1) if rs else None)
+                round(sum(r['output'] for r in rs) / (sum(r['decode_ms'] for r in rs) / 1000), 1) if sum(r['decode_ms'] for r in rs) > 0 else None)
     warn = sorted({re.sub(r'\d+', 'N', l.strip())[:110] for l in log.splitlines() if re.search(r'not enough RAM|read from file|WARNING|warn', l, re.I)})
     big=[x for x in rec if x['uncached']>=2000]
     agg=round(sum(x['uncached'] for x in big)/(sum(x['prompt_ms'] for x in big)/1000)) if big else None
